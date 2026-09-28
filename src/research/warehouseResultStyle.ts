@@ -53,6 +53,33 @@ export type WarehouseResultStyle =
       nullStyle: "hatch"; nullColor: string; nullCount: number;
       sizeLegend: WarehouseSizeLegendEntry[];
       sizeTitle?: string; sizeUnit?: string | null; colorTitle?: string | null; colorUnit?: string | null;
+    }
+  | {
+      kind: "extrusion"; field: string; valueProperty: "_style_value"; method: "quantile" | "equal"; scheme: "sequential" | "diverging"; label: string;
+      breaks: number[]; colors: string[]; labels: string[]; min: number; max: number; valueKind: VizNumberKind; unit: string | null;
+      ramp: string; palette: WarehousePalette; nullStyle: "hatch"; nullColor: string; nullCount: number;
+      heightField: string; heightProperty: "_extrusion_height"; maxHeightM: number; heightMax: number;
+    }
+  | {
+      kind: "grid"; method: "h3" | "square"; resolution: number | null; cellMeters: number | null; weightField: string | null;
+      valueProperty: "_style_value"; countProperty: "_grid_count"; weightProperty: "_grid_weight" | null; idProperty: "_grid_id";
+      title: string; unit: string | null; valueKind: VizNumberKind;
+      ramp: string; palette: WarehousePalette; breaks: number[]; labels: string[]; min: number; max: number;
+      cellCount: number; pointCount: number; weightMissingCount: number; gapPx: number;
+      nullStyle: "hatch"; nullColor: string; nullCount: number;
+    }
+  | {
+      kind: "isochrone"; minutesField: string; rankProperty: "_iso_rank"; title: string; unit: string;
+      ramp: string; palette: WarehousePalette; levels: { value: number; rank: number; label: string }[];
+      fillOpacity: number; drawOrder: "largest-first"; nullStyle: "hatch"; nullColor: string; nullCount: number;
+    }
+  | {
+      kind: "flow"; valueField: string; labelField: string | null; source: "lines" | "points";
+      valueProperty: "_style_value"; flowValueProperty: "_flow_value"; widthProperty: "_flow_width";
+      title: string; unit: string | null; valueKind: VizNumberKind;
+      ramp: string; palette: WarehousePalette; breaks: number[]; labels: string[]; min: number; max: number;
+      widthMinPx: number; widthMaxPx: number; flowCount: number; animate: boolean; animateBelow: number; dotPx: number; dotOpacity: number;
+      droppedCount: number; nullStyle: "hatch"; nullColor: string; nullCount: number;
     };
 
 /** `hatch`/`gradient` are only set for a fill (choropleth/bivariate) null entry under
@@ -63,7 +90,15 @@ export type WarehouseStyleLegend =
   | { kind: "choropleth"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry }
   | { kind: "bivariate"; xLabel: string; yLabel: string; fillEntries: { label: string; color: string }[]; fillBreaks: number[]; sizeLegend: WarehouseSizeLegendEntry[]; nullEntry: WarehouseLegendNullEntry }
   | { kind: "heatmap"; title: string; gradient: string; note: string; nullEntry: WarehouseLegendNullEntry | null }
-  | { kind: "proportional"; sizeLabel: string; sizeLegend: WarehouseSizeLegendEntry[]; colorLegend: { title: string; entries: { label: string; color: string }[]; nullEntry: WarehouseLegendNullEntry } | null; excludedNote: string | null };
+  | { kind: "proportional"; sizeLabel: string; sizeLegend: WarehouseSizeLegendEntry[]; colorLegend: { title: string; entries: { label: string; color: string }[]; nullEntry: WarehouseLegendNullEntry } | null; excludedNote: string | null }
+  /** M7: identical shape to choropleth's legend (extrusion reuses choropleth's colour classification verbatim). */
+  | { kind: "extrusion"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry }
+  /** M6: same colour-bin shape as choropleth, plus the grid method (H3/square) for the legend caption. */
+  | { kind: "grid"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry }
+  /** M2 I1: nested brand-blue bands, one label per contour level (no colour-bin breaks — a small fixed level list instead). */
+  | { kind: "isochrone"; title: string; entries: { label: string; color: string }[] }
+  /** L2 F3: colour bins like choropleth (line colour classified by valueField), plus the animate flag for the legend's own hint text. */
+  | { kind: "flow"; title: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry; animate: boolean };
 
 const FIELD = /^[\p{L}_][\p{L}\p{N}_]{0,79}$/u;
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -83,6 +118,13 @@ const PROPORTIONAL_KEYS = ["kind", "sizeField", "colorField", "labelField", "siz
  *  field always exists), `colorTitle` falls back to `colorField` (nullable — a monochrome
  *  proportional has no colorField to title at all). */
 const PROPORTIONAL_TITLE_UNIT_KEYS = ["sizeTitle", "sizeUnit", "colorTitle", "colorUnit"] as const;
+/** M7 extrusion: choropleth's own shape, but every one of choropleth's *optional* stage-A keys is
+ *  required here (extrusion is brand new, no legacy caller ever omits them), plus the height fields. */
+const EXTRUSION_KEYS = [...CHOROPLETH_KEYS, "ramp", "palette", "nullStyle", "valueKind", "unit", "heightField", "heightProperty", "maxHeightM", "heightMax"];
+/** M6 grid: always emits its full shape (no stage-A back-compat), so every key is required. */
+const GRID_KEYS = ["kind", "method", "resolution", "cellMeters", "weightField", "valueProperty", "countProperty", "weightProperty", "idProperty", "title", "unit", "valueKind", "ramp", "palette", "breaks", "labels", "min", "max", "cellCount", "pointCount", "weightMissingCount", "gapPx", "nullStyle", "nullColor", "nullCount"];
+const ISOCHRONE_KEYS = ["kind", "minutesField", "rankProperty", "title", "unit", "ramp", "palette", "levels", "fillOpacity", "drawOrder", "nullStyle", "nullColor", "nullCount"];
+const FLOW_KEYS = ["kind", "valueField", "labelField", "source", "valueProperty", "flowValueProperty", "widthProperty", "title", "unit", "valueKind", "ramp", "palette", "breaks", "labels", "min", "max", "widthMinPx", "widthMaxPx", "flowCount", "animate", "animateBelow", "dotPx", "dotOpacity", "droppedCount", "nullStyle", "nullColor", "nullCount"];
 
 const isObject = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
 const field = (value: unknown): value is string => typeof value === "string" && FIELD.test(value) && !["__proto__", "constructor", "prototype"].includes(value);
@@ -230,6 +272,95 @@ function validateProportional(value: Record<string, unknown>): boolean {
   return true;
 }
 
+const nonNegativeInt = (value: unknown): value is number => Number.isInteger(value) && (value as number) >= 0;
+
+/** M7: extrusion is choropleth's own colour classification (never stage-A optional here — every
+ *  key, including `ramp`/`palette`/`nullStyle`/`valueKind`/`unit`, is required) plus its height fields. */
+function validateExtrusion(value: Record<string, unknown>): boolean {
+  if (!exactly(value, EXTRUSION_KEYS)) return false;
+  if (!field(value.field) || value.valueProperty !== "_style_value") return false;
+  if (!["quantile", "equal"].includes(value.method as string) || !["sequential", "diverging"].includes(value.scheme as string)) return false;
+  if (!text(value.label)) return false;
+  if (!finiteList(value.breaks, 0, 10)) return false;
+  if (!value.breaks.every((item, index, all) => index === 0 || item > all[index - 1]!)) return false;
+  if (!colorList(value.colors, 1, 12) || value.colors.length !== value.breaks.length + 1) return false;
+  if (!Array.isArray(value.labels) || value.labels.length !== value.colors.length || !value.labels.every(text)) return false;
+  if (!finite(value.min) || !finite(value.max) || value.min > value.max) return false;
+  if (!colorList([value.nullColor], 1, 1) || !count(value.nullCount)) return false;
+  if (!validRamp(value.ramp) || !validPalette(value.palette, value.colors.length) || value.nullStyle !== "hatch") return false;
+  if (!validNumberFormatKind(value.valueKind) || !optionalUnit(value.unit)) return false;
+  if (!field(value.heightField) || value.heightProperty !== "_extrusion_height") return false;
+  if (!finite(value.maxHeightM) || value.maxHeightM <= 0 || !finite(value.heightMax) || value.heightMax <= 0) return false;
+  return true;
+}
+
+/** M6: the engine already aggregated points into cells; this only classifies the aggregated
+ *  `_style_value` (point count, or the weight sum when `weightField` is set) with the shared
+ *  quantile/viridis classes, same shape as choropleth. */
+function validateGrid(value: Record<string, unknown>): boolean {
+  if (!exactly(value, GRID_KEYS)) return false;
+  if (!["h3", "square"].includes(value.method as string)) return false;
+  if (value.method === "h3") { if (!intRange(value.resolution, 7, 9) || value.cellMeters !== null) return false; }
+  else if (value.cellMeters !== 250 && value.cellMeters !== 500 || value.resolution !== null) return false;
+  if (value.weightField !== null && !field(value.weightField)) return false;
+  if (value.valueProperty !== "_style_value" || value.countProperty !== "_grid_count" || value.idProperty !== "_grid_id") return false;
+  if (value.weightField === null ? value.weightProperty !== null : value.weightProperty !== "_grid_weight") return false;
+  if (!text(value.title) || !optionalUnit(value.unit) || !validNumberFormatKind(value.valueKind)) return false;
+  if (!validRamp(value.ramp)) return false;
+  if (!finiteList(value.breaks, 0, 10)) return false;
+  if (!value.breaks.every((item, index, all) => index === 0 || item > all[index - 1]!)) return false;
+  if (!validPalette(value.palette, value.breaks.length + 1)) return false;
+  if (!Array.isArray(value.labels) || value.labels.length !== value.breaks.length + 1 || !value.labels.every(text)) return false;
+  if (!finite(value.min) || !finite(value.max) || value.min > value.max) return false;
+  if (!nonNegativeInt(value.cellCount) || !nonNegativeInt(value.pointCount) || !nonNegativeInt(value.weightMissingCount)) return false;
+  if (!finite(value.gapPx) || value.gapPx < 0) return false;
+  if (value.nullStyle !== "hatch" || !colorList([value.nullColor], 1, 1) || !count(value.nullCount)) return false;
+  return true;
+}
+
+/** M2 I1: nested brand-blue contour bands (pulse_isochrone polygons). `levels` is a small (1-4),
+ *  ascending, 0-indexed-by-rank list — rank 0 is the shortest time = the innermost, strongest stop. */
+function validateIsochrone(value: Record<string, unknown>): boolean {
+  if (!exactly(value, ISOCHRONE_KEYS)) return false;
+  if (!field(value.minutesField) || value.rankProperty !== "_iso_rank") return false;
+  if (!text(value.title) || !text(value.unit)) return false;
+  if (!validRamp(value.ramp)) return false;
+  const levels = value.levels;
+  if (!Array.isArray(levels) || levels.length < 1 || levels.length > 4) return false;
+  if (!levels.every((level, index) => isObject(level) && Object.keys(level).length === 3 && level.rank === index
+    && finite(level.value) && level.value > 0 && text(level.label)
+    && (index === 0 || level.value > (levels[index - 1] as { value: number }).value))) return false;
+  if (!validPalette(value.palette, levels.length)) return false;
+  if (!finite(value.fillOpacity) || value.fillOpacity < 0 || value.fillOpacity > 1) return false;
+  if (value.drawOrder !== "largest-first" || value.nullStyle !== "hatch") return false;
+  if (!colorList([value.nullColor], 1, 1) || !count(value.nullCount)) return false;
+  return true;
+}
+
+/** L2 F3: one line per origin -> destination, coloured/classified on `valueField` like choropleth;
+ *  width is sqrt-scaled to [widthMinPx, widthMaxPx]. `animate` (server-decided at < animateBelow
+ *  drawn flows) gates the F3 moving-dot layer; the browser must also respect prefers-reduced-motion. */
+function validateFlow(value: Record<string, unknown>): boolean {
+  if (!exactly(value, FLOW_KEYS)) return false;
+  if (!field(value.valueField)) return false;
+  if (value.labelField !== null && !field(value.labelField)) return false;
+  if (!["lines", "points"].includes(value.source as string)) return false;
+  if (value.valueProperty !== "_style_value" || value.flowValueProperty !== "_flow_value" || value.widthProperty !== "_flow_width") return false;
+  if (!text(value.title) || !optionalUnit(value.unit) || !validNumberFormatKind(value.valueKind)) return false;
+  if (!validRamp(value.ramp)) return false;
+  if (!finiteList(value.breaks, 0, 10)) return false;
+  if (!value.breaks.every((item, index, all) => index === 0 || item > all[index - 1]!)) return false;
+  if (!validPalette(value.palette, value.breaks.length + 1)) return false;
+  if (!Array.isArray(value.labels) || value.labels.length !== value.breaks.length + 1 || !value.labels.every(text)) return false;
+  if (!finite(value.min) || !finite(value.max) || value.min > value.max) return false;
+  if (!finite(value.widthMinPx) || value.widthMinPx < 0 || !finite(value.widthMaxPx) || value.widthMaxPx < value.widthMinPx) return false;
+  if (!nonNegativeInt(value.flowCount) || !nonNegativeInt(value.droppedCount)) return false;
+  if (typeof value.animate !== "boolean" || !nonNegativeInt(value.animateBelow)) return false;
+  if (!finite(value.dotPx) || value.dotPx < 0 || !finite(value.dotOpacity) || value.dotOpacity < 0 || value.dotOpacity > 1) return false;
+  if (value.nullStyle !== "hatch" || !colorList([value.nullColor], 1, 1) || !count(value.nullCount)) return false;
+  return true;
+}
+
 /** Mirrors the Gateway contract; anything else rejects the import rather than drawing a guess. */
 export function validateWarehouseResultStyle(value: unknown): WarehouseResultStyle {
   const fail = (): never => { throw new Error("WAREHOUSE_RESULT_STYLE_INVALID"); };
@@ -239,6 +370,10 @@ export function validateWarehouseResultStyle(value: unknown): WarehouseResultSty
   if (value.kind === "heatmap") return validateHeatmap(value) ? (value as WarehouseResultStyle) : fail();
   if (value.kind === "compare") return validateCompare(value) ? (value as WarehouseResultStyle) : fail();
   if (value.kind === "proportional") return validateProportional(value) ? (value as WarehouseResultStyle) : fail();
+  if (value.kind === "extrusion") return validateExtrusion(value) ? (value as WarehouseResultStyle) : fail();
+  if (value.kind === "grid") return validateGrid(value) ? (value as WarehouseResultStyle) : fail();
+  if (value.kind === "isochrone") return validateIsochrone(value) ? (value as WarehouseResultStyle) : fail();
+  if (value.kind === "flow") return validateFlow(value) ? (value as WarehouseResultStyle) : fail();
   return fail();
 }
 
@@ -249,17 +384,25 @@ function resolvePalette(style: { colors: string[]; palette?: WarehousePalette },
   return style.palette ? style.palette[theme] : style.colors;
 }
 
-/** A choropleth/bivariate-null feature (missing `_style_value`), used to draw the hatch overlay
- *  layer over exactly the same features the colour expression leaves transparent. Both kinds share
- *  the same `valueProperty` name and null semantics. */
-export function warehouseFillNullFilter(style: Extract<WarehouseResultStyle, { kind: "choropleth" | "bivariate" }>): ExpressionSpecification {
+/** A choropleth/bivariate/grid/extrusion-null feature (missing `_style_value`), used to draw the
+ *  hatch overlay layer over exactly the same features the colour expression leaves transparent.
+ *  All four kinds share the same `valueProperty` name and null semantics. */
+export function warehouseFillNullFilter(style: Extract<WarehouseResultStyle, { kind: "choropleth" | "bivariate" | "grid" | "extrusion" }>): ExpressionSpecification {
   return ["!=", ["typeof", ["get", style.valueProperty]], "number"] as unknown as ExpressionSpecification;
+}
+
+/** Shared `step` colour scale over ascending `breaks`, reading `valueProperty`; a single-class style
+ *  (no breaks) is just its one colour. Used by choropleth/grid/extrusion (their step-classified fill)
+ *  and flow (its line colour) — all four classify a `_style_value`/`valueField` the same way. */
+function stepColorExpression(valueProperty: string, breaks: readonly number[], colors: readonly string[]): unknown {
+  const value = ["get", valueProperty];
+  return breaks.length === 0 ? colors[0]! : ["step", value, colors[0]!, ...breaks.flatMap((threshold, index) => [threshold, colors[index + 1]!])];
 }
 
 function choroplethColor(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, theme: Theme): ExpressionSpecification {
   const colors = resolvePalette(style, theme);
   const value = ["get", style.valueProperty];
-  const scale: unknown = style.breaks.length === 0 ? colors[0]! : ["step", value, colors[0]!, ...style.breaks.flatMap((threshold, index) => [threshold, colors[index + 1]!])];
+  const scale = stepColorExpression(style.valueProperty, style.breaks, colors);
   // Under nullStyle "hatch" the pattern layer (analysisResultOverlay.ts) owns the null pixels; this
   // layer leaves them fully transparent instead of painting a solid grey underneath the hatch.
   const nullColor = style.nullStyle === "hatch" ? "rgba(0,0,0,0)" : style.nullColor;
@@ -271,8 +414,62 @@ function choroplethColor(style: Extract<WarehouseResultStyle, { kind: "choroplet
 function bivariateFillColor(style: Extract<WarehouseResultStyle, { kind: "bivariate" }>, theme: Theme): ExpressionSpecification {
   const colors = style.palette[theme];
   const value = ["get", style.valueProperty];
-  const scale: unknown = style.breaks.length === 0 ? colors[0]! : ["step", value, colors[0]!, ...style.breaks.flatMap((threshold, index) => [threshold, colors[index + 1]!])];
+  const scale = stepColorExpression(style.valueProperty, style.breaks, colors);
   return ["case", ["==", ["typeof", value], "number"], scale, "rgba(0,0,0,0)"] as unknown as ExpressionSpecification;
+}
+
+/** M6 grid fill colour: same step-classification shape as choropleth (cells the engine already
+ *  aggregated); null (an empty cell never reaches here — the engine never emits one — but a
+ *  weighted cell can still miss a weight) is left transparent for the shared hatch layer. */
+function gridColor(style: Extract<WarehouseResultStyle, { kind: "grid" }>, theme: Theme): ExpressionSpecification {
+  const colors = style.palette[theme];
+  const value = ["get", style.valueProperty];
+  const scale = stepColorExpression(style.valueProperty, style.breaks, colors);
+  return ["case", ["==", ["typeof", value], "number"], scale, "rgba(0,0,0,0)"] as unknown as ExpressionSpecification;
+}
+
+/** M7 extrusion fill/wall colour: identical step-classification to choropleth (extrusion's colour
+ *  and height are independent — a polygon with a valid colour can still have a null height, see
+ *  `warehouseExtrusionHeightFilter`). */
+function extrusionColor(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>, theme: Theme): ExpressionSpecification {
+  const colors = style.palette[theme];
+  const value = ["get", style.valueProperty];
+  const scale = stepColorExpression(style.valueProperty, style.breaks, colors);
+  return ["case", ["==", ["typeof", value], "number"], scale, "rgba(0,0,0,0)"] as unknown as ExpressionSpecification;
+}
+
+/** M7: a polygon whose height field was missing/negative gets no `_extrusion_height` at all (spec:
+ *  「null 高度不畫」) — this filter keeps the fill-extrusion layer to exactly the drawable rows. */
+export function warehouseExtrusionHeightFilter(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>): ExpressionSpecification {
+  return ["==", ["typeof", ["get", style.heightProperty]], "number"] as unknown as ExpressionSpecification;
+}
+
+/** M2 I1: `_iso_rank` (0 = shortest/innermost) selects the matching palette stop. */
+function isochroneFillColor(style: Extract<WarehouseResultStyle, { kind: "isochrone" }>, theme: Theme): ExpressionSpecification {
+  const colors = style.palette[theme];
+  const cases = style.levels.flatMap(level => [level.rank, colors[level.rank]!]);
+  return ["match", ["get", style.rankProperty], ...cases, "rgba(0,0,0,0)"] as unknown as ExpressionSpecification;
+}
+
+/** "大的先畫" (largest-first): the longest-time / outermost band (highest rank) gets the lowest
+ *  (most negative) sort key, so it draws first / sits underneath; the shortest/innermost band sits
+ *  on top. Mirrors `warehouseProportionalSortKey`'s "lower sort key draws first" convention. */
+export function warehouseIsochroneSortKey(style: Extract<WarehouseResultStyle, { kind: "isochrone" }>): ExpressionSpecification {
+  return ["-", 0, ["get", style.rankProperty]] as unknown as ExpressionSpecification;
+}
+
+/** L2 F3 line colour: same step-classification as choropleth, keyed by the line's own classified value. */
+function flowLineColor(style: Extract<WarehouseResultStyle, { kind: "flow" }>, theme: Theme): ExpressionSpecification {
+  const colors = style.palette[theme];
+  const value = ["get", style.valueProperty];
+  const scale = stepColorExpression(style.valueProperty, style.breaks, colors);
+  return ["case", ["==", ["typeof", value], "number"], scale, "rgba(0,0,0,0)"] as unknown as ExpressionSpecification;
+}
+
+/** A flow row with no usable width (missing/non-positive valueField) is never drawn at all — the
+ *  line, its W1 outline, its endpoint dot and its F3 animated dots are all filtered by this. */
+export function warehouseFlowWidthFilter(style: Extract<WarehouseResultStyle, { kind: "flow" }>): ExpressionSpecification {
+  return ["==", ["typeof", ["get", style.widthProperty]], "number"] as unknown as ExpressionSpecification;
 }
 
 /** Heatmap paint; missing weights are filtered out by warehouseHeatmapFilter, never weighted as 0. */
@@ -388,6 +585,33 @@ function heatmapLegend(style: Extract<WarehouseResultStyle, { kind: "heatmap" }>
   };
 }
 
+/** M7: identical shape to choroplethLegend — extrusion's colour classification is choropleth's own,
+ *  just tagged with its own legend `kind` so the view can (if it ever needs to) tell them apart. */
+function extrusionLegend(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>, theme: Theme): WarehouseStyleLegend {
+  const colors = style.palette[theme];
+  return { kind: "extrusion", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) } };
+}
+
+/** M6: same colour-bin shape as choropleth, plus a caption naming the grid method/resolution. */
+function gridLegend(style: Extract<WarehouseResultStyle, { kind: "grid" }>, theme: Theme): WarehouseStyleLegend {
+  const colors = style.palette[theme];
+  const method = style.method === "h3" ? `H3 網格（res ${style.resolution}）` : `方格網格（${style.cellMeters} 公尺）`;
+  return { kind: "grid", title: titleWithUnit(style.title, style.unit), method, entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) } };
+}
+
+/** M2 G1: one entry per contour level (spec "圖例列出 levels 的 label"), no colour-bin breaks. */
+function isochroneLegend(style: Extract<WarehouseResultStyle, { kind: "isochrone" }>, theme: Theme): WarehouseStyleLegend {
+  const colors = style.palette[theme];
+  return { kind: "isochrone", title: style.title, entries: style.levels.map(level => ({ label: `${level.label}${style.unit}`, color: colors[level.rank]! })) };
+}
+
+/** L2: same colour-bin shape as choropleth (the line's classified valueField), plus the server's
+ *  `animate` decision so the legend can hint at the F3 moving-dot behaviour. */
+function flowLegend(style: Extract<WarehouseResultStyle, { kind: "flow" }>, theme: Theme): WarehouseStyleLegend {
+  const colors = style.palette[theme];
+  return { kind: "flow", title: titleWithUnit(style.title, style.unit), entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, animate: style.animate };
+}
+
 function proportionalLegend(style: Extract<WarehouseResultStyle, { kind: "proportional" }>, theme: Theme): WarehouseStyleLegend {
   const colorLegend = style.colorField ? {
     title: titleWithUnit(style.colorTitle ?? style.colorField, style.colorUnit),
@@ -460,6 +684,38 @@ function proportionalFact(style: Extract<WarehouseResultStyle, { kind: "proporti
   return { label: `${sizeLabel}${colorLabel ? ` × ${colorLabel}` : ""}`, value: parts.join("；") };
 }
 
+/** M7: choropleth fact + a second "高度指標" part joined the same way proportional/bivariate/compare
+ *  already join multiple pieces into the single styleFactLabel/Value channel (spec: "popup 同
+ *  choropleth 加「高度指標」" — this UI only carries one label/value pair per feature). The raw
+ *  heightField source value is shown (not the rendered `_extrusion_height` metres), since that is
+ *  the quantity the reader actually asked about. */
+function extrusionFact(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
+  const valueText = withUnit(show(properties[style.valueProperty], null, style.valueKind), style.unit);
+  return { label: style.label, value: `${valueText}；高度指標: ${show(properties[style.heightField])}` };
+}
+
+/** M6 popup order (spec §2): 格內件數 → 占全部 % → 權重（有才顯示）. */
+function gridFact(style: Extract<WarehouseResultStyle, { kind: "grid" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
+  const countValue = properties[style.countProperty];
+  const countNum = typeof countValue === "number" && Number.isFinite(countValue) ? countValue : null;
+  const parts = [`件數: ${countNum !== null ? formatVizNumber(countNum, "count") : "無資料"}`];
+  if (countNum !== null && style.pointCount > 0) parts.push(`占全部: ${formatVizNumber((countNum / style.pointCount) * 100, "percent")}`);
+  if (style.weightProperty) parts.push(`權重: ${withUnit(show(properties[style.weightProperty], null, style.valueKind), style.unit)}`);
+  return { label: style.title, value: parts.join("；") };
+}
+
+/** M2: the ranked contour band this polygon belongs to, e.g. "15 分鐘". */
+function isochroneFact(style: Extract<WarehouseResultStyle, { kind: "isochrone" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
+  const rank = properties[style.rankProperty];
+  const level = typeof rank === "number" ? style.levels.find(candidate => candidate.rank === rank) : undefined;
+  return { label: style.title, value: level ? `${level.label}${style.unit}` : "無資料" };
+}
+
+/** L2: the flow's own classified value (a row excluded by `warehouseFlowWidthFilter` never reaches a rendered popup). */
+function flowFact(style: Extract<WarehouseResultStyle, { kind: "flow" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
+  return { label: style.title, value: withUnit(show(properties[style.valueProperty], null, style.valueKind), style.unit) };
+}
+
 /** Per-kind registry: validate + colour/paint + legend + fact. The exported functions below are its
  *  typed, kind-narrowed callers — kept so existing call sites never need to touch a registry directly. */
 export const WAREHOUSE_STYLE_RENDERERS = {
@@ -468,11 +724,20 @@ export const WAREHOUSE_STYLE_RENDERERS = {
   heatmap: { validate: validateHeatmap, paint: heatmapPaint, filter: heatmapFilter, legend: heatmapLegend, fact: heatmapFact },
   compare: { validate: validateCompare, fact: compareFact },
   proportional: { validate: validateProportional, color: proportionalCircleColor, legend: proportionalLegend, fact: proportionalFact },
+  extrusion: { validate: validateExtrusion, color: extrusionColor, legend: extrusionLegend, fact: extrusionFact },
+  grid: { validate: validateGrid, color: gridColor, legend: gridLegend, fact: gridFact },
+  isochrone: { validate: validateIsochrone, color: isochroneFillColor, legend: isochroneLegend, fact: isochroneFact },
+  flow: { validate: validateFlow, color: flowLineColor, legend: flowLegend, fact: flowFact },
 } as const;
 
-/** Fill colour: `step` over the server breaks for choropleth or bivariate's x-fill. */
+/** Fill/line colour: `step` (or, for isochrone, `match`-on-rank) over the server's classification. */
 export function warehouseStyleColor(style: Exclude<WarehouseResultStyle, { kind: "heatmap" | "compare" | "proportional" }>, theme: Theme = "dark"): ExpressionSpecification {
-  return style.kind === "choropleth" ? WAREHOUSE_STYLE_RENDERERS.choropleth.color(style, theme) : WAREHOUSE_STYLE_RENDERERS.bivariate.color(style, theme);
+  if (style.kind === "choropleth") return WAREHOUSE_STYLE_RENDERERS.choropleth.color(style, theme);
+  if (style.kind === "bivariate") return WAREHOUSE_STYLE_RENDERERS.bivariate.color(style, theme);
+  if (style.kind === "grid") return WAREHOUSE_STYLE_RENDERERS.grid.color(style, theme);
+  if (style.kind === "extrusion") return WAREHOUSE_STYLE_RENDERERS.extrusion.color(style, theme);
+  if (style.kind === "isochrone") return WAREHOUSE_STYLE_RENDERERS.isochrone.color(style, theme);
+  return WAREHOUSE_STYLE_RENDERERS.flow.color(style, theme);
 }
 
 export function warehouseHeatmapPaint(style: Extract<WarehouseResultStyle, { kind: "heatmap" }>, opacity: number, theme: Theme = "dark"): Record<string, unknown> {
@@ -496,6 +761,10 @@ export function warehouseStyleLegend(style: Exclude<WarehouseResultStyle, { kind
   if (style.kind === "choropleth") return WAREHOUSE_STYLE_RENDERERS.choropleth.legend(style, theme);
   if (style.kind === "bivariate") return WAREHOUSE_STYLE_RENDERERS.bivariate.legend(style, theme, rows);
   if (style.kind === "proportional") return WAREHOUSE_STYLE_RENDERERS.proportional.legend(style, theme);
+  if (style.kind === "extrusion") return WAREHOUSE_STYLE_RENDERERS.extrusion.legend(style, theme);
+  if (style.kind === "grid") return WAREHOUSE_STYLE_RENDERERS.grid.legend(style, theme);
+  if (style.kind === "isochrone") return WAREHOUSE_STYLE_RENDERERS.isochrone.legend(style, theme);
+  if (style.kind === "flow") return WAREHOUSE_STYLE_RENDERERS.flow.legend(style, theme);
   return WAREHOUSE_STYLE_RENDERERS.heatmap.legend(style, theme);
 }
 
@@ -505,5 +774,9 @@ export function warehouseStyleFact(style: WarehouseResultStyle, properties: Reco
   if (style.kind === "bivariate") return WAREHOUSE_STYLE_RENDERERS.bivariate.fact(style, properties);
   if (style.kind === "heatmap") return WAREHOUSE_STYLE_RENDERERS.heatmap.fact(style, properties);
   if (style.kind === "proportional") return WAREHOUSE_STYLE_RENDERERS.proportional.fact(style, properties);
+  if (style.kind === "extrusion") return WAREHOUSE_STYLE_RENDERERS.extrusion.fact(style, properties);
+  if (style.kind === "grid") return WAREHOUSE_STYLE_RENDERERS.grid.fact(style, properties);
+  if (style.kind === "isochrone") return WAREHOUSE_STYLE_RENDERERS.isochrone.fact(style, properties);
+  if (style.kind === "flow") return WAREHOUSE_STYLE_RENDERERS.flow.fact(style, properties);
   return WAREHOUSE_STYLE_RENDERERS.compare.fact(style, properties);
 }

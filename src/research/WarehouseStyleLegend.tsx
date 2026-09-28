@@ -29,8 +29,8 @@ function SizeLegendCircles({ entries }: { entries: WarehouseSizeLegendEntry[] })
 
 /** G2 精簡版: only the title and the colour bar (no breaks, classes, null entry or size circles). */
 function CompactStyleLegend({ legend }: { legend: WarehouseStyleLegend }) {
-  const title = legend.kind === "choropleth" || legend.kind === "heatmap" ? legend.title : legend.kind === "bivariate" ? `填色：${legend.xLabel} · 大小：${legend.yLabel}` : legend.colorLegend?.title ?? legend.sizeLabel;
-  const entries = legend.kind === "choropleth" ? legend.entries : legend.kind === "bivariate" ? legend.fillEntries : legend.kind === "proportional" ? legend.colorLegend?.entries ?? [] : [];
+  const title = legend.kind === "bivariate" ? `填色：${legend.xLabel} · 大小：${legend.yLabel}` : legend.kind === "proportional" ? legend.colorLegend?.title ?? legend.sizeLabel : legend.title;
+  const entries = legend.kind === "bivariate" ? legend.fillEntries : legend.kind === "proportional" ? legend.colorLegend?.entries ?? [] : legend.kind === "heatmap" ? [] : legend.entries;
   return <div className="agent-analysis-count-legend agent-style-legend agent-style-legend--compact" data-style-kind={legend.kind}>
     <span>{title}</span>
     {legend.kind === "heatmap"
@@ -50,6 +50,30 @@ export function WarehouseStyleLegendView({ legend, compact = false }: { legend: 
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
       <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
       <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
+    </div>;
+  }
+  if (legend.kind === "extrusion" || legend.kind === "grid") {
+    const empty = <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
+    return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind={legend.kind}>
+      <span>{legend.title} · {legend.method}</span>
+      <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
+      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
+      <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
+    </div>;
+  }
+  if (legend.kind === "flow") {
+    const empty = <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
+    return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="flow">
+      <span>{legend.title}{legend.animate ? "" : "（流量較多，暫不啟用流動效果）"}</span>
+      <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
+      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
+      <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
+    </div>;
+  }
+  if (legend.kind === "isochrone") {
+    return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="isochrone">
+      <span>{legend.title}</span>
+      <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div>
     </div>;
   }
   if (legend.kind === "bivariate") {

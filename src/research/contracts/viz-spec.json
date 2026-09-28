@@ -58,6 +58,9 @@
     "bivariate": { "mode": "fill-and-size", "fillRamp": "viridis", "sizeScale": "sqrt", "topN": 8, "sizeStrokePx": 1.4, "sizeStroke": { "dark": "#f3f4f6", "light": "#111827" } },
     "proportional": { "ramp": "viridis", "sizeScale": "sqrt", "rMinPx": 4, "rMaxPx": 28, "fillOpacity": 0.75, "ringPx": 1, "labelTopN": 5, "drawOrder": "largest-first" },
     "isochrone": { "ramp": "brand", "minutes": [10, 15, 20], "fillOpacity": 0.3 },
+    "flow": { "ramp": "viridis", "widthPx": { "min": 1, "max": 6 }, "animateBelow": 30, "dotPx": 1.8, "dotOpacity": 0.5 },
+    "grid": { "ramp": "viridis", "h3": { "resolutions": [7, 8, 9], "default": 8 }, "square": { "cellMeters": [250, 500], "default": 500 }, "gapPx": 1 },
+    "extrusion": { "ramp": "viridis", "maxHeightM": 3000 },
     "points": { "radiusPx": { "s": 3, "m": 4.5, "l": 6.5, "selected": 8 }, "sizeThresholds": { "s": 2000, "l": 50 }, "ringPx": 1 }
   },
   "numberFormat": {
