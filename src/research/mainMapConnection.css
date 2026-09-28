@@ -48,8 +48,6 @@
 .main-map-agent .agent-analysis-count-legend > div { display: flex; flex-wrap: wrap; gap: 3px 7px; margin-top: 2px; }
 .main-map-agent .agent-analysis-count-legend > div span { display: inline-flex; align-items: center; gap: 3px; }
 .main-map-agent .agent-analysis-count-legend i { width: 8px; height: 8px; border: 1px solid var(--agent-text); border-radius: var(--radius-full); box-shadow: 0 0 0 1px var(--agent-border); }
-.main-map-agent .agent-analysis-scope-legend { display: flex; align-items: center; gap: 5px; margin: 4px 0 0; color: var(--agent-muted); font-size: var(--font-sm); line-height: 1.45; }
-.main-map-agent .agent-analysis-scope-legend i { display: inline-block; width: 14px; border-top: 1.5px dashed var(--agent-text); }
 .main-map-agent .agent-analysis-results li { display: block; padding: 5px 0; }
 .main-map-agent .agent-analysis-groups { margin: 8px 0; padding: 6px 0; border: 0; border-top: 1px solid var(--agent-border); }
 .main-map-agent .agent-analysis-groups legend { padding: 0; color: var(--agent-muted); font-size: var(--font-sm); }
@@ -141,17 +139,16 @@
 .main-map-agent .research-pairing > p { display: inline-block; max-width: calc(100% - 52px); margin-right: 8px; }
 .main-map-agent .research-pairing > strong { display: block; }
 .main-map-agent .research-pairing > button { padding: 3px 7px; }
-.main-map-agent .agent-style-legend__bar { display: flex; height: 8px; margin-top: 3px; border-radius: var(--radius-sm); overflow: hidden; }
-.main-map-agent .agent-style-legend__bar b { flex: 1 1 0; }
-.main-map-agent .agent-style-legend__breaks { display: flex; justify-content: space-around; }
-.main-map-agent .agent-style-legend__bivariate { display: grid; grid-template-columns: auto 42px; grid-template-rows: 42px auto; gap: 2px 4px; align-items: center; margin-top: 3px; }
-.main-map-agent .agent-style-legend__y { grid-column: 1; grid-row: 1; }
-.main-map-agent .agent-style-legend__grid { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: repeat(3, 14px); grid-template-rows: repeat(3, 14px); }
-.main-map-agent .agent-style-legend__x { grid-column: 2; grid-row: 2; white-space: nowrap; }
-.main-map-agent .agent-style-legend__null i { border-radius: var(--radius-sm); }
 .main-map-agent .agent-compare-table__grid { width: 100%; margin-top: 4px; border-collapse: collapse; font-size: var(--font-sm); }
 .main-map-agent .agent-compare-table__grid th, .main-map-agent .agent-compare-table__grid td { padding: 2px 4px; text-align: right; border-bottom: 1px solid var(--agent-border); font-variant-numeric: tabular-nums; }
 .main-map-agent .agent-compare-table__grid th[scope="row"] { text-align: left; font-weight: var(--font-weight-regular); color: var(--agent-text); }
 .main-map-agent .agent-compare-table__column { background: none; border: none; padding: 0; color: inherit; text-decoration: underline dotted; cursor: pointer; font-size: var(--font-sm); }
 .main-map-agent .agent-compare-table__best { font-weight: var(--font-weight-bold); color: var(--agent-text); }
 .main-map-agent .agent-compare-table__muted { color: var(--agent-muted); }
+
+/* I1 hover tip: portaled into the map container (outside .main-map-agent), one line 名稱＋數值. */
+.analysis-hover-tip { position: absolute; left: 0; top: 0; z-index: 5; display: flex; align-items: baseline; gap: 6px; max-width: 260px; padding: 3px 7px; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--surface-solid); border: 1px solid var(--border-panel); border-radius: var(--radius-md); color: var(--text-strong); font-family: var(--font-cjk); font-size: var(--font-sm); line-height: 1.4; }
+.analysis-hover-tip[hidden] { display: none; }
+.analysis-hover-tip__name { overflow: hidden; text-overflow: ellipsis; }
+.analysis-hover-tip__value { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.analysis-hover-tip--light { --surface-solid: var(--light-surface-solid); --border-panel: var(--light-border); --text-strong: var(--light-text-strong); --text-muted: var(--light-text-muted); }

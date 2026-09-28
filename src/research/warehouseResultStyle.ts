@@ -2,6 +2,8 @@ import type { ExpressionSpecification } from "mapbox-gl";
 import { VIZ_SPEC, categoricalFor, nullHatchCssGradient, type Theme } from "./vizSpec";
 import { classifyVizNumberKind, formatVizNumber, type VizNumberKind } from "./vizFormat";
 
+const VIZ_NULL_TEXT = formatVizNumber(null, "count");
+
 /**
  * Styling metadata computed by the MCP warehouse (pulse_wh_present `style`). Breaks, colours and
  * labels arrive ready-made; the browser validates their shape and applies them verbatim — it never
@@ -329,8 +331,10 @@ function titleWithUnit(title: string, unit: string | null | undefined): string {
 
 /** Appends a server-declared unit after a formatted popup value (spec N1 "有單位必寫"), e.g.
  *  "27,450 人/km²". Skipped for a "%" unit — a percent-kind value already carries its own trailing
- *  "%" from formatVizNumber, so appending again would double it. */
+ *  "%" from formatVizNumber, so appending again would double it. A missing value stays plain
+ *  「無資料」 with no unit. */
 function withUnit(valueText: string, unit: string | null | undefined): string {
+  if (valueText === VIZ_NULL_TEXT) return valueText;
   return unit && unit !== "%" ? `${valueText} ${unit}` : valueText;
 }
 

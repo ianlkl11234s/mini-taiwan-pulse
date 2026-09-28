@@ -3,8 +3,10 @@ import type { ExpressionSpecification, GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
 import type { ResultCollection } from "./bridgeClient";
+import type { AnalysisStackKind } from "./analysisResultStack";
 import { VIZ_SPEC, bivariateSizeStrokeFor, type Theme } from "./vizSpec";
 import { ensureNullHatchImage } from "./vizNullPattern";
+import { SELECTION_RING } from "../styles/designTokens";
 import { TITLE_KEYS } from "./researchResultPopup";
 import {
   warehouseFillNullFilter, warehouseHeatmapFilter, warehouseHeatmapPaint, warehouseProportionalColor, warehouseProportionalLabelFilter,
@@ -49,6 +51,38 @@ const SCOPE_ROLE_EXCLUDE_FILTER = ["!=", ["get", "_role"], "scope"] as unknown a
 const SCOPE_RING_COLOR = "#e2e8f0";
 const HEAT_POINTS_MINZOOM = 13;
 const reveals = new WeakMap<Map, globalThis.Map<number, () => void>>();
+/** Numeric per-row id promoted to the Mapbox feature id (`promoteId`), so feature-state (hover /
+ *  selected) can address a row: the GeoJSON `id` strings above are not feature-state keys. The
+ *  bivariate size source reuses the same row index, so one `_fid` addresses both sources. */
+export const FEATURE_ID_PROPERTY = "_fid";
+/** Polygon hover/selection outline (spec I1/I2: 2px 主色描邊), sharing the result's own source. */
+const edgeLayerId = (index: number) => `research-analysis-result-edge-${index}`;
+/** I1 hover / I2 selection emphasis: 2px stroke in the selection-ring accent (UI R2 主色). */
+export const ANALYSIS_EMPHASIS_WIDTH_PX = 2;
+/** S1: an area result that lost the single fill slot keeps only this neutral edge. */
+export const ANALYSIS_OUTLINE_ONLY_WIDTH_PX = 1.4;
+const TRANSPARENT = "rgba(0,0,0,0)";
+const HOVERED = ["boolean", ["feature-state", "hover"], false];
+const SELECTED = ["boolean", ["feature-state", "selected"], false];
+const EMPHASIZED = ["any", HOVERED, SELECTED] as unknown as ExpressionSpecification;
+/** I2 選取淡化：other rows of a result holding the docked-panel selection keep 35% of their opacity. */
+export const ANALYSIS_DIM_RATIO = 0.35;
+const hovered = new WeakMap<Map, AnalysisFeatureTarget>();
+/** Result slots currently dimmed around a selection, and the rows marked `selected` per map. */
+const dimmed = new WeakMap<Map, Set<number>>();
+const selectedTargets = new WeakMap<Map, AnalysisFeatureTarget[]>();
+const SOURCE_INDEX_PATTERN = /^research-analysis-result-(\d+)$/;
+
+/** One rendered row: its result source plus the promoted numeric feature id. */
+export type AnalysisFeatureTarget = { source: string; id: number };
+
+function emphasisAccent(theme: Theme): string { return SELECTION_RING[theme]; }
+
+/** Plain opacity, or — while this slot holds a selection — full for selected rows, ×0.35 for the rest.
+ *  Every opacity writer (reveal, slider, selection) goes through here so none can undo the dim. */
+function dimmable(map: Map, index: number, base: number): number | ExpressionSpecification {
+  return dimmed.get(map)?.has(index) ? ["case", SELECTED, base, base * ANALYSIS_DIM_RATIO] as unknown as ExpressionSpecification : base;
+}
 
 function isAnalysisScopeArea(result: PresentableResult): boolean { return result.datasetId === "derived:analysis-scope-area"; }
 function isAnalysisScopeCenter(result: PresentableResult): boolean { return result.datasetId === "derived:analysis-scope-center"; }
@@ -135,15 +169,15 @@ function collection(result: PresentableResult): FeatureCollection<Point | LineSt
     const geometry = row.geometry as { type?: unknown; coordinates?: unknown } | undefined;
     if (geometry?.type !== result.geometry.type) return [];
     if (geometry.type === "Polygon" || geometry.type === "MultiPolygon") {
-      return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: propertiesFor(row, result), geometry: geometry as Polygon | MultiPolygon }];
+      return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: { ...propertiesFor(row, result), [FEATURE_ID_PROPERTY]: rowIndex }, geometry: geometry as Polygon | MultiPolygon }];
     }
     if (geometry.type === "LineString" || geometry.type === "MultiLineString") {
-      return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: propertiesFor(row, result), geometry: geometry as LineString | MultiLineString }];
+      return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: { ...propertiesFor(row, result), [FEATURE_ID_PROPERTY]: rowIndex }, geometry: geometry as LineString | MultiLineString }];
     }
     if (geometry.type !== "Point" || !Array.isArray(geometry.coordinates) || geometry.coordinates.length !== 2) return [];
     const [lng, lat] = geometry.coordinates;
     if (typeof lng !== "number" || !Number.isFinite(lng) || typeof lat !== "number" || !Number.isFinite(lat)) return [];
-    return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: propertiesFor(row, result), geometry: { type: "Point", coordinates: [lng, lat] } }];
+    return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: { ...propertiesFor(row, result), [FEATURE_ID_PROPERTY]: rowIndex }, geometry: { type: "Point", coordinates: [lng, lat] } }];
   });
   return { type: "FeatureCollection", features };
 }
@@ -157,7 +191,7 @@ function bivariateSizeCollection(result: PresentableResult, style: Extract<Wareh
     if (!Array.isArray(anchor) || anchor.length !== 2) return [];
     const [lng, lat] = anchor;
     if (typeof lng !== "number" || !Number.isFinite(lng) || lng < -180 || lng > 180 || typeof lat !== "number" || !Number.isFinite(lat) || lat < -90 || lat > 90) return [];
-    return [{ type: "Feature", id: `${result.resultId}:size:${rowIndex}`, properties: propertiesFor(row, result), geometry: { type: "Point", coordinates: [lng, lat] } }];
+    return [{ type: "Feature", id: `${result.resultId}:size:${rowIndex}`, properties: { ...propertiesFor(row, result), [FEATURE_ID_PROPERTY]: rowIndex }, geometry: { type: "Point", coordinates: [lng, lat] } }];
   });
   return { type: "FeatureCollection", features };
 }
@@ -307,7 +341,8 @@ export function describeAnalysisResults(results: readonly PresentableResult[], t
 /** Transient result layers are independent of the permanent layer catalogue. `theme` follows the
  *  basemap (see vizSpec.ts `vizThemeForBasemap`); a basemap switch re-runs this (MainMapConnection's
  *  `style.load` redraw), so palette + null-hatch pattern always match the currently visible basemap. */
-export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity: number | AnalysisResultOpacity = 0.55, theme: Theme = "dark"): AnalysisResultPresentation[] {
+export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity: number | AnalysisResultOpacity = 0.55, theme: Theme = "dark", options: AnalysisInstallOptions = {}): AnalysisResultPresentation[] {
+  const outlineOnlyIds = new Set(options.outlineOnly ?? []);
   if (results.length > MAX_RESULTS) throw new Error("TOO_MANY_PRESENTED_RESULTS");
   // Validate every result before mutating Mapbox so a bad later result cannot
   // leave an earlier source partially updated.
@@ -316,11 +351,20 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (data.features.length !== result.rows.length) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
     return { result, data };
   });
+  // Rows are replaced (or the style was rebuilt): a previously hovered row id no longer means
+  // the same feature, so drop it rather than carry a stale highlight into the new data.
+  clearAnalysisHover(map);
+  // Selection is likewise re-applied by the caller (setAnalysisSelection) after an install.
+  // Mapbox keeps feature-state across GeoJSONSource#setData, so a reused slot must be un-selected
+  // explicitly or the new result's row with the same _fid would inherit the accent outline.
+  for (const target of selectedTargets.get(map) ?? []) setState(map, target, { selected: false });
+  dimmed.delete(map); selectedTargets.delete(map);
+  const accent = emphasisAccent(theme);
   const installed = prepared.map(({ result, data }, index) => {
     const resultOpacity = typeof opacity === "number" ? opacity : opacity.byResult[result.resultId] ?? opacity.defaultOpacity;
     cancelReveal(map, index);
     const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
-    if (source) source.setData(data); else map.addSource(sourceId(index), { type: "geojson", data });
+    if (source) source.setData(data); else map.addSource(sourceId(index), { type: "geojson", data, promoteId: FEATURE_ID_PROPERTY });
     const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
     const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
     const scopeArea = isAnalysisScopeArea(result);
@@ -337,15 +381,21 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     // Choropleth/bivariate null cells render fully transparent in `styleColor` above (see
     // warehouseStyleColor); this sibling layer paints exactly those cells with the theme's hatch
     // tile instead. Both kinds share the same nullStyle/valueProperty contract.
-    const fillHatch = polygon && (style?.kind === "choropleth" || style?.kind === "bivariate") && style.nullStyle === "hatch" ? style : null;
-    const fillColor: string | ExpressionSpecification = styleColor ?? (numericLegend ? numericFillColor(numericLegend) : COLORS[index]!);
-    const outlineColor = styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
+    // S1: a second/third visible area result gives up its fill and draws only a 1.4px neutral
+    // edge. The fill layer stays (transparent) as the click/hover pick surface.
+    const outlineOnly = polygon && outlineOnlyIds.has(result.resultId);
+    const fillHatch = polygon && !outlineOnly && (style?.kind === "choropleth" || style?.kind === "bivariate") && style.nullStyle === "hatch" ? style : null;
+    const fillColor: string | ExpressionSpecification = outlineOnly ? TRANSPARENT : styleColor ?? (numericLegend ? numericFillColor(numericLegend) : COLORS[index]!);
+    const outlineColor = outlineOnly ? TRANSPARENT : styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
     const lineColor: string | ExpressionSpecification = styleColor ?? COLORS[index]!;
     const heatmapPalette = heatmap ? (heatmap.palette ? heatmap.palette[theme] : heatmap.colors) : null;
     const circleColor: string | ExpressionSpecification = styleColor ? styleColor : proportionalColor ? proportionalColor : heatmapPalette ? heatmapPalette[heatmapPalette.length - 1]! : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
     const circleRadius: ExpressionSpecification = (proportional ? ["get", proportional.sizeRadiusProperty] : scopeCenter ? ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12] : ["interpolate", ["linear"], ["zoom"], 5, 3, 12, 6, 16, 9]) as unknown as ExpressionSpecification;
-    const circleStrokeColor = proportional ? VIZ_SPEC.ring[theme] : scopeCenter ? "#0f172a" : "#ffffff";
-    const circleStrokeWidth = proportional ? proportional.ringPx : scopeCenter ? 3 : 2;
+    const baseCircleStrokeColor = proportional ? VIZ_SPEC.ring[theme] : scopeCenter ? "#0f172a" : "#ffffff";
+    const baseCircleStrokeWidth = proportional ? proportional.ringPx : scopeCenter ? 3 : 2;
+    // I1/I2: a hovered (or selected) point / bubble swaps its own 1-2px ring for the 2px accent.
+    const circleStrokeColor = ["case", EMPHASIZED, accent, baseCircleStrokeColor] as unknown as ExpressionSpecification;
+    const circleStrokeWidth = ["case", EMPHASIZED, ANALYSIS_EMPHASIS_WIDTH_PX, baseCircleStrokeWidth] as unknown as ExpressionSpecification;
     const proportionalSizeFilter = proportional ? warehouseProportionalSizeFilter(proportional) : null;
     const proportionalSortKey = proportional ? warehouseProportionalSortKey(proportional) : null;
     // The user's opacity slider composes with the style's own base ratio for polygon fill
@@ -441,7 +491,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (bivariate) {
       const sizeData = bivariateSizeCollection(result, bivariate);
       const sizeSource = map.getSource(bivariateSizeSourceId(index)) as GeoJSONSource | undefined;
-      if (sizeSource) sizeSource.setData(sizeData); else map.addSource(bivariateSizeSourceId(index), { type: "geojson", data: sizeData });
+      if (sizeSource) sizeSource.setData(sizeData); else map.addSource(bivariateSizeSourceId(index), { type: "geojson", data: sizeData, promoteId: FEATURE_ID_PROPERTY });
       const { widthPx: ringWidth, color: ringColor } = bivariateSizeStrokeFor(theme);
       if (!map.getLayer(bivariateSizeLayerId(index))) map.addLayer({ id: bivariateSizeLayerId(index), type: "circle", source: bivariateSizeSourceId(index), paint: {
         "circle-color": "rgba(0,0,0,0)", "circle-radius": ["get", bivariate.sizeRadiusProperty], "circle-stroke-color": ringColor, "circle-stroke-width": ringWidth, "circle-stroke-opacity": resultOpacity,
@@ -464,15 +514,33 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       } });
       else { map.setPaintProperty(scopeRingLayerId(index), "line-color", SCOPE_RING_COLOR); map.setFilter(scopeRingLayerId(index), SCOPE_ROLE_FILTER); }
     } else if (map.getLayer(scopeRingLayerId(index))) map.removeLayer(scopeRingLayerId(index));
+    if (polygon) {
+      // Width 0 unless the row is emphasized: the layer costs nothing visible until hover/select.
+      const edgeFilter = scopeRingRows ? SCOPE_ROLE_EXCLUDE_FILTER : null;
+      const edgeWidth = ["case", EMPHASIZED, ANALYSIS_EMPHASIS_WIDTH_PX, outlineOnly ? ANALYSIS_OUTLINE_ONLY_WIDTH_PX : 0] as unknown as ExpressionSpecification;
+      const edgeColor = outlineOnly ? ["case", EMPHASIZED, accent, VIZ_SPEC.categorical.other[theme]] as unknown as ExpressionSpecification : accent;
+      if (!map.getLayer(edgeLayerId(index))) map.addLayer({ id: edgeLayerId(index), type: "line", source: sourceId(index), ...(edgeFilter ? { filter: edgeFilter } : {}), paint: {
+        "line-color": edgeColor, "line-width": edgeWidth, "line-opacity": resultOpacity,
+      } });
+      else {
+        map.setPaintProperty(edgeLayerId(index), "line-color", edgeColor);
+        map.setPaintProperty(edgeLayerId(index), "line-width", edgeWidth);
+        map.setPaintProperty(edgeLayerId(index), "line-opacity", resultOpacity);
+        map.setFilter(edgeLayerId(index), edgeFilter);
+      }
+    } else if (map.getLayer(edgeLayerId(index))) map.removeLayer(edgeLayerId(index));
     const applyOpacity = () => {
       cancelReveal(map, index);
       if (!map.getLayer(layerId(index))) return;
-      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : heatmap ? "heatmap-opacity" : "circle-opacity", polygon || proportional ? primaryOpacity : resultOpacity);
-      if (!polygon && !line && !heatmap) map.setPaintProperty(layerId(index), "circle-stroke-opacity", resultOpacity);
+      const primary = polygon || proportional ? primaryOpacity : resultOpacity;
+      // heatmap-opacity cannot read feature-state; a heatmap is never dimmed (its close-zoom points are).
+      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : heatmap ? "heatmap-opacity" : "circle-opacity", heatmap ? primary : dimmable(map, index, primary));
+      if (!polygon && !line && !heatmap) map.setPaintProperty(layerId(index), "circle-stroke-opacity", dimmable(map, index, resultOpacity));
       if (compare && map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
       if (proportional && map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", resultOpacity);
-      if (bivariate && map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", resultOpacity);
+      if (bivariate && map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", dimmable(map, index, resultOpacity));
       if (scopeRingRows && map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", resultOpacity);
+      if (polygon && map.getLayer(edgeLayerId(index))) map.setPaintProperty(edgeLayerId(index), "line-opacity", dimmable(map, index, resultOpacity));
     };
     if (reveal) {
       if (!reveals.has(map)) reveals.set(map, new globalThis.Map());
@@ -481,17 +549,62 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     } else applyOpacity();
     return presentation(result, nonScopeRowCount(result), theme, index);
   });
-  // Keep every scope ring under the first Point-type result's layer, regardless of each
-  // result's index in this batch (moveLayer works on already-existing layers, so it is not
-  // sensitive to which order addLayer ran in above).
-  const firstPointIndex = prepared.findIndex(({ result }) => result.geometry.type === "Point");
-  if (firstPointIndex >= 0 && map.getLayer(layerId(firstPointIndex))) {
-    prepared.forEach(({ result }, index) => {
-      if (hasScopeRows(result) && map.getLayer(scopeRingLayerId(index))) map.moveLayer(scopeRingLayerId(index), layerId(firstPointIndex));
-    });
-  }
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);
+  stackAnalysisLayers(map, prepared.map(({ result }) => result));
   return installed;
+}
+
+export type AnalysisInstallOptions = {
+  /** S1: visible area results that draw a 1.4px `categorical.other` edge instead of their fill. */
+  outlineOnly?: Iterable<string>;
+};
+
+/** S1 stacking kind: which exclusivity rule (area fill / heatmap) a result falls under. */
+export function analysisResultStackKind(result: PresentableResult): AnalysisStackKind {
+  const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
+  if (result.resultStyle?.kind === "heatmap" && result.geometry.type === "Point") return "heat";
+  if (polygon && (result.resultStyle?.kind === "choropleth" || result.resultStyle?.kind === "bivariate" || (!result.resultStyle && numericResultLegend(result)))) return "area";
+  return "other";
+}
+
+/**
+ * S1 draw order, top → bottom: labels → points → lines → bubbles → ranges (scope ring /
+ * isochrone-like scope areas) → areas / grids → heatmaps. The selection ring is a DOM marker and
+ * always sits above the canvas. Within a band, a later collection slot draws above an earlier one;
+ * within a result, fill < null hatch < edge. All result layers stay above the rest of the style.
+ */
+export const ANALYSIS_LAYER_BANDS = ["label", "point", "line", "bubble", "range", "area", "heat"] as const;
+type AnalysisLayerBand = typeof ANALYSIS_LAYER_BANDS[number];
+
+export function analysisLayerStack(results: readonly PresentableResult[]): { id: string; band: AnalysisLayerBand }[] {
+  const entries: { id: string; band: AnalysisLayerBand; index: number; sub: number }[] = [];
+  results.forEach((result, index) => {
+    const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
+    const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
+    const style = result.resultStyle;
+    const areaBand: AnalysisLayerBand = isAnalysisScopeArea(result) ? "range" : "area";
+    const primary: AnalysisLayerBand = polygon ? areaBand : line ? "line" : style?.kind === "heatmap" ? "heat" : style?.kind === "proportional" ? "bubble" : "point";
+    entries.push({ id: layerId(index), band: primary, index, sub: 0 });
+    entries.push({ id: nullHatchLayerId(index), band: areaBand, index, sub: 1 });
+    entries.push({ id: edgeLayerId(index), band: areaBand, index, sub: 2 });
+    entries.push({ id: heatPointsLayerId(index), band: "point", index, sub: 0 });
+    entries.push({ id: bivariateSizeLayerId(index), band: "bubble", index, sub: 0 });
+    entries.push({ id: scopeRingLayerId(index), band: "range", index, sub: 0 });
+    entries.push({ id: compareLabelLayerId(index), band: "label", index, sub: 0 });
+    entries.push({ id: proportionalLabelLayerId(index), band: "label", index, sub: 1 });
+  });
+  const rank = (band: AnalysisLayerBand) => ANALYSIS_LAYER_BANDS.length - ANALYSIS_LAYER_BANDS.indexOf(band);
+  // Bottom → top.
+  return entries.sort((left, right) => rank(left.band) - rank(right.band) || left.index - right.index || left.sub - right.sub).map(({ id, band }) => ({ id, band }));
+}
+
+function stackAnalysisLayers(map: Map, results: readonly PresentableResult[]): void {
+  const present = analysisLayerStack(results).map(({ id }) => id).filter(id => map.getLayer(id));
+  // Top-most first to the top of the style, then each lower layer just beneath the one above it.
+  for (let position = present.length - 1; position >= 0; position -= 1) {
+    const above = present[position + 1];
+    if (above) map.moveLayer(present[position]!, above); else map.moveLayer(present[position]!);
+  }
 }
 
 export function removeAnalysisResults(map: Map): void { for (let index = 0; index < MAX_RESULTS; index += 1) removeIndex(map, index); }
@@ -505,6 +618,7 @@ function removeIndex(map: Map, index: number): void {
   if (map.getLayer(proportionalLabelLayerId(index))) map.removeLayer(proportionalLabelLayerId(index));
   if (map.getLayer(bivariateSizeLayerId(index))) map.removeLayer(bivariateSizeLayerId(index));
   if (map.getSource(bivariateSizeSourceId(index))) map.removeSource(bivariateSizeSourceId(index));
+  if (map.getLayer(edgeLayerId(index))) map.removeLayer(edgeLayerId(index));
   if (map.getLayer(layerId(index))) map.removeLayer(layerId(index));
   if (map.getSource(sourceId(index))) map.removeSource(sourceId(index));
 }
@@ -540,24 +654,95 @@ export function readAnalysisResultPresentation(map: Map, results: readonly Analy
   };
 }
 export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPresentation[], resultId: string, opacity: number): void {
-  for (const [index, result] of results.entries()) {
-    if (result.resultId !== resultId) continue;
-    const id = layerId(index);
-    const layer = map.getLayer(id);
-    if (layer) {
-      cancelReveal(map, index);
-      const composedOpacity = layer.type === "fill" ? opacity * (result.scopeArea ? 0.18 : 0.45) : layer.type === "circle" && result.circleOpacityRatio !== undefined ? opacity * result.circleOpacityRatio : opacity;
-      map.setPaintProperty(id, layer.type === "fill" ? "fill-opacity" : layer.type === "line" ? "line-opacity" : layer.type === "heatmap" ? "heatmap-opacity" : "circle-opacity", composedOpacity);
-      if (layer.type === "circle") map.setPaintProperty(id, "circle-stroke-opacity", opacity);
-    }
-    if (map.getLayer(heatPointsLayerId(index))) {
-      map.setPaintProperty(heatPointsLayerId(index), "circle-opacity", opacity);
-      map.setPaintProperty(heatPointsLayerId(index), "circle-stroke-opacity", opacity);
-    }
-    if (map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", opacity);
-    if (map.getLayer(nullHatchLayerId(index))) map.setPaintProperty(nullHatchLayerId(index), "fill-opacity", opacity);
-    if (map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", opacity);
-    if (map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", opacity);
-    if (map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity);
-  }
+  for (const [index, result] of results.entries()) if (result.resultId === resultId) applyResultOpacity(map, index, result, opacity);
 }
+
+function applyResultOpacity(map: Map, index: number, result: AnalysisResultPresentation, opacity: number): void {
+  const id = layerId(index);
+  const layer = map.getLayer(id);
+  if (layer) {
+    cancelReveal(map, index);
+    const composedOpacity = layer.type === "fill" ? opacity * (result.scopeArea ? 0.18 : 0.45) : layer.type === "circle" && result.circleOpacityRatio !== undefined ? opacity * result.circleOpacityRatio : opacity;
+    map.setPaintProperty(id, layer.type === "fill" ? "fill-opacity" : layer.type === "line" ? "line-opacity" : layer.type === "heatmap" ? "heatmap-opacity" : "circle-opacity", layer.type === "heatmap" ? composedOpacity : dimmable(map, index, composedOpacity));
+    if (layer.type === "circle") map.setPaintProperty(id, "circle-stroke-opacity", dimmable(map, index, opacity));
+  }
+  if (map.getLayer(heatPointsLayerId(index))) {
+    map.setPaintProperty(heatPointsLayerId(index), "circle-opacity", dimmable(map, index, opacity));
+    map.setPaintProperty(heatPointsLayerId(index), "circle-stroke-opacity", dimmable(map, index, opacity));
+  }
+  if (map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", opacity);
+  if (map.getLayer(nullHatchLayerId(index))) map.setPaintProperty(nullHatchLayerId(index), "fill-opacity", dimmable(map, index, opacity));
+  if (map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", opacity);
+  if (map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", dimmable(map, index, opacity));
+  if (map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity);
+  if (map.getLayer(edgeLayerId(index))) map.setPaintProperty(edgeLayerId(index), "line-opacity", dimmable(map, index, opacity));
+}
+
+/** A clicked row as the docked panel knows it: stable across a redraw, unlike a source slot. */
+export type AnalysisSelection = { resultId: string; fid: number };
+
+export function analysisSelectionOf(feature: { source?: unknown; properties?: Record<string, unknown> | null }): AnalysisSelection | null {
+  const target = analysisFeatureTarget(feature);
+  const resultId = feature.properties?.resultId;
+  return target && typeof resultId === "string" ? { resultId, fid: target.id } : null;
+}
+
+/**
+ * I2 (X1): rows in `selection` keep their colour and get the accent outline (feature-state
+ * `selected`); every other row of the same result drops to ×0.35 opacity. An empty selection
+ * restores everything. Idempotent, so it is safe to call again after a redraw.
+ */
+export function setAnalysisSelection(map: Map, results: readonly AnalysisResultPresentation[], selection: readonly AnalysisSelection[], opacity: AnalysisResultOpacity): void {
+  for (const target of selectedTargets.get(map) ?? []) setState(map, target, { selected: false });
+  const targets: AnalysisFeatureTarget[] = [];
+  const nextDimmed = new Set<number>();
+  for (const { resultId, fid } of selection) {
+    const index = results.findIndex(result => result.resultId === resultId);
+    if (index < 0 || index >= MAX_RESULTS || !map.getSource(sourceId(index))) continue;
+    nextDimmed.add(index);
+    targets.push({ source: sourceId(index), id: fid });
+    if (map.getSource(bivariateSizeSourceId(index))) targets.push({ source: bivariateSizeSourceId(index), id: fid });
+  }
+  for (const target of targets) setState(map, target, { selected: true });
+  selectedTargets.set(map, targets);
+  const previousDimmed = dimmed.get(map) ?? new Set<number>();
+  dimmed.set(map, nextDimmed);
+  results.forEach((result, index) => {
+    if (previousDimmed.has(index) === nextDimmed.has(index)) return;
+    applyResultOpacity(map, index, result, opacity.byResult[result.resultId] ?? opacity.defaultOpacity);
+  });
+}
+
+/** Layers that answer I1 hover: every pickable result layer except heatmap-backed points (spec:
+ *  heatmap 不做滑過). Scope-only and decorative layers are never included. */
+export function analysisResultHoverLayerIds(map: Map, count: number): string[] {
+  return Array.from({ length: Math.min(MAX_RESULTS, count) }, (_, index) => layerId(index)).filter(id => map.getLayer(id) && map.getLayer(id)!.type !== "heatmap");
+}
+
+/** Resolve a rendered feature to its result source + promoted row id; anything else is ignored. */
+export function analysisFeatureTarget(feature: { source?: unknown; properties?: Record<string, unknown> | null }): AnalysisFeatureTarget | null {
+  const id = feature.properties?.[FEATURE_ID_PROPERTY];
+  if (typeof feature.source !== "string" || !SOURCE_INDEX_PATTERN.test(feature.source)) return null;
+  if (typeof id !== "number" || !Number.isInteger(id) || id < 0) return null;
+  if (feature.properties?._role === "scope") return null;
+  return { source: feature.source, id };
+}
+
+function setState(map: Map, target: AnalysisFeatureTarget, state: Record<string, boolean>): void {
+  // A source can vanish between the query and this call (style switch / result removal).
+  if (!map.getSource(target.source)) return;
+  map.setFeatureState(target, state);
+}
+
+/** Moves the I1 hover highlight; returns whether the hovered row actually changed. */
+export function setAnalysisHover(map: Map, target: AnalysisFeatureTarget | null): boolean {
+  const previous = hovered.get(map) ?? null;
+  if (previous && target && previous.source === target.source && previous.id === target.id) return false;
+  if (!previous && !target) return false;
+  if (previous) setState(map, previous, { hover: false });
+  if (target) { setState(map, target, { hover: true }); hovered.set(map, target); }
+  else hovered.delete(map);
+  return true;
+}
+
+export function clearAnalysisHover(map: Map): void { setAnalysisHover(map, null); }

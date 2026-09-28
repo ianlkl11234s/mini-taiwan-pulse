@@ -290,7 +290,9 @@ describe("analysis result reveal lifecycle", () => {
     expect(installed[0]).toMatchObject({ color: "#fef3c7" });
     expect(layers.get("research-analysis-result-points-0")!.paint).toMatchObject({
       "circle-color": "#fef3c7", "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12],
-      "circle-stroke-color": "#0f172a", "circle-stroke-width": 3,
+      // Base ring stays the fallback branch of the I1/I2 emphasis `case` expression.
+      "circle-stroke-color": ["case", ["any", ["boolean", ["feature-state", "hover"], false], ["boolean", ["feature-state", "selected"], false]], expect.any(String), "#0f172a"],
+      "circle-stroke-width": ["case", ["any", ["boolean", ["feature-state", "hover"], false], ["boolean", ["feature-state", "selected"], false]], 2, 3],
     });
   });
 

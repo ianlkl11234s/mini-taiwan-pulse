@@ -76,6 +76,7 @@ function stubMap() {
     addLayer: (layer: Layer) => layers.set(layer.id, structuredClone(layer)),
     removeLayer: (id: string) => layers.delete(id),
     removeSource: (id: string) => sources.delete(id),
+    moveLayer: () => {},
     isSourceLoaded: () => true,
     setPaintProperty: (id: string, property: string, value: unknown) => { const layer = layers.get(id); if (layer) layer.paint[property] = value; },
     setLayoutProperty: (id: string, property: string, value: unknown) => { const layer = layers.get(id); if (layer) layer.layout = { ...layer.layout, [property]: value }; },
@@ -146,6 +147,8 @@ describe("warehouse result style contract", () => {
     // "count" valueKind wins and rounds it ("13" per the myriad/thousands count rule).
     expect(warehouseStyleFact({ ...choropleth, valueKind: "count" }, { _style_value: 12.5 })!.value).toBe("13");
     expect(warehouseStyleFact(choropleth, { _style_value: 12.5 })!.value).toBe("12.5");
+    expect(warehouseStyleFact({ ...choropleth, unit: "人/km²" }, { _style_value: null })!.value).toBe("無資料");
+    expect(warehouseStyleFact({ ...choropleth, unit: "人/km²" }, { _style_value: 12.5 })!.value).toBe("12.5 人/km²");
   });
 
   it("summarises a compare point in one popup fact and never turns a not-covered cell into 0", () => {
