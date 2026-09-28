@@ -13,7 +13,7 @@ import {
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, User, Star, Bot,
+  Activity, Layers, ChartColumn, MapPin, User, Star, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -196,14 +196,6 @@ export function IconRailSidebar({
   const [statisticsSearch, setStatisticsSearch] = useState("");
   const [worldSearch, setWorldSearch] = useState("");
   const [japanSearch, setJapanSearch] = useState("");
-  const [comingSoon, setComingSoon] = useState(false);
-
-  // 齒輪「規劃中」提示：顯示後 2 秒自動消失
-  useEffect(() => {
-    if (!comingSoon) return;
-    const t = setTimeout(() => setComingSoon(false), 2000);
-    return () => clearTimeout(t);
-  }, [comingSoon]);
 
   // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
   const firstEpochRunRef = useRef(true);
@@ -416,37 +408,7 @@ export function IconRailSidebar({
           />
         )}
 
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Settings（規劃中） */}
-        <RailIcon icon={Settings} active={false} onClick={() => setComingSoon(true)} tooltip="Settings" />
       </div>
-
-      {/* 齒輪「規劃中」提示 */}
-      {comingSoon && (
-        <div
-          style={{
-            position: "absolute",
-            left: RAIL_WIDTH + 8,
-            bottom: 12,
-            padding: "8px 14px",
-            background: "rgba(17,24,39,0.92)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: RADIUS.xl,
-            color: "#fff",
-            fontSize: FONT_SIZE.lg,
-            whiteSpace: "nowrap",
-            zIndex: 5,
-            pointerEvents: "none",
-            animation: "panelFadeIn 0.2s ease-out",
-          }}
-        >
-          ⚙️ 設定功能規劃中
-        </div>
-      )}
 
       {/* ── Floating Panel ── */}
       {panelOpen && (
