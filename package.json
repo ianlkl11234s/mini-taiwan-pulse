@@ -23,7 +23,8 @@
     "rail:bundle": "python3 scripts/preprocess/bundle-rail-data.py",
     "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py",
     "research:layer-status": "vite-node --script scripts/research/build-layer-status.mjs",
-    "design:baseline": "tsx scripts/design/update-design-baseline.ts"
+    "design:baseline": "tsx scripts/design/update-design-baseline.ts",
+    "design:audit-layers": "vite-node scripts/design/audit-layer-styles.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.5",
