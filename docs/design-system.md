@@ -460,7 +460,7 @@
 - **篩選**：分段控制（§5.8）；事件列表用左線時間軸（§5.6）。
 - **禁止**：自訂第三種徽章公式；分類與程度用同一種外觀。
 - **暗／淡**：`intel/intelTheme.tsx` 的 `IntelPalette`（`DARK_INTEL`／`LIGHT_INTEL`，淡色一律取自本檔 `LIGHT`）＋ `IntelThemeProvider`／`useIntelTheme()` 分發，由 `IntelPanel` 依 `isDarkTheme` 建 palette；未被 Provider 包住時 fallback 深色（Monitor Mode 的戰情看板刻意維持全暗，`monitor/NewsFeedPanel.tsx` 顯式套 `DARK_INTEL`，不隨主站底圖切換）。
-- **淡色徽章對比規則**：`chipTint`／`chipOutline` 的底色／框線沿用資料 hue 不變（§3.16 資料色不進 token）；但淡色主題若直接拿該 hue 當「字」色，淺色相（黃、淺綠、青…）對近白面板對比不足。呼叫端改用 `intelTheme.ts` 的 `chipText(color, palette)`：暗色原樣回傳，淡色把 hue 與 `LIGHT.textStrong` 依 45%／55% 混色（`CHIP_TEXT_MIX = 0.55`）。已對 7 個新聞分類、6 個警示分類、4 個嚴重度色、`COLORS.cluster` 共 18 色驗證，混色後對純白 WCAG 對比全數 ≥5.32:1（見 `intel/__tests__/intelTheme.contrast.test.ts`）。`GIS_LEVELS`／`SEV_LEVELS` 的分級色另用 `levelColor()` 轉換（白色半透明佔位→中性文字階；與 accent／statusWarn／statusErr 同值→換成對應 palette 欄位；其餘資料 hue→`chipText`）。
+- **淡色徽章對比規則**：`chipTint`／`chipOutline` 的底色／框線沿用資料 hue 不變（§3.16 資料色不進 token）；但淡色主題若直接拿該 hue 當「字」色，淺色相（黃、淺綠、青…）對近白面板對比不足。呼叫端改用 `intelTheme.ts` 的 `chipText(color, palette)`：暗色原樣回傳，淡色把 hue 與 `LIGHT.textStrong` 依 45%／55% 混色（`CHIP_TEXT_MIX = 0.55`）。已對 7 個新聞分類、6 個警示分類、4 個嚴重度色、`COLORS.cluster` 共 18 色驗證 WCAG 對比：`chipOutline`（字疊在不透明面板底，對純白量測即精確值）全數 ≥5.32:1；`chipTint`（字疊在「白＋該色 14% alpha」的真實淡底，對比略低於純白版本）全數 ≥5.01:1；兩者最低都是 lifeline `#a3e635`（見 `intel/__tests__/intelTheme.contrast.test.ts`，兩種底各自量測，未達標顏色目前為零）。`GIS_LEVELS`／`SEV_LEVELS` 的分級色另用 `levelColor()` 轉換（白色半透明佔位→中性文字階；與 accent／statusWarn／statusErr 同值→換成對應 palette 欄位；其餘資料 hue→`chipText`）。
 - **實作**：`src/components/intel/{IntelHeader.tsx,IntelCard.tsx,IntelFilters.tsx,intelTokens.ts,intelTheme.tsx}`、`intel/alerts/{AlertCard.tsx,AlertSummaryBar.tsx,FeedTabs.tsx}`。
 
 ### 5.22 資料來源面板（D1 列內展開）
