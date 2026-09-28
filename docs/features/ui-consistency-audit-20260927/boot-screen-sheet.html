@@ -1,0 +1,112 @@
+<title>Pulse 開站畫面</title>
+<style>
+:root{color-scheme:dark;--page:#07070f;--text:#d1d5db;--strong:#f3f4f6;--muted:#9ca3af;--dim:#6b7280;--line:rgba(255,255,255,.09);--pick:#64aaff;--pick-faint:rgba(100,170,255,.14);--ok:#22c55e;--bad:#f87171;
+--font-cjk:"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif;--font-data:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--text);font:13px/1.65 var(--font-cjk);margin:0;padding-inline:16px;padding-block:28px 96px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1{margin:0 0 8px;font-size:22px;font-weight:600;color:var(--strong);text-wrap:balance}
+h2{margin:0;font-size:17px;font-weight:600;color:var(--strong);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+p{margin:0}
+code{font-family:var(--font-data);font-size:12px;color:var(--strong)}
+.lead{max-width:84ch;color:var(--muted)}.lead b{color:var(--strong);font-weight:600}
+.tag{font:600 12px var(--font-data);color:var(--pick);border:1px solid rgba(100,170,255,.45);border-radius:4px;padding:1px 6px}
+.rec{font-size:11px;color:var(--ok);border:1px solid rgba(34,197,94,.4);border-radius:4px;padding:1px 6px}
+section{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:22px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.pair{grid-template-columns:1fr}}
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+figcaption{font-size:11px;color:var(--dim)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 22px;color:var(--muted);font-size:12.5px}
+.notes b{color:var(--strong);font-weight:600}
+ul{margin:0;padding-left:18px}
+
+/* ── 模擬畫面：取自 src/styles/tokens.css ── */
+.scr{--app:#0a0a14;--strong-s:rgba(10,10,20,.88);--bd:rgba(255,255,255,.10);--bd-mid:rgba(255,255,255,.14);--t-strong:#f3f4f6;--t-def:#d8dce3;--t-dim:#6b7280;--t-faint:#4b5560;--acc:#64aaff;--live:#22c55e;--map:#1b1c20;--road:#2a2b31;--rail:#0a0a14;
+position:relative;aspect-ratio:16/10;max-width:100%;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--app);font-family:var(--font-cjk);color:var(--t-def)}
+.scr.light{--app:#f4f5f7;--strong-s:rgba(255,255,255,.97);--bd:rgba(0,0,0,.10);--bd-mid:rgba(0,0,0,.14);--t-strong:#111827;--t-def:#1f2937;--t-dim:#6b7280;--t-faint:#9ca3af;--acc:#2563eb;--live:#16a34a;--map:#eceef1;--road:#ffffff;--rail:#ffffff}
+.map{position:absolute;inset:0;background:
+ linear-gradient(115deg,transparent 47%,var(--road) 47.4%,var(--road) 48.2%,transparent 48.6%),
+ linear-gradient(20deg,transparent 60%,var(--road) 60.3%,var(--road) 61%,transparent 61.3%),
+ linear-gradient(170deg,transparent 30%,var(--road) 30.3%,var(--road) 30.9%,transparent 31.2%),var(--map)}
+.map.half{opacity:.45}
+.rail{position:absolute;left:0;top:0;width:7%;height:62%;background:var(--rail);border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;gap:7%;padding-top:3%}
+.rail i{width:42%;aspect-ratio:1;border-radius:3px;border:1.5px solid var(--t-dim);opacity:.8}
+.rail hr{width:60%;border:0;border-top:1px solid var(--bd);margin:0}
+.hud{position:absolute;left:9%;top:3%;font:700 clamp(9px,1.6vw,15px)/1.1 var(--font-data);letter-spacing:.14em;color:var(--t-strong)}
+.hud small{display:block;font:400 clamp(6px,.75vw,8px)/1.6 var(--font-data);letter-spacing:.02em;color:var(--t-dim)}
+.tb{position:absolute;right:2%;top:3%;width:30%;height:6.5%;border-radius:5px;background:var(--strong-s);border:1px solid var(--bd)}
+.tl{position:absolute;left:8%;bottom:6%;width:21%;height:6.5%;border-radius:99px;background:var(--strong-s);border:1px solid var(--bd)}
+.pill{position:absolute;right:2%;top:12%;display:flex;align-items:center;gap:5px;height:clamp(14px,2.2vw,22px);padding:0 8px;border-radius:5px;background:var(--strong-s);border:1px solid var(--bd);font-size:clamp(7px,1vw,11px);color:var(--t-strong);white-space:nowrap}
+.ring{width:.8em;height:.8em;border:1.5px solid var(--bd-mid);border-top-color:var(--acc);border-radius:50%;animation:spin .9s linear infinite;flex:none}
+.pill em{font-style:normal;color:var(--t-dim);font-family:var(--font-data)}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.2vw,12px);background:var(--app)}
+.brand{font:700 clamp(13px,2.6vw,26px)/1 var(--font-data);letter-spacing:.14em;color:var(--t-strong)}
+.sub{font-size:clamp(7px,1vw,11px);color:var(--t-dim)}
+.center .pill{position:static}
+/* 目前版 */
+.old .brand{letter-spacing:.3em}
+.old .sub{font-family:var(--font-data);letter-spacing:.1em}
+.old .step{font:clamp(7px,1.1vw,12px) var(--font-data);color:var(--t-def);display:flex;gap:2.4em}
+.old .bar{width:36%;height:3px;border-radius:2px;background:rgba(255,255,255,.08)}
+.old .term{width:52%;height:24%;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:flex-end;padding:1.2% 2%;font:clamp(6px,.9vw,10px) var(--font-data);color:var(--t-faint)}
+/* B2 落位示意：虛線框 = 完成後標題去的位置 */
+.ghost{position:absolute;left:9%;top:3%;width:21%;height:8%;border:1px dashed var(--acc);border-radius:3px;opacity:.7}
+.arrow{position:absolute;left:21%;top:13%;width:26%;height:30%;border-left:1px dashed var(--acc);border-top:1px dashed var(--acc);border-top-left-radius:40px;opacity:.5}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.ring{animation:none}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>開站畫面：三個方向</h1>
+  <p class="lead">目前開站畫面只在等<b>地圖畫完</b>一件事（其他圖層預設都關），卻放了進度條（0/1 → 100% 一下跳完）、一個永遠只顯示「Connecting to Supabase…」的空終端框，副標也還是舊的「Supabase Realtime」。字體、漸層進度條、光暈都不在 design system 裡。下面每列左暗右淡，淡色版用在帶 <code>style=light</code> 的分享連結。</p>
+</header>
+
+<section>
+  <h2>目前</h2>
+  <div class="pair">
+    <figure><div class="scr old"><div class="center"><div class="brand">Mini Taiwan Pulse</div><div class="sub">Supabase Realtime</div><div class="step"><span>⟳ 地圖場景 Map</span><span>loading...</span></div><div class="bar"></div><div class="term">Connecting to Supabase...</div></div></div><figcaption>暗色（淡色連結也一樣是暗的）</figcaption></figure>
+    <figure><div class="scr old light"><div class="center" style="background:#0a0a14"><div class="brand" style="color:#f3f4f6">Mini Taiwan Pulse</div><div class="sub">Supabase Realtime</div><div class="step" style="color:#d8dce3"><span>⟳ 地圖場景 Map</span><span>loading...</span></div><div class="bar"></div><div class="term">Connecting to Supabase...</div></div></div><figcaption>淡色連結開站時仍是黑畫面，進站後才跳白</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">B1</span>原地整理</h2>
+  <div class="pair">
+    <figure><div class="scr"><div class="center"><div class="brand">Mini Taiwan Pulse</div><div class="sub">台灣即時脈動</div><div class="pill"><span class="ring"></span>載入地圖<em>2.1s</em></div></div></div><figcaption>暗色</figcaption></figure>
+    <figure><div class="scr light"><div class="center"><div class="brand">Mini Taiwan Pulse</div><div class="sub">台灣即時脈動</div><div class="pill"><span class="ring"></span>載入地圖<em>2.1s</em></div></div></div><figcaption>淡色</figcaption></figure>
+  </div>
+  <div class="notes">
+    <p>保留全螢幕遮罩，只換內容：標題用左上 HUD 同一套字（<code>FONT_DATA</code> 700）、副標改中文、狀態改成右上載入狀態條同款（§5.30 的轉圈＋文字＋秒數）。</p>
+    <p>拿掉進度條、終端框、漸層與光暈。完成後顯示「✓ 完成」再淡出（沿用 §5.30 時間規則）。</p>
+    <p><b>改動最小</b>，但「等待」的感覺還在。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">B2</span>標題落位</h2>
+  <div class="pair">
+    <figure><div class="scr"><div class="map half"></div><div class="center" style="background:rgba(10,10,20,.82)"><div class="brand">Mini Taiwan Pulse</div><div class="pill"><span class="ring"></span>載入地圖</div></div><div class="ghost"></div><div class="arrow"></div></div><figcaption>暗色：地圖在遮罩下已開始畫；虛線是完成後標題的落點</figcaption></figure>
+    <figure><div class="scr light"><div class="map half"></div><div class="center" style="background:rgba(244,245,247,.82)"><div class="brand">Mini Taiwan Pulse</div><div class="pill"><span class="ring"></span>載入地圖</div></div><div class="ghost"></div><div class="arrow"></div></div><figcaption>淡色</figcaption></figure>
+  </div>
+  <div class="notes">
+    <p>遮罩改半透明，底下地圖一邊畫一邊透出來。完成時中央標題縮小、移到左上 HUD 的位置變成正式標題，其他東西淡出，<b>開站到主畫面是同一個畫面接續</b>。</p>
+    <p>唯一的動畫（約 0.6 秒），減少動態偏好時改成直接淡出。</p>
+    <p>比 B1 多一段位置計算，體感仍要等地圖。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">B3</span>直接進站 <span class="rec">建議</span></h2>
+  <div class="pair">
+    <figure><div class="scr"><div class="map half"></div><div class="rail"><i></i><hr><i></i><i></i><i></i><i></i></div><div class="hud">Mini Taiwan Pulse<small>23.7, 121 · z7.5 · 仰角 0° · 方位 0°</small></div><div class="tb"></div><div class="pill"><span class="ring"></span>載入地圖<em>1.4s</em></div><div class="tl"></div></div><figcaption>暗色：一打開就是主畫面，地圖從底色畫出來</figcaption></figure>
+    <figure><div class="scr light"><div class="map half"></div><div class="rail"><i></i><hr><i></i><i></i><i></i><i></i></div><div class="hud">Mini Taiwan Pulse<small>23.7, 121 · z7.5 · 仰角 0° · 方位 0°</small></div><div class="tb"></div><div class="pill"><span class="ring"></span>載入地圖<em>1.4s</em></div><div class="tl"></div></div><figcaption>淡色：底色直接用淡色，不會先黑後白</figcaption></figure>
+  </div>
+  <div class="notes">
+    <p>不再有全螢幕遮罩。側欄、工具列、時間軸一開始就在，地圖區先是 <code>SURFACE.app</code> 底色；右上載入狀態條（S1）顯示「載入地圖 → ✓ 完成」，跟之後開圖層時看到的是同一個元件。</p>
+    <p>實作時要驗證：地圖還沒畫完就點圖層，圖層會不會等地圖好了再出現。</p>
+    <p><b>最快也最一致</b>：省掉現在固定的 0.6 秒收尾，也不用等「全部資料源空閒」才放行（見下方速度分析）。代價是開頭約 1 秒會看到空的暗底。</p>
+  </div>
+</section>
+</div>
