@@ -17,7 +17,7 @@ export type VizSpec = {
   categorical: { names: string[]; dark: string[]; light: string[]; other: { dark: string; light: string } };
   ramps: Record<string, VizRamp>;
   nullStyle: { kind: string; angle: number; spacingPx: number; lineWidthPx: number; stroke: { dark: string; light: string }; label: string };
-  styles: Record<string, Record<string, unknown>>;
+  styles: Record<string, Record<string, unknown>> & { bivariate: { sizeStrokePx: number; sizeStroke: Record<Theme, string> } & Record<string, unknown> };
   numberFormat: { rules: Record<string, string>; vectors: VizNumberFormatVector[] };
   validation: Record<string, unknown>;
 };
@@ -45,6 +45,13 @@ export function nullHatchFor(theme: Theme): { angle: number; spacingPx: number; 
 export function nullHatchCssGradient(theme: Theme): string {
   const spec = nullHatchFor(theme);
   return `repeating-linear-gradient(${spec.angle}deg, ${spec.stroke} 0 ${spec.lineWidthPx}px, transparent ${spec.lineWidthPx}px ${spec.spacingPx}px)`;
+}
+
+/** Bivariate V3's y-size bubble stroke (`styles.bivariate.sizeStrokePx`/`sizeStroke`), oriented for
+ *  `theme`; shared with the mcp-side spec so both draw the same neutral ring width/colour. */
+export function bivariateSizeStrokeFor(theme: Theme): { widthPx: number; color: string } {
+  const style = VIZ_SPEC.styles.bivariate;
+  return { widthPx: style.sizeStrokePx, color: style.sizeStroke[theme] };
 }
 
 /**

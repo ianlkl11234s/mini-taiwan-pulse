@@ -3,7 +3,7 @@ import type { Map } from "mapbox-gl";
 import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnalysisResults, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
-type Layer = { id: string; type: string; source: string; paint: Record<string, unknown>; filter?: unknown };
+type Layer = { id: string; type: string; source: string; paint: Record<string, unknown>; filter?: unknown; layout?: Record<string, unknown> };
 function stubMap() {
   const sources = new globalThis.Map<string, { setData: (data: unknown) => void; data: unknown }>();
   const layers = new globalThis.Map<string, Layer>();
@@ -19,6 +19,7 @@ function stubMap() {
     removeSource: (id: string) => sources.delete(id),
     isSourceLoaded: (id: string) => sources.has(id),
     setPaintProperty: (id: string, property: string, value: unknown) => { layers.get(id)?.paint && (layers.get(id)!.paint[property] = value); paintWrites.push({ id, property, value }); },
+    setLayoutProperty: (id: string, property: string, value: unknown) => { const layer = layers.get(id); if (layer) layer.layout = { ...layer.layout, [property]: value }; },
     setFilter: (id: string, filter: unknown) => { const layer = layers.get(id); if (layer) layer.filter = filter ?? undefined; },
     moveLayer: (id: string, beforeId?: string) => { moveLayerCalls.push({ id, beforeId }); },
     on: (event: string, listener: () => void) => { if (event === "render") listeners.add(listener); },

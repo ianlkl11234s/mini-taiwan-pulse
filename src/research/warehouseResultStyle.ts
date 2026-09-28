@@ -16,8 +16,9 @@ import { classifyVizNumberKind, formatVizNumber, type VizNumberKind } from "./vi
  *
  * Stage B: `bivariate` is a hard breaking replacement (the old 3x3 `_bi_class` categorical grid is
  * gone; a style in that shape is now rejected, not rendered) and `proportional` is a brand-new kind.
- * Both always carry `ramp`/`palette`/`nullStyle`/their `*ValueKind` fields (no optional-key
- * tolerance needed — there is no pre-existing format to stay compatible with).
+ * Both always carry `ramp`/`palette`/`nullStyle`/their `*ValueKind` fields; their own optional-key
+ * tolerance is for the later `*Unit`/`*Title` display-metadata addition below, not for staying
+ * compatible with any pre-existing format.
  *
  * `WAREHOUSE_STYLE_RENDERERS` is the per-kind registry (validate + colour/paint + legend + fact);
  * the exported functions below are its typed, kind-narrowed callers.
@@ -29,7 +30,7 @@ export type WarehousePalette = { dark: string[]; light: string[] };
 export type WarehouseSizeLegendEntry = { value: number; radiusPx: number; label: string };
 
 export type WarehouseResultStyle =
-  | { kind: "choropleth"; field: string; valueProperty: "_style_value"; method: "quantile" | "equal"; scheme: "sequential" | "diverging"; label: string; breaks: number[]; colors: string[]; labels: string[]; min: number; max: number; nullColor: string; nullCount: number; ramp?: string; palette?: WarehousePalette; nullStyle?: "hatch"; valueKind?: VizNumberKind }
+  | { kind: "choropleth"; field: string; valueProperty: "_style_value"; method: "quantile" | "equal"; scheme: "sequential" | "diverging"; label: string; breaks: number[]; colors: string[]; labels: string[]; min: number; max: number; nullColor: string; nullCount: number; ramp?: string; palette?: WarehousePalette; nullStyle?: "hatch"; valueKind?: VizNumberKind; unit?: string | null }
   | {
       kind: "bivariate"; mode: "fill-and-size"; xField: string; yField: string; xLabel: string; yLabel: string;
       xValueKind: VizNumberKind; yValueKind: VizNumberKind;
@@ -37,6 +38,7 @@ export type WarehouseResultStyle =
       ramp: string; palette: WarehousePalette; breaks: number[]; labels: string[]; min: number; max: number;
       rMinPx: number; rMaxPx: number; topN: number;
       nullStyle: "hatch"; nullColor: string; nullCount: number;
+      xUnit?: string | null; yUnit?: string | null;
     }
   | { kind: "heatmap"; weightField: string | null; weightProperty: "_style_weight" | null; weightMax: number | null; colors: string[]; nullCount: number; ramp?: string; palette?: WarehousePalette; nullStyle?: "hatch" }
   | { kind: "compare"; labelField: string | null; pointProperty: "_compare_index"; columns: WarehouseCompareColumn[]; rows: WarehouseCompareRow[] }
@@ -48,6 +50,7 @@ export type WarehouseResultStyle =
       ramp: string; palette: WarehousePalette; breaks: number[]; labels: string[]; min: number | null; max: number | null;
       nullStyle: "hatch"; nullColor: string; nullCount: number;
       sizeLegend: WarehouseSizeLegendEntry[];
+      sizeTitle?: string; sizeUnit?: string | null; colorTitle?: string | null; colorUnit?: string | null;
     };
 
 /** `hatch`/`gradient` are only set for a fill (choropleth/bivariate) null entry under
@@ -64,16 +67,32 @@ const FIELD = /^[\p{L}_][\p{L}\p{N}_]{0,79}$/u;
 const HEX = /^#[0-9a-fA-F]{6}$/;
 const NUMBER_FORMAT_KINDS = ["count", "density", "ratio", "percent"] as const;
 const STYLE_OPTIONAL_KEYS = ["ramp", "palette", "nullStyle"] as const;
-const CHOROPLETH_OPTIONAL_KEYS = [...STYLE_OPTIONAL_KEYS, "valueKind"] as const;
+const CHOROPLETH_OPTIONAL_KEYS = [...STYLE_OPTIONAL_KEYS, "valueKind", "unit"] as const;
 const CHOROPLETH_KEYS = ["kind", "field", "valueProperty", "method", "scheme", "label", "breaks", "colors", "labels", "min", "max", "nullColor", "nullCount"];
 const BIVARIATE_KEYS = ["kind", "mode", "xField", "yField", "xLabel", "yLabel", "xValueKind", "yValueKind", "valueProperty", "sizeValueProperty", "sizeRadiusProperty", "sizeRankProperty", "sizeAnchorProperty", "ramp", "palette", "breaks", "labels", "min", "max", "rMinPx", "rMaxPx", "topN", "nullStyle", "nullColor", "nullCount"];
+/** Optional display-unit metadata the mcp warehouse may attach; a style omitting them renders
+ *  exactly as before. Titles are not part of this addition — choropleth/bivariate keep using their
+ *  existing `label`/`xLabel`/`yLabel` fields verbatim (no title override). */
+const BIVARIATE_UNIT_KEYS = ["xUnit", "yUnit"] as const;
 const HEATMAP_KEYS = ["kind", "weightField", "weightProperty", "weightMax", "colors", "nullCount"];
 const COMPARE_KEYS = ["kind", "labelField", "pointProperty", "columns", "rows"];
 const PROPORTIONAL_KEYS = ["kind", "sizeField", "colorField", "labelField", "sizeValueProperty", "sizeRadiusProperty", "labelRankProperty", "valueProperty", "sizeValueKind", "colorValueKind", "rMinPx", "rMaxPx", "fillOpacity", "ringPx", "labelTopN", "drawOrder", "ramp", "palette", "breaks", "labels", "min", "max", "nullStyle", "nullColor", "nullCount", "sizeLegend"];
+/** proportional's own title metadata: `sizeTitle` falls back to `sizeField` (never null — the size
+ *  field always exists), `colorTitle` falls back to `colorField` (nullable — a monochrome
+ *  proportional has no colorField to title at all). */
+const PROPORTIONAL_TITLE_UNIT_KEYS = ["sizeTitle", "sizeUnit", "colorTitle", "colorUnit"] as const;
 
 const isObject = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
 const field = (value: unknown): value is string => typeof value === "string" && FIELD.test(value) && !["__proto__", "constructor", "prototype"].includes(value);
 const text = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0 && value.length <= 60;
+/** proportional's `sizeTitle`: absent (falls back to `sizeField`) or a short non-empty string —
+ *  never `null` (unlike `colorTitle`, `sizeField` always exists, so there is no "no field to title"
+ *  case here). */
+const optionalTitle = (value: unknown): boolean => value === undefined || (typeof value === "string" && value.trim().length > 0 && value.length <= 40);
+/** `colorTitle`: absent, explicitly `null` (no colorField to title), or a short non-empty string. */
+const optionalNullableTitle = (value: unknown): boolean => value === undefined || value === null || (typeof value === "string" && value.trim().length > 0 && value.length <= 40);
+/** Any `*Unit` field: absent, explicitly `null`, or a short non-empty string. */
+const optionalUnit = (value: unknown): boolean => value === undefined || value === null || (typeof value === "string" && value.trim().length > 0 && value.length <= 16);
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const finiteList = (value: unknown, min: number, max: number): value is number[] => Array.isArray(value) && value.length >= min && value.length <= max && value.every(finite);
 const colorList = (value: unknown, min: number, max: number): value is string[] => Array.isArray(value) && value.length >= min && value.length <= max && value.every(item => typeof item === "string" && HEX.test(item));
@@ -121,6 +140,7 @@ function validateChoropleth(value: Record<string, unknown>): boolean {
   if (!colorList([value.nullColor], 1, 1) || !count(value.nullCount)) return false;
   if (!validOptional(value, value.colors.length)) return false;
   if ("valueKind" in value && !validNumberFormatKind(value.valueKind)) return false;
+  if ("unit" in value && !optionalUnit(value.unit)) return false;
   return true;
 }
 
@@ -129,7 +149,7 @@ function validateChoropleth(value: Record<string, unknown>): boolean {
  *  carrying a precomputed anchor point `_size_anchor`). Replaces the old 9-colour `_bi_class` grid
  *  entirely — a style in that shape is rejected, not rendered. */
 function validateBivariate(value: Record<string, unknown>): boolean {
-  if (!exactly(value, BIVARIATE_KEYS)) return false;
+  if (!hasOnly(value, BIVARIATE_KEYS, BIVARIATE_UNIT_KEYS)) return false;
   if (value.mode !== "fill-and-size") return false;
   if (!field(value.xField) || !field(value.yField) || !text(value.xLabel) || !text(value.yLabel)) return false;
   if (!validNumberFormatKind(value.xValueKind) || !validNumberFormatKind(value.yValueKind)) return false;
@@ -144,6 +164,8 @@ function validateBivariate(value: Record<string, unknown>): boolean {
   if (!intRange(value.topN, 1, 50)) return false;
   if (value.nullStyle !== "hatch") return false;
   if (!colorList([value.nullColor], 1, 1) || !count(value.nullCount)) return false;
+  if ("xUnit" in value && !optionalUnit(value.xUnit)) return false;
+  if ("yUnit" in value && !optionalUnit(value.yUnit)) return false;
   return true;
 }
 
@@ -175,7 +197,7 @@ function validateCompare(value: Record<string, unknown>): boolean {
  *  `_size_radius`); colour optionally classified from `colorField` the same way as choropleth, or a
  *  flat monochrome swatch (`palette` length 1) when there is no `colorField`. */
 function validateProportional(value: Record<string, unknown>): boolean {
-  if (!exactly(value, PROPORTIONAL_KEYS)) return false;
+  if (!hasOnly(value, PROPORTIONAL_KEYS, PROPORTIONAL_TITLE_UNIT_KEYS)) return false;
   if (!field(value.sizeField)) return false;
   if (value.colorField !== null && !field(value.colorField)) return false;
   if (value.labelField !== null && !field(value.labelField)) return false;
@@ -199,6 +221,10 @@ function validateProportional(value: Record<string, unknown>): boolean {
   if (value.nullStyle !== "hatch") return false;
   if (!colorList([value.nullColor], 1, 1) || !count(value.nullCount)) return false;
   if (!validSizeLegend(value.sizeLegend, 10)) return false;
+  if ("sizeTitle" in value && !optionalTitle(value.sizeTitle)) return false;
+  if ("sizeUnit" in value && !optionalUnit(value.sizeUnit)) return false;
+  if ("colorTitle" in value && !optionalNullableTitle(value.colorTitle)) return false;
+  if ("colorUnit" in value && !optionalUnit(value.colorUnit)) return false;
   return true;
 }
 
@@ -293,6 +319,21 @@ export function warehouseProportionalSortKey(style: Extract<WarehouseResultStyle
   return ["-", 0, ["get", style.sizeRadiusProperty]] as unknown as ExpressionSpecification;
 }
 
+/** Legend/popup label (spec G2 "標題＝指標＋單位"): a unit, when present, appends after the label
+ *  in parens. `title` is the label text to use verbatim — choropleth/bivariate always pass their
+ *  existing `label`/`xLabel`/`yLabel`; only proportional's `sizeTitle`/`colorTitle` can override the
+ *  field name before reaching here (see proportionalLegend/proportionalFact). */
+function titleWithUnit(title: string, unit: string | null | undefined): string {
+  return unit ? `${title}（${unit}）` : title;
+}
+
+/** Appends a server-declared unit after a formatted popup value (spec N1 "有單位必寫"), e.g.
+ *  "27,450 人/km²". Skipped for a "%" unit — a percent-kind value already carries its own trailing
+ *  "%" from formatVizNumber, so appending again would double it. */
+function withUnit(valueText: string, unit: string | null | undefined): string {
+  return unit && unit !== "%" ? `${valueText} ${unit}` : valueText;
+}
+
 /** Solid swatch for choropleth/heatmap; a choropleth's hatch null entry instead carries a CSS
  *  gradient matching the map-side pattern (vizNullPattern.ts). Bivariate/proportional build their
  *  own null entries inline (different semantics — see bivariateLegend/proportionalLegend). */
@@ -304,7 +345,7 @@ function nullEntry(style: Extract<WarehouseResultStyle, { kind: "choropleth" | "
 
 function choroplethLegend(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, theme: Theme): WarehouseStyleLegend {
   const colors = resolvePalette(style, theme);
-  return { kind: "choropleth", title: style.label, method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: nullEntry(style, theme) };
+  return { kind: "choropleth", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: nullEntry(style, theme) };
 }
 
 /** The y-axis size legend needs 3 *actually drawn* reference points (their real `_size_value`/
@@ -327,7 +368,7 @@ function bivariateSizeLegendFromRows(style: Extract<WarehouseResultStyle, { kind
 function bivariateLegend(style: Extract<WarehouseResultStyle, { kind: "bivariate" }>, theme: Theme, rows: readonly Record<string, unknown>[]): WarehouseStyleLegend {
   const colors = style.palette[theme];
   return {
-    kind: "bivariate", xLabel: style.xLabel, yLabel: style.yLabel,
+    kind: "bivariate", xLabel: titleWithUnit(style.xLabel, style.xUnit), yLabel: titleWithUnit(style.yLabel, style.yUnit),
     fillEntries: style.labels.map((label, index) => ({ label, color: colors[index]! })), fillBreaks: style.breaks,
     sizeLegend: bivariateSizeLegendFromRows(style, rows),
     nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) },
@@ -345,13 +386,14 @@ function heatmapLegend(style: Extract<WarehouseResultStyle, { kind: "heatmap" }>
 
 function proportionalLegend(style: Extract<WarehouseResultStyle, { kind: "proportional" }>, theme: Theme): WarehouseStyleLegend {
   const colorLegend = style.colorField ? {
-    title: style.colorField,
+    title: titleWithUnit(style.colorTitle ?? style.colorField, style.colorUnit),
     entries: style.labels.map((label, index) => ({ label, color: style.palette[theme][index]! })),
     nullEntry: { label: "無資料", color: categoricalFor(theme).other },
   } : null;
+  const sizeLabel = style.sizeTitle ?? style.sizeField;
   return {
-    kind: "proportional", sizeLabel: style.sizeField, sizeLegend: style.sizeLegend, colorLegend,
-    excludedNote: style.nullCount > 0 ? `另有 ${style.nullCount} 筆缺少可用的「${style.sizeField}」數值，未顯示` : null,
+    kind: "proportional", sizeLabel: titleWithUnit(sizeLabel, style.sizeUnit), sizeLegend: style.sizeLegend, colorLegend,
+    excludedNote: style.nullCount > 0 ? `另有 ${style.nullCount} 筆缺少可用的「${sizeLabel}」數值，未顯示` : null,
   };
 }
 
@@ -365,17 +407,17 @@ const show = (value: unknown, unit: string | null = null, kind?: VizNumberKind):
 };
 
 function choroplethFact(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
-  return { label: style.label, value: show(properties[style.valueProperty], null, style.valueKind) };
+  return { label: style.label, value: withUnit(show(properties[style.valueProperty], null, style.valueKind), style.unit) };
 }
 
 function bivariateFact(style: Extract<WarehouseResultStyle, { kind: "bivariate" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
   const x = properties[style.valueProperty];
   const yRanked = properties[style.sizeValueProperty];
   const yRaw = properties[style.yField];
-  const xText = show(x, null, style.xValueKind);
+  const xText = withUnit(show(x, null, style.xValueKind), style.xUnit);
   // A point outside the top-N sized points keeps no _size_value; fall back to its raw y field so
   // the popup still shows a real number rather than "無資料" just because it wasn't bubble-sized.
-  const yText = typeof yRanked === "number" ? show(yRanked, null, style.yValueKind) : show(yRaw, null, style.yValueKind);
+  const yText = withUnit(typeof yRanked === "number" ? show(yRanked, null, style.yValueKind) : show(yRaw, null, style.yValueKind), style.yUnit);
   return { label: `${style.xLabel} × ${style.yLabel}`, value: `${xText} / ${yText}` };
 }
 
@@ -401,14 +443,17 @@ function compareFact(style: Extract<WarehouseResultStyle, { kind: "compare" }>, 
 function proportionalFact(style: Extract<WarehouseResultStyle, { kind: "proportional" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
   const sizeValue = properties[style.sizeValueProperty];
   if (typeof sizeValue !== "number" || !Number.isFinite(sizeValue)) return null; // excluded feature, never reaches a rendered popup
-  const parts = [`${style.sizeField}: ${formatVizNumber(sizeValue, style.sizeValueKind)}`];
+  const sizeLabel = style.sizeTitle ?? style.sizeField;
+  const parts = [`${sizeLabel}: ${withUnit(formatVizNumber(sizeValue, style.sizeValueKind), style.sizeUnit)}`];
+  let colorLabel: string | null = null;
   if (style.colorField) {
+    colorLabel = style.colorTitle ?? style.colorField;
     const colorValue = style.valueProperty ? properties[style.valueProperty] : undefined;
-    parts.push(`${style.colorField}: ${show(colorValue, null, style.colorValueKind)}`);
+    parts.push(`${colorLabel}: ${withUnit(show(colorValue, null, style.colorValueKind), style.colorUnit)}`);
   }
   const rank = properties[style.labelRankProperty];
   if (typeof rank === "number") parts.push(`第 ${rank} 名`);
-  return { label: `${style.sizeField}${style.colorField ? ` × ${style.colorField}` : ""}`, value: parts.join("；") };
+  return { label: `${sizeLabel}${colorLabel ? ` × ${colorLabel}` : ""}`, value: parts.join("；") };
 }
 
 /** Per-kind registry: validate + colour/paint + legend + fact. The exported functions below are its

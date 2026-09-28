@@ -14,7 +14,7 @@ import {
 } from "../warehouseResultStyle";
 import { WarehouseStyleLegendView } from "../WarehouseStyleLegend";
 import { WarehouseCompareTableView } from "../WarehouseCompareTable";
-import { nullHatchCssGradient } from "../vizSpec";
+import { nullHatchCssGradient, VIZ_SPEC } from "../vizSpec";
 
 const choropleth = { kind: "choropleth", field: "median_price", valueProperty: "_style_value", method: "quantile", scheme: "sequential", label: "房價中位數", breaks: [40, 55, 70, 90], colors: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"], labels: ["30 – < 40", "40 – < 55", "55 – < 70", "70 – < 90", "90 – 120"], min: 30, max: 120, nullColor: "#bdbdbd", nullCount: 2 } as const satisfies WarehouseResultStyle;
 const heatmap = { kind: "heatmap", weightField: "deaths", weightProperty: "_style_weight", weightMax: 4, colors: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"], nullCount: 3 } as const satisfies WarehouseResultStyle;
@@ -54,6 +54,12 @@ const proportionalMono = {
   nullStyle: "hatch", nullColor: "#bdbdbd", nullCount: 0,
   sizeLegend: [{ value: 1000, radiusPx: 28, label: "1,000" }],
 } as const satisfies WarehouseResultStyle;
+// mcp title/unit additions (2026-09-28 correction): choropleth/bivariate keep their existing
+// label/xLabel/yLabel verbatim (no title override) and only gain a display `unit`; proportional
+// alone gains `sizeTitle`/`colorTitle` overrides alongside `sizeUnit`/`colorUnit`.
+const choroplethWithUnit = { ...choropleth, unit: "人/km²" } as const satisfies WarehouseResultStyle;
+const bivariateWithUnit = { ...bivariateV3, xUnit: "元", yUnit: "站/km²" } as const satisfies WarehouseResultStyle;
+const proportionalWithTitles = { ...proportional, sizeTitle: "人口數", sizeUnit: "人", colorTitle: "人口密度", colorUnit: "人/km²" } as const satisfies WarehouseResultStyle;
 // The pre-V3 shape (9-colour categorical grid on `_bi_class`); must now be rejected, not rendered.
 const OLD_BIVARIATE_FORMAT = { kind: "bivariate", xField: "price", yField: "stops", xLabel: "房價", yLabel: "公車站密度", classProperty: "_bi_class", xBreaks: [50, 70], yBreaks: [3, 8], classes: ["1-1", "2-1", "3-1", "1-2", "2-2", "3-2", "1-3", "2-3", "3-3"], colors: ["#e8e8e8", "#e4acac", "#c85a5a", "#b0d5df", "#ad9ea5", "#985356", "#64acbe", "#627f8c", "#574249"], nullColor: "#bdbdbd", nullCount: 1 };
 const clone = <T,>(value: T): T => structuredClone(value) as T;
@@ -109,6 +115,27 @@ describe("warehouse result style contract", () => {
       { ...choropleth, palette: { dark: choropleth.colors, light: choropleth.colors.slice(0, 2) } }, // light shorter than colors
       { ...choropleth, palette: { dark: choropleth.colors } }, // missing light
       { ...choropleth, nullStyle: "solid" },
+    ]) {
+      expect(() => validateWarehouseResultStyle(bad)).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    }
+  });
+
+  it("accepts the optional mcp title/unit display metadata and rejects a malformed one", () => {
+    expect(validateWarehouseResultStyle(clone(choroplethWithUnit))).toEqual(choroplethWithUnit);
+    expect(validateWarehouseResultStyle(clone(bivariateWithUnit))).toEqual(bivariateWithUnit);
+    expect(validateWarehouseResultStyle(clone(proportionalWithTitles))).toEqual(proportionalWithTitles);
+    // unit (and proportional's colorTitle) may be explicitly null; an old-format style with no
+    // such keys at all still renders (already covered above) — this checks the null variant too.
+    expect(validateWarehouseResultStyle({ ...choropleth, unit: null })).toEqual({ ...choropleth, unit: null });
+    expect(validateWarehouseResultStyle({ ...proportional, colorTitle: null })).toEqual({ ...proportional, colorTitle: null });
+    for (const bad of [
+      { ...choropleth, unit: "a".repeat(17) }, // unit over 16 chars
+      { ...choropleth, unit: "" }, // empty string is not a valid unit
+      { ...bivariateV3, xUnit: 5 }, // wrong type
+      { ...proportional, sizeTitle: "a".repeat(41) }, // title over 40 chars
+      { ...proportional, sizeTitle: null }, // sizeTitle has no null variant — sizeField always exists
+      { ...proportional, colorUnit: 5 }, // wrong type
+      { ...choropleth, title: "not a real field" }, // choropleth never gained a title override
     ]) {
       expect(() => validateWarehouseResultStyle(bad)).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
     }
@@ -191,6 +218,33 @@ describe("warehouse result style contract", () => {
     expect(warehouseStyleFact(choropleth, { _style_value: null })).toEqual({ label: "房價中位數", value: "無資料" });
   });
 
+  it("appends a declared unit to legend titles and popup values, and lets proportional override its field-derived title", () => {
+    const choroplethLegend = warehouseStyleLegend(choroplethWithUnit);
+    if (choroplethLegend.kind !== "choropleth") throw new Error("expected a choropleth legend");
+    expect(choroplethLegend.title).toBe("房價中位數（人/km²）");
+    expect(choroplethLegend.entries[0]!.label).toBe(choropleth.labels[0]); // units never touch the bin labels
+    expect(warehouseStyleFact(choroplethWithUnit, { _style_value: 88 })).toEqual({ label: "房價中位數", value: "88 人/km²" });
+
+    const bivariateLegend = warehouseStyleLegend(bivariateWithUnit);
+    if (bivariateLegend.kind !== "bivariate") throw new Error("expected a bivariate legend");
+    expect(bivariateLegend.xLabel).toBe("房價（元）");
+    expect(bivariateLegend.yLabel).toBe("公車站密度（站/km²）");
+    expect(warehouseStyleFact(bivariateWithUnit, { _style_value: 60, _size_value: 900, stops: 12 })!.value).toBe("60 元 / 900 站/km²");
+
+    const proportionalLegend = warehouseStyleLegend(proportionalWithTitles);
+    if (proportionalLegend.kind !== "proportional") throw new Error("expected a proportional legend");
+    expect(proportionalLegend.sizeLabel).toBe("人口數（人）");
+    expect(proportionalLegend.colorLegend!.title).toBe("人口密度（人/km²）");
+    expect(warehouseStyleFact(proportionalWithTitles, { _size_value: 900, _style_value: 42, _label_rank: 1 })).toEqual({
+      label: "人口數 × 人口密度", value: "人口數: 900 人；人口密度: 42 人/km²；第 1 名",
+    });
+
+    // A "%" unit never doubles up with formatVizNumber's own trailing "%".
+    expect(warehouseStyleFact({ ...choropleth, valueKind: "percent", unit: "%" }, { _style_value: 12.3 })!.value).toBe("12.3%");
+    // Absent title/unit fields (old-format style) render exactly as before.
+    expect(warehouseStyleLegend(proportional)).toMatchObject({ sizeLabel: "population" });
+  });
+
   it("gives bivariate V3's fill legend the actual drawn size-legend rows (not a recomputed scale), and always the hatch null entry", () => {
     const rows = [
       { _style_value: 55, _size_value: 900, _size_radius: 28, _size_rank: 1 },
@@ -255,6 +309,12 @@ describe("warehouse result style contract", () => {
     expect(proportionalHtml).toContain("<svg");
     expect(proportionalHtml).toContain("另有 2 筆缺少可用的「population」數值，未顯示");
     expect(renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(proportionalMono, "dark") }))).not.toContain("另有");
+    // KNOWN DISPLAY QUIRK (flag for the main agent, not fixed here — a WarehouseStyleLegend.tsx
+    // wording call, not this file's concern): the view appends its own "（填色）"/"（大小）" suffix
+    // after xLabel/yLabel, so a unit-bearing bivariate legend doubles up its parens, e.g.
+    // "房價（元）（填色）× 公車站密度（站/km²）（大小）". Locking this in so the fix is deliberate.
+    const bivariateUnitHtml = renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(bivariateWithUnit, "dark") }));
+    expect(bivariateUnitHtml).toContain("房價（元）（填色）× 公車站密度（站/km²）（大小）");
   });
 });
 
@@ -340,6 +400,18 @@ describe("warehouse style on the map overlay", () => {
     expect(layers.size).toBe(0);
   });
 
+  it("draws the bivariate V3 size-bubble stroke width/colour from the shared viz spec, not a local constant", () => {
+    const { map, layers } = stubMap();
+    const bivariateStyleSpec = VIZ_SPEC.styles.bivariate;
+    installAnalysisResults(map, [bivariatePolygon], 0.8, "dark");
+    const darkBubble = layers.get("research-analysis-result-bivariate-size-circle-0")!;
+    expect(darkBubble.paint["circle-stroke-width"]).toBe(bivariateStyleSpec.sizeStrokePx);
+    expect(darkBubble.paint["circle-stroke-color"]).toBe(bivariateStyleSpec.sizeStroke.dark);
+    installAnalysisResults(map, [bivariatePolygon], 0.8, "light");
+    expect(layers.get("research-analysis-result-bivariate-size-circle-0")!.paint["circle-stroke-color"]).toBe(bivariateStyleSpec.sizeStroke.light);
+    removeAnalysisResults(map);
+  });
+
   it("draws proportional circles sized by _size_radius, excludes an unsized feature, and labels only the top-N", () => {
     const { map, layers } = stubMap();
     const installed = installAnalysisResults(map, [proportionalPoints], 0.8, "dark");
@@ -362,6 +434,18 @@ describe("warehouse style on the map overlay", () => {
     expect(layers.get("research-analysis-result-proportional-label-0")!.paint["text-opacity"]).toBe(0.4);
     installAnalysisResults(map, [polygon], 0.8, "dark");
     expect(layers.has("research-analysis-result-proportional-label-0")).toBe(false);
+    removeAnalysisResults(map);
+    expect(layers.size).toBe(0);
+  });
+
+  it("resets a leftover circle-sort-key when a slot switches out of proportional into another circle-drawn kind", () => {
+    const { map, layers } = stubMap();
+    installAnalysisResults(map, [proportionalPoints], 0.8, "dark");
+    expect(layers.get("research-analysis-result-points-0")!.layout).toMatchObject({ "circle-sort-key": warehouseProportionalSortKey(proportional) });
+    // comparePoints reuses the same slot with a plain (non-proportional) circle-drawn style; the
+    // prior occupant's sort key must not linger and silently reorder this unrelated result's draw order.
+    installAnalysisResults(map, [comparePoints], 0.8, "dark");
+    expect(layers.get("research-analysis-result-points-0")!.layout?.["circle-sort-key"]).toBeUndefined();
     removeAnalysisResults(map);
     expect(layers.size).toBe(0);
   });
