@@ -676,6 +676,7 @@
 - **收尾（M2）**：地圖就緒 → 「✓ 完成」停 0.4s → 遮罩淡出 0.45s（內容同時放大 1.04）→ 主畫面元件從邊界彈入：側欄從左、工具列從上、時間軸從下、左上標題最後落下，`cubic-bezier(0.34,1.56,0.64,1)` 0.85s，依序延遲 0／0.12／0.24／0.36s；側欄圖示 0.4s 逐一放大彈出（延遲 0.4–0.7s）；整段約 1.6s（2026-09-29 依使用者要求比初版慢約 0.5s）；工具列與時間軸到位時閃一下強調色光暈（像機關卡住）。
 - **做法**：`<html data-boot="wait|enter">` 控制，要參與進場的元件只標 `data-boot-part="rail|toolbar|timeline|title"`，不必接 props；進場結束後移除 `data-boot`。30 秒還沒就緒直接跳到淡出。
 - **減少動態**：不跑波紋與彈入，只淡出。
+- **開站加速（同一輪）**：地形（DEM）只在傾斜視角時才載入（`MapView.tsx` `ensureTerrainIfTilted`），正俯視開站不再等 DEM 圖磚。
 - **禁止**：假進度條、log 終端框、漸層光暈進度（舊版已移除）；在開站畫面加入即時數字（開站時還沒有資料，會變成假數據）。
 - **實作**：`src/components/LoadingScreen.tsx`、`src/components/boot/`（`bootSequence.ts` 規格與時間、`taiwanOutline.ts` 輪廓資料、`bootScreen.css`）、`src/App.tsx`（`bootPhase`）、`src/main.tsx`。設計稿：`docs/features/ui-consistency-audit-20260927/boot-*-sheet.html`、`boot-w2-tuner.html`。
 
