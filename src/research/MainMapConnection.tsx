@@ -71,6 +71,14 @@ export function completedActivityForOperation(operation: string, data: Record<st
   return { phase: "complete", title: "這一步已完成", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `符合 ${totalMatched} 筆結果，Agent 正在整理下一步。` };
 }
 
+/**
+ * 右上「最新動作」活動卡是否顯示：只看是否有活動（配對後才會有；斷線時清空）與拍攝模式。
+ * 刻意不看左側「與 Agent 協作」面板開關——面板被左側互斥（§5.26）收起時，執行步驟仍要看得到。
+ */
+export function activityCardVisible(activity: Activity | null, uiHidden: boolean | undefined): boolean {
+  return activity !== null && !uiHidden;
+}
+
 type StyleRestoreMap = {
   once(event: "idle", listener: () => void): unknown;
   off(event: "idle", listener: () => void): unknown;
@@ -569,7 +577,7 @@ export function MainMapConnection(props: Props) {
   const panelOpen = props.embedded || open;
   const showToggle = props.showToggle ?? !props.embedded;
   return <div hidden={props.uiHidden} className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}${showToggle ? "" : " main-map-agent--persistent"}${props.isDarkTheme === false ? " main-map-agent--light" : ""}`}>
-    {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={props.uiHidden ? { display: "none" } : undefined}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
+    {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={activityCardVisible(activity, props.uiHidden) ? undefined : { display: "none" }}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
       {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow="研究" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}

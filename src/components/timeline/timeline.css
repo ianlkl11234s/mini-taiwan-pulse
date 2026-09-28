@@ -1,6 +1,6 @@
 /*
- * 左下時間軸 TL3「刻度時間軸」— UI 統一 Phase M。
- * 設計稿：docs/features/ui-consistency-audit-20260927/timeline-sheet.html 第 1 區 TL3；
+ * 左下時間軸 TC3「收合膠囊＋展開單列（TC1）」— UI 統一 Phase R（取代 Phase M 的 TL3 兩列卡片）。
+ * 設計稿：docs/features/ui-consistency-audit-20260927/timeline-compact-sheet.html 的 TC1／TC3；
  * 規格：docs/design-system.md §5.24。顏色全部取自 src/styles/tokens.css。
  * --tl-* 只是本元件的語意別名；淡色靠觸發 class（.tl3--light）指到 --light-*（同 .lpc-theme--light）。
  */
@@ -20,10 +20,11 @@
   color-scheme: dark;
 
   box-sizing: border-box;
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 12px 10px;
+  justify-content: center;
+  gap: 4px;
   background: var(--tl-surface);
   border: 1px solid var(--tl-border);
   border-radius: var(--radius-xl);
@@ -32,6 +33,34 @@
   -webkit-backdrop-filter: blur(14px);
   font-family: var(--font-cjk);
   color: var(--tl-strong);
+  outline: none;
+  /* 底邊固定（bottom），展開時往上、往右長；left 跟著左側 rail 寬度 */
+  transition: left 0.2s ease, width 0.18s ease, border-radius 0.18s ease;
+}
+
+/* 收合：小膠囊（播放、時間、細進度軸） */
+.tl3--collapsed {
+  min-height: 36px;
+  padding: 4px 14px 4px 4px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+/* 展開：TC1 單列卡片 */
+.tl3--expanded {
+  min-height: 44px;
+  padding: 6px 10px 6px 8px;
+}
+
+.tl3:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl3 {
+    transition: none;
+  }
 }
 
 .tl3--light {
@@ -55,9 +84,11 @@
   color-scheme: light;
 }
 
-/* 手機：外層 App 已提供模糊底，這裡不畫卡片 */
+/* 手機：外層 App 已提供模糊底，這裡不畫卡片；固定展開，刻度軸換到第二列 */
 .tl3--mobile {
+  min-height: 0;
   padding: 0;
+  border-radius: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -71,13 +102,26 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 上排 ── */
-.tl3-top {
+/* ── 單列 ── */
+.tl3-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
   min-width: 0;
+}
+
+.tl3--collapsed .tl3-row {
+  gap: 10px;
+}
+
+.tl3--mobile .tl3-row {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.tl3--mobile .tl3-axis {
+  order: 10;
+  flex-basis: 100%;
 }
 
 .tl3-group {
@@ -87,13 +131,8 @@
   flex-wrap: wrap;
 }
 
-.tl3-group--end {
-  margin-left: auto;
-  gap: 6px;
-}
-
 .tl3-clock {
-  font: 600 20px/1 var(--font-data);
+  font: 600 15px/1 var(--font-data);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.5px;
   color: var(--tl-strong);
@@ -119,16 +158,6 @@
   height: 6px;
   border-radius: var(--radius-full);
   background: var(--tl-live);
-}
-
-.tl3-date {
-  font: 500 11.5px/1 var(--font-cjk);
-  color: var(--tl-strong);
-  white-space: nowrap;
-}
-
-.tl3-date .mono {
-  font-size: 11.5px;
 }
 
 .tl3-date-dim {
@@ -181,19 +210,20 @@
 }
 
 .tl3-btn--play {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
 .tl3--mobile .tl3-btn--play {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
 }
 
 .tl3-btn:focus-visible,
+.tl3-chip:focus-visible,
 .tl3-select:focus-visible,
 .tl3-seg button:focus-visible,
 .tl3-date-input:focus-visible {
@@ -293,8 +323,9 @@ select.tl3-select option {
 /* ── 刻度軸 ── */
 .tl3-axis {
   position: relative;
-  height: 34px;
-  margin-top: 12px;
+  flex: 1 1 auto;
+  min-width: 80px;
+  height: 30px;
   cursor: pointer;
   touch-action: none;
   user-select: none;
@@ -316,7 +347,7 @@ select.tl3-select option {
   position: absolute;
   left: 0;
   right: 0;
-  top: 16px;
+  top: 11px;
   height: 1px;
   background: var(--tl-line);
 }
@@ -324,7 +355,7 @@ select.tl3-select option {
 .tl3-axis__done {
   position: absolute;
   left: 0;
-  top: 15px;
+  top: 10px;
   height: 3px;
   border-radius: 2px;
   background: var(--tl-fill);
@@ -332,8 +363,8 @@ select.tl3-select option {
 
 .tl3-axis__gap {
   position: absolute;
-  top: 10px;
-  height: 14px;
+  top: 5px;
+  height: 12px;
   border-radius: 2px;
   background: repeating-linear-gradient(
     135deg,
@@ -344,20 +375,20 @@ select.tl3-select option {
 
 .tl3-axis__tick {
   position: absolute;
-  top: 12px;
+  top: 7px;
   width: 1px;
   height: 9px;
   background: var(--tl-line);
 }
 
 .tl3-axis__tick--minor {
-  top: 14px;
+  top: 9px;
   height: 5px;
 }
 
 .tl3-axis__lbl {
   position: absolute;
-  top: 24px;
+  top: 19px;
   font: 9.5px/1 var(--font-data);
   font-variant-numeric: tabular-nums;
   color: var(--tl-dim);
@@ -367,23 +398,37 @@ select.tl3-select option {
 
 .tl3-axis__needle {
   position: absolute;
-  top: 2px;
+  top: 3px;
   width: 2px;
-  height: 26px;
+  height: 16px;
   margin-left: -1px;
   border-radius: 1px;
   background: var(--accent);
   pointer-events: none;
 }
 
-.tl3-axis__needle-label {
-  position: absolute;
-  top: -12px;
-  left: 0;
-  font: 600 9.5px/1 var(--font-data);
-  font-variant-numeric: tabular-nums;
-  color: var(--accent);
-  white-space: nowrap;
+/* 收合膠囊：不畫刻度與標籤，只留基線、已播放段、指針、缺漏斜線 */
+.tl3-axis--compact {
+  min-width: 60px;
+  height: 20px;
+}
+
+.tl3-axis--compact .tl3-axis__base {
+  top: 10px;
+}
+
+.tl3-axis--compact .tl3-axis__done {
+  top: 9px;
+}
+
+.tl3-axis--compact .tl3-axis__gap {
+  top: 5px;
+  height: 11px;
+}
+
+.tl3-axis--compact .tl3-axis__needle {
+  top: 3px;
+  height: 15px;
 }
 
 .tl3-axis__unit {
@@ -420,4 +465,64 @@ select.tl3-select option {
   height: 20px;
   padding: 0 7px;
   font-size: 10px;
+}
+
+/* ── 日期／時間膠囊（點開向上彈出面板） ── */
+.tl3-chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+  padding: 0 10px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--tl-strong);
+  font: 500 11px/1 var(--font-cjk);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tl3-chip:hover {
+  background: var(--control-bg-hover);
+}
+
+.tl3-chip[aria-expanded="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tl3-row > .tl3-select {
+  flex-shrink: 0;
+}
+
+.tl3-pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--tl-surface);
+  border: 1px solid var(--tl-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--tl-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  white-space: nowrap;
+}
+
+/* 手機時間軸在畫面上方：面板改往下彈 */
+.tl3--mobile .tl3-pop {
+  top: calc(100% + 8px);
+  bottom: auto;
+}
+
+.tl3-pop-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }

@@ -92,6 +92,12 @@ describe("歷史離散軸", () => {
     expect(axis.ticks.filter((t) => t.label).map((t) => t.label)).toHaveLength(12);
   });
 
+  it("月粒度限 7 個標籤：隔月標示、12 月一定標、11 月讓位", () => {
+    const axis = buildDiscreteAxis(range(1, 12), 9, String, 7);
+    expect(axis.ticks).toHaveLength(12);
+    expect(axis.ticks.filter((t) => t.label).map((t) => t.label)).toEqual(["1", "3", "5", "7", "9", "12"]);
+  });
+
   it("日粒度 31 天：隔格標、最後一天一定標", () => {
     const labels = buildDiscreteAxis(range(1, 31), 27, String).ticks.filter((t) => t.label).map((t) => t.label);
     expect(labels[0]).toBe("1");
@@ -120,8 +126,11 @@ it("formatClock 用台北時間", () => {
 
 describe("元件靜態渲染", () => {
   const noop = () => {};
-  it("即時模式：刻度軸 slider、中文控制項、沒有原生 range", () => {
+  // TC3：桌機預設收合，完整控制項在展開態；SSR 以手機（固定展開）驗展開內容。
+  // 「現在」與範圍選單在日期膠囊的彈出面板內，面板預設關閉。
+  it("即時模式（展開）：刻度軸 slider、中文控制項、沒有原生 range", () => {
     const html = renderToStaticMarkup(createElement(TimelineControls, {
+      isMobile: true,
       playing: false, speed: 60, progress: 0.5, currentTime: DAY_START + 43_200, timeMode: "live",
       selectedDate: new Date(DAY_START * 1000), rangeDays: 1, windowStart: DAY_START, windowEnd: dayEnd(1),
       onToggle: noop, onSpeedChange: noop, onSeekByProgress: noop, onJumpToTime: noop, onTimeModeChange: noop,
@@ -130,15 +139,16 @@ describe("元件靜態渲染", () => {
     expect(html).toContain('role="slider"');
     expect(html).toContain('data-viewport-occluder="timeline"');
     expect(html).toContain("即時");
-    expect(html).toContain("現在");
-    expect(html).toContain("1 天");
+    expect(html).toContain("> 天");
+    expect(html).toContain('aria-label="日期與範圍：');
     expect(html).toContain("60×");
     expect(html).not.toContain('type="range"');
     expect(html).not.toMatch(/Now|LIVE|\d+x</);
   });
 
-  it("歷史模式：年月日選單＋粒度分段", () => {
+  it("歷史模式（展開）：時間膠囊＋倍速", () => {
     const html = renderToStaticMarkup(createElement(HistoricalTimeline, {
+      isMobile: true,
       year: 115, month: 9, day: 27, availableYears: range(104, 115), playing: false, speed: 1, granularity: "month",
       isDarkTheme: false, onTogglePlay: noop, onSpeedChange: noop, onYearChange: noop, onMonthChange: noop,
       onDayChange: noop, onGranularityChange: noop,
@@ -146,7 +156,8 @@ describe("元件靜態渲染", () => {
     expect(html).toContain('data-testid="historical-timeline"');
     expect(html).toContain("tl3--light");
     expect(html).toContain("115/09");
-    expect(html).toContain('aria-pressed="true"');
+    expect(html).toContain('aria-label="時間與粒度：民國 115 年 9 月"');
+    expect(html).toContain("1×");
     expect(html).not.toContain('type="range"');
   });
 });

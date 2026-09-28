@@ -102,6 +102,11 @@
 | 6 手機標頭 | **M1** | 高 44；MTP＋座標；外露 AI／拍攝模式／⋯／帳號，按鈕 30×30 圓角 6；「⋯」選單 190px | Phase O `a22daf14` |
 | 7 其他原生滑桿 | ✔ | 共用 `controls/Slider`（`.ctl-range`）；Agent 分析結果透明度與圖層控制 `LayerParamControls` 也收斂到同一元件，`.lpc-range` 刪除；guard `native-range` 白名單只剩 `Slider.tsx` | Phase P `8c7f9fd5`；Phase Q |
 | 8 Inter 殘留 | ✔ | 全部改 `FONT_CJK`（guard `web-font` 基準歸零） | Phase N `099cf4c6`；Phase Q（App 私人圖層提示） |
+| A Agent 打開地震回放時（`timeline-compact-sheet.html`） | **A1＋活動卡右上** | 照左側面板互斥收起「與 Agent 協作」面板（只放配對與連線），Agent 保持連線；執行步驟活動卡「最新動作」固定右上（`top 100px`＝工具列列底 58＋42），不受互斥影響，只要已配對且有活動就顯示（`activityCardVisible()`） | Phase R `8d52327c` |
+| B Layers 清單與地震回放 | **B1** | 從 Layers 清單打開地震回放時，比照即時情報／衛星收起左側 rail 面板（`railCloseEpoch`），避免兩者重疊 | Phase O |
+| T 時間軸（`timeline-compact-sheet.html`） | **TC3** | 平常 270px 膠囊（播放、15px 時間、無刻度細進度軸）；滑過／focus／拖曳／點膠囊展開成 590px TC1 單列卡片（刻度軸、倍速、日期膠囊→向上彈出面板）；移出且 focus 離開 2 秒收合，拖曳中與面板開著不收；底邊與右下停靠區共用 `LAYOUT.mapBottomInset`（64），實測兩者底邊皆 836（1440×900）；手機固定展開、刻度軸換第二列 | Phase R `965deb17` |
+
+表中 commit 編號為整合前的暫定值（之後有 rebase），實際以 PR 與 master 上的 merge commit 為準。
 
 Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少），並把以上規格寫進 `docs/design-system.md` §5.5、§5.25–§5.29 與參考頁。已知未處理：手機時間軸條淡色時仍是暗色底；`Z_INDEX.toast` 暫無使用者（提示訊息需高於 1000 遮罩）；ChatPanel／手機會員面板暫放 modal 層（表上缺側欄槽位）——見 design-system §10.3。
 
