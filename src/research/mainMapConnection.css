@@ -148,6 +148,15 @@
 .main-map-agent .agent-compare-table__column { background: none; border: none; padding: 0; color: inherit; text-decoration: underline dotted; cursor: pointer; font-size: var(--font-sm); }
 .main-map-agent .agent-compare-table__best { font-weight: var(--font-weight-bold); color: var(--agent-text); }
 .main-map-agent .agent-compare-table__muted { color: var(--agent-muted); }
+/* P2 = C1: row-relative proportional mini-bar under each numeric compare cell. */
+.main-map-agent .agent-compare-table__minibar { display: block; margin-top: 2px; height: 3px; background: var(--agent-border); border-radius: var(--radius-sm); overflow: hidden; }
+.main-map-agent .agent-compare-table__minibar i { display: block; height: 100%; border-radius: var(--radius-sm); }
+/* P1/T1: shared rank-bar / trend-line SVG charts inherit text colour (currentColor) from here. */
+.main-map-agent .agent-rank-bars, .main-map-agent .agent-trend-line { margin-top: 4px; color: var(--agent-text); }
+.main-map-agent .agent-rank-bars__title, .main-map-agent .agent-trend-line__title { margin-bottom: 2px; color: var(--agent-muted); font-size: var(--font-sm); }
+.main-map-agent .agent-rank-bars svg, .main-map-agent .agent-trend-line svg { display: block; width: 100%; height: auto; }
+/* W1: "展開全部" toggle for a long 本次分析圖層 list (spec: 預設顯示前 5 筆). */
+.main-map-agent .agent-analysis-expand { width: 100%; margin-top: 6px; padding: 5px 0; color: var(--agent-muted); }
 
 /* I1 hover tip: portaled into the map container (outside .main-map-agent), one line 名稱＋數值. */
 .analysis-hover-tip { position: absolute; left: 0; top: 0; z-index: 5; display: flex; align-items: baseline; gap: 6px; max-width: 260px; padding: 3px 7px; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--surface-solid); border: 1px solid var(--border-panel); border-radius: var(--radius-md); color: var(--text-strong); font-family: var(--font-cjk); font-size: var(--font-sm); line-height: 1.4; }
