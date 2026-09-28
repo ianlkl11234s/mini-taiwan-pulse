@@ -6,7 +6,7 @@
  * 迷你開關、多選清單、眼睛隱藏鈕。樣式全在 `layerParamControls.css`。
  */
 import type { CSSProperties, ReactNode } from "react";
-import { ChevronRight, EyeOff } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import type { ParamControl, SliderConfig, ToggleConfig } from "../../state/layerParamsControls";
 import "./layerParamControls.css";
 
@@ -18,15 +18,6 @@ export function layerControlThemeClass(isDarkTheme: boolean): string {
 /** 控制區容器：圖層名稱下方、左側 1px 直線 */
 export function LayerControlArea({ isDarkTheme, style, children }: { isDarkTheme: boolean; style?: CSSProperties; children: ReactNode }) {
   return <div className={`${layerControlThemeClass(isDarkTheme)} lpc-area`} style={style}>{children}</div>;
-}
-
-/** 暫時隱藏：關掉目前展開的圖層並收合（原「Hide」按鈕的行為） */
-export function HideLayerButton({ onHide }: { onHide: () => void }) {
-  return (
-    <button type="button" className="lpc-icon-btn" title="暫時隱藏" aria-label="暫時隱藏此圖層" onClick={onHide} style={{ marginLeft: "auto" }}>
-      <EyeOff size={13} strokeWidth={1.7} />
-    </button>
-  );
 }
 
 /** 標籤在上、控件在下全寬的一列（手寫控制項也用這個） */

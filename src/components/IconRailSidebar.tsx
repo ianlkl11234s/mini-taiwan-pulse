@@ -4,7 +4,7 @@ import { PanelHeader as SharedPanelHeader } from "./sidebar/PanelHeader";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
-import { HideLayerButton, LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
+import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type ComponentType } from "react";
 import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -87,7 +87,6 @@ interface IconRailSidebarProps {
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   onAllOff: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
@@ -172,7 +171,7 @@ export function getThemeLayerKeys(themes: ThemeDef[]): (keyof LayerVisibility)[]
 export function IconRailSidebar({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode,
   counts, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
+  onViewModeChange, onDisplayModeChange, onAllOff,
   onBulkSetVisibility,
   currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
@@ -483,7 +482,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -507,7 +505,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -533,7 +530,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -557,7 +553,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -743,7 +738,6 @@ interface LayersPanelProps {
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   onAllOff: () => void;
   allOffKeys?: (keyof LayerVisibility)[];
   /** 僅 Statistics rail panel 顯示單一／重疊模式。 */
@@ -941,7 +935,7 @@ function LayersPanel({
   showMacroGroups = false,
   visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
+  onViewModeChange: _onViewModeChange, onDisplayModeChange,
   onAllOff, onBulkSetVisibility, onClose,
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
@@ -1142,7 +1136,6 @@ function LayersPanel({
                                 isTransport={false}
                                 displayMode={displayMode}
                                 onDisplayModeChange={onDisplayModeChange}
-                                onHide={onHideTransport}
                               />
                             )}
                           />
@@ -1172,7 +1165,6 @@ function LayersPanel({
                             isTransport={isTransport}
                             displayMode={displayMode}
                             onDisplayModeChange={onDisplayModeChange}
-                            onHide={onHideTransport}
                           />
                         )}
                       </div>
@@ -1195,12 +1187,11 @@ interface ExpandedControlsProps {
   isTransport: boolean;
   displayMode: DisplayMode;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHide: () => void;
 }
 
 function ExpandedControls({
   layerKey, isTransport, displayMode,
-  onDisplayModeChange, onHide,
+  onDisplayModeChange,
 }: ExpandedControlsProps) {
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
@@ -1210,19 +1201,16 @@ function ExpandedControls({
 
   return (
     <LayerControlArea isDarkTheme={isDarkTheme} style={{ margin: "2px 12px 8px 22px" }}>
-      <div className="lpc-head">
-        {isTransport && layerKey === "flights" && (
-          <>
+      {isTransport && layerKey === "flights" && (
+        <div className="lpc-head">
             <button type="button" className="lpc-btn" aria-pressed={displayMode === "status"} onClick={() => onDisplayModeChange("status")}>
               即時狀態
             </button>
             <button type="button" className="lpc-btn" aria-pressed={displayMode === "trails"} onClick={() => onDisplayModeChange("trails")}>
               航跡
             </button>
-          </>
-        )}
-        <HideLayerButton onHide={onHide} />
-      </div>
+        </div>
+      )}
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />}
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={isDarkTheme} />}

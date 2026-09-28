@@ -1523,16 +1523,6 @@ export default function App() {
     setTooltipInfo(null);
   }, [setTooltipInfo]);
 
-  const handleHideTransport = useCallback(() => {
-    setExpandedLayer((prevExpanded) => {
-      if (prevExpanded) {
-        sessionTracker.logWithSnapshot("layer_toggle", { layer: prevExpanded, on: false }, layerVisibilityRef.current);
-        setLayerVisibility((prev) => ({ ...prev, [prevExpanded]: false }));
-      }
-      return null;
-    });
-  }, [setLayerVisibility, layerVisibilityRef]);
-
   const handleAllOff = useCallback(() => {
     sessionTracker.logWithSnapshot("all_off", {}, layerVisibilityRef.current);
     setLayerVisibility((prev) => {
@@ -2142,7 +2132,6 @@ export default function App() {
               onToggleVisibility={handleToggleVisibility}
               onViewModeChange={setViewMode}
               onDisplayModeChange={handleDisplayModeChange}
-              onHideTransport={handleHideTransport}
               onAllOff={handleAllOff}
               onBulkSetVisibility={handleBulkSetVisibility}
 
@@ -2553,12 +2542,6 @@ export default function App() {
                       onToggleVisibility={handleToggleVisibility}
                       onViewModeChange={setViewMode}
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
-                      onHideTransport={() => {
-                        if (expandedLayer) {
-                          setLayerVisibility((prev) => ({ ...prev, [expandedLayer]: false }));
-                          setExpandedLayer(null);
-                        }
-                      }}
                       onBulkSetVisibility={handleBulkSetVisibility}
                     />
                   </div>

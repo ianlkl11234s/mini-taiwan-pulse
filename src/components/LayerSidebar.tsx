@@ -24,7 +24,7 @@ import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
-import { HideLayerButton, LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
+import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
@@ -58,7 +58,6 @@ interface LayerSidebarProps {
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   /** 可選的「我的」入口，由 App 持有 panel mutex 與會員狀態。 */
@@ -83,7 +82,6 @@ export function LayerSidebar({
   onToggleVisibility,
   onViewModeChange,
   onDisplayModeChange,
-  onHideTransport,
   onBulkSetVisibility,
   onMemberToggle,
   memberActive,
@@ -117,7 +115,7 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
+        onBulkSetVisibility={onBulkSetVisibility}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -208,7 +206,7 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
+        onBulkSetVisibility={onBulkSetVisibility}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -222,7 +220,7 @@ function SidebarContent({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   textColor, dimColor, baseFontSize,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport, onBulkSetVisibility,
+  onViewModeChange, onDisplayModeChange, onBulkSetVisibility,
   onMemberToggle, memberActive, favoriteKeys, onToggleFavorite,
 }: {
   visibility: LayerVisibility;
@@ -240,7 +238,6 @@ function SidebarContent({
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -521,7 +518,6 @@ function SidebarContent({
                         displayMode={displayMode}
                         onViewModeChange={onViewModeChange}
                         onDisplayModeChange={onDisplayModeChange}
-                        onHide={onHideTransport}
                       />
                     )}
                   />
@@ -644,7 +640,6 @@ function SidebarContent({
                     displayMode={displayMode}
                     onViewModeChange={onViewModeChange}
                     onDisplayModeChange={onDisplayModeChange}
-                    onHide={onHideTransport}
                   />
                 )}
               </div>
@@ -670,7 +665,6 @@ interface ExpandedPanelProps {
   displayMode: DisplayMode;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHide: () => void;
 }
 
 function ExpandedPanel({
@@ -679,7 +673,6 @@ function ExpandedPanel({
   isDarkTheme,
   displayMode,
   onDisplayModeChange,
-  onHide,
 }: ExpandedPanelProps) {
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
@@ -688,19 +681,16 @@ function ExpandedPanel({
 
   return (
     <LayerControlArea isDarkTheme={isDarkTheme} style={{ margin: "2px 14px 8px 19px" }}>
-      <div className="lpc-head">
-        {isTransport && layerKey === "flights" && (
-          <>
+      {isTransport && layerKey === "flights" && (
+        <div className="lpc-head">
             <button type="button" className="lpc-btn" aria-pressed={displayMode === "status"} onClick={() => onDisplayModeChange("status")}>
               即時狀態
             </button>
             <button type="button" className="lpc-btn" aria-pressed={displayMode === "trails"} onClick={() => onDisplayModeChange("trails")}>
               航跡
             </button>
-          </>
-        )}
-        <HideLayerButton onHide={onHide} />
-      </div>
+        </div>
+      )}
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />}
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {historicalCountry && <HistoricalFlightTrailControls country={historicalCountry} isDarkTheme={isDarkTheme} />}
