@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { isCompareSeriesRow, seriesTrendLineData, shortTaipeiDateLabel } from "../analysisResultCharts";
+import { isCompareSeriesRow, seriesTrendLineData, shortTaipeiDateLabel, warehouseSeriesTrendLineData } from "../analysisResultCharts";
+import type { WarehouseResultStyle } from "../warehouseResultStyle";
 
 describe("isCompareSeriesRow", () => {
   it("recognises a compare_series row by its closed status set", () => {
@@ -62,5 +63,41 @@ describe("seriesTrendLineData", () => {
 
   it("defaults to count valueKind for an entirely empty series (no rows at all)", () => {
     expect(seriesTrendLineData([], null).valueKind).toBe("count");
+  });
+});
+
+describe("warehouseSeriesTrendLineData", () => {
+  const withBaseline = {
+    kind: "series", timeField: "m", valueField: "v", baselineField: "ly", baselineLabel: "去年同期",
+    title: "事故件數", unit: "件", valueKind: "count",
+    periods: ["2024-01-01", "2024-02-01", "2024-03-01"], periodUnit: "month", values: [10, null, 30], baseline: [8, 20, 25],
+    min: 10, max: 30, latest: { period: "2024-03-01", value: 30 }, nullCount: 1,
+  } as const satisfies WarehouseResultStyle;
+
+  it("maps periods/values/baseline straight to index-aligned TrendLine points, with short Taipei date labels", () => {
+    const data = warehouseSeriesTrendLineData(withBaseline);
+    expect(data.points).toEqual([
+      { id: "2024-01-01", label: "01/01", value: 10 },
+      { id: "2024-02-01", label: "02/01", value: null },
+      { id: "2024-03-01", label: "03/01", value: 30 },
+    ]);
+    expect(data.baseline).toEqual([
+      { id: "2024-01-01", label: "01/01", value: 8 },
+      { id: "2024-02-01", label: "02/01", value: 20 },
+      { id: "2024-03-01", label: "03/01", value: 25 },
+    ]);
+    expect(data.title).toBe("事故件數");
+    expect(data.unit).toBe("件");
+    expect(data.baselineLabel).toBe("去年同期");
+    expect(data.valueKind).toBe("count");
+    expect(data.latestText).toBe("30");
+  });
+
+  it("omits baseline when the style has none, and says 無資料 for a null latest value", () => {
+    const noBaseline = { ...withBaseline, baselineField: null, baselineLabel: null, baseline: null, latest: { period: "2024-03-01", value: null } } as const satisfies WarehouseResultStyle;
+    const data = warehouseSeriesTrendLineData(noBaseline);
+    expect(data.baseline).toBeUndefined();
+    expect(data.baselineLabel).toBeNull();
+    expect(data.latestText).toBe("無資料");
   });
 });

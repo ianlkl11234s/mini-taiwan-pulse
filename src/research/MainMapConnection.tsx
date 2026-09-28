@@ -42,7 +42,7 @@ import type { PresentableResult } from "./researchAnalysisSession";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
 import { RankBars } from "./charts/RankBars";
 import { TrendLine } from "./charts/TrendLine";
-import { seriesTrendLineData } from "./analysisResultCharts";
+import { seriesTrendLineData, warehouseSeriesTrendLineData } from "./analysisResultCharts";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 
@@ -614,10 +614,23 @@ export function MainMapConnection(props: Props) {
           const series = analysis.current?.seriesResult(item.resultId) ?? null;
           const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
           if (series) {
-            const trend = seriesTrendLineData(series.rows, typeof series.units.value === "string" ? series.units.value : null);
+            // T1=L1: a warehouse-imported series style (pulse_wh_present kind "series") carries its
+            // own periods/values/baseline directly; a session-local read_series/compare_series result
+            // has no resultStyle and instead shapes its rows as period_start/value/baseline_value.
+            const warehouseStyle = series.resultStyle?.kind === "series" ? series.resultStyle : null;
+            const trend = warehouseStyle ? warehouseSeriesTrendLineData(warehouseStyle) : seriesTrendLineData(series.rows, typeof series.units.value === "string" ? series.units.value : null);
+            const latestText = "latestText" in trend ? trend.latestText : null;
+            const title = warehouseStyle?.title ?? series.displayLabel;
+            const unit = warehouseStyle ? warehouseStyle.unit : (typeof series.units.value === "string" ? series.units.value : null);
+            const periodCount = warehouseStyle ? warehouseStyle.periods.length : series.rows.length;
             return <li key={item.resultId} className="agent-analysis-result-item">
-              <div className="agent-analysis-row-label"><strong>{series.displayLabel}</strong><small>{series.rows.length} 期{group ? ` · ${group.label}` : ""}</small>
-                <TrendLine points={trend.points} baseline={trend.baseline} valueKind={trend.valueKind} unit={typeof series.units.value === "string" ? series.units.value : null} />
+              <div className="agent-analysis-row-label"><strong>{title}</strong>
+                <small>
+                  {periodCount} 期{group ? ` · ${group.label}` : ""}
+                  {latestText !== null ? ` · 最新一期 ${trend.points[trend.points.length - 1]?.label ?? ""}：${latestText}` : ""}
+                  {warehouseStyle?.baselineLabel ? ` · 比較基準：${warehouseStyle.baselineLabel}` : ""}
+                </small>
+                <TrendLine points={trend.points} baseline={trend.baseline} valueKind={trend.valueKind} unit={unit} />
               </div>
             </li>;
           }

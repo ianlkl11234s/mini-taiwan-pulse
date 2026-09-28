@@ -1,5 +1,6 @@
-import { classifyVizNumberKind, type VizNumberKind } from "./vizFormat";
+import { classifyVizNumberKind, formatVizNumber, type VizNumberKind } from "./vizFormat";
 import type { TrendPoint } from "./charts/TrendLine";
+import type { WarehouseResultStyle } from "./warehouseResultStyle";
 
 /**
  * Adapts a stored read_series/compare_series result's rows (analysisOperations.ts readSeries/
@@ -49,4 +50,23 @@ export function seriesTrendLineData(rows: readonly SeriesRow[], unit: string | n
     : undefined;
   const sampleValue = points.find(point => point.value !== null)?.value ?? (baseline?.find(point => point.value !== null)?.value ?? 0);
   return { points, baseline, valueKind: classifyVizNumberKind(sampleValue, unit) };
+}
+
+export type WarehouseSeriesTrendLineData = SeriesTrendLineData & { title: string; unit: string | null; latestText: string; baselineLabel: string | null };
+
+/**
+ * Adapts a warehouse-imported `series` style (mcp `pulse_wh_present`, T1=L1, no map geometry — see
+ * warehouseResultImport.ts) into TrendLine points, directly from its own `periods`/`values`/
+ * `baseline` arrays (already period-aligned server-side, unlike `seriesTrendLineData` above which
+ * reads a session-local read_series/compare_series result's per-row `period_start`/`value` shape).
+ */
+export function warehouseSeriesTrendLineData(style: Extract<WarehouseResultStyle, { kind: "series" }>): WarehouseSeriesTrendLineData {
+  const points: TrendPoint[] = style.periods.map((period, index) => ({ id: period, label: shortTaipeiDateLabel(period), value: style.values[index] ?? null }));
+  const baseline: TrendPoint[] | undefined = style.baseline
+    ? style.periods.map((period, index) => ({ id: period, label: shortTaipeiDateLabel(period), value: style.baseline![index] ?? null }))
+    : undefined;
+  return {
+    points, baseline, valueKind: style.valueKind, title: style.title, unit: style.unit, baselineLabel: style.baselineLabel,
+    latestText: style.latest.value === null ? "無資料" : formatVizNumber(style.latest.value, style.valueKind),
+  };
 }
