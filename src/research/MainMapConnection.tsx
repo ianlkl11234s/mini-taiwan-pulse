@@ -31,10 +31,11 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
-import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultPanelProperties, researchResultPopupOverlaps, type AnalysisResultPanelProperties } from "./researchResultPopup";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
+import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
@@ -422,7 +423,21 @@ export function MainMapConnection(props: Props) {
   useEffect(() => {
     const map = props.map;
     if (!map) return;
+    // I1 hover: mouse-only (touch gets neither tip nor hover outline); imperative so a mousemove
+    // never re-renders this panel. Install/redraw already drops the feature-state highlight.
+    const hoverTip = supportsAnalysisHover() ? createAnalysisHoverTip(map.getContainer()) : null;
+    const endHover = () => { hoverTip?.hide(); clearAnalysisHover(map); };
+    const hover = (event: MapMouseEvent) => {
+      if (!hoverTip) return;
+      const layers = analysisResultHoverLayerIds(map, presentedAnalysisRef.current.length);
+      const feature = layers.length ? map.queryRenderedFeatures(event.point, { layers }).find(candidate => analysisFeatureTarget(candidate)) : undefined;
+      const target = feature ? analysisFeatureTarget(feature) : null;
+      if (!feature || !target) { endHover(); return; }
+      setAnalysisHover(map, target);
+      hoverTip.show(event.point, analysisHoverLabel(feature.properties ?? {}), latest.current.isDarkTheme === false);
+    };
     const redraw = () => {
+      endHover();
       if (!map.isStyleLoaded()) return;
       const resultIds = visibleResultIds(previous.current?.results);
       const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
@@ -467,7 +482,12 @@ export function MainMapConnection(props: Props) {
       });
     };
     redraw(); map.on("style.load", redrawAfterStyleLoad); map.on("click", click);
-    return () => { cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click); latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map); };
+    if (hoverTip) { map.on("mousemove", hover); map.on("mouseout", endHover); map.on("movestart", endHover); }
+    return () => {
+      cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click);
+      if (hoverTip) { map.off("mousemove", hover); map.off("mouseout", endHover); map.off("movestart", endHover); endHover(); hoverTip.destroy(); }
+      latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
+    };
   }, [props.map]);
   useEffect(() => {
     const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];

@@ -155,3 +155,10 @@
 .main-map-agent .agent-compare-table__column { background: none; border: none; padding: 0; color: inherit; text-decoration: underline dotted; cursor: pointer; font-size: var(--font-sm); }
 .main-map-agent .agent-compare-table__best { font-weight: var(--font-weight-bold); color: var(--agent-text); }
 .main-map-agent .agent-compare-table__muted { color: var(--agent-muted); }
+
+/* I1 hover tip: portaled into the map container (outside .main-map-agent), one line 名稱＋數值. */
+.analysis-hover-tip { position: absolute; left: 0; top: 0; z-index: 5; display: flex; align-items: baseline; gap: 6px; max-width: 260px; padding: 3px 7px; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--surface-solid); border: 1px solid var(--border-panel); border-radius: var(--radius-md); color: var(--text-strong); font-family: var(--font-cjk); font-size: var(--font-sm); line-height: 1.4; }
+.analysis-hover-tip[hidden] { display: none; }
+.analysis-hover-tip__name { overflow: hidden; text-overflow: ellipsis; }
+.analysis-hover-tip__value { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.analysis-hover-tip--light { --surface-solid: var(--light-surface-solid); --border-panel: var(--light-border); --text-strong: var(--light-text-strong); --text-muted: var(--light-text-muted); }
