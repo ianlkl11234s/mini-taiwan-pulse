@@ -128,3 +128,18 @@ eyebrow「分析結果 · 圖層名」，最下接 F2 來源列。
 
 施工拆兩段：4a（小圖表、時間序列、播放列、時區）先做；4b（分析卡連結）等儲存方案拍板。
 合併三份重複 sparkline（`TimeseriesSparkline`、`PressureRing`、`AlertBoard`）延後：這些檔屬 UI 統一範圍，UI session 施工中，避免衝突。
+
+### 6.1 分析卡連結（4b）拍板（2026-09-28）
+
+調查結論：正式站是 Zeabur 靜態 nginx，沒有可接收上傳的後端；分析結果只在本機。採**方案 B**：Supabase 新表存「卡片摘要」（非原始幾何），公開讀取走 SECURITY DEFINER RPC（以 slug 讀，不開放 anon 查表）；面的形狀引用已上線的 `statistics/v1/geometries/`。
+
+| 題 | 定案 |
+|---|---|
+| 誰能發布 | **只有 owner（使用者本人）**；之後要開放再改 tier 權限 |
+| 撤銷與保留 | 可撤銷（`revoked_at`，即時生效）；**預設保留 30 天**（`expires_at`），到期排程清理 |
+| 授權閘門 | 結果的來源資料集（lineage）任一沒有 license 或標明不得再散布 → **預設擋掉**；可公開的資料集逐筆加入白名單 |
+| 查詢中心點 | **可以顯示**（原座標，不模糊） |
+| 社群預覽圖（og:image） | 先不做 |
+| 原始 features | **不保存**；看卡片的人只能看卡片，不能點開完整地圖 |
+
+其他規則：發布時只輸出白名單欄位（不帶 address、phone 等原始欄位）；Google geocode 產生座標的 21 個資料集，在查證 Google 條款前一律視為不可發布。gis-platform migration 套用到正式 Supabase 前須使用者再次確認。
