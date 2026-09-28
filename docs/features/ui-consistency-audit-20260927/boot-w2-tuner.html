@@ -73,7 +73,7 @@ figcaption{font-size:11px;color:var(--dim)}
 .showguide .guide{display:block}
 .wm{font:700 1.3cqw/1 var(--font-data);letter-spacing:.3em;color:var(--t-strong);opacity:.85}
 .wm span{color:var(--acc)}
-.wait .pill{position:static;transform:none}
+.wait .pill{position:static;transform:translateX(calc((.8em + 5px) / -2))}
 .tw{fill:var(--land);stroke:var(--acc);stroke-width:.5;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:.75}
 .city{fill:var(--acc);transform-box:fill-box;transform-origin:center}
 .city-r{fill:none;stroke:var(--acc);stroke-width:1;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:center;opacity:0}
@@ -90,9 +90,11 @@ figcaption{font-size:11px;color:var(--dim)}
 </style>
 
 <div class="panel"><div class="panel-in">
-  <label class="ctl" for="size">本島高度<input id="size" type="range" min="10" max="60" step="1" value="20"><output id="size-o"></output></label>
-  <label class="ctl" for="dot">城市點大小<input id="dot" type="range" min="0.6" max="3" step="0.1" value="1.4"><output id="dot-o"></output></label>
-  <label class="ctl" for="rip">波紋擴散<input id="rip" type="range" min="2" max="10" step="0.5" value="5"><output id="rip-o"></output></label>
+  <label class="ctl" for="size">本島高度<input id="size" type="range" min="10" max="60" step="1" value="19"><output id="size-o"></output></label>
+  <label class="ctl" for="dot">城市點大小<input id="dot" type="range" min="0.6" max="3" step="0.1" value="1.8"><output id="dot-o"></output></label>
+  <label class="ctl" for="rip">波紋擴散<input id="rip" type="range" min="2" max="10" step="0.5" value="6"><output id="rip-o"></output></label>
+  <label class="ctl" for="ox">水平位移 X<input id="ox" type="range" min="-20" max="20" step="0.5" value="0"><output id="ox-o"></output></label>
+  <label class="ctl" for="oy">垂直位移 Y<input id="oy" type="range" min="-20" max="20" step="0.5" value="0"><output id="oy-o"></output></label>
   <label class="ctl" for="cycle">一輪時間<input id="cycle" type="range" min="1.2" max="4" step="0.1" value="2.2"><output id="cycle-o"></output></label>
   <div class="row">
     <button type="button" id="guide" aria-pressed="true">十字線</button>
@@ -107,7 +109,7 @@ figcaption{font-size:11px;color:var(--dim)}
 <div class="wrap">
 <header>
   <h1>W2 城市脈動：大小調整</h1>
-  <p class="lead">預覽框是 <b>1440×900</b> 螢幕的等比縮小。<b>台灣本島的外框中心對齊畫面正中央</b>（紅色十字，虛線框是本島範圍），離島跟著本島排；高度也改成量本島，用「佔螢幕高度的百分比」表示，旁邊換算成 1440×900 時的像素。調好後按「複製」把設定貼給我。</p>
+  <p class="lead">預覽框是 <b>1440×900</b> 螢幕的等比縮小。<b>台灣本島的外框中心對齊畫面正中央</b>（紅色十字，虛線框是本島範圍；X／Y 位移以此為原點，正值往右／往下），離島跟著本島排；高度也改成量本島，用「佔螢幕高度的百分比」表示，旁邊換算成 1440×900 時的像素。調好後按「複製」把設定貼給我。</p>
 </header>
 <div class="pair">
   <figure><div class="scr" data-scene></div><figcaption>暗色</figcaption></figure>
@@ -132,7 +134,7 @@ figcaption{font-size:11px;color:var(--dim)}
   const $=id=>document.getElementById(id);
   const st={lbl:false,wm:true,hold:true,guide:true};
   function apply(){
-    const size=+$('size').value,dot=+$('dot').value,rip=+$('rip').value,cycle=+$('cycle').value;
+    const ox=+$('ox').value,oy=+$('oy').value,size=+$('size').value,dot=+$('dot').value,rip=+$('rip').value,cycle=+$('cycle').value;
     // svg 高度佔畫面高度百分比；viewBox 高 D.h+8，城市點半徑換算成 viewBox 單位（以 900px 螢幕的 px 為準）
     // size = 本島高度佔畫面高度 %；本島外框中心對齊畫面中心（框高 62.5cqw）
     const [mx0,my0,mx1,my1]=D.main,mh=my1-my0,cx=(mx0+mx1)/2,cy=(my0+my1)/2;
@@ -146,18 +148,21 @@ figcaption{font-size:11px;color:var(--dim)}
       s.classList.toggle('nolabel',!st.lbl);s.classList.toggle('nowm',!st.wm);s.classList.toggle('showguide',st.guide);
       const sv=s.querySelector('.wait svg');
       sv.style.width=((D.w+16)*u)+'cqw';sv.style.height=((D.h+8)*u)+'cqw';
-      sv.style.left=(50-(cx+8)*u)+'cqw';sv.style.top=(31.25-(cy+4)*u)+'cqw';
-      s.querySelector('.foot').style.top=(31.25+(D.h-cy)*u+2.2)+'cqw';
+      const X=50+ox,Y=31.25+oy*.625;
+      sv.style.left=(X-(cx+8)*u)+'cqw';sv.style.top=(Y-(cy+4)*u)+'cqw';s.querySelector('.foot').style.left=X+'cqw';
+      s.querySelector('.foot').style.top=(Y+(D.h-cy)*u+2.2)+'cqw';
       const g=s.querySelector('.guide i');
-      g.style.left=(50-(cx-mx0)*u)+'cqw';g.style.top=(31.25-(cy-my0)*u)+'cqw';g.style.width=((mx1-mx0)*u)+'cqw';g.style.height=(mh*u)+'cqw';
+      g.style.left=(X-(cx-mx0)*u)+'cqw';g.style.top=(Y-(cy-my0)*u)+'cqw';g.style.width=((mx1-mx0)*u)+'cqw';g.style.height=(mh*u)+'cqw';
     });
     $('size-o').textContent=size+'% · '+Math.round(size/100*900)+'px';
     $('dot-o').textContent=(dot*1.6*2).toFixed(1)+'px';
     $('rip-o').textContent='×'+rip;
     $('cycle-o').textContent=cycle.toFixed(1)+'s';
-    $('spec').textContent='本島高度 '+size+'vh（'+Math.round(size/100*900)+'px@900）· 點 '+(dot*3.2).toFixed(1)+'px · 波紋 ×'+rip+' · 一輪 '+cycle.toFixed(1)+'s · 名稱 '+(st.lbl?'開':'關')+' · 品牌字 '+(st.wm?'開':'關');
+    const sg=v=>(v>0?'+':'')+v;
+    $('ox-o').textContent=sg(ox)+'vw';$('oy-o').textContent=sg(oy)+'vh';
+    $('spec').textContent='本島高度 '+size+'vh（'+Math.round(size/100*900)+'px@900）· 點 '+(dot*3.2).toFixed(1)+'px · 波紋 ×'+rip+' · X '+sg(ox)+'vw · Y '+sg(oy)+'vh · 一輪 '+cycle.toFixed(1)+'s · 名稱 '+(st.lbl?'開':'關')+' · 品牌字 '+(st.wm?'開':'關');
   }
-  ['size','dot','rip','cycle'].forEach(id=>$(id).addEventListener('input',apply));
+  ['size','dot','rip','cycle','ox','oy'].forEach(id=>$(id).addEventListener('input',apply));
   const tog=id=>$(id).addEventListener('click',()=>{st[id]=!st[id];$(id).setAttribute('aria-pressed',String(st[id]));apply();if(id==='hold')play()});
   tog('lbl');tog('wm');tog('hold');tog('guide');
   const ALL=['s-load','s-done','s-enter','s-settle'];let timers=[];
