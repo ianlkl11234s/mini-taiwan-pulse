@@ -471,6 +471,27 @@ export class ResearchAnalysisSession {
 
   hasResult(resultId: string): boolean { return this.store.has(resultId); }
 
+  /** True when the stored result (if any) has an actual map-drawable geometry. read_series/
+   *  compare_series output (recordGrain "series", geometry "none") is analysis-only — never eligible,
+   *  and never thrown for; callers use this to keep a non-spatial result out of a `presentable()`
+   *  batch instead of letting one such id fail the whole batch (spec P3=W3: these results get their
+   *  own TrendLine card, not a map layer). A missing/expired id is also just "not eligible". */
+  mapEligible(resultId: string): boolean {
+    const result = this.store.get(resultId) as StoredDataResult | null;
+    return !!result && isMapEligibleGeometry(result.geometry);
+  }
+
+  /** Non-spatial analysis-only result (recordGrain "series") for a TrendLine card: same store-backed,
+   *  access-checked lookup as `presentable()`, without its map-eligibility gate. Returns null for a
+   *  missing/expired id or a result that is not series-shaped, rather than throwing — callers treat
+   *  "nothing to show as a trend" the same as "this item isn't a series result". */
+  seriesResult(resultId: string): { resultId: string; displayLabel: string; rows: readonly Record<string, unknown>[]; units: StoredDataResult["units"] } | null {
+    this.assertResultAccess(resultId);
+    const result = this.store.get(resultId) as StoredDataResult | null;
+    if (!result || result.recordGrain !== "series") return null;
+    return { resultId: result.resultId, displayLabel: resultDisplayLabel(result), rows: result.rows, units: result.units };
+  }
+
   presentable(resultIds: readonly string[]): PresentableResult[] {
     if (!resultIds.length || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
     if (resultIds.length > RESULT_COLLECTION_LIMITS.maxLogicalResults) throw new Error("RESULT_COLLECTION_LOGICAL_LIMIT");

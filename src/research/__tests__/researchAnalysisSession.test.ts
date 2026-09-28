@@ -89,6 +89,47 @@ describe("research analysis session", () => {
     expect(session.execute("get_analysis_result", { resultId, limit: 50 })).toMatchObject({ totalRows: 22, sourceRefs: [sourceRef], rows: expect.arrayContaining([expect.objectContaining({ area_code: rows[0]?.area_code, value: 1_000, normalizedValue: 10 })]) });
   });
 
+  it("treats a series (geometry:none) result as map-ineligible, and a spatial one as eligible", () => {
+    const session = new ResearchAnalysisSession();
+    const store = (session as unknown as { store: { put: (value: object) => void } }).store;
+    store.put({
+      resultId: "points", datasetId: "fixture-points", recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] } }], sourceRefs: [], coverage: "fixture", freshness: "current", units: {},
+    });
+    store.put({
+      resultId: "series-result", datasetId: "fixture-events", recordGrain: "series", geometry: { type: "none", role: "none", spatialAnalysisEligible: false },
+      rows: [{ period_start: "2026-09-01T00:00:00+08:00", value: 4, records: 1, missing_value: 0 }],
+      sourceRefs: [], coverage: "fixture", freshness: "current", units: { value: "items" },
+    });
+    expect(session.mapEligible("points")).toBe(true);
+    expect(session.mapEligible("series-result")).toBe(false);
+    expect(session.mapEligible("does-not-exist")).toBe(false);
+    expect(() => session.presentable(["points", "series-result"])).toThrow("RESULT_NOT_MAP_ELIGIBLE");
+  });
+
+  it("reads a series result's rows without the map-eligibility gate, and returns null for a non-series or missing id", () => {
+    const session = new ResearchAnalysisSession();
+    const store = (session as unknown as { store: { put: (value: object) => void } }).store;
+    store.put({
+      resultId: "series-result", datasetId: "fixture-events", recordGrain: "series", geometry: { type: "none", role: "none", spatialAnalysisEligible: false },
+      rows: [
+        { period_start: "2026-09-01T00:00:00+08:00", value: 4, records: 1, missing_value: 0 },
+        { period_start: "2026-09-02T00:00:00+08:00", value: null, records: 1, missing_value: 1 },
+      ],
+      sourceRefs: [], coverage: "fixture", freshness: "current", units: { value: "items" },
+    });
+    store.put({
+      resultId: "points", datasetId: "fixture-points", recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] } }], sourceRefs: [], coverage: "fixture", freshness: "current", units: {},
+    });
+    expect(session.seriesResult("series-result")).toMatchObject({
+      resultId: "series-result", units: { value: "items" },
+      rows: [{ period_start: "2026-09-01T00:00:00+08:00", value: 4 }, { period_start: "2026-09-02T00:00:00+08:00", value: null }],
+    });
+    expect(session.seriesResult("points")).toBeNull(); // spatial, not a series result
+    expect(session.seriesResult("does-not-exist")).toBeNull();
+  });
+
   it("dispatches generic point-to-area joins and area aggregation by result id", () => {
     const session = new ResearchAnalysisSession();
     const store = (session as unknown as { store: { put: (value: object) => void } }).store;
