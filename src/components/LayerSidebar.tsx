@@ -18,7 +18,7 @@ import {
   TRANSPORT_LABELS,
   type ThemeDef,
 } from "./sidebar/layerCatalog";
-import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { SURFACE, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
@@ -475,16 +475,22 @@ function SidebarContent({
 
             {!isCollapsed && theme.groups.map((group) => (
               <div key={group.title}>
+                {/* L2 群組標題：CJK 標題＋右側 1px 細線拉到底（淘汰「└」字元縮排） */}
                 <div
                   style={{
-                    fontSize: baseFontSize,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    fontFamily: FONT_CJK,
+                    fontSize: FONT_SIZE.sm,
                     fontWeight: 600,
-                    letterSpacing: 1.2,
-                    color: isDarkTheme ? "#D1D5DB" : "rgba(0,0,0,0.7)",
-                    padding: "10px 14px 4px 24px",
+                    letterSpacing: 0.6,
+                    color: isDarkTheme ? "#9CA3AF" : "#4B5563",
+                    padding: "10px 14px 3px 12px",
                   }}
                 >
-                  └ {group.title}
+                  <span>{group.title}</span>
+                  <span aria-hidden="true" style={{ flex: 1, height: 1, background: isDarkTheme ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
                 </div>
 
                   {group.layers.map(({ key, label, labelMobile, expandable }) => {

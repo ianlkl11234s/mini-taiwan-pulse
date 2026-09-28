@@ -12,7 +12,7 @@ import { ResearchActivity } from "./ResearchActivityCard";
 import { activityForOperation, appendActivity, type Activity } from "./researchActivity";
 import { cancelResearchMotion, moveResearchCamera } from "./researchMotion";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
+import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { layerParamsStore } from "../state/layerParamsStore";
@@ -33,13 +33,15 @@ import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
 import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
-import { researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle } from "./researchResultPopup";
+import { researchResultPanelProperties, researchResultPopupOverlaps, type AnalysisResultPanelProperties } from "./researchResultPopup";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 
-type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean };
+type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
+  /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
+  onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", ...ANALYSIS_OPERATIONS]);
 
@@ -118,7 +120,6 @@ export function MainMapConnection(props: Props) {
   const applying = useRef(false);
   const previous = useRef<Scene | null>(null);
   const generation = useRef(0);
-  const resultPopup = useRef<mapboxgl.Popup | null>(null);
   const capture = useCallback((): Scene => {
     // Result switches must preserve the rendered camera, including Agent fitBounds
     // movements that have not propagated into the application's bridge snapshot.
@@ -129,7 +130,7 @@ export function MainMapConnection(props: Props) {
   }, []);
   const clearAnalysisPresentation = useCallback((syncScene: boolean) => {
     ++generation.current;
-    resultPopup.current?.remove(); resultPopup.current = null;
+    latest.current.onAnalysisResultFeature?.(null);
     if (latest.current.map) removeAnalysisResults(latest.current.map);
     presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]); setAnalysisOpacityValue({ defaultOpacity: 0.85, byResult: {} });
     resultCollectionRef.current = null; setResultCollection(null);
@@ -194,7 +195,7 @@ export function MainMapConnection(props: Props) {
       const previousResultIds = presentedAnalysisRef.current.map(result => result.resultId);
       const nextResultIds = analysisResults.map(result => result.resultId);
       if (JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds)) {
-        resultPopup.current?.remove(); resultPopup.current = null;
+        latest.current.onAnalysisResultFeature?.(null);
       }
       // Camera-only commands keep the same immutable result rows. Calling
       // GeoJSONSource#setData for those commands needlessly reloads sources.
@@ -440,49 +441,18 @@ export function MainMapConnection(props: Props) {
         setAvailableAnalysis([]);
       }
     };
-    const click = (event: mapboxgl.MapMouseEvent) => {
+    const click = (event: MapMouseEvent) => {
       const layers = analysisResultInteractiveLayerIds(map, presentedAnalysisRef.current.length);
       const overlaps = researchResultPopupOverlaps(layers.length ? map.queryRenderedFeatures(event.point, { layers }) : []);
+      // No hit: the App's own map click handler owns clearing or replacing the docked panel.
       if (!overlaps.features.length) return;
-      const content = document.createElement("article"); content.className = "research-result-popup";
-      const eyebrow = document.createElement("span"); eyebrow.className = "research-result-popup__eyebrow"; eyebrow.textContent = "ANALYSIS RESULT";
-      const title = document.createElement("strong"); title.className = "research-result-popup__title";
-      const facts = document.createElement("dl"); facts.className = "research-result-popup__facts";
-      const appendFact = (label: string, value: string) => {
-        const row = document.createElement("div");
-        const term = document.createElement("dt"); term.textContent = label;
-        const detail = document.createElement("dd"); detail.textContent = value;
-        row.append(term, detail); facts.append(row);
-      };
-      const render = (feature: (typeof overlaps.features)[number]) => {
-        const properties = feature.properties ?? {};
-        title.textContent = researchResultPopupTitle(properties);
-        facts.replaceChildren();
-        if (properties.datasetId) appendFact("DATASET", String(properties.datasetId));
-        for (const fact of researchResultPopupFacts(properties)) appendFact(fact.label, fact.value);
-        const distance = researchResultPopupDistance(properties.distanceM);
-        if (distance) appendFact("DISTANCE", distance);
-        if (properties.source_version) appendFact("VERSION", String(properties.source_version));
-        if (properties.boundary_version) appendFact("BOUNDARY", String(properties.boundary_version));
-        if (!facts.childElementCount) appendFact("RECORD", "本次分析命中的空間紀錄");
-      };
-      let selector: HTMLLabelElement | null = null;
-      if (overlaps.features.length > 1) {
-        selector = document.createElement("label"); selector.className = "research-result-popup__overlaps";
-        const label = document.createElement("span"); label.textContent = `本位置 ${overlaps.total} 筆紀錄`;
-        const select = document.createElement("select"); select.setAttribute("aria-label", "選擇重疊分析紀錄");
-        overlaps.features.forEach((feature, index) => {
-          const option = document.createElement("option"); option.value = String(index); option.textContent = `${index + 1}. ${researchResultPopupTitle(feature.properties ?? {})}`; select.append(option);
-        });
-        select.addEventListener("change", () => render(overlaps.features[Number(select.value)] ?? overlaps.features[0]!));
-        selector.append(label, select);
-      }
-      render(overlaps.features[0]!);
-      const note = document.createElement("p"); note.className = "research-result-popup__note"; note.textContent = "暫時分析結果 · 非完整來源圖層";
-      if (overlaps.omitted) note.textContent += ` · 另有 ${overlaps.omitted} 筆重疊紀錄未列出`;
-      content.append(eyebrow, ...(selector ? [selector] : []), title, facts, note);
-      resultPopup.current?.remove();
-      resultPopup.current = new mapboxgl.Popup({ className: `research-result-map-popup research-result-map-popup--${latest.current.isDarkTheme === false ? "light" : "dark"}`, closeButton: true, maxWidth: "300px", offset: 12 }).setLngLat(event.lngLat).setDOMContent(content).addTo(map);
+      // Registered after useMapInteraction's click listener (map is only passed once prepared),
+      // so within one batched click this panel wins over its synchronous "blank click" clear.
+      latest.current.onAnalysisResultFeature?.(researchResultPanelProperties(
+        overlaps,
+        resultId => presentedAnalysisRef.current.find(result => result.resultId === resultId),
+        datasetId => describeDataset(datasetId, latest.current.locked).label,
+      ));
     };
     let cancelStyleRestore: (() => void) | null = null;
     const redrawAfterStyleLoad = () => {
@@ -497,7 +467,7 @@ export function MainMapConnection(props: Props) {
       });
     };
     redraw(); map.on("style.load", redrawAfterStyleLoad); map.on("click", click);
-    return () => { cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click); resultPopup.current?.remove(); resultPopup.current = null; removeAnalysisResults(map); };
+    return () => { cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click); latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map); };
   }, [props.map]);
   useEffect(() => {
     const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];
@@ -511,7 +481,7 @@ export function MainMapConnection(props: Props) {
     }, 1_000);
     return () => window.clearInterval(timer);
   }, [clearAnalysisPresentation, resultCollection, setActivity]);
-  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; resultPopup.current?.remove(); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
+  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; latest.current.onAnalysisResultFeature?.(null); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;
   const showToggle = props.showToggle ?? !props.embedded;
   return <div hidden={props.uiHidden} className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}${showToggle ? "" : " main-map-agent--persistent"}${props.isDarkTheme === false ? " main-map-agent--light" : ""}`}>

@@ -6,7 +6,7 @@ import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatistic
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
-import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
@@ -127,7 +127,7 @@ interface IconRailSidebarProps {
 interface RailPalette {
   ACCENT: string; ACCENT_TOGGLE: string; BG_RAIL: string; BG_PANEL: string;
   BORDER: string; DIM: string; INACTIVE_TEXT: string;
-  TEXT_STRONG: string; SUB_LABEL: string; BANNER_BG: string; SEARCH_BG: string;
+  TEXT_STRONG: string; BANNER_BG: string; SEARCH_BG: string;
   TOGGLE_OFF: string; TOGGLE_KNOB_ON: string; TOGGLE_KNOB_OFF: string;
   ROW_HOVER: string; ROW_ACTIVE: string; RAIL_ICON_ACTIVE: string;
   CTRL_ACTIVE_BG: string; CTRL_INACTIVE_BG: string; CTRL_ACTIVE_BORDER: string; CTRL_INACTIVE_BORDER: string;
@@ -138,7 +138,7 @@ interface RailPalette {
 const DARK_PALETTE: RailPalette = {
   ACCENT: "#E5E7EB", ACCENT_TOGGLE: "#FFFFFF", BG_RAIL: "#0D0E10", BG_PANEL: "rgba(0,0,0,0.45)",
   BORDER: "#2A2D32", DIM: "#6B7280", INACTIVE_TEXT: "#9CA3AF",
-  TEXT_STRONG: "#fff", SUB_LABEL: "#D1D5DB", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
+  TEXT_STRONG: "#fff", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
   TOGGLE_OFF: "#4B5563", TOGGLE_KNOB_ON: "#1a1a1a", TOGGLE_KNOB_OFF: "#fff",
   ROW_HOVER: "rgba(255,255,255,0.03)", ROW_ACTIVE: "rgba(255,255,255,0.06)", RAIL_ICON_ACTIVE: "rgba(255,255,255,0.08)",
   CTRL_ACTIVE_BG: "rgba(255,255,255,0.12)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.4)",
@@ -150,7 +150,7 @@ const DARK_PALETTE: RailPalette = {
 const LIGHT_PALETTE: RailPalette = {
   ACCENT: "#374151", ACCENT_TOGGLE: "#1F2937", BG_RAIL: "#FFFFFF", BG_PANEL: "rgba(255,255,255,0.92)",
   BORDER: "rgba(0,0,0,0.10)", DIM: "#9CA3AF", INACTIVE_TEXT: "#6B7280",
-  TEXT_STRONG: "#111827", SUB_LABEL: "#4B5563", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
+  TEXT_STRONG: "#111827", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
   TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff",
   ROW_HOVER: "rgba(0,0,0,0.04)", ROW_ACTIVE: "rgba(0,0,0,0.05)", RAIL_ICON_ACTIVE: "rgba(0,0,0,0.07)",
   CTRL_ACTIVE_BG: "rgba(0,0,0,0.10)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.03)",
@@ -896,20 +896,26 @@ function ThemeBanner({
   );
 }
 
+/** L2 群組標題：CJK 標題＋右側 1px 細線拉到底（淘汰「└」字元縮排）。 */
 function SubGroupLabel({ children }: { children: string }) {
-  const { SUB_LABEL } = useRailTheme();
+  const { COLOR_SCHEME } = useRailTheme();
+  const dark = COLOR_SCHEME === "dark";
   return (
     <div
       style={{
-        color: SUB_LABEL,
-        fontFamily: FONT_DATA,
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        color: dark ? "#9CA3AF" : "#4B5563",
+        fontFamily: FONT_CJK,
         fontSize: FONT_SIZE.sm,
         fontWeight: 600,
-        letterSpacing: 1.2,
-        padding: "10px 12px 4px 22px",
+        letterSpacing: 0.6,
+        padding: "10px 12px 3px 12px",
       }}
     >
-      └ {children}
+      <span>{children}</span>
+      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
     </div>
   );
 }
