@@ -550,7 +550,7 @@
 |---|---|---|---|
 | 地圖覆蓋 | `mapOverlay`／`--z-map-overlay` | 10 | 地圖上的標記、選取圈；**左下時間軸（桌機卡片與手機時間軸條）** |
 | 浮動面板 | `floatingPanel`／`--z-floating-panel` | 20 | 左側 rail 面板（Layers、資料來源…）、地震回放、Agent 面板與活動卡、右下停靠 popup＋圖例、桌機會員專區 |
-| 工具列 | `toolbar`／`--z-toolbar` | 25 | 右上工具列（T2）、手機標頭（M1）、拍攝模式離開提示 |
+| 工具列 | `toolbar`／`--z-toolbar` | 25 | 右上工具列（T2）、手機標頭（M1）、拍攝模式離開提示、載入狀態條（§5.30） |
 | 彈出層 | `popover`／`--z-popover` | 30 | 下拉選單（底圖、帳號、手機「⋯」）、hover tooltip、日本水資源／醫療載入失敗提示（`JpWaterAlert`／`JpMedicalAlert`，在 `LayerHosts` 最後渲染，蓋過選單但在置中視窗之下） |
 | 置中視窗 | `modal`／`--z-modal` | 40 | 說明、分享視窗；同層另有 AI 對話浮層（`ChatPanel`）與手機會員專區（見下方 DOM 順序） |
 | 提示訊息 | `toast`／`--z-toast` | 50 | 保留給不需要蓋過「資料更新中」遮罩的提示；目前無使用者（見特例） |
@@ -562,7 +562,7 @@
 | 元件 | 值 | 理由 |
 |---|---|---|
 | `LoadingScreen` | 9999 | 啟動畫面，蓋住一切 |
-| 資料更新中遮罩（App day-loading overlay）、`LoadingIndicator` | 1000 | 全畫面半透明遮罩＋進度，需在所有介面之上 |
+| 資料更新中遮罩（App day-loading overlay） | 1000 | 全畫面半透明遮罩＋進度，需在所有介面之上 |
 | `TransientNotice`、私人圖層提示（App `gatedNotice`） | 3000 | 提示訊息必須高於 1000 的資料更新中遮罩（否則被壓暗、模糊）；時間切換時兩者常同時出現 |
 | `AdminPanel` | 10001 | 管理者視窗，最高 |
 | 圖層 host 錯誤提示（`allenCoralHost`、`coralReefHost`） | 10000 | 私人資料存取錯誤必須可見 |
@@ -619,6 +619,38 @@
 - **`⋯` 選單**：向下靠右、寬 190px、padding 4、`RADIUS.xl`、`Z_INDEX.popover`；列 padding `7px 8px`、icon 15px、12px `FONT_CJK`；開關類項目 accent 字＋600＋`aria-pressed`。內容：說明、分享、3D／2D 切換（右側附目前值）、本地 Agent（僅 DEV）、會員專區。點外面或 Esc 關閉。
 - **禁止**：在手機標頭再加外露按鈕（新入口一律收進 `⋯`）；第二排。
 - **實作**：`src/App.tsx`（手機分支、`mobileIconButtonStyle`）、`src/components/toolbar/MobileMoreMenu.tsx`、`src/components/auth/UserAvatar.tsx`（`compact`）。
+
+### 5.30 載入狀態條
+
+2026-09-28 拍板（比較頁 `docs/features/ui-consistency-audit-20260927/loading-status-sheet.html` 的 S1）。取代舊的 `LoadingIndicator`（英文大寫「LOADING」卡片、`top 110px`、z-index 1000，和 Agent 活動卡重疊、一閃即逝）。
+
+- **位置**：工具列正下方、貼齊工具列右緣：桌機 `top 60px`、`right 16px`（工具列底約 52、Agent 活動卡頂 100，放在兩者之間）；手機 `top 52px`、`right 10px`；Monitor split 時讓到 dock 左邊。層級 `Z_INDEX.toolbar`。拍攝模式不顯示。
+- **外觀**：單行，高 22、padding `0 9px`、`RADIUS.lg`；底 `SURFACE.strong`＋1px `BORDER.panel`＋`ELEVATION.lg`＋`blur(12px)`（淡色用 `--light-*`）。10px `FONT_CJK`；項數 `+N` 用 `FONT_DATA` tabular-nums、`textDim`。圖示 10px：載入中＝accent 細圈轉動、完成＝`statusLive` 勾、失敗＝`statusErr` 三角。
+- **文案**：「載入中 · 名稱」＋`+N`（同時進行的其他項數）；「已載入 · 名稱」或「已載入 N 項」；「載入失敗 · 名稱」（名稱也用錯誤色）。不用英文、不用大寫、不逐項列出。
+- **節奏**（`src/lib/loadingStatusController.ts` 的 `LOADING_STATUS_TIMING`）：
+
+| 規則 | 值 |
+|---|---|
+| 出現前延遲（這段內就完成的任務不顯示） | 150ms |
+| 「載入中」最短停留 | 600ms |
+| 全部結束後合併等待（這段內有新任務就算同一批） | 300ms |
+| 「已載入」停留，之後淡出 | 2 秒；淡出 0.5 秒（出現 0.22 秒） |
+| 失敗停留 | 4 秒 |
+| 時間軸、地震回放、歷史軌跡播放中 | 只顯示「載入中」，停下後才顯示「已載入」 |
+| 換任務 | 只換文字（0.16 秒淡入），框不重跑出現動畫 |
+
+- **失敗怎麼判定**：`withLoading` 的 Promise reject，或 Supabase 回傳 `{ error }`，都算失敗（`loadingRegistry.end(id, true)`）。`keepLoadingUntilMapIdle` 的逾時保底不算失敗。
+- **減少動態**：`prefers-reduced-motion` 時不位移、不轉圈，只淡入淡出。
+- **實作**：`src/components/LoadingStatus.tsx`＋`loadingStatus.css`；事件來源 `loadingRegistry.subscribeEvents()`。
+- **禁止**：另做一個右上載入提示；用 z-index 1000 壓過面板；載入一結束就立刻讓提示消失。
+
+### 5.31 Agent 處理中光暈
+
+2026-09-28 拍板（同一比較頁的 A1）。Agent 執行步驟（`working`／`presenting`）時，地圖四周加一圈很淡的強調色內光暈，告訴使用者系統正在處理。
+
+- **顏色**：`--accent`（淡色底圖由 `.research-activity-position--light` 換成 `--light-accent`）；內陰影 `inset 0 0 40px` 22%＋`inset 0 0 110px` 10%。不用白色（舊版在淡色底圖上是一圈白邊）。
+- **動態**：節點常駐，只切換 class：淡入 0.6 秒、淡出 0.9 秒；**不忙碌 1.5 秒後才熄**（`GLOW_LINGER_MS`），步驟之間短暫不忙碌時不會熄滅再亮起。不做無限循環的明暗閃動。`prefers-reduced-motion` 時不做過渡。
+- **實作**：`src/research/ResearchActivityCard.tsx`（`useLingeringFlag`）、`researchActivity.css`。
 
 ## 6. 文案規則
 
@@ -771,6 +803,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | P | 第二輪：說明／分享視窗 H2、分享欄位 `1fr auto`、共用滑桿 `controls/Slider` | ✅ | `1370a736`、`3f8b9741`、`8c7f9fd5` |
 | Q | 第二輪收尾：置中視窗／對話浮層／會員面板歸層、Agent 透明度滑桿與圖層滑桿收斂到 `controls/Slider`、guard `raw-z-index`、本文件與參考頁 | ✅ | `54728865`、`6c43deb2`＋本文件 commit |
 | R | 第二輪：時間軸 TC3（收合膠囊＋展開單列 TC1、底邊與右下停靠區共用 `LAYOUT.mapBottomInset`）、Agent 活動卡固定右上不受左側互斥影響（A1） | ✅ | `965deb17`、`8d52327c`＋本文件 commit |
+| S | 載入狀態條（§5.30，取代 `LoadingIndicator`）、Agent 處理中光暈平滑化（§5.31） | ✅ | 本 PR |
 
 ### 10.2 區塊狀態
 
@@ -804,7 +837,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 設定（Settings） | 第二輪已移除 rail 上沒有功能的設定鈕（S1）；目前沒有設定入口，真的有設定需求再加（§1「不放沒有功能的按鈕」） | — |
 | 等寬中文 | 3 處 | `FoodPriceBoard.tsx`、`TelecomStatusCard.tsx`、`ManeuverCompareModal.tsx` |
 | popup 暗色連結色 | `DARK_FEATURE.link = #7DD3FC`，與 `COLORS.link #7fb2ff` 不同；本輪只做等值替換未改 | `featureTheme.tsx` |
-| 其他手刻淡色物件 | `UserAvatar`（陰影、分隔線、hover 值不在 token 階）、`LegendPanel` `LIGHT_LEGEND`、`InfoModal` palette、`ChatPanel`、`LayerSidebar` 開關色、`LoadingIndicator` | 各檔 |
+| 其他手刻淡色物件 | `UserAvatar`（陰影、分隔線、hover 值不在 token 階）、`LegendPanel` `LIGHT_LEGEND`、`InfoModal` palette、`ChatPanel`、`LayerSidebar` 開關色 | 各檔 |
 | popup 暗色外框 | `rgba(100,170,255,0.25)` inline 字面，不在 `BORDER` 階上（`BORDER.accent` 為 0.55） | `FeatureInfoPanel.tsx` |
 | 淡色錯誤色 | tokens `--light-status-err #b42318` vs 設計稿 `#b91c1c` | 以 token 為準，設計稿未同步 |
 | 按鈕 pressed 態 | 未定義 | §5.7 |
