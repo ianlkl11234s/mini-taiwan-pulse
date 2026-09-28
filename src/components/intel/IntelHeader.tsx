@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA, clockTime, fmtCountdown } from "./intelTokens";
-import { BORDER, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, clockTime, fmtCountdown } from "./intelTokens";
+import { neutralFill, useIntelTheme, type IntelPalette } from "./intelTheme";
+import { RADIUS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import type { SourceHealthSummary, SourceStatus } from "../../data/intelLoaders";
 
 interface Props {
@@ -14,12 +15,14 @@ interface Props {
   showFeedStatus?: boolean;
 }
 
-const STATUS_COLOR: Record<SourceStatus, string> = {
-  ok: COLORS.statusLive,
-  lagging: COLORS.statusWarn,
-  degraded: COLORS.statusErr,
-  unknown: COLORS.textDim,
-};
+function statusColor(palette: IntelPalette): Record<SourceStatus, string> {
+  return {
+    ok: palette.statusLive,
+    lagging: palette.statusWarn,
+    degraded: palette.statusErr,
+    unknown: palette.textDim,
+  };
+}
 
 function fmtLag(sec: number | null): string {
   if (sec == null) return "-";
@@ -29,6 +32,8 @@ function fmtLag(sec: number | null): string {
 }
 
 export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHealth, onClose, showFeedStatus = true }: Props) {
+  const palette = useIntelTheme();
+  const STATUS_COLOR = statusColor(palette);
   const [showHealth, setShowHealth] = useState(false);
 
   const degraded = sourceHealth.degraded + sourceHealth.lagging > 0;
@@ -44,16 +49,16 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           alignItems: "center",
           gap: 9,
           padding: "10px 14px",
-          borderBottom: `1px solid ${BORDER.panel}`,
+          borderBottom: `1px solid ${palette.panelBorder}`,
           flexShrink: 0,
         }}
       >
-        <IntelIcon d={ICON.radio} size={17} color={COLORS.accent} />
+        <IntelIcon d={ICON.radio} size={17} color={palette.accent} />
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, letterSpacing: "1.4px", color: COLORS.textDim }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, letterSpacing: "1.4px", color: palette.textDim }}>
             情報
           </span>
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong, marginTop: 1, display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: palette.textStrong, marginTop: 1, display: "flex", alignItems: "center", gap: 8 }}>
             即時情報
             {showFeedStatus && (
               <span
@@ -63,7 +68,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                   gap: 4,
                   padding: "2px 6px",
                   borderRadius: RADIUS.pill,
-                  border: `1px solid ${COLORS.statusLiveBorder}`,
+                  border: `1px solid ${palette.statusLiveBorder}`,
                 }}
               >
                 <span
@@ -71,12 +76,12 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                     width: 6,
                     height: 6,
                     borderRadius: RADIUS.full,
-                    background: COLORS.statusLive,
-                    boxShadow: `0 0 6px ${COLORS.statusLive}`,
+                    background: palette.statusLive,
+                    boxShadow: `0 0 6px ${palette.statusLive}`,
                     animation: "intelRing 1.6s ease-in-out infinite",
                   }}
                 />
-                <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 600, letterSpacing: "0.6px", color: COLORS.statusLive }}>
+                <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 600, letterSpacing: "0.6px", color: palette.statusLive }}>
                   LIVE
                 </span>
               </span>
@@ -93,7 +98,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             borderRadius: RADIUS.md,
             border: "none",
             background: "transparent",
-            color: COLORS.textDim,
+            color: palette.textDim,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -109,7 +114,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
         style={{
           flexShrink: 0,
           padding: "8px 14px",
-          borderBottom: `1px solid ${COLORS.borderSoft}`,
+          borderBottom: `1px solid ${palette.borderSoft}`,
           display: "flex",
           alignItems: "center",
           gap: 10,
@@ -118,11 +123,11 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           fontSize: FONT_SIZE.sm,
         }}
       >
-        <span style={{ color: COLORS.textMuted }}>
+        <span style={{ color: palette.textMuted }}>
           更新 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{clockTime(lastUpdateTs)}</span>
         </span>
-        <span style={{ color: COLORS.textFaint }}>·</span>
-        <span style={{ color: COLORS.textDefault }}>
+        <span style={{ color: palette.textFaint }}>·</span>
+        <span style={{ color: palette.textDefault }}>
           共 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{totalCount}</span> 則
         </span>
         <button
@@ -134,12 +139,12 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             marginLeft: "auto",
             padding: "2px 7px",
             borderRadius: RADIUS.md,
-            background: "rgba(255,255,255,0.04)",
-            border: `1px solid ${COLORS.borderSoft}`,
+            background: neutralFill(0.04, palette.isDark),
+            border: `1px solid ${palette.borderSoft}`,
             cursor: "pointer",
             fontFamily: FONT_CJK,
             fontSize: 9.5,
-            color: degraded ? COLORS.statusWarn : COLORS.statusLive,
+            color: degraded ? palette.statusWarn : palette.statusLive,
           }}
         >
           <span
@@ -147,14 +152,14 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
               width: 6,
               height: 6,
               borderRadius: RADIUS.full,
-              background: degraded ? COLORS.statusWarn : COLORS.statusLive,
+              background: degraded ? palette.statusWarn : palette.statusLive,
             }}
           />
           來源 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{okCount}/{total}</span>
-          <IntelIcon d={showHealth ? ICON.chevDown : ICON.chevRight} size={10} color={COLORS.textDim} />
+          <IntelIcon d={showHealth ? ICON.chevDown : ICON.chevRight} size={10} color={palette.textDim} />
         </button>
-        <span style={{ display: "flex", alignItems: "center", gap: 4, color: COLORS.textDim }}>
-          <IntelIcon d={ICON.refresh} size={11} color={COLORS.textDim} />
+        <span style={{ display: "flex", alignItems: "center", gap: 4, color: palette.textDim }}>
+          <IntelIcon d={ICON.refresh} size={11} color={palette.textDim} />
           <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{fmtCountdown(countdownSec)}</span>
         </span>
       </div>}
@@ -165,8 +170,8 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           style={{
             flexShrink: 0,
             padding: "8px 14px 10px",
-            borderBottom: `1px solid ${COLORS.borderSoft}`,
-            background: "rgba(0,0,0,0.25)",
+            borderBottom: `1px solid ${palette.borderSoft}`,
+            background: palette.isDark ? "rgba(0,0,0,0.25)" : LIGHT.fillStrong,
             maxHeight: 220,
             overflowY: "auto",
           }}
@@ -175,14 +180,14 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             style={{
               fontFamily: FONT_CJK,
               fontSize: FONT_SIZE.xs,
-              color: COLORS.textFaint,
+              color: palette.textFaint,
               marginBottom: 6,
             }}
           >
             來源管線 · <span style={{ fontFamily: FONT_DATA }}>RSS×{total}</span> → <span style={{ fontFamily: FONT_DATA }}>Gemini</span> 地理編碼
           </div>
           {total === 0 ? (
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
               尚無資料（collector 還沒回報過）
             </div>
           ) : (
@@ -204,7 +209,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                       style={{
                         fontFamily: FONT_CJK,
                         fontSize: FONT_SIZE.sm,
-                        color: COLORS.textDefault,
+                        color: palette.textDefault,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -217,7 +222,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                         marginLeft: "auto",
                         fontFamily: FONT_DATA,
                         fontSize: FONT_SIZE.xs,
-                        color: f.status === "ok" ? COLORS.textFaint : STATUS_COLOR[f.status],
+                        color: f.status === "ok" ? palette.textFaint : STATUS_COLOR[f.status],
                       }}
                     >
                       {fmtLag(f.lag_sec)}
@@ -226,7 +231,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                 ))}
               </div>
               {sourceHealth.degraded + sourceHealth.lagging > 0 && (
-                <div style={{ marginTop: 6, fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.statusWarn }}>
+                <div style={{ marginTop: 6, fontFamily: FONT_CJK, fontSize: 9.5, color: palette.statusWarn }}>
                   ⚠ {sourceHealth.degraded + sourceHealth.lagging} 個來源延遲偏高
                 </div>
               )}

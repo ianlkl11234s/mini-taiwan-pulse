@@ -2,9 +2,10 @@ import type { CSSProperties } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
 import {
   COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS,
-  relTime, clockTime, chipTint, chipOutline, splitRelTimeParts,
+  relTime, clockTime, chipTint, chipOutline, splitRelTimeParts, withAlpha,
 } from "./intelTokens";
-import { RADIUS, FONT_SIZE, SURFACE } from "../../styles/designTokens";
+import { chipText, levelColor, neutralFill, useIntelTheme, type IntelPalette } from "./intelTheme";
+import { RADIUS, FONT_SIZE, SURFACE, LIGHT } from "../../styles/designTokens";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
 import { useWallClock } from "../../hooks/useWallClock";
@@ -44,7 +45,7 @@ interface Props {
   nowTs: number;
 }
 
-/** 中性 chip 版型（「聲明」／國際事件的研判來源標籤共用；色彩交給 chipOutline(COLORS.textDim)） */
+/** 中性 chip 版型（「聲明」／國際事件的研判來源標籤共用；色彩交給 chipOutline(palette.textDim)） */
 const chipGhost: CSSProperties = {
   fontFamily: FONT_CJK,
   fontSize: 9.5,
@@ -53,22 +54,25 @@ const chipGhost: CSSProperties = {
   borderRadius: RADIUS.md,
 };
 
-const btnGhost: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 5,
-  padding: "5px 10px",
-  borderRadius: RADIUS.md,
-  whiteSpace: "nowrap",
-  background: "rgba(255,255,255,0.04)",
-  border: `1px solid ${COLORS.borderMid}`,
-  color: COLORS.textMuted,
-  fontFamily: FONT_CJK,
-  fontSize: 10.5,
-  cursor: "pointer",
-};
+function btnGhost(palette: IntelPalette): CSSProperties {
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    padding: "5px 10px",
+    borderRadius: RADIUS.md,
+    whiteSpace: "nowrap",
+    background: neutralFill(0.04, palette.isDark),
+    border: `1px solid ${palette.borderMid}`,
+    color: palette.textMuted,
+    fontFamily: FONT_CJK,
+    fontSize: 10.5,
+    cursor: "pointer",
+  };
+}
 
 export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle, nowTs }: Props) {
+  const palette = useIntelTheme();
   // 30s 內相對時間（「3 分鐘前」）視覺無差，元件內訂閱避開父層 1Hz cascade。
   // nowTs prop 退為「mount 時 fallback / SSR」之用。
   const liveNow = Math.floor(useWallClock(30_000, nowTs * 1000) / 1000);
@@ -76,6 +80,9 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
   const gisLevel = GIS_LEVELS[e.gis_relevance ?? 0] ?? GIS_LEVELS[0];
   const sevLevel = SEV_LEVELS[e.severity ?? 0] ?? SEV_LEVELS[0];
   const conf = e.confidence == null ? null : Math.round(e.confidence * 100);
+  const clusterColor = chipText(COLORS.cluster, palette);
+  // spine dot 的「面板色外圈」：暗＝SURFACE.app（原字面值不變），淡＝LIGHT.surfaceSolid（不透明白）。
+  const spineHalo = palette.isDark ? SURFACE.app : LIGHT.surfaceSolid;
 
   const handleClick = () => {
     const id = intelCardId(e);
@@ -103,8 +110,8 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
           background: cat.color,
           zIndex: 1,
           boxShadow: selected
-            ? `0 0 0 2px ${SURFACE.app}, 0 0 0 5px ${cat.color}55`
-            : `0 0 0 2px ${SURFACE.app}`,
+            ? `0 0 0 2px ${spineHalo}, 0 0 0 5px ${cat.color}55`
+            : `0 0 0 2px ${spineHalo}`,
         }}
       />
       <div
@@ -113,8 +120,8 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
           cursor: "pointer",
           borderRadius: RADIUS.xl,
           padding: "11px 13px",
-          background: selected ? "rgba(100,170,255,0.08)" : "rgba(255,255,255,0.022)",
-          border: `1px solid ${selected ? COLORS.borderAccent : COLORS.borderSoft}`,
+          background: selected ? withAlpha(palette.accent, 0.08) : neutralFill(0.022, palette.isDark),
+          border: `1px solid ${selected ? palette.borderAccent : palette.borderSoft}`,
           transition: "background .15s, border-color .15s",
         }}
       >
@@ -128,7 +135,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               padding: "1px 7px",
               whiteSpace: "nowrap",
               borderRadius: RADIUS.md,
-              ...chipTint(cat.color),
+              ...chipTint(cat.color, chipText(cat.color, palette)),
             }}
           >
             <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: cat.color }} />
@@ -147,7 +154,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
-                ...chipOutline(COLORS.cluster),
+                ...chipOutline(COLORS.cluster, clusterColor),
               }}
             >
               國際
@@ -164,7 +171,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
-                ...chipOutline(COLORS.surge),
+                ...chipOutline(COLORS.surge, chipText(COLORS.surge, palette)),
               }}
             >
               🔥 升溫
@@ -178,20 +185,20 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
-                ...chipOutline(COLORS.statusWarn),
+                ...chipOutline(palette.statusWarn),
               }}
             >
               重大
             </span>
           )}
-          {e.is_event === false && <span style={{ ...chipGhost, ...chipOutline(COLORS.textDim) }}>聲明</span>}
-          {e.origin_label && <span style={{ ...chipGhost, ...chipOutline(COLORS.textDim) }}>{e.origin_label}</span>}
+          {e.is_event === false && <span style={{ ...chipGhost, ...chipOutline(palette.textDim) }}>聲明</span>}
+          {e.origin_label && <span style={{ ...chipGhost, ...chipOutline(palette.textDim) }}>{e.origin_label}</span>}
           <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
             <span
               style={{
                 fontFamily: FONT_CJK,
                 fontSize: 10.5,
-                color: COLORS.textMuted,
+                color: palette.textMuted,
                 whiteSpace: "nowrap",
               }}
             >
@@ -208,7 +215,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             fontFamily: FONT_CJK,
             fontSize: 12.5,
             fontWeight: 600,
-            color: COLORS.textStrong,
+            color: palette.textStrong,
             lineHeight: 1.45,
             marginBottom: 4,
             textWrap: "pretty" as const,
@@ -228,12 +235,12 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               whiteSpace: "nowrap",
               fontFamily: FONT_CJK,
               fontSize: FONT_SIZE.sm,
-              color: COLORS.textDim,
+              color: palette.textDim,
             }}
           >
             <span
               style={{
-                color: COLORS.textMuted,
+                color: palette.textMuted,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
               }}
@@ -251,7 +258,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             style={{
               fontFamily: FONT_CJK,
               fontSize: FONT_SIZE.base,
-              color: COLORS.textDefault,
+              color: palette.textDefault,
               lineHeight: 1.55,
               display: expanded ? "block" : "-webkit-box",
               WebkitLineClamp: expanded ? "unset" : 2,
@@ -274,7 +281,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 gap: 4,
                 fontFamily: FONT_DATA,
                 fontSize: 9.5,
-                color: COLORS.textDim,
+                color: palette.textDim,
               }}
             >
               {e.source}
@@ -288,10 +295,10 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 gap: 4,
                 fontFamily: FONT_CJK,
                 fontSize: 9.5,
-                color: COLORS.cluster,
+                color: clusterColor,
               }}
             >
-              <IntelIcon d={ICON.cluster} size={11} color={COLORS.cluster} /> {e.related_count} 則相關
+              <IntelIcon d={ICON.cluster} size={11} color={clusterColor} /> {e.related_count} 則相關
             </span>
           )}
           {conf != null && (
@@ -300,7 +307,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 marginLeft: "auto",
                 fontFamily: FONT_DATA,
                 fontSize: FONT_SIZE.xs,
-                color: COLORS.textFaint,
+                color: palette.textFaint,
               }}
             >
               conf {conf}%
@@ -314,7 +321,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             style={{
               marginTop: 10,
               paddingTop: 10,
-              borderTop: `1px solid ${COLORS.borderSoft}`,
+              borderTop: `1px solid ${palette.borderSoft}`,
               display: "flex",
               flexDirection: "column",
               gap: 8,
@@ -332,8 +339,8 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             >
               {e.county && (
                 <>
-                  <span style={{ color: COLORS.textFaint }}>地點</span>
-                  <span style={{ color: COLORS.textDefault }}>
+                  <span style={{ color: palette.textFaint }}>地點</span>
+                  <span style={{ color: palette.textDefault }}>
                     {e.county}
                     {e.location_name ? ` · ${e.location_name}` : ""}
                   </span>
@@ -341,30 +348,30 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               )}
               {e.confidence != null && (
                 <>
-                  <span style={{ color: COLORS.textFaint }}>信心度</span>
-                  <span style={{ color: COLORS.textDefault, fontFamily: FONT_DATA }}>
+                  <span style={{ color: palette.textFaint }}>信心度</span>
+                  <span style={{ color: palette.textDefault, fontFamily: FONT_DATA }}>
                     {Math.round(e.confidence * 100)}%
                   </span>
                 </>
               )}
               {e.gis_relevance != null && gisLevel && (
                 <>
-                  <span style={{ color: COLORS.textFaint }}>地理相關</span>
-                  <span style={{ color: gisLevel.color }}>
+                  <span style={{ color: palette.textFaint }}>地理相關</span>
+                  <span style={{ color: levelColor(gisLevel.color, palette) }}>
                     <span style={{ fontFamily: FONT_DATA }}>lv{e.gis_relevance}</span> · {gisLevel.label}
                   </span>
                 </>
               )}
               {e.severity != null && sevLevel && (
                 <>
-                  <span style={{ color: COLORS.textFaint }}>嚴重程度</span>
-                  <span style={{ color: sevLevel.color }}>
+                  <span style={{ color: palette.textFaint }}>嚴重程度</span>
+                  <span style={{ color: levelColor(sevLevel.color, palette) }}>
                     <span style={{ fontFamily: FONT_DATA }}>lv{e.severity}</span> · {sevLevel.label}
                   </span>
                 </>
               )}
-              <span style={{ color: COLORS.textFaint }}>事件性質</span>
-              <span style={{ color: COLORS.textDefault }}>
+              <span style={{ color: palette.textFaint }}>事件性質</span>
+              <span style={{ color: palette.textDefault }}>
                 {e.is_event === false ? "聲明 statement" : "事件 event"}
               </span>
             </div>
@@ -384,7 +391,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                     padding: "5px 10px",
                     borderRadius: RADIUS.md,
                     whiteSpace: "nowrap",
-                    ...chipTint(cat.color),
+                    ...chipTint(cat.color, chipText(cat.color, palette)),
                     fontFamily: FONT_CJK,
                     fontSize: 10.5,
                     fontWeight: 600,
@@ -401,7 +408,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                       navigator.clipboard.writeText(`${e.title}\n${e.url}`);
                     }
                   })}
-                  style={btnGhost}
+                  style={btnGhost(palette)}
                 >
                   <IntelIcon d={ICON.copy} size={12} /> 複製
                 </button>

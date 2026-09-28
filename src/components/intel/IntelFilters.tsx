@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, COUNTY_OPTIONS } from "./intelTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, COUNTY_OPTIONS } from "./intelTokens";
+import { neutralFill, useIntelTheme, type IntelPalette } from "./intelTheme";
+import { RADIUS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../data/newsEventTypes";
 
 export type TimeRange = "1h" | "6h" | "24h";
@@ -27,7 +28,7 @@ const TIME_OPTS: { k: TimeRange; label: string }[] = [
   { k: "24h", label: "24h" },
 ];
 
-function chip(active: boolean): CSSProperties {
+function chip(active: boolean, palette: IntelPalette): CSSProperties {
   return {
     display: "inline-flex",
     alignItems: "center",
@@ -37,14 +38,14 @@ function chip(active: boolean): CSSProperties {
     fontFamily: FONT_CJK,
     fontSize: FONT_SIZE.base,
     whiteSpace: "nowrap",
-    background: active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.03)",
-    border: `1px solid ${active ? COLORS.borderStrong : COLORS.borderSoft}`,
-    color: active ? "#fff" : COLORS.textMuted,
+    background: active ? neutralFill(0.12, palette.isDark) : neutralFill(0.03, palette.isDark),
+    border: `1px solid ${active ? palette.borderStrong : palette.borderSoft}`,
+    color: active ? palette.textStrong : palette.textMuted,
     transition: "all .12s",
   };
 }
 
-function segBtn(active: boolean): CSSProperties {
+function segBtn(active: boolean, palette: IntelPalette): CSSProperties {
   return {
     padding: "3px 10px",
     borderRadius: RADIUS.md,
@@ -53,8 +54,8 @@ function segBtn(active: boolean): CSSProperties {
     whiteSpace: "nowrap",
     fontFamily: FONT_CJK,
     fontSize: 10.5,
-    background: active ? "rgba(255,255,255,0.12)" : "transparent",
-    color: active ? "#fff" : COLORS.textDim,
+    background: active ? neutralFill(0.12, palette.isDark) : "transparent",
+    color: active ? palette.textStrong : palette.textDim,
     transition: "all .12s",
   };
 }
@@ -66,12 +67,17 @@ export function IntelFilters({
   minRelevance, onMinRelevance,
   eventsOnly, onEventsOnly,
 }: Props) {
+  const palette = useIntelTheme();
+  // 分段軌道／select trigger：暗＝原字面（不變），淡＝§5.8/§5.9 規格值 LIGHT.controlBg。
+  const trackBg = palette.isDark ? "rgba(0,0,0,0.4)" : LIGHT.controlBg;
+  const selectBg = palette.isDark ? "rgba(0,0,0,0.45)" : LIGHT.controlBg;
+
   return (
     <div
       style={{
         flexShrink: 0,
         padding: "10px 14px",
-        borderBottom: `1px solid ${COLORS.borderSoft}`,
+        borderBottom: `1px solid ${palette.borderSoft}`,
         display: "flex",
         flexDirection: "column",
         gap: 9,
@@ -79,7 +85,7 @@ export function IntelFilters({
     >
       {/* category chips */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-        <button onClick={onResetCats} style={chip(cats.length === 0)}>
+        <button onClick={onResetCats} style={chip(cats.length === 0, palette)}>
           全部
         </button>
         {NEWS_CATEGORIES.map((c) => {
@@ -98,9 +104,9 @@ export function IntelFilters({
                 fontFamily: FONT_CJK,
                 fontSize: FONT_SIZE.base,
                 whiteSpace: "nowrap",
-                background: on ? `${c.color}26` : "rgba(255,255,255,0.03)",
-                border: `1px solid ${on ? c.color : COLORS.borderSoft}`,
-                color: on ? "#fff" : COLORS.textMuted,
+                background: on ? `${c.color}26` : neutralFill(0.03, palette.isDark),
+                border: `1px solid ${on ? c.color : palette.borderSoft}`,
+                color: on ? palette.textStrong : palette.textMuted,
                 transition: "all .12s",
               }}
             >
@@ -121,31 +127,31 @@ export function IntelFilters({
 
       {/* time range + 相關度（同一橫排） */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>近</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>近</span>
         <div
           style={{
             display: "flex",
-            background: "rgba(0,0,0,0.4)",
-            border: `1px solid ${COLORS.borderSoft}`,
+            background: trackBg,
+            border: `1px solid ${palette.borderSoft}`,
             borderRadius: RADIUS.lg,
             padding: 2,
             gap: 2,
           }}
         >
           {TIME_OPTS.map((o) => (
-            <button key={o.k} onClick={() => onTimeRange(o.k)} style={segBtn(timeRange === o.k)}>
+            <button key={o.k} onClick={() => onTimeRange(o.k)} style={segBtn(timeRange === o.k, palette)}>
               {o.label}
             </button>
           ))}
         </div>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, marginLeft: 6 }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint, marginLeft: 6 }}>
           相關度
         </span>
         <div
           style={{
             display: "flex",
-            background: "rgba(0,0,0,0.4)",
-            border: `1px solid ${COLORS.borderSoft}`,
+            background: trackBg,
+            border: `1px solid ${palette.borderSoft}`,
             borderRadius: RADIUS.lg,
             padding: 2,
             gap: 2,
@@ -156,7 +162,7 @@ export function IntelFilters({
               [0, "全部"], [2, "地方+"], [3, "重大"],
             ] as const
           ).map(([v, label]) => (
-            <button key={v} onClick={() => onMinRelevance(v)} style={segBtn(minRelevance === v)}>
+            <button key={v} onClick={() => onMinRelevance(v)} style={segBtn(minRelevance === v, palette)}>
               {label}
             </button>
           ))}
@@ -173,15 +179,16 @@ export function IntelFilters({
             fontSize: 10.5,
             padding: "4px 10px",
             borderRadius: RADIUS.lg,
-            background: "rgba(0,0,0,0.45)",
-            color: county === "全部" ? COLORS.textMuted : "#fff",
-            border: `1px solid ${COLORS.borderMid}`,
+            background: selectBg,
+            color: county === "全部" ? palette.textMuted : palette.textStrong,
+            border: `1px solid ${palette.borderMid}`,
             cursor: "pointer",
             maxWidth: 140,
+            colorScheme: palette.isDark ? "dark" : "light",
           }}
         >
           {COUNTY_OPTIONS.map((c) => (
-            <option key={c} value={c} style={{ background: "#1a1c20" }}>
+            <option key={c} value={c} style={{ background: palette.optionBg }}>
               {c === "全部" ? "全部縣市" : c}
             </option>
           ))}
@@ -199,9 +206,9 @@ export function IntelFilters({
             fontFamily: FONT_CJK,
             fontSize: 10.5,
             whiteSpace: "nowrap",
-            background: eventsOnly ? COLORS.accentFaint : "rgba(255,255,255,0.03)",
-            border: `1px solid ${eventsOnly ? COLORS.accentSoft : COLORS.borderSoft}`,
-            color: eventsOnly ? COLORS.accent : COLORS.textMuted,
+            background: eventsOnly ? palette.accentFaint : neutralFill(0.03, palette.isDark),
+            border: `1px solid ${eventsOnly ? palette.accentSoft : palette.borderSoft}`,
+            color: eventsOnly ? palette.accent : palette.textMuted,
             transition: "all .12s",
           }}
         >
@@ -213,9 +220,9 @@ export function IntelFilters({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              border: eventsOnly ? "none" : `1px solid ${COLORS.borderStrong}`,
-              background: eventsOnly ? COLORS.accent : "transparent",
-              color: "#04121f",
+              border: eventsOnly ? "none" : `1px solid ${palette.borderStrong}`,
+              background: eventsOnly ? palette.accent : "transparent",
+              color: palette.isDark ? "#04121f" : "#ffffff",
               fontSize: FONT_SIZE.xs,
               fontWeight: 700,
               fontFamily: FONT_DATA,
