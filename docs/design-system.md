@@ -404,11 +404,10 @@
 - **禁止**：在共用元件以外寫原生 `type="range"`（guard `native-range`）；粗軌道、系統預設藍色滑桿。
 - **實作**：`LayerParamControls.tsx` `SliderControl`＋`input[type="range"].lpc-range`。
 
-### 5.14 眼睛隱藏鈕
+### 5.14（已移除）獨立隱藏鈕
 
-- **用途**：暫時關閉目前展開的圖層並收合（取代舊「Hide」文字按鈕）。
-- **尺寸**：20×20 圖示按鈕、`<EyeOff size={13} strokeWidth={1.7}/>`、透明底、`--text-muted`，hover `--control-bg-hover`＋`--text-strong`；`title="暫時隱藏"`、`aria-label="暫時隱藏此圖層"`。
-- **實作**：`LayerParamControls.tsx` `HideLayerButton`＋`.lpc-icon-btn`。
+- 2026-09-28 使用者拍板移除：原「Hide」／眼睛圖示的功能是「關掉展開中的圖層並收合」，與圖層列的開關＋展開箭頭重複，還多占一列。
+- **不要再加回**獨立的隱藏按鈕；關閉圖層用開關、收合用 chevron。
 
 ### 5.15 小型圖示按鈕
 
