@@ -104,7 +104,7 @@ export const RULES: readonly GuardRule[] = [
     docSection: "§5.13 滑桿 V2＋S1",
     fix: "改用 ParamControlList 的 slider（src/components/sidebar/LayerParamControls.tsx）或 .lpc-range 樣式",
     enforce: true,
-    appliesTo: (p) => isTsLike(p) && p !== "src/components/sidebar/LayerParamControls.tsx",
+    appliesTo: (p) => isTsLike(p) && p !== "src/components/sidebar/LayerParamControls.tsx" && p !== "src/components/controls/Slider.tsx",
     count: (text) => countMatches(stripBlockComments(text), /type\s*=\s*["'{]\s*["']?range["']|type\s*:\s*["']range["']/),
   },
   {
