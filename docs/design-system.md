@@ -790,7 +790,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 手機標頭 | ✅ 符合（M1） | 手機時間軸條淡色時仍是暗色底（§10.3） |
 | 層級（z-index） | ⚠️ 部分 | 表內元件已歸層；仍有 18 處寫死數字（含已登記特例），見 §5.25 與 guard 基準 |
 | 圖例 | ✅ 符合 | |
-| 地圖圖層數值（點／線／面／圖例） | ⏳ 盤點完成，待逐項拍板 | 803 層盤點在 `docs/design-system/layer-style-inventory.json`；40 個提案代號見 [`design-system-map-layers.md`](./design-system-map-layers.md) §7 |
+| 地圖圖層數值（點／線／面／圖例） | ⏳ 2026-09-28 已拍板，待逐層套用 | 803 層盤點在 `docs/design-system/layer-style-inventory.json`；40 個代號的拍板結果見 [`design-system-map-layers.md`](./design-system-map-layers.md) §7 |
 | 左下時間軸（TC3） | ✅ 符合 | 即時／歷史共用 `TimelineShell`＋`TimeAxis`；刻度標籤 9.5px、時間 15px 依設計稿，不在 7 階字級上 |
 
 ### 10.3 未處理（已知，誠實列出）
@@ -842,7 +842,7 @@ PR 前逐項勾（貼進 PR 描述）：
 地圖上的資料圖形（點、線、面、3D、熱區、網格、影像、地圖文字標籤）與圖例樣式另有專檔：[`design-system-map-layers.md`](./design-system-map-layers.md)。本檔 §3 的 token 規則管 UI chrome；地圖圖形的顏色屬 §3.16「資料色」，數值階（點半徑、線寬、面透明度、描邊、圖例色票尺寸）在專檔定義。
 
 - **現況**（2026-09-28 盤點，803 層）：主體點半徑中位 z10 4.75／z14 6px、描邊 1px、不透明度 0.85；主體線寬中位 z10 0.93／z14 1.0px、不透明度 0.65；面不透明度中位 0.37（統計 320 層共用 0.55）。描邊色有三套慣例並存、28 個圖例與圖層樣式不一致、圖例面板容器誤用 `FONT_DATA`、統計圖例淡色時文字色錯。
-- **提案**：點 S／M／L 三階、線 細／標準／強調 三階、面 分級 0.55／覆蓋 0.35／背景 0.15、暗淡只換色不換尺寸、圖例 8 型規格與常駐規則——共 40 個代號，**全部待使用者逐項拍板**（專檔 §7）。拍板前不改程式。
+- **拍板（2026-09-28）**：點 S 3／M 4.5／L 6.5 固定半徑（不隨縮放）、描邊暗 `#0a0a14`／淡 `#ffffff` 1px；線 細／標準／強調 三階（隨縮放）、不加外框；面 分級 0.55／覆蓋 0.35／背景 0.15／網格 0.7；密集點低縮放用熱區；暗淡只換色不換尺寸；缺值統一透明底＋細斜線；Three.js 圖層加「基本點線面」模式、預設 Mapbox；圖例 8 型規格、標題中文在前英文小字在後。完整 40 題見專檔 §7。
 - **資料與工具**：`docs/design-system/layer-style-inventory.json`（逐層數值、檔案行號、四鐵則、圖例問題）；`npm run design:audit-layers` 重產；逐層調整照專檔 §6 工作流。
-- **參考頁**：[`design-system-reference.html#map-layers`](./design-system-reference.html#map-layers)（現況中位值與提案值並排）。
+- **參考頁**：[`design-system-reference.html#map-layers`](./design-system-reference.html#map-layers)（現況中位值與拍板值並排）；拍板比較頁 [`design-system/map-layer-picks.html`](./design-system/map-layer-picks.html)（真實底圖 1:1）。
 - 分析結果圖層的規格已定案於 `docs/features/viz-library/DECISIONS.md`，專檔引用不重寫。
