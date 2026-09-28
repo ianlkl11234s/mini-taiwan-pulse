@@ -13,6 +13,7 @@ import {
   typhoonPointsToGeoJSON,
   type TyphoonPoint,
 } from "../data/typhoonTracksLoader";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 
 // 颱風軌跡 — observed 實線 + forecast 虛線 + 軌跡點 + 現在位置光圈。
 //
@@ -46,6 +47,7 @@ export function useTyphoonTracksLayer(
   visible: boolean,
   opacity: number = 0.9,
   sourceFilter: TyphoonSource = "all",
+  isDark: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -121,13 +123,13 @@ export function useTyphoonTracksLayer(
         type: "circle",
         source: SRC_POINTS,
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 2, 8, 5] as unknown as ExpressionSpecification,
+          "circle-radius": pointRadius("M"),
           // 預測=空心藍環（透明填色）；實際=實心紫點
           "circle-color": ["case", ["==", ["get", "point_type"], "forecast"], "rgba(0,0,0,0)", OBS_COLOR] as unknown as ExpressionSpecification,
           "circle-opacity": 0.85,
-          "circle-stroke-color": ["case", ["==", ["get", "point_type"], "forecast"], FCST_COLOR, "#ffffff"] as unknown as ExpressionSpecification,
-          "circle-stroke-width": ["case", ["==", ["get", "point_type"], "forecast"], 1.5, 0.5] as unknown as ExpressionSpecification,
-          "circle-stroke-opacity": 0.9,
+          "circle-stroke-color": mapSeamColor(isDark),
+          "circle-stroke-width": POINT_STROKE.width,
+          "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
         },
       } as CircleLayer);
     }
@@ -138,7 +140,7 @@ export function useTyphoonTracksLayer(
         type: "circle",
         source: SRC_CURRENT,
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 14, 8, 34] as unknown as ExpressionSpecification,
+          "circle-radius": pointRadius("M") * 2,
           "circle-color": "#f0abfc",
           "circle-opacity": 0.16,
           "circle-blur": 0.6,
@@ -151,11 +153,12 @@ export function useTyphoonTracksLayer(
         type: "circle",
         source: SRC_CURRENT,
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 8, 8, 20] as unknown as ExpressionSpecification,
+          "circle-radius": pointRadius("M") * 2,
           "circle-color": "rgba(0,0,0,0)",
           "circle-stroke-color": "#fde047",
           "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 3, 1.5, 8, 3] as unknown as ExpressionSpecification,
-          "circle-stroke-opacity": 0.95,
+          "circle-stroke-opacity": 0.35,
+          "circle-blur": 0.6,
         },
       } as CircleLayer);
     }
@@ -173,7 +176,7 @@ export function useTyphoonTracksLayer(
     }
     layersReadyRef.current = true;
     return true;
-  }, []);
+  }, [isDark]);
 
   // 可見性 + 時間過濾（訂閱 timeStore 節流 500ms，不走 React re-render）
   useEffect(() => {
@@ -235,9 +238,14 @@ export function useTyphoonTracksLayer(
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(LAYER_LINE_OBS)) map.setPaintProperty(LAYER_LINE_OBS, "line-opacity", 0.9 * o);
     if (map.getLayer(LAYER_LINE_FCST)) map.setPaintProperty(LAYER_LINE_FCST, "line-opacity", 0.7 * o);
-    if (map.getLayer(LAYER_POINTS)) map.setPaintProperty(LAYER_POINTS, "circle-opacity", 0.85 * o);
+    if (map.getLayer(LAYER_POINTS)) {
+      map.setPaintProperty(LAYER_POINTS, "circle-opacity", 0.85 * o);
+      map.setPaintProperty(LAYER_POINTS, "circle-stroke-color", mapSeamColor(isDark));
+      map.setPaintProperty(LAYER_POINTS, "circle-stroke-width", POINT_STROKE.width);
+      map.setPaintProperty(LAYER_POINTS, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * o / 0.9));
+    }
     if (map.getLayer(LAYER_CURRENT_HALO)) map.setPaintProperty(LAYER_CURRENT_HALO, "circle-opacity", 0.16 * o);
-    if (map.getLayer(LAYER_CURRENT_RING)) map.setPaintProperty(LAYER_CURRENT_RING, "circle-stroke-opacity", 0.95 * o);
+    if (map.getLayer(LAYER_CURRENT_RING)) map.setPaintProperty(LAYER_CURRENT_RING, "circle-stroke-opacity", 0.35 * Math.min(1, o / 0.9));
     if (map.getLayer(LAYER_CURRENT_DOT)) map.setPaintProperty(LAYER_CURRENT_DOT, "circle-opacity", 1 * o);
-  }, [opacity, visible, mapRef, mapTick, dataTick]);
+  }, [opacity, isDark, visible, mapRef, mapTick, dataTick]);
 }
