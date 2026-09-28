@@ -199,6 +199,10 @@ export type AnalysisResultPresentation = {
   styleLegend?: WarehouseStyleLegend;
   /** Server-computed field x point comparison table; rendered as a table, never a colour legend. */
   compareTable?: Extract<WarehouseResultStyle, { kind: "compare" }>;
+  /** The raw style this result was installed with (any map-eligible kind — never "series", which is
+   *  never map-eligible). T2 A2's playback controls read `periods`/`seriesProperty`/`breaks` off this
+   *  directly instead of re-fetching via `presentable()` on every tick. */
+  resultStyle?: Exclude<WarehouseResultStyle, { kind: "series" }>;
   /** P1 rank-bar data (spec docs/features/viz-library/DECISIONS.md §6) for a choropleth/bivariate/
    *  grid/extrusion-styled result: each row's own classified value and its exact map fill colour.
    *  Absent when the style is not one of those four kinds, or no row has a usable numeric value. */
@@ -403,7 +407,7 @@ function numericFillColor(legend: NumericResultLegend): ExpressionSpecification 
 /** The single representative swatch colour for a styled result's row-item icon: the "most" end of
  *  its resolved palette. Bivariate/proportional have no flat `colors` fallback (always `palette`);
  *  choropleth/heatmap may still be the stage-A flat-`colors` format. */
-function styleSwatchColor(style: Exclude<WarehouseResultStyle, { kind: "compare" }>, theme: Theme): string {
+function styleSwatchColor(style: Exclude<WarehouseResultStyle, { kind: "compare" | "series" }>, theme: Theme): string {
   const colors = "colors" in style ? (style.palette ? style.palette[theme] : style.colors) : style.palette[theme];
   return colors[colors.length - 1]!;
 }
@@ -441,14 +445,18 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
   } : undefined;
   const numericLegend = numericResultLegend(result);
   const style = result.resultStyle;
-  const styleSwatch = style && style.kind !== "compare" ? styleSwatchColor(style, theme) : undefined;
+  const styleSwatch = style && style.kind !== "compare" && style.kind !== "series" ? styleSwatchColor(style, theme) : undefined;
   const rankBarKind = style && (style.kind === "choropleth" || style.kind === "bivariate" || style.kind === "grid" || style.kind === "extrusion");
   const rankBars = rankBarKind ? warehouseRankBars(style as WarehouseRankBarStyle, result.rows, theme) : undefined;
   return {
     resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
     geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: styleSwatch ?? (numericLegend ? numericLegend.entries[0]!.color : isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]!) }),
-    ...(style && style.kind !== "compare" ? { styleLegend: warehouseStyleLegend(style, theme, result.rows) } : {}),
+    ...(style && style.kind !== "compare" && style.kind !== "series" ? { styleLegend: warehouseStyleLegend(style, theme, result.rows) } : {}),
     ...(style?.kind === "compare" ? { compareTable: style } : {}),
+    // T2 A2: exposed so a caller (MainMapConnection's playback controls) can find a timed
+    // choropleth's periods/breaks/seriesProperty without re-fetching via presentable(). "series"
+    // never reaches here (never map-eligible — see researchAnalysisSession.ts mapEligible).
+    ...(style && style.kind !== "series" ? { resultStyle: style } : {}),
     ...(rankBars ? { rankBars } : {}),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
     ...(style?.kind === "proportional" ? { circleOpacityRatio: style.fillOpacity } : {}),
@@ -520,7 +528,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const renderData = flow ? flowArcCollection(data) : data;
     const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
     if (source) source.setData(renderData); else map.addSource(sourceId(index), { type: "geojson", data: renderData, promoteId: FEATURE_ID_PROPERTY });
-    const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" && style.kind !== "proportional" ? warehouseStyleColor(style, theme) : null;
+    const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" && style.kind !== "proportional" && style.kind !== "series" ? warehouseStyleColor(style, theme) : null;
     const proportionalColor = proportional ? warehouseProportionalColor(proportional, theme) : null;
     // Choropleth/bivariate null cells render fully transparent in `styleColor` above (see
     // warehouseStyleColor); this sibling layer paints exactly those cells with the theme's hatch

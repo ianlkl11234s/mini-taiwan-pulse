@@ -8,9 +8,10 @@ import type { PresentableResult } from "../researchAnalysisSession";
 import { researchResultPopupFacts } from "../researchResultPopup";
 import { loadWarehouseResult, validateWarehouseImportArgs } from "../warehouseResultImport";
 import {
-  classifyStepColor, validateWarehouseResultStyle, warehouseFillNullFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
+  classifyStepColor, isTimedChoropleth, validateWarehouseResultStyle, warehouseChoroplethColorAtPeriod, warehouseChoroplethPeriodFact,
+  warehouseFillNullFilter, warehouseFillNullFilterAtPeriod, warehouseHeatmapFilter, warehouseHeatmapPaint,
   warehouseProportionalColor, warehouseProportionalLabelFilter, warehouseProportionalSizeFilter, warehouseProportionalSortKey,
-  warehouseRankBarStyle, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle,
+  warehouseRankBarStyle, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle, type WarehouseTimedChoropleth,
 } from "../warehouseResultStyle";
 import { WarehouseStyleLegendView } from "../WarehouseStyleLegend";
 import { WarehouseCompareTableView } from "../WarehouseCompareTable";
@@ -311,7 +312,7 @@ describe("warehouse result style contract", () => {
   });
 
   it("renders colour bars, size-legend circles and density legends", () => {
-    const html = (style: Exclude<WarehouseResultStyle, { kind: "compare" }>) => renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(style) }));
+    const html = (style: Exclude<WarehouseResultStyle, { kind: "compare" | "series" }>) => renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(style) }));
     const bar = html(choropleth);
     expect(bar).toContain("房價中位數 · 分位數分級");
     expect(bar).toContain("無資料／未涵蓋（2）");
@@ -548,5 +549,76 @@ describe("warehouse import with style", () => {
     const shaTwo = createHash("sha256").update(threePoints).digest("hex");
     const fetchTwo = (async () => new Response(threePoints)) as unknown as typeof fetch;
     await expect(loadWarehouseResult(validateWarehouseImportArgs({ resultId: "wh-9", sha256: shaTwo, label: "x", featureCount: 2, style: clone(compare) }), fetchTwo)).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+});
+
+// T2 A2: choropleth folded from area x period rows (map playback).
+const choroplethTimed = {
+  ...choropleth, ramp: "viridis", nullStyle: "hatch", palette: choroplethHatch.palette,
+  timeField: "wk", idField: "town_code", periods: ["2024-03-04", "2024-03-11", "2024-03-18"], periodUnit: "week",
+  seriesProperty: "_style_series", latestPeriod: "2024-03-18",
+} as const satisfies WarehouseResultStyle;
+
+// T1=L1: a non-spatial panel line chart (no map geometry).
+const series = {
+  kind: "series", timeField: "m", valueField: "v", baselineField: "ly", baselineLabel: "去年同期",
+  title: "事故件數", unit: "件", valueKind: "count",
+  periods: ["2024-01-01", "2024-02-01", "2024-03-01"], periodUnit: "month", values: [10, null, 30], baseline: [8, 20, 25],
+  min: 10, max: 30, latest: { period: "2024-03-01", value: 30 }, nullCount: 1,
+} as const satisfies WarehouseResultStyle;
+
+describe("choropleth with T2 A2 map-playback fields", () => {
+  it("accepts the six time keys together and rejects them alone or mismatched", () => {
+    expect(validateWarehouseResultStyle(clone(choroplethTimed))).toEqual(choroplethTimed);
+    expect(isTimedChoropleth(choroplethTimed)).toBe(true);
+    expect(isTimedChoropleth(choropleth)).toBe(false);
+    // partial: only timeField, missing the other five.
+    expect(() => validateWarehouseResultStyle({ ...clone(choroplethTimed), idField: undefined, periods: undefined, periodUnit: undefined, seriesProperty: undefined, latestPeriod: undefined })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    // latestPeriod must equal periods' own last entry, not just any string.
+    expect(() => validateWarehouseResultStyle({ ...clone(choroplethTimed), latestPeriod: "2024-04-01" })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    // seriesProperty is a fixed literal.
+    expect(() => validateWarehouseResultStyle({ ...clone(choroplethTimed), seriesProperty: "_other" })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    // more than 104 periods is rejected (mcp MAP_MAX_PERIODS).
+    const many = { ...clone(choroplethTimed), periods: Array.from({ length: 105 }, (_, index) => `${2000 + index}`), latestPeriod: "2104" };
+    expect(() => validateWarehouseResultStyle(many)).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+
+  it("builds a period-indexed fill-color expression and matching null filter, keyed off _style_series", () => {
+    const color = warehouseChoroplethColorAtPeriod(choroplethTimed as WarehouseTimedChoropleth, "dark", 1);
+    expect(color).toEqual(["case", ["==", ["typeof", ["at", 1, ["get", "_style_series"]]], "number"],
+      ["step", ["at", 1, ["get", "_style_series"]], "#eff3ff", 40, "#bdd7e7", 55, "#6baed6", 70, "#3182bd", 90, "#08519c"],
+      "rgba(0,0,0,0)"]);
+    const filter = warehouseFillNullFilterAtPeriod(choroplethTimed as WarehouseTimedChoropleth, 1);
+    expect(filter).toEqual(["!=", ["typeof", ["at", 1, ["get", "_style_series"]]], "number"]);
+  });
+
+  it("reports one period's own value, clamping an out-of-range index rather than throwing", () => {
+    const row = { _style_series: [12, 34, 56] };
+    expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, row, 1)).toEqual({ label: "房價中位數（2024-03-11）", value: "34", period: "2024-03-11" });
+    expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, row, 99).period).toBe("2024-03-18");
+    expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, { _style_series: [null, 34, 56] }, 0).value).toBe("無資料");
+  });
+});
+
+describe("series (T1=L1 panel line chart, no map geometry)", () => {
+  it("validates a well-formed series style and round-trips it", () => {
+    expect(validateWarehouseResultStyle(clone(series))).toEqual(series);
+    expect(warehouseStyleFact(series, {})).toBeNull();
+  });
+
+  it("rejects a baseline/baselineField/baselineLabel that do not travel together", () => {
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baselineField: null })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baselineLabel: null })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baseline: null })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+
+  it("rejects a latest period that disagrees with periods, or values/baseline of the wrong length", () => {
+    expect(() => validateWarehouseResultStyle({ ...clone(series), latest: { period: "2024-02-01", value: 30 } })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), values: [10, 30] })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baseline: [8, 20] })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+
+  it("keeps the warehouse style registry key set including series, with validate-only (no color/legend/fact)", () => {
+    expect(validateWarehouseResultStyle(clone({ ...series, unit: null, baselineField: null, baselineLabel: null, baseline: null }))).toMatchObject({ kind: "series" });
   });
 });

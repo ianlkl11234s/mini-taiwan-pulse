@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { EXPLORATION_OPERATIONS } from "../MainMapConnection";
 import { ResearchAnalysisSession } from "../researchAnalysisSession";
 import { loadWarehouseResult, validateWarehouseImportArgs, warehouseResultFileName } from "../warehouseResultImport";
+import type { WarehouseResultStyle } from "../warehouseResultStyle";
 
 const collection = {
   type: "FeatureCollection",
@@ -66,5 +67,44 @@ describe("warehouse result import", () => {
     // Regression: the session handled the import but the map-level allowlist rejected it
     // (MAP_EXPLORATION_OPERATION_UNSUPPORTED) in the first real MCP → Gateway → browser run.
     expect(EXPLORATION_OPERATIONS.has("import_warehouse_result")).toBe(true);
+  });
+});
+
+// T1=L1: a series-styled result has an empty FeatureCollection (featureCount 0, no geometry at all).
+const seriesStyle = {
+  kind: "series", timeField: "m", valueField: "v", baselineField: null, baselineLabel: null,
+  title: "事故件數", unit: "件", valueKind: "count",
+  periods: ["2024-01-01", "2024-02-01"], periodUnit: "month", values: [10, 30], baseline: null,
+  min: 10, max: 30, latest: { period: "2024-02-01", value: 30 }, nullCount: 0,
+} as const satisfies WarehouseResultStyle;
+const emptyCollection = JSON.stringify({ type: "FeatureCollection", features: [] });
+const emptySha = createHash("sha256").update(emptyCollection).digest("hex");
+const emptyFetch = (async () => new Response(emptyCollection)) as unknown as typeof fetch;
+
+describe("warehouse series import (T1=L1, no map geometry)", () => {
+  it("registers one non-spatial, series-shaped result instead of zero results", async () => {
+    const [result] = await loadWarehouseResult({ resultId: "wh-9", sha256: emptySha, label: "事故件數", featureCount: 0, style: seriesStyle }, emptyFetch);
+    expect(result).toBeDefined();
+    expect(result!.resultId).toBe("wh-9");
+    expect(result!.recordGrain).toBe("series");
+    expect(result!.geometry).toEqual({ type: "none", role: "none", spatialAnalysisEligible: false });
+    expect(result!.rows).toEqual([]);
+    expect(result!.resultStyle).toEqual(seriesStyle);
+  });
+
+  it("is picked up by the session's seriesResult() (map-eligibility-free), never by presentable()", async () => {
+    const session = new ResearchAnalysisSession();
+    const receipt = await session.importWarehouseResult({ resultId: "wh-9", sha256: emptySha, label: "事故件數", featureCount: 0, style: seriesStyle }, emptyFetch);
+    expect(receipt.resultIds).toEqual(["wh-9"]);
+    expect(receipt).not.toHaveProperty("bounds"); // no map-eligible geometry to bound
+    expect(session.mapEligible("wh-9")).toBe(false);
+    const series = session.seriesResult("wh-9");
+    expect(series?.displayLabel).toBe("事故件數");
+    expect(series?.resultStyle).toEqual(seriesStyle);
+    expect(() => session.presentable(["wh-9"])).toThrow("RESULT_NOT_MAP_ELIGIBLE");
+  });
+
+  it("rejects a series style paired with actual features", async () => {
+    await expect(loadWarehouseResult({ resultId: "wh-9", sha256: sha, label: "x", featureCount: 3, style: seriesStyle }, okFetch())).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
   });
 });

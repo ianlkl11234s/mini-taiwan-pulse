@@ -88,6 +88,31 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: 
   try { parsed = JSON.parse(text); } catch { throw new Error("WAREHOUSE_RESULT_INVALID"); }
   const featureCount = Array.isArray((parsed as { features?: unknown })?.features) ? (parsed as { features: unknown[] }).features.length : -1;
   if (featureCount !== args.featureCount) throw new Error("WAREHOUSE_RESULT_INVALID");
+  // T1=L1: a series-styled result carries no geometry at all (an empty FeatureCollection) — one
+  // non-spatial AnalysisResult, not "one per geometry type" (the loop below never runs for it, since
+  // an empty `features` list yields an empty `types` set). Any actual feature alongside a series
+  // style is a contract violation, not silently dropped.
+  if (args.style?.kind === "series") {
+    if (featureCount > 0) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
+    const createdAt = new Date().toISOString();
+    return [{
+      resultId: args.resultId,
+      datasetId: `warehouse:${args.resultId}`,
+      recordGrain: "series",
+      rows: [],
+      geometry: { type: "none", role: "none", spatialAnalysisEligible: false },
+      sourceRefs: [],
+      lineage: { origin: "warehouse", warehouseResultId: args.resultId, sha256: args.sha256, warehouseDatasets: [], createdAt },
+      coverage: "Server-side analysis warehouse result; see the MCP warehouse result lineage for source datasets and versions.",
+      freshness: "unknown",
+      units: { value: args.style.unit },
+      operation: "warehouse_import",
+      inputResultIds: [],
+      method: { operation: "import_warehouse_result", version: "0.1", sha256Verified: true },
+      summary: { featureCount: 0, geometryType: "none", label: args.label },
+      resultStyle: args.style,
+    } satisfies AnalysisResult];
+  }
   const features = normalizeWarehouseFeatures(parsed);
   const types = [...new Set(features.map(feature => feature.type))];
   if (args.style?.kind === "heatmap" && types.some(type => type !== "Point")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
