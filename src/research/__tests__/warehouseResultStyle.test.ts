@@ -147,6 +147,8 @@ describe("warehouse result style contract", () => {
     // "count" valueKind wins and rounds it ("13" per the myriad/thousands count rule).
     expect(warehouseStyleFact({ ...choropleth, valueKind: "count" }, { _style_value: 12.5 })!.value).toBe("13");
     expect(warehouseStyleFact(choropleth, { _style_value: 12.5 })!.value).toBe("12.5");
+    expect(warehouseStyleFact({ ...choropleth, unit: "人/km²" }, { _style_value: null })!.value).toBe("無資料");
+    expect(warehouseStyleFact({ ...choropleth, unit: "人/km²" }, { _style_value: 12.5 })!.value).toBe("12.5 人/km²");
   });
 
   it("summarises a compare point in one popup fact and never turns a not-covered cell into 0", () => {
