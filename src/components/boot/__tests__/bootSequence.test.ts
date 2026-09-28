@@ -17,7 +17,7 @@ const px = (value: string): number => {
 
 describe("bootGeometry", () => {
   const g = bootGeometry();
-  const [vx, vy, vw, vh] = g.viewBox.split(" ").map(Number);
+  const [vx, vy, vw, vh] = g.viewBox.split(" ").map(Number) as [number, number, number, number];
   const scale = px(g.svg.height) / vh;
   const [x0, y0, x1, y1] = TAIWAN_OUTLINE.main;
 

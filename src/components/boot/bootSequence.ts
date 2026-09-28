@@ -9,10 +9,12 @@ import { BOOT_CITIES, TAIWAN_OUTLINE } from "./taiwanOutline";
 export type BootPhase = "loading" | "done" | "leaving" | "gone";
 
 export const BOOT_TIMING = {
+  /** 開頭台灣淡入的時間；城市脈動在這之後才開始 */
+  introMs: 700,
   doneHoldMs: 400,
   fadeMs: 450,
-  /** 元件彈入（0.55s）＋最後一個 rail 圖示延遲 0.46s，再留一點餘裕 */
-  enterMs: 1100,
+  /** 元件彈入（0.85s）＋最後一個 rail 圖示延遲 0.7s（2026-09-29 使用者要求比初版慢約 0.5s） */
+  enterMs: 1600,
 } as const;
 
 /** 使用者 2026-09-29 以調整工具定案的數值（docs/features/ui-consistency-audit-20260927/boot-w2-tuner.html） */

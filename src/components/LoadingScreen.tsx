@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { BOOT_CITIES, BOOT_LAYOUT, bootGeometry, type BootPhase } from "./boot/bootSequence";
+import { BOOT_CITIES, BOOT_LAYOUT, BOOT_TIMING, bootGeometry, type BootPhase } from "./boot/bootSequence";
 import { TAIWAN_OUTLINE } from "./boot/taiwanOutline";
 import "./boot/bootScreen.css";
 
@@ -34,7 +34,7 @@ export function LoadingScreen({ phase, isDarkTheme }: LoadingScreenProps) {
           <path className="boot-screen__land" d={TAIWAN_OUTLINE.path} />
           {BOOT_CITIES.map((city, i) => {
             const style = {
-              "--delay": `${(i / BOOT_CITIES.length) * BOOT_LAYOUT.cycleS}s`,
+              "--delay": `${BOOT_TIMING.introMs / 1000 + (i / BOOT_CITIES.length) * BOOT_LAYOUT.cycleS}s`,
               "--cycle": `${BOOT_LAYOUT.cycleS}s`,
               "--ripple": BOOT_LAYOUT.rippleScale,
             } as React.CSSProperties;
