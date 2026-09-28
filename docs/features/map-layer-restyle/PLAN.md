@@ -49,6 +49,7 @@
 
 ### R1 實際結果
 
+- **F-2 修正**：淡色底圖上，缺值（透明底）的鄉鎮只有白色細縫，界線看不見；改為「有數值用底圖色細縫、沒數值用行政界中性灰 0.5」（`gradedSeamPaint(isDark, hasValue)`）。
 - **F-3 語意**：缺值與遮蔽改完會長得一樣，所以遮蔽改用**交叉斜線**、缺值用單向細斜線（待使用者確認）；`statistics-layer-guidelines.md` §2 已同步。
 - **LG-11**：實際轉換 **163** 個標題（原盤點寫 37，只算了英文在前的；另有 82 個「中文＋英文大寫」、17 個含程式變數）。純英文標題（例：`SOIL FERTILITY`、`PLA ACTIVITY`）補上中文；類別前綴（`ENERGY ·`、`HAZARD ·`、`MOVE ·`）拿掉；錯字 `PUMB` 改 `Pump`。
 - **LG-1–8**：新增 `src/components/legend/legendKit.tsx`；共用 helper（`FireCatRows`、`UrbanDotRow`、`Swatch`、`Noise*`、`ClimateGradientBar`）已改用 kit。其餘圖例內**手寫色票尺寸 90 處**未逐一改，用 ratchet 測試（`legendKit.test.ts`）只准減少，之後逐層調整時順手換。

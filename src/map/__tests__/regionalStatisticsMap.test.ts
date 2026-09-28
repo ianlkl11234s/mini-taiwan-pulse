@@ -138,7 +138,7 @@ describe('attachRegionalStatistics', () => {
     state.paramsListener?.();
     expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.41);
     // F-2：細縫不綁透明度滑桿
-    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity']).toBe(0.6);
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.6, 0.5]);
     expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-opacity']).toBe(0.41);
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-opacity']).toBe(0.41);
 
@@ -157,13 +157,17 @@ describe('attachRegionalStatistics', () => {
     const mock = mapMock();
     const dispose = attachRegionalStatistics(mock.map as never, () => dark);
 
-    expect(mock.layers.get(`${VIEW}-line`)?.paint).toMatchObject({ 'line-color': '#0a0a14', 'line-width': 1, 'line-opacity': 0.6 });
+    // 有值：底圖色細縫；無值：行政界中性灰 0.5（透明底上才看得到界線）
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-color'] as unknown[]).slice(2)).toEqual(['#0a0a14', '#9ca3af']);
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.6, 0.5]);
+    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-width']).toBe(1);
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-dark');
     expect(mock.map.addImage).toHaveBeenCalledWith('map-hatch-missing-light', expect.objectContaining({ width: 8, height: 8 }));
 
     dark = false;
     mock.events.get('style.load')?.();
-    expect(mock.layers.get(`${VIEW}-line`)?.paint).toMatchObject({ 'line-color': '#ffffff', 'line-opacity': 0.8 });
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-color'] as unknown[]).slice(2)).toEqual(['#ffffff', '#374151']);
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.8, 0.5]);
     expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe('map-hatch-missing-light');
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-light');
     dispose();

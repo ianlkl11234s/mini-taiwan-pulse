@@ -54,13 +54,19 @@ export const BOUNDARY_GRAY = { dark: "#9ca3af", light: "#374151" } as const;
 /** F-1：面透明度四階。 */
 export const FILL_OPACITY = { graded: 0.55, coverage: 0.35, background: 0.15, grid: 0.7 } as const;
 
-/** F-2：統計分級面的 1px 底圖色細縫（不綁透明度滑桿）。 */
-export const GRADED_SEAM = { width: 1, opacity: { dark: 0.6, light: 0.8 } } as const;
-export const gradedSeamPaint = (isDark: boolean) => ({
-  "line-color": mapSeamColor(isDark),
-  "line-width": GRADED_SEAM.width,
-  "line-opacity": GRADED_SEAM.opacity[themeOf(isDark)],
-});
+/**
+ * F-2：統計分級面的 1px 底圖色細縫（不綁透明度滑桿）。
+ * 沒有數值的面是透明底，底圖色細縫會消失在底圖裡，所以改用行政界中性灰 0.5（2026-09-28 使用者回饋）。
+ */
+export const GRADED_SEAM = { width: 1, opacity: { dark: 0.6, light: 0.8 }, noValueOpacity: 0.5 } as const;
+export const gradedSeamPaint = (isDark: boolean, hasValue: unknown) => {
+  const theme = themeOf(isDark);
+  return {
+    "line-color": ["case", hasValue, mapSeamColor(isDark), BOUNDARY_GRAY[theme]],
+    "line-width": GRADED_SEAM.width,
+    "line-opacity": ["case", hasValue, GRADED_SEAM.opacity[theme], GRADED_SEAM.noValueOpacity],
+  };
+};
 
 /**
  * F-3 A（viz-library N1）：缺值＝透明底＋45° 細斜線（暗白 35%／淡黑 35%）；

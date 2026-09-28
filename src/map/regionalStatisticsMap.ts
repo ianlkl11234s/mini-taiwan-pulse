@@ -33,7 +33,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
         if (!map.hasImage(id)) map.addImage(id, hatchImageData(kind, dark));
       }
     }
-    const seam = gradedSeamPaint(isDark);
+    const seam = gradedSeamPaint(isDark, HAS_VALUE);
     for (const key of STATISTICS_RENDER_KEYS) {
       const visible = layerVisibilityStore.getVisibility(key);
       const state = regionalStatisticsStore.getSnapshot(key);
@@ -50,8 +50,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
         } });
         map.addLayer({ id: `${key}-missing`, type: 'fill', source: key, filter: IS_MISSING as mapboxgl.FilterSpecification, layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('missing', isDark), 'fill-opacity': 0.55 } });
         map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('suppressed', isDark), 'fill-opacity': 0.55 } });
-        // F-2：1px 底圖色細縫，不綁透明度滑桿
-        map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { ...seam } });
+        // F-2：有值 1px 底圖色細縫、無值中性灰；不綁透明度滑桿
+        map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { ...seam } as mapboxgl.LinePaint });
       }
       // A presentation source survives metric switches; refresh the scale as well as values.
       const colorSteps: unknown[] = ['step', ['get', 'value'], recipe.colors[0]];
@@ -59,8 +59,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       map.setPaintProperty(`${key}-fill`, 'fill-color', ['case', HAS_VALUE, colorSteps, NO_FILL]);
       map.setPaintProperty(`${key}-missing`, 'fill-pattern', hatchImageId('missing', isDark));
       map.setPaintProperty(`${key}-suppressed`, 'fill-pattern', hatchImageId('suppressed', isDark));
-      map.setPaintProperty(`${key}-line`, 'line-color', seam['line-color']);
-      map.setPaintProperty(`${key}-line`, 'line-opacity', seam['line-opacity']);
+      map.setPaintProperty(`${key}-line`, 'line-color', seam['line-color'] as mapboxgl.ExpressionSpecification);
+      map.setPaintProperty(`${key}-line`, 'line-opacity', seam['line-opacity'] as mapboxgl.ExpressionSpecification);
       const data = state.data;
       if (data && rendered.get(key) !== data) {
         rendered.set(key, data);
