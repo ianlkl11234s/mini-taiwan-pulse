@@ -82,7 +82,7 @@ describe("useJpReligionLayers scale", () => {
     vi.unstubAllGlobals();
   });
 
-  it("三層 radius 維持 top-level zoom interpolate，且 scale 變更會更新 paint", async () => {
+  it("三層 radius 使用固定 M tier，且 scale 變更會更新 paint", async () => {
     const { map, layers, setPaintProperty } = createMap();
     const mapRef = { current: map } as RefObject<MapboxMap | null>;
 
@@ -108,27 +108,9 @@ describe("useJpReligionLayers scale", () => {
       jpReligionWikidata: 2,
     });
 
-    const expectTopLevelZoomRadius = (layerId: string, expected: unknown[]) => {
-      const radius = layers.get(layerId)?.paint["circle-radius"];
-      expect(radius).toEqual(expected);
-      expect((radius as unknown[])[0]).toBe("interpolate");
-      expect((radius as unknown[])[2]).toEqual(["zoom"]);
-      expect(JSON.stringify(radius).match(/\["zoom"\]/g)).toHaveLength(1);
-    };
-
-    expectTopLevelZoomRadius(
-      "jp-religion-gsi-circle",
-      // GSI 的 PMTiles 自 2026-08-28 起 z4 即全量 167,037 點，故 radius 帶 z4 端點。
-      ["interpolate", ["linear"], ["zoom"], 4, 0.7, 6, 1.5, 12, 4],
-    );
-    expectTopLevelZoomRadius(
-      "jp-religion-osm-circle",
-      ["interpolate", ["linear"], ["zoom"], 6, 3.75, 12, 7.5],
-    );
-    expectTopLevelZoomRadius(
-      "jp-religion-wikidata-circle",
-      ["interpolate", ["linear"], ["zoom"], 6, 5, 12, 10],
-    );
+    expect(layers.get("jp-religion-gsi-circle")?.paint["circle-radius"]).toBe(4.5);
+    expect(layers.get("jp-religion-osm-circle")?.paint["circle-radius"]).toBe(6.75);
+    expect(layers.get("jp-religion-wikidata-circle")?.paint["circle-radius"]).toBe(9);
     setPaintProperty.mockClear();
     render({
       jpReligionGsi: 2,
@@ -139,17 +121,16 @@ describe("useJpReligionLayers scale", () => {
     expect(setPaintProperty).toHaveBeenCalledWith(
       "jp-religion-gsi-circle",
       "circle-radius",
-      ["interpolate", ["linear"], ["zoom"], 4, 1.4, 6, 3, 12, 8],
+      9,
     );
     expect(setPaintProperty).toHaveBeenCalledWith(
       "jp-religion-osm-circle",
       "circle-radius",
-      ["interpolate", ["linear"], ["zoom"], 6, 1.25, 12, 2.5],
+      2.25,
     );
-    expect(setPaintProperty).toHaveBeenCalledWith(
-      "jp-religion-wikidata-circle",
-      "circle-radius",
-      ["interpolate", ["linear"], ["zoom"], 6, 3, 12, 6],
+    const wikidataRadiusCall = setPaintProperty.mock.calls.find(
+      ([layerId, property]) => layerId === "jp-religion-wikidata-circle" && property === "circle-radius",
     );
+    expect(wikidataRadiusCall?.[2]).toBeCloseTo(5.4);
   });
 });

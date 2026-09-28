@@ -7,6 +7,7 @@ import {
 import { JP_RELIGION_COLOR_EXPRESSION } from "../data/jpReligionTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const GSI_SOURCE_ID = "jp-religion-gsi";
@@ -17,28 +18,6 @@ const OSM_LAYER_ID = "jp-religion-osm-circle";
 const WIKIDATA_SOURCE_ID = "jp-religion-wikidata";
 const WIKIDATA_LAYER_ID = "jp-religion-wikidata-circle";
 
-function scaledRadius(
-  scale: number,
-  zoom6Radius: number,
-  zoom12Radius: number,
-  zoom4Radius?: number,
-): ExpressionSpecification {
-  return [
-    "interpolate", ["linear"], ["zoom"],
-    ...(zoom4Radius === undefined ? [] : [4, zoom4Radius * scale]),
-    6, zoom6Radius * scale,
-    12, zoom12Radius * scale,
-  ] as unknown as ExpressionSpecification;
-}
-
-// GSI 的 PMTiles 從 z4 起就是全量 167,037 點（tippecanoe -r1 不抽稀），
-// 低 zoom 描邊會讓點糊成一片，所以 z4 收掉、z8 才恢復。
-const GSI_STROKE_WIDTH = [
-  "interpolate", ["linear"], ["zoom"],
-  4, 0,
-  8, 0.35,
-] as unknown as ExpressionSpecification;
-
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
@@ -46,11 +25,11 @@ function clampOpacity(opacity: number): number {
 function circleLayer(
   id: string,
   source: string,
-  radius: ExpressionSpecification,
+  radius: number | ExpressionSpecification,
   opacity: number,
+  strokeOpacity: number,
+  isDark: boolean,
   sourceLayer?: string,
-  strokeColor: string | ExpressionSpecification = "rgba(15, 23, 42, 0.45)",
-  strokeWidth: number | ExpressionSpecification = 0.35,
 ): CircleLayer {
   return {
     id,
@@ -62,11 +41,15 @@ function circleLayer(
       "circle-radius": radius,
       "circle-color": JP_RELIGION_COLOR_EXPRESSION as unknown as ExpressionSpecification,
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": strokeColor,
-      "circle-stroke-width": strokeWidth,
+      "circle-stroke-color": mapSeamColor(isDark),
+      "circle-stroke-width": POINT_STROKE.width,
+      "circle-stroke-opacity": strokeOpacity,
     },
   } as CircleLayer;
 }
+
+const pointStrokeOpacity = (opacity: number, defaultOpacity: number, isDark: boolean) =>
+  Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / defaultOpacity);
 
 function gsiAbsoluteUrl(): string {
   const relative = `${import.meta.env.BASE_URL ?? "/"}world/jp_religion_gsi.pmtiles`;
@@ -78,6 +61,7 @@ function useGsiLayer(
   visible: boolean,
   opacity: number,
   scale: number,
+  isDarkTheme: boolean,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
 
@@ -90,6 +74,7 @@ function useGsiLayer(
     }
 
     const mount = () => {
+      const isDark = isDarkTheme;
       registerPmtilesSourceTypeOnce();
       if (!map.getSource(GSI_SOURCE_ID)) {
         map.addSource(GSI_SOURCE_ID, {
@@ -105,24 +90,27 @@ function useGsiLayer(
         map.addLayer(circleLayer(
           GSI_LAYER_ID,
           GSI_SOURCE_ID,
-          scaledRadius(scale, 1.5, 4, 0.7),
+          pointRadius("M", scale),
           opacity,
+          pointStrokeOpacity(opacity, 0.6, isDark),
+          isDark,
           GSI_SOURCE_LAYER,
-          undefined,
-          GSI_STROKE_WIDTH,
         ));
       }
       if (map.getLayer(GSI_LAYER_ID)) {
         map.setLayoutProperty(GSI_LAYER_ID, "visibility", "visible");
         map.setPaintProperty(GSI_LAYER_ID, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(GSI_LAYER_ID, "circle-radius", scaledRadius(scale, 1.5, 4, 0.7));
+        map.setPaintProperty(GSI_LAYER_ID, "circle-radius", pointRadius("M", scale));
+        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-color", mapSeamColor(isDark));
+        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
+        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-opacity", pointStrokeOpacity(opacity, 0.6, isDark));
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, mapTick]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick]);
 }
 
 interface GeoJsonLayerConfig {
@@ -130,7 +118,6 @@ interface GeoJsonLayerConfig {
   layerId: string;
   fetcher: () => Promise<GeoJSON.FeatureCollection>;
   logName: string;
-  strokeColor?: string | ExpressionSpecification;
 }
 
 function useGeoJsonLayer(
@@ -139,6 +126,7 @@ function useGeoJsonLayer(
   opacity: number,
   scale: number,
   config: GeoJsonLayerConfig,
+  isDarkTheme: boolean,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -169,6 +157,7 @@ function useGeoJsonLayer(
     if (!dataRef.current) return;
 
     const mount = () => {
+      const isDark = isDarkTheme;
       if (!dataRef.current) return;
       if (!map.getSource(config.sourceId)) {
         map.addSource(config.sourceId, { type: "geojson", data: dataRef.current });
@@ -177,16 +166,20 @@ function useGeoJsonLayer(
         map.addLayer(circleLayer(
           config.layerId,
           config.sourceId,
-          scaledRadius(scale, 2.5, 5),
+          pointRadius("M", scale),
           opacity,
+          pointStrokeOpacity(opacity, 0.75, isDark),
+          isDark,
           undefined,
-          config.strokeColor,
         ));
       }
       if (map.getLayer(config.layerId)) {
         map.setLayoutProperty(config.layerId, "visibility", "visible");
         map.setPaintProperty(config.layerId, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(config.layerId, "circle-radius", scaledRadius(scale, 2.5, 5));
+        map.setPaintProperty(config.layerId, "circle-radius", pointRadius("M", scale));
+        map.setPaintProperty(config.layerId, "circle-stroke-color", mapSeamColor(isDark));
+        map.setPaintProperty(config.layerId, "circle-stroke-width", POINT_STROKE.width);
+        map.setPaintProperty(config.layerId, "circle-stroke-opacity", pointStrokeOpacity(opacity, 0.75, isDark));
       }
     };
 
@@ -202,6 +195,7 @@ function useGeoJsonLayer(
     dataTick,
     config.sourceId,
     config.layerId,
+    isDarkTheme,
   ]);
 }
 
@@ -243,14 +237,16 @@ export function useJpReligionLayers(
   visibility: JpReligionLayerVisibility,
   opacity: JpReligionLayerOpacity,
   scale: JpReligionLayerScale,
+  isDarkTheme = true,
 ) {
-  useGsiLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi);
+  useGsiLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi, isDarkTheme);
   useGeoJsonLayer(
     mapRef,
     visibility.jpReligionOsm,
     opacity.jpReligionOsm,
     scale.jpReligionOsm,
     OSM_CONFIG,
+    isDarkTheme,
   );
   useGeoJsonLayer(
     mapRef,
@@ -258,5 +254,6 @@ export function useJpReligionLayers(
     opacity.jpReligionWikidata,
     scale.jpReligionWikidata,
     WIKIDATA_CONFIG,
+    isDarkTheme,
   );
 }
