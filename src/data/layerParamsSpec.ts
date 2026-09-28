@@ -659,6 +659,8 @@ function hubDisplayModeSelect(
   name: string,
   defaultMode: "polygon" | "point" = "point",
   polygonUnavailable = false,
+  /** 沒有面資料、但「實際範圍」改用其他方式示意時的選項名稱（捷運站：光暈）。 */
+  polygonLabel?: string,
 ): SelectIndexParamSpec {
   return {
     kind: "select",
@@ -666,9 +668,11 @@ function hubDisplayModeSelect(
     label: "顯示",
     default: defaultMode,
     options: TRANSPORT_HUB_DISPLAY_MODES.map((mode) => ({
-      label: polygonUnavailable && mode.value === "polygon"
-        ? "實際範圍（無面資料）"
-        : mode.label,
+      label: mode.value === "polygon" && polygonLabel
+        ? polygonLabel
+        : polygonUnavailable && mode.value === "polygon"
+          ? "實際範圍（無面資料）"
+          : mode.label,
       value: mode.value,
       ...(polygonUnavailable && mode.value === "polygon" ? { disabled: true } : {}),
     })),
@@ -3222,19 +3226,20 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("thsrOpacity", 1),
     hubDisplayModeSelect("thsrDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "thsrPillarVisible", label: "光柱", default: true, out: null },
+    { kind: "toggle", name: "thsrPillarVisible", label: "光柱", default: false, out: null }, // 2026-09-28 使用者：預設關
     pillarHeightSlider("thsrPillarHeight", 0.6),
   ],
   stationsTRA: [
     opacitySlider("traOpacity", 1),
     hubDisplayModeSelect("traDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "traPillarVisible", label: "光柱", default: true, out: null },
+    { kind: "toggle", name: "traPillarVisible", label: "光柱", default: false, out: null }, // 2026-09-28 使用者：預設關
     pillarHeightSlider("traPillarHeight", 0.5),
   ],
   stationsMetro: [
     opacitySlider("metroOpacity", 1),
-    hubDisplayModeSelect("metroDisplayMode", "point", true),
+    // 捷運沒有站體面資料：「實際範圍」用光暈示意站點範圍（2026-09-28 使用者）
+    hubDisplayModeSelect("metroDisplayMode", "point", false, "實際範圍（光暈示意）"),
     stationScaleSlider(),
     // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
     //    （與參數名不同名），Three.js 那側另外吃 ref。

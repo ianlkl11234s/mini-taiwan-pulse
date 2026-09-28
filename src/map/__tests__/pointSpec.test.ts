@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
-import { DECORATION_SUFFIX_RE, LIVE_DECORATION_LAYERS, withPointSpec } from "../pointSpec";
+import { DECORATION_SUFFIX_RE, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, withPointSpec } from "../pointSpec";
 import { POINT_TIERS } from "../pointTiers";
 import { POINT_RADIUS } from "../mapStyleScale";
 import { getParamsSpec } from "../../data/layerParamsSpec";
 import type { OverlayConfig } from "../../types";
 
-const mainCircles = (c: OverlayConfig) => c.layers.filter((l) => l.type === "circle" && !DECORATION_SUFFIX_RE.test(l.suffix));
+const exempt = (c: OverlayConfig, suffix: string) => POINT_SPEC_EXEMPT[c.id]?.test(suffix) ?? false;
+const mainCircles = (c: OverlayConfig) => c.layers.filter((l) => l.type === "circle" && !DECORATION_SUFFIX_RE.test(l.suffix) && !exempt(c, l.suffix));
 
 describe("R2 點圖層規格（pointSpec）", () => {
   it("分階表只收存在於 OVERLAY_REGISTRY 且有主體 circle 的圖層", () => {
@@ -50,7 +51,7 @@ describe("R2 點圖層規格（pointSpec）", () => {
   it("P-6：靜態資料的光暈透明（子圖層保留當點擊範圍）；即時資料限制在 0.35 內", () => {
     for (const c of OVERLAY_REGISTRY) {
       for (const l of c.layers) {
-        if (!DECORATION_SUFFIX_RE.test(l.suffix) || /(?:^|[-_])hit(?:$|[-_])/.test(l.suffix)) continue;
+        if (!DECORATION_SUFFIX_RE.test(l.suffix) || /(?:^|[-_])hit(?:$|[-_])/.test(l.suffix) || exempt(c, l.suffix)) continue;
         if (l.type !== "circle" && l.type !== "line") continue;
         const op = l.paint(true, {})[`${l.type}-opacity`];
         if (LIVE_DECORATION_LAYERS.has(c.id)) {
@@ -60,6 +61,22 @@ describe("R2 點圖層規格（pointSpec）", () => {
         }
       }
     }
+  });
+
+  it("捷運站：Mapbox 點位所有縮放都有點；實際範圍模式用光暈（不套光暈規則）", () => {
+    const c = OVERLAY_REGISTRY.find((x) => x.id === "stationsMetro")!;
+    const core = c.layers.find((l) => l.suffix === "metro-overview-point-core")!;
+    expect(core.maxzoom).toBeUndefined();
+    const glow = c.layers.find((l) => l.suffix === "metro-pt-glow-1")!;
+    expect(glow.paint(true, {})["circle-opacity"]).toBeGreaterThan(0);
+    const vis = (suffix: string, mode: number) => {
+      const layout = c.layers.find((l) => l.suffix === suffix)!.layout;
+      return (typeof layout === "function" ? layout(true, { metroDisplayModeIdx: mode }) : layout)?.visibility;
+    };
+    expect(vis("metro-pt-glow-1", 1)).toBe("none");
+    expect(vis("metro-pt-glow-1", 0)).toBe("visible");
+    expect(vis("metro-overview-point-core", 1)).toBe("visible");
+    expect(vis("metro-lowzoom-core", 0)).toBe("visible");
   });
 
   it("沒有分階也沒有裝飾的 config 原樣返回", () => {

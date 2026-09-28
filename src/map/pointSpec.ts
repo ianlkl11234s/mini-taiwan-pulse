@@ -40,6 +40,14 @@ function findSlider(key: string, re: RegExp): LayerParamSpec | undefined {
 export const LIVE_DECORATION_LAYERS: ReadonlySet<string> = new Set([
   "newsEvents", "lightning", "lightningCwa", "nuclearRadiation", "a1AccidentRealtime",
 ]);
+/**
+ * 整組不套點規格的子圖層（使用者指定的呈現方式）：
+ * 捷運站「實際範圍（光暈示意）」模式用 metro-pt-* 光暈表示站點範圍（沒有站體面資料），2026-09-28 使用者要求保留。
+ */
+export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
+  stationsMetro: /^metro-pt-/,
+};
+
 export const LIVE_DECORATION_CAP = { radiusFactor: 2, opacity: 0.35, minBlur: 0.6 } as const;
 
 const hasZoom = (v: unknown) => JSON.stringify(v ?? null).includes('"zoom"');
@@ -78,7 +86,9 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
   const tierRadius = tier && tier !== "B" ? pointRadius(tier) : null;
   const sizeFactor = (p?: Record<string, number>) => sliderFactor(sizeSpec, p);
   const live = LIVE_DECORATION_LAYERS.has(config.id);
+  const exempt = POINT_SPEC_EXEMPT[config.id];
   const layers = config.layers.map((layer): OverlayLayerSpec => {
+    if (exempt?.test(layer.suffix)) return layer;
     if (DECORATION_SUFFIX_RE.test(layer.suffix)) return { ...layer, paint: decorationPaint(layer, live, tierRadius, sizeFactor) };
     if (layer.type !== "circle" || !tier) return layer;
     const paint = layer.paint;

@@ -1130,15 +1130,25 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
     rebuildOnParamChange: ["metro-pt-range", "metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
     layers: [
+      // Mapbox 點位：所有縮放都有點（原本 maxzoom 10，放大後點會消失）
       ...hubPointLayers(
         "metro-overview-",
         "metroDisplayModeIdx",
         ["get", "color"],
         "stationScale",
-      ).map((layer) => ({ ...layer, maxzoom: 10 })),
+      ),
+      // 實際範圍（光暈示意）：低縮放仍顯示點，z≥10 換成下面的範圍光暈
+      {
+        ...hubPointLayers("metro-lowzoom-", "metroDisplayModeIdx", ["get", "color"], "stationScale")[1]!,
+        suffix: "metro-lowzoom-core",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
+        maxzoom: 10,
+      },
+      // 以下 metro-pt-* 只在「實際範圍」模式出現；是範圍的呈現方式，不套 R2 光暈規則（pointSpec 例外）
       {
         suffix: "metro-pt-range",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 11,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1154,6 +1164,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-glow-2",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1169,6 +1180,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-glow-1",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1184,6 +1196,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-fill",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
