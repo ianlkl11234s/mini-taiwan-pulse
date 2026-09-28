@@ -12,6 +12,7 @@ import type { ResearchResult } from "./contracts/result-validator.mjs";
 import { ResearchConnection } from "./ResearchConnection";
 import type { BridgeConnectionContext, Scene, StudyState } from "./bridgeClient";
 import { StudyController } from "./StudyController";
+import { Slider } from "../components/controls/Slider";
 import fixture from "./contracts/fixture.json";
 import "./research.css";
 
@@ -177,7 +178,7 @@ export function ResearchApp() {
         </section>
         <section className="research-section"><h2>畫布內容</h2>
           {result ? <><div className="research-result-title"><strong>{result.title}</strong><button onClick={clear}>清除</button></div>
-          <label className="research-opacity">透明度 <output>{Math.round(opacity * 100)}%</output><input aria-label="成果透明度" type="range" min="0" max="1" step="0.05" value={opacity} onChange={e => { const value = Number(e.target.value); opacityRef.current = value; setOpacity(value); if (controller.current && map.current && resultRef.current?.geojson) installResult(map.current, resultRef.current.geojson as FeatureCollection, value); }} /></label>
+          <label className="research-opacity">透明度 <output>{Math.round(opacity * 100)}%</output><Slider ariaLabel="成果透明度" min={0} max={1} step={0.05} value={opacity} onChange={value => { opacityRef.current = value; setOpacity(value); if (controller.current && map.current && resultRef.current?.geojson) installResult(map.current, resultRef.current.geojson as FeatureCollection, value); }} /></label>
           <p>{result.geojson?.features.filter(f => f.geometry !== null).length ?? 0} 個可上圖物件 · {result.quality.displayTruncated ? "展示已抽樣" : "展示未抽樣"}</p></> : <p className="research-muted">尚無成果。載入後可逐一點選查看屬性。</p>}
           {point && <div className="research-selection"><strong>選取位置</strong><code>{point[0].toFixed(5)}, {point[1].toFixed(5)}</code><small>經度、緯度 · 周邊查詢尚未接通</small></div>}
         </section>

@@ -1,0 +1,84 @@
+/**
+ * 共用 S1 細滑桿（UI 統一第二輪 Phase P）。
+ *
+ * 全站唯一的 S1 滑桿樣式（2px 軌道／已拖段較亮／10px 圓點／focus-visible accent 外圈）。
+ * 圖層控制 LayerParamControls（原 `.lpc-range`，Phase Q 收斂移除）、地震回放、情報回放、
+ * bbox 工具、研究頁、Agent 面板分析結果透明度都走 `controls/Slider`。
+ *
+ * 預設吃全域暗色 token（--slider-*／--accent）；已有主題系統的呼叫端
+ * （例如 IntelReplay 走 useIntelTheme() 的 palette）可透過 inline style
+ * 覆寫 --ctl-track / --ctl-fill / --ctl-thumb / --ctl-accent。
+ */
+input[type="range"].ctl-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  /* 歸零容器通用 input 樣式（例 .main-map-agent input 的 padding／border）；原生 range 預設本就是 0 */
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  --p: 50%;
+  --ctl-track: var(--slider-track, rgba(255, 255, 255, 0.14));
+  --ctl-fill: var(--slider-fill, rgba(255, 255, 255, 0.55));
+  --ctl-thumb: var(--slider-thumb, rgb(243, 244, 246));
+  --ctl-accent: var(--accent, rgb(100, 170, 255));
+}
+
+input[type="range"].ctl-range:disabled {
+  cursor: default;
+  opacity: var(--control-disabled-opacity, 0.55);
+}
+
+input[type="range"].ctl-range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ctl-fill) 0 var(--p), var(--ctl-track) var(--p) 100%);
+}
+
+input[type="range"].ctl-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ctl-thumb);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ctl-thumb) 12%, transparent);
+}
+
+input[type="range"].ctl-range::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ctl-track);
+}
+
+input[type="range"].ctl-range::-moz-range-progress {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ctl-fill);
+}
+
+input[type="range"].ctl-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ctl-thumb);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ctl-thumb) 12%, transparent);
+}
+
+input[type="range"].ctl-range:focus-visible {
+  outline: none;
+}
+
+input[type="range"].ctl-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px var(--ctl-accent);
+}
+
+input[type="range"].ctl-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 2px var(--ctl-accent);
+}

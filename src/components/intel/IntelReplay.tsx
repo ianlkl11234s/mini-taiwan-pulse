@@ -1,7 +1,8 @@
 import { IntelIcon, ICON } from "./IntelIcon";
 import { FONT_CJK, FONT_DATA, clockTime } from "./intelTokens";
 import { neutralFill, useIntelTheme } from "./intelTheme";
-import { RADIUS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE, LIGHT, SLIDER } from "../../styles/designTokens";
+import { Slider } from "../controls/Slider";
 
 interface Props {
   /** unix sec — 當前 scrub 位置 */
@@ -91,14 +92,18 @@ export function IntelReplay({
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: palette.textFaint }}>
           {clockTime(windowStartTs)}
         </span>
-        <input
-          type="range"
+        <Slider
           min={windowStartTs}
           max={nowTs}
           step={60}
           value={playbackTs}
-          onChange={(ev) => onScrub(Number(ev.target.value))}
-          style={{ flex: 1, height: 3, accentColor: palette.accent, cursor: "pointer" }}
+          onChange={onScrub}
+          ariaLabel="情報回放時間"
+          style={{ flex: 1 }}
+          trackColor={palette.isDark ? SLIDER.track : LIGHT.sliderTrack}
+          fillColor={palette.isDark ? SLIDER.fill : LIGHT.sliderFill}
+          thumbColor={palette.isDark ? SLIDER.thumb : LIGHT.sliderThumb}
+          accentColor={palette.accent}
         />
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: palette.textFaint }}>
           {clockTime(nowTs)}

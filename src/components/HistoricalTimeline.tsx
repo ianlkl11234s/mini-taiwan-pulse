@@ -1,6 +1,7 @@
 import { Pause, Play } from "lucide-react";
 import { DAY, RE_PERIODS, type ReGran } from "../lib/realEstateTime";
 import { TimeAxis } from "./timeline/TimeAxis";
+import { TimelineShell } from "./timeline/TimelineShell";
 import {
   buildDiscreteAxis,
   buildQuarterTicks,
@@ -9,7 +10,6 @@ import {
   range,
   ratioToIndex,
 } from "./timeline/timelineAxis";
-import "./timeline/timeline.css";
 
 export type HistoricalGranularity = "year" | "month" | "day";
 
@@ -48,8 +48,6 @@ interface Props {
 
 const ROC_OFFSET = 1911;
 const SPEEDS = [0.5, 1, 2, 4, 8];
-/** 卡片右側預留給右下停靠 popup（280px）＋間距 */
-const RIGHT_RESERVE = 312;
 
 const granLabel: Record<HistoricalGranularity, string> = {
   year: "年",
@@ -122,72 +120,56 @@ export function HistoricalTimeline({
       : "火災資料：111~113";
   const playStepLabel = reActive ? reGranLabel[reGran] : granLabel[granularity];
 
-  const rootClass = [
-    "tl3",
-    isDarkTheme ? "" : "tl3--light",
-    isMobile ? "tl3--mobile" : "",
-  ].filter(Boolean).join(" ");
-
-  const rootStyle: React.CSSProperties = isMobile
-    ? {}
-    : {
-        position: "absolute",
-        bottom: 16,
-        left: leftOffset,
-        zIndex: 10,
-        width: 620,
-        maxWidth: `calc(100vw - ${leftOffset + RIGHT_RESERVE}px)`,
-        minWidth: 320,
-        transition: "left 0.2s ease",
+  // ── 刻度軸（收合時 compact，只畫基線／已播放段／指針） ──
+  const renderAxis = (compact: boolean, onDragChange: (dragging: boolean) => void): React.ReactNode => {
+    if (reActive) {
+      const span = reCursorMax - reCursorMin;
+      const ts = Math.min(Math.max(reCursorTs, reCursorMin), reCursorMax);
+      const seek = (next: number) => {
+        const clamped = Math.min(Math.max(next, reCursorMin), reCursorMax);
+        const step = reCursorStep > 0 ? reCursorStep : 1;
+        onReCursorChange?.(reCursorMin + Math.round((clamped - reCursorMin) / step) * step);
       };
-
-  // ── 下排刻度軸 ──
-  let axis: React.ReactNode;
-  if (reActive) {
-    const span = reCursorMax - reCursorMin;
-    const ts = Math.min(Math.max(reCursorTs, reCursorMin), reCursorMax);
-    const seek = (next: number) => {
-      const clamped = Math.min(Math.max(next, reCursorMin), reCursorMax);
-      const step = reCursorStep > 0 ? reCursorStep : 1;
-      onReCursorChange?.(reCursorMin + Math.round((clamped - reCursorMin) / step) * step);
-    };
-    axis = (
-      <TimeAxis
-        ratio={span > 0 ? (ts - reCursorMin) / span : 0}
-        ticks={buildQuarterTicks(RE_PERIODS, reCursorMin, reCursorMax)}
-        needleLabel={reCursorLabel}
-        ariaLabel={`房地產時間游標（${reGranLabel[reGran]}）`}
-        ariaValueMin={reCursorMin}
-        ariaValueMax={reCursorMax}
-        ariaValueNow={ts}
-        ariaValueText={reCursorLabel}
-        onSeekRatio={(r) => seek(reCursorMin + r * span)}
-        onKey={(key) => {
-          const stepSec = RE_KEY_STEP[reGran];
-          if (key === "ArrowLeft" || key === "ArrowDown") seek(ts - stepSec);
-          else if (key === "ArrowRight" || key === "ArrowUp") seek(ts + stepSec);
-          else if (key === "Home") seek(reCursorMin);
-          else if (key === "End") seek(reCursorMax);
-          else return false;
-          return true;
-        }}
-      />
-    );
-  } else {
+      return (
+        <TimeAxis
+          compact={compact}
+          onDragChange={onDragChange}
+          ratio={span > 0 ? (ts - reCursorMin) / span : 0}
+          ticks={buildQuarterTicks(RE_PERIODS, reCursorMin, reCursorMax)}
+          ariaLabel={`房地產時間游標（${reGranLabel[reGran]}）`}
+          ariaValueMin={reCursorMin}
+          ariaValueMax={reCursorMax}
+          ariaValueNow={ts}
+          ariaValueText={reCursorLabel}
+          onSeekRatio={(r) => seek(reCursorMin + r * span)}
+          onKey={(key) => {
+            const stepSec = RE_KEY_STEP[reGran];
+            if (key === "ArrowLeft" || key === "ArrowDown") seek(ts - stepSec);
+            else if (key === "ArrowRight" || key === "ArrowUp") seek(ts + stepSec);
+            else if (key === "Home") seek(reCursorMin);
+            else if (key === "End") seek(reCursorMax);
+            else return false;
+            return true;
+          }}
+        />
+      );
+    }
     const values = granularity === "year" ? years : granularity === "month" ? range(1, 12) : range(1, dim);
     const current = granularity === "year" ? year : granularity === "month" ? month : Math.min(day, dim);
     const onPick = granularity === "year" ? onYearChange : granularity === "month" ? onMonthChange : onDayChange;
     const unit = granularity === "year" ? undefined : granLabel[granularity];
-    const discrete = buildDiscreteAxis(values, current, String);
+    // 月粒度：展開卡的軸約 330px，12 個「N月」標籤會黏在一起（11月12月），隔月標示；刻度仍每月一格
+    const discrete = buildDiscreteAxis(values, current, String, granularity === "month" ? 7 : undefined);
     const pick = (index: number) => {
       const v = values[index];
       if (v !== undefined && v !== current) onPick(v);
     };
-    axis = (
+    return (
       <TimeAxis
+        compact={compact}
+        onDragChange={onDragChange}
         ratio={indexToRatio(discrete.index, values.length)}
         ticks={discrete.ticks}
-        needleLabel={String(current)}
         unit={unit}
         ariaLabel={`歷史時間軸（${granLabel[granularity]}）`}
         ariaValueMin={values[0] ?? 0}
@@ -203,97 +185,138 @@ export function HistoricalTimeline({
         }}
       />
     );
-  }
+  };
+
+  const chip = reActive ? (
+    <>房地產 · {reGranLabel[reGran]}</>
+  ) : (
+    <>
+      民國 <span className="mono">{year}</span> 年
+      {showMonth && <> <span className="mono">{month}</span> 月</>}
+      {showDay && <> <span className="mono">{Math.min(day, dim)}</span> 日</>}
+    </>
+  );
+  const chipText = reActive
+    ? `房地產 · ${reGranLabel[reGran]}`
+    : formatValueText(year, month, day, granularity).replace(/（\d+）$/, "");
 
   return (
-    <div data-testid="historical-timeline" className={rootClass} style={rootStyle}>
-      <div className="tl3-top">
-        <button
-          type="button"
-          className="tl3-btn tl3-btn--primary tl3-btn--play"
-          onClick={onTogglePlay}
-          title={playing ? "暫停" : `播放（依${playStepLabel}推進）`}
-          aria-label={playing ? "暫停" : "播放"}
-        >
-          {playing ? <Pause size={13} fill="currentColor" strokeWidth={0} /> : <Play size={13} fill="currentColor" strokeWidth={0} />}
-        </button>
-        <span className="tl3-clock">{reActive ? reCursorLabel : formatClock(year, month, day, granularity)}</span>
-        <select
-          className="tl3-select tl3-select--mono"
-          value={speed}
-          onChange={(e) => onSpeedChange(Number(e.target.value))}
-          title="每秒幾步"
-          aria-label="播放倍速"
-        >
-          {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
-        </select>
+    <TimelineShell
+      isDarkTheme={isDarkTheme}
+      isMobile={isMobile}
+      leftOffset={leftOffset}
+      rootAttrs={{ "data-testid": "historical-timeline" }}
+    >
+      {({ expanded, popupOpen, setPopupOpen, onDragChange }) => (
+        <>
+          <div className="tl3-row">
+            <button
+              type="button"
+              className="tl3-btn tl3-btn--primary tl3-btn--play"
+              onClick={onTogglePlay}
+              title={playing ? "暫停" : `播放（依${playStepLabel}推進）`}
+              aria-label={playing ? "暫停" : "播放"}
+            >
+              {playing ? <Pause size={12} fill="currentColor" strokeWidth={0} /> : <Play size={12} fill="currentColor" strokeWidth={0} />}
+            </button>
+            <span className="tl3-clock">{reActive ? reCursorLabel : formatClock(year, month, day, granularity)}</span>
+            {renderAxis(!expanded, onDragChange)}
+            {expanded && (
+              <select
+                className="tl3-select tl3-select--mono"
+                value={speed}
+                onChange={(e) => onSpeedChange(Number(e.target.value))}
+                title="每秒幾步"
+                aria-label="播放倍速"
+              >
+                {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
+              </select>
+            )}
+            {expanded && (
+              <button
+                type="button"
+                className="tl3-chip"
+                onClick={() => setPopupOpen(!popupOpen)}
+                title={`選擇時間與粒度（${dataNote}）`}
+                aria-label={`時間與粒度：${chipText}`}
+                aria-expanded={popupOpen}
+                aria-haspopup="dialog"
+              >
+                {chip}
+              </button>
+            )}
+          </div>
 
-        <span className="tl3-group tl3-group--end">
-          {reActive ? (
-            <div className="tl3-seg" role="group" aria-label="房地產時間粒度">
-              {(["quarter", "month", "week"] as ReGran[]).map((g) => (
-                <button key={g} type="button" aria-pressed={g === reGran} onClick={() => onReGranChange?.(g)}>
-                  {reGranLabel[g]}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <>
-              <span className="tl3-group">
-                <label className="tl3-field">
-                  民國
-                  <select
-                    className="tl3-select tl3-select--mono"
-                    value={year}
-                    onChange={(e) => onYearChange(Number(e.target.value))}
-                    aria-label="民國年"
-                  >
-                    {years.map((y) => <option key={y} value={y}>{y}</option>)}
-                  </select>
-                  年
-                </label>
-                <label className="tl3-field">
-                  <select
-                    className="tl3-select tl3-select--mono"
-                    value={month}
-                    disabled={!showMonth}
-                    onChange={(e) => onMonthChange(Number(e.target.value))}
-                    aria-label="月"
-                  >
-                    {range(1, 12).map((m) => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                  月
-                </label>
-                <label className="tl3-field">
-                  <select
-                    className="tl3-select tl3-select--mono"
-                    value={Math.min(day, dim)}
-                    disabled={!showDay}
-                    onChange={(e) => onDayChange(Number(e.target.value))}
-                    aria-label="日"
-                  >
-                    {range(1, dim).map((d) => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                  日
-                </label>
-              </span>
-              <div className="tl3-seg" role="group" aria-label="時間粒度">
-                {(["year", "month", "day"] as HistoricalGranularity[]).map((g) => (
-                  <button key={g} type="button" aria-pressed={g === granularity} onClick={() => onGranularityChange(g)}>
-                    {granLabel[g]}
-                  </button>
-                ))}
+          {expanded && popupOpen && (
+            <div className="tl3-pop" role="dialog" aria-label="時間與粒度">
+              {reActive ? (
+                <div className="tl3-pop-row">
+                  <div className="tl3-seg" role="group" aria-label="房地產時間粒度">
+                    {(["quarter", "month", "week"] as ReGran[]).map((g) => (
+                      <button key={g} type="button" aria-pressed={g === reGran} onClick={() => onReGranChange?.(g)}>
+                        {reGranLabel[g]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="tl3-pop-row">
+                    <label className="tl3-field">
+                      民國
+                      <select
+                        className="tl3-select tl3-select--mono"
+                        value={year}
+                        onChange={(e) => onYearChange(Number(e.target.value))}
+                        aria-label="民國年"
+                      >
+                        {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                      </select>
+                      年
+                    </label>
+                    <label className="tl3-field">
+                      <select
+                        className="tl3-select tl3-select--mono"
+                        value={month}
+                        disabled={!showMonth}
+                        onChange={(e) => onMonthChange(Number(e.target.value))}
+                        aria-label="月"
+                      >
+                        {range(1, 12).map((m) => <option key={m} value={m}>{m}</option>)}
+                      </select>
+                      月
+                    </label>
+                    <label className="tl3-field">
+                      <select
+                        className="tl3-select tl3-select--mono"
+                        value={Math.min(day, dim)}
+                        disabled={!showDay}
+                        onChange={(e) => onDayChange(Number(e.target.value))}
+                        aria-label="日"
+                      >
+                        {range(1, dim).map((d) => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                      日
+                    </label>
+                  </div>
+                  <div className="tl3-pop-row">
+                    <div className="tl3-seg" role="group" aria-label="時間粒度">
+                      {(["year", "month", "day"] as HistoricalGranularity[]).map((g) => (
+                        <button key={g} type="button" aria-pressed={g === granularity} onClick={() => onGranularityChange(g)}>
+                          {granLabel[g]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              <div className="tl3-pop-row">
+                <span className="tl3-warnchip">{dataNote}</span>
               </div>
-            </>
+            </div>
           )}
-        </span>
-      </div>
-
-      {axis}
-
-      <div className="tl3-notes">
-        <span className="tl3-warnchip">{dataNote}</span>
-      </div>
-    </div>
+        </>
+      )}
+    </TimelineShell>
   );
 }

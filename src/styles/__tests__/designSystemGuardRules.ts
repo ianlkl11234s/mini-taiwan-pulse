@@ -75,6 +75,17 @@ export function countFontDataOnCjk(text: string): number {
   return n;
 }
 
+/** `zIndex: <n>`／`z-index: <n>` 中 n ≥ 10 的寫死數字（Z_INDEX.mapOverlay = 10 起才是全站層級） */
+export function countRawZIndex(text: string): number {
+  let n = 0;
+  for (const line of codeOnlyLines(text)) {
+    for (const m of line.matchAll(/\b(?:zIndex|z-index)\s*:\s*["']?(\d+)\b/g)) {
+      if (Number(m[1]) >= 10) n++;
+    }
+  }
+  return n;
+}
+
 export const RULES: readonly GuardRule[] = [
   {
     id: "web-font",
@@ -100,11 +111,11 @@ export const RULES: readonly GuardRule[] = [
   },
   {
     id: "native-range",
-    description: "原生 range 只能出現在共用滑桿元件（LayerParamControls.tsx，S1 樣式）",
+    description: "原生 range 只能出現在共用滑桿元件本體（src/components/controls/Slider.tsx，S1 樣式）",
     docSection: "§5.13 滑桿 V2＋S1",
-    fix: "改用 ParamControlList 的 slider（src/components/sidebar/LayerParamControls.tsx）或 .lpc-range 樣式",
+    fix: "改用 src/components/controls/Slider.tsx（<Slider>，.ctl-range）；圖層控制走 ParamControlList 的 slider（內部也是 <Slider>）",
     enforce: true,
-    appliesTo: (p) => isTsLike(p) && p !== "src/components/sidebar/LayerParamControls.tsx",
+    appliesTo: (p) => isTsLike(p) && p !== "src/components/controls/Slider.tsx",
     count: (text) => countMatches(stripBlockComments(text), /type\s*=\s*["'{]\s*["']?range["']|type\s*:\s*["']range["']/),
   },
   {
@@ -149,6 +160,16 @@ export const RULES: readonly GuardRule[] = [
     enforce: true,
     appliesTo: (p) => p.endsWith(".tsx"),
     count: (text) => countFontDataOnCjk(text),
+  },
+  {
+    id: "raw-z-index",
+    description: "不寫死 ≥10 的 z-index 數字（zIndex: 30／z-index: 45）；層級走 Z_INDEX／--z-*",
+    docSection: "§5.25 層級（z-index）",
+    fix: "改用 designTokens.ts 的 Z_INDEX.<層>（CSS 用 var(--z-*)）；同層前後靠 DOM 順序。確屬特例（LoadingScreen、資料更新中遮罩等）要寫進 design-system.md 特例表",
+    enforce: true,
+    // src/styles/** 是層級定義檔本身；元件內部 <10 的小值（0／1／2／3…）只排兄弟順序，不算全站層級。
+    appliesTo: (p) => !p.startsWith("src/styles/"),
+    count: (text) => countRawZIndex(text),
   },
   {
     id: "internal-id-display",

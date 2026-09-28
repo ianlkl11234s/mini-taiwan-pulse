@@ -1,10 +1,11 @@
-import { useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import type { TimeMode } from "../types";
 import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { formatGfwUtcWindow, nearestGfwWindowHour, utcDateWindowSeconds } from "../state/gfwTimelineDataWindow";
 import { TimeAxis } from "./timeline/TimeAxis";
+import { TimelineShell } from "./timeline/TimelineShell";
 import {
   buildLiveTicks,
   describeDataWindow,
@@ -15,7 +16,6 @@ import {
   weekdayLabel,
   type AxisGap,
 } from "./timeline/timelineAxis";
-import "./timeline/timeline.css";
 
 interface Props {
   playing: boolean;
@@ -42,8 +42,6 @@ interface Props {
 
 const SPEEDS = [30, 60, 120, 300, 600, 1800, 3600];
 const RANGE_DAYS = [1, 2, 3, 4, 5, 6, 7];
-/** 卡片右側預留給右下停靠 popup（280px）＋間距，避免互相遮住 */
-const RIGHT_RESERVE = 312;
 
 export function formatTaiwanDateInputValue(d: Date): string {
   return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
@@ -90,7 +88,6 @@ export function TimelineControls({
   onRangeDaysChange,
 }: Props) {
   const isLive = timeMode === "live";
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const isFuture = currentTime > Date.now() / 1000;
   const gridWindow = useSyncExternalStore(
     subscribeGfwHourlyGridDataWindow,
@@ -159,173 +156,167 @@ export function TimelineControls({
   };
 
   const clock = formatClock(currentTime);
-  const needleLabel = rangeDays > 1 && currentTime > 0 ? `${formatMonthDay(currentTime)} ${clock}` : clock;
   const multiDay = rangeDays > 1;
+  // 多天時左側時間帶日期（原本指針上的標籤）；單天只顯示時分
+  const timeLabel = multiDay && currentTime > 0 ? `${formatMonthDay(currentTime)} ${clock}` : clock;
   const lastDay = windowEnd - 1;
-
-  const rootClass = [
-    "tl3",
-    isDarkTheme ? "" : "tl3--light",
-    isMobile ? "tl3--mobile" : "",
-  ].filter(Boolean).join(" ");
-
-  const rootStyle: React.CSSProperties = isMobile
-    ? {}
-    : {
-        position: "absolute",
-        bottom: 16,
-        left: leftOffset,
-        zIndex: 10,
-        width: 620,
-        maxWidth: `calc(100vw - ${leftOffset + RIGHT_RESERVE}px)`,
-        minWidth: 320,
-        transition: "left 0.2s ease",
-      };
+  const dateRange = multiDay ? `${formatMonthDay(windowStart)}–${formatMonthDay(lastDay)}` : formatMonthDay(windowStart);
+  const dateChipLabel = `${dateRange} · ${rangeDays} 天`;
 
   return (
-    <div data-viewport-occluder="timeline" className={rootClass} style={rootStyle}>
-      <div className="tl3-top">
-        {isLive ? (
-          <button
-            type="button"
-            className="tl3-btn tl3-btn--primary tl3-btn--play"
-            onClick={() => onTimeModeChange("replay")}
-            title="暫停即時（切換為回放）"
-            aria-label="暫停即時，切換為回放"
-          >
-            <Pause size={13} fill="currentColor" strokeWidth={0} />
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="tl3-btn tl3-btn--primary tl3-btn--play"
-            onClick={onToggle}
-            title={playing ? "暫停" : "播放"}
-            aria-label={playing ? "暫停" : "播放"}
-          >
-            {playing ? <Pause size={13} fill="currentColor" strokeWidth={0} /> : <Play size={13} fill="currentColor" strokeWidth={0} />}
-          </button>
-        )}
-        <span className={isFuture && !isLive ? "tl3-clock tl3-clock--future" : "tl3-clock"}>{clock}</span>
-        {isLive && (
-          <span className="tl3-live"><i />即時</span>
-        )}
-        {isFuture && !isLive && (
-          <span className="tl3-warnchip" role="status" title="此時間尚未到達，沒有最新資料">尚無資料</span>
-        )}
-        <select
-          className="tl3-select tl3-select--mono"
-          value={speed}
-          onChange={(e) => onSpeedChange(Number(e.target.value))}
-          title="播放倍速"
-          aria-label="播放倍速"
-        >
-          {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
-        </select>
-
-        <span className="tl3-group tl3-group--end">
-          <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(-1)} title="前一天" aria-label="前一天">
-            <ChevronLeft size={13} />
-          </button>
-          <button
-            type="button"
-            className="tl3-btn tl3-btn--ghost tl3-date"
-            onClick={() => setShowDatePicker((v) => !v)}
-            title="選擇日期"
-            aria-label="選擇日期"
-            aria-expanded={showDatePicker}
-            style={{ padding: "0 4px" }}
-          >
-            <span className="mono">{formatMonthDay(windowStart)}</span>
-            {multiDay ? (
-              <>–<span className="mono">{formatMonthDay(lastDay)}</span></>
+    <TimelineShell
+      isDarkTheme={isDarkTheme}
+      isMobile={isMobile}
+      leftOffset={leftOffset}
+      rootAttrs={{ "data-viewport-occluder": "timeline" }}
+    >
+      {({ expanded, popupOpen, setPopupOpen, onDragChange }) => (
+        <>
+          <div className="tl3-row">
+            {isLive ? (
+              <button
+                type="button"
+                className="tl3-btn tl3-btn--primary tl3-btn--play"
+                onClick={() => onTimeModeChange("replay")}
+                title="暫停即時（切換為回放）"
+                aria-label="暫停即時，切換為回放"
+              >
+                <Pause size={12} fill="currentColor" strokeWidth={0} />
+              </button>
             ) : (
-              <span className="tl3-date-dim">（{weekdayLabel(windowStart)}）</span>
+              <button
+                type="button"
+                className="tl3-btn tl3-btn--primary tl3-btn--play"
+                onClick={onToggle}
+                title={playing ? "暫停" : "播放"}
+                aria-label={playing ? "暫停" : "播放"}
+              >
+                {playing ? <Pause size={12} fill="currentColor" strokeWidth={0} /> : <Play size={12} fill="currentColor" strokeWidth={0} />}
+              </button>
             )}
-          </button>
-          <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(1)} title="後一天" aria-label="後一天">
-            <ChevronRight size={13} />
-          </button>
-          <button
-            type="button"
-            className="tl3-btn"
-            aria-pressed={isLive}
-            onClick={() => { if (!isLive) onTimeModeChange("live"); }}
-            title={isLive ? "目前為即時" : "回到現在（即時）"}
-          >
-            現在
-          </button>
-          <select
-            className="tl3-select"
-            value={rangeDays}
-            onChange={(e) => onRangeDaysChange(Number(e.target.value))}
-            title="顯示天數"
-            aria-label="顯示天數"
-          >
-            {RANGE_DAYS.map((n) => <option key={n} value={n}>{n} 天</option>)}
-          </select>
-        </span>
-      </div>
+            <span className={isFuture && !isLive ? "tl3-clock tl3-clock--future" : "tl3-clock"}>{timeLabel}</span>
+            {expanded && isLive && (
+              <span className="tl3-live"><i />即時</span>
+            )}
+            {expanded && isFuture && !isLive && (
+              <span className="tl3-warnchip" role="status" title="此時間尚未到達，沒有最新資料">尚無資料</span>
+            )}
+            <TimeAxis
+              compact={!expanded}
+              ratio={progress}
+              ticks={ticks}
+              gaps={gaps}
+              gapTitle="斜線＝該時段無資料"
+              ariaLabel="時間軸"
+              ariaValueMin={windowStart}
+              ariaValueMax={windowEnd}
+              ariaValueNow={Math.round(currentTime)}
+              ariaValueText={timeLabel}
+              // 指標拖曳對齊到整分鐘（避免 15:59:59 這種顯示）
+              onSeekRatio={(r) => seekTo(Math.min(windowEnd, Math.round((windowStart + r * duration) / 60) * 60))}
+              onKey={(key, shiftKey) => {
+                const next = keyboardSeekTarget(key, shiftKey, currentTime, windowStart, windowEnd);
+                if (next === null) return false;
+                seekTo(next);
+                return true;
+              }}
+              onDragChange={onDragChange}
+            />
+            {expanded && (
+              <select
+                className="tl3-select tl3-select--mono"
+                value={speed}
+                onChange={(e) => onSpeedChange(Number(e.target.value))}
+                title="播放倍速"
+                aria-label="播放倍速"
+              >
+                {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
+              </select>
+            )}
+            {expanded && (
+              <button
+                type="button"
+                className="tl3-chip"
+                onClick={() => setPopupOpen(!popupOpen)}
+                title="選擇日期與範圍"
+                aria-label={`日期與範圍：${dateChipLabel}`}
+                aria-expanded={popupOpen}
+                aria-haspopup="dialog"
+              >
+                <span className="mono">{dateRange}</span> · <span className="mono">{rangeDays}</span> 天
+              </button>
+            )}
+          </div>
 
-      {showDatePicker && (
-        <div className="tl3-top">
-          <input
-            type="date"
-            className="tl3-date-input"
-            aria-label="日期"
-            value={formatTaiwanDateInputValue(selectedDate)}
-            onChange={(e) => {
-              const date = parseTaiwanDateInputValue(e.target.value);
-              if (date) {
-                onDateChange(date);
-                setShowDatePicker(false);
-              }
-            }}
-          />
-        </div>
-      )}
-
-      <TimeAxis
-        ratio={progress}
-        ticks={ticks}
-        gaps={gaps}
-        gapTitle="斜線＝該時段無資料"
-        needleLabel={needleLabel}
-        ariaLabel="時間軸"
-        ariaValueMin={windowStart}
-        ariaValueMax={windowEnd}
-        ariaValueNow={Math.round(currentTime)}
-        ariaValueText={needleLabel}
-        // 指標拖曳對齊到整分鐘（避免 15:59:59 這種顯示）
-        onSeekRatio={(r) => seekTo(Math.min(windowEnd, Math.round((windowStart + r * duration) / 60) * 60))}
-        onKey={(key, shiftKey) => {
-          const next = keyboardSeekTarget(key, shiftKey, currentTime, windowStart, windowEnd);
-          if (next === null) return false;
-          seekTo(next);
-          return true;
-        }}
-      />
-
-      {notices.length > 0 && (
-        <div className="tl3-notes" role="status">
-          {notices.map((n) => (
-            <span key={n.key} className="tl3-group">
-              {n.text && <span className="tl3-warnchip" title={n.title}>{n.text}</span>}
-              {n.jumpTarget !== null && (
+          {expanded && popupOpen && (
+            <div className="tl3-pop" role="dialog" aria-label="日期與範圍">
+              <div className="tl3-pop-row">
+                <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(-1)} title="前一天" aria-label="前一天">
+                  <ChevronLeft size={13} />
+                </button>
+                <input
+                  type="date"
+                  className="tl3-date-input"
+                  aria-label="日期"
+                  value={formatTaiwanDateInputValue(selectedDate)}
+                  onChange={(e) => {
+                    const date = parseTaiwanDateInputValue(e.target.value);
+                    if (date) onDateChange(date);
+                  }}
+                />
+                <span className="tl3-date-dim">週{weekdayLabel(windowStart)}</span>
+                <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(1)} title="後一天" aria-label="後一天">
+                  <ChevronRight size={13} />
+                </button>
+              </div>
+              <div className="tl3-pop-row">
                 <button
                   type="button"
-                  className="tl3-btn tl3-btn--small"
-                  onClick={() => { if (n.jumpTarget !== null) onJumpToTime(n.jumpTarget); }}
-                  title={n.title}
+                  className="tl3-btn"
+                  aria-pressed={isLive}
+                  onClick={() => { if (!isLive) onTimeModeChange("live"); }}
+                  title={isLive ? "目前為即時" : "回到現在（即時）"}
                 >
-                  跳至可用時段
+                  現在
                 </button>
-              )}
-            </span>
-          ))}
-          {gaps.length > 0 && <span className="tl3-hint">斜線＝該時段無資料</span>}
-        </div>
+                <label className="tl3-field">
+                  範圍
+                  <select
+                    className="tl3-select"
+                    value={rangeDays}
+                    onChange={(e) => onRangeDaysChange(Number(e.target.value))}
+                    title="顯示天數"
+                    aria-label="顯示天數"
+                  >
+                    {RANGE_DAYS.map((n) => <option key={n} value={n}>{n} 天</option>)}
+                  </select>
+                </label>
+              </div>
+            </div>
+          )}
+
+          {expanded && notices.length > 0 && (
+            <div className="tl3-notes" role="status">
+              {notices.map((n) => (
+                <span key={n.key} className="tl3-group">
+                  {n.text && <span className="tl3-warnchip" title={n.title}>{n.text}</span>}
+                  {n.jumpTarget !== null && (
+                    <button
+                      type="button"
+                      className="tl3-btn tl3-btn--small"
+                      onClick={() => { if (n.jumpTarget !== null) onJumpToTime(n.jumpTarget); }}
+                      title={n.title}
+                    >
+                      跳至可用時段
+                    </button>
+                  )}
+                </span>
+              ))}
+              {gaps.length > 0 && <span className="tl3-hint">斜線＝該時段無資料</span>}
+            </div>
+          )}
+        </>
       )}
-    </div>
+    </TimelineShell>
   );
 }

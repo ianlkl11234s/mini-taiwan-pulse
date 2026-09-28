@@ -1,4 +1,5 @@
 import { LayerToggleSwitch } from "../components/sidebar/LayerToggleSwitch";
+import { Slider } from "../components/controls/Slider";
 import { PanelHeader } from "../components/sidebar/PanelHeader";
 import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from "./researchEvidence";
 import { ResearchEvidencePanel } from "./ResearchEvidencePanel";
@@ -68,6 +69,14 @@ export function completedActivityForOperation(operation: string, data: Record<st
   if (operation === "layer_details" || operation === "describe_layer") return { phase: "complete", title: "圖層說明已備妥", detail: "資料已回傳給 Agent，可繼續探索。" };
   if (operation === "summarize_layer" && totalMatched !== null) return { phase: "complete", title: "這一步已完成", detail: `符合 ${totalMatched} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` };
   return { phase: "complete", title: "這一步已完成", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `符合 ${totalMatched} 筆結果，Agent 正在整理下一步。` };
+}
+
+/**
+ * 右上「最新動作」活動卡是否顯示：只看是否有活動（配對後才會有；斷線時清空）與拍攝模式。
+ * 刻意不看左側「與 Agent 協作」面板開關——面板被左側互斥（§5.26）收起時，執行步驟仍要看得到。
+ */
+export function activityCardVisible(activity: Activity | null, uiHidden: boolean | undefined): boolean {
+  return activity !== null && !uiHidden;
 }
 
 type StyleRestoreMap = {
@@ -568,7 +577,7 @@ export function MainMapConnection(props: Props) {
   const panelOpen = props.embedded || open;
   const showToggle = props.showToggle ?? !props.embedded;
   return <div hidden={props.uiHidden} className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}${showToggle ? "" : " main-map-agent--persistent"}${props.isDarkTheme === false ? " main-map-agent--light" : ""}`}>
-    {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={props.uiHidden ? { display: "none" } : undefined}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
+    {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={activityCardVisible(activity, props.uiHidden) ? undefined : { display: "none" }}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
       {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow="研究" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
@@ -598,7 +607,7 @@ export function MainMapConnection(props: Props) {
               <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
               <div className="agent-analysis-row-label"><strong>{result?.displayLabel ?? "分析結果"}</strong><small>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</small>
                 <label className="agent-analysis-opacity">透明度
-                  <input aria-label={`${result?.displayLabel ?? "分析結果"}透明度`} type="range" min="0.15" max="1" step="0.05" value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
+                  <Slider ariaLabel={`${result?.displayLabel ?? "分析結果"}透明度`} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
                 </label>
                 {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} onSelectColumn={column => {
                   if (!props.map) return;

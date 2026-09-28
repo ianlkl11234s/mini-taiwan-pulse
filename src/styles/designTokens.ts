@@ -187,7 +187,8 @@ export const CONTROL = {
 
 // ─── SLIDER — S1 細滑桿（圖層控制 V2＋S1）──────────────────────
 /**
- * 2px 軌道＋10px 圓點。實作：src/components/sidebar/layerParamControls.css（.lpc-range）。
+ * 2px 軌道＋10px 圓點。實作：共用 src/components/controls/Slider.tsx＋slider.css（.ctl-range；
+ * 圖層控制 LayerParamControls 也用它，Phase Q 收斂）。
  * CSS：--slider-track / --slider-fill / --slider-thumb。淡色見 LIGHT.slider*。
  */
 export const SLIDER = {
@@ -255,19 +256,31 @@ export const SELECTION_RING = {
  * 同一層內的前後由 DOM 順序決定；不要為了壓過鄰居改寫死數字，先確認屬於哪一層。
  *
  * 特例（不在本表、維持寫死）：LoadingScreen 9999、Day-loading 遮罩 1000、LoadingIndicator 1000、
- * AdminPanel 10001、圖層 host 錯誤提示 10000、ChartHoverTooltip。
+ * AdminPanel 10001、圖層 host 錯誤提示 10000、ChartHoverTooltip、
+ * 提示訊息 TransientNotice／私人圖層提示 3000（必須高於 1000 的資料更新中遮罩，toast 50 會被壓暗）。
  */
 export const Z_INDEX = {
-  /** 地圖上的標記、選取圈 */
+  /** 地圖上的標記、選取圈；時間軸（地圖控制列）刻意也在這層，位於浮動面板之下 */
   mapOverlay: 10,
-  /** 浮動面板：左側 rail 面板、Agent 活動卡、右下停靠 popup、時間軸 */
+  /** 浮動面板：左側 rail 面板、Agent 活動卡、右下停靠 popup（時間軸不在此層，屬 mapOverlay） */
   floatingPanel: 20,
   /** 右上工具列（桌機 T2、手機標頭） */
   toolbar: 25,
   /** 下拉面板、選單、hover tooltip */
   popover: 30,
-  /** 置中視窗：說明、分享、監測模式 */
+  /** 置中視窗：說明、分享、監測模式；ChatPanel 與手機會員面板也在此層，靠 App 的 DOM 順序排在視窗之下 */
   modal: 40,
-  /** 提示訊息（toast） */
+  /** 提示訊息（toast）。目前 TransientNotice 仍用特例 3000（見上），本值保留給不需蓋過遮罩的提示 */
   toast: 50,
+} as const;
+
+// ─── LAYOUT — 地圖角落停靠的共用偏移（ui-r2 Phase R）────────────────
+/**
+ * 左下時間軸（TC3 收合膠囊與展開卡片）與右下停靠區（popup＋圖例）共用同一個底邊偏移，
+ * 兩者底邊必須對齊：改這個值會同時移動兩邊。規格見 docs/design-system.md §5.24。
+ * 64 是右下停靠區原本的值，讓出 Mapbox 右下角的版權標示。
+ */
+export const LAYOUT = {
+  /** 地圖底部停靠元件（時間軸、右下停靠區）距視窗底邊的距離（px） */
+  mapBottomInset: 64,
 } as const;
