@@ -2,7 +2,7 @@
 
 > **UI 規範 SSOT**。新增或修改任何 UI（面板、popup、控制項、工具列、樣式表）前必讀；PR 前照 §8 checklist 逐項勾。
 > 自動檢查：`src/styles/__tests__/designSystemGuard.test.ts`（§9）。視覺參考頁：[`design-system-reference.html`](./design-system-reference.html)（暗／淡並排，每個元件標實作檔）。
-> 決策來源：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a 四輪拍板、`proposal.md`、三份設計稿）。本檔寫的是**拍板後的最終規格與實際實作值**；兩者不一致時以本檔 §10「遷移狀態」誠實標示。
+> 決策來源：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a 五輪拍板、`proposal.md`、三份設計稿）。本檔寫的是**拍板後的最終規格與實際實作值**；兩者不一致時以本檔 §10「遷移狀態」誠實標示。
 
 ## 目錄
 
@@ -31,6 +31,9 @@
 | 要一個顏色 | §3；找不到才考慮新增 token（TS 與 CSS 兩邊同時加，並補 §3 表格） |
 | 淡色底圖要支援 | §3.9 `LIGHT`；**不得**另開一套淡色色票 |
 | guard 測試紅燈 | §9；修程式碼，不要改基準 |
+| 要決定元素疊在誰上面（z-index） | §5.25；不寫死數字 |
+| 新的左側浮動面板 | §5.26 互斥清單 |
+| 新的置中視窗／提示訊息 | §5.27、§5.25 |
 
 ## 1. 原則
 
@@ -42,14 +45,15 @@
 | **不顯示內部識別碼** | `datasetId`、`warehouse:wh-8`、layer key 這類代號不直接給使用者看，先過人類可讀映射（§6.3）。 |
 | **null 不當 0** | 缺值、過期、錯誤不轉成 0、「正常」或空字串冒充有值；`Row` 遇到 null／空值直接不渲染，統計缺值顯示「—」並保留原因（§6.5）。 |
 | **暗／淡並行** | 每個元件都有暗色（預設）與淡色（淡色底圖 `light`／`streets`）兩套值；設計稿與參考頁一律並排驗證。淡色值只來自 `LIGHT`／`--light-*`。 |
-| **不引入 CSS 框架、不抽通用元件庫** | 維持 inline style + token + 少量元件級 CSS。業務元件深耦合 Mapbox／timeStore，抽通用 `Button`/`Card` 反而 over-abstract；共用的是**規格**（本檔）與少數已存在的共用元件（`PanelHeader`、`Row`、`Title`、`SourceFooter`、`ToolbarButton`、`LayerParamControls`）。 |
+| **不引入 CSS 框架、不抽通用元件庫** | 維持 inline style + token + 少量元件級 CSS。業務元件深耦合 Mapbox／timeStore，抽通用 `Button`/`Card` 反而 over-abstract；共用的是**規格**（本檔）與少數已存在的共用元件（`PanelHeader`、`Row`、`Title`、`SourceFooter`、`ToolbarButton`、`LayerParamControls`、`controls/Slider`）。 |
+| **不放沒有功能的按鈕** | 不做「規劃中」「敬請期待」的占位按鈕（例：第二輪移除的 rail 設定鈕，按了只跳「設定功能規劃中」）。真的有功能時再加入口。 |
 | **每階段獨立 PR** | 大改分 Phase，一個 Phase 一個 PR，可獨立 review／回退。 |
 
 ## 2. SSOT 檔案
 
 | 檔案 | 角色 |
 |---|---|
-| `src/styles/designTokens.ts` | **TS token SSOT**：`SURFACE` `COLORS` `WHITE_ALPHA` `BORDER` `RADIUS` `FONT_SIZE` `FONT_WEIGHT` `ELEVATION` `SPACING` `CONTROL` `SLIDER` `LIGHT` `SELECTION_RING` ＋ re-export `FONT_CJK` `FONT_DATA` |
+| `src/styles/designTokens.ts` | **TS token SSOT**：`SURFACE` `COLORS` `WHITE_ALPHA` `BORDER` `RADIUS` `FONT_SIZE` `FONT_WEIGHT` `ELEVATION` `SPACING` `CONTROL` `SLIDER` `LIGHT` `SELECTION_RING` `Z_INDEX` ＋ re-export `FONT_CJK` `FONT_DATA` |
 | `src/styles/tokens.css` | **CSS token SSOT**：與 TS 1:1 同值的 CSS 變數（`main.tsx`、`research/main.tsx`、`jev-layer-screening/main.tsx` 全域載入） |
 | `src/components/intel/intelTokens.ts` | 歷史 token（`COLORS` 原始定義、`FONT_CJK`/`FONT_DATA`、分級色、`chipTint`/`chipOutline`），被 designTokens **單向 re-export** |
 | `src/components/sidebar/layerCatalog.ts` | `LAYER_COLORS`／主題與群組 SSOT（圖層資料色，§3.16） |
@@ -58,7 +62,7 @@
 | `src/components/featureInfo/registry.tsx` `PANEL_REGISTRY` | layer → popup 內容 |
 | `src/styles/__tests__/designSystemGuard*.{ts,json}` | 自動檢查規則、基準、TS↔CSS 同值測試（§9） |
 
-**TS ↔ CSS 對應規則**：`SURFACE.x ↔ --surface-x`；`COLORS.textX ↔ --text-x`；`BORDER.x ↔ --border-x`；`CONTROL.camel ↔ --control-kebab`；`SLIDER.x ↔ --slider-x`；`LIGHT.camelCase ↔ --light-kebab-case`；`COLORS.link ↔ --link`；`COLORS.statusDerived ↔ --status-derived`。`LIGHT`／`SLIDER`／`CONTROL`／`link`／`statusDerived`／`accent` 的兩邊同值由 guard 測試強制。
+**TS ↔ CSS 對應規則**：`SURFACE.x ↔ --surface-x`；`COLORS.textX ↔ --text-x`；`BORDER.x ↔ --border-x`；`CONTROL.camel ↔ --control-kebab`；`SLIDER.x ↔ --slider-x`；`LIGHT.camelCase ↔ --light-kebab-case`；`COLORS.link ↔ --link`；`COLORS.statusDerived ↔ --status-derived`；`Z_INDEX.camelCase ↔ --z-kebab-case`（`zIndex.test.ts` 強制同值與順序）。`LIGHT`／`SLIDER`／`CONTROL`／`link`／`statusDerived`／`accent` 的兩邊同值由 guard 測試強制。
 
 ⚠️ `intelTokens.ts` **不可**改成 re-export from `designTokens`（designTokens 已 import 它，會 circular）。退役順序：(a) 常數搬進 designTokens → (b) intelTokens 改 re-export from designTokens → (c) import 全改完才刪。
 
@@ -223,6 +227,15 @@
 
 設計稿中的半級（9.5／10.5／11.5／12.5px）只出現在參考稿，實作就近 round 到上表。品牌字標 20／28px、研究頁大數字 29px 等一次性大字保留 inline（§4.2）。
 
+**字級刻意例外**（拍板值，不 round）：
+
+| 位置 | 值 | 理由 |
+|---|---|---|
+| Layers 大分類標題（§5.5） | 9.5px | 第二輪 LT1：刻意小於 L2 群組標題（10px），大分類只當分段提示，不搶主題列 |
+| 說明視窗 `kbd`（§5.27） | 9.5px `FONT_DATA` 600 | 按鍵標籤嵌在 11px 正文裡，需略小 |
+| 分享欄位值（§5.27） | 10.5px `FONT_DATA` | 網址／HTML 長字串，10px 太擠、11px 換行過多 |
+| 左下時間軸刻度／日期（§5.24） | 9.5px／11.5px | TL3 設計稿值 |
+
 ### 3.14 FONT_WEIGHT
 
 `regular 400`／`semibold 600`／`bold 700`（CSS `--font-weight-*`）。按鈕字 500 為 C2 規格值（inline）。
@@ -288,7 +301,7 @@
 - **H2 標頭**：padding `10px 14px`；eyebrow 9px `--text-dim`、letterSpacing 1.4px、中文（例「資料」「研究」）；標題 13px bold `--text-strong`、上距 1px；底線 `1px --border-panel`；關閉鈕 24×24、`<X size={14}/>`、透明底、`--text-muted`，`aria-label="關閉{標題}"`。
 - **淡色**：底 `LIGHT.surfacePanel`、框 `LIGHT.border`、字 `LIGHT.textStrong`／`textDim`。
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。
-- **實作**：`src/components/sidebar/PanelHeader.tsx`（傳 `eyebrow` 即走 H2；**不傳 eyebrow 的舊分支仍是 Inter，待遷移**，§10.3）。
+- **實作**：`src/components/sidebar/PanelHeader.tsx`（傳 `eyebrow` 即走 H2；不傳 eyebrow 的舊分支第二輪已改 `FONT_CJK`，視覺仍是舊版標頭）。
 
 ### 5.2 停靠 popup（B 版「細線緊湊」）
 
@@ -324,14 +337,32 @@
 - **禁止**：各圖層自己畫高亮圈；不跟 popup 生命週期走。
 - **實作**：`src/map/selectionRing.{ts,css}`（位置、色、掛載 hook `useSelectionRing`）、`App.tsx`（記錄點擊）。
 
-### 5.5 L2 群組標題
+### 5.5 Layers 主題列、大分類與 L2 群組標題
 
-- **用途**：Layers／資料來源面板內，主題下的子群組（例「點位」「交通用地」）。
+三層由大到小：**大分類**（例「交通與城市」）→ **主題列**（例「交通 Move」，可收合、有總開關）→ **L2 群組**（例「點位」）。
+
+**主題列（LT1，第二輪拍板）**
+
+- **資料**：`theme.title` 維持「中文 English」一個字串；渲染時**一律**用 `layerCatalog.ts` 的 `splitThemeTitle()` 拆成 `{ zh, en }`（唯一拆分入口，不要自己 `split(" ")`）。沒有空格時 `en` 為空、只顯示中文。
+- **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 英文小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
+- **字**：中文 13px（`FONT_SIZE.lg`）semibold `--text-strong`、`FONT_CJK`；英文 10px（`FONT_SIZE.sm`）`--text-dim`、`FONT_CJK`、letterSpacing 0.3、**不轉大寫**；中英 baseline 對齊、gap 6。
+- **計數**：固定 `FONT_DATA` 10px `--text-dim`，**不再依開啟狀態變色**（舊版有開啟時變亮已拿掉）。
+- **容器**：sticky 置頂（滾動時黏住直到下一個主題列推走）、上下 `1px` 分隔線、`backdrop-filter: blur(8px)`；padding `8px 4px 8px 12px`。
+- **禁止**：整列 `FONT_DATA`；`uppercase`；英文與中文同字級。
+
+**大分類標題（LT1）**
+
+- 只顯示中文（`splitThemeTitle(title).zh`），**9.5px**（刻意小於 L2 的 10px，見 §3.13 例外表）、letterSpacing 1.2、`--text-dim`、`FONT_CJK`；右側 1px 細線拉到底，線色同 L2 群組線（暗 `rgba(255,255,255,0.14)`／淡 `rgba(0,0,0,0.12)`）；padding `10px 12px 4px`、gap 8。
+
+**L2 群組標題**
+
+- **用途**：主題下的子群組（例「點位」「交通用地」）。
 - **結構**：中文標題 ＋ 右側 1px 細線拉到底；子項縮排 14px。
 - **尺寸**：10px（`FONT_SIZE.sm`）semibold、letterSpacing 0.6、padding `10px 12px 3px`、gap 8。
 - **暗／淡**：字 `#9ca3af`／`#4b5563`（= textMuted）；線 `rgba(255,255,255,0.14)`／`rgba(0,0,0,0.12)`。拍板稿為 `--border-soft`，實作取 `BORDER.mid` 較明顯，以實作為準。
 - **禁止**：「└」字元縮排；整段 `FONT_DATA`。
-- **實作**：`src/components/IconRailSidebar.tsx` `SubGroupLabel`（顏色目前 inline hex，§10.3）。
+
+- **實作**：`src/components/IconRailSidebar.tsx`（`ThemeBanner`、`MacroGroupLabel`、`SubGroupLabel`；顏色目前 inline hex，§10.3）、`src/components/LayerSidebar.tsx`（手機版同規格）、`src/components/sidebar/layerCatalog.ts` `splitThemeTitle()`。
 
 ### 5.6 時間軸（border-left）
 
@@ -403,7 +434,7 @@
 - **狀態**：focus-visible → 圓點 `0 0 0 2px accent`。
 - **數值**：`valueText` 由 `splitSliderLabel()` 產生（§6.2）。
 - **禁止**：在共用元件以外寫原生 `type="range"`（guard `native-range`）；粗軌道、系統預設藍色滑桿。
-- **實作**：`LayerParamControls.tsx` `SliderControl`＋`input[type="range"].lpc-range`。
+- **實作**：全站唯一元件 `src/components/controls/Slider.tsx`＋`slider.css`（`.ctl-range`），見 §5.28；圖層控制 `LayerParamControls.tsx` `SliderControl` 也用它（Phase Q 收斂，舊 `.lpc-range` 已刪）。
 
 ### 5.14（已移除）獨立隱藏鈕
 
@@ -496,6 +527,83 @@
 - **禁止**：原生 `type="range"`；`▶` 字元；英文「Now／LIVE／1d／60x」；等寬字包中文。
 - **實作**：`src/components/TimelineControls.tsx`、`HistoricalTimeline.tsx`、`src/components/timeline/{TimeAxis.tsx,timelineAxis.ts,timeline.css}`。
 
+### 5.25 層級（z-index）
+
+- **SSOT**：`designTokens.ts` `Z_INDEX` ↔ `tokens.css` `--z-*`，兩邊同值（`src/styles/__tests__/zIndex.test.ts` 強制同值與由低到高的順序）。TS 用 `zIndex: Z_INDEX.modal`，CSS 用 `z-index: var(--z-modal)`。
+
+| 層 | TS／CSS | 值 | 放什麼 |
+|---|---|---|---|
+| 地圖覆蓋 | `mapOverlay`／`--z-map-overlay` | 10 | 地圖上的標記、選取圈；**左下時間軸（桌機卡片與手機時間軸條）** |
+| 浮動面板 | `floatingPanel`／`--z-floating-panel` | 20 | 左側 rail 面板（Layers、資料來源…）、地震回放、Agent 面板與活動卡、右下停靠 popup＋圖例、桌機會員專區 |
+| 工具列 | `toolbar`／`--z-toolbar` | 25 | 右上工具列（T2）、手機標頭（M1）、拍攝模式離開提示 |
+| 彈出層 | `popover`／`--z-popover` | 30 | 下拉選單（底圖、帳號、手機「⋯」）、hover tooltip、日本水資源／醫療載入失敗提示（`JpWaterAlert`／`JpMedicalAlert`，在 `LayerHosts` 最後渲染，蓋過選單但在置中視窗之下） |
+| 置中視窗 | `modal`／`--z-modal` | 40 | 說明、分享視窗；同層另有 AI 對話浮層（`ChatPanel`）與手機會員專區（見下方 DOM 順序） |
+| 提示訊息 | `toast`／`--z-toast` | 50 | 保留給不需要蓋過「資料更新中」遮罩的提示；目前無使用者（見特例） |
+
+- **時間軸為什麼是 10**：時間軸屬於地圖控制列，不是面板；左側面板或右下 popup 展開時應蓋在時間軸上面，所以刻意比浮動面板低一層。`TimelineControls`／`HistoricalTimeline`／App 手機時間軸條都寫 `Z_INDEX.mapOverlay` 並附註解。
+- **同層靠 DOM 順序，不得寫死數字**：同一層要誰在上面，就調整渲染順序（後渲染者在上），不要改成 21、41 之類的數字壓過鄰居。目前的 modal 層順序（`App.tsx` 最後段）：`ChatPanel` → `MemberPanel` → `InfoModal` → `ShareModal`，維持「說明／分享永遠在對話浮層與會員面板之上、手機會員面板在對話浮層之上」。**不要把這幾個元件往前搬。**
+- **特例（維持寫死，已登記）**：
+
+| 元件 | 值 | 理由 |
+|---|---|---|
+| `LoadingScreen` | 9999 | 啟動畫面，蓋住一切 |
+| 資料更新中遮罩（App day-loading overlay）、`LoadingIndicator` | 1000 | 全畫面半透明遮罩＋進度，需在所有介面之上 |
+| `TransientNotice`、私人圖層提示（App `gatedNotice`） | 3000 | 提示訊息必須高於 1000 的資料更新中遮罩（否則被壓暗、模糊）；時間切換時兩者常同時出現 |
+| `AdminPanel` | 10001 | 管理者視窗，最高 |
+| 圖層 host 錯誤提示（`allenCoralHost`、`coralReefHost`） | 10000 | 私人資料存取錯誤必須可見 |
+| `ChartHoverTooltip` | 10050（常數 `TOOLTIP_Z`） | 圖表 hover tooltip 要蓋過所有面板 |
+
+- **尚未歸層（記錄於 guard `raw-z-index` 基準，只能減少）**：`MobileBottomSheet` 40（`layerConsistency` 測試直接比對字面值）、`MonitorPanel` 40、即時情報／衛星面板 30、衛星詳細卡 35、`ManeuverCompareModal` 100、`AirportSelector` 下拉 100、Monitor 看板內部 20／30。之後動到這些元件時順手歸層。
+- **元件內部小值**：0–9 的 `zIndex`（sticky 標頭 2、指針 3…）只排兄弟順序，不算全站層級，guard 不計。
+- **禁止**：新增 ≥10 的寫死數字（guard `raw-z-index`）；為了壓過某元件改數字而不先確認它屬哪一層。
+- **實作**：`src/styles/designTokens.ts` `Z_INDEX`、`src/styles/tokens.css`、`src/App.tsx`（modal 層 DOM 順序）。
+
+### 5.26 左側面板互斥（Z1）
+
+- **規則**：左側浮動面板**同時只開一個**。打開其中一個時，其他已開的自動關閉；只關不開時不做事。
+- **適用面板**：本地 Agent、地震回放、即時情報、衛星情報、會員專區（`LEFT_PANEL_KEYS`）。Layers／資料來源等 rail 面板本來就是同一個抽屜，不在此清單。
+- **地震回放特例**：地震回放是圖層旗標（`layerVisibility.earthquakeReplay`），可從圖層清單、批次開關、URL 還原、Agent bridge 打開；因此「關掉地震回放面板」＝**關掉該圖層**，App 觀察「剛由關變開」的面板再呼叫既有的關閉 setter。
+- **新增左側面板時**：把 key 加進 `LEFT_PANEL_KEYS` 並在 App 接上開關 state，層級用 `Z_INDEX.floatingPanel`。
+- **實作**：`src/state/leftPanelMutex.ts`（純函式 `leftPanelsToClose()`＋測試）、`src/App.tsx`。
+
+### 5.27 置中視窗（modal）與分享欄位
+
+**置中視窗**（說明 `InfoModal`、分享 `ShareModal`）
+
+- **層級**：`Z_INDEX.modal`；遮罩 `inset: 0`、半透明黑底，點遮罩關閉。
+- **標頭**：H2（§5.1）——padding `10px 14px`、eyebrow（「說明」「分享」）＋13px bold 標題、下方 `1px --border-panel`；關閉鈕 lucide `<X size={14}/>`、24×24、`RADIUS.md`。
+- **語言切換**（說明視窗）：分段控制「中文／EN」（§5.8），高 24、padding 2、gap 2、`1px` 框；選中底 `COLORS.accentFaint`（淡 `LIGHT.accentFaint`）。不用「ZH／EN」英文縮寫。
+- **卡片**：底 `CONTROL.bg`、框 `BORDER.soft`、`RADIUS.lg`、padding `12px 14px`；需要強調時左側 3px 色條。
+- **按鍵標籤 `kbd`**：`FONT_DATA` 9.5px 600、透明底、1px 框、圓角 3、padding `1px 4px`。
+- **內文**：`FONT_CJK`；容器不得設 monospace；不用 `uppercase` 與 `▶` 說明文字。
+- **尺寸**：說明視窗桌機 `min(920px, 92vw) × min(680px, 88vh)`，手機 `100vw × 92vh` 由下緣出現。
+
+**分享欄位對齊**
+
+- **版面**：每個欄位（連結、嵌入 HTML）用 `grid-template-columns: 1fr auto`：左值欄、右複製鈕。
+- **值欄**：`FONT_DATA` 10.5px（§3.13 例外）、`--control-bg` 底、`--control-border` 框、圓角 4。
+- **複製鈕**：C2 一般樣式＋`Copy` 圖示，**固定寬 74px**，讓「複製」↔「已複製」切換時版面不跳動；成功 2 秒內改主要樣式（accentFaint 底、accent 框字、600）；失敗時自動選取文字方便手動複製。
+- **規則**：任何「文字會在兩種長度間切換」的按鈕（複製／已複製、開始／停止）都給固定寬度或最小寬度。
+- **實作**：`src/components/InfoModal.tsx`、`src/components/ShareModal.tsx`。
+
+### 5.28 共用滑桿（controls/Slider）
+
+- **唯一的原生 range 元件**：`src/components/controls/Slider.tsx`，樣式 `slider.css` `.ctl-range`（規格同 §5.13 S1）。其他檔案不得寫 `type="range"`（guard `native-range` 白名單只剩本元件）。
+- **使用者**：圖層控制（`LayerParamControls` `SliderControl`）、地震回放、情報回放、bbox 工具、研究頁、Jev 篩選頁、Agent 面板分析結果透明度。
+- **API**：`value`／`min`／`max`／`step`／`onChange(number)`／`ariaLabel`／`ariaValueText`；已拖段比例 `--p` 由元件計算。
+- **主題**：預設吃 `--slider-track`／`--slider-fill`／`--slider-thumb`（暗色）。有自己主題系統的呼叫端傳 `trackColor`／`fillColor`／`thumbColor`／`accentColor` 覆寫（圖層控制傳 `var(--lpc-*)`、情報回放傳 intel palette）；或像 Agent 面板一樣在淡色容器上重設 `--slider-*` 為 `--light-slider-*`。
+- **容器通用 input 樣式**：`.ctl-range` 自帶 `padding: 0; border: 0`，不會被 `.xxx input { padding; border }` 之類的容器規則撐開；呼叫端不要再為 range 另寫覆寫規則。
+- **實作**：`src/components/controls/{Slider.tsx,slider.css}`。
+
+### 5.29 手機標頭（M1）
+
+- **位置**：手機版頂端全寬，高 44（加 `safe-area-inset-top`），`Z_INDEX.toolbar`；底 `SURFACE.strong`（淡 `LIGHT.surfaceStrong`）＋`backdrop-filter: blur(12px)`、下緣 `1px palette.borderPanel`；padding `0 8px`、gap 4。
+- **左側**：品牌縮寫「MTP」（`FONT_DATA` 13px 700、letterSpacing 1.5，§4.2 品牌例外）＋座標 HUD（9px `FONT_DATA` tabular-nums、`textDim`、單行省略）。
+- **右側外露**（固定順序）：AI（開啟時主要樣式）→ 拍攝模式（C2 主要）→ `⋯` 更多 → 帳號。按鈕 30×30、圓角 6（`RADIUS.lg`）、icon 16px。
+- **`⋯` 選單**：向下靠右、寬 190px、padding 4、`RADIUS.xl`、`Z_INDEX.popover`；列 padding `7px 8px`、icon 15px、12px `FONT_CJK`；開關類項目 accent 字＋600＋`aria-pressed`。內容：說明、分享、3D／2D 切換（右側附目前值）、本地 Agent（僅 DEV）、會員專區。點外面或 Esc 關閉。
+- **禁止**：在手機標頭再加外露按鈕（新入口一律收進 `⋯`）；第二排。
+- **實作**：`src/App.tsx`（手機分支、`mobileIconButtonStyle`）、`src/components/toolbar/MobileMoreMenu.tsx`、`src/components/auth/UserAvatar.tsx`（`compact`）。
+
 ## 6. 文案規則
 
 ### 6.1 標籤一律中文
@@ -544,7 +652,10 @@
 |---|---|---|
 | 中文用等寬字（`FONT_DATA` 包中文） | 容器 `FONT_CJK`，只把數字包 `FONT_DATA` | `font-data-on-cjk` |
 | 寫死 hex／rgba（元件、CSS） | token／`var(--…)`；資料色見 §3.16 | `hex-literal-in-ui-css`（CSS） |
-| 原生 `type="range"` | `ParamControlList` slider／`.lpc-range` | `native-range` |
+| 原生 `type="range"` | `controls/Slider`（圖層控制走 `ParamControlList`，內部同一元件） | `native-range` |
+| 寫死 ≥10 的 `zIndex`／`z-index` 數字 | `Z_INDEX.*`／`var(--z-*)`，同層靠 DOM 順序（§5.25） | `raw-z-index` |
+| 沒有功能的占位按鈕（「規劃中」設定鈕等） | 有功能時再加入口 | — |
+| 會切換文字的按鈕寬度跟著文字跳 | 固定寬或最小寬（§5.27） | — |
 | `▶` `▼` 字元當 chevron／播放 | lucide `ChevronRight`／`Play` | `triangle-chevron` |
 | 英文大寫 eyebrow、`uppercase` | 中文 eyebrow，不轉大寫 | `uppercase-eyebrow` |
 | 控制項英文標籤 | 中文 `labelPrefix` | `english-control-label` |
@@ -571,6 +682,8 @@ PR 前逐項勾（貼進 PR 描述）：
 - [ ] 面板用 `PanelHeader`（H2，傳 `eyebrow`）；popup 內容用 `Title`／`Row`／中央 `SourceFooter`
 - [ ] 控制項符合 §5.7–§5.16（C2 按鈕、分段、原生 select、迷你開關、S1 滑桿、lucide chevron）
 - [ ] 圖示按鈕有 `title`＋`aria-label`；開關有 `role="switch"`；focus-visible 有 2px accent 外框
+- [ ] 層級用 `Z_INDEX`／`--z-*`，沒有新的寫死數字；新左側面板已加入互斥清單（§5.25、§5.26）
+- [ ] 沒有「規劃中」之類沒有功能的按鈕
 - [ ] 窄螢幕（手機寬度）不橫向溢出
 - [ ] `npx tsc -b` 綠；`npx vitest run src/styles/__tests__/designSystemGuard.test.ts` 綠
 - [ ] 若 guard 顯示違規減少：已執行 `npm run design:baseline` 並 commit 基準
@@ -592,19 +705,23 @@ PR 前逐項勾（貼進 PR 描述）：
 
 | 規則 | 擋什麼 | 擋／記錄 | 基準筆數（檔案數） |
 |---|---|---|---|
-| `web-font` | `fonts.googleapis`、`@font-face`、`"JetBrains Mono"`、`Inter,`、`Georgia`、`Songti` | 擋 | 11（5） |
+| `web-font` | `fonts.googleapis`、`@font-face`、`"JetBrains Mono"`、`Inter,`、`Georgia`、`Songti` | 擋 | 0（0） |
 | `hex-literal-in-ui-css` | `src/research/*.css`、`src/components/**/*.css` 的 `#rgb`／`#rrggbb`（`src/styles/**` 除外） | 擋 | 4（2） |
-| `native-range` | `type="range"`／`type: "range"`（`LayerParamControls.tsx` 除外） | 擋 | 7（7） |
-| `triangle-chevron` | `▶` `▼` 與 escape（註解與 `▲▼` 趨勢成對不算） | 擋 | 8（5） |
+| `native-range` | `type="range"`／`type: "range"`（只有 `controls/Slider.tsx` 除外） | 擋 | 0（0） |
+| `triangle-chevron` | `▶` `▼` 與 escape（註解與 `▲▼` 趨勢成對不算） | 擋 | 5（4） |
 | `english-control-label` | `layerParamsSpec.ts` `labelPrefix` 英文開頭 | 擋 | 1（1） |
-| `uppercase-eyebrow` | `textTransform: "uppercase"`／`text-transform: uppercase` | 擋 | 9（5） |
+| `uppercase-eyebrow` | `textTransform: "uppercase"`／`text-transform: uppercase` | 擋 | 3（2） |
 | `font-data-on-cjk` | 啟發式：`FONT_DATA` 元素的直接子文字含中文（同一行內） | 擋 | 3（3） |
+| `raw-z-index` | `zIndex: <n>`／`z-index: <n>` 且 n ≥ 10（`src/styles/**` 定義檔除外；0–9 元件內部小值不算） | 擋 | 18（16） |
 | `internal-id-display` | 啟發式：`datasetId` 放進 JSX 子節點或 `title`／`label`／`desc`／`text` 欄位 | **只記錄** | 3（2） |
+
+`raw-z-index` 於 Phase Q 新增，基準以 `design:baseline --reset` 由當下程式碼建立（規則新增屬 §9.1 的 reset 條件；其他規則的值同時只降不升）。已登記的特例（§5.25 特例表）也計在基準內——它們不會再增加，但也不會自動歸零。
 
 **誤判與漏判**：
 - `font-data-on-cjk` 只看同一行；跨行的 JSX（例 F2 footer 第二行）不會命中，屬已知漏判。正確混排寫法（中文在外、數字 span 在內）不會誤判。
 - `internal-id-display` 會命中「先顯示標題、查不到才 fallback 代號」的寫法（`DataSourcePanel.tsx` 2 處屬此類，是真的問題）；但也可能把合法的 tooltip 或除錯欄位算進去，因此只記錄不擋。
 - `web-font` 的 `Georgia` 也會命中資料中的國名（目前 0 筆）；遇到時把字串移到資料檔（`src/data/**` 同樣受掃描，需在 PR 說明）。
+- `raw-z-index` 只看 `zIndex:`／`z-index:` 後直接接數字的寫法；`zIndex: cond ? 50 : 10`、字串拼接或變數不會命中（漏判）。註解行不算。
 - `triangle-chevron` 同時擋播放鍵 `▶`（應改 lucide `Play`）；`▲▼` 成對的升降趨勢不擋。
 
 ## 10. 遷移狀態
@@ -633,6 +750,10 @@ PR 前逐項勾（貼進 PR 描述）：
 | J | 淡色／控制 token 收斂、本文件改寫、參考頁、guard | ✅ | 本 PR |
 | L | 即時情報 Intel 面板淡色主題（`intelTheme.tsx` palette／徽章對比公式） | ✅ | `220a7685`、`5ebb3fb4` |
 | M | 左下時間軸 TL3 刻度軸（即時＋歷史） | ✅ | `20d1fd94`、`cc8c2827` 起 |
+| N | 第二輪：Layers 主題列 LT1、Inter 殘留改 `FONT_CJK`、移除 rail 設定鈕（S1） | ✅ | `efff01d4`、`099cf4c6`、`4a643ac6` |
+| O | 第二輪：`Z_INDEX` 層級（Z1）＋左側面板互斥、手機標頭 M1 | ✅ | `8b4a6f43`、`a22daf14` |
+| P | 第二輪：說明／分享視窗 H2、分享欄位 `1fr auto`、共用滑桿 `controls/Slider` | ✅ | `1370a736`、`3f8b9741`、`8c7f9fd5` |
+| Q | 第二輪收尾：置中視窗／對話浮層／會員面板歸層、Agent 透明度滑桿與圖層滑桿收斂到 `controls/Slider`、guard `raw-z-index`、本文件與參考頁 | ✅ | `54728865`、`6c43deb2`＋本文件 commit |
 
 ### 10.2 區塊狀態
 
@@ -645,9 +766,12 @@ PR 前逐項勾（貼進 PR 描述）：
 | 資料來源面板 D1 | ⚠️ 部分 | 2 處 `datasetId` fallback 當標題 |
 | 與 Agent 協作面板、研究頁、活動時間軸 | ✅ 符合 | 分析色階漸層屬資料色例外 |
 | 會員專區 | ✅ 符合 | |
-| Layers 面板 L2 群組 | ⚠️ 部分 | 群組標題顏色仍 inline hex；**主題標題（`MacroGroupLabel`）仍是等寬英文大寫，如「交通 MOVE」** |
+| Layers 面板主題列／大分類／L2 群組 | ✅ 符合（LT1） | 群組標題與大分類細線顏色仍 inline hex |
 | 即時情報 | ✅ 符合 | Phase L：暗／淡皆吃 `intelTheme.ts` palette；Monitor Mode 戰情看板刻意維持全暗（`NewsFeedPanel` 顯式套 `DARK_INTEL`），不在本輪淡色範圍 |
-| 面板標頭（非 H2 分支） | ⚠️ 部分 | `PanelHeader` 未傳 `eyebrow` 的分支仍用 Inter |
+| 面板標頭（非 H2 分支） | ⚠️ 部分 | `PanelHeader` 未傳 `eyebrow` 的分支字型已改 `FONT_CJK`，版面仍是舊標頭 |
+| 說明／分享視窗 | ✅ 符合 | H2、語言分段、`kbd`、分享欄位 `1fr auto`（§5.27） |
+| 手機標頭 | ✅ 符合（M1） | 手機時間軸條淡色時仍是暗色底（§10.3） |
+| 層級（z-index） | ⚠️ 部分 | 表內元件已歸層；仍有 18 處寫死數字（含已登記特例），見 §5.25 與 guard 基準 |
 | 圖例 | ✅ 符合 | |
 | 左下時間軸（TL3） | ✅ 符合 | 即時／歷史共用 `TimeAxis`；刻度標籤 9.5px、日期 11.5px 依設計稿，不在 7 階字級上 |
 
@@ -655,14 +779,14 @@ PR 前逐項勾（貼進 PR 描述）：
 
 | 項目 | 現況 | 位置 |
 |---|---|---|
-| Layers 主題標題 | `FONT_DATA` + `uppercase` + 中英混排（「交通 MOVE」） | `IconRailSidebar.tsx` `MacroGroupLabel`、`LayerSidebar.tsx` |
-| Mobile compact header | 未依 H2／T2 改寫 | `App.tsx` 手機分支、`LayerSidebar.tsx` |
-| Settings／Info／Share 等 modal | 未依本輪規格檢查；`InfoModal` 有 `uppercase` 與 `▶` 說明文字 | `InfoModal.tsx`、`ShareModal.tsx`、Settings |
-| Inter 殘留 | 11 處 `fontFamily: "Inter, …"`（`IconRailSidebar.tsx` 7、其餘各 1） | `IconRailSidebar.tsx`、`App.tsx`、`TransientNotice.tsx`、`PanelHeader.tsx`、`StatisticsDetails.tsx` |
-| 其他原生 range | 地震回放、情報回放、研究頁、bbox 工具 | 見 guard 基準 `native-range` |
+| 手機時間軸條 | 淡色底圖時仍是暗色半透明底 `rgba(0,0,0,0.4)`，未跟淡色主題 | `App.tsx` 手機分支（Timeline 條） |
+| 未歸層的 z-index | `MobileBottomSheet` 40、`MonitorPanel` 40、即時情報／衛星面板 30（屬 Z1 互斥面板，但層級仍比 `floatingPanel` 高）、衛星詳細卡 35、`ManeuverCompareModal` 100、`AirportSelector` 100、Monitor 看板內部 20／30 | guard `raw-z-index` 基準 |
+| `Z_INDEX.toast` 無使用者 | 提示訊息必須高於 1000 的資料更新中遮罩，目前以特例 3000 保留；若要讓提示訊息進表，需先決定把遮罩歸層或把 toast 值提高到 1000 以上 | `TransientNotice.tsx`、`App.tsx` `gatedNotice` |
+| modal 層混入對話浮層 | `ChatPanel` 與手機會員面板暫放 modal 層、靠 DOM 順序在視窗之下；表上缺一個「彈出層之上、置中視窗之下」的側欄／底部面板槽位 | `App.tsx`、`ChatPanel.tsx`、`memberPanel.css` |
+| 設定（Settings） | 第二輪已移除 rail 上沒有功能的設定鈕（S1）；目前沒有設定入口，真的有設定需求再加（§1「不放沒有功能的按鈕」） | — |
 | 等寬中文 | 3 處 | `FoodPriceBoard.tsx`、`TelecomStatusCard.tsx`、`ManeuverCompareModal.tsx` |
 | popup 暗色連結色 | `DARK_FEATURE.link = #7DD3FC`，與 `COLORS.link #7fb2ff` 不同；本輪只做等值替換未改 | `featureTheme.tsx` |
-| 其他手刻淡色物件 | `UserAvatar`（陰影、分隔線、hover 值不在 token 階）、`LegendPanel` `LIGHT_LEGEND`、`InfoModal`、`ChatPanel`、`LayerSidebar` 開關色、`LoadingIndicator` | 各檔 |
+| 其他手刻淡色物件 | `UserAvatar`（陰影、分隔線、hover 值不在 token 階）、`LegendPanel` `LIGHT_LEGEND`、`InfoModal` palette、`ChatPanel`、`LayerSidebar` 開關色、`LoadingIndicator` | 各檔 |
 | popup 暗色外框 | `rgba(100,170,255,0.25)` inline 字面，不在 `BORDER` 階上（`BORDER.accent` 為 0.55） | `FeatureInfoPanel.tsx` |
 | 淡色錯誤色 | tokens `--light-status-err #b42318` vs 設計稿 `#b91c1c` | 以 token 為準，設計稿未同步 |
 | 按鈕 pressed 態 | 未定義 | §5.7 |
@@ -671,7 +795,6 @@ PR 前逐項勾（貼進 PR 描述）：
 
 **未來題目**（有需求再開，開時更新本節）：
 
-- Z_INDEX scale（Mapbox 控制、面板、modal、loading 目前 inline）。
 - transition／duration／easing（現行慣例：hover .15s、淡入淡出 .3s、脈衝 1.8s）。
 - Breakpoint tokens（目前 JS `isMobile`）。
 - Control sizing 通用 scale（目前規格寫在 §5.7–§5.14）。
@@ -686,11 +809,11 @@ PR 前逐項勾（貼進 PR 描述）：
 - ❌ 不反向把 `intelTokens` 改成 re-export from `designTokens`。
 - ❌ `SURFACE.*` 不當互動底色（即使數值相同）。
 
-**決策紀錄**：`CONTROL.*` 於 2026-09-27 開啟（handoff §4a 拍板 #4、第三輪 C2），原 Phase 0–6 列為「未來題目」；`LIGHT`／`SLIDER`／`SELECTION_RING`／`COLORS.link`／`statusDerived`／`CONTROL.optionBg` 於 2026-09-28 Phase J 由各元件的候選值收斂而來（值不變）。
+**決策紀錄**：`CONTROL.*` 於 2026-09-27 開啟（handoff §4a 拍板 #4、第三輪 C2），原 Phase 0–6 列為「未來題目」；`LIGHT`／`SLIDER`／`SELECTION_RING`／`COLORS.link`／`statusDerived`／`CONTROL.optionBg` 於 2026-09-28 Phase J 由各元件的候選值收斂而來（值不變）；`Z_INDEX` 於 2026-09-28 第二輪 Phase O 開啟（原列「未來題目」），Phase Q 補齊置中視窗與特例登記。
 
 ## 12. 相關文件
 
 - 視覺參考頁：[`docs/design-system-reference.html`](./design-system-reference.html)
-- 拍板與設計稿：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a、`proposal.md`、`ui-unification-sheet.html`、`popup-density-variants.html`、`ui-controls-sheet.html`）
+- 拍板與設計稿：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a、`proposal.md`、`ui-unification-sheet.html`、`popup-density-variants.html`、`ui-controls-sheet.html`、`timeline-sheet.html`、第二輪 `round2-sheet.html`）
 - `CLAUDE.md` §5／§5a／§7、`docs/development-rules.md` §4a（圖層 UX 四鐵則）
 - `docs/known-issues.md`

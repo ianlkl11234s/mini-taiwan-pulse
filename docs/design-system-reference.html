@@ -253,6 +253,53 @@
   .tl3 .notes { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .tl3 .warnchip { font-size: 10px; color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); border-radius: 3px; padding: 1px 5px; white-space: nowrap; }
   .tl3 .hint { font-size: 10px; color: var(--t-dim); }
+  /* ── 第二輪（Phase N–Q）新增區塊 ── */
+  .theme { display: flex; align-items: center; gap: 6px; padding: 8px 12px 8px 12px; border-top: 1px solid var(--b-panel); border-bottom: 1px solid var(--b-panel); }
+  .theme .chev { color: var(--t-dim); transform: rotate(90deg); }
+  .theme .tt { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; overflow: hidden; white-space: nowrap; }
+  .theme .zh { font-size: 13px; font-weight: 600; color: var(--t-strong); }
+  .theme .en2 { font-size: 10px; letter-spacing: .3px; color: var(--t-dim); overflow: hidden; text-overflow: ellipsis; }
+  .theme .cnt { font: 10px var(--font-data); color: var(--t-dim); margin-right: 4px; }
+  .msw { width: 22px; height: 12px; border-radius: 6px; background: var(--c-border); position: relative; flex-shrink: 0; }
+  .msw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--t-strong); }
+  .msw.on { background: var(--t-strong); }
+  .msw.on::after { left: 12px; background: var(--surface-solid); }
+  .macro2 { display: flex; align-items: center; gap: 8px; padding: 10px 12px 4px; font-size: 9.5px; letter-spacing: 1.2px; color: var(--t-dim); }
+  .macro2::after { content: ""; flex: 1; height: 1px; background: var(--lpc-line); }
+  .ztable { width: 100%; border-collapse: collapse; font-size: 11px; color: var(--t-default); }
+  .ztable th, .ztable td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--b-soft); vertical-align: top; }
+  .ztable th { font-weight: 600; color: var(--t-muted); font-size: 10px; }
+  .ztable td.z { font-family: var(--font-data); color: var(--t-strong); white-space: nowrap; }
+  .zstack { position: relative; height: 150px; }
+  .zstack > div { position: absolute; border-radius: 6px; border: 1px solid var(--b-mid); background: var(--surface); font-size: 10px; color: var(--t-muted); padding: 4px 6px; box-shadow: var(--shadow); }
+  .zstack b { font-family: var(--font-data); color: var(--t-strong); font-weight: 600; margin-right: 4px; }
+  .modal-bg { background: rgba(0,0,0,0.55); border-radius: 6px; padding: 14px; display: grid; place-items: center; }
+  .modal { width: 100%; max-width: 380px; background: var(--surface-solid); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+  .modal .h2 .seg { margin-left: auto; height: 24px; }
+  .modal .h2 .seg + .x { margin-left: 0; }
+  .modal .body { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 11px; }
+  .mcard { background: var(--c-bg); border: 1px solid var(--b-soft); border-radius: 6px; padding: 12px 14px; }
+  .mcard h4 { margin: 0 0 4px; font-size: 11px; font-weight: 600; color: var(--t-strong); }
+  .mcard p { margin: 0; color: var(--t-muted); line-height: 1.6; }
+  kbd.k { display: inline-block; padding: 1px 4px; border: 1px solid var(--c-border); border-radius: 3px; font: 600 9.5px var(--font-data); color: var(--t-default); background: transparent; }
+  .field-l { font-size: 11px; font-weight: 600; color: var(--t-strong); }
+  .field-l span { font-weight: 400; color: var(--t-dim); font-size: 10px; margin-left: 6px; }
+  .share-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: stretch; }
+  .share-row .val { min-width: 0; font: 10.5px/1.5 var(--font-data); color: var(--t-default); background: var(--c-bg); border: 1px solid var(--c-border); border-radius: 4px; padding: 6px 8px; overflow-wrap: anywhere; }
+  .share-row .btn { width: 74px; height: auto; justify-content: center; }
+  .mhead { height: 44px; display: flex; align-items: center; gap: 4px; padding: 0 8px; background: var(--surface); border-bottom: 1px solid var(--b-panel); border-radius: 6px 6px 0 0; }
+  .mhead .brand { display: flex; flex-direction: column; min-width: 0; flex: 1; margin-right: 4px; }
+  .mhead .brand b { font: 700 13px/1.2 var(--font-data); letter-spacing: 1.5px; color: var(--t-strong); }
+  .mhead .brand span { font: 9px var(--font-data); letter-spacing: .5px; color: var(--t-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mhead .btn.icon { width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0; }
+  .mhead .btn.icon svg.i { width: 16px; height: 16px; }
+  .mphone { width: 100%; max-width: 360px; position: relative; padding-bottom: 150px; }
+  .mmenu { position: absolute; top: 50px; right: 42px; width: 190px; max-width: calc(100% - 50px); padding: 4px; background: var(--surface-solid); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); }
+  .mmenu div { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 4px; font-size: 12px; color: var(--t-default); }
+  .mmenu div:first-child { background: var(--c-bg-hover); }
+  .mmenu div.on { color: var(--accent); font-weight: 600; }
+  .mmenu svg.i { width: 15px; height: 15px; }
+  .mmenu .tr { margin-left: auto; font: 10px var(--font-data); color: var(--t-dim); }
 </style>
 </head>
 <body>
@@ -268,19 +315,23 @@
   <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol>
   <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15M15 6v15"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
 </svg>
 
 <div class="wrap">
   <header>
     <h1>Pulse 元件規格參考</h1>
-    <p>Mini Taiwan Pulse UI 統一工程（第一至第四輪拍板）的<b>最終規格</b>，暗色與淡色並排；只保留已選定的版本。每個區塊標出實作檔。</p>
+    <p>Mini Taiwan Pulse UI 統一工程（第一至第五輪拍板，含第二輪統一 Phase N–Q）的<b>最終規格</b>，暗色與淡色並排；只保留已選定的版本。每個區塊標出實作檔。</p>
     <p>規範文字與 token 表：<code>docs/design-system.md</code>。數值取自 <code>src/styles/tokens.css</code>（暗 = <code>:root</code>，淡 = <code>--light-*</code>）。本頁只用系統字、無外部資源。</p>
     <nav class="toc" aria-label="目錄">
       <a href="#tokens">Token</a><a href="#panel">面板 H2</a><a href="#popup">Popup B＋F2</a><a href="#ring">選取圈 R2</a>
       <a href="#l2">L2 群組</a><a href="#timeline">時間軸</a><a href="#controls">按鈕與控制</a><a href="#lpc">圖層控制 V2＋S1</a>
       <a href="#toolbar">工具列 T2</a><a href="#basemap">底圖 B3</a><a href="#capture">拍攝模式 P2</a><a href="#intel">即時情報</a>
       <a href="#datasource">資料來源 D1</a><a href="#legend">圖例</a><a href="#tl3">時間軸 TL3</a>
+      <a href="#lt1">主題列 LT1</a><a href="#zindex">層級</a><a href="#modal">置中視窗</a><a href="#share">分享欄位</a><a href="#m1">手機標頭 M1</a>
     </nav>
   </header>
 
@@ -421,7 +472,7 @@
   <!-- ───────── L2 ───────── -->
   <section class="blk" id="l2">
     <div class="blk-head"><h2>L2 群組標題＋chevron</h2><span class="num">§5.5 §5.16</span><span class="impl path">src/components/IconRailSidebar.tsx SubGroupLabel</span></div>
-    <p class="note">群組標題 10px semibold、右側 1px 細線拉到底；子項縮排；展開用 lucide ChevronRight 旋轉 90°，不用 ▶。主題標題（「交通 MOVE」等寬大寫）尚未遷移，這裡畫的是目標樣式。</p>
+    <p class="note">群組標題 10px semibold、右側 1px 細線拉到底；子項縮排；展開用 lucide ChevronRight 旋轉 90°，不用 ▶。主題列與大分類見下方「主題列 LT1」區塊。</p>
     <div class="pair">
       <div class="board t-dark"><div class="lp">
         <div class="macro">交通</div>
@@ -479,7 +530,7 @@
 
   <!-- ───────── 圖層控制 ───────── -->
   <section class="blk" id="lpc">
-    <div class="blk-head"><h2>圖層控制區 V2＋S1 滑桿・多選</h2><span class="num">§5.11–§5.14</span><span class="impl path">src/components/sidebar/LayerParamControls.tsx · layerParamControls.css · src/state/layerParamsControls.ts</span></div>
+    <div class="blk-head"><h2>圖層控制區 V2＋S1 滑桿・多選</h2><span class="num">§5.11–§5.14</span><span class="impl path">src/components/sidebar/LayerParamControls.tsx · layerParamControls.css · src/state/layerParamsControls.ts · 滑桿：src/components/controls/{Slider.tsx,slider.css}</span></div>
     <p class="note">控制區左側 1px 線；標籤＋數值同一行、控件全寬在下。滑桿 2px 軌道＋10px 圓點；數值字母／中文單位前補空白（<span class="mono">12 m</span>、<span class="mono">30</span> 分鐘），符號緊貼（<span class="mono">80%</span>、<span class="mono">×1.5</span>）。</p>
     <div class="pair">
       <div class="board t-dark"><div class="lp">
@@ -655,6 +706,136 @@
           <div class="axis"><span class="base"></span><span class="done" style="width:72.727%"></span><i class="tick" style="left:0.000%"></i><span class="lbl first" style="left:0.000%">1<u>月</u></span><i class="tick" style="left:9.091%"></i><span class="lbl" style="left:9.091%">2<u>月</u></span><i class="tick" style="left:18.182%"></i><span class="lbl" style="left:18.182%">3<u>月</u></span><i class="tick" style="left:27.273%"></i><span class="lbl" style="left:27.273%">4<u>月</u></span><i class="tick" style="left:36.364%"></i><span class="lbl" style="left:36.364%">5<u>月</u></span><i class="tick" style="left:45.455%"></i><span class="lbl" style="left:45.455%">6<u>月</u></span><i class="tick" style="left:54.545%"></i><span class="lbl" style="left:54.545%">7<u>月</u></span><i class="tick" style="left:63.636%"></i><span class="lbl" style="left:63.636%">8<u>月</u></span><i class="tick" style="left:72.727%"></i><span class="lbl" style="left:72.727%">9<u>月</u></span><i class="tick" style="left:81.818%"></i><span class="lbl" style="left:81.818%">10<u>月</u></span><i class="tick" style="left:90.909%"></i><span class="lbl" style="left:90.909%">11<u>月</u></span><i class="tick" style="left:100.000%"></i><span class="lbl last" style="left:100.000%">12<u>月</u></span><span class="needle" style="left:72.727%"><span style="transform:translateX(-72.7%)">9<u>月</u></span></span></div>
           <div class="notes"><span class="warnchip">共機活動區：115/01~115/07</span></div>
         </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 第二輪：主題列 LT1 ───────── -->
+  <section class="blk" id="lt1">
+    <div class="blk-head"><h2>Layers 主題列＋大分類（LT1）</h2><span class="num">§5.5</span><span class="impl path">IconRailSidebar.tsx ThemeBanner／MacroGroupLabel · LayerSidebar.tsx · layerCatalog.ts splitThemeTitle()</span></div>
+    <p class="note">主題中文 13px semibold、英文 10px text-dim 不大寫（由 <code>splitThemeTitle()</code> 拆）、計數固定等寬 10px text-dim（不依開啟狀態變色）＋總開關。大分類只留中文 <b>9.5px</b>、letterSpacing 1.2、右側細線同 L2 線色。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="lp">
+        <div class="macro2">交通與城市</div>
+        <div class="theme"><svg class="i chev"><use href="#i-chev"/></svg><span class="tt"><span class="zh">交通</span><span class="en2">Move</span></span><span class="cnt">3/46</span><span class="msw on"></span></div>
+        <div class="l2">公共運輸</div>
+        <div class="lrow">公車即時位置 <span class="en">Bus</span><svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="theme"><svg class="i chev" style="transform:none"><use href="#i-chev"/></svg><span class="tt"><span class="zh">人口社經</span><span class="en2">People</span></span><span class="cnt">0/5</span><span class="msw"></span></div>
+      </div></div>
+      <div class="board t-light"><div class="lp">
+        <div class="macro2">交通與城市</div>
+        <div class="theme"><svg class="i chev"><use href="#i-chev"/></svg><span class="tt"><span class="zh">交通</span><span class="en2">Move</span></span><span class="cnt">3/46</span><span class="msw on"></span></div>
+        <div class="l2">公共運輸</div>
+        <div class="lrow">公車即時位置 <span class="en">Bus</span><svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="theme"><svg class="i chev" style="transform:none"><use href="#i-chev"/></svg><span class="tt"><span class="zh">人口社經</span><span class="en2">People</span></span><span class="cnt">0/5</span><span class="msw"></span></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 第二輪：層級 ───────── -->
+  <section class="blk" id="zindex">
+    <div class="blk-head"><h2>層級（z-index）</h2><span class="num">§5.25</span><span class="impl path">src/styles/designTokens.ts Z_INDEX · src/styles/tokens.css --z-*</span></div>
+    <p class="note">TS 與 CSS 同值；同層靠 DOM 順序，不寫死數字（guard <code>raw-z-index</code>）。左側面板同時只開一個（§5.26：Agent、地震回放、即時情報、衛星、會員；關地震回放＝關該圖層）。</p>
+    <div class="pair">
+      <div class="board t-dark"><div style="display:flex;flex-direction:column;gap:12px;min-width:0"><table class="ztable"><thead><tr><th>層</th><th>值</th><th>放什麼</th></tr></thead><tbody><tr><td>mapOverlay</td><td class="z">10</td><td>地圖標記、選取圈、左下時間軸（地圖控制列，刻意在面板之下）</td></tr><tr><td>floatingPanel</td><td class="z">20</td><td>左側 rail 面板、地震回放、Agent 面板、右下 popup＋圖例、桌機會員</td></tr><tr><td>toolbar</td><td class="z">25</td><td>右上工具列 T2、手機標頭 M1</td></tr><tr><td>popover</td><td class="z">30</td><td>下拉選單、tooltip、日本資料載入失敗提示</td></tr><tr><td>modal</td><td class="z">40</td><td>說明、分享（同層：對話浮層 → 會員 → 說明 → 分享）</td></tr><tr><td>toast</td><td class="z">50</td><td>保留；提示訊息目前用特例 3000</td></tr><tr><td>特例</td><td class="z">1000+</td><td>資料更新中遮罩 1000、提示 3000、LoadingScreen 9999、host 錯誤 10000、Admin 10001</td></tr></tbody></table><div class="zstack" aria-hidden="true">
+        <div style="left:0;right:0;bottom:0;height:28px"><b>10</b>時間軸</div>
+        <div style="left:0;top:18px;width:46%;bottom:18px"><b>20</b>左側面板</div>
+        <div style="right:0;top:0;width:52%;height:28px"><b>25</b>工具列</div>
+        <div style="right:8%;top:22px;width:34%;height:44px"><b>30</b>選單</div>
+        <div style="left:22%;right:14%;top:52px;height:64px;border-color:var(--accent)"><b>40</b>置中視窗</div>
+      </div></div></div>
+      <div class="board t-light"><div style="display:flex;flex-direction:column;gap:12px;min-width:0"><table class="ztable"><thead><tr><th>層</th><th>值</th><th>放什麼</th></tr></thead><tbody><tr><td>mapOverlay</td><td class="z">10</td><td>地圖標記、選取圈、左下時間軸（地圖控制列，刻意在面板之下）</td></tr><tr><td>floatingPanel</td><td class="z">20</td><td>左側 rail 面板、地震回放、Agent 面板、右下 popup＋圖例、桌機會員</td></tr><tr><td>toolbar</td><td class="z">25</td><td>右上工具列 T2、手機標頭 M1</td></tr><tr><td>popover</td><td class="z">30</td><td>下拉選單、tooltip、日本資料載入失敗提示</td></tr><tr><td>modal</td><td class="z">40</td><td>說明、分享（同層：對話浮層 → 會員 → 說明 → 分享）</td></tr><tr><td>toast</td><td class="z">50</td><td>保留；提示訊息目前用特例 3000</td></tr><tr><td>特例</td><td class="z">1000+</td><td>資料更新中遮罩 1000、提示 3000、LoadingScreen 9999、host 錯誤 10000、Admin 10001</td></tr></tbody></table><div class="zstack" aria-hidden="true">
+        <div style="left:0;right:0;bottom:0;height:28px"><b>10</b>時間軸</div>
+        <div style="left:0;top:18px;width:46%;bottom:18px"><b>20</b>左側面板</div>
+        <div style="right:0;top:0;width:52%;height:28px"><b>25</b>工具列</div>
+        <div style="right:8%;top:22px;width:34%;height:44px"><b>30</b>選單</div>
+        <div style="left:22%;right:14%;top:52px;height:64px;border-color:var(--accent)"><b>40</b>置中視窗</div>
+      </div></div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 第二輪：置中視窗 ───────── -->
+  <section class="blk" id="modal">
+    <div class="blk-head"><h2>置中視窗（說明）</h2><span class="num">§5.27</span><span class="impl path">src/components/InfoModal.tsx</span></div>
+    <p class="note">H2 標頭（padding 10×14、eyebrow＋13px 標題）、語言切換用分段「中文／EN」、關閉 lucide X；卡片 control-bg＋border-soft、圓角 6、padding 12×14；按鍵標籤 kbd 等寬 9.5px 600、透明底。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="modal-bg"><div class="modal">
+        <div class="h2"><div><div class="ey">說明</div><h3>操作指南</h3></div><div class="seg" role="group"><button aria-pressed="true">中文</button><button aria-pressed="false">EN</button></div><button class="x" aria-label="關閉說明"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="body">
+          <div class="mcard"><h4>旋轉視角</h4><p><kbd class="k">右鍵</kbd> ＋ 拖曳，改變仰角與方位</p></div>
+          <div class="mcard" style="border-left:3px solid var(--accent)"><h4>縮放地圖</h4><p><kbd class="k">滾輪</kbd> 上下滾動放大或縮小</p></div>
+        </div>
+      </div></div></div>
+      <div class="board t-light"><div class="modal-bg"><div class="modal">
+        <div class="h2"><div><div class="ey">說明</div><h3>操作指南</h3></div><div class="seg" role="group"><button aria-pressed="true">中文</button><button aria-pressed="false">EN</button></div><button class="x" aria-label="關閉說明"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="body">
+          <div class="mcard"><h4>旋轉視角</h4><p><kbd class="k">右鍵</kbd> ＋ 拖曳，改變仰角與方位</p></div>
+          <div class="mcard" style="border-left:3px solid var(--accent)"><h4>縮放地圖</h4><p><kbd class="k">滾輪</kbd> 上下滾動放大或縮小</p></div>
+        </div>
+      </div></div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 第二輪：分享欄位 ───────── -->
+  <section class="blk" id="share">
+    <div class="blk-head"><h2>分享欄位對齊</h2><span class="num">§5.27</span><span class="impl path">src/components/ShareModal.tsx</span></div>
+    <p class="note">每欄 <code>grid 1fr auto</code>：值欄等寬 10.5px；複製鈕固定 74px，「複製」→「已複製」（主要樣式 2 秒）切換時版面不跳動。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="modal-bg"><div class="modal">
+        <div class="h2"><div><div class="ey">分享</div><h3>分享目前畫面</h3></div><button class="x" aria-label="關閉分享"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="body">
+          <div class="field-l">連結<span>開啟即為此畫面（位置、縮放、底圖）</span></div>
+          <div class="share-row"><div class="val">https://mini-taiwan-pulse.itsmigu.com/?v=1&amp;lng=121.5318&amp;lat=25.0464&amp;z=12.5</div><button class="btn"><svg class="i"><use href="#i-copy"/></svg>複製</button></div>
+          <div class="field-l">嵌入文章<span>貼進文章 HTML</span></div>
+          <div class="share-row"><div class="val">&lt;iframe src="https://mini-taiwan-pulse.itsmigu.com/embed?v=1…"&gt;</div><button class="btn pri"><svg class="i"><use href="#i-copy"/></svg>已複製</button></div>
+        </div>
+      </div></div></div>
+      <div class="board t-light"><div class="modal-bg"><div class="modal">
+        <div class="h2"><div><div class="ey">分享</div><h3>分享目前畫面</h3></div><button class="x" aria-label="關閉分享"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="body">
+          <div class="field-l">連結<span>開啟即為此畫面（位置、縮放、底圖）</span></div>
+          <div class="share-row"><div class="val">https://mini-taiwan-pulse.itsmigu.com/?v=1&amp;lng=121.5318&amp;lat=25.0464&amp;z=12.5</div><button class="btn"><svg class="i"><use href="#i-copy"/></svg>複製</button></div>
+          <div class="field-l">嵌入文章<span>貼進文章 HTML</span></div>
+          <div class="share-row"><div class="val">&lt;iframe src="https://mini-taiwan-pulse.itsmigu.com/embed?v=1…"&gt;</div><button class="btn pri"><svg class="i"><use href="#i-copy"/></svg>已複製</button></div>
+        </div>
+      </div></div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 第二輪：手機標頭 M1 ───────── -->
+  <section class="blk" id="m1">
+    <div class="blk-head"><h2>手機標頭（M1）</h2><span class="num">§5.29</span><span class="impl path">src/App.tsx 手機分支 · toolbar/MobileMoreMenu.tsx · auth/UserAvatar.tsx compact</span></div>
+    <p class="note">高 44、surface-strong＋下緣線；左 MTP＋座標；外露 AI、拍攝模式（主要）、⋯、帳號，按鈕 30×30 圓角 6；「⋯」選單寬 190、向下靠右，收說明／分享／3D·2D／會員。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="mphone">
+        <div class="mhead">
+          <div class="brand"><b>MTP</b><span>25.0464, 121.5318 · z12.5 · 仰角 0°</span></div>
+          <button class="btn icon" aria-label="AI 助手"><svg class="i"><use href="#i-msg"/></svg></button>
+          <button class="btn icon pri" aria-label="拍攝模式"><svg class="i"><use href="#i-cam"/></svg></button>
+          <button class="btn icon" aria-label="更多"><svg class="i"><use href="#i-more"/></svg></button>
+          <button class="btn icon" aria-label="帳號" style="border-color:transparent;background:transparent"><svg class="i"><use href="#i-user"/></svg></button>
+        </div>
+        <div class="mmenu" role="menu">
+          <div><svg class="i"><use href="#i-help"/></svg>說明與操作提示</div>
+          <div><svg class="i"><use href="#i-share"/></svg>分享目前畫面</div>
+          <div><svg class="i"><use href="#i-map"/></svg>3D／2D 切換<span class="tr">3D</span></div>
+          <div class="on"><svg class="i"><use href="#i-user"/></svg>會員專區</div>
+        </div>
+      </div></div>
+      <div class="board t-light"><div class="mphone">
+        <div class="mhead">
+          <div class="brand"><b>MTP</b><span>25.0464, 121.5318 · z12.5 · 仰角 0°</span></div>
+          <button class="btn icon" aria-label="AI 助手"><svg class="i"><use href="#i-msg"/></svg></button>
+          <button class="btn icon pri" aria-label="拍攝模式"><svg class="i"><use href="#i-cam"/></svg></button>
+          <button class="btn icon" aria-label="更多"><svg class="i"><use href="#i-more"/></svg></button>
+          <button class="btn icon" aria-label="帳號" style="border-color:transparent;background:transparent"><svg class="i"><use href="#i-user"/></svg></button>
+        </div>
+        <div class="mmenu" role="menu">
+          <div><svg class="i"><use href="#i-help"/></svg>說明與操作提示</div>
+          <div><svg class="i"><use href="#i-share"/></svg>分享目前畫面</div>
+          <div><svg class="i"><use href="#i-map"/></svg>3D／2D 切換<span class="tr">3D</span></div>
+          <div class="on"><svg class="i"><use href="#i-user"/></svg>會員專區</div>
+        </div>
+      </div></div>
     </div>
   </section>
 </div>
