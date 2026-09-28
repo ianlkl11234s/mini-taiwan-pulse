@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Map } from "mapbox-gl";
 import {
-  analysisFeatureTarget, analysisResultHoverLayerIds, clearAnalysisHover, FEATURE_ID_PROPERTY, installAnalysisResults, setAnalysisHover,
+  ANALYSIS_DIM_RATIO, analysisFeatureTarget, analysisResultHoverLayerIds, analysisSelectionOf, clearAnalysisHover, FEATURE_ID_PROPERTY, installAnalysisResults,
+  setAnalysisHover, setAnalysisOpacity, setAnalysisSelection,
 } from "../analysisResultOverlay";
 import { analysisHoverLabel, analysisHoverTipPosition, supportsAnalysisHover } from "../analysisResultHover";
 import type { PresentableResult } from "../researchAnalysisSession";
@@ -38,7 +39,8 @@ function stubMap() {
     setFeatureState: (target: Target, state: Record<string, unknown>) => { if (!sources.has(target.source)) throw new Error("NO_SOURCE"); states.set(key(target), { ...states.get(key(target)), ...state }); },
     removeFeatureState: (target: { source: string }) => { for (const stateKey of [...states.keys()]) if (stateKey.startsWith(`${target.source}#`)) states.delete(stateKey); },
     hasImage: () => true, addImage: () => {},
-    on: () => {}, off: () => {},
+    // The reveal fade-in finishes on the next rendered frame; run it synchronously here.
+    on: (event: string, listener: () => void) => { if (event === "render") listener(); }, off: () => {},
   };
   /** A basemap switch (setStyle) drops every source, layer and feature-state. */
   const styleReload = () => { sources.clear(); order.length = 0; states.clear(); };
@@ -135,5 +137,56 @@ describe("I1 hover outline (feature-state)", () => {
     // The module forgot the old row, so hovering it again is a real change that re-sets state.
     expect(setAnalysisHover(map, target)).toBe(true);
     expect(stateOf(target)).toEqual({ hover: true });
+  });
+});
+
+const opacity = { defaultOpacity: 0.8, byResult: {} };
+const DIMMED_FILL = ["case", ["boolean", ["feature-state", "selected"], false], 0.8 * 0.45, 0.8 * 0.45 * ANALYSIS_DIM_RATIO];
+
+describe("I2 selection dimming (X1)", () => {
+  it("resolves a clicked feature to a redraw-stable selection", () => {
+    expect(analysisSelectionOf({ source: "research-analysis-result-1", properties: { resultId: "areas", _fid: 1 } })).toEqual({ resultId: "areas", fid: 1 });
+    expect(analysisSelectionOf({ source: "research-analysis-result-1", properties: { _fid: 1 } })).toBeNull();
+  });
+
+  it("keeps the selected row and dims the rest of the same result only, then restores", () => {
+    const { map, order, stateOf } = stubMap();
+    const installed = installAnalysisResults(map, [areas, points], 0.8);
+    setAnalysisSelection(map, installed, [{ resultId: "areas", fid: 1 }], opacity);
+    expect(stateOf({ source: "research-analysis-result-0", id: 1 })).toEqual({ selected: true });
+    const fill = order.find(layer => layer.id === "research-analysis-result-points-0")!;
+    expect(fill.paint["fill-opacity"]).toEqual(DIMMED_FILL);
+    // The other result is untouched: no selection there, so nothing to dim.
+    expect(order.find(layer => layer.id === "research-analysis-result-points-1")!.paint["circle-opacity"]).toBe(0.8);
+    // Selected rows reuse the I1 emphasis branch: accent edge / ring.
+    expect(JSON.stringify(order.find(layer => layer.id === "research-analysis-result-edge-0")!.paint["line-width"])).toContain(`"selected"`);
+    setAnalysisSelection(map, installed, [], opacity);
+    expect(stateOf({ source: "research-analysis-result-0", id: 1 })).toEqual({ selected: false });
+    expect(fill.paint["fill-opacity"]).toBeCloseTo(0.8 * 0.45);
+  });
+
+  it("keeps the dim when the opacity slider moves, and moves it with the selection", () => {
+    const { map, order, stateOf } = stubMap();
+    const installed = installAnalysisResults(map, [areas, points], 0.8);
+    setAnalysisSelection(map, installed, [{ resultId: "points", fid: 0 }], opacity);
+    setAnalysisOpacity(map, installed, "points", 0.5);
+    expect(order.find(layer => layer.id === "research-analysis-result-points-1")!.paint["circle-opacity"]).toEqual(["case", ["boolean", ["feature-state", "selected"], false], 0.5, 0.5 * ANALYSIS_DIM_RATIO]);
+    setAnalysisSelection(map, installed, [{ resultId: "areas", fid: 0 }], opacity);
+    expect(stateOf({ source: "research-analysis-result-1", id: 0 })).toEqual({ selected: false });
+    expect(order.find(layer => layer.id === "research-analysis-result-points-1")!.paint["circle-opacity"]).toBe(0.8);
+    expect(order.find(layer => layer.id === "research-analysis-result-points-0")!.paint["fill-opacity"]).toEqual(DIMMED_FILL);
+  });
+
+  it("re-applies after a basemap switch (style.load → reinstall → setAnalysisSelection)", () => {
+    const { map, order, stateOf, styleReload } = stubMap();
+    const selection = [{ resultId: "areas", fid: 0 }];
+    setAnalysisSelection(map, installAnalysisResults(map, [areas], 0.8), selection, opacity);
+    styleReload();
+    const reinstalled = installAnalysisResults(map, [areas], 0.8, "light");
+    // Install alone restores plain opacity (the dim belongs to the caller's selection)…
+    expect(order.find(layer => layer.id === "research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.8 * 0.45);
+    setAnalysisSelection(map, reinstalled, selection, opacity);
+    expect(stateOf({ source: "research-analysis-result-0", id: 0 })).toEqual({ selected: true });
+    expect(order.find(layer => layer.id === "research-analysis-result-points-0")!.paint["fill-opacity"]).toEqual(DIMMED_FILL);
   });
 });

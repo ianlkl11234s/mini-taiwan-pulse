@@ -31,7 +31,7 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
-import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisSelection, type AnalysisSelection, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultPanelProperties, researchResultPopupOverlaps, type AnalysisResultPanelProperties } from "./researchResultPopup";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
@@ -42,7 +42,10 @@ import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
-  onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void };
+  onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;
+  /** True while the docked FeatureInfoPanel shows an analysis result (App: featureInfo.layerType === "analysisResult").
+   *  Drives I2 selection dimming and the G2 compact legend; kept apart from `selection` coords, which are reported to the Agent. */
+  analysisResultSelected?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", ...ANALYSIS_OPERATIONS]);
 
@@ -107,6 +110,12 @@ export function MainMapConnection(props: Props) {
   const analysisOpacityRef = useRef(analysisOpacity); analysisOpacityRef.current = analysisOpacity;
   const [presentedAnalysis, setPresentedAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
+  /** I2: rows behind the open docked panel; re-applied after every install (feature-state is per source). */
+  const analysisSelectionRef = useRef<AnalysisSelection[]>([]);
+  const applyAnalysisSelection = useCallback(() => {
+    const map = latest.current.map;
+    if (map) setAnalysisSelection(map, presentedAnalysisRef.current, analysisSelectionRef.current, analysisOpacityRef.current);
+  }, []);
   const [availableAnalysis, setAvailableAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
   const resultCollectionRef = useRef<ResultCollection | null>(null);
@@ -197,6 +206,7 @@ export function MainMapConnection(props: Props) {
       const nextResultIds = analysisResults.map(result => result.resultId);
       if (JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds)) {
         latest.current.onAnalysisResultFeature?.(null);
+        analysisSelectionRef.current = [];
       }
       // Camera-only commands keep the same immutable result rows. Calling
       // GeoJSONSource#setData for those commands needlessly reloads sources.
@@ -449,6 +459,7 @@ export function MainMapConnection(props: Props) {
         const available = analysis.current.presentable(allResultIds);
         const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current, theme);
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+        applyAnalysisSelection();
         setAvailableAnalysis(describeAnalysisResults(available, theme));
       } else {
         removeAnalysisResults(map);
@@ -461,6 +472,8 @@ export function MainMapConnection(props: Props) {
       const overlaps = researchResultPopupOverlaps(layers.length ? map.queryRenderedFeatures(event.point, { layers }) : []);
       // No hit: the App's own map click handler owns clearing or replacing the docked panel.
       if (!overlaps.features.length) return;
+      analysisSelectionRef.current = overlaps.features.map(feature => analysisSelectionOf(feature)).filter((selection): selection is AnalysisSelection => selection !== null);
+      applyAnalysisSelection();
       // Registered after useMapInteraction's click listener (map is only passed once prepared),
       // so within one batched click this panel wins over its synchronous "blank click" clear.
       latest.current.onAnalysisResultFeature?.(researchResultPanelProperties(
@@ -489,6 +502,12 @@ export function MainMapConnection(props: Props) {
       latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
     };
   }, [props.map]);
+  // I2: closing the docked panel, or selecting another layer's feature, restores every result.
+  useEffect(() => {
+    if (props.analysisResultSelected || !analysisSelectionRef.current.length) return;
+    analysisSelectionRef.current = [];
+    applyAnalysisSelection();
+  }, [props.analysisResultSelected, applyAnalysisSelection]);
   useEffect(() => {
     const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];
     if (!resultIds.length) return;

@@ -1866,6 +1866,7 @@ export default function App() {
         showToggle={false}
         uiHidden={captureMode}
         onAnalysisResultFeature={handleAnalysisResultFeature}
+        analysisResultSelected={featureInfo?.layerType === "analysisResult"}
       />}
 
       {/* ── 拍攝模式 vignette + 標題 ── */}
