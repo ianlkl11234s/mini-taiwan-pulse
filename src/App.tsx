@@ -6,7 +6,7 @@ import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -83,6 +83,10 @@ import { HistoricalTimeline, type HistoricalGranularity } from "./components/His
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl, MAP_STYLES } from "./components/StyleSelector";
+import { BasemapMenu } from "./components/toolbar/BasemapMenu";
+import { CaptureExitHint } from "./components/toolbar/CaptureExitHint";
+import { ToolbarButton } from "./components/toolbar/ToolbarButton";
+import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
 import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -524,6 +528,8 @@ export default function App() {
 
 
   const isDarkTheme = !["light", "streets"].includes(mapStyleId);
+  const toolbarPalette = getToolbarPalette(isDarkTheme);
+  const toolbarDivider = <span style={{ width: 1, height: 16, background: toolbarPalette.controlBorder, flexShrink: 0 }} />;
   const showTrails = displayMode === "trails";
 
   // Refs for Three.js render loops
@@ -572,7 +578,7 @@ export default function App() {
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
-  const { busCount: touristShuttleCount, activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
+  const { activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
     useTouristShuttleLayer(layerVisibility.touristShuttleLive, timeline.timeMode);
 
   // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
@@ -1910,7 +1916,7 @@ export default function App() {
             <div
               style={{
                 fontSize: FONT_SIZE.xl,
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 fontWeight: 600,
                 color: COLORS.textDefault,
                 letterSpacing: 2,
@@ -1923,7 +1929,7 @@ export default function App() {
             <div
               style={{
                 fontSize: FONT_SIZE.lg,
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
@@ -1945,6 +1951,7 @@ export default function App() {
               style={{
                 fontSize: FONT_SIZE.lg,
                 fontFamily: FONT_DATA,
+                fontVariantNumeric: "tabular-nums",
                 color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
@@ -1952,90 +1959,163 @@ export default function App() {
               }}
             />
           </div>
-          <button
-            onClick={() => setCaptureMode(false)}
-            style={isMobile ? {
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 21,
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              background: "rgba(0,0,0,0.4)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              color: "#fff",
-              fontSize: FONT_SIZE.xxl,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backdropFilter: "blur(8px)",
-            } : {
-              position: "absolute",
-              bottom: 32,
-              right: 32,
-              zIndex: 21,
-              padding: "4px 12px",
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: RADIUS.md,
-              color: COLORS.textDim,
-              fontSize: FONT_SIZE.base,
-              fontFamily: FONT_DATA,
-              cursor: "pointer",
-            }}
-          >
-            {isMobile ? "✕" : "ESC"}
-          </button>
+          {isMobile ? (
+            <button
+              onClick={() => setCaptureMode(false)}
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                zIndex: 21,
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                background: "rgba(0,0,0,0.4)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                fontSize: FONT_SIZE.xxl,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              ✕
+            </button>
+          ) : (
+            <CaptureExitHint onExit={() => setCaptureMode(false)} />
+          )}
         </>
       )}
 
       {/* ── 一般模式 UI ── */}
       {!captureMode && !isMobile && (
         <>
-          {/* Row 1: 標題 + 樣式 + 地點跳轉 */}
+          {/* Row 1: 品牌（左）+ 工具列（右）— 同一列，垂直置中對齊 */}
           <div
             style={{
               position: "absolute",
               top: 16,
               left: sidebarWidth + 16,
-              zIndex: 10,
+              right: 16,
+              // 25：高於 Agent 活動卡（research-activity-position，20），工具列展開的帳號選單／底圖面板才不會被蓋住
+              zIndex: 25,
               display: "flex",
-              gap: 10,
+              justifyContent: "space-between",
               alignItems: "center",
+              gap: 10,
+              flexWrap: "wrap",
               transition: "left 0.2s ease",
             }}
           >
-            <h1
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, height: 26 }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: 20,
+                    color: isDarkTheme ? "#fff" : "#333",
+                    fontFamily: FONT_DATA,
+                    fontWeight: 700,
+                    letterSpacing: 2,
+                  }}
+                >
+                  Mini Taiwan Pulse
+                </h1>
+
+                {loading && (
+                  <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
+                    Loading...
+                  </span>
+                )}
+              </div>
+              {/* 座標 HUD：緊貼品牌名下方，同一欄——toolbar 窄寬度換行時只會落在整欄下方，不會疊到 HUD */}
+              <CameraHud
+                store={cameraHud}
+                style={{
+                  color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: 0.5,
+                }}
+              />
+            </div>
+
+            <div
               style={{
-                margin: 0,
-                fontSize: FONT_SIZE.xl,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontFamily: FONT_DATA,
-                letterSpacing: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                padding: 3,
+                borderRadius: 7,
+                background: toolbarPalette.surfaceBg,
+                border: `1px solid ${toolbarPalette.borderPanel}`,
+                boxShadow: toolbarPalette.shadow,
+                flexWrap: "wrap",
+                justifyContent: "flex-end",
+                // 窄寬度時整條 Row 1 換行：toolbar 掉到第二行時，若沒有 marginLeft: auto，
+                // space-between 對「單一子項」的那一行會把它推去 flex-start。auto margin
+                // 讓它即使獨佔一行也維持靠右；HUD 已併入左側品牌欄，換行後 toolbar 落在
+                // 整欄下方，兩者不會再互相重疊。
+                marginLeft: "auto",
               }}
             >
-              Mini Taiwan Pulse
-            </h1>
-
-            <StyleSelector
-              selected={mapStyleId}
-              isDarkTheme={isDarkTheme}
-              onChange={setMapStyleId}
-            />
-            <BasemapLabelToggle
-              isDarkTheme={isDarkTheme}
-              visible={showBasemapLabels}
-              onToggle={() => setShowBasemapLabels((visible) => !visible)}
-              title={showBasemapLabels ? "隱藏底圖地名" : "顯示底圖地名"}
-            />
-
-            {loading && (
-              <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
-                Loading...
-              </span>
-            )}
+              <ModeToggle
+                appMode={appMode}
+                isDarkTheme={isDarkTheme}
+                onAppModeChange={(mode: AppMode) => {
+                  sessionTracker.log("mode_switch", { from: appMode, to: mode });
+                  setAppMode(mode);
+                }}
+              />
+              {toolbarDivider}
+              <BasemapMenu
+                selected={mapStyleId}
+                onChange={setMapStyleId}
+                isDarkTheme={isDarkTheme}
+                showLabels={showBasemapLabels}
+                onToggleLabels={() => setShowBasemapLabels((visible) => !visible)}
+              />
+              {toolbarDivider}
+              <ToolbarButton
+                palette={toolbarPalette}
+                icon
+                title="分享目前畫面"
+                onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
+              >
+                <Share2 size={13} />
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                icon
+                title="說明與操作提示"
+                onClick={() => setShowInfo(true)}
+              >
+                <CircleHelp size={13} />
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                primary={chatOpen}
+                title="AI 助手 BYOK Chat"
+                onClick={() => setChatOpen((v) => !v)}
+              >
+                <MessageSquare size={13} />
+                AI
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                primary
+                title="隱藏介面，只留地圖（Esc 離開）"
+                onClick={() => setCaptureMode(true)}
+              >
+                <Camera size={13} />
+                拍攝模式
+              </ToolbarButton>
+              {toolbarDivider}
+              <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
+            </div>
           </div>
 
           {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
@@ -2222,237 +2302,6 @@ export default function App() {
             />
           )}
 
-          {/* 右上角按鈕群 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <ModeToggle
-              appMode={appMode}
-              isDarkTheme={isDarkTheme}
-              onAppModeChange={(mode: AppMode) => {
-                sessionTracker.log("mode_switch", { from: appMode, to: mode });
-                setAppMode(mode);
-              }}
-            />
-            <button
-              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
-              title="分享目前畫面 / 取得嵌入碼"
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Share
-            </button>
-            <button
-              onClick={() => setCaptureMode(true)}
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Capture
-            </button>
-            <button
-              onClick={() => {
-                if (!monitorOpen) {
-                  setMemberOpen(false);
-                  setIntelOpen(false);
-                  satelliteConsoleStore.setOpen(false);
-                  // 2026-08-20 起開啟一律進 split（原本是 dock）——
-                  // 會連帶觸發 MONITOR_SPLIT_CAMERA 的自動定位，即為預期行為
-                  setMonitorMode("split");
-                }
-                setMonitorOpen((v) => !v);
-              }}
-              title="監看模式 Monitor"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                background: monitorOpen
-                  ? "#64aaff"
-                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
-                border: `1px solid ${monitorOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                borderRadius: RADIUS.lg,
-                color: monitorOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                fontWeight: monitorOpen ? 700 : 400,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              <svg
-                width={13} height={13} viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth={1.8}
-                strokeLinecap="round" strokeLinejoin="round"
-              >
-                <path d="M3 3h7v7H3z" />
-                <path d="M14 3h7v7h-7z" />
-                <path d="M14 14h7v7h-7z" />
-                <path d="M3 14h7v7H3z" />
-              </svg>
-              Monitor
-              <span
-                style={{
-                  marginLeft: 2,
-                  padding: "1px 5px",
-                  borderRadius: RADIUS.md,
-                  background: monitorOpen
-                    ? "rgba(4,18,31,0.18)"
-                    : "rgba(255,152,0,0.18)",
-                  border: `1px solid ${monitorOpen ? "rgba(4,18,31,0.35)" : "rgba(255,152,0,0.55)"}`,
-                  fontSize: FONT_SIZE.xs,
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: monitorOpen ? "#04121f" : "#ff9800",
-                }}
-              >
-                BETA
-              </span>
-            </button>
-            <button
-              onClick={() => setChatOpen((v) => !v)}
-              title="AI 助手 BYOK Chat"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                background: chatOpen
-                  ? "#64aaff"
-                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
-                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                borderRadius: RADIUS.lg,
-                color: chatOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                fontWeight: chatOpen ? 700 : 400,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              <MessageSquare size={13} />
-              AI
-            </button>
-          </div>
-
-          {/* 右上角第二排 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 52,
-              right: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <button
-              onClick={() => setShowInfo(true)}
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Info
-            </button>
-            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
-          </div>
-
-          {/* 操作提示 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 84,
-              right: 16,
-              zIndex: 10,
-              color: isDarkTheme ? COLORS.textFaint : "rgba(0,0,0,0.2)",
-              fontSize: FONT_SIZE.sm,
-              fontFamily: FONT_DATA,
-              letterSpacing: 0.5,
-              textAlign: "right",
-            }}
-          >
-            Right-drag to rotate · Scroll to zoom
-          </div>
-
-          {/* 統計 + 相機角度 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 48,
-              left: sidebarWidth + 16,
-              zIndex: 10,
-              background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
-              backdropFilter: "blur(8px)",
-              borderRadius: RADIUS.lg,
-              padding: "4px 10px",
-              transition: "left 0.2s ease",
-            }}
-          >
-            <div
-              style={{
-                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
-                fontSize: FONT_SIZE.base,
-                fontFamily: FONT_DATA,
-              }}
-            >
-              {displayedFlights.length} flights
-              {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
-              {layerVisibility.rail && ` · ${trainCount} trains`}
-              {layerVisibility.busLive && ` · ${busCount} buses`}
-              {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
-              {layerVisibility.touristShuttleLive && ` · ${touristShuttleCount} 台灣好行`}
-              {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
-              {viewMode === "time-window" && " (±12h)"}
-            </div>
-            <CameraHud
-              store={cameraHud}
-              style={{
-                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.3)",
-                fontSize: FONT_SIZE.base,
-                fontFamily: FONT_DATA,
-              }}
-            />
-          </div>
         </>
       )}
 

@@ -75,22 +75,22 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
           display: "inline-flex",
           alignItems: "center",
           gap: SPACING.sm,
-          padding: compact ? 0 : `${SPACING.sm}px ${SPACING.lg}px`,
+          padding: compact ? 0 : "0 10px",
           width: compact ? 36 : undefined,
-          height: compact ? 36 : undefined,
-          background: SURFACE.panel,
+          height: compact ? 36 : 26,
+          background: compact ? SURFACE.panel : "transparent",
           color: COLORS.textStrong,
-          border: `1px solid ${BORDER.mid}`,
+          border: `1px solid ${compact ? BORDER.mid : "transparent"}`,
           borderRadius: RADIUS.md,
-          fontSize: FONT_SIZE.md,
+          fontSize: FONT_SIZE.base,
           fontWeight: FONT_WEIGHT.semibold,
           fontFamily: FONT_CJK,
-          backdropFilter: "blur(8px)",
+          backdropFilter: compact ? "blur(8px)" : undefined,
           cursor: "pointer",
         }}
       >
         <LogIn size={14} />
-        {!compact && "使用 Google 登入"}
+        {!compact && "登入"}
       </button>
     );
   }
@@ -110,24 +110,22 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: SPACING.sm,
-          padding: compact ? 0 : `${SPACING.xs}px ${SPACING.md}px`,
-          width: compact ? 36 : undefined,
-          height: compact ? 36 : undefined,
-          background: SURFACE.panel,
+          justifyContent: "center",
+          padding: 0,
+          width: compact ? 36 : 26,
+          height: compact ? 36 : 26,
+          background: compact ? SURFACE.panel : "transparent",
           color: COLORS.textStrong,
-          border: `1px solid ${BORDER.mid}`,
-          borderRadius: RADIUS.pill,
-          fontSize: FONT_SIZE.md,
+          border: `1px solid ${compact ? BORDER.mid : "transparent"}`,
+          borderRadius: RADIUS.full,
           fontFamily: FONT_CJK,
-          backdropFilter: "blur(8px)",
+          backdropFilter: compact ? "blur(8px)" : undefined,
           cursor: "pointer",
         }}
+        onMouseEnter={(e) => { if (!compact) e.currentTarget.style.background = c.hover; }}
+        onMouseLeave={(e) => { if (!compact) e.currentTarget.style.background = "transparent"; }}
       >
-        <Avatar url={avatarUrl} />
-        {!compact && <span style={{ maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {displayName}
-        </span>}
+        <Avatar url={avatarUrl} size={compact ? 22 : 26} />
       </button>
 
       {open && (
@@ -222,8 +220,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
 }
 
 /** 圓形頭像：有圖顯示圖，無圖顯示 fallback 人形 icon */
-function Avatar({ url }: { url: string | null }) {
-  const size = 22;
+function Avatar({ url, size = 22 }: { url: string | null; size?: number }) {
   const common: React.CSSProperties = {
     width: size,
     height: size,
