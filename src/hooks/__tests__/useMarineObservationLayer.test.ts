@@ -69,9 +69,9 @@ describe("marine observation Mapbox layer", () => {
     const isoheCircle = marineObservationCircleLayers("isohe", 2)[1];
     const hiddenCircle = marineObservationCircleLayers("cwa", -1)[1];
 
-    expect(cwaCircle?.paint?.["circle-stroke-opacity"]).toBe(0.73);
+    expect(cwaCircle?.paint?.["circle-stroke-opacity"]).toBeCloseTo(0.8 * 0.73 / 0.9);
     expect(JSON.stringify(cwaCircle?.paint?.["circle-opacity"])).toContain("0.73");
-    expect(isoheCircle?.paint?.["circle-stroke-opacity"]).toBe(1);
+    expect(isoheCircle?.paint?.["circle-stroke-opacity"]).toBeCloseTo(0.8 / 0.9);
     expect(hiddenCircle?.paint?.["circle-stroke-opacity"]).toBe(0);
   });
 

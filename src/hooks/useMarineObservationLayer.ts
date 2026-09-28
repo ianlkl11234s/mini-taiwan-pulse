@@ -12,6 +12,7 @@ import {
 } from "../data/marineObservationLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -157,7 +158,8 @@ function marineObservationOpacityExpression(
 
 export function marineObservationCircleLayers(
   sourceNetwork: MarineSourceNetwork,
-  opacity = 0.85,
+  opacity = 0.9,
+  isDarkTheme = true,
 ): readonly CircleLayer[] {
   const config = NETWORK_CONFIG[sourceNetwork];
   const color = marineObservationColorExpression(sourceNetwork);
@@ -169,7 +171,7 @@ export function marineObservationCircleLayers(
       source: config.sourceId,
       layout: { visibility: "none" },
       paint: {
-        "circle-radius": marineObservationRadiusExpression(1.85),
+        "circle-radius": pointRadius("M") * 2,
         "circle-color": color,
         "circle-opacity": marineObservationOpacityExpression(opacity * 0.24),
         "circle-blur": 0.75,
@@ -181,17 +183,12 @@ export function marineObservationCircleLayers(
       source: config.sourceId,
       layout: { visibility: "none" },
       paint: {
-        "circle-radius": marineObservationRadiusExpression(),
+        "circle-radius": pointRadius("M"),
         "circle-color": color,
         "circle-opacity": pointOpacity,
-        "circle-stroke-color": "rgba(255,255,255,0.9)",
-        "circle-stroke-width": [
-          "interpolate", ["linear"], ["zoom"],
-          5, 0.35,
-          10, 0.65,
-          15, 1,
-        ] as unknown as ExpressionSpecification,
-        "circle-stroke-opacity": clampOpacity(opacity),
+        "circle-stroke-color": mapSeamColor(isDarkTheme),
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * clampOpacity(opacity) / 0.9),
       },
     } as CircleLayer,
   ];
@@ -220,6 +217,7 @@ function ensureLayers(
   sourceNetwork: MarineSourceNetwork,
   opacity: number,
   data: GeoJSON.FeatureCollection,
+  isDarkTheme: boolean,
 ): void {
   const config = NETWORK_CONFIG[sourceNetwork];
   if (!map.getSource(config.sourceId)) {
@@ -229,7 +227,7 @@ function ensureLayers(
       attribution: sourceNetwork === "cwa" ? "中央氣象署 CWA" : "ISOHE 港區海氣象開放資料",
     });
   }
-  for (const layer of marineObservationCircleLayers(sourceNetwork, opacity)) {
+  for (const layer of marineObservationCircleLayers(sourceNetwork, opacity, isDarkTheme)) {
     if (!map.getLayer(layer.id)) map.addLayer(layer);
   }
 }
@@ -251,6 +249,7 @@ function updatePaint(
   map: MapboxMap,
   sourceNetwork: MarineSourceNetwork,
   opacity: number,
+  isDarkTheme: boolean,
 ): void {
   const config = NETWORK_CONFIG[sourceNetwork];
   if (map.getLayer(config.glowLayerId)) {
@@ -266,7 +265,8 @@ function updatePaint(
       "circle-opacity",
       marineObservationOpacityExpression(opacity),
     );
-    map.setPaintProperty(config.circleLayerId, "circle-stroke-opacity", clampOpacity(opacity));
+    map.setPaintProperty(config.circleLayerId, "circle-stroke-color", mapSeamColor(isDarkTheme));
+    map.setPaintProperty(config.circleLayerId, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * clampOpacity(opacity) / 0.9));
   }
 }
 
@@ -275,7 +275,8 @@ export function useMarineObservationLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   sourceNetwork: MarineSourceNetwork,
   visible: boolean,
-  opacity = 0.85,
+  opacity = 0.9,
+  isDarkTheme = true,
 ): void {
   const config = NETWORK_CONFIG[sourceNetwork];
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -332,17 +333,17 @@ export function useMarineObservationLayer(
 
     const mount = () => {
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, sourceNetwork, opacity, dataRef.current ?? EMPTY);
+      ensureLayers(map, sourceNetwork, opacity, dataRef.current ?? EMPTY, isDarkTheme);
       const source = map.getSource(config.sourceId) as GeoJSONSource | undefined;
       if (source && dataRef.current) source.setData(dataRef.current);
-      updatePaint(map, sourceNetwork, opacity);
+      updatePaint(map, sourceNetwork, opacity, isDarkTheme);
       setLayerVisibility(map, sourceNetwork, true);
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [config.sourceId, mapRef, mapTick, opacity, sourceNetwork, visible]);
+  }, [config.sourceId, isDarkTheme, mapRef, mapTick, opacity, sourceNetwork, visible]);
 }
 
 /** One stable host-facing hook for the two independently toggleable source networks. */
@@ -352,7 +353,8 @@ export function useMarineObservationLayers(
   isoheVisible: boolean,
   cwaOpacity = 0.85,
   isoheOpacity = 0.85,
+  isDarkTheme = true,
 ): void {
-  useMarineObservationLayer(mapRef, "cwa", cwaVisible, cwaOpacity);
-  useMarineObservationLayer(mapRef, "isohe", isoheVisible, isoheOpacity);
+  useMarineObservationLayer(mapRef, "cwa", cwaVisible, cwaOpacity, isDarkTheme);
+  useMarineObservationLayer(mapRef, "isohe", isoheVisible, isoheOpacity, isDarkTheme);
 }
