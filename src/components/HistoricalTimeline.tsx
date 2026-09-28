@@ -158,7 +158,8 @@ export function HistoricalTimeline({
     const current = granularity === "year" ? year : granularity === "month" ? month : Math.min(day, dim);
     const onPick = granularity === "year" ? onYearChange : granularity === "month" ? onMonthChange : onDayChange;
     const unit = granularity === "year" ? undefined : granLabel[granularity];
-    const discrete = buildDiscreteAxis(values, current, String);
+    // 月粒度：展開卡的軸約 330px，12 個「N月」標籤會黏在一起（11月12月），隔月標示；刻度仍每月一格
+    const discrete = buildDiscreteAxis(values, current, String, granularity === "month" ? 7 : undefined);
     const pick = (index: number) => {
       const v = values[index];
       if (v !== undefined && v !== current) onPick(v);

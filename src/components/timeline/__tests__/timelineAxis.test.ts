@@ -92,6 +92,12 @@ describe("歷史離散軸", () => {
     expect(axis.ticks.filter((t) => t.label).map((t) => t.label)).toHaveLength(12);
   });
 
+  it("月粒度限 7 個標籤：隔月標示、12 月一定標、11 月讓位", () => {
+    const axis = buildDiscreteAxis(range(1, 12), 9, String, 7);
+    expect(axis.ticks).toHaveLength(12);
+    expect(axis.ticks.filter((t) => t.label).map((t) => t.label)).toEqual(["1", "3", "5", "7", "9", "12"]);
+  });
+
   it("日粒度 31 天：隔格標、最後一天一定標", () => {
     const labels = buildDiscreteAxis(range(1, 31), 27, String).ticks.filter((t) => t.label).map((t) => t.label);
     expect(labels[0]).toBe("1");

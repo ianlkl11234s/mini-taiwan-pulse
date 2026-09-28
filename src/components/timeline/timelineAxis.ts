@@ -223,10 +223,10 @@ function discreteTicks(values: readonly number[], labelOf: (v: number) => string
   });
 }
 
-export function buildDiscreteAxis(values: readonly number[], current: number, labelOf: (v: number) => string): DiscreteAxis {
+export function buildDiscreteAxis(values: readonly number[], current: number, labelOf: (v: number) => string, maxLabels?: number): DiscreteAxis {
   const idx = values.indexOf(current);
   const index = idx >= 0 ? idx : Math.max(0, values.findIndex((v) => v > current) - 1);
-  return { values, index, ticks: discreteTicks(values, labelOf) };
+  return { values, index, ticks: discreteTicks(values, labelOf, maxLabels) };
 }
 
 export function range(from: number, to: number): number[] {
