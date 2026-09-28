@@ -29,6 +29,11 @@ export const pointStrokePaint = (isDark: boolean) => ({
   "circle-stroke-opacity": POINT_STROKE.opacity[themeOf(isDark)],
 });
 
+/** P-5：icon 顯示直徑對齊點的直徑（M 9px；形狀在 9px 分不清時用 L 13px），固定不隨縮放。 */
+export const POINT_ICON_PX = { M: POINT_RADIUS.M * 2, L: 13 } as const;
+/** useSubstationDiamondIcon：32px 方塊、icon-rotate 45°，對角寬 32√2。 */
+export const SUBSTATION_ICON_DIAGONAL_PX = 32 * Math.SQRT2;
+
 /** P-3：主體不透明度，依全台點數。 */
 export const POINT_OPACITY = { base: 0.85, over1k: 0.8, over10k: 0.75, over100k: 0.6 } as const;
 
