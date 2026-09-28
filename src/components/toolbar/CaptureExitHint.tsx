@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FONT_CJK, FONT_DATA, RADIUS } from "../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, RADIUS, Z_INDEX } from "../../styles/designTokens";
 
 interface Props {
   onExit: () => void;
@@ -41,7 +41,7 @@ export function CaptureExitHint({ onExit }: Props) {
         left: "50%",
         bottom: 32,
         transform: "translateX(-50%)",
-        zIndex: 21,
+        zIndex: Z_INDEX.toolbar,
         display: "inline-flex",
         alignItems: "center",
         gap: 6,

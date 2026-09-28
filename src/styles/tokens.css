@@ -11,7 +11,7 @@
  * TS ↔ CSS 對應（改一邊必須同步另一邊；規範見 docs/design-system.md §3）：
  *   SURFACE.x ↔ --surface-x；COLORS.textX ↔ --text-x；COLORS.link ↔ --link；
  *   COLORS.statusDerived ↔ --status-derived；BORDER.x ↔ --border-x；CONTROL.x ↔ --control-x；
- *   SLIDER.x ↔ --slider-x；LIGHT.camelCase ↔ --light-kebab-case。
+ *   SLIDER.x ↔ --slider-x；LIGHT.camelCase ↔ --light-kebab-case；Z_INDEX.camelCase ↔ --z-kebab-case。
  */
 :root {
   /* ── FONT_FAMILY ── */
@@ -135,4 +135,12 @@
   --light-slider-fill: rgba(0, 0, 0, 0.45);
   --light-slider-thumb: #111827;
   --light-elevation-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+
+  /* ── Z_INDEX — 層級規則（= designTokens.ts Z_INDEX；camelCase ↔ kebab-case） ── */
+  --z-map-overlay: 10;     /* 地圖上的標記、選取圈 */
+  --z-floating-panel: 20;  /* 左側 rail 面板、Agent 活動卡、右下停靠 popup、時間軸 */
+  --z-toolbar: 25;         /* 右上工具列、手機標頭 */
+  --z-popover: 30;         /* 下拉面板、選單 */
+  --z-modal: 40;           /* 置中視窗 */
+  --z-toast: 50;           /* 提示訊息 */
 }

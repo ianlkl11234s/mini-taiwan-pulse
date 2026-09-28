@@ -7,7 +7,7 @@ import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -76,6 +76,7 @@ import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./co
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
 import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
+import { leftPanelsToClose, type LeftPanelState } from "./state/leftPanelMutex";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
@@ -1353,6 +1354,23 @@ export default function App() {
     setRailCloseEpoch((value) => value + 1);
   }, [memberOpen]);
 
+  // Z1 左側浮動面板互斥：Agent／會員／即時情報／衛星 已由 closeExternalPanels 與上方 handler 互關；
+  // 地震回放是圖層旗標、開啟路徑很多，所以在這裡補上「剛打開一個 → 關掉其他」。只看由關變開，不會連鎖觸發。
+  const earthquakeReplayOpen = layerVisibility.earthquakeReplay;
+  const leftPanelsPrevRef = useRef<LeftPanelState>({ agent: false, earthquakeReplay: false, intel: false, satellite: false, member: false });
+  useEffect(() => {
+    const next: LeftPanelState = { agent: agentOpen, earthquakeReplay: earthquakeReplayOpen, intel: intelOpen, satellite: satConsoleOpen, member: memberOpen };
+    const toClose = leftPanelsToClose(leftPanelsPrevRef.current, next);
+    leftPanelsPrevRef.current = next;
+    for (const key of toClose) {
+      if (key === "agent") setAgentOpen(false);
+      else if (key === "earthquakeReplay") setLayerVisibility((prev) => ({ ...prev, earthquakeReplay: false }));
+      else if (key === "intel") setIntelOpen(false);
+      else if (key === "satellite") satelliteConsoleStore.setOpen(false);
+      else setMemberOpen(false);
+    }
+  }, [agentOpen, earthquakeReplayOpen, intelOpen, satConsoleOpen, memberOpen, setLayerVisibility]);
+
   const markPrivateView = useCallback(() => {
     privateViewRef.current = true;
     window.history.replaceState(null, "", window.location.pathname);
@@ -1879,7 +1897,7 @@ export default function App() {
             style={{
               position: "absolute",
               inset: 0,
-              zIndex: 20,
+              zIndex: Z_INDEX.floatingPanel,
               pointerEvents: "none",
               background:
                 "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0.6) 100%)",
@@ -1890,7 +1908,7 @@ export default function App() {
               position: "absolute",
               top: isMobile ? 16 : 32,
               left: isMobile ? 16 : 32,
-              zIndex: 21,
+              zIndex: Z_INDEX.toolbar,
               pointerEvents: "none",
             }}
           >
@@ -1959,7 +1977,7 @@ export default function App() {
                 position: "absolute",
                 top: 16,
                 right: 16,
-                zIndex: 21,
+                zIndex: Z_INDEX.toolbar,
                 width: 48,
                 height: 48,
                 borderRadius: 24,
@@ -1992,8 +2010,8 @@ export default function App() {
               top: 16,
               left: sidebarWidth + 16,
               right: 16,
-              // 25：高於 Agent 活動卡（research-activity-position，20），工具列展開的帳號選單／底圖面板才不會被蓋住
-              zIndex: 25,
+              // toolbar（25）：高於浮動面板層（Agent 活動卡、rail、右下 popup），工具列展開的帳號選單／底圖面板才不會被蓋住
+              zIndex: Z_INDEX.toolbar,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -2115,7 +2133,7 @@ export default function App() {
               hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
 
           {/* Icon Rail + Sliding Panel Sidebar */}
-          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: Z_INDEX.floatingPanel, pointerEvents: "none" }}>
             <IconRailSidebar
               isDarkTheme={isDarkTheme}
               visibility={layerVisibility}
@@ -2599,7 +2617,7 @@ export default function App() {
             position: "absolute",
             left: tooltipInfo.x + 12,
             top: tooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(100,170,255,0.4)",
@@ -2633,7 +2651,7 @@ export default function App() {
             position: "absolute",
             left: trainTooltipInfo.x + 12,
             top: trainTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${trainTooltipInfo.train.color}66`,
@@ -2667,7 +2685,7 @@ export default function App() {
             position: "absolute",
             left: busTooltipInfo.x + 12,
             top: busTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${busTooltipInfo.bus.color}66`,
@@ -2709,7 +2727,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.9)",
               backdropFilter: "blur(12px)",
               border: `1px solid ${accent}66`,
@@ -2783,7 +2801,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.92)",
               backdropFilter: "blur(12px)",
               border: "1px solid #a78bfa66",
@@ -2865,7 +2883,7 @@ export default function App() {
           right: splitActive
             ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
             : 16,
-          zIndex: 30,
+          zIndex: Z_INDEX.floatingPanel,
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",

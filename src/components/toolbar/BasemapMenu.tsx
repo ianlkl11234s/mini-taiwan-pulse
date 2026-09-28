@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FONT_CJK, RADIUS } from "../../styles/designTokens";
+import { FONT_CJK, RADIUS, Z_INDEX } from "../../styles/designTokens";
 import { MAP_STYLES } from "../StyleSelector";
 import { ToolbarButton } from "./ToolbarButton";
 import { getToolbarPalette, type ToolbarPalette } from "./toolbarTheme";
@@ -91,7 +91,7 @@ export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onTog
             position: "absolute",
             top: "calc(100% + 6px)",
             right: 0,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: palette.popupBg,
             border: `1px solid ${palette.popupBorder}`,
             borderRadius: RADIUS.xl,

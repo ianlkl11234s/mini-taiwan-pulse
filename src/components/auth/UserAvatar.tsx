@@ -12,6 +12,7 @@ import {
   SPACING,
   ELEVATION,
   WHITE_ALPHA,
+  Z_INDEX,
 } from "../../styles/designTokens";
 
 /**
@@ -141,7 +142,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
             boxShadow: c.shadow,
             backdropFilter: "blur(8px)",
             overflow: "hidden",
-            zIndex: 10,
+            zIndex: Z_INDEX.popover,
           }}
         >
           <div

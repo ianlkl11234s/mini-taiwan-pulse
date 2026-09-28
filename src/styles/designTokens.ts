@@ -247,3 +247,27 @@ export const SELECTION_RING = {
   dark: INTEL_COLORS.accent,
   light: LIGHT.accent,
 } as const;
+
+// ─── Z_INDEX — 層級規則（ui-r2 Phase O／Z1）──────────────────────
+/**
+ * 全站固定層級，與 src/styles/tokens.css 的 --z-* 同值（key 對應：camelCase ↔ kebab-case，
+ * 例 floatingPanel ↔ --z-floating-panel）。改一邊必須同步另一邊。
+ * 同一層內的前後由 DOM 順序決定；不要為了壓過鄰居改寫死數字，先確認屬於哪一層。
+ *
+ * 特例（不在本表、維持寫死）：LoadingScreen 9999、Day-loading 遮罩 1000、LoadingIndicator 1000、
+ * AdminPanel 10001、圖層 host 錯誤提示 10000、ChartHoverTooltip。
+ */
+export const Z_INDEX = {
+  /** 地圖上的標記、選取圈 */
+  mapOverlay: 10,
+  /** 浮動面板：左側 rail 面板、Agent 活動卡、右下停靠 popup、時間軸 */
+  floatingPanel: 20,
+  /** 右上工具列（桌機 T2、手機標頭） */
+  toolbar: 25,
+  /** 下拉面板、選單、hover tooltip */
+  popover: 30,
+  /** 置中視窗：說明、分享、監測模式 */
+  modal: 40,
+  /** 提示訊息（toast） */
+  toast: 50,
+} as const;
