@@ -27,6 +27,20 @@ it("routes only a registered labor recipe to the dataset-scoped DEV preview", as
     .resolves.toContain("/__labor-statistics-cdn/current.json");
 });
 
+it("routes a derived labor presentation through its registered source layer contract", async () => {
+  vi.stubEnv("VITE_LABOR_STATISTICS_PREVIEW", "true");
+  const source = LABOR_STATISTICS_RECIPES_BY_KEY.statsLaborCountyParticipationRate;
+  await expect(firstRequest({
+    layerKey: "statsLaborCountyNonLaborForce",
+    sourceLayerKey: source.layer_key,
+    datasetId: source.dataset_id,
+    indicatorId: source.indicator_id,
+    level: source.level,
+    valueTransform: "complement_100",
+    includeHealth: true,
+  })).resolves.toContain("/__labor-statistics-cdn/current.json");
+});
+
 it("keeps an unregistered key on the configured CDN even when it claims the labor dataset", async () => {
   vi.stubEnv("VITE_LABOR_STATISTICS_PREVIEW", "true");
   vi.stubEnv("VITE_STATISTICS_CDN_BASE", "https://production-cdn.test/statistics");

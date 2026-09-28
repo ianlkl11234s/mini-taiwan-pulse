@@ -1,7 +1,7 @@
 import { useEffect, useSyncExternalStore, type CSSProperties } from 'react';
 import { getAgriRecipe, agriReleaseOptions, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriStatisticsRecipes';
 import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from '../../data/socialStatisticsRecipes';
-import { getLaborRecipe, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from '../../data/laborStatisticsRecipes';
+import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatisticsPresentationView, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from '../../data/laborStatisticsRecipes';
 import { getComparisonRecipe, comparisonReleaseOptions } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -137,7 +137,19 @@ export function statisticsDimensionSummary(dimensions: Record<string, unknown> |
 export function statisticsRecipe(key: StatisticsRenderKey, selectedIndicator?: string): StatisticsRecipe {
   const recipe = statisticsRenderRecipe(key, selectedIndicator);
   const fallback = statisticsReleaseFallback(key);
-  return { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}), label: recipe.label };
+  return {
+    layerKey: key,
+    datasetId: recipe.dataset_id,
+    indicatorId: recipe.indicator_id,
+    level: recipe.level,
+    dimensions: recipe.dimensions,
+    ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}),
+    ...(fallback ? { releaseFallback: fallback } : {}),
+    ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}),
+    ...('sourceLayerKey' in recipe ? { sourceLayerKey: recipe.sourceLayerKey } : {}),
+    ...('valueTransform' in recipe ? { valueTransform: recipe.valueTransform } : {}),
+    label: recipe.label,
+  };
 }
 
 /** A selector is allowed to expose only public releases that resolve to an exact dimensions tuple. */
@@ -196,7 +208,6 @@ export function statisticsValueLabel(value: unknown, unit: string): string {
   return typeof value === 'number' && Number.isFinite(value) ? `${value.toLocaleString()}${unit ? ` ${unit}` : ''}` : '未提供';
 }
 
-/** Let statistics controls inherit the light or dark sidebar palette. */
 /**
  * 外觀交給共用的 `.lpc-select`（layerParamControls.css，展開區容器帶主題 class）；
  * 這裡只補原生下拉清單要跟著的 color-scheme。
@@ -247,6 +258,8 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
   const agri = getAgriRecipe(activeBaseKey);
   const social = getSocialRecipe(activeBaseKey);
   const labor = getLaborRecipe(activeBaseKey);
+  const laborView = getLaborStatisticsPresentationView(layerKey);
+  const selectedLaborMetric = getLaborStatisticsPresentationMetric(layerKey, state.selection?.indicatorId);
   const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease, recipe.dataset_id);
   const healthUnit = state.health?.currency ?? recipe.unit;
   const coverageStatusLabel = statisticsCoverageStatusLabel(Boolean(agri));
@@ -304,6 +317,15 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         return <option key={metric.layerKey} value={metric.layerKey} disabled={!enabled}>{metric.label}{enabled ? '' : '（此學年未提供）'}</option>;
       })}</select>
     </label>}
+    {laborView && selectedLaborMetric && <label className="statistics-filter-label" style={filterLabel}>顯示
+      <select className="statistics-detail-control lpc-select" aria-label={`${laborView.label} 顯示方式`} style={control} value={selectedLaborMetric.sourceLayerKey} onChange={event => {
+        const metric = laborView.metrics.find(candidate => candidate.sourceLayerKey === event.target.value);
+        const sourceRecipe = metric ? getLaborRecipe(metric.sourceLayerKey) : undefined;
+        if (!metric || !sourceRecipe) return;
+        regionalStatisticsStore.setSelection(layerKey, statisticsRecipe(layerKey, sourceRecipe.indicator_id));
+        void regionalStatisticsStore.load(layerKey);
+      }}>{laborView.metrics.map(metric => <option key={metric.sourceLayerKey} value={metric.sourceLayerKey}>{metric.optionLabel}</option>)}</select>
+    </label>}
     {hasFilterControls && <details>
       <summary aria-label={`${recipe.label} 資料篩選：${selectionSummary || '選擇資料期別'}`} style={{ cursor: 'pointer', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         資料篩選{selectionSummary && <span title={selectionSummary}>：{selectionSummary}</span>}
@@ -325,25 +347,28 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
       </div>
     </details>}
-    {agri && <p style={factStyle}>{agri.disclosure ?? agri.boundary_semantics}</p>}
-    {agri?.source_statistical_boundary_version && <p style={factStyle}>統計參考版：{agri.source_statistical_boundary_version}；實際圖形：{agri.boundary_version}</p>}
-    {social?.disclosure && <p style={factStyle}>{social.disclosure}</p>}
-    {social && <p style={factStyle}>參考邊界：{social.boundary_version}；{social.boundary_semantics ?? '以交付資料的參考邊界呈現。'}</p>}
     {labor && <p style={factStyle}><strong>位置口徑：</strong>{laborLocationSemantics(labor)}</p>}
-    {labor && <p style={factStyle}>顯示參考邊界：{labor.boundary_version}；{labor.boundary_semantics}</p>}
-    {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <p style={factStyle}>製造業是工業的子集；不得與工業加總。</p>}
-    <p style={factStyle}>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</p>
-    {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</p>}
-    {state.health?.availability && <p style={factStyle} role="status">資料可用狀態：{state.health.availability}</p>}
-    {state.health?.reason && <p style={factStyle}>資料限制：{state.health.reason}</p>}
-    {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length}／{state.data.features.length} 個{statisticsSelectedTupleAreaLabel(recipe)}；灰色區域為缺資料，不等於 0</p>}
-    {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <p style={factStyle}>人均指標的分母為全體戶籍人口，並非學齡人口；學年度統計與人口統計之間存在時間差。</p>}
-    {'interpretationNote' in recipe && <p style={factStyle}>{String(recipe.interpretationNote)}</p>}
-    {agri && state.data && <p style={factStyle}>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</p>}
-    {labor && state.data && <p style={factStyle}>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；來源未涵蓋 source_not_covered：{state.data.features.filter(f => f.properties?.missing_reason === 'source_not_covered').length}；來源 join／時間不匹配 source_join_or_time_mismatch：{state.data.features.filter(f => f.properties?.missing_reason === 'source_join_or_time_mismatch').length}。三者不互相替代。</p>}
-    {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇，請查看來源紀錄。</p>}
-    {state.health?.coverage_status && <p style={factStyle} role="status">{coverageStatusLabel}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
     <details><summary>來源與處理紀錄</summary>
+      <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
+        {agri && <span>{agri.disclosure ?? agri.boundary_semantics}</span>}
+        {agri?.source_statistical_boundary_version && <span>統計參考版：{agri.source_statistical_boundary_version}；實際圖形：{agri.boundary_version}</span>}
+        {social?.disclosure && <span>{social.disclosure}</span>}
+        {social && <span>參考邊界：{social.boundary_version}；{social.boundary_semantics ?? '以交付資料的參考邊界呈現。'}</span>}
+        {labor && <span>顯示參考邊界：{labor.boundary_version}；{labor.boundary_semantics}</span>}
+        {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>製造業是工業的子集；不得與工業加總。</span>}
+        {selectedLaborMetric?.formula && <span>衍生方式：{selectedLaborMetric.formula}</span>}
+        <span>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</span>
+        {'freshness' in recipe && <span>資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
+        {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
+        {state.health?.reason && <span>資料限制：{state.health.reason}</span>}
+        {state.data && <span>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length}／{state.data.features.length} 個{statisticsSelectedTupleAreaLabel(recipe)}；灰色區域為缺資料，不等於 0</span>}
+        {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <span>人均指標的分母為全體戶籍人口，並非學齡人口；學年度統計與人口統計之間存在時間差。</span>}
+        {'interpretationNote' in recipe && <span>{String(recipe.interpretationNote)}</span>}
+        {agri && state.data && <span>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</span>}
+        {labor && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；來源未涵蓋 source_not_covered：{state.data.features.filter(f => f.properties?.missing_reason === 'source_not_covered').length}；來源 join／時間不匹配 source_join_or_time_mismatch：{state.data.features.filter(f => f.properties?.missing_reason === 'source_join_or_time_mismatch').length}。三者不互相替代。</span>}
+        {unparseableCount > 0 && <span role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇。</span>}
+        {state.health?.coverage_status && <span>{coverageStatusLabel}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</span>}
+      </div>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         <span>提供機關：{String(source.publisher ?? '未提供')}</span>
         <span>發布時間：{source.published_at ? String(source.published_at) : '來源未提供'}</span>

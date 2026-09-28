@@ -25,6 +25,14 @@ describe("statistics data-source definitions", () => {
     expect(getStatisticsDataSourceDefinition(key)?.kind).toBe("derived");
     expect(isDataSourceBrowserVisible(key)).toBe(import.meta.env.DEV || import.meta.env.VITE_STATISTICS_COMPARISONS_ENABLED === "true");
   });
+
+  it("documents the non-labor-force share as a derived option without inventing another release", () => {
+    const definition = getStatisticsDataSourceDefinition("statsLaborCountyNonLaborForce")!;
+    expect(definition.kind).toBe("presentation");
+    expect(definition.datasetIds).toEqual(["labor_statistics"]);
+    expect(definition.contract).toContain("participation_rate selector");
+    expect(definition.disclosure).toContain("非勞動力率＝100%－同一期勞動力參與率");
+  });
 });
 
 

@@ -60,6 +60,72 @@ export const LABOR_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type LaborStatisticsLayerKey = typeof LABOR_ENABLED_STATISTICS_KEYS[number];
 
+export type LaborStatisticsValueTransform = "complement_100";
+
+export interface LaborStatisticsPresentationMetric {
+  sourceLayerKey: LaborStatisticsLayerKey;
+  optionLabel: string;
+  presentationLabel?: string;
+  breaks?: readonly number[];
+  valueTransform?: LaborStatisticsValueTransform;
+  formula?: string;
+}
+
+export interface LaborStatisticsPresentationView {
+  key: LaborStatisticsLayerKey;
+  label: string;
+  metrics: readonly LaborStatisticsPresentationMetric[];
+}
+
+/**
+ * The source already publishes participation rate for the same H1 manpower
+ * survey. Non-labor-force share is its exact complement, so it can be offered
+ * inside the existing toggle without inventing a tenth layer or CDN selector.
+ */
+export const LABOR_STATISTICS_PRESENTATION_VIEWS = [{
+  key: "statsLaborCountyNonLaborForce",
+  label: "非勞動力",
+  metrics: [
+    { sourceLayerKey: "statsLaborCountyNonLaborForce", optionLabel: "人數（千人）" },
+    {
+      sourceLayerKey: "statsLaborCountyParticipationRate",
+      optionLabel: "非勞動力率（%）",
+      presentationLabel: "非勞動力率",
+      breaks: [39.6, 40.2, 40.8, 42],
+      valueTransform: "complement_100",
+      formula: "非勞動力率＝100%－勞動力參與率；分母為同一期人力資源調查的 15 歲以上民間人口。",
+    },
+  ],
+}] as const satisfies readonly LaborStatisticsPresentationView[];
+
+const LABOR_STATISTICS_PRESENTATION_VIEW_BY_KEY = Object.fromEntries(
+  LABOR_STATISTICS_PRESENTATION_VIEWS.map((view) => [view.key, view]),
+) as Partial<Record<LaborStatisticsLayerKey, LaborStatisticsPresentationView>>;
+
+export function getLaborStatisticsPresentationView(key: string): LaborStatisticsPresentationView | undefined {
+  return LABOR_STATISTICS_PRESENTATION_VIEW_BY_KEY[key as LaborStatisticsLayerKey];
+}
+
+export function getLaborStatisticsPresentationMetric(key: string, selectedIndicator?: string): LaborStatisticsPresentationMetric | undefined {
+  const view = getLaborStatisticsPresentationView(key);
+  if (!view) return undefined;
+  return view.metrics.find((metric) => getLaborRecipe(metric.sourceLayerKey)?.indicator_id === selectedIndicator) ?? view.metrics[0];
+}
+
+export function isLaborStatisticsPresentationSelection(
+  key: string,
+  selection: { datasetId?: string; indicatorId?: string; sourceLayerKey?: string; valueTransform?: string } | null | undefined,
+): boolean {
+  if (!selection?.indicatorId) return false;
+  const metric = getLaborStatisticsPresentationMetric(key, selection.indicatorId);
+  const source = metric ? getLaborRecipe(metric.sourceLayerKey) : undefined;
+  return Boolean(metric
+    && source?.dataset_id === selection.datasetId
+    && source?.indicator_id === selection.indicatorId
+    && metric.sourceLayerKey === (selection.sourceLayerKey ?? key)
+    && metric.valueTransform === selection.valueTransform);
+}
+
 // Vite/Vitest return a string for \`?raw\`; Node/tsx audit scripts can expose
 // the already-parsed JSON object. Supporting both keeps manifest audits usable.
 const document = (typeof rawRecipes === "string" ? JSON.parse(rawRecipes) : rawRecipes) as LaborRecipeDocument;

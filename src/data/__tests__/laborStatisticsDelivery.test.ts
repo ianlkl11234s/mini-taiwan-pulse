@@ -78,4 +78,30 @@ it.skipIf(!root)("loads all 12 delivered exact selectors through the real hash-v
   expect(villageResult.features.filter((feature) => feature.properties?.status === "observed")).toHaveLength(7602);
   expect(villageResult.features.filter((feature) => feature.properties?.missing_reason === "source_join_or_time_mismatch")).toHaveLength(371);
   expect(villageResult.geometryManifest.boundary_version).toBe("VILLAGE_NLSC_1150119");
+
+  const participationRecipe = LABOR_ENABLED_STATISTICS_RECIPES.find((recipe) => recipe.layer_key === "statsLaborCountyParticipationRate")!;
+  const participationOption = participationRecipe.release_options[0]!;
+  const nonLaborShare = await loadRegionalStatistics({
+    layerKey: "statsLaborCountyNonLaborForce",
+    sourceLayerKey: participationRecipe.layer_key,
+    datasetId: participationRecipe.dataset_id,
+    indicatorId: participationRecipe.indicator_id,
+    level: participationRecipe.level,
+    releaseId: participationOption.release_id,
+    dimensions: participationOption.dimensions,
+    includeHealth: true,
+    valueTransform: "complement_100",
+    label: "非勞動力率",
+  });
+  expect(nonLaborShare.values.observations.find((value) => value.area_code === "10018")).toMatchObject({
+    value: 40.4,
+    status: "observed",
+    inputs: { source_participation_rate_pct: 59.6 },
+  });
+  expect(nonLaborShare.features.find((feature) => feature.properties?.area_code === "10018")?.properties).toMatchObject({
+    value: 40.4,
+    indicator_name: "非勞動力率",
+    unit: "%",
+    comparison_formula: "100% − 勞動力參與率",
+  });
 }, 120000);
