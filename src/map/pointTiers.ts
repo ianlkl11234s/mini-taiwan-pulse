@@ -210,3 +210,134 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   welfareSocialWorkOrgs: "M", // 社福團體 Social Work Orgs
   womenChildWarning: "M", // 婦幼警示點 Women/Child Warning
 };
+
+/**
+ * hook／factory 自己畫的點圖層分階（R2 後半，2026-09-28 使用者「全照建議」）。
+ * 不走 OVERLAY_REGISTRY，所以 withPointSpec 不會套用；各 hook 直接用 pointRadius(tier, 大小滑桿÷預設)。
+ * ⚠️ 名單來自 design:audit-layers 的 hook 層級掃描，可能混入同一支 hook 裡的非點圖層；
+ *    實作時以程式實際有沒有畫 circle 為準（handoff-r2-hooks.md §3）。
+ */
+export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubble>> = {
+  animalAdoption: "M", // 待認領養動物 Animal Adoption · src/hooks/useAnimalAdoptionLayer.ts
+  animalWelfarePoints: "M", // 動物服務據點 Animal Services · src/hooks/useAnimalWelfarePointsLayer.ts
+  aqiStations: "L", // 空氣品質測站 AQI Station · src/hooks/useAqiStationsLayer.ts
+  bridgeRainThresholds: "L", // 一級監控橋梁參考雨量 · src/hooks/useBridgeRainLayer.ts
+  floodAlerts: "M", // 水文防汛 Flood Alerts · src/hooks/useDisasterAlertLayer.ts
+  lifelineAlerts: "M", // 民生中斷 Lifeline · src/hooks/useDisasterAlertLayer.ts
+  safetyAlerts: "M", // 安全環境 Safety Alerts · src/hooks/useDisasterAlertLayer.ts
+  transitAlerts: "M", // 交通阻斷 Transit Alerts · src/hooks/useDisasterAlertLayer.ts
+  weatherAlerts: "M", // 氣象特報 Weather Alerts · src/hooks/useDisasterAlertLayer.ts
+  earthquakes: "M", // 地震 Earthquake · src/hooks/useEarthquakeLayer.ts
+  earthquakesGlobal: "M", // 全球地震 USGS Earthquake · src/hooks/useEarthquakesGlobalLayer.ts
+  fireEvents: "B", // 火災歷史 Fire History · src/hooks/useFireEventsLayer.ts
+  fireLatest: "B", // 火災最新年度 Latest · src/hooks/useFireLatestLayer.ts
+  floodSensor: "M", // 都市淹水感測 USWG · src/hooks/useFloodSensorLayer.ts
+  gfwDarkVessels: "B", // GFW SAR 未匹配 AIS Unmatched Detections · src/hooks/useGfwDarkVesselsLayer.ts
+  gfwHourlyGrid: "B", // GFW 小時船舶網格 Hourly Grid · src/hooks/useGfwHourlyGridLayer.ts
+  gfwHourlyTracks: "M", // GFW 小時近似航跡 Hourly Tracks · src/hooks/useGfwHourlyTracksLayer.ts
+  globalEvents: "S", // 全球重大事件 Global Events · src/hooks/useGlobalEventsLayer.ts
+  aisstreamVessels: "L", // AISStream 船舶 AISStream Vessels · src/hooks/useGlobalMaritimeLayers.ts
+  gfwVesselPresence: "L", // GFW 舊版每日船舶 Historical Presence · src/hooks/useGlobalMaritimeLayers.ts
+  groundwater: "M", // 地下水井 Groundwater · src/hooks/useGroundwaterLayer.ts
+  groundwaterWells: "M", // 水井點位 Wells · src/hooks/useGroundwaterWellsLayer.ts
+  iotWraRiver: "M", // IoT 河川 IoT River · src/hooks/useIotWraRiverLayer.ts
+  iotWraStructure: "M", // IoT 水工結構 IoT Structure · src/hooks/useIotWraStructureLayer.ts
+  jpAirports: "M", // 機場 空港 · src/hooks/useJpAirportsLayer.ts
+  jpCareCombined: "M", // 複合服務 訪問・通い・宿泊の組合せ · src/hooks/useJpMedicalLayers.ts
+  jpCareDayServices: "M", // 日間服務 施設に通う · src/hooks/useJpMedicalLayers.ts
+  jpCareEquipment: "M", // 福祉用具 福祉用具 · src/hooks/useJpMedicalLayers.ts
+  jpCareHomeVisit: "M", // 到宅服務 自宅に訪問 · src/hooks/useJpMedicalLayers.ts
+  jpCarePlanning: "M", // 照護諮詢／計畫 介護の相談・ケアプラン · src/hooks/useJpMedicalLayers.ts
+  jpCareResidential: "M", // 住宿／短期入住 施設で生活・宿泊 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalAreasPrimary: "M", // 一次醫療圈 一次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalAreasSecondary: "M", // 二次醫療圈 二次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalAreasTertiary: "M", // 三次醫療圈 三次医療圏 · 2020 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalClinics: "M", // 診所 診療所 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalDental: "M", // 牙科 歯科 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalHospitals: "M", // 醫院 病院 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalMaternity: "M", // 助產所 助産所 · src/hooks/useJpMedicalLayers.ts
+  jpMedicalPharmacies: "M", // 藥局 薬局 · src/hooks/useJpMedicalLayers.ts
+  jpPoliceFacilities: "M", // 警察設施 警察施設 · src/hooks/useJpPoliceFacilitiesLayer.ts
+  jpReligionGsi: "M", // 宗教設施 宗教施設（国土地理院） · src/hooks/useJpReligionLayers.ts
+  jpReligionOsm: "M", // 宗教設施 宗教施設（OpenStreetMap） · src/hooks/useJpReligionLayers.ts
+  jpReligionWikidata: "M", // 宗教設施 宗教施設（Wikidata） · src/hooks/useJpReligionLayers.ts
+  jpSchools: "M", // 學校 学校 · src/hooks/useJpSchoolsLayer.ts
+  jpStations: "M", // 車站 駅 · src/hooks/useJpStationsLayer.ts
+  jpAccommodationCanonical: "M", // 旅宿去重總覽 宿泊施設の統合一覧 · src/hooks/useJpTourismLayers.ts
+  jpAccommodationJta: "M", // 觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館 · src/hooks/useJpTourismLayers.ts
+  jpAccommodationLocal: "M", // 地方旅館業許可 地方自治体の旅館業許可 · src/hooks/useJpTourismLayers.ts
+  jpAccommodationOsm: "M", // OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ · src/hooks/useJpTourismLayers.ts
+  jpMarineEbsaCoastal: "M", // 沿岸生態重要海域 沿岸EBSA（2015） · src/hooks/useJpTourismLayers.ts
+  jpNaturalParksNational: "M", // 國立公園 国立公園（A10 2010） · src/hooks/useJpTourismLayers.ts
+  jpNaturalParksPrefectural: "M", // 都道府縣立自然公園 都道府県立自然公園（A10 2010） · src/hooks/useJpTourismLayers.ts
+  jpNaturalParksQuasiNational: "M", // 國定公園 国定公園（A10 2010） · src/hooks/useJpTourismLayers.ts
+  jpNatureConservationArea: "M", // 自然保育地域 自然保全地域（A11 2015） · src/hooks/useJpTourismLayers.ts
+  jpNatureConservationSpecialDistrict: "M", // 自然保育特別地區 自然保全特別地区（A11 2015） · src/hooks/useJpTourismLayers.ts
+  jpPrimitiveNatureEnvironmentArea: "M", // 原生自然環境地域 原生自然環境保全地域（A11 2015） · src/hooks/useJpTourismLayers.ts
+  jpRamsarSites: "M", // 拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点 · src/hooks/useJpTourismLayers.ts
+  jpWildlifeProtectionNational: "M", // 國家指定鳥獸保護區 国指定鳥獣保護区 · src/hooks/useJpTourismLayers.ts
+  jpWildlifeSpecialProtectionDesignatedArea: "M", // 鳥獸特別保護指定區域 特別保護指定区域 · src/hooks/useJpTourismLayers.ts
+  jpWildlifeSpecialProtectionDistrict: "M", // 鳥獸特別保護地區 鳥獣保護区特別保護地区 · src/hooks/useJpTourismLayers.ts
+  jpWorldHeritageCultural: "M", // UNESCO 文化遺產代表點 UNESCO 文化遺産代表点 · src/hooks/useJpTourismLayers.ts
+  jpWorldHeritageNatural: "M", // UNESCO 自然遺產代表點 UNESCO 自然遺産代表点 · src/hooks/useJpTourismLayers.ts
+  jpWorldNaturalHeritageHistorical: "M", // 世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011） · src/hooks/useJpTourismLayers.ts
+  jpWaterAgriculturalPonds: "M", // 農業蓄水池（2026-03） · src/hooks/useJpWaterLayers.ts
+  jpWaterDams: "M", // 水壩 ダム（2014） · src/hooks/useJpWaterLayers.ts
+  jpWaterFloodHazard: "M", // 洪水浸水想定（最大規模） · src/hooks/useJpWaterLayers.ts
+  jpWaterGroundwaterSites: "M", // 地下水等觀測點（24縣） · src/hooks/useJpWaterLayers.ts
+  jpWaterLakes: "M", // 湖沼 湖沼（W09・2005） · src/hooks/useJpWaterLayers.ts
+  jpWaterLevelStations: "M", // 橫濱水位站 横浜市 · src/hooks/useJpWaterLayers.ts
+  jpWaterLocalFacilities: "M", // 高松供排水相關設施 高松市 · src/hooks/useJpWaterLayers.ts
+  jpWaterNilimDams: "M", // NILIM 水壩位置（46縣） · src/hooks/useJpWaterLayers.ts
+  jpWaterQualityStations: "M", // 水質測定地点 水質測定地点（2024） · src/hooks/useJpWaterLayers.ts
+  jpWaterRivers: "M", // 河川流路 河川（2006–2009） · src/hooks/useJpWaterLayers.ts
+  jpWaterSewerFacilities: "M", // 下水道設施（2012） · src/hooks/useJpWaterLayers.ts
+  jpWaterSupplyAreas: "M", // 給水區域 給水区域（2010） · src/hooks/useJpWaterLayers.ts
+  jpWaterSupplyFacilities: "M", // 上水道相關設施（2010） · src/hooks/useJpWaterLayers.ts
+  marineObservationCwa: "M", // CWA 海洋觀測站 CWA Marine · src/hooks/useMarineObservationLayer.ts
+  marineObservationIsohe: "M", // ISOHE 港區海氣象 ISOHE Port · src/hooks/useMarineObservationLayer.ts
+  aqiMicroSensors: "B", // LASS 微型感測 Micro Sensor · src/hooks/useMicroSensorsLayer.ts
+  powerPoles: "M", // 電桿 Power Poles (2.96M) · src/hooks/usePowerPolesLayer.ts
+  rainGauge: "M", // 即時雨量 Rain Gauge · src/hooks/useRainGaugeLayer.ts
+  riverLevel: "M", // 河川水位 River Level · src/hooks/useRiverLevelLayer.ts
+  roadEvents: "M", // 即時路況 Road Events · src/hooks/useRoadEventsLayer.ts
+  satellitesBeidou: "M", // 北斗 BD-3 PNT · src/hooks/useSatellitesLayer.ts
+  satellitesFrance: "M", // 🇫🇷 France · CSO / PLEIADES / ELISA · src/hooks/useSatellitesLayer.ts
+  satellitesGaofen: "M", // Gaofen 高分 · src/hooks/useSatellitesLayer.ts
+  satellitesGermany: "M", // 🇩🇪 Germany · SAR-Lupe / SARah · src/hooks/useSatellitesLayer.ts
+  satellitesIndia: "M", // 🇮🇳 India · CARTOSAT / RISAT / EOS · src/hooks/useSatellitesLayer.ts
+  satellitesIsrael: "M", // 🇮🇱 Israel · Ofeq / EROS · src/hooks/useSatellitesLayer.ts
+  satellitesItaly: "M", // 🇮🇹 Italy · COSMO-SkyMed · src/hooks/useSatellitesLayer.ts
+  satellitesJapan: "M", // 🇯🇵 Japan · IGS / ALOS · src/hooks/useSatellitesLayer.ts
+  satellitesJilin: "M", // Jilin 吉林 · src/hooks/useSatellitesLayer.ts
+  satellitesKorea: "M", // 🇰🇷 Korea · KOMPSAT · src/hooks/useSatellitesLayer.ts
+  satellitesRussia: "M", // 🇷🇺 Russia · PERSONA / RESURS / COSMOS · src/hooks/useSatellitesLayer.ts
+  satellitesShiyan: "M", // Shiyan / Shijian 試驗 · src/hooks/useSatellitesLayer.ts
+  satellitesTJS: "M", // TJS / TJSW GEO 情報 · src/hooks/useSatellitesLayer.ts
+  satellitesTaiwan: "M", // 台灣 FORMOSAT / TRITON / IRIS-C · src/hooks/useSatellitesLayer.ts
+  satellitesUSA: "M", // 🇺🇸 USA · KH / BlackSky / Planet · src/hooks/useSatellitesLayer.ts
+  satellitesYaogan: "M", // Yaogan 遙感 · src/hooks/useSatellitesLayer.ts
+  taipeiEvacuate: "M", // 北市疏散門 Evacuate Gate (TP) · src/hooks/useTaipeiEvacuateLayer.ts
+  taipeiPumb: "M", // 北市抽水站 Pump Station (TP) · src/hooks/useTaipeiPumbLayer.ts
+  taipeiSewer: "M", // 北市下水道水位 Sewer (TP) · src/hooks/useTaipeiSewerLayer.ts
+  typhoonTracks: "M", // 颱風軌跡 Typhoon Track · src/hooks/useTyphoonTracksLayer.ts
+  vesselWatch: "M", // 特殊船舶 Vessel Watch · src/hooks/useVesselWatchLayer.ts
+  wasteCleaningSquads: "L", // 清潔隊 Squads · src/hooks/useWasteCleaningSquadLayer.ts
+  worldTrashDebris: "M", // 垃圾與殘骸觀測 Trash & Debris Observations · src/hooks/useWorldTrashDebrisLayer.ts
+  agriCropSuitability: "M", // 作物適栽 Crop Suitability · src/map/agricultureLayerFactory.ts
+  agriLeisureFarmZones: "M", // 休閒農業區 Leisure Farm Zones · src/map/agricultureLayerFactory.ts
+  agriPOI: "M", // 休農場 / 田媽媽 / 特色農旅 POI · src/map/agricultureLayerFactory.ts
+  agriRuralRegen: "M", // 農村再生社區 Rural Regen · src/map/agricultureLayerFactory.ts
+  agriSoil: "M", // 全台土壤分類 Soil Map · src/map/agricultureLayerFactory.ts
+  agriSoilFertility: "M", // 土壤肥力 250m Soil Fertility · src/map/agricultureLayerFactory.ts
+  agriculture: "M", // 農田範圍 FTW Fields 2025 · src/map/agricultureLayerFactory.ts
+  earthquakeReplay: "S", // 地震回放 EQ Replay · src/map/earthquakeReplayLayerFactory.ts
+  wdBattery: "M", // 電池回收 Battery · src/map/wasteMapboxLayers.ts
+  wdClothes: "M", // 衣物回收箱 Clothes · src/map/wasteMapboxLayers.ts
+  wdMixed: "M", // 混合投放點 Mixed · src/map/wasteMapboxLayers.ts
+  wdRecyclingContainer: "M", // 街頭資收桶 Container · src/map/wasteMapboxLayers.ts
+  wfMonitoring: "M", // 地下水監測井 Monitor · src/map/wasteMapboxLayers.ts
+  wfOther: "M", // 其他事廢設施 Other · src/map/wasteMapboxLayers.ts
+  wfRecycling: "M", // 資源回收廠 Recycling · src/map/wasteMapboxLayers.ts
+  wfScrapYard: "M", // 廢車 / 廢金屬 Scrap · src/map/wasteMapboxLayers.ts
+};
