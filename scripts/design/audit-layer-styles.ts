@@ -259,7 +259,7 @@ function asObj(v: unknown): Record<string, unknown> | null {
 }
 
 /** 裝飾子圖層（光暈、漣漪、點擊熱區、範圍圈、外框描邊）—— 不代表資料本體，統計分開算 */
-const DECOR_RE = /glow|halo|ripple|pulse|hit|range|shadow|casing|highlight|select|hover|bloom|aura|ring/i;
+const DECOR_RE = /(?:^|[-_])(?:glow\d*|halo|ripple|pulse|hit|range|shadow|casing|highlight|select(?:ed)?|hover|bloom|aura|ring)(?:$|[-_\d])/i;
 
 function summarizeSub(key: string, cfg: OverlayCfg, sub: OverlaySub) {
   const dark = asObj(sub.paint.dark) ?? {};
