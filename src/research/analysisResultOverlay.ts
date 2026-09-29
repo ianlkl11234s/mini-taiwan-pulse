@@ -784,6 +784,9 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       });
       else {
         map.setFilter(proportionalLabelLayerId(index), labelFilter);
+        // A reused slot may belong to a different proportional result (other labelField / rank field).
+        map.setLayoutProperty(proportionalLabelLayerId(index), "text-field", textField);
+        map.setLayoutProperty(proportionalLabelLayerId(index), "symbol-sort-key", ["get", proportional.labelRankProperty]);
         map.setPaintProperty(proportionalLabelLayerId(index), "text-color", textColor);
         map.setPaintProperty(proportionalLabelLayerId(index), "text-halo-color", VIZ_SPEC.ring[theme]);
         map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", resultOpacity);
