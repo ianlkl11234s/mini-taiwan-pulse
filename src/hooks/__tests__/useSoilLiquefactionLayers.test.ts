@@ -10,7 +10,7 @@ import {
 } from "../../data/soilLiquefactionTypes";
 import { pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
 import {
-  POTENTIAL_NOT_INVESTIGATED_FILTER, SOIL_LIQUEFACTION_LAYER_IDS, SOIL_LIQUEFACTION_SOURCE_ID,
+  POTENTIAL_FILL_FILTER, POTENTIAL_NOT_INVESTIGATED_FILTER, SOIL_LIQUEFACTION_LAYER_IDS, SOIL_LIQUEFACTION_SOURCE_ID,
   buildSoilLiquefactionLayers, potentialFillColor, weakSoilFillColor, weakSoilMissingFilter, weakSoilValueFilter,
 } from "../useSoilLiquefactionLayers";
 
@@ -62,14 +62,25 @@ describe("soil-liquefaction owner-only PMTiles contract", () => {
 });
 
 describe("potential classes", () => {
-  it("colours only official high/medium/low; not_investigated and missing go to the hatch layer", () => {
+  it("colours only official high/medium/low; only explicit not_investigated goes to the hatch layer", () => {
     for (const item of SOIL_POTENTIAL_CLASSES) expect(evalColor(potentialFillColor(), { potential_class: item.value })).toBe(hex(item.color));
     expect(evalColor(potentialFillColor(), { potential_class: "not_investigated" })).toBe("rgba(0,0,0,0)");
     expect(passes(POTENTIAL_NOT_INVESTIGATED_FILTER, { potential_class: "not_investigated" })).toBe(true);
-    expect(passes(POTENTIAL_NOT_INVESTIGATED_FILTER, {})).toBe(true);
     expect(passes(POTENTIAL_NOT_INVESTIGATED_FILTER, { potential_class: "low" })).toBe(false);
+    expect(passes(POTENTIAL_FILL_FILTER, { potential_class: "not_investigated" })).toBe(false);
+    expect(passes(POTENTIAL_FILL_FILTER, { potential_class: "low" })).toBe(true);
+    const fill = buildSoilLiquefactionLayers(STATE).find((layer) => layer.id === SOIL_LIQUEFACTION_LAYER_IDS.potentialFill)!;
+    expect(fill.filter).toEqual(POTENTIAL_FILL_FILTER);
     const hatch = buildSoilLiquefactionLayers(STATE).find((layer) => layer.id === SOIL_LIQUEFACTION_LAYER_IDS.potentialNotInvestigated)!;
     expect((hatch.paint as Record<string, unknown>)["fill-pattern"]).toBe("map-hatch-missing-dark");
+  });
+
+  it("treats a missing or unknown class as no-data, not 未調查 (transparent, still clickable, never low)", () => {
+    for (const props of [{}, { potential_class: "unexpected" }]) {
+      expect(passes(POTENTIAL_NOT_INVESTIGATED_FILTER, props)).toBe(false);
+      expect(passes(POTENTIAL_FILL_FILTER, props)).toBe(true);
+      expect(evalColor(potentialFillColor(), props)).toBe("rgba(0,0,0,0)");
+    }
   });
 });
 
