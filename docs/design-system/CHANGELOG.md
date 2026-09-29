@@ -3,6 +3,28 @@
 > 每一輪拍板了什麼、哪個 PR 做的。規格細節以 [`spec.md`](./spec.md)、[`map-layers.md`](./map-layers.md) 為準；數值以程式（見 [`README.md`](./README.md)「程式裡的唯一來源」）與活的元件頁為準。
 > 設計稿都在 `docs/features/ui-consistency-audit-20260927/`（UI）與 `docs/features/map-layer-restyle/`（地圖）。
 
+## 2026-09-30
+
+### 地圖 R3a 線與面（registry）— map-layers §3.2、§3.3
+
+| 決定 | 內容 |
+|---|---|
+| 分階 | 比較頁 `docs/features/map-layer-restyle/r3-tiers.html`；使用者確認照建議，只改 `osmPowerLines/cable`（海纜虛線）透明度 0.6 → 0.85 |
+| 範圍 | OVERLAY_REGISTRY 畫的 75 個面、31 條線、3 個行政界；hook 自畫線面與網格／影像／文字留 R3b |
+| 做法 | `lineFillTiers.ts` 登記每層的階；`lineFillSpec.ts` 的 `withLineFillSpec` 在 registry 出口統一套用（接在 `withPointSpec` 後）。滑桿照舊有效：新值 × 原 paint「目前參數 ÷ 規格預設」的比值 |
+| 線 | 寬三階（細 0.5→1、標準 1→2、強調 2→3.5）；透明度一般 0.85／參考線 0.6、下限 0.3；`[2,1]` → `[2,2]`；行政界、海域界、流域界尖角，其他圓頭圓角 |
+| 行政界 | 縣市強調、鄉鎮標準、村里細；三層統一中性灰（暗 `#9ca3af`／淡 `#374151`） |
+| 面 | 分級 0.55、覆蓋 0.35、背景 0.15、網格 0.7；外框：覆蓋 1px 同色 0.8、背景 0.5px 中性灰 0.6、分級與網格底圖色細縫（`FILL_OUTLINE`） |
+| 資料編碼保留 | 寬度或透明度依資料變化的層（道路等級、電壓、等高線、Ookla、警察等時圈、房價網格等 16 列）不套階；外框顏色依資料（港口等級、離岸風場狀態）保留 |
+| K-4 | 套階的線寬、線透明度、面透明度不再依暗淡改變（registry 暗淡差異 37 → 14，剩底圖色細縫與依資料的層） |
+| `fill-outline-color` | registry 7 處全拿掉；`parkingOnstreet` 新增 `outline` 子圖層；`jpBuildingHeight` 走網格「無外框」 |
+| 護欄 | `src/map/__tests__/lineFillSpec.test.ts`（階值、K-4、虛線、禁用 `fill-outline-color`） |
+| 盤點修正 | `design:audit-layers` 判斷「圖例暗淡不一致」時不再把面圖層外框線當主色（原本 8 個誤報：`forestCompartments`、`ecoNetworkZones`、`companyCapitalGrid`、`ooklaPerformanceGrid`、`jpAccommodationDensity`、`realEstateRentalGrid`、`industrialParkBoundaries`、`industrialParkComparison`） |
+
+### 地圖 R4 圖例對齊（進行中）
+
+- 交給 Codex 平行做，交接 `docs/features/map-layer-restyle/handoff-r4-legend.md`；分工：R4 只動圖例與顏色常數，R3 動寬度、透明度、外框。
+
 ## 2026-09-29
 
 ### 開關兩階（S2）— spec §5.10
