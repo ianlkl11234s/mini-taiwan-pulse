@@ -1,0 +1,136 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+// @ts-expect-error — style-spec CJS entry has no exported typings; test-only evaluator.
+import { expression } from "mapbox-gl/dist/style-spec/index.cjs";
+import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
+import { fetchPrivateJson, loadBridgeResilienceData, validateBridgeResilienceData } from "../bridgeResilienceLoader";
+import {
+  BRIDGE_JOINT_KEY, BRIDGE_RESILIENCE_ASSETS, BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_KEY,
+  BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS, BRIDGE_RESILIENCE_RAMP, decodeVillageScenario, effectiveScenarioUid,
+  geometryConfidenceText, highlightUids, lossPercentText, minutesText, populationText, scenarioKey,
+  villageFillColorExpression, type VillageImpacts,
+} from "../bridgeResilienceTypes";
+
+const IMPACTS: VillageImpacts = {
+  scenarios: ["三鶯大橋|car", "三鶯大橋|scooter", "關渡大橋+淡江大橋|car"],
+  villages: {
+    "63000010002": { p90_dT_s: [237, null, 400], affected_dest_pop_share: [0.01, 0, 0.3] },
+    "65000160008": { p90_dT_s: [null, 52, null], affected_dest_pop_share: [0, 0.001, 0.5] },
+  },
+};
+
+describe("village_impacts 解碼", () => {
+  it("villages[VILLCODE][field][i] 對應 scenarios[i]，VILLCODE 轉成 feature id", () => {
+    const car = decodeVillageScenario(IMPACTS, "三鶯大橋|car", "p90")!;
+    expect(car.get(63000010002)).toBe(237);
+    const scooter = decodeVillageScenario(IMPACTS, "三鶯大橋|scooter", "p90")!;
+    expect(scooter.get(65000160008)).toBe(52);
+  });
+  it("p90 的 null 保留為 null（沒有受影響目的地），不轉成 0", () => {
+    const scooter = decodeVillageScenario(IMPACTS, "三鶯大橋|scooter", "p90")!;
+    expect(scooter.get(63000010002)).toBeNull();
+    expect(decodeVillageScenario(IMPACTS, "三鶯大橋|car", "p90")!.get(65000160008)).toBeNull();
+  });
+  it("affected_dest_pop_share 的 0 是真實的 0，與 null 分開", () => {
+    const share = decodeVillageScenario(IMPACTS, "三鶯大橋|scooter", "share")!;
+    expect(share.get(63000010002)).toBe(0);
+    expect(share.get(63000010002)).not.toBeNull();
+  });
+  it("聯合情境用自己的鍵；不存在的情境回 null", () => {
+    expect(decodeVillageScenario(IMPACTS, scenarioKey(BRIDGE_JOINT_KEY, "car"), "share")!.get(65000160008)).toBe(0.5);
+    expect(decodeVillageScenario(IMPACTS, "不存在|car", "p90")).toBeNull();
+  });
+  it("聯合開關只對關渡／淡江生效，並高亮兩座成員橋", () => {
+    expect(effectiveScenarioUid("關渡大橋", true)).toBe(BRIDGE_JOINT_KEY);
+    expect(effectiveScenarioUid("淡江大橋", true)).toBe(BRIDGE_JOINT_KEY);
+    expect(effectiveScenarioUid("三鶯大橋", true)).toBe("三鶯大橋");
+    expect(effectiveScenarioUid(null, true)).toBeNull();
+    expect(highlightUids("關渡大橋", true)).toEqual(["關渡大橋", "淡江大橋"]);
+    expect(highlightUids("關渡大橋", false)).toEqual(["關渡大橋"]);
+    expect(highlightUids("三鶯大橋", true)).toEqual(["三鶯大橋"]);
+  });
+});
+
+describe("村里填色運算式：null 走中性色，不當 0", () => {
+  const evaluate = (metric: "p90" | "share", state: Record<string, unknown>) => {
+    const parsed = expression.createExpression(villageFillColorExpression(metric), { type: "color", "property-type": "data-driven", expression: { interpolated: false, parameters: ["zoom", "feature", "feature-state"] } });
+    expect(parsed.result).toBe("success");
+    const value = parsed.value.evaluate({ zoom: 10 }, { type: 3, properties: {} }, state);
+    return [value.r, value.g, value.b].map((c: number) => Math.round(c * 255));
+  };
+  const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  it("has=0（null）與沒有 state 都是中性色", () => {
+    expect(evaluate("p90", { has: 0, v: 0 })).toEqual(rgb(BRIDGE_RESILIENCE_COLORS.villageNeutral));
+    expect(evaluate("p90", {})).toEqual(rgb(BRIDGE_RESILIENCE_COLORS.villageNeutral));
+  });
+  it("has=1 依分界取色；share 的真 0 落在最低一級而非中性", () => {
+    expect(evaluate("share", { has: 1, v: 0 })).toEqual(rgb(BRIDGE_RESILIENCE_RAMP[0]));
+    expect(evaluate("p90", { has: 1, v: 61 })).toEqual(rgb(BRIDGE_RESILIENCE_RAMP[1]));
+    expect(evaluate("p90", { has: 1, v: 5000 })).toEqual(rgb(BRIDGE_RESILIENCE_RAMP[5]));
+  });
+});
+
+describe("popup 數值格式", () => {
+  it("p90 null 顯示「無受影響目的地」，不是 0 分鐘", () => {
+    expect(minutesText(null)).toBe("無受影響目的地");
+    expect(minutesText(undefined)).toBe("無受影響目的地");
+    expect(minutesText(214.42)).toBe("3.6 分鐘");
+    expect(minutesText(0)).toBe("0.0 分鐘");
+  });
+  it("可及性損失 ×100、人口千分位、缺值未提供", () => {
+    expect(lossPercentText(0.0007613908)).toBe("0.08%");
+    expect(lossPercentText(null)).toBe("未提供");
+    expect(populationText(1772670)).toBe("1,772,670 人");
+    expect(populationText(null)).toBe("未提供");
+    expect(geometryConfidenceText({ 關渡大橋: "B", 淡江大橋: "A" })).toBe("關渡大橋 B；淡江大橋 A");
+    expect(geometryConfidenceText("A")).toBe("A");
+  });
+});
+
+describe("私人 JSON 載入", () => {
+  const json = (body: unknown, status = 206) => async () => new Response(JSON.stringify(body), { status });
+  it("以資產已知大小要整段 Range 並帶 Bearer", async () => {
+    let seen: RequestInit | undefined; let url = "";
+    await fetchPrivateJson("summary", "tok", async (u, i) => { url = u; seen = i; return new Response("{}", { status: 206 }); });
+    expect(url).toBe("/api/private-research/bridge-resilience/summary");
+    expect((seen!.headers as Record<string, string>).Range).toBe(`bytes=0-${BRIDGE_RESILIENCE_ASSETS.summary.size - 1}`);
+    expect((seen!.headers as Record<string, string>).Authorization).toBe("Bearer tok");
+    expect(seen!.cache).toBe("no-store");
+  });
+  it("401／403 帶 status 丟出；非 206 視為未就緒", async () => {
+    await expect(fetchPrivateJson("impacts", "t", json({}, 403))).rejects.toMatchObject({ status: 403 });
+    await expect(fetchPrivateJson("impacts", "t", json({}, 200))).rejects.toThrow("尚未就緒");
+  });
+  it("格式不符時中止，不合成空資料", async () => {
+    expect(() => validateBridgeResilienceData({} as never, IMPACTS)).toThrow();
+    expect(() => validateBridgeResilienceData({ bridges: {} }, { scenarios: [] } as never)).toThrow();
+    const both = await loadBridgeResilienceData("t", async (u) => new Response(JSON.stringify(u.endsWith("/summary") ? { bridges: {} } : IMPACTS), { status: 206 }));
+    expect(both.impacts.scenarios).toHaveLength(3);
+  });
+});
+
+describe("sidecar 資產契約", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const whole = fs.readFileSync(path.resolve(here, "../../../server/coral-private/coral-private-server.mjs"), "utf8");
+  const sidecar = whole.slice(whole.indexOf("export const BRIDGE_RESILIENCE_ASSETS"));
+  it("前端契約與 sidecar BRIDGE_RESILIENCE_ASSETS 的檔名／大小／SHA-256 逐一相同", () => {
+    for (const [name, asset] of Object.entries(BRIDGE_RESILIENCE_ASSETS)) {
+      const block = sidecar.match(new RegExp(`${name}: Object\\.freeze\\(\\{\\s*filename: "([^"]+)",\\s*size: (\\d+),\\s*sha256: "([0-9a-f]{64})"`, "m"));
+      expect(block, name).not.toBeNull();
+      expect(block![1]).toBe(asset.filename);
+      expect(Number(block![2])).toBe(asset.size);
+      expect(block![3]).toBe(asset.sha256);
+    }
+  });
+  it("圖層是站主限定（GATED），且原始碼不含外部網址或 env", () => {
+    expect(BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS.every((key) => GATED_LAYERS.has(key))).toBe(true);
+    expect(BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS).toContain(BRIDGE_RESILIENCE_KEY);
+    for (const file of ["../bridgeResilienceLoader.ts", "../bridgeResilienceTypes.ts", "../../hooks/useBridgeResilienceLayers.ts"]) {
+      const source = fs.readFileSync(path.resolve(here, file), "utf8");
+      expect(source, file).not.toMatch(/https?:\/\/(?!www\.w3)/);
+      expect(source, file).not.toContain("import.meta.env");
+    }
+  });
+});

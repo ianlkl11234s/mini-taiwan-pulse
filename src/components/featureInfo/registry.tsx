@@ -62,6 +62,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
+import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
@@ -438,6 +439,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   changhuaTrafficSignals: ChanghuaTrafficSignalPanel,
   bssNationalBridgePreview: BssNationalBridgePreviewPanel,
   bssNationalBridgePointsPreview: BssNationalBridgePreviewPanel,
+  bridgeResilienceTwinCity: BridgeResiliencePanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -912,6 +914,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   changhuaTrafficSignals: "彰化縣道路號誌",
   bssNationalBridgePreview: "全臺橋梁方向候選（進行中）",
   bssNationalBridgePointsPreview: "全臺橋梁清冊點位（進行中）",
+  bridgeResilienceTwinCity: "雙北跨河橋梁韌性（研究中）",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
