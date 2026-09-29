@@ -1110,14 +1110,11 @@ function FloodSensorLegend() {
 }
 
 function FireEventLegend() {
-  const t = useLegendTheme();
   return (
     <div>
       <LegendTitle zh="火災歷史" en="Fire" />
       <FireCatRows cats={FIRE_EVENT_CATS} />
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
-        有外框＝有死傷
-      </div>
+      <LegendNote>有外框＝有死傷</LegendNote>
     </div>
   );
 }
