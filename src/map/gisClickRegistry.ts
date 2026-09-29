@@ -603,6 +603,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["edu-district-senior-fill"], type: "eduDistrictSenior" },
   // 🌊 海底等深線（深度分帶 fill）：覆蓋全海域的大面積 fill，同「大面積面層放最末」原則
   { layers: ["isobath-fill"], type: "isobathBand" },
+  // 土壤液化（owner-only）：弱層 100 m 格比潛勢調查單元細，先命中；各自連同缺值斜線子層
+  // （厚度 0 的格子 fill 透明但仍可點，popup 顯示「無弱層」）。潛勢連同「未調查」斜線層。
+  // 放在 H3／田區等全範圍面層之前，否則被它們先吞掉；弱層依繪製順序反排（後加的畫在上面，先命中）。
+  { layers: ["soil-liquefaction-weakSoilSand10To20-fill", "soil-liquefaction-weakSoilSand10To20-missing"], type: "weakSoilSand10To20" },
+  { layers: ["soil-liquefaction-weakSoilClay10To20-fill", "soil-liquefaction-weakSoilClay10To20-missing"], type: "weakSoilClay10To20" },
+  { layers: ["soil-liquefaction-weakSoilSand5To10-fill", "soil-liquefaction-weakSoilSand5To10-missing"], type: "weakSoilSand5To10" },
+  { layers: ["soil-liquefaction-weakSoilClay5To10-fill", "soil-liquefaction-weakSoilClay5To10-missing"], type: "weakSoilClay5To10" },
+  { layers: ["soil-liquefaction-weakSoilSand0To5-fill", "soil-liquefaction-weakSoilSand0To5-missing"], type: "weakSoilSand0To5" },
+  { layers: ["soil-liquefaction-weakSoilClay0To5-fill", "soil-liquefaction-weakSoilClay0To5-missing"], type: "weakSoilClay0To5" },
+  { layers: ["soil-liquefaction-potential-fill", "soil-liquefaction-potential-not-investigated"], type: "soilLiquefactionPotential" },
   // 🔷 H3 指標格 6 層（W2）：三個 factory 現算的六邊形網格，皆鋪滿有資料的行政區域。
   //    放在既有面層之後、田區之前 —— 這六層歷來零點擊接線，排最尾端對既有命中順序零影響。
   //    ⚠️ 每層都必須收 `-fill` **與** `-ext` 兩個 id：3D toggle 讓兩者互斥
@@ -620,15 +630,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
   { layers: ["agri-ftw-fields-fill"], type: "agricultureField" },
-  // 土壤液化（owner-only）：弱層 100 m 格比潛勢調查單元細，先命中；各自連同缺值斜線子層
-  // （厚度 0 的格子 fill 透明但仍可點，popup 顯示「無弱層」）。潛勢連同「未調查」斜線層。
-  { layers: ["soil-liquefaction-weakSoilClay0To5-fill", "soil-liquefaction-weakSoilClay0To5-missing"], type: "weakSoilClay0To5" },
-  { layers: ["soil-liquefaction-weakSoilSand0To5-fill", "soil-liquefaction-weakSoilSand0To5-missing"], type: "weakSoilSand0To5" },
-  { layers: ["soil-liquefaction-weakSoilClay5To10-fill", "soil-liquefaction-weakSoilClay5To10-missing"], type: "weakSoilClay5To10" },
-  { layers: ["soil-liquefaction-weakSoilSand5To10-fill", "soil-liquefaction-weakSoilSand5To10-missing"], type: "weakSoilSand5To10" },
-  { layers: ["soil-liquefaction-weakSoilClay10To20-fill", "soil-liquefaction-weakSoilClay10To20-missing"], type: "weakSoilClay10To20" },
-  { layers: ["soil-liquefaction-weakSoilSand10To20-fill", "soil-liquefaction-weakSoilSand10To20-missing"], type: "weakSoilSand10To20" },
-  { layers: ["soil-liquefaction-potential-fill", "soil-liquefaction-potential-not-investigated"], type: "soilLiquefactionPotential" },
   // Transparent supply areas are intentionally the final click candidate across the map,
   // so a coverage polygon never intercepts any detailed point, line, or other fill.
   { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },

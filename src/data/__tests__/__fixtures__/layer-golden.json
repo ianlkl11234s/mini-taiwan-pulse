@@ -2916,6 +2916,55 @@
     },
     {
       "layers": [
+        "soil-liquefaction-weakSoilSand10To20-fill",
+        "soil-liquefaction-weakSoilSand10To20-missing"
+      ],
+      "type": "weakSoilSand10To20"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilClay10To20-fill",
+        "soil-liquefaction-weakSoilClay10To20-missing"
+      ],
+      "type": "weakSoilClay10To20"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilSand5To10-fill",
+        "soil-liquefaction-weakSoilSand5To10-missing"
+      ],
+      "type": "weakSoilSand5To10"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilClay5To10-fill",
+        "soil-liquefaction-weakSoilClay5To10-missing"
+      ],
+      "type": "weakSoilClay5To10"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilSand0To5-fill",
+        "soil-liquefaction-weakSoilSand0To5-missing"
+      ],
+      "type": "weakSoilSand0To5"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilClay0To5-fill",
+        "soil-liquefaction-weakSoilClay0To5-missing"
+      ],
+      "type": "weakSoilClay0To5"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-potential-fill",
+        "soil-liquefaction-potential-not-investigated"
+      ],
+      "type": "soilLiquefactionPotential"
+    },
+    {
+      "layers": [
         "h3-pop-count-fill",
         "h3-pop-count-ext"
       ],
@@ -2968,55 +3017,6 @@
         "agri-ftw-fields-fill"
       ],
       "type": "agricultureField"
-    },
-    {
-      "layers": [
-        "soil-liquefaction-weakSoilClay0To5-fill",
-        "soil-liquefaction-weakSoilClay0To5-missing"
-      ],
-      "type": "weakSoilClay0To5"
-    },
-    {
-      "layers": [
-        "soil-liquefaction-weakSoilSand0To5-fill",
-        "soil-liquefaction-weakSoilSand0To5-missing"
-      ],
-      "type": "weakSoilSand0To5"
-    },
-    {
-      "layers": [
-        "soil-liquefaction-weakSoilClay5To10-fill",
-        "soil-liquefaction-weakSoilClay5To10-missing"
-      ],
-      "type": "weakSoilClay5To10"
-    },
-    {
-      "layers": [
-        "soil-liquefaction-weakSoilSand5To10-fill",
-        "soil-liquefaction-weakSoilSand5To10-missing"
-      ],
-      "type": "weakSoilSand5To10"
-    },
-    {
-      "layers": [
-        "soil-liquefaction-weakSoilClay10To20-fill",
-        "soil-liquefaction-weakSoilClay10To20-missing"
-      ],
-      "type": "weakSoilClay10To20"
-    },
-    {
-      "layers": [
-        "soil-liquefaction-weakSoilSand10To20-fill",
-        "soil-liquefaction-weakSoilSand10To20-missing"
-      ],
-      "type": "weakSoilSand10To20"
-    },
-    {
-      "layers": [
-        "soil-liquefaction-potential-fill",
-        "soil-liquefaction-potential-not-investigated"
-      ],
-      "type": "soilLiquefactionPotential"
     },
     {
       "layers": [
