@@ -48,7 +48,7 @@ export function WarehouseStyleLegendView({ legend, compact = false }: { legend: 
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="choropleth">
       <span>{legend.title} · {legend.method}</span>
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
-      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
+      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, legend.valueKind ?? "ratio")}</small>)}</div>
       <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
     </div>;
   }
@@ -57,7 +57,7 @@ export function WarehouseStyleLegendView({ legend, compact = false }: { legend: 
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind={legend.kind}>
       <span>{legend.title} · {legend.method}</span>
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
-      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
+      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, legend.valueKind ?? "ratio")}</small>)}</div>
       <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
     </div>;
   }
@@ -66,7 +66,7 @@ export function WarehouseStyleLegendView({ legend, compact = false }: { legend: 
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="flow">
       <span>{legend.title}{legend.animate ? "" : "（流量較多，暫不啟用流動效果）"}</span>
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
-      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
+      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, legend.valueKind ?? "ratio")}</small>)}</div>
       <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
     </div>;
   }
@@ -81,7 +81,7 @@ export function WarehouseStyleLegendView({ legend, compact = false }: { legend: 
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="bivariate">
       <span>填色：{legend.xLabel} · 大小：{legend.yLabel}</span>
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.fillEntries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
-      <div className="agent-style-legend__breaks">{legend.fillBreaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
+      <div className="agent-style-legend__breaks">{legend.fillBreaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, legend.fillValueKind ?? "ratio")}</small>)}</div>
       <div>{legend.fillEntries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
       <SizeLegendCircles entries={legend.sizeLegend} />
     </div>;

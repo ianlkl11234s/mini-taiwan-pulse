@@ -106,18 +106,18 @@ export type WarehouseResultStyle =
 export type WarehouseLegendNullEntry = { label: string; color: string; hatch?: true; gradient?: string };
 
 export type WarehouseStyleLegend =
-  | { kind: "choropleth"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry }
-  | { kind: "bivariate"; xLabel: string; yLabel: string; fillEntries: { label: string; color: string }[]; fillBreaks: number[]; sizeLegend: WarehouseSizeLegendEntry[]; nullEntry: WarehouseLegendNullEntry }
+  | { kind: "choropleth"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry; valueKind?: VizNumberKind }
+  | { kind: "bivariate"; xLabel: string; yLabel: string; fillEntries: { label: string; color: string }[]; fillBreaks: number[]; sizeLegend: WarehouseSizeLegendEntry[]; nullEntry: WarehouseLegendNullEntry; fillValueKind?: VizNumberKind }
   | { kind: "heatmap"; title: string; gradient: string; note: string; nullEntry: WarehouseLegendNullEntry | null }
   | { kind: "proportional"; sizeLabel: string; sizeLegend: WarehouseSizeLegendEntry[]; colorLegend: { title: string; entries: { label: string; color: string }[]; nullEntry: WarehouseLegendNullEntry } | null; excludedNote: string | null }
   /** M7: identical shape to choropleth's legend (extrusion reuses choropleth's colour classification verbatim). */
-  | { kind: "extrusion"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry }
+  | { kind: "extrusion"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry; valueKind?: VizNumberKind }
   /** M6: same colour-bin shape as choropleth, plus the grid method (H3/square) for the legend caption. */
-  | { kind: "grid"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry }
+  | { kind: "grid"; title: string; method: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry; valueKind?: VizNumberKind }
   /** M2 I1: nested brand-blue bands, one label per contour level (no colour-bin breaks — a small fixed level list instead). */
   | { kind: "isochrone"; title: string; entries: { label: string; color: string }[] }
   /** L2 F3: colour bins like choropleth (line colour classified by valueField), plus the animate flag for the legend's own hint text. */
-  | { kind: "flow"; title: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry; animate: boolean };
+  | { kind: "flow"; title: string; entries: { label: string; color: string }[]; breaks: number[]; nullEntry: WarehouseLegendNullEntry; animate: boolean; valueKind?: VizNumberKind };
 
 const FIELD = /^[\p{L}_][\p{L}\p{N}_]{0,79}$/u;
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -688,7 +688,7 @@ function nullEntry(style: Extract<WarehouseResultStyle, { kind: "choropleth" | "
 
 function choroplethLegend(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, theme: Theme): WarehouseStyleLegend {
   const colors = resolvePalette(style, theme);
-  return { kind: "choropleth", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: nullEntry(style, theme) };
+  return { kind: "choropleth", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: nullEntry(style, theme), ...(style.valueKind ? { valueKind: style.valueKind } : {}) };
 }
 
 /** The y-axis size legend needs 3 *actually drawn* reference points (their real `_size_value`/
@@ -715,6 +715,7 @@ function bivariateLegend(style: Extract<WarehouseResultStyle, { kind: "bivariate
     fillEntries: style.labels.map((label, index) => ({ label, color: colors[index]! })), fillBreaks: style.breaks,
     sizeLegend: bivariateSizeLegendFromRows(style, rows),
     nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) },
+    fillValueKind: style.xValueKind,
   };
 }
 
@@ -731,14 +732,14 @@ function heatmapLegend(style: Extract<WarehouseResultStyle, { kind: "heatmap" }>
  *  just tagged with its own legend `kind` so the view can (if it ever needs to) tell them apart. */
 function extrusionLegend(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>, theme: Theme): WarehouseStyleLegend {
   const colors = style.palette[theme];
-  return { kind: "extrusion", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) } };
+  return { kind: "extrusion", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, valueKind: style.valueKind };
 }
 
 /** M6: same colour-bin shape as choropleth, plus a caption naming the grid method/resolution. */
 function gridLegend(style: Extract<WarehouseResultStyle, { kind: "grid" }>, theme: Theme): WarehouseStyleLegend {
   const colors = style.palette[theme];
   const method = style.method === "h3" ? `H3 網格（res ${style.resolution}）` : `方格網格（${style.cellMeters} 公尺）`;
-  return { kind: "grid", title: titleWithUnit(style.title, style.unit), method, entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) } };
+  return { kind: "grid", title: titleWithUnit(style.title, style.unit), method, entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, valueKind: style.valueKind };
 }
 
 /** M2 G1: one entry per contour level (spec "圖例列出 levels 的 label"), no colour-bin breaks. */
@@ -751,7 +752,7 @@ function isochroneLegend(style: Extract<WarehouseResultStyle, { kind: "isochrone
  *  `animate` decision so the legend can hint at the F3 moving-dot behaviour. */
 function flowLegend(style: Extract<WarehouseResultStyle, { kind: "flow" }>, theme: Theme): WarehouseStyleLegend {
   const colors = style.palette[theme];
-  return { kind: "flow", title: titleWithUnit(style.title, style.unit), entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, animate: style.animate };
+  return { kind: "flow", title: titleWithUnit(style.title, style.unit), entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, animate: style.animate, valueKind: style.valueKind };
 }
 
 function proportionalLegend(style: Extract<WarehouseResultStyle, { kind: "proportional" }>, theme: Theme): WarehouseStyleLegend {
