@@ -129,7 +129,9 @@ Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少�
 
 待決問題 3（要不要真的載入 web font）是二選一問題，但 `--font-cjk`／`--font-data` 這兩個**變數名稱**不管答案是哪個都該先定下來——用變數間接引用，之後不管是「真的載入 JetBrains Mono/Inter」還是「乾脆承認都是系統字、把 fallback stack 寫得更誠實」，消費端（`memberPanel.css` 等）都不用再改一次。先定名稱、字面值可以晚點再拍板。
 
-## 5b. 下一題：地圖圖層數值（2026-09-28 盤點完成，待拍板）
+**第七輪拍板（開站畫面與面板，2026-09-29）**：開站 **W2 城市脈動＋M2 機關展開**（`boot-screen-sheet.html` → `boot-motion-sheet.html` → `boot-wait-sheet.html` → `boot-w2-tuner.html` 定案數值）；左側面板改 `SURFACE.strong`、上緣共用 `LAYOUT.leftDockTop` 60；時間軸「尚無資料」浮在卡片上方並對齊冒號。PR #395、#397；規格 `docs/design-system/spec.md` §5.1、§5.24、§5.33；紀錄 `docs/design-system/CHANGELOG.md`。
+
+## 5b. 下一題：地圖圖層數值（2026-09-28 盤點完成，**已拍板**：見 `docs/design-system/map-layers.md` §7 與 `map-layer-picks.html`）
 
 UI chrome 統一完成後，下一步是逐一調整**地圖上**每個圖層的點／線／面數值與圖例樣式。依據在 [`docs/design-system-map-layers.md`](../../design-system-map-layers.md)（`design-system.md` §13）：
 

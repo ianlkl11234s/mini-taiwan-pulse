@@ -2,7 +2,7 @@
 
 > 依據：[`docs/design-system-map-layers.md`](../../design-system-map-layers.md) §3／§4（2026-09-28 拍板版）與 §7 拍板結果。
 > 盤點資料：`docs/design-system/layer-style-inventory.json`（`npm run design:audit-layers` 重產）。
-> 狀態：2026-09-28 計畫草案，待使用者確認後從 R1 開始。
+> 狀態：2026-09-29 R1（#391）、R2（#392、#393、#396、#398、#401）完成；下一步 R3。規格以 [`docs/design-system/map-layers.md`](../../design-system/map-layers.md) 為準。
 
 ## 範圍（盤點數字）
 
@@ -58,12 +58,12 @@
 
 ## R2 點圖層
 
-> **狀態（2026-09-28）**：registry 部分完成（本 PR）；hook 自畫的 122 層另開 PR。
+> **狀態（2026-09-29）**：全部完成——registry #392（資料編碼描邊誤蓋於 #401 還原）、站點 #393、hook 122 層 #396、後續 #398。
 
 ### R2 實際結果（registry）
 
 - **做法**：不逐一改 `overlayRegistry.ts` 的 245 處字面值，改在匯出前集中套用：`src/map/pointTiers.ts`（分階表，使用者「全照建議」）＋`src/map/pointSpec.ts`（`withPointSpec`）。大小滑桿照舊有效：半徑＝階 × 滑桿值 ÷ 滑桿預設。
-- **P-1 B**：S 25／M 120／L 10 層固定半徑；泡泡 38 層保留各自的依資料半徑（M3 rMin 4／rMax 28 正規化列為後續，部分泡泡仍隨縮放，例：新聞事件）。`maritimeBoundary` 為登記例外（基準點跟線寬控制）。
+- **P-1 B**：S 25／M 119／L 10 層固定半徑；泡泡 38 層保留各自的依資料半徑（M3 rMin 4／rMax 28 正規化列為後續，部分泡泡仍隨縮放，例：新聞事件）。`maritimeBoundary` 為登記例外（基準點跟線寬控制）。
 - **P-2 A**：主體描邊全部底圖色 1px（暗 `#0a0a14` 0.8／淡 `#ffffff` 0.9，跟透明度滑桿）。
 - **P-3**：**延到 R5**。多數圖層在各自 paint 裡算透明度（只有 21 個 config 登記 `opacityParam`），集中改容易讓滑桿失效；且依點數分級需要 R5 才會統計的點數。現況中位已是 0.85。
 - **P-5**：變電所菱形改固定大小，等級比例保留：超高壓最大級＝L 13px、一般變電所最大級（PS）＝M 9px。
