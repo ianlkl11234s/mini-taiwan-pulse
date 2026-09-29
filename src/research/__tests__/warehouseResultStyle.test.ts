@@ -495,10 +495,15 @@ describe("warehouse style on the map overlay", () => {
     const installed = installAnalysisResults(map, [points], 0.7);
     expect(layers.get("research-analysis-result-points-0")!.type).toBe("heatmap");
     expect(layers.get("research-analysis-result-heat-points-0")).toMatchObject({ type: "circle", minzoom: 13 });
+    // Rows without a usable weight are excluded from the point layer as well as the heatmap.
+    expect(layers.get("research-analysis-result-heat-points-0")!.filter).toEqual(warehouseHeatmapFilter(heatmap));
     expect(analysisResultInteractiveLayerIds(map, 1)).toEqual(["research-analysis-result-heat-points-0"]);
     setAnalysisOpacity(map, installed, "wh-4", 0.3);
     expect(layers.get("research-analysis-result-points-0")!.paint["heatmap-opacity"]).toBe(0.3);
     expect(layers.get("research-analysis-result-heat-points-0")!.paint["circle-opacity"]).toBe(0.3);
+    // Reusing the slot for another heatmap recolours the point layer, not just the heatmap.
+    installAnalysisResults(map, [{ ...points, resultStyle: { ...heatmap, colors: ["#ffffb2", "#123456"] } }], 0.7);
+    expect(layers.get("research-analysis-result-heat-points-0")!.paint["circle-color"]).toBe("#123456");
     installAnalysisResults(map, [{ ...points, resultStyle: undefined }]);
     expect(layers.get("research-analysis-result-points-0")!.type).toBe("circle");
     expect(layers.has("research-analysis-result-heat-points-0")).toBe(false);
