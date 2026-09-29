@@ -771,13 +771,16 @@ function proportionalLegend(style: Extract<WarehouseResultStyle, { kind: "propor
  *  choropleth's `valueKind`); otherwise a conservative guess from the unit text and the value's own
  *  shape (spec U1, see classifyVizNumberKind) — the only path left for a style with no *ValueKind
  *  field (a stage-A choropleth/heatmap from before this rollout). */
+/** withUnit() leaves "%" to the number formatter, so a "%" unit must reach show() even when the
+ *  style has no valueKind; other units keep the value-shape guess (no density rounding). */
+const percentHint = (unit: string | null | undefined): string | null => (unit === "%" ? unit : null);
 const show = (value: unknown, unit: string | null = null, kind?: VizNumberKind): string => {
   if (typeof value === "number" && Number.isFinite(value)) return formatVizNumber(value, kind ?? classifyVizNumberKind(value, unit));
   return typeof value === "string" && value.trim() ? value : "無資料";
 };
 
 function choroplethFact(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
-  return { label: style.label, value: withUnit(show(properties[style.valueProperty], null, style.valueKind), style.unit) };
+  return { label: style.label, value: withUnit(show(properties[style.valueProperty], percentHint(style.unit), style.valueKind), style.unit) };
 }
 
 /** T2 A2: same fact as `choroplethFact`, but for one period of the row's own `_style_series` (hover
@@ -791,17 +794,17 @@ export function warehouseChoroplethPeriodFact(style: WarehouseTimedChoropleth, r
   const period = style.periods[clamped]!;
   const series = row[style.seriesProperty];
   const raw = Array.isArray(series) ? series[clamped] : undefined;
-  return { label: `${style.label}（${period}）`, value: withUnit(show(raw, null, style.valueKind), style.unit), period };
+  return { label: `${style.label}（${period}）`, value: withUnit(show(raw, percentHint(style.unit), style.valueKind), style.unit), period };
 }
 
 function bivariateFact(style: Extract<WarehouseResultStyle, { kind: "bivariate" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
   const x = properties[style.valueProperty];
   const yRanked = properties[style.sizeValueProperty];
   const yRaw = properties[style.yField];
-  const xText = withUnit(show(x, null, style.xValueKind), style.xUnit);
+  const xText = withUnit(show(x, percentHint(style.xUnit), style.xValueKind), style.xUnit);
   // A point outside the top-N sized points keeps no _size_value; fall back to its raw y field so
   // the popup still shows a real number rather than "無資料" just because it wasn't bubble-sized.
-  const yText = withUnit(typeof yRanked === "number" ? show(yRanked, null, style.yValueKind) : show(yRaw, null, style.yValueKind), style.yUnit);
+  const yText = withUnit(typeof yRanked === "number" ? show(yRanked, percentHint(style.yUnit), style.yValueKind) : show(yRaw, percentHint(style.yUnit), style.yValueKind), style.yUnit);
   return { label: `${style.xLabel} × ${style.yLabel}`, value: `${xText} / ${yText}` };
 }
 
@@ -833,7 +836,7 @@ function proportionalFact(style: Extract<WarehouseResultStyle, { kind: "proporti
   if (style.colorField) {
     colorLabel = style.colorTitle ?? style.colorField;
     const colorValue = style.valueProperty ? properties[style.valueProperty] : undefined;
-    parts.push(`${colorLabel}: ${withUnit(show(colorValue, null, style.colorValueKind), style.colorUnit)}`);
+    parts.push(`${colorLabel}: ${withUnit(show(colorValue, percentHint(style.colorUnit), style.colorValueKind), style.colorUnit)}`);
   }
   const rank = properties[style.labelRankProperty];
   if (typeof rank === "number") parts.push(`第 ${rank} 名`);
@@ -846,7 +849,7 @@ function proportionalFact(style: Extract<WarehouseResultStyle, { kind: "proporti
  *  heightField source value is shown (not the rendered `_extrusion_height` metres), since that is
  *  the quantity the reader actually asked about. */
 function extrusionFact(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
-  const valueText = withUnit(show(properties[style.valueProperty], null, style.valueKind), style.unit);
+  const valueText = withUnit(show(properties[style.valueProperty], percentHint(style.unit), style.valueKind), style.unit);
   return { label: style.label, value: `${valueText}；高度指標: ${show(properties[style.heightField])}` };
 }
 
@@ -856,7 +859,7 @@ function gridFact(style: Extract<WarehouseResultStyle, { kind: "grid" }>, proper
   const countNum = typeof countValue === "number" && Number.isFinite(countValue) ? countValue : null;
   const parts = [`件數: ${countNum !== null ? formatVizNumber(countNum, "count") : "無資料"}`];
   if (countNum !== null && style.pointCount > 0) parts.push(`占全部: ${formatVizNumber((countNum / style.pointCount) * 100, "percent")}`);
-  if (style.weightProperty) parts.push(`權重: ${withUnit(show(properties[style.weightProperty], null, style.valueKind), style.unit)}`);
+  if (style.weightProperty) parts.push(`權重: ${withUnit(show(properties[style.weightProperty], percentHint(style.unit), style.valueKind), style.unit)}`);
   return { label: style.title, value: parts.join("；") };
 }
 
@@ -869,7 +872,7 @@ function isochroneFact(style: Extract<WarehouseResultStyle, { kind: "isochrone" 
 
 /** L2: the flow's own classified value (a row excluded by `warehouseFlowWidthFilter` never reaches a rendered popup). */
 function flowFact(style: Extract<WarehouseResultStyle, { kind: "flow" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
-  return { label: style.title, value: withUnit(show(properties[style.valueProperty], null, style.valueKind), style.unit) };
+  return { label: style.title, value: withUnit(show(properties[style.valueProperty], percentHint(style.unit), style.valueKind), style.unit) };
 }
 
 /** Per-kind registry: validate + colour/paint + legend + fact. The exported functions below are its
