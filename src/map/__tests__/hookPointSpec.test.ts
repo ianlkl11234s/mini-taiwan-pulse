@@ -147,13 +147,13 @@ describe("hook point spec R2 ratchet", () => {
     expect(powerPolePointPaint(false, 0.7, 1)).toMatchObject({
       "circle-radius": 4.5, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1, "circle-stroke-opacity": 0.9,
     });
-    // 火災：casualty 為真時保留白框（資料編碼），其餘為底圖色細縫。
+    // 火災：casualty 為真時有外框（暗白／淡 #111827，資料編碼），其餘為底圖色細縫。
     expect(fireEventsPointStroke(true, 1)).toMatchObject({
       "circle-stroke-color": ["case", ["get", "casualty"], "#ffffff", "#0a0a14"],
       "circle-stroke-opacity": 0.8,
     });
     expect(fireLatestPointStroke(false, 1)).toMatchObject({
-      "circle-stroke-color": ["case", ["get", "casualty"], "#ffffff", "#ffffff"],
+      "circle-stroke-color": ["case", ["get", "casualty"], "#111827", "#ffffff"],
       "circle-stroke-opacity": 0.9,
     });
   });
