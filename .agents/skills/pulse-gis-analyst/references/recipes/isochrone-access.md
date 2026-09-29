@@ -8,11 +8,13 @@
 2. 超過 10 點（例如「台北市所有國小」）：**自己在呼叫端分批**，每批 ≤10 點呼叫一次 `pulse_isochrone`，收集每批的 `summary.table`，再用 `UNION ALL` 併成一個 CTE：
    ```sql
    WITH iso AS (
-     SELECT geom_3826 AS g FROM "iso_wh_7"
-     UNION ALL SELECT geom_3826 AS g FROM "iso_wh_8"
+     SELECT minutes, geom_3826 AS g FROM "iso_wh_7"
+     UNION ALL SELECT minutes, geom_3826 AS g FROM "iso_wh_8"
    )
-   SELECT v.name FROM boundaries_village v, iso WHERE ST_Within(ST_Centroid(v.geom_3826), iso.g)
+   SELECT DISTINCT v.name FROM boundaries_village v, iso
+   WHERE iso.minutes = 10 AND ST_Within(ST_Centroid(v.geom_3826), iso.g)
    ```
+   等時圈表每點每條等時線各一列（欄位 `label`／`mode`／`minutes` 或 `meters`／`area_km2`）。一次要了多條（例如 `minutes:[10,15]`）時，**必須帶 `minutes`（或 `meters`）欄並逐條篩選或 `GROUP BY minutes`**；不篩會把 15 分的大圈一起算進「10 分鐘可達」，多條等時線塌成一個結果。同一村里落在多個點的等時圈內會重複，計數要 `DISTINCT`。
    涵蓋率／缺口清單模板照抄 [elderly-care-access](elderly-care-access.md) 的 `NOT EXISTS` 寫法，只是把 `ST_DWithin(c, facility, 半徑)` 換成 `ST_Within(c, iso.g)`。
 3. **呼叫量控制**：先用 `pulse_sql` 算出實際要跑的點數（例如「台北市國小」先 `count(*)` 確認 <=200），範圍先縮小到縣市／類別，不要對全國資料直接展開；伺服器端已用併發 3、10 秒逾時，不必自己加節流。
 4. 面積、涵蓋人口等後續分析一律用 `geom_3826`（等時圈表已內建這欄），不要拿 `geom`（EPSG:4326）直接做公尺運算。
