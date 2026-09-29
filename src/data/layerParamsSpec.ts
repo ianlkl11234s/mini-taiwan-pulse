@@ -3603,7 +3603,7 @@ export const SHARED_PARAM_GROUPS: ReadonlyMap<string, readonly SharedSlotMember[
 const SHARED_GROUP_OF = (() => {
   const m = new Map<string, string>();
   for (const [id, members] of SHARED_PARAM_GROUPS) {
-    for (const mem of members) m.set(`${mem.key}${mem.name}`, id);
+    for (const mem of members) m.set(`${mem.key} ${mem.name}`, id);
   }
   return m;
 })();
@@ -3613,7 +3613,7 @@ const SHARED_GROUP_OF = (() => {
  * 呼叫端據此走「只寫自己」的快路徑。
  */
 export function sharedSlotMembers(key: string, name: string): readonly SharedSlotMember[] | null {
-  const id = SHARED_GROUP_OF.get(`${key}${name}`);
+  const id = SHARED_GROUP_OF.get(`${key} ${name}`);
   return id ? (SHARED_PARAM_GROUPS.get(id) ?? null) : null;
 }
 
