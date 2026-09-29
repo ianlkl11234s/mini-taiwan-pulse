@@ -448,20 +448,7 @@ select.tl3-select option {
   position: relative;
 }
 
-/*
- * 「尚無資料」浮在卡片上方，標籤中線（「無」「資」之間）對齊時間的冒號，不佔 .tl3-row 寬度：
- * 放在列內會把 TimeAxis 擠窄，拖曳中同一個滑鼠位置換算出的時間跟著變，
- * 在「現在」前後反覆出現／消失（2026-09-29 修正）。
- */
 .tl3-warnchip {
-  position: absolute;
-  /* 冒號上緣 → 卡片上緣約 12.5px，再留 6px 間距（實測） */
-  bottom: calc(100% + 18.5px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--tl-surface);
-  box-shadow: var(--tl-shadow);
-  pointer-events: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -471,6 +458,24 @@ select.tl3-select option {
   border-radius: 3px;
   padding: 1px 5px;
   white-space: nowrap;
+}
+
+/*
+ * 「尚無資料」浮在卡片上方，標籤中線（「無」「資」之間）對齊時間的冒號，不佔 .tl3-row 寬度：
+ * 放在列內會把 TimeAxis 擠窄，拖曳中同一個滑鼠位置換算出的時間跟著變，
+ * 在「現在」前後反覆出現／消失（2026-09-29 修正）。
+ * 只限掛在 .tl3-colon 內的那一顆；.tl3-notes（GFW 等提示）與 HistoricalTimeline 的 dataNote
+ * 仍是一般行內標籤，不可一起浮到卡片上方疊在同一點。
+ */
+.tl3-colon > .tl3-warnchip {
+  position: absolute;
+  /* 冒號上緣 → 卡片上緣約 12.5px，再留 6px 間距（實測） */
+  bottom: calc(100% + 18.5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tl-surface);
+  box-shadow: var(--tl-shadow);
+  pointer-events: none;
 }
 
 .tl3-hint {
