@@ -893,7 +893,7 @@ export default function App() {
     playingRef, layerVisibilityRef,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents, invalidateFeatureRequest } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
 
   // Allen auth changes first remove the private source in its host. This derived state also
@@ -1066,9 +1066,12 @@ export default function App() {
   // G1：分析結果圖例住在「圖例」面板，沒有任何圖層開著時也要讓面板出現。
   const hasAnalysisLegend = useAnalysisLegend().entries.length > 0;
   const handleAnalysisResultFeature = useCallback((properties: AnalysisResultPanelProperties | null) => {
-    if (properties) setFeatureInfo({ layerType: "analysisResult", properties });
-    else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
-  }, [setFeatureInfo]);
+    if (properties) {
+      // 同一次點擊裡 useMapInteraction 可能已啟動 raster／GFW 非同步 probe；分析結果接手面板後作廢它們。
+      invalidateFeatureRequest();
+      setFeatureInfo({ layerType: "analysisResult", properties });
+    } else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
+  }, [setFeatureInfo, invalidateFeatureRequest]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
