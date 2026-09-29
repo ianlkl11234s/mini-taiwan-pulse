@@ -105,6 +105,10 @@ describe("research analysis session", () => {
     expect(session.mapEligible("series-result")).toBe(false);
     expect(session.mapEligible("does-not-exist")).toBe(false);
     expect(() => session.presentable(["points", "series-result"])).toThrow("RESULT_NOT_MAP_ELIGIBLE");
+    // A collection mixing a series card with a spatial result presents the spatial one only.
+    expect(session.mapPresentable(["points", "series-result"]).map(result => result.resultId)).toEqual(["points"]);
+    expect(session.mapPresentable(["series-result"])).toEqual([]);
+    expect(() => session.mapPresentable(["points", "does-not-exist"])).toThrow("RESULT_NOT_FOUND_OR_EXPIRED");
   });
 
   it("reads a series result's rows without the map-eligibility gate, and returns null for a non-series or missing id", () => {
