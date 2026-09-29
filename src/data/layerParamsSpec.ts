@@ -1739,6 +1739,21 @@ export const LAYER_PARAMS_SPEC = {
     ],
     out: "bssNationalBridgePointsPreviewQuality", encodeNumeric: true,
   }],
+  bridgeResilienceTwinCity: [opacitySlider("bridgeResilienceTwinCityOpacity", 0.9), {
+    kind: "select", name: "bridgeResilienceMode", label: "交通模式", default: "car",
+    options: [{ label: "汽車", value: "car" }, { label: "機車", value: "scooter" }],
+    out: "bridgeResilienceModeIdx", encode: ["car", "scooter"],
+  }, {
+    kind: "toggle", name: "bridgeResilienceShowVillages", label: "顯示受影響村里（先點選一座橋）", default: false,
+  }, {
+    kind: "select", name: "bridgeResilienceVillageMetric", label: "村里色階", default: "p90",
+    options: [{ label: "額外時間 p90", value: "p90" }, { label: "受影響目的地人口比", value: "share" }],
+    out: "bridgeResilienceVillageMetricIdx", encode: ["p90", "share"],
+  }, {
+    kind: "toggle", name: "bridgeResilienceShowRoutes", label: "顯示替代路線（代表性起訖對）", default: false,
+  }, {
+    kind: "toggle", name: "bridgeResilienceJoint", label: "關渡＋淡江同時中斷", default: false,
+  }],
   bridgeRainThresholds: [opacitySlider("bridgeRainThresholdsOpacity", 0.9)],
   jpPoliceFacilities: [
     opacitySlider("jpPoliceFacilitiesOpacity", 0.75), scaleSlider("jpPoliceFacilitiesScale", 1),

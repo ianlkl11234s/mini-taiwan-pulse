@@ -12,3 +12,69 @@
 .fi-row + .fi-row {
   border-top: 1px solid var(--fi-border-soft, rgba(255, 255, 255, 0.06));
 }
+
+/* ── popup 內的圖層操作（分段＋小按鈕；規格同 §5.7／§5.8，取用 tokens.css 變數）── */
+.fi-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0 3px;
+}
+
+.fi-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 1px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-md);
+  background: var(--control-bg);
+}
+
+.fi-seg button {
+  border: 0;
+  border-radius: 3px;
+  padding: 4px 7px;
+  background: transparent;
+  color: var(--text-muted);
+  font: 500 10px/1 var(--font-cjk);
+  cursor: pointer;
+}
+
+.fi-seg button:hover:not([aria-pressed="true"]) {
+  background: var(--control-bg-hover);
+}
+
+.fi-seg button[aria-pressed="true"] {
+  background: var(--accent-faint);
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+button.fi-btn {
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-md);
+  background: var(--control-bg);
+  color: var(--text-strong);
+  font: 500 10px/1 var(--font-cjk);
+  cursor: pointer;
+}
+
+button.fi-btn:hover {
+  background: var(--control-bg-hover);
+}
+
+button.fi-btn[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-faint);
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fi-seg button:focus-visible,
+button.fi-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
