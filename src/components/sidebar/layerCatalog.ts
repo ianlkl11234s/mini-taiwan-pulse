@@ -2128,12 +2128,14 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
  *     weakSoilClay5To10、weakSoilSand5To10、weakSoilClay10To20、weakSoilSand10To20、
  *     liquefactionMonitoringSites（manifest topics 帶 OWNER_ONLY／RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）
  *   - 全臺橋梁研究（BSS）：bssNationalBridgePreview、bssNationalBridgePointsPreview
+ *   - 日本水資源全國 8 層（KSJ 舊約款排除再配布；2026-09-29 站主決定改回站主限定，
+ *     私人 Range API /api/private-research/jp-water/*）：jpWaterDams、jpWaterRivers、
+ *     jpWaterSupplyFacilities、jpWaterSupplyAreas、jpWaterSewerFacilities、
+ *     jpWaterGroundwaterSites、jpWaterNilimDams、jpWaterAgriculturalPonds
  * 新增同類圖層時照此辦理並補進上列清單；要對外公開前須先確認授權。
  */
 export const RELEASE_HOLD_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
   "historicalFlightTrails", "jpHistoricalFlightTrails",
-  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
-  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
 ]);
 
 /** 對某使用者而言此 key 是否上鎖（gated 且非 owner）。 */
