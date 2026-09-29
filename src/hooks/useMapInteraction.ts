@@ -112,6 +112,9 @@ export function useMapInteraction(
   const [featureInfo, setFeatureInfo] = useState<FeatureInfo | null>(null);
   const clickBoundRef = useRef(false);
   const featureRequestRef = useRef(0);
+  /** 另一個點擊擁有者（例如分析結果面板）接手了這次點擊：作廢 raster／GFW 等仍在路上的非同步 probe，
+   *  免得它們晚回來把面板蓋掉。以 ref 保存，呼叫端拿到的是穩定 identity。 */
+  const invalidateFeatureRequestRef = useRef(() => { ++featureRequestRef.current; });
 
   const bindEvents = (map: MapboxMap) => {
     if (clickBoundRef.current) return;
@@ -663,5 +666,6 @@ export function useMapInteraction(
     featureInfo, setFeatureInfo,
     selectedFlightId, setSelectedFlightId,
     bindEvents,
+    invalidateFeatureRequest: invalidateFeatureRequestRef.current,
   };
 }
