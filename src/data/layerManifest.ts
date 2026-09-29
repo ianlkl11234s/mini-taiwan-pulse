@@ -9814,7 +9814,7 @@ export const LAYER_MANIFEST = {
     // panel）。批 4 的「兩個 key 一個 layer」是共用 layer id，這裡是兩組 layer id 共用 type。
     popup: "railStation",
     params: { count: 5, kinds: ["slider", "select", "slider", "toggle", "slider"] },
-    description: "捷運站點（上游無站體面，實際範圍選項會明示停用），可另開 3D 光柱",
+    description: "捷運站點；上游無站體面，「實際範圍」以站點範圍光暈示意（z<10 仍顯示點），可另開 3D 光柱",
     topics: ["交通", "軌道", "場站"],
   },
 

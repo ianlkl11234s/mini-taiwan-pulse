@@ -280,7 +280,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["station-points-tra-overview-point-core", "station-points-tra-overview-point-glow"], type: "railStation" },
   { layers: ["station-points-metro-overview-point-core", "station-points-metro-overview-point-glow"], type: "railStation" },
   { layers: ["station-points-tra-pt-fill", "station-points-tra-pt-glow-1", "station-points-tra-pt-glow-2"], type: "railStation" },
-  { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2"], type: "railStation" },
+  // 「實際範圍」模式 z<10 仍以點顯示（metro-lowzoom-core），同樣要能點開站點 popup。
+  { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2", "station-points-metro-lowzoom-core"], type: "railStation" },
   { layers: ["active-faults-fill", "active-faults-line", "active-faults-glow"], type: "activeFault" },
   { layers: ["fire-events-layer"], type: "fireEvent" },
   { layers: ["fire-latest-layer"], type: "fireEvent" },
