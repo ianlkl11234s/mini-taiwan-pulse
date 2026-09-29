@@ -23,10 +23,10 @@ const GSI_OPACITY_DEFAULT = Number(paramDefault("jpReligionGsi", "jpReligionGsiO
 const OSM_OPACITY_DEFAULT = Number(paramDefault("jpReligionOsm", "jpReligionOsmOpacity"));
 const WIKIDATA_OPACITY_DEFAULT = Number(paramDefault("jpReligionWikidata", "jpReligionWikidataOpacity"));
 
-// GSI 的 PMTiles 從 z4 起就是全量 167,037 點；原本 z4–z8 描邊寬 0 避免糊成一片（a9034643）。
-// 目前預設統一 1px（POINT_STROKE.width）；若瀏覽器實看糊成一片，只改下一行為
-// ["interpolate", ["linear"], ["zoom"], 8, 0, 9, 1] as unknown as ExpressionSpecification
-const GSI_STROKE_WIDTH: number | ExpressionSpecification = POINT_STROKE.width;
+// GSI 的 PMTiles 從 z4 起就是全量 167,037 點；瀏覽器實看（2026-09-29）暗色底圖 z4–z6 描邊連成黑塊，
+// 沿用原本「z8 以下不畫描邊」的例外（a9034643 為 z4–z8 寬 0），z9 起回到 1px。
+const GSI_STROKE_WIDTH: number | ExpressionSpecification =
+  ["interpolate", ["linear"], ["zoom"], 8, 0, 9, POINT_STROKE.width] as unknown as ExpressionSpecification;
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
