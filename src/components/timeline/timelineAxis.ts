@@ -225,7 +225,9 @@ function discreteTicks(values: readonly number[], labelOf: (v: number) => string
 
 export function buildDiscreteAxis(values: readonly number[], current: number, labelOf: (v: number) => string, maxLabels?: number): DiscreteAxis {
   const idx = values.indexOf(current);
-  const index = idx >= 0 ? idx : Math.max(0, values.findIndex((v) => v > current) - 1);
+  // 不在刻度上 → 取不超過 current 的最後一格；current 大於所有值時是最後一格（不是第一格）
+  const next = values.findIndex((v) => v > current);
+  const index = idx >= 0 ? idx : Math.max(0, (next === -1 ? values.length : next) - 1);
   return { values, index, ticks: discreteTicks(values, labelOf, maxLabels) };
 }
 
