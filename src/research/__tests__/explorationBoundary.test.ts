@@ -47,4 +47,14 @@ describe("paired research runtime boundary", () => {
     const legacyPresentation = /\/research\/(nearbyData|nearbyOverlay|NearbyResults)\.[jt]sx?$/;
     expect(reached.filter(file => legacyPresentation.test(file))).toEqual([]);
   });
+
+  it("keeps the owner-only private sidecar inside the local research stack lifecycle", () => {
+    const launcher = readFileSync(resolve("scripts/research/local-stack.mjs"), "utf8");
+    const packageJson = JSON.parse(readFileSync(resolve("package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+    expect(launcher).toContain('["run", "dev:private-research"]');
+    expect(launcher).toContain("services.privateResearch === 401");
+    expect(packageJson.scripts?.["dev:private-research"]).toContain("http://127.0.0.1:3732");
+  });
 });
