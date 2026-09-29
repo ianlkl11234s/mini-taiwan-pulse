@@ -5,7 +5,7 @@
  *   （= npx vite-node scripts/design/audit-layer-styles.ts）
  *
  * 輸出：docs/design-system/layer-style-inventory.json（排序穩定，重跑可直接 diff）。
- * 說明文件：docs/design-system-map-layers.md。
+ * 說明文件：docs/design-system/map-layers.md。
  *
  * ⚠️ 必須用 vite-node 不能用 tsx —— 相依鏈會碰到 `import.meta.env`（同 dump-layer-golden.ts）。
  * ⚠️ 本腳本只讀程式碼與 runtime 常數，不讀 .env、不連網、不改 src/。不要在這裡印出任何 env。
@@ -903,7 +903,7 @@ const ironSummary = {
 const output = {
   meta: {
     generatedBy: "scripts/design/audit-layer-styles.ts（npm run design:audit-layers）",
-    doc: "docs/design-system-map-layers.md",
+    doc: "docs/design-system/map-layers.md",
     zooms: [Z_LO, Z_HI],
     notes: [
       "runtime 數值以 layerGoldenExtract.extractGolden() 求值（暗／淡 × 預設 overlayParams），已乘上滑桿預設值。",

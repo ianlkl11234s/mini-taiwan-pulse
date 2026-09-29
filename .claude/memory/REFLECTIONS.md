@@ -745,7 +745,7 @@ inline 值收斂到 token，merged 進 master。
 
 - 若要再做大型 token / 樣式收斂，**先讀 PB-19** — 6 phase 結構、subagent prompt
   精準度、codex fallback、user 拍板節點都已固化
-- 若要抽新 token（DS-1~7 之一），參考 docs/design-system.md §1 SSOT 結構與
+- 若要抽新 token（DS-1~7 之一），參考 docs/design-system/spec.md §1 SSOT 結構與
   §7 KEEP OUT。改 designTokens.ts 前確認沒違反「單向 import」避免 circular dep
 - 若用戶問「該不該抽 X 元件」，先回 PRINCIPLES「不抽通用元件庫」+ 視同 G009/008
   巨型檔案拆分一起看，不要單獨抽

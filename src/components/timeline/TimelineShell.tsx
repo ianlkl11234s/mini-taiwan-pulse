@@ -26,7 +26,7 @@ interface Props {
 }
 
 /**
- * TC3 時間軸外殼（docs/design-system.md §5.24）：收合膠囊 ↔ 展開單列卡片。
+ * TC3 時間軸外殼（docs/design-system/spec.md §5.24）：收合膠囊 ↔ 展開單列卡片。
  * 底邊固定在 LAYOUT.mapBottomInset（與右下停靠區同一常數），展開時往上／往右長。
  * 手機固定展開（沒有 hover；外層 App 的時間軸條負責底色）。
  */

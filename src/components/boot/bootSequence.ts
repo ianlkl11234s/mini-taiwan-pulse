@@ -1,5 +1,5 @@
 /**
- * 開站畫面（W2 城市脈動＋M2 機關展開）的時間與版面規格。規格見 docs/design-system.md §5.33。
+ * 開站畫面（W2 城市脈動＋M2 機關展開）的時間與版面規格。規格見 docs/design-system/spec.md §5.33。
  *
  * 流程：loading（地圖未就緒）→ done（顯示「✓ 完成」停 doneHoldMs）→ leaving（遮罩淡出 fadeMs，
  * 同時 <html data-boot="enter"> 讓側欄／工具列／時間軸／標題從邊界彈入）→ 過 enterMs 後移除 data-boot。

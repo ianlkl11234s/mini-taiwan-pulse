@@ -1297,6 +1297,8 @@ export default defineConfig({
         embed: resolve(process.cwd(), "embed.html"),
         // 4b 分析卡分享頁（MapLibre，不載入 mapbox-gl／lib/supabase；nginx `location ^~ /card/`）
         card: resolve(process.cwd(), "card.html"),
+        // 活的設計系統參考頁（渲染真元件、讀真 token；不載入 mapbox-gl／lib/supabase）
+        "design-system": resolve(process.cwd(), "design-system.html"),
         // GFW / AIS 查詢範圍框選工具（獨立 Mapbox entry，不載入主站 overlays）
         bbox: resolve(process.cwd(), "bbox.html"),
         // Isolated metadata-only layer relevance replay; does not mount the main map.

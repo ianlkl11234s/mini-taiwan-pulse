@@ -994,7 +994,7 @@ control 的互動態 background，不是 panel 背景」，列出 IconRailSideba
 LayerSidebar:368/439/476/514、IntelFilters:128/147/176 共 10 處。
 
 **處理**：全數還原回原 hardcoded 值，加 `IconRailSidebar` 的 SURFACE import 變 orphan
-就刪掉。design-system.md §7 KEEP OUT 加一條「SURFACE 只給 panel 容器底；button/select
+就刪掉。design-system/spec.md §7 KEEP OUT 加一條「SURFACE 只給 panel 容器底；button/select
 等互動態背景不用 SURFACE，即使數值相同」。
 
 **PRINCIPLES**：semantic ≠ value，token spec 必須明確界定**語意邊界**而不只是「值對映」。

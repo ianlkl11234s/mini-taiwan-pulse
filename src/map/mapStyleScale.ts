@@ -1,5 +1,5 @@
 /**
- * 地圖圖層視覺數值的單一來源（docs/design-system-map-layers.md §3，2026-09-28 拍板）。
+ * 地圖圖層視覺數值的單一來源（docs/design-system/map-layers.md §3，2026-09-28 拍板）。
  *
  * 各圖層的 paint 只引用這裡的常數或 helper，不再散寫數字。
  * 拍板代號寫在註解；改值前先改規格檔 §3／§7。

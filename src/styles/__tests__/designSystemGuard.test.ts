@@ -1,5 +1,5 @@
 /**
- * Design system guard（ratchet）— 規範見 docs/design-system.md §9。
+ * Design system guard（ratchet）— 規範見 docs/design-system/spec.md §9。
  *
  * 失敗代表：某檔案某條規則的違規數比基準多，或新檔案出現違規。修程式碼，不要改基準。
  * 違規數變少時只提示，可執行 `npm run design:baseline` 把基準降下來。
@@ -131,7 +131,7 @@ describe("design system guard — ratchet 比對", () => {
     expect(increases.map((d) => `${d.file}:${d.baseline}->${d.current}`).sort()).toEqual(["a.tsx:2->3", "c.tsx:0->1"]);
     expect(decreases.map((d) => `${d.file}:${d.baseline}->${d.current}`)).toEqual(["b.tsx:1->0"]);
     expect(ratchetDown(cur, base)["web-font"]).toEqual({ "a.tsx": 2 });
-    expect(formatIncrease(increases[0]!)).toContain("docs/design-system.md §4.1");
+    expect(formatIncrease(increases[0]!)).toContain("docs/design-system/spec.md §4.1");
   });
 });
 
