@@ -35213,7 +35213,18 @@
               ],
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "*",
+                0.8,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
               "circle-stroke-width": 1
             },
             "light": {
@@ -35243,7 +35254,18 @@
               ],
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
               "circle-stroke-width": 1
             }
           },
@@ -35368,7 +35390,18 @@
               ],
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "*",
+                0.8,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
               "circle-stroke-width": 1
             },
             "light": {
@@ -35398,7 +35431,18 @@
               ],
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
               "circle-stroke-width": 1
             }
           },
@@ -36534,7 +36578,18 @@
                 "#9ca3af",
                 "#3B82F6"
               ],
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "*",
+                0.8,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
               "circle-stroke-width": [
                 "match",
                 [
@@ -36588,7 +36643,18 @@
                 "#4b5563",
                 "#ffffff"
               ],
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
               "circle-stroke-width": [
                 "match",
                 [
