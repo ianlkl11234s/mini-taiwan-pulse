@@ -6,6 +6,13 @@
 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)
 （GIS 工作區 `.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md`）。
 
+## 文件索引（接手先讀順序）
+
+1. [`PLAN-warehouse-20260926.md`](./PLAN-warehouse-20260926.md) — 現況摘要 + 架構全貌（先讀「現況」小節）
+2. [`PLAN-round3-20260927.md`](./PLAN-round3-20260927.md) — 詳細進度表 + 下一步建議
+3. [`question-bank-backlog-20260927.md`](./question-bank-backlog-20260927.md) — 問題庫題綱與分類
+4. [UI 一致性盤點 handoff](../ui-consistency-audit-20260927/handoff.md) — 獨立分案，視覺化函式庫的前置依賴
+
 新圖層：有 manifest 並能自動入分析倉庫即為 L2 可分析。
 
 2026-09-22～26「逐家族（per-family）reader」時期的規劃、驗收、盤點文件已封存於

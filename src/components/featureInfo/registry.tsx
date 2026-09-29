@@ -2,6 +2,7 @@ import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } fro
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
 import { AllenCoralAtlasPanel } from "./AllenCoralAtlasPanel";
+import { AnalysisResultPanel } from "./analysisResultPanels";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
 // 新增 layer 的 popup 接線只要：寫 panel 元件（放對應 domain 檔）→ 此處
@@ -486,6 +487,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   soundCameraLocations: SoundCameraLocationsPanel,
   // AI 助手標記點
   chatHighlight: ChatHighlightPanel,
+  // 與 Agent 協作：暫時分析結果
+  analysisResult: AnalysisResultPanel,
   // 🐷 畜牧
   livestockFarm: LivestockFarmPanel,
   livestockSlaughter: LivestockSlaughterPanel,
@@ -946,4 +949,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   soundCameraLocations: "聲音照相設備／路段",
   // AI 助手標記點
   chatHighlight: "地圖標記",
+  // 與 Agent 協作：暫時分析結果
+  analysisResult: "分析結果",
 };

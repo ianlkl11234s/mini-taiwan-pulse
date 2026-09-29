@@ -1,6 +1,6 @@
 import { FONT_SIZE } from "../../styles/designTokens";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../../data/networkStructuresTypes";
-import { Row } from "./shared";
+import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 
 const isMissing = (value: unknown) => value == null || value === "" || value === "null";
@@ -46,10 +46,6 @@ function listItem(value: unknown): string {
 function jsonList(value: unknown) {
   if (typeof value !== "string") return listItem(value);
   try { return listItem(JSON.parse(value)); } catch { return value; }
-}
-
-function Title({ color, children }: { color: string; children: string }) {
-  return <div style={{ color, fontSize: FONT_SIZE.lg, fontWeight: 700, marginBottom: 6 }}>{children}</div>;
 }
 
 function SourceRows({ props }: { props: Record<string, unknown> }) {

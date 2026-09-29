@@ -1,6 +1,7 @@
 import { useEffect, useSyncExternalStore, type CSSProperties } from 'react';
 import { getAgriRecipe, agriReleaseOptions, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriStatisticsRecipes';
 import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from '../../data/socialStatisticsRecipes';
+import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatisticsPresentationView, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from '../../data/laborStatisticsRecipes';
 import { getComparisonRecipe, comparisonReleaseOptions } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -10,7 +11,8 @@ import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsLayerKey, type StatisticsRenderKey, type StatisticsReleaseOption } from '../../data/regionalStatisticsRecipes';
 import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
-import { FONT_SIZE, COLORS, RADIUS, SPACING } from '../../styles/designTokens';
+import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
+import { LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
@@ -64,6 +66,11 @@ const DIMENSION_LABELS: Record<string, string> = {
   registration_scope: '登錄範圍',
   denominator: '分母',
   denominator_roc_year: '分母年度',
+  employee_scope: '受僱範圍',
+  income_measure: '所得指標',
+  industry: '行業',
+  period: '期別',
+  survey: '調查',
 };
 const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   sector: { residential: '住宅' },
@@ -81,7 +88,12 @@ const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   institution_classification: { general_nursing_home: '一般護理之家', postpartum_nursing_home: '產後護理之家' },
   bed_measure: { installed_capacity: '設置／開放容量' },
   registration_scope: { long_term_care_2_0_excludes_c_sites: '長照 2.0（不含 C 據點）' },
-  denominator: { year_end_population: '年底人口' },
+  denominator: { year_end_population: '年底人口', filing_household: '申報戶' },
+  employee_scope: { national_full_time: '本國籍全時受僱員工' },
+  income_measure: { comprehensive_income_median: '綜合所得中位數' },
+  industry: { agriculture: '農林漁牧業', industry: '工業', manufacturing: '製造業（工業子集）', services: '服務業' },
+  period: { H1: '上半年' },
+  survey: { manpower: '人力資源調查' },
 };
 
 function statisticsDimensionLabel(key: string): string {
@@ -126,7 +138,19 @@ export function statisticsDimensionSummary(dimensions: Record<string, unknown> |
 export function statisticsRecipe(key: StatisticsRenderKey, selectedIndicator?: string): StatisticsRecipe {
   const recipe = statisticsRenderRecipe(key, selectedIndicator);
   const fallback = statisticsReleaseFallback(key);
-  return { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}), label: recipe.label };
+  return {
+    layerKey: key,
+    datasetId: recipe.dataset_id,
+    indicatorId: recipe.indicator_id,
+    level: recipe.level,
+    dimensions: recipe.dimensions,
+    ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}),
+    ...(fallback ? { releaseFallback: fallback } : {}),
+    ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}),
+    ...('sourceLayerKey' in recipe ? { sourceLayerKey: recipe.sourceLayerKey } : {}),
+    ...('valueTransform' in recipe ? { valueTransform: recipe.valueTransform } : {}),
+    label: recipe.label,
+  };
 }
 
 /** A selector is allowed to expose only public releases that resolve to an exact dimensions tuple. */
@@ -137,6 +161,7 @@ export function statisticsReleaseOptions(key: StatisticsRenderKey, releases: Sta
   if (getComparisonRecipe(baseKey)) return restrictToViewStage(comparisonReleaseOptions(baseKey, releases));
   if (getAgriRecipe(baseKey)) return restrictToViewStage(agriReleaseOptions(baseKey, releases));
   if (getSocialRecipe(baseKey)) return restrictToViewStage(socialReleaseOptions(baseKey, releases));
+  if (getLaborRecipe(baseKey)) return restrictToViewStage(laborReleaseOptions(baseKey, releases));
   const recipe = STATISTICS_RECIPES[baseKey];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return [];
   return restrictToViewStage(releases.flatMap(release => {
@@ -165,6 +190,10 @@ export function unparseableStatisticsReleaseCount(key: StatisticsRenderKey, rele
     const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
     return compatible.filter(release => !allowed.has(release.release_id)).length;
   }
+  if (getLaborRecipe(baseKey)) {
+    const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
+    return compatible.filter(release => !allowed.has(release.release_id)).length;
+  }
   const recipe = STATISTICS_RECIPES[baseKey];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return 0;
   return compatible.filter(release => !recipe.releaseSelector.resolve(release)).length;
@@ -180,14 +209,12 @@ export function statisticsValueLabel(value: unknown, unit: string): string {
   return typeof value === 'number' && Number.isFinite(value) ? `${value.toLocaleString()}${unit ? ` ${unit}` : ''}` : '未提供';
 }
 
-/** Let statistics controls inherit the light or dark sidebar palette. */
-export function statisticsDetailControlStyle(textColor: string, colorScheme: 'light' | 'dark'): CSSProperties {
-  return {
-    boxSizing: 'border-box', width: '100%', minWidth: 0, maxWidth: '100%',
-    background: 'transparent', color: textColor, border: '1px solid currentColor', colorScheme,
-    borderRadius: RADIUS.md, padding: '3px 24px 3px 6px', font: 'inherit',
-    lineHeight: 1.35, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
-  };
+/**
+ * 外觀交給共用的 `.lpc-select`（layerParamControls.css，展開區容器帶主題 class）；
+ * 這裡只補原生下拉清單要跟著的 color-scheme。
+ */
+export function statisticsDetailControlStyle(colorScheme: 'light' | 'dark'): CSSProperties {
+  return { colorScheme };
 }
 
 /** Mirrors the Mapbox `step` expression: one numeric colour per interval. */
@@ -231,6 +258,9 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
   const view = getEducationPresentationView(layerKey);
   const agri = getAgriRecipe(activeBaseKey);
   const social = getSocialRecipe(activeBaseKey);
+  const labor = getLaborRecipe(activeBaseKey);
+  const laborView = getLaborStatisticsPresentationView(layerKey);
+  const selectedLaborMetric = getLaborStatisticsPresentationMetric(layerKey, state.selection?.indicatorId);
   const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease, recipe.dataset_id);
   const healthUnit = state.health?.currency ?? recipe.unit;
   const coverageStatusLabel = statisticsCoverageStatusLabel(Boolean(agri));
@@ -243,20 +273,22 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
     // dimension selects a real tuple and explicitly updates dependent controls.
     const keys = Object.keys(selectorDimensions ?? {});
     const prefix = Object.fromEntries(keys.slice(0, keys.indexOf(changedKey) + 1).map(key => [key, dimensions[key]]));
-    const option = (agri || social) ? selectable.find(candidate => Object.entries(prefix).every(([key, value]) => candidate.dimensions[key] === value)) : selectable.find(candidate => Object.entries(dimensions).every(([key, value]) => candidate.dimensions[key] === value))
+    const option = (agri || social || labor) ? selectable.find(candidate => Object.entries(prefix).every(([key, value]) => candidate.dimensions[key] === value)) : selectable.find(candidate => Object.entries(dimensions).every(([key, value]) => candidate.dimensions[key] === value))
       ?? selectable.find(candidate => candidate.dimensions.roc_year === dimensions.roc_year)
       ?? selectable[0];
     if (!option) return;
     const release = state.releases.find(candidate => candidate.release_id === option.releaseId);
-    const resolved = social && release ? resolveSocialRelease(activeBaseKey, release, option.dimensions) : option;
+    const resolved = social && release ? resolveSocialRelease(activeBaseKey, release, option.dimensions)
+      : labor && release ? resolveLaborRelease(activeBaseKey, release, option.dimensions)
+        : option;
     if (!resolved) return;
     regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, state.selection?.indicatorId), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
   };
-  const control = statisticsDetailControlStyle(textColor, colorScheme);
+  const control = statisticsDetailControlStyle(colorScheme);
   const filterLabel: CSSProperties = {
     display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', alignItems: 'center',
-    gap: SPACING.xs, minWidth: 0, color: textColor, lineHeight: 1.35,
+    gap: SPACING.xs, minWidth: 0, lineHeight: 1.35,
   };
   const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
   const hasFilterControls = Boolean(selectorDimensions) || state.releases.length > 0;
@@ -265,14 +297,15 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
     const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions![filterKey]!])) as Partial<Record<string, string>>;
     return selectorValues(key, filters).length > 1;
   });
-  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
-    <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid currentColor;outline-offset:2px}`}</style>
+  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
+    <style>{`.statistics-details summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}.statistics-details label.statistics-filter-label{font:10px/1.35 var(--font-cjk);color:var(--lpc-muted,currentColor)}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
-    {state.error && <div role="alert">{state.error}<button type="button" style={control} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
+    {state.error && <div role="alert">{state.error}<button type="button" className="lpc-btn" style={{ marginLeft: SPACING.xs }} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
     {agri && import.meta.env.DEV && import.meta.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>本地 Preview · 真實交付資料 · 尚未發布至正式 API</p>}
+    {labor && import.meta.env.DEV && import.meta.env.VITE_LABOR_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>勞動與所得本地 Preview · 已驗證 incremental snapshot · 尚未發布至正式 CDN</p>}
     {view && import.meta.env.DEV && <a href="/statistics-accessibility-review.html" target="_blank" rel="noreferrer">教育路網可達性：開啟本地試算</a>}
-    {view && <label style={filterLabel}>指標
-      <select className="statistics-detail-control" aria-label={`${view.label} 指標`} style={control} value={activeBaseKey} onChange={event => {
+    {view && <label className="statistics-filter-label" style={filterLabel}>指標
+      <select className="statistics-detail-control lpc-select" aria-label={`${view.label} 指標`} style={control} value={activeBaseKey} onChange={event => {
         const nextBaseKey = event.target.value as StatisticsLayerKey;
         const options = (getSocialRecipe(nextBaseKey) ?? getComparisonRecipe(nextBaseKey))?.release_options.filter(option => option.dimensions.education_stage === view.stage) ?? [];
         const option = options.find(candidate => candidate.period_start === selectedRelease?.period_start && candidate.period_end === selectedRelease?.period_end);
@@ -285,6 +318,15 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         return <option key={metric.layerKey} value={metric.layerKey} disabled={!enabled}>{metric.label}{enabled ? '' : '（此學年未提供）'}</option>;
       })}</select>
     </label>}
+    {laborView && selectedLaborMetric && <label className="statistics-filter-label" style={filterLabel}>顯示
+      <select className="statistics-detail-control lpc-select" aria-label={`${laborView.label} 顯示方式`} style={control} value={selectedLaborMetric.sourceLayerKey} onChange={event => {
+        const metric = laborView.metrics.find(candidate => candidate.sourceLayerKey === event.target.value);
+        const sourceRecipe = metric ? getLaborRecipe(metric.sourceLayerKey) : undefined;
+        if (!metric || !sourceRecipe) return;
+        regionalStatisticsStore.setSelection(layerKey, statisticsRecipe(layerKey, sourceRecipe.indicator_id));
+        void regionalStatisticsStore.load(layerKey);
+      }}>{laborView.metrics.map(metric => <option key={metric.sourceLayerKey} value={metric.sourceLayerKey}>{metric.optionLabel}</option>)}</select>
+    </label>}
     {hasFilterControls && <details>
       <summary aria-label={`${recipe.label} 資料篩選：${selectionSummary || '選擇資料期別'}`} style={{ cursor: 'pointer', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         資料篩選{selectionSummary && <span title={selectionSummary}>：{selectionSummary}</span>}
@@ -293,34 +335,41 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         {selectorDimensions && selectableDimensionKeys.map((key, index) => {
           const value = selectorDimensions[key]!;
           const filters = Object.fromEntries(selectorDimensionKeys.slice(0, selectorDimensionKeys.indexOf(key)).map(filterKey => [filterKey, selectorDimensions[filterKey]!])) as Partial<Record<string, string>>;
-          return <label key={key} style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
+          return <label key={key} className="statistics-filter-label" style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
             {statisticsDimensionLabel(key)}
-            <select className="statistics-detail-control" aria-label={`${recipe.label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value }, key)}>
+            <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value }, key)}>
               {selectorValues(key, filters).map(option => <option key={option} value={option}>{statisticsDimensionValueLabel(key, option, recipe.dataset_id)}</option>)}
             </select>
           </label>;
         })}
-        {state.releases.length > 0 && !selectorDimensions && <label style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control" aria-label={`${recipe.label} 資料期別`} style={control} value={String(selected)} onChange={event => {
+        {state.releases.length > 0 && !selectorDimensions && <label className="statistics-filter-label" style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} 資料期別`} style={control} value={String(selected)} onChange={event => {
           regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value, allowReleaseFallback: false });
           void regionalStatisticsStore.load(layerKey);
         }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
       </div>
     </details>}
-    {agri && <p style={factStyle}>{agri.disclosure ?? agri.boundary_semantics}</p>}
-    {agri?.source_statistical_boundary_version && <p style={factStyle}>統計參考版：{agri.source_statistical_boundary_version}；實際圖形：{agri.boundary_version}</p>}
-    {social?.disclosure && <p style={factStyle}>{social.disclosure}</p>}
-    {social && <p style={factStyle}>參考邊界：{social.boundary_version}；{social.boundary_semantics ?? '以交付資料的參考邊界呈現。'}</p>}
-    <p style={factStyle}>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</p>
-    {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</p>}
-    {state.health?.availability && <p style={factStyle} role="status">資料可用狀態：{state.health.availability}</p>}
-    {state.health?.reason && <p style={factStyle}>資料限制：{state.health.reason}</p>}
-    {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length}／{state.data.features.length} 個{statisticsSelectedTupleAreaLabel(recipe)}；灰色區域為缺資料，不等於 0</p>}
-    {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <p style={factStyle}>人均指標的分母為全體戶籍人口，並非學齡人口；學年度統計與人口統計之間存在時間差。</p>}
-    {'interpretationNote' in recipe && <p style={factStyle}>{String(recipe.interpretationNote)}</p>}
-    {agri && state.data && <p style={factStyle}>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</p>}
-    {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇，請查看來源紀錄。</p>}
-    {state.health?.coverage_status && <p style={factStyle} role="status">{coverageStatusLabel}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
+    {labor && <p style={factStyle}><strong>位置口徑：</strong>{laborLocationSemantics(labor)}</p>}
     <details><summary>來源與處理紀錄</summary>
+      <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
+        {agri && <span>{agri.disclosure ?? agri.boundary_semantics}</span>}
+        {agri?.source_statistical_boundary_version && <span>統計參考版：{agri.source_statistical_boundary_version}；實際圖形：{agri.boundary_version}</span>}
+        {social?.disclosure && <span>{social.disclosure}</span>}
+        {social && <span>參考邊界：{social.boundary_version}；{social.boundary_semantics ?? '以交付資料的參考邊界呈現。'}</span>}
+        {labor && <span>顯示參考邊界：{labor.boundary_version}；{labor.boundary_semantics}</span>}
+        {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>製造業是工業的子集；不得與工業加總。</span>}
+        {selectedLaborMetric?.formula && <span>衍生方式：{selectedLaborMetric.formula}</span>}
+        <span>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</span>
+        {'freshness' in recipe && <span>資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
+        {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
+        {state.health?.reason && <span>資料限制：{state.health.reason}</span>}
+        {state.data && <span>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length}／{state.data.features.length} 個{statisticsSelectedTupleAreaLabel(recipe)}；灰色區域為缺資料，不等於 0</span>}
+        {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <span>人均指標的分母為全體戶籍人口，並非學齡人口；學年度統計與人口統計之間存在時間差。</span>}
+        {'interpretationNote' in recipe && <span>{String(recipe.interpretationNote)}</span>}
+        {agri && state.data && <span>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</span>}
+        {labor && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；來源未涵蓋 source_not_covered：{state.data.features.filter(f => f.properties?.missing_reason === 'source_not_covered').length}；來源 join／時間不匹配 source_join_or_time_mismatch：{state.data.features.filter(f => f.properties?.missing_reason === 'source_join_or_time_mismatch').length}。三者不互相替代。</span>}
+        {unparseableCount > 0 && <span role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇。</span>}
+        {state.health?.coverage_status && <span>{coverageStatusLabel}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</span>}
+      </div>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         <span>提供機關：{String(source.publisher ?? '未提供')}</span>
         <span>發布時間：{source.published_at ? String(source.published_at) : '來源未提供'}</span>
@@ -348,17 +397,21 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const recipe = statisticsRenderRecipe(layerKey, state.selection?.indicatorId);
   const agri = getAgriRecipe(baseKey);
   const social = getSocialRecipe(baseKey);
-  return <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, display: 'grid', gap: 4 }}>
-    <strong>{recipe.label}</strong>
+  const labor = getLaborRecipe(baseKey);
+  const t = useLegendTheme();
+  // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
+  return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
+    <LegendTitle zh={recipe.label} style={{ marginBottom: 0 }} />
     <span>{state.release ? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
     {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
     {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
     {state.health?.coverage_status && <span>{statisticsCoverageStatusLabel(Boolean(agri))}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     <span>{recipe.breaks.some(value => value < 0) ? '棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞' : '淺 → 深：數值低 → 高；請依本指標的數字區間比較'}</span>
-    {statisticsLegendRows(recipe, social?.format).map(({ color, label }) => <div key={`${color}:${label}`} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ background: color, width: 14, height: 8 }} />{label}</div>)}
-    <span>{social ? '灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階' : '灰色：缺資料／未發布數值'}</span>
-    {agri && <><span><i style={{ display: 'inline-block', width: 16, height: 12, marginRight: 6, background: `repeating-linear-gradient(135deg, #334155 0 2px, ${agri.legend.missing_color} 2px 6px)` }} />斜線：遮蔽 suppressed（*）</span><span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span></>}
-    {social && <span><i style={{ display: 'inline-block', width: 16, height: 12, marginRight: 6, background: `repeating-linear-gradient(135deg, #334155 0 2px, ${social.legend.missing_color} 2px 6px)` }} />斜線：遮蔽 suppressed（*）</span>}
+    {statisticsLegendRows(recipe, social?.format ?? labor?.format).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
+    <LegendRow swatch={<SwatchHatch kind="missing" />}>{social || labor ? '斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階' : '斜線：缺資料／未發布數值'}</LegendRow>
+    {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>交叉斜線：遮蔽 suppressed（*）</LegendRow>}
+    {agri && <span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span>}
+    {labor && <><span>位置口徑：{laborLocationSemantics(labor)}</span><span>資料期與顯示邊界 {labor.boundary_version} 分開揭露</span></>}
   </div>;
 }

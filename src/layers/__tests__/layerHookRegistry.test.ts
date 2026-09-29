@@ -54,6 +54,7 @@ import { describe, it, expect } from "vitest";
 import { MANIFEST_KEYS } from "../../data/layerManifest";
 import { LAYER_HOOK_REGISTRY } from "../layerHookRegistry";
 import { AGRI_ENABLED_STATISTICS_KEYS } from "../../data/agriStatisticsRecipes";
+import { LABOR_ENABLED_STATISTICS_KEYS } from "../../data/laborStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 
@@ -111,6 +112,9 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   "statsAutomobileLicenseHoldersCount", "statsMotorcycleLicenseHoldersCount",
   // MapView.attachRegionalStatistics handles all agri recipes as the same dynamic runtime family.
   ...AGRI_ENABLED_STATISTICS_KEYS,
+  // Labor-statistics recipes use the same MapView lifecycle adapter. They are
+  // dataset-scoped in the loader, but do not require one React hook per key.
+  ...LABOR_ENABLED_STATISTICS_KEYS,
 ]);
 
 // ══════════════════════════════════════════════════════════════════

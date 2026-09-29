@@ -79,6 +79,18 @@ describe("useJpMedicalLayers lifecycle", () => {
     expect(view.sources.size).toBe(0);
   });
 
+  it("does not throw when cleanup runs after the map was destroyed", async () => {
+    const view = mapAt(4); const ref = { current: view.map } as RefObject<MapboxMap | null>;
+    runtime = { ...runtime, revision: 4 };
+    harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
+    await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
+    expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(true);
+    // map.remove() 之後 mapbox 的 getLayer/getSource 會因 this.style 為 undefined 而拋錯
+    const destroyed = () => { throw new TypeError("Cannot read properties of undefined (reading 'getOwnLayer')"); };
+    Object.assign(view.map, { getLayer: destroyed, getSource: destroyed });
+    expect(() => harness.cleanup()).not.toThrow();
+  });
+
   it("switches to complete categorized points at zoom 8 and above", async () => {
     const view = mapAt(9); const ref = { current: view.map } as RefObject<MapboxMap | null>;
     runtime = { ...runtime, revision: 4 };

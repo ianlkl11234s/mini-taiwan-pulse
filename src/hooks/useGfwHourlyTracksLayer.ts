@@ -21,6 +21,8 @@ import {
 import { showTransientNotice } from "../components/TransientNotice";
 import { gfwFreshness } from "../data/gfwFreshness";
 import { setGfwHourlyTracksDetailContext } from "../data/gfwHourlyDetailLoader";
+import { paramDefault } from "../data/layerParamsSpec";
+import { pointStrokePaint } from "../map/mapStyleScale";
 
 export const GFW_HOURLY_TRACKS_SOURCE_ID = "gfw-hourly-tracks-source";
 export const GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID = "gfw-hourly-tracks-endpoint-source";
@@ -31,6 +33,7 @@ export const GFW_HOURLY_TRACKS_CLICK_LAYERS = [
   GFW_HOURLY_TRACKS_LINE_LAYER_ID,
 ] as const;
 
+const OPACITY_DEFAULT = Number(paramDefault("gfwHourlyTracks", "gfwHourlyTracksOpacity"));
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
 const BUCKETS: readonly ShipTypeBucket[] = ["cargo", "tanker", "passenger", "fishing", "special"];
@@ -87,9 +90,7 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
         ],
         "circle-color": colors,
         "circle-opacity": 0.9,
-        "circle-stroke-color": "#134e4a",
-        "circle-stroke-width": 0.9,
-        "circle-stroke-opacity": 0.9,
+        ...pointStrokePaint(isDarkTheme),
       },
       layout: { visibility: "none" },
     } as CircleLayer);
@@ -312,7 +313,10 @@ export function useGfwHourlyTracksLayer(
         const clamped = Math.max(0, Math.min(1, opacity));
         map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-opacity", clamped * 0.45);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-opacity", clamped);
-        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-opacity", clamped);
+        const stroke = pointStrokePaint(isDarkTheme, clamped / OPACITY_DEFAULT);
+        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
         const colors = colorExpression(isDarkTheme);
         map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-color", colors);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-color", colors);

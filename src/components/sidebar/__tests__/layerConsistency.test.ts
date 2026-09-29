@@ -440,17 +440,21 @@ describe("鐵則 4：select 控件渲染閾值", () => {
    * 桌機看到 dropdown、手機看到撐爆的 button row。
    */
   it("IconRailSidebar 與 LayerSidebar 用同一個閾值", () => {
+    // Phase I 起兩個 sidebar 共用 `ParamControlList`（sidebar/LayerParamControls.tsx），
+    // 閾值只寫在共用元件一處；兩個 sidebar 都必須走它，不能各自再渲染一份。
     const THRESHOLD = "ctrl.options.length > 3";
+    expect(
+      readFileSync("src/components/sidebar/LayerParamControls.tsx", "utf8").includes(THRESHOLD),
+      `共用控制項元件找不到 \`${THRESHOLD}\` —— 渲染邏輯改了形狀（請同步更新本測試）。` +
+      `§4a 規則 4：≥ 4 個 option 必用原生 <select>，中文標籤的 button row 一定撐爆 240px 窄欄。`,
+    ).toBe(true);
     for (const file of [
       "src/components/IconRailSidebar.tsx",
       "src/components/LayerSidebar.tsx",
     ]) {
-      expect(
-        readFileSync(file, "utf8").includes(THRESHOLD),
-        `${file} 找不到 \`${THRESHOLD}\` —— 兩個 sidebar 的 select 閾值分岔了，` +
-        `或渲染邏輯改了形狀（請同步更新本測試）。§4a 規則 4：≥ 4 個 option 必用原生 <select>，` +
-        `中文標籤的 button row 一定撐爆 240px 窄欄。`,
-      ).toBe(true);
+      const source = readFileSync(file, "utf8");
+      expect(source.includes("<ParamControlList controls={controls} />"), `${file} 沒有走共用的 ParamControlList`).toBe(true);
+      expect(source.includes("ctrl.options.length"), `${file} 又自己渲染了一份 select —— 閾值會分岔`).toBe(false);
     }
   });
 });

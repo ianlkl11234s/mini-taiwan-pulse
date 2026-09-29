@@ -2,6 +2,7 @@ import { getAgriRecipe } from "./agriStatisticsRecipes";
 import { getComparisonRecipe, STATISTICS_COMPARISONS_UI_ENABLED } from "./comparisonStatisticsRecipes";
 import { isStatisticsLayer, STATISTICS_RECIPES, statisticsBaseKey } from "./regionalStatisticsRecipes";
 import { getSocialRecipe } from "./socialStatisticsRecipes";
+import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
 export type StatisticsSourceKind = "source" | "derived" | "presentation";
@@ -81,6 +82,25 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       period: periodLabel(social.release_options),
       contract: `來源家族：${social.source_family ?? "未標示"}；只接受 ${social.release_options.length} 個既有公開 exact release selector。`,
       disclosure: social.disclosure,
+    };
+  }
+
+  const labor = getLaborRecipe(key);
+  if (labor) {
+    const presentation = getLaborStatisticsPresentationView(key);
+    const derivedDisclosure = presentation
+      ? "可切換原始非勞動力人數與衍生非勞動力率；非勞動力率＝100%－同一期勞動力參與率，分母為 15 歲以上民間人口。"
+      : "";
+    return {
+      kind: presentation ? "presentation" : "source",
+      datasetIds: [labor.dataset_id],
+      label: "原始勞動與所得統計快照",
+      metricLabel: labor.label,
+      unit: labor.unit,
+      level: labor.level,
+      period: periodLabel(labor.release_options),
+      contract: `只接受已驗證 exact release selector；資料期與顯示邊界版本分開揭露。${presentation ? " 衍生比例沿用已登錄的 participation_rate selector，不新增來源 release。" : ""}`,
+      disclosure: `${laborLocationSemantics(labor)} ${derivedDisclosure} ${labor.disclosure}`.trim(),
     };
   }
 

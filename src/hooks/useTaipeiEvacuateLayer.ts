@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, ExpressionSpecification } from "mapbox-gl";
 import { fetchTaipeiEvacuateLatest, type EvacuateLatestRow } from "../data/wicTaipeiLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 /**
  * 北市疏散門 latest layer
@@ -31,18 +33,9 @@ function stateColorExpression(): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
-function dotRadiusExpression(scale: number): ExpressionSpecification {
-  return [
-    "interpolate",
-    ["linear"],
-    ["zoom"],
-    8, 4 * scale,
-    12, 7 * scale,
-    16, 12 * scale,
-  ] as unknown as ExpressionSpecification;
-}
+const OPACITY_DEFAULT = Number(paramDefault("taipeiEvacuate", "taipeiEvacuateOpacity"));
 
-function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
+function ensureLayers(map: MapboxMap, scale: number, opacity: number, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   }
@@ -52,16 +45,21 @@ function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": dotRadiusExpression(scale),
+        "circle-radius": pointRadius("M", scale),
         "circle-color": stateColorExpression(),
         "circle-opacity": opacity,
-        "circle-stroke-width": 1.2,
-        "circle-stroke-color": "#ffffff",
+        ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
       },
     });
   } else {
-    map.setPaintProperty(LAYER_DOT, "circle-radius", dotRadiusExpression(scale));
+    map.setPaintProperty(LAYER_DOT, "circle-radius", pointRadius("M", scale));
     map.setPaintProperty(LAYER_DOT, "circle-opacity", opacity);
+    {
+      const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+      map.setPaintProperty(LAYER_DOT, "circle-stroke-color", stroke["circle-stroke-color"]);
+      map.setPaintProperty(LAYER_DOT, "circle-stroke-width", stroke["circle-stroke-width"]);
+      map.setPaintProperty(LAYER_DOT, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+    }
   }
 }
 
@@ -105,11 +103,15 @@ export function useTaipeiEvacuateLayer(
   visible: boolean,
   scale: number,
   opacity: number,
+  isDark: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const dataRef = useRef<EvacuateLatestRow[]>([]);
+  // 樣式值走 ref：拖透明度／切主題只更新 paint，不重建抓資料的 effect 與輪詢
+  const styleRef = useRef({ scale, opacity, isDark });
+  styleRef.current = { scale, opacity, isDark };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -117,7 +119,8 @@ export function useTaipeiEvacuateLayer(
     let cancelled = false;
 
     const apply = () => {
-      try { ensureLayers(map, scale, opacity); } catch { return; }
+      const st = styleRef.current;
+      try { ensureLayers(map, st.scale, st.opacity, st.isDark); } catch { return; }
       setData(map, dataRef.current);
       setVisible(map, visible);
     };
@@ -140,5 +143,11 @@ export function useTaipeiEvacuateLayer(
       return () => { cancelled = true; window.clearInterval(t); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, scale, opacity, mapTick]);
+  }, [mapRef, visible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getLayer(LAYER_DOT)) return;
+    try { ensureLayers(map, scale, opacity, isDark); } catch { /* style 未就緒 */ }
+  }, [mapRef, scale, opacity, isDark, mapTick]);
 }

@@ -15,7 +15,9 @@ import {
   type GfwTrackMetadata,
   type GfwTrackProperties,
 } from "./gfwTrackContract";
+import { Slider } from "../components/controls/Slider";
 import "./bboxSelector.css";
+import { MAP_LOCAL_IDEOGRAPH_FONT } from "../map/mapStyleScale";
 
 const SELECTION_SOURCE = "bbox-selector-source";
 const SELECTION_FILL = "bbox-selector-fill";
@@ -162,6 +164,7 @@ export function BboxSelectorApp() {
       zoom: 5.4,
       pitch: 0,
       bearing: 0,
+      localIdeographFontFamily: MAP_LOCAL_IDEOGRAPH_FONT,
       attributionControl: true,
     });
     mapRef.current = map;
@@ -519,14 +522,18 @@ export function BboxSelectorApp() {
 
         <label className="bbox-track-opacity">
           <span>不透明度</span>
-          <input
-            type="range"
-            min="0.15"
-            max="1"
-            step="0.05"
+          <Slider
+            min={0.15}
+            max={1}
+            step={0.05}
             value={trackOpacity}
-            onChange={(event) => setTrackOpacity(Number(event.currentTarget.value))}
+            onChange={setTrackOpacity}
             disabled={!tracksVisible}
+            ariaLabel="GFW 航跡不透明度"
+            trackColor="var(--bbox-line)"
+            fillColor="#5fe0d0"
+            thumbColor="#5fe0d0"
+            accentColor="#5fe0d0"
           />
           <output>{Math.round(trackOpacity * 100)}%</output>
         </label>

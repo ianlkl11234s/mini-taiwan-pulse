@@ -1,0 +1,101 @@
+{
+  "$comment": "Pulse 視覺化共用規格（SSOT 在 mcp；mini 保存位元組相同的副本 src/research/contracts/viz-spec.json）。定案來源：mini docs/features/viz-library/DECISIONS.md。改這個檔一定要兩邊同步並重跑契約測試。",
+  "version": 1,
+  "surfaces": { "dark": "#1b1f27", "light": "#e7eaee" },
+  "ring": { "dark": "#0a0a14", "light": "#ffffff" },
+  "categorical": {
+    "names": ["藍", "金", "洋紅", "綠", "紫", "青", "橘"],
+    "dark": ["#2e81d5", "#b38c15", "#b64d8e", "#5ba74a", "#8466c8", "#00a595", "#b75600"],
+    "light": ["#3a8ce0", "#d0a83e", "#963372", "#77c466", "#6f50b2", "#00cab9", "#b95700"],
+    "other": { "dark": "#6b7280", "light": "#9ca3af" }
+  },
+  "ramps": {
+    "viridis": {
+      "role": "magnitude",
+      "dark": ["#31688e", "#21918c", "#35b779", "#90d743", "#fde725"],
+      "light": ["#35b779", "#1f9e89", "#26828e", "#3e4989", "#440154"]
+    },
+    "magma": {
+      "role": "heat",
+      "dark": ["#9e2f7f", "#cd4071", "#f1605d", "#fd9668", "#fcfdbf"],
+      "light": ["#f1605d", "#cd4071", "#9e2f7f", "#721f81", "#3b0f70"]
+    },
+    "brand": {
+      "role": "analysis-extent",
+      "$comment": "索引 0 = 最內圈（10 分鐘，最強）",
+      "dark": ["#a5cffe", "#519cec", "#256bb1"],
+      "light": ["#004d96", "#2e7ac7", "#72a5de"]
+    },
+    "blue": {
+      "role": "overlay-fallback",
+      "dark": ["#1e65aa", "#3386d9", "#64a9f3", "#9ac8fd", "#d0e7ff"],
+      "light": ["#72a5de", "#4589d2", "#136dbf", "#00529c", "#00386e"]
+    },
+    "amber": {
+      "role": "overlay-fallback",
+      "dark": ["#a24f00", "#ce6b00", "#ec8d38", "#fdb57e", "#ffe0c8"],
+      "light": ["#e78a45", "#d06900", "#b14d00", "#8d3800", "#662800"]
+    },
+    "diverging": {
+      "role": "polarity",
+      "$comment": "低 → 中性灰 → 高；中間索引 3 為中性",
+      "dark": ["#a5cffe", "#519cec", "#256bb1", "#3c3d3f", "#a85500", "#e2832d", "#fbc093"],
+      "light": ["#00478a", "#2773c0", "#72a5de", "#cfd1d3", "#e28d4f", "#bc5600", "#803300"]
+    }
+  },
+  "nullStyle": {
+    "kind": "hatch",
+    "angle": 45,
+    "spacingPx": 6,
+    "lineWidthPx": 1.4,
+    "stroke": { "dark": "rgba(255,255,255,0.35)", "light": "rgba(0,0,0,0.35)" },
+    "label": "無資料"
+  },
+  "styles": {
+    "choropleth": { "ramp": "viridis", "classes": 5, "method": "quantile", "gapPx": 1 },
+    "heatmap": { "ramp": "magma", "radiusPx": 20, "zeroTransparent": true },
+    "compare": { "ramp": "diverging" },
+    "bivariate": { "mode": "fill-and-size", "fillRamp": "viridis", "sizeScale": "sqrt", "topN": 8, "sizeStrokePx": 1.4, "sizeStroke": { "dark": "#f3f4f6", "light": "#111827" } },
+    "proportional": { "ramp": "viridis", "sizeScale": "sqrt", "rMinPx": 4, "rMaxPx": 28, "fillOpacity": 0.75, "ringPx": 1, "labelTopN": 5, "drawOrder": "largest-first" },
+    "isochrone": { "ramp": "brand", "minutes": [10, 15, 20], "fillOpacity": 0.3 },
+    "flow": { "ramp": "viridis", "widthPx": { "min": 1, "max": 6 }, "animateBelow": 30, "dotPx": 1.8, "dotOpacity": 0.5 },
+    "grid": { "ramp": "viridis", "h3": { "resolutions": [7, 8, 9], "default": 8 }, "square": { "cellMeters": [250, 500], "default": 500 }, "gapPx": 1 },
+    "extrusion": { "ramp": "viridis", "maxHeightM": 3000 },
+    "points": { "radiusPx": { "s": 3, "m": 4.5, "l": 6.5, "selected": 8 }, "sizeThresholds": { "s": 2000, "l": 50 }, "ringPx": 1 }
+  },
+  "numberFormat": {
+    "rules": {
+      "count": "abs >= 10000 → 以「萬」為單位、1 位小數、去掉尾端 .0；否則千分位整數",
+      "density": "千分位，最多 0 位小數",
+      "ratio": "最多 2 位小數",
+      "percent": "輸入為百分比數值（12.34 表示 12.34%），1 位小數加 %",
+      "null": "無資料"
+    },
+    "vectors": [
+      { "kind": "count", "value": 0, "expected": "0" },
+      { "kind": "count", "value": 1284, "expected": "1,284" },
+      { "kind": "count", "value": 9999, "expected": "9,999" },
+      { "kind": "count", "value": 10000, "expected": "1 萬" },
+      { "kind": "count", "value": 12480, "expected": "1.2 萬" },
+      { "kind": "count", "value": 99999, "expected": "10 萬" },
+      { "kind": "count", "value": 2345678, "expected": "234.6 萬" },
+      { "kind": "count", "value": -15000, "expected": "-1.5 萬" },
+      { "kind": "count", "value": null, "expected": "無資料" },
+      { "kind": "density", "value": 27450, "expected": "27,450" },
+      { "kind": "density", "value": 1234.56, "expected": "1,235" },
+      { "kind": "ratio", "value": 1.4234, "expected": "1.42" },
+      { "kind": "ratio", "value": 2, "expected": "2" },
+      { "kind": "percent", "value": 12.34, "expected": "12.3%" },
+      { "kind": "percent", "value": null, "expected": "無資料" }
+    ]
+  },
+  "validation": {
+    "$comment": "dataviz validate_palette.js 的門檻（Machado 2009 severity 1.0、OKLab ΔE×100）",
+    "categoricalLightnessBand": { "dark": [0.48, 0.67], "light": [0.43, 0.77] },
+    "chromaFloor": 0.1,
+    "cvdAdjacentMin": 8,
+    "normalAdjacentMin": 15,
+    "rampAdjacentDeltaLMin": 0.06,
+    "rampLowEndContrastMin": 2.0
+  }
+}

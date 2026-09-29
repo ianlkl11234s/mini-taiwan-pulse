@@ -45,6 +45,7 @@ export const SatellitesHost: LayerHostComponent = ({ deps }) => {
     consoleFilter: deps.satConsoleOpen
       ? { featuredNorads: deps.maneuverNorads, showAllOrbits: deps.satShowAllOrbits }
       : null,
+    isDarkTheme: deps.isDarkTheme,
   });
   return null;
 };
@@ -57,6 +58,7 @@ export const RoadEventsHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.roadEvents,
     paramNum(values, "roadEvents", "reOpacity"),
+    deps.isDarkTheme,
   );
   return null;
 };

@@ -12,6 +12,7 @@ import type { ResearchResult } from "./contracts/result-validator.mjs";
 import { ResearchConnection } from "./ResearchConnection";
 import type { BridgeConnectionContext, Scene, StudyState } from "./bridgeClient";
 import { StudyController } from "./StudyController";
+import { Slider } from "../components/controls/Slider";
 import fixture from "./contracts/fixture.json";
 import "./research.css";
 
@@ -166,22 +167,22 @@ export function ResearchApp() {
     </header>
     <main className="research-layout">
       <aside className="research-sidebar" aria-label="研究側欄">
-        <div className="research-heading"><span className="research-eyebrow">RESEARCH / 01</span><h1>從一個問題，<br />開始一張地圖。</h1><p>資料處理在本地，成果留在畫布。</p></div>
+        <div className="research-heading"><span className="research-eyebrow">研究</span><h1>從一個問題，開始一張地圖。</h1><p>資料處理在本地，成果留在畫布。</p></div>
         <ResearchConnection onState={handleBridgeState} onDisconnect={disconnect} onConnection={connect} />
-        <section className="research-section"><h2>01 <span>研究成果</span></h2>
+        <section className="research-section"><h2>研究成果</h2>
           <p>先載入合成範例，檢查點、線、面與表格。這些數值不代表真實地區。</p>
           <button className="research-primary" disabled={busy} onClick={() => void load()}>{busy ? "正在驗證…" : "載入合成範例 ↗"}</button>
           {!paired && <><button className="research-secondary" disabled={busy} onClick={() => fileInput.current?.click()}>開啟本地合成成果 JSON</button>
           <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={e => { const file = e.currentTarget.files?.[0]; e.currentTarget.value = ""; if (file) void load(file); }} /></>}
           <small>只在本頁讀取，不會上傳。真實來源需待授權機制完成。</small>
         </section>
-        <section className="research-section"><h2>02 <span>畫布內容</span></h2>
+        <section className="research-section"><h2>畫布內容</h2>
           {result ? <><div className="research-result-title"><strong>{result.title}</strong><button onClick={clear}>清除</button></div>
-          <label className="research-opacity">透明度 <output>{Math.round(opacity * 100)}%</output><input aria-label="成果透明度" type="range" min="0" max="1" step="0.05" value={opacity} onChange={e => { const value = Number(e.target.value); opacityRef.current = value; setOpacity(value); if (controller.current && map.current && resultRef.current?.geojson) installResult(map.current, resultRef.current.geojson as FeatureCollection, value); }} /></label>
+          <label className="research-opacity">透明度 <output>{Math.round(opacity * 100)}%</output><Slider ariaLabel="成果透明度" min={0} max={1} step={0.05} value={opacity} onChange={value => { opacityRef.current = value; setOpacity(value); if (controller.current && map.current && resultRef.current?.geojson) installResult(map.current, resultRef.current.geojson as FeatureCollection, value); }} /></label>
           <p>{result.geojson?.features.filter(f => f.geometry !== null).length ?? 0} 個可上圖物件 · {result.quality.displayTruncated ? "展示已抽樣" : "展示未抽樣"}</p></> : <p className="research-muted">尚無成果。載入後可逐一點選查看屬性。</p>}
           {point && <div className="research-selection"><strong>選取位置</strong><code>{point[0].toFixed(5)}, {point[1].toFixed(5)}</code><small>經度、緯度 · 周邊查詢尚未接通</small></div>}
         </section>
-        <section className="research-section"><h2>03 <span>來源與方法</span></h2>{result ? <>
+        <section className="research-section"><h2>來源與方法</h2>{result ? <>
           <p><strong>{result.method.name}</strong> · {result.method.version}</p>
           <p>資料模式：合成測試<br />時效：{statusLabel[result.quality.freshness.status] ?? result.quality.freshness.status}</p>
           <details><summary>查看方法與限制</summary><p>建立時間：{result.createdAt}</p><p>方法參數預覽（最多 4,096 字元；完整內容在原始成果檔）</p><pre>{JSON.stringify(result.method.parameters, null, 2).slice(0, 4096)}</pre>{result.sourceRefs.map((s, i) => <p key={i}>{s}</p>)}{result.licenseRefs.map((s, i) => <p key={`license-${i}`}>{s}</p>)}{result.limitations.map((s, i) => <p key={`limit-${i}`}>{s}</p>)}</details>

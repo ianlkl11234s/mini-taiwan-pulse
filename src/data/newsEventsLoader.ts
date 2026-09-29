@@ -61,9 +61,9 @@ export interface NewsFilter {
   minSeverity: 0 | 1 | 2;
 }
 
-/** 預設「重大」(minRelevance=3) — 新聞 / 全部 tab 進來就只看重大級 */
+/** 預設「地方+」(minRelevance=2) — 避免沒有重大級時 Monitor 看起來像資料中斷 */
 export const DEFAULT_NEWS_FILTER: NewsFilter = {
-  minRelevance: 3,
+  minRelevance: 2,
   eventsOnly: true,
   minSeverity: 1,
 };
@@ -153,6 +153,33 @@ const fetchNewsEventDatesCached = cachedOnce(fetchNewsEventDatesUncached, 10 * 6
 /** 取有新聞事件的日期清單。10min TTL 快取，toggle 不重抓 */
 export function fetchNewsEventDates(): Promise<NewsEventDateInfo[]> {
   return fetchNewsEventDatesCached();
+}
+
+/** RPC 不保證排序；Monitor 用最新有定位事件日判斷空結果是否其實是上游停更。 */
+export function latestNewsEventDay(dates: readonly NewsEventDateInfo[]): string | null {
+  let latest: string | null = null;
+  for (const row of dates) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.day)) continue;
+    if (latest === null || row.day > latest) latest = row.day;
+  }
+  return latest;
+}
+
+/**
+ * 允許最新有定位事件日落後所選日期一天，避免午夜剛換日時把正常空窗誤報成停更。
+ * 這只判斷「可供地圖/Monitor 使用的定位事件」新鮮度，不代表 raw RSS 是否仍在收集。
+ */
+export function isNewsEventSourceStale(
+  requestedDay: string,
+  latestDay: string | null,
+  toleranceDays = 1,
+): boolean {
+  if (latestDay === null) return true;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(requestedDay) || !/^\d{4}-\d{2}-\d{2}$/.test(latestDay)) return true;
+  const requestedMs = Date.parse(`${requestedDay}T00:00:00Z`);
+  const latestMs = Date.parse(`${latestDay}T00:00:00Z`);
+  if (!Number.isFinite(requestedMs) || !Number.isFinite(latestMs)) return true;
+  return requestedMs - latestMs > toleranceDays * 86_400_000;
 }
 
 // ── 按日載入 ──

@@ -1,6 +1,6 @@
 # 分析配方索引（一題型一檔）
 
-先用 [geo-reasoning](../../../geo-reasoning/SKILL.md) 判斷問題在哪條軸（空間／關聯／因果），再只讀**一份**對應配方。題型已知時不要呼叫 `pulse_route_request`。
+先用 [geo-reasoning](../../../geo-reasoning/SKILL.md) 判斷問題在哪條軸（空間／關聯／因果），再只讀**一份**對應配方。題型已知時不要呼叫 `pulse_route_request`。下表對不上、或不確定有沒有相關資料時，先呼叫 `pulse_find_data` 廣搜再判斷，不要直接說沒有配方或沒有資料。
 
 | 使用者大概這樣問 | 配方 | 軸 |
 |---|---|---|
@@ -28,4 +28,4 @@
 
 ## 新增配方
 
-複製任一檔的五段格式（適用／工具鏈／但書／停止／追問），用 `npm run question-bank`（mcp repo）加一題回歸測試。配方只寫**已驗證**的表名與 SQL；新表先用 `pulse_wh_describe` 確認欄位。
+複製任一檔的五段格式（適用／工具鏈／但書／停止／追問；「但書」「追問」是給 Agent 的素材，標籤保留「自查用」「素材」字樣，不要寫成可以照抄給使用者的清單），用 `npm run question-bank`（mcp repo）加一題回歸測試。配方只寫**已驗證**的表名與 SQL；新表先用 `pulse_wh_describe` 確認欄位。

@@ -1,5 +1,5 @@
-import { Row } from "./shared";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { Row, Title } from "./shared";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import {
   schoolLevelGroupOf, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS,
@@ -11,17 +11,6 @@ import {
   GEOCODE_PRECISION_LABELS, UNIVERSITY_BUBBLE_COLOR, UNIVERSITY_NO_DATA_COLOR,
   EDUCATION_LAYER_COLORS,
 } from "../../data/educationTypes";
-
-// 本檔 Title 為極簡本地版（同 funeralPanels / religionPanels 慣例）。
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 function Note({ children }: { children: React.ReactNode }) {
   const t = useFeatureTheme();

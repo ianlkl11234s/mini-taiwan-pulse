@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, loadFireEventYears, type FireEvent } from "../data/fireLoader";
+import { pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -14,6 +16,21 @@ import { useMapReadyTick } from "./useMapReadyTick";
 const SOURCE_ID = "fire-latest-src";
 const LAYER_ID = "fire-latest-layer";
 
+const CASUALTY_STROKE = { dark: "#ffffff", light: "#111827" } as const;
+const OPACITY_DEFAULT = Number(paramDefault("fireLatest", "fireLatestOpacity"));
+
+/**
+ * 描邊：有傷亡（casualty）的事件用外框標示（依屬性變化＝資料編碼）：暗色白、淡色 #111827
+ * （淡底圖上白框與細縫同色會看不見，比照北市抽水站）；其餘用底圖色細縫。opacity 為滑桿值，內部換算成相對預設的倍率。
+ */
+export function fireLatestPointStroke(isDark: boolean, opacity: number) {
+  const seam = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+  return {
+    ...seam,
+    "circle-stroke-color": ["case", ["get", "casualty"], CASUALTY_STROKE[isDark ? "dark" : "light"], seam["circle-stroke-color"]] as unknown as string,
+  };
+}
+
 function ensureLayer(map: MapboxMap, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -26,8 +43,7 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       paint: {
         "circle-radius": ["case", ["get", "casualty"], 6, 3],
         "circle-color": ["case", ["get", "casualty"], "#ff1744", "#ff7043"],
-        "circle-stroke-width": ["case", ["get", "casualty"], 1, 0],
-        "circle-stroke-color": "#ffffff",
+        ...fireLatestPointStroke(isDark, 1),
         "circle-opacity": isDark ? 0.8 : 0.65,
         "circle-blur": 0.15,
       },
@@ -67,7 +83,10 @@ function updatePaint(map: MapboxMap, isDark: boolean, opacity: number, scale: nu
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-radius", ["case", ["get", "casualty"], 6 * scale, 3 * scale]);
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.8 : 0.65) * opacity);
-  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", opacity);
+  const stroke = fireLatestPointStroke(isDark, opacity);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
 }
 
 /** 最新年度火災點位（資料只載一次，任何模式可見）。 */

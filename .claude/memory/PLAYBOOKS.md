@@ -1171,11 +1171,11 @@ Phase 6  小元件統一（CloseButton / Loading） ← 收尾
 
 audit 給整個 6 phase 提供精準對映表，**不能省**。
 
-#### 2. Phase 0：建 designTokens.ts + design-system.md
+#### 2. Phase 0：建 designTokens.ts + design-system/spec.md
 
 - token scale 從 audit 數據反推（如 fontSize 9/10/11/12/13 佔 80% → 7 階）
 - 沿用既有 token（如 intelTokens）**單向 re-export**，不破壞既有元件
-- design-system.md 必含：SSOT 結構 / token 全表 / 使用守則 / KEEP OUT / 新元件 checklist
+- design-system/spec.md 必含：SSOT 結構 / token 全表 / 使用守則 / KEEP OUT / 新元件 checklist
 - Codex review 抓 circular dep / 命名雙軌風險 / scale 缺位
 
 #### 3. Phase N（替換）：subagent 平行 + 精準對映表
@@ -1240,8 +1240,8 @@ leftover 全屬聲明的保留情境，commit 過。
 
 #### 7. 文件補完 + PR
 
-- design-system.md §6 標 phase commit hash（之後找變動歷史不用 grep）
-- design-system.md §9 加新元件 checklist（你 / 未來 AI 寫新元件直接抄）
+- design-system/spec.md §6 標 phase commit hash（之後找變動歷史不用 grep）
+- design-system/spec.md §9 加新元件 checklist（你 / 未來 AI 寫新元件直接抄）
 - PR body 列：6 phase 總表 / 視覺影響重點 / 萬一不滿意的 revert 指令
 
 ### 失誤點（PR #22 實戰）

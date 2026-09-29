@@ -50,6 +50,9 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
 動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8 + [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
 
+### 7. UI 規範（Design System）⚠️
+任何 UI 改動（面板、popup、控制項、樣式表）必須遵守 [`docs/design-system/spec.md`](./docs/design-system/spec.md)（PR 前照 §8 checklist）。`src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，**不可用改基準繞過**；只有違規確實減少時才跑 `npm run design:baseline` 降低基準。
+
 ## Git Workflow（GitHub Flow）
 
 - **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge。此規則依使用者 2026-09-15 指示取代舊 squash 慣例，適用後續所有 PR（含 hotfix）。未經明確要求，不壓縮、合併或改寫既有 commit。

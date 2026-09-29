@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mini Taiwan Pulse — 設計統一提案 Mockup（現況 vs 建議）</title>
+<style>
+  :root {
+    --surface-app: #0a0a14;
+    --surface-subtle: rgba(0,0,0,0.40);
+    --surface-panel: rgba(0,0,0,0.52);
+    --surface-strong: rgba(10,10,20,0.88);
+    --surface-solid: rgba(10,10,20,0.94);
+    --text-strong: #f3f4f6;
+    --text-default: #d8dce3;
+    --text-muted: #9ca3af;
+    --text-dim: #6b7280;
+    --text-faint: #4b5560;
+    --accent: #64aaff;
+    --accent-soft: rgba(100,170,255,0.55);
+    --accent-faint: rgba(100,170,255,0.16);
+    --status-warn: #ff9800;
+    --status-err: #ef4444;
+    --white-a4: rgba(255,255,255,0.04);
+    --white-a8: rgba(255,255,255,0.08);
+    --white-a12: rgba(255,255,255,0.12);
+    --border-soft: rgba(255,255,255,0.06);
+    --border-panel: rgba(255,255,255,0.10);
+    --border-mid: rgba(255,255,255,0.14);
+    --border-strong: rgba(255,255,255,0.22);
+    --radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px; --radius-xl: 8px; --radius-pill: 9999px;
+    --font-xs: 9px; --font-sm: 10px; --font-base: 11px; --font-md: 12px; --font-lg: 13px; --font-xl: 18px; --font-xxl: 22px;
+    --font-cjk: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    --font-data: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    --elevation-lg: 0 12px 40px rgba(0,0,0,0.45);
+    --control-bg: rgba(255,255,255,0.06);
+    --control-bg-hover: rgba(255,255,255,0.10);
+    --control-border: rgba(255,255,255,0.12);
+    /* 現況子系統各自硬寫的字面（僅在「現況」欄位重現，不進 :root 主變數） */
+    --legacy-agent-bg: rgba(13,14,16,.96);
+    --legacy-agent-border: #2a2d32;
+    --legacy-agent-line: rgba(255,255,255,.1);
+    --legacy-member-bg: #101419;
+    --legacy-member-line: #2b3541;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 24px 80px; background: var(--surface-app); color: var(--text-default);
+    font: var(--font-base)/1.6 var(--font-cjk);
+  }
+  h1 { font: 700 22px/1.4 var(--font-cjk); color: var(--text-strong); margin: 0 0 6px; }
+  .subtitle { color: var(--text-muted); font-size: var(--font-md); margin: 0 0 36px; max-width: 860px; line-height: 1.8; }
+  section { margin-bottom: 56px; }
+  section > h2 {
+    font: 700 var(--font-xl)/1.4 var(--font-cjk); color: var(--text-strong);
+    margin: 0 0 6px; padding-bottom: 10px; border-bottom: 1px solid var(--border-panel);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  section > h2 .badge {
+    font: 700 var(--font-xs)/1 var(--font-data); letter-spacing: .12em; color: var(--accent);
+    background: var(--accent-faint); border: 1px solid var(--accent-soft); border-radius: var(--radius-pill);
+    padding: 3px 8px;
+  }
+  section > p.desc { color: var(--text-muted); font-size: var(--font-base); max-width: 820px; line-height: 1.8; margin: 0 0 22px; }
+  .cite { font: var(--font-xs)/1.5 var(--font-data); color: var(--text-faint); }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .compare { grid-template-columns: 1fr; } }
+  .compare-col { display: flex; flex-direction: column; gap: 14px; }
+  .compare-label {
+    font: 700 var(--font-sm)/1 var(--font-data); letter-spacing: .1em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .compare-label.current { color: var(--status-err); }
+  .compare-label.proposed { color: #22c55e; }
+  .compare-label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .stage {
+    background: repeating-linear-gradient(45deg, #06070c, #06070c 10px, #08090f 10px, #08090f 20px);
+    border: 1px dashed var(--border-soft); border-radius: var(--radius-lg);
+    padding: 28px 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 200px;
+  }
+
+  /* ============ Popup — 現況：Agent 分析結果 ============ */
+  .agent-popup {
+    width: 260px; font-family: Inter, system-ui, sans-serif;
+    background: var(--legacy-agent-bg); border: 1px solid var(--legacy-agent-border);
+    border-radius: 3px; color: #fff; box-shadow: 0 16px 44px rgba(0,0,0,.48); padding: 14px 16px 13px;
+  }
+  .agent-popup .eyebrow {
+    display: block; color: #9ca3af; font: 700 9px/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .16em;
+  }
+  .agent-popup .title { display: block; margin-top: 6px; font-size: 14px; font-weight: 650; }
+  .agent-popup dl { margin: 12px 0 0; border-top: 1px solid var(--legacy-agent-line); }
+  .agent-popup dl > div { display: grid; grid-template-columns: 64px 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--legacy-agent-line); }
+  .agent-popup dt { color: #6b7280; font: 700 8px/1.45 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .1em; }
+  .agent-popup dd { margin: 0; color: #9ca3af; font-size: 11px; line-height: 1.45; }
+  .agent-popup .note { margin: 9px 0 0; color: #6b7280; font-size: 9px; }
+
+  /* ============ Popup — 現況：文化設施／寺廟（FeatureInfoPanel chrome） ============ */
+  .feature-popup {
+    width: 270px; background: var(--surface-strong); border: 1px solid rgba(100,170,255,0.25);
+    border-radius: var(--radius-xl); padding: 12px 14px;
+    font-family: var(--font-data); /* ⚠️ 現況 bug：FeatureInfoPanel.tsx:97 把整個容器設成等寬字 */
+  }
+  .feature-popup .header-label { font-size: var(--font-xs); color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .feature-popup .fp-title { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .feature-popup .fp-title .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .feature-popup .fp-title .name { font-size: var(--font-lg); font-weight: 700; color: var(--text-strong); letter-spacing: .5px; }
+  .feature-popup .row { display: flex; gap: 8px; margin-top: 4px; font-size: var(--font-base); line-height: 1.5; }
+  .feature-popup .row .label { color: var(--text-muted); flex-shrink: 0; min-width: 56px; }
+  .feature-popup .row .value { color: var(--text-strong); }
+  .feature-popup .src-footer { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-panel); font-size: var(--font-xs); color: var(--text-dim); }
+  .feature-popup .missing-footer {
+    margin-top: 10px; padding: 6px 8px; border: 1px dashed var(--status-err); border-radius: var(--radius-md);
+    font: var(--font-xs)/1.5 var(--font-cjk); color: var(--status-err);
+  }
+  .bug-note {
+    margin-top: 10px; font: var(--font-xs)/1.6 var(--font-cjk); color: var(--status-warn);
+    background: rgba(255,152,0,0.10); border: 1px solid rgba(255,152,0,0.35); border-radius: var(--radius-md);
+    padding: 6px 8px;
+  }
+
+  /* ============ Popup — 建議（三例統一結構） ============ */
+  .unified-popup {
+    width: 270px; background: var(--surface-strong); border: 1px solid var(--border-panel);
+    border-radius: var(--radius-xl); box-shadow: var(--elevation-lg); padding: 12px 14px; position: relative;
+  }
+  .unified-popup .pin-tip {
+    position: absolute; bottom: -7px; left: 24px; width: 12px; height: 12px; background: var(--surface-strong);
+    border-right: 1px solid var(--border-panel); border-bottom: 1px solid var(--border-panel); transform: rotate(45deg);
+  }
+  .unified-popup .eyebrow {
+    font: 700 var(--font-xs)/1.3 var(--font-cjk); letter-spacing: .08em; color: var(--text-dim); text-transform: none;
+    display: block; margin-bottom: 6px;
+  }
+  .unified-popup .u-title { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .unified-popup .u-title .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .unified-popup .u-title .name { font: 700 var(--font-lg)/1.3 var(--font-cjk); color: var(--text-strong); }
+  .unified-popup dl { margin: 0; border-top: 1px solid var(--border-panel); }
+  .unified-popup dl > div { display: grid; grid-template-columns: 64px 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border-soft); }
+  .unified-popup dt { font: var(--font-xs)/1.4 var(--font-cjk); color: var(--text-dim); }
+  .unified-popup dd { margin: 0; font: var(--font-base)/1.45 var(--font-cjk); color: var(--text-default); }
+  .unified-popup dd.numeric { font-family: var(--font-data); } /* 只有真正的數值/代碼才用等寬字 */
+  .unified-popup .u-footer { margin-top: 9px; padding-top: 8px; border-top: 1px solid var(--border-panel); font: var(--font-xs)/1.5 var(--font-cjk); color: var(--text-dim); }
+  .unified-popup .u-footer a { color: var(--accent); text-decoration: none; }
+
+  /* ============ 面板標頭 ============ */
+  .panel-demo { width: 300px; border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-panel); }
+  .panel-demo .head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; }
+  .panel-demo .body { padding: 14px 16px; font-size: var(--font-base); color: var(--text-muted); background: var(--surface-panel); }
+  .panel-demo .close { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); color: var(--text-dim); font-size: 14px; }
+  /* 現況 A：member header */
+  .head-member { background: var(--legacy-member-bg); border-bottom: 1px solid var(--legacy-member-line); }
+  .head-member .eyebrow { font: 10px/1.2 monospace; letter-spacing: .16em; color: #9aa7b6; display: block; }
+  .head-member h3 { margin: 4px 0 0; font-size: 18px; font-weight: 600; color: #e9edf2; }
+  /* 現況 B：agent header */
+  .head-agent { background: rgba(24,25,28,.96); }
+  .head-agent h3 { margin: 0; font: 16px/1.2 Inter, system-ui, sans-serif; color: #eee; }
+  /* 建議：統一 header */
+  .head-unified { background: var(--surface-panel); border-bottom: 1px solid var(--border-panel); }
+  .head-unified .eyebrow { font: 700 var(--font-xs)/1.3 var(--font-cjk); letter-spacing: .08em; color: var(--text-dim); display: block; }
+  .head-unified h3 { margin: 4px 0 0; font: 700 var(--font-xxl)/1.3 var(--font-cjk); color: var(--text-strong); }
+
+  /* ============ 分隔線／時間軸 ============ */
+  .timeline-demo { width: 280px; }
+  .activity-card {
+    padding: 14px 16px; border: 1px solid var(--legacy-agent-border); border-radius: 12px; color: #f5f5f5;
+    background: rgba(16,16,16,.88); font: 13px/1.5 system-ui, sans-serif;
+  }
+  .activity-card .eyebrow { display: block; margin-bottom: 3px; color: #999; font-size: 10px; letter-spacing: .08em; }
+  .activity-card .title { margin: 0; font-weight: 600; }
+  .activity-card ul { list-style: none; margin: 12px 0 0 3px; padding: 0 0 0 12px; border-left: 1px solid var(--legacy-agent-line); }
+  .activity-card li { padding: 0 0 10px; color: #999; font-size: 11px; }
+  .activity-card li small { display: block; margin-top: 2px; color: #808080; }
+
+  .layers-demo { background: var(--surface-panel); border: 1px solid var(--border-panel); border-radius: var(--radius-xl); padding: 12px 14px; width: 280px; }
+  .layers-demo .group-title { font: 700 var(--font-md)/1.6 var(--font-data); letter-spacing: 1px; color: var(--text-strong); text-transform: uppercase; }
+  .layers-demo .sub { font: var(--font-base)/1.8 var(--font-data); color: var(--text-muted); padding-left: 4px; }
+
+  .unified-timeline { background: var(--surface-panel); border: 1px solid var(--border-panel); border-radius: var(--radius-xl); padding: 14px 16px; width: 280px; }
+  .unified-timeline .eyebrow { font: 700 var(--font-xs)/1.3 var(--font-cjk); letter-spacing: .08em; color: var(--text-dim); display: block; margin-bottom: 3px; }
+  .unified-timeline .title { margin: 0; font: 600 var(--font-md)/1.5 var(--font-cjk); color: var(--text-strong); }
+  .unified-timeline ul { list-style: none; margin: 12px 0 0 3px; padding: 0 0 0 12px; border-left: 1px solid var(--border-soft); }
+  .unified-timeline li { padding: 0 0 10px; color: var(--text-muted); font: var(--font-base)/1.5 var(--font-cjk); }
+  .unified-timeline li small { display: block; margin-top: 2px; color: var(--text-dim); }
+  .unified-timeline .group-title { font: 700 var(--font-md)/1.6 var(--font-cjk); letter-spacing: .04em; color: var(--text-strong); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-soft); }
+  .unified-timeline .sub { font: var(--font-base)/1.8 var(--font-cjk); color: var(--text-muted); padding-left: 12px; border-left: 1px solid var(--border-soft); margin-left: 3px; }
+
+  /* ============ 圖例（現況已一致，僅作參考） ============ */
+  .legend-demo { background: var(--surface-panel); border: 1px solid var(--border-panel); border-radius: var(--radius-xl); padding: 12px 14px; width: 280px; }
+  .legend-demo h4 { margin: 0 0 8px; font: 700 var(--font-sm)/1.4 var(--font-cjk); color: var(--text-muted); letter-spacing: .04em; }
+  .legend-demo .item { display: flex; align-items: center; gap: 8px; font-size: var(--font-base); color: var(--text-default); padding: 3px 0; }
+  .legend-demo .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ============ 泡泡圖 ============ */
+  .chart-wrap { background: var(--surface-panel); border: 1px solid var(--border-panel); border-radius: var(--radius-xl); padding: 20px; }
+  .chart-caption { font-size: var(--font-sm); color: var(--text-dim); margin-top: 10px; line-height: 1.7; }
+  .chart-legend { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 14px; font-size: var(--font-sm); color: var(--text-muted); }
+  .chart-legend .seq-bar { display: flex; height: 8px; width: 120px; border-radius: 2px; overflow: hidden; margin-top: 4px; }
+  .chart-legend .seq-bar span { flex: 1; }
+  .chart-legend .size-legend { display: flex; align-items: flex-end; gap: 10px; margin-top: 4px; }
+  .chart-legend .size-legend circle { fill: none; stroke: var(--text-dim); }
+
+  footer.note { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border-panel); color: var(--text-faint); font-size: var(--font-sm); line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<h1>Mini Taiwan Pulse — 設計統一提案 Mockup</h1>
+<p class="subtitle">
+  本頁為靜態對照稿（不依賴建置、僅 inline CSS），左欄「現況」逐一還原自程式碼實際結構與 class／token 字面值（出處見各區塊 cite 標註），
+  右欄「建議」套用 <code>tokens-draft.css</code> 草案。本頁本身不影響 <code>src/</code> 任何檔案。完整規則見 <code>proposal.md</code>，待決取捨見 <code>handoff.md</code>。
+  <strong style="color:var(--status-warn)">「建議」popup 下方的尖角僅示意最終外觀，實際要不要統一成錨定地圖點擊點尚未拍板，見 handoff.md 待決問題 #1。</strong>
+</p>
+
+<!-- ============================================================ -->
+<section>
+  <h2>1. Popup — 分析結果 <span class="badge">最高優先</span></h2>
+  <p class="desc">
+    現況兩套完全不同的視覺語彙：黑底 + 硬編碼英文大寫 eyebrow「ANALYSIS RESULT」+「DATASET」欄直接印內部代號。
+    建議版把 eyebrow 換成中文分類標籤、內部代號換成人類可讀敘述，並套用與另外兩例相同的 chrome。
+  </p>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label current">現況</div>
+      <div class="stage">
+        <div class="agent-popup">
+          <span class="eyebrow">ANALYSIS RESULT</span>
+          <span class="title">大安區 · 人口密度網格</span>
+          <dl>
+            <div><dt>DATASET</dt><dd>ds:pop-grid-2026q3-04821</dd></div>
+            <div><dt>原始值</dt><dd>18,204 人/km²</dd></div>
+            <div><dt>比較基準</dt><dd>本區÷基準；可比較</dd></div>
+            <div><dt>相對基準</dt><dd>1.42</dd></div>
+          </dl>
+          <p class="note">暫時分析結果 · 非完整來源圖層</p>
+        </div>
+      </div>
+      <div class="cite">還原自 src/research/mainMapConnection.css .research-result-popup* + MainMapConnection.tsx:441,454（DATASET 代號為示意，非真實內部代號）</div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label proposed">建議</div>
+      <div class="stage">
+        <div class="unified-popup">
+          <span class="eyebrow">分析結果 · 人口密度</span>
+          <div class="u-title"><span class="dot" style="background:#64aaff"></span><span class="name">大安區</span></div>
+          <dl>
+            <div><dt>資料集</dt><dd>人口密度網格（2026 Q3）</dd></div>
+            <div><dt>原始值</dt><dd class="numeric">18,204 人/km²</dd></div>
+            <div><dt>比較基準</dt><dd>本區÷全市中位數</dd></div>
+            <div><dt>相對倍率</dt><dd class="numeric">1.42×</dd></div>
+          </dl>
+          <div class="u-footer">暫時分析結果 · 非完整來源圖層</div>
+          <div class="pin-tip"></div>
+        </div>
+      </div>
+      <div class="cite">eyebrow／facts 標籤走 --font-cjk；只有數值套 --font-data；DATASET 代號改人類可讀敘述</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>2. Popup — 文化設施</h2>
+  <p class="desc">
+    現況結構其實已經算工整（色點 Title + Row + SourceFooter），主要問題是 <code>FeatureInfoPanel.tsx:97</code> 把整個容器設成等寬字，
+    中文標籤只是靠瀏覽器 CJK fallback「看起來還好」，數字（如地址門牌）與中文混排時字寬會跳動。
+  </p>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label current">現況</div>
+      <div class="stage">
+        <div class="feature-popup">
+          <div class="header-label">文化設施</div>
+          <div class="fp-title"><span class="dot" style="background:#f97316"></span><span class="name">台北當代藝術館</span></div>
+          <div class="row"><span class="label">類型</span><span class="value">美術館</span></div>
+          <div class="row"><span class="label">城市</span><span class="value">台北市</span></div>
+          <div class="row"><span class="label">地址</span><span class="value">大同區長安西路39號</span></div>
+          <div class="src-footer">資料來源 (Tier 1)<br/>文化部文化資產局</div>
+          <div class="bug-note">⚠ 容器 font-family: FONT_DATA（等寬），中文靠 CJK fallback，非設計本意</div>
+        </div>
+      </div>
+      <div class="cite">還原自 FeatureInfoPanel.tsx:97 + featureInfo/culturePanels.tsx CulturalFacilitiesPanel</div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label proposed">建議</div>
+      <div class="stage">
+        <div class="unified-popup">
+          <span class="eyebrow">文化設施</span>
+          <div class="u-title"><span class="dot" style="background:#f97316"></span><span class="name">台北當代藝術館</span></div>
+          <dl>
+            <div><dt>類型</dt><dd>美術館</dd></div>
+            <div><dt>城市</dt><dd>台北市</dd></div>
+            <div><dt>地址</dt><dd>大同區長安西路<span class="numeric">39</span>號</dd></div>
+          </dl>
+          <div class="u-footer">資料來源（Tier 1）· 文化部文化資產局</div>
+          <div class="pin-tip"></div>
+        </div>
+      </div>
+      <div class="cite">容器不再整段套 FONT_DATA；門牌號碼單獨套 --font-data，其餘走 --font-cjk</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>3. Popup — 寺廟</h2>
+  <p class="desc">
+    現況：<code>religionPanels.tsx</code> 的 <code>TemplePanel</code> 完全沒有 <code>SourceFooter</code>（同檔案其他 4 個 panel 有），
+    使用者無從得知這筆寺廟資料的來源與可信度。
+  </p>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label current">現況</div>
+      <div class="stage">
+        <div class="feature-popup">
+          <div class="header-label">宗教場所</div>
+          <div class="fp-title"><span class="dot" style="background:#d4a017"></span><span class="name">龍山寺</span></div>
+          <div class="row"><span class="label">主祀神祇</span><span class="value">觀世音菩薩</span></div>
+          <div class="row"><span class="label">教別</span><span class="value">佛道混合</span></div>
+          <div class="row"><span class="label">登記別</span><span class="value">寺廟</span></div>
+          <div class="row"><span class="label">登記狀態</span><span class="value">官方登記</span></div>
+          <div class="row"><span class="label">縣市</span><span class="value">台北市</span></div>
+          <div class="row"><span class="label">地址</span><span class="value">萬華區廣州街211號</span></div>
+          <div class="missing-footer">✕ 無 SourceFooter — TemplePanel 未掛，來源不明</div>
+        </div>
+      </div>
+      <div class="cite">還原自 featureInfo/religionPanels.tsx TemplePanel（無 SourceFooter，屬實際程式碼現況）</div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label proposed">建議</div>
+      <div class="stage">
+        <div class="unified-popup">
+          <span class="eyebrow">宗教場所 · 寺廟</span>
+          <div class="u-title"><span class="dot" style="background:#d4a017"></span><span class="name">龍山寺</span></div>
+          <dl>
+            <div><dt>主祀神祇</dt><dd>觀世音菩薩</dd></div>
+            <div><dt>教別</dt><dd>佛道混合</dd></div>
+            <div><dt>登記狀態</dt><dd>官方登記</dd></div>
+            <div><dt>地址</dt><dd>萬華區廣州街<span class="numeric">211</span>號</dd></div>
+          </dl>
+          <div class="u-footer">資料來源（Tier 1）· 內政部宗教數位資訊網</div>
+          <div class="pin-tip"></div>
+        </div>
+      </div>
+      <div class="cite">SourceFooter 強制掛；沒有來源時顯示「來源資訊待補」而非整段省略</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>4. 面板標頭</h2>
+  <p class="desc">
+    主站面板（Intel／Monitor／Chat／Settings）標頭本身已一致；分歧來自 <code>member/</code> 與 <code>research/</code> 兩個獨立子系統各自的標頭字體與間距。
+  </p>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label current">現況（兩種不同寫法並存）</div>
+      <div class="stage" style="flex-direction: column; gap: 16px; align-items: center;">
+        <div class="panel-demo">
+          <div class="head head-member">
+            <div><span class="eyebrow">MEMBER · 已登入</span><h3>會員專區</h3></div>
+            <div class="close">✕</div>
+          </div>
+          <div class="body">memberPanel.css — font: 13px/1.5 var(--font-cjk, sans-serif)（變數未定義，恆 fallback）</div>
+        </div>
+        <div class="panel-demo">
+          <div class="head head-agent"><h3>與 Agent 協作</h3><div class="close" style="color:#9ca3af">✕</div></div>
+          <div class="body" style="background:rgba(24,25,28,.96)">mainMapConnection.css — font-family: Inter, system-ui, sans-serif</div>
+        </div>
+      </div>
+      <div class="cite">還原自 memberPanel.css .member-header + mainMapConnection.css .main-map-agent-heading</div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label proposed">建議（單一標頭規格）</div>
+      <div class="stage">
+        <div class="panel-demo">
+          <div class="head head-unified">
+            <div><span class="eyebrow">MEMBER · 已登入</span><h3>會員專區</h3></div>
+            <div class="close">✕</div>
+          </div>
+          <div class="body">底色 --surface-panel／分隔線 --border-panel／標題 --font-cjk + --font-xxl／eyebrow --font-data + --font-xs</div>
+        </div>
+      </div>
+      <div class="cite">member／research 兩檔的 h2/h3 規則改吃同一組變數（值可維持相近，來源改為共用）</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>5. 分隔線／時間軸</h2>
+  <p class="desc">
+    使用者回饋 #1 的直接對應：Agent 協作活動時間軸用一條白色 <code>border-left</code> 實體線；Layers 面板用縮排 + 等寬字元「└」。
+    兩者是完全不同的語彙系統。建議統一成實體 <code>border-left</code>（理由見 proposal.md §6.3 — 不依賴字型對齊，較穩定）。
+  </p>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label current">現況（兩種並存）</div>
+      <div class="stage" style="flex-direction: column; gap: 16px; align-items: center;">
+        <div class="activity-card">
+          <span class="eyebrow">AGENT · 進行中</span>
+          <p class="title">正在查詢大安區文教機構密度…</p>
+          <ul>
+            <li>已鎖定分析範圍<small>10:42</small></li>
+            <li>載入人口統計網格<small>10:41</small></li>
+            <li>配對地圖 session<small>10:39</small></li>
+          </ul>
+        </div>
+        <div class="layers-demo">
+          <div class="group-title">教育設施</div>
+          <div class="sub">└ 國小 / 國中 / 高中</div>
+          <div class="sub">└ 補習班</div>
+          <div class="sub">└ 大專院校</div>
+        </div>
+      </div>
+      <div class="cite">還原自 researchActivity.css .research-activity__history（border-left: 1px solid #ffffff1a） + LayerSidebar.tsx:487「└ {group.title}」</div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label proposed">建議（統一走 border-left）</div>
+      <div class="stage" style="flex-direction: column; gap: 16px; align-items: center;">
+        <div class="unified-timeline">
+          <span class="eyebrow">AGENT · 進行中</span>
+          <p class="title">正在查詢大安區文教機構密度…</p>
+          <ul>
+            <li>已鎖定分析範圍<small>10:42</small></li>
+            <li>載入人口統計網格<small>10:41</small></li>
+            <li>配對地圖 session<small>10:39</small></li>
+          </ul>
+        </div>
+        <div class="unified-timeline" style="padding-top:6px">
+          <div class="group-title" style="margin-top:0;border-top:0;padding-top:0">教育設施</div>
+          <div class="sub">國小 / 國中 / 高中</div>
+          <div class="sub">補習班</div>
+          <div class="sub">大專院校</div>
+        </div>
+      </div>
+      <div class="cite">兩者皆用 border-left: 1px solid var(--border-soft)，字體統一走 --font-cjk（「└」符號淘汰）</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>6. 圖例</h2>
+  <p class="desc">現況已一致（<code>LegendPanel.tsx</code> 的 <code>LEGEND_REGISTRY</code> 統一產出），僅作參考基準，不需修改。</p>
+  <div class="stage" style="justify-content:flex-start">
+    <div class="legend-demo">
+      <h4>宗教場所分類</h4>
+      <div class="item"><span class="swatch" style="background:#d4a017"></span>寺廟（文化資產）</div>
+      <div class="item"><span class="swatch" style="background:#ef4444"></span>教會</div>
+      <div class="item"><span class="swatch" style="background:#a855f7"></span>宗祠</div>
+      <div class="item"><span class="swatch" style="background:#38bdf8"></span>其他宗教場所</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>7. 額外範例 — 泡泡圖</h2>
+  <p class="desc">
+    示範建議 token 落地在資料圖表上的樣子：圓面積＝學校數（identity/magnitude），顏色＝補習班密度（單一色相由淺至深，magnitude）。
+    <strong style="color:var(--status-warn)">下列數值為示意資料，非真實統計</strong>，僅用於展示視覺規格（薄描邊、方向性色階、前 5 名直接標籤、圖例常駐）。
+  </p>
+  <div class="chart-wrap">
+    <svg viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="示意泡泡圖：各站學校數與補習班密度">
+      <!-- 5 顆泡泡，半徑 = sqrt(school_count) 比例縮放；顏色 = 密度序列色階 -->
+      <!-- 大安 21/287、科技大樓 20/265、雙連 19/240、古亭 18/210、公館 17/190（示意） -->
+      <g>
+        <circle cx="120" cy="150" r="46" fill="#1d4ed8" stroke="#0a0a14" stroke-width="2"><title>大安：21 所學校，密度示意值 287</title></circle>
+        <circle cx="240" cy="130" r="45" fill="#2f5fe0" stroke="#0a0a14" stroke-width="2"><title>科技大樓：20 所學校，密度示意值 265</title></circle>
+        <circle cx="360" cy="160" r="44" fill="#3b82f6" stroke="#0a0a14" stroke-width="2"><title>雙連：19 所學校，密度示意值 240</title></circle>
+        <circle cx="470" cy="120" r="42" fill="#60a5fa" stroke="#0a0a14" stroke-width="2"><title>古亭：18 所學校，密度示意值 210</title></circle>
+        <circle cx="560" cy="155" r="41" fill="#93c5fd" stroke="#0a0a14" stroke-width="2"><title>公館：17 所學校，密度示意值 190</title></circle>
+      </g>
+      <g font-family="Noto Sans TC, PingFang TC, system-ui, sans-serif" font-size="12" fill="#f3f4f6" text-anchor="middle">
+        <text x="120" y="150" dy="-52">大安</text>
+        <text x="240" y="130" dy="-51">科技大樓</text>
+        <text x="360" y="160" dy="-50">雙連</text>
+        <text x="470" y="120" dy="-48">古亭</text>
+        <text x="560" y="155" dy="-47">公館</text>
+      </g>
+      <g font-family="JetBrains Mono, SF Mono, ui-monospace, monospace" font-size="10" fill="#9ca3af" text-anchor="middle">
+        <text x="120" y="150" dy="18">21 所</text>
+        <text x="240" y="130" dy="18">20 所</text>
+        <text x="360" y="160" dy="18">19 所</text>
+        <text x="470" y="120" dy="18">18 所</text>
+        <text x="560" y="155" dy="18">17 所</text>
+      </g>
+    </svg>
+    <div class="chart-legend">
+      <div>
+        <div>補習班密度（示意，越深越高）</div>
+        <div class="seq-bar">
+          <span style="background:#dbeafe"></span><span style="background:#93c5fd"></span>
+          <span style="background:#60a5fa"></span><span style="background:#3b82f6"></span>
+          <span style="background:#1d4ed8"></span>
+        </div>
+      </div>
+      <div>
+        <div>學校數（圓面積，與上方泡泡同比例尺 r=10×√n）</div>
+        <svg class="size-legend" width="260" height="130" viewBox="0 0 260 130">
+          <circle cx="35" cy="77.6" r="22.4" />
+          <circle cx="120" cy="65.4" r="34.6" />
+          <circle cx="210" cy="54.2" r="45.8" />
+          <text x="35" y="100" font-size="9" fill="#6b7280" text-anchor="middle">5 所</text>
+          <text x="120" y="100" font-size="9" fill="#6b7280" text-anchor="middle">12 所</text>
+          <text x="210" y="100" font-size="9" fill="#6b7280" text-anchor="middle">21 所</text>
+        </svg>
+      </div>
+    </div>
+    <div class="chart-caption">
+      規格依循 dataviz skill：半徑 = k×√學校數（同一 k 值用於主圖與圖例，故面積、非半徑，與學校數成正比）、
+      單一色相序列色階（非彩虹）、圓形薄描邊避免與背景融合、僅前 5 名直接標籤（不逐點標數字）、
+      size／color 各自常駐圖例、文字一律用 --text-* 中性色（不吃資料色）。實際上線時序列色階需另跑
+      <code>validate_palette.js</code> 驗證明暗對比與色盲可辨性，本頁僅為視覺規格示範，5 站數值皆為示意。
+    </div>
+  </div>
+</section>
+
+<footer class="note">
+  Mockup 產出時間：2026-09-27 · 來源：程式碼盤點（未截圖，見 report.md／handoff.md 說明）。
+  本頁與 tokens-draft.css／proposal.md／handoff.md 一併存放於 /private/tmp/claude-501/ui-audit/。
+</footer>
+
+</body>
+</html>

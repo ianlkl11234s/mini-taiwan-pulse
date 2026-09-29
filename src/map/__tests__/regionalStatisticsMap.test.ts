@@ -128,36 +128,48 @@ describe('attachRegionalStatistics', () => {
     state.statisticsListeners.get(VIEW)?.forEach(listener => listener());
 
     expect(fillColorSteps(mock, VIEW)).toEqual(['step', ['get', 'value'], '#200', 10, '#201', 20, '#202', 30, '#203', 40, '#204']);
-    expect((mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-color'] as unknown[])[3]).toBe('#social-missing');
+    // F-3 A：缺值不再用 recipe 的灰色，改透明底＋斜線子圖層
+    expect((mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-color'] as unknown[])[3]).toBe('rgba(0,0,0,0)');
+    expect(mock.layers.get(`${VIEW}-missing`)).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'fill-pattern': 'map-hatch-missing-dark', 'fill-opacity': 0.72 } });
     expect(mock.layers.get(`${VIEW}-suppressed`)).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'fill-opacity': 0.72 } });
     expect(mock.sources.get(VIEW)?.setData).toHaveBeenLastCalledWith(expect.objectContaining({ features: [expect.objectContaining({ properties: expect.objectContaining({ value: 22 }) })] }));
 
     state.params[`${VIEW}Opacity`] = 0.41;
     state.paramsListener?.();
     expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.41);
-    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity']).toBe(0.41);
+    // F-2：細縫不綁透明度滑桿
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.6, 0.5]);
+    expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-opacity']).toBe(0.41);
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-opacity']).toBe(0.41);
 
     state.visibility[VIEW] = false;
     state.visibilityListener?.();
-    for (const suffix of ['fill', 'line', 'suppressed']) {
+    for (const suffix of ['fill', 'missing', 'line', 'suppressed']) {
       expect(mock.layers.get(`${VIEW}-${suffix}`)?.layout?.visibility).toBe('none');
     }
     dispose();
   });
 
-  it('uses the last available color for short-palette outlines', () => {
+  it('F-2／F-3：外框是 1px 底圖色細縫、缺值與遮蔽用不同斜線，並隨底圖切換', () => {
     state.snapshots.set(VIEW, { selection: { indicatorId: SHORT_PALETTE }, data: feature(2) });
     state.visibility[VIEW] = true;
+    let dark = true;
     const mock = mapMock();
-    const dispose = attachRegionalStatistics(mock.map as never);
+    const dispose = attachRegionalStatistics(mock.map as never, () => dark);
 
-    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-color']).toBe('#302');
+    // 有值：底圖色細縫；無值：行政界中性灰 0.5（透明底上才看得到界線）
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-color'] as unknown[]).slice(2)).toEqual(['#0a0a14', '#9ca3af']);
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.6, 0.5]);
+    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-width']).toBe(1);
+    expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-dark');
+    expect(mock.map.addImage).toHaveBeenCalledWith('map-hatch-missing-light', expect.objectContaining({ width: 8, height: 8 }));
 
-    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: feature(2) });
-    state.statisticsListeners.get(VIEW)?.forEach(listener => listener());
-
-    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-color']).toBe('#104');
+    dark = false;
+    mock.events.get('style.load')?.();
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-color'] as unknown[]).slice(2)).toEqual(['#ffffff', '#374151']);
+    expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.8, 0.5]);
+    expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe('map-hatch-missing-light');
+    expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-light');
     dispose();
   });
 });

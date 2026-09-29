@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   Baby, BedDouble, Beef, Bike, Bus, Car, ChartNoAxesCombined, Droplets, Fish,
-  GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
+  Briefcase, GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
   Recycle, Route, School, Shield, Ship, Stethoscope, Trash2, Trees, TriangleAlert,
   Volume2, Wheat, Zap,
 } from 'lucide-react';
@@ -25,6 +25,7 @@ describe('getStatisticsVisual', () => {
     ['醫療人員', 'statsHealthWesternPhysicianCount', undefined, undefined, Stethoscope],
     ['長照', 'statsHealthCareWorkerRegistration', undefined, undefined, HeartHandshake],
     ['住宅', 'statsHousingOccupiedCounty', undefined, undefined, House],
+    ['工作與所得', 'statsLaborCountyEmployment', undefined, undefined, Briefcase],
     ['公車', 'statsBusOperatingTripCount', undefined, undefined, Bus],
     ['自行車', 'statsTaipeiUrbanRentalTrips', undefined, undefined, Bike],
     ['汽車', 'statsAutomobileRegisteredCount', undefined, undefined, Car],
@@ -55,15 +56,21 @@ describe('getStatisticsVisual', () => {
     expect(getStatisticsVisual('statsBusOperatingTripCount').theme).toBe(getStatisticsVisual('statsComparisonBusOperatingTripCountPerKm2').theme);
   });
 
-  it('uses five-step sequential palettes with monotonically decreasing luminance', () => {
+  it('uses sequential palettes with at least five ordered classes', () => {
     for (const key of STATISTICS_KEYS) {
       const recipe = STATISTICS_RECIPES[key]!;
       const colors = getStatisticsVisual(key, recipe.label).colors;
-      expect(colors).toHaveLength(5);
+      expect(colors.length).toBeGreaterThanOrEqual(5);
       for (let index = 1; index < colors.length; index += 1) {
         expect(luminance(colors[index - 1]!)).toBeGreaterThan(luminance(colors[index]!));
       }
     }
+  });
+
+  it('uses the eight-class colorblind-friendly income palette for village income', () => {
+    expect(getStatisticsVisual('statsLaborVillageIncomeMedian', '綜合所得中位數').colors).toEqual([
+      '#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e',
+    ]);
   });
 
   it('resamples sequential colors to the number of Mapbox step intervals', () => {
@@ -90,8 +97,8 @@ describe('getStatisticsVisual', () => {
   });
 
   it('covers all source keys, presentation views, and their manifest entries', () => {
-    expect(STATISTICS_KEYS).toHaveLength(299);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(311);
+    expect(STATISTICS_KEYS).toHaveLength(308);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(320);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

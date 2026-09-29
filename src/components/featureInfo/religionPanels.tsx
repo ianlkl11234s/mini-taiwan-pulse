@@ -1,5 +1,5 @@
-import { Row, SourceFooter } from "./shared";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { Row, Title } from "./shared";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import {
   deityFamilyColor, deityFamilyLabel, ancestralHallTypeLabel,
@@ -8,17 +8,6 @@ import {
 import {
   JP_RELIGION_COLORS, jpReligionLabel, religionNameFallback,
 } from "../../data/jpReligionTypes";
-
-// 本檔 Title 為極簡本地版（同 urbanPanels / fisheryPanels 慣例）。
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 
@@ -92,7 +81,6 @@ export function ChurchPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
       <OdblNote props={props} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -108,7 +96,6 @@ export function AncestralHallPanel({ props }: { props: Record<string, unknown> }
       {str(props.heritage_grade) ? <Row label="文資級別" value={str(props.heritage_grade)} /> : null}
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -120,7 +107,6 @@ export function FoundationPanel({ props }: { props: Record<string, unknown> }) {
       <Title color={RELIGION_LAYER_COLORS.religionFoundations}>{str(props.name) || "宗教基金會"}</Title>
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -140,7 +126,6 @@ export function OtherWorshipPanel({ props }: { props: Record<string, unknown> })
       <Row label="鄉鎮" value={str(props.town)} />
       <Row label="地址" value={str(props.address)} />
       <OdblNote props={props} />
-      <SourceFooter props={props} />
     </>
   );
 }

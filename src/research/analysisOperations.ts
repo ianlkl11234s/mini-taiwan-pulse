@@ -115,6 +115,34 @@ function distanceMeters(a: { lng: number; lat: number }, b: Point): number {
   return 6_371_008.8 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
+/** Taiwan-local (Asia/Taipei, UTC+8, no DST) calendar date "YYYY-MM-DD" for a UTC instant. Goes
+ *  through Intl rather than a hardcoded +8h offset, matching timelineControl.ts's own `taipeiDateKey`
+ *  convention. Day/week period bucketing (readSeries) must use Taiwan-local days — a UTC-day bucket
+ *  silently misclassifies anything published in the UTC 16:00–23:59 window (Taiwan's next calendar day). */
+function taipeiDateKey(instant: Date): string {
+  return instant.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
+/** ISO 8601 string for Taiwan-local midnight of a "YYYY-MM-DD" Taipei date key, with an explicit
+ *  +08:00 offset (never "Z") so a reader never mistakes the period boundary for UTC midnight. */
+function taipeiMidnightIso(dateKey: string): string {
+  return `${dateKey}T00:00:00+08:00`;
+}
+
+/** ISO weekday (1=Mon..7=Sun) of a plain "YYYY-MM-DD" date key. The key has no timezone of its own
+ *  once split into y/m/d, so reading it back through Date.UTC is safe here. */
+function isoWeekday(dateKey: string): number {
+  const [year, month, day] = dateKey.split("-").map(Number) as [number, number, number];
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay() || 7;
+}
+
+/** Monday-starting week key for a Taipei "YYYY-MM-DD" date (existing week-start convention, kept). */
+function taipeiWeekStartKey(dateKey: string): string {
+  const [year, month, day] = dateKey.split("-").map(Number) as [number, number, number];
+  const monday = new Date(Date.UTC(year, month - 1, day - isoWeekday(dateKey) + 1));
+  return monday.toISOString().slice(0, 10);
+}
+
 function keyOf(value: unknown): string {
   if (value === null || value === undefined) throw new Error("MISSING_JOIN_KEY");
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return `${typeof value}:${value}`;
@@ -428,9 +456,9 @@ export class AnalysisOperations {
     for (const row of source.rows) {
       const instant = typeof row[input.timeField] === "string" ? new Date(row[input.timeField] as string) : null;
       if (!instant || !Number.isFinite(instant.getTime())) { invalidTime += 1; continue; }
-      const start = new Date(Date.UTC(instant.getUTCFullYear(), instant.getUTCMonth(), instant.getUTCDate()));
-      if (input.resolution === "week") { const day = start.getUTCDay() || 7; start.setUTCDate(start.getUTCDate() - day + 1); }
-      const key = start.toISOString(); const group = groups.get(key) ?? { rows: 0, values: [] }; group.rows += 1;
+      const dateKey = taipeiDateKey(instant);
+      const bucketKey = input.resolution === "week" ? taipeiWeekStartKey(dateKey) : dateKey;
+      const key = taipeiMidnightIso(bucketKey); const group = groups.get(key) ?? { rows: 0, values: [] }; group.rows += 1;
       const value = input.valueField ? numeric(row[input.valueField]) : null; if (value !== null) group.values.push(value); groups.set(key, group);
     }
     const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([periodStart, group]) => {
@@ -438,7 +466,7 @@ export class AnalysisOperations {
       return { period_start: periodStart, value, records: group.rows, missing_value: input.operation === "count" ? 0 : group.rows - group.values.length };
     });
     const comparisonContract = seriesComparisonContract(source, input);
-    return this.save("read_series", [source], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: comparisonContract.unit }, { ...input, timezone: "UTC", comparisonContract }, { periods: rows.length, invalidTime, missingPeriodsFilled: false, comparisonEvidence: comparisonContract.evidenceComplete ? "complete" : "insufficient" });
+    return this.save("read_series", [source], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: comparisonContract.unit }, { ...input, timezone: "Asia/Taipei", comparisonContract }, { periods: rows.length, invalidTime, missingPeriodsFilled: false, comparisonEvidence: comparisonContract.evidenceComplete ? "complete" : "insufficient" });
   }
 
   compareSeries(input: CompareSeriesInput): AnalysisResult {

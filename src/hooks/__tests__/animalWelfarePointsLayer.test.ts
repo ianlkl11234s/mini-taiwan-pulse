@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { animalWelfarePointMapboxProperties, animalWelfarePointRadius } from "../useAnimalWelfarePointsLayer";
+import {
+  animalWelfarePointMapboxProperties,
+  animalWelfarePointRadius,
+  animalWelfarePointStroke,
+} from "../useAnimalWelfarePointsLayer";
 
 describe("animal welfare point Mapbox properties", () => {
-  it("keeps zoom as the top-level interpolate input", () => {
-    expect(animalWelfarePointRadius(2)).toEqual([
-      "interpolate", ["linear"], ["zoom"], 6, 6, 12, 12, 16, 16,
-    ]);
+  it("uses the fixed M tier and theme-aware seam stroke", () => {
+    expect(animalWelfarePointRadius(2)).toBe(9);
+    expect(animalWelfarePointStroke(true, 0.85)).toEqual({
+      "circle-stroke-color": "#0a0a14",
+      "circle-stroke-width": 1,
+      "circle-stroke-opacity": 0.8,
+    });
   });
 
   it("keeps canonical nested columns query-safe instead of relying on Mapbox object coercion", () => {

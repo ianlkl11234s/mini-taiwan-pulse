@@ -1,0 +1,113 @@
+<title>Pulse 開關規格</title>
+<style>
+:root{color-scheme:dark;--page:#07070f;--text:#d1d5db;--strong:#f3f4f6;--muted:#9ca3af;--dim:#6b7280;--line:rgba(255,255,255,.09);--pick:#64aaff;--ok:#22c55e;--warn:#f59e0b;
+--font-cjk:"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif;--font-data:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--text);font:13px/1.65 var(--font-cjk);margin:0;padding-inline:16px;padding-block:28px 80px}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:30px}
+h1{margin:0 0 8px;font-size:22px;font-weight:600;color:var(--strong);text-wrap:balance}
+h2{margin:0;font-size:16px;font-weight:600;color:var(--strong);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+p{margin:0}
+code{font-family:var(--font-data);font-size:12px;color:var(--strong)}
+.lead{max-width:84ch;color:var(--muted)}.lead b{color:var(--strong);font-weight:600}
+.tag{font:600 12px var(--font-data);color:var(--pick);border:1px solid rgba(100,170,255,.45);border-radius:4px;padding:1px 6px}
+.rec{font-size:11px;color:var(--ok);border:1px solid rgba(34,197,94,.4);border-radius:4px;padding:1px 6px}
+.fix{font-size:11px;color:var(--warn);border:1px solid rgba(245,158,11,.4);border-radius:4px;padding:1px 6px}
+section{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:20px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.pair{grid-template-columns:1fr}}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 22px;color:var(--muted);font-size:12.5px}
+.notes b{color:var(--strong);font-weight:600}
+
+/* 模擬面板：色值取自 IconRailSidebar DARK/LIGHT_PALETTE 與 layerParamControls.css */
+.pane{border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line)}
+.pane.d{--bg:rgba(10,10,20,.88);--t:#fff;--tm:#9ca3af;--td:#6b7280;--row:rgba(255,255,255,.06);--on:#fff;--knobOn:#1a1a1a;--off:#4b5563;--knobOff:#fff;--acc:#64aaff;--ctlBorder:rgba(255,255,255,.12);--miniKnobOff:#f3f4f6;background:#10101c}
+.pane.l{--bg:#fff;--t:#111827;--tm:#4b5563;--td:#9ca3af;--row:rgba(0,0,0,.06);--on:#1f2937;--knobOn:#fff;--off:#d1d5db;--knobOff:#fff;--acc:#0b6fd6;--ctlBorder:rgba(0,0,0,.12);--miniKnobOff:#fff;background:#f4f5f7;border-color:#e5e7eb}
+.cap{font-size:11px;color:var(--td)}
+.row{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--row);color:var(--t)}
+.row b{font-weight:700;font-size:14px}.row small{color:var(--tm);font-size:12px}
+.row .n{margin-left:auto;font:11px var(--font-data);color:var(--tm)}
+.param{display:flex;align-items:center;gap:8px;padding:5px 6px 5px 22px;color:var(--tm);font-size:11px}
+/* 大開關 LayerToggleSwitch 28×16、圓點 12 */
+.big{position:relative;width:28px;height:16px;border-radius:8px;background:var(--off);flex:none}
+.big::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--knobOff)}
+.big.on{background:var(--on)}.big.on::after{left:14px;background:var(--knobOn)}
+/* 小開關 .lpc-sw 20×11、圓點 7 */
+.mini{position:relative;width:20px;height:11px;border-radius:6px;background:var(--ctlBorder);flex:none}
+.mini::after{content:"";position:absolute;top:2px;left:2px;width:7px;height:7px;border-radius:50%;background:var(--miniKnobOff)}
+.mini.on{background:var(--acc)}.mini.on::after{left:11px;background:#fff}
+/* 選項 S1：大開關也改藍 */
+.s1 .big.on{background:var(--acc)}.s1 .big.on::after{background:#fff}
+/* 放大檢視 */
+.zoom{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:8px 6px}
+.zoom .z{transform:scale(2.5);transform-origin:left center;margin-right:48px}
+.label{font:11px var(--font-data);color:var(--td)}
+.bug .big.on{background:#fff}.bug .big.on::after{background:#111827}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>圖層開關：兩種尺寸</h1>
+  <p class="lead">站上有<b>兩種開關</b>。規格 §5.10 只寫了小的那種，大的（Layers 每一列右邊那顆）沒寫進規格，所以元件頁把它標成「不符」。另外，上次說「淡色底圖上看不見」，是元件頁用元件的預設顏色展示造成的；<b>實際的 Layers 面板會依主題傳入顏色，淡色看得見</b>（下圖第一列就是現況）。</p>
+</header>
+
+<section>
+  <h2>現況</h2>
+  <div class="pair">
+    <div class="pane d"><span class="cap">暗色 · Layers 面板</span>
+      <div class="row"><span>›</span><b>交通</b><small>Move</small><span class="n">1/46</span><span class="big on"></span></div>
+      <div class="param"><span class="mini on"></span>顯示站名<span class="mini" style="margin-left:14px"></span>光柱</div>
+      <div class="row"><span>›</span><b>人口社經</b><small>People</small><span class="n">0/5</span><span class="big"></span></div>
+      <div class="zoom"><span class="label">放大 2.5×</span><span class="z big on"></span><span class="z mini on"></span></div>
+    </div>
+    <div class="pane l"><span class="cap">淡色 · Layers 面板</span>
+      <div class="row"><span>›</span><b>交通</b><small>Move</small><span class="n">1/46</span><span class="big on"></span></div>
+      <div class="param"><span class="mini on"></span>顯示站名<span class="mini" style="margin-left:14px"></span>光柱</div>
+      <div class="row"><span>›</span><b>人口社經</b><small>People</small><span class="n">0/5</span><span class="big"></span></div>
+      <div class="zoom"><span class="label">放大 2.5×</span><span class="z big on"></span><span class="z mini on"></span></div>
+    </div>
+  </div>
+  <div class="notes">
+    <p><b>大開關</b>（<code>LayerToggleSwitch</code>，28×16、圓點 12）：Layers 每個主題與圖層列、分析結果清單、醫療統計群組。開＝暗色白底黑點／淡色深底白點（黑白，不用強調色）。</p>
+    <p><b>小開關</b>（<code>.lpc-sw</code>，20×11、圓點 7）：圖層展開後的細項控制（顯示站名、光柱…）、底圖選單「顯示地名」。開＝強調藍。規格 §5.10 只寫了這種。</p>
+    <p>規格另寫的「工具列／面板 24×14」目前<b>沒有任何地方在用</b>。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="fix">潛在問題</span>元件自己的預設顏色</h2>
+  <div class="pair">
+    <div class="pane d"><span class="cap">暗色 · 沒傳顏色時</span><div class="row"><b>醫療統計群組</b><span class="n"></span><span class="big on bug"></span></div></div>
+    <div class="pane l"><span class="cap">淡色 · 沒傳顏色時（白底白軌道，目前無實際使用處）</span><div class="row bug"><b>醫療統計群組</b><span class="n"></span><span class="big on"></span></div></div>
+  </div>
+  <div class="notes">
+    <p>元件內建的預設值是暗色版（開＝白色）。<b>目前所有實際使用的地方都有依主題傳入顏色，所以畫面上不會發生</b>；元件頁當初沒傳顏色才看到右圖。風險是之後新地方直接用、忘了傳顏色，在淡色面板就會白底白軌道。修法很小：讓預設值自己跟著主題。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">S1</span>大開關也改強調藍</h2>
+  <div class="pair">
+    <div class="pane d s1"><span class="cap">暗色</span>
+      <div class="row"><span>›</span><b>交通</b><small>Move</small><span class="n">1/46</span><span class="big on"></span></div>
+      <div class="param"><span class="mini on"></span>顯示站名</div>
+      <div class="row"><span>›</span><b>人口社經</b><small>People</small><span class="n">0/5</span><span class="big"></span></div>
+    </div>
+    <div class="pane l s1"><span class="cap">淡色</span>
+      <div class="row"><span>›</span><b>交通</b><small>Move</small><span class="n">1/46</span><span class="big on"></span></div>
+      <div class="param"><span class="mini on"></span>顯示站名</div>
+      <div class="row"><span>›</span><b>人口社經</b><small>People</small><span class="n">0/5</span><span class="big"></span></div>
+    </div>
+  </div>
+  <div class="notes"><p>兩種開關「開」都用同一個強調藍，全站「啟用中」語意一致。尺寸維持兩階（列 28×16、細項 20×11）。改動：一個元件＋三處傳色。</p><p>缺點：Layers 清單開很多層時整排藍點，比現在的黑白醒目。</p></div>
+</section>
+
+<section>
+  <h2><span class="tag">S2</span>維持現況，只補規格 <span class="rec">建議</span></h2>
+  <div class="notes">
+    <p>外觀就是上面「現況」那組，不改畫面。規格 §5.10 改寫成兩階：<b>列開關 28×16、開＝黑白（依主題）</b>；<b>細項開關 20×11、開＝強調藍</b>；刪掉沒人用的 24×14。</p>
+    <p>理由：列開關是「整層開關」，用中性黑白比較穩，細項用藍色標出「這層裡哪些選項有開」，兩者層級本來就不同。</p>
+    <p>一併讓元件預設顏色跟著主題，避免之後踩到。</p>
+  </div>
+</section>
+</div>

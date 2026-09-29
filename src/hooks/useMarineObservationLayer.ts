@@ -12,6 +12,8 @@ import {
 } from "../data/marineObservationLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -87,22 +89,6 @@ function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
 
-/**
- * Keep `zoom` as the direct input of the top-level interpolate. Mapbox rejects
- * otherwise plausible expressions such as `["*", ["interpolate", ..., ["zoom"]], scale]`.
- */
-export function marineObservationRadiusExpression(
-  scale = 1,
-): ExpressionSpecification {
-  return [
-    "interpolate", ["linear"], ["zoom"],
-    5, 2.4 * scale,
-    8, 3.6 * scale,
-    12, 5.2 * scale,
-    16, 7.2 * scale,
-  ] as unknown as ExpressionSpecification;
-}
-
 function abnormalPropertyStatusExpression(property: "sourceStatus" | "latestSourceStatus"): ExpressionSpecification {
   return [
     "all",
@@ -155,9 +141,26 @@ function marineObservationOpacityExpression(
   ] as unknown as ExpressionSpecification;
 }
 
+const LAYER_KEY: Record<MarineSourceNetwork, "marineObservationCwa" | "marineObservationIsohe"> = {
+  cwa: "marineObservationCwa",
+  isohe: "marineObservationIsohe",
+};
+
+function defaultOpacity(sourceNetwork: MarineSourceNetwork): number {
+  const key = LAYER_KEY[sourceNetwork];
+  const def = paramDefault(key, `${key}Opacity`);
+  return typeof def === "number" && def > 0 ? def : 1;
+}
+
+/** 描邊透明度倍率 = 滑桿值 ÷ 規格預設（預設取自 layerParamsSpec，不手寫）。 */
+function strokeFactor(sourceNetwork: MarineSourceNetwork, opacity: number): number {
+  return clampOpacity(opacity) / defaultOpacity(sourceNetwork);
+}
+
 export function marineObservationCircleLayers(
   sourceNetwork: MarineSourceNetwork,
-  opacity = 0.85,
+  opacity = defaultOpacity(sourceNetwork),
+  isDarkTheme = true,
 ): readonly CircleLayer[] {
   const config = NETWORK_CONFIG[sourceNetwork];
   const color = marineObservationColorExpression(sourceNetwork);
@@ -169,7 +172,7 @@ export function marineObservationCircleLayers(
       source: config.sourceId,
       layout: { visibility: "none" },
       paint: {
-        "circle-radius": marineObservationRadiusExpression(1.85),
+        "circle-radius": pointRadius("M") * 2,
         "circle-color": color,
         "circle-opacity": marineObservationOpacityExpression(opacity * 0.24),
         "circle-blur": 0.75,
@@ -181,17 +184,10 @@ export function marineObservationCircleLayers(
       source: config.sourceId,
       layout: { visibility: "none" },
       paint: {
-        "circle-radius": marineObservationRadiusExpression(),
+        "circle-radius": pointRadius("M"),
         "circle-color": color,
         "circle-opacity": pointOpacity,
-        "circle-stroke-color": "rgba(255,255,255,0.9)",
-        "circle-stroke-width": [
-          "interpolate", ["linear"], ["zoom"],
-          5, 0.35,
-          10, 0.65,
-          15, 1,
-        ] as unknown as ExpressionSpecification,
-        "circle-stroke-opacity": clampOpacity(opacity),
+        ...pointStrokePaint(isDarkTheme, strokeFactor(sourceNetwork, opacity)),
       },
     } as CircleLayer,
   ];
@@ -220,6 +216,7 @@ function ensureLayers(
   sourceNetwork: MarineSourceNetwork,
   opacity: number,
   data: GeoJSON.FeatureCollection,
+  isDarkTheme: boolean,
 ): void {
   const config = NETWORK_CONFIG[sourceNetwork];
   if (!map.getSource(config.sourceId)) {
@@ -229,7 +226,7 @@ function ensureLayers(
       attribution: sourceNetwork === "cwa" ? "中央氣象署 CWA" : "ISOHE 港區海氣象開放資料",
     });
   }
-  for (const layer of marineObservationCircleLayers(sourceNetwork, opacity)) {
+  for (const layer of marineObservationCircleLayers(sourceNetwork, opacity, isDarkTheme)) {
     if (!map.getLayer(layer.id)) map.addLayer(layer);
   }
 }
@@ -251,6 +248,7 @@ function updatePaint(
   map: MapboxMap,
   sourceNetwork: MarineSourceNetwork,
   opacity: number,
+  isDarkTheme: boolean,
 ): void {
   const config = NETWORK_CONFIG[sourceNetwork];
   if (map.getLayer(config.glowLayerId)) {
@@ -266,7 +264,8 @@ function updatePaint(
       "circle-opacity",
       marineObservationOpacityExpression(opacity),
     );
-    map.setPaintProperty(config.circleLayerId, "circle-stroke-opacity", clampOpacity(opacity));
+    const stroke = pointStrokePaint(isDarkTheme, strokeFactor(sourceNetwork, opacity));
+    for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(config.circleLayerId, prop, stroke[prop]);
   }
 }
 
@@ -275,7 +274,8 @@ export function useMarineObservationLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   sourceNetwork: MarineSourceNetwork,
   visible: boolean,
-  opacity = 0.85,
+  opacity = defaultOpacity(sourceNetwork),
+  isDarkTheme = true,
 ): void {
   const config = NETWORK_CONFIG[sourceNetwork];
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -332,17 +332,17 @@ export function useMarineObservationLayer(
 
     const mount = () => {
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, sourceNetwork, opacity, dataRef.current ?? EMPTY);
+      ensureLayers(map, sourceNetwork, opacity, dataRef.current ?? EMPTY, isDarkTheme);
       const source = map.getSource(config.sourceId) as GeoJSONSource | undefined;
       if (source && dataRef.current) source.setData(dataRef.current);
-      updatePaint(map, sourceNetwork, opacity);
+      updatePaint(map, sourceNetwork, opacity, isDarkTheme);
       setLayerVisibility(map, sourceNetwork, true);
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [config.sourceId, mapRef, mapTick, opacity, sourceNetwork, visible]);
+  }, [config.sourceId, isDarkTheme, mapRef, mapTick, opacity, sourceNetwork, visible]);
 }
 
 /** One stable host-facing hook for the two independently toggleable source networks. */
@@ -352,7 +352,8 @@ export function useMarineObservationLayers(
   isoheVisible: boolean,
   cwaOpacity = 0.85,
   isoheOpacity = 0.85,
+  isDarkTheme = true,
 ): void {
-  useMarineObservationLayer(mapRef, "cwa", cwaVisible, cwaOpacity);
-  useMarineObservationLayer(mapRef, "isohe", isoheVisible, isoheOpacity);
+  useMarineObservationLayer(mapRef, "cwa", cwaVisible, cwaOpacity, isDarkTheme);
+  useMarineObservationLayer(mapRef, "isohe", isoheVisible, isoheOpacity, isDarkTheme);
 }

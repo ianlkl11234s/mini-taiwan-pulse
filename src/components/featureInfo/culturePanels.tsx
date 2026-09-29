@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { RADIUS, FONT_SIZE, COLORS } from "../../styles/designTokens";
-import { Row, SourceFooter } from "./shared";
+import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES, CULTURE_MISSING_COLOR,
@@ -9,17 +9,6 @@ import {
 } from "../../data/cultureTypes";
 import { fetchLibrarySeats24h, type LibrarySeatArea } from "../../data/librarySeatsLoader";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
-
-// 本檔 Title 為極簡本地版（同 urbanPanels 慣例）：shared.tsx 未 export Title，故不去改動它。
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 /** 整數場次數（非有限值回空字串，Row 對空值自動隱藏） */
 function intOrEmpty(v: unknown): string {
@@ -37,7 +26,6 @@ export function CulturalFacilitiesPanel({ props }: { props: Record<string, unkno
       <Row label="類型" value={type} color={color} />
       <Row label="城市" value={String(props.city ?? "")} />
       <Row label="地址" value={String(props.address ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -53,7 +41,6 @@ export function CulturalMuseumsPanel({ props }: { props: Record<string, unknown>
       <Row label="城市" value={String(props.city ?? "")} />
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="官網" value={String(props.website ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -84,7 +71,6 @@ export function ArtsEventsPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="場次時間" value={String(props.show_time ?? "")} />
       <Row label="地點" value={String(props.location_name ?? "")} />
       <Row label="地址" value={String(props.address ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -98,7 +84,6 @@ export function PerformingVenuesPanel({ props }: { props: Record<string, unknown
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="活動數" value={intOrEmpty(props.event_count)} />
       <Row label="場次數" value={intOrEmpty(props.show_count)} />
-      <SourceFooter props={props} />
     </>
   );
 }

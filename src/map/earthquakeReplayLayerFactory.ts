@@ -15,6 +15,8 @@ import {
 import { beachballSvg, type FocalMechanism } from "../lib/beachball";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
+import { paramDefault } from "../data/layerParamsSpec";
+import { pointStrokePaint } from "./mapStyleScale";
 
 /**
  * 地震回放（earthquakeReplay）— Mapbox source / layer 組裝。
@@ -113,6 +115,14 @@ function stationOpacityExpr(opacity: number): ExpressionSpecification {
   return ["*", opacity, ["coalesce", ["feature-state", "lit"], 0]] as unknown as ExpressionSpecification;
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("earthquakeReplay", "eqReplayOpacity"));
+
+/** 站點描邊：底圖色細縫；透明度仍乘 feature-state lit（站點抵達前不顯示） */
+function stationStrokePaint(opacity: number, isDark: boolean) {
+  const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+  return { ...stroke, "circle-stroke-opacity": stationOpacityExpr(stroke["circle-stroke-opacity"]) };
+}
+
 /** 底圖之上、地名標籤之下（同 temperatureGridLayerFactory） */
 function firstSymbolLayerId(map: MapboxMap): string | undefined {
   try {
@@ -187,7 +197,7 @@ export function gridToGeoJSON(cells: EqReplayGridCell[]): GeoJSON.FeatureCollect
 // ── 建 / 拆 ─────────────────────────────────────────────────────────
 
 /** 確保 source + 5 個 layer 存在（idempotent，底圖切換後可重呼）；回傳是否就緒 */
-export function ensureEarthquakeReplayLayers(map: MapboxMap, opacity: number): boolean {
+export function ensureEarthquakeReplayLayers(map: MapboxMap, opacity: number, isDark = true): boolean {
   registerPmtilesSourceTypeOnce();
 
   for (const id of [EQ_REPLAY_EPICENTER_SOURCE, EQ_REPLAY_STATION_SOURCE, EQ_REPLAY_GRID_SOURCE]) {
@@ -253,9 +263,7 @@ export function ensureEarthquakeReplayLayers(map: MapboxMap, opacity: number): b
           "circle-radius": STATION_RADIUS_EXPR,
           "circle-color": STATION_COLOR_EXPR,
           "circle-opacity": stationOpacityExpr(opacity * 0.85),
-          "circle-stroke-color": "#ffffff",
-          "circle-stroke-width": 1,
-          "circle-stroke-opacity": stationOpacityExpr(opacity * 0.55),
+          ...stationStrokePaint(opacity, isDark),
         },
       } as CircleLayer,
       before,
@@ -350,14 +358,13 @@ export function setReplayTownOpacity(map: MapboxMap, opacity: number, fade: numb
   map.setPaintProperty(EQ_REPLAY_TOWN_LAYER, "fill-opacity", townOpacityExpr(opacity * 0.8 * fade));
 }
 
-export function setReplayStationOpacity(map: MapboxMap, opacity: number): void {
+export function setReplayStationOpacity(map: MapboxMap, opacity: number, isDark = true): void {
   if (!map.getLayer(EQ_REPLAY_STATION_LAYER)) return;
   map.setPaintProperty(EQ_REPLAY_STATION_LAYER, "circle-opacity", stationOpacityExpr(opacity * 0.85));
-  map.setPaintProperty(
-    EQ_REPLAY_STATION_LAYER,
-    "circle-stroke-opacity",
-    stationOpacityExpr(opacity * 0.55),
-  );
+  const stroke = stationStrokePaint(opacity, isDark);
+  map.setPaintProperty(EQ_REPLAY_STATION_LAYER, "circle-stroke-color", stroke["circle-stroke-color"]);
+  map.setPaintProperty(EQ_REPLAY_STATION_LAYER, "circle-stroke-width", stroke["circle-stroke-width"]);
+  map.setPaintProperty(EQ_REPLAY_STATION_LAYER, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
 }
 
 export interface EpicenterFrame {

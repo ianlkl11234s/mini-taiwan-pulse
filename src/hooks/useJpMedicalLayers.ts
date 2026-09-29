@@ -13,6 +13,8 @@ import { fetchJpMedicalAggregate, getJpMedicalRuntime, jpMedicalLayerAsset, repo
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 type JpMedicalLayerKey = JpMedicalCategoryKey | JpMedicalCareKey | JpMedicalAreaKey;
@@ -35,11 +37,11 @@ const JP_MEDICAL_FACILITY_AGGREGATE_LAYER_IDS = ["jp-medical-facilities-aggregat
 const JP_MEDICAL_CARE_AGGREGATE_LAYER_IDS = ["jp-medical-care-aggregate-fill", "jp-medical-care-aggregate-outline"] as const;
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
-const pointRadius = (large: number): ExpressionSpecification => [
-  "interpolate", ["linear"], ["zoom"], 0, 0.65, 6, 0.9, 10, 1.8, 14, large,
-] as unknown as ExpressionSpecification;
 const LOW_ZOOM_CUTOFF = 8;
 const MAX_MAP_ZOOM = 24;
+const pointOpacityDefault = (key: JpMedicalCategoryKey | JpMedicalCareKey) => Number(paramDefault(key, `${key}Opacity`) ?? 1);
+const pointStroke = (key: JpMedicalCategoryKey | JpMedicalCareKey, opacity: number, isDark: boolean) =>
+  pointStrokePaint(isDark, clamp(opacity) / pointOpacityDefault(key));
 
 function useMapZoom(mapRef: React.RefObject<MapboxMap | null>, active: boolean) {
   const tick = useMapReadyTick(mapRef, active);
@@ -56,12 +58,16 @@ function useMapZoom(mapRef: React.RefObject<MapboxMap | null>, active: boolean) 
 }
 
 function removeMapLayers(map: MapboxMap, layerIds: readonly string[], sourceId: string) {
-  layerIds.forEach((layerId) => { if (map.getLayer(layerId)) map.removeLayer(layerId); });
-  if (map.getSource(sourceId)) map.removeSource(sourceId);
+  // cleanup 可能在 map.remove() 之後才跑（見 LayerHost.tsx 的 unmount 順序說明），
+  // 此時 map.style 已不存在，getLayer 會拋 "reading 'getOwnLayer'" 並整頁崩潰。
+  try {
+    layerIds.forEach((layerId) => { if (map.getLayer(layerId)) map.removeLayer(layerId); });
+    if (map.getSource(sourceId)) map.removeSource(sourceId);
+  } catch { /* map 可能已銷毀 */ }
 }
 
 function aggregateOpacity(definitions: readonly PointLayerDefinition[], visibility: JpMedicalVisibility, params: JpMedicalParams) {
-  return Math.max(0, ...definitions.filter(({ key }) => visibility[key]).map(({ key }) => clamp(params[`${key}Opacity`] ?? 0.78)));
+  return Math.max(0, ...definitions.filter(({ key }) => visibility[key]).map(({ key }) => clamp(params[`${key}Opacity`] ?? pointOpacityDefault(key))));
 }
 
 interface PointLayerDefinition {
@@ -111,7 +117,7 @@ function usePointFamily(
   sourceId: string,
   layerIds: readonly string[],
   definitions: readonly PointLayerDefinition[],
-  radius: number,
+  isDarkTheme: boolean,
 ) {
   const active = definitions.some(({ key }) => visibility[key]);
   const tick = useMapReadyTick(mapRef, active);
@@ -145,6 +151,7 @@ function usePointFamily(
     }
 
     const mount = () => {
+      const isDark = isDarkTheme;
       registerPmtilesSourceTypeOnce();
       const identity = `${asset.url}:${asset.revision}`;
       if (mountedIdentity.current && mountedIdentity.current !== identity) {
@@ -165,17 +172,18 @@ function usePointFamily(
           minzoom: LOW_ZOOM_CUTOFF,
           layout: { visibility: "none" },
           paint: {
-            "circle-radius": pointRadius(radius),
+            "circle-radius": pointRadius("M"),
             "circle-color": color,
-            "circle-opacity": clamp(params[`${key}Opacity`] ?? 0.78),
-            "circle-stroke-color": "rgba(15,23,42,.5)",
-            "circle-stroke-width": 0.3,
+            "circle-opacity": clamp(params[`${key}Opacity`] ?? pointOpacityDefault(key)),
+            ...pointStroke(key, params[`${key}Opacity`] ?? pointOpacityDefault(key), isDark),
           },
           filter,
         } as CircleLayer);
         map.setLayerZoomRange(layerId, LOW_ZOOM_CUTOFF, MAX_MAP_ZOOM);
         map.setLayoutProperty(layerId, "visibility", visibility[key] ? "visible" : "none");
-        map.setPaintProperty(layerId, "circle-opacity", clamp(params[`${key}Opacity`] ?? 0.78));
+        map.setPaintProperty(layerId, "circle-opacity", clamp(params[`${key}Opacity`] ?? pointOpacityDefault(key)));
+        const stroke = pointStroke(key, params[`${key}Opacity`] ?? pointOpacityDefault(key), isDark);
+        for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId, prop, stroke[prop]);
       });
       mountedIdentity.current = identity;
       if (added) keepLoadingUntilMapIdle(map, `${sourceId}:render`, "醫療點位載入中", sourceId);
@@ -187,7 +195,7 @@ function usePointFamily(
     map.on("style.load", mount);
     map.on("error", onError);
     return () => { map.off("style.load", mount); map.off("error", onError); };
-  }, [mapRef, asset, definitions, layerIds, params, pointsEnabled, radius, revision, sourceId, tick, visibility]);
+  }, [mapRef, asset, definitions, isDarkTheme, layerIds, params, pointsEnabled, revision, sourceId, tick, visibility]);
 }
 
 function useAggregateFamily(
@@ -334,9 +342,9 @@ const CARE_DEFINITIONS: readonly PointLayerDefinition[] = JP_MEDICAL_CARE_GROUPS
 }));
 
 /** 5 類設施、6 類長照與 3 級醫療圈各自獨立；point minzoom 由 hash-pinned catalog 控制。 */
-export function useJpMedicalLayers(mapRef: React.RefObject<MapboxMap | null>, visibility: JpMedicalVisibility, params: JpMedicalParams) {
-  usePointFamily(mapRef, visibility, params, "navii_facilities", "jp-medical-facilities", JP_MEDICAL_FACILITY_LAYER_IDS, FACILITY_DEFINITIONS, 5);
-  usePointFamily(mapRef, visibility, params, "h17_services", "jp-medical-care", JP_MEDICAL_CARE_LAYER_IDS, CARE_DEFINITIONS, 4);
+export function useJpMedicalLayers(mapRef: React.RefObject<MapboxMap | null>, visibility: JpMedicalVisibility, params: JpMedicalParams, isDarkTheme = true) {
+  usePointFamily(mapRef, visibility, params, "navii_facilities", "jp-medical-facilities", JP_MEDICAL_FACILITY_LAYER_IDS, FACILITY_DEFINITIONS, isDarkTheme);
+  usePointFamily(mapRef, visibility, params, "h17_services", "jp-medical-care", JP_MEDICAL_CARE_LAYER_IDS, CARE_DEFINITIONS, isDarkTheme);
   useAggregateFamily(mapRef, visibility, params, "navii_facilities", "jp-medical-facilities-aggregate", JP_MEDICAL_FACILITY_AGGREGATE_LAYER_IDS, FACILITY_DEFINITIONS);
   useAggregateFamily(mapRef, visibility, params, "h17_services", "jp-medical-care-aggregate", JP_MEDICAL_CARE_AGGREGATE_LAYER_IDS, CARE_DEFINITIONS);
   useAreaLayer(mapRef, visibility, params, JP_MEDICAL_AREA_LEVELS[0]);

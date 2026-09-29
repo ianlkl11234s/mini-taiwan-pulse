@@ -1,0 +1,120 @@
+/*
+ * 設計系統參考頁（design-system.html）本身的版面。
+ * 頁面 chrome 一律用 src/styles/tokens.css 的變數；元件樣式由各元件自己的樣式表負責。
+ */
+html { color-scheme: dark; }
+body {
+  margin: 0;
+  background: var(--surface-app);
+  color: var(--text-default);
+  font: var(--font-lg)/1.6 var(--font-cjk);
+}
+.ds { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+.ds-mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+/* ── 左側目錄 ── */
+.ds-toc {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; box-sizing: border-box;
+  padding: 20px 14px 40px; border-right: 1px solid var(--border-panel); background: var(--surface-strong);
+}
+.ds-toc h1 { margin: 0 0 2px; font: 700 var(--font-lg)/1.3 var(--font-cjk); color: var(--text-strong); }
+.ds-toc p { margin: 0 0 14px; font-size: var(--font-sm); color: var(--text-dim); line-height: 1.5; }
+.ds-toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.ds-toc a { display: flex; gap: 8px; padding: 4px 6px; border-radius: var(--radius-md); color: var(--text-muted); font-size: var(--font-md); text-decoration: none; }
+.ds-toc a:hover { background: var(--control-bg-hover); color: var(--text-strong); }
+.ds-toc a .ds-mono { color: var(--text-dim); font-size: var(--font-sm); min-width: 16px; }
+
+/* ── 主欄 ── */
+.ds-main { min-width: 0; padding: 24px 28px 96px; display: flex; flex-direction: column; gap: 44px; }
+.ds-intro h2 { margin: 0 0 6px; font-size: var(--font-xxl); color: var(--text-strong); }
+.ds-intro p { margin: 0 0 4px; max-width: 90ch; color: var(--text-muted); font-size: var(--font-md); overflow-wrap: anywhere; }
+.ds-section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 16px; border-top: 1px solid var(--border-panel); padding-top: 20px; }
+.ds-section > header h2 { margin: 0; font-size: var(--font-xl); color: var(--text-strong); display: flex; gap: 10px; align-items: baseline; }
+.ds-section > header h2 .ds-mono { font-size: var(--font-md); color: var(--text-dim); font-weight: 400; }
+.ds-sub { margin: 6px 0 0; font-size: var(--font-md); font-weight: 600; color: var(--text-strong); }
+.ds-spec { margin: 2px 0 0; font-size: var(--font-sm); color: var(--text-dim); }
+.ds-spec code { font-family: var(--font-data); color: var(--text-muted); overflow-wrap: anywhere; }
+.ds-note { margin: 0; max-width: 90ch; font-size: var(--font-md); color: var(--text-muted); }
+.ds-note b { color: var(--text-strong); font-weight: 600; }
+.ds-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: var(--radius-pill); font-size: var(--font-xs); font-weight: 600; line-height: 16px; vertical-align: 1px; }
+.ds-tag--real { color: var(--status-live); border: 1px solid color-mix(in srgb, var(--status-live) 45%, transparent); }
+.ds-tag--replica { color: var(--status-warn); border: 1px solid color-mix(in srgb, var(--status-warn) 45%, transparent); }
+.ds-tag--doc { color: var(--status-derived); border: 1px solid color-mix(in srgb, var(--status-derived) 45%, transparent); }
+
+/* ── 暗／淡並排 ── */
+.ds-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ds-pane { position: relative; min-width: 0; border-radius: var(--radius-lg); border: 1px solid var(--border-panel); padding: 30px 14px 14px; display: flex; flex-direction: column; gap: 12px; }
+.ds-pane__label {
+  position: sticky; top: 0; align-self: flex-start; margin: -30px 0 0 -14px; padding: 3px 10px; border-radius: var(--radius-lg) 0 var(--radius-md) 0;
+  font-size: var(--font-xs); font-weight: 600; letter-spacing: 1px; background: var(--surface-solid); color: var(--text-muted); border: 1px solid var(--border-panel);
+}
+.ds-pane--light .ds-pane__label { background: var(--light-surface-solid); color: var(--light-text-muted); border-color: var(--light-border); }
+.ds-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+
+/*
+ * 淡色容器：把全域 token 指到 --light-*（與 .research-activity-position--light、Agent 面板同一種做法）。
+ * 只給「直接讀全域 var 的元件」用（PanelHeader eyebrow、共用 Slider）。
+ */
+.ds-light-remap {
+  --surface-strong: var(--light-surface-strong);
+  --border-panel: var(--light-border);
+  --border-mid: var(--light-border-mid);
+  --text-strong: var(--light-text-strong);
+  --text-default: var(--light-text-default);
+  --text-muted: var(--light-text-muted);
+  --text-dim: var(--light-text-dim);
+  --accent: var(--light-accent);
+  --slider-track: var(--light-slider-track);
+  --slider-fill: var(--light-slider-fill);
+  --slider-thumb: var(--light-slider-thumb);
+  color-scheme: light;
+}
+
+/* ── 數值表 ── */
+.ds-kv { width: 100%; border-collapse: collapse; font-size: var(--font-sm); }
+.ds-kv th, .ds-kv td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+.ds-kv th { color: var(--text-dim); font-weight: 400; white-space: nowrap; }
+.ds-kv td { color: var(--text-default); overflow-wrap: anywhere; }
+.ds-pane--light .ds-kv th { color: var(--light-text-dim); }
+.ds-pane--light .ds-kv td { color: var(--light-text-default); }
+.ds-pane--light .ds-kv th, .ds-pane--light .ds-kv td { border-bottom-color: var(--light-border-soft); }
+.ds-warn { color: var(--status-warn); }
+
+/* ── token 卡 ── */
+.ds-tokgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.ds-tok { min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 8px; border-radius: var(--radius-md); background: var(--white-a4); border: 1px solid var(--border-soft); font-size: var(--font-sm); }
+.ds-tok__name { color: var(--text-strong); font-weight: 600; overflow-wrap: anywhere; }
+.ds-tok__val, .ds-tok__var { color: var(--text-muted); overflow-wrap: anywhere; }
+.ds-tok__var { color: var(--text-dim); }
+.ds-swatch {
+  height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border-panel);
+  background-image: linear-gradient(45deg, rgba(128,128,128,.35) 25%, transparent 25% 75%, rgba(128,128,128,.35) 75%), linear-gradient(45deg, rgba(128,128,128,.35) 25%, transparent 25% 75%, rgba(128,128,128,.35) 75%);
+  background-size: 10px 10px; background-position: 0 0, 5px 5px; position: relative; overflow: hidden;
+}
+.ds-swatch > i { position: absolute; inset: 0; }
+
+details.ds-details summary { cursor: pointer; font-size: var(--font-sm); color: var(--text-muted); }
+details.ds-details[open] summary { margin-bottom: 6px; }
+.ds-keys { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: var(--font-sm); color: var(--text-muted); }
+
+/* ── 固定定位元件的容器：transform 讓 position:fixed 以本框為準、contain 裁切 ── */
+.ds-frame { position: relative; overflow: hidden; border-radius: var(--radius-md); transform: translateZ(0); contain: layout paint; }
+.ds-btn {
+  display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: var(--radius-md);
+  border: 1px solid var(--control-border); background: var(--control-bg); color: var(--text-strong); font: 500 var(--font-base)/1 var(--font-cjk); cursor: pointer;
+}
+.ds-btn:hover { background: var(--control-bg-hover); }
+
+@media (max-width: 900px) {
+  .ds { grid-template-columns: 1fr; }
+  .ds-toc { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border-panel); }
+  .ds-main { padding: 16px 16px 72px; }
+  .ds-pair { grid-template-columns: 1fr; }
+  /* 手機：寬示例（展開時間軸 590px、層級圖）在各節內橫向捲動，頁面本身不橫捲 */
+  .ds-section { overflow-x: auto; }
+}
+
+/* 淡色欄內的頁面文字（標題、說明）改用淡色文字階，否則白字落在白底 */
+.ds-pane--light .ds-sub { color: var(--light-text-strong); }
+.ds-pane--light .ds-note, .ds-pane--light .ds-spec { color: var(--light-text-muted); }
+.ds-pane--light .ds-note b, .ds-pane--light .ds-spec code { color: var(--light-text-strong); }

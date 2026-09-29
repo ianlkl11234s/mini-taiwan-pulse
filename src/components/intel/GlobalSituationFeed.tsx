@@ -1,6 +1,7 @@
 import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
 import { IntelIcon, ICON } from "./IntelIcon";
-import { COLORS, FONT_CJK, clockTime } from "./intelTokens";
+import { FONT_CJK, clockTime } from "./intelTokens";
+import { useIntelTheme } from "./intelTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
 import type { GlobalSituationEntry } from "../../data/globalEventsLoader";
 import type { GlobalSituationFeedSnapshot } from "../../state/globalSituationFeedStore";
@@ -151,6 +152,7 @@ interface Props {
 export function GlobalSituationFeed({
   cards, snapshot, selectedId, expandedId, onSelect, onToggle, nowTs,
 }: Props) {
+  const palette = useIntelTheme();
   const unlocated = cards.filter((card) => card.location_name === UNLOCATED_LABEL).length;
 
   if (cards.length === 0) {
@@ -162,13 +164,13 @@ export function GlobalSituationFeed({
           height: "100%", gap: 8, textAlign: "center", padding: 24,
         }}
       >
-        <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
-        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
+        <IntelIcon d={ICON.radio} size={28} color={palette.textGhost} />
+        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
           {snapshot.status === "loading" ? "正在載入全球情勢…"
             : snapshot.status === "error" ? "全球情勢載入失敗"
               : "目前無符合條件的國際事件"}
         </div>
-        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
           {snapshot.status === "error" ? snapshot.message ?? "稍後重試" : describeFeedLag(snapshot.entries)}
         </div>
       </div>
@@ -181,19 +183,19 @@ export function GlobalSituationFeed({
         style={{
           marginBottom: 10,
           fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
-          color: COLORS.textMuted, lineHeight: 1.5,
+          color: palette.textMuted, lineHeight: 1.5,
         }}
       >
         共 {cards.length} 件{unlocated > 0 ? ` · ${unlocated} 件${UNLOCATED_LABEL}` : ""}
-        {snapshot.status === "loading" && <span style={{ color: COLORS.textFaint }}>　更新中…</span>}
-        {snapshot.status === "error" && <span style={{ color: COLORS.statusWarn }}>　{snapshot.message ?? "更新失敗"}</span>}
+        {snapshot.status === "loading" && <span style={{ color: palette.textFaint }}>　更新中…</span>}
+        {snapshot.status === "error" && <span style={{ color: palette.statusWarn }}>　{snapshot.message ?? "更新失敗"}</span>}
       </div>
       <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
         <span
           style={{
             position: "absolute", left: 12, top: 6, bottom: 6,
             width: 1.5,
-            background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+            background: `linear-gradient(${palette.borderMid}, ${palette.borderSoft} 90%, transparent)`,
           }}
         />
         {cards.map((card) => (
@@ -213,7 +215,7 @@ export function GlobalSituationFeed({
         style={{
           marginTop: 12,
           fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
-          color: COLORS.textFaint, lineHeight: 1.5,
+          color: palette.textFaint, lineHeight: 1.5,
         }}
       >
         「AI 初判」尚未經研究確認；已被判為低價值（drop_noise）的條目不在此列表。

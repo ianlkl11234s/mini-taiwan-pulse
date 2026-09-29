@@ -23,6 +23,20 @@ async function queryNewsWithSupabasePayload(configured: boolean, data: unknown) 
   return queryNews({ datasetId: "tw-news-events", parameters: { date: "2026-09-11", minRelevance: 0, eventsOnly: false, minSeverity: 0 } });
 }
 
+// Multiple payload variants under the same `configured` flag share one module reset +
+// dynamic re-import (each re-import rebuilds the whole research dataset registry, which
+// is expensive) instead of paying that cost once per payload via queryNewsWithSupabasePayload.
+async function importNewsQuerierWithPayloads(configured: boolean) {
+  vi.resetModules();
+  const rpc = vi.fn();
+  vi.doMock("../../lib/supabase", () => ({ supabaseConfigured: configured, supabase: { rpc } }));
+  const { queryRecords: queryNews } = await import("../researchDatasets");
+  return (data: unknown) => {
+    rpc.mockResolvedValueOnce({ data, error: null });
+    return queryNews({ datasetId: "tw-news-events", parameters: { date: "2026-09-11", minRelevance: 0, eventsOnly: false, minSeverity: 0 } });
+  };
+}
+
 describe("built-in research datasets", () => {
   it("keeps every dataset layer reference anchored to the manifest SSOT", () => {
     for (const descriptor of searchDatasets("").datasets) {
@@ -106,10 +120,11 @@ describe("built-in research datasets", () => {
   });
 
   it("rejects null or non-array news RPC payloads, but accepts a legitimate empty array", async () => {
-    await expect(queryNewsWithSupabasePayload(true, null)).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
-    await expect(queryNewsWithSupabasePayload(true, { events: [] })).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
-    await expect(queryNewsWithSupabasePayload(true, [{}])).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
-    await expect(queryNewsWithSupabasePayload(true, [])).resolves.toMatchObject({ datasetId: "tw-news-events", totalMatched: 0, returned: 0 });
+    const queryNewsWithPayload = await importNewsQuerierWithPayloads(true);
+    await expect(queryNewsWithPayload(null)).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    await expect(queryNewsWithPayload({ events: [] })).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    await expect(queryNewsWithPayload([{}])).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    await expect(queryNewsWithPayload([])).resolves.toMatchObject({ datasetId: "tw-news-events", totalMatched: 0, returned: 0 });
   });
 });
 

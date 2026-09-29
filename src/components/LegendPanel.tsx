@@ -8,9 +8,10 @@ import { HISTORICAL_FLIGHT_COLORS } from "../data/historicalFlightTrailsTypes";
 import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
-import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
+import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchSquare, useLegendTheme } from "./legend/legendKit";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { BORDER, COLORS, ELEVATION, LIGHT, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
@@ -38,11 +39,14 @@ import { loadGfwDarkVesselsManifest } from "../data/gfwDarkVesselsLoader";
 import { loadGfwHourlyTrackManifest } from "../data/gfwHourlyTracksLoader";
 import { gfwFreshness } from "../data/gfwFreshness";
 import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
+import { useAnalysisLegend } from "../research/analysisLegendStore";
+import { AnalysisLegendSection } from "../research/AnalysisLegendSection";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
 import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
+import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
@@ -221,34 +225,7 @@ import {
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
  */
 
-// ── Legend 文字主題色（light / dark 透過 context 分發給子圖例）──
-// 只涵蓋中性文字 token 與中性底/邊框；各 layer 色票（swatch / 狀態色 / 漸層）不受影響。
-interface LegendPalette {
-  textStrong: string;
-  textDefault: string;
-  textMuted: string;
-  textDim: string;
-  bgSubtle: string;
-  border: string;
-}
-const DARK_LEGEND: LegendPalette = {
-  textStrong: COLORS.textStrong,
-  textDefault: COLORS.textDefault,
-  textMuted: COLORS.textMuted,
-  textDim: COLORS.textDim,
-  bgSubtle: "rgba(255,255,255,0.05)",
-  border: "rgba(255,255,255,0.10)",
-};
-const LIGHT_LEGEND: LegendPalette = {
-  textStrong: "#111827",
-  textDefault: "#1F2937",
-  textMuted: "#4B5563",
-  textDim: "#6B7280",
-  bgSubtle: "rgba(0,0,0,0.04)",
-  border: "rgba(0,0,0,0.10)",
-};
-const LegendThemeCtx = createContext<LegendPalette>(DARK_LEGEND);
-const useLegendTheme = () => useContext(LegendThemeCtx);
+// 文字主題色、色票與標題元件在 ./legend/legendKit（LG-1–LG-11）。
 
 // ── Earthquake depth color stops ──
 const EQ_DEPTH_STOPS: { depth: number; color: string; label: string }[] = [
@@ -298,6 +275,8 @@ const CROP_KIND_ITEMS = [
 ];
 
 interface LegendPanelProps {
+  /** LG-9：停靠 popup 開著時為 true，所有圖例只留標題與色票（註記、來源收起）。 */
+  compact?: boolean;
   /**
    * 圖層開關。**主站不傳** —— 改由本元件自己訂閱 `layerVisibilityStore`
    * （AR-21 試點），這樣 App 因無關狀態重繪時 memo 能整個跳過本面板。
@@ -375,6 +354,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   })),
   ...COMPARISON_ENABLED_RECIPES.map(recipe => ({id: recipe.layer_key, render: () => <StatisticsLegend layerKey={recipe.layer_key} />})),
   ...SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...LABOR_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
@@ -466,10 +449,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "freewayCongestion", render: () => <FreewayCongestionLegend /> },
   { id: "cctv", render: () => <CctvLegend /> },
   // 人口 / 社經 H3 網格：色階由 demographicsLayerFactory 預烤進 properties.color
-  { id: "popCount", render: () => <H3RampLegend title="人口數 POPULATION" ramp={INFERNO} note="每格人口數（log 正規化）" /> },
-  { id: "indicators", render: () => <H3RampLegend title="人口指標 INDICATORS" ramp={INFERNO} note="所選指標值" /> },
-  { id: "socioeconomic", render: () => <H3RampLegend title="社經面貌 SOCIO-ECON" ramp={VIRIDIS} note="所選社經指標值" /> },
-  { id: "spatialEconomy", render: () => <H3RampLegend title="空間經濟 SPATIAL-ECON" ramp={MAGMA} note="所選房市指標值" /> },
+  { id: "popCount", render: () => <H3RampLegend title="人口數" titleEn="Population" ramp={INFERNO} note="每格人口數（log 正規化）" /> },
+  { id: "indicators", render: () => <H3RampLegend title="人口指標" titleEn="Indicators" ramp={INFERNO} note="所選指標值" /> },
+  { id: "socioeconomic", render: () => <H3RampLegend title="社經面貌" titleEn="Socio-Econ" ramp={VIRIDIS} note="所選社經指標值" /> },
+  { id: "spatialEconomy", render: () => <H3RampLegend title="空間經濟" titleEn="Spatial-Econ" ramp={MAGMA} note="所選房市指標值" /> },
   { id: "touristShuttleLive", render: () => <TouristShuttleLegend /> },
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { id: "ships", render: () => <ShipsLegend /> },
@@ -497,12 +480,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "companyCapitalGrid", render: ({ overlayParams }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} scaleIdx={overlayParams.companyGridScaleIdx ?? 0} /> },
   { id: "companyIndustryDistribution", render: ({ overlayParams }) => <CompanyIndustryDistributionLegend modeIdx={overlayParams.companyIndustryDisplayIdx ?? 0} mask={overlayParams.companyIndustryGroupsMask ?? 2047} midIdx={overlayParams.companyIndustryDistributionMidIdx ?? 0} /> },
   { id: "companyAgeStructure", render: ({ overlayParams }) => <CompanyAgeStructureLegend modeIdx={overlayParams.companyAgeStructureModeIdx ?? 0} /> },
-  { id: "factoryDensityGrid", render: () => <IndustrialDensityGridLegend title="生產中工廠密度 FACTORY DENSITY" unit="家" note="202606 生產中工廠登記；僅含有座標的工廠。" /> },
+  { id: "factoryDensityGrid", render: () => <IndustrialDensityGridLegend title="生產中工廠密度" titleEn="Factory Density" unit="家" note="202606 生產中工廠登記；僅含有座標的工廠。" /> },
   { id: "manufacturingCompanyDensityGrid", render: () => <IndustrialDensityGridLegend title="製造業公司登記地址密度" unit="家" note="202608 製造業公司登記地址；不是工廠實際營運地址。" /> },
   { id: "factoryLocations", render: () => <FactoryLocationsLegend /> },
   { id: "industrialParkBoundaries", render: () => <IndustrialParkBoundariesLegend /> },
   { id: "regulatedFacilities", render: () => <RegulatedFacilitiesLegend /> },
-  { id: "regulatedFacilityDensityGrid", render: () => <IndustrialDensityGridLegend title="列管設施密度 REGULATED FACILITY DENSITY" unit="筆" note="20260818 active 列管設施；列管身分不是污染風險。" /> },
+  { id: "regulatedFacilityDensityGrid", render: () => <IndustrialDensityGridLegend title="列管設施密度" titleEn="Regulated Facility Density" unit="筆" note="20260818 active 列管設施；列管身分不是污染風險。" /> },
   { id: "industrialParkComparison", render: ({ overlayParams }) => <IndustrialParkComparisonLegend modeIdx={overlayParams.industrialParkComparisonModeIdx ?? 0} /> },
   { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { id: "fireEvents", render: () => <FireEventLegend /> },
@@ -669,7 +652,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
 ];
 
 export const LegendPanel = memo(function LegendPanel({
-  visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems,
+  visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems, compact = false,
 }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -685,27 +668,25 @@ export const LegendPanel = memo(function LegendPanel({
 
   // 面板外殼 chrome（僅容器與標題文字，色票資料兩主題共用）
   const c = isDarkTheme
-    ? {
-        panelBg: SURFACE.strong,
-        panelBorder: "rgba(100, 170, 255, 0.15)",
-        headerText: COLORS.textMuted,
-        shadow: "none",
-      }
-    : {
-        panelBg: "rgba(255,255,255,0.94)",
-        panelBorder: "rgba(0,0,0,0.10)",
-        headerText: "#6B7280",
-        shadow: "0 8px 24px rgba(0,0,0,0.15)",
-      };
+    ? { panelBg: SURFACE.strong, panelBorder: BORDER.panel, headerText: COLORS.textMuted, shadow: ELEVATION.lg }
+    : { panelBg: LIGHT.surfaceStrong, panelBorder: LIGHT.border, headerText: LIGHT.textMuted, shadow: LIGHT.elevationLg };
 
   // 子圖例文字主題色（透過 context 分發，色票資料兩主題共用）
   const legendPalette = isDarkTheme ? DARK_LEGEND : LIGHT_LEGEND;
 
+  // G1：Agent 分析結果圖例排最上面一組（不進 LEGEND_REGISTRY；結果是暫時的、沒有 layer key）。
+  // G2：停靠 popup 開著時 compact，只留標題＋色階條。/embed 永遠沒有分析結果。
+  const analysisLegend = useAnalysisLegend();
+  const hasAnalysisLegend = analysisLegend.entries.length > 0;
+  // 分析結果剛出現時自動展開一次，否則圖例從 Agent 面板搬過來後會被預設收合藏住。
+  useEffect(() => { if (hasAnalysisLegend) setExpanded(true); }, [hasAnalysisLegend]);
+
   const active = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).some((k) => visibility[k]));
-  if (active.length === 0) return null;
+  if (active.length === 0 && !hasAnalysisLegend) return null;
 
   return (
     <LegendThemeCtx.Provider value={legendPalette}>
+    <LegendCompactCtx.Provider value={compact}>
     <div
       style={{
         width: 200,
@@ -715,7 +696,7 @@ export const LegendPanel = memo(function LegendPanel({
         border: `1px solid ${c.panelBorder}`,
         borderRadius: RADIUS.xl,
         boxShadow: c.shadow,
-        fontFamily: FONT_DATA,
+        fontFamily: FONT_CJK,
         overflow: "hidden",
         transition: "all 0.2s ease",
       }}
@@ -734,19 +715,19 @@ export const LegendPanel = memo(function LegendPanel({
           cursor: "pointer",
           color: c.headerText,
           fontSize: FONT_SIZE.sm,
-          fontFamily: FONT_DATA,
-          letterSpacing: 1,
+          fontFamily: FONT_CJK,
         }}
       >
         {expanded
           ? <ChevronDown size={12} style={{ flexShrink: 0 }} />
           : <ChevronRight size={12} style={{ flexShrink: 0 }} />}
-        <span>LEGEND</span>
+        <span>圖例</span>
       </button>
 
       {/* Content — registry 驅動，順序即 LEGEND_REGISTRY 順序 */}
       {expanded && (
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
           {active.map((entry) => (
             <Fragment key={entry.id}>
               {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems })}
@@ -755,6 +736,7 @@ export const LegendPanel = memo(function LegendPanel({
         </div>
       )}
     </div>
+    </LegendCompactCtx.Provider>
     </LegendThemeCtx.Provider>
   );
 });
@@ -767,9 +749,7 @@ function PollutionSeverityLegend({ visibility }: { visibility: LayerVisibility }
     : SEVERITY_BANDS;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        污染嚴重度 SEVERITY
-      </div>
+      <LegendTitle zh="污染嚴重度" en="Severity" />
       <FireCatRows cats={bands.map((b) => ({ color: b.color, label: b.label }))} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         列管 ≠ 污染｜設施色 = 最高嚴重度
@@ -796,13 +776,9 @@ function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility })
   }));
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        裁處分層 PENALTY
-      </div>
+      <LegendTitle zh="裁處分層" en="Penalty" />
       <FireCatRows cats={severityCats} />
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginTop: 8, marginBottom: 4 }}>
-        介質 MEDIUM
-      </div>
+      <LegendTitle zh="介質" en="Medium" style={{ marginTop: 8 }} />
       <FireCatRows cats={mediumCats} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         重大點大小 ∝ 罰鍰｜白框 = 連續 / 停工等｜可年份播放
@@ -824,12 +800,9 @@ function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility })
  * ShipScene 在淺色底圖會換成深飽和版（防 additive 洗白），色相對應相同。
  */
 function ShipsLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        船舶 SHIP・AIS 船種
-      </div>
+      <LegendTitle zh="船舶・AIS 船種" en="Ship" />
       <FireCatRows
         cats={SHIP_TYPE_LEGEND.map((s) => ({ color: SHIP_TYPE_COLORS_DARK[s.bucket], label: s.label }))}
       />
@@ -849,9 +822,7 @@ function FlightsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        航班 FLIGHT
-      </div>
+      <LegendTitle zh="航班" en="Flight" />
       <FireCatRows cats={[{ color: LAYER_COLORS.flights, label: "航跡 Trail" }]} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>
         軌跡為輪替配色，不代表分類
@@ -864,7 +835,7 @@ function HistoricalFlightTrailsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>歷史航班軌跡</div>
+      <LegendTitle zh="歷史航班軌跡" />
       <div style={{ height: 5, borderRadius: RADIUS.full, background: `linear-gradient(90deg, ${HISTORICAL_FLIGHT_COLORS[0]}, ${HISTORICAL_FLIGHT_COLORS[1]})` }} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>3D 航跡依觀測高度呈藍白漸層；高度倍率僅放大視覺，不改動資料。</div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>觀測空白以直線連接；連線不代表中間有實測資料。缺口數見點選資訊。</div>
@@ -913,7 +884,6 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
   const metroNames = selection ? railMetroOperatorNames(railSystems ?? []) : ["捷運"];
   const hasMetro = selection ? lineRows.length > 0 : true;
 
-  const heading = { fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1 };
   const secondTitle = [showThsr ? "高鐵" : null, hasMetro ? metroNames.join("／") : null]
     .filter(Boolean)
     .join("・");
@@ -927,15 +897,13 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
     <div>
       {showTra && (
         <>
-          <div style={{ ...heading, marginBottom: 4 }}>鐵路 RAIL・台鐵車種</div>
+          <LegendTitle zh="鐵路・台鐵車種" en="Rail" />
           <FireCatRows cats={TRA_TRAIN_TYPE_ROWS} />
         </>
       )}
       {secondTitle && (
         <>
-          <div style={{ ...heading, margin: showTra ? "6px 0 4px" : "0 0 4px" }}>
-            {showTra ? secondTitle : `鐵路 RAIL・${secondTitle}`}
-          </div>
+          <LegendTitle zh={showTra ? secondTitle : `鐵路・${secondTitle}`} en={showTra ? undefined : "Rail"} style={{ margin: showTra ? "6px 0 4px" : "0 0 4px" }} />
           {showThsr && <FireCatRows cats={[{ color: LAYER_COLORS.rail, label: "高鐵 THSR" }]} />}
           {lineRows.length > 0 && (
             <FireCatRows cats={lineRows.map((l) => ({ color: l.color, label: l.name }))} />
@@ -952,9 +920,7 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
 function TouristShuttleLegend() {
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        台灣好行 · 配色模式 COLOR
-      </div>
+      <LegendTitle zh="台灣好行 · 配色模式" />
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <span style={{
           width: 10, height: 10, borderRadius: RADIUS.full,
@@ -979,20 +945,10 @@ function TouristShuttleLegend() {
 // ── 消防圖例（火災 / 分隊 / 消防栓）──
 
 function FireCatRows({ cats, square }: { cats: { color: string; label: string }[]; square?: boolean }) {
-  const t = useLegendTheme();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {cats.map((c) => (
-        <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div
-            style={{
-              width: 10, height: 10, borderRadius: square ? RADIUS.sm : RADIUS.full,
-              background: c.color, opacity: 0.9, flexShrink: 0,
-              border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box",
-            }}
-          />
-          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
-        </div>
+        <LegendRow key={c.label} swatch={square ? <SwatchSquare color={c.color} /> : <SwatchDot color={c.color} />}>{c.label}</LegendRow>
       ))}
     </div>
   );
@@ -1002,9 +958,7 @@ function PortsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        港口分類 PORT CLASS
-      </div>
+      <LegendTitle zh="港口分類" en="Port Class" />
       <FireCatRows
         square
         cats={[
@@ -1032,9 +986,7 @@ function OsmRoadDriveLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        OSM 道路 ROAD
-      </div>
+      <LegendTitle zh="OSM 道路" en="Road" />
       <FireCatRows cats={OSM_ROAD_DRIVE_CATS} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         z≥10 才顯示｜來源 OpenStreetMap｜55 萬 edges
@@ -1049,9 +1001,7 @@ function MaritimeBoundaryLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        領海界線 MARITIME
-      </div>
+      <LegendTitle zh="領海界線" en="Maritime" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {MARITIME_BOUNDARY_TYPES.map((m) => (
           <div key={m.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1097,9 +1047,7 @@ function SlopeVectorLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        坡度分級 SLOPE（建管六級坡）
-      </div>
+      <LegendTitle zh="坡度分級（建管六級坡）" en="Slope" />
       <FireCatRows cats={SLOPE_VECTOR_CATS} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         建築技術規則坡度分級｜可點選查級別
@@ -1126,9 +1074,7 @@ function IsobathLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   const rows = isobathLegendRows(modeIdx);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        海底等深線 ISOBATH（深 → 淺）
-      </div>
+      <LegendTitle zh="海底等深線（深 → 淺）" en="Isobath" />
       <FireCatRows cats={rows} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         {ISOBATH_ATTRIBUTION}
@@ -1141,9 +1087,7 @@ function AspectVectorLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        坡向分級 ASPECT（8 方位）
-      </div>
+      <LegendTitle zh="坡向分級（8 方位）" en="Aspect" />
       <FireCatRows cats={ASPECT_VECTOR_CATS} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         坡面朝向 8 方位｜可點選查方位
@@ -1161,36 +1105,28 @@ const FLOOD_SENSOR_CATS = [
 ];
 
 function FloodSensorLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        都市淹水 USWG
-      </div>
+      <LegendTitle zh="都市淹水" en="USWG" />
       <FireCatRows cats={FLOOD_SENSOR_CATS} />
     </div>
   );
 }
 
 function FireEventLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        FIRE 火災歷史
-      </div>
+      <LegendTitle zh="火災歷史" en="Fire" />
       <FireCatRows cats={FIRE_EVENT_CATS} />
+      <LegendNote>有外框＝有死傷</LegendNote>
     </div>
   );
 }
 
 function FireStationLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        消防分隊 STATIONS
-      </div>
+      <LegendTitle zh="消防分隊" en="Stations" />
       <FireCatRows cats={FIRE_STATION_CATS} />
     </div>
   );
@@ -1200,9 +1136,7 @@ function LivestockFarmLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        畜禽飼養場 主畜種
-      </div>
+      <LegendTitle zh="畜禽飼養場 主畜種" />
       <FireCatRows cats={FARM_SPECIES.filter((s) => s.key !== "其他")} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, marginBottom: 2 }}>
         其他（各物種）
@@ -1216,13 +1150,10 @@ function LivestockFarmLegend() {
 }
 
 function LivestockFacilityLegend() {
-  const t = useLegendTheme();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <div>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-          屠宰場 SLAUGHTER
-        </div>
+        <LegendTitle zh="屠宰場" en="Slaughter" />
         <FireCatRows cats={SLAUGHTER_CATS} />
       </div>
       <FireCatRows
@@ -1238,13 +1169,10 @@ function LivestockFacilityLegend() {
 // ── 日本車站（種類 / 運量 雙模式）──
 
 function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
-  const t = useLegendTheme();
   if (modeIdx === 1) {
     return (
       <div>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-          車站運量 駅利用者数（人／日）
-        </div>
+        <LegendTitle zh="車站運量 駅利用者数（人／日）" />
         <FireCatRows
           cats={[
             ...JP_STATION_PAX_BUCKETS.map((b) => ({ color: b.color, label: b.label })),
@@ -1256,9 +1184,7 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
   }
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        車站類型 駅種別
-      </div>
+      <LegendTitle zh="車站類型 駅種別" />
       <FireCatRows
         cats={[
           ...JP_STATION_TYPES.map((s) => ({ color: s.color, label: s.label })),
@@ -1274,12 +1200,9 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
 // 同名類別與日本車站共用 hex（色票 SSOT: data/jpRailwayTypes.ts）。
 
 function JpRailwaysLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        鐵道營運者類型 鉄道事業者種別
-      </div>
+      <LegendTitle zh="鐵道營運者類型 鉄道事業者種別" />
       <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
     </div>
   );
@@ -1295,7 +1218,7 @@ function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CON
   const rows = facilityGroup
     ? JP_WATER_FACILITY_CATEGORIES.filter((category) => category.group === facilityGroup)
     : [{ color: colors[layerKey], label: `${contract.geometryRole} · ${contract.sourceYear}` }];
-  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>{contract.sourceLabel}</div>
+  return <div><LegendTitle zh={contract.sourceLabel} />
     <FireCatRows cats={rows} />
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{contract.historical ? "歷史快照；不是現況觀測。" : "以來源 metadata 為準；未知不補值。"}</div>
     {facilityGroup && <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>{facilityGroup === "supply" ? "P21 未提供一致細類；依 2010 年設施名稱保守推定，未命中者保留未分類。" : "P22 泵場／處理場依來源子型 P22a／P22b 區分。"}</div>}
@@ -1305,15 +1228,14 @@ function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CON
 
 function JpWaterFloodHazardLegend() {
   const t = useLegendTheme();
-  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>國土地理院 GSI 官方 XYZ（z2–17）</div>
+  return <div><LegendTitle zh="國土地理院 GSI 官方 XYZ（z2–17）" />
     <img src="https://disaportaldata.gsi.go.jp/hazardmap/copyright/img/shinsui_legend3.png" alt="國土地理院官方洪水浸水想定深度圖例" style={{ display: "block", maxWidth: "100%", height: "auto", marginBottom: 5 }} />
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>最大規模浸水想定；空白不等於無風險，非即時災情或預報，覆蓋仍有部分缺口。色階直接使用官方圖例。</div>
   </div>;
 }
 
 function NetworkStructuresLegend({ title, rows }: { title: string; rows: readonly { label: string; color: string }[] }) {
-  const t = useLegendTheme();
-  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>{title}</div><FireCatRows cats={[...rows]} /></div>;
+  return <div><LegendTitle zh={title} /><FireCatRows cats={[...rows]} /></div>;
 }
 
 // ── 日本學校（学校分類 13 類，靜態無模式切換）──
@@ -1324,9 +1246,7 @@ function JpSchoolsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        學校類型 学校分類
-      </div>
+      <LegendTitle zh="學校類型 学校分類" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
         {JP_SCHOOL_TYPES.map((c) => (
           <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -1352,9 +1272,7 @@ function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
   const isRatio = mode.metric === "ratio65";
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        人口網格 人口メッシュ · {mode.label}
-      </div>
+      <LegendTitle zh={`人口網格 · ${mode.label}`} en="人口メッシュ" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
         {isRatio ? "65 歲以上比率（1km 格）" : "總人口（人／1km 格）"}
       </div>
@@ -1378,9 +1296,7 @@ function JpAccommodationTypesLegend({ source }: { source: "canonical" | "osm" })
     : JP_ACCOMMODATION_CATEGORIES;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        {source === "osm" ? "OSM 住宿類型 宿泊施設タイプ" : "旅宿類型 宿泊施設タイプ"}
-      </div>
+      <LegendTitle zh={source === "osm" ? "OSM 住宿類型" : "旅宿類型"} en="宿泊施設タイプ" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
         {[...categories, JP_ACCOMMODATION_UNKNOWN_CATEGORY].map((category) => (
           <div key={category.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -1406,9 +1322,7 @@ function JpAccommodationDensityLegend({ scaleIdx }: { scaleIdx: number }) {
     ?? JP_ACCOMMODATION_DENSITY_SCALES[0]!;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        旅宿密度 · {scale.shortLabel}
-      </div>
+      <LegendTitle zh={`旅宿密度 · ${scale.shortLabel}`} />
       <FireCatRows
         square
         cats={JP_ACCOMMODATION_DENSITY_STOPS.map((stop, index) => ({
@@ -1463,9 +1377,7 @@ function GovServiceOfficeLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        機關便民據點 GOV SERVICE
-      </div>
+      <LegendTitle zh="機關便民據點" en="Gov Service" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1494,9 +1406,7 @@ function PublicToiletLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        公廁清潔評鑑 TOILET GRADE
-      </div>
+      <LegendTitle zh="公廁清潔評鑑" en="Toilet Grade" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1527,9 +1437,7 @@ function AquacultureLegend({ visibility }: { visibility: LayerVisibility }) {
   ] as const).filter((it) => visibility[it.key]);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        養殖漁業 AQUACULTURE
-      </div>
+      <LegendTitle zh="養殖漁業" en="Aquaculture" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1557,9 +1465,7 @@ function AquacultureWaterSatelliteMoaLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        魚塭·官方標籤版 MOA LABELED
-      </div>
+      <LegendTitle zh="魚塭·官方標籤版" en="MOA Labeled" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1587,9 +1493,7 @@ function AquacultureWaterUnionLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        魚塭·整合對照版 UNION
-      </div>
+      <LegendTitle zh="魚塭·整合對照版" en="Union" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1617,9 +1521,7 @@ function AquacultureIntegratedLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        養殖漁業整合 INTEGRATED
-      </div>
+      <LegendTitle zh="養殖漁業整合" en="Integrated" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1681,9 +1583,7 @@ function StreetTreesTaipeiDiffLegend({ colorModeIdx = 0 }: { colorModeIdx?: numb
 
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        行道樹變化 STREET TREE DIFF
-      </div>
+      <LegendTitle zh="行道樹變化" en="Street Tree Diff" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => dotRow(it.color, it.label))}
@@ -1697,19 +1597,7 @@ function StreetTreesTaipeiDiffLegend({ colorModeIdx = 0 }: { colorModeIdx?: numb
 
 // 都市開放空間三層共用：一列圓點色塊 + 標籤（色票 SSOT = src/data/urbanOpenSpaceTypes.ts）
 function UrbanDotRow({ color, label }: { color: string; label: string }) {
-  const t = useLegendTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <div
-        style={{
-          width: 10, height: 10, borderRadius: RADIUS.full, background: color,
-          opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
-          boxSizing: "border-box", flexShrink: 0,
-        }}
-      />
-      <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{label}</span>
-    </div>
-  );
+  return <LegendRow swatch={<SwatchDot color={color} />}>{label}</LegendRow>;
 }
 
 // 受保護樹木圖例：依染色模式（0=樹齡 5 級冷→暖 1=城市 8 色）切換顯示內容。
@@ -1723,9 +1611,7 @@ function ProtectedTreesNationalLegend({ colorModeIdx = 0 }: { colorModeIdx?: num
       ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        受保護樹木 PROTECTED TREES
-      </div>
+      <LegendTitle zh="受保護樹木" en="Protected Trees" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         {colorModeIdx === 1 ? "城市 CITY" : "推估樹齡 AGE"}
       </div>
@@ -1744,9 +1630,7 @@ function RiversideTreesTaipeiLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        河濱喬木 RIVERSIDE TREES
-      </div>
+      <LegendTitle zh="河濱喬木" en="Riverside Trees" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>樹種 SPECIES（前 10 大）</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {RIVERSIDE_TREE_SPECIES.map((s) => <UrbanDotRow key={s.name} color={s.color} label={s.name} />)}
@@ -1779,9 +1663,7 @@ function StreetTrees3epochLegend({ colorModeIdx = 0 }: { colorModeIdx?: number }
   }
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        行道樹三時點 STREET TREE 3-EPOCH
-      </div>
+      <LegendTitle zh="行道樹三時點" en="Street Tree 3-Epoch" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
@@ -1813,9 +1695,7 @@ function StreetTreesNationalLegend({ colorModeIdx = 0 }: { colorModeIdx?: number
   }
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        行道樹全國 STREET TREES TW
-      </div>
+      <LegendTitle zh="行道樹全國" en="Street Trees TW" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
@@ -1829,9 +1709,7 @@ function TreePitsTaipeiLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        人行道樹穴 TREE PITS
-      </div>
+      <LegendTitle zh="人行道樹穴" en="Tree Pits" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類型 TYPE</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {TREE_PIT_TYPES.map((p) => <UrbanDotRow key={p.name} color={p.color} label={p.name} />)}
@@ -1857,9 +1735,7 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
     : BUILDING_HEIGHT_BANDS.map((b) => ({ color: b.color, label: b.label }));
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        建物輪廓 BUILDINGS
-      </div>
+      <LegendTitle zh="建物輪廓" en="Buildings" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
@@ -1891,9 +1767,7 @@ function PropertyValueAdminLegend({ levelIdx }: { levelIdx: number }) {
   const bounds = [0, ...config.breaks];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        不動產總市值 · {config.label}
-      </div>
+      <LegendTitle zh={`不動產總市值 · ${config.label}`} />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {PROPERTY_VALUE_ADMIN_COLORS.map((color, index) => {
           const lower = formatPropertyValueTwd(bounds[index]!);
@@ -1921,9 +1795,7 @@ function PropertyValueGridLegend({ scaleIdx = 0, modeIdx = 0, extruded = false }
   if (perCapita) {
     return (
       <div>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-          人均市值網格 PER-CAPITA VALUE · {scale.shortLabel}
-        </div>
+        <LegendTitle zh={`人均市值網格 · ${scale.shortLabel}`} en="Per-Capita Value" />
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
           每 {scale.shortLabel} 格總市值 ÷ 人口（萬元/人）
         </div>
@@ -1948,9 +1820,7 @@ function PropertyValueGridLegend({ scaleIdx = 0, modeIdx = 0, extruded = false }
   }
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        不動產總市值網格 PROPERTY VALUE · {scale.shortLabel}
-      </div>
+      <LegendTitle zh={`不動產總市值網格 · ${scale.shortLabel}`} en="Property Value" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         每 {scale.shortLabel} 格總市值（不是單價）{extruded ? " · 3D 高度同步" : ""}
       </div>
@@ -1985,9 +1855,7 @@ function UrbanFormGridLegend({ modeIdx = 5 }: { modeIdx?: number }) {
   const mode = URBAN_FORM_GRID_MODES[modeIdx] ?? URBAN_FORM_GRID_MODES[URBAN_FORM_GRID_MODES.length - 1]!;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        都市紋理網格 URBAN FORM
-      </div>
+      <LegendTitle zh="都市紋理網格" en="Urban Form" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{mode.label}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {mode.zeroFade && <UrbanDotRow color={t.textDim} label="0（無建物，淡出顯示）" />}
@@ -2011,9 +1879,7 @@ function UrbanZoningLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        土地使用分區 ZONING
-      </div>
+      <LegendTitle zh="土地使用分區" en="Zoning" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>分類 CATEGORY</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {URBAN_ZONING_CATEGORIES.map((c) => <UrbanDotRow key={c.value} color={c.color} label={c.label} />)}
@@ -2028,9 +1894,7 @@ function NonUrbanZoningLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        非都市土地使用分區 NON-URBAN
-      </div>
+      <LegendTitle zh="非都市土地使用分區" en="Non-Urban" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
         {NON_URBAN_ZONING_CODES.map((c) => (
           <div key={c.code} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -2051,9 +1915,7 @@ function CanopyHeightLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        樹冠高度 CANOPY HEIGHT
-      </div>
+      <LegendTitle zh="樹冠高度" en="Canopy Height" />
       <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${CANOPY_HEIGHT_RAMP.join(", ")})` }} />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2 }}>
         <span>0 m</span>
@@ -2096,10 +1958,10 @@ function JpBuildingHeightLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>PLATEAU 建物高度</div>
+      <LegendTitle zh="建物高度" en="PLATEAU" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {JP_BUILDING_HEIGHT_BANDS.map((band) => <UrbanDotRow key={band.label} color={band.color} label={band.label} />)}
-        <UrbanDotRow color="#9e9e9e" label="高度未提供：中性 2D 平面" />
+        {JP_BUILDING_HEIGHT_BANDS.map((band) => <LegendRow key={band.label} swatch={<SwatchSquare color={band.color} />}>{band.label}</LegendRow>)}
+        <LegendRow swatch={<SwatchSquare color="#9e9e9e" />}>高度未提供：中性 2D 平面</LegendRow>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
         遠景：10km／1km／250m 網格的高度中位數；z13+：單棟建物輪廓。PLATEAU 各城市年度不同，詳見點擊資訊。
@@ -2113,7 +1975,7 @@ function JpCanopyHeightLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>日本樹冠高度 CHMv2</div>
+      <LegendTitle zh="日本樹冠高度" en="CHMv2" />
       <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${JP_CANOPY_HEIGHT_RAMP.join(", ")})` }} />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2 }}><span>0 m</span><span>40 m+</span></div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
@@ -2130,9 +1992,7 @@ function CanopyGiantsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        樹冠巨木 CANOPY GIANTS
-      </div>
+      <LegendTitle zh="樹冠巨木" en="Canopy Giants" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         離最近道路/步道/林道
       </div>
@@ -2151,9 +2011,7 @@ function ParksTaipeiLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        公園 PARKS
-      </div>
+      <LegendTitle zh="公園" en="Parks" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>分類 CATEGORY</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {TAIPEI_PARK_CATEGORIES.map((c) => <UrbanDotRow key={c.name} color={c.color} label={c.name} />)}
@@ -2169,9 +2027,7 @@ function SportsVenueLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        運動場館 分類 CATEGORY
-      </div>
+      <LegendTitle zh="運動場館分類" en="Category" />
       <FireCatRows cats={SPORTS_CATEGORIES} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         大小 = 面積（area_sqm log；缺值退化固定大小）
@@ -2191,9 +2047,7 @@ function CulturalFacilitiesLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        文化設施 CULTURAL FACILITIES
-      </div>
+      <LegendTitle zh="文化設施" en="Cultural Facilities" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類型 TYPE</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {CULTURAL_FACILITY_TYPES.map((c) => <UrbanDotRow key={c.name} color={c.color} label={c.name} />)}
@@ -2207,9 +2061,7 @@ function CulturalMuseumsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        地方文化館 LOCAL MUSEUMS
-      </div>
+      <LegendTitle zh="地方文化館" en="Local Museums" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類型 TYPE</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {CULTURAL_MUSEUM_TYPES.map((c) => <UrbanDotRow key={c.name} color={c.color} label={c.name} />)}
@@ -2220,12 +2072,9 @@ function CulturalMuseumsLegend() {
 
 // 藝文活動圖例：進行中 / 未開始 二色（by start_date ≤ 今日）。
 function ArtsEventsLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        藝文活動 ARTS EVENTS
-      </div>
+      <LegendTitle zh="藝文活動" en="Arts Events" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <UrbanDotRow color={ARTS_EVENT_ONGOING_COLOR} label="進行中（已開始）" />
         <UrbanDotRow color={ARTS_EVENT_UPCOMING_COLOR} label="未開始（尚未開始）" />
@@ -2239,9 +2088,7 @@ function PerformingVenuesLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        表演場館 PERFORMING VENUES
-      </div>
+      <LegendTitle zh="表演場館" en="Performing Venues" />
       <UrbanDotRow color={PERFORMING_VENUE_COLOR} label="表演場館" />
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
         <div style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: PERFORMING_VENUE_COLOR, flexShrink: 0, border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box" }} />
@@ -2260,9 +2107,7 @@ function LibrarySeatsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        北市圖即時座位 LIBRARY SEATS
-      </div>
+      <LegendTitle zh="北市圖即時座位" en="Library Seats" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>空位率 FREE RATIO</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <UrbanDotRow color={LIBRARY_SEATS_COLORS.empty} label="滿（無空位）" />
@@ -2287,9 +2132,7 @@ function TourAttractionsLegend({ modeIdx }: { modeIdx: number }) {
   const heat = modeIdx === 1;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        觀光景點 ATTRACTIONS
-      </div>
+      <LegendTitle zh="觀光景點" en="Attractions" />
       {heat ? (
         <>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>年遊客量（log）VISITORS</div>
@@ -2319,9 +2162,7 @@ function TourHotelsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        旅宿 HOTELS & B&Bs
-      </div>
+      <LegendTitle zh="旅宿" en="Hotels & B&Bs" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類別 CLASS</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {TOUR_HOTEL_CATS.map((c) => <UrbanDotRow key={c.label} color={c.color} label={c.label} />)}
@@ -2335,9 +2176,7 @@ function TourHeritageLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        文化資產 HERITAGE
-      </div>
+      <LegendTitle zh="文化資產" en="Heritage" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類別 CATEGORY</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {TOUR_HERITAGE_CATS.map((c) => <UrbanDotRow key={c.label} color={c.color} label={c.label} />)}
@@ -2348,12 +2187,9 @@ function TourHeritageLegend() {
 
 // 觀光活動・節慶：進行中 / 未開始 二色（by start/end 對今日）。
 function TourEventsLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        觀光活動・節慶 EVENTS
-      </div>
+      <LegendTitle zh="觀光活動・節慶" en="Events" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <UrbanDotRow color="#f9a825" label="進行中 Ongoing" />
         <UrbanDotRow color="#90a4ae" label="未開始 Upcoming" />
@@ -2363,12 +2199,9 @@ function TourEventsLegend() {
 }
 
 function FireHydrantLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        消防栓 HYDRANTS
-      </div>
+      <LegendTitle zh="消防栓" en="Hydrants" />
       <FireCatRows cats={FIRE_HYDRANT_CATS} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {FIRE_HYDRANT_COVERAGE_NOTE}
@@ -2378,12 +2211,9 @@ function FireHydrantLegend() {
 }
 
 function FireIsochroneLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        救援等時圈 ISOCHRONE
-      </div>
+      <LegendTitle zh="救援等時圈" en="Isochrone" />
       <FireCatRows
         cats={FIRE_ISOCHRONE_BANDS.map((b) => ({ color: b.color, label: b.label }))}
         square
@@ -2399,9 +2229,7 @@ function EcoNetworkZonesLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        國土綠網分區 ECO NETWORK
-      </div>
+      <LegendTitle zh="國土綠網分區" en="Eco Network" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {ECO_NETWORK_ZONE_TYPES.map((z) => (
           <div key={z.zone} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -2429,9 +2257,7 @@ function RealEstateLegend({ visibility, overlayParams }: { visibility: LayerVisi
   if (active.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        房地產 單價 (NT$/m²){excl ? " · 排除雙北" : ""}
-      </div>
+      <LegendTitle zh={`房地產單價（NT$/m²）${excl ? " · 排除雙北" : ""}`} />
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {active.map((r) => {
           const p = RE_PALETTES[r.palette];
@@ -2471,9 +2297,7 @@ function ReligionLegend({ visibility }: { visibility: LayerVisibility }) {
   const needsOdbl = visibility.religionTemples || visibility.religionChurches || visibility.religionOtherWorship;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        RELIGION 宗教
-      </div>
+      <LegendTitle zh="宗教" en="Religion" />
       {visibility.religionTemples && (
         <>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>寺廟・主祀神祇</div>
@@ -2535,24 +2359,14 @@ function ReligionLegend({ visibility }: { visibility: LayerVisibility }) {
 // 🔴 cemeteryOsm 是 ODbL → 開啟時一定要出現 © OpenStreetMap contributors。
 
 function Swatch({ color, round }: { color: string; round: boolean }) {
-  return (
-    <div
-      style={{
-        width: 10, height: 10, borderRadius: round ? RADIUS.full : 2, background: color,
-        opacity: 0.9, flexShrink: 0,
-        border: "1px solid rgba(255,255,255,0.4)", boxSizing: "border-box",
-      }}
-    />
-  );
+  return round ? <SwatchDot color={color} /> : <SwatchSquare color={color} />;
 }
 
 function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        FUNERAL 殯葬
-      </div>
+      <LegendTitle zh="殯葬" en="Funeral" />
 
       {visibility.funeralFacilities && (
         <>
@@ -2678,9 +2492,7 @@ function WelfareLegend({ visibility }: { visibility: LayerVisibility }) {
 
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        WELFARE 社福長照
-      </div>
+      <LegendTitle zh="社福長照" en="Welfare" />
 
       {visibility.welfareNursingHomes && (
         <>
@@ -2813,9 +2625,7 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
     || careRows.length > 0;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        EDUCATION 教育
-      </div>
+      <LegendTitle zh="教育" en="Education" />
 
       {showLevels && (
         <>
@@ -3039,9 +2849,7 @@ function MountainRescueLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        山域事故 事故原因
-      </div>
+      <LegendTitle zh="山域事故 事故原因" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {MOUNTAIN_RESCUE_CAUSES.map((c) => (
           <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -3163,9 +2971,7 @@ function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
   if (rows.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        FORESTRY 林業
-      </div>
+      <LegendTitle zh="林業" en="Forestry" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((r) => (
           <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -3200,9 +3006,7 @@ function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
   const meta = SOIL_FERTILITY_METRICS[metricId];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        SOIL FERTILITY
-      </div>
+      <LegendTitle zh="土壤肥力" en="Soil Fertility" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
         {meta.label}{meta.unit ? ` (${meta.unit})` : ""}
       </div>
@@ -3229,9 +3033,7 @@ function AgriPOILegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        AGRICULTURE POI
-      </div>
+      <LegendTitle zh="休農場／田媽媽／特色農旅" en="Agriculture POI" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {AGRI_POI_TYPES.map((it) => (
           <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -3259,12 +3061,9 @@ function AgriPOILegend() {
 }
 
 function MedicalIsochroneLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        醫療等時圈 MEDICAL ISOCHRONE
-      </div>
+      <LegendTitle zh="醫療等時圈" en="Medical Isochrone" />
       <FireCatRows
         cats={MEDICAL_ISOCHRONE_BANDS.map((b) => ({ color: b.color, label: b.label }))}
         square
@@ -3283,9 +3082,7 @@ function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
   if (shown.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        MEDICAL 醫療據點
-      </div>
+      <LegendTitle zh="醫療據點" en="Medical" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {shown.map((it) => (
           <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -3317,9 +3114,7 @@ function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: 
   const filtersActive = !manufacturing && companyPointFiltersActive(overlayParams);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        {manufacturing ? "製造業公司登記 MANUFACTURING" : "公司登記分布 COMPANY REGISTRY"}
-      </div>
+      <LegendTitle zh={manufacturing ? "製造業公司登記" : "公司登記分布"} en={manufacturing ? "Manufacturing" : "Company Registry"} style={{ marginBottom: 5 }} />
       {!manufacturing && !filtersActive && <>
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）· Viridis</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px", marginBottom: 6 }}>
@@ -3355,9 +3150,7 @@ function FactoryLocationsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        生產中工廠登記 FACTORY LOCATIONS
-      </div>
+      <LegendTitle zh="生產中工廠登記" en="Factory Locations" style={{ marginBottom: 5 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <Swatch color={FACTORY_LOCATION_COLOR} round />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
@@ -3373,9 +3166,7 @@ function RegulatedFacilitiesLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        列管設施 REGULATED FACILITIES
-      </div>
+      <LegendTitle zh="列管設施" en="Regulated Facilities" style={{ marginBottom: 5 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <Swatch color={REGULATED_FACILITY_COLOR} round />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>環境部 active 列管設施</span>
@@ -3387,10 +3178,10 @@ function RegulatedFacilitiesLegend() {
   );
 }
 
-function IndustrialDensityGridLegend({ title, unit, note }: { title: string; unit: string; note: string }) {
+function IndustrialDensityGridLegend({ title, titleEn, unit, note }: { title: string; titleEn?: string; unit: string; note: string }) {
   const t = useLegendTheme();
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>{title}</div>
+    <LegendTitle zh={title} en={titleEn} style={{ marginBottom: 5 }} />
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>密度（{unit}／km²）· Viridis</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {COMPANY_DENSITY_STOPS.map((stop, i) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -3408,9 +3199,7 @@ function IndustrialParkBoundariesLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        產業園區邊界 INDUSTRIAL PARKS
-      </div>
+      <LegendTitle zh="產業園區邊界" en="Industrial Parks" style={{ marginBottom: 5 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <Swatch color={INDUSTRIAL_PARK_COLOR} round={false} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>215 個產業園區 polygon</span>
@@ -3429,9 +3218,7 @@ function IndustrialParkComparisonLegend({ modeIdx }: { modeIdx: number }) {
   const stops = INDUSTRIAL_PARK_COMPARISON_STOPS[safeMode]!;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        園區商工比較 · {mode.label}
-      </div>
+      <LegendTitle zh={`園區商工比較 · ${mode.label}`} style={{ marginBottom: 5 }} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <Swatch color={INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR} round={false} />
@@ -3470,9 +3257,7 @@ function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scal
   const stops = companyGridStops(safeMode, safeScale);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        公司網格 COMPANY GRID · {scale.shortLabel} · {mode.label}
-      </div>
+      <LegendTitle zh={`公司網格 · ${scale.shortLabel} · ${mode.label}`} en="Company Grid" style={{ marginBottom: 5 }} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -3509,7 +3294,7 @@ function CompanyIndustryDistributionLegend({ mask, midIdx, modeIdx }: { mask: nu
   </div>;
 
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>登記產業分布 COMPANY INDUSTRY</div>
+    <LegendTitle zh="登記產業分布" en="Company Industry" style={{ marginBottom: 5 }} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {midGroup ? <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
         <Swatch color={midGroup.color} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{midGroup.label}（聚焦中類）</span>
@@ -3529,7 +3314,7 @@ function CompanyAgeStructureLegend({ modeIdx }: { modeIdx: number }) {
   const median = modeIdx === 1;
   const stops = median ? COMPANY_AGE_MEDIAN_STOPS : COMPANY_AGE_RECENT_STOPS;
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>公司年齡結構 · {median ? "年齡中位數（年）" : "近 5 年設立占比（%）"}</div>
+    <LegendTitle zh={`公司年齡結構 · ${median ? "年齡中位數（年）" : "近 5 年設立占比（%）"}`} style={{ marginBottom: 5 }} />
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>Cividis 藍黃系 · 越亮＝{median ? "年齡越高" : "近期設立占比越高"}</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {stops.map((stop, index) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -3545,9 +3330,7 @@ function CommonRegistrationAddressesLegend({ minCompanies }: { minCompanies: num
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        共同登記地址 SHARED REGISTRATION
-      </div>
+      <LegendTitle zh="共同登記地址" en="Shared Registration" style={{ marginBottom: 5 }} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         顏色＝資本額中位數
       </div>
@@ -3592,9 +3375,7 @@ function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
   const rows = AGRI_COMPANY_TYPES.filter((it) => visibility[it.key]);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        農企業登記 AGRI BUSINESS
-      </div>
+      <LegendTitle zh="農企業登記" en="Agri Business" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -3629,9 +3410,7 @@ function CropSuitabilityLegend({ cropId }: { cropId: number }) {
   const cropLabel = crop ? `${crop.nameZh} (${crop.nameEn})` : `#${cropId}`;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        CROP SUITABILITY
-      </div>
+      <LegendTitle zh="作物適栽" en="Crop Suitability" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
         {cropLabel}
       </div>
@@ -3680,9 +3459,7 @@ function EarthquakeLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        EARTHQUAKE
-      </div>
+      <LegendTitle zh="地震" en="Earthquake" />
 
       {/* Depth color bar */}
       <div style={{ marginBottom: 4 }}>
@@ -3741,9 +3518,7 @@ function EarthquakeReplayLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        震度 CWA INTENSITY
-      </div>
+      <LegendTitle zh="震度" en="CWA Intensity" />
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {CWA_INTENSITY_BANDS.map((band) => (
           <div key={band.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -3775,9 +3550,7 @@ function EarthquakeGlobalLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        USGS GLOBAL · HOURLY
-      </div>
+      <LegendTitle zh="全球地震（每小時）" en="USGS" />
       <div style={{ marginBottom: 4 }}>
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
           Depth (km)
@@ -3832,9 +3605,7 @@ function TyphoonTrackLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        TYPHOON · JMA / JTWC
-      </div>
+      <LegendTitle zh="颱風軌跡" en="JMA / JTWC" />
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{ width: 28, height: 0, borderTop: "3px solid #a855f7", flexShrink: 0 }} />
@@ -3869,17 +3640,7 @@ function TyphoonTrackLegend() {
 // ── 全球氣候場 Legends（色階與 climateRamps.ts 共用，改色兩邊同步）──
 
 function ClimateGradientBar({ gradient, labels }: { gradient: string; labels: string[] }) {
-  const t = useLegendTheme();
-  return (
-    <>
-      <div style={{ height: 8, borderRadius: RADIUS.md, background: gradient }} />
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
-        {labels.map((l) => (
-          <span key={l} style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{l}</span>
-        ))}
-      </div>
-    </>
-  );
+  return <SwatchGradient gradient={gradient} labels={labels} />;
 }
 
 // timeline 當前顯示幀的有效時間 + 種類（實況/預報）；無 manifest 時 hook 不寫入 → 不顯示。
@@ -3910,9 +3671,7 @@ function WindFieldLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        WIND 10M · NOAA GFS
-      </div>
+      <LegendTitle zh="風場 10m" en="NOAA GFS" />
       <ClimateFrameStamp statusKey="windField" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         風速 Wind speed (m/s)
@@ -3932,9 +3691,7 @@ function OceanCurrentsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        OCEAN CURRENTS · CMEMS
-      </div>
+      <LegendTitle zh="海流" en="CMEMS" />
       <ClimateFrameStamp statusKey="oceanCurrents" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         流速 Current speed (m/s)
@@ -3954,9 +3711,7 @@ function DustForecastLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        DUST AOD 550NM · CAMS
-      </div>
+      <LegendTitle zh="沙塵光學厚度 550nm" en="CAMS" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         {/* 上游 climate_bake 已從 per-file normalize 改為固定 sqrt 色階（t = √(AOD/1.0)），
             跨幀可比 —— 文案須與上游同時上線，否則會描述錯誤的色階語意。 */}
@@ -3976,9 +3731,7 @@ function TemperatureGridLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        溫度網格 TEMPERATURE GRID
-      </div>
+      <LegendTitle zh="溫度網格" en="Temperature Grid" />
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {TEMPERATURE_GRID_BANDS.map((band) => (
           <div key={band.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -4042,11 +3795,11 @@ function AqiLegend() {
       `}</style>
       <div
         style={{
-          fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4,
+          marginBottom: 4,
           display: "flex", alignItems: "center", gap: 6,
         }}
       >
-        <span>AQI 空氣品質指標</span>
+        <LegendTitle zh="空氣品質指標" en="AQI" style={{ marginBottom: 0 }} />
         {loadingLabel && (
           <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#93c5fd" }}>
             <span className="aqi-spin" />
@@ -4085,9 +3838,7 @@ function MicroSensorLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   const mode = resolveMicroSensorMode(modeIdx);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        微型感測 LASS AIRBOX
-      </div>
+      <LegendTitle zh="微型感測" en="LASS AirBox" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{mode.note}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {mode.legend.map((band) => (
@@ -4116,9 +3867,7 @@ function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   const mode = resolveUrbanHeatMode(modeIdx);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        都市熱島 URBAN HEAT
-      </div>
+      <LegendTitle zh="都市熱島" en="Urban Heat" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         {mode.label}（{mode.unit}）
       </div>
@@ -4169,9 +3918,7 @@ function TemperatureWaveLegend() {
   ).join(", ")})`;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        溫度波 TEMPERATURE WAVE
-      </div>
+      <LegendTitle zh="溫度波" en="Temperature Wave" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         氣溫（拉伸至當日觀測範圍）
       </div>
@@ -4190,14 +3937,12 @@ function TemperatureWaveLegend() {
 // ⚠️ norm 是「相對當前資料最大值」（count 類走 log、其餘線性，再套 contrast gamma），
 //    沒有固定的絕對刻度 → 只標低/高兩端，不編造數值。
 function H3RampLegend({
-  title, ramp, note,
-}: { title: string; ramp: [number, number, number][]; note: string }) {
+  title, titleEn, ramp, note,
+}: { title: string; titleEn?: string; ramp: [number, number, number][]; note: string }) {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        {title}
-      </div>
+      <LegendTitle zh={title} en={titleEn} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>{note}</div>
       <ClimateGradientBar gradient={h3RampGradient(ramp)} labels={["低 Low", "高 High"]} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
@@ -4213,9 +3958,7 @@ function RoadEventsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ROAD EVENTS
-      </div>
+      <LegendTitle zh="即時路況" en="Road Events" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {ROAD_EVENT_TYPE_ITEMS.map((item) => (
           <div key={item.type} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -4249,9 +3992,7 @@ function RoadCongestionLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        省道路況 CONGESTION
-      </div>
+      <LegendTitle zh="省道路況" en="Congestion" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {items.map((it) => (
           <div key={it.level} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -4284,9 +4025,7 @@ function CctvLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        道路攝影機 CCTV
-      </div>
+      <LegendTitle zh="道路攝影機" en="CCTV" />
       <FireCatRows cats={CCTV_SOURCE_CATS} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         z≥7 才顯示｜點選看即時畫面
@@ -4305,9 +4044,7 @@ function FreewayCongestionLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        國道壅塞 FREEWAY
-      </div>
+      <LegendTitle zh="國道壅塞" en="Freeway" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {FREEWAY_CONGESTION_LEVELS.map((lv) => (
           <div key={lv} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -4330,9 +4067,7 @@ function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
   const groups = ALERT_GROUP_KEYS.filter((k) => visibility[k]);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        NCDR 示警 ALERTS
-      </div>
+      <LegendTitle zh="NCDR 示警" en="Alerts" />
       {groups.map((g) => (
         <div key={g} style={{ marginBottom: 4 }}>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>
@@ -4384,9 +4119,7 @@ function NewsEventsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        NEWS EVENTS
-      </div>
+      <LegendTitle zh="新聞事件" en="News Events" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {NEWS_CATEGORIES.map((cat) => (
           <div key={cat.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -4421,9 +4154,7 @@ function PlaActivityLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        PLA ACTIVITY
-      </div>
+      <LegendTitle zh="共機活動區" en="PLA Activity" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {items.map((it) => (
           <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -4472,12 +4203,9 @@ function PlaActivityLegend() {
  *    文字的 SSOT 在 `data/vesselWatchTypes.ts`，這裡只負責畫。
  */
 function VesselWatchLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        特殊船舶 VESSEL WATCH
-      </div>
+      <LegendTitle zh="特殊船舶" en="Vessel Watch" />
       <FireCatRows cats={VESSEL_CLASSES.map((c) => ({ color: c.color, label: c.label }))} />
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         細線為軌跡（AIS 約 15 分一筆的斷續取樣，非連續航跡）
@@ -4493,9 +4221,7 @@ function AisstreamVesselsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        AISSTREAM 船舶
-      </div>
+      <LegendTitle zh="AISStream 船舶" />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22d3ee", border: "1px solid #083344" }} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>最近 30 分鐘 AIS 回報</span>
@@ -4511,9 +4237,7 @@ function GfwVesselPresenceLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW 舊版每日船舶 · HISTORICAL
-      </div>
+      <LegendTitle zh="GFW 舊版每日船舶" en="Historical" />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#f59e0b", border: "1px solid #451a03" }} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>歷史快照；不代表最新 release</span>
@@ -4530,9 +4254,7 @@ function GfwHourlyGridLegend() {
   const dataWindow = useSyncExternalStore(subscribeGfwHourlyGridDataWindow, getGfwHourlyGridDataWindowSnapshot, () => null);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW 小時船舶網格
-      </div>
+      <LegendTitle zh="GFW 小時船舶網格" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, max-content)", gap: "5px 10px" }}>
         {GFW_HOURLY_GRID_V4_COLOR_BANDS.map((item) => (
           <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -4588,9 +4310,7 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW 小時近似航跡
-      </div>
+      <LegendTitle zh="GFW 小時近似航跡" />
       <FireCatRows cats={rows} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5 }}>
         同色細線＝拖尾；同色圓點＝選定時間船頭（觀測間線性內插）
@@ -4645,9 +4365,7 @@ function GfwFishingEffortLegend() {
   const attributionHref = manifest?.attributionHref;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        GFW 每日捕撈活動
-      </div>
+      <LegendTitle zh="GFW 每日捕撈活動" style={{ marginBottom: 5 }} />
       <div style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden" }}>
         {["#0f766e", "#22d3ee", "#facc15", "#fb7185"].map((color) => (
           <div key={color} style={{ flex: 1, background: color }} />
@@ -4699,9 +4417,7 @@ function GfwDarkVesselsLegend() {
   }, []);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW SAR 未匹配 AIS 偵測
-      </div>
+      <LegendTitle zh="GFW SAR 未匹配 AIS 偵測" />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div style={{ width: 12, height: 12, borderRadius: RADIUS.full, background: "#f43f5e", border: "1px solid #fff1f2" }} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>圓點大小＝同格 SAR detections</span>
@@ -4724,9 +4440,7 @@ function IotRiverLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        IOT 河川（補強）
-      </div>
+      <LegendTitle zh="IoT 河川（補強）" />
       <div style={{ marginBottom: 4 }}>
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
           當日水位變化
@@ -4770,9 +4484,7 @@ function WaterCanalLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        灌排渠道 CANAL
-      </div>
+      <LegendTitle zh="灌排渠道" en="Canal" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {WATER_CANAL_ITEMS.map((c) => (
           <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -4801,9 +4513,7 @@ function LakesPondsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        湖泊 / 埤塘 LAKES & PONDS
-      </div>
+      <LegendTitle zh="湖泊 / 埤塘" en="Lakes & Ponds" />
       <FireCatRows cats={LAKES_PONDS_CATS} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         已濾掉與魚塭圖層重疊者（39.1%）｜OSM ODbL
@@ -4836,9 +4546,7 @@ function MarineObservationLegend({ network }: { network: "cwa" | "isohe" }) {
     }));
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        {isCwa ? "CWA 海洋觀測站" : "ISOHE 港區海氣象站"}
-      </div>
+      <LegendTitle zh={isCwa ? "CWA 海洋觀測站" : "ISOHE 港區海氣象站"} />
       <FireCatRows cats={cats} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.35 }}>
         {isCwa
@@ -4870,9 +4578,7 @@ function RiverLevelLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        河川水位 RIVER LEVEL
-      </div>
+      <LegendTitle zh="河川水位" en="River Level" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         當日水位變化 Δ（vs 當日起始）
       </div>
@@ -4904,9 +4610,7 @@ function TaipeiSewerLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        北市下水道水位 SEWER
-      </div>
+      <LegendTitle zh="北市下水道水位" en="Sewer" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         水面距地面深度
       </div>
@@ -4919,7 +4623,7 @@ function TaipeiSewerLegend() {
 }
 
 // ── 北市抽水站：risk_ratio step 分級（useTaipeiPumbLayer.ts riskColorExpression）──
-// risk_ratio = 內池水位 / 最高容許水位；白邊來自 circle-stroke（pumb_running=true → 2px 白）。
+// risk_ratio = 內池水位 / 最高容許水位；運轉中站點有 2px 外框（pumb_running=true；暗底圖白、淡底圖深灰），其餘為底圖色細縫。
 const TAIPEI_PUMB_CATS = [
   { color: "#7f1d1d", label: "≥ 0.9 逼近上限" },
   { color: "#ef4444", label: "0.8–0.9" },
@@ -4932,9 +4636,7 @@ function TaipeiPumbLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        北市抽水站 PUMB STATION
-      </div>
+      <LegendTitle zh="北市抽水站" en="Pump Station" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         內池水位 / 最高容許水位
       </div>
@@ -4943,11 +4645,11 @@ function TaipeiPumbLegend() {
         <div
           style={{
             width: 10, height: 10, borderRadius: RADIUS.full,
-            background: "transparent", border: "2px solid #ffffff",
+            background: "transparent", border: `2px solid ${t === DARK_LEGEND ? "#ffffff" : "#111827"}`,
             boxSizing: "border-box", flexShrink: 0,
           }}
         />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>白邊 = 運轉中</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>外框 = 運轉中</span>
       </div>
     </div>
   );
@@ -4963,12 +4665,9 @@ const TAIPEI_EVACUATE_CATS = [
 ];
 
 function TaipeiEvacuateLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        北市疏散門 EVACUATE GATE
-      </div>
+      <LegendTitle zh="北市疏散門" en="Evacuation Gate" />
       <FireCatRows cats={TAIPEI_EVACUATE_CATS} />
     </div>
   );
@@ -4992,9 +4691,7 @@ function RainGaugeLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        即時雨量 RAIN GAUGE
-      </div>
+      <LegendTitle zh="即時雨量" en="Rain Gauge" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         時雨量 1hr (mm)
       </div>
@@ -5022,9 +4719,7 @@ function GroundwaterLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        地下水井 GROUNDWATER
-      </div>
+      <LegendTitle zh="地下水井" en="Groundwater" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         當日水位變化 Δ（vs 當日起始）
       </div>
@@ -5053,9 +4748,7 @@ function WaterProtectionZoneLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        水資源管制區 PROTECTION ZONE
-      </div>
+      <LegendTitle zh="水資源管制區" en="Protection Zone" />
       <FireCatRows
         square
         cats={WATER_PROTECTION_ZONE_CATS.map((c) => ({
@@ -5084,9 +4777,7 @@ function WaterMonitorStationLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        監測站 MONITOR STATION
-      </div>
+      <LegendTitle zh="監測站" en="Monitor Station" />
       <FireCatRows cats={WATER_MONITOR_STATION_CATS} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         站位分布（不含讀值）｜讀值看即時雨量／河川水位／地下水井
@@ -5113,9 +4804,7 @@ function WaterFloodExtremeLegend({ minDepth = 0 }: { minDepth?: number }) {
   const cats = WATER_FLOOD_DEPTH_CATS.filter((c) => c.classMin >= minDepth);
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        淹水潛勢 FLOOD DEPTH
-      </div>
+      <LegendTitle zh="淹水潛勢" en="Flood Depth" />
       <FireCatRows cats={cats} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         情境：日雨量 650mm / 24hr
@@ -5136,12 +4825,9 @@ const WATER_FACILITY_CATS = [
 ];
 
 function WaterFacilityLegend() {
-  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        水利設施 FACILITY
-      </div>
+      <LegendTitle zh="水利設施" en="Facility" />
       <FireCatRows cats={WATER_FACILITY_CATS} />
     </div>
   );
@@ -5151,9 +4837,7 @@ function WorldTrashDebrisLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        垃圾與殘骸觀測 TRASH & DEBRIS OBSERVATIONS
-      </div>
+      <LegendTitle zh="垃圾與殘骸觀測" en="Trash & Debris Observations" />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div
           style={{
@@ -5219,9 +4903,7 @@ function GlobalEventsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        全球情勢 GLOBAL EVENTS
-      </div>
+      <LegendTitle zh="全球情勢" en="Global Events" />
       <FireCatRows cats={GLOBAL_EVENT_CATEGORIES.map(({ color, label }) => ({ color, label }))} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
         {GLOBAL_EVENT_SEVERITIES.map((item) => (
@@ -5263,9 +4945,7 @@ function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
   ].filter((value): value is string => Boolean(value));
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        宗教設施 宗教施設
-      </div>
+      <LegendTitle zh="宗教設施 宗教施設" />
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {JP_RELIGION_CATEGORIES.map((category) => (
           <div key={category.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -5291,9 +4971,7 @@ function IotStructureLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        IOT 水工結構
-      </div>
+      <LegendTitle zh="IoT 水工結構" />
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {IOT_STRUCTURE_TYPES.map((s) => (
           <div key={s.label} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
@@ -5328,9 +5006,7 @@ function SubmarineCableLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        通訊海纜 SUBMARINE CABLE
-      </div>
+      <LegendTitle zh="通訊海纜" en="Submarine Cable" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {SUBMARINE_CABLE_CATS.map((c) => (
           <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -5360,9 +5036,7 @@ function LandingStationLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        海纜登陸站 LANDING STATION
-      </div>
+      <LegendTitle zh="海纜登陸站" en="Landing Station" />
       <FireCatRows cats={LANDING_STATION_CATS} />
       <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.35 }}>
         標註不完整；空白區域不代表沒有設施。© OpenStreetMap contributors
@@ -5375,9 +5049,7 @@ function InternetExchangePointsLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        網際網路交換中心 INTERNET EXCHANGE
-      </div>
+      <LegendTitle zh="網際網路交換中心" en="Internet Exchange" />
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {IXP_REGIONS.map((region) => (
           <div key={region.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -5396,7 +5068,7 @@ function InternetExchangePointsLegend() {
 function AnfrWirelessSitesLegend() {
   const t = useLegendTheme();
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>ANFR 5G 3500 WIRELESS SITES</div>
+    <LegendTitle zh="法國 ANFR 5G 3500 無線站點" en="Wireless Sites" />
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {ANFR_OPERATORS.map((operator) => <div key={operator.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: operator.color, display: "inline-block" }} />
@@ -5410,7 +5082,7 @@ function AnfrWirelessSitesLegend() {
 function OsmCommunicationSitesLegend() {
   const t = useLegendTheme();
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>OSM COMMUNICATION CANDIDATES</div>
+    <LegendTitle zh="OSM 通訊塔候選點" en="Communication Candidates" />
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {OSM_COMMUNICATION_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
@@ -5426,7 +5098,7 @@ function OsmCommunicationSitesLegend() {
 function RipeAtlasProbesLegend() {
   const t = useLegendTheme();
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>RIPE ATLAS CONNECTED PROBES</div>
+    <LegendTitle zh="RIPE Atlas 連線量測節點" en="Connected Probes" />
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {RIPE_ATLAS_NODE_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
@@ -5443,9 +5115,7 @@ function OoklaPerformanceGridLegend({ paletteIdx }: { paletteIdx?: number }) {
   const t = useLegendTheme();
   const stops = ooklaSpeedStops(paletteIdx);
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-      OOKLA SPEEDTEST PERFORMANCE GRID
-    </div>
+    <LegendTitle zh="Ookla 網路效能格網" en="Speedtest Performance Grid" />
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {stops.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 14, height: 9, background: stop.color, display: "inline-block", border: "1px solid rgba(255,255,255,0.3)" }} />
@@ -5483,9 +5153,7 @@ function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {
   if (!active.length) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        衛星 SATELLITES
-      </div>
+      <LegendTitle zh="衛星" en="Satellites" />
       {active.map((i) => (
         <div key={i.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span style={{ width: 12, height: 12, borderRadius: RADIUS.full, background: SATELLITE_COLORS[i.cat], display: "inline-block" }} />
@@ -5520,9 +5188,7 @@ function EnergyFuelLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · FUEL
-      </div>
+      <LegendTitle zh="發電燃料" en="Fuel" />
       {FUEL_LEGEND_ROWS.map((row) => (
         <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span
@@ -5597,9 +5263,7 @@ function AviationAirspaceLegend({ visibility }: { visibility: LayerVisibility })
   );
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        AVIATION · 航空器空域 eAIP
-      </div>
+      <LegendTitle zh="航空器空域 eAIP" />
       {visibility.aviationControl && (
         <>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 4, marginBottom: 2 }}>
@@ -5639,9 +5303,7 @@ function DroneZonesLegend({ visibility }: { visibility: LayerVisibility }) {
   if (rows.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        AVIATION · 無人機空域
-      </div>
+      <LegendTitle zh="無人機空域" />
       {rows.map((r) => (
         <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span style={{ width: 14, height: 10, background: r.color, display: "inline-block", borderRadius: 2, opacity: 0.55 }} />
@@ -5677,9 +5339,7 @@ function PowerPolesLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 全國電桿 2.96M
-      </div>
+      <LegendTitle zh="全國電桿（296 萬）" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         密度（z8-12）
       </div>
@@ -5719,9 +5379,7 @@ function PowerGridLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 高壓電網
-      </div>
+      <LegendTitle zh="高壓電網" />
       {voltageRows.map((r) => (
         <div key={r.kv} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span style={{ width: 16, height: 3, background: r.color, display: "inline-block", borderRadius: 1 }} />
@@ -5771,9 +5429,7 @@ function SubstationEhvLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 超高壓變電所
-      </div>
+      <LegendTitle zh="超高壓變電所" />
       {rows.map((r) => (
         <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span style={{ width: r.sz * 2, height: r.sz * 2, borderRadius: "50%", background: r.color, display: "inline-block", flexShrink: 0 }} />
@@ -5800,9 +5456,7 @@ function SubstationLocalLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 區域變電所
-      </div>
+      <LegendTitle zh="區域變電所" />
       {rows.map((r) => (
         <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span style={{ width: r.sz * 2, height: r.sz * 2, borderRadius: "50%", background: r.color, display: "inline-block", flexShrink: 0 }} />
@@ -5834,9 +5488,7 @@ function FacilityFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   const showStatus = visibility.facPlanned || visibility.facHistorical;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 電廠燃料
-      </div>
+      <LegendTitle zh="電廠燃料" />
       {fuels.map((f) => (
         <div key={f.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span style={{ width: 12, height: 12, borderRadius: "50%", background: f.c, display: "inline-block" }} />
@@ -5902,9 +5554,7 @@ function FossilFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   if (active.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 化石燃料
-      </div>
+      <LegendTitle zh="化石燃料" />
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {active.map((r) => (
           <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -5946,9 +5596,7 @@ function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
 
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 全台最近距離（路網）
-      </div>
+      <LegendTitle zh="全台最近距離（路網）" />
       {anyGas && (
         <>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 4 }}>
@@ -5986,9 +5634,7 @@ function FacOffshoreLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 離岸風電場址（8 場）
-      </div>
+      <LegendTitle zh="離岸風電場址（8 場）" />
       {[
         { c: "#3C92A6", label: "運轉中", dash: false },
         { c: "#7AAEC0", label: "興建中（虛線 3,2）", dash: true },
@@ -6021,9 +5667,7 @@ function RenewablePoiLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · OSM 風光電
-      </div>
+      <LegendTitle zh="OSM 風光電" />
       {visibility.osmWindTurbines && (
         <>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 4 }}>風機 (812)</div>
@@ -6079,9 +5723,7 @@ function EnergySpecialtyLegend({ visibility }: { visibility: LayerVisibility }) 
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 特殊
-      </div>
+      <LegendTitle zh="特殊" />
       {visibility.offshoreWindZones && (
         <>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 4 }}>離岸風電場址 (36)</div>
@@ -6161,9 +5803,7 @@ function EnergyReserveLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 備轉燈號
-      </div>
+      <LegendTitle zh="備轉燈號" />
       {(["G", "Y", "O", "R"] as const).map((k) => (
         <div key={k} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span
@@ -6195,9 +5835,7 @@ function LightningLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        HAZARD · 落雷類型
-      </div>
+      <LegendTitle zh="落雷類型" />
       {[
         { label: "雲對地 CG（高傷害）", color: LIGHTNING_TYPE_COLORS[0]! },
         { label: "雲中 IC", color: LIGHTNING_TYPE_COLORS[1]! },
@@ -6226,9 +5864,7 @@ function LightningCwaLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        HAZARD · 落雷類型（氣象署）
-      </div>
+      <LegendTitle zh="落雷類型（氣象署）" />
       {[
         { label: "對地 CG（高傷害）", color: "#a78bfa" },
         { label: "雲間 IC", color: "#4ade80" },
@@ -6264,9 +5900,7 @@ function NuclearLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        HAZARD · 核安劑量
-      </div>
+      <LegendTitle zh="核安劑量" />
       {rows.map((row) => (
         <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span
@@ -6300,9 +5934,7 @@ function ParkingLegend({ visibility }: { visibility: LayerVisibility }) {
   const neutralMid = PARKING_NEUTRAL_STOPS[Math.floor(PARKING_NEUTRAL_STOPS.length / 2)]?.[1] ?? "#94a3b8";
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        MOVE · 停車空位率
-      </div>
+      <LegendTitle zh="停車空位率" />
       {rateRows.map((r) => (
         <div key={r.rate} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span style={dot(parkingAvailabilityColor(r.rate))} />
@@ -6319,9 +5951,7 @@ function ParkingLegend({ visibility }: { visibility: LayerVisibility }) {
       )}
       {visibility.parkingOffstreet && (
         <>
-          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, margin: "6px 0 3px" }}>
-            場外分類（外環）
-          </div>
+          <LegendTitle zh="場外分類（外環）" style={{ margin: "6px 0 3px" }} />
           {Object.values(SOURCE_CATEGORY_META).map((m) => (
             <div key={m.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
               <span style={{
@@ -6351,9 +5981,7 @@ function ErCongestionLegend() {
   ];
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        MEDICAL · 急診壅塞（等一般病床）
-      </div>
+      <LegendTitle zh="急診壅塞（等一般病床）" />
       {rows.map((row) => (
         <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span
@@ -6414,9 +6042,7 @@ function PoliceIsochroneLegend({ visibility }: { visibility: LayerVisibility }) 
   if (!anyOn) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        警察覆蓋 · 重疊計數
-      </div>
+      <LegendTitle zh="警察覆蓋 · 重疊計數" />
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {ISO_OVERLAP_BANDS.map((b) => (
           <div key={b.l} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -6438,9 +6064,7 @@ function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibility }) {
   if (active.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        LAW & ORDER · 警政司法民防
-      </div>
+      <LegendTitle zh="警政司法民防" en="Law & Order" />
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {active.map((r) => (
           <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -6623,51 +6247,27 @@ function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibility }) {
 // ── 噪音／聲響六圖層 ──────────────────────────────────────────────
 
 function NoiseLegendTitle({ children }: { children: React.ReactNode }) {
-  const t = useLegendTheme();
-  return (
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-      {children}
-    </div>
-  );
+  return <LegendTitle zh={children} />;
 }
 
 function NoiseLegendRows({ rows, outline = false }: {
   rows: readonly { label: string; color: string }[];
   outline?: boolean;
 }) {
-  const t = useLegendTheme();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {rows.map((row) => (
-        <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{
-            width: 14,
-            height: 10,
-            boxSizing: "border-box",
-            background: outline ? "transparent" : row.color,
-            border: outline ? `2px solid ${row.color}` : "1px solid rgba(255,255,255,0.4)",
-            borderRadius: RADIUS.sm,
-            flexShrink: 0,
-          }} />
-          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{row.label}</span>
-        </div>
+        <LegendRow key={row.label} swatch={<SwatchSquare color={row.color} outline={outline} />}>{row.label}</LegendRow>
       ))}
     </div>
   );
 }
 
 function NoiseLegendNote({ children, source }: { children: React.ReactNode; source?: string }) {
-  const t = useLegendTheme();
   return (
     <>
-      <div style={{ marginTop: 5, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45 }}>
-        {children}
-      </div>
-      {source && (
-        <div style={{ marginTop: 4, fontSize: 9, color: t.textDim, lineHeight: 1.35 }}>
-          來源／授權：{source}
-        </div>
-      )}
+      <LegendNote style={{ marginTop: 5, lineHeight: 1.45 }}>{children}</LegendNote>
+      {source && <LegendNote style={{ lineHeight: 1.35 }}>來源／授權：{source}</LegendNote>}
     </>
   );
 }
@@ -6699,7 +6299,7 @@ function NoiseCaptureGridLegend() {
   const t = useLegendTheme();
   return (
     <div>
-      <NoiseLegendTitle>NOISECAPTURE · rolling 365 天</NoiseLegendTitle>
+      <NoiseLegendTitle>NoiseCapture · 近 365 天滾動</NoiseLegendTitle>
       <div style={{
         height: 8,
         borderRadius: RADIUS.sm,

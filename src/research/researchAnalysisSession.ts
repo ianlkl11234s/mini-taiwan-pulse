@@ -471,6 +471,31 @@ export class ResearchAnalysisSession {
 
   hasResult(resultId: string): boolean { return this.store.has(resultId); }
 
+  /** True when the stored result (if any) has an actual map-drawable geometry. read_series/
+   *  compare_series output (recordGrain "series", geometry "none") is analysis-only — never eligible,
+   *  and never thrown for; callers use this to keep a non-spatial result out of a `presentable()`
+   *  batch instead of letting one such id fail the whole batch (spec P3=W3: these results get their
+   *  own TrendLine card, not a map layer). A missing/expired id is also just "not eligible". */
+  mapEligible(resultId: string): boolean {
+    const result = this.store.get(resultId) as StoredDataResult | null;
+    return !!result && isMapEligibleGeometry(result.geometry);
+  }
+
+  /** Non-spatial analysis-only result (recordGrain "series") for a TrendLine card: same store-backed,
+   *  access-checked lookup as `presentable()`, without its map-eligibility gate. Returns null for a
+   *  missing/expired id or a result that is not series-shaped, rather than throwing — callers treat
+   *  "nothing to show as a trend" the same as "this item isn't a series result". `resultStyle`, when
+   *  present, is a warehouse T1=L1 `series` style (see warehouseResultImport.ts) built directly from
+   *  periods/values/baseline; its absence means this is a session-local read_series/compare_series
+   *  result instead, whose rows carry period_start/value/baseline_value (analysisResultCharts.ts
+   *  seriesTrendLineData). */
+  seriesResult(resultId: string): { resultId: string; displayLabel: string; rows: readonly Record<string, unknown>[]; units: StoredDataResult["units"]; resultStyle?: StoredDataResult["resultStyle"] } | null {
+    this.assertResultAccess(resultId);
+    const result = this.store.get(resultId) as StoredDataResult | null;
+    if (!result || result.recordGrain !== "series") return null;
+    return { resultId: result.resultId, displayLabel: resultDisplayLabel(result), rows: result.rows, units: result.units, ...(result.resultStyle ? { resultStyle: result.resultStyle } : {}) };
+  }
+
   presentable(resultIds: readonly string[]): PresentableResult[] {
     if (!resultIds.length || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
     if (resultIds.length > RESULT_COLLECTION_LIMITS.maxLogicalResults) throw new Error("RESULT_COLLECTION_LOGICAL_LIMIT");
@@ -513,11 +538,15 @@ export class ResearchAnalysisSession {
     for (const stale of [input.resultId, ...["point", "linestring", "multilinestring", "polygon", "multipolygon"].map(type => `${input.resultId}:${type}`)]) this.store.remove(stale);
     for (const result of results) this.store.put(result);
     const resultIds = results.map(result => result.resultId);
+    // A series-styled import (T1=L1) has geometry "none" — never map-eligible, so bounds() would
+    // throw RESULT_NOT_MAP_ELIGIBLE for it. Compute bounds only from whichever ids actually have
+    // drawable geometry; a series-only import simply reports no bounds.
+    const mapEligibleIds = resultIds.filter(resultId => this.mapEligible(resultId));
     return {
       resultId: input.resultId, resultIds, featureCount: input.featureCount,
       ...(input.style ? { styleKind: input.style.kind } : {}),
       geometryTypes: results.map(result => result.geometry.type),
-      ...(resultIds.length ? { bounds: this.bounds(resultIds).bounds } : {}),
+      ...(mapEligibleIds.length ? { bounds: this.bounds(mapEligibleIds).bounds } : {}),
       next: "Present with pulse_set_result_collection using these resultIds, then wait for scene ready and read map context.",
     };
   }

@@ -6,6 +6,7 @@ const INPUT_LABELS: Record<string, string> = {
   local_category_ha: '當地同類面積（公頃）', local_admin_ha: '當地行政面積（公頃）',
   national_category_ha: '全臺同類面積（公頃）', national_admin_ha: '全臺行政面積（公頃）',
   denominator_population: '分母人口', population: '分母人口', heads: '在養頭／隻數', farms: '飼養場數',
+  source_participation_rate_pct: '來源勞動力參與率（%）',
 };
 function inputValue(value: unknown): string {
   if (typeof value === 'number') return value.toLocaleString('zh-TW', {maximumFractionDigits: 4});
@@ -34,16 +35,20 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     <Row label="數值" value={observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit ?? ''}` : `${missingLabel}，不等於 0`} />
     {props.source_status != null && <Row label="來源狀態" value={String(props.source_status)} />}
     {props.source_token != null && <Row label="來源原值" value={String(props.source_token)} />}
+    {props.missing_reason != null && <Row label="缺值原因" value={String(props.missing_reason)} />}
     <Row label="資料期別" value={String(props.period_label ?? props.release_id ?? '—')} />
+    {props.location_semantics != null && <Row label="位置口徑" value={String(props.location_semantics)} />}
     {props.comparison_formula != null && <Row label="計算方式" value={String(props.comparison_formula)} />}
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={INPUT_LABELS[key]!} value={inputValue(value)} />)}
     {props.interpretation != null && <Row label="如何理解" value={String(props.interpretation)} />}
     {props.time_caveat != null && <Row label="時間口徑" value={String(props.time_caveat)} />}
     <Row label="行政區代碼" value={String(props.area_code ?? '—')} />
     <Row label="參考邊界" value={String(props.boundary_version ?? '—')} />
+    {props.boundary_semantics != null && <Row label="邊界角色" value={String(props.boundary_semantics)} />}
     {props.source_statistical_boundary_version != null && <Row label="統計參考版" value={String(props.source_statistical_boundary_version)} />}
     {props.availability != null && <Row label="資料可用狀態" value={String(props.availability)} />}
     {props.coverage_status != null && <Row label="覆蓋狀態" value={String(props.coverage_status)} />}
+    {props.coverage_numerator != null && props.coverage_denominator != null && <Row label="覆蓋筆數" value={`${String(props.coverage_numerator)}／${String(props.coverage_denominator)}`} />}
     {props.method_version != null && <Row label="處理版本" value={String(props.method_version)} />}
     {props.raw_sha256 != null && <Row label="原始 SHA-256" value={String(props.raw_sha256)} />}
     <Row label="來源" value={String(props.publisher ?? '—')} />

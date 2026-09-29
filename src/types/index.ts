@@ -1,4 +1,5 @@
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
+import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
 
@@ -876,7 +877,9 @@ export interface FeatureInfo {
     // 警察覆蓋分析 (PMTiles, 帶 overlap_count)
     | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept"
     // AI 助手 highlight_point tool 標記點（通用標籤 + 座標）
-    | "chatHighlight";
+    | "chatHighlight"
+    // 與 Agent 協作：暫時分析結果（MainMapConnection 點擊 → 停靠面板；非 manifest 圖層）
+    | "analysisResult";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
@@ -884,7 +887,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;

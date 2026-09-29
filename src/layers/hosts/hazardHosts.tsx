@@ -96,6 +96,7 @@ export const EarthquakeReplayHost: LayerHostComponent = ({ deps }) => {
     deps.eqReplaySelectedId,
     deps.eqReplayPlaying,
     deps.onEqReplayEnd,
+    deps.isDarkTheme,
   );
   return null;
 };

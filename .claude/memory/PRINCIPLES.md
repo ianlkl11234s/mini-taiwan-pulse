@@ -578,7 +578,7 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 
 ## Design System / inline style + token（2026-06-18）
 
-> 規範文件 SSOT 在 `docs/design-system.md`，本節僅摘要不重複。
+> 規範文件 SSOT 在 `docs/design-system/spec.md`，本節僅摘要不重複。
 
 **核心決策**：**不引入 CSS 框架**（Tailwind / CSS Modules / styled-components）。
 理由：60+ 元件已走 inline `style={{}}`、Mapbox paint property 吃字串、Three.js 吃 hex、
@@ -607,7 +607,7 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 - ❌ **`SURFACE.*` 只給 panel 容器底**；button / select / segmented control 等**互動態背景不用 SURFACE**
   （即使數值相同 `rgba(0,0,0,0.4)`，語意不同 — 未來開 `CONTROL.*` 群組，見 DS-3）
 
-**寫新元件 checklist**：見 `docs/design-system.md` §9（5 段 code template 可直接抄）。
+**寫新元件 checklist**：見 `docs/design-system/spec.md` §9（5 段 code template 可直接抄）。
 
 **未抽 token 範圍**（DS-1~7）：Z_INDEX / transition / state colors / breakpoint / control sizing /
 intelTokens 退役 / LayerSidebar 亮側。**沒有真實痛點不開**，痛點出現再進 BACKLOG。

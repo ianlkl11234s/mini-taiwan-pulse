@@ -1,0 +1,14 @@
+/*
+ * Feature popup（FeatureInfoPanel）B 版密度規格的純 CSS 部分。
+ * 規格見 docs/features/ui-consistency-audit-20260927/proposal.md §6.1。
+ *
+ * Row 之間的細線不能用 inline style 判斷「是不是最後一列」（列表可能是條件渲染，
+ * 順序與筆數不固定），改用 adjacent sibling selector：只有兩個 .fi-row 緊鄰時才畫線，
+ * 天然跳過最後一列，也天然跳過被 Title/Badge 等其他元素隔開的情況。
+ *
+ * --fi-border-soft 由 FeatureInfoPanel 容器依 isDarkTheme 動態設 inline style
+ * （暗色 rgba(255,255,255,0.06)、淡色 rgba(0,0,0,0.06)），這裡只提供 fallback。
+ */
+.fi-row + .fi-row {
+  border-top: 1px solid var(--fi-border-soft, rgba(255, 255, 255, 0.06));
+}

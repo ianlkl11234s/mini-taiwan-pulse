@@ -1,0 +1,404 @@
+<title>Pulse Popup 密度</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --app: #0a0a14;
+    --panel: rgba(10,10,20,0.88);
+    --panel-solid: #11111c;
+    --border-soft: rgba(255,255,255,0.06);
+    --border-panel: rgba(255,255,255,0.10);
+    --border-mid: rgba(255,255,255,0.14);
+    --text-strong: #f3f4f6;
+    --text: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-dim: #6b7280;
+    --link: #7fb2ff;
+    --accent: #64aaff;
+    --warn: #f59e0b;
+    --font-cjk: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--app);
+    color: var(--text);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 28px 20px 64px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+  header h1 { font-size: 22px; color: var(--text-strong); margin: 0 0 8px; font-weight: 600; text-wrap: balance; }
+  header p { margin: 0; color: var(--text-muted); max-width: 70ch; }
+  header .pick { margin-top: 12px; color: var(--warn); }
+  code { font-family: var(--font-data); font-size: 12px; color: var(--text); }
+
+  .variant { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--border-panel); padding-top: 20px; }
+  .variant-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+  .variant-head h2 { margin: 0; font-size: 16px; color: var(--text-strong); font-weight: 600; }
+  .vid { font-family: var(--font-data); font-size: 12px; color: var(--app); background: var(--accent); padding: 1px 7px; border-radius: 3px; font-weight: 700; }
+  .baseline .vid { background: var(--text-dim); }
+  .spec { font-family: var(--font-data); font-size: 11px; color: var(--text-dim); }
+  .variant-note { margin: 0; color: var(--text-muted); max-width: 80ch; font-size: 12.5px; }
+
+  .stage {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+    padding: 18px;
+    border-radius: 6px;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(100,170,255,0.06), transparent 50%),
+      repeating-linear-gradient(135deg, #0d0d18 0 12px, #0b0b15 12px 24px);
+    align-items: start;
+  }
+  .slot { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+  .slot-cap { font-size: 11px; color: var(--text-dim); }
+
+  /* ── 共用 popup 骨架（對應 FeatureInfoPanel：280px / radius xl / padding 12×14）── */
+  .pop {
+    position: relative;
+    width: 280px;
+    max-width: 100%;
+    background: var(--panel);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border-panel);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: var(--font-cjk);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+  }
+  .pop .x { position: absolute; top: 8px; right: 10px; color: var(--text-dim); font-size: 13px; line-height: 1; }
+  .eyebrow { font-size: 9px; color: var(--text-dim); letter-spacing: 1.2px; margin-bottom: 4px; }
+  .title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--text-strong); margin-bottom: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .facts { display: flex; flex-direction: column; }
+  .row { display: flex; gap: 8px; font-size: 11px; }
+  .row .k { color: var(--text-muted); flex-shrink: 0; width: 56px; }
+  .row .v { color: var(--text-strong); word-break: break-word; }
+  .num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  .foot { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--border-soft); font-size: 9px; color: var(--text-dim); line-height: 1.5; }
+  .foot a { color: var(--link); text-decoration: none; }
+  .foot .pending { color: var(--warn); }
+
+  /* A 現行基準：無線，marginTop 4，lineHeight 1.5 */
+  .vA .row { margin-top: 4px; line-height: 1.5; }
+
+  /* B 細線緊湊：每列細線，列高壓到 ~20px */
+  .vB .title { margin-bottom: 4px; padding-bottom: 5px; border-bottom: 1px solid var(--border-panel); }
+  .vB .row { padding: 3px 0; line-height: 1.3; border-bottom: 1px solid var(--border-soft); }
+  .vB .row:last-child { border-bottom: 0; }
+  .vB .row .k { font-size: 10px; padding-top: 1px; }
+
+  /* C 分組線：列間無線，只在語意分組之間畫一條線 */
+  .vC .grp { display: flex; flex-direction: column; gap: 1px; padding: 5px 0; }
+  .vC .grp + .grp { border-top: 1px solid var(--border-soft); }
+  .vC .row { line-height: 1.4; }
+  .vC .title { margin-bottom: 2px; }
+
+  /* D 直軸：標籤欄與數值欄之間一條 border-left（呼應 Q2 的 border-left 語彙） */
+  .vD .facts { border-top: 1px solid var(--border-panel); padding-top: 4px; }
+  .vD .row { line-height: 1.35; gap: 0; }
+  .vD .row .k { width: 58px; font-size: 10px; padding: 2px 0; }
+  .vD .row .v { border-left: 1px solid var(--border-mid); padding: 2px 0 2px 8px; }
+
+  /* E 情報格：label 等寬小字、不換列，值緊貼 */
+  .vE .eyebrow { font-family: var(--font-data); text-transform: none; }
+  .vE .row { line-height: 1.3; padding: 2px 0; border-bottom: 1px dotted var(--border-mid); }
+  .vE .row:last-child { border-bottom: 0; }
+  .vE .row .k { font-size: 10px; width: 52px; color: var(--text-dim); }
+
+  .compare { overflow-x: auto; }
+  table { border-collapse: collapse; font-size: 12px; min-width: 620px; width: 100%; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+  th { color: var(--text-dim); font-weight: 500; font-size: 11px; }
+  td:first-child { font-family: var(--font-data); color: var(--accent); font-weight: 700; }
+  td.num { color: var(--text-strong); }
+
+  @media (max-width: 440px) {
+    body { padding-inline: 16px; }
+    .stage { padding: 12px; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Popup 資訊密度：五個候選版</h1>
+    <p>三種 popup（寺廟、文化設施、Agent 分析結果）都套同一個停靠面板骨架（280px、右下角、沒有尖角，依 Q1 的決定）。字型用 Q3 決定的系統字：中文走 <code>--font-cjk</code>，只有數值走 <code>--font-data</code>。每一版只有「列高」和「分隔方式」不同，其餘結構都一樣。</p>
+    <p class="pick">挑一版告訴我代號（A–E），也可以混搭，例如「B 的線 + D 的標籤欄」。</p>
+  </header>
+
+  <!-- A -->
+  <section class="variant baseline vA">
+    <div class="variant-head"><span class="vid">A</span><h2>現行（基準）</h2><span class="spec">列高 ≈ 20.5px · 無分隔線 · 列距 4px</span></div>
+    <p class="variant-note">目前寺廟 popup 的樣子，只把字型改成 CJK。版面緊，但資訊一多就難對齊掃讀。</p>
+    <div class="stage">
+      <div class="slot"><span class="slot-cap">寺廟</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">宗教場所 · 寺廟</div>
+          <div class="title"><span class="dot" style="background:#e0a82e"></span>龍山寺</div>
+          <div class="facts">
+            <div class="row"><span class="k">主祀神祇</span><span class="v" style="color:#e0a82e">觀世音菩薩</span></div>
+            <div class="row"><span class="k">教別</span><span class="v">佛道混合</span></div>
+            <div class="row"><span class="k">登記別</span><span class="v">寺廟</span></div>
+            <div class="row"><span class="k">登記狀態</span><span class="v">官方登記</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">台北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">萬華區廣州街211號</span></div>
+          </div>
+          <div class="foot">資料來源（Tier 1）· 內政部宗教數位資訊網 · <a href="#">原始下載頁 ↗</a></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">文化設施（示意）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">文化設施 · 博物館</div>
+          <div class="title"><span class="dot" style="background:#f08c3a"></span>國立臺灣博物館</div>
+          <div class="facts">
+            <div class="row"><span class="k">類型</span><span class="v" style="color:#f08c3a">博物館</span></div>
+            <div class="row"><span class="k">營運單位</span><span class="v">文化部</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">臺北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">中正區襄陽路2號</span></div>
+          </div>
+          <div class="foot"><span class="pending">資料來源 · 來源資訊待補</span></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">Agent 分析結果（示意數值）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">分析結果 · 人口密度</div>
+          <div class="title"><span class="dot" style="background:#64aaff"></span>大安區</div>
+          <div class="facts">
+            <div class="row"><span class="k">資料集</span><span class="v">人口密度網格（2026 Q3）</span></div>
+            <div class="row"><span class="k">原始值</span><span class="v num">18,204 人/km²</span></div>
+            <div class="row"><span class="k">比較基準</span><span class="v">本區 ÷ 全市中位數</span></div>
+            <div class="row"><span class="k">相對倍率</span><span class="v num">1.42×</span></div>
+          </div>
+          <div class="foot">暫時分析結果 · 非完整來源圖層</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- B -->
+  <section class="variant vB">
+    <div class="variant-head"><span class="vid">B</span><h2>細線緊湊</h2><span class="spec">列高 ≈ 21px · 每列 1px 細線（border-soft） · 標籤 10px</span></div>
+    <p class="variant-note">保留 mockup 建議版「每列都有線」的條理，列高壓回跟 A 差不多。標題下方用稍亮的線，把標頭和欄位分開。</p>
+    <div class="stage">
+      <div class="slot"><span class="slot-cap">寺廟</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">宗教場所 · 寺廟</div>
+          <div class="title"><span class="dot" style="background:#e0a82e"></span>龍山寺</div>
+          <div class="facts">
+            <div class="row"><span class="k">主祀神祇</span><span class="v" style="color:#e0a82e">觀世音菩薩</span></div>
+            <div class="row"><span class="k">教別</span><span class="v">佛道混合</span></div>
+            <div class="row"><span class="k">登記別</span><span class="v">寺廟</span></div>
+            <div class="row"><span class="k">登記狀態</span><span class="v">官方登記</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">台北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">萬華區廣州街211號</span></div>
+          </div>
+          <div class="foot">資料來源（Tier 1）· 內政部宗教數位資訊網 · <a href="#">原始下載頁 ↗</a></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">文化設施（示意）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">文化設施 · 博物館</div>
+          <div class="title"><span class="dot" style="background:#f08c3a"></span>國立臺灣博物館</div>
+          <div class="facts">
+            <div class="row"><span class="k">類型</span><span class="v" style="color:#f08c3a">博物館</span></div>
+            <div class="row"><span class="k">營運單位</span><span class="v">文化部</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">臺北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">中正區襄陽路2號</span></div>
+          </div>
+          <div class="foot"><span class="pending">資料來源 · 來源資訊待補</span></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">Agent 分析結果（示意數值）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">分析結果 · 人口密度</div>
+          <div class="title"><span class="dot" style="background:#64aaff"></span>大安區</div>
+          <div class="facts">
+            <div class="row"><span class="k">資料集</span><span class="v">人口密度網格（2026 Q3）</span></div>
+            <div class="row"><span class="k">原始值</span><span class="v num">18,204 人/km²</span></div>
+            <div class="row"><span class="k">比較基準</span><span class="v">本區 ÷ 全市中位數</span></div>
+            <div class="row"><span class="k">相對倍率</span><span class="v num">1.42×</span></div>
+          </div>
+          <div class="foot">暫時分析結果 · 非完整來源圖層</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- C -->
+  <section class="variant vC">
+    <div class="variant-head"><span class="vid">C</span><h2>分組線</h2><span class="spec">列高 ≈ 16.5px · 列間無線 · 只在分組之間畫線</span></div>
+    <p class="variant-note">最緊的一版。欄位先分成「身分」和「位置」等語意組，只在組和組之間畫線。每個 panel 都要多定義一次分組。</p>
+    <div class="stage">
+      <div class="slot"><span class="slot-cap">寺廟</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">宗教場所 · 寺廟</div>
+          <div class="title"><span class="dot" style="background:#e0a82e"></span>龍山寺</div>
+          <div class="facts">
+            <div class="grp">
+              <div class="row"><span class="k">主祀神祇</span><span class="v" style="color:#e0a82e">觀世音菩薩</span></div>
+              <div class="row"><span class="k">教別</span><span class="v">佛道混合</span></div>
+              <div class="row"><span class="k">登記別</span><span class="v">寺廟</span></div>
+              <div class="row"><span class="k">登記狀態</span><span class="v">官方登記</span></div>
+            </div>
+            <div class="grp">
+              <div class="row"><span class="k">縣市</span><span class="v">台北市</span></div>
+              <div class="row"><span class="k">地址</span><span class="v">萬華區廣州街211號</span></div>
+            </div>
+          </div>
+          <div class="foot">資料來源（Tier 1）· 內政部宗教數位資訊網 · <a href="#">原始下載頁 ↗</a></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">文化設施（示意）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">文化設施 · 博物館</div>
+          <div class="title"><span class="dot" style="background:#f08c3a"></span>國立臺灣博物館</div>
+          <div class="facts">
+            <div class="grp">
+              <div class="row"><span class="k">類型</span><span class="v" style="color:#f08c3a">博物館</span></div>
+              <div class="row"><span class="k">營運單位</span><span class="v">文化部</span></div>
+            </div>
+            <div class="grp">
+              <div class="row"><span class="k">縣市</span><span class="v">臺北市</span></div>
+              <div class="row"><span class="k">地址</span><span class="v">中正區襄陽路2號</span></div>
+            </div>
+          </div>
+          <div class="foot"><span class="pending">資料來源 · 來源資訊待補</span></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">Agent 分析結果（示意數值）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">分析結果 · 人口密度</div>
+          <div class="title"><span class="dot" style="background:#64aaff"></span>大安區</div>
+          <div class="facts">
+            <div class="grp">
+              <div class="row"><span class="k">資料集</span><span class="v">人口密度網格（2026 Q3）</span></div>
+            </div>
+            <div class="grp">
+              <div class="row"><span class="k">原始值</span><span class="v num">18,204 人/km²</span></div>
+              <div class="row"><span class="k">比較基準</span><span class="v">本區 ÷ 全市中位數</span></div>
+              <div class="row"><span class="k">相對倍率</span><span class="v num">1.42×</span></div>
+            </div>
+          </div>
+          <div class="foot">暫時分析結果 · 非完整來源圖層</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- D -->
+  <section class="variant vD">
+    <div class="variant-head"><span class="vid">D</span><h2>直軸</h2><span class="spec">列高 ≈ 19px · 標籤與數值之間一條直線 · 列間無線</span></div>
+    <p class="variant-note">用一條直線取代每列橫線，呼應 Q2 選的 border-left 語彙，跟 Layers 面板、活動時間軸是同一種線。視覺上最像情報表單。</p>
+    <div class="stage">
+      <div class="slot"><span class="slot-cap">寺廟</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">宗教場所 · 寺廟</div>
+          <div class="title"><span class="dot" style="background:#e0a82e"></span>龍山寺</div>
+          <div class="facts">
+            <div class="row"><span class="k">主祀神祇</span><span class="v" style="color:#e0a82e">觀世音菩薩</span></div>
+            <div class="row"><span class="k">教別</span><span class="v">佛道混合</span></div>
+            <div class="row"><span class="k">登記別</span><span class="v">寺廟</span></div>
+            <div class="row"><span class="k">登記狀態</span><span class="v">官方登記</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">台北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">萬華區廣州街211號</span></div>
+          </div>
+          <div class="foot">資料來源（Tier 1）· 內政部宗教數位資訊網 · <a href="#">原始下載頁 ↗</a></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">文化設施（示意）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">文化設施 · 博物館</div>
+          <div class="title"><span class="dot" style="background:#f08c3a"></span>國立臺灣博物館</div>
+          <div class="facts">
+            <div class="row"><span class="k">類型</span><span class="v" style="color:#f08c3a">博物館</span></div>
+            <div class="row"><span class="k">營運單位</span><span class="v">文化部</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">臺北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">中正區襄陽路2號</span></div>
+          </div>
+          <div class="foot"><span class="pending">資料來源 · 來源資訊待補</span></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">Agent 分析結果（示意數值）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">分析結果 · 人口密度</div>
+          <div class="title"><span class="dot" style="background:#64aaff"></span>大安區</div>
+          <div class="facts">
+            <div class="row"><span class="k">資料集</span><span class="v">人口密度網格（2026 Q3）</span></div>
+            <div class="row"><span class="k">原始值</span><span class="v num">18,204 人/km²</span></div>
+            <div class="row"><span class="k">比較基準</span><span class="v">本區 ÷ 全市中位數</span></div>
+            <div class="row"><span class="k">相對倍率</span><span class="v num">1.42×</span></div>
+          </div>
+          <div class="foot">暫時分析結果 · 非完整來源圖層</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- E -->
+  <section class="variant vE">
+    <div class="variant-head"><span class="vid">E</span><h2>情報格</h2><span class="spec">列高 ≈ 19px · 點線分隔 · 標籤較暗、欄寬 52px</span></div>
+    <p class="variant-note">介於 A 和 B 之間：用點線取代實線，分隔感更輕；標籤調暗，讓數值更突出。</p>
+    <div class="stage">
+      <div class="slot"><span class="slot-cap">寺廟</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">宗教場所 · 寺廟</div>
+          <div class="title"><span class="dot" style="background:#e0a82e"></span>龍山寺</div>
+          <div class="facts">
+            <div class="row"><span class="k">主祀神祇</span><span class="v" style="color:#e0a82e">觀世音菩薩</span></div>
+            <div class="row"><span class="k">教別</span><span class="v">佛道混合</span></div>
+            <div class="row"><span class="k">登記別</span><span class="v">寺廟</span></div>
+            <div class="row"><span class="k">登記狀態</span><span class="v">官方登記</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">台北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">萬華區廣州街211號</span></div>
+          </div>
+          <div class="foot">資料來源（Tier 1）· 內政部宗教數位資訊網 · <a href="#">原始下載頁 ↗</a></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">文化設施（示意）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">文化設施 · 博物館</div>
+          <div class="title"><span class="dot" style="background:#f08c3a"></span>國立臺灣博物館</div>
+          <div class="facts">
+            <div class="row"><span class="k">類型</span><span class="v" style="color:#f08c3a">博物館</span></div>
+            <div class="row"><span class="k">營運單位</span><span class="v">文化部</span></div>
+            <div class="row"><span class="k">縣市</span><span class="v">臺北市</span></div>
+            <div class="row"><span class="k">地址</span><span class="v">中正區襄陽路2號</span></div>
+          </div>
+          <div class="foot"><span class="pending">資料來源 · 來源資訊待補</span></div>
+        </div>
+      </div>
+      <div class="slot"><span class="slot-cap">Agent 分析結果（示意數值）</span>
+        <div class="pop"><span class="x">✕</span>
+          <div class="eyebrow">分析結果 · 人口密度</div>
+          <div class="title"><span class="dot" style="background:#64aaff"></span>大安區</div>
+          <div class="facts">
+            <div class="row"><span class="k">資料集</span><span class="v">人口密度網格（2026 Q3）</span></div>
+            <div class="row"><span class="k">原始值</span><span class="v num">18,204 人/km²</span></div>
+            <div class="row"><span class="k">比較基準</span><span class="v">本區 ÷ 全市中位數</span></div>
+            <div class="row"><span class="k">相對倍率</span><span class="v num">1.42×</span></div>
+          </div>
+          <div class="foot">暫時分析結果 · 非完整來源圖層</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant-head"><h2>規格對照</h2></div>
+    <div class="compare">
+      <table>
+        <thead><tr><th>版</th><th>列高（11px 字）</th><th>分隔</th><th>標籤</th><th>施工成本</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td class="num">≈ 20.5px</td><td>無</td><td>11px · muted · 56px</td><td>最低，只換字型</td></tr>
+          <tr><td>B</td><td class="num">≈ 21px</td><td>每列實線 border-soft</td><td>10px · muted · 56px</td><td>只改共用 <code>Row</code></td></tr>
+          <tr><td>C</td><td class="num">≈ 16.5px</td><td>分組之間一條線</td><td>11px · muted · 56px</td><td>高，41 個 panel 都要定義分組</td></tr>
+          <tr><td>D</td><td class="num">≈ 19px</td><td>標籤與數值間直線</td><td>10px · muted · 58px</td><td>只改共用 <code>Row</code></td></tr>
+          <tr><td>E</td><td class="num">≈ 19px</td><td>每列點線</td><td>10px · dim · 52px</td><td>只改共用 <code>Row</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="variant-note">列高是依 CSS 推算的近似值，未實機量測。所有版本的來源 footer 都照 Q6 的決定：沒有來源時顯示「來源資訊待補」（見文化設施範例）。</p>
+  </section>
+</div>

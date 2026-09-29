@@ -2,6 +2,7 @@ import { statisticsVisualColors } from "./statisticsVisuals";
 /** Presentation configuration only; values, periods and sources come from the public catalog. */
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
 import { SOCIAL_STATISTICS_RECIPES_BY_KEY, getSocialRecipe, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
+import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
@@ -376,6 +377,29 @@ export const STATISTICS_RECIPES = {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
   }>,
+  ...Object.fromEntries(Object.entries(LABOR_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: recipe.release_options.length > 1 ? "依已公開完整選項" : `${recipe.release_options[0]?.period_start ?? "已公開"} 至 ${recipe.release_options[0]?.period_end ?? ""}`,
+    dimensions: recipe.release_options[0]?.dimensions ?? {},
+    includeHealth: true,
+    releaseOptions: recipe.release_options,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      boundarySemantics: recipe.boundary_semantics,
+      locationSemantics: recipe.location_semantics,
+      disclosure: recipe.disclosure,
+      relatedLayerKeys: recipe.related_layer_keys,
+    },
+    breaks: recipe.legend.breaks,
+    colors: recipe.legend.colors,
+  }])) as Record<LaborStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;
 export const STATISTICS_KEYS = Object.keys(STATISTICS_RECIPES) as StatisticsLayerKey[];
@@ -383,6 +407,8 @@ export type StatisticsRenderKey = StatisticsLayerKey | EducationPresentationView
 export const STATISTICS_RENDER_KEYS = [...STATISTICS_KEYS, ...EDUCATION_PRESENTATION_VIEW_KEYS] as StatisticsRenderKey[];
 export function isStatisticsRenderLayer(key: string): key is StatisticsRenderKey { return isStatisticsLayer(key) || Boolean(getEducationPresentationView(key)); }
 export function statisticsBaseKey(key: StatisticsRenderKey, selectedIndicator?: string): StatisticsLayerKey {
+  const laborMetric = getLaborStatisticsPresentationMetric(key, selectedIndicator);
+  if (laborMetric) return laborMetric.sourceLayerKey;
   const view = getEducationPresentationView(key);
   if (!view) return key as StatisticsLayerKey;
   return view.metrics.find(metric => STATISTICS_RECIPES[metric.layerKey].indicator_id === selectedIndicator)?.layerKey ?? view.metrics[0]!.layerKey;
@@ -396,6 +422,20 @@ export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicat
   const baseKey = statisticsBaseKey(key, selectedIndicator);
   const source = STATISTICS_RECIPES[baseKey];
   const base = { ...source, colors: statisticsVisualColors(baseKey, source.label, source.breaks) };
+  const laborMetric = getLaborStatisticsPresentationMetric(key, selectedIndicator);
+  if (laborMetric?.valueTransform) {
+    const breaks = [...(laborMetric.breaks ?? source.breaks)];
+    const label = laborMetric.presentationLabel ?? source.label;
+    return {
+      ...base,
+      label,
+      breaks,
+      colors: statisticsVisualColors(baseKey, label, breaks),
+      sourceLayerKey: laborMetric.sourceLayerKey,
+      valueTransform: laborMetric.valueTransform,
+      derivationFormula: laborMetric.formula,
+    };
+  }
   const view = getEducationPresentationView(key);
   if (!view) return base;
   const initial = educationMetricInitial(baseKey, view.stage);

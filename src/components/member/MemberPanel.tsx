@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, Layers, MapPin, RefreshCw, UserRound, X } from "lucide-react";
+import { Bookmark, Layers, MapPin, RefreshCw, X } from "lucide-react";
 import { signInWithGoogle, signOut } from "../../lib/auth";
 import { memberLibraryStore, useMemberLibrary } from "../../state/memberLibraryStore";
 import type { SavedScene, SavedPlace, PlaceInput, MemberLibrary } from "../../data/memberLibraryLoader";
 import type { MemberSceneSnapshot } from "../../lib/memberSchema";
 import { validatePlace } from "../../lib/memberSchema";
+import { MyAnalysisCards } from "./MyAnalysisCards";
 import "./memberPanel.css";
 
 interface Props {
@@ -16,8 +17,10 @@ interface Props {
   restoreScene: (scene: MemberSceneSnapshot) => string[];
   capturePlace: (kind: "center" | "selection" | "bounds") => PlaceInput["geometry"];
   restorePlace: (place: SavedPlace) => void;
+  /** 4b：owner 才看得到「卡片」分頁（自己發布的分析卡清單與撤銷）。 */
+  isOwner?: boolean;
 }
-const TABS = ["收藏", "已開啟", "場景", "地點"] as const;
+const TABS = ["收藏", "已開啟", "場景", "地點", "卡片"] as const;
 type Tab = typeof TABS[number];
 
 export function MemberPanel(props: Props) {
@@ -68,7 +71,7 @@ export function MemberPanel(props: Props) {
   ) : <button disabled={!ready} onClick={() => setEditing({ id: row.id, name: row.name, kind })}>重新命名</button>;
   return (
     <section role="dialog" aria-modal={false} aria-label="會員專區" className={`member-panel ${props.isDarkTheme ? "" : "member-panel-light"} ${props.isMobile ? "member-panel-mobile" : ""}`} onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); props.onClose(); } }}>
-      <header className="member-header"><div><span className="member-eyebrow">MY PULSE</span><h2><UserRound size={18} />會員專區</h2></div><button ref={closeRef} onClick={props.onClose} aria-label="關閉會員專區"><X size={18} /></button></header>
+      <header className="member-header"><div><span className="member-eyebrow">帳號</span><h2>會員專區</h2></div><button ref={closeRef} className="member-close" onClick={props.onClose} aria-label="關閉會員專區"><X size={14} /></button></header>
       <div className="member-account">
         <div><strong>{props.userId ? props.displayName || "我的帳號" : "你的地圖收藏"}</strong><small>{status}</small></div>
         {props.userId ? <button onClick={() => attempt(signOut)}>登出</button> : <button disabled={props.authLoading} onClick={() => attempt(async () => { try { await signInWithGoogle(); } catch { throw new Error("登入未完成，請重試。"); } })}>登入並同步</button>}
@@ -76,7 +79,7 @@ export function MemberPanel(props: Props) {
       {!props.userId && <p className="member-hint">收藏圖層可先留在此瀏覽器。登入後可匯入收藏，並跨裝置保存場景與地點。</p>}
       {props.userId && <div className="member-actions"><button disabled={library.busy || props.authLoading} onClick={() => attempt(() => memberLibraryStore.refresh())}><RefreshCw size={13} />重新整理</button>{library.guestCount > 0 && <button disabled={!ready} onClick={() => attempt(() => memberLibraryStore.importGuest())}>匯入本機收藏（{library.guestCount}）</button>}</div>}
       <div role="status" aria-live="polite" className="member-notice">{notice || (currentAccount ? library.message : "")}</div>
-      <nav aria-label="會員內容" className="member-tabs">{TABS.map((item) => <button key={item} aria-pressed={tab === item} onClick={() => { setTab(item); setNotice(""); }}>{item}<small>{item === "收藏" ? rows.favorites.length : item === "已開啟" ? props.visibleKeys.length : item === "場景" ? rows.scenes.length : rows.places.length}</small></button>)}</nav>
+      <nav aria-label="會員內容" className="member-tabs">{TABS.filter((item) => item !== "卡片" || (props.isOwner && props.userId)).map((item) => <button key={item} aria-pressed={tab === item} onClick={() => { setTab(item); setNotice(""); }}>{item}<small>{item === "收藏" ? rows.favorites.length : item === "已開啟" ? props.visibleKeys.length : item === "場景" ? rows.scenes.length : item === "地點" ? rows.places.length : ""}</small></button>)}</nav>
       <div className="member-body">
         {rows.unavailableItems.length > 0 && <div className="member-hint">有 {rows.unavailableItems.length} 筆保存內容的格式不相容，其他收藏仍可使用。{rows.unavailableItems.map((item) => <div className="member-actions" key={`${item.table}:${item.id}`}><span>{item.name}（無法重開）</span><button disabled={!ready} onClick={() => attempt(() => memberLibraryStore.removeUnavailable(item))}>刪除不相容項目</button></div>)}</div>}
         {(tab === "收藏" || tab === "已開啟") && <>
@@ -108,6 +111,7 @@ export function MemberPanel(props: Props) {
           {!props.userId && <p className="member-hint">登入後即可保存私人地點。</p>}
           {rows.places.map((place) => <article className="member-item" key={place.id}><div className="member-item-title"><MapPin size={14} /><strong>{place.name}</strong></div><small>{place.geometry.type === "Point" ? "自選位置" : "自選範圍"} · {new Date(place.updated_at).toLocaleString("zh-TW")}</small><div className="member-actions"><button onClick={() => attempt(() => props.restorePlace(place))}>在地圖查看</button>{renderRename(place, "place")}<button disabled={!ready} onClick={() => attempt(() => memberLibraryStore.removePlace(place))}>刪除</button></div></article>)}
         </>}
+        {tab === "卡片" && props.isOwner && props.userId && <MyAnalysisCards />}
       </div>
       <footer>私人保存 · 圖層權限在每次開啟時重新檢查</footer>
     </section>

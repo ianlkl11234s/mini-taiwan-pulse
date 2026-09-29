@@ -14,7 +14,7 @@ import { keyVault } from "../../lib/keyVault";
 import { KeySettings, MODEL_OPTIONS } from "./KeySettings";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import {
-  SURFACE, COLORS, BORDER, RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, ELEVATION, WHITE_ALPHA,
+  SURFACE, COLORS, BORDER, RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, ELEVATION, WHITE_ALPHA, Z_INDEX,
 } from "../../styles/designTokens";
 
 export interface ChatPanelProps {
@@ -284,7 +284,8 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
         background: c.panelMobile,
         borderTop: `1px solid ${c.borderPanel}`,
         borderRadius: "16px 16px 0 0",
-        zIndex: 60,
+        // 與置中視窗同層（modal）：DOM 在 MemberPanel／InfoModal／ShareModal 之前，靠順序讓它們蓋過對話浮層
+        zIndex: Z_INDEX.modal,
         display: "flex", flexDirection: "column", overflow: "hidden",
         boxShadow: ELEVATION.dock,
         animation: "chatPanelRiseMobile .28s cubic-bezier(0.22,1,0.36,1)",
@@ -300,7 +301,8 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
         backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${c.borderPanel}`,
         borderRadius: RADIUS.xl,
-        zIndex: 60,
+        // 與置中視窗同層（modal）：DOM 在 MemberPanel／InfoModal／ShareModal 之前，靠順序讓它們蓋過對話浮層
+        zIndex: Z_INDEX.modal,
         display: "flex", flexDirection: "column", overflow: "hidden",
         boxShadow: ELEVATION.lg,
         animation: "chatPanelRise .22s ease-out",

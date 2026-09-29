@@ -22,6 +22,7 @@ import {
   type WasteFacilityRow,
   type WasteDisposalPointRow,
 } from "../data/wasteLoader";
+import { pointRadius, pointStrokePaint } from "./mapStyleScale";
 
 export type WasteMapboxLayerKey =
   | "wfRecycling" | "wfMonitoring" | "wfScrapYard" | "wfOther"
@@ -43,16 +44,28 @@ const DISPOSAL_TYPES_BY_KEY: Record<string, string[]> = {
   wdBattery: ["battery"],
 };
 
-/** 每個 layer 的預設 base 半徑（zoom 中段） */
-const BASE_RADII: Record<WasteMapboxLayerKey, number> = {
-  wfRecycling: 4,
-  wfMonitoring: 3.5,
-  wfScrapYard: 6,
-  wfOther: 3,
-  wdClothes: 3,
-  wdMixed: 3,
-  wdRecyclingContainer: 3.5,
-  wdBattery: 5,
+/** 大小滑桿的預設值；半徑以此正規化，預設顯示一律為 M=4.5px。 */
+const SIZE_DEFAULTS: Record<WasteMapboxLayerKey, number> = {
+  wfRecycling: 1,
+  wfMonitoring: 1,
+  wfScrapYard: 1,
+  wfOther: 1,
+  wdClothes: 1,
+  wdMixed: 1,
+  wdRecyclingContainer: 1,
+  wdBattery: 1.5,
+};
+
+/** 透明度滑桿預設值；描邊以滑桿倍率而非主體色的既有 alpha 正規化。 */
+const OPACITY_DEFAULTS: Record<WasteMapboxLayerKey, number> = {
+  wfRecycling: 0.85,
+  wfMonitoring: 0.7,
+  wfScrapYard: 0.85,
+  wfOther: 0.7,
+  wdClothes: 0.7,
+  wdMixed: 0.7,
+  wdRecyclingContainer: 0.85,
+  wdBattery: 0.9,
 };
 
 /** 各 layer 的代表顏色（fallback；點選 source feature property 也有 color 欄） */
@@ -81,6 +94,26 @@ const EMPTY_FC: GeoJSON.FeatureCollection = {
   type: "FeatureCollection",
   features: [],
 };
+
+// setup / param store / theme store are intentionally separate imperative paths（App.tsx 三處各自呼叫）。
+// 為了讓 slider 更新保留描邊透明度、換主題保留 slider 倍率，需要跨呼叫記住兩個值；
+// 不改三個 export 的簽名（App.tsx 不在本次範圍），改成「每張 map 一份」而不是模組全域。
+interface WasteMapboxStyleState {
+  isDark: boolean;
+  opacityFactors: Record<WasteMapboxLayerKey, number>;
+}
+const wasteMapboxStyleStates = new WeakMap<MapboxMap, WasteMapboxStyleState>();
+function styleStateOf(map: MapboxMap): WasteMapboxStyleState {
+  let st = wasteMapboxStyleStates.get(map);
+  if (!st) {
+    st = {
+      isDark: true,
+      opacityFactors: Object.fromEntries(ALL_KEYS.map((k) => [k, 1])) as Record<WasteMapboxLayerKey, number>,
+    };
+    wasteMapboxStyleStates.set(map, st);
+  }
+  return st;
+}
 
 /** facility / disposal 通用：dataset id → "facility" or "disposal"（給 popup 用） */
 function isFacilityKey(k: WasteMapboxLayerKey): boolean {
@@ -185,12 +218,12 @@ export function setupWasteMapboxLayers(
   map: MapboxMap,
   opts: WasteMapboxOptions,
 ) {
+  styleStateOf(map).isDark = opts.isDark;
   for (const k of ALL_KEYS) {
     if (!map.getSource(sourceId(k))) {
       map.addSource(sourceId(k), { type: "geojson", data: EMPTY_FC });
     }
     const color = LAYER_COLOR[k];
-    const baseR = BASE_RADII[k];
     if (!map.getLayer(glowLayerId(k))) {
       map.addLayer({
         id: glowLayerId(k),
@@ -198,13 +231,11 @@ export function setupWasteMapboxLayers(
         source: sourceId(k),
         layout: { visibility: "none" },
         paint: {
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, baseR * 0.8, 10, baseR * 1.6, 14, baseR * 3, 17, baseR * 5,
-          ],
+          "circle-radius": pointRadius("M"),
           "circle-color": color,
           "circle-blur": 1,
-          "circle-opacity": opts.isDark ? 0.18 : 0.22,
+          // 靜態清冊；core 才是 click target，glow 保留但隱藏。
+          "circle-opacity": 0,
         },
       });
     }
@@ -215,16 +246,9 @@ export function setupWasteMapboxLayers(
         source: sourceId(k),
         layout: { visibility: "none" },
         paint: {
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, baseR * 0.4, 10, baseR * 0.8, 14, baseR * 1.5, 17, baseR * 2.4,
-          ],
+          "circle-radius": pointRadius("M"),
           "circle-color": color,
-          "circle-stroke-color": opts.isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)",
-          "circle-stroke-width": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 0, 10, 0.4, 14, 0.7,
-          ],
+          ...pointStrokePaint(opts.isDark),
           "circle-opacity": opts.isDark ? 0.85 : 0.75,
         },
       });
@@ -304,29 +328,27 @@ export function syncWasteMapboxParams(
   map: MapboxMap,
   params: Partial<Record<string, { size: number; opacity: number; altitude: number }>>,
 ) {
+  const st = styleStateOf(map);
   for (const k of ALL_KEYS) {
     const p = params[k];
     if (!p) continue;
-    const baseR = BASE_RADII[k];
-    const sizeMul = p.size; // 0.5 ~ 3
+    const sizeMul = p.size / SIZE_DEFAULTS[k]; // 0.5 ~ 3，依規格預設值正規化
     const opacity = p.opacity; // 0.2 ~ 1
+    st.opacityFactors[k] = opacity / OPACITY_DEFAULTS[k];
     const altitudePx = -Math.max(0, p.altitude) * 0.4; // alt(0~500) → translate Y(0~-200)px
     if (map.getLayer(glowLayerId(k))) {
-      map.setPaintProperty(glowLayerId(k), "circle-radius", [
-        "interpolate", ["linear"], ["zoom"],
-        6, baseR * 0.8 * sizeMul, 10, baseR * 1.6 * sizeMul,
-        14, baseR * 3 * sizeMul, 17, baseR * 5 * sizeMul,
-      ]);
-      map.setPaintProperty(glowLayerId(k), "circle-opacity", 0.22 * opacity);
+      // 靜態資料的 glow 維持透明，以免把散點誤讀成即時讀值。
+      map.setPaintProperty(glowLayerId(k), "circle-opacity", 0);
       map.setPaintProperty(glowLayerId(k), "circle-translate", [0, altitudePx]);
     }
     if (map.getLayer(coreLayerId(k))) {
-      map.setPaintProperty(coreLayerId(k), "circle-radius", [
-        "interpolate", ["linear"], ["zoom"],
-        6, baseR * 0.4 * sizeMul, 10, baseR * 0.8 * sizeMul,
-        14, baseR * 1.5 * sizeMul, 17, baseR * 2.4 * sizeMul,
-      ]);
+      map.setPaintProperty(coreLayerId(k), "circle-radius", pointRadius("M", sizeMul));
       map.setPaintProperty(coreLayerId(k), "circle-opacity", 0.85 * opacity);
+      map.setPaintProperty(
+        coreLayerId(k),
+        "circle-stroke-opacity",
+        pointStrokePaint(st.isDark, st.opacityFactors[k])["circle-stroke-opacity"],
+      );
       map.setPaintProperty(coreLayerId(k), "circle-translate", [0, altitudePx]);
     }
   }
@@ -334,13 +356,16 @@ export function syncWasteMapboxParams(
 
 /** 切換 dark / light 樣式 */
 export function syncWasteMapboxTheme(map: MapboxMap, isDark: boolean) {
+  const st = styleStateOf(map);
+  st.isDark = isDark;
   for (const k of ALL_KEYS) {
     if (map.getLayer(coreLayerId(k))) {
-      map.setPaintProperty(
-        coreLayerId(k),
-        "circle-stroke-color",
-        isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)",
-      );
+      {
+        const stroke = pointStrokePaint(isDark, st.opacityFactors[k]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-color", stroke["circle-stroke-color"]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-width", stroke["circle-stroke-width"]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+      }
     }
   }
 }
