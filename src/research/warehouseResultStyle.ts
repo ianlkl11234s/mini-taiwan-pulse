@@ -616,7 +616,9 @@ export function warehouseFlowWidthFilter(style: Extract<WarehouseResultStyle, { 
 function heatmapPaint(style: Extract<WarehouseResultStyle, { kind: "heatmap" }>, opacity: number, theme: Theme): Record<string, unknown> {
   const colors = resolvePalette(style, theme);
   const stops = colors.flatMap((color, index) => [(index + 1) / colors.length, color]);
-  const weight = style.weightProperty && style.weightMax && style.weightMax > 0 ? ["/", ["get", style.weightProperty], style.weightMax] : 1;
+  // Unweighted heatmaps count every point as 1; a weighted one whose server maximum is 0 has only
+  // zero weights, so it must stay blank rather than become a uniform density (fabricated hotspot).
+  const weight = !style.weightProperty ? 1 : style.weightMax && style.weightMax > 0 ? ["/", ["get", style.weightProperty], style.weightMax] : 0;
   return {
     "heatmap-weight": weight,
     "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 8, 1, 15, 3],
