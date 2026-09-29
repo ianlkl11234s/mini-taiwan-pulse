@@ -25,6 +25,9 @@ export function useWorldTrashDebrisLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  // ensureSource 是穩定 callback（[] deps），主題走 ref，首次建立（常在 fetch 回來時）才不會用到初始主題
+  const isDarkRef = useRef(isDarkTheme);
+  isDarkRef.current = isDarkTheme;
   const dataReadyRef = useRef(false);
 
   // 載入一次（lazy，僅在首次開啟時抓）
@@ -58,7 +61,7 @@ export function useWorldTrashDebrisLayer(
           "circle-radius": pointRadius("M"),
           "circle-color": FILL_COLOR,
           "circle-opacity": 0.85,
-          ...pointStrokePaint(isDarkTheme),
+          ...pointStrokePaint(isDarkRef.current),
         },
       } as CircleLayer);
     }
