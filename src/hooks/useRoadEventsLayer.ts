@@ -187,8 +187,11 @@ export function useRoadEventsLayer(
         activeDateRef.current = dateStr;
         const map = mapRef.current;
         const currentTime = timeStore.getTime();
-        lastActiveSetRef.current = activeSetKey(cached.data, currentTime);
-        if (map && visibleRef.current && ensureLayers(map)) refreshSource(map, currentTime);
+        // 只有真的寫進 source 才記下 key；地圖未就緒／隱藏時留給之後的 tick 重畫，否則同 key 永遠不刷新
+        if (map && visibleRef.current && ensureLayers(map)) {
+          lastActiveSetRef.current = activeSetKey(cached.data, currentTime);
+          refreshSource(map, currentTime);
+        }
         return;
       }
 
@@ -201,8 +204,8 @@ export function useRoadEventsLayer(
           activeDateRef.current = dateStr;
           const map = mapRef.current;
           const currentTime = timeStore.getTime();
-          lastActiveSetRef.current = activeSetKey(events, currentTime);
           if (map && visibleRef.current && ensureLayers(map)) {
+            lastActiveSetRef.current = activeSetKey(events, currentTime);
             refreshSource(map, currentTime);
             keepLoadingUntilMapIdle(map, `road-events-render:${dateStr}`, "即時路況 渲染中", SOURCE_ID);
           }
