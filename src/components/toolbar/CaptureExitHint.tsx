@@ -7,7 +7,7 @@ interface Props {
 
 /**
  * 拍攝模式 P2：平常隱藏的離開提示膠囊。
- * 滑鼠移動時淡入，靜止 2 秒後淡出；`prefers-reduced-motion` 時無 transition，直接切換顯示／隱藏。
+ * 滑鼠移動或觸控點按時淡入（觸控平板沒有 mousemove），靜止 2 秒後淡出；`prefers-reduced-motion` 時無 transition，直接切換顯示／隱藏。
  * 點擊本身也能離開拍攝模式（等同按 Esc）。
  */
 export function CaptureExitHint({ onExit }: Props) {
@@ -26,8 +26,10 @@ export function CaptureExitHint({ onExit }: Props) {
       hideTimer.current = window.setTimeout(() => setVisible(false), 2000);
     };
     window.addEventListener("mousemove", reveal);
+    window.addEventListener("pointerdown", reveal);
     return () => {
       window.removeEventListener("mousemove", reveal);
+      window.removeEventListener("pointerdown", reveal);
       if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
     };
   }, []);
