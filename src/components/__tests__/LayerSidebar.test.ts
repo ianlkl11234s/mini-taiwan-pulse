@@ -14,6 +14,14 @@ describe("LayerSidebar light statistics toggles", () => {
     expect(markup).toContain("background:#fff");
   });
 
+  it("defaults follow the theme when no colors are passed (spec §5.10 列開關)", () => {
+    const light = renderToStaticMarkup(createElement(LayerToggleSwitch, { on: true, onChange: () => {}, isDarkTheme: false }));
+    expect(light).toContain("background:#1f2937");
+    const dark = renderToStaticMarkup(createElement(LayerToggleSwitch, { on: true, onChange: () => {} }));
+    expect(dark).toContain("background:#ffffff");
+    expect(dark).toContain("background:#111827");
+  });
+
   it("passes that palette to both the statistics row and medical fallback", () => {
     const source = readFileSync("src/components/LayerSidebar.tsx", "utf8");
     expect(source).toContain("renderToggle={(on, onChange, label) => <LayerToggleSwitch on={on} onChange={onChange} label={label} {...togglePalette} />}");

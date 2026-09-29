@@ -417,13 +417,20 @@
 - **狀態**：hover `--control-bg-hover`；停用 `--control-disabled-opacity`；focus 2px accent。
 - **實作**：`layerParamControls.css` `select.lpc-select`（控制項由 `layerParamsSpec.ts` 產生）。
 
-### 5.10 迷你開關
+### 5.10 開關（兩階）
 
-- **尺寸**：控制區 20×11 軌道、7px 圓點（左 2 → 11）；工具列／面板 24×14、10px 圓點。
-- **狀態**：關 軌道 `--control-border`、圓點 `--text-strong`；開 軌道 `--accent`、圓點 `#fff`；transition .15s。標籤 10px `--text-muted`，開啟時 `--text-default`。≥3 個開關排兩欄。
-- **無障礙**：`role="switch"`＋`aria-checked`。
-- **禁止**：用 checkbox 或文字「ON/OFF」。
-- **實作**：`LayerParamControls.tsx` `ToggleControl`＋`.lpc-sw`、`toolbar/BasemapMenu.tsx` `MiniSwitch`。
+開關只有兩種，依「開的是什麼」選，不另做第三種尺寸（2026-09-29 拍板 S2，圖解 `docs/features/ui-consistency-audit-20260927/toggle-sheet.html`）。
+
+| 階 | 用在哪 | 尺寸 | 開 | 關 | 實作 |
+|---|---|---|---|---|---|
+| **列開關** | 整層開／關：Layers 主題列與圖層列、統計列、醫療統計群組、Agent 分析結果清單 | 28×16 軌道、12px 圓點（左 2 → 14） | **黑白，依主題**：暗 白軌 `#ffffff`＋圓點 `#111827`；淡 深軌 `#1f2937`＋白圓點 | 暗 `#4b5563`／淡 `#d1d5db` 軌道＋白圓點 | `sidebar/LayerToggleSwitch.tsx`（`LAYER_TOGGLE_PALETTE`） |
+| **細項開關** | 一層裡的選項：圖層控制區（顯示站名、光柱…）、底圖選單「顯示地名」 | 20×11 軌道、7px 圓點（左 2 → 11） | 軌道 `--accent`、圓點 `#fff` | 軌道 `--control-border`、圓點 `--text-strong` | `LayerParamControls.tsx` `ToggleControl`＋`.lpc-sw`、`toolbar/BasemapMenu.tsx` `MiniSwitch` |
+
+- **為什麼兩種顏色**：列開關是「整層開關」，用中性黑白比較穩，開很多層時不會一整排彩色；細項用強調藍，標出「這層裡哪些選項有開」。
+- **主題**：列開關傳 `isDarkTheme` 即可，預設顏色自己跟著主題；個別顏色 prop 只給特例覆寫，不要各處重抄色碼。
+- **動畫與標籤**：transition .15s。細項開關標籤 10px `--text-muted`，開啟時 `--text-default`；≥3 個細項開關排兩欄。
+- **無障礙**：`role="switch"`＋`aria-checked`＋`aria-label`。
+- **禁止**：用 checkbox 或文字「ON/OFF」；新增第三種尺寸（原規格的 24×14 從未使用，已刪除）；在列開關用強調色或在細項開關用黑白。
 
 ### 5.11 圖層控制區（V2 版面）
 
@@ -917,7 +924,6 @@ PR 前逐項勾（貼進 PR 描述）：
 | 泡泡圖層（P-1 B 後續） | registry 38＋hook 16＝54 個依資料放大的點圖層仍用各自的半徑範圍，部分還隨縮放；待逐層改成 M3（面積∝值、rMin 4／rMax 28）。泡泡即時層（`newsEvents`、`a1AccidentRealtime`）的光暈半徑未設上限 | `pointTiers.ts` 的 `B`、`pointSpec.ts` |
 | 圖例手寫色票 | `LegendPanel.tsx` 仍有 90 處手寫 `width／height` 色票（8×8、9×9、14×10…），未走 `legendKit`；ratchet 只准減少 | `legendKit.test.ts` |
 | 圖例精簡版（LG-9） | 只有 `LegendNote` 會在停靠 popup 開著時收起；手寫註記 div 不會 | `LegendPanel.tsx` |
-| 圖層開關尺寸（活頁揭露） | `LayerToggleSwitch` 實際 28×16、預設色寫死 hex；規格 §5.10 寫 20×11／24×14。淡色底上「開」的 `#fff` 圓點幾乎看不見。以活頁為準，待決定要改元件還是改規格 | `src/components/sidebar/LayerToggleSwitch.tsx` |
 | 點圖層資料編碼描邊（registry） | #392 曾把 34 層依資料變化的描邊蓋成細縫，#401 還原（`withPointSpec` 以 `isDataDriven()` 判斷）。#401 合併前以本列為準 | `src/map/pointSpec.ts` |
 
 ## 11. 未納入 token 的範圍與 KEEP OUT

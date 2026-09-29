@@ -1,5 +1,5 @@
 import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
-import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
+import { LAYER_TOGGLE_PALETTE, LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
 import { PanelHeader as SharedPanelHeader } from "./sidebar/PanelHeader";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
@@ -137,20 +137,20 @@ interface RailPalette {
 }
 
 const DARK_PALETTE: RailPalette = {
-  ACCENT: "#E5E7EB", ACCENT_TOGGLE: "#FFFFFF", BG_RAIL: SURFACE.app, BG_PANEL: SURFACE.strong, PANEL_BORDER: BORDER_TOKEN.panel,
+  ACCENT: "#E5E7EB", ACCENT_TOGGLE: LAYER_TOGGLE_PALETTE.dark.on, BG_RAIL: SURFACE.app, BG_PANEL: SURFACE.strong, PANEL_BORDER: BORDER_TOKEN.panel,
   BORDER: "#2A2D32", DIM: "#6B7280", INACTIVE_TEXT: "#9CA3AF",
   TEXT_STRONG: "#fff", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
-  TOGGLE_OFF: "#4B5563", TOGGLE_KNOB_ON: "#1a1a1a", TOGGLE_KNOB_OFF: "#fff",
+  TOGGLE_OFF: LAYER_TOGGLE_PALETTE.dark.off, TOGGLE_KNOB_ON: LAYER_TOGGLE_PALETTE.dark.knobOn, TOGGLE_KNOB_OFF: LAYER_TOGGLE_PALETTE.dark.knobOff,
   ROW_HOVER: "rgba(255,255,255,0.03)", ROW_ACTIVE: "rgba(255,255,255,0.06)", RAIL_ICON_ACTIVE: "rgba(255,255,255,0.08)",
   ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
   COLOR_SCHEME: 'dark',
 };
 
 const LIGHT_PALETTE: RailPalette = {
-  ACCENT: "#374151", ACCENT_TOGGLE: "#1F2937", BG_RAIL: "#FFFFFF", BG_PANEL: LIGHT.surfacePanel, PANEL_BORDER: LIGHT.border,
+  ACCENT: "#374151", ACCENT_TOGGLE: LAYER_TOGGLE_PALETTE.light.on, BG_RAIL: "#FFFFFF", BG_PANEL: LIGHT.surfacePanel, PANEL_BORDER: LIGHT.border,
   BORDER: "rgba(0,0,0,0.10)", DIM: "#9CA3AF", INACTIVE_TEXT: "#6B7280",
   TEXT_STRONG: "#111827", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
-  TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff",
+  TOGGLE_OFF: LAYER_TOGGLE_PALETTE.light.off, TOGGLE_KNOB_ON: LAYER_TOGGLE_PALETTE.light.knobOn, TOGGLE_KNOB_OFF: LAYER_TOGGLE_PALETTE.light.knobOff,
   ROW_HOVER: "rgba(0,0,0,0.04)", ROW_ACTIVE: "rgba(0,0,0,0.05)", RAIL_ICON_ACTIVE: "rgba(0,0,0,0.07)",
   ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
   COLOR_SCHEME: 'light',
