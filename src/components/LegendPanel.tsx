@@ -1114,6 +1114,7 @@ function FireEventLegend() {
     <div>
       <LegendTitle zh="火災歷史" en="Fire" />
       <FireCatRows cats={FIRE_EVENT_CATS} />
+      <LegendNote>有外框＝有死傷</LegendNote>
     </div>
   );
 }

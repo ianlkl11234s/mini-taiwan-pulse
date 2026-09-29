@@ -96,6 +96,21 @@ function confidenceAware(base: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
+/**
+ * 船點的不透明度與描邊：滑桿值當倍率乘進 confidenceAware（stale／presumed 淡化不被滑桿蓋掉）。
+ * 建圖層與滑桿更新共用，避免兩處各寫一份而互相覆蓋。
+ */
+export function vesselPointPaint(isDark: boolean, opacity: number) {
+  const o = Math.max(0, Math.min(1, opacity));
+  const stroke = pointStrokePaint(isDark, o / OPACITY_DEFAULT);
+  return {
+    "circle-opacity": confidenceAware(o),
+    "circle-stroke-color": stroke["circle-stroke-color"],
+    "circle-stroke-width": stroke["circle-stroke-width"],
+    "circle-stroke-opacity": confidenceAware(stroke["circle-stroke-opacity"]),
+  };
+}
+
 function buildLayers(map: MapboxMap, opacity: number, isDarkTheme: boolean): boolean {
   if (!map.getSource(CURRENT_SOURCE_ID) || !map.getSource(TRAILS_SOURCE_ID)) return false;
 
@@ -122,12 +137,8 @@ function buildLayers(map: MapboxMap, opacity: number, isDarkTheme: boolean): boo
       paint: {
         "circle-color": CLASS_COLOR,
         "circle-radius": pointRadius("M"),
-        // stale = 訊號中斷中，畫的是「最後已知位置」不是當下位置 → 淡化區隔
-        "circle-opacity": confidenceAware(opacity),
-        // 深色描邊讓亮色船點在亮底圖上也分得出來
-        // 描邊透明度隨 stale／presumed 淡化＝資料編碼，保留 confidenceAware
-        ...pointStrokePaint(isDarkTheme),
-        "circle-stroke-opacity": confidenceAware(pointStrokePaint(isDarkTheme, opacity / OPACITY_DEFAULT)["circle-stroke-opacity"]),
+        // stale = 訊號中斷中，畫的是「最後已知位置」不是當下位置 → 淡化區隔（描邊同理，見 vesselPointPaint）
+        ...vesselPointPaint(isDarkTheme, opacity),
       },
     } as CircleLayer);
   }
@@ -343,10 +354,9 @@ export function useVesselWatchLayer(
     if (!map || !layersReadyRef.current) return;
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(CIRCLE_ID)) {
-      map.setPaintProperty(CIRCLE_ID, "circle-opacity", o);
-      const stroke = pointStrokePaint(isDarkTheme, o / OPACITY_DEFAULT);
-      map.setPaintProperty(CIRCLE_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
-      map.setPaintProperty(CIRCLE_ID, "circle-stroke-opacity", confidenceAware(stroke["circle-stroke-opacity"]));
+      for (const [prop, value] of Object.entries(vesselPointPaint(isDarkTheme, o))) {
+        map.setPaintProperty(CIRCLE_ID, prop as "circle-opacity", value as never);
+      }
     }
     if (map.getLayer(TRAIL_LINE_ID)) {
       map.setPaintProperty(TRAIL_LINE_ID, "line-opacity", o * TRAIL_OPACITY_RATIO);
