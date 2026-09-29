@@ -25,6 +25,7 @@ const harness = vi.hoisted(() => {
       timeCallback = cb;
       return vi.fn();
     },
+    rerender: () => { cursor = 0; },
     tick: (time: number) => timeCallback?.(time),
     throttleMs: () => throttleMs,
   };
@@ -117,5 +118,29 @@ describe("useRoadEventsLayer timeStore lifecycle", () => {
     const calls = state.sources.get("road-events")?.setData.mock.calls ?? [];
     const latest = calls[calls.length - 1]?.[0] as GeoJSON.FeatureCollection;
     expect(latest.features[0]?.properties?.active).toBe(0);
+  });
+
+  it("draws a day that finished loading before the map was ready", async () => {
+    loader.day.mockResolvedValue([{
+      event_id: "early-event", source: "live_freeway", event_type: 3, severity: null, road_name: null, direction: null,
+      start_km: null, end_km: null, title: null, description: null, location_other: null, blocked_lanes: null,
+      geometry: { type: "Point", coordinates: [121.5, 25] }, matched_section_id: null, enrich_status: null,
+      start_ts: 1_000, end_ts: 1_200, last_updated_ts: 1_100,
+    }]);
+    const state = createMap();
+    const mapRef = { current: null } as RefObject<MapboxMap | null>;
+
+    useRoadEventsLayer(mapRef, true);
+    await flush();
+    expect(loader.day).toHaveBeenCalledTimes(1);
+
+    // Map becomes ready at the same time key: the first tick must still fill the source.
+    (mapRef as { current: MapboxMap | null }).current = state.map;
+    harness.rerender();
+    useRoadEventsLayer(mapRef, true);
+
+    const calls = state.sources.get("road-events")?.setData.mock.calls ?? [];
+    const latest = calls[calls.length - 1]?.[0] as GeoJSON.FeatureCollection | undefined;
+    expect(latest?.features).toHaveLength(1);
   });
 });
