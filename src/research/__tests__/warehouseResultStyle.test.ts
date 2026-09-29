@@ -160,6 +160,12 @@ describe("warehouse result style contract", () => {
     }
   });
 
+  it("carries the style's valueKind into legend breaks so they are not always formatted as ratios", () => {
+    expect(warehouseStyleLegend({ ...choropleth, valueKind: "percent" })).toMatchObject({ kind: "choropleth", valueKind: "percent" });
+    expect(warehouseStyleLegend(choropleth)).not.toHaveProperty("valueKind");
+    expect(warehouseStyleLegend(bivariateV3)).toMatchObject({ kind: "bivariate", fillValueKind: "count" });
+  });
+
   it("prefers an explicit server valueKind over the value-shape guess, and falls back when absent", () => {
     // 12.5 is not an integer; with no valueKind this reads as "ratio" ("12.5"), but an explicit
     // "count" valueKind wins and rounds it ("13" per the myriad/thousands count rule).
