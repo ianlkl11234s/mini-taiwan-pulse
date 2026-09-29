@@ -14,8 +14,8 @@ FROM ds_education_cram_schools WHERE geom_3826 IS NOT NULL GROUP BY 1, 2 ORDER B
 ```
 網格要上地圖時，用 `ST_Transform(ST_MakeEnvelope(gx*1000, gy*1000, gx*1000+1000, gy*1000+1000), 'EPSG:3826', 'EPSG:4326', always_xy := true)` 產生格子面。
 
-**必帶但書**：本配方只做「密度排名」，只能說「相對集中」而不是「統計顯著熱點」；要嚴謹檢定（z 值、顯著性）換用 [hotspot-gi-star](hotspot-gi-star.md)（Getis-Ord Gi*，目前仍未做全域 Moran's I）；換格子大小或行政單位，結果可能改變（MAUP）；計數未標準化時只是在畫人口分佈。
+**必帶但書**（自查用；對使用者只挑 1–2 句改白話「小提醒：」，不帶表名欄位代號）：本配方只做「密度排名」，只能說「相對集中」而不是「統計顯著熱點」；要嚴謹檢定（z 值、顯著性）換用 [hotspot-gi-star](hotspot-gi-star.md)（Getis-Ord Gi*，目前仍未做全域 Moran's I）；換格子大小或行政單位，結果可能改變（MAUP）；計數未標準化時只是在畫人口分佈。
 
 **停止**：前 10 區＋一張密度地圖（面或格）。
 
-**追問**：要不要換格子大小確認結果穩定？要不要改成人均？要不要跟另一個變數比對（→ [area-correlation](area-correlation.md)）？
+**追問**（素材：從結果挑一個，照 SKILL「回答格式」改寫成一兩句問句，不照抄成清單）：要不要換格子大小確認結果穩定？要不要改成人均？要不要跟另一個變數比對（→ [area-correlation](area-correlation.md)）？

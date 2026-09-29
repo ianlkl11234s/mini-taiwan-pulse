@@ -17,6 +17,6 @@ SELECT s.school_name AS name, s.geom FROM ds_education_schools s, corridor WHERE
 
 **呈現**：`pulse_wh_present(resultId)` → 回條內的 `wh-N:polygon`／`wh-N:point` → `pulse_set_result_collection`（面在下、點在上，framing 用結果範圍）→ `pulse_wait_scene_ready` → `pulse_get_map_context` 讀回 effective visible IDs 才說「已顯示」。
 
-**必帶但書**：環域是直線；結果超過 5,000 個 feature 要先縮小；`RESULT_NOT_WGS84` 代表忘了轉座標。
+**必帶但書**（自查用；對使用者只挑 1–2 句改白話「小提醒：」，不帶表名欄位代號）：環域是直線；結果超過 5,000 個 feature 要先縮小；`RESULT_NOT_WGS84` 代表忘了轉座標。
 
-**追問**：要不要換半徑比較？要不要把重疊面積依縣市加總？
+**追問**（素材：從結果挑一個，照 SKILL「回答格式」改寫成一兩句問句，不照抄成清單）：要不要換半徑比較？要不要把重疊面積依縣市加總？
