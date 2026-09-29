@@ -629,7 +629,9 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     } else if (heatmap) {
       const filter = warehouseHeatmapFilter(heatmap);
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "heatmap", source: sourceId(index), ...(filter ? { filter } : {}), paint: warehouseHeatmapPaint(heatmap, reveal ? 0 : resultOpacity, theme) as never });
-      if (!map.getLayer(heatPointsLayerId(index))) map.addLayer({ id: heatPointsLayerId(index), type: "circle", source: sourceId(index), minzoom: HEAT_POINTS_MINZOOM, paint: {
+      // The close-zoom point layer shares the heatmap's missing-weight filter: a row with no usable
+      // weight is not part of the heatmap, so it must not reappear as a point either.
+      if (!map.getLayer(heatPointsLayerId(index))) map.addLayer({ id: heatPointsLayerId(index), type: "circle", source: sourceId(index), minzoom: HEAT_POINTS_MINZOOM, ...(filter ? { filter } : {}), paint: {
         "circle-color": circleColor, "circle-radius": 4, "circle-opacity": resultOpacity, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1, "circle-stroke-opacity": resultOpacity,
       } });
     } else if (!map.getLayer(layerId(index))) map.addLayer({
@@ -661,6 +663,9 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       const paint = warehouseHeatmapPaint(heatmap, resultOpacity, theme);
       for (const key of ["heatmap-weight", "heatmap-intensity", "heatmap-radius", "heatmap-color"] as const) map.setPaintProperty(layerId(index), key, paint[key] as never);
       map.setFilter(layerId(index), warehouseHeatmapFilter(heatmap));
+      // A reused slot (another heatmap, or a theme switch) must recolour/refilter its point layer too.
+      map.setPaintProperty(heatPointsLayerId(index), "circle-color", circleColor);
+      map.setFilter(heatPointsLayerId(index), warehouseHeatmapFilter(heatmap));
     } else {
       map.setPaintProperty(layerId(index), "circle-color", circleColor);
       map.setPaintProperty(layerId(index), "circle-radius", circleRadius);
