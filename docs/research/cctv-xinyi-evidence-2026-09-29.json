@@ -1,0 +1,104 @@
+{
+  "status": "integrity-verified",
+  "accuracyValidated": false,
+  "sourceCaptureTimeKnown": false,
+  "samples": [
+    {
+      "file": "observations.json",
+      "captureRunId": "20260929T065452252322Z",
+      "capturedAt": "2026-09-29T06:54:52.258+00:00",
+      "sha256": "40cd46c478fe2b07c6984cbf421a4b008bc6ab4202de83504c3006908d340a4b",
+      "cameras": [
+        {
+          "id": "T000354",
+          "frames": 450,
+          "uniqueContentFrames": 315,
+          "duplicateOfPreviousFrames": 135,
+          "mediaSeconds": 89.8,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "id": "T000330",
+          "frames": 450,
+          "uniqueContentFrames": 348,
+          "duplicateOfPreviousFrames": 102,
+          "mediaSeconds": 89.8,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "id": "T000283",
+          "frames": 450,
+          "uniqueContentFrames": 229,
+          "duplicateOfPreviousFrames": 221,
+          "mediaSeconds": 89.8,
+          "width": 640,
+          "height": 360
+        }
+      ]
+    },
+    {
+      "file": "validation-observations.json",
+      "captureRunId": "20260929T065727852171Z",
+      "capturedAt": "2026-09-29T06:57:27.860+00:00",
+      "sha256": "dc33d6ef05f7df8977ddd6053f75f822da1f0a7f76338a3f077889ee6c348912",
+      "cameras": [
+        {
+          "id": "T000354",
+          "frames": 1500,
+          "uniqueContentFrames": 793,
+          "duplicateOfPreviousFrames": 707,
+          "mediaSeconds": 299.8,
+          "width": 960,
+          "height": 540
+        }
+      ]
+    }
+  ],
+  "browser": {
+    "replay": "verified camera selection, playback progression, synchronized frame time, end-of-clip label",
+    "validation": "verified new batch 1500 frames, same-frame views, stepping and JSON export preview with zero reviewed events and null calibration",
+    "consoleErrorsReplay": 0
+  },
+  "tests": {
+    "nodeTestsPassed": 39,
+    "nodeTestsFailed": 0,
+    "viteBuild": "passed",
+    "warning": "existing Three.js bundle over 500 kB"
+  },
+  "limitations": [
+    "No recovered historical images; both batches newly captured",
+    "No accuracy ground truth or calibrated road speed",
+    "Two deliberately stopped slow attempts preserved as failed capture evidence",
+    "Fresh Python 3.13 environment; dependencies recorded, not identical to old runtime"
+  ],
+  "tscBuild": "passed on 2026-09-29 before local commit",
+  "stageComparison": {
+    "basis": "same-frame independent post-NMS detector and tracker outputs; distinct content only",
+    "matching": "greedy one-to-one IoU>=0.5 regardless of class; class disagreements separately reported",
+    "notGroundTruth": true,
+    "cameras": [
+      {
+        "id": "T000354",
+        "summary": {
+          "comparedDistinctFrames": 793,
+          "detectorBoxes": 8516,
+          "trackedBoxes": 5009,
+          "matchedBoxes": 4976,
+          "detectorOnlyBoxes": 3540,
+          "trackOnlyBoxes": 33,
+          "classDisagreements": 22
+        }
+      }
+    ]
+  },
+  "knownUiIssue": "UI prediction horizon 1.5s versus core cap 0.8s; stale threshold separately 1.5s",
+  "backup": {
+    "path": "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/recovery/cctv-poc-20260929/xinyi-cctv-poc.tar.gz",
+    "sha256": "9812980740b58bad553f9689a34e27a18a184b3acde04fb0546bddc04db84ece",
+    "bytes": 49271406,
+    "verifiedFileCount": 4994,
+    "scope": "Pre-report recovery snapshot; new Git source/report take precedence"
+  }
+}

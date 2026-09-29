@@ -201,3 +201,6 @@ public/jp-medical
 
 # Japan height local artifacts, independently published
 public/jp-heights/
+
+# Local CCTV reconstruction runtime
+.venv-cctv/
