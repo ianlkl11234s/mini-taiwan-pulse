@@ -2117,7 +2117,19 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "bssNationalBridgePreview", "bssNationalBridgePointsPreview",
 ]);
 
-/** 授權或再散布條件尚未驗證：所有帳號均 fail-closed，不可用 owner gate 取代授權。 */
+/**
+ * 授權或再散布條件尚未驗證、且連站主研究檢視也不開放的圖層：所有帳號均 fail-closed。
+ *
+ * RIGHTS_HOLD（再利用授權未確認）的圖層**一律不可公開發布**；owner gate 不等於取得授權，
+ * 不能拿來把 RIGHTS_HOLD 圖層開給其他帳號。但經站主決定（2026-09-29），RIGHTS_HOLD 圖層
+ * 允許以 owner gate（App.tsx `lockedKeys` 依私人存取驗證解鎖＋私人 Range API，站主限定）做**研究用途**上線，
+ * 這類圖層不列入本表（列入會連站主也鎖死）。目前適用：
+ *   - 土壤液化 8 層：soilLiquefactionPotential、weakSoilClay0To5、weakSoilSand0To5、
+ *     weakSoilClay5To10、weakSoilSand5To10、weakSoilClay10To20、weakSoilSand10To20、
+ *     liquefactionMonitoringSites（manifest topics 帶 OWNER_ONLY／RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）
+ *   - 全臺橋梁研究（BSS）：bssNationalBridgePreview、bssNationalBridgePointsPreview
+ * 新增同類圖層時照此辦理並補進上列清單；要對外公開前須先確認授權。
+ */
 export const RELEASE_HOLD_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
   "historicalFlightTrails", "jpHistoricalFlightTrails",
   "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
