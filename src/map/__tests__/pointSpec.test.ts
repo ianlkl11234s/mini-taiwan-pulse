@@ -44,6 +44,15 @@ describe("R2 點圖層規格（pointSpec）", () => {
     }
   });
 
+  it("填色隨 alpha 淡出的點（落雷、輻射），統一描邊也跟著淡出；一般點仍是固定值", () => {
+    const paintOf = (id: string) => mainCircles(OVERLAY_REGISTRY.find((x) => x.id === id)!)[0]!.paint(true, {});
+    for (const id of ["lightning", "lightningCwa", "nuclearRadiation"]) {
+      expect(JSON.stringify(paintOf(id)["circle-opacity"])).toContain("alpha");
+      expect(JSON.stringify(paintOf(id)["circle-stroke-opacity"])).toContain("alpha");
+    }
+    expect(typeof paintOf("lighthouses")["circle-stroke-opacity"]).toBe("number");
+  });
+
   it("isDataDriven：讀 feature 屬性才算，只讀 zoom 的插值不算", () => {
     expect(isDataDriven(["match", ["get", "has_icu"], 1, "#ffffff", "#000"])).toBe(true);
     expect(isDataDriven(["interpolate", ["linear"], ["zoom"], 6, 0.3, 15, ["case", ["==", ["get", "p"], "x"], 1, 2]])).toBe(true);

@@ -87,6 +87,11 @@ export function isDataDriven(value: unknown): boolean {
   return value.some(isDataDriven);
 }
 
+/** 填色透明度讀 feature 的 `alpha`（落雷、輻射等隨時間淡出）時，描邊要一起淡出，否則只剩一圈不透明外框。 */
+function fadesByAlpha(value: unknown): boolean {
+  return isDataDriven(value) && JSON.stringify(value).includes('["get","alpha"]');
+}
+
 export function withPointSpec(config: OverlayConfig): OverlayConfig {
   const tier = POINT_TIERS[config.id];
   const hasDecoration = config.layers.some((l) => DECORATION_SUFFIX_RE.test(l.suffix));
@@ -118,7 +123,9 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
           ...(tier === "B" ? {} : { "circle-radius": pointRadius(tier, sliderFactor(sizeSpec, params)) }),
           ...(keep("circle-stroke-color") ? {} : { "circle-stroke-color": mapSeamColor(isDark) }),
           ...(keep("circle-stroke-width") ? {} : { "circle-stroke-width": POINT_STROKE.width }),
-          ...(keep("circle-stroke-opacity") ? {} : { "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[theme] * opacity) }),
+          ...(keep("circle-stroke-opacity") ? {} : { "circle-stroke-opacity": fadesByAlpha(base["circle-opacity"])
+            ? ["*", Math.min(1, POINT_STROKE.opacity[theme] * opacity), ["coalesce", ["get", "alpha"], 1]]
+            : Math.min(1, POINT_STROKE.opacity[theme] * opacity) }),
         };
       },
     };
