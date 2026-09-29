@@ -54,7 +54,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["bicycle-support-circle", "bicycle-support-glow"], type: "bicycleSupport" },
   { layers: ["visitor-centres-circle", "visitor-centres-glow"], type: "visitorCentres" },
   { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
-  { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
   { layers: ["road-congestion-hit"], type: "roadCongestion" },
   // 🚗 國道壅塞（W2）：同樣是「透明加寬命中層」的細線層，緊接省道排在最前段。
   //    兩層地理上不重疊（國道 vs 省道），先後順序對彼此無影響；
@@ -614,6 +613,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["h3-socio-fill", "h3-socio-ext"], type: "socioeconomic" },
   { layers: ["h3-spatial-fill", "h3-spatial-ext"], type: "spatialEconomy" },
   { layers: ["h3-youbike-fill", "h3-youbike-ext"], type: "youbikeFullness" },
+  // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
+  //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
+  { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
