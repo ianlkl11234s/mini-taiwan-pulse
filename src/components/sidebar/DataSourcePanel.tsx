@@ -15,7 +15,7 @@ import { THEMES, LAYER_COLORS } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
-import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsSourceLevelLabel } from "../../data/statisticsDataSources";
+import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsIndicatorLabel, statisticsSourceLevelLabel } from "../../data/statisticsDataSources";
 import { isStatisticsRenderLayer, statisticsReleaseFallback, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
 import { loadRegionalStatisticsValues, type StatisticsSource } from "../../data/regionalStatisticsLoader";
 import { COLORS, BORDER, CONTROL, LIGHT, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
@@ -166,6 +166,10 @@ function DataSourceCard({
     const inputs = Array.isArray(derivation?.input_sources)
       ? derivation.input_sources.filter((v): v is Record<string, unknown> => Boolean(v && typeof v === "object" && !Array.isArray(v)))
       : [];
+    // 原始統計（無 derivation）的已發布來源紀錄：機關／授權／來源頁，沿用舊 DataSourceModal 的 SourceRecord。
+    const recordUrl = artifactSource && !derivation ? comparisonInputUrl(artifactSource.source_landing_url ?? artifactSource.source_url) : undefined;
+    const recordPublisher = artifactSource && !derivation && typeof artifactSource.publisher === "string" ? artifactSource.publisher : null;
+    const recordLicense = artifactSource && !derivation && typeof artifactSource.license === "string" ? artifactSource.license : null;
     return {
       title: `${kindLabel} · ${statisticsSource.label}`,
       desc: [statisticsSource.metricLabel, statisticsSource.contract, statisticsSource.disclosure].filter(Boolean).join(" — "),
@@ -174,11 +178,18 @@ function DataSourceCard({
         { k: "頻率", v: statisticsSource.period },
         statisticsSource.license ? { k: "授權", v: statisticsSource.license } : null,
         { k: "單位", v: `${statisticsSource.unit} · ${statisticsSourceLevelLabel(statisticsSource.level)}` },
+        statisticsSource.datasetIds.length ? { k: "資料集", v: statisticsSource.datasetIds.join(", "), mono: true } : null,
         statisticsSource.sourceUrl ? { k: "API", v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
         artifactLoading ? { k: "來源", v: "讀取已發布的來源紀錄…" } : null,
         artifactError ? { k: "來源", v: `未載入：${artifactError}` } : null,
         artifactRelease ? { k: "期間", v: `${artifactRelease.period_start} 至 ${artifactRelease.period_end}`, mono: true } : null,
         derivation && typeof derivation.formula === "string" ? { k: "公式", v: derivation.formula.replace(/\bnumerator\b/g, "分子").replace(/\bdenominator\b/g, "分母") } : null,
+        derivation && (typeof derivation.numerator_indicator === "string" || typeof derivation.denominator_indicator === "string")
+          ? { k: "分子分母", v: `分子：${statisticsIndicatorLabel(derivation.numerator_indicator, statisticsSource.level)} · 分母：${statisticsIndicatorLabel(derivation.denominator_indicator, statisticsSource.level)}` }
+          : null,
+        recordPublisher ? { k: "發布機關", v: recordPublisher } : null,
+        recordLicense ? { k: "發布授權", v: recordLicense } : null,
+        recordUrl ? { k: "發布來源", v: <a href={recordUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{recordUrl}</a> } : null,
         inputs.length ? {
           k: "上游", v: (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -203,8 +214,18 @@ function DataSourceCard({
   }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, p]);
 
   const baseBlocks: SourceBlock[] = useMemo(() => {
+    const lineageBlock: SourceBlock = {
+      title: "派生分析",
+      desc: ref?.processing ?? null,
+      facts: facts(
+        { k: "類型", v: ref?.derivationType ?? "custom" },
+        ref?.derivedFromLayers?.length ? { k: "派生自", v: ref.derivedFromLayers.join("、") } : null,
+        upstreamIds.length ? { k: "上游", v: upstreamIds.join("、") } : null,
+      ),
+      docPath: null,
+    };
     if (entries.length > 0) {
-      return entries.map((e) => ({
+      const entryBlocks: SourceBlock[] = entries.map((e) => ({
         title: e.title ?? e.datasetId,
         desc: e.summary,
         facts: facts(
@@ -216,32 +237,24 @@ function DataSourceCard({
         ),
         docPath: e.catalogMdPath,
       }));
+      // 派生圖層即使 catalog 有條目，也要保留派生脈絡（舊 modal 兩者並列）。
+      return status === "pulse_only" && (ref?.derivedFromLayers || ref?.derivedFromDatasets) ? [lineageBlock, ...entryBlocks] : entryBlocks;
     }
     if (status === "verified") {
       return ref.datasets.map((d) => ({ title: d.datasetId, desc: `比對信心：${d.confidence}`, facts: facts(), docPath: null }));
     }
-    if (status === "pulse_only") {
-      return [{
-        title: "派生分析",
-        desc: ref?.processing ?? null,
-        facts: facts(
-          { k: "類型", v: ref?.derivationType ?? "custom" },
-          ref?.derivedFromLayers?.length ? { k: "派生自", v: ref.derivedFromLayers.join("、") } : null,
-          upstreamIds.length ? { k: "上游", v: upstreamIds.join("、") } : null,
-        ),
-        docPath: null,
-      }];
-    }
+    if (status === "pulse_only") return [lineageBlock];
     if (statisticsSource) return [];
     return [{ title: null, desc: "此圖層尚無對應 catalog 條目。", facts: facts(), docPath: null }];
   }, [entries, status, ref, upstreamIds, statisticsSource, p]);
 
   const blocks: SourceBlock[] = statisticsBlock ? [statisticsBlock, ...baseBlocks] : baseBlocks;
 
+  // 統計來源描述的是同一批上游資料集，不另加 1；只有沒有其他上游紀錄時才以其 datasetIds 計數。
   const upstreamCount = (entries.length > 0 ? entries.length
     : status === "verified" ? ref.datasets.length
     : status === "pulse_only" ? Math.max(upstreamIds.length, 1)
-    : 0) + (statisticsSource ? 1 : 0);
+    : 0) || (statisticsSource?.datasetIds.length ?? 0);
   const docPath = blocks.find((b) => b.docPath)?.docPath ?? null;
 
   return (
