@@ -30,6 +30,7 @@ export function activityForOperation(operation: string, args: Record<string, unk
   if (operation === "layer_details" || operation === "describe_layer" || operation === "describe_dataset" || operation === "plan_data_access") return { phase: "working", title: "正在查看資料說明", detail: "整理資料來源與可用欄位。" };
   if (operation === "read_layer" || operation === "query_records" || operation === "materialize_data") return { phase: "working", title: "正在讀取資料", detail: "只處理這次指定的資料範圍。" };
   if (operation === "nearby") return { phase: "working", title: "正在查看附近資料", detail: "依目前位置與條件整理。" };
+  if (operation === "analysis_card_draft") return { phase: "working", title: "卡片草稿已送到面板", detail: "在「與 Agent 協作」面板預覽，按「發布連結」才會產生分享網址。" };
   if (operation === "import_warehouse_result") return { phase: "working", title: "正在載入分析倉庫結果", detail: "驗證伺服器端分析結果的檔案雜湊後登記到地圖。" };
   if (operation === "create_analysis_scope") return { phase: "working", title: "正在建立分析範圍", detail: "顯示中心與直線幾何範圍；不會冒充步行等時圈。" };
   if (operation === "spatial_query") return { phase: "working", title: "Agent 正在比對空間關係", detail: args.predicate === "nearest" ? "正在找出接近的紀錄。" : "正在依指定範圍整理紀錄。" };

@@ -283,4 +283,9 @@ export const Z_INDEX = {
 export const LAYOUT = {
   /** 地圖底部停靠元件（時間軸、右下停靠區）距視窗底邊的距離（px） */
   mapBottomInset: 64,
+  /**
+   * 左側停靠面板（rail 面板、即時情報、衛星、地震回放、Agent）的上緣（px）。
+   * 對齊 rail 第一條分隔線（y=60），剛好落在左上座標列（底 58）之下。規格見 §5.1。
+   */
+  leftDockTop: 60,
 } as const;

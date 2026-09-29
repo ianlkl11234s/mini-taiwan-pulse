@@ -87,7 +87,7 @@
 .main-map-agent-heading button { flex: 0 0 auto; }
 
 /* Keep the single App-root shell where the rail previously placed its compact panel. */
-.main-map-agent--persistent { left: 64px; right: auto; top: 92px; font-size: var(--font-base); line-height: 1.5; }
+.main-map-agent--persistent { left: 64px; right: auto; top: 60px; font-size: var(--font-base); line-height: 1.5; }
 .main-map-agent--persistent .main-map-agent-panel { width: min(288px, calc(100vw - 80px)); max-height: 70vh; margin-top: 0; padding: 10px 12px 12px; }
 .main-map-agent--persistent .main-map-agent-panel p { font-size: var(--font-base); }
 .main-map-agent--persistent .main-map-agent-panel h3 { font-size: var(--font-md); }
@@ -164,3 +164,16 @@
 .analysis-hover-tip__name { overflow: hidden; text-overflow: ellipsis; }
 .analysis-hover-tip__value { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--text-muted); }
 .analysis-hover-tip--light { --surface-solid: var(--light-surface-solid); --border-panel: var(--light-border); --text-strong: var(--light-text-strong); --text-muted: var(--light-text-muted); }
+
+/* 4b 分析卡草稿（卡片本體樣式在 src/card/card.css，與 /card 頁共用） */
+.main-map-agent .agent-card-draft .analysis-card { margin: 6px 0 8px; }
+.main-map-agent .agent-card-draft__actions { display: flex; gap: 6px; margin-top: 6px; }
+.main-map-agent .agent-card-draft__actions button { flex: 1; padding: 5px 0; color: var(--agent-text); background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
+.main-map-agent .agent-card-draft__actions button:disabled { opacity: var(--control-disabled-opacity); }
+.main-map-agent .agent-card-draft__primary { border-color: var(--border-accent); }
+.main-map-agent .agent-card-draft__link label { display: grid; gap: 4px; font-size: var(--font-sm); color: var(--agent-muted); }
+.main-map-agent .agent-card-draft__link input { width: 100%; padding: 4px 6px; font-family: var(--font-data); font-size: var(--font-sm); color: var(--agent-text); background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
+.main-map-agent .agent-card-draft__link small, .main-map-agent .agent-card-draft__note { display: block; margin-top: 4px; font-size: var(--font-sm); color: var(--agent-muted); }
+.main-map-agent .agent-card-draft__error { color: var(--status-err); font-size: var(--font-sm); }
+.main-map-agent .agent-analysis-make-card { margin-top: 4px; padding: 2px 8px; font-size: var(--font-sm); color: var(--agent-muted); background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
+.main-map-agent .agent-analysis-make-card-hint { display: block; margin-top: 2px; font-size: var(--font-sm); color: var(--agent-muted); }

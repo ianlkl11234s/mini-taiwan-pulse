@@ -1,7 +1,7 @@
 /**
  * EarthquakeReplayPanel — 地震回放事件清單 + 播放控制
  *
- * 左 docked 面板（left:64 top:98 bottom:130）；
+ * 左 docked 面板（left:64 top:LAYOUT.leftDockTop bottom:130）；
  * 播放控制列的排版沿用 intel/IntelReplay（play/pause + scrub + 時間標籤）。
  *
  * 分層回放（見 earthquakeReplayTypes.eventTier）：
@@ -13,7 +13,7 @@
  */
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Rewind, Play, Pause, RotateCcw, X } from "lucide-react";
-import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, Z_INDEX } from "../styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, Z_INDEX, LAYOUT, SURFACE } from "../styles/designTokens";
 import { fetchReplayEvents } from "../data/earthquakeReplayLoader";
 import { eventTier, type EarthquakeReplayEvent } from "../data/earthquakeReplayTypes";
 import { earthquakeReplayClock } from "../state/earthquakeReplayClock";
@@ -92,10 +92,10 @@ export function EarthquakeReplayPanel({
       style={{
         position: "fixed",
         left: 64,
-        top: 98,
+        top: LAYOUT.leftDockTop,
         bottom: 130,
         width: PANEL_WIDTH,
-        background: COLORS.panelBg,
+        background: SURFACE.strong,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${COLORS.panelBorder}`,

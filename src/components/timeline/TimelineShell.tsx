@@ -77,6 +77,7 @@ export function TimelineShell({ isDarkTheme, isMobile, leftOffset, rootAttrs, ch
       {...rootHandlers}
       className={rootClass}
       style={rootStyle}
+      data-boot-part="timeline"
       role="group"
       aria-label={expanded ? "時間軸" : "時間軸（按 Enter 展開）"}
       tabIndex={expanded ? -1 : 0}
