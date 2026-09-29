@@ -44,7 +44,7 @@ export function AnalysisCard({ payload, mapSlot, expiresAt, expiryNote, variant 
   const legend = legendEntries(payload);
   const legendUnit = payload.legend.unit;
   const rampForBars = payload.kind === "area" && payload.map ? classColors(payload.map.ramp, payload.map.breaks) : payload.points ? classColors(payload.points.ramp, payload.points.breaks) : [];
-  const valueKind = vizKindForCard(payload.stats.find(stat => stat.unit === legendUnit)?.value_kind ?? (payload.legend.unit === "%" ? "percent" : "number"));
+  const valueKind = vizKindForCard(payload.legend.value_kind ?? payload.stats.find(stat => stat.unit === legendUnit)?.value_kind ?? (payload.legend.unit === "%" ? "percent" : "number"));
   const bars: RankBarItem[] = payload.top.slice(0, 3).map((item, index) => ({ id: `${index}:${item.name}`, label: item.name, value: item.value, color: colorForClass(rampForBars, item.class_index) ?? cardOtherColor() }));
   const expiry = taipeiDate(expiresAt);
   const generated = taipeiDateTime(payload.generated_at);
