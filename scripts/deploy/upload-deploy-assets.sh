@@ -10,6 +10,24 @@ fi
 BUCKET=$(grep '^S3_BUCKET=' .env | cut -d'=' -f2 || echo "migu-gis-data-collector")
 PREFIX="deploy-assets"
 
+# 靜態資料 Cache-Control 政策（與 nginx.conf 的 `map $uri $static_cache_control` 同一套規則）：
+#   可變指標（*manifest*.json、*_current.*）   → 300s + must-revalidate
+#   檔名含 _YYYYMMDD 或 .<hex8+>.<ext> 雜湊     → 一年 immutable
+#   其他未版本化資料                            → 1 天
+# 注意：正式站 nginx 讀的是 pull 到 /data 的檔案，S3 metadata 不會被轉發；
+# 這裡設定是為了讓直讀 S3/CDN 的路徑與 nginx 行為一致。
+cache_control_for() {
+  local name="$1"
+  if [[ "$name" =~ manifest[^/]*\.json$ ]] || [[ "$name" =~ _current\.[^/]+$ ]]; then
+    echo "public,max-age=300,must-revalidate"
+  elif [[ "$name" =~ _(19|20)[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([^0-9/][^/]*)?$ ]] \
+    || [[ "$name" =~ \.[0-9a-f]{8,}\.[a-z0-9.]+$ ]]; then
+    echo "public,max-age=31536000,immutable"
+  else
+    echo "public,max-age=86400"
+  fi
+}
+
 # public/ 結構 2026-04 後已分子目錄（geo/、h3/），但 S3 維持扁平檔名
 # 上傳時 basename 會自動剝掉 geo/、h3/ 前綴
 FILES=(
@@ -68,7 +86,8 @@ for f in "${NETWORK_STRUCTURE_FILES[@]}"; do
     continue
   fi
   aws s3api put-object --bucket "$BUCKET" --key "$PREFIX/network_structures/$name" \
-    --body "$f" --if-none-match '*' --content-type application/vnd.pmtiles --region ap-southeast-2 || exit 1
+    --body "$f" --if-none-match '*' --content-type application/vnd.pmtiles \
+    --cache-control "$(cache_control_for "$name")" --region ap-southeast-2 || exit 1
 done
 
 # 水資源圖層：glob 動態上傳 public/geo/water_*.geojson
@@ -109,7 +128,8 @@ for f in public/public_life/*.geojson public/public_life/*.pmtiles; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   echo "Uploading public_life/$name..."
-  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/public_life/$name" --region ap-southeast-2
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/public_life/$name" --region ap-southeast-2 \
+    --cache-control "$(cache_control_for "$name")"
 done
 # agriculture / forestry 的 PMTiles 改由下方 AGRI_FILES / FOREST_FILES 明確清單上傳到各自鏡像子前綴
 
@@ -518,7 +538,7 @@ for f in \
   fi
   echo "Uploading immutable world/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$key" --region ap-southeast-2 \
-    --metadata "sha256=$local_sha256" --cache-control "public,max-age=86400"
+    --metadata "sha256=$local_sha256" --cache-control "$(cache_control_for "$name")"
 done
 
 # 靜態化 RPC 快照：上傳到 deploy-assets/static-rpc/ 子前綴（鏡像結構，pull 端整夾 sync）

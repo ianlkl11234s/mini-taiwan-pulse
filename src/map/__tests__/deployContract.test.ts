@@ -343,8 +343,8 @@ describe("deploy 契約（nginx + pull script）", () => {
     const body = match?.[1] ?? "";
     expect(body).toContain("root /usr/share/nginx/html;");
     expect(nginxConf).toMatch(/server \{[\s\S]*?include mime\.types;[\s\S]*?application\/geo\+json geojson;[\s\S]*?application\/vnd\.pmtiles pmtiles;/);
-    expect(body).toContain("expires 1d;");
-    expect(body).toContain('add_header Cache-Control "public";');
+    expect(body).toContain("add_header Cache-Control $static_cache_control;");
+    expect(body).not.toMatch(/^\s*expires\s/m);
     expect(body).not.toContain("/index.html");
     const gzipTypes = nginxConf.match(/^\s*gzip_types\s+([^;]*);/m)?.[1] ?? "";
     expect(gzipTypes).toContain("application/geo+json");

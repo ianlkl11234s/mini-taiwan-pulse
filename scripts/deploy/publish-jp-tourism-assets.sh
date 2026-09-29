@@ -84,6 +84,12 @@ for file in "${FILES[@]}"; do
     *) echo "ERROR: unsupported asset type: $name" >&2; exit 1 ;;
   esac
 
+  # 與 nginx.conf / upload-deploy-assets.sh 同一政策：*_current.* 是可變指標，其餘帶日期檔名才 immutable。
+  case "$name" in
+    *_current.*) cache_control="public,max-age=300,must-revalidate" ;;
+    *) cache_control="public,max-age=31536000,immutable" ;;
+  esac
+
   echo "Uploading immutable world/$name..."
   aws s3api put-object \
     --bucket "$BUCKET" \
@@ -91,7 +97,7 @@ for file in "${FILES[@]}"; do
     --body "$file" \
     --if-none-match '*' \
     --content-type "$content_type" \
-    --cache-control "public,max-age=31536000,immutable" \
+    --cache-control "$cache_control" \
     --metadata "sha256=$local_sha256" \
     --region "$AWS_REGION" >/dev/null
 
