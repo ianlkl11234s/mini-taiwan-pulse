@@ -3,7 +3,7 @@ import type { CircleLayer, FillLayer, LineLayer, Map as MapboxMap } from "mapbox
 import {
   LIQUEFACTION_SITE_COLOR, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_ATTRIBUTION,
   SOIL_LIQUEFACTION_PRIVATE_ENDPOINT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT,
-  SOIL_LIQUEFACTION_SOURCE_LAYERS, SOIL_POTENTIAL_CLASSES, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS,
+  SOIL_LIQUEFACTION_SOURCE_LAYERS, SOIL_POTENTIAL_CLASSES, SOIL_POTENTIAL_NOT_INVESTIGATED, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS,
   WEAK_SOIL_LAYER_KEYS, WEAK_SOIL_LAYER_SPEC, WEAK_SOIL_MIN_ZOOM, weakSoilField,
   type SoilLiquefactionLayerKey, type WeakSoilLayerKey,
 } from "../data/soilLiquefactionTypes";
@@ -51,14 +51,17 @@ export const SOIL_LIQUEFACTION_LAYER_IDS = {
 
 // ── paint／filter builders（純函式，測試直接驗）─────────────
 const POTENTIAL_VALUES = SOIL_POTENTIAL_CLASSES.map((item) => item.value);
-/** 高／中／低以外（not_investigated 與缺 key）一律為 false，交給斜線層。 */
+/** 只有官方高／中／低為 true（未調查與缺值皆 false）；用於分級接縫。 */
 export const POTENTIAL_HAS_CLASS = ["match", ["get", "potential_class"], POTENTIAL_VALUES, true, false];
 export const potentialFillColor = () => [
   "match", ["get", "potential_class"],
   ...SOIL_POTENTIAL_CLASSES.flatMap((item) => [item.value, item.color]),
   TRANSPARENT,
 ];
-export const POTENTIAL_NOT_INVESTIGATED_FILTER = ["!", POTENTIAL_HAS_CLASS];
+/** 只收來源明示 `not_investigated` 的面；缺值（無 key／未知值）是「無資料」，不算未調查。 */
+export const POTENTIAL_NOT_INVESTIGATED_FILTER = ["==", ["get", "potential_class"], SOIL_POTENTIAL_NOT_INVESTIGATED];
+/** 主體層收未調查以外的所有面：高／中／低上色，缺值＝無資料 → 透明不填色（仍可點出 popup）。 */
+export const POTENTIAL_FILL_FILTER = ["!", POTENTIAL_NOT_INVESTIGATED_FILTER];
 
 /** 厚度 0＝透明（仍可點出 popup「無弱層」）；>0 依 WEAK_SOIL_CLASS_UPPER_M 上色；超過末級上限歸末級。 */
 export function weakSoilFillColor(key: WeakSoilLayerKey): unknown[] {
@@ -89,7 +92,7 @@ export function buildSoilLiquefactionLayers(state: Snapshot): (FillLayer | LineL
   const weak = SOIL_LIQUEFACTION_SOURCE_LAYERS.weakSoil;
   const hidden = { visibility: "none" as const };
   return [
-    { id: ids.potentialFill, type: "fill", source, "source-layer": potential, filter: POTENTIAL_HAS_CLASS, layout: hidden,
+    { id: ids.potentialFill, type: "fill", source, "source-layer": potential, filter: POTENTIAL_FILL_FILTER, layout: hidden,
       paint: { "fill-color": potentialFillColor(), "fill-opacity": clamp(opacity.soilLiquefactionPotential) } } as FillLayer,
     { id: ids.potentialNotInvestigated, type: "fill", source, "source-layer": potential, filter: POTENTIAL_NOT_INVESTIGATED_FILTER, layout: hidden,
       paint: { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": clamp(opacity.soilLiquefactionPotential) } } as FillLayer,

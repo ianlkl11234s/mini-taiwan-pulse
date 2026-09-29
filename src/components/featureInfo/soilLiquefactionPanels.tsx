@@ -26,13 +26,13 @@ export function SoilLiquefactionPotentialPanel({ props }: { props: Record<string
   const raw = str(props.potential_class);
   const known = SOIL_POTENTIAL_CLASSES.find((item) => item.value === raw);
   const notInvestigated = raw === SOIL_POTENTIAL_NOT_INVESTIGATED;
-  const label = known?.label ?? (notInvestigated ? "未調查" : "類別缺值");
+  const label = known?.label ?? (notInvestigated ? "未調查" : "無資料");
   return <>
     <Title color={known?.color ?? BOUNDARY_GRAY.dark}>{`土壤液化潛勢：${label}`}</Title>
     <Row label="潛勢類別" value={label} />
     {known && <Row label="類別意義" value="官方整合鑽孔、地下水位、設計地震與歷史資料的綜合類別，不是量測值；不可回推 PL 或地下水位。" />}
     {notInvestigated && <Row label="未調查" value="官方未調查區（含山區、臺地、海埔新生地、河岸及零星小平地），不等於低潛勢。" />}
-    {!known && !notInvestigated && <Row label="資料限制" value="來源未提供潛勢類別；不等於低潛勢。" />}
+    {!known && !notInvestigated && <Row label="資料限制" value="來源未提供潛勢類別（無資料）；不等於未調查，也不等於低潛勢。" />}
     <Row label="評估年份" value={str(props.source_year)} mono />
     <Row label="使用限制" value={SITE_CAVEAT} />
     <SourceFooter props={footerProps(props)} />

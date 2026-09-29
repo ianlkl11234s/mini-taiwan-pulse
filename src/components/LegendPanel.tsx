@@ -3482,10 +3482,12 @@ function CropSuitabilityLegend({ cropId }: { cropId: number }) {
 const SOIL_RIGHTS_NOTE = "來源：經濟部地質調查及礦業管理中心；站主限定研究，重利用條款待確認（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）。";
 
 function SoilLiquefactionPotentialLegend() {
+  const t = useLegendTheme();
   return <div>
     <LegendTitle zh="土壤液化潛勢" en="Soil Liquefaction" />
     {SOIL_POTENTIAL_CLASSES.map((item) => <LegendRow key={item.value} swatch={<SwatchSquare color={item.color} />}>{item.label}</LegendRow>)}
-    <LegendRow swatch={<SwatchHatch />}>未調查（不等於低潛勢）</LegendRow>
+    <LegendRow swatch={<SwatchHatch />}>未調查（官方明示；不等於低潛勢）</LegendRow>
+    <LegendRow swatch={<SwatchSquare color={t.border} outline />}>無資料（來源缺類別；不填色，不算未調查）</LegendRow>
     <LegendNote>高／中／低是官方綜合類別，不是量測值；個別基地僅供初步評估，不構成工程安全判定。</LegendNote>
     <LegendNote>{SOIL_RIGHTS_NOTE}</LegendNote>
   </div>;
