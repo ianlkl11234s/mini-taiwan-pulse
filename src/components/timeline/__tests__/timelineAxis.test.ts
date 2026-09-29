@@ -86,6 +86,12 @@ describe("鍵盤", () => {
 });
 
 describe("歷史離散軸", () => {
+  it("current 大於所有刻度時落在最後一格，小於所有刻度時落在第一格", () => {
+    expect(buildDiscreteAxis([2020, 2021, 2022], 2025, String).index).toBe(2);
+    expect(buildDiscreteAxis([2020, 2022, 2024], 2023, String).index).toBe(1);
+    expect(buildDiscreteAxis([2020, 2021, 2022], 2010, String).index).toBe(0);
+  });
+
   it("月粒度：12 格全標、指針在目前月份", () => {
     const axis = buildDiscreteAxis(range(1, 12), 9, String);
     expect(axis.index).toBe(8);
