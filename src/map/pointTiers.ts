@@ -218,7 +218,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
  *    實作時以程式實際有沒有畫 circle 為準（handoff-r2-hooks.md §3）。
  */
 export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubble>> = {
-  animalAdoption: "M", // 待認領養動物 Animal Adoption · src/hooks/useAnimalAdoptionLayer.ts
+  animalAdoption: "B", // 資料驅動半徑，2026-09-29 拍板 · 待認領養動物 Animal Adoption · src/hooks/useAnimalAdoptionLayer.ts
   animalWelfarePoints: "M", // 動物服務據點 Animal Services · src/hooks/useAnimalWelfarePointsLayer.ts
   aqiStations: "L", // 空氣品質測站 AQI Station · src/hooks/useAqiStationsLayer.ts
   bridgeRainThresholds: "L", // 一級監控橋梁參考雨量 · src/hooks/useBridgeRainLayer.ts
@@ -227,21 +227,21 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   safetyAlerts: "M", // 安全環境 Safety Alerts · src/hooks/useDisasterAlertLayer.ts
   transitAlerts: "M", // 交通阻斷 Transit Alerts · src/hooks/useDisasterAlertLayer.ts
   weatherAlerts: "M", // 氣象特報 Weather Alerts · src/hooks/useDisasterAlertLayer.ts
-  earthquakes: "M", // 地震 Earthquake · src/hooks/useEarthquakeLayer.ts
-  earthquakesGlobal: "M", // 全球地震 USGS Earthquake · src/hooks/useEarthquakesGlobalLayer.ts
+  earthquakes: "B", // 資料驅動半徑，2026-09-29 拍板 · 地震 Earthquake · src/hooks/useEarthquakeLayer.ts
+  earthquakesGlobal: "B", // 資料驅動半徑，2026-09-29 拍板 · 全球地震 USGS Earthquake · src/hooks/useEarthquakesGlobalLayer.ts
   fireEvents: "B", // 火災歷史 Fire History · src/hooks/useFireEventsLayer.ts
   fireLatest: "B", // 火災最新年度 Latest · src/hooks/useFireLatestLayer.ts
-  floodSensor: "M", // 都市淹水感測 USWG · src/hooks/useFloodSensorLayer.ts
+  floodSensor: "B", // 資料驅動半徑，2026-09-29 拍板 · 都市淹水感測 USWG · src/hooks/useFloodSensorLayer.ts
   gfwDarkVessels: "B", // GFW SAR 未匹配 AIS Unmatched Detections · src/hooks/useGfwDarkVesselsLayer.ts
   gfwHourlyGrid: "B", // GFW 小時船舶網格 Hourly Grid · src/hooks/useGfwHourlyGridLayer.ts
-  gfwHourlyTracks: "M", // GFW 小時近似航跡 Hourly Tracks · src/hooks/useGfwHourlyTracksLayer.ts
+  gfwHourlyTracks: "B", // 資料驅動半徑，2026-09-29 拍板 · GFW 小時近似航跡 Hourly Tracks · src/hooks/useGfwHourlyTracksLayer.ts
   globalEvents: "S", // 全球重大事件 Global Events · src/hooks/useGlobalEventsLayer.ts
   aisstreamVessels: "L", // AISStream 船舶 AISStream Vessels · src/hooks/useGlobalMaritimeLayers.ts
   gfwVesselPresence: "L", // GFW 舊版每日船舶 Historical Presence · src/hooks/useGlobalMaritimeLayers.ts
-  groundwater: "M", // 地下水井 Groundwater · src/hooks/useGroundwaterLayer.ts
+  groundwater: "B", // 資料驅動半徑，2026-09-29 拍板 · 地下水井 Groundwater · src/hooks/useGroundwaterLayer.ts
   groundwaterWells: "M", // 水井點位 Wells · src/hooks/useGroundwaterWellsLayer.ts
-  iotWraRiver: "M", // IoT 河川 IoT River · src/hooks/useIotWraRiverLayer.ts
-  iotWraStructure: "M", // IoT 水工結構 IoT Structure · src/hooks/useIotWraStructureLayer.ts
+  iotWraRiver: "B", // 資料驅動半徑，2026-09-29 拍板 · IoT 河川 IoT River · src/hooks/useIotWraRiverLayer.ts
+  iotWraStructure: "B", // 資料驅動半徑，2026-09-29 拍板 · IoT 水工結構 IoT Structure · src/hooks/useIotWraStructureLayer.ts
   jpAirports: "M", // 機場 空港 · src/hooks/useJpAirportsLayer.ts
   jpCareCombined: "M", // 複合服務 訪問・通い・宿泊の組合せ · src/hooks/useJpMedicalLayers.ts
   jpCareDayServices: "M", // 日間服務 施設に通う · src/hooks/useJpMedicalLayers.ts
@@ -298,8 +298,8 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   marineObservationIsohe: "M", // ISOHE 港區海氣象 ISOHE Port · src/hooks/useMarineObservationLayer.ts
   aqiMicroSensors: "B", // LASS 微型感測 Micro Sensor · src/hooks/useMicroSensorsLayer.ts
   powerPoles: "M", // 電桿 Power Poles (2.96M) · src/hooks/usePowerPolesLayer.ts
-  rainGauge: "M", // 即時雨量 Rain Gauge · src/hooks/useRainGaugeLayer.ts
-  riverLevel: "M", // 河川水位 River Level · src/hooks/useRiverLevelLayer.ts
+  rainGauge: "B", // 資料驅動半徑，2026-09-29 拍板 · 即時雨量 Rain Gauge · src/hooks/useRainGaugeLayer.ts
+  riverLevel: "B", // 資料驅動半徑，2026-09-29 拍板 · 河川水位 River Level · src/hooks/useRiverLevelLayer.ts
   roadEvents: "M", // 即時路況 Road Events · src/hooks/useRoadEventsLayer.ts
   satellitesBeidou: "M", // 北斗 BD-3 PNT · src/hooks/useSatellitesLayer.ts
   satellitesFrance: "M", // 🇫🇷 France · CSO / PLEIADES / ELISA · src/hooks/useSatellitesLayer.ts
@@ -331,7 +331,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   agriSoil: "M", // 全台土壤分類 Soil Map · src/map/agricultureLayerFactory.ts
   agriSoilFertility: "M", // 土壤肥力 250m Soil Fertility · src/map/agricultureLayerFactory.ts
   agriculture: "M", // 農田範圍 FTW Fields 2025 · src/map/agricultureLayerFactory.ts
-  earthquakeReplay: "S", // 地震回放 EQ Replay · src/map/earthquakeReplayLayerFactory.ts
+  earthquakeReplay: "B", // 資料驅動半徑，2026-09-29 拍板 · 地震回放 EQ Replay · src/map/earthquakeReplayLayerFactory.ts
   wdBattery: "M", // 電池回收 Battery · src/map/wasteMapboxLayers.ts
   wdClothes: "M", // 衣物回收箱 Clothes · src/map/wasteMapboxLayers.ts
   wdMixed: "M", // 混合投放點 Mixed · src/map/wasteMapboxLayers.ts

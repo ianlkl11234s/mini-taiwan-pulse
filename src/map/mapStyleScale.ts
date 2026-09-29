@@ -23,10 +23,10 @@ export const pointRadius = (tier: PointTier, sizeScale = 1) => POINT_RADIUS[tier
 
 /** P-2 A：描邊 1px，暗深色 0.8／淡白 0.9。 */
 export const POINT_STROKE = { width: 1, opacity: { dark: 0.8, light: 0.9 } } as const;
-export const pointStrokePaint = (isDark: boolean) => ({
+export const pointStrokePaint = (isDark: boolean, opacityFactor = 1) => ({
   "circle-stroke-color": mapSeamColor(isDark),
   "circle-stroke-width": POINT_STROKE.width,
-  "circle-stroke-opacity": POINT_STROKE.opacity[themeOf(isDark)],
+  "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[themeOf(isDark)] * opacityFactor),
 });
 
 /** P-5：icon 顯示直徑對齊點的直徑（M 9px；形狀在 9px 分不清時用 L 13px），固定不隨縮放。 */
