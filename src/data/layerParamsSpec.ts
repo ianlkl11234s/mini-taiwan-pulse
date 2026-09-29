@@ -1711,6 +1711,34 @@ export const LAYER_PARAMS_SPEC = {
   taipeiRoadTunnels: [opacitySlider("taipeiRoadTunnelsOpacity", 0.9), scaleSlider("taipeiRoadTunnelsScale", 1)],
   tainanRoadTunnels: [opacitySlider("tainanRoadTunnelsOpacity", 0.9), scaleSlider("tainanRoadTunnelsScale", 1)],
   changhuaTrafficSignals: [opacitySlider("changhuaTrafficSignalsOpacity", 0.85), scaleSlider("changhuaTrafficSignalsScale", 1)],
+  bssNationalBridgePreview: [opacitySlider("bssNationalBridgePreviewOpacity", 0.82), {
+    kind: "select", name: "bssNationalBridgePreviewClass", label: "交通類別", default: "0",
+    options: [
+      { label: "全部", value: "0" },
+      { label: "一般道路橋候選", value: "1" },
+      { label: "高架／快速道路待查", value: "2" },
+      { label: "道路類型未判定", value: "3" },
+      { label: "人行／鐵道", value: "4" },
+    ],
+    out: "bssNationalBridgePreviewClass", encodeNumeric: true,
+  }, {
+    kind: "select", name: "bssNationalBridgePreviewQuality", label: "品質", default: "0",
+    options: [
+      { label: "全部", value: "0" },
+      { label: "影像有支持", value: "1" },
+      { label: "待確認", value: "2" },
+    ],
+    out: "bssNationalBridgePreviewQuality", encodeNumeric: true,
+  }],
+  bssNationalBridgePointsPreview: [opacitySlider("bssNationalBridgePointsPreviewOpacity", 0.82), scaleSlider("bssNationalBridgePointsPreviewScale", 1), {
+    kind: "select", name: "bssNationalBridgePointsPreviewQuality", label: "品質", default: "0",
+    options: [
+      { label: "全部", value: "0" },
+      { label: "影像有支持", value: "1" },
+      { label: "待確認", value: "2" },
+    ],
+    out: "bssNationalBridgePointsPreviewQuality", encodeNumeric: true,
+  }],
   bridgeRainThresholds: [opacitySlider("bridgeRainThresholdsOpacity", 0.9)],
   jpPoliceFacilities: [
     opacitySlider("jpPoliceFacilitiesOpacity", 0.75), scaleSlider("jpPoliceFacilitiesScale", 1),

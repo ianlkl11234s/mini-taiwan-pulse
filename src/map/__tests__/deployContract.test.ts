@@ -266,6 +266,8 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: extra-water.pmtiles",
   // 土壤液化（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）：同樣只走 owner-authenticated Range sidecar。
   "PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles",
+  // BSS 橋梁（HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED）：授權 HOLD，只走 owner-authenticated Range sidecar。
+  "PRIVATE_OWNER_ONLY: bss_bridge_location_direction_preview_20260927_v4.pmtiles",
 ]);
 
 /**
@@ -319,6 +321,20 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(viteConfig).toContain('"/api/private-research/soil-liquefaction"');
     expect(privateResearchServer).toContain('const SOIL_LIQUEFACTION_S3_PREFIX = "private-research/soil-liquefaction"');
     expect(pullScript).not.toContain("private-research/soil-liquefaction");
+  });
+
+  it("BSS 橋梁只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/bss-bridge\/tiles\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/bss-bridge \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/bss-bridge"');
+    expect(privateResearchServer).toContain('const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge"');
+    expect(pullScript).not.toContain("private-research/bss-bridge");
   });
 
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {

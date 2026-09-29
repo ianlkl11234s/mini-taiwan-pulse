@@ -376,6 +376,7 @@ export type ExpandableLayerKey =
   | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
   | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
+  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -855,6 +856,7 @@ export interface FeatureInfo {
     | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
     | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
+  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1130,6 +1132,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   weakSoilClay10To20: boolean;
   weakSoilSand10To20: boolean;
   liquefactionMonitoringSites: boolean;
+  /** 全臺橋梁方向候選線／清冊點位（進行中；站主限定私人 PMTiles） */
+  bssNationalBridgePreview: boolean;
+  bssNationalBridgePointsPreview: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
   earthquakeReplay: boolean;
   /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */

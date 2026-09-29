@@ -222,6 +222,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   animalWelfarePoints: "M", // 動物服務據點 Animal Services · src/hooks/useAnimalWelfarePointsLayer.ts
   aqiStations: "L", // 空氣品質測站 AQI Station · src/hooks/useAqiStationsLayer.ts
   bridgeRainThresholds: "L", // 一級監控橋梁參考雨量 · src/hooks/useBridgeRainLayer.ts
+  bssNationalBridgePointsPreview: "S", // 全臺橋梁清冊點位（進行中；26,188 筆密集點，站主限定） · src/hooks/useBssBridgeLayers.ts
   floodAlerts: "M", // 水文防汛 Flood Alerts · src/hooks/useDisasterAlertLayer.ts
   lifelineAlerts: "M", // 民生中斷 Lifeline · src/hooks/useDisasterAlertLayer.ts
   liquefactionMonitoringSites: "L", // 土壤液化監測站（11 點重點站） · src/hooks/useSoilLiquefactionLayers.ts

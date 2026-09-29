@@ -9,7 +9,8 @@ import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALL
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_STAGE1_LINE_COLOR } from "../data/bssBridgeTypes";
 import { LIQUEFACTION_SITE_COLOR, SOIL_POTENTIAL_CLASSES, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS, WEAK_SOIL_MIN_ZOOM, WEAK_SOIL_SPT_THRESHOLD } from "../data/soilLiquefactionTypes";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BORDER, COLORS, ELEVATION, LIGHT, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -428,6 +429,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "taipeiRoadTunnels", render: () => <NetworkStructuresLegend title="臺北市道路隧道" rows={[{ label: "官方登錄點；非隧道路廊", color: "#f59e0b" }]} /> },
   { id: "tainanRoadTunnels", render: () => <NetworkStructuresLegend title="臺南市道路隧道" rows={[{ label: "官方登錄點；CRS 推定", color: "#fb923c" }]} /> },
   { id: "changhuaTrafficSignals", render: () => <NetworkStructuresLegend title="彰化縣道路號誌" rows={[{ label: "號誌清冊點；非即時燈態", color: "#84cc16" }]} /> },
+  { id: "bssNationalBridgePreview", render: () => <BssBridgeLineLegend /> },
+  { id: "bssNationalBridgePointsPreview", render: () => <BssBridgePointLegend /> },
   { id: "bridgeRainThresholds", render: () => <NetworkStructuresLegend title="橋梁參考雨量條件" rows={[{ label: "達表列雨量條件；非封橋判定", color: "#ef4444" }, { label: "未達已核對雨量門檻；非安全判定", color: "#3b82f6" }, { label: "缺測、過期或門檻待覆核", color: "#94a3b8" }]} /> },
   { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
@@ -1232,6 +1235,44 @@ function JpWaterFloodHazardLegend() {
   return <div><LegendTitle zh="國土地理院 GSI 官方 XYZ（z2–17）" />
     <img src="https://disaportaldata.gsi.go.jp/hazardmap/copyright/img/shinsui_legend3.png" alt="國土地理院官方洪水浸水想定深度圖例" style={{ display: "block", maxWidth: "100%", height: "auto", marginBottom: 5 }} />
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>最大規模浸水想定；空白不等於無風險，非即時災情或預報，覆蓋仍有部分缺口。色階直接使用官方圖例。</div>
+  </div>;
+}
+
+const BSS_BRIDGE_CLASS_LEGEND: readonly { key: keyof typeof BSS_BRIDGE_ACCESS_COLORS; line: string; point: string }[] = [
+  { key: "road_bridge_carrier_candidate", line: "既有一般道路候選分類（非第一階段驗證）", point: "既有一般道路候選分類" },
+  { key: "road_elevated_or_expressway_review", line: "既有高架／快速道路候選分類", point: "既有高架／快速道路候選分類" },
+  { key: "road_unresolved", line: "既有道路類型未定線索", point: "既有道路類型未定線索" },
+  { key: "foot_or_rail_register_only", line: "既有人行／鐵道清冊線索", point: "既有人行／鐵道清冊線索" },
+];
+
+function BssBridgeSharedNotes() {
+  return <>
+    <LegendNote>26,188 筆是來源紀錄，不是去重後橋座數；2,416 筆只有點、沒有方向線。</LegendNote>
+    <LegendNote>影像抽驗 300 筆：103 支持、2 負向、195 未定；整體錯誤率 &lt;3% 尚未證明。</LegendNote>
+    <LegendNote>{BSS_BRIDGE_RIGHTS_TEXT}；進行中，非已驗證實橋或路網。</LegendNote>
+  </>;
+}
+
+function BssBridgeLineLegend() {
+  return <div>
+    <LegendTitle zh="全臺橋梁方向候選（進行中）" en="Bridge Direction Candidates" />
+    {BSS_BRIDGE_CLASS_LEGEND.map((item) => (
+      <LegendRow key={item.key} swatch={<SwatchLine color={BSS_BRIDGE_ACCESS_COLORS[item.key]} />}>{item.line}</LegendRow>
+    ))}
+    <LegendRow swatch={<SwatchLine color={BSS_BRIDGE_STAGE1_LINE_COLOR} dash={[1, 1]} />}>新增局部方向候選（11 條；未影像確認）</LegendRow>
+    <LegendNote>23,772 條線全是無向局部走向候選（固定短線示意），不是橋長、橋頭尾或路網；實線／虛線／點線保留方向來源層級，點線段看來源。</LegendNote>
+    <BssBridgeSharedNotes />
+  </div>;
+}
+
+function BssBridgePointLegend() {
+  return <div>
+    <LegendTitle zh="全臺橋梁清冊點位（進行中）" en="Bridge Register Points" />
+    {BSS_BRIDGE_CLASS_LEGEND.map((item) => (
+      <LegendRow key={item.key} swatch={<SwatchDot color={BSS_BRIDGE_ACCESS_COLORS[item.key]} />}>{item.point}</LegendRow>
+    ))}
+    <LegendNote>位置是清冊參考點，不是橋頭尾或路網節點；z10 以上才顯示。</LegendNote>
+    <BssBridgeSharedNotes />
   </div>;
 }
 

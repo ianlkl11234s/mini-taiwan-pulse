@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 811,
+    "keyCount": 813,
     "sections": [
       "gisLayers",
       "overlays",
@@ -917,6 +917,27 @@
         "changhua-traffic-signals-circle"
       ],
       "type": "changhuaTrafficSignals"
+    },
+    {
+      "layers": [
+        "bss-national-bridge-preview-point"
+      ],
+      "type": "bssNationalBridgePointsPreview"
+    },
+    {
+      "layers": [
+        "bss-national-bridge-preview-original-direction-line",
+        "bss-national-bridge-preview-offset-direction-line",
+        "bss-national-bridge-preview-ordinary-route-context",
+        "bss-national-bridge-preview-near-curved-carrier-local-context",
+        "bss-national-bridge-preview-waterway-crossing-context",
+        "bss-national-bridge-preview-multi-near-carrier-waterway-context",
+        "bss-national-bridge-preview-tied-route-consensus-context",
+        "bss-national-bridge-preview-no-waterway-carrier-consensus-context",
+        "bss-national-bridge-preview-no-crossing-nearest-route-context",
+        "bss-national-bridge-preview-stage1-local-direction-candidate"
+      ],
+      "type": "bssNationalBridgePreview"
     },
     {
       "layers": [
@@ -57311,6 +57332,102 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      }
+    ],
+    "bssNationalBridgePointsPreview": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.82,
+        "valueText": "0.82"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "品質",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "影像有支持",
+            "value": "1"
+          },
+          {
+            "label": "待確認",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      }
+    ],
+    "bssNationalBridgePreview": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.82,
+        "valueText": "0.82"
+      },
+      {
+        "label": "交通類別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "一般道路橋候選",
+            "value": "1"
+          },
+          {
+            "label": "高架／快速道路待查",
+            "value": "2"
+          },
+          {
+            "label": "道路類型未判定",
+            "value": "3"
+          },
+          {
+            "label": "人行／鐵道",
+            "value": "4"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "品質",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "影像有支持",
+            "value": "1"
+          },
+          {
+            "label": "待確認",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
       }
     ],
     "buildingsGba": [

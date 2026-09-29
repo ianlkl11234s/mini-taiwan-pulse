@@ -591,6 +591,13 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "橋梁研究（進行中）",
+        layers: [
+          fromManifest("bssNationalBridgePreview"),
+          fromManifest("bssNationalBridgePointsPreview"),
+        ],
+      },
+      {
         title: "即時監控",
         layers: [
           fromManifest("freewayCongestion"),
@@ -2106,6 +2113,8 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。
   "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
   "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
+  // 全臺橋梁研究（進行中）：BSS 授權 HOLD，私人 PMTiles 只經 owner-authenticated Range API。
+  "bssNationalBridgePreview", "bssNationalBridgePointsPreview",
 ]);
 
 /** 授權或再散布條件尚未驗證：所有帳號均 fail-closed，不可用 owner gate 取代授權。 */

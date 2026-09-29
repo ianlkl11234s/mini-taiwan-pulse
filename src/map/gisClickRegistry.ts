@@ -226,6 +226,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 檢測點優先於承載線；橋梁輪廓是面，排在細線之後，避免先吃掉同位置點擊。
   { layers: ["tainan-bridge-inspections-circle"], type: "tainanBridgeInspections" },
   { layers: ["changhua-traffic-signals-circle"], type: "changhuaTrafficSignals" },
+  { layers: ["bss-national-bridge-preview-point"], type: "bssNationalBridgePointsPreview" },
+  { layers: ["bss-national-bridge-preview-original-direction-line", "bss-national-bridge-preview-offset-direction-line", "bss-national-bridge-preview-ordinary-route-context", "bss-national-bridge-preview-near-curved-carrier-local-context", "bss-national-bridge-preview-waterway-crossing-context", "bss-national-bridge-preview-multi-near-carrier-waterway-context", "bss-national-bridge-preview-tied-route-consensus-context", "bss-national-bridge-preview-no-waterway-carrier-consensus-context", "bss-national-bridge-preview-no-crossing-nearest-route-context", "bss-national-bridge-preview-stage1-local-direction-candidate"], type: "bssNationalBridgePreview" },
   { layers: ["taipei-road-tunnels-circle"], type: "taipeiRoadTunnels" },
   { layers: ["tainan-road-tunnels-circle"], type: "tainanRoadTunnels" },
   { layers: ["official-bridges-hsinchu-line", "official-bridges-hsinchu-coincident-endpoints"], type: "officialBridgesHsinchu" },
