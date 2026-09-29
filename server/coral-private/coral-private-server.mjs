@@ -24,6 +24,10 @@ const SOIL_LIQUEFACTION_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_�
 const SOIL_LIQUEFACTION_PATH = "/api/private-research/soil-liquefaction";
 const SOIL_LIQUEFACTION_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const SOIL_LIQUEFACTION_S3_PREFIX = "private-research/soil-liquefaction";
+const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/transport-facilities-20260923/bss-bridge-pilot.local/bridge-location-direction-preview-20260927-v4";
+const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
+const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
 const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
@@ -55,6 +59,15 @@ export const SOIL_LIQUEFACTION_ASSETS = Object.freeze({
     filename: "soil-liquefaction.pmtiles",
     size: 9291762,
     sha256: "2571e4f56c6df43a30da8ac679cb28005c55bc77cb4d2a1d5b308086a2f0fd7f",
+  }),
+});
+
+// BSS 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
+export const BSS_BRIDGE_ASSETS = Object.freeze({
+  tiles: Object.freeze({
+    filename: "bss_bridge_location_direction_preview_20260927_v4.pmtiles",
+    size: 63367460,
+    sha256: "2d71de78be8b4c3c19b8a683946a1f083f37e160182b8932cd288fdbe713072f",
   }),
 });
 
@@ -504,6 +517,19 @@ export function createSoilLiquefactionS3Gateway(config, options = {}) {
   });
 }
 
+export function createBssBridgeGateway(root = firstConfigured(process.env.BSS_BRIDGE_PRIVATE_ROOT) ?? BSS_BRIDGE_ROOT, assets = BSS_BRIDGE_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createBssBridgeS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: BSS_BRIDGE_ASSETS,
+    prefix: BSS_BRIDGE_S3_PREFIX,
+    bucket: BSS_BRIDGE_S3_BUCKET,
+    ...options,
+  });
+}
+
 const persistentDenylistByPath = new Map();
 const auditWriteQueueByPath = new Map();
 
@@ -559,7 +585,9 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
     ? { path: JP_WATER_PATH, assets: JP_WATER_ASSETS }
     : url.pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`)
       ? { path: SOIL_LIQUEFACTION_PATH, assets: SOIL_LIQUEFACTION_ASSETS }
-      : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
+      : url.pathname.startsWith(`${BSS_BRIDGE_PATH}/`)
+        ? { path: BSS_BRIDGE_PATH, assets: BSS_BRIDGE_ASSETS }
+        : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
   const assetName = url.pathname.slice(family.path.length + 1);
   const asset = family.assets[assetName];
   const record = {
@@ -720,6 +748,13 @@ export function handleSoilLiquefactionRequest(request, dependencies = {}) {
   });
 }
 
+export function handleBssBridgeRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: BSS_BRIDGE_PATH, assets: BSS_BRIDGE_ASSETS, label: "bss bridge",
+    createGateway: (config) => config.storage === "s3" ? createBssBridgeS3Gateway(config) : createBssBridgeGateway(),
+  });
+}
+
 async function handleOwnerAssetFamilyRequest(request, dependencies, family) {
   const url = new URL(request.url);
   const assetName = url.pathname.startsWith(`${family.path}/`)
@@ -874,13 +909,18 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const soilLiquefactionGateway = dependencies.soilLiquefactionGateway ?? (config.storage === "s3"
     ? createSoilLiquefactionS3Gateway(config)
     : createSoilLiquefactionGateway());
+  const bssBridgeGateway = dependencies.bssBridgeGateway ?? (config.storage === "s3"
+    ? createBssBridgeS3Gateway(config)
+    : createBssBridgeGateway());
   const allenDependencies = { ...dependencies, config, gateway: allenGateway };
   const jpWaterDependencies = { ...dependencies, config, gateway: jpWaterGateway };
   const soilLiquefactionDependencies = { ...dependencies, config, gateway: soilLiquefactionGateway };
+  const bssBridgeDependencies = { ...dependencies, config, gateway: bssBridgeGateway };
   const readiness = {
     allen: { ready: false, failed: false },
     jpWater: { ready: false, failed: false },
     soilLiquefaction: { ready: false, failed: false },
+    bssBridge: { ready: false, failed: false },
   };
   const warmupAttempts = dependencies.warmupAttempts ?? 3;
   const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
@@ -905,6 +945,7 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     await warmFamily(readiness.allen, allenGateway, ALLEN_CORAL_ATLAS_ASSETS);
     await warmFamily(readiness.jpWater, jpWaterGateway, JP_WATER_ASSETS);
     await warmFamily(readiness.soilLiquefaction, soilLiquefactionGateway, SOIL_LIQUEFACTION_ASSETS);
+    await warmFamily(readiness.bssBridge, bssBridgeGateway, BSS_BRIDGE_ASSETS);
   })();
   const server = createServer(async (req, res) => {
     try {
@@ -920,12 +961,15 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const isAllen = pathname.startsWith(`${ALLEN_CORAL_ATLAS_PATH}/`);
       const isJpWater = pathname.startsWith(`${JP_WATER_PATH}/`);
       const isSoil = pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`);
-      const familyState = isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
-      const familyLabel = isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
-      if (!isAllen && !isJpWater && !isSoil) {
+      const isBss = pathname.startsWith(`${BSS_BRIDGE_PATH}/`);
+      const familyState = isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
+      const familyLabel = isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
+      if (!isAllen && !isJpWater && !isSoil && !isBss) {
         output = response(404, new Headers());
       } else if (familyState.ready || revokeRequest) {
-        output = isSoil
+        output = isBss
+          ? await handleBssBridgeRequest(request, bssBridgeDependencies)
+          : isSoil
           ? await handleSoilLiquefactionRequest(request, soilLiquefactionDependencies)
           : isJpWater
             ? await handleJpWaterRequest(request, jpWaterDependencies)

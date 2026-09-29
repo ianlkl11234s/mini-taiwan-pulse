@@ -159,7 +159,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-23/24: +6 交通設施與橋梁雨量圖層。
     // 2026-09-27: +9 勞動與所得 Statistics 圖層。
     // 2026-09-29: +8 土壤液化 owner-only 圖層（潛勢、弱層 6、監測站）。
-    expect(keys.length).toBe(811);
+    // 2026-09-29: +2 全臺橋梁方向候選／清冊點位（進行中，站主限定私人 PMTiles）。
+    expect(keys.length).toBe(813);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

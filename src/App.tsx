@@ -7,6 +7,8 @@ import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";
+import { useBssBridgePrivateAccess } from "./hooks/useBssBridgePrivateAccess";
+import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
 import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SURFACE, Z_INDEX } from "./styles/designTokens";
@@ -233,6 +235,7 @@ export default function App() {
   const allenCoralAccess = useAllenCoralPrivateAccess();
   const jpWaterPrivateAccess = useJpWaterPrivateAccess();
   const soilLiquefactionPrivateAccess = useSoilLiquefactionPrivateAccess();
+  const bssBridgePrivateAccess = useBssBridgePrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -247,8 +250,9 @@ export default function App() {
     if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
     if (!jpWaterPrivateAccess.allowed) for (const key of JP_WATER_PRIVATE_LAYER_KEYS) s.add(key);
     if (!soilLiquefactionPrivateAccess.allowed) for (const key of SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS) s.add(key);
+    if (!bssBridgePrivateAccess.allowed) for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) s.add(key);
     return s;
-  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed, soilLiquefactionPrivateAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed, soilLiquefactionPrivateAccess.allowed, bssBridgePrivateAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -904,10 +908,14 @@ export default function App() {
     && (!jpWaterPrivateAccess.allowed || !layerVisibility[coralUiFeatureInfo.layerType])
     ? null
     : coralUiFeatureInfo;
-  const privateUiFeatureInfo = jpWaterUiFeatureInfo && isSoilLiquefactionPrivateLayer(jpWaterUiFeatureInfo.layerType)
+  const soilUiFeatureInfo = jpWaterUiFeatureInfo && isSoilLiquefactionPrivateLayer(jpWaterUiFeatureInfo.layerType)
     && (!soilLiquefactionPrivateAccess.allowed || !layerVisibility[jpWaterUiFeatureInfo.layerType])
     ? null
     : jpWaterUiFeatureInfo;
+  const privateUiFeatureInfo = soilUiFeatureInfo && isBssBridgePrivateLayer(soilUiFeatureInfo.layerType)
+    && (!bssBridgePrivateAccess.allowed || !layerVisibility[soilUiFeatureInfo.layerType])
+    ? null
+    : soilUiFeatureInfo;
   useEffect(() => {
     const onAllenAccessDenied = () => {
       setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
@@ -1002,6 +1010,42 @@ export default function App() {
     });
     if (featureInfo && isSoilLiquefactionPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
   }, [featureInfo, soilLiquefactionPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    const clearPrivateBss = () => {
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && isBssBridgePrivateLayer(current.layerType) ? null : current);
+    };
+    const onAccessDenied = () => {
+      clearPrivateBss();
+      showTransientNotice("橋梁研究私人存取失敗，已清除圖層與選取結果；這不代表該處沒有橋梁。");
+    };
+    const clearPrivateBssSelection = () => setFeatureInfo((current) => current && isBssBridgePrivateLayer(current.layerType) ? null : current);
+    window.addEventListener(BSS_BRIDGE_ACCESS_DENIED_EVENT, onAccessDenied);
+    window.addEventListener(BSS_BRIDGE_SELECTION_CLEAR_EVENT, clearPrivateBssSelection);
+    return () => {
+      window.removeEventListener(BSS_BRIDGE_ACCESS_DENIED_EVENT, onAccessDenied);
+      window.removeEventListener(BSS_BRIDGE_SELECTION_CLEAR_EVENT, clearPrivateBssSelection);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (bssBridgePrivateAccess.allowed) return;
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && isBssBridgePrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, bssBridgePrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
 
   // 授權 HOLD 是全體使用者的 release gate，不能因 owner 或儲存的 scene/URL 繞過。
   useEffect(() => {
