@@ -136,6 +136,18 @@ export function useTaipeiPumbLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const dataRef = useRef<PumbLatestRow[]>([]);
+  // 樣式走 ref：輪詢 effect 不依賴 scale/opacity/isDark，拖滑桿或切主題不會重設 5 分鐘計時器
+  const styleRef = useRef({ scale, opacity, isDark });
+  styleRef.current = { scale, opacity, isDark };
+
+  // 樣式／可見度變動：只重套 paint 與資料，不碰輪詢
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    try { ensureLayers(map, scale, opacity, isDark); } catch { return; }
+    setData(map, dataRef.current);
+    setVisible(map, visible);
+  }, [mapRef, visible, scale, opacity, isDark, mapTick]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -143,7 +155,8 @@ export function useTaipeiPumbLayer(
     let cancelled = false;
 
     const apply = () => {
-      try { ensureLayers(map, scale, opacity, isDark); } catch { return; }
+      const { scale: s, opacity: o, isDark: d } = styleRef.current;
+      try { ensureLayers(map, s, o, d); } catch { return; }
       setData(map, dataRef.current);
       setVisible(map, visible);
     };
@@ -159,12 +172,11 @@ export function useTaipeiPumbLayer(
       }
     };
 
-    apply();
     if (visible && dataRef.current.length === 0) refresh();
     if (visible) {
       const t = window.setInterval(refresh, REFRESH_MS);
       return () => { cancelled = true; window.clearInterval(t); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, scale, opacity, isDark, mapTick]);
+  }, [mapRef, visible, mapTick]);
 }
