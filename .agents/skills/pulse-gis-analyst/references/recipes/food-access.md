@@ -10,11 +10,16 @@ WITH villages AS (
 ),
 stores AS (SELECT geom_3826 AS g FROM ds_poi_taipei_poi_integrated WHERE category = 'convenience_store' AND geom_3826 IS NOT NULL),
 gap AS (SELECT v.* FROM villages v WHERE NOT EXISTS (SELECT 1 FROM stores s WHERE ST_DWithin(v.c, s.g, 500)))
-SELECT TOWNNAME, VILLNAME, pop FROM gap ORDER BY pop DESC LIMIT 20
+-- 總量（缺口村里數／人口／占比）：另跑一次，不要從下方 LIMIT 20 的樣本加總
+SELECT (SELECT count(*) FROM gap) AS gap_villages, (SELECT count(*) FROM villages) AS all_villages,
+       (SELECT sum(pop) FROM gap) AS gap_pop, (SELECT sum(pop) FROM villages) AS all_pop,
+       round((SELECT sum(pop) FROM gap) * 100.0 / (SELECT sum(pop) FROM villages), 1) AS gap_pop_pct
+-- 樣本（人口最多的缺口村里）：同一組 CTE，最後一句換成
+-- SELECT TOWNNAME, VILLNAME, pop FROM gap ORDER BY pop DESC LIMIT 20
 ```
 500m 約步行 6-7 分鐘，是常用的「日常採買可及」門檻代理。實測：台北市 456 個村里中 46 個（10.1%）中心 500m 內無便利商店，合計影響約 18.7 萬人（占台北市人口 251 萬的 7.5%），人口最多的缺口村里在南港區舊莊里（8,792 人）、文山區萬興里（8,374 人）等山區／邊緣行政區。
 
-**必帶但書**（自查用；對使用者只挑 1–2 句改白話「小提醒：」，不帶表名欄位代號）：`ds_poi_taipei_poi_integrated` 只覆蓋**台北市**，非全國（全國超商 pipeline `docs/data-registry.yaml` 有登記但尚未產出落地，見 batch2-feasibility.md §6）；`category = 'convenience_store'` 只含 7-11／全家等便利商店，沒有獨立的超市或傳統市場資料源，不能就此稱「食物沙漠」全貌，只能說「便利商店可及性缺口」。
+**必帶但書**（自查用；對使用者只挑 1–2 句改白話「小提醒：」，不帶表名欄位代號）：`ds_poi_taipei_poi_integrated` 只覆蓋**台北市**，非全國（全國便利商店 pipeline 登記在 taipei-gis-analytics `docs/data-registry.yaml` 的 `poi.convenience_store`，但分析倉庫目前沒有對應表）；`category = 'convenience_store'` 只含 7-11／全家等便利商店，沒有獨立的超市或傳統市場資料源，不能就此稱「食物沙漠」全貌，只能說「便利商店可及性缺口」。
 
 **停止**：缺口村里數／人口／占台北市人口比例＋人口最多前幾筆樣本。
 
