@@ -112,7 +112,7 @@ LG-4：線段色票 20×線寬（最少 2px），線寬用 L-1 的 z14 值等比
 2. `npx vitest run` 全過。機器負載高時 `capabilityAudit`、`pollutionPenaltiesDataset`、`explorationBoundary` 可能逾時，單獨重跑過即可（回報寫明）。特別確認 `legendKit.test.ts`、`layerConsistency`、`designSystemGuard.test.ts` 綠；design guard 紅燈要修程式，**不可改基準**。
 3. `npx vite-node scripts/preprocess/dump-layer-golden.ts` 重產 → `git diff --stat src/data/__tests__/__fixtures__/` **應為空**。確認後把 fixture 還原（`git restore <該檔>`，只還原 fixture 檔）。
 4. `npm run design:audit-layers` → `summary.legendsWithIssues` 從 28 降到 0（C 類「待瀏覽器確認」的除外，逐一列出）；`layers` 區段的 paint 值不應有任何變化（用 `git diff` 看 JSON，差異只該在 `legends`）。確認後還原 JSON（不 commit）。
-5. 改前／改後對照頁：寫一個臨時腳本（放 scratch，不 commit）用 `renderToStaticMarkup` 把 §3 每個改到的圖例在 **暗、淡** 兩種 `LegendThemeCtx`／isDark 下各渲染一次，改前（master）與改後並排，輸出成 `docs/features/map-layer-restyle/r4-legend-compare.html`（這個 HTML 要 commit，給使用者看）。每格標圖例 id 與改了什麼。
+5. 改後圖例頁：寫一個臨時腳本（放 scratch，不 commit）用 `renderToStaticMarkup` 把 §3 每個改到的圖例在 **暗、淡** 兩種主題下各渲染一次，暗淡並排，輸出成 `docs/features/map-layer-restyle/r4-legend-after.html`（這個 HTML 要 commit）。每格標圖例 id 與改了什麼。腳本路徑寫在回報裡；「改前」那一欄由 Claude 驗收時用同一支腳本在 master 渲染，所以腳本請只依賴 `LegendPanel.tsx` 的公開 export。
 6. 瀏覽器（可選，做不到就註明）：dev server 用 port **3749**（Claude 用 3748）；**絕不 `pkill -f vite`**，用 `lsof -ti :3749` 找 PID 再 kill。不要 curl vite 轉譯後的模組（會印出金鑰），不讀 `.env`。
 
 ## 8. 環境與鐵則
@@ -123,6 +123,7 @@ LG-4：線段色票 20×線寬（最少 2px），線寬用 L-1 的 z14 值等比
 - commit 用 Conventional Commits（`feat(legend): …`／`refactor(map): …`），可以分多個 commit（建議：抽常數一個、形狀一個、暗淡一個、K-1 一個、手寫色票收斂一個）。
 - push、開 PR 可以；**不要 merge**。
 - 若 R3 先 merge 進 master：`git fetch && git rebase origin/master`，衝突時**顏色值取你的、其他（寬度、透明度、外框）取 master**；rebase 後重跑 §7 的 1–4。
+- **例外：R3 也會改這幾層的顏色，衝突一律以 master（R3）為準**：`countyBoundary`／`townshipBoundary`／`villageBoundary`（`line-color` 改 `BOUNDARY_GRAY`）；`facOffshore`／`jpBuildingHeight`／`offshoreWindZones`／`parkingOnstreet`（`fill-outline-color` 改成新增的外框 line 子圖層）。其中 `parkingOnstreet` 也在你的 §3 C 類：它的 `fill-color` 你可以抽常數，但**不要動 `fill-outline-color`**。
 
 ## 9. 回報（寫在 PR 描述，並另存 `docs/features/map-layer-restyle/R4-report.md` commit 進分支）
 
