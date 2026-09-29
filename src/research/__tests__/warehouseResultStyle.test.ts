@@ -219,6 +219,8 @@ describe("warehouse result style contract", () => {
     expect(paint["heatmap-opacity"]).toBe(0.6);
     expect(warehouseHeatmapFilter(heatmap)).toEqual(["==", ["typeof", ["get", "_style_weight"]], "number"]);
     expect(warehouseHeatmapPaint({ ...heatmap, weightField: null, weightProperty: null, weightMax: null }, 1)["heatmap-weight"]).toBe(1);
+    // All-zero weights (server max 0) render nothing instead of a uniform weight-1 density.
+    expect(warehouseHeatmapPaint({ ...heatmap, weightMax: 0 }, 1)["heatmap-weight"]).toBe(0);
   });
 
   it("colours a proportional circle by its classified colorField, falling back to the categorical 'other' colour when null (never a hatch — a point has no area to hatch)", () => {
