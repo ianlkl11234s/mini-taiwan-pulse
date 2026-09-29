@@ -117,6 +117,10 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: 
   const types = [...new Set(features.map(feature => feature.type))];
   if (args.style?.kind === "heatmap" && types.some(type => type !== "Point")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   if (args.style?.kind === "compare" && (types.some(type => type !== "Point") || features.length !== args.style.columns.length)) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
+  // Proportional symbols are sized circles (Point only); bivariate fills an area and sizes a bubble
+  // at its anchor (Polygon/MultiPolygon only). Any other geometry would silently lose the style.
+  if (args.style?.kind === "proportional" && types.some(type => type !== "Point")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
+  if (args.style?.kind === "bivariate" && types.some(type => type !== "Polygon" && type !== "MultiPolygon")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   const createdAt = new Date().toISOString();
   return types.map(type => {
     const group = features.filter(feature => feature.type === type);
