@@ -77,6 +77,16 @@ function decorationPaint(
   };
 }
 
+/** 會讀 feature 資料的 expression 運算子：描邊用到它們＝資料編碼（例：有 ICU、資料過期、依狀態變色）。 */
+const DATA_OPERATORS = new Set(["get", "has", "feature-state", "properties", "geometry-type", "id"]);
+
+/** 值（或巢狀 expression 任一層）有讀 feature 資料。只讀 zoom 的插值不算。 */
+export function isDataDriven(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  if (typeof value[0] === "string" && DATA_OPERATORS.has(value[0])) return true;
+  return value.some(isDataDriven);
+}
+
 export function withPointSpec(config: OverlayConfig): OverlayConfig {
   const tier = POINT_TIERS[config.id];
   const hasDecoration = config.layers.some((l) => DECORATION_SUFFIX_RE.test(l.suffix));
@@ -101,12 +111,14 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
         const opacity = config.opacityParam
           ? 1 / (Number(opacitySpec?.default) || 1)
           : sliderFactor(opacitySpec, params);
+        // 描邊依資料屬性變化＝資料編碼（spec：map-layers §3 P-2 例外），保留原值；固定描邊才換成底圖色細縫
+        const keep = (prop: string) => isDataDriven(base[prop]);
         return {
           ...base,
           ...(tier === "B" ? {} : { "circle-radius": pointRadius(tier, sliderFactor(sizeSpec, params)) }),
-          "circle-stroke-color": mapSeamColor(isDark),
-          "circle-stroke-width": POINT_STROKE.width,
-          "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[theme] * opacity),
+          ...(keep("circle-stroke-color") ? {} : { "circle-stroke-color": mapSeamColor(isDark) }),
+          ...(keep("circle-stroke-width") ? {} : { "circle-stroke-width": POINT_STROKE.width }),
+          ...(keep("circle-stroke-opacity") ? {} : { "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[theme] * opacity) }),
         };
       },
     };
