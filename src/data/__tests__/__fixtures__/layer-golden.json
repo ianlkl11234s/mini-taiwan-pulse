@@ -73,13 +73,6 @@
     },
     {
       "layers": [
-        "public-life-osm-coverage-fill",
-        "public-life-osm-coverage-outline"
-      ],
-      "type": "publicLifeOsmCoverage"
-    },
-    {
-      "layers": [
         "road-congestion-hit"
       ],
       "type": "roadCongestion"
@@ -2962,6 +2955,13 @@
         "h3-youbike-ext"
       ],
       "type": "youbikeFullness"
+    },
+    {
+      "layers": [
+        "public-life-osm-coverage-fill",
+        "public-life-osm-coverage-outline"
+      ],
+      "type": "publicLifeOsmCoverage"
     },
     {
       "layers": [
