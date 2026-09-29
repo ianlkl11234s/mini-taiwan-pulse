@@ -30275,7 +30275,19 @@
                 2
               ],
               "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             },
             "light": {
@@ -30396,7 +30408,19 @@
                 2
               ],
               "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             }
           },
@@ -30544,7 +30568,19 @@
                 2
               ],
               "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             },
             "light": {
@@ -30665,7 +30701,19 @@
                 2
               ],
               "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             }
           },
@@ -30813,7 +30861,19 @@
                 2
               ],
               "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             },
             "light": {
@@ -30934,7 +30994,19 @@
                 2
               ],
               "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             }
           },
@@ -31082,7 +31154,19 @@
                 2.8
               ],
               "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             },
             "light": {
@@ -31203,7 +31287,19 @@
                 2.8
               ],
               "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.22399999999999998,
+                0.5599999999999999
+              ],
               "circle-stroke-width": 1
             }
           },
@@ -31351,7 +31447,19 @@
                 3.6
               ],
               "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.238,
+                0.595
+              ],
               "circle-stroke-width": 1
             },
             "light": {
@@ -31472,7 +31580,19 @@
                 3.6
               ],
               "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "open_status"
+                  ],
+                  "不對外"
+                ],
+                0.238,
+                0.595
+              ],
               "circle-stroke-width": 1
             }
           },
@@ -35839,9 +35959,69 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "deaths"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#ff2d2d",
+                "rgba(0,0,0,0.55)"
+              ],
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  0.8,
+                  0.3
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": [
@@ -36041,9 +36221,69 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "deaths"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#ff2d2d",
+                "rgba(255,255,255,0.75)"
+              ],
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  0.8,
+                  0.3
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    ">",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "deaths"
+                      ],
+                      0
+                    ],
+                    0
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -36207,9 +36447,27 @@
                 ]
               ],
               "circle-radius": 4.5,
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                "#9ca3af",
+                "#3B82F6"
+              ],
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                1.5,
+                0.8
+              ]
             },
             "light": {
               "circle-color": [
@@ -36243,9 +36501,27 @@
                 ]
               ],
               "circle-radius": 4.5,
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                "#4b5563",
+                "#ffffff"
+              ],
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "stale",
+                1.5,
+                0.8
+              ]
             }
           },
           "suffix": "core",
@@ -36291,9 +36567,27 @@
               ],
               "circle-opacity": 0.85,
               "circle-radius": 6.5,
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "has_icu"
+                ],
+                1,
+                "#ffffff",
+                "rgba(255,255,255,0.35)"
+              ],
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "has_icu"
+                ],
+                1,
+                2.2,
+                0.8
+              ]
             },
             "light": {
               "circle-color": [
@@ -36316,9 +36610,27 @@
               ],
               "circle-opacity": 0.85,
               "circle-radius": 6.5,
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "has_icu"
+                ],
+                1,
+                "#ffffff",
+                "rgba(0,0,0,0.3)"
+              ],
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "has_icu"
+                ],
+                1,
+                2.2,
+                0.8
+              ]
             }
           },
           "suffix": "circle",
@@ -36716,7 +37028,18 @@
                   18
                 ]
               ],
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "source_category"
+                ],
+                "tourism",
+                "#38bdf8",
+                "freeway_service_area",
+                "#f59e0b",
+                "rgba(255,255,255,0.35)"
+              ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": 1
             },
@@ -36823,7 +37146,18 @@
                   18
                 ]
               ],
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "source_category"
+                ],
+                "tourism",
+                "#38bdf8",
+                "freeway_service_area",
+                "#f59e0b",
+                "rgba(255,255,255,0.35)"
+              ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
             }
@@ -37161,9 +37495,33 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_realtime"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                "#0f172a"
+              ],
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_realtime"
+                  ],
+                  true
+                ],
+                1.4,
+                1
+              ]
             },
             "light": {
               "circle-color": [
@@ -37270,9 +37628,33 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_realtime"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                "#ffffff"
+              ],
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_realtime"
+                  ],
+                  true
+                ],
+                1.4,
+                1
+              ]
             }
           },
           "suffix": "circle",
@@ -37596,7 +37978,20 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "construction",
+                "#fff500",
+                "pre-construction",
+                "#00d4ff",
+                "announced",
+                "#a5b4fc",
+                "#a5b4fc"
+              ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": 1
             },
@@ -37696,7 +38091,20 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "construction",
+                "#fff500",
+                "pre-construction",
+                "#00d4ff",
+                "announced",
+                "#a5b4fc",
+                "#a5b4fc"
+              ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
             }
@@ -41428,7 +41836,20 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "headquarters",
+                1.2,
+                "police_dept",
+                1,
+                "precinct",
+                0.8,
+                0.5
+              ]
             },
             "light": {
               "circle-color": [
@@ -41558,7 +41979,20 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "headquarters",
+                1.2,
+                "police_dept",
+                1,
+                "precinct",
+                0.8,
+                0.5
+              ]
             }
           },
           "suffix": "circle",
@@ -42108,7 +42542,18 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "court_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1.1,
+                0.8
+              ]
             },
             "light": {
               "circle-color": [
@@ -42230,7 +42675,18 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "court_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1.1,
+                0.8
+              ]
             }
           },
           "suffix": "circle",
@@ -42351,7 +42807,18 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "pros_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1,
+                0.7
+              ]
             },
             "light": {
               "circle-color": [
@@ -42449,7 +42916,18 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "pros_type"
+                ],
+                "supreme",
+                1.4,
+                "high",
+                1,
+                0.7
+              ]
             }
           },
           "suffix": "circle",
@@ -42586,7 +43064,18 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "prison",
+                1.2,
+                "detention",
+                1,
+                0.7
+              ]
             },
             "light": {
               "circle-color": [
@@ -42700,7 +43189,18 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "prison",
+                1.2,
+                "detention",
+                1,
+                0.7
+              ]
             }
           },
           "suffix": "circle",
@@ -43570,7 +44070,18 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                1,
+                24,
+                0.6,
+                168,
+                0.3
+              ]
             },
             "light": {
               "circle-color": [
@@ -43666,7 +44177,18 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "step",
+                [
+                  "get",
+                  "age_hours"
+                ],
+                1,
+                24,
+                0.6,
+                168,
+                0.3
+              ]
             }
           },
           "suffix": "circle",
@@ -43799,7 +44321,23 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "name"
+                    ],
+                    -1
+                  ],
+                  "處"
+                ],
+                1.1,
+                0.7
+              ]
             },
             "light": {
               "circle-color": [
@@ -43909,7 +44447,23 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "slice",
+                    [
+                      "get",
+                      "name"
+                    ],
+                    -1
+                  ],
+                  "處"
+                ],
+                1.1,
+                0.7
+              ]
             }
           },
           "suffix": "circle",
@@ -44022,7 +44576,16 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "central",
+                1,
+                0.5
+              ]
             },
             "light": {
               "circle-color": [
@@ -44112,7 +44675,16 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "central",
+                1,
+                0.5
+              ]
             }
           },
           "suffix": "circle",
@@ -44264,7 +44836,16 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "ocean_pier",
+                1.1,
+                0.4
+              ]
             },
             "light": {
               "circle-color": [
@@ -44354,7 +44935,16 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "facility_subtype"
+                ],
+                "ocean_pier",
+                1.1,
+                0.4
+              ]
             }
           },
           "suffix": "circle",
@@ -46033,9 +46623,33 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                "#7f1d1d",
+                "#fed7aa"
+              ],
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                1.3,
+                0.5
+              ]
             },
             "light": {
               "circle-color": [
@@ -46183,9 +46797,33 @@
                   ]
                 ]
               ],
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                "#7f1d1d",
+                "#fed7aa"
+              ],
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                1.3,
+                0.5
+              ]
             }
           },
           "suffix": "noise-circle",
@@ -46295,9 +46933,63 @@
                 0.9
               ],
               "circle-radius": 4.5,
-              "circle-stroke-color": "#0a0a14",
-              "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                "#94a3b8",
+                "#0f172a"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                0.9,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.49500000000000005,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                1.8,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.7,
+                1
+              ]
             },
             "light": {
               "circle-color": [
@@ -46364,9 +47056,63 @@
                 0.9
               ],
               "circle-radius": 4.5,
-              "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                0.9,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.49500000000000005,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                1.8,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.7,
+                1
+              ]
             }
           },
           "suffix": "circle",
@@ -46430,7 +47176,18 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                1,
+                "road_segment",
+                0.7,
+                0.5
+              ]
             },
             "light": {
               "circle-color": [
@@ -46464,7 +47221,18 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                1,
+                "road_segment",
+                0.7,
+                0.5
+              ]
             }
           },
           "suffix": "circle",
@@ -46517,7 +47285,26 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  ">=",
+                  [
+                    "coalesce",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "max_sev"
+                      ]
+                    ],
+                    0
+                  ],
+                  3
+                ],
+                0.8,
+                0
+              ]
             },
             "light": {
               "circle-blur": 0.15,
@@ -46548,7 +47335,26 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  ">=",
+                  [
+                    "coalesce",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "max_sev"
+                      ]
+                    ],
+                    0
+                  ],
+                  3
+                ],
+                0.8,
+                0
+              ]
             }
           },
           "suffix": "circle",
@@ -46741,7 +47547,44 @@
               ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "is_continuous"
+                        ]
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "is_stop_order"
+                        ]
+                      ],
+                      0
+                    ],
+                    1
+                  ]
+                ],
+                1.2,
+                0.7
+              ]
             },
             "light": {
               "circle-blur": 0.08,
@@ -46903,7 +47746,44 @@
               ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "is_continuous"
+                        ]
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "is_stop_order"
+                        ]
+                      ],
+                      0
+                    ],
+                    1
+                  ]
+                ],
+                1.2,
+                0.7
+              ]
             }
           },
           "suffix": "critical-circle",
@@ -47124,7 +48004,26 @@
               ],
               "circle-opacity": 0.9,
               "circle-radius": 4.5,
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "is_active"
+                      ]
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                "#fecaca",
+                "#9ca3af"
+              ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": 1
             },
@@ -47152,7 +48051,26 @@
               ],
               "circle-opacity": 0.9,
               "circle-radius": 4.5,
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "is_active"
+                      ]
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                "#fecaca",
+                "#9ca3af"
+              ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
             }
@@ -48545,7 +49463,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": [
@@ -48600,7 +49548,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -48681,7 +49659,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": [
@@ -48734,7 +49742,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -48798,7 +49836,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": "#ff8787",
@@ -48834,7 +49902,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -48915,7 +50013,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": [
@@ -48968,7 +50096,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -49057,7 +50215,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": [
@@ -49118,7 +50306,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -49182,7 +50400,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": "#868e96",
@@ -49218,7 +50466,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -49410,7 +50688,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": [
@@ -49574,7 +50882,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -49638,7 +50976,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": "#4c6ef5",
@@ -49674,7 +51042,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",
@@ -49759,7 +51157,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             },
             "light": {
               "circle-color": [
@@ -49816,7 +51244,37 @@
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "circle",

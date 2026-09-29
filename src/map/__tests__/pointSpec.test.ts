@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
-import { DECORATION_SUFFIX_RE, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, withPointSpec } from "../pointSpec";
+import { DECORATION_SUFFIX_RE, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, isDataDriven, withPointSpec } from "../pointSpec";
 import { POINT_TIERS } from "../pointTiers";
 import { POINT_RADIUS } from "../mapStyleScale";
 import { getParamsSpec } from "../../data/layerParamsSpec";
@@ -31,14 +31,33 @@ describe("R2 點圖層規格（pointSpec）", () => {
     expect(bad).toEqual([]);
   });
 
-  it("P-2 A：主體描邊只有底圖色 1px", () => {
+  it("P-2 A：固定描邊一律是底圖色 1px；依資料變化的描邊（資料編碼）保留", () => {
     for (const c of OVERLAY_REGISTRY) {
       if (!POINT_TIERS[c.id]) continue;
       for (const l of mainCircles(c)) {
-        expect(l.paint(true, {})).toMatchObject({ "circle-stroke-color": "#0a0a14", "circle-stroke-width": 1 });
-        expect(l.paint(false, {})).toMatchObject({ "circle-stroke-color": "#ffffff", "circle-stroke-width": 1 });
+        for (const [dark, seam] of [[true, "#0a0a14"], [false, "#ffffff"]] as const) {
+          const p = l.paint(dark, {});
+          if (!isDataDriven(p["circle-stroke-color"])) expect(p["circle-stroke-color"]).toBe(seam);
+          if (!isDataDriven(p["circle-stroke-width"])) expect(p["circle-stroke-width"]).toBe(1);
+        }
       }
     }
+  });
+
+  it("isDataDriven：讀 feature 屬性才算，只讀 zoom 的插值不算", () => {
+    expect(isDataDriven(["match", ["get", "has_icu"], 1, "#ffffff", "#000"])).toBe(true);
+    expect(isDataDriven(["interpolate", ["linear"], ["zoom"], 6, 0.3, 15, ["case", ["==", ["get", "p"], "x"], 1, 2]])).toBe(true);
+    expect(isDataDriven(["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2])).toBe(false);
+    expect(isDataDriven("#0a0a14")).toBe(false);
+    expect(isDataDriven(1)).toBe(false);
+  });
+
+  it("資料編碼描邊不被統一蓋掉（#392 迴歸）：急救醫院 ICU、規劃中設施狀態色", () => {
+    const paintOf = (id: string, dark: boolean) => mainCircles(OVERLAY_REGISTRY.find((x) => x.id === id)!)[0]!.paint(dark, {});
+    expect(JSON.stringify(paintOf("erHospital", true)["circle-stroke-color"])).toContain("has_icu");
+    expect(JSON.stringify(paintOf("erHospital", false)["circle-stroke-width"])).toContain("has_icu");
+    expect(JSON.stringify(paintOf("facPlanned", true)["circle-stroke-color"])).toContain("construction");
+    expect(JSON.stringify(paintOf("mountainRescueIncidents", true)["circle-stroke-color"])).toContain("deaths");
   });
 
   it("大小滑桿仍有效：滑桿值加倍 → 半徑加倍", () => {
