@@ -1829,7 +1829,7 @@ export default function App() {
             bottom: 28,
             left: "50%",
             transform: "translateX(-50%)",
-            // 特例：與 TransientNotice 同值 3000，必須高於「資料更新中」遮罩（1000），不用 Z_INDEX.toast（見 design-system.md 層級章節）
+            // 特例：與 TransientNotice 同值 3000，必須高於「資料更新中」遮罩（1000），不用 Z_INDEX.toast（見 design-system/spec.md 層級章節）
             zIndex: 3000,
             padding: "9px 16px",
             background: "rgba(0,0,0,0.82)",

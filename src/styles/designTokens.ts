@@ -1,7 +1,7 @@
 /**
  * Mini Taiwan Pulse — Design Tokens（全專案 SSOT）
  *
- * 規範與遷移狀態見 docs/design-system.md
+ * 規範與遷移狀態見 docs/design-system/spec.md
  *
  * 結構：
  * - 沿用 intel/intelTokens.ts 的既有 token（re-export，不重複定義）
@@ -172,7 +172,7 @@ export const SPACING = {
 
 // ─── CONTROL — 互動態背景（button / select / input / segmented）────
 /**
- * 2026-09-27 開啟（design-system.md §8；依據 ui-consistency-audit handoff §4a #4 / C2）。
+ * 2026-09-27 開啟（design-system/spec.md §8；依據 ui-consistency-audit handoff §4a #4 / C2）。
  * 與 src/styles/tokens.css 的 --control-* 同值。`SURFACE.*` 仍只給面板容器底。
  * 主要按鈕（C2）：背景 COLORS.accentFaint、框與字 COLORS.accent、semibold。
  */
@@ -203,7 +203,7 @@ export const SLIDER = {
  * camelCase ↔ kebab-case，例 surfacePanel ↔ --light-surface-panel）。改一邊必須同步另一邊。
  *
  * 不做全站主題切換：各子系統依 isDarkTheme 選 dark／light palette（TS）或加觸發 class（CSS），
- * 但數值一律取自這裡，不得另開一套淡色色票（design-system.md §3.9）。
+ * 但數值一律取自這裡，不得另開一套淡色色票（design-system/spec.md §3.9）。
  * accent / 狀態色在淡底上需加深，所以另有 light 版；圖層資料色（LAYER_COLORS）兩主題共用。
  */
 export const LIGHT = {
@@ -277,7 +277,7 @@ export const Z_INDEX = {
 // ─── LAYOUT — 地圖角落停靠的共用偏移（ui-r2 Phase R）────────────────
 /**
  * 左下時間軸（TC3 收合膠囊與展開卡片）與右下停靠區（popup＋圖例）共用同一個底邊偏移，
- * 兩者底邊必須對齊：改這個值會同時移動兩邊。規格見 docs/design-system.md §5.24。
+ * 兩者底邊必須對齊：改這個值會同時移動兩邊。規格見 docs/design-system/spec.md §5.24。
  * 64 是右下停靠區原本的值，讓出 Mapbox 右下角的版權標示。
  */
 export const LAYOUT = {

@@ -1,7 +1,7 @@
 /**
  * Design system guard — 規則定義與掃描器（ratchet）。
  *
- * 規範：docs/design-system.md §9（自動檢查）。本檔放在 __tests__ 下，
+ * 規範：docs/design-system/spec.md §9（自動檢查）。本檔放在 __tests__ 下，
  * 一方面不進 bundle，一方面避免規則自己的 pattern 字串被自己掃到。
  *
  * - 掃 src/**\/*.{ts,tsx,css}，排除 __tests__、fixture、*.test.*。
@@ -17,7 +17,7 @@ export interface GuardRule {
   id: string;
   /** 一句話：擋什麼 */
   description: string;
-  /** design-system.md 章節（失敗訊息引用） */
+  /** design-system/spec.md 章節（失敗訊息引用） */
   docSection: string;
   /** 該怎麼改 */
   fix: string;
@@ -165,7 +165,7 @@ export const RULES: readonly GuardRule[] = [
     id: "raw-z-index",
     description: "不寫死 ≥10 的 z-index 數字（zIndex: 30／z-index: 45）；層級走 Z_INDEX／--z-*",
     docSection: "§5.25 層級（z-index）",
-    fix: "改用 designTokens.ts 的 Z_INDEX.<層>（CSS 用 var(--z-*)）；同層前後靠 DOM 順序。確屬特例（LoadingScreen、資料更新中遮罩等）要寫進 design-system.md 特例表",
+    fix: "改用 designTokens.ts 的 Z_INDEX.<層>（CSS 用 var(--z-*)）；同層前後靠 DOM 順序。確屬特例（LoadingScreen、資料更新中遮罩等）要寫進 design-system/spec.md 特例表",
     enforce: true,
     // src/styles/** 是層級定義檔本身；元件內部 <10 的小值（0／1／2／3…）只排兄弟順序，不算全站層級。
     appliesTo: (p) => !p.startsWith("src/styles/"),
@@ -274,7 +274,7 @@ export function formatIncrease(d: GuardDelta): string {
     `✗ [${d.rule}] ${d.file}：+${d.current - d.baseline}（${where}）`,
     `  規則：${rule.description}`,
     `  怎麼改：${rule.fix}`,
-    `  規範：docs/design-system.md ${rule.docSection}`,
+    `  規範：docs/design-system/spec.md ${rule.docSection}`,
   ].join("\n");
 }
 

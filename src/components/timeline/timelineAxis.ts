@@ -1,6 +1,6 @@
 /**
  * TL3 刻度時間軸的純計算（刻度、缺漏區段、鍵盤步進、歷史離散軸）。
- * 不讀寫 timeStore、不碰 DOM；元件只把結果畫出來。規格見 docs/design-system.md §5.24。
+ * 不讀寫 timeStore、不碰 DOM；元件只把結果畫出來。規格見 docs/design-system/spec.md §5.24。
  *
  * 台灣沒有日光節約時間，整點對齊一律用固定 +8h（與 useTimeline 的 dayStartUnix 相同）。
  */

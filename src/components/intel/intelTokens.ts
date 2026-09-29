@@ -80,7 +80,7 @@ export function withAlpha(color: string, alpha: number): string {
 /**
  * 分類徽章：淡底色（14% alpha）＋ 該色字，無框。
  * `textColor` 預設＝`color`（暗色不變）；淡色主題底色偏淺（黃／淺綠…）時，
- * 呼叫端應改傳 `intelTheme.ts` 的 `chipText(color, palette)` 加深字色以維持對比（design-system.md §5.21）。
+ * 呼叫端應改傳 `intelTheme.ts` 的 `chipText(color, palette)` 加深字色以維持對比（design-system/spec.md §5.21）。
  */
 export function chipTint(color: string, textColor: string = color): CSSProperties {
   return { background: withAlpha(color, 0.14), color: textColor };
@@ -198,7 +198,7 @@ export interface AlertGroupDef {
 }
 
 // 警示語意色 — 以 LAYER_COLORS（地圖色）為基準對齊，讓地圖、warning bar、popup
-// 三處同色（design-system.md §3）。earthquake / flood 從原 magenta / teal 改為紅色。
+// 三處同色（design-system/spec.md §3）。earthquake / flood 從原 magenta / teal 改為紅色。
 // weather / transit / lifeline / safety 在 LAYER_COLORS 無對應 layer，沿用原色保留視覺多樣性。
 export const ALERT_GROUPS_DEF: Record<AlertGroupShort, AlertGroupDef> = {
   earthquake: { id: "earthquake", label: "地震", en: "EQ",       color: "#ff3b30", iconKey: "quake" },

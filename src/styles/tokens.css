@@ -8,7 +8,7 @@
  * （.main-map-agent--light / .member-panel-light / .research-activity-position--light / .lpc-theme--light），
  * 在該 class 內把自己的語意別名指到下方 --light-*。
  *
- * TS ↔ CSS 對應（改一邊必須同步另一邊；規範見 docs/design-system.md §3）：
+ * TS ↔ CSS 對應（改一邊必須同步另一邊；規範見 docs/design-system/spec.md §3）：
  *   SURFACE.x ↔ --surface-x；COLORS.textX ↔ --text-x；COLORS.link ↔ --link；
  *   COLORS.statusDerived ↔ --status-derived；BORDER.x ↔ --border-x；CONTROL.x ↔ --control-x；
  *   SLIDER.x ↔ --slider-x；LIGHT.camelCase ↔ --light-kebab-case；Z_INDEX.camelCase ↔ --z-kebab-case。
@@ -96,7 +96,7 @@
   --space-xl: 16px;
   --space-xxl: 24px;
 
-  /* ── CONTROL — 互動態背景（= CONTROL，design-system.md §8，2026-09-27 開啟） ── */
+  /* ── CONTROL — 互動態背景（= CONTROL，design-system/spec.md §8，2026-09-27 開啟） ── */
   --control-bg: rgba(255, 255, 255, 0.06);
   --control-bg-hover: rgba(255, 255, 255, 0.10);
   --control-border: rgba(255, 255, 255, 0.12);

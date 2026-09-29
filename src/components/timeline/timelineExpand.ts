@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
 /**
- * TC3 時間軸「收合膠囊 ↔ 展開卡片」狀態機（docs/design-system.md §5.24）。
+ * TC3 時間軸「收合膠囊 ↔ 展開卡片」狀態機（docs/design-system/spec.md §5.24）。
  *
  * 展開的理由（hold）：滑鼠在上面、鍵盤 focus 在裡面、正在拖曳刻度軸、日期面板開著。
  * - 任何一個 hold 成立 → expanded。

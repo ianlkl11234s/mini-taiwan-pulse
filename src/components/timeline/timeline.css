@@ -1,7 +1,7 @@
 /*
  * 左下時間軸 TC3「收合膠囊＋展開單列（TC1）」— UI 統一 Phase R（取代 Phase M 的 TL3 兩列卡片）。
  * 設計稿：docs/features/ui-consistency-audit-20260927/timeline-compact-sheet.html 的 TC1／TC3；
- * 規格：docs/design-system.md §5.24。顏色全部取自 src/styles/tokens.css。
+ * 規格：docs/design-system/spec.md §5.24。顏色全部取自 src/styles/tokens.css。
  * --tl-* 只是本元件的語意別名；淡色靠觸發 class（.tl3--light）指到 --light-*（同 .lpc-theme--light）。
  */
 .tl3 {

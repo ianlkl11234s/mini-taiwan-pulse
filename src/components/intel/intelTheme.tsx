@@ -3,12 +3,12 @@
  *
  * 沿用 `featureInfo/featureTheme.tsx`／`toolbar/toolbarTheme.ts` 的既有模式：
  * - 暗色＝`intelTokens.ts` 原始 `COLORS`（byte-identical，Phase L 前後外觀不變）。
- * - 淡色＝一律取自 `designTokens.ts` 的 `LIGHT`（不另開淡色色票，design-system.md §3.9）。
+ * - 淡色＝一律取自 `designTokens.ts` 的 `LIGHT`（不另開淡色色票，design-system/spec.md §3.9）。
  * - 用 Context 分發，未被 `IntelThemeProvider` 包住時 fallback 深色（向後相容；
  *   Monitor Mode 的戰情看板刻意維持全暗，NewsFeedPanel 顯式套 `DARK_INTEL`）。
  *
  * 分類／警示／嚴重度色（NEWS_CATEGORIES、ALERT_GROUPS_DEF、ALERT_SEVERITY、GIS_LEVELS、
- * SEV_LEVELS）是資料語意色（design-system.md §3.16），兩主題共用同一色相，不進本 palette；
+ * SEV_LEVELS）是資料語意色（design-system/spec.md §3.16），兩主題共用同一色相，不進本 palette；
  * 淡色底圖下淺色相（黃、淺綠…）字色不足以對比時，改用 `chipText()`／`levelColor()` 加深。
  */
 import { createContext, useContext, type ReactNode } from "react";
@@ -95,7 +95,7 @@ export const LIGHT_INTEL: IntelPalette = {
   textDefault: LIGHT.textDefault,
   textMuted: LIGHT.textMuted,
   textDim: LIGHT.textDim,
-  // LIGHT 沒有比 textDim 更淡的階；faint 沿用 textDim（design-system.md §3.9 沒有再細分）。
+  // LIGHT 沒有比 textDim 更淡的階；faint 沿用 textDim（design-system/spec.md §3.9 沒有再細分）。
   textFaint: LIGHT.textDim,
   // ghost 純裝飾（空狀態大 icon），沿用 borderMid 的低對比黑，比文字更淡一階。
   textGhost: LIGHT.borderMid,
@@ -134,7 +134,7 @@ export function IntelThemeProvider({
   return <IntelThemeContext.Provider value={palette}>{children}</IntelThemeContext.Provider>;
 }
 
-// ─── 徽章文字對比（design-system.md §5.21）──────────────────────────
+// ─── 徽章文字對比（design-system/spec.md §5.21）──────────────────────────
 //
 // chipTint／chipOutline 的底色與框線沿用資料本身的色相不變；淡色主題下
 // 若直接用該色當「字」色，淺色相（黃、淺綠、青…）對白底面板的對比嚴重不足。

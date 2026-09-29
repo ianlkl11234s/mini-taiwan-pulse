@@ -1,6 +1,6 @@
 /* Member panel — colors/type/controls from src/styles/tokens.css (H2 header, C2 buttons).
  * 層級：桌機屬左側面板（--z-floating-panel，與 Agent／地震回放等互斥）；手機全寬版屬 modal 層，
- * 在 App 的 DOM 順序排在 ChatPanel 之後、說明／分享視窗之前（見 docs/design-system.md 層級章節）。 */
+ * 在 App 的 DOM 順序排在 ChatPanel 之後、說明／分享視窗之前（見 docs/design-system/spec.md 層級章節）。 */
 .member-panel{--member-bg:var(--surface-solid);--member-fg:var(--text-strong);--member-dim:var(--text-muted);--member-line:var(--border-panel);--member-soft:var(--control-bg);position:absolute;left:72px;top:72px;bottom:90px;width:360px;max-width:calc(100vw - 88px);z-index:var(--z-floating-panel);display:flex;flex-direction:column;background:var(--member-bg);color:var(--member-fg);border:1px solid var(--member-line);border-radius:var(--radius-xl);box-shadow:var(--elevation-lg);font:var(--font-lg)/1.5 var(--font-cjk);overflow:hidden}
 .member-panel-light{--member-bg:var(--light-surface-strong);--member-fg:var(--light-text-strong);--member-dim:var(--light-text-muted);--member-line:var(--light-border-mid);--member-soft:var(--light-control-bg);--text-dim:var(--light-text-dim);--accent:var(--light-accent);--accent-faint:var(--light-accent-faint);--control-bg:var(--light-control-bg);--control-bg-hover:var(--light-control-bg-hover);--control-border:var(--light-control-border);--elevation-lg:var(--light-elevation-lg)}
 .member-panel-mobile{top:86px;left:8px;right:8px;bottom:max(12px,env(safe-area-inset-bottom));width:auto;max-width:none;z-index:var(--z-modal)}

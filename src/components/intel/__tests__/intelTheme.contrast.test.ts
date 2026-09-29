@@ -4,7 +4,7 @@ import { ALERT_GROUPS_DEF, ALERT_SEVERITY, GIS_LEVELS, SEV_LEVELS } from "../int
 import { NEWS_CATEGORIES } from "../../../data/newsEventTypes";
 
 /**
- * design-system.md §5.21：淡色主題下，chipTint／chipOutline 把資料 hue 當文字色時
+ * design-system/spec.md §5.21：淡色主題下，chipTint／chipOutline 把資料 hue 當文字色時
  * 必須維持可讀對比。這裡驗證「§5.21 的 45% 原色／55% textStrong 混色規則」對本專案
  * 目前所有會流進 chipText() 的資料色，在淡色面板底上都能達到 WCAG 4.5:1。
  *
@@ -40,7 +40,7 @@ describe("intelTheme chipText 淡色對比（§5.21）", () => {
     });
     const failing = results.filter((r) => r.ratio < MIN_CONTRAST);
     if (failing.length > 0) {
-      // 誠實列出做不到的顏色（design-system.md §5.21 要求），不要靜默放過。
+      // 誠實列出做不到的顏色（design-system/spec.md §5.21 要求），不要靜默放過。
       throw new Error(
         `以下資料色套用 chipText 後仍未達 ${MIN_CONTRAST}:1（對純白）—— ${failing
           .map((f) => `${f.name}(${f.hex}→${f.mixed}: ${f.ratio.toFixed(2)})`)
