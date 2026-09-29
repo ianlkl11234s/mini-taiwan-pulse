@@ -3,7 +3,8 @@ import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { HOOK_POINT_TIERS } from "../map/pointTiers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -43,14 +44,14 @@ const SOURCE_LAYER = "power_poles";
 const HEAT_ID = "power-poles-heat";
 const CIRCLE_ID = "power-poles-circle";
 
+const OPACITY_DEFAULT = Number(paramDefault("powerPoles", "powerPolesOpacity"));
+
 export function powerPolePointPaint(isDark: boolean, opacity: number, size: number) {
   const tier = HOOK_POINT_TIERS.powerPoles;
   if (!tier || tier === "B") throw new Error("powerPoles requires a fixed point tier");
   return {
     "circle-radius": pointRadius(tier, size),
-    "circle-stroke-color": mapSeamColor(isDark),
-    "circle-stroke-width": POINT_STROKE.width,
-    "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * (opacity / 0.7)),
+    ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
   };
 }
 

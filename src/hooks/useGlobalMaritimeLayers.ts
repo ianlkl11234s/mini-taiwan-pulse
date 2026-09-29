@@ -9,7 +9,8 @@ import {
 } from "../data/globalMaritimeLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 const AIS_SOURCE = "global-maritime-aisstream-current";
 const AIS_LAYER = "global-maritime-aisstream-circle";
@@ -35,6 +36,29 @@ function safeBounds(map: MapboxMap): MaritimeBounds {
   };
 }
 
+const AIS_DEFAULT_OPACITY = Number(paramDefault("aisstreamVessels", "aisstreamVesselsOpacity") ?? 1);
+const GFW_DEFAULT_OPACITY = Number(paramDefault("gfwVesselPresence", "gfwVesselPresenceOpacity") ?? 1);
+
+/** 主題／透明度只走 setPaintProperty；不進抓資料的 effect。 */
+function applyPaint(
+  map: MapboxMap,
+  aisOpacity: number,
+  gfwOpacity: number,
+  isDarkTheme: boolean,
+): void {
+  const entries: [string, number, number][] = [
+    [AIS_LAYER, aisOpacity, AIS_DEFAULT_OPACITY],
+    [GFW_LAYER, gfwOpacity, GFW_DEFAULT_OPACITY],
+  ];
+  for (const [id, opacity, def] of entries) {
+    if (!map.getLayer(id)) continue;
+    const clamped = Math.max(0, Math.min(1, opacity));
+    map.setPaintProperty(id, "circle-opacity", clamped);
+    const stroke = pointStrokePaint(isDarkTheme, clamped / def);
+    for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(id, prop, stroke[prop]);
+  }
+}
+
 function ensureSources(map: MapboxMap, isDarkTheme: boolean): void {
   if (!map.getSource(AIS_SOURCE)) map.addSource(AIS_SOURCE, { type: "geojson", data: EMPTY_FC, attribution: "AISStream" });
   if (!map.getSource(GFW_SOURCE)) map.addSource(GFW_SOURCE, { type: "geojson", data: EMPTY_FC, attribution: "Global Fishing Watch" });
@@ -47,9 +71,7 @@ function ensureSources(map: MapboxMap, isDarkTheme: boolean): void {
         "circle-radius": pointRadius("L"),
         "circle-color": "#22d3ee",
         "circle-opacity": 0.9,
-        "circle-stroke-color": mapSeamColor(isDarkTheme),
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
+        ...pointStrokePaint(isDarkTheme),
       },
       layout: { visibility: "none" },
     } as CircleLayer);
@@ -63,9 +85,7 @@ function ensureSources(map: MapboxMap, isDarkTheme: boolean): void {
         "circle-radius": pointRadius("L"),
         "circle-color": "#f59e0b",
         "circle-opacity": 0.75,
-        "circle-stroke-color": mapSeamColor(isDarkTheme),
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
+        ...pointStrokePaint(isDarkTheme),
       },
       layout: { visibility: "none" },
     } as CircleLayer);
@@ -76,10 +96,12 @@ export function useGlobalMaritimeLayers(
   mapRef: React.RefObject<MapboxMap | null>,
   aisVisible: boolean,
   gfwVisible: boolean,
-  aisOpacity = 0.9,
-  gfwOpacity = 0.75,
+  aisOpacity = AIS_DEFAULT_OPACITY,
+  gfwOpacity = GFW_DEFAULT_OPACITY,
   isDarkTheme = true,
 ): void {
+  const styleRef = useRef({ aisOpacity, gfwOpacity, isDarkTheme });
+  styleRef.current = { aisOpacity, gfwOpacity, isDarkTheme };
   const mapTick = useMapReadyTick(mapRef, aisVisible || gfwVisible);
   const aisDataRef = useRef<GeoJSON.FeatureCollection>(EMPTY_FC);
   const gfwDataRef = useRef<GeoJSON.FeatureCollection>(EMPTY_FC);
@@ -125,19 +147,11 @@ export function useGlobalMaritimeLayers(
         if (map.getLayer(GFW_LAYER) && !gfwVisible) map.setLayoutProperty(GFW_LAYER, "visibility", "none");
         if (!aisVisible && !gfwVisible) return;
         if (!map.isStyleLoaded()) { scheduleRetry(); return; }
-        ensureSources(map, isDarkTheme);
-        if (map.getLayer(AIS_LAYER)) {
-          map.setLayoutProperty(AIS_LAYER, "visibility", aisVisible ? "visible" : "none");
-          map.setPaintProperty(AIS_LAYER, "circle-opacity", Math.max(0, Math.min(1, aisOpacity)));
-          map.setPaintProperty(AIS_LAYER, "circle-stroke-color", mapSeamColor(isDarkTheme));
-          map.setPaintProperty(AIS_LAYER, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * aisOpacity / 0.9));
-        }
-        if (map.getLayer(GFW_LAYER)) {
-          map.setLayoutProperty(GFW_LAYER, "visibility", gfwVisible ? "visible" : "none");
-          map.setPaintProperty(GFW_LAYER, "circle-opacity", Math.max(0, Math.min(1, gfwOpacity)));
-          map.setPaintProperty(GFW_LAYER, "circle-stroke-color", mapSeamColor(isDarkTheme));
-          map.setPaintProperty(GFW_LAYER, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * gfwOpacity / 0.75));
-        }
+        const style = styleRef.current;
+        ensureSources(map, style.isDarkTheme);
+        if (map.getLayer(AIS_LAYER)) map.setLayoutProperty(AIS_LAYER, "visibility", aisVisible ? "visible" : "none");
+        if (map.getLayer(GFW_LAYER)) map.setLayoutProperty(GFW_LAYER, "visibility", gfwVisible ? "visible" : "none");
+        applyPaint(map, style.aisOpacity, style.gfwOpacity, style.isDarkTheme);
       } catch {
         scheduleRetry();
         return;
@@ -156,5 +170,11 @@ export function useGlobalMaritimeLayers(
       if (retryPending) map.off("idle", retry);
       window.clearInterval(interval);
     };
-  }, [aisVisible, gfwVisible, aisOpacity, gfwOpacity, isDarkTheme, mapRef, mapTick, update]);
+  }, [aisVisible, gfwVisible, mapRef, mapTick, update]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || (!aisVisible && !gfwVisible)) return;
+    try { applyPaint(map, aisOpacity, gfwOpacity, isDarkTheme); } catch { /* style 切換中；style.load 會重套 */ }
+  }, [aisVisible, gfwVisible, aisOpacity, gfwOpacity, isDarkTheme, mapRef, mapTick]);
 }

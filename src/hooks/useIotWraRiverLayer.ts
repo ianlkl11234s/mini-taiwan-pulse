@@ -14,6 +14,8 @@ import {
   startTimelineSliceController,
   type TimelineSliceLayerConfig,
 } from "./factories/timelineSliceLayer";
+import { paramDefault } from "../data/layerParamsSpec";
+import { pointStrokePaint } from "../map/mapStyleScale";
 
 /**
  * IoT 河川水位（補強既有 riverLevel；migration 063 預聚合表）
@@ -71,6 +73,10 @@ function radiusExpression(scale: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("iotWraRiver", "iotWraRiverOpacity"));
+/** 即時資料光暈上限（pointSpec LIVE_DECORATION_CAP）：透明度 ≤ 0.35 */
+const glowOpacity = (isDark: boolean, opacity: number) => Math.min(0.35, (isDark ? 0.45 : 0.35) * opacity);
+
 function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
@@ -84,7 +90,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": ["*", radiusExpression(scale), 1.9] as unknown as ExpressionSpecification,
         "circle-color": colorExpression(),
         "circle-blur": 0.9,
-        "circle-opacity": (isDark ? 0.45 : 0.35) * opacity,
+        "circle-opacity": glowOpacity(isDark, opacity),
       },
     } as CircleLayer);
   }
@@ -97,9 +103,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": radiusExpression(scale),
         "circle-color": colorExpression(),
         "circle-opacity": (isDark ? 0.95 : 0.85) * opacity,
-        "circle-stroke-width": 1,
-        "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": 0.5 * opacity,
+        ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
       },
     } as CircleLayer);
   }
@@ -110,12 +114,15 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
     map.setPaintProperty(LAYER_GLOW, "circle-radius", [
       "*", radiusExpression(scale), 1.9,
     ] as unknown as ExpressionSpecification);
-    map.setPaintProperty(LAYER_GLOW, "circle-opacity", (isDark ? 0.45 : 0.35) * opacity);
+    map.setPaintProperty(LAYER_GLOW, "circle-opacity", glowOpacity(isDark, opacity));
   }
   if (map.getLayer(LAYER_CIRCLE)) {
     map.setPaintProperty(LAYER_CIRCLE, "circle-radius", radiusExpression(scale));
     map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.95 : 0.85) * opacity);
-    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.5 * opacity);
+    const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
   }
 }
 

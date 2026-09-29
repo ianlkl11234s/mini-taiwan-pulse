@@ -1,14 +1,16 @@
 import { useEffect } from "react";
-import type { CircleLayer, FilterSpecification, Map as MapboxMap } from "mapbox-gl";
+import type { CircleLayer, ExpressionSpecification, FilterSpecification, Map as MapboxMap } from "mapbox-gl";
 import {
   JP_POLICE_ATTRIBUTION,
+  JP_POLICE_DEGRADED_COLOR,
   JP_POLICE_FACILITY_TYPES,
   JP_POLICE_FACILITY_TYPE_COLOR_EXPRESSION,
 } from "../data/jpPoliceFacilityTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-police-facilities";
@@ -21,6 +23,22 @@ const MAXZOOM = 14;
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
+}
+
+const OPACITY_DEFAULT = Number(paramDefault("jpPoliceFacilities", "jpPoliceFacilitiesOpacity"));
+const IS_DEGRADED: ExpressionSpecification = ["==", ["get", "geom_status"], "degraded"];
+
+/**
+ * 描邊：geom_status=degraded（地址只解析到丁目／町域＝約略位置）是資料編碼，維持橘色 1.5px 外框
+ * （圖例「橘色外框＝約略位置」）；其餘點用底圖色細縫。
+ */
+function policeStrokePaint(isDark: boolean, opacity: number) {
+  const seam = pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
+  return {
+    "circle-stroke-color": ["case", IS_DEGRADED, JP_POLICE_DEGRADED_COLOR, seam["circle-stroke-color"]] as unknown as ExpressionSpecification,
+    "circle-stroke-width": ["case", IS_DEGRADED, 1.5, seam["circle-stroke-width"]] as unknown as ExpressionSpecification,
+    "circle-stroke-opacity": seam["circle-stroke-opacity"],
+  };
 }
 
 function absoluteUrl(relativeFile: string): string {
@@ -57,9 +75,7 @@ function policeCircleLayer(opacity: number, scale: number, typeIndex: number, is
       "circle-radius": pointRadius("M", scale),
       "circle-color": JP_POLICE_FACILITY_TYPE_COLOR_EXPRESSION,
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": mapSeamColor(isDark),
-      "circle-stroke-width": POINT_STROKE.width,
-      "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.75),
+      ...policeStrokePaint(isDark, opacity),
     },
   } as CircleLayer;
 }
@@ -103,9 +119,9 @@ export function useJpPoliceFacilitiesLayer(
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
-        map.setPaintProperty(LAYER_ID, "circle-stroke-color", mapSeamColor(isDark));
-        map.setPaintProperty(LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
-        map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.75));
+        for (const [k, v] of Object.entries(policeStrokePaint(isDark, opacity))) {
+          map.setPaintProperty(LAYER_ID, k as "circle-stroke-color", v as never);
+        }
         map.setFilter(LAYER_ID, jpPoliceFacilityTypeFilter(typeIndex));
       }
       if (sourceAdded) {

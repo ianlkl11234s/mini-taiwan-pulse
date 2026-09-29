@@ -16,7 +16,8 @@ import {
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 /**
  * TDX 即時路況事件 timeline 圖層
@@ -47,6 +48,8 @@ function activeSetKey(events: RoadEvent[], currentTime: number): string {
   }
   return key;
 }
+
+const OPACITY_DEFAULT = Number(paramDefault("roadEvents", "reOpacity"));
 
 function buildLayers(map: MapboxMap, isDark: boolean): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
@@ -106,9 +109,7 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
           pointRadius("M") * 6 / 7,
         ] as unknown as ExpressionSpecification,
         "circle-color": ["get", "color"] as unknown as ExpressionSpecification,
-        "circle-stroke-color": mapSeamColor(isDark),
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
+        ...pointStrokePaint(isDark),
         "circle-opacity": 0.9,
       },
     } as CircleLayer);
@@ -130,6 +131,9 @@ export function useRoadEventsLayer(
   const activeDayRef = useRef<RoadEvent[] | null>(null);
   const activeDateRef = useRef<string>("");
   const layersReadyRef = useRef(false);
+  // 主題走 ref：ensureLayers 保持穩定，切主題不會重建 timeStore 訂閱（paint 由 opacity effect 更新）
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
   const fetchingRef = useRef<string>("");
   const lastActiveSetRef = useRef<string>("");
   const visibleRef = useRef(visible);
@@ -159,10 +163,10 @@ export function useRoadEventsLayer(
       });
     }
     if (!layersReadyRef.current || !map.getLayer(LAYER_FILL)) {
-      layersReadyRef.current = buildLayers(map, isDark);
+      layersReadyRef.current = buildLayers(map, isDarkRef.current);
     }
     return layersReadyRef.current;
-  }, [isDark]);
+  }, []);
 
   const refreshSource = useCallback((map: MapboxMap, t: number) => {
     const src = map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
@@ -270,9 +274,12 @@ export function useRoadEventsLayer(
     }
     if (map.getLayer(LAYER_POINT)) {
       map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.9 * o);
-      map.setPaintProperty(LAYER_POINT, "circle-stroke-color", mapSeamColor(isDark));
-      map.setPaintProperty(LAYER_POINT, "circle-stroke-width", POINT_STROKE.width);
-      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", POINT_STROKE.opacity[isDark ? "dark" : "light"] * o);
+      {
+        const stroke = pointStrokePaint(isDark, o / OPACITY_DEFAULT);
+        map.setPaintProperty(LAYER_POINT, "circle-stroke-color", stroke["circle-stroke-color"]);
+        map.setPaintProperty(LAYER_POINT, "circle-stroke-width", stroke["circle-stroke-width"]);
+        map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+      }
     }
   }, [opacity, isDark, visible, mapRef, mapTick]);
 }

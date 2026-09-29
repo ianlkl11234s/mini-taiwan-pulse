@@ -7,7 +7,7 @@ import { useKeyOverlayParams } from "../layerParamsAccess";
 export const AnimalAdoptionHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useAnimalAdoptionLayer");
   const p = useKeyOverlayParams("animalAdoption");
-  useAnimalAdoptionLayer(deps.mapRef, deps.layerVisibility.animalAdoption, p.animalAdoptionOpacity ?? 0.85, p.animalAdoptionScale ?? 1);
+  useAnimalAdoptionLayer(deps.mapRef, deps.layerVisibility.animalAdoption, p.animalAdoptionOpacity ?? 0.85, p.animalAdoptionScale ?? 1, deps.isDarkTheme);
   return null;
 };
 

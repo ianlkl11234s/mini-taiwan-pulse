@@ -2,9 +2,12 @@ import { useEffect } from "react";
 import type { CircleLayer, Map as MapboxMap } from "mapbox-gl";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { JP_SCHOOL_TYPE_COLOR_EXPRESSION } from "../data/jpSchoolTypes";
+
+const DEFAULT_OPACITY = Number(paramDefault("jpSchools", "jpSchoolsOpacity") ?? 1);
 
 const SOURCE_ID = "jp-schools";
 const SOURCE_LAYER = "jp_schools";
@@ -35,9 +38,7 @@ function schoolsCircleLayer(opacity: number, scale: number, isDark: boolean): Ci
       "circle-radius": pointRadius("M", scale),
       "circle-color": JP_SCHOOL_TYPE_COLOR_EXPRESSION,
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": mapSeamColor(isDark),
-      "circle-stroke-width": POINT_STROKE.width,
-      "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.75),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY),
     },
   } as CircleLayer;
 }
@@ -80,9 +81,8 @@ export function useJpSchoolsLayer(
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
-        map.setPaintProperty(LAYER_ID, "circle-stroke-color", mapSeamColor(isDark));
-        map.setPaintProperty(LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
-        map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.75));
+        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(LAYER_ID, prop, stroke[prop]);
       }
     };
 

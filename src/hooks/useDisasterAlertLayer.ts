@@ -16,7 +16,8 @@ import { ALERT_GROUP_KEYS, type AlertGroupKey } from "../data/disasterAlertTypes
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 /**
  * NCDR 災害示警 timeline 圖層（5 主題群組）
@@ -95,6 +96,8 @@ interface CachedDay {
   accessedAt: number;
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("lifelineAlerts", "daOpacity"));
+
 function buildLayers(map: MapboxMap, isDark: boolean): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
 
@@ -146,9 +149,7 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
         paint: {
           "circle-radius": pointRadius("M"),
           "circle-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
-          "circle-stroke-color": mapSeamColor(isDark),
-          "circle-stroke-width": POINT_STROKE.width,
-          "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
+          ...pointStrokePaint(isDark),
           "circle-opacity": 0.85,
         },
       } as CircleLayer);
@@ -197,6 +198,9 @@ export function useDisasterAlertLayer(
   const [hasPulse, setHasPulse] = useState(false);
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
+  // 主題走 ref：ensureLayers 保持穩定，切主題不會重建 timeStore 訂閱（paint 由 opacity effect 更新）
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
 
   const anyVisible = ALERT_GROUP_KEYS.some((k) => visibility[k]);
   // effect dep 用的穩定 key（避免物件 identity 每 render 變動）
@@ -231,10 +235,10 @@ export function useDisasterAlertLayer(
     }
     const probe = layerIds(ALERT_GROUP_KEYS[0]!).fill;
     if (!layersReadyRef.current || !map.getLayer(probe)) {
-      layersReadyRef.current = buildLayers(map, isDark);
+      layersReadyRef.current = buildLayers(map, isDarkRef.current);
     }
     return layersReadyRef.current;
-  }, [isDark]);
+  }, []);
 
   const refreshSource = useCallback((map: MapboxMap, t: number) => {
     const src = map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
@@ -425,9 +429,12 @@ export function useDisasterAlertLayer(
       }
       if (map.getLayer(ids.point)) {
         map.setPaintProperty(ids.point, "circle-opacity", 0.85 * o);
-        map.setPaintProperty(ids.point, "circle-stroke-color", mapSeamColor(isDark));
-        map.setPaintProperty(ids.point, "circle-stroke-width", POINT_STROKE.width);
-        map.setPaintProperty(ids.point, "circle-stroke-opacity", POINT_STROKE.opacity[isDark ? "dark" : "light"] * o);
+        {
+          const stroke = pointStrokePaint(isDark, o / OPACITY_DEFAULT);
+          map.setPaintProperty(ids.point, "circle-stroke-color", stroke["circle-stroke-color"]);
+          map.setPaintProperty(ids.point, "circle-stroke-width", stroke["circle-stroke-width"]);
+          map.setPaintProperty(ids.point, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+        }
       }
     }
     // pulse 的 opacity 平常由 rAF 每幀寫（讀 opacityRef），只有 reduced-motion

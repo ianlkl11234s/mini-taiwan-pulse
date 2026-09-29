@@ -7,7 +7,8 @@ import {
 import { JP_RELIGION_COLOR_EXPRESSION } from "../data/jpReligionTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
+import { POINT_STROKE, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const GSI_SOURCE_ID = "jp-religion-gsi";
@@ -18,6 +19,15 @@ const OSM_LAYER_ID = "jp-religion-osm-circle";
 const WIKIDATA_SOURCE_ID = "jp-religion-wikidata";
 const WIKIDATA_LAYER_ID = "jp-religion-wikidata-circle";
 
+const GSI_OPACITY_DEFAULT = Number(paramDefault("jpReligionGsi", "jpReligionGsiOpacity"));
+const OSM_OPACITY_DEFAULT = Number(paramDefault("jpReligionOsm", "jpReligionOsmOpacity"));
+const WIKIDATA_OPACITY_DEFAULT = Number(paramDefault("jpReligionWikidata", "jpReligionWikidataOpacity"));
+
+// GSI 的 PMTiles 從 z4 起就是全量 167,037 點；原本 z4–z8 描邊寬 0 避免糊成一片（a9034643）。
+// 目前預設統一 1px（POINT_STROKE.width）；若瀏覽器實看糊成一片，只改下一行為
+// ["interpolate", ["linear"], ["zoom"], 8, 0, 9, 1] as unknown as ExpressionSpecification
+const GSI_STROKE_WIDTH: number | ExpressionSpecification = POINT_STROKE.width;
+
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
@@ -27,9 +37,10 @@ function circleLayer(
   source: string,
   radius: number | ExpressionSpecification,
   opacity: number,
-  strokeOpacity: number,
+  strokeOpacityFactor: number,
   isDark: boolean,
   sourceLayer?: string,
+  strokeWidth: number | ExpressionSpecification = POINT_STROKE.width,
 ): CircleLayer {
   return {
     id,
@@ -41,15 +52,13 @@ function circleLayer(
       "circle-radius": radius,
       "circle-color": JP_RELIGION_COLOR_EXPRESSION as unknown as ExpressionSpecification,
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": mapSeamColor(isDark),
-      "circle-stroke-width": POINT_STROKE.width,
-      "circle-stroke-opacity": strokeOpacity,
+      ...pointStrokePaint(isDark, strokeOpacityFactor),
+      "circle-stroke-width": strokeWidth,
     },
   } as CircleLayer;
 }
 
-const pointStrokeOpacity = (opacity: number, defaultOpacity: number, isDark: boolean) =>
-  Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / defaultOpacity);
+const strokeFactor = (opacity: number, defaultOpacity: number) => clampOpacity(opacity) / defaultOpacity;
 
 function gsiAbsoluteUrl(): string {
   const relative = `${import.meta.env.BASE_URL ?? "/"}world/jp_religion_gsi.pmtiles`;
@@ -92,18 +101,23 @@ function useGsiLayer(
           GSI_SOURCE_ID,
           pointRadius("M", scale),
           opacity,
-          pointStrokeOpacity(opacity, 0.6, isDark),
+          strokeFactor(opacity, GSI_OPACITY_DEFAULT),
           isDark,
           GSI_SOURCE_LAYER,
+          GSI_STROKE_WIDTH,
         ));
       }
       if (map.getLayer(GSI_LAYER_ID)) {
         map.setLayoutProperty(GSI_LAYER_ID, "visibility", "visible");
         map.setPaintProperty(GSI_LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(GSI_LAYER_ID, "circle-radius", pointRadius("M", scale));
-        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-color", mapSeamColor(isDark));
-        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
-        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-opacity", pointStrokeOpacity(opacity, 0.6, isDark));
+        {
+          const stroke = pointStrokePaint(isDark, strokeFactor(opacity, GSI_OPACITY_DEFAULT));
+          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+        }
+        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", GSI_STROKE_WIDTH);
       }
     };
 
@@ -118,6 +132,7 @@ interface GeoJsonLayerConfig {
   layerId: string;
   fetcher: () => Promise<GeoJSON.FeatureCollection>;
   logName: string;
+  opacityDefault: number;
 }
 
 function useGeoJsonLayer(
@@ -168,7 +183,7 @@ function useGeoJsonLayer(
           config.sourceId,
           pointRadius("M", scale),
           opacity,
-          pointStrokeOpacity(opacity, 0.75, isDark),
+          strokeFactor(opacity, config.opacityDefault),
           isDark,
           undefined,
         ));
@@ -177,9 +192,12 @@ function useGeoJsonLayer(
         map.setLayoutProperty(config.layerId, "visibility", "visible");
         map.setPaintProperty(config.layerId, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(config.layerId, "circle-radius", pointRadius("M", scale));
-        map.setPaintProperty(config.layerId, "circle-stroke-color", mapSeamColor(isDark));
-        map.setPaintProperty(config.layerId, "circle-stroke-width", POINT_STROKE.width);
-        map.setPaintProperty(config.layerId, "circle-stroke-opacity", pointStrokeOpacity(opacity, 0.75, isDark));
+        {
+          const stroke = pointStrokePaint(isDark, strokeFactor(opacity, config.opacityDefault));
+          map.setPaintProperty(config.layerId, "circle-stroke-color", stroke["circle-stroke-color"]);
+          map.setPaintProperty(config.layerId, "circle-stroke-width", stroke["circle-stroke-width"]);
+          map.setPaintProperty(config.layerId, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+        }
       }
     };
 
@@ -204,6 +222,7 @@ const OSM_CONFIG: GeoJsonLayerConfig = {
   layerId: OSM_LAYER_ID,
   fetcher: fetchJpReligionOsm,
   logName: "OSM",
+  opacityDefault: OSM_OPACITY_DEFAULT,
 };
 
 const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
@@ -211,6 +230,7 @@ const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
   layerId: WIKIDATA_LAYER_ID,
   fetcher: fetchJpReligionWikidata,
   logName: "Wikidata",
+  opacityDefault: WIKIDATA_OPACITY_DEFAULT,
 };
 
 export interface JpReligionLayerVisibility {

@@ -11,7 +11,8 @@ import {
 } from "../data/jpTourismTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 type GeometryKind = "point" | "polygon";
@@ -77,14 +78,8 @@ function clampOpacity(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
 
-const POINT_OPACITY_DEFAULTS: Partial<Record<JpTourismLayerKey, number>> = {
-  jpAccommodationCanonical: 0.85, jpAccommodationJta: 0.85, jpAccommodationLocal: 0.85,
-  jpAccommodationOsm: 0.72, jpWorldHeritageCultural: 0.9, jpWorldHeritageNatural: 0.9,
-  jpRamsarSites: 0.9,
-};
-
-const pointStrokeOpacity = (key: JpTourismLayerKey, opacity: number, isDark: boolean) =>
-  Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / (POINT_OPACITY_DEFAULTS[key] ?? 1));
+const pointStroke = (key: JpTourismLayerKey, opacity: number, isDark: boolean) =>
+  pointStrokePaint(isDark, clampOpacity(opacity) / Number(paramDefault(key, `${key}Opacity`) ?? 1));
 
 function pointColor(key: JpTourismLayerKey): string | ExpressionSpecification {
   return key === "jpAccommodationCanonical" || key === "jpAccommodationOsm"
@@ -186,9 +181,7 @@ export function useJpTourismLayers(
               "circle-radius": pointRadius("M", scale[config.key] ?? 1),
               "circle-color": pointColor(config.key),
               "circle-opacity": clampOpacity(opacity[config.key]),
-              "circle-stroke-color": mapSeamColor(isDark),
-              "circle-stroke-width": POINT_STROKE.width,
-              "circle-stroke-opacity": pointStrokeOpacity(config.key, opacity[config.key], isDark),
+              ...pointStroke(config.key, opacity[config.key], isDark),
             },
           });
         }
@@ -221,9 +214,8 @@ export function useJpTourismLayers(
           if (config.kind === "point") {
             map.setPaintProperty(id, "circle-opacity", clampOpacity(opacity[config.key]));
             map.setPaintProperty(id, "circle-radius", pointRadius("M", scale[config.key] ?? 1));
-            map.setPaintProperty(id, "circle-stroke-color", mapSeamColor(isDark));
-            map.setPaintProperty(id, "circle-stroke-width", POINT_STROKE.width);
-            map.setPaintProperty(id, "circle-stroke-opacity", pointStrokeOpacity(config.key, opacity[config.key], isDark));
+            const stroke = pointStroke(config.key, opacity[config.key], isDark);
+            for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(id, prop, stroke[prop]);
             if (filter) map.setFilter(id, filter);
           } else if (id === fillId) {
             map.setPaintProperty(id, "fill-opacity", clampOpacity(opacity[config.key]));

@@ -13,7 +13,8 @@ import { fetchJpMedicalAggregate, getJpMedicalRuntime, jpMedicalLayerAsset, repo
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 type JpMedicalLayerKey = JpMedicalCategoryKey | JpMedicalCareKey | JpMedicalAreaKey;
@@ -38,9 +39,9 @@ const JP_MEDICAL_CARE_AGGREGATE_LAYER_IDS = ["jp-medical-care-aggregate-fill", "
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const LOW_ZOOM_CUTOFF = 8;
 const MAX_MAP_ZOOM = 24;
-const pointOpacityDefault = (key: JpMedicalCategoryKey | JpMedicalCareKey) => key.startsWith("jpCare") ? 0.75 : 0.8;
-const pointStrokeOpacity = (key: JpMedicalCategoryKey | JpMedicalCareKey, opacity: number, isDark: boolean) =>
-  Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clamp(opacity) / pointOpacityDefault(key));
+const pointOpacityDefault = (key: JpMedicalCategoryKey | JpMedicalCareKey) => Number(paramDefault(key, `${key}Opacity`) ?? 1);
+const pointStroke = (key: JpMedicalCategoryKey | JpMedicalCareKey, opacity: number, isDark: boolean) =>
+  pointStrokePaint(isDark, clamp(opacity) / pointOpacityDefault(key));
 
 function useMapZoom(mapRef: React.RefObject<MapboxMap | null>, active: boolean) {
   const tick = useMapReadyTick(mapRef, active);
@@ -66,7 +67,7 @@ function removeMapLayers(map: MapboxMap, layerIds: readonly string[], sourceId: 
 }
 
 function aggregateOpacity(definitions: readonly PointLayerDefinition[], visibility: JpMedicalVisibility, params: JpMedicalParams) {
-  return Math.max(0, ...definitions.filter(({ key }) => visibility[key]).map(({ key }) => clamp(params[`${key}Opacity`] ?? 0.78)));
+  return Math.max(0, ...definitions.filter(({ key }) => visibility[key]).map(({ key }) => clamp(params[`${key}Opacity`] ?? pointOpacityDefault(key))));
 }
 
 interface PointLayerDefinition {
@@ -173,19 +174,16 @@ function usePointFamily(
           paint: {
             "circle-radius": pointRadius("M"),
             "circle-color": color,
-            "circle-opacity": clamp(params[`${key}Opacity`] ?? 0.78),
-            "circle-stroke-color": mapSeamColor(isDark),
-            "circle-stroke-width": POINT_STROKE.width,
-            "circle-stroke-opacity": pointStrokeOpacity(key, params[`${key}Opacity`] ?? pointOpacityDefault(key), isDark),
+            "circle-opacity": clamp(params[`${key}Opacity`] ?? pointOpacityDefault(key)),
+            ...pointStroke(key, params[`${key}Opacity`] ?? pointOpacityDefault(key), isDark),
           },
           filter,
         } as CircleLayer);
         map.setLayerZoomRange(layerId, LOW_ZOOM_CUTOFF, MAX_MAP_ZOOM);
         map.setLayoutProperty(layerId, "visibility", visibility[key] ? "visible" : "none");
-        map.setPaintProperty(layerId, "circle-opacity", clamp(params[`${key}Opacity`] ?? 0.78));
-        map.setPaintProperty(layerId, "circle-stroke-color", mapSeamColor(isDark));
-        map.setPaintProperty(layerId, "circle-stroke-width", POINT_STROKE.width);
-        map.setPaintProperty(layerId, "circle-stroke-opacity", pointStrokeOpacity(key, params[`${key}Opacity`] ?? pointOpacityDefault(key), isDark));
+        map.setPaintProperty(layerId, "circle-opacity", clamp(params[`${key}Opacity`] ?? pointOpacityDefault(key)));
+        const stroke = pointStroke(key, params[`${key}Opacity`] ?? pointOpacityDefault(key), isDark);
+        for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId, prop, stroke[prop]);
       });
       mountedIdentity.current = identity;
       if (added) keepLoadingUntilMapIdle(map, `${sourceId}:render`, "醫療點位載入中", sourceId);

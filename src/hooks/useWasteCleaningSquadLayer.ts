@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { fetchWasteCleaningSquads, type WasteCleaningSquadRow } from "../data/wasteLoader";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -48,9 +48,7 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       paint: {
         "circle-radius": pointRadius("L"),
         "circle-color": color,
-        "circle-stroke-color": mapSeamColor(isDark),
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
+        ...pointStrokePaint(isDark),
         "circle-opacity": 0.95,
       },
     });
@@ -120,8 +118,12 @@ export function useWasteCleaningSquadLayer(
       try {
         ensureLayer(map, isDarkTheme);
         if (map.getLayer(CORE_LAYER_ID)) {
-          map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-color", mapSeamColor(isDarkTheme));
-          map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-opacity", POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"]);
+          {
+            const stroke = pointStrokePaint(isDarkTheme);
+            map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+            map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+            map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+          }
         }
       } catch {
         scheduleRetry();

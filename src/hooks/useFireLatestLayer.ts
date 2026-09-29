@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, loadFireEventYears, type FireEvent } from "../data/fireLoader";
-import { POINT_STROKE, mapSeamColor } from "../map/mapStyleScale";
+import { pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -15,11 +16,17 @@ import { useMapReadyTick } from "./useMapReadyTick";
 const SOURCE_ID = "fire-latest-src";
 const LAYER_ID = "fire-latest-layer";
 
+const OPACITY_DEFAULT = Number(paramDefault("fireLatest", "fireLatestOpacity"));
+
+/**
+ * 描邊：有傷亡（casualty）的事件維持 master 的白色外框（依屬性變化＝資料編碼；淡底圖上與細縫同為白）；
+ * 其餘用底圖色細縫。opacity 為滑桿值，內部換算成相對預設的倍率。
+ */
 export function fireLatestPointStroke(isDark: boolean, opacity: number) {
+  const seam = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
   return {
-    "circle-stroke-color": mapSeamColor(isDark),
-    "circle-stroke-width": POINT_STROKE.width,
-    "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity),
+    ...seam,
+    "circle-stroke-color": ["case", ["get", "casualty"], "#ffffff", seam["circle-stroke-color"]] as unknown as string,
   };
 }
 

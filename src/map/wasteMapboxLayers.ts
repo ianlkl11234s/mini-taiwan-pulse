@@ -22,7 +22,7 @@ import {
   type WasteFacilityRow,
   type WasteDisposalPointRow,
 } from "../data/wasteLoader";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "./mapStyleScale";
+import { pointRadius, pointStrokePaint } from "./mapStyleScale";
 
 export type WasteMapboxLayerKey =
   | "wfRecycling" | "wfMonitoring" | "wfScrapYard" | "wfOther"
@@ -95,19 +95,25 @@ const EMPTY_FC: GeoJSON.FeatureCollection = {
   features: [],
 };
 
-// setup / param store / theme store are intentionally separate imperative paths.
-// Keep the currently applied theme here so a later slider update preserves the seam opacity.
-let wasteMapboxIsDark = true;
-const wasteMapboxOpacityFactors: Record<WasteMapboxLayerKey, number> = {
-  wfRecycling: 1,
-  wfMonitoring: 1,
-  wfScrapYard: 1,
-  wfOther: 1,
-  wdClothes: 1,
-  wdMixed: 1,
-  wdRecyclingContainer: 1,
-  wdBattery: 1,
-};
+// setup / param store / theme store are intentionally separate imperative paths（App.tsx 三處各自呼叫）。
+// 為了讓 slider 更新保留描邊透明度、換主題保留 slider 倍率，需要跨呼叫記住兩個值；
+// 不改三個 export 的簽名（App.tsx 不在本次範圍），改成「每張 map 一份」而不是模組全域。
+interface WasteMapboxStyleState {
+  isDark: boolean;
+  opacityFactors: Record<WasteMapboxLayerKey, number>;
+}
+const wasteMapboxStyleStates = new WeakMap<MapboxMap, WasteMapboxStyleState>();
+function styleStateOf(map: MapboxMap): WasteMapboxStyleState {
+  let st = wasteMapboxStyleStates.get(map);
+  if (!st) {
+    st = {
+      isDark: true,
+      opacityFactors: Object.fromEntries(ALL_KEYS.map((k) => [k, 1])) as Record<WasteMapboxLayerKey, number>,
+    };
+    wasteMapboxStyleStates.set(map, st);
+  }
+  return st;
+}
 
 /** facility / disposal 通用：dataset id → "facility" or "disposal"（給 popup 用） */
 function isFacilityKey(k: WasteMapboxLayerKey): boolean {
@@ -212,7 +218,7 @@ export function setupWasteMapboxLayers(
   map: MapboxMap,
   opts: WasteMapboxOptions,
 ) {
-  wasteMapboxIsDark = opts.isDark;
+  styleStateOf(map).isDark = opts.isDark;
   for (const k of ALL_KEYS) {
     if (!map.getSource(sourceId(k))) {
       map.addSource(sourceId(k), { type: "geojson", data: EMPTY_FC });
@@ -242,9 +248,7 @@ export function setupWasteMapboxLayers(
         paint: {
           "circle-radius": pointRadius("M"),
           "circle-color": color,
-          "circle-stroke-color": mapSeamColor(opts.isDark),
-          "circle-stroke-width": POINT_STROKE.width,
-          "circle-stroke-opacity": POINT_STROKE.opacity[opts.isDark ? "dark" : "light"],
+          ...pointStrokePaint(opts.isDark),
           "circle-opacity": opts.isDark ? 0.85 : 0.75,
         },
       });
@@ -324,12 +328,13 @@ export function syncWasteMapboxParams(
   map: MapboxMap,
   params: Partial<Record<string, { size: number; opacity: number; altitude: number }>>,
 ) {
+  const st = styleStateOf(map);
   for (const k of ALL_KEYS) {
     const p = params[k];
     if (!p) continue;
     const sizeMul = p.size / SIZE_DEFAULTS[k]; // 0.5 ~ 3，依規格預設值正規化
     const opacity = p.opacity; // 0.2 ~ 1
-    wasteMapboxOpacityFactors[k] = opacity / OPACITY_DEFAULTS[k];
+    st.opacityFactors[k] = opacity / OPACITY_DEFAULTS[k];
     const altitudePx = -Math.max(0, p.altitude) * 0.4; // alt(0~500) → translate Y(0~-200)px
     if (map.getLayer(glowLayerId(k))) {
       // 靜態資料的 glow 維持透明，以免把散點誤讀成即時讀值。
@@ -342,7 +347,7 @@ export function syncWasteMapboxParams(
       map.setPaintProperty(
         coreLayerId(k),
         "circle-stroke-opacity",
-        Math.min(1, POINT_STROKE.opacity[wasteMapboxIsDark ? "dark" : "light"] * wasteMapboxOpacityFactors[k]),
+        pointStrokePaint(st.isDark, st.opacityFactors[k])["circle-stroke-opacity"],
       );
       map.setPaintProperty(coreLayerId(k), "circle-translate", [0, altitudePx]);
     }
@@ -351,19 +356,16 @@ export function syncWasteMapboxParams(
 
 /** 切換 dark / light 樣式 */
 export function syncWasteMapboxTheme(map: MapboxMap, isDark: boolean) {
-  wasteMapboxIsDark = isDark;
+  const st = styleStateOf(map);
+  st.isDark = isDark;
   for (const k of ALL_KEYS) {
     if (map.getLayer(coreLayerId(k))) {
-      map.setPaintProperty(
-        coreLayerId(k),
-        "circle-stroke-color",
-        mapSeamColor(isDark),
-      );
-      map.setPaintProperty(
-        coreLayerId(k),
-        "circle-stroke-opacity",
-        Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * wasteMapboxOpacityFactors[k]),
-      );
+      {
+        const stroke = pointStrokePaint(isDark, st.opacityFactors[k]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-color", stroke["circle-stroke-color"]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-width", stroke["circle-stroke-width"]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+      }
     }
   }
 }

@@ -3,14 +3,16 @@ import type { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { fetchRainGaugeLatest, type RainGaugeLatestRow } from "../data/rainGaugeLoader";
 import { assessBridgeRain, BRIDGE_RAIN_DEFINITIONS, BRIDGE_TABLE_VERSION } from "../data/bridgeRainThresholds";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 const SOURCE = "bridge-rain-source";
 export const BRIDGE_RAIN_CLICK_LAYER = "bridge-rain-circle";
+const OPACITY_DEFAULT = Number(paramDefault("bridgeRainThresholds", "bridgeRainThresholdsOpacity"));
 const REFRESH_MS = 10 * 60_000; // 畫面讀取頻率；不改上游測站採集排程
 
 function render(map: MapboxMap, rows: readonly RainGaugeLatestRow[], visible: boolean, opacity: number, isDark: boolean) {
-  const opacityScale = Math.max(0, Math.min(1, opacity)) / 0.9;
+  const opacityScale = Math.max(0, Math.min(1, opacity)) / OPACITY_DEFAULT;
   if (!map.getSource(SOURCE)) map.addSource(SOURCE, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   if (!map.getLayer(BRIDGE_RAIN_CLICK_LAYER)) map.addLayer({
     id: BRIDGE_RAIN_CLICK_LAYER,
@@ -20,9 +22,7 @@ function render(map: MapboxMap, rows: readonly RainGaugeLatestRow[], visible: bo
       "circle-radius": pointRadius("L"),
       "circle-color": ["match", ["get", "status"], "triggered", "#ef4444", "below", "#3b82f6", "#94a3b8"],
       "circle-opacity": 0.95,
-      "circle-stroke-width": POINT_STROKE.width,
-      "circle-stroke-color": mapSeamColor(isDark),
-      "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacityScale),
+      ...pointStrokePaint(isDark, opacityScale),
     },
   });
   const latest = new Map(rows.map((row) => [row.station_id, row]));
@@ -67,11 +67,16 @@ function render(map: MapboxMap, rows: readonly RainGaugeLatestRow[], visible: bo
 export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, isDark: boolean = true) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const rowsRef = useRef<RainGaugeLatestRow[]>([]);
+  // 建圖層時讀最新值；opacity／isDark 變動只走第二個 effect 的 setPaintProperty，不重建 interval／重抓 API
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     let cancelled = false;
-    const apply = () => { if (map.isStyleLoaded()) render(map, rowsRef.current, visible, opacity, isDark); };
+    const apply = () => { if (map.isStyleLoaded()) render(map, rowsRef.current, visible, opacityRef.current, isDarkRef.current); };
     const refresh = async () => {
       try {
         const rows = await fetchRainGaugeLatest();
@@ -91,14 +96,14 @@ export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, vi
       return () => { cancelled = true; window.clearInterval(timer); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, opacity, isDark, mapTick]);
+  }, [mapRef, visible, mapTick]);
   useEffect(() => {
     const map = mapRef.current;
     if (map?.getLayer(BRIDGE_RAIN_CLICK_LAYER)) {
       map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-opacity", 0.95 * Math.max(0, Math.min(1, opacity)));
-      map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-stroke-color", mapSeamColor(isDark));
-      map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-stroke-width", POINT_STROKE.width);
-      map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * Math.max(0, Math.min(1, opacity)) / 0.9));
+      for (const [k, v] of Object.entries(pointStrokePaint(isDark, Math.max(0, Math.min(1, opacity)) / OPACITY_DEFAULT))) {
+        map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, k as "circle-stroke-color", v as never);
+      }
     }
   }, [mapRef, mapTick, opacity, isDark]);
 }

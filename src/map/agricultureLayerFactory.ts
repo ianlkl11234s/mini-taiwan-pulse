@@ -14,7 +14,8 @@ import {
 // PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "./mapStyleScale";
+import { pointRadius, pointStrokePaint } from "./mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { loadingRegistry } from "../lib/loadingRegistry";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}agriculture`;
@@ -429,6 +430,8 @@ export interface AgriPOIParams {
   scale: number;
 }
 
+const AGRI_POI_OPACITY_DEFAULT = Number(paramDefault("agriPOI", "agriPOIOpacity"));
+
 export const AGRI_POI_PARAMS_DEFAULT: AgriPOIParams = { opacity: 1, scale: 1 };
 
 export function ensureAgriPOILayers(map: MapboxMap, isDarkTheme = true): void {
@@ -450,9 +453,7 @@ export function ensureAgriPOILayers(map: MapboxMap, isDarkTheme = true): void {
         "circle-radius": pointRadius("M"),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "circle-color": POI_TYPE_COLOR_EXPR as any,
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-color": mapSeamColor(isDarkTheme),
-        "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
+        ...pointStrokePaint(isDarkTheme),
         "circle-opacity": 0.9,
       },
     });
@@ -489,6 +490,10 @@ export function updateAgriPOILayer(
   map.setLayoutProperty(POI_CIRCLE_ID, "visibility", visible ? "visible" : "none");
   map.setPaintProperty(POI_CIRCLE_ID, "circle-opacity", 0.9 * params.opacity);
   map.setPaintProperty(POI_CIRCLE_ID, "circle-radius", pointRadius("M", params.scale));
-  map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-color", mapSeamColor(isDarkTheme));
-  map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * params.opacity));
+  {
+    const stroke = pointStrokePaint(isDarkTheme, params.opacity / AGRI_POI_OPACITY_DEFAULT);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+  }
 }

@@ -18,7 +18,7 @@ import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { AqiStation } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 
 const SOURCE_ID = "aqi-stations-src";
 const LAYER_GLOW = "aqi-stations-glow";
@@ -54,9 +54,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       paint: {
         "circle-radius": pointRadius("L"),
         "circle-color": buildAqiStepExpression("aqi"),
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-color": mapSeamColor(isDark),
-        "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
+        ...pointStrokePaint(isDark),
         "circle-opacity": 0.95,
       },
     } as CircleLayer);
@@ -180,11 +178,9 @@ export function useAqiStationsLayer(
       map.setPaintProperty(LAYER_GLOW, "circle-opacity", isDark ? 0.35 : 0.3);
     }
     if (map.getLayer(LAYER_CIRCLE)) {
-      map.setPaintProperty(
-        LAYER_CIRCLE,
-        "circle-stroke-color",
-        isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.5)",
-      );
+      for (const [k, v] of Object.entries(pointStrokePaint(isDark))) {
+        map.setPaintProperty(LAYER_CIRCLE, k as "circle-stroke-color", v as never);
+      }
     }
   }, [mapRef, isDark, visible, mapTick]);
 }

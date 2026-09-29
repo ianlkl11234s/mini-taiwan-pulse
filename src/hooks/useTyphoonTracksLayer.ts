@@ -13,7 +13,8 @@ import {
   typhoonPointsToGeoJSON,
   type TyphoonPoint,
 } from "../data/typhoonTracksLoader";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 // 颱風軌跡 — observed 實線 + forecast 虛線 + 軌跡點 + 現在位置光圈。
 //
@@ -40,6 +41,22 @@ const ALL_LAYER_IDS = [LAYER_LINE_OBS, LAYER_LINE_FCST, LAYER_POINTS, ...CURRENT
 const OBS_COLOR = "#a855f7";
 const FCST_COLOR = "#38bdf8";
 
+const OPACITY_DEFAULT = Number(paramDefault("typhoonTracks", "typhoonTracksOpacity"));
+const IS_FORECAST: ExpressionSpecification = ["==", ["get", "point_type"], "forecast"];
+
+/**
+ * 點描邊：預測點（point_type=forecast）＝透明填色＋藍色外框的空心環，外框是圖形（資料編碼）、維持原色原寬；
+ * 實際觀測點才用底圖色細縫。建圖層與主題／透明度更新共用，避免任一處把值寫回。
+ */
+function typhoonPointStroke(isDark: boolean, opacityFactor: number) {
+  const seam = pointStrokePaint(isDark, opacityFactor);
+  return {
+    "circle-stroke-color": ["case", IS_FORECAST, FCST_COLOR, seam["circle-stroke-color"]] as unknown as ExpressionSpecification,
+    "circle-stroke-width": ["case", IS_FORECAST, 1.5, seam["circle-stroke-width"]] as unknown as ExpressionSpecification,
+    "circle-stroke-opacity": seam["circle-stroke-opacity"],
+  };
+}
+
 export type TyphoonSource = "all" | "jma" | "jtwc";
 
 export function useTyphoonTracksLayer(
@@ -52,6 +69,9 @@ export function useTyphoonTracksLayer(
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
 
+  // 建圖層時讀最新主題；主題／透明度變動只走下方 setPaintProperty，不重建 ensureSource／timeStore 訂閱
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
   const dataRef = useRef<TyphoonPoint[]>([]);
   const dataReadyRef = useRef(false);
   const layersReadyRef = useRef(false);
@@ -127,9 +147,7 @@ export function useTyphoonTracksLayer(
           // 預測=空心藍環（透明填色）；實際=實心紫點
           "circle-color": ["case", ["==", ["get", "point_type"], "forecast"], "rgba(0,0,0,0)", OBS_COLOR] as unknown as ExpressionSpecification,
           "circle-opacity": 0.85,
-          "circle-stroke-color": mapSeamColor(isDark),
-          "circle-stroke-width": POINT_STROKE.width,
-          "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
+          ...typhoonPointStroke(isDarkRef.current, 1),
         },
       } as CircleLayer);
     }
@@ -176,7 +194,7 @@ export function useTyphoonTracksLayer(
     }
     layersReadyRef.current = true;
     return true;
-  }, [isDark]);
+  }, []);
 
   // 可見性 + 時間過濾（訂閱 timeStore 節流 500ms，不走 React re-render）
   useEffect(() => {
@@ -240,9 +258,9 @@ export function useTyphoonTracksLayer(
     if (map.getLayer(LAYER_LINE_FCST)) map.setPaintProperty(LAYER_LINE_FCST, "line-opacity", 0.7 * o);
     if (map.getLayer(LAYER_POINTS)) {
       map.setPaintProperty(LAYER_POINTS, "circle-opacity", 0.85 * o);
-      map.setPaintProperty(LAYER_POINTS, "circle-stroke-color", mapSeamColor(isDark));
-      map.setPaintProperty(LAYER_POINTS, "circle-stroke-width", POINT_STROKE.width);
-      map.setPaintProperty(LAYER_POINTS, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * o / 0.9));
+      for (const [k, v] of Object.entries(typhoonPointStroke(isDark, o / OPACITY_DEFAULT))) {
+        map.setPaintProperty(LAYER_POINTS, k as "circle-stroke-color", v as never);
+      }
     }
     if (map.getLayer(LAYER_CURRENT_HALO)) map.setPaintProperty(LAYER_CURRENT_HALO, "circle-opacity", 0.16 * o);
     if (map.getLayer(LAYER_CURRENT_RING)) map.setPaintProperty(LAYER_CURRENT_RING, "circle-stroke-opacity", 0.35 * Math.min(1, o / 0.9));

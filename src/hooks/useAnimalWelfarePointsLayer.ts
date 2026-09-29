@@ -3,7 +3,8 @@ import type { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { fetchAnimalWelfarePoints, type AnimalWelfarePointRow } from "../data/animalWelfarePointsLoader";
 import { ANIMAL_WELFARE_POINT_COLOR_EXPR, animalWelfarePointTypeFilter } from "../data/animalWelfarePointsTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { HOOK_POINT_TIERS } from "../map/pointTiers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -18,12 +19,10 @@ export function animalWelfarePointRadius(scale: number): number {
   return pointRadius(tier, scale);
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("animalWelfarePoints", "animalWelfarePointsOpacity"));
+
 export function animalWelfarePointStroke(isDark: boolean, opacity: number) {
-  return {
-    "circle-stroke-color": mapSeamColor(isDark),
-    "circle-stroke-width": POINT_STROKE.width,
-    "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * (opacity / 0.85)),
-  };
+  return pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
 }
 
 function ensureLayers(map: MapboxMap, opacity: number, scale: number, isDark: boolean, pointTypeMask?: number) {

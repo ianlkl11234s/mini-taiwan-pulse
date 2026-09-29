@@ -3,7 +3,10 @@ import type { CircleLayer, ExpressionSpecification, Map as MapboxMap } from "map
 import { fetchJpStations } from "../data/jpStationsLoader";
 import { JP_STATION_TYPE_COLOR_EXPRESSION, JP_STATION_PAX_COLOR_EXPRESSION } from "../data/jpStationTypes";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+
+const DEFAULT_OPACITY = Number(paramDefault("jpStations", "jpStationsOpacity") ?? 1);
 
 const SOURCE_ID = "jp-stations";
 const LAYER_ID = "jp-stations-circle";
@@ -26,9 +29,7 @@ function circleLayer(radius: number, opacity: number, colorMode: "type" | "rider
       "circle-radius": radius,
       "circle-color": colorExpression(colorMode),
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": mapSeamColor(isDark),
-      "circle-stroke-width": POINT_STROKE.width,
-      "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.85),
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY),
     },
   } as CircleLayer;
 }
@@ -82,9 +83,8 @@ export function useJpStationsLayer(
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
         map.setPaintProperty(LAYER_ID, "circle-color", colorExpression(colorMode));
-        map.setPaintProperty(LAYER_ID, "circle-stroke-color", mapSeamColor(isDark));
-        map.setPaintProperty(LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
-        map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.85));
+        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(LAYER_ID, prop, stroke[prop]);
       }
     };
 

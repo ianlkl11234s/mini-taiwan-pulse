@@ -24,7 +24,24 @@ import {
 import { propagate, splitAtDateline } from "../data/satelliteSGP4";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { POINT_STROKE, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+
+const OPACITY_DEFAULT = Number(paramDefault("satellitesYaogan", "satOpacity"));
+const IS_MANEUVER: ExpressionSpecification = ["==", ["get", "maneuver"], 1];
+
+/**
+ * 點描邊：變軌中（maneuver=1）是資料編碼，維持紅色 2px 外框（另有紅色 pulse ring）；
+ * 其餘衛星用底圖色細縫。建圖層與主題／透明度更新共用。
+ */
+function satellitePointStroke(isDark: boolean, opacity: number) {
+  const seam = pointStrokePaint(isDark, Math.max(0, Math.min(1, opacity)) / OPACITY_DEFAULT);
+  return {
+    "circle-stroke-color": ["case", IS_MANEUVER, "#ef4444", seam["circle-stroke-color"]] as unknown as ExpressionSpecification,
+    "circle-stroke-width": ["case", IS_MANEUVER, 2, POINT_STROKE.width] as unknown as ExpressionSpecification,
+    "circle-stroke-opacity": seam["circle-stroke-opacity"],
+  };
+}
 
 /**
  * 衛星圖層 — 三個 toggle（中國軍事 / 中國遙測 / 台灣），共用 SGP4 計算
@@ -152,6 +169,12 @@ export function useSatellitesLayer(
   visibilityRef.current = visibility;
   const trackMinutesRef = useRef(trackMinutes);
   trackMinutesRef.current = trackMinutes;
+  // 主題／透明度：建圖層時讀 ref；變動只走下方 setPaintProperty effect，
+  // 不能進 ensureLayers deps（會重建 timeStore 訂閱、重算軌道）。
+  const isDarkRef = useRef(isDarkTheme);
+  isDarkRef.current = isDarkTheme;
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   // ── 載入 TLE（一次性，6h cache；lazy：anyVisible 為 true 才抓） ──
   useEffect(() => {
@@ -237,9 +260,7 @@ export function useSatellitesLayer(
             ["==", ["get", "maneuver"], 1], pointRadius("M"),
             pointRadius("M", 4 / 6),
           ],
-          "circle-stroke-color": mapSeamColor(isDarkTheme),
-          "circle-stroke-width": POINT_STROKE.width,
-          "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
+          ...satellitePointStroke(isDarkRef.current, opacityRef.current),
         },
       } as CircleLayer);
     }
@@ -261,13 +282,9 @@ export function useSatellitesLayer(
         },
       } as CircleLayer);
     }
-    if (map.getLayer(SAT_LAYER_POINT)) {
-      map.setPaintProperty(SAT_LAYER_POINT, "circle-stroke-color", mapSeamColor(isDarkTheme));
-      map.setPaintProperty(SAT_LAYER_POINT, "circle-stroke-opacity", POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * opacity);
-    }
     layersReadyRef.current = true;
     return true;
-  }, [isDarkTheme, opacity]);
+  }, []);
 
   // 計算「目前可見的 cat 清單」
   const computeVisibleCats = (): SatelliteCategory[] => {
@@ -508,6 +525,9 @@ export function useSatellitesLayer(
     }
     if (map.getLayer(SAT_LAYER_POINT)) {
       map.setPaintProperty(SAT_LAYER_POINT, "circle-opacity", 1 * o);
+      for (const [k, v] of Object.entries(satellitePointStroke(isDarkTheme, o))) {
+        map.setPaintProperty(SAT_LAYER_POINT, k as "circle-stroke-color", v as never);
+      }
     }
-  }, [opacity, mapRef, dataReady, mapTick]);
+  }, [opacity, isDarkTheme, mapRef, dataReady, mapTick]);
 }

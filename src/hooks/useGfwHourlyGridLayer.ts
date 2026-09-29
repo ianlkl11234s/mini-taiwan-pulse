@@ -20,7 +20,8 @@ import {
   type GfwHourlyGridDataWindowState,
 } from "../state/gfwHourlyGridDataWindowStore";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { POINT_STROKE, mapSeamColor } from "../map/mapStyleScale";
+import { pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import {
   GFW_HOURLY_GRID_V3_FILL_OPACITY,
   GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION,
@@ -69,6 +70,8 @@ export const GFW_HOURLY_GRID_CLICK_LAYERS = [
   GFW_HOURLY_GRID_PMTILES_NEXT_HIT_FILL_LAYER_ID,
   GFW_HOURLY_GRID_PMTILES_PRELOAD_HIT_FILL_LAYER_ID,
 ] as const;
+
+const GRID_OPACITY_DEFAULT = Number(paramDefault("gfwHourlyGrid", "gfwHourlyGridOpacity"));
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -263,9 +266,7 @@ function ensureLayer(
         ],
         "circle-color": "#fb923c",
         "circle-opacity": 0.8,
-        "circle-stroke-color": mapSeamColor(isDarkTheme),
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
+        ...pointStrokePaint(isDarkTheme),
       },
       layout: { visibility: "none" },
     } as CircleLayer);
@@ -711,7 +712,7 @@ export function useGfwHourlyGridLayer(
           [GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_COUNT_LAYER_ID, nextWeight],
         ] as const) {
           map.setPaintProperty(circleId, "circle-opacity", clampedOpacity * weight);
-          map.setPaintProperty(circleId, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkThemeRef.current ? "dark" : "light"] * clampedOpacity / 0.8) * weight);
+          map.setPaintProperty(circleId, "circle-stroke-opacity", Number(pointStrokePaint(isDarkThemeRef.current, clampedOpacity / GRID_OPACITY_DEFAULT)["circle-stroke-opacity"]) * weight);
           map.setPaintProperty(countId, "text-opacity", clampedOpacity * weight);
         }
         for (const [fillId, outlineId, weight] of [
@@ -907,8 +908,12 @@ export function useGfwHourlyGridLayer(
         ensureLayers(map, isDarkThemeRef.current);
         for (const id of [GFW_HOURLY_GRID_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID]) {
           if (map.getLayer(id)) {
-            map.setPaintProperty(id, "circle-stroke-color", mapSeamColor(isDarkThemeRef.current));
-            map.setPaintProperty(id, "circle-stroke-opacity", POINT_STROKE.opacity[isDarkThemeRef.current ? "dark" : "light"] * opacityRef.current / 0.8);
+            {
+              const stroke = pointStrokePaint(isDarkThemeRef.current, opacityRef.current / GRID_OPACITY_DEFAULT);
+              map.setPaintProperty(id, "circle-stroke-color", stroke["circle-stroke-color"]);
+              map.setPaintProperty(id, "circle-stroke-width", stroke["circle-stroke-width"]);
+              map.setPaintProperty(id, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+            }
           }
         }
         applyGridPaint(map, isV4GridManifest(manifestRef.current));
@@ -983,7 +988,7 @@ export function useGfwHourlyGridLayer(
     const map = mapRef.current;
     if (!map) return;
     for (const id of [GFW_HOURLY_GRID_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID]) {
-      if (map.getLayer(id)) map.setPaintProperty(id, "circle-stroke-color", mapSeamColor(isDarkTheme));
+      if (map.getLayer(id)) map.setPaintProperty(id, "circle-stroke-color", pointStrokePaint(isDarkTheme)["circle-stroke-color"]);
     }
     applyOpacityRef.current(timeStore.getTime());
   }, [isDarkTheme, mapRef, mapTick]);

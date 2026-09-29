@@ -12,7 +12,8 @@ import {
 } from "../data/marineObservationLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -88,22 +89,6 @@ function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
 
-/**
- * Keep `zoom` as the direct input of the top-level interpolate. Mapbox rejects
- * otherwise plausible expressions such as `["*", ["interpolate", ..., ["zoom"]], scale]`.
- */
-export function marineObservationRadiusExpression(
-  scale = 1,
-): ExpressionSpecification {
-  return [
-    "interpolate", ["linear"], ["zoom"],
-    5, 2.4 * scale,
-    8, 3.6 * scale,
-    12, 5.2 * scale,
-    16, 7.2 * scale,
-  ] as unknown as ExpressionSpecification;
-}
-
 function abnormalPropertyStatusExpression(property: "sourceStatus" | "latestSourceStatus"): ExpressionSpecification {
   return [
     "all",
@@ -156,9 +141,25 @@ function marineObservationOpacityExpression(
   ] as unknown as ExpressionSpecification;
 }
 
+const LAYER_KEY: Record<MarineSourceNetwork, "marineObservationCwa" | "marineObservationIsohe"> = {
+  cwa: "marineObservationCwa",
+  isohe: "marineObservationIsohe",
+};
+
+function defaultOpacity(sourceNetwork: MarineSourceNetwork): number {
+  const key = LAYER_KEY[sourceNetwork];
+  const def = paramDefault(key, `${key}Opacity`);
+  return typeof def === "number" && def > 0 ? def : 1;
+}
+
+/** 描邊透明度倍率 = 滑桿值 ÷ 規格預設（預設取自 layerParamsSpec，不手寫）。 */
+function strokeFactor(sourceNetwork: MarineSourceNetwork, opacity: number): number {
+  return clampOpacity(opacity) / defaultOpacity(sourceNetwork);
+}
+
 export function marineObservationCircleLayers(
   sourceNetwork: MarineSourceNetwork,
-  opacity = 0.9,
+  opacity = defaultOpacity(sourceNetwork),
   isDarkTheme = true,
 ): readonly CircleLayer[] {
   const config = NETWORK_CONFIG[sourceNetwork];
@@ -186,9 +187,7 @@ export function marineObservationCircleLayers(
         "circle-radius": pointRadius("M"),
         "circle-color": color,
         "circle-opacity": pointOpacity,
-        "circle-stroke-color": mapSeamColor(isDarkTheme),
-        "circle-stroke-width": POINT_STROKE.width,
-        "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * clampOpacity(opacity) / 0.9),
+        ...pointStrokePaint(isDarkTheme, strokeFactor(sourceNetwork, opacity)),
       },
     } as CircleLayer,
   ];
@@ -265,8 +264,8 @@ function updatePaint(
       "circle-opacity",
       marineObservationOpacityExpression(opacity),
     );
-    map.setPaintProperty(config.circleLayerId, "circle-stroke-color", mapSeamColor(isDarkTheme));
-    map.setPaintProperty(config.circleLayerId, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * clampOpacity(opacity) / 0.9));
+    const stroke = pointStrokePaint(isDarkTheme, strokeFactor(sourceNetwork, opacity));
+    for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(config.circleLayerId, prop, stroke[prop]);
   }
 }
 
@@ -275,7 +274,7 @@ export function useMarineObservationLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   sourceNetwork: MarineSourceNetwork,
   visible: boolean,
-  opacity = 0.9,
+  opacity = defaultOpacity(sourceNetwork),
   isDarkTheme = true,
 ): void {
   const config = NETWORK_CONFIG[sourceNetwork];
