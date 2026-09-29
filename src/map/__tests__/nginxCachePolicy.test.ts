@@ -14,7 +14,7 @@ const ONE_DAY = "public, max-age=86400";
 
 const mapBody = nginx.match(/map \$uri \$static_cache_control \{([\s\S]*?)\n\}/)?.[1] ?? "";
 const rules = [...mapBody.matchAll(/^\s*"~\*(.+)"\s+"([^"]+)";/gm)].map(
-  ([, re, value]) => ({ re: new RegExp(re, "i"), value }),
+  ([, re, value]) => ({ re: new RegExp(re ?? "", "i"), value: value ?? "" }),
 );
 const defaultValue = mapBody.match(/default\s+"([^"]+)";/)?.[1];
 
@@ -53,7 +53,7 @@ describe("nginx 靜態快取政策", () => {
   it("每個 location 區塊至多一條 Cache-Control", () => {
     const blocks = nginx.split(/\n\s*location\s/).slice(1);
     for (const block of blocks) {
-      const body = block.split(/\n {4}\}/)[0];
+      const body = block.split(/\n {4}\}/)[0] ?? "";
       const count = (body.match(/add_header\s+Cache-Control\b/g) ?? []).length;
       expect(count, body.slice(0, 80)).toBeLessThanOrEqual(1);
     }
