@@ -2192,6 +2192,7 @@ export const LAYER_MANIFEST = {
     key: "bridgeRainThresholds",
     section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     label: "一級監控橋梁參考雨量",
+    expandable: true,
     color: "#ef4444",
     icon: Network,
     upstream: { status: "verified", datasets: [{ datasetId: "rain_gauge_stations", confidence: "MED" }], processing: "前期記錄的公路局 115 年第 4 版一級監控橋梁表參考測站及雨量條件，配對 CWA latest 觀測；現行表版次待覆核，橋位為 OSM 同名候選中心點。" },
