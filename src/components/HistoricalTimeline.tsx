@@ -1,5 +1,5 @@
 import { Pause, Play } from "lucide-react";
-import { DAY, RE_PERIODS, type ReGran } from "../lib/realEstateTime";
+import { RE_PERIODS, stepReCursor, type ReGran } from "../lib/realEstateTime";
 import { TimeAxis } from "./timeline/TimeAxis";
 import { TimelineShell } from "./timeline/TimelineShell";
 import {
@@ -55,8 +55,6 @@ const granLabel: Record<HistoricalGranularity, string> = {
   day: "日",
 };
 const reGranLabel: Record<ReGran, string> = { quarter: "季", month: "月", week: "週" };
-/** 房地產游標的鍵盤步長（秒）；季由 App 端 snapQuarterStart 吸附 */
-const RE_KEY_STEP: Record<ReGran, number> = { quarter: 92 * DAY, month: 30 * DAY, week: 7 * DAY };
 
 function daysInMonth(rocYear: number, month: number): number {
   // 用 AD Date 末日 trick：new Date(year, month, 0) 回傳上個月最後一天
@@ -143,9 +141,9 @@ export function HistoricalTimeline({
           ariaValueText={reCursorLabel}
           onSeekRatio={(r) => seek(reCursorMin + r * span)}
           onKey={(key) => {
-            const stepSec = RE_KEY_STEP[reGran];
-            if (key === "ArrowLeft" || key === "ArrowDown") seek(ts - stepSec);
-            else if (key === "ArrowRight" || key === "ArrowUp") seek(ts + stepSec);
+            // 日曆步進（季由 App 端 snapQuarterStart 吸附）
+            if (key === "ArrowLeft" || key === "ArrowDown") seek(stepReCursor(ts, reGran, -1));
+            else if (key === "ArrowRight" || key === "ArrowUp") seek(stepReCursor(ts, reGran, 1));
             else if (key === "Home") seek(reCursorMin);
             else if (key === "End") seek(reCursorMax);
             else return false;

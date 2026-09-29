@@ -37,6 +37,16 @@ export function nextQuarterStart(ts: number): number {
   return Q_START_TS[Q_START_TS.length - 1]!;
 }
 
+/** 鍵盤步進一格：週 ±7 天；月／季依日曆 ±1／±3 個月（日期超出目標月末時夾到月末）。
+ *  固定 30／92 天會在月長不一的地方跳過整月或整季（如 4/1 − 92 天 = 12/31，吸附後跳過 Q1）。 */
+export function stepReCursor(ts: number, gran: ReGran, direction: 1 | -1): number {
+  if (gran === "week") return ts + direction * 7 * DAY;
+  const d = new Date(ts * 1000);
+  const month = d.getUTCMonth() + direction * (gran === "quarter" ? 3 : 1);
+  const lastDay = new Date(Date.UTC(d.getUTCFullYear(), month + 1, 0)).getUTCDate();
+  return Date.UTC(d.getUTCFullYear(), month, Math.min(d.getUTCDate(), lastDay), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()) / 1000;
+}
+
 /** unix 秒 → YYYY-MM-DD（UTC） */
 export function tsToDate(ts: number): string {
   const d = new Date(ts * 1000);
