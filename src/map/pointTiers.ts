@@ -50,7 +50,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   livestockSlaughter: "L", // 屠宰場 Slaughterhouses
   lngTerminal: "L", // LNG 接收站 Terminal
   serviceArea: "L", // 國道服務區 Service Area
-  // ── 泡泡（依資料） · 38 層
+  // ── 泡泡（依資料） · 43 層
   a1AccidentRealtime: "B", // A1 即時事故 A1 Realtime
   antiCorruptionOffice: "B", // 廉政署 AAC
   coastGuardStation: "B", // 海巡 Coast Guard
@@ -79,7 +79,10 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   parksTaipei: "B", // 公園 Parks
   performingVenues: "B", // 表演場館 Performing Venues
   policeStation: "B", // 警察機關 Police
+  pollutionFacility: "B", // 資料驅動半徑（max_sev），2026-09-29 拍板改泡泡 · 污染潛勢設施 Facility
   pollutionPenaltyCritical: "B", // 重大裁處 Critical Penalty
+  pollutionPenaltyGeneral: "B", // 資料驅動半徑（severity_event），2026-09-29 拍板改泡泡 · 一般裁處 General Penalty
+  powerPlants: "B", // 資料驅動半徑（radius），2026-09-29 拍板改泡泡 · 發電廠 Power Plants
   prosecutorsOffice: "B", // 檢察署 Prosecutors
   protectedTreesNational: "B", // 受保護樹木 Protected Trees
   speedCamera: "B", // 測速照相 Speed Camera
@@ -89,7 +92,9 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   sportsPublicOther: "B", // 其他公共場館 Other Public Venues
   sportsSchool: "B", // 學校場館 School
   waterReservoirs: "B", // 水庫 Reservoir
-  // ── 中 M（半徑 4.5） · 119 層
+  welfareElderlyHomes: "B", // 資料驅動半徑（床數），2026-09-29 拍板改泡泡 · 老人住宿機構 Elderly Homes
+  welfareNursingHomes: "B", // 資料驅動半徑（床數），2026-09-29 拍板改泡泡 · 護理機構 Nursing Homes
+  // ── 中 M（半徑 4.5） · 114 層
   manufacturingCompanyPoints: "M", // 製造業公司登記點位（suffix manufacturing-circle 原被誤判為裝飾，2026-09-28 補入）
   accessibleParkFacilities: "M", // 無障礙設施探索 Accessibility
   agriProduceWholesale: "M", // 蔬果批發商 Produce Wholesale
@@ -156,12 +161,9 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   osmWindTurbines: "M", // 風機 Wind Turbines
   parkingOnstreet: "M", // 路邊停車 On-street
   playgrounds: "M", // 遊戲場 Playgrounds
-  pollutionFacility: "M", // 污染潛勢設施 Facility
-  pollutionPenaltyGeneral: "M", // 一般裁處 General Penalty
   pollutionSite: "M", // 污染場址 Site
   ports: "M", // 港口 Port
   postOffices: "M", // 郵局 Post Office
-  powerPlants: "M", // None
   publicLibraries: "M", // 公共圖書館 Public Library
   publicToilets: "M", // 公廁 Public Toilet
   publicWasteBaskets: "M", // 公共垃圾桶 Waste Baskets
@@ -202,11 +204,9 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   welfareChildServices: "M", // 兒少服務 Child Services
   welfareChildcare: "M", // 托嬰中心 Childcare
   welfareDisability: "M", // 身障福利機構 Disability
-  welfareElderlyHomes: "M", // 老人住宿機構 Elderly Homes
   welfareGovOffices: "M", // 公部門社福據點 Gov Offices
   welfareLtcInstitutions: "M", // 長照立案機構 LTC Institutions
   welfareMentalHealth: "M", // 心理衛生機構 Mental Health
-  welfareNursingHomes: "M", // 護理機構 Nursing Homes
   welfareSocialWorkOrgs: "M", // 社福團體 Social Work Orgs
   womenChildWarning: "M", // 婦幼警示點 Women/Child Warning
 };
