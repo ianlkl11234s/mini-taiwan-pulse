@@ -1122,7 +1122,7 @@ function FireEventLegend() {
     <div>
       <LegendTitle zh="火災歷史" en="Fire" />
       <FireCatRows cats={FIRE_EVENT_CATS} />
-      <LegendNote>有外框＝有死傷</LegendNote>
+      <LegendNote>有死傷＝較大的紅點＋醒目外框（其餘點只有淡色描邊）</LegendNote>
     </div>
   );
 }
