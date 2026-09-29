@@ -33,7 +33,8 @@ for (const [, filename, size, sha256] of assets) {
 let statements = [];
 try {
   const policy = await client.send(new GetBucketPolicyCommand({ Bucket }));
-  statements = JSON.parse(policy.Policy).Statement;
+  // IAM allows Statement to be a single object as well as an array; normalise before iterating.
+  statements = [].concat(JSON.parse(policy.Policy).Statement ?? []);
 } catch (error) {
   if (error?.name !== 'NoSuchBucketPolicy') throw error;
 }
