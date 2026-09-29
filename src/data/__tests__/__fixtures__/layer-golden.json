@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 803,
+    "keyCount": 811,
     "sections": [
       "gisLayers",
       "overlays",
@@ -863,6 +863,12 @@
         "jp-water-jpWaterLevelStations"
       ],
       "type": "jpWaterLevelStations"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-monitoring-sites-circle"
+      ],
+      "type": "liquefactionMonitoringSites"
     },
     {
       "layers": [
@@ -2941,6 +2947,55 @@
         "agri-ftw-fields-fill"
       ],
       "type": "agricultureField"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilClay0To5-fill",
+        "soil-liquefaction-weakSoilClay0To5-missing"
+      ],
+      "type": "weakSoilClay0To5"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilSand0To5-fill",
+        "soil-liquefaction-weakSoilSand0To5-missing"
+      ],
+      "type": "weakSoilSand0To5"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilClay5To10-fill",
+        "soil-liquefaction-weakSoilClay5To10-missing"
+      ],
+      "type": "weakSoilClay5To10"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilSand5To10-fill",
+        "soil-liquefaction-weakSoilSand5To10-missing"
+      ],
+      "type": "weakSoilSand5To10"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilClay10To20-fill",
+        "soil-liquefaction-weakSoilClay10To20-missing"
+      ],
+      "type": "weakSoilClay10To20"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-weakSoilSand10To20-fill",
+        "soil-liquefaction-weakSoilSand10To20-missing"
+      ],
+      "type": "weakSoilSand10To20"
+    },
+    {
+      "layers": [
+        "soil-liquefaction-potential-fill",
+        "soil-liquefaction-potential-not-investigated"
+      ],
+      "type": "soilLiquefactionPotential"
     },
     {
       "layers": [
@@ -62831,6 +62886,17 @@
         "valueText": "1.0"
       }
     ],
+    "liquefactionMonitoringSites": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
     "livestockFarmCattle": [
       {
         "label": "透明度 0.85",
@@ -66973,6 +67039,17 @@
         "step": 10,
         "value": 50,
         "valueText": "50"
+      }
+    ],
+    "soilLiquefactionPotential": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "soundCameraLocations": [
@@ -72675,6 +72752,72 @@
         "step": 10,
         "value": 0,
         "valueText": "0 m"
+      }
+    ],
+    "weakSoilClay0To5": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilClay10To20": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilClay5To10": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilSand0To5": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilSand10To20": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "weakSoilSand5To10": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "weatherAlerts": [

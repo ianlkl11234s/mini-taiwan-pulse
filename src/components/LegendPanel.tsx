@@ -9,7 +9,8 @@ import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALL
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchSquare, useLegendTheme } from "./legend/legendKit";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { LIQUEFACTION_SITE_COLOR, SOIL_POTENTIAL_CLASSES, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS, WEAK_SOIL_MIN_ZOOM, WEAK_SOIL_SPT_THRESHOLD } from "../data/soilLiquefactionTypes";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BORDER, COLORS, ELEVATION, LIGHT, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
@@ -389,6 +390,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "statsWasteCounty", render: () => <StatisticsLegend layerKey="statsWasteCounty" /> },
   { id: "statsRecyclingCounty", render: () => <StatisticsLegend layerKey="statsRecyclingCounty" /> },
   { id: "earthquakes", render: () => <EarthquakeLegend /> },
+  { id: "soilLiquefactionPotential", render: () => <SoilLiquefactionPotentialLegend /> },
+  { id: "weakSoilClay", render: () => <WeakSoilLegend type="clay" /> },
+  { id: "weakSoilSand", render: () => <WeakSoilLegend type="sand" /> },
+  { id: "liquefactionMonitoringSites", render: () => <LiquefactionMonitoringLegend /> },
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
@@ -3429,6 +3434,47 @@ function CropSuitabilityLegend({ cropId }: { cropId: number }) {
       </div>
     </div>
   );
+}
+
+// ── Soil Liquefaction Legend（owner-only 私人 PMTiles；色票與 hook 同一組常數）──
+
+const SOIL_RIGHTS_NOTE = "來源：經濟部地質調查及礦業管理中心；站主限定研究，重利用條款待確認（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）。";
+
+function SoilLiquefactionPotentialLegend() {
+  return <div>
+    <LegendTitle zh="土壤液化潛勢" en="Soil Liquefaction" />
+    {SOIL_POTENTIAL_CLASSES.map((item) => <LegendRow key={item.value} swatch={<SwatchSquare color={item.color} />}>{item.label}</LegendRow>)}
+    <LegendRow swatch={<SwatchHatch />}>未調查（不等於低潛勢）</LegendRow>
+    <LegendNote>高／中／低是官方綜合類別，不是量測值；個別基地僅供初步評估，不構成工程安全判定。</LegendNote>
+    <LegendNote>{SOIL_RIGHTS_NOTE}</LegendNote>
+  </div>;
+}
+
+const weakSoilBreaks = (uppers: readonly number[]) => uppers.map((upper) => `≤${upper}`);
+
+function WeakSoilLegend({ type }: { type: 'clay' | 'sand' }) {
+  const t = useLegendTheme();
+  const colors = WEAK_SOIL_COLORS[type];
+  return <div>
+    <LegendTitle zh={type === 'clay' ? '弱層黏土厚度' : '弱層砂土厚度'} en={type === 'clay' ? 'Soft Clay' : 'Loose Sand'} />
+    <LegendRow swatch={null}>0–5、5–10 m 段（m）</LegendRow>
+    <SwatchSteps colors={colors} breaks={weakSoilBreaks(WEAK_SOIL_CLASS_UPPER_M['0_5m'])} />
+    <LegendRow swatch={null}>10–20 m 段（m）</LegendRow>
+    <SwatchSteps colors={colors} breaks={weakSoilBreaks(WEAK_SOIL_CLASS_UPPER_M['10_20m'])} />
+    <LegendRow swatch={<SwatchSquare color={t.border} outline />}>厚度 <LegendNum>0 m</LegendNum>＝該深度段無弱層（不填色）</LegendRow>
+    <LegendRow swatch={<SwatchHatch />}>缺值（無資料，不等於 0）</LegendRow>
+    <LegendNote>{`門檻 ${WEAK_SOIL_SPT_THRESHOLD[type]}；每級＝該深度段厚度的 20%。三個深度段對應不同開挖參考深度，縮放 ${WEAK_SOIL_MIN_ZOOM} 級以上顯示。`}</LegendNote>
+    <LegendNote>{SOIL_RIGHTS_NOTE}</LegendNote>
+  </div>;
+}
+
+function LiquefactionMonitoringLegend() {
+  return <div>
+    <LegendTitle zh="土壤液化監測站" en="Liquefaction Monitoring" />
+    <LegendRow swatch={<SwatchDot color={LIQUEFACTION_SITE_COLOR} />}>官方圖台列出的 11 個站點位置</LegendRow>
+    <LegendNote>只有位置與名稱，不是即時觀測值；監測數據請回官方頁面查詢。</LegendNote>
+    <LegendNote>{SOIL_RIGHTS_NOTE}</LegendNote>
+  </div>;
 }
 
 // ── Earthquake Legend ──

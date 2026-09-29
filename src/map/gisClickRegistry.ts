@@ -213,6 +213,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-water-jpWaterLocalFacilities"], type: "jpWaterLocalFacilities" },
   { layers: ["jp-water-jpWaterQualityStations"], type: "jpWaterQualityStations" },
   { layers: ["jp-water-jpWaterLevelStations"], type: "jpWaterLevelStations" },
+  // 土壤液化監測站（owner-only 11 點）：點層，排在面層之前。
+  { layers: ["soil-liquefaction-monitoring-sites-circle"], type: "liquefactionMonitoringSites" },
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
@@ -614,6 +616,15 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
   { layers: ["agri-ftw-fields-fill"], type: "agricultureField" },
+  // 土壤液化（owner-only）：弱層 100 m 格比潛勢調查單元細，先命中；各自連同缺值斜線子層
+  // （厚度 0 的格子 fill 透明但仍可點，popup 顯示「無弱層」）。潛勢連同「未調查」斜線層。
+  { layers: ["soil-liquefaction-weakSoilClay0To5-fill", "soil-liquefaction-weakSoilClay0To5-missing"], type: "weakSoilClay0To5" },
+  { layers: ["soil-liquefaction-weakSoilSand0To5-fill", "soil-liquefaction-weakSoilSand0To5-missing"], type: "weakSoilSand0To5" },
+  { layers: ["soil-liquefaction-weakSoilClay5To10-fill", "soil-liquefaction-weakSoilClay5To10-missing"], type: "weakSoilClay5To10" },
+  { layers: ["soil-liquefaction-weakSoilSand5To10-fill", "soil-liquefaction-weakSoilSand5To10-missing"], type: "weakSoilSand5To10" },
+  { layers: ["soil-liquefaction-weakSoilClay10To20-fill", "soil-liquefaction-weakSoilClay10To20-missing"], type: "weakSoilClay10To20" },
+  { layers: ["soil-liquefaction-weakSoilSand10To20-fill", "soil-liquefaction-weakSoilSand10To20-missing"], type: "weakSoilSand10To20" },
+  { layers: ["soil-liquefaction-potential-fill", "soil-liquefaction-potential-not-investigated"], type: "soilLiquefactionPotential" },
   // Transparent supply areas are intentionally the final click candidate across the map,
   // so a coverage polygon never intercepts any detailed point, line, or other fill.
   { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },

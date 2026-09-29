@@ -158,7 +158,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-22: +10 公共生活與韌性圖層。
     // 2026-09-23/24: +6 交通設施與橋梁雨量圖層。
     // 2026-09-27: +9 勞動與所得 Statistics 圖層。
-    expect(keys.length).toBe(803);
+    // 2026-09-29: +8 土壤液化 owner-only 圖層（潛勢、弱層 6、監測站）。
+    expect(keys.length).toBe(811);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

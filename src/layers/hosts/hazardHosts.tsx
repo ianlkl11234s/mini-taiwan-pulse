@@ -6,6 +6,7 @@ import { useLibrarySeatsLayer } from "../../hooks/useLibrarySeatsLayer";
 import { useParkingLayer } from "../../hooks/useParkingLayer";
 import { useEarthquakeLayer } from "../../hooks/useEarthquakeLayer";
 import { useEarthquakeReplayLayer } from "../../hooks/useEarthquakeReplayLayer";
+import { useSoilLiquefactionLayers } from "../../hooks/useSoilLiquefactionLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { paramNum, paramStr, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 
@@ -97,5 +98,29 @@ export const EarthquakeReplayHost: LayerHostComponent = ({ deps }) => {
     deps.onEqReplayEnd,
     deps.isDarkTheme,
   );
+  return null;
+};
+
+/** 土壤液化 8 層（owner-only 私人 PMTiles；未授權時 App 已鎖住 key，hook 也不掛 source）。 */
+export const SoilLiquefactionHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useSoilLiquefactionLayers");
+  const potential = useLayerParams("soilLiquefactionPotential");
+  const clay0To5 = useLayerParams("weakSoilClay0To5"); const sand0To5 = useLayerParams("weakSoilSand0To5");
+  const clay5To10 = useLayerParams("weakSoilClay5To10"); const sand5To10 = useLayerParams("weakSoilSand5To10");
+  const clay10To20 = useLayerParams("weakSoilClay10To20"); const sand10To20 = useLayerParams("weakSoilSand10To20");
+  const monitoring = useLayerParams("liquefactionMonitoringSites");
+  useSoilLiquefactionLayers(deps.mapRef, {
+    soilLiquefactionPotential: deps.layerVisibility.soilLiquefactionPotential,
+    weakSoilClay0To5: deps.layerVisibility.weakSoilClay0To5, weakSoilSand0To5: deps.layerVisibility.weakSoilSand0To5,
+    weakSoilClay5To10: deps.layerVisibility.weakSoilClay5To10, weakSoilSand5To10: deps.layerVisibility.weakSoilSand5To10,
+    weakSoilClay10To20: deps.layerVisibility.weakSoilClay10To20, weakSoilSand10To20: deps.layerVisibility.weakSoilSand10To20,
+    liquefactionMonitoringSites: deps.layerVisibility.liquefactionMonitoringSites,
+  }, {
+    soilLiquefactionPotential: paramNum(potential, "soilLiquefactionPotential", "soilLiquefactionPotentialOpacity"),
+    weakSoilClay0To5: paramNum(clay0To5, "weakSoilClay0To5", "weakSoilClay0To5Opacity"), weakSoilSand0To5: paramNum(sand0To5, "weakSoilSand0To5", "weakSoilSand0To5Opacity"),
+    weakSoilClay5To10: paramNum(clay5To10, "weakSoilClay5To10", "weakSoilClay5To10Opacity"), weakSoilSand5To10: paramNum(sand5To10, "weakSoilSand5To10", "weakSoilSand5To10Opacity"),
+    weakSoilClay10To20: paramNum(clay10To20, "weakSoilClay10To20", "weakSoilClay10To20Opacity"), weakSoilSand10To20: paramNum(sand10To20, "weakSoilSand10To20", "weakSoilSand10To20Opacity"),
+    liquefactionMonitoringSites: paramNum(monitoring, "liquefactionMonitoringSites", "liquefactionMonitoringSitesOpacity"),
+  }, deps.isDarkTheme);
   return null;
 };
