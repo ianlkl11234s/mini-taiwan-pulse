@@ -20,6 +20,10 @@ const JP_WATER_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/
 const JP_WATER_PATH = "/api/private-research/jp-water";
 const JP_WATER_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const JP_WATER_S3_PREFIX = "private-research/jp-water";
+const SOIL_LIQUEFACTION_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/output/soil_liquefaction_private";
+const SOIL_LIQUEFACTION_PATH = "/api/private-research/soil-liquefaction";
+const SOIL_LIQUEFACTION_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const SOIL_LIQUEFACTION_S3_PREFIX = "private-research/soil-liquefaction";
 const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
@@ -43,6 +47,14 @@ const JP_WATER_ASSETS = Object.freeze({
     filename: "extra-water.pmtiles",
     size: 31656052,
     sha256: "e41775f0ae3d33c04866896b0002002d20338937d11f124c51461017409a5bf9",
+  }),
+});
+// TODO: fill size/sha256 from soil-liquefaction.receipt.json once the PMTiles is produced.
+export const SOIL_LIQUEFACTION_ASSETS = Object.freeze({
+  tiles: Object.freeze({
+    filename: "soil-liquefaction.pmtiles",
+    size: 9291762,
+    sha256: "2571e4f56c6df43a30da8ac679cb28005c55bc77cb4d2a1d5b308086a2f0fd7f",
   }),
 });
 
@@ -479,6 +491,19 @@ export function createJpWaterS3Gateway(config, options = {}) {
   });
 }
 
+export function createSoilLiquefactionGateway(root = firstConfigured(process.env.SOIL_LIQUEFACTION_PRIVATE_ROOT) ?? SOIL_LIQUEFACTION_ROOT, assets = SOIL_LIQUEFACTION_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createSoilLiquefactionS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: SOIL_LIQUEFACTION_ASSETS,
+    prefix: SOIL_LIQUEFACTION_S3_PREFIX,
+    bucket: SOIL_LIQUEFACTION_S3_BUCKET,
+    ...options,
+  });
+}
+
 const persistentDenylistByPath = new Map();
 const auditWriteQueueByPath = new Map();
 
@@ -532,7 +557,9 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
   const url = new URL(request.url);
   const family = url.pathname.startsWith(`${JP_WATER_PATH}/`)
     ? { path: JP_WATER_PATH, assets: JP_WATER_ASSETS }
-    : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
+    : url.pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`)
+      ? { path: SOIL_LIQUEFACTION_PATH, assets: SOIL_LIQUEFACTION_ASSETS }
+      : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
   const assetName = url.pathname.slice(family.path.length + 1);
   const asset = family.assets[assetName];
   const record = {
@@ -679,13 +706,27 @@ export async function handleAllenCoralAtlasRequest(request, dependencies = {}) {
   });
 }
 
-export async function handleJpWaterRequest(request, dependencies = {}) {
+export function handleJpWaterRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: JP_WATER_PATH, assets: JP_WATER_ASSETS, label: "Japan water",
+    createGateway: (config) => config.storage === "s3" ? createJpWaterS3Gateway(config) : createJpWaterGateway(),
+  });
+}
+
+export function handleSoilLiquefactionRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: SOIL_LIQUEFACTION_PATH, assets: SOIL_LIQUEFACTION_ASSETS, label: "soil liquefaction",
+    createGateway: (config) => config.storage === "s3" ? createSoilLiquefactionS3Gateway(config) : createSoilLiquefactionGateway(),
+  });
+}
+
+async function handleOwnerAssetFamilyRequest(request, dependencies, family) {
   const url = new URL(request.url);
-  const assetName = url.pathname.startsWith(`${JP_WATER_PATH}/`)
-    ? url.pathname.slice(JP_WATER_PATH.length + 1)
+  const assetName = url.pathname.startsWith(`${family.path}/`)
+    ? url.pathname.slice(family.path.length + 1)
     : "";
-  const asset = JP_WATER_ASSETS[assetName];
-  if (!asset || url.pathname !== `${JP_WATER_PATH}/${assetName}`) return response(404, new Headers());
+  const asset = Object.hasOwn(family.assets, assetName) ? family.assets[assetName] : undefined;
+  if (!asset || url.pathname !== `${family.path}/${assetName}`) return response(404, new Headers());
 
   const config = dependencies.config ?? getAllenCoralAtlasConfig();
   const emptyCors = new Headers();
@@ -713,17 +754,15 @@ export async function handleJpWaterRequest(request, dependencies = {}) {
   if (revoked) return json(401, cors, { error: "unauthorized" });
   if (request.method === "GET" && url.searchParams.get("access") === "1") return json(200, cors, { allowed: true });
 
-  const gateway = dependencies.gateway ?? (config.storage === "s3"
-    ? createJpWaterS3Gateway(config)
-    : createJpWaterGateway());
+  const gateway = dependencies.gateway ?? family.createGateway(config);
   let metadata;
   try {
     metadata = await gateway.head(asset, request.signal);
   } catch {
-    return json(502, cors, { error: "private Japan water asset integrity check failed" });
+    return json(502, cors, { error: `private ${family.label} asset integrity check failed` });
   }
   if (metadata.contentLength !== asset.size || metadata.etag !== `\"${asset.sha256}\"`) {
-    return json(502, cors, { error: "private Japan water asset integrity check failed" });
+    return json(502, cors, { error: `private ${family.label} asset integrity check failed` });
   }
   if (request.method === "HEAD") {
     return response(200, cors, null, {
@@ -736,11 +775,11 @@ export async function handleJpWaterRequest(request, dependencies = {}) {
   try {
     object = await gateway.get(asset, range, request.signal);
   } catch {
-    return json(502, cors, { error: "private Japan water asset unavailable" });
+    return json(502, cors, { error: `private ${family.label} asset unavailable` });
   }
   if (object.contentLength !== range.length || object.contentRange !== `bytes ${range.start}-${range.end}/${asset.size}` || object.etag !== metadata.etag) {
     if (typeof object.body?.cancel === "function") await object.body.cancel().catch(() => undefined);
-    return json(502, cors, { error: "private Japan water asset range check failed" });
+    return json(502, cors, { error: `private ${family.label} asset range check failed` });
   }
   return response(206, cors, object.body, {
     "Content-Length": String(range.length), "Content-Range": object.contentRange,
@@ -832,11 +871,16 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const jpWaterGateway = dependencies.jpWaterGateway ?? (config.storage === "s3"
     ? createJpWaterS3Gateway(config)
     : createJpWaterGateway());
+  const soilLiquefactionGateway = dependencies.soilLiquefactionGateway ?? (config.storage === "s3"
+    ? createSoilLiquefactionS3Gateway(config)
+    : createSoilLiquefactionGateway());
   const allenDependencies = { ...dependencies, config, gateway: allenGateway };
   const jpWaterDependencies = { ...dependencies, config, gateway: jpWaterGateway };
+  const soilLiquefactionDependencies = { ...dependencies, config, gateway: soilLiquefactionGateway };
   const readiness = {
     allen: { ready: false, failed: false },
     jpWater: { ready: false, failed: false },
+    soilLiquefaction: { ready: false, failed: false },
   };
   const warmupAttempts = dependencies.warmupAttempts ?? 3;
   const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
@@ -860,6 +904,7 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const warmup = (async () => {
     await warmFamily(readiness.allen, allenGateway, ALLEN_CORAL_ATLAS_ASSETS);
     await warmFamily(readiness.jpWater, jpWaterGateway, JP_WATER_ASSETS);
+    await warmFamily(readiness.soilLiquefaction, soilLiquefactionGateway, SOIL_LIQUEFACTION_ASSETS);
   })();
   const server = createServer(async (req, res) => {
     try {
@@ -874,21 +919,25 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const revokeRequest = pathname === `${ALLEN_CORAL_ATLAS_PATH}/revoke` && request.method === "POST";
       const isAllen = pathname.startsWith(`${ALLEN_CORAL_ATLAS_PATH}/`);
       const isJpWater = pathname.startsWith(`${JP_WATER_PATH}/`);
-      const familyState = isJpWater ? readiness.jpWater : readiness.allen;
-      if (!isAllen && !isJpWater) {
+      const isSoil = pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`);
+      const familyState = isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
+      const familyLabel = isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
+      if (!isAllen && !isJpWater && !isSoil) {
         output = response(404, new Headers());
       } else if (familyState.ready || revokeRequest) {
-        output = isJpWater
-          ? await handleJpWaterRequest(request, jpWaterDependencies)
-          : await handleAllenCoralAtlasRequest(request, allenDependencies);
+        output = isSoil
+          ? await handleSoilLiquefactionRequest(request, soilLiquefactionDependencies)
+          : isJpWater
+            ? await handleJpWaterRequest(request, jpWaterDependencies)
+            : await handleAllenCoralAtlasRequest(request, allenDependencies);
       } else {
         const cors = config.error ? new Headers() : corsHeaders(request, config, "GET, HEAD, POST, OPTIONS");
         output = !cors
           ? json(403, new Headers(), { error: "origin forbidden" })
           : json(503, cors, {
             error: familyState.failed
-              ? (isJpWater ? "private Japan water sidecar unavailable" : "private Allen sidecar unavailable")
-              : (isJpWater ? "private Japan water sidecar is warming up" : "private Allen sidecar is warming up"),
+              ? `private ${familyLabel} sidecar unavailable`
+              : `private ${familyLabel} sidecar is warming up`,
           });
       }
       await writeAllenAuditRecord(request, output, config, dependencies.audit);
