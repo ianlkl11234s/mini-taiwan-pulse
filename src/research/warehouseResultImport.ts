@@ -69,6 +69,26 @@ export function normalizeWarehouseFeatures(collection: unknown): { type: Warehou
   return out;
 }
 
+/**
+ * Per-feature location precision written by the MCP warehouse (`pulse_wh_present`, from its
+ * wh_catalog precision_class): actual | approximate | derived | unknown. Absent (an older MCP) or
+ * anything other than "actual" is treated conservatively as not spatial-analysis eligible.
+ */
+export const WAREHOUSE_LOCATION_PRECISION_PROPERTY = "_wh_location_precision";
+
+/**
+ * Geometry contract for one imported geometry group. Only a Point/Line group whose every feature is
+ * `actual` stays eligible for browser spatial analysis. Other Points/Lines are still drawn, using the
+ * roles the presentation layer accepts for non-eligible geometry (Point → generalized, Line → proxy).
+ * Polygons may be derived (e.g. SQL buffers), so they are shown but never re-analysed.
+ */
+export function warehouseGeometryFor(type: WarehouseImportGeometry, group: readonly { properties: Record<string, unknown> }[]): AnalysisResult["geometry"] {
+  if (type === "Polygon" || type === "MultiPolygon") return { type, role: "derived", spatialAnalysisEligible: false };
+  const actual = group.length > 0 && group.every(feature => feature.properties[WAREHOUSE_LOCATION_PRECISION_PROPERTY] === "actual");
+  if (actual) return { type, role: "actual", spatialAnalysisEligible: true };
+  return { type, role: type === "Point" ? "generalized" : "proxy", spatialAnalysisEligible: false };
+}
+
 export function warehouseResultIdFor(resultId: string, type: WarehouseImportGeometry, groupCount: number): string {
   return groupCount === 1 ? resultId : `${resultId}:${type.toLowerCase()}`;
 }
@@ -125,7 +145,6 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: 
   return types.map(type => {
     const group = features.filter(feature => feature.type === type);
     const datasets = [...new Set(group.map(feature => feature.properties._wh_dataset).filter((value): value is string => typeof value === "string" && value.length > 0))];
-    const polygon = type === "Polygon" || type === "MultiPolygon";
     return {
       resultId: warehouseResultIdFor(args.resultId, type, types.length),
       datasetId: `warehouse:${args.resultId}`,
@@ -134,8 +153,7 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: 
         const name = ["name", "名稱", "school_name", "title"].map(key => feature.properties[key]).find(value => typeof value === "string" && value.trim());
         return { ...feature.properties, record_id: `${args.resultId}:${type}:${index}`, label: typeof name === "string" ? name : args.label, geometry: feature.geometry };
       }),
-      // Points and lines are warehouse source geometry. Polygons may be derived (e.g. SQL buffers), so they are shown but not re-analysed in the browser.
-      geometry: polygon ? { type, role: "derived", spatialAnalysisEligible: false } : { type, role: "actual", spatialAnalysisEligible: true },
+      geometry: warehouseGeometryFor(type, group),
       sourceRefs: [],
       lineage: { origin: "warehouse", warehouseResultId: args.resultId, sha256: args.sha256, warehouseDatasets: datasets, createdAt },
       coverage: "Server-side analysis warehouse result; see the MCP warehouse result lineage for source datasets and versions.",
