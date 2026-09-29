@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { EXPLORATION_OPERATIONS } from "../MainMapConnection";
 import { ResearchAnalysisSession } from "../researchAnalysisSession";
-import { loadWarehouseResult, validateWarehouseImportArgs, warehouseResultFileName } from "../warehouseResultImport";
+import { loadWarehouseResult, validateWarehouseImportArgs, warehouseGeometryFor, warehouseResultFileName } from "../warehouseResultImport";
 import type { WarehouseResultStyle } from "../warehouseResultStyle";
 
 const collection = {
@@ -34,6 +34,31 @@ describe("warehouse result import", () => {
     expect(points.rows).toHaveLength(3); // MultiPoint split into two Points
     expect(points.rows.map(row => row.label)).toEqual(["樣品國小", "分校", "分校"]);
     expect(points.lineage).toMatchObject({ origin: "warehouse", sha256: sha, warehouseDatasets: ["schools"] });
+  });
+
+  it("keeps only all-actual points/lines spatial-analysis eligible; absent/other precision is drawn but not eligible", async () => {
+    const actual = { properties: { _wh_location_precision: "actual" } };
+    expect(warehouseGeometryFor("Point", [actual, actual])).toEqual({ type: "Point", role: "actual", spatialAnalysisEligible: true });
+    expect(warehouseGeometryFor("LineString", [actual])).toEqual({ type: "LineString", role: "actual", spatialAnalysisEligible: true });
+    for (const precision of ["approximate", "derived", "unknown", undefined, null, "ACTUAL"]) {
+      const other = { properties: precision === undefined ? {} : { _wh_location_precision: precision } };
+      expect(warehouseGeometryFor("Point", [actual, other])).toEqual({ type: "Point", role: "generalized", spatialAnalysisEligible: false });
+      expect(warehouseGeometryFor("MultiLineString", [other])).toEqual({ type: "MultiLineString", role: "proxy", spatialAnalysisEligible: false });
+    }
+    expect(warehouseGeometryFor("Polygon", [actual])).toEqual({ type: "Polygon", role: "derived", spatialAnalysisEligible: false });
+
+    // End to end: the fixture's points carry no precision (older MCP) -> not eligible, but still presentable on the map.
+    const session = new ResearchAnalysisSession();
+    const receipt = await session.importWarehouseResult({ resultId: "wh-8", sha256: sha, label: "671 環域", featureCount: 3 }, okFetch());
+    const points = (await loadWarehouseResult({ resultId: "wh-8", sha256: sha, label: "671 環域", featureCount: 3 }, okFetch())).find(r => r.geometry.type === "Point")!;
+    expect(points.geometry).toEqual({ type: "Point", role: "generalized", spatialAnalysisEligible: false });
+    expect(session.mapEligible("wh-8:point")).toBe(true);
+    expect(receipt.resultIds).toContain("wh-8:point");
+
+    const precise = JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [121.51, 25.04] }, properties: { name: "官方點", _wh_dataset: "schools", _wh_location_precision: "actual" } }] });
+    const preciseSha = createHash("sha256").update(precise).digest("hex");
+    const [actualPoints] = await loadWarehouseResult({ resultId: "wh-9", sha256: preciseSha, label: "官方點", featureCount: 1 }, okFetch(precise));
+    expect(actualPoints!.geometry).toEqual({ type: "Point", role: "actual", spatialAnalysisEligible: true });
   });
 
   it("rejects unavailable, tampered, miscounted or invalid files", async () => {
