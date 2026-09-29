@@ -17,6 +17,8 @@ import {
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 /**
  * 特殊船舶（Vessel Watch）圖層 —— 海警／海巡／科研船／軍艦，隨時間軸移動
@@ -65,16 +67,7 @@ const TIME_THROTTLE_MS = 200;
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
-/** 船點半徑隨 zoom 放大（遠看是密集小點，近看要點得到） */
-const CIRCLE_RADIUS: ExpressionSpecification = [
-  "interpolate",
-  ["linear"],
-  ["zoom"],
-  4, 2.5,
-  7, 4.5,
-  10, 7,
-  14, 11,
-] as unknown as ExpressionSpecification;
+const OPACITY_DEFAULT = Number(paramDefault("vesselWatch", "vesselWatchOpacity"));
 
 const CLASS_COLOR = ["get", "class_color"] as unknown as ExpressionSpecification;
 
@@ -103,7 +96,7 @@ function confidenceAware(base: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
-function buildLayers(map: MapboxMap, opacity: number): boolean {
+function buildLayers(map: MapboxMap, opacity: number, isDarkTheme: boolean): boolean {
   if (!map.getSource(CURRENT_SOURCE_ID) || !map.getSource(TRAILS_SOURCE_ID)) return false;
 
   // 軌跡線先加 → 船點壓在線之上（疊放順序 = 加入順序）
@@ -128,13 +121,13 @@ function buildLayers(map: MapboxMap, opacity: number): boolean {
       source: CURRENT_SOURCE_ID,
       paint: {
         "circle-color": CLASS_COLOR,
-        "circle-radius": CIRCLE_RADIUS,
+        "circle-radius": pointRadius("M"),
         // stale = 訊號中斷中，畫的是「最後已知位置」不是當下位置 → 淡化區隔
         "circle-opacity": confidenceAware(opacity),
         // 深色描邊讓亮色船點在亮底圖上也分得出來
-        "circle-stroke-color": "#0f172a",
-        "circle-stroke-width": 0.8,
-        "circle-stroke-opacity": confidenceAware(opacity * 0.8),
+        // 描邊透明度隨 stale／presumed 淡化＝資料編碼，保留 confidenceAware
+        ...pointStrokePaint(isDarkTheme),
+        "circle-stroke-opacity": confidenceAware(pointStrokePaint(isDarkTheme, opacity / OPACITY_DEFAULT)["circle-stroke-opacity"]),
       },
     } as CircleLayer);
   }
@@ -160,6 +153,7 @@ export function useVesselWatchLayer(
   trailDays: number = 3,
   /** 是否顯示「疑似」（分類僅規則推測、未經查證）的船。預設 true。 */
   showPresumed: boolean = true,
+  isDarkTheme: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -169,6 +163,9 @@ export function useVesselWatchLayer(
   const positionsRef = useRef<VesselWatchPosition[] | null>(null);
   const trailsRef = useRef<VesselWatchTrail[] | null>(null);
   const layersReadyRef = useRef(false);
+  // 透明度／主題走 ref：ensureLayers 保持穩定，拖滑桿或切主題不會重建 timeStore 訂閱（paint 由「透明度」effect 更新）
+  const styleRef = useRef({ opacity, isDarkTheme });
+  styleRef.current = { opacity, isDarkTheme };
   /** 正在等的軌跡視窗 key —— 換日／換天數的競態靠它落地判斷 */
   const trailKeyRef = useRef<string>("");
   const currentLoadedRef = useRef(false);
@@ -184,11 +181,11 @@ export function useVesselWatchLayer(
         }
       }
       if (!layersReadyRef.current || !map.getLayer(CIRCLE_ID)) {
-        layersReadyRef.current = buildLayers(map, opacity);
+        layersReadyRef.current = buildLayers(map, styleRef.current.opacity, styleRef.current.isDarkTheme);
       }
       return layersReadyRef.current;
     },
-    [opacity],
+    [],
   );
 
   /**
@@ -347,10 +344,12 @@ export function useVesselWatchLayer(
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(CIRCLE_ID)) {
       map.setPaintProperty(CIRCLE_ID, "circle-opacity", o);
-      map.setPaintProperty(CIRCLE_ID, "circle-stroke-opacity", o * 0.8);
+      const stroke = pointStrokePaint(isDarkTheme, o / OPACITY_DEFAULT);
+      map.setPaintProperty(CIRCLE_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+      map.setPaintProperty(CIRCLE_ID, "circle-stroke-opacity", confidenceAware(stroke["circle-stroke-opacity"]));
     }
     if (map.getLayer(TRAIL_LINE_ID)) {
       map.setPaintProperty(TRAIL_LINE_ID, "line-opacity", o * TRAIL_OPACITY_RATIO);
     }
-  }, [opacity, visible, mapRef, mapTick]);
+  }, [opacity, isDarkTheme, visible, mapRef, mapTick]);
 }

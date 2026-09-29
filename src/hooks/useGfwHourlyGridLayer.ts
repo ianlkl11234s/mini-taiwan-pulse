@@ -20,6 +20,8 @@ import {
   type GfwHourlyGridDataWindowState,
 } from "../state/gfwHourlyGridDataWindowStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import {
   GFW_HOURLY_GRID_V3_FILL_OPACITY,
   GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION,
@@ -68,6 +70,8 @@ export const GFW_HOURLY_GRID_CLICK_LAYERS = [
   GFW_HOURLY_GRID_PMTILES_NEXT_HIT_FILL_LAYER_ID,
   GFW_HOURLY_GRID_PMTILES_PRELOAD_HIT_FILL_LAYER_ID,
 ] as const;
+
+const GRID_OPACITY_DEFAULT = Number(paramDefault("gfwHourlyGrid", "gfwHourlyGridOpacity"));
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -217,6 +221,7 @@ function ensureLayer(
   countId: string,
   fillId: string,
   outlineId: string,
+  isDarkTheme: boolean,
 ): void {
   if (!map.getSource(sourceId)) {
     map.addSource(sourceId, {
@@ -261,9 +266,7 @@ function ensureLayer(
         ],
         "circle-color": "#fb923c",
         "circle-opacity": 0.8,
-        "circle-stroke-color": "#7c2d12",
-        "circle-stroke-width": 1,
-        "circle-stroke-opacity": 0.9,
+        ...pointStrokePaint(isDarkTheme),
       },
       layout: { visibility: "none" },
     } as CircleLayer);
@@ -291,9 +294,9 @@ function ensureLayer(
   }
 }
 
-function ensureLayers(map: MapboxMap): void {
-  ensureLayer(map, GFW_HOURLY_GRID_SOURCE_ID, GFW_HOURLY_GRID_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_COUNT_LAYER_ID, GFW_HOURLY_GRID_FILL_LAYER_ID, GFW_HOURLY_GRID_OUTLINE_LAYER_ID);
-  ensureLayer(map, GFW_HOURLY_GRID_NEXT_SOURCE_ID, GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_COUNT_LAYER_ID, GFW_HOURLY_GRID_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_NEXT_OUTLINE_LAYER_ID);
+function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
+  ensureLayer(map, GFW_HOURLY_GRID_SOURCE_ID, GFW_HOURLY_GRID_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_COUNT_LAYER_ID, GFW_HOURLY_GRID_FILL_LAYER_ID, GFW_HOURLY_GRID_OUTLINE_LAYER_ID, isDarkTheme);
+  ensureLayer(map, GFW_HOURLY_GRID_NEXT_SOURCE_ID, GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_COUNT_LAYER_ID, GFW_HOURLY_GRID_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_NEXT_OUTLINE_LAYER_ID, isDarkTheme);
   if (!map.getSource(GFW_HOURLY_GRID_HIT_SOURCE_ID)) {
     map.addSource(GFW_HOURLY_GRID_HIT_SOURCE_ID, { type: "geojson", data: EMPTY });
   }
@@ -428,6 +431,7 @@ export function useGfwHourlyGridLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity = 0.8,
+  isDarkTheme = true,
 ): void {
   const mapTick = useMapReadyTick(mapRef, visible);
   const requestedPairRef = useRef<string | null>(null);
@@ -451,8 +455,10 @@ export function useGfwHourlyGridLayer(
   // Timeline drives this hook at fractional-second cadence. Keep opacity outside the
   // lifecycle effect so a paint update cannot tear down/recreate immutable PMTiles sources.
   const opacityRef = useRef(opacity);
+  const isDarkThemeRef = useRef(isDarkTheme);
   const applyOpacityRef = useRef<(timeSeconds: number) => void>(() => {});
   opacityRef.current = opacity;
+  isDarkThemeRef.current = isDarkTheme;
   const requestRef = useRef(0);
   const wasVisibleRef = useRef(false);
   const activationRef = useRef(0);
@@ -706,7 +712,7 @@ export function useGfwHourlyGridLayer(
           [GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_COUNT_LAYER_ID, nextWeight],
         ] as const) {
           map.setPaintProperty(circleId, "circle-opacity", clampedOpacity * weight);
-          map.setPaintProperty(circleId, "circle-stroke-opacity", clampedOpacity * weight);
+          map.setPaintProperty(circleId, "circle-stroke-opacity", Number(pointStrokePaint(isDarkThemeRef.current, clampedOpacity / GRID_OPACITY_DEFAULT)["circle-stroke-opacity"]) * weight);
           map.setPaintProperty(countId, "text-opacity", clampedOpacity * weight);
         }
         for (const [fillId, outlineId, weight] of [
@@ -899,7 +905,17 @@ export function useGfwHourlyGridLayer(
           scheduleRetry();
           return;
         }
-        ensureLayers(map);
+        ensureLayers(map, isDarkThemeRef.current);
+        for (const id of [GFW_HOURLY_GRID_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID]) {
+          if (map.getLayer(id)) {
+            {
+              const stroke = pointStrokePaint(isDarkThemeRef.current, opacityRef.current / GRID_OPACITY_DEFAULT);
+              map.setPaintProperty(id, "circle-stroke-color", stroke["circle-stroke-color"]);
+              map.setPaintProperty(id, "circle-stroke-width", stroke["circle-stroke-width"]);
+              map.setPaintProperty(id, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+            }
+          }
+        }
         applyGridPaint(map, isV4GridManifest(manifestRef.current));
         setVisibility(map, true);
         setPmtilesVisibility(map, true);
@@ -965,4 +981,15 @@ export function useGfwHourlyGridLayer(
   useEffect(() => {
     applyOpacityRef.current(timeStore.getTime());
   }, [opacity]);
+
+  // Theme changes repaint the retained point slots only. They must not re-enter the
+  // source lifecycle above, otherwise an appearance change can restart hourly loading.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    for (const id of [GFW_HOURLY_GRID_CIRCLE_LAYER_ID, GFW_HOURLY_GRID_NEXT_CIRCLE_LAYER_ID]) {
+      if (map.getLayer(id)) map.setPaintProperty(id, "circle-stroke-color", pointStrokePaint(isDarkTheme)["circle-stroke-color"]);
+    }
+    applyOpacityRef.current(timeStore.getTime());
+  }, [isDarkTheme, mapRef, mapTick]);
 }

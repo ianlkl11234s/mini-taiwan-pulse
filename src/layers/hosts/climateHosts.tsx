@@ -45,6 +45,7 @@ export const TyphoonTracksHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.typhoonTracks,
     p.typhoonTracksOpacity ?? 0.9,
     (["all", "jma", "jtwc"][p.typhoonSourceIdx ?? 0] ?? "all") as TyphoonSource,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -57,6 +58,7 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.worldTrashDebris,
     p.worldTrashDebrisOpacity ?? 0.85,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -105,6 +107,7 @@ export const JpReligionHost: LayerHostComponent = ({ deps }) => {
       jpReligionOsm: osm.jpReligionOsmScale ?? 1,
       jpReligionWikidata: wikidata.jpReligionWikidataScale ?? 1,
     },
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -189,6 +192,7 @@ export const DisasterAlertHost: LayerHostComponent = ({ deps }) => {
       safetyAlerts: v.safetyAlerts,
     },
     paramNum(values, "lifelineAlerts", "daOpacity"),
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -231,6 +235,7 @@ export const VesselWatchHost: LayerHostComponent = ({ deps }) => {
     paramNum(values, "vesselWatch", "vesselWatchOpacity"),
     paramNum(values, "vesselWatch", "vesselWatchTrailDays"),
     paramBool(values, "vesselWatch", "vesselWatchShowPresumed"),
+    deps.isDarkTheme,
   );
   return null;
 };

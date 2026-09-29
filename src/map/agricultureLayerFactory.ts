@@ -14,6 +14,8 @@ import {
 // PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
+import { pointRadius, pointStrokePaint } from "./mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { loadingRegistry } from "../lib/loadingRegistry";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}agriculture`;
@@ -428,9 +430,11 @@ export interface AgriPOIParams {
   scale: number;
 }
 
+const AGRI_POI_OPACITY_DEFAULT = Number(paramDefault("agriPOI", "agriPOIOpacity"));
+
 export const AGRI_POI_PARAMS_DEFAULT: AgriPOIParams = { opacity: 1, scale: 1 };
 
-export function ensureAgriPOILayers(map: MapboxMap): void {
+export function ensureAgriPOILayers(map: MapboxMap, isDarkTheme = true): void {
   if (!map.getSource(POI_SOURCE_ID)) {
     // 空 FC 起手，避免 mount 時 Mapbox 自動 fetch。
     // 真正 fetch 由 updateAgriPOILayer 在 visible=true 時 lazy 觸發。
@@ -446,15 +450,10 @@ export function ensureAgriPOILayers(map: MapboxMap): void {
       source: POI_SOURCE_ID,
       layout: { visibility: "none" },
       paint: {
-        "circle-radius": [
-          "interpolate", ["linear"], ["zoom"],
-          6, 3,
-          14, 8,
-        ],
+        "circle-radius": pointRadius("M"),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "circle-color": POI_TYPE_COLOR_EXPR as any,
-        "circle-stroke-width": 1,
-        "circle-stroke-color": "#ffffff",
+        ...pointStrokePaint(isDarkTheme),
         "circle-opacity": 0.9,
       },
     });
@@ -466,6 +465,7 @@ export function updateAgriPOILayer(
   map: MapboxMap,
   visible: boolean,
   params: AgriPOIParams = AGRI_POI_PARAMS_DEFAULT,
+  isDarkTheme = true,
 ): void {
   if (!map.getLayer(POI_CIRCLE_ID)) return;
   if (visible && !agriPOIHydrated) {
@@ -489,9 +489,11 @@ export function updateAgriPOILayer(
   }
   map.setLayoutProperty(POI_CIRCLE_ID, "visibility", visible ? "visible" : "none");
   map.setPaintProperty(POI_CIRCLE_ID, "circle-opacity", 0.9 * params.opacity);
-  map.setPaintProperty(POI_CIRCLE_ID, "circle-radius", [
-    "interpolate", ["linear"], ["zoom"],
-    6, 3 * params.scale,
-    14, 8 * params.scale,
-  ]);
+  map.setPaintProperty(POI_CIRCLE_ID, "circle-radius", pointRadius("M", params.scale));
+  {
+    const stroke = pointStrokePaint(isDarkTheme, params.opacity / AGRI_POI_OPACITY_DEFAULT);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+  }
 }

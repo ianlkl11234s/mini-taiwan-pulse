@@ -52,7 +52,10 @@ export const RainGaugeHost: LayerHostComponent = ({ deps }) => {
 export const BridgeRainHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useBridgeRainLayer");
   const p = useKeyOverlayParams("bridgeRainThresholds");
-  useBridgeRainLayer(deps.mapRef, deps.layerVisibility.bridgeRainThresholds, p.bridgeRainThresholdsOpacity ?? 0.9);
+  useBridgeRainLayer(
+    deps.mapRef, deps.layerVisibility.bridgeRainThresholds,
+    p.bridgeRainThresholdsOpacity ?? 0.9, deps.isDarkTheme,
+  );
   return null;
 };
 
@@ -91,6 +94,7 @@ export const TaipeiSewerHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.taipeiSewer,
     p.taipeiSewerScale ?? 1,
     p.taipeiSewerOpacity ?? 0.85,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -104,6 +108,7 @@ export const TaipeiEvacuateHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.taipeiEvacuate,
     p.taipeiEvacuateScale ?? 1,
     p.taipeiEvacuateOpacity ?? 0.9,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -117,6 +122,7 @@ export const TaipeiPumbHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.taipeiPumb,
     p.taipeiPumbScale ?? 1,
     p.taipeiPumbOpacity ?? 0.9,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -159,6 +165,7 @@ export const MarineObservationHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.marineObservationIsohe,
     cwa.marineObservationCwaOpacity ?? 0.9,
     isohe.marineObservationIsoheOpacity ?? 0.9,
+    deps.isDarkTheme,
   );
   return null;
 };

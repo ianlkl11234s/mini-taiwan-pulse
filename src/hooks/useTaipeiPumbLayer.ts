@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, ExpressionSpecification } from "mapbox-gl";
 import { fetchTaipeiPumbLatest, type PumbLatestRow } from "../data/wicTaipeiLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 /**
  * 北市抽水站 latest layer — 即時運轉狀態 + 內池警戒比
@@ -13,7 +15,8 @@ import { useMapReadyTick } from "./useMapReadyTick";
  *   - >0.4    黃   #fde047
  *   - else    青   #06b6d4
  *
- * 運轉中（pumb_status='運轉'）: 描白邊 stroke-width 2
+ * 運轉中（pumb_status='運轉'）: 2px 外框（資料編碼；暗底圖白、淡底圖深灰 #111827，淡底圖上白框看不見）；
+ * 其餘站點用底圖色細縫。
  *
  * 每 60 秒重新拉一次 latest（上游 10 分鐘更新）。
  */
@@ -36,18 +39,21 @@ function riskColorExpression(): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
-function dotRadiusExpression(scale: number): ExpressionSpecification {
-  return [
-    "interpolate",
-    ["linear"],
-    ["zoom"],
-    8, 3 * scale,
-    12, 6 * scale,
-    16, 11 * scale,
-  ] as unknown as ExpressionSpecification;
+const OPACITY_DEFAULT = Number(paramDefault("taipeiPumb", "taipeiPumbOpacity"));
+const RUNNING_STROKE_WIDTH = 2;
+const RUNNING_STROKE_COLOR = { dark: "#ffffff", light: "#111827" } as const;
+const IS_RUNNING: ExpressionSpecification = ["==", ["get", "pumb_running"], true];
+
+function pumbStrokePaint(isDark: boolean, opacity: number) {
+  const seam = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+  return {
+    "circle-stroke-color": ["case", IS_RUNNING, RUNNING_STROKE_COLOR[isDark ? "dark" : "light"], seam["circle-stroke-color"]] as unknown as ExpressionSpecification,
+    "circle-stroke-width": ["case", IS_RUNNING, RUNNING_STROKE_WIDTH, POINT_STROKE.width] as unknown as ExpressionSpecification,
+    "circle-stroke-opacity": seam["circle-stroke-opacity"],
+  };
 }
 
-function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
+function ensureLayers(map: MapboxMap, scale: number, opacity: number, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   }
@@ -57,7 +63,7 @@ function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": dotRadiusExpression(scale * 2.2),
+        "circle-radius": pointRadius("M", scale) * 2,
         "circle-color": riskColorExpression(),
         "circle-opacity": ["*", opacity, 0.25],
         "circle-blur": 0.8,
@@ -70,20 +76,20 @@ function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": dotRadiusExpression(scale),
+        "circle-radius": pointRadius("M", scale),
         "circle-color": riskColorExpression(),
         "circle-opacity": opacity,
-        "circle-stroke-width": [
-          "case", ["==", ["get", "pumb_running"], true], 2, 0,
-        ],
-        "circle-stroke-color": "#ffffff",
+        ...pumbStrokePaint(isDark, opacity),
       },
     });
   } else {
-    map.setPaintProperty(LAYER_DOT, "circle-radius", dotRadiusExpression(scale));
+    map.setPaintProperty(LAYER_DOT, "circle-radius", pointRadius("M", scale));
     map.setPaintProperty(LAYER_DOT, "circle-opacity", opacity);
-    map.setPaintProperty(LAYER_GLOW, "circle-radius", dotRadiusExpression(scale * 2.2));
+    map.setPaintProperty(LAYER_GLOW, "circle-radius", pointRadius("M", scale) * 2);
     map.setPaintProperty(LAYER_GLOW, "circle-opacity", ["*", opacity, 0.25] as unknown as ExpressionSpecification);
+    for (const [k, v] of Object.entries(pumbStrokePaint(isDark, opacity))) {
+      map.setPaintProperty(LAYER_DOT, k as "circle-stroke-color", v as never);
+    }
   }
 }
 
@@ -124,6 +130,7 @@ export function useTaipeiPumbLayer(
   visible: boolean,
   scale: number,
   opacity: number,
+  isDark: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -136,7 +143,7 @@ export function useTaipeiPumbLayer(
     let cancelled = false;
 
     const apply = () => {
-      try { ensureLayers(map, scale, opacity); } catch { return; }
+      try { ensureLayers(map, scale, opacity, isDark); } catch { return; }
       setData(map, dataRef.current);
       setVisible(map, visible);
     };
@@ -159,5 +166,5 @@ export function useTaipeiPumbLayer(
       return () => { cancelled = true; window.clearInterval(t); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, scale, opacity, mapTick]);
+  }, [mapRef, visible, scale, opacity, isDark, mapTick]);
 }

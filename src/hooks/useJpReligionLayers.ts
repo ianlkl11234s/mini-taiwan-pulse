@@ -7,6 +7,8 @@ import {
 import { JP_RELIGION_COLOR_EXPRESSION } from "../data/jpReligionTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { POINT_STROKE, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const GSI_SOURCE_ID = "jp-religion-gsi";
@@ -17,27 +19,14 @@ const OSM_LAYER_ID = "jp-religion-osm-circle";
 const WIKIDATA_SOURCE_ID = "jp-religion-wikidata";
 const WIKIDATA_LAYER_ID = "jp-religion-wikidata-circle";
 
-function scaledRadius(
-  scale: number,
-  zoom6Radius: number,
-  zoom12Radius: number,
-  zoom4Radius?: number,
-): ExpressionSpecification {
-  return [
-    "interpolate", ["linear"], ["zoom"],
-    ...(zoom4Radius === undefined ? [] : [4, zoom4Radius * scale]),
-    6, zoom6Radius * scale,
-    12, zoom12Radius * scale,
-  ] as unknown as ExpressionSpecification;
-}
+const GSI_OPACITY_DEFAULT = Number(paramDefault("jpReligionGsi", "jpReligionGsiOpacity"));
+const OSM_OPACITY_DEFAULT = Number(paramDefault("jpReligionOsm", "jpReligionOsmOpacity"));
+const WIKIDATA_OPACITY_DEFAULT = Number(paramDefault("jpReligionWikidata", "jpReligionWikidataOpacity"));
 
-// GSI 的 PMTiles 從 z4 起就是全量 167,037 點（tippecanoe -r1 不抽稀），
-// 低 zoom 描邊會讓點糊成一片，所以 z4 收掉、z8 才恢復。
-const GSI_STROKE_WIDTH = [
-  "interpolate", ["linear"], ["zoom"],
-  4, 0,
-  8, 0.35,
-] as unknown as ExpressionSpecification;
+// GSI 的 PMTiles 從 z4 起就是全量 167,037 點；瀏覽器實看（2026-09-29）暗色底圖 z4–z6 描邊連成黑塊，
+// 沿用原本「z8 以下不畫描邊」的例外（a9034643 為 z4–z8 寬 0），z9 起回到 1px。
+const GSI_STROKE_WIDTH: number | ExpressionSpecification =
+  ["interpolate", ["linear"], ["zoom"], 8, 0, 9, POINT_STROKE.width] as unknown as ExpressionSpecification;
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -46,11 +35,12 @@ function clampOpacity(opacity: number): number {
 function circleLayer(
   id: string,
   source: string,
-  radius: ExpressionSpecification,
+  radius: number | ExpressionSpecification,
   opacity: number,
+  strokeOpacityFactor: number,
+  isDark: boolean,
   sourceLayer?: string,
-  strokeColor: string | ExpressionSpecification = "rgba(15, 23, 42, 0.45)",
-  strokeWidth: number | ExpressionSpecification = 0.35,
+  strokeWidth: number | ExpressionSpecification = POINT_STROKE.width,
 ): CircleLayer {
   return {
     id,
@@ -62,11 +52,13 @@ function circleLayer(
       "circle-radius": radius,
       "circle-color": JP_RELIGION_COLOR_EXPRESSION as unknown as ExpressionSpecification,
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": strokeColor,
+      ...pointStrokePaint(isDark, strokeOpacityFactor),
       "circle-stroke-width": strokeWidth,
     },
   } as CircleLayer;
 }
+
+const strokeFactor = (opacity: number, defaultOpacity: number) => clampOpacity(opacity) / defaultOpacity;
 
 function gsiAbsoluteUrl(): string {
   const relative = `${import.meta.env.BASE_URL ?? "/"}world/jp_religion_gsi.pmtiles`;
@@ -78,6 +70,7 @@ function useGsiLayer(
   visible: boolean,
   opacity: number,
   scale: number,
+  isDarkTheme: boolean,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
 
@@ -90,6 +83,7 @@ function useGsiLayer(
     }
 
     const mount = () => {
+      const isDark = isDarkTheme;
       registerPmtilesSourceTypeOnce();
       if (!map.getSource(GSI_SOURCE_ID)) {
         map.addSource(GSI_SOURCE_ID, {
@@ -105,24 +99,32 @@ function useGsiLayer(
         map.addLayer(circleLayer(
           GSI_LAYER_ID,
           GSI_SOURCE_ID,
-          scaledRadius(scale, 1.5, 4, 0.7),
+          pointRadius("M", scale),
           opacity,
+          strokeFactor(opacity, GSI_OPACITY_DEFAULT),
+          isDark,
           GSI_SOURCE_LAYER,
-          undefined,
           GSI_STROKE_WIDTH,
         ));
       }
       if (map.getLayer(GSI_LAYER_ID)) {
         map.setLayoutProperty(GSI_LAYER_ID, "visibility", "visible");
         map.setPaintProperty(GSI_LAYER_ID, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(GSI_LAYER_ID, "circle-radius", scaledRadius(scale, 1.5, 4, 0.7));
+        map.setPaintProperty(GSI_LAYER_ID, "circle-radius", pointRadius("M", scale));
+        {
+          const stroke = pointStrokePaint(isDark, strokeFactor(opacity, GSI_OPACITY_DEFAULT));
+          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+        }
+        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", GSI_STROKE_WIDTH);
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, mapTick]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick]);
 }
 
 interface GeoJsonLayerConfig {
@@ -130,7 +132,7 @@ interface GeoJsonLayerConfig {
   layerId: string;
   fetcher: () => Promise<GeoJSON.FeatureCollection>;
   logName: string;
-  strokeColor?: string | ExpressionSpecification;
+  opacityDefault: number;
 }
 
 function useGeoJsonLayer(
@@ -139,6 +141,7 @@ function useGeoJsonLayer(
   opacity: number,
   scale: number,
   config: GeoJsonLayerConfig,
+  isDarkTheme: boolean,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -169,6 +172,7 @@ function useGeoJsonLayer(
     if (!dataRef.current) return;
 
     const mount = () => {
+      const isDark = isDarkTheme;
       if (!dataRef.current) return;
       if (!map.getSource(config.sourceId)) {
         map.addSource(config.sourceId, { type: "geojson", data: dataRef.current });
@@ -177,16 +181,23 @@ function useGeoJsonLayer(
         map.addLayer(circleLayer(
           config.layerId,
           config.sourceId,
-          scaledRadius(scale, 2.5, 5),
+          pointRadius("M", scale),
           opacity,
+          strokeFactor(opacity, config.opacityDefault),
+          isDark,
           undefined,
-          config.strokeColor,
         ));
       }
       if (map.getLayer(config.layerId)) {
         map.setLayoutProperty(config.layerId, "visibility", "visible");
         map.setPaintProperty(config.layerId, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(config.layerId, "circle-radius", scaledRadius(scale, 2.5, 5));
+        map.setPaintProperty(config.layerId, "circle-radius", pointRadius("M", scale));
+        {
+          const stroke = pointStrokePaint(isDark, strokeFactor(opacity, config.opacityDefault));
+          map.setPaintProperty(config.layerId, "circle-stroke-color", stroke["circle-stroke-color"]);
+          map.setPaintProperty(config.layerId, "circle-stroke-width", stroke["circle-stroke-width"]);
+          map.setPaintProperty(config.layerId, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+        }
       }
     };
 
@@ -202,6 +213,7 @@ function useGeoJsonLayer(
     dataTick,
     config.sourceId,
     config.layerId,
+    isDarkTheme,
   ]);
 }
 
@@ -210,6 +222,7 @@ const OSM_CONFIG: GeoJsonLayerConfig = {
   layerId: OSM_LAYER_ID,
   fetcher: fetchJpReligionOsm,
   logName: "OSM",
+  opacityDefault: OSM_OPACITY_DEFAULT,
 };
 
 const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
@@ -217,6 +230,7 @@ const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
   layerId: WIKIDATA_LAYER_ID,
   fetcher: fetchJpReligionWikidata,
   logName: "Wikidata",
+  opacityDefault: WIKIDATA_OPACITY_DEFAULT,
 };
 
 export interface JpReligionLayerVisibility {
@@ -243,14 +257,16 @@ export function useJpReligionLayers(
   visibility: JpReligionLayerVisibility,
   opacity: JpReligionLayerOpacity,
   scale: JpReligionLayerScale,
+  isDarkTheme = true,
 ) {
-  useGsiLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi);
+  useGsiLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi, isDarkTheme);
   useGeoJsonLayer(
     mapRef,
     visibility.jpReligionOsm,
     opacity.jpReligionOsm,
     scale.jpReligionOsm,
     OSM_CONFIG,
+    isDarkTheme,
   );
   useGeoJsonLayer(
     mapRef,
@@ -258,5 +274,6 @@ export function useJpReligionLayers(
     opacity.jpReligionWikidata,
     scale.jpReligionWikidata,
     WIKIDATA_CONFIG,
+    isDarkTheme,
   );
 }

@@ -2,10 +2,26 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, type FireEvent } from "../data/fireLoader";
 import type { HistoricalGranularity } from "../components/HistoricalTimeline";
+import { pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "fire-events-src";
 const LAYER_ID = "fire-events-layer";
+
+const OPACITY_DEFAULT = Number(paramDefault("fireEvents", "fireEventsOpacity"));
+
+/**
+ * 描邊：有傷亡（casualty）的事件維持 master 的白色外框（依屬性變化＝資料編碼；淡底圖上與細縫同為白）；
+ * 其餘用底圖色細縫。opacity 為滑桿值，內部換算成相對預設的倍率。
+ */
+export function fireEventsPointStroke(isDark: boolean, opacity: number) {
+  const seam = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+  return {
+    ...seam,
+    "circle-stroke-color": ["case", ["get", "casualty"], "#ffffff", seam["circle-stroke-color"]] as unknown as string,
+  };
+}
 
 function ensureLayer(map: MapboxMap, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
@@ -30,12 +46,7 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
           ["get", "casualty"], "#ff1744",
           "#ff7043",
         ],
-        "circle-stroke-width": [
-          "case",
-          ["get", "casualty"], 1,
-          0,
-        ],
-        "circle-stroke-color": "#ffffff",
+        ...fireEventsPointStroke(isDark, 1),
         "circle-opacity": isDark ? 0.75 : 0.6,
         "circle-blur": 0.15,
       },
@@ -75,7 +86,10 @@ function setVisible(map: MapboxMap, visible: boolean) {
 function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number) {
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.75 : 0.6) * opacity);
-  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", opacity);
+  const stroke = fireEventsPointStroke(isDark, opacity);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
 }
 
 /**

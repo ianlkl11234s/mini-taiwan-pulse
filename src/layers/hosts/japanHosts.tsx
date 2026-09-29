@@ -47,6 +47,7 @@ export const JpStationsHost: LayerHostComponent = ({ deps }) => {
     p.jpStationsOpacity ?? 0.85,
     p.jpStationsScale ?? 1,
     colorMode,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -61,6 +62,7 @@ export const JpAirportsHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.jpAirports,
     p.jpAirportsOpacity ?? 0.5,
     displayMode,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -86,6 +88,7 @@ export const JpSchoolsHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.jpSchools,
     p.jpSchoolsOpacity ?? 0.75,
     p.jpSchoolsScale ?? 1,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -107,7 +110,8 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpPoliceFacilitiesLayer");
   const p = useKeyOverlayParams("jpPoliceFacilities");
   useJpPoliceFacilitiesLayer(deps.mapRef, deps.layerVisibility.jpPoliceFacilities,
-    p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1, p.jpPoliceFacilitiesTypeIdx ?? 0);
+    p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1,
+    p.jpPoliceFacilitiesTypeIdx ?? 0, deps.isDarkTheme);
   return null;
 };
 
@@ -154,7 +158,7 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
     jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
     jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.75,
     jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
-  });
+  }, deps.isDarkTheme);
   return <JpWaterAlert />;
 };
 
@@ -213,7 +217,7 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
     jpRamsarSites: ramsar.jpRamsarSitesScale ?? 1,
   }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar]);
   const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
-  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode);
+  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode, deps.isDarkTheme);
   return null;
 };
 
@@ -258,7 +262,7 @@ export const JpMedicalHost: LayerHostComponent = ({ deps }) => {
     ...hospitals, ...clinics, ...dental, ...maternity, ...pharmacies,
     ...carePlanning, ...careHomeVisit, ...careDayServices, ...careResidential, ...careCombined, ...careEquipment,
     ...areasPrimary, ...areasSecondary, ...areasTertiary,
-  });
+  }, deps.isDarkTheme);
   return medicalKeys.some((key) => deps.layerVisibility[key]) ? <JpMedicalAlert /> : null;
 };
 import { useMemo } from "react";

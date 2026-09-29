@@ -4600,7 +4600,7 @@ function TaipeiSewerLegend() {
 }
 
 // ── 北市抽水站：risk_ratio step 分級（useTaipeiPumbLayer.ts riskColorExpression）──
-// risk_ratio = 內池水位 / 最高容許水位；白邊來自 circle-stroke（pumb_running=true → 2px 白）。
+// risk_ratio = 內池水位 / 最高容許水位；運轉中站點有 2px 外框（pumb_running=true；暗底圖白、淡底圖深灰），其餘為底圖色細縫。
 const TAIPEI_PUMB_CATS = [
   { color: "#7f1d1d", label: "≥ 0.9 逼近上限" },
   { color: "#ef4444", label: "0.8–0.9" },
@@ -4622,11 +4622,11 @@ function TaipeiPumbLegend() {
         <div
           style={{
             width: 10, height: 10, borderRadius: RADIUS.full,
-            background: "transparent", border: "2px solid #ffffff",
+            background: "transparent", border: `2px solid ${t === DARK_LEGEND ? "#ffffff" : "#111827"}`,
             boxSizing: "border-box", flexShrink: 0,
           }}
         />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>白邊 = 運轉中</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>外框 = 運轉中</span>
       </div>
     </div>
   );

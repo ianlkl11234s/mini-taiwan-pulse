@@ -104,6 +104,7 @@ export const PowerPolesHost: LayerHostComponent = ({ deps }) => {
   usePowerPolesLayer(
     deps.mapRef,
     deps.layerVisibility.powerPoles,
+    deps.isDarkTheme,
     p.powerPolesOpacity ?? 0.7,
     p.powerPolesSize ?? 1,
     p.powerPolesHeat ?? 1,

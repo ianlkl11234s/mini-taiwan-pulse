@@ -64,20 +64,21 @@ function agriPOIParamsFrom(params: Record<string, number>) {
   };
 }
 
-function ensureAllAgricultureLayers(map: mapboxgl.Map): void {
+function ensureAllAgricultureLayers(map: mapboxgl.Map, isDarkTheme: boolean): void {
   ensureAgricultureLayers(map);
   ensureAgriSoilLayers(map);
   ensureAgriSoilFertilityLayers(map);
   ensureAgriLeisureFarmZonesLayers(map);
   ensureAgriRuralRegenLayers(map);
   ensureAgriCropSuitabilityLayers(map);
-  ensureAgriPOILayers(map);
+  ensureAgriPOILayers(map, isDarkTheme);
 }
 
 function updateAllAgricultureLayers(
   map: mapboxgl.Map,
   vis: LayerVisibility,
   params: Record<string, number>,
+  isDarkTheme: boolean,
 ): void {
   updateAgricultureLayer(map, vis.agriculture, agricultureParamsFrom(params));
   updateAgriSoilLayer(map, vis.agriSoil, agriPolyOpacityParam(params, "agriSoilOpacity"));
@@ -85,7 +86,7 @@ function updateAllAgricultureLayers(
   updateAgriLeisureFarmZonesLayer(map, vis.agriLeisureFarmZones, agriPolyOpacityParam(params, "agriLeisureFarmZonesOpacity"));
   updateAgriRuralRegenLayer(map, vis.agriRuralRegen, agriPolyOpacityParam(params, "agriRuralRegenOpacity"));
   updateAgriCropSuitabilityLayer(map, vis.agriCropSuitability, agriCropSuitabilityParamsFrom(params));
-  updateAgriPOILayer(map, vis.agriPOI, agriPOIParamsFrom(params));
+  updateAgriPOILayer(map, vis.agriPOI, agriPOIParamsFrom(params), isDarkTheme);
 }
 
 interface MapViewProps {
@@ -338,8 +339,8 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
-      ensureAllAgricultureLayers(map);
-      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
+      ensureAllAgricultureLayers(map, isDarkThemeRef.current);
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current, isDarkThemeRef.current);
       // 等時圈 PMTiles 層（須排在 agriculture 之後 → 共用 PMTiles SourceType 已註冊）
       ensureFireIsochroneLayer(map);
       updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
@@ -381,10 +382,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
-      ensureAllAgricultureLayers(map);
+      ensureAllAgricultureLayers(map, isDarkThemeRef.current);
       // AR-21：同 style.load —— visibility 讀 store 的最新值
       const vis = layerVisibilityStore.getAll();
-      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current, isDarkThemeRef.current);
       ensureFireIsochroneLayer(map);
       updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       ensureMedicalIsochroneLayers(map);
@@ -507,7 +508,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams, vis);
     jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkTheme, overlayParams);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
-    updateAllAgricultureLayers(map, vis, overlayParams);
+    updateAllAgricultureLayers(map, vis, overlayParams, isDarkTheme);
     // 等時圈：透明度 / 縣市下拉變動 → 更新
     updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParams));
     // 醫療等時圈 + 醫療沙漠
@@ -535,7 +536,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       }
       jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
       // OVERLAY_REGISTRY 之外的專屬圖層
-      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current, isDarkThemeRef.current);
       // 等時圈開/關層
       updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       // 醫療等時圈 + 醫療沙漠開/關

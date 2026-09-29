@@ -12,6 +12,8 @@ import {
   useTimelineSliceLayer,
   type TimelineSliceLayerConfig,
 } from "./factories/timelineSliceLayer";
+import { paramDefault } from "../data/layerParamsSpec";
+import { pointStrokePaint } from "../map/mapStyleScale";
 
 /**
  * 即時雨量圖層（Mapbox native circle）— Timeline 驅動
@@ -153,6 +155,14 @@ function circleZoomOpacity(base: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("rainGauge", "rainGaugeOpacity"));
+
+/** 底圖色描邊；透明度沿用 circle 的遠景淡出（zoom 內插），不另外破壞淡入行為 */
+function strokePaint(isDark: boolean, opacity: number) {
+  const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+  return { ...stroke, "circle-stroke-opacity": circleZoomOpacity(stroke["circle-stroke-opacity"]) };
+}
+
 function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
@@ -201,9 +211,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": rainRadiusExpression(scale),
         "circle-color": rainColorExpression(),
         "circle-opacity": circleZoomOpacity((isDark ? 0.85 : 0.75) * opacity),
-        "circle-stroke-width": 0.5,
-        "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": circleZoomOpacity(0.4 * opacity),
+        ...strokePaint(isDark, opacity),
       },
     } as CircleLayer);
   }
@@ -217,7 +225,10 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
   if (map.getLayer(LAYER_CIRCLE)) {
     map.setPaintProperty(LAYER_CIRCLE, "circle-radius", rainRadiusExpression(scale));
     map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", circleZoomOpacity((isDark ? 0.85 : 0.75) * opacity));
-    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", circleZoomOpacity(0.4 * opacity));
+    const stroke = strokePaint(isDark, opacity);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
   }
   if (map.getLayer(LAYER_HEATMAP)) {
     map.setPaintProperty(LAYER_HEATMAP, "heatmap-opacity", [

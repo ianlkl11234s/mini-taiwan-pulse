@@ -7,7 +7,7 @@ import { useKeyOverlayParams } from "../layerParamsAccess";
 export const AnimalAdoptionHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useAnimalAdoptionLayer");
   const p = useKeyOverlayParams("animalAdoption");
-  useAnimalAdoptionLayer(deps.mapRef, deps.layerVisibility.animalAdoption, p.animalAdoptionOpacity ?? 0.85, p.animalAdoptionScale ?? 1);
+  useAnimalAdoptionLayer(deps.mapRef, deps.layerVisibility.animalAdoption, p.animalAdoptionOpacity ?? 0.85, p.animalAdoptionScale ?? 1, deps.isDarkTheme);
   return null;
 };
 
@@ -23,7 +23,8 @@ export const AnimalWelfarePointsHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("animalWelfarePoints");
   useAnimalWelfarePointsLayer(
     deps.mapRef, deps.layerVisibility.animalWelfarePoints,
-    p.animalWelfarePointsOpacity ?? 0.85, p.animalWelfarePointsScale ?? 1, p.animalWelfarePointsTypeMask,
+    p.animalWelfarePointsOpacity ?? 0.85, p.animalWelfarePointsScale ?? 1, deps.isDarkTheme,
+    p.animalWelfarePointsTypeMask,
   );
   return null;
 };
