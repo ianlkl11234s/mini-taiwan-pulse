@@ -1444,13 +1444,14 @@ export const LAYER_PARAMS_SPEC = {
   ],
 
   // ══════════ 天災・水利・農業・運動生態 ══════════
-  soilLiquefactionPotential: [opacitySlider("soilLiquefactionPotentialOpacity", 0.78)],
-  weakSoilClay0To5: [opacitySlider("weakSoilClay0To5Opacity", 0.72)],
-  weakSoilSand0To5: [opacitySlider("weakSoilSand0To5Opacity", 0.72)],
-  weakSoilClay5To10: [opacitySlider("weakSoilClay5To10Opacity", 0.72)],
-  weakSoilSand5To10: [opacitySlider("weakSoilSand5To10Opacity", 0.72)],
-  weakSoilClay10To20: [opacitySlider("weakSoilClay10To20Opacity", 0.72)],
-  weakSoilSand10To20: [opacitySlider("weakSoilSand10To20Opacity", 0.72)],
+  // 土壤液化：潛勢＝分級面 F-1 0.55；弱層 100 m 格＝網格 G-3 0.7（map-layers.md §3.3／§3.4）。
+  soilLiquefactionPotential: [opacitySlider("soilLiquefactionPotentialOpacity", 0.55)],
+  weakSoilClay0To5: [opacitySlider("weakSoilClay0To5Opacity", 0.7)],
+  weakSoilSand0To5: [opacitySlider("weakSoilSand0To5Opacity", 0.7)],
+  weakSoilClay5To10: [opacitySlider("weakSoilClay5To10Opacity", 0.7)],
+  weakSoilSand5To10: [opacitySlider("weakSoilSand5To10Opacity", 0.7)],
+  weakSoilClay10To20: [opacitySlider("weakSoilClay10To20Opacity", 0.7)],
+  weakSoilSand10To20: [opacitySlider("weakSoilSand10To20Opacity", 0.7)],
   liquefactionMonitoringSites: [opacitySlider("liquefactionMonitoringSitesOpacity", 0.9)],
   earthquakesGlobal: [
     // 回溯天數決定 loader 的「查詢窗」（非 filter）—— 全域時間軸最多 7 天視窗，

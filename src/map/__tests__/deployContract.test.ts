@@ -264,6 +264,8 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   // 讀取 private immutable objects，不得進 public/dist/CDN upload allowlist。
   "PRIVATE_OWNER_ONLY: water.pmtiles",
   "PRIVATE_OWNER_ONLY: extra-water.pmtiles",
+  // 土壤液化（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）：同樣只走 owner-authenticated Range sidecar。
+  "PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles",
 ]);
 
 /**

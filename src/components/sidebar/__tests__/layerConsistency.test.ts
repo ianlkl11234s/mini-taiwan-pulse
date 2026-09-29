@@ -189,7 +189,7 @@ const NO_LEGEND_LEDGER = new Set([
 /**
  * `popup: null`（鐵則 3 豁免 —— 沒有 click popup）。
  *
- * ⚠️ **本 ledger 是 Phase 4 就地凍結的現況**（57 筆）。Phase 2 逐批搬移時，每一筆
+ * ⚠️ **本 ledger 是 Phase 4 就地凍結的現況**（57 筆；2026-09-29 土壤液化 8 層改接 popup，已自 ledger 移除）。Phase 2 逐批搬移時，每一筆
  * `popup` 宣告都與 `GIS_LAYERS` / `HEADER_LABELS` 機械對帳過（見 layerManifest.test.ts
  * 那條雙向斷言），所以「宣告 null 的層確實沒有接線」是查證過的；
  * **但「它是否*應該*有 popup」是 UX 判斷，沒有逐筆重新考證。**
@@ -217,8 +217,6 @@ const NO_POPUP_LEDGER = new Set([
   "realEstateSaleGrid", "realEstateSalePoint",
   "realEstatePresaleGrid", "realEstatePresalePoint",
   "dustForecast",                                    // 全球氣候：raster 沙塵預報
-  // 土壤液化潛勢與弱層皆為官方已著色 raster，沒有可查詢的 feature properties；監測站僅保留名稱/連結且重利用條款待確認。
-  "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10", "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
   "hillshade",                                       // 底圖：raster 山影
   // 環境氣候 raster：雲圖 / 雷達 / AQI 影像皆為上游已上色成品，無數值通道
   //（熱島 urbanHeat / 樹冠 canopyHeight 是值編碼 raster，W2 已接點擊讀值探針 → 不在本表）

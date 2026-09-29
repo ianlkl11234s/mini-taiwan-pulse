@@ -224,6 +224,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   bridgeRainThresholds: "L", // 一級監控橋梁參考雨量 · src/hooks/useBridgeRainLayer.ts
   floodAlerts: "M", // 水文防汛 Flood Alerts · src/hooks/useDisasterAlertLayer.ts
   lifelineAlerts: "M", // 民生中斷 Lifeline · src/hooks/useDisasterAlertLayer.ts
+  liquefactionMonitoringSites: "L", // 土壤液化監測站（11 點重點站） · src/hooks/useSoilLiquefactionLayers.ts
   safetyAlerts: "M", // 安全環境 Safety Alerts · src/hooks/useDisasterAlertLayer.ts
   transitAlerts: "M", // 交通阻斷 Transit Alerts · src/hooks/useDisasterAlertLayer.ts
   weatherAlerts: "M", // 氣象特報 Weather Alerts · src/hooks/useDisasterAlertLayer.ts

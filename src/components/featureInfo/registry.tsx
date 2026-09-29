@@ -3,6 +3,7 @@ import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
 import { AllenCoralAtlasPanel } from "./AllenCoralAtlasPanel";
 import { AnalysisResultPanel } from "./analysisResultPanels";
+import { LiquefactionMonitoringSitePanel, SoilLiquefactionPotentialPanel, WEAK_SOIL_PANELS } from "./soilLiquefactionPanels";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
 // 新增 layer 的 popup 接線只要：寫 panel 元件（放對應 domain 檔）→ 此處
@@ -403,6 +404,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpWaterLocalFacilities: JpWaterPanel,
   jpWaterQualityStations: JpWaterPanel,
   jpWaterLevelStations: JpWaterPanel,
+  // 土壤液化 owner-only（6 個弱層共用一個 panel 工廠，依圖層決定深度）
+  soilLiquefactionPotential: SoilLiquefactionPotentialPanel,
+  ...WEAK_SOIL_PANELS,
+  liquefactionMonitoringSites: LiquefactionMonitoringSitePanel,
   jpAccommodationCanonical: JpTourismPanel,
   jpAccommodationDensity: JpAccommodationDensityPanel,
   jpAccommodationJta: JpTourismPanel,
@@ -577,6 +582,14 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpWaterLocalFacilities: "高松供排水相關設施 高松市",
   jpWaterQualityStations: "水質測定地点（2024）",
   jpWaterLevelStations: "橫濱水位站 横浜市",
+  soilLiquefactionPotential: "土壤液化潛勢",
+  weakSoilClay0To5: "弱層黏土 0–5m",
+  weakSoilSand0To5: "弱層砂土 0–5m",
+  weakSoilClay5To10: "弱層黏土 5–10m",
+  weakSoilSand5To10: "弱層砂土 5–10m",
+  weakSoilClay10To20: "弱層黏土 10–20m",
+  weakSoilSand10To20: "弱層砂土 10–20m",
+  liquefactionMonitoringSites: "土壤液化監測站",
   regionalStatistic: "區域統計",
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
