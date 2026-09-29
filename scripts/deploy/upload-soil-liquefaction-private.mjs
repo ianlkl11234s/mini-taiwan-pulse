@@ -26,15 +26,19 @@ for (const [, , size, sha256] of assets) {
   if (receiptContract.size !== size || receiptContract.sha256 !== sha256) throw new Error('Receipt does not match SOIL_LIQUEFACTION_ASSETS');
 }
 
-// Fail closed on any public Allow outside the previously approved flight-arc prefix.
-const policy = await client.send(new GetBucketPolicyCommand({ Bucket }));
-for (const statement of JSON.parse(policy.Policy).Statement) {
+// Fail closed on any public Allow. This bucket holds private research only, so a
+// missing bucket policy (NoSuchBucketPolicy) means there is no public grant at all.
+let statements = [];
+try {
+  const policy = await client.send(new GetBucketPolicyCommand({ Bucket }));
+  statements = JSON.parse(policy.Policy).Statement;
+} catch (error) {
+  if (error?.name !== 'NoSuchBucketPolicy') throw error;
+}
+for (const statement of statements) {
   const principal = statement.Principal;
   const publicPrincipal = principal === '*' || (typeof principal === 'object' && JSON.stringify(principal).includes('"*"'));
-  if (statement.Effect === 'Allow' && publicPrincipal) {
-    const resources = Array.isArray(statement.Resource) ? statement.Resource : [statement.Resource];
-    if (resources.some(value => !value.startsWith(`arn:aws:s3:::${Bucket}/flight-arc/`))) throw new Error('Unexpected public bucket policy; stop publication');
-  }
+  if (statement.Effect === 'Allow' && publicPrincipal) throw new Error('Unexpected public bucket policy; stop publication');
 }
 const ownership = await client.send(new GetBucketOwnershipControlsCommand({ Bucket }));
 const ownerEnforced = ownership.OwnershipControls?.Rules?.some(rule => rule.ObjectOwnership === 'BucketOwnerEnforced');
