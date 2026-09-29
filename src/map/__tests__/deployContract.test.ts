@@ -307,6 +307,20 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(pullScript).not.toContain("private-research/jp-water");
   });
 
+  it("土壤液化只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/soil-liquefaction\/tiles\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/soil-liquefaction \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/soil-liquefaction"');
+    expect(privateResearchServer).toContain('const SOIL_LIQUEFACTION_S3_PREFIX = "private-research/soil-liquefaction"');
+    expect(pullScript).not.toContain("private-research/soil-liquefaction");
+  });
+
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
     const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
     expect(match, "public dist fallback missing").not.toBeNull();
