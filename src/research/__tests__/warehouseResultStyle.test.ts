@@ -472,6 +472,9 @@ describe("warehouse style on the map overlay", () => {
     setAnalysisOpacity(map, installed, proportionalPoints.resultId, 0.4);
     expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBeCloseTo(0.4 * 0.75, 5);
     expect(layers.get("research-analysis-result-proportional-label-0")!.paint["text-opacity"]).toBe(0.4);
+    // Reusing the slot for a proportional result with another label field refreshes text-field.
+    installAnalysisResults(map, [{ ...proportionalPoints, resultStyle: { ...proportional, labelField: "district" } }], 0.8, "dark");
+    expect(JSON.stringify(layers.get("research-analysis-result-proportional-label-0")!.layout?.["text-field"])).toContain("district");
     installAnalysisResults(map, [polygon], 0.8, "dark");
     expect(layers.has("research-analysis-result-proportional-label-0")).toBe(false);
     removeAnalysisResults(map);
