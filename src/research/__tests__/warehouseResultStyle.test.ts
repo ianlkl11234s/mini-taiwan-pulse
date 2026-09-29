@@ -247,6 +247,8 @@ describe("warehouse result style contract", () => {
     expect(choroplethLegend.title).toBe("房價中位數（人/km²）");
     expect(choroplethLegend.entries[0]!.label).toBe(choropleth.labels[0]); // units never touch the bin labels
     expect(warehouseStyleFact(choroplethWithUnit, { _style_value: 88 })).toEqual({ label: "房價中位數", value: "88 人/km²" });
+    // A "%" unit without an explicit valueKind still formats as a percent instead of dropping the sign.
+    expect(warehouseStyleFact({ ...choropleth, unit: "%" }, { _style_value: 12.5 })!.value).toContain("%");
 
     const bivariateLegend = warehouseStyleLegend(bivariateWithUnit);
     if (bivariateLegend.kind !== "bivariate") throw new Error("expected a bivariate legend");
