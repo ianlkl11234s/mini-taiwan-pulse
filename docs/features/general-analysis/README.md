@@ -12,6 +12,8 @@
 2. [`PLAN-round3-20260927.md`](./PLAN-round3-20260927.md) — 詳細進度表 + 下一步建議
 3. [`question-bank-backlog-20260927.md`](./question-bank-backlog-20260927.md) — 問題庫題綱與分類
 4. [UI 一致性盤點 handoff](../ui-consistency-audit-20260927/handoff.md) — 獨立分案，視覺化函式庫的前置依賴
+5. [`PROD-HOME.md`](./PROD-HOME.md) — **本機正式環境的唯一的家**（analysis-prod 的 mini／mcp／gateway／runtime）、更新與啟動方式、全雲端準備清單
+6. [視覺化函式庫](../viz-library/README.md) — 地圖樣式、面板小圖表、分析卡、Agent 回歸測試
 
 新圖層：有 manifest 並能自動入分析倉庫即為 L2 可分析。
 

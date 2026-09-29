@@ -32,11 +32,7 @@
 
 ## 本機 Agent 測試環境
 
-- 正式路徑：`mini-taiwan-pulse/.worktrees/analysis-prod/{mini,mcp}`（detached，Claude 的 MCP 與 skill 都指向這裡）。**mini／mcp 合併後要手動更新**：`git -C analysis-prod/<repo> fetch && git -C analysis-prod/<repo> checkout --detach origin/<master|main>`，mcp 再 `npm run build`；之後在 Claude Code 用 `/mcp` 重連 pulse-research 才會吃到新版（重連後 wh-* 結果會清空）。
-- 研究 gateway（8794）：`cd .worktrees/research-streamline/gateway && ( nohup node ../runtime/start-v03-gateway.mjs > ../runtime/gateway-8794.log 2>&1 & )`；程式碼是 gis-platform 的 worktree，gateway 改動後要更新該 worktree 並重啟。
-- 前端（3734，gateway 只接受這個 origin）：`cd .worktrees/analysis-prod/mini && ( PULSE_RESEARCH_GATEWAY_ORIGIN=http://127.0.0.1:8794 nohup npx vite --host 127.0.0.1 --port 3734 --strictPort > ../runtime/vite-3734.log 2>&1 & )`；`analysis-prod/mini/.env` 是指向主 repo `.env` 的 symlink。
-- 兩者用雙層括號背景啟動才不會隨 Claude session 關閉。停止時只 kill 對應 PID（`lsof -tiTCP:3734 -sTCP:LISTEN`），不要 pkill。
-- 開 vite 的除錯**不要 curl 轉譯後的原始碼模組**（會把 VITE_* 金鑰內嵌印出）。
+正式環境只有一個家：`.worktrees/analysis-prod/{mini,mcp,gateway,runtime}`。更新、啟動、停止與全雲端準備清單見 [general-analysis/PROD-HOME.md](../general-analysis/PROD-HOME.md)。
 
 ## 回歸測試
 
