@@ -223,7 +223,7 @@ export function MainMapConnection(props: Props) {
     if (!current || !controller.current) return;
     // Re-enabling a hidden result makes it the newest; the S1 cap then hides the least recent one.
     let presentable: PresentableResult[] = [];
-    try { presentable = analysis.current?.presentable(current.items.map(item => item.resultId)) ?? []; } catch { presentable = []; }
+    try { presentable = analysis.current?.mapPresentable(current.items.map(item => item.resultId)) ?? []; } catch { presentable = []; }
     // The user toggle diffs against what is on screen (capped) and is pushed, so the server follows.
     const results = planAnalysisResults(current, update(current), presentable) ?? current;
     requestedResultsRef.current = results;
@@ -251,7 +251,7 @@ export function MainMapConnection(props: Props) {
     // Validate every declared ID, including hidden collection entries, before
     // acknowledging the scene. Hidden must not become a way to retain an
     // expired or unauthorized result beyond the normal session boundary.
-    const allAnalysisResults = scene.results ? analysis.current!.presentable(scene.results.items.map(item => item.resultId)) : [];
+    const allAnalysisResults = scene.results ? analysis.current!.mapPresentable(scene.results.items.map(item => item.resultId)) : [];
     // S1 (O1): cap at 3 visible results / one heatmap by switching the least recently shown ones
     // off (not removed; the list toggle brings them back). The capped collection is what readback
     // reports, so the Agent sees which results were auto-hidden.

@@ -496,6 +496,15 @@ export class ResearchAnalysisSession {
     return { resultId: result.resultId, displayLabel: resultDisplayLabel(result), rows: result.rows, units: result.units, ...(result.resultStyle ? { resultStyle: result.resultStyle } : {}) };
   }
 
+  /** `presentable()` for a declared result collection that may also hold series results (TrendLine
+   *  cards, never map layers): those are access-checked via `seriesResult()` and left out of the map
+   *  batch instead of failing it with RESULT_NOT_MAP_ELIGIBLE. Missing ids and non-series ineligible
+   *  results still reach `presentable()` and throw as before. */
+  mapPresentable(resultIds: readonly string[]): PresentableResult[] {
+    const mapIds = resultIds.filter(resultId => this.mapEligible(resultId) || this.seriesResult(resultId) === null);
+    return mapIds.length ? this.presentable(mapIds) : [];
+  }
+
   presentable(resultIds: readonly string[]): PresentableResult[] {
     if (!resultIds.length || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
     if (resultIds.length > RESULT_COLLECTION_LIMITS.maxLogicalResults) throw new Error("RESULT_COLLECTION_LOGICAL_LIMIT");
