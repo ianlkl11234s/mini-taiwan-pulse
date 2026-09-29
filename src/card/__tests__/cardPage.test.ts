@@ -26,6 +26,14 @@ describe("卡片頁渲染", () => {
     expect(html).toContain('id="map-slot"');
   });
 
+  it("比率類數值依 legend.value_kind 保留小數，不被當件數四捨五入", () => {
+    const base = areaPayload();
+    const payload = { ...base, top: [{ name: "嘉義縣", value: 1.5004829, class_index: 4 }, { name: "雲林縣", value: 1.4900405, class_index: 4 }, { name: "臺東縣", value: 1.4880952, class_index: 4 }], legend: { ...base.legend, unit: "件／萬名居民", value_kind: "ratio" as const } };
+    const html = renderToStaticMarkup(createElement(AnalysisCard, { payload, expiresAt: null, mapSlot: null }));
+    expect(html).toContain("1.5");
+    expect(html).toContain("1.49");
+    expect(html).not.toMatch(/>2<|>2件/);
+  });
   it("界線載入失敗：地圖區顯示容錯訊息，其他內容照常", () => {
     const html = renderToStaticMarkup(createElement(AnalysisCard, { payload: areaPayload(), expiresAt: null, mapSlot: createElement(CardMapFallback, { message: "地圖邊界暫時無法載入" }) }));
     expect(html).toContain("地圖邊界暫時無法載入");

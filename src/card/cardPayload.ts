@@ -48,7 +48,7 @@ export type CardPayloadV1 = {
   map: CardAreaMap | null;
   points: CardPoints | null;
   query_scope: { center: [number, number]; radius_m: number | null } | null;
-  legend: { title: string; unit: string | null; method: "quantile" | "equal" | "category"; missing_count: number };
+  legend: { title: string; unit: string | null; method: "quantile" | "equal" | "category"; missing_count: number; value_kind?: CardValueKind };
   sources: CardSource[];
   caveats: string[];
 };
@@ -118,7 +118,7 @@ export function validateCardPayload(value: unknown): CardValidation {
   if (!Array.isArray(caveats) || caveats.length > 3 || !caveats.every(caveat => text(caveat, 1, 120))) return fail("CAVEATS");
 
   const legend = value.legend;
-  if (!isObject(legend) || !text(legend.title, 1, 40) || !nullableText(legend.unit, 12) || !["quantile", "equal", "category"].includes(String(legend.method)) || !(typeof legend.missing_count === "number" && Number.isInteger(legend.missing_count) && legend.missing_count >= 0)) return fail("LEGEND");
+  if (!isObject(legend) || !text(legend.title, 1, 40) || !nullableText(legend.unit, 12) || !["quantile", "equal", "category"].includes(String(legend.method)) || !(typeof legend.missing_count === "number" && Number.isInteger(legend.missing_count) && legend.missing_count >= 0) || (legend.value_kind !== undefined && !VALUE_KINDS.has(String(legend.value_kind)))) return fail("LEGEND");
 
   if (value.kind === "area") {
     const map = value.map;
