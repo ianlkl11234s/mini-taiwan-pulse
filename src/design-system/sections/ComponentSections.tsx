@@ -12,7 +12,7 @@ import { FeatureThemeProvider, DARK_FEATURE, LIGHT_FEATURE } from "../../compone
 import { Row, SourceFooter, Title } from "../../components/featureInfo/shared";
 import "../../components/featureInfo/featureInfo.css";
 import { Slider } from "../../components/controls/Slider";
-import { LayerToggleSwitch } from "../../components/sidebar/LayerToggleSwitch";
+import { LAYER_TOGGLE_PALETTE, LayerToggleSwitch } from "../../components/sidebar/LayerToggleSwitch";
 import { ToolbarButton } from "../../components/toolbar/ToolbarButton";
 import { getToolbarPalette } from "../../components/toolbar/toolbarTheme";
 import { ModeToggle } from "../../components/ModeToggle";
@@ -196,12 +196,13 @@ function ControlsDemo({ isDark }: { isDark: boolean }) {
       </div>
       <Kv rows={isDark ? objRows("SLIDER", SLIDER) : [["LIGHT.sliderTrack", LIGHT.sliderTrack], ["LIGHT.sliderFill", LIGHT.sliderFill], ["LIGHT.sliderThumb", LIGHT.sliderThumb]]} />
     </Sub>
-    <Sub title="LayerToggleSwitch（圖層列開關）" kind="real">
+    <Sub title="列開關 LayerToggleSwitch（§5.10 第一階）" kind="real">
       <div className="ds-row" style={{ alignItems: "center" }}>
-        <LayerToggleSwitch on={sw} onChange={() => setSw(!sw)} label="示例開關" />
-        <LayerToggleSwitch on={!sw} onChange={() => setSw(!sw)} label="示例開關（反）" />
+        <LayerToggleSwitch on={sw} onChange={() => setSw(!sw)} label="示例開關" isDarkTheme={isDark} />
+        <LayerToggleSwitch on={!sw} onChange={() => setSw(!sw)} label="示例開關（反）" isDarkTheme={isDark} />
       </div>
-      <p className="ds-note" style={{ marginTop: 4 }}>元件實測 <span className="ds-mono">28×16</span>、圓點 <span className="ds-mono">12</span>、開底 <span className="ds-mono">#fff</span>／關底 <span className="ds-mono">#4b5563</span>（元件預設值）。<span className="ds-warn">規格 §5.10 寫 20×11（控制區）／24×14（工具列），與此元件不同。</span></p>
+      <Kv rows={Object.entries(LAYER_TOGGLE_PALETTE[isDark ? "dark" : "light"]).map(([k, v]) => [`LAYER_TOGGLE_PALETTE.${isDark ? "dark" : "light"}.${k}`, v])} />
+      <p className="ds-note" style={{ marginTop: 4 }}><span className="ds-mono">28×16</span>、圓點 <span className="ds-mono">12</span>；開＝黑白（依主題）。細項開關（第二階，<span className="ds-mono">20×11</span>、開＝強調藍）見上方圖層控制區的「開關」。</p>
     </Sub>
     <Kv rows={[["CONTROL.bg", isDark ? CONTROL.bg : LIGHT.controlBg], ["CONTROL.bgHover", isDark ? CONTROL.bgHover : LIGHT.controlBgHover], ["CONTROL.border", isDark ? CONTROL.border : LIGHT.controlBorder], ["CONTROL.optionBg", isDark ? CONTROL.optionBg : LIGHT.surfaceSolid], ["disabledOpacity", CONTROL.disabledOpacity]]} />
   </>;
