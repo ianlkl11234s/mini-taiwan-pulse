@@ -10,6 +10,7 @@
 | [PLAN.md](./PLAN.md) | 架構決定（共用規格 SSOT、註冊表、契約測試）與分工 |
 | [CARD-LINK.md](./CARD-LINK.md) | 分析卡連結規格：流程、拍板、授權閘門、payload、migration 414／415 |
 | [BACKLOG.md](./BACKLOG.md) | 延後項目與下一步 |
+| [NEARBY-MAP-PLAN.md](./NEARBY-MAP-PLAN.md) | 周邊問題自動畫圖（中心點、白虛線圈、具名地點）改善計劃，待施工 |
 
 互動設計稿：配色＋元件 https://claude.ai/artifact/VkQypJspPdwvsQu4CHqsYg ；細節 https://claude.ai/artifact/MFZiW5dKjnXz4xDojVq2cM ；小圖表／時間／分析卡 https://claude.ai/artifact/EbnEbehA7AbdkTiMEfSwqT
 

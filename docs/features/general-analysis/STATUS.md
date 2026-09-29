@@ -80,6 +80,7 @@
 
 ## 下一步建議（依優先）
 
+0. **周邊問題「一問就畫好」**（使用者 2026-09-29 實測回饋，已調查、待拍板）：中心點＋白色虛線圈＋具名的分類點、一步到位工具 `pulse_show_nearby`、引導改寫。計劃見 [viz-library/NEARBY-MAP-PLAN.md](../viz-library/NEARBY-MAP-PLAN.md)。
 1. **資料新鮮度自動化**：倉庫每月重建與 Valhalla 月更自動化，並更新過舊資料（事故點）。現在功能已齊，資料過期是最大風險。
 2. **Agent 品質第二輪**：回歸測試加 `--repeat`，看出穩定分數後再修 A12、A09。
 3. **上雲第一步**：研究 gateway 部署到 Zeabur，讓 Agent 分析不依賴本機開機（照 PROD-HOME 清單）。
