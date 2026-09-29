@@ -104,6 +104,13 @@ describe("warehouse series import (T1=L1, no map geometry)", () => {
     expect(() => session.presentable(["wh-9"])).toThrow("RESULT_NOT_MAP_ELIGIBLE");
   });
 
+  it("rejects proportional/bivariate styles on geometry they cannot draw", async () => {
+    // `collection` mixes a Polygon with Points: proportional needs Points only, bivariate Polygons only.
+    for (const kind of ["proportional", "bivariate"] as const) {
+      await expect(loadWarehouseResult({ resultId: "wh-8", sha256: sha, label: "x", featureCount: 3, style: { kind } as unknown as WarehouseResultStyle }, okFetch())).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    }
+  });
+
   it("rejects a series style paired with actual features", async () => {
     await expect(loadWarehouseResult({ resultId: "wh-9", sha256: sha, label: "x", featureCount: 3, style: seriesStyle }, okFetch())).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
   });
