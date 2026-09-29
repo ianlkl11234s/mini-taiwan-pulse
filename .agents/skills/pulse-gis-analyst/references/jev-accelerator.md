@@ -12,7 +12,7 @@ Jev 是 routing accelerator，不是 agent、執行器、授權層或資料真�
 
 ## 呼叫與判讀
 
-對開放式請求呼叫 `pulse_route_request({query})`。只採用回傳的 `capability`、`surface`、`candidateTools`、confidence 與 routing receipt；`executed` 必須是 `false`。
+對仍有路由歧義的開放式請求，可呼叫 `pulse_route_request({query})`；已知資料家族或工作流程則直接用 deterministic 路由。只採用回傳的 `capability`、`surface`、`candidateTools`、confidence 與 routing receipt；`executed` 必須是 `false`。
 
 目前 runtime 是一次 capability Choice，再由固定 allowlisted vocabulary 回傳小型 candidateTools；它不是逐一替所有 tools 做 learned ranking。不要把候選順序解讀成精確排名。
 
