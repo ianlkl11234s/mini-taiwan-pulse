@@ -38,6 +38,16 @@ describe("SourceFooter (F2)", () => {
     expect(html).not.toContain("來源資訊待補");
   });
 
+  it("只帶 attribution / attribution_href 的 loader 也算有來源", () => {
+    const html = renderToStaticMarkup(createElement(SourceFooter, {
+      props: { attribution: "Global Fishing Watch", attribution_href: "https://globalfishingwatch.org/" },
+    }));
+
+    expect(html).toContain("Global Fishing Watch");
+    expect(html).toContain("https://globalfishingwatch.org/");
+    expect(html).not.toContain("來源資訊待補");
+  });
+
   it("完全沒有 org/url 時顯示「來源資訊待補」而非整段省略", () => {
     const html = renderToStaticMarkup(createElement(SourceFooter, {
       props: { license: "CC-BY 4.0" },

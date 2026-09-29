@@ -129,7 +129,8 @@ function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
  * 標準溯源 footer（F2 規格，見 proposal.md §6.1 / handoff.md §4a 第三輪拍板）——
  * 2026-09-27 起由 FeatureInfoPanel 統一在 content 後掛一次，各 panel 不再各自呼叫
  * （少數欄位需要 panel 端 enrich 常數值，或另有自訂溯源 UI 的例外見 FeatureInfoPanel.tsx）。
- * props 期望帶：source / source_org / source_url / license / fetched_at / source_tier。
+ * props 期望帶：source / source_org / source_url / license / fetched_at / source_tier
+ * （無 source_org／source_url 時退用 attribution／attribution_href）。
  * canonical SSOT layer 多帶 provenance jsonb（會展成 details 列出）；
  * 部分 pipeline（如宗教）欄位名是 `_provenance`（底線開頭），兩者都接。
  *
@@ -138,8 +139,9 @@ function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const org = String(props.source_org ?? props.source ?? "");
-  const url = String(props.source_url ?? "");
+  // 部分 loader（如 gfwFishingEffortLoader）以 attribution / attribution_href 帶來源，一併視為來源。
+  const org = String(props.source_org ?? props.source ?? props.attribution ?? "");
+  const url = String(props.source_url ?? props.attribution_href ?? "");
   const license = String(props.license ?? "");
   const tier = props.source_tier;
   const fetched = String(props.fetched_at ?? "");
