@@ -1200,7 +1200,8 @@
       "layers": [
         "station-points-metro-pt-fill",
         "station-points-metro-pt-glow-1",
-        "station-points-metro-pt-glow-2"
+        "station-points-metro-pt-glow-2",
+        "station-points-metro-lowzoom-core"
       ],
       "type": "railStation"
     },
