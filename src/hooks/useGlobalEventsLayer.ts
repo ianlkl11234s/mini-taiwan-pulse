@@ -161,6 +161,9 @@ function ensureLayers(map: MapboxMap): void {
         ],
         "circle-stroke-width": 2.5,
         "circle-stroke-opacity": 0,
+        // 動畫由 RAF 逐幀改寫：關掉 GL transition，否則關閉當下 transition 卡住、持續 render
+        "circle-radius-transition": { duration: 0, delay: 0 },
+        "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
       },
     } as CircleLayer);
   }
