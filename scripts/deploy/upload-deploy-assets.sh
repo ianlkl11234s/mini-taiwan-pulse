@@ -592,13 +592,14 @@ if [ -d "public/rail" ]; then
   rm /tmp/rail.tar.gz
 fi
 
-# 公車大檔路線 JSON（gitignore 的四份：taipei 18MB、intercity 87MB、pingtungcounty 16MB、tourist_shuttle 6.7MB）
+# 公車大檔路線 JSON（gitignore 的四份）。2026-09-30 起為 _v2（去掉可推導的 cumDist，前端載入時重算）：
+# taipei 13.7MB、intercity 64.3MB、pingtungcounty 11.7MB、tourist_shuttle 5.0MB
 # 小檔（newtaipei / taoyuan / taichung / tainan / kaohsiung / 其餘縣市）仍進 git，不透過 S3
 BUS_BIG_FILES=(
-  "public/bus/taipei_bus_routes.json"
-  "public/bus/intercity_bus_routes.json"
-  "public/bus/pingtungcounty_bus_routes.json"
-  "public/bus/tourist_shuttle_routes.json"
+  "public/bus/taipei_bus_routes_v2.json"
+  "public/bus/intercity_bus_routes_v2.json"
+  "public/bus/pingtungcounty_bus_routes_v2.json"
+  "public/bus/tourist_shuttle_routes_v2.json"
 )
 for f in "${BUS_BIG_FILES[@]}"; do
   name=$(basename "$f")
