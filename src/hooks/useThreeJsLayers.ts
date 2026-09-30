@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { Flight, Ship, RailTrain, BusVehicle, RenderMode, RailData, LayerVisibility } from "../types";
 import type { FlightScene } from "../three/FlightScene";
@@ -30,6 +30,8 @@ import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
 import type { TemperatureGridData } from "../data/temperatureLoader";
 import { createFireStationLayer } from "../map/fireStationCustomLayer";
 import type { FireStationScene } from "../three/FireStationScene";
+import { layerParamsStore } from "../state/layerParamsStore";
+import { layerVisibilityStore } from "../state/layerVisibilityStore";
 
 interface UseThreeJsLayersArgs {
   timeRef: React.RefObject<number>;
@@ -80,7 +82,44 @@ export function useThreeJsLayers({
   const wasteFacilityLayerRef = useRef<ReturnType<typeof createWasteFacilityLayer> | null>(null);
   const fireStationSceneRef = useRef<FireStationScene | null>(null);
 
+  // ── Wake-up 通道 ──
+  // CustomLayer 不再每幀無條件 triggerRepaint，輸入改變時要有人叫醒 Mapbox 重畫一次：
+  //   - 時間：各時間驅動圖層在 onAdd 自行訂閱 timeStore（見 customLayer.ts subscribeTimeRepaint）
+  //   - 參數：paramRefs 由 layerParamsStore 訂閱者寫入，不一定觸發 App render → 直接訂閱
+  //   - 可見性：layerVisibilityStore 訂閱（關閉也要重畫一次，清掉上一幀的 3D 殘影）
+  //   - 資料／主題／模式：App render 期間寫入 ref → 每次 render 後比對 identity，有變才重畫
+  // Mapbox 會把同一幀內多次 triggerRepaint 合併，多叫一次只多畫一幀。
+  const mapInstanceRef = useRef<MapboxMap | null>(null);
+  const repaint = () => mapInstanceRef.current?.triggerRepaint();
+
+  useEffect(() => {
+    const unsubParams = layerParamsStore.subscribe(repaint);
+    const unsubVis = layerVisibilityStore.subscribe(repaint);
+    return () => { unsubParams(); unsubVis(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const lastInputsRef = useRef<unknown[]>([]);
+  useEffect(() => {
+    const inputs: unknown[] = [
+      flightsRef.current, renderModeRef.current, isDarkThemeRef.current, showTrailsRef.current,
+      shipsRef.current, activeTrainsRef.current, activeBusesRef.current,
+      activeBusesIntercityRef.current, activeBusesTouristShuttleRef.current, wasteTrailsRef.current, wasteScheduleRoutesRef.current,
+      wasteFacilityByTypeRef.current, railDataRef.current, lighthousePositionsRef.current,
+      thsrPillarDataRef.current, traPillarDataRef.current, metroPillarDataRef.current,
+      airportPillarDataRef.current, portPillarDataRef.current, temperatureDataRef.current,
+      playingRef.current, layerVisibilityRef.current,
+    ];
+    const prev = lastInputsRef.current;
+    const changed = inputs.length !== prev.length || inputs.some((v, i) => v !== prev[i]);
+    if (changed) {
+      lastInputsRef.current = inputs;
+      repaint();
+    }
+  });
+
   const addFlightLayer = (map: MapboxMap) => {
+    mapInstanceRef.current = map;
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
     const layer = createFlightLayer({
       getCurrentTime: () => timeRef.current,
@@ -365,6 +404,7 @@ export function useThreeJsLayers({
   };
 
   const addAllLayers = (map: MapboxMap) => {
+    mapInstanceRef.current = map;
     addFlightLayer(map);
     addShipLayer(map);
     addRailLayer(map);
