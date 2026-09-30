@@ -34,7 +34,6 @@ vi.mock("react", () => ({
 
 vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));
 vi.mock("../../data/jpReligionLoader", () => ({
-  fetchJpReligionOsm: () => Promise.resolve({ type: "FeatureCollection", features: [] }),
   fetchJpReligionWikidata: () => Promise.resolve({ type: "FeatureCollection", features: [] }),
 }));
 

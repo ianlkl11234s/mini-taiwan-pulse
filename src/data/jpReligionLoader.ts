@@ -1,8 +1,8 @@
-// 日本宗教設施靜態 GeoJSON loader。GSI 是 PMTiles，由 layer hook 直接接 source。
+// 日本宗教設施靜態 GeoJSON loader。GSI／OSM 是 PMTiles（2026-09-30 PF-4 起 OSM 亦同），由 layer hook 直接接 source。
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce } from "../lib/loaderCache";
 
-export type JpReligionGeoJsonSource = "osm" | "wikidata";
+export type JpReligionGeoJsonSource = "wikidata";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}world`;
 const CACHE_TTL_MS = 30 * 60_000;
@@ -22,20 +22,10 @@ function fetchGeoJsonUncached(
   );
 }
 
-const fetchJpReligionOsmCached = cachedOnce(
-  () => fetchGeoJsonUncached("osm", "宗教設施 宗教施設（OpenStreetMap）"),
-  CACHE_TTL_MS,
-);
-
 const fetchJpReligionWikidataCached = cachedOnce(
   () => fetchGeoJsonUncached("wikidata", "宗教設施 宗教施設（Wikidata）"),
   CACHE_TTL_MS,
 );
-
-/** 首次開啟才由 hook 呼叫；module-level cache 避免重複下載 10.9 MB。 */
-export function fetchJpReligionOsm(): Promise<GeoJSON.FeatureCollection> {
-  return fetchJpReligionOsmCached();
-}
 
 /** 首次開啟才由 hook 呼叫；module-level cache 避免重複下載 5.9 MB。 */
 export function fetchJpReligionWikidata(): Promise<GeoJSON.FeatureCollection> {

@@ -461,39 +461,33 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
     return config;
   };
 
-  it("global GeoJSON 與台灣 PMTiles 都把 attribution 交給 Mapbox source", () => {
+  // 2026-09-30 PF-4：全球格網由整包 GeoJSON 改 PMTiles，attribution 與台灣細格同走 source instance。
+  it("global 與台灣 PMTiles 都把 attribution 交給 Mapbox source", () => {
     const global = ookla("ooklaMobilePerformance", "ookla-mobile-global");
     const taiwan = ookla("ooklaMobileTaiwan", "ookla-tw-z14-mobile");
     expect(global.attribution).toContain("Ookla");
     expect(taiwan.attribution).toBe(global.attribution);
 
-    const globalMock = createMockMap();
-    addOverlay(globalMock.map, global, true, {});
-    expect(globalMock.calls.find((call) => call.method === "addSource")?.args[1]).toMatchObject({
-      attribution: global.attribution,
-    });
-
-    const pmtilesMock = createMockMap();
-    addOverlay(pmtilesMock.map, taiwan, true, {});
-    expect(pmtilesMock.sources.get(taiwan.sourceId)?.attribution).toBe(taiwan.attribution);
+    for (const entry of [global, ookla("ooklaFixedPerformance", "ookla-fixed-global"), taiwan]) {
+      expect(entry.pmtiles, `${entry.sourceId} 應走 PMTiles`).toBeTruthy();
+      const mock = createMockMap();
+      addOverlay(mock.map, entry, true, {});
+      expect(mock.sources.get(entry.sourceId)?.attribution).toBe(entry.attribution);
+    }
   });
 
-  it("global GeoJSON lazy fetch 期間會註冊 loadingRegistry，完成後才結束", async () => {
+  it("global PMTiles 不再整包 fetch GeoJSON（hydrate 直接略過）", async () => {
     const config = ookla("ooklaMobilePerformance", "ookla-mobile-global");
-    const setData = vi.fn();
-    const map = { getSource: () => ({ setData }) } as unknown as MapboxMap;
-    let resolveFetch: ((value: { ok: boolean; json: () => Promise<GeoJSON.FeatureCollection> }) => void) | undefined;
-    vi.stubGlobal("fetch", vi.fn(() => new Promise((resolve) => { resolveFetch = resolve; })));
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
     resetOverlayHydration();
-
     try {
-      const pending = hydrateOverlayIfNeeded(map, config);
-      const taskId = `overlay-hydrate:${config.sourceId}`;
-      expect(loadingRegistry.snapshot()).toContainEqual(expect.objectContaining({ id: taskId }));
-      resolveFetch?.({ ok: true, json: async () => ({ type: "FeatureCollection", features: [] }) });
-      await pending;
-      expect(setData).toHaveBeenCalledWith({ type: "FeatureCollection", features: [] });
-      expect(loadingRegistry.snapshot()).not.toContainEqual(expect.objectContaining({ id: taskId }));
+      const map = { getSource: () => ({ setData: vi.fn() }) } as unknown as MapboxMap;
+      await hydrateOverlayIfNeeded(map, config);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(loadingRegistry.snapshot()).not.toContainEqual(
+        expect.objectContaining({ id: `overlay-hydrate:${config.sourceId}` }),
+      );
     } finally {
       vi.unstubAllGlobals();
       resetOverlayHydration();

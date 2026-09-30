@@ -532,7 +532,8 @@ for f in \
   public/world/jp_accommodation_local_20260910.geojson \
   public/world/jp_accommodation_osm_allzoom_20260910.pmtiles \
   public/world/jp_world_heritage_unesco_current.geojson \
-  public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles; do
+  public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles \
+  public/world/jp_religion_osm_20260930.pmtiles; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   key="$PREFIX/world/$name"
@@ -591,13 +592,14 @@ if [ -d "public/rail" ]; then
   rm /tmp/rail.tar.gz
 fi
 
-# 公車大檔路線 JSON（gitignore 的四份：taipei 18MB、intercity 87MB、pingtungcounty 16MB、tourist_shuttle 6.7MB）
+# 公車大檔路線 JSON（gitignore 的四份）。2026-09-30 起為 _v2（去掉可推導的 cumDist，前端載入時重算）：
+# taipei 13.7MB、intercity 64.3MB、pingtungcounty 11.7MB、tourist_shuttle 5.0MB
 # 小檔（newtaipei / taoyuan / taichung / tainan / kaohsiung / 其餘縣市）仍進 git，不透過 S3
 BUS_BIG_FILES=(
-  "public/bus/taipei_bus_routes.json"
-  "public/bus/intercity_bus_routes.json"
-  "public/bus/pingtungcounty_bus_routes.json"
-  "public/bus/tourist_shuttle_routes.json"
+  "public/bus/taipei_bus_routes_v2.json"
+  "public/bus/intercity_bus_routes_v2.json"
+  "public/bus/pingtungcounty_bus_routes_v2.json"
+  "public/bus/tourist_shuttle_routes_v2.json"
 )
 for f in "${BUS_BIG_FILES[@]}"; do
   name=$(basename "$f")
