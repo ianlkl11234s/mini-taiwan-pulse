@@ -141,6 +141,21 @@ export function useReservoirStatusLayer(
 
   // C1b：three 模組第一次可見才載入；載入完成 → 重跑掛載 effect
   const [layerModuleReady, setLayerModuleReady] = useState(() => reservoirLayerModule.get() !== null);
+  // 切換底圖 → setStyle 移除 custom layer（onRemove 會 dispose scene）；遞增此值讓掛載 effect 重建
+  const [styleEpoch, setStyleEpoch] = useState(0);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const onStyleLoad = () => {
+      if (!mountedRef.current) return;
+      mountedRef.current = false;
+      sceneRef.current = null;
+      setStyleEpoch((v) => v + 1);
+    };
+    map.on("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [mapRef, sceneRef, mapTick]);
 
   visibleRef.current = visible;
   isDarkRef.current = isDark;
@@ -220,7 +235,7 @@ export function useReservoirStatusLayer(
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
     };
-  }, [mapRef, visible, sceneRef, statusesRef, mapTick, layerModuleReady]);
+  }, [mapRef, visible, sceneRef, statusesRef, mapTick, layerModuleReady, styleEpoch]);
 
   // ── visible=true：fetch day + 訂閱 date/time ──
   useEffect(() => {
