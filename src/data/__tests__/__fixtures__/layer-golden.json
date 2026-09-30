@@ -12823,10 +12823,14 @@
           "type": "circle"
         }
       ],
-      "pmtiles": null,
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "waste_stops"
+      },
       "rebuildOnParamChange": null,
       "sourceId": "waste-stops-static",
-      "sourceUrl": "./geo/waste_stops_static.geojson"
+      "sourceUrl": "./geo/waste_stops_static_20260930.pmtiles"
     },
     {
       "dynamicData": null,

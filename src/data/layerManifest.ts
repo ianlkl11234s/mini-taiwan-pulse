@@ -8455,11 +8455,14 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "waste_collection_stops", confidence: "HIGH" }],
     },
-    dataClass: "A",
+    dataClass: "B",
     source: {
-      kind: "geojson",
+      kind: "pmtiles",
       sourceId: "waste-stops-static",
-      url: "./geo/waste_stops_static.geojson",
+      url: "./geo/waste_stops_static_20260930.pmtiles",
+      sourceLayer: "waste_stops",
+      minzoom: 6,
+      maxzoom: 14,
     },
     legend: null,
     // W2 popup 補強：同主題的 wasteDisposalPoint（wd*）與 wasteCleaningSquad 早有 panel，

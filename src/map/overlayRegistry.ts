@@ -3950,11 +3950,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── Waste Stops Static (全台清運點位散點) ──
+  // 2026-09-30 PF-4：22 MB 整包 GeoJSON → PMTiles（-r1 全量、Z6 對齊 layer minzoom；
+  // scripts/preprocess/build-static-pmtiles-pf4.py）。屬性欄位與 WasteStopsStaticPanel 契約不變。
   {
     id: "wasteStopsStatic",
     opacityParam: "wasteStopsStaticOpacity",
-    sourceUrl: "./geo/waste_stops_static.geojson",
+    sourceUrl: "./geo/waste_stops_static_20260930.pmtiles",
     sourceId: "waste-stops-static",
+    pmtiles: { sourceLayer: "waste_stops", minzoom: 6, maxzoom: 14 },
     layers: [
       {
         suffix: "waste-stops-glow",
