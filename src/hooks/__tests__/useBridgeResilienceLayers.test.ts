@@ -2,17 +2,17 @@ import { describe, expect, it, vi } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only validator.
 import { featureFilter, validate } from "mapbox-gl/dist/style-spec/index.cjs";
 import {
-  BRIDGE_RESILIENCE_CLICK_LAYERS, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_SOURCE_ID, type VillageImpacts,
+  BRIDGE_RESILIENCE_CLICK_LAYERS, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_SOURCE_ID, decodeDestinationView, type VillageDestinations, type VillageImpacts,
 } from "../../data/bridgeResilienceTypes";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
-import { applyVillageState, buildBridgeResilienceLayers, highlightFilter, routeFilter, type BridgeResilienceControls } from "../useBridgeResilienceLayers";
+import { applyDestinationState, applyVillageState, buildBridgeResilienceLayers, destTopFilter, highlightFilter, originFilter, routeFilter, type BridgeResilienceControls } from "../useBridgeResilienceLayers";
 
 const passes = (filter: unknown, properties: Record<string, unknown>) => featureFilter(filter).filter({ zoom: 10 }, { type: 2, properties });
 const CONTROLS: BridgeResilienceControls = { mode: "car", showVillages: true, metric: "p90", showRoutes: true, joint: false };
 const STATE = { visible: true, opacity: 0.8, controls: CONTROLS, selected: "三鶯大橋" as string | null };
 
 describe("橋梁韌性 style layers", () => {
-  it("全部通過 style-spec 驗證，且三個橋梁線層都接進點擊登記簿", () => {
+  it("全部通過 style-spec 驗證，且三個橋梁線層與村里面都接進點擊登記簿", () => {
     const layers = buildBridgeResilienceLayers(STATE);
     expect(layers.map((l) => l.id)).toEqual(Object.values(BRIDGE_RESILIENCE_LAYER_IDS));
     const errors = validate({ version: 8, sources: { [BRIDGE_RESILIENCE_SOURCE_ID]: { type: "vector", url: "mapbox://x.test" } }, layers });
@@ -85,5 +85,45 @@ describe("村里 feature-state", () => {
     }
     const missing = { ...fakeMap(), getSource: vi.fn(() => undefined) };
     expect(applyVillageState(missing as never, data, "三鶯大橋|car", "p90", true)).toBe(0);
+  });
+});
+
+describe("目的地視角圖層", () => {
+  it("起點／前 20 名外框 filter 以 feature id 比對；沒有起點時不命中", () => {
+    const has = (filter: unknown, id: number) => featureFilter(filter).filter({ zoom: 10 }, { type: 3, properties: {}, id });
+    expect(has(originFilter(63000010002), 63000010002)).toBe(true);
+    expect(has(originFilter(63000010002), 63000010003)).toBe(false);
+    expect(has(originFilter(null), 63000010002)).toBe(false);
+    expect(has(destTopFilter([1, 2]), 2)).toBe(true);
+    expect(has(destTopFilter([1, 2]), 3)).toBe(false);
+    expect(has(destTopFilter([]), 1)).toBe(false);
+  });
+  it("目的地視角時村里填色換成目的地運算式（不可達有自己的色）；起點視角維持原運算式", () => {
+    const fill = (focus?: { originId: number | null; topIds: number[]; active: boolean }) =>
+      JSON.stringify((buildBridgeResilienceLayers({ ...STATE, focus }).find((l) => l.id === BRIDGE_RESILIENCE_LAYER_IDS.villageFill)!.paint as Record<string, unknown>)["fill-color"]);
+    expect(fill({ originId: 1, topIds: [], active: true })).toContain("#a855f7");
+    expect(fill()).not.toContain("#a855f7");
+    expect(fill({ originId: 1, topIds: [], active: false })).not.toContain("#a855f7");
+  });
+  it("村里面在最底層、起點外框在其上；點擊層包含村里面", () => {
+    const ids = buildBridgeResilienceLayers(STATE).map((l) => l.id);
+    expect(ids.indexOf(BRIDGE_RESILIENCE_LAYER_IDS.villageFill)).toBeLessThan(ids.indexOf(BRIDGE_RESILIENCE_LAYER_IDS.origin));
+    expect(ids.indexOf(BRIDGE_RESILIENCE_LAYER_IDS.villageFill)).toBeLessThan(ids.indexOf(BRIDGE_RESILIENCE_LAYER_IDS.structure));
+    expect(BRIDGE_RESILIENCE_CLICK_LAYERS).toContain(BRIDGE_RESILIENCE_LAYER_IDS.villageFill);
+  });
+  const dest: VillageDestinations = {
+    scenarios: ["三鶯大橋|car"], villages: ["63000010002", "63000020001"], village_names: ["莊敬里", "民權里"],
+    districts: [["臺北市", "松山區"], ["臺北市", "大同區"]], village_district: [0, 1],
+    data: { "0": { "0": { d: [1, 70, 600, 480, 720], t: [1, 720, 70] } } },
+  };
+  it("feature-state：起點 has=3、受影響區 has=1（v＝區平均秒）；source 不存在或沒有 view 不寫", () => {
+    const set = vi.fn();
+    const map = { getSource: vi.fn(() => ({})), setFeatureState: set };
+    const view = decodeDestinationView(dest, "三鶯大橋|car", "63000010002")!;
+    expect(applyDestinationState(map as never, dest, view)).toBe(2);
+    expect(set).toHaveBeenCalledWith({ source: "bridge-resilience", sourceLayer: "villages", id: 63000010002 }, { has: 3, v: 0 });
+    expect(set).toHaveBeenCalledWith({ source: "bridge-resilience", sourceLayer: "villages", id: 63000020001 }, { has: 1, v: 480 });
+    expect(applyDestinationState({ ...map, getSource: () => undefined } as never, dest, view)).toBe(0);
+    expect(applyDestinationState(map as never, dest, null)).toBe(0);
   });
 });

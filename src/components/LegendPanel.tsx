@@ -15,7 +15,8 @@ import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
 import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
-import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_RAMP, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
+import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
+import { useBridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_STAGE1_LINE_COLOR } from "../data/bssBridgeTypes";
 import { LIQUEFACTION_SITE_COLOR, SOIL_POTENTIAL_CLASSES, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS, WEAK_SOIL_MIN_ZOOM, WEAK_SOIL_SPT_THRESHOLD } from "../data/soilLiquefactionTypes";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -1268,6 +1269,8 @@ function BridgeResilienceLegend({ metricIdx, showVillages, showRoutes }: { metri
   const metric = VILLAGE_METRICS[metricIdx] ?? "p90";
   const breaks = VILLAGE_METRIC_BREAKS[metric];
   const labels = metric === "p90" ? [...breaks.map((b) => `${b / 60}分`)] : [...breaks.map((b) => `${Math.round(b * 100)}%`)];
+  const origin = useBridgeResilienceOrigin();
+  const destinationView = showVillages && !!origin;
   return <div>
     <LegendTitle zh="雙北跨河橋梁韌性（研究中）" en="Bridge Resilience" />
     <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.car} width={3} />}>汽車：被移除的橋段</LegendRow>
@@ -1278,10 +1281,20 @@ function BridgeResilienceLegend({ metricIdx, showVillages, showRoutes }: { metri
       <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.routeAfter} width={2.5} />}>替代路線：移除後</LegendRow>
       <LegendNote>只畫戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的。</LegendNote>
     </>}
-    {showVillages && <div style={{ marginTop: 6 }}>
-      <LegendTitle zh={`受影響村里：${VILLAGE_METRIC_LABELS[metric]}`} />
+    {showVillages && !destinationView && <div style={{ marginTop: 6 }}>
+      <LegendTitle zh={`起點視角：${VILLAGE_METRIC_LABELS[metric]}`} />
       <SwatchSteps colors={BRIDGE_RESILIENCE_RAMP} breaks={["0", ...labels]} />
       <LegendRow swatch={<SwatchSquare color={BRIDGE_RESILIENCE_COLORS.villageNeutral} />}>{metric === "p90" ? "無受影響目的地（非 0）" : "缺值（非 0）"}</LegendRow>
+      <LegendNote>起點視角：每個村里的顏色＝「從這裡出發」去其他地方平均變慢多少。點村里可切到目的地視角。</LegendNote>
+    </div>}
+    {destinationView && <div style={{ marginTop: 6 }}>
+      <LegendTitle zh="目的地視角：所在行政區的平均額外時間" />
+      <SwatchSteps colors={BRIDGE_RESILIENCE_RAMP} breaks={["0", ...DEST_MEAN_BREAKS.map((b) => `${b / 60}分`)]} />
+      <LegendRow swatch={<SwatchSquare color={BRIDGE_RESILIENCE_COLORS.villageNeutral} />}>沒有受影響的目的地（額外時間未超過 60 秒，非 0）</LegendRow>
+      <LegendRow swatch={<SwatchSquare color={BRIDGE_RESILIENCE_COLORS.destUnreachable} />}>無法抵達（移除後無路可達，不當作很大的時間）</LegendRow>
+      <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.destOrigin} width={3} />}>起點村里（白色粗外框）</LegendRow>
+      <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.destTop} width={2} />}>受影響最多的前 20 個村里（藍色外框）</LegendRow>
+      <LegendNote>目的地視角：顏色＝「去那裡」變慢多少，只算受影響的目的地；資料只到行政區，同區同色。點空白處或「回到起點視角」返回。</LegendNote>
     </div>}
     {BRIDGE_RESILIENCE_LIMITS_TEXT.map((text) => <LegendNote key={text}>{text}</LegendNote>)}
     <LegendNote>先點選一座橋，再開村里或替代路線；站主限定（BSS 授權 HOLD）。</LegendNote>

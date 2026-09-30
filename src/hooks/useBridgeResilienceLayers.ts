@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FillLayer, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_ATTRIBUTION, BRIDGE_RESILIENCE_COLORS,
   BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_MAX_ZOOM,
   BRIDGE_RESILIENCE_MIN_ZOOM, BRIDGE_RESILIENCE_PRIVATE_ENDPOINT, BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT,
   BRIDGE_RESILIENCE_SOURCE_ID, BRIDGE_RESILIENCE_SOURCE_LAYERS, bridgeModeColorExpression,
-  decodeVillageScenario, effectiveScenarioUid, highlightUids, scenarioKey, villageFillColorExpression,
-  type BridgeMode, type BridgeResilienceData, type VillageMetric,
+  decodeDestinationView, decodeVillageScenario, destinationFillColorExpression, destinationTopIds, destinationVillageStates,
+  effectiveScenarioUid, highlightUids, scenarioKey, villageFillColorExpression,
+  type BridgeMode, type BridgeResilienceData, type DestinationView, type VillageDestinations, type VillageMetric,
 } from "../data/bridgeResilienceTypes";
-import { bridgeResilienceDataStore, useBridgeResilienceSelection } from "../data/bridgeResilienceStore";
-import { loadBridgeResilienceData } from "../data/bridgeResilienceLoader";
+import {
+  bridgeResilienceDataStore, bridgeResilienceDestinationsStore, bridgeResilienceDestinationStatus, bridgeResilienceOrigin,
+  useBridgeResilienceDestinations, useBridgeResilienceOrigin, useBridgeResilienceSelection,
+} from "../data/bridgeResilienceStore";
+import { loadBridgeResilienceData, loadVillageDestinations } from "../data/bridgeResilienceLoader";
 import { keepLoadingUntilMapIdle, withLoading } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { bridgeResiliencePrivateAccessToken, useBridgeResiliencePrivateAccess } from "./useBridgeResiliencePrivateAccess";
@@ -25,9 +29,23 @@ const IDS = BRIDGE_RESILIENCE_LAYER_IDS;
 const LAYERS = BRIDGE_RESILIENCE_SOURCE_LAYERS;
 const SRC = BRIDGE_RESILIENCE_SOURCE_ID;
 
-type Snapshot = { visible: boolean; opacity: number; controls: BridgeResilienceControls; selected: string | null };
+/** 目的地視角：起點村里 feature id 與前 20 名目的地 id；view 為 null＝起點視角（或目的地資料還在載入）。 */
+export interface DestinationFocus { originId: number | null; topIds: number[]; active: boolean }
+const NO_FOCUS: DestinationFocus = { originId: null, topIds: [], active: false };
+type Snapshot = { visible: boolean; opacity: number; controls: BridgeResilienceControls; selected: string | null; focus?: DestinationFocus };
 
 const NO_MATCH = ["==", ["get", "bridge_uid"], ""] as const;
+const NO_ID = ["==", ["id"], -1] as const;
+
+/** 起點村里外框：以 feature id（int VILLCODE）比對；沒有起點時不命中。 */
+export function originFilter(originId: number | null): unknown[] {
+  return originId === null ? [...NO_ID] : ["==", ["id"], originId];
+}
+/** 前 20 名受影響目的地外框。 */
+export function destTopFilter(topIds: readonly number[]): unknown[] {
+  return topIds.length ? ["in", ["id"], ["literal", [...topIds]]] : [...NO_ID];
+}
+const fillColor = (metric: VillageMetric, focus: DestinationFocus) => (focus.active ? destinationFillColorExpression() : villageFillColorExpression(metric));
 const equalsFilter = (uid: string | null) => (uid ? ["==", ["get", "bridge_uid"], uid] : NO_MATCH);
 
 /** 高亮：選中橋；聯合情境時兩座成員橋同時高亮（聯合情境沒有自己的線）。 */
@@ -47,12 +65,19 @@ const lineWidth = (car: number, scooter: number, zoomBoost = 1) => ["interpolate
 /** 全部 style layer（初始 visibility none）；匯出供測試做 style-spec 驗證。 */
 export function buildBridgeResilienceLayers(state: Snapshot): (FillLayer | LineLayer)[] {
   const { opacity, controls, selected } = state;
+  const focus = state.focus ?? NO_FOCUS;
   const o = clamp(opacity);
   const hidden = { visibility: "none" as const };
   const base = (id: string, type: "fill" | "line", layer: string) => ({ id, type, source: SRC, "source-layer": layer, layout: hidden });
   return [
-    { ...base(IDS.villageFill, "fill", LAYERS.villages), paint: { "fill-color": villageFillColorExpression(controls.metric), "fill-opacity": o * 0.62 } },
+    { ...base(IDS.villageFill, "fill", LAYERS.villages), paint: { "fill-color": fillColor(controls.metric, focus), "fill-opacity": o * 0.62 } },
     { ...base(IDS.villageOutline, "line", LAYERS.villages), paint: { "line-color": BRIDGE_RESILIENCE_COLORS.villageOutline, "line-width": 0.5, "line-opacity": o * 0.22 } },
+    // 目的地視角：前 20 名受影響目的地（細藍外框）與起點（白色粗外框）。起點視角時 filter 不命中任何 feature。
+    { ...base(IDS.destTop, "line", LAYERS.villages), filter: destTopFilter(focus.topIds),
+      paint: { "line-color": BRIDGE_RESILIENCE_COLORS.destTop, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 1, 14, 2.5], "line-opacity": Math.max(0.7, o) } },
+    { ...base(IDS.origin, "line", LAYERS.villages), filter: originFilter(focus.originId),
+      layout: { ...hidden, "line-join": "round" },
+      paint: { "line-color": BRIDGE_RESILIENCE_COLORS.destOrigin, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 14, 4], "line-opacity": Math.max(0.9, o) } },
     { ...base(IDS.highlight, "line", LAYERS.bridges), filter: highlightFilter(selected, controls.joint),
       layout: { ...hidden, "line-cap": "round", "line-join": "round" },
       paint: { "line-color": BRIDGE_RESILIENCE_COLORS.highlight, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 5, 12, 10, 15, 18], "line-opacity": Math.max(0.5, o) * 0.55, "line-blur": 1.5 } },
@@ -78,14 +103,20 @@ const ALL_LAYER_IDS: string[] = Object.values(IDS);
 /** 只 setLayoutProperty／setPaintProperty／setFilter：開關、透明度、模式都不重建 source（R2 教訓）。 */
 function syncLayers(map: MapboxMap, state: Snapshot) {
   const { visible, opacity, controls, selected } = state;
+  const focus = state.focus ?? NO_FOCUS;
   const o = clamp(opacity);
   const villagesOn = visible && controls.showVillages && !!selected;
   const set = (id: string, vis: boolean) => { if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis ? "visible" : "none"); };
-  for (const id of ALL_LAYER_IDS) set(id, visible && id !== IDS.villageFill && id !== IDS.villageOutline);
-  set(IDS.villageFill, villagesOn); set(IDS.villageOutline, villagesOn);
+  const villageIds: string[] = [IDS.villageFill, IDS.villageOutline, IDS.destTop, IDS.origin];
+  for (const id of ALL_LAYER_IDS) set(id, visible && !villageIds.includes(id));
+  for (const id of villageIds) set(id, villagesOn);
   const paint = (id: string, prop: string, value: unknown) => { if (map.getLayer(id)) map.setPaintProperty(id, prop as never, value as never); };
   const filter = (id: string, value: unknown[]) => { if (map.getLayer(id)) map.setFilter(id, value as never); };
-  paint(IDS.villageFill, "fill-color", villageFillColorExpression(controls.metric));
+  paint(IDS.villageFill, "fill-color", fillColor(controls.metric, focus));
+  paint(IDS.destTop, "line-opacity", Math.max(0.7, o));
+  paint(IDS.origin, "line-opacity", Math.max(0.9, o));
+  filter(IDS.destTop, destTopFilter(focus.topIds));
+  filter(IDS.origin, originFilter(focus.originId));
   paint(IDS.villageFill, "fill-opacity", o * 0.62);
   paint(IDS.villageOutline, "line-opacity", o * 0.22);
   paint(IDS.structure, "line-opacity", o);
@@ -121,6 +152,24 @@ export function applyVillageState(
   }
 }
 
+/**
+ * 目的地視角的村里 feature-state：has 0 中性／1 受影響（v＝所在區平均 ΔT 秒）／2 不可達／3 起點。
+ * 只寫入有變動的整批（1,488 筆）；source 尚未就緒時吞掉例外，由 sourcedata 重跑。
+ */
+export function applyDestinationState(
+  map: Pick<MapboxMap, "getSource" | "setFeatureState">, dest: VillageDestinations | null, view: DestinationView | null,
+): number {
+  if (!map.getSource(SRC) || !dest || !view) return 0;
+  const target = { source: SRC, sourceLayer: LAYERS.villages };
+  try {
+    const states = destinationVillageStates(dest, view);
+    for (const [id, state] of states) map.setFeatureState({ ...target, id }, { has: state.has, v: state.v });
+    return states.size;
+  } catch {
+    return 0;
+  }
+}
+
 /** 站主限定：一個私人 PMTiles source（bridges／replacement_routes／villages）＋私人 JSON（指標與村里影響）。 */
 export function useBridgeResilienceLayers(
   mapRef: React.RefObject<MapboxMap | null>,
@@ -131,11 +180,54 @@ export function useBridgeResilienceLayers(
   const tick = useMapReadyTick(mapRef, visible);
   const access = useBridgeResiliencePrivateAccess();
   const selected = useBridgeResilienceSelection();
-  const latest = useRef<Snapshot>({ visible, opacity, controls, selected });
-  latest.current = { visible, opacity, controls, selected };
+  const origin = useBridgeResilienceOrigin();
+  const destinations = useBridgeResilienceDestinations();
   const [mountRevision, setMountRevision] = useState(0);
   const [data, setData] = useState<BridgeResilienceData | null>(null);
-  const stateKey = [visible ? 1 : 0, clamp(opacity), controls.mode, controls.showVillages ? 1 : 0, controls.metric, controls.showRoutes ? 1 : 0, controls.joint ? 1 : 0, selected ?? ""].join(",");
+  const scenarioUid = effectiveScenarioUid(selected, controls.joint);
+  const scenario = scenarioUid ? scenarioKey(scenarioUid, controls.mode) : null;
+  const villagesEnabled = visible && controls.showVillages && !!selected;
+  // 目的地視角：有起點、資料已載入、且情境／起點都在檔內才成立；否則維持起點視角（起點外框仍畫）。
+  const view = useMemo(
+    () => (villagesEnabled && origin && destinations && scenario ? decodeDestinationView(destinations, scenario, origin) : null),
+    [villagesEnabled, origin, destinations, scenario],
+  );
+  const originId = villagesEnabled && origin && Number.isSafeInteger(Number(origin)) ? Number(origin) : null;
+  const focus: DestinationFocus = originId === null ? NO_FOCUS : { originId, topIds: destinationTopIds(view), active: !!view };
+  const latest = useRef<Snapshot>({ visible, opacity, controls, selected, focus });
+  latest.current = { visible, opacity, controls, selected, focus };
+  const stateKey = [visible ? 1 : 0, clamp(opacity), controls.mode, controls.showVillages ? 1 : 0, controls.metric, controls.showRoutes ? 1 : 0, controls.joint ? 1 : 0, selected ?? "",
+    focus.originId ?? "", focus.active ? 1 : 0, focus.topIds.join("|")].join(",");
+
+  // 沒有橋、圖層關閉或村里關閉時，起點視角就沒有意義：清起點（橋的選取不受影響）。
+  useEffect(() => {
+    if (origin && !villagesEnabled) bridgeResilienceOrigin.clear();
+  }, [origin, villagesEnabled]);
+
+  // 目的地資料（6.4 MB）：第一次進入目的地視角才載入；失去權限或圖層關閉即清空。
+  useEffect(() => {
+    if (!visible || !access.allowed || !access.userId) {
+      bridgeResilienceDestinationsStore.set(null); bridgeResilienceDestinationStatus.set("idle"); return;
+    }
+    if (!origin || bridgeResilienceDestinationsStore.get()) return;
+    const userId = access.userId;
+    const controller = new AbortController();
+    bridgeResilienceDestinationStatus.set("loading");
+    void withLoading("bridge-resilience:destinations", "橋梁韌性目的地資料載入中", (async () => {
+      const token = await bridgeResiliencePrivateAccessToken(userId);
+      return loadVillageDestinations(token, undefined, controller.signal);
+    })()).then((loaded) => {
+      if (controller.signal.aborted) return;
+      bridgeResilienceDestinationsStore.set(loaded); bridgeResilienceDestinationStatus.set("idle");
+    }).catch((error: unknown) => {
+      if (controller.signal.aborted) return;
+      bridgeResilienceDestinationStatus.set("error");
+      const status = (error as { status?: number })?.status;
+      if (status === 401 || status === 403) window.dispatchEvent(new Event(BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT));
+      console.warn("[bridge-resilience] destinations load failed", error);
+    });
+    return () => { controller.abort(); if (!bridgeResilienceDestinationsStore.get()) bridgeResilienceDestinationStatus.set("idle"); };
+  }, [visible, access.allowed, access.userId, origin]);
 
   // 私人 JSON：只有站主、圖層開著才下載；失去權限或關閉即清空（不留在記憶體給別的帳號）。
   useEffect(() => {
@@ -204,14 +296,14 @@ export function useBridgeResilienceLayers(
   // 村里 feature-state：情境（橋＋模式＋聯合）、指標、資料任一變動就重套。
   useEffect(() => {
     const map = mapRef.current; if (!map) return;
-    const uid = effectiveScenarioUid(selected, controls.joint);
-    const scenario = uid ? scenarioKey(uid, controls.mode) : null;
     const enabled = visible && controls.showVillages;
-    applyVillageState(map, data, scenario, controls.metric, enabled);
+    // 目的地視角優先；否則（或目的地資料還沒好）維持起點視角的色階。
+    const paintStates = () => { if (view && destinations) applyDestinationState(map, destinations, view); else applyVillageState(map, data, scenario, controls.metric, enabled); };
+    paintStates();
     const onSourceData = (event: { sourceId?: string; isSourceLoaded?: boolean }) => {
-      if (event.sourceId === SRC && event.isSourceLoaded) { map.off("sourcedata", onSourceData as never); applyVillageState(map, data, scenario, controls.metric, enabled); }
+      if (event.sourceId === SRC && event.isSourceLoaded) { map.off("sourcedata", onSourceData as never); paintStates(); }
     };
     if (enabled && !map.isSourceLoaded?.(SRC)) map.on("sourcedata", onSourceData as never);
     return () => { map.off("sourcedata", onSourceData as never); };
-  }, [mapRef, mountRevision, data, selected, visible, controls.mode, controls.joint, controls.metric, controls.showVillages]);
+  }, [mapRef, mountRevision, data, destinations, view, scenario, visible, controls.metric, controls.showVillages]);
 }

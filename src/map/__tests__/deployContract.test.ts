@@ -269,9 +269,10 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   // BSS 橋梁（HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED）：授權 HOLD，只走 owner-authenticated Range sidecar。
   "PRIVATE_OWNER_ONLY: bss_bridge_location_direction_preview_20260927_v4.pmtiles",
   // 橋梁韌性（同 HOLD 授權）：僅站主 sidecar。
-  "PRIVATE_OWNER_ONLY: bridge-resilience-20260930-v1.pmtiles",
+  "PRIVATE_OWNER_ONLY: bridge-resilience-20260930-v2.pmtiles",
   "PRIVATE_OWNER_ONLY: bridge_summary.json",
   "PRIVATE_OWNER_ONLY: village_impacts.json",
+  "PRIVATE_OWNER_ONLY: village_destinations.json",
 ]);
 
 /**
@@ -342,7 +343,7 @@ describe("deploy 契約（nginx + pull script）", () => {
   });
 
   it("橋梁韌性只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
-    const location = nginxConf.match(/location ~ \^\/api\/private-research\/bridge-resilience\/\(tiles\|summary\|impacts\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/bridge-resilience\/\(tiles\|summary\|impacts\|destinations\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
     expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
     expect(location).toContain("proxy_set_header Authorization $http_authorization;");
     expect(location).toContain("proxy_set_header Range $http_range;");

@@ -1744,7 +1744,7 @@ export const LAYER_PARAMS_SPEC = {
     options: [{ label: "汽車", value: "car" }, { label: "機車", value: "scooter" }],
     out: "bridgeResilienceModeIdx", encode: ["car", "scooter"],
   }, {
-    kind: "toggle", name: "bridgeResilienceShowVillages", label: "顯示受影響村里（先點選一座橋）", default: false,
+    kind: "toggle", name: "bridgeResilienceShowVillages", label: "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", default: false,
   }, {
     kind: "select", name: "bridgeResilienceVillageMetric", label: "村里色階", default: "p90",
     options: [{ label: "額外時間 p90", value: "p90" }, { label: "受影響目的地人口比", value: "share" }],

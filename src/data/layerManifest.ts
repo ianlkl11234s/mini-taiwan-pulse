@@ -2202,11 +2202,11 @@ export const LAYER_MANIFEST = {
       note: "OWNER_ONLY / HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED；自由車流模型時間、不含壅塞；是失效後果不是風險；人口不等於實際旅次；淡江大橋交流道匝道一併移除（上界）。分析專題：taipei-gis-analytics/pipelines/analysis/bridge_resilience/（README §8）",
     },
     dataClass: "D",
-    source: { kind: "custom", note: "Owner-only same-origin Range API /api/private-research/bridge-resilience/{tiles,summary,impacts}; private bridge-resilience-20260930-v1.pmtiles (sha256 3075cae8…d9) + bridge_summary.json + village_impacts.json; source-layer=bridges/replacement_routes/villages; from bridge-display-bundle-20260930-v1; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: bridge-resilience-20260930-v1.pmtiles", "PRIVATE_OWNER_ONLY: bridge_summary.json", "PRIVATE_OWNER_ONLY: village_impacts.json"] },
+    source: { kind: "custom", note: "Owner-only same-origin Range API /api/private-research/bridge-resilience/{tiles,summary,impacts,destinations}; private bridge-resilience-20260930-v2.pmtiles (sha256 434e38bd…52) + bridge_summary.json + village_impacts.json + village_destinations.json (destination view, lazy-loaded on first village click); source-layer=bridges/replacement_routes/villages; from bridge-display-bundle-20260930-v2; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: bridge-resilience-20260930-v2.pmtiles", "PRIVATE_OWNER_ONLY: bridge_summary.json", "PRIVATE_OWNER_ONLY: village_impacts.json", "PRIVATE_OWNER_ONLY: village_destinations.json"] },
     legend: "bridgeResilienceTwinCity",
     popup: "bridgeResilienceTwinCity",
     params: { count: 6, kinds: ["slider", "select", "toggle", "select", "toggle", "toggle"] },
-    description: "研究中；站主限定，BSS 授權 HOLD，不公開。點選橋看單橋失效後的額外時間（p90／平均）、可及性損失、暴露／孤立人口與替代橋；可切汽車／機車、顯示受影響村里面量圖與代表性替代路線，關渡／淡江可切換聯合中斷。自由車流模型時間、不含壅塞；是失效後果不是風險；人口不等於實際旅次；淡江大橋交流道匝道一併移除，屬上界。來源：OpenStreetMap（ODbL）、新北市官方橋梁清冊、內政部戶籍人口 114Y06M。",
+    description: "研究中；站主限定，BSS 授權 HOLD，不公開。點選橋看單橋失效後的額外時間（p90／平均）、可及性損失、暴露／孤立人口與替代橋；可切汽車／機車、顯示受影響村里面量圖（點村里切到目的地視角：從該村里出發去哪些行政區變慢）與代表性替代路線，關渡／淡江可切換聯合中斷。自由車流模型時間、不含壅塞；是失效後果不是風險；人口不等於實際旅次；淡江大橋交流道匝道一併移除，屬上界。來源：OpenStreetMap（ODbL）、新北市官方橋梁清冊、內政部戶籍人口 114Y06M。",
     topics: ["交通", "橋梁", "韌性", "雙北", "進行中", "OWNER_ONLY", "HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED"],
   },
   bridgeRainThresholds: {
