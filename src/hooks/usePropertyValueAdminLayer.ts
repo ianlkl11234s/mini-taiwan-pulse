@@ -112,9 +112,15 @@ export function usePropertyValueAdminLayer(
 
     setLevelVisible(map, level === "county" ? "township" : "county", false);
     setLevelVisible(map, level, true);
+  }, [mapRef, visible, level, opacity, isDark, mapTick]);
+
+  // 主題／透明度更新不重送 feature-state；只有資料、層級或 style/source readiness 變動才寫入。
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible) return;
     const flush = () => { if (dataRef.current) applyLevelState(map, dataRef.current, level); };
     flush();
     map.on("sourcedata", flush);
     return () => { map.off("sourcedata", flush); };
-  }, [mapRef, visible, level, opacity, isDark, mapTick, dataTick]);
+  }, [mapRef, visible, level, mapTick, dataTick]);
 }

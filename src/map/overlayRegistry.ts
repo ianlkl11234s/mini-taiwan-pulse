@@ -4910,6 +4910,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "buildings-gba",
     pmtiles: { sourceLayer: "buildings", minzoom: 8, maxzoom: 16 },
     rebuildOnParamChange: ["fill", "extrusion"],
+    rebuildOnParamKeys: ["buildingsGbaMinHeight"],
     layers: [
       {
         suffix: "fill",

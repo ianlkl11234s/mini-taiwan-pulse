@@ -201,6 +201,7 @@ interface Call { method: string; args: unknown[] }
 function createMockMap() {
   const sources = new Map<string, Record<string, unknown>>();
   const layers = new Map<string, { visibility: string }>();
+  const layerSpecs = new Map<string, { id: string; filter?: unknown }>();
   const calls: Call[] = [];
   const map = {
     getSource: (id: string) => sources.get(id),
@@ -209,9 +210,10 @@ function createMockMap() {
       sources.set(id, {});
     },
     getLayer: (id: string) => (layers.has(id) ? {} : undefined),
-    addLayer: (spec: { id: string }) => {
+    addLayer: (spec: { id: string; filter?: unknown }) => {
       calls.push({ method: "addLayer", args: [spec.id] });
       layers.set(spec.id, { visibility: "visible" });
+      layerSpecs.set(spec.id, spec);
     },
     removeLayer: (id: string) => {
       calls.push({ method: "removeLayer", args: [id] });
@@ -222,10 +224,11 @@ function createMockMap() {
     },
     setLayoutProperty: (id: string, key: string, value: unknown) => {
       calls.push({ method: "setLayoutProperty", args: [id, key, value] });
+      if (key === "visibility") layers.get(id)!.visibility = String(value);
     },
     getLayoutProperty: (id: string) => layers.get(id)?.visibility,
   };
-  return { map: map as unknown as MapboxMap, calls, sources };
+  return { map: map as unknown as MapboxMap, calls, sources, layerSpecs };
 }
 
 const config: OverlayConfig = {
@@ -535,5 +538,47 @@ describe("updateOverlayTheme (rebuildOnParamChange)", () => {
     updateOverlayTheme(map, rebuildConfig, true, { scale: 2 });
     expect(calls.filter((c) => c.method === "removeLayer")).toHaveLength(1);
     expect(calls.filter((c) => c.method === "addLayer")).toHaveLength(1);
+  });
+
+  it("buildingsGba only rebuilds for its height filter, not opacity, theme, or mode", () => {
+    const buildings = OVERLAY_REGISTRY.find((item) => item.id === "buildingsGba")!;
+    const { map, calls, layerSpecs } = createMockMap();
+    const base = { buildingsGbaOpacity: 0.75, buildingsGbaModeIdx: 0, buildingsGbaMinHeight: 0 };
+    addOverlay(map, buildings, true, base);
+    calls.length = 0;
+
+    updateOverlayTheme(map, buildings, true, { ...base, buildingsGbaOpacity: 0.5 });
+    updateOverlayTheme(map, buildings, false, { ...base, buildingsGbaOpacity: 0.5 });
+    updateOverlayTheme(map, buildings, false, { ...base, buildingsGbaOpacity: 0.5, buildingsGbaModeIdx: 1 });
+    expect(calls.filter((call) => call.method === "removeLayer" || call.method === "addLayer")).toHaveLength(0);
+    expect(calls.filter((call) => call.method === "setPaintProperty")).not.toHaveLength(0);
+
+    setOverlayVisible(map, buildings, false, false, { ...base, buildingsGbaOpacity: 0.5, buildingsGbaModeIdx: 1 });
+    calls.length = 0;
+    updateOverlayTheme(map, buildings, false, { ...base, buildingsGbaOpacity: 0.5, buildingsGbaModeIdx: 1, buildingsGbaMinHeight: 30 }, false);
+    expect(calls.filter((call) => call.method === "removeLayer")).toHaveLength(2);
+    expect(calls.filter((call) => call.method === "addLayer")).toHaveLength(2);
+    expect(layerSpecs.get("buildings-gba-fill")?.filter).toEqual([">=", ["get", "h"], 30]);
+    expect(layerSpecs.get("buildings-gba-extrusion")?.filter).toEqual([">=", ["get", "h"], 30]);
+    expect(calls.filter((call) => call.method === "setLayoutProperty").map((call) => call.args))
+      .toEqual([
+        ["buildings-gba-fill", "visibility", "none"],
+        ["buildings-gba-extrusion", "visibility", "none"],
+      ]);
+  });
+
+  it("restores a missing opt-in rebuild layer even when its height filter is unchanged", () => {
+    const buildings = OVERLAY_REGISTRY.find((item) => item.id === "buildingsGba")!;
+    const { map, calls } = createMockMap();
+    const params = { buildingsGbaOpacity: 0.75, buildingsGbaModeIdx: 0, buildingsGbaMinHeight: 0 };
+    addOverlay(map, buildings, true, params);
+    (map as unknown as { removeLayer: (id: string) => void }).removeLayer("buildings-gba-fill");
+    calls.length = 0;
+
+    updateOverlayTheme(map, buildings, true, params);
+    expect(calls.filter((call) => call.method === "removeLayer").map((call) => call.args)).toEqual([
+      ["buildings-gba-extrusion"],
+    ]);
+    expect(calls.filter((call) => call.method === "addLayer")).toHaveLength(2);
   });
 });
