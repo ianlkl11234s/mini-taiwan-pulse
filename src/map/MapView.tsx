@@ -284,6 +284,12 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
 
     // 唯一的 style.load handler：每次底圖切換都會觸發，重建所有圖層
     map.on("style.load", () => {
+      // 全域防線：style 根層 transition 歸零（預設 300ms）。本專案的「平滑過渡」是資料插值，
+      // 不靠 GL 淡入；預設 transition 會讓每次 setPaintProperty／關閉圖層後多 render 一段時間，
+      // 甚至在圖層中途隱藏時卡住 hasTransitions()。明寫 `*-transition` 的圖層不受影響。
+      // Mapbox GL v3 沒有公開的 Map.setTransition，只能用 Style.setTransition（d.ts 有型別、非底線私有）；
+      // 每次 style.load（切底圖）都會換新 Style，所以要在這裡重設。
+      map.style?.setTransition({ duration: 0, delay: 0 });
       jpHeightLifecycle.resume();
       // Pure Black 配色：在加 overlay 前先壓 Mapbox 原生底圖層
       if (pureBlackRef.current) applyPureBlackTheme(map);
