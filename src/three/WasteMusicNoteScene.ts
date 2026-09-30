@@ -66,7 +66,6 @@ uniform float uRiseHeight;
 uniform float uSwayAmpl;
 uniform float uOrbitRadius;
 uniform float uPointSize;
-uniform float uOpacity;
 uniform vec2  uViewport;
 
 varying float vT;
@@ -109,6 +108,7 @@ precision mediump float;
 
 uniform sampler2D uAtlas;
 uniform vec3      uColor;       // 音符主色（匹配 wasteTruck 琥珀色，可外部設）
+uniform float     uOpacity;     // 只在 fragment 使用；宣告在 vertex 會因精度不一致而 link 失敗
 varying float vT;
 varying float vSymbol;
 
