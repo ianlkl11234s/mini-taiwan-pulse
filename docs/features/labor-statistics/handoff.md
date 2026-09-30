@@ -2,7 +2,7 @@
 
 上游完整 handoff：`/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/docs/handoff/labor-statistics-frontend.md`。
 
-本 repo 以 `src/data/laborStatisticsRecipes.json` 保存 recipe SSOT 副本，`laborStatisticsRecipes.ts` 提供 exact-selector whitelist 與型別。runtime 仍走共享 Statistics loader/store/map renderer；本地 snapshot 只透過 dataset-scoped DEV route `/__labor-statistics-cdn` 使用，不會取代既有 Statistics CDN。
+本 repo 以 `src/data/laborStatisticsRecipes.json` 保存 recipe SSOT 副本，`laborStatisticsRecipes.ts` 提供 exact-selector whitelist 與型別。前端首屏只載由它派生的 `laborStatisticsRecipes.catalog.json`（僅去掉執行期無讀取者的 `fragment_context`，`release_options` 原樣保留）；更新交付 JSON 後必跑 `npx vite-node --script scripts/statistics/build_statistics_recipe_catalogs.ts`，`statisticsRecipeCatalog.test.ts` 會擋不一致。runtime 仍走共享 Statistics loader/store/map renderer；本地 snapshot 只透過 dataset-scoped DEV route `/__labor-statistics-cdn` 使用，不會取代既有 Statistics CDN。
 
 工作分支：`codex/labor-statistics-frontend-20260927`。工作區：`/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/labor-statistics-frontend-20260927`。建立基底為本地 `origin/master` 的 `f40a0f5989aa20027336fe6848670ad27dd19313`；原 checkout 的未提交修改沒有被碰觸。
 
