@@ -677,6 +677,8 @@
 - **結構**：`LegendTitle`（標題）→ `LegendRow`（色票＋標籤）→ `LegendNote`（註記、方法、來源）。組間距 10、列間距 2–4、色票與文字間 6。
 - **標題**（LG-11）：`<LegendTitle zh="醫療據點" en="Medical" />`：中文 10px 600 `textStrong`，英文 9px `textDim`、不轉大寫，中文在前。不要再寫「MEDICAL 醫療據點」或「污染嚴重度 SEVERITY」。
 - **色票**：`SwatchDot` 10px 圓＋1px 底圖色描邊（LG-1）、`SwatchSquare` 12×10 圓角 2（LG-2，`outline` 為框線面）、`SwatchLine` 20px 線段含虛線（LG-4）、`SwatchSteps` 分級列＋分界數字（LG-3）、`SwatchGradient` 漸層條（LG-8）、`SwatchHatch` 缺值單向細斜線／遮蔽交叉斜線（LG-7）。
+- **色票參數**（R4 補）：`SwatchDot` 可帶 `stroke`／`strokeWidth`（地圖描邊是資料編碼時照畫，例：設施狀態框）與 `glow`（即時光暈）；`SwatchSquare`、`SwatchGradient` 可帶 `stroke`（面外框，分級面／網格用 `mapSeamColor(isDark)`，與 R3a 地圖細縫同源）；`SwatchLine` 可帶 `opacity`。
+- **色票同源**（R4）：色票顏色一律 import 與地圖 paint **同一個常數**（`src/map/layerPaintColors.ts`、各 `src/data/*Types.ts`），不在 `LegendPanel.tsx` 重抄色號；地圖暗淡不同色時，圖例依 `isDark` 取同一邊。
 - **主題**（LG-12）：文字色只用 `useLegendTheme()`（`DARK_LEGEND`／`LIGHT_LEGEND`），不直接用 `COLORS.*`。文字色取 `COLORS`／`LIGHT`；暗色 `bgSubtle`、`border` 目前是 inline rgba（§10.3）。
 - **尺寸常數**：`LEGEND_SWATCH`（點、方塊、線、分級、漸層、斜線、icon 14、間距 6）。`SwatchDot`／`SwatchSquare` 預設不透明度 0.9。
 - **尚無元件**：LG-5 大小（三圓）、LG-6 icon 還沒有共用元件，逐層做時補。

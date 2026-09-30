@@ -323,13 +323,13 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **G-1 Three.js／CustomLayer**：拍板加碼：每個 Three.js／CustomLayer 圖層都要有**「基本點線面」模式**，用 Mapbox 原生 circle／line／fill 畫同一份資料，並套用本檔 §3 的數值階；**預設是 Mapbox 模式**，Three.js 立體版保留為可切換的選項（圖層控制項加一個切換）。理由：點線面比較好理解，但不放棄立體效果。Three.js 模式本身的值在 shader／材質，不進數值階；透明度、圖例、popup 兩種模式都照四鐵則。13 層 `unresolved` 在 JSON 有檔案指標，實作時逐層讀值、補記到該層 `docs/features/<slug>/`。
 - **G-2 熱區**：magma（截）色階、密度 0 完全透明、`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoom` 目前 10。對齊 viz-library M5。（R5 待接線。）
 - **G-3 網格**：面 0.7、空格不畫、格縫同 F-2；H3 解析度與方格尺寸照 viz-library M6。
-- **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。（R3／R5 待做，未設常數。）
+- **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。（R3b 待做，未設常數。）
 
 ### 3.5 文字標籤
 
 - **T-1 字型**：`text-font` 維持 `["DIN Pro Medium","Arial Unicode MS Regular"]`（英數），強調用 Bold。中文：明確設定 `localIdeographFontFamily: "PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif`（與 `--font-cjk` 同 stack）。mapbox-gl 預設已是 `'sans-serif'`（中文本來就在前端用系統字繪製），這次只是把字型名稱指定成與 UI 相同，**不增加下載或運算負擔**。已實作（R1）：`src/map/MapView.tsx`（主站）與 `src/bbox/BboxSelectorApp.tsx`（bbox 工具）以 `MAP_LOCAL_IDEOGRAPH_FONT`（= `FONT_CJK`）設定。embed（`src/embed/EmbedApp.tsx`，MapLibre）與分析卡片頁（`src/card/`，MapLibre）未設定——是否需要未驗證。
-- **T-2 字級與 halo**：POI 名稱 z10 10／z14 12；計數徽章 11／13 Bold；halo 1.25px、底圖色（暗 `rgba(15,23,42,0.92)`、淡 `rgba(255,255,255,0.94)`，現況已如此）。viz-library N2（分析標籤 10px 粗體＋3px halo）只用於分析結果。（常數 `LABEL`；R3 待接線。分析卡片頁的地圖標籤另用 11／12px、halo 1.2／1.4，見 `spec.md` §5.34。）
-- **T-3 密度**：標籤 z ≥ 13 才出現、`text-allow-overlap: false`；計數徽章可 overlap。（`LABEL.minZoom`；R3 待接線。）
+- **T-2 字級與 halo**：POI 名稱 z10 10／z14 12；計數徽章 11／13 Bold；halo 1.25px、底圖色（暗 `rgba(15,23,42,0.92)`、淡 `rgba(255,255,255,0.94)`，現況已如此）。viz-library N2（分析標籤 10px 粗體＋3px halo）只用於分析結果。（常數 `LABEL`；R3b 待接線。分析卡片頁的地圖標籤另用 11／12px、halo 1.2／1.4，見 `spec.md` §5.34。）
+- **T-3 密度**：標籤 z ≥ 13 才出現、`text-allow-overlap: false`；計數徽章可 overlap。（`LABEL.minZoom`；R3b 待接線。）
 
 ### 3.6 暗／淡底圖差異規則（K-4）
 
@@ -419,7 +419,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 > **R4（2026-09-30）已處理**：28 個對齊（形狀、色票、暗淡），色票引用與 paint 同一常數（`src/map/layerPaintColors.ts`、各 `src/data/*Types.ts`）。盤點仍列 3 個（`facPrimary`、`parkingOnstreet`、`powerPlants`）：顏色寫在 feature 屬性（`facilityFuelColor`／`fuelColorOf`／空位率色階），圖例與 hook 讀同一張色表，盤點腳本讀不到屬性色，接受為已知限制。「暗淡只有一套」中有 8 個其實是外框線造成的盤點誤報（R3a 已修腳本）；分級面／網格外框的圖例描邊改用 `mapSeamColor`，與 R3a 地圖同源。細節見 `docs/features/map-layer-restyle/R4-report.md`。
 
-來源：`legends[].issues`（2026-09-29 重產）。R4 處理。分四類；「另有 hook 可能覆寫 paint」的需人工在瀏覽器確認哪一邊是實際畫面。
+來源：`legends[].issues`（2026-09-29 重產，R4 前的清單）。分四類；「另有 hook 可能覆寫 paint」的需人工在瀏覽器確認哪一邊是實際畫面。
 
 | 類 | 圖例 id |
 |---|---|
