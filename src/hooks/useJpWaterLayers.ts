@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { CircleLayer, FillLayer, LineLayer, Map as MapboxMap, RasterLayer } from "mapbox-gl";
 import { fetchJpWaterGeoJsonAsset, getJpWaterRuntime, jpWaterPrivatePmtilesAsset, reportJpWaterArchiveReady, reportJpWaterError, reportJpWaterLoading, subscribeJpWaterRuntime } from "../data/jpWaterLoader";
 import { JP_WATER_FACILITY_CATEGORIES, JP_WATER_LOCAL_PMTILES_LAYER_KEYS, JP_WATER_RELEASED_LAYER_KEYS, type JpWaterLocalArchive } from "../data/jpWaterTypes";
@@ -55,7 +55,16 @@ function localLayer(key: typeof LOCAL_KEYS[number], opacity: number, isDark: boo
   return { id, type: "circle", source, "source-layer": item.sourceLayer, layout: { visibility: "none" }, paint: { "circle-color": circleColor, "circle-opacity": clamp(opacity), "circle-radius": pointRadius("M"), ...pointStroke(key, opacity, isDark) } } as CircleLayer;
 }
 /** Four public GeoJSON layers plus eight owner-only PMTiles layers. */
-export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visibility: JpWaterVisibility, opacity: JpWaterOpacity, isDarkTheme = true) {
+export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visibilityProp: JpWaterVisibility, opacityProp: JpWaterOpacity, isDarkTheme = true) {
+  // 呼叫端每次 render 都傳新物件；直接當 effect deps 會讓下方 mount effect 每次 host
+  // re-render 都重跑（圖層全關時也一樣，每次 setLayoutProperty／setPaintProperty
+  // 都會 triggerRepaint → 播放中每秒數次無謂重畫）。以內容 key 穩定 identity。
+  const visKey = JSON.stringify(visibilityProp);
+  const opacityKey = JSON.stringify(opacityProp);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const visibility = useMemo(() => visibilityProp, [visKey]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const opacity = useMemo(() => opacityProp, [opacityKey]);
   const active = (Object.keys(visibility) as JpWaterVisibleKey[]).some((key) => visibility[key]);
   const tick = useMapReadyTick(mapRef, active);
   const runtime = useSyncExternalStore(subscribeJpWaterRuntime, getJpWaterRuntime, getJpWaterRuntime);

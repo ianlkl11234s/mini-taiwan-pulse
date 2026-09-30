@@ -190,13 +190,17 @@ export function useAirspaceData(enabled: boolean): UseAirspaceDataReturn {
     return () => { cancelled = true; };
   }, [enabled]);
 
+  // 圖層關閉後不再因切日／預載而抓資料（App 的 subscribeDate 訂閱是常駐的）
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
+
   const loadDay = useCallback((date: Date) => {
-    if (!apiAvailable.current) return;
+    if (!enabledRef.current || !apiAvailable.current) return;
     loadDateData(formatDate(date));
   }, [loadDateData]);
 
   const prefetch = useCallback((date: Date) => {
-    if (!apiAvailable.current) return;
+    if (!enabledRef.current || !apiAvailable.current) return;
     prefetchDate(formatDate(date));
   }, [prefetchDate]);
 

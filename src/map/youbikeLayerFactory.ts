@@ -136,6 +136,13 @@ export function updateYoubikeLayer(
   const source = map.getSource(SOURCE_ID);
   if (!source || source.type !== "geojson") return;
 
+  // 關閉時只隱藏、不再轉 GeoJSON／setData（關閉後不該繼續算）；重開時會帶 visible=true 重跑
+  if (!visible) {
+    map.setLayoutProperty(FILL_LAYER_ID, "visibility", "none");
+    map.setLayoutProperty(EXTRUSION_LAYER_ID, "visibility", "none");
+    return;
+  }
+
   if (cells.length > 0) {
     const geojson = youbikeCellsToGeoJSON(cells, params);
     source.setData(geojson);
@@ -143,7 +150,7 @@ export function updateYoubikeLayer(
     source.setData({ type: "FeatureCollection", features: [] });
   }
 
-  if (!visible || cells.length === 0) {
+  if (cells.length === 0) {
     map.setLayoutProperty(FILL_LAYER_ID, "visibility", "none");
     map.setLayoutProperty(EXTRUSION_LAYER_ID, "visibility", "none");
     return;
@@ -152,9 +159,15 @@ export function updateYoubikeLayer(
   map.setLayoutProperty(FILL_LAYER_ID, "visibility", params.extruded ? "none" : "visible");
   map.setLayoutProperty(EXTRUSION_LAYER_ID, "visibility", params.extruded ? "visible" : "none");
 
-  map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", params.opacity);
-  map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", params.opacity);
-  map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-height",
-    ["*", ["get", "height"], params.elevationScale * 100],
-  );
+  // 只改「目前顯示中」那一層的 paint：隱藏 layer 不會 recalculate，改 paint 留下的
+  // transition prior（本層 fill-opacity 有 500ms 明示 transition）永遠清不掉 →
+  // style.hasTransitions() 恆 true → 地圖無限重畫（A0）。切換 extruded 會帶新 params 重跑。
+  if (params.extruded) {
+    map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", params.opacity);
+    map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-height",
+      ["*", ["get", "height"], params.elevationScale * 100],
+    );
+  } else {
+    map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", params.opacity);
+  }
 }

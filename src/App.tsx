@@ -517,8 +517,8 @@ export default function App() {
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
   // 注意：handler 內 loadShipDay / loadFlightDay 看似 mount 就 fire，
-  // 但下游 useShipData / useAirspaceData 用 apiAvailable.current 守門，
-  // layer 關著時 silent no-op；保留訂閱是為了切日時已開啟的 layer 能立即跟上。
+  // 但下游 useShipData / useAirspaceData 用 enabled + apiAvailable.current 守門，
+  // layer 關著時 silent no-op（不抓資料）；保留訂閱是為了切日時已開啟的 layer 能立即跟上。
   useEffect(() => {
     const handler = (dayStr: string) => {
       if (!dayStr) return;
@@ -1430,8 +1430,13 @@ export default function App() {
   const [youbikeTimeKey, setYoubikeTimeKey] = useState(
     () => Math.floor(timeStore.getTime() / 60) * 60,
   );
+  // 只在 YouBike 圖層開啟時訂閱：關閉後不該每個模擬分鐘都 setState（會讓 App 與所有
+  // LayerHost 跟著 re-render）。重開時先同步到當下分鐘。
+  const youbikeVisible = layerVisibility.youbikeFullness;
   useEffect(() => {
+    if (!youbikeVisible) return;
     let lastMinute = Math.floor(timeStore.getTime() / 60);
+    setYoubikeTimeKey(lastMinute * 60);
     return timeStore.subscribe((t) => {
       const minute = Math.floor(t / 60);
       if (minute !== lastMinute) {
@@ -1439,7 +1444,7 @@ export default function App() {
         setYoubikeTimeKey(minute * 60);
       }
     });
-  }, []);
+  }, [youbikeVisible]);
 
   // YouBike 網格上圖已搬進 LayerHost 的 YoubikeHost（youbikeTimeKey 經 hostDeps 傳入）
 
