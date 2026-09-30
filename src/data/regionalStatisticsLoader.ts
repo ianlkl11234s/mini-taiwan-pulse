@@ -430,7 +430,8 @@ async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: Abo
 }
 
 export async function loadRegionalStatisticsValues(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsValuesResult> {
-  return withLoading(`statistics-values:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計數值', loadStatisticsValuesResult(recipe, signal));
+  // Caller cancellation (superseded selection / unmount) ends the task without flagging 載入失敗.
+  return withLoading(`statistics-values:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計數值', loadStatisticsValuesResult(recipe, signal), { signal });
 }
 
 export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
@@ -472,5 +473,5 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
     return { catalog, releases, values: first, sources: sourceResponse.source, health, effectiveRecipe: { ...effectiveRecipe, layerKey: renderKey ?? effectiveRecipe.layerKey }, geometryManifest, features };
-  })());
+  })(), { signal });
 }
