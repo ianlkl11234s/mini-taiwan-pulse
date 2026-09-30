@@ -8,6 +8,8 @@ import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/u
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";
 import { useBssBridgePrivateAccess } from "./hooks/useBssBridgePrivateAccess";
+import { useBridgeResiliencePrivateAccess } from "./hooks/useBridgeResiliencePrivateAccess";
+import { BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS, BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT, isBridgeResiliencePrivateLayer } from "./data/bridgeResilienceTypes";
 import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
 import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -31,7 +33,7 @@ import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
 import { useWasteScheduleLayer } from "./hooks/useWasteScheduleLayer";
-import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/WasteScheduleScene";
+import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/wasteScheduleConstants";
 import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
 import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
 import {
@@ -236,6 +238,7 @@ export default function App() {
   const jpWaterPrivateAccess = useJpWaterPrivateAccess();
   const soilLiquefactionPrivateAccess = useSoilLiquefactionPrivateAccess();
   const bssBridgePrivateAccess = useBssBridgePrivateAccess();
+  const bridgeResiliencePrivateAccess = useBridgeResiliencePrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -251,8 +254,9 @@ export default function App() {
     if (!jpWaterPrivateAccess.allowed) for (const key of JP_WATER_PRIVATE_LAYER_KEYS) s.add(key);
     if (!soilLiquefactionPrivateAccess.allowed) for (const key of SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS) s.add(key);
     if (!bssBridgePrivateAccess.allowed) for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) s.add(key);
+    if (!bridgeResiliencePrivateAccess.allowed) for (const key of BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS) s.add(key);
     return s;
-  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed, soilLiquefactionPrivateAccess.allowed, bssBridgePrivateAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed, soilLiquefactionPrivateAccess.allowed, bssBridgePrivateAccess.allowed, bridgeResiliencePrivateAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -513,8 +517,8 @@ export default function App() {
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
   // 注意：handler 內 loadShipDay / loadFlightDay 看似 mount 就 fire，
-  // 但下游 useShipData / useAirspaceData 用 apiAvailable.current 守門，
-  // layer 關著時 silent no-op；保留訂閱是為了切日時已開啟的 layer 能立即跟上。
+  // 但下游 useShipData / useAirspaceData 用 enabled + apiAvailable.current 守門，
+  // layer 關著時 silent no-op（不抓資料）；保留訂閱是為了切日時已開啟的 layer 能立即跟上。
   useEffect(() => {
     const handler = (dayStr: string) => {
       if (!dayStr) return;
@@ -912,10 +916,14 @@ export default function App() {
     && (!soilLiquefactionPrivateAccess.allowed || !layerVisibility[jpWaterUiFeatureInfo.layerType])
     ? null
     : jpWaterUiFeatureInfo;
-  const privateUiFeatureInfo = soilUiFeatureInfo && isBssBridgePrivateLayer(soilUiFeatureInfo.layerType)
+  const bssUiFeatureInfo = soilUiFeatureInfo && isBssBridgePrivateLayer(soilUiFeatureInfo.layerType)
     && (!bssBridgePrivateAccess.allowed || !layerVisibility[soilUiFeatureInfo.layerType])
     ? null
     : soilUiFeatureInfo;
+  const privateUiFeatureInfo = bssUiFeatureInfo && isBridgeResiliencePrivateLayer(bssUiFeatureInfo.layerType)
+    && (!bridgeResiliencePrivateAccess.allowed || !layerVisibility[bssUiFeatureInfo.layerType])
+    ? null
+    : bssUiFeatureInfo;
   useEffect(() => {
     const onAllenAccessDenied = () => {
       setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
@@ -1046,6 +1054,42 @@ export default function App() {
     });
     if (featureInfo && isBssBridgePrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
   }, [featureInfo, bssBridgePrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    const clearPrivateBridgeResilience = () => {
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && isBridgeResiliencePrivateLayer(current.layerType) ? null : current);
+    };
+    const onAccessDenied = () => {
+      clearPrivateBridgeResilience();
+      showTransientNotice("橋梁韌性私人存取失敗，已清除圖層與選取結果；這不代表該處沒有橋梁。");
+    };
+    const clearSelection = () => setFeatureInfo((current) => current && isBridgeResiliencePrivateLayer(current.layerType) ? null : current);
+    window.addEventListener(BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, onAccessDenied);
+    window.addEventListener(BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT, clearSelection);
+    return () => {
+      window.removeEventListener(BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, onAccessDenied);
+      window.removeEventListener(BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT, clearSelection);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (bridgeResiliencePrivateAccess.allowed) return;
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && isBridgeResiliencePrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, bridgeResiliencePrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
 
   // 授權 HOLD 是全體使用者的 release gate，不能因 owner 或儲存的 scene/URL 繞過。
   useEffect(() => {
@@ -1386,8 +1430,13 @@ export default function App() {
   const [youbikeTimeKey, setYoubikeTimeKey] = useState(
     () => Math.floor(timeStore.getTime() / 60) * 60,
   );
+  // 只在 YouBike 圖層開啟時訂閱：關閉後不該每個模擬分鐘都 setState（會讓 App 與所有
+  // LayerHost 跟著 re-render）。重開時先同步到當下分鐘。
+  const youbikeVisible = layerVisibility.youbikeFullness;
   useEffect(() => {
+    if (!youbikeVisible) return;
     let lastMinute = Math.floor(timeStore.getTime() / 60);
+    setYoubikeTimeKey(lastMinute * 60);
     return timeStore.subscribe((t) => {
       const minute = Math.floor(t / 60);
       if (minute !== lastMinute) {
@@ -1395,7 +1444,7 @@ export default function App() {
         setYoubikeTimeKey(minute * 60);
       }
     });
-  }, []);
+  }, [youbikeVisible]);
 
   // YouBike 網格上圖已搬進 LayerHost 的 YoubikeHost（youbikeTimeKey 經 hostDeps 傳入）
 
@@ -1655,11 +1704,8 @@ export default function App() {
 
   const handleAllOff = useCallback(() => {
     sessionTracker.logWithSnapshot("all_off", {}, layerVisibilityRef.current);
-    setLayerVisibility((prev) => {
-      const next = { ...prev };
-      for (const k in next) next[k as keyof typeof next] = false;
-      return next;
-    });
+    // 與逐一關閉同一條路徑（統計面經 statisticsDisplayModeStore 關閉），結果一致
+    setLayerVisibility((prev) => statisticsDisplayModeStore.allOff(prev));
     // FeatureInfo 自帶 selected-feature halo；全部關閉時不可留下孤立光暈／popup。
     setFeatureInfo(null);
     setExpandedLayer(null);

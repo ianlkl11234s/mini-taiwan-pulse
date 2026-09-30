@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { Flight, Ship, RailTrain, BusVehicle, RenderMode, RailData, LayerVisibility } from "../types";
 import type { FlightScene } from "../three/FlightScene";
@@ -11,25 +11,55 @@ import type { WasteScheduleScene } from "../three/WasteScheduleScene";
 import type { WasteTrailRow, WasteFacilityRow } from "../data/wasteLoader";
 import type { WasteScheduleRoute } from "../data/wasteScheduleLoader";
 import type { StationPillarData } from "../three/StationPillarScene";
-import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
-import { createBusLayer } from "../map/busCustomLayer";
-import { createWasteTruckLayer } from "../map/wasteTruckCustomLayer";
-import { createWasteScheduleLayer } from "../map/wasteScheduleCustomLayer";
 // AR-22 P4：參數鏡像改吃模組級 ref（由 layerParamsStore 的訂閱者維護），
 // 不再由 App 經 props 傳入 —— Three.js 的 RAF 迴圈本來就不需要 render 才拿得到新值。
 import { layerParamRefs as paramRefs } from "../state/layerParamRefs";
-import {
+import type {
   createWasteFacilityLayer,
-  type WasteFacility3DScenes,
-  type WasteFacility3DKey,
-  type WasteFacilityLayerParams,
+  WasteFacility3DScenes,
+  WasteFacility3DKey,
+  WasteFacilityLayerParams,
 } from "../map/wasteFacilityCustomLayer";
-import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
-import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
-import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
 import type { TemperatureGridData } from "../data/temperatureLoader";
-import { createFireStationLayer } from "../map/fireStationCustomLayer";
 import type { FireStationScene } from "../three/FireStationScene";
+import { withLoading } from "../lib/loadingRegistry";
+import { loadH3 } from "../map/h3Runtime";
+import { installLayerChunkPrewarm } from "../lib/prewarmLayerChunks";
+import { layerParamsStore } from "../state/layerParamsStore";
+import { layerVisibilityStore } from "../state/layerVisibilityStore";
+
+// ── C1：three.js 相關 chunk 按需載入 ──
+// 這 13 個 custom layer 不再於開站時掛上；第一次有 3D 圖層可見才 import + 加入。
+// 開站時先放一個不畫任何東西的錨點圖層，佔住原本 addAllLayers 的位置，
+// 延後加入的 3D 圖層都插在錨點之前 → 圖層順序與開站即加入時完全相同。
+type ThreeLayerBundle = typeof import("../map/threeLayerBundle");
+let threeBundle: ThreeLayerBundle | null = null;
+let threeBundlePromise: Promise<ThreeLayerBundle> | null = null;
+
+export function loadThreeLayerBundle(): Promise<ThreeLayerBundle> {
+  if (threeBundle) return Promise.resolve(threeBundle);
+  if (!threeBundlePromise) {
+    threeBundlePromise = import("../map/threeLayerBundle").then(
+      (mod) => { threeBundle = mod; return mod; },
+      (err) => { threeBundlePromise = null; throw err; },
+    );
+  }
+  return threeBundlePromise;
+}
+
+export const THREE_LAYERS_ANCHOR_ID = "three-layers-anchor";
+
+/** 任一 3D custom layer 會畫東西（對應各 layer 的 getIsVisible）。 */
+export function anyThreeLayerVisible(vis: LayerVisibility, fireStations3D: boolean): boolean {
+  return vis.flights || vis.ships || vis.rail
+    || vis.busLive || vis.busIntercityLive || vis.touristShuttleLive
+    || vis.wasteTruck || vis.wasteSchedule || vis.wasteScheduleNote
+    || vis.wfIncinerator || vis.wfLandfill || vis.wfLandfillCoastal || vis.wfTransfer || vis.wfMedical || vis.wfMonitoring
+    || vis.lighthouses
+    || vis.stationsTHSR || vis.stationsTRA || vis.stationsMetro || vis.airports || vis.ports
+    || vis.temperatureWave
+    || (vis.fireStations && fireStations3D);
+}
 
 interface UseThreeJsLayersArgs {
   timeRef: React.RefObject<number>;
@@ -80,9 +110,56 @@ export function useThreeJsLayers({
   const wasteFacilityLayerRef = useRef<ReturnType<typeof createWasteFacilityLayer> | null>(null);
   const fireStationSceneRef = useRef<FireStationScene | null>(null);
 
-  const addFlightLayer = (map: MapboxMap) => {
+  // ── Wake-up 通道 ──
+  // CustomLayer 不再每幀無條件 triggerRepaint，輸入改變時要有人叫醒 Mapbox 重畫一次：
+  //   - 時間：各時間驅動圖層在 onAdd 自行訂閱 timeStore（見 customLayer.ts subscribeTimeRepaint）
+  //   - 參數：paramRefs 由 layerParamsStore 訂閱者寫入，不一定觸發 App render → 直接訂閱
+  //   - 可見性：layerVisibilityStore 訂閱（關閉也要重畫一次，清掉上一幀的 3D 殘影）
+  //   - 資料／主題／模式：App render 期間寫入 ref → 每次 render 後比對 identity，有變才重畫
+  // Mapbox 會把同一幀內多次 triggerRepaint 合併，多叫一次只多畫一幀。
+  const mapInstanceRef = useRef<MapboxMap | null>(null);
+  const repaint = () => mapInstanceRef.current?.triggerRepaint();
+
+  useEffect(() => {
+    // 參數／可見性變動：重畫一次；若因此第一次有 3D 圖層可見 → 載入 three chunk 並加圖層
+    const onParams = () => { repaint(); ensureThreeLayersIfNeeded(); };
+    const onVis = () => { repaint(); ensureThreeLayersIfNeeded(); };
+    const unsubParams = layerParamsStore.subscribe(onParams);
+    const unsubVis = layerVisibilityStore.subscribe(onVis);
+    // 第一次開任一圖層後，背景預載 3D／H3 基礎工具，之後開圖層只等資料
+    const uninstallPrewarm = installLayerChunkPrewarm([loadThreeLayerBundle, loadH3]);
+    return () => { unsubParams(); unsubVis(); uninstallPrewarm(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const lastInputsRef = useRef<unknown[]>([]);
+  useEffect(() => {
+    const inputs: unknown[] = [
+      flightsRef.current, renderModeRef.current, isDarkThemeRef.current, showTrailsRef.current,
+      shipsRef.current, activeTrainsRef.current, activeBusesRef.current,
+      activeBusesIntercityRef.current, activeBusesTouristShuttleRef.current, wasteTrailsRef.current, wasteScheduleRoutesRef.current,
+      wasteFacilityByTypeRef.current, railDataRef.current, lighthousePositionsRef.current,
+      thsrPillarDataRef.current, traPillarDataRef.current, metroPillarDataRef.current,
+      airportPillarDataRef.current, portPillarDataRef.current, temperatureDataRef.current,
+      playingRef.current, layerVisibilityRef.current,
+    ];
+    const prev = lastInputsRef.current;
+    const changed = inputs.length !== prev.length || inputs.some((v, i) => v !== prev[i]);
+    if (changed) {
+      lastInputsRef.current = inputs;
+      repaint();
+    }
+  });
+
+  const addFlightLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
+    // 單獨重建（App 換機場／模式，未帶 beforeId）只在 3D 圖層組已加入時才做；
+    // 否則 bundle 被預載但圖層組未加入時會單獨加出 flight-3d，讓 ensureThreeLayersIfNeeded 誤判已加入
+    if (beforeId === undefined && !map.getLayer("flight-3d")) return;
+    mapInstanceRef.current = map;
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
-    const layer = createFlightLayer({
+    const layer = bundle.createFlightLayer({
       getCurrentTime: () => timeRef.current,
       getFlights: () => flightsRef.current,
       getRenderMode: () => renderModeRef.current,
@@ -95,12 +172,14 @@ export function useThreeJsLayers({
       getIsVisible: () => layerVisibilityRef.current.flights,
       onSceneReady: (scene) => { flightSceneRef.current = scene; },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addShipLayer = (map: MapboxMap) => {
+  const addShipLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("ship-3d")) map.removeLayer("ship-3d");
-    const layer = createShipLayer({
+    const layer = bundle.createShipLayer({
       getCurrentTime: () => timeRef.current,
       getShips: () => shipsRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
@@ -119,12 +198,14 @@ export function useThreeJsLayers({
       },
       onSceneReady: (scene) => { shipSceneRef.current = scene; },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addRailLayer = (map: MapboxMap) => {
+  const addRailLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("rail-3d")) map.removeLayer("rail-3d");
-    const layer = createRailLayer({
+    const layer = bundle.createRailLayer({
       getTrains: () => activeTrainsRef.current,
       getCurrentTime: () => timeRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
@@ -137,12 +218,14 @@ export function useThreeJsLayers({
       getTrackMode: () => paramRefs.railTrackMode.current,
       onSceneReady: (scene) => { railSceneRef.current = scene; },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addLighthouseLayer = (map: MapboxMap) => {
+  const addLighthouseLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("lighthouse-3d")) map.removeLayer("lighthouse-3d");
-    const layer = createLighthouseLayer({
+    const layer = bundle.createLighthouseLayer({
       getPositions: () => lighthousePositionsRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
       getIsPlaying: () => playingRef.current,
@@ -151,12 +234,14 @@ export function useThreeJsLayers({
       getBeamDistance: () => paramRefs.beamDistance.current,
       getBeamOpacity: () => paramRefs.beamOpacity.current,
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addBusLayer = (map: MapboxMap) => {
+  const addBusLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("bus-3d")) map.removeLayer("bus-3d");
-    const layer = createBusLayer({
+    const layer = bundle.createBusLayer({
       id: "bus-3d",
       getBuses: () => activeBusesRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
@@ -167,12 +252,14 @@ export function useThreeJsLayers({
       getOpacityMultiplier: () => paramRefs.busOpacity.current,
       onSceneReady: (scene) => { busSceneRef.current = scene; },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addBusIntercityLayer = (map: MapboxMap) => {
+  const addBusIntercityLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("bus-intercity-3d")) map.removeLayer("bus-intercity-3d");
-    const layer = createBusLayer({
+    const layer = bundle.createBusLayer({
       id: "bus-intercity-3d",
       getBuses: () => activeBusesIntercityRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
@@ -183,12 +270,14 @@ export function useThreeJsLayers({
       getOpacityMultiplier: () => paramRefs.busIntercityOpacity.current,
       onSceneReady: (scene) => { busIntercitySceneRef.current = scene; },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addTouristShuttleLayer = (map: MapboxMap) => {
+  const addTouristShuttleLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("tourist-shuttle-3d")) map.removeLayer("tourist-shuttle-3d");
-    const layer = createBusLayer({
+    const layer = bundle.createBusLayer({
       id: "tourist-shuttle-3d",
       getBuses: () => activeBusesTouristShuttleRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
@@ -199,12 +288,14 @@ export function useThreeJsLayers({
       getOpacity: () => paramRefs.touristShuttleOpacity.current,
       onSceneReady: (scene) => { touristShuttleSceneRef.current = scene; },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addWasteTruckLayer = (map: MapboxMap) => {
+  const addWasteTruckLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("waste-truck-3d")) map.removeLayer("waste-truck-3d");
-    const layer = createWasteTruckLayer({
+    const layer = bundle.createWasteTruckLayer({
       id: "waste-truck-3d",
       getTrails: () => wasteTrailsRef.current ?? [],
       getCurrentTime: () => timeRef.current,
@@ -222,12 +313,14 @@ export function useThreeJsLayers({
         wasteMusicNoteSceneRef.current = noteScene;
       },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addWasteScheduleLayer = (map: MapboxMap) => {
+  const addWasteScheduleLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("waste-schedule-3d")) map.removeLayer("waste-schedule-3d");
-    const layer = createWasteScheduleLayer({
+    const layer = bundle.createWasteScheduleLayer({
       id: "waste-schedule-3d",
       getRoutes: () => wasteScheduleRoutesRef.current ?? [],
       getCurrentTime: () => timeRef.current ?? Date.now() / 1000,
@@ -246,15 +339,17 @@ export function useThreeJsLayers({
         wasteScheduleNoteSceneRef.current = noteScene;
       },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addWasteFacilityLayer = (map: MapboxMap) => {
+  const addWasteFacilityLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     if (map.getLayer("waste-facility-3d")) map.removeLayer("waste-facility-3d");
     const FACILITY_KEYS: WasteFacility3DKey[] = [
       "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
     ];
-    const layer = createWasteFacilityLayer({
+    const layer = bundle.createWasteFacilityLayer({
       id: "waste-facility-3d",
       getFacilityByType: () => wasteFacilityByTypeRef.current ?? new Map(),
       getVisibility: () => {
@@ -281,13 +376,15 @@ export function useThreeJsLayers({
       onSceneReady: (scenes) => { wasteFacilityScenesRef.current = scenes; },
     });
     wasteFacilityLayerRef.current = layer;
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addTemperatureWaveLayer = (map: MapboxMap) => {
+  const addTemperatureWaveLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     const id = "temperature-wave-3d";
     if (map.getLayer(id)) map.removeLayer(id);
-    const layer = createTemperatureWaveLayer({
+    const layer = bundle.createTemperatureWaveLayer({
       getData: () => temperatureDataRef.current,
       getIsVisible: () => layerVisibilityRef.current.temperatureWave,
       getHeightScale: () => paramRefs.tempHeight.current,
@@ -298,13 +395,15 @@ export function useThreeJsLayers({
       getWireframe: () => paramRefs.tempWireframe.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addStationPillarLayer = (map: MapboxMap) => {
+  const addStationPillarLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     const id = "station-pillar-3d";
     if (map.getLayer(id)) map.removeLayer(id);
-    const layer = createCombinedStationPillarLayer({
+    const layer = bundle.createCombinedStationPillarLayer({
       getIsDarkTheme: () => isDarkThemeRef.current,
       groups: {
         thsr: {
@@ -348,36 +447,74 @@ export function useThreeJsLayers({
         },
       },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
-  const addFireStationLayer = (map: MapboxMap) => {
+  const addFireStationLayer = (map: MapboxMap, beforeId?: string) => {
+    const bundle = threeBundle;
+    if (!bundle) return;
     const id = "fire-station-3d";
     if (map.getLayer(id)) map.removeLayer(id);
-    const layer = createFireStationLayer({
+    const layer = bundle.createFireStationLayer({
       id,
       getIsVisible: () => layerVisibilityRef.current.fireStations && paramRefs.fireStations3D.current,
       getOpacity: () => paramRefs.fireStationsOpacity.current,
       getScale: () => paramRefs.fireStationsScale.current,
       onSceneReady: (scene) => { fireStationSceneRef.current = scene; },
     });
-    map.addLayer(layer);
+    map.addLayer(layer, beforeId);
   };
 
+  /** 13 個 3D 圖層依固定順序插在錨點之前（bundle 未載入時各 add* 為 no-op）。 */
+  const addThreeLayersBeforeAnchor = (map: MapboxMap) => {
+    const before = THREE_LAYERS_ANCHOR_ID;
+    addFlightLayer(map, before);
+    addShipLayer(map, before);
+    addRailLayer(map, before);
+    addBusLayer(map, before);
+    addBusIntercityLayer(map, before);
+    addTouristShuttleLayer(map, before);
+    addWasteTruckLayer(map, before);
+    addWasteScheduleLayer(map, before);
+    addWasteFacilityLayer(map, before);
+    addLighthouseLayer(map, before);
+    addStationPillarLayer(map, before);
+    addTemperatureWaveLayer(map, before);
+    addFireStationLayer(map, before);
+  };
+
+  const threeEnsurePendingRef = useRef(false);
+  /** 有 3D 圖層可見、錨點在、但 3D 圖層還沒加 → 載入 bundle（掛 loading UI）後加入。 */
+  const ensureThreeLayersIfNeeded = () => {
+    const map = mapInstanceRef.current;
+    if (!map || !map.getLayer(THREE_LAYERS_ANCHOR_ID) || map.getLayer("flight-3d")) return;
+    if (!anyThreeLayerVisible(layerVisibilityStore.getAll(), paramRefs.fireStations3D.current)) return;
+    if (threeEnsurePendingRef.current) return; // 載入中：參數／可見性連續變動不重複掛 loading
+    threeEnsurePendingRef.current = true;
+    const pending = threeBundle ? Promise.resolve(threeBundle) : withLoading("three-layers", "3D 圖層工具", loadThreeLayerBundle());
+    pending.finally(() => { threeEnsurePendingRef.current = false; }).then(
+      () => {
+        // 等待期間換了地圖／切底圖（錨點會在 style.load 後的 addAllLayers 重建，屆時 bundle 已在，直接加）
+        if (mapInstanceRef.current !== map || !map.getLayer(THREE_LAYERS_ANCHOR_ID) || map.getLayer("flight-3d")) return;
+        addThreeLayersBeforeAnchor(map);
+        repaint();
+      },
+      (err) => console.error("[useThreeJsLayers] failed to load 3D layer bundle", err),
+    );
+  };
+
+  /**
+   * 地圖就緒／切底圖後呼叫（名稱沿用）：放錨點；bundle 已載入 → 立刻同步加入全部 3D 圖層（與改前相同），
+   * 否則等到第一次有 3D 圖層可見才載入。
+   */
   const addAllLayers = (map: MapboxMap) => {
-    addFlightLayer(map);
-    addShipLayer(map);
-    addRailLayer(map);
-    addBusLayer(map);
-    addBusIntercityLayer(map);
-    addTouristShuttleLayer(map);
-    addWasteTruckLayer(map);
-    addWasteScheduleLayer(map);
-    addWasteFacilityLayer(map);
-    addLighthouseLayer(map);
-    addStationPillarLayer(map);
-    addTemperatureWaveLayer(map);
-    addFireStationLayer(map);
+    mapInstanceRef.current = map;
+    if (!map.getLayer(THREE_LAYERS_ANCHOR_ID)) {
+      // 佔位層：空 render 的 custom layer（不用 background，避免被 Pure Black 等底圖 paint 覆寫掃到）
+      map.addLayer({ id: THREE_LAYERS_ANCHOR_ID, type: "custom", renderingMode: "2d", render: () => {} });
+    }
+    if (threeBundle) addThreeLayersBeforeAnchor(map);
+    else ensureThreeLayersIfNeeded();
   };
 
   return {

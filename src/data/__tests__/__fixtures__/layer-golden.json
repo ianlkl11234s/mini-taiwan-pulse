@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 813,
+    "keyCount": 814,
     "sections": [
       "gisLayers",
       "overlays",
@@ -931,6 +931,14 @@
         "bss-national-bridge-preview-stage1-local-direction-candidate"
       ],
       "type": "bssNationalBridgePreview"
+    },
+    {
+      "layers": [
+        "bridge-resilience-hit",
+        "bridge-resilience-structure",
+        "bridge-resilience-ground"
+      ],
+      "type": "bridgeResilienceTwinCity"
     },
     {
       "layers": [
@@ -22072,10 +22080,38 @@
                 "#94a3b8"
               ],
               "circle-opacity": 0.82,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             },
             "light": {
               "circle-color": [
@@ -22103,10 +22139,38 @@
                 "#94a3b8"
               ],
               "circle-opacity": 0.82,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             }
           },
           "suffix": "manufacturing-circle",
@@ -23355,18 +23419,74 @@
             "dark": {
               "circle-color": "#0d9488",
               "circle-opacity": 0.76,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             },
             "light": {
               "circle-color": "#0d9488",
               "circle-opacity": 0.76,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             }
           },
           "suffix": "circle",
@@ -23395,18 +23515,74 @@
             "dark": {
               "circle-color": "#d97706",
               "circle-opacity": 0.72,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             },
             "light": {
               "circle-color": "#d97706",
               "circle-opacity": 0.72,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             }
           },
           "suffix": "circle",
@@ -57430,6 +57606,62 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      }
+    ],
+    "bridgeResilienceTwinCity": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "交通模式",
+        "options": [
+          {
+            "label": "汽車",
+            "value": "car"
+          },
+          {
+            "label": "機車",
+            "value": "scooter"
+          }
+        ],
+        "type": "select",
+        "value": "car"
+      },
+      {
+        "label": "顯示受影響村里（先點選一座橋）",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "村里色階",
+        "options": [
+          {
+            "label": "額外時間 p90",
+            "value": "p90"
+          },
+          {
+            "label": "受影響目的地人口比",
+            "value": "share"
+          }
+        ],
+        "type": "select",
+        "value": "p90"
+      },
+      {
+        "label": "顯示替代路線（代表性起訖對）",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "關渡＋淡江同時中斷",
+        "type": "toggle",
+        "value": false
       }
     ],
     "bssNationalBridgePointsPreview": [

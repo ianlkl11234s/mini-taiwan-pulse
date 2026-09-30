@@ -90,3 +90,40 @@
 ### 分析專題（反向連結）
 
 `taipei-gis-analytics/pipelines/analysis/bridge_resilience/`（目前在 analytics 工作樹 `.worktrees/bridge-resilience-20260929`，未 merge master）。圖層只呈現候選位置與方向，不是該專題的路網或韌性結論。
+
+## 雙北跨河橋梁韌性圖層（研究中，站主限定）
+
+狀態（2026-09-30）：`bridgeResilienceTwinCity` 顯示 analytics 專題 §8 的前端顯示成品；**尚未上傳、尚未部署**。授權
+`HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED`（橋的身份判定鏈用到 BSS），解除前不得公開。分析專題（反向連結）：
+`taipei-gis-analytics/pipelines/analysis/bridge_resilience/README.md` §8（目前在 analytics 工作樹 `.worktrees/bridge-display-20260930`，
+主 checkout 的 bundle 資料夾尚無 README.md）。
+
+| 項目 | 內容 |
+|---|---|
+| 群組／標籤 | 交通 Move →「橋梁研究（進行中）」（與 BSS 兩層同群組，同一站主限定研究主題）；「雙北跨河橋梁韌性（研究中）」 |
+| 來源 bundle | `taipei-gis-analytics/data/processed/transportation/bridge_resilience/bridge-display-bundle-20260930-v1/`（唯讀）；receipt `dataset_id=bridge_display_bundle_20260930_v1`，`code_sha256=683c6308…b66`，`_manifest.json` SHA-256 `872239b6…d70b` |
+| 輸入檔 SHA-256 | `bridges.geojson` 34938880…7253（118,042 B）；`replacement_routes.geojson` 3a09c123…2828（1,415,563 B）；`villages.geojson` 5a6725aa…ce22b（1,896,133 B）；`bridge_summary.json` 4b04d5bb…1574（63,004 B）；`village_impacts.json` 4df8f4cb…2764（1,333,831 B） |
+| 私人資產（前端契約） | `bridge-resilience-20260930-v1.pmtiles` 1,944,543 B、SHA-256 `3075cae8e85b96bcd07238d542c6ee1480cc35d1489dc3d10e46430ad7af2dd9`（z8–14，source-layer `bridges`／`replacement_routes`／`villages`；villages 以 `int(VILLCODE)` 當 feature id）；`bridge_summary.json`、`village_impacts.json` 原檔（SHA 同上） |
+| 打包 | `python3 scripts/preprocess/build-bridge-resilience-private.py <bundle_dir> <out_dir>`：先依 receipt 驗輸入 SHA 與大小，再用 tippecanoe 打包，最後寫 `local_validation.json`。**tippecanoe 重跑不保證位元相同**；重打包後要同步改 sidecar `BRIDGE_RESILIENCE_ASSETS`、`bridgeResilienceTypes.ts` `BRIDGE_RESILIENCE_ASSETS`、manifest 註記（`sidecar 資產契約` 測試會擋不同步） |
+| 上游缺陷（待 analytics 修，未動） | `bridges.geojson` 有 77 處裸 `NaN`（無名匝道的 `name`），不是合法 JSON；打包腳本把 NaN 屬性移除，其餘不變 |
+| sidecar 家族 | `bridge-resilience`，`/api/private-research/bridge-resilience/{tiles,summary,impacts}`（Range only、每個請求驗站主、`?access=1` 探測）；S3 `migu-private-research-ap-southeast-2` / `private-research/bridge-resilience/<sha256>/<filename>`；nginx 精確 location＋其餘 404；vite dev 已 proxy。JSON 也走 Range（sidecar 沒有整檔 GET，前端以已知大小要整段） |
+| 本機讀取 | 預設讀本工作樹 `bridge-resilience.local/bridge-display-bundle-20260930-v1/`（`*.local` 已 gitignore，不進 `public/`、不 commit）；`BRIDGE_RESILIENCE_PRIVATE_ROOT` 可覆寫。與 BSS 相同的脆弱點：預設路徑是工作樹絕對路徑，工作樹移除後要覆寫 |
+| 站主限定 | `GATED_LAYERS`＋`App.tsx` `lockedKeys`（`useBridgeResiliencePrivateAccess` 驗證後才解鎖）＋失權即關圖層清 popup；非站主看到鎖頭、不下載任何資產（hook 未授權不掛 source、不打 JSON） |
+| 接線 | `src/data/bridgeResilienceTypes.ts`（契約、色階、解碼、格式）、`bridgeResilienceStore.ts`（選取＋私人 JSON）、`bridgeResilienceLoader.ts`、`src/hooks/useBridgeResilienceLayers.ts`、`useBridgeResiliencePrivateAccess.ts`、`src/layers/hosts/bridgeHosts.tsx`、popup `featureInfo/bridgeResiliencePanels.tsx`、圖例 `LegendPanel` `BridgeResilienceLegend` |
+| 互動 | 圖層參數：透明度／交通模式（汽車、機車）／顯示受影響村里／村里色階（p90 或受影響目的地人口比）／顯示替代路線／關渡＋淡江同時中斷。點橋開 popup（同一組模式、村里、替代路線按鈕；關渡／淡江多一顆「與另一座同時中斷」），這些按鈕與圖層參數是同一份狀態（`layerParamsStore`）。選取橋以白色光暈高亮，聯合情境同時高亮兩座成員橋 |
+| 村里上色 | feature-state（`has`／`v`）依 `village_impacts.villages[VILLCODE][field][i]`↔`scenarios[i]`；p90 為 null＝無受影響目的地，以中性色顯示，不當 0；`affected_dest_pop_share` 的 0 是真實的 0（最低一級色） |
+| 語意（必守） | 自由車流模型時間、不含壅塞；是失效後果，不是風險；人口為戶籍人口，不等於實際旅次；日夜間人口為模擬資料、機車不走快速公路是敏感度（皆非主結果）；淡江大橋交流道匝道一併移除（使用者標「不確定」），屬上界；聯合情境沒有自己的線；替代路線只是戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的；「暴露人口」是起點村里對其受影響目的地平均 ΔT>60 秒的戶籍人口（加總口徑，可能大於單一區域人口，不是受災人數） |
+
+### 上線步驟（需使用者授權，Claude 不代為執行）
+
+1. 使用者確認要在授權 HOLD 下以站主限定方式上私人 bucket。
+2. 產出本機資產：`python3 scripts/preprocess/build-bridge-resilience-private.py <bundle_dir> <out_dir>`（若沿用現有本機檔則略過）。
+3. 使用者以 S3 憑證執行：`S3_ACCESS_KEY=… S3_SECRET_KEY=… node scripts/deploy/upload-bridge-resilience-private.mjs <out_dir>`（核對 `local_validation.json`、sidecar 契約、磁碟位元組三者一致；bucket policy 無公開 Allow；讀回比對；匿名 HEAD 必須 403）。
+4. Pulse PR（`gh pr merge --merge`）→ 部署。若部署早於上傳，只有 `bridge-resilience` 家族 warm 失敗，站主看到 sidecar unavailable，其他家族不受影響。
+5. 站主限定驗證（瀏覽器，需站主登入）：
+   - 非站主／未登入：圖層列有鎖頭，開啟無效；Network 面板看不到任何 `/api/private-research/bridge-resilience/*` 請求。
+   - 站主：交通 →「橋梁研究（進行中）」開「雙北跨河橋梁韌性」；Network 有 `tiles` 與 `summary`／`impacts` 的 206；橋線汽車（琥珀）、機車（青）分色，地面引道淡色虛線。
+   - 點三鶯大橋：popup 有河川、人工評級 A、複核日期 2026-09-28、汽車／機車 p90／平均／可及性損失／暴露／孤立人口、替代橋；開「顯示受影響村里」：面量圖出現且 null 村里為灰色、圖例同步；切「受影響目的地人口比」色階改變；開「顯示替代路線」：出現移除前（灰虛線）與移除後（紅實線）。
+   - 點關渡大橋→「與另一座同時中斷」：兩座橋同時高亮、popup 標題變聯合、指標與村里色改用聯合情境（機車與汽車各自切換）；換點三鶯大橋時聯合開關不影響。
+   - 關閉 popup：高亮消失；把不透明度拉到最低：線與村里都跟著變淡。
+6. production 動態 `get_layer_gates()` 若為權威：DB 端沒有 `gated_layers` row，後台顯示／管理需 gis-platform 補 row（待拍板）。

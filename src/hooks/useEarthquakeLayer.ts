@@ -3,6 +3,7 @@ import type { Map as MapboxMap, ExpressionSpecification, FilterSpecification, Ci
 import { fetchEarthquakes, earthquakesToGeoJSON, type EarthquakeEvent } from "../data/earthquakeLoader";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { startThrottledRaf } from "../utils/throttledRaf";
 
 /**
  * 地震事件 timeline 動態顯示
@@ -25,7 +26,6 @@ const PRE_WINDOW = 1800; // 30 分鐘
 /** 剛發生視窗：擴散動畫持續多久（秒，timeline 時間） */
 const FRESH_WINDOW = 1200; // 20 分鐘
 const RIPPLE_CYCLE_MS = 2400;
-const FRAME_INTERVAL = 33;
 
 /** 給定 unix 秒，回傳「該時間在台灣時區所屬日」的 [00:00, 隔日 00:00) unix 秒區間 */
 function taipeiDayBounds(ts: number): { dayStart: number; dayEnd: number } {
@@ -108,6 +108,13 @@ function buildLayers(map: MapboxMap) {
         "circle-stroke-color": COLOR_EXPR,
         "circle-stroke-width": 2,
         "circle-stroke-opacity": 0,
+        // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
+        // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
+        "circle-radius-transition": { duration: 0, delay: 0 },
+        "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
+        "circle-stroke-width-transition": { duration: 0, delay: 0 },
+        "circle-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-color-transition": { duration: 0, delay: 0 },
       },
     } as CircleLayer);
   }
@@ -127,8 +134,6 @@ export function useEarthquakeLayer(
   const eventsRef = useRef<EarthquakeEvent[]>([]);
   const dataReadyRef = useRef(false);
   const layersReadyRef = useRef(false);
-  const rafRef = useRef(0);
-  const lastFrameRef = useRef(0);
 
   // 載入一次（lazy：visible 為 true 才抓，之後不重抓）
   useEffect(() => {
@@ -240,18 +245,10 @@ export function useEarthquakeLayer(
   useEffect(() => {
     if (!visible) return;
 
-    const animate = () => {
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
+    return startThrottledRaf((now) => {
       const map = mapRef.current;
-      if (!map) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      const now = performance.now();
-      if (now - lastFrameRef.current < FRAME_INTERVAL) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      lastFrameRef.current = now;
+      if (!map) return;
 
       // style 切換後 layers 可能消失
       if (layersReadyRef.current && !map.getLayer(RIPPLE_IDS[0]!)) {
@@ -278,11 +275,6 @@ export function useEarthquakeLayer(
           map.setPaintProperty(id, "circle-stroke-width", 2.5 * (1 - eased * 0.5));
         }
       }
-
-      rafRef.current = requestAnimationFrame(animate);
-    };
-
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
+    });
   }, [visible, ensureSource, mapRef, mapTick]);
 }

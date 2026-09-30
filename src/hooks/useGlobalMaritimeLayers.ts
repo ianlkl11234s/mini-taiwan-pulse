@@ -162,7 +162,10 @@ export function useGlobalMaritimeLayers(
     applyStyle();
     const onMoveEnd = () => { if (aisVisible || gfwVisible) void update(); };
     map.on("moveend", onMoveEnd);
-    const interval = window.setInterval(() => { if (aisVisible || gfwVisible) void update(); }, aisVisible ? 60_000 : 6 * 60 * 60_000);
+    // 兩層都關時不排輪詢（關閉後不該繼續跑計時器）
+    const interval = aisVisible || gfwVisible
+      ? window.setInterval(() => { void update(); }, aisVisible ? 60_000 : 6 * 60 * 60_000)
+      : undefined;
     return () => {
       disposed = true;
       map.off("style.load", applyStyle);

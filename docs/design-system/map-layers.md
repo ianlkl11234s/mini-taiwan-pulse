@@ -206,6 +206,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 - **P-8**：hook 的 B 階 16 層中，**11 層是 2026-09-29 拍板改 B**（點大小代表資料數值）：`animalAdoption`、`earthquakes`、`earthquakesGlobal`、`floodSensor`、`gfwHourlyTracks`、`groundwater`、`iotWraRiver`、`iotWraStructure`、`rainGauge`、`riverLevel`、`earthquakeReplay`（只處理站點）。其餘 5 層（`fireEvents`、`fireLatest`、`gfwDarkVessels`、`gfwHourlyGrid`、`aqiMicroSensors`）原本就是 B。
 - 例外：`maritimeBoundary` 基準點跟著線寬控制縮放，不分階（`layerUxPolicy` 登記例外）；`globalEvents` 主體是 symbol icon，circle 不是主體點（`hookPointSpec.test.ts` `NOT_A_POINT_FILE`）。
+- **特例：allzoom 高密度點層（2026-09-30，效能）**：`factoryLocations`（約 8 萬）、`manufacturingCompanyPoints`、`regulatedFacilities`（各約 18 萬）全台視角合計約 35 萬點，固定 M 4.5px＋1px 描邊使低 zoom 填充率暴增。這三層仍屬 M 階，但登記在 `pointSpec.ts` 的 `DENSE_POINT_OVERRIDES`：半徑隨縮放（z0 0.7／z7 1／z11 2／z14 起回到 M 階 4.5，皆乘大小滑桿），描邊 z11 以下為 0、z13 起 1px（底圖色，P-2 同）。新增類似規模（>~5 萬點）的 allzoom 點層應照此登記，不要直接用固定半徑。測試：`pointSpec.test.ts`。
 - **大小滑桿**：半徑＝階 ×（滑桿值 ÷ 滑桿預設），預設時剛好等於階的半徑；描邊透明度同理乘透明度滑桿的倍率。
 
 **P-2 描邊**

@@ -48,6 +48,22 @@ export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
   stationsMetro: /^metro-pt-/,
 };
 
+/**
+ * 特例：全台 8–18 萬點的 allzoom 點層（2026-09-30，效能）。
+ * factoryLocations 約 8 萬、manufacturingCompanyPoints／regulatedFacilities 各約 18 萬，全台視角合計約 35 萬點；
+ * 1d1b6938（2026-09-28）統一成固定 M 4.5px＋1px 描邊後，低 zoom 填充率暴增、風扇狂轉。
+ * 特例：半徑與描邊改隨縮放（z0 0.7／z7 1／z11 2／z14 起回到階的半徑），描邊 z11 以下為 0、z13 起 1px。
+ * 大小滑桿照舊乘上去。其餘 tier 不變；要移出特例就刪掉這裡的登記。
+ */
+export const DENSE_POINT_OVERRIDES: ReadonlySet<string> = new Set([
+  "factoryLocations", "manufacturingCompanyPoints", "regulatedFacilities",
+]);
+export const DENSE_RADIUS_STOPS = [[0, 0.7], [7, 1], [11, 2]] as const; // z14 起接階的半徑（M 4.5）
+export const DENSE_STROKE_ZOOM = { none: 11, full: 13 } as const;
+const denseRadius = (tierR: number, scale: number) => ["interpolate", ["linear"], ["zoom"],
+  ...DENSE_RADIUS_STOPS.flatMap(([z, r]) => [z, r * scale]), 14, tierR * scale];
+const denseStrokeWidth = ["interpolate", ["linear"], ["zoom"], DENSE_STROKE_ZOOM.none, 0, DENSE_STROKE_ZOOM.full, POINT_STROKE.width];
+
 export const LIVE_DECORATION_CAP = { radiusFactor: 2, opacity: 0.35, minBlur: 0.6 } as const;
 
 const hasZoom = (v: unknown) => JSON.stringify(v ?? null).includes('"zoom"');
@@ -102,6 +118,7 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
   const sizeFactor = (p?: Record<string, number>) => sliderFactor(sizeSpec, p);
   const live = LIVE_DECORATION_LAYERS.has(config.id);
   const exempt = POINT_SPEC_EXEMPT[config.id];
+  const dense = DENSE_POINT_OVERRIDES.has(config.id);
   const layers = config.layers.map((layer): OverlayLayerSpec => {
     if (exempt?.test(layer.suffix)) return layer;
     if (DECORATION_SUFFIX_RE.test(layer.suffix)) return { ...layer, paint: decorationPaint(layer, live, tierRadius, sizeFactor) };
@@ -120,9 +137,9 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
         const keep = (prop: string) => isDataDriven(base[prop]);
         return {
           ...base,
-          ...(tier === "B" ? {} : { "circle-radius": pointRadius(tier, sliderFactor(sizeSpec, params)) }),
+          ...(tier === "B" ? {} : { "circle-radius": dense ? denseRadius(pointRadius(tier), sliderFactor(sizeSpec, params)) : pointRadius(tier, sliderFactor(sizeSpec, params)) }),
           ...(keep("circle-stroke-color") ? {} : { "circle-stroke-color": mapSeamColor(isDark) }),
-          ...(keep("circle-stroke-width") ? {} : { "circle-stroke-width": POINT_STROKE.width }),
+          ...(keep("circle-stroke-width") ? {} : { "circle-stroke-width": dense ? denseStrokeWidth : POINT_STROKE.width }),
           ...(keep("circle-stroke-opacity") ? {} : { "circle-stroke-opacity": fadesByAlpha(base["circle-opacity"])
             ? ["*", Math.min(1, POINT_STROKE.opacity[theme] * opacity), ["coalesce", ["get", "alpha"], 1]]
             : Math.min(1, POINT_STROKE.opacity[theme] * opacity) }),

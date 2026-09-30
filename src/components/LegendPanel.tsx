@@ -15,6 +15,7 @@ import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
 import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_RAMP, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
 import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_STAGE1_LINE_COLOR } from "../data/bssBridgeTypes";
 import { LIQUEFACTION_SITE_COLOR, SOIL_POTENTIAL_CLASSES, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS, WEAK_SOIL_MIN_ZOOM, WEAK_SOIL_SPT_THRESHOLD } from "../data/soilLiquefactionTypes";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -438,6 +439,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "changhuaTrafficSignals", render: () => <NetworkStructuresLegend title="彰化縣道路號誌" rows={[{ label: "號誌清冊點；非即時燈態", color: "#84cc16" }]} /> },
   { id: "bssNationalBridgePreview", render: () => <BssBridgeLineLegend /> },
   { id: "bssNationalBridgePointsPreview", render: () => <BssBridgePointLegend /> },
+  { id: "bridgeResilienceTwinCity", render: ({ overlayParams }) => <BridgeResilienceLegend metricIdx={overlayParams.bridgeResilienceVillageMetricIdx ?? 0} showVillages={!!overlayParams.bridgeResilienceShowVillages} showRoutes={!!overlayParams.bridgeResilienceShowRoutes} /> },
   { id: "bridgeRainThresholds", render: () => <NetworkStructuresLegend title="橋梁參考雨量條件" rows={[{ label: "達表列雨量條件；非封橋判定", color: "#ef4444" }, { label: "未達已核對雨量門檻；非安全判定", color: "#3b82f6" }, { label: "缺測、過期或門檻待覆核", color: "#94a3b8" }]} /> },
   { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
@@ -1259,6 +1261,30 @@ function BssBridgePointLegend() {
     ))}
     <LegendNote>位置是清冊參考點，不是橋頭尾或路網節點；z10 以上才顯示。</LegendNote>
     <BssBridgeSharedNotes />
+  </div>;
+}
+
+function BridgeResilienceLegend({ metricIdx, showVillages, showRoutes }: { metricIdx: number; showVillages: boolean; showRoutes: boolean }) {
+  const metric = VILLAGE_METRICS[metricIdx] ?? "p90";
+  const breaks = VILLAGE_METRIC_BREAKS[metric];
+  const labels = metric === "p90" ? [...breaks.map((b) => `${b / 60}分`)] : [...breaks.map((b) => `${Math.round(b * 100)}%`)];
+  return <div>
+    <LegendTitle zh="雙北跨河橋梁韌性（研究中）" en="Bridge Resilience" />
+    <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.car} width={3} />}>汽車：被移除的橋段</LegendRow>
+    <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.scooter} width={2} />}>機車：被移除的橋段</LegendRow>
+    <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.car} width={2} dash={[1.5, 1.5]} />}>地面引道（未移除，淡色虛線）</LegendRow>
+    {showRoutes && <>
+      <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.routeBefore} width={2} dash={[1.5, 1.5]} />}>替代路線：移除前</LegendRow>
+      <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.routeAfter} width={2.5} />}>替代路線：移除後</LegendRow>
+      <LegendNote>只畫戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的。</LegendNote>
+    </>}
+    {showVillages && <div style={{ marginTop: 6 }}>
+      <LegendTitle zh={`受影響村里：${VILLAGE_METRIC_LABELS[metric]}`} />
+      <SwatchSteps colors={BRIDGE_RESILIENCE_RAMP} breaks={["0", ...labels]} />
+      <LegendRow swatch={<SwatchSquare color={BRIDGE_RESILIENCE_COLORS.villageNeutral} />}>{metric === "p90" ? "無受影響目的地（非 0）" : "缺值（非 0）"}</LegendRow>
+    </div>}
+    {BRIDGE_RESILIENCE_LIMITS_TEXT.map((text) => <LegendNote key={text}>{text}</LegendNote>)}
+    <LegendNote>先點選一座橋，再開村里或替代路線；站主限定（BSS 授權 HOLD）。</LegendNote>
   </div>;
 }
 

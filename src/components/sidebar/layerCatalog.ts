@@ -595,6 +595,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("bssNationalBridgePreview"),
           fromManifest("bssNationalBridgePointsPreview"),
+          fromManifest("bridgeResilienceTwinCity"),
         ],
       },
       {
@@ -2115,6 +2116,11 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
   // 全臺橋梁研究（進行中）：BSS 授權 HOLD，私人 PMTiles 只經 owner-authenticated Range API。
   "bssNationalBridgePreview", "bssNationalBridgePointsPreview",
+  // 雙北跨河橋梁韌性（研究中）：同一 BSS 授權 HOLD；私人 PMTiles＋JSON 只經 owner-authenticated Range API。
+  "bridgeResilienceTwinCity",
+  // 土壤液化／軟弱土層（RIGHTS_HOLD）：私人 PMTiles 只經 owner-authenticated Range API。
+  "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
+  "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
 ]);
 
 /**
@@ -2128,12 +2134,15 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
  *     weakSoilClay5To10、weakSoilSand5To10、weakSoilClay10To20、weakSoilSand10To20、
  *     liquefactionMonitoringSites（manifest topics 帶 OWNER_ONLY／RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）
  *   - 全臺橋梁研究（BSS）：bssNationalBridgePreview、bssNationalBridgePointsPreview
+ *   - 雙北跨河橋梁韌性（研究中）：bridgeResilienceTwinCity
+ *   - 日本水資源全國 8 層（KSJ 舊約款排除再配布；2026-09-29 站主決定改回站主限定，
+ *     私人 Range API /api/private-research/jp-water/*）：jpWaterDams、jpWaterRivers、
+ *     jpWaterSupplyFacilities、jpWaterSupplyAreas、jpWaterSewerFacilities、
+ *     jpWaterGroundwaterSites、jpWaterNilimDams、jpWaterAgriculturalPonds
  * 新增同類圖層時照此辦理並補進上列清單；要對外公開前須先確認授權。
  */
 export const RELEASE_HOLD_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
   "historicalFlightTrails", "jpHistoricalFlightTrails",
-  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
-  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
 ]);
 
 /** 對某使用者而言此 key 是否上鎖（gated 且非 owner）。 */

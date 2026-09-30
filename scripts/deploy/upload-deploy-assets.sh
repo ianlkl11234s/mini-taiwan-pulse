@@ -33,9 +33,9 @@ cache_control_for() {
 FILES=(
   "public/aviation_data.json"
   "public/ship_data.json"
-  "public/geo/provincial_road.geojson"
-  "public/geo/national_highway.geojson"
-  "public/geo/bus_stations_city.geojson"
+  # 2026-09-30 停止部署 provincial_road.geojson：前端已改走 geo/provincial_road.pmtiles，src 零引用
+  # 2026-09-30 停止部署 national_highway.geojson：前端已改走 geo/national_highway.pmtiles，src 零引用
+  # 2026-09-30 停止部署 bus_stations_city.geojson：前端已改走 geo/bus_stations_city.pmtiles，src 零引用
   "public/geo/bus_stations_intercity.geojson"
   "public/geo/bike_stations.geojson"
   "public/geo/cycling_routes.geojson"
@@ -90,12 +90,17 @@ for f in "${NETWORK_STRUCTURE_FILES[@]}"; do
     --cache-control "$(cache_control_for "$name")" --region ap-southeast-2 || exit 1
 done
 
+# 2026-09-30：前端已改走 PMTiles、src 零引用的 geo/ 扁平 GeoJSON（glob 會誤傳，故明列跳過；本機檔與 S3 既有物件不動）
+UNUSED_GEO_GEOJSON=" water_flood_extreme.geojson water_reservoirs.geojson water_rivers.geojson water_river_polygons.geojson water_canals.geojson fire_hydrants.geojson medical_clinics.geojson medical_pharmacies.geojson medical_aed.geojson medical_ltc.geojson "
+is_unused_geo_geojson() { case "$UNUSED_GEO_GEOJSON" in *" $1 "*) return 0 ;; *) return 1 ;; esac; }
+
 # 水資源圖層：glob 動態上傳 public/geo/water_*.geojson
 # 新增 water 圖層時不用改本腳本，export 完直接跑 upload 即可
 shopt -s nullglob 2>/dev/null || true
 for f in public/geo/water_*.geojson; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
+  is_unused_geo_geojson "$name" && { echo "Skipping $name (unused legacy geojson)"; continue; }
   echo "Uploading $name (water glob)..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
@@ -138,6 +143,7 @@ done
 for f in public/geo/fire_*.geojson; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
+  is_unused_geo_geojson "$name" && { echo "Skipping $name (unused legacy geojson)"; continue; }
   echo "Uploading $name (fire glob)..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
@@ -146,6 +152,7 @@ done
 for f in public/geo/medical_*.geojson; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
+  is_unused_geo_geojson "$name" && { echo "Skipping $name (unused legacy geojson)"; continue; }
   echo "Uploading $name (medical glob)..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
@@ -188,10 +195,10 @@ AGRI_FILES=(
   "public/agriculture/rural_regen_communities_2025.pmtiles"
   "public/agriculture/agriculture_pois.geojson"
   "public/agriculture/agri_wholesale_market_companies.geojson"
-  "public/agriculture/agri_retail_companies.geojson"
-  "public/agriculture/produce_wholesale_companies.geojson"
-  "public/agriculture/farm_roads.geojson"
-  "public/agriculture/eco_network_zones.geojson"
+  # 2026-09-30 停止部署 agriculture/agri_retail_companies.geojson（前端走 .pmtiles，src 零引用）
+  # 2026-09-30 停止部署 agriculture/produce_wholesale_companies.geojson（前端走 .pmtiles，src 零引用）
+  # 2026-09-30 停止部署 agriculture/farm_roads.geojson（前端走 .pmtiles，src 零引用）
+  # 2026-09-30 停止部署 agriculture/eco_network_zones.geojson（前端走 .pmtiles，src 零引用）
   # 🐷 畜牧 Livestock（靜態點層，去日期穩定檔名）
   # ⚠️ owner-gated：livestock_farms.geojson / slaughterhouses.geojson 已改走 owner-only RPC，
   #    刻意不上傳（斷 prod 供應）；本地 public/ 檔案保留不刪。見 docs/features/owner-gated-layers。
@@ -216,9 +223,12 @@ done
 # 🏢 工商登記 Business Registry：dated filename 視為 immutable release asset。
 # 同名 S3 object 若內容相同就跳過（讓整支部署腳本可安全重跑）；內容不同才拒絕覆寫。
 # 新月份應產生新檔名並另開前端 PR 切換 URL。
+# 2026-09-30：舊版資產（前端已切 _r2／_allzoom，src 零引用）不再部署；本機檔與 S3 既有物件不動。
+BUSINESS_REGISTRY_LEGACY=" company_points_202608.pmtiles company_capital_grid_202608.pmtiles regulated_facilities_20260818.pmtiles factory_locations_202606.pmtiles common_registration_addresses_202608.geojson "
 for f in public/business_registry/*.geojson public/business_registry/*.pmtiles public/business_registry/*.json; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
+  case "$BUSINESS_REGISTRY_LEGACY" in *" $name "*) echo "Skipping legacy business_registry/$name"; continue ;; esac
   key="$PREFIX/business_registry/$name"
   local_sha256=$(openssl dgst -sha256 "$f" | awk '{print $NF}')
   if aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 >/dev/null 2>&1; then
@@ -328,7 +338,7 @@ FOREST_FILES=(
   "public/forestry/national_forest_compartments.geojson"
   "public/forestry/national_forest_compartments.pmtiles"
   "public/forestry/forest_reserve.pmtiles"
-  "public/forestry/forest_roads.geojson"
+  # 2026-09-30 停止部署 forestry/forest_roads.geojson（前端走 .pmtiles，src 零引用；本機檔保留）
   "public/forestry/forest_roads.pmtiles"
   "public/forestry/forest_recreation_areas.geojson"
   "public/forestry/forestry_treatment_works.geojson"
@@ -345,7 +355,7 @@ FOREST_FILES=(
   "public/forestry/signal_gap.geojson"
   "public/forestry/trail_coverage_per_compartment.geojson"
   # 全台步道整合（A 林業署 + B OSM 寬版 + C 雪霸/金門 NP + D 北市大縱走 + D 新北 GPX）
-  "public/forestry/hiking_trails.geojson"
+  # 2026-09-30 停止部署 forestry/hiking_trails.geojson（前端走 .pmtiles，src 零引用；本機檔保留）
   # PT-1 PMTiles（前端 sourceUrl 已切 .pmtiles；geojson 保留但未使用）
   "public/forestry/hiking_trails.pmtiles"
   # 全台樹冠高度 raster PMTiles（80MB，高度編碼 RGBA z13/512px，PR #83；舊預烤版 canopy_height_taiwan.pmtiles 已退役）
@@ -503,7 +513,8 @@ done
 #    RealEstatePointsScene 讀）：docs/features/real-estate/handoff.md 明列它是
 #    deploy-assets/coverage/ 的產物，但本迴圈的 glob 是 `real_estate_*.pmtiles`，
 #    `.bin` 副檔名從不匹配 —— 它同樣 gitignore，等於兩條路都沒有。
-for f in public/coverage/real_estate_*.pmtiles public/coverage/real_estate_points_buffer.bin public/coverage/power_poles.pmtiles; do
+# 2026-09-30：real_estate_points.pmtiles（30MB）前端零引用（點位改走 real_estate_points_buffer.bin），改為明列 grid，不再用 real_estate_*.pmtiles glob
+for f in public/coverage/real_estate_grid.pmtiles public/coverage/real_estate_points_buffer.bin public/coverage/power_poles.pmtiles; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   echo "Uploading coverage/$name..."

@@ -28,6 +28,10 @@ const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作�
 const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
 const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
+const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-resilience-layer-20260930/bridge-resilience.local/bridge-display-bundle-20260930-v1";
+const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
+const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
 const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
@@ -68,6 +72,25 @@ export const BSS_BRIDGE_ASSETS = Object.freeze({
     filename: "bss_bridge_location_direction_preview_20260927_v4.pmtiles",
     size: 63367460,
     sha256: "2d71de78be8b4c3c19b8a683946a1f083f37e160182b8932cd288fdbe713072f",
+  }),
+});
+
+// 橋梁韌性 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
+export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
+  tiles: Object.freeze({
+    filename: "bridge-resilience-20260930-v1.pmtiles",
+    size: 1944543,
+    sha256: "3075cae8e85b96bcd07238d542c6ee1480cc35d1489dc3d10e46430ad7af2dd9",
+  }),
+  summary: Object.freeze({
+    filename: "bridge_summary.json",
+    size: 63004,
+    sha256: "4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574",
+  }),
+  impacts: Object.freeze({
+    filename: "village_impacts.json",
+    size: 1333831,
+    sha256: "4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764",
   }),
 });
 
@@ -530,6 +553,19 @@ export function createBssBridgeS3Gateway(config, options = {}) {
   });
 }
 
+export function createBridgeResilienceGateway(root = firstConfigured(process.env.BRIDGE_RESILIENCE_PRIVATE_ROOT) ?? BRIDGE_RESILIENCE_ROOT, assets = BRIDGE_RESILIENCE_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createBridgeResilienceS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: BRIDGE_RESILIENCE_ASSETS,
+    prefix: BRIDGE_RESILIENCE_S3_PREFIX,
+    bucket: BRIDGE_RESILIENCE_S3_BUCKET,
+    ...options,
+  });
+}
+
 const persistentDenylistByPath = new Map();
 const auditWriteQueueByPath = new Map();
 
@@ -587,7 +623,9 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
       ? { path: SOIL_LIQUEFACTION_PATH, assets: SOIL_LIQUEFACTION_ASSETS }
       : url.pathname.startsWith(`${BSS_BRIDGE_PATH}/`)
         ? { path: BSS_BRIDGE_PATH, assets: BSS_BRIDGE_ASSETS }
-        : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
+        : url.pathname.startsWith(`${BRIDGE_RESILIENCE_PATH}/`)
+          ? { path: BRIDGE_RESILIENCE_PATH, assets: BRIDGE_RESILIENCE_ASSETS }
+          : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
   const assetName = url.pathname.slice(family.path.length + 1);
   const asset = family.assets[assetName];
   const record = {
@@ -755,6 +793,13 @@ export function handleBssBridgeRequest(request, dependencies = {}) {
   });
 }
 
+export function handleBridgeResilienceRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: BRIDGE_RESILIENCE_PATH, assets: BRIDGE_RESILIENCE_ASSETS, label: "bridge resilience",
+    createGateway: (config) => config.storage === "s3" ? createBridgeResilienceS3Gateway(config) : createBridgeResilienceGateway(),
+  });
+}
+
 async function handleOwnerAssetFamilyRequest(request, dependencies, family) {
   const url = new URL(request.url);
   const assetName = url.pathname.startsWith(`${family.path}/`)
@@ -912,15 +957,20 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const bssBridgeGateway = dependencies.bssBridgeGateway ?? (config.storage === "s3"
     ? createBssBridgeS3Gateway(config)
     : createBssBridgeGateway());
+  const bridgeResilienceGateway = dependencies.bridgeResilienceGateway ?? (config.storage === "s3"
+    ? createBridgeResilienceS3Gateway(config)
+    : createBridgeResilienceGateway());
   const allenDependencies = { ...dependencies, config, gateway: allenGateway };
   const jpWaterDependencies = { ...dependencies, config, gateway: jpWaterGateway };
   const soilLiquefactionDependencies = { ...dependencies, config, gateway: soilLiquefactionGateway };
   const bssBridgeDependencies = { ...dependencies, config, gateway: bssBridgeGateway };
+  const bridgeResilienceDependencies = { ...dependencies, config, gateway: bridgeResilienceGateway };
   const readiness = {
     allen: { ready: false, failed: false },
     jpWater: { ready: false, failed: false },
     soilLiquefaction: { ready: false, failed: false },
     bssBridge: { ready: false, failed: false },
+    bridgeResilience: { ready: false, failed: false },
   };
   const warmupAttempts = dependencies.warmupAttempts ?? 3;
   const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
@@ -946,6 +996,7 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     await warmFamily(readiness.jpWater, jpWaterGateway, JP_WATER_ASSETS);
     await warmFamily(readiness.soilLiquefaction, soilLiquefactionGateway, SOIL_LIQUEFACTION_ASSETS);
     await warmFamily(readiness.bssBridge, bssBridgeGateway, BSS_BRIDGE_ASSETS);
+    await warmFamily(readiness.bridgeResilience, bridgeResilienceGateway, BRIDGE_RESILIENCE_ASSETS);
   })();
   const server = createServer(async (req, res) => {
     try {
@@ -962,12 +1013,15 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const isJpWater = pathname.startsWith(`${JP_WATER_PATH}/`);
       const isSoil = pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`);
       const isBss = pathname.startsWith(`${BSS_BRIDGE_PATH}/`);
-      const familyState = isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
-      const familyLabel = isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
-      if (!isAllen && !isJpWater && !isSoil && !isBss) {
+      const isBridgeResilience = pathname.startsWith(`${BRIDGE_RESILIENCE_PATH}/`);
+      const familyState = isBridgeResilience ? readiness.bridgeResilience : isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
+      const familyLabel = isBridgeResilience ? "bridge resilience" : isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
+      if (!isAllen && !isJpWater && !isSoil && !isBss && !isBridgeResilience) {
         output = response(404, new Headers());
       } else if (familyState.ready || revokeRequest) {
-        output = isBss
+        output = isBridgeResilience
+          ? await handleBridgeResilienceRequest(request, bridgeResilienceDependencies)
+          : isBss
           ? await handleBssBridgeRequest(request, bssBridgeDependencies)
           : isSoil
           ? await handleSoilLiquefactionRequest(request, soilLiquefactionDependencies)

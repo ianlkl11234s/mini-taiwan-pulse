@@ -247,10 +247,10 @@ export function useTimeline({
   // dataStartTime/dataEndTime 保留給未來日期 clamp 用，初始化不依賴它們
   void dataStartTime;
 
-  // Live mode: RAF 每幀同步到 Date.now()
-  // 用 RAF 而非 setInterval 讓 timeStore 在 Live/Replay 兩種模式下都是 60Hz 節拍，
-  // 下游 engines（rail/bus）可以用單一的 timeStore.subscribe 機制拿到時間，
-  // 不需要自己開 RAF。
+  // Live mode: 每秒同步一次 Date.now()（1Hz，不是每幀）
+  // 即時資料本身是秒～分鐘級更新，60Hz setTime 只會讓所有時間驅動圖層每幀重算＋重畫。
+  // 下游 engines（rail/bus）與 3D custom layer 仍走單一的 timeStore.subscribe 拿時間；
+  // 位置每秒更新一次（使用者已同意）。對齊到整秒，讓畫面上的時鐘跳動一致。
   useEffect(() => {
     if (timeMode !== "live") return;
     setPlaying(false);
@@ -258,13 +258,17 @@ export function useTimeline({
     // Live 模式下，selectedDate 跟著 today
     setSelectedDateRaw(new Date());
 
-    let raf = 0;
-    const tick = () => {
-      timeStore.setTime(Date.now() / 1000);
-      raf = requestAnimationFrame(tick);
-    };
+    const tick = () => timeStore.setTime(Date.now() / 1000);
     tick();
-    return () => cancelAnimationFrame(raf);
+    let interval = 0;
+    const align = window.setTimeout(() => {
+      tick();
+      interval = window.setInterval(tick, 1000);
+    }, 1000 - (Date.now() % 1000));
+    return () => {
+      window.clearTimeout(align);
+      window.clearInterval(interval);
+    };
   }, [timeMode]);
 
   // Replay mode: RAF 迴圈直接寫 store，不走 React state
