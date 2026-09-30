@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { setPaintPropertyGuarded } from "../map/overlayManager";
 import type {
   Map as MapboxMap,
   FillLayer,
@@ -190,51 +191,68 @@ function applyWatershedRivers(map: MapboxMap, fc: GeoJSON.FeatureCollection) {
   if (src) src.setData(fc);
 }
 
+/** 被 dim 覆蓋的 paint：原值（dim 前）＋我們寫入的 dim 值。key = `${layerId}|${prop}` */
+type DimRecord = Map<string, { layerId: string; prop: string; original: unknown; dimmed: unknown }>;
+
+const DIM_TARGETS: ReadonlyArray<readonly [layerId: string, prop: string, active: number, dim: number]> = [
+  // 蓄水範圍 polygon（fill + outline + glow）
+  ["water-reservoir-poly-fill", "fill-opacity", 0.6, 0.05],
+  ["water-reservoir-poly-outline", "line-opacity", 1.0, 0.15],
+  ["water-reservoir-poly-glow", "line-opacity", 0.4, 0.05],
+  // 壩體節點（3 層 circle）
+  ["water-reservoir-dams-glow-2", "circle-opacity", 0.5, 0.1],
+  ["water-reservoir-dams-glow-1", "circle-opacity", 0.85, 0.2],
+  ["water-reservoir-dams-core", "circle-opacity", 1.0, 0.3],
+];
+
 /**
  * 依 active compare_id 調整靜態水庫圖層 opacity：
  *   - 有 active 時：active 水庫保留原亮度、其他水庫 opacity × ~0.15
- *   - 無 active：還原原 paint
+ *   - 無 active：還原 dim 前的原 paint（沒 dim 過就什麼都不做）
  * 解決「點水庫後全台蓄水面都亮導致焦點散掉」的問題。
+ *
+ * A0：以前 activeId=null 時無條件寫死 dark 主題值 —— mount 時就對隱藏 layer 改 paint，
+ * 留下永不清除的 transition prior（地圖無限重畫），淺色主題也被蓋成暗色值。
+ * 現在只還原自己 dim 過的屬性，且若期間 overlayManager 已改寫（theme/opacity param）
+ * 就不覆蓋。寫入一律走 setPaintPropertyGuarded：All Off 後還原時 layer 已隱藏，
+ * 會延後到圖層重新顯示才寫入。
+ * 回傳新的 dim 記錄（無 dim → null）。
  */
-function applyReservoirDim(map: MapboxMap, activeId: number | null) {
-  const hasActive = activeId != null;
+function applyReservoirDim(map: MapboxMap, activeId: number | null, record: DimRecord | null): DimRecord | null {
+  if (activeId == null) {
+    if (record) {
+      for (const { layerId, prop, original, dimmed } of record.values()) {
+        if (!map.getLayer(layerId)) continue;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const current = (map.getPaintProperty as any)(layerId, prop);
+        if (JSON.stringify(current) !== JSON.stringify(dimmed)) continue;
+        setPaintPropertyGuarded(map, layerId, prop, original);
+      }
+    }
+    return null;
+  }
 
-  const setIfExists = (
-    layerId: string,
-    prop: string,
-    activeExpr: unknown,
-    restoreValue: unknown,
-  ) => {
-    if (!map.getLayer(layerId)) return;
-    // 用 setPaintProperty 覆蓋原 paint。注意 theme 切換時 overlayManager
-    // 會 rebuild paint 把這裡覆蓋掉，需再次 trigger。使用者切 theme 後
-    // 若想保持 dim 請重新點水庫。
+  const next: DimRecord = new Map();
+  for (const [layerId, prop, activeValue, dimValue] of DIM_TARGETS) {
+    if (!map.getLayer(layerId)) continue;
+    const key = `${layerId}|${prop}`;
+    const dimmed = [
+      "case",
+      ["==", ["coalesce", ["get", "compare_id"], -1], activeId],
+      activeValue,
+      dimValue,
+    ];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (map.setPaintProperty as any)(layerId, prop, hasActive ? activeExpr : restoreValue);
-  };
-
-  const matchActive = <T,>(activeValue: T, dimValue: T): unknown => [
-    "case",
-    ["==", ["coalesce", ["get", "compare_id"], -1], activeId],
-    activeValue,
-    dimValue,
-  ];
-
-  // 蓄水範圍 polygon（fill + outline + glow）
-  setIfExists("water-reservoir-poly-fill", "fill-opacity",
-    matchActive(0.6, 0.05), 0.35);
-  setIfExists("water-reservoir-poly-outline", "line-opacity",
-    matchActive(1.0, 0.15), 0.8);
-  setIfExists("water-reservoir-poly-glow", "line-opacity",
-    matchActive(0.4, 0.05), 0.25);
-
-  // 壩體節點（3 層 circle）
-  setIfExists("water-reservoir-dams-glow-2", "circle-opacity",
-    matchActive(0.5, 0.1), 0.35);
-  setIfExists("water-reservoir-dams-glow-1", "circle-opacity",
-    matchActive(0.85, 0.2), 0.7);
-  setIfExists("water-reservoir-dams-core", "circle-opacity",
-    matchActive(1.0, 0.3), 1.0);
+    const current = (map.getPaintProperty as any)(layerId, prop);
+    // 目前值仍是上一次 dim 的結果（切換到另一座水庫）→ 沿用最初的原值；
+    // 否則（首次 dim，或期間被 overlayManager / style reload 改寫）以目前值為原值
+    const prev = record?.get(key);
+    const original = prev && JSON.stringify(current) === JSON.stringify(prev.dimmed) ? prev.original : current;
+    // 注意 theme 切換時 overlayManager 會 rebuild paint 把這裡覆蓋掉，需再次 trigger。
+    setPaintPropertyGuarded(map, layerId, prop, dimmed);
+    next.set(key, { layerId, prop, original, dimmed });
+  }
+  return next;
 }
 
 export function useReservoirContextLayer(
@@ -330,11 +348,12 @@ export function useReservoirContextLayer(
   }, [activeCompareId, mapRef, mapTick]);
 
   // ── 依 activeCompareId 調整其他水庫圖層 opacity（突顯當前、淡化其他） ──
+  const dimRecordRef = useRef<DimRecord | null>(null);
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     // 若 layer 還沒建（overlayManager 還沒 load），下次 effect trigger 再試
-    applyReservoirDim(map, activeCompareId);
+    dimRecordRef.current = applyReservoirDim(map, activeCompareId, dimRecordRef.current);
   }, [activeCompareId, mapRef, mapTick]);
 
   return context;

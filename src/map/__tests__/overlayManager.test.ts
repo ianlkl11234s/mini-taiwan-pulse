@@ -277,6 +277,30 @@ describe("updateOverlayTheme (diff-based)", () => {
       .map((c) => c.args[1]);
     expect(keys).toContain("line-color");
   });
+
+  it("A0：隱藏 layer 的 paint 延後到重新顯示才寫入（避免 transition prior 卡住無限重畫）", () => {
+    const { map, calls } = createMockMap();
+    addOverlay(map, config, true, { waterRiverOpacity: 1, waterRiverWidth: 1 });
+    let vis = "none";
+    // mock setLayoutProperty 只記 call，visibility 由這裡控制
+    (map as unknown as { getLayoutProperty: (id: string) => string }).getLayoutProperty = () => vis;
+    calls.length = 0;
+
+    updateOverlayTheme(map, config, true, { waterRiverOpacity: 0.5, waterRiverWidth: 1 });
+    updateOverlayTheme(map, config, true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 });
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
+
+    vis = "visible";
+    setOverlayVisible(map, config, true, true);
+    expect(calls.filter((c) => c.method === "setPaintProperty").map((c) => c.args)).toEqual([
+      ["water-rivers-core", "line-opacity", 0.85 * 0.25],
+    ]);
+    // 已補套 → 再次顯示不重複寫
+    calls.length = 0;
+    setOverlayVisible(map, config, true, true);
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
+  });
+
 });
 
 describe("setOverlayVisible", () => {
