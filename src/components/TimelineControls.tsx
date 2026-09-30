@@ -4,6 +4,7 @@ import type { TimeMode } from "../types";
 import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { formatGfwUtcWindow, nearestGfwWindowHour, utcDateWindowSeconds } from "../state/gfwTimelineDataWindow";
+import { useUiTime } from "../hooks/useTimeline";
 import { TimeAxis } from "./timeline/TimeAxis";
 import { TimelineShell } from "./timeline/TimelineShell";
 import {
@@ -64,6 +65,18 @@ interface DataWindowNotice {
 }
 
 const GFW_SUBJECT: Record<string, string> = { Grid: "漁船熱區", Tracks: "漁船航跡" };
+
+/**
+ * App 用的時間軸：自己以 `useUiTime()` 4Hz 訂閱目前時間並算 progress，
+ * 讓 App 本體播放中不必因時間 tick 重渲（PF-6）。參考頁 / 測試仍直接用
+ * `TimelineControls` 餵固定值。
+ */
+export function LiveTimelineControls(props: Omit<Props, "currentTime" | "progress">) {
+  const currentTime = useUiTime();
+  const duration = props.windowEnd - props.windowStart;
+  const progress = duration > 0 ? (currentTime - props.windowStart) / duration : 0;
+  return <TimelineControls {...props} currentTime={currentTime} progress={progress} />;
+}
 
 export function TimelineControls({
   playing,

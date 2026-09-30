@@ -10,7 +10,7 @@
 //     `spatialParams` / `youbikeParams` 六個 useMemo），identity 同樣用
 //    per-key 快照當 deps —— store 保證「只有這個 key 真的變動時才換 identity」。
 
-import { useCallback, useEffect, useMemo, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useState, type RefObject } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { timeStore } from "../../state/timeStore";
 import { updateH3Layer, ensureH3Layers } from "../../map/h3LayerFactory";
@@ -230,7 +230,7 @@ export const SpatialEconomyHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** YouBike 飽和度網格（跟著主時間軸的分鐘粒度更新，`youbikeTimeKey` 由 App 訂 timeStore） */
+/** YouBike 飽和度網格（跟著主時間軸的分鐘粒度更新；Host 自己訂 timeStore，不經 App 重渲） */
 export const YoubikeHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("youbikeFullness");
   const values = useLayerParams("youbikeFullness");
@@ -244,8 +244,25 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
     ),
   }), [values]);
 
-  const { mapRef, getYoubikeCellsForTime, youbikeTimeKey } = deps;
+  const { mapRef, getYoubikeCellsForTime } = deps;
   const visible = deps.layerVisibility.youbikeFullness;
+  // 訂閱 timeStore 分鐘粒度（每 60 秒模擬時間更新一次），只 re-render 本 Host。
+  // 只在圖層開啟時訂閱；重開時先同步到當下分鐘。
+  const [youbikeTimeKey, setYoubikeTimeKey] = useState(
+    () => Math.floor(timeStore.getTime() / 60) * 60,
+  );
+  useEffect(() => {
+    if (!visible) return;
+    let lastMinute = Math.floor(timeStore.getTime() / 60);
+    setYoubikeTimeKey(lastMinute * 60);
+    return timeStore.subscribe((t) => {
+      const minute = Math.floor(t / 60);
+      if (minute !== lastMinute) {
+        lastMinute = minute;
+        setYoubikeTimeKey(minute * 60);
+      }
+    });
+  }, [visible]);
   const rehydrate = useCallback((map: MapboxMap) => {
     ensureYoubikeLayers(map);
     updateYoubikeLayer(map, getYoubikeCellsForTime(timeStore.getTime()), youbikeParams, visible);

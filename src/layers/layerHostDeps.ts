@@ -99,8 +99,6 @@ export interface LayerHostDeps {
   socioDataMap: ReturnType<typeof useH3Socioeconomic>["socioDataMap"];
   spatialDataMap: ReturnType<typeof useH3SpatialEconomy>["spatialDataMap"];
   getYoubikeCellsForTime: ReturnType<typeof useYoubikeH3>["getCellsForTime"];
-  /** timeStore 分鐘粒度的 tick（App 訂閱 timeStore 換算，不走 4Hz re-render） */
-  youbikeTimeKey: number;
 }
 
 /** registry entry 的 Host 元件型別（一律 `return null`，只掛 hook 不畫東西） */
