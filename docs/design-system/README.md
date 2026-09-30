@@ -20,7 +20,7 @@
 | 地圖 R2 點圖層（registry 191 層＋hook 122 層） | ✅ 完成 | #392、#393、#396、#398、#401 | 新圖層照 `pointTiers.ts` 登記分階（#407 土壤液化已照做） |
 | 地圖 R3a 線與面（registry） | 🔶 PR 待 merge | R3a PR | registry 106 層線面接上分階（`lineFillTiers.ts`＋`lineFillSpec.ts`）；新圖層的線面照 `lineFillTiers.ts` 登記 |
 | 地圖 R3b 線面（hook）＋網格／影像／文字 | ⏳ 未開始 | — | hook 自畫線面、G-3 網格空格、G-4 影像、T-2／T-3 文字、F-4 擠出 |
-| 地圖 R4 圖例對齊 | 🔶 Codex 進行中 | — | 交接 `docs/features/map-layer-restyle/handoff-r4-legend.md`（分支 `feat/map-restyle-r4-legend`）；完成後 Claude 驗收 |
+| 地圖 R4 圖例對齊 | 🔶 PR 待 merge（依賴 R3a） | R4 PR | 28 個不一致圖例已對齊（盤點剩 3 個屬性色、程式同源）；K-1 13 層識別色改地圖現色；手寫色票 90 → 6。新圖例色票一律引用 paint 同一常數（`src/map/layerPaintColors.ts`） |
 | 地圖 R5 熱區＋密度透明度 | ⏳ 未開始 | — | 超過 10 萬點改熱區（日本宗教設施低縮放糊塊）、P-3 密度透明度、聚合泡泡描邊、泡泡 M3 |
 | 地圖 R6 Three.js／Mapbox 切換 | ⏳ 未開始 | — | **先要使用者決定**範圍與開關位置 |
 | 開站加速 | 🔶 部分 | 地形延後載入 #395 | 關閉的圖層不建資料來源、Three.js 圖層打開才建 |
