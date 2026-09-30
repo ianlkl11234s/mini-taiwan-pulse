@@ -2,8 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it } from "vitest";
 import { bridgeResilienceDataStore, bridgeResilienceSelection } from "../../../data/bridgeResilienceStore";
-import type { BridgeModeSummary, BridgeResilienceData } from "../../../data/bridgeResilienceTypes";
-import { altBridgesText, BridgeResiliencePanel } from "../bridgeResiliencePanels";
+import { decodeDestinationView, type BridgeModeSummary, type BridgeResilienceData, type VillageDestinations } from "../../../data/bridgeResilienceTypes";
+import { altBridgesText, BridgeResiliencePanel, DestinationSection } from "../bridgeResiliencePanels";
 
 const mode = (over: Partial<BridgeModeSummary> = {}): BridgeModeSummary => ({
   p90_dT_s: 214.42, mean_dT_s: 135.08, accessibility_loss: 0.00076, exposed_population_gt60s: 5858940, stranded_population: 0,
@@ -57,5 +57,29 @@ describe("雙北跨河橋梁韌性 popup", () => {
     expect(altBridgesText([])).toBe("無");
     expect(altBridgesText(undefined)).toBe("無");
     expect(altBridgesText([1, 2, 3, 4].map((n) => ({ label: `橋${n}`, weight_share: 0.1 * n, pairs: n })))).toBe("橋1（10.0%）、橋2（20.0%）、橋3（30.0%）");
+  });
+});
+
+describe("目的地視角區塊", () => {
+  const dest: VillageDestinations = {
+    scenarios: ["三鶯大橋|car"], villages: ["63000010002", "63000020001", "63000030001"], village_names: ["莊敬里", "民權里", "北大里"],
+    districts: [["臺北市", "松山區"], ["臺北市", "大同區"], ["新北市", "板橋區"]], village_district: [0, 1, 2],
+    data: { "0": { "0": { d: [1, 70, 600, 480, 720], t: [1, 720, 70], u: [2, 5, 1] }, "1": {} } },
+  };
+  const html = (code: string, status: "idle" | "loading" | "error" = "idle", loaded = true) => renderToStaticMarkup(createElement(DestinationSection, {
+    view: loaded ? decodeDestinationView(dest, "三鶯大橋|car", code) : null, status, originCode: code, modeLabel: "汽車" }));
+  it("列出依行政區彙整的表、前幾名村里、不可達與回到起點視角按鈕", () => {
+    const out = html("63000010002");
+    for (const text of ["目的地視角：莊敬里（臺北市松山區）", "回到起點視角", "大同區", "60%", "8.0 分鐘", "12.0 分鐘", "受影響最多的 1 個村里", "民權里", "無法抵達：板橋區", "同區同色"]) expect(out).toContain(text);
+  });
+  it("沒有受影響目的地時說明是低於門檻，不是 0 分鐘", () => {
+    const out = html("63000020001");
+    expect(out).toContain("未超過 60 秒");
+    expect(out).not.toContain("0.0 分鐘");
+  });
+  it("資料載入中／失敗各有提示；不合成空表", () => {
+    expect(html("63000010002", "loading", false)).toContain("目的地資料載入中");
+    expect(html("63000010002", "error", false)).toContain("載入失敗");
+    expect(html("63000010002", "error", false)).not.toContain("目的地行政區");
   });
 });

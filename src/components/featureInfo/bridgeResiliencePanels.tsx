@@ -1,11 +1,15 @@
-import { useEffect } from "react";
-import { FONT_SIZE } from "../../styles/designTokens";
+import { useEffect, useMemo } from "react";
+import { FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
 import {
   BRIDGE_JOINT_KEY, BRIDGE_MODES, BRIDGE_MODE_LABELS, BRIDGE_RESILIENCE_KEY, BRIDGE_RESILIENCE_LIMITS_TEXT,
-  BRIDGE_RESILIENCE_COLORS, geometryConfidenceText, isJointMember, lossPercentText, minutesText, populationText,
-  type BridgeAltCandidate, type BridgeMode, type BridgeModeSummary, type BridgeSummaryEntry,
+  BRIDGE_RESILIENCE_COLORS, decodeDestinationView, effectiveScenarioUid, geometryConfidenceText, isJointMember, lossPercentText,
+  minutesText, populationText, scenarioKey, sharePermilleText,
+  type BridgeAltCandidate, type BridgeMode, type BridgeModeSummary, type BridgeSummaryEntry, type DestinationView,
 } from "../../data/bridgeResilienceTypes";
-import { bridgeResilienceSelection, useBridgeResilienceData } from "../../data/bridgeResilienceStore";
+import {
+  bridgeResilienceOrigin, bridgeResilienceSelection, useBridgeResilienceData, useBridgeResilienceDestinations,
+  useBridgeResilienceDestinationStatus, useBridgeResilienceOrigin,
+} from "../../data/bridgeResilienceStore";
 import { paramBool, paramStr } from "../../layers/layerParamsAccess";
 import { layerParamsStore, useLayerParams } from "../../state/layerParamsStore";
 import { Row, Title } from "./shared";
@@ -13,6 +17,7 @@ import { useFeatureTheme } from "./featureTheme";
 
 const KEY = BRIDGE_RESILIENCE_KEY;
 const TOP_N = 3;
+const DEST_TOP_LIST = 5;
 const setParam = (name: string, value: string | boolean) => layerParamsStore.setParam(KEY, name, value);
 
 /** 「名稱（占比%）」前 3 名；空陣列回「無」。占比是前 50 組受影響起訖對的權重占比，非流量預測。 */
@@ -42,6 +47,56 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
   return <button type="button" className="fi-btn" aria-pressed={on} onClick={() => onChange(!on)}>{label}</button>;
 }
 
+const DEST_COLS = "minmax(48px, 1.1fr) 1fr 1fr 1fr";
+
+/** 目的地視角：依行政區彙整表（依受影響人口比排序）＋前 5 名受影響村里。null／不可達各有自己的說明，不當 0。 */
+export function DestinationSection({ view, status, originCode, modeLabel }: {
+  view: DestinationView | null; status: "idle" | "loading" | "error"; originCode: string; modeLabel: string;
+}) {
+  const t = useFeatureTheme();
+  const cell = { fontSize: FONT_SIZE.sm, padding: "2px 0" } as const;
+  return <div className="fi-dest" style={{ borderTop: `1px solid ${t.border}`, marginTop: 6, paddingTop: 6 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "space-between" }}>
+      <span style={{ fontSize: FONT_SIZE.base, fontWeight: FONT_WEIGHT.semibold, color: t.textStrong }}>
+        目的地視角：{view ? `${view.originName}（${view.originDistrictLabel}）` : `村里 ${originCode}`}
+      </span>
+      <button type="button" className="fi-btn" onClick={() => bridgeResilienceOrigin.clear()}>回到起點視角</button>
+    </div>
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, padding: "3px 0" }}>
+      從這個村里出發（{modeLabel}），橋中斷時去哪些行政區變慢。受影響＝額外時間超過 60 秒；平均與最多只算受影響的目的地。
+    </div>
+    {!view && status === "loading" && <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm }}>目的地資料載入中…</div>}
+    {!view && status === "error" && <div style={{ color: t.warn, fontSize: FONT_SIZE.sm }}>目的地資料載入失敗，請稍後再點一次村里。</div>}
+    {!view && status === "idle" && <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm }}>此情境沒有這個村里的目的地資料。</div>}
+    {view?.noAffected && <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm }}>
+      {view.unreachable.length ? "沒有「變慢」的目的地，但有無法抵達的目的地（見下）。" : "這個村里去其他村里都沒有受影響（額外時間未超過 60 秒）；這不是「0 分鐘」的量測，而是低於門檻。"}
+    </div>}
+    {view && view.districts.length > 0 && <div style={{ maxHeight: 180, overflowY: "auto" }}>
+      <div style={{ display: "grid", gridTemplateColumns: DEST_COLS, columnGap: 6, color: t.textMuted, ...cell, borderBottom: `1px solid ${t.borderSoft}` }}>
+        <span>目的地行政區</span><span>受影響人口比</span><span>平均多花</span><span>最多</span>
+      </div>
+      {view.districts.map((row) => <div key={row.district} style={{ display: "grid", gridTemplateColumns: DEST_COLS, columnGap: 6, color: t.textStrong, ...cell, borderBottom: `1px solid ${t.borderSoft}` }}>
+        <span>{row.label}</span>
+        <span title={`${row.affectedPop.toLocaleString("zh-TW")} 人`}>{sharePermilleText(row.sharePermille)}</span>
+        <span>{minutesText(row.meanDtS)}</span>
+        <span>{minutesText(row.maxDtS)}</span>
+      </div>)}
+    </div>}
+    {view && view.unreachable.length > 0 && <div style={{ padding: "4px 0" }}>
+      {view.unreachable.map((row) => <div key={row.district} style={{ color: BRIDGE_RESILIENCE_COLORS.destUnreachable, fontSize: FONT_SIZE.sm }}>
+        無法抵達：{row.label} {row.villages} 個村里、{populationText(row.pop)}（不計入額外時間）
+      </div>)}
+    </div>}
+    {view && view.top.length > 0 && <>
+      <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, padding: "4px 0 1px" }}>受影響最多的 {Math.min(DEST_TOP_LIST, view.top.length)} 個村里</div>
+      {view.top.slice(0, DEST_TOP_LIST).map((row, i) => <Row key={row.code} label={`${i + 1}`} value={`${row.districtLabel}${row.name}　+${minutesText(row.dtS)}・${populationText(row.pop)}`} />)}
+    </>}
+    {view && !view.noAffected && <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, paddingTop: 3 }}>
+      地圖顏色是目的地所在行政區的平均額外時間（同區同色，資料沒有逐村里的值）；藍色外框是前 {view.top.length} 名受影響村里，白色粗框是起點。
+    </div>}
+  </div>;
+}
+
 export function BridgeResiliencePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const data = useBridgeResilienceData();
@@ -64,6 +119,14 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
   const review = entry?.human_review;
   const river = entry?.river ?? (typeof props.river === "string" ? props.river : "");
   const title = joint ? "關渡大橋＋淡江大橋（同時中斷）" : uid || "橋梁";
+  const origin = useBridgeResilienceOrigin();
+  const destinations = useBridgeResilienceDestinations();
+  const destStatus = useBridgeResilienceDestinationStatus();
+  const scenarioUid = effectiveScenarioUid(uid || null, joint);
+  const view = useMemo(
+    () => (origin && destinations && scenarioUid ? decodeDestinationView(destinations, scenarioKey(scenarioUid, mode), origin) : null),
+    [origin, destinations, scenarioUid, mode],
+  );
   const dayNight = modeSummary?.alt_population_weights;
   const ban = modeSummary?.sensitivity_scooter_expressway_ban;
 
@@ -81,6 +144,10 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
       <Toggle label="顯示替代路線" on={showRoutes} onChange={(v) => setParam("bridgeResilienceShowRoutes", v)} />
       {canJoint && <Toggle label="與另一座同時中斷" on={joint} onChange={(v) => setParam("bridgeResilienceJoint", v)} />}
     </div>
+    {showVillages && !origin && <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, padding: "2px 0" }}>
+      提示：點地圖上的村里，切到「目的地視角」（看這個村里去哪些地方變慢）；點空白處或按「回到起點視角」返回，橋維持選取。
+    </div>}
+    {showVillages && origin && <DestinationSection view={view} status={destStatus} originCode={origin} modeLabel={BRIDGE_MODE_LABELS[mode]} />}
     {!entry && <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>{data ? "此橋沒有模擬指標。" : "指標載入中…"}</div>}
     {entry && <>
       <Row label="額外時間 p90" value={perMode(entry, (m) => minutesText(m.p90_dT_s))} />

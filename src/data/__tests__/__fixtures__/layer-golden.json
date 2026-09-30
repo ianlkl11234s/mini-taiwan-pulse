@@ -936,7 +936,8 @@
       "layers": [
         "bridge-resilience-hit",
         "bridge-resilience-structure",
-        "bridge-resilience-ground"
+        "bridge-resilience-ground",
+        "bridge-resilience-village-fill"
       ],
       "type": "bridgeResilienceTwinCity"
     },
@@ -58351,7 +58352,7 @@
         "value": "car"
       },
       {
-        "label": "顯示受影響村里（先點選一座橋）",
+        "label": "顯示受影響村里（先點選一座橋；再點村里看目的地視角）",
         "type": "toggle",
         "value": false
       },

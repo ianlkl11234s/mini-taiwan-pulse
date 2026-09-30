@@ -21,6 +21,8 @@ import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, ne
 import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
 import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
 import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
+import { bridgeResilienceOrigin } from "../data/bridgeResilienceStore";
+import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 
 interface TooltipInfo {
   flight: Flight;
@@ -419,7 +421,18 @@ export function useMapInteraction(
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
           if (features.length > 0) {
-            const f = features[0]!;
+            // 橋梁韌性：橋線優先於村里面；命中村里面＝進入目的地視角，不換 popup、不取消選橋。
+            const f = type === "bridgeResilienceTwinCity"
+              ? (features.find((item) => item.layer?.id !== BRIDGE_RESILIENCE_LAYER_IDS.villageFill) ?? features[0]!)
+              : features[0]!;
+            if (type === "bridgeResilienceTwinCity" && f.layer?.id === BRIDGE_RESILIENCE_LAYER_IDS.villageFill) {
+              const code = String(f.properties?.VILLCODE ?? "");
+              if (!code) continue;
+              bridgeResilienceOrigin.set(code);
+              sessionTracker.log("feature_click", { layerType: "bridgeResilienceVillage" });
+              found = true;
+              break;
+            }
             let coords: [number, number] | undefined;
             const g = f.geometry as GeoJSON.Geometry | undefined;
             if (g && g.type === "Point") {
@@ -493,6 +506,11 @@ export function useMapInteraction(
             found = true;
             break;
           }
+        }
+        // 目的地視角中點到空白處：只清起點（回到起點視角），橋與 popup 維持；再點一次空白才照舊關閉。
+        if (!found && bridgeResilienceOrigin.get()) {
+          bridgeResilienceOrigin.clear();
+          found = true;
         }
         const sampleClimateFallback = (lng: number, lat: number) => {
           if (!vis?.windField && !vis?.oceanCurrents) { setFeatureInfo(null); return; }
