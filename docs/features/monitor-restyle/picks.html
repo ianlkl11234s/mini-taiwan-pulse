@@ -59,7 +59,7 @@ section.q{display:flex;flex-direction:column;gap:12px;scroll-margin-top:70px}
 .pc div{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:6px;padding:7px 9px}
 .pc b{display:block;font-size:11px;font-weight:600;margin-bottom:2px}
 .pc .pro b{color:var(--ok)}.pc .con b{color:var(--warn)}
-.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .pick-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:2px}
 .pick-row .pl{font-size:12px;color:var(--dim)}
 .pbtn{all:unset;cursor:pointer;font:12px var(--font-cjk);padding:4px 12px;border-radius:5px;border:1px solid var(--line-2);color:var(--text)}
@@ -80,7 +80,7 @@ section.q{display:flex;flex-direction:column;gap:12px;scroll-margin-top:70px}
 .mk.lt{--mb:#eef0f3;--card:#ffffff;--bd:rgba(0,0,0,.10);--bds:rgba(0,0,0,.06);--ts:#111827;--td:#1f2937;--tm:#4b5563;--tdim:#6b7280;--ac:#0b6fd6;--live:#15803d;--warn:#c2410c;--err:#b42318;--warnsoft:rgba(194,65,12,.08);--errsoft:rgba(180,35,24,.07);--hatch:rgba(0,0,0,.16);--grid:rgba(0,0,0,.06);--c1:#0b6fd6;--c2:#15803d;--c3:#b45309;--up:#b42318;--down:#15803d}
 .mk .tl{position:absolute;right:6px;top:-9px;font:10px/1 var(--font-data);padding:2px 5px;border-radius:3px;background:var(--panel);color:var(--muted);border:1px solid var(--line)}
 .mk .row{display:grid;gap:8px;grid-template-columns:repeat(var(--n,1),minmax(0,1fr))}
-.mc{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.mc{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden;container-type:inline-size}
 .mc.bare{background:transparent;border:0;border-top:1px solid var(--bd);border-radius:0;padding:8px 0 0}
 .mc.affect{background:var(--warnsoft);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
 .mc.dead{opacity:.62}
@@ -103,19 +103,22 @@ section.q{display:flex;flex-direction:column;gap:12px;scroll-margin-top:70px}
 .vl .n{font:700 22px/1.1 var(--font-data);color:var(--ts);font-variant-numeric:tabular-nums}
 .vl .n.m{color:var(--tm)}
 .vl .u{font-size:11px;color:var(--tm)}
-.vl .d{font:11px var(--font-data);font-variant-numeric:tabular-nums}
+.vl .d{font:11px var(--font-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+.vl .n{white-space:nowrap}
+.sub .nw{white-space:nowrap}
 .up{color:var(--up)}.down{color:var(--down)}
 .sub{font-size:10px;color:var(--tm)}
 .sub .mono{font-size:10px}
-.kpis{display:grid;grid-template-columns:repeat(var(--k,3),minmax(0,1fr));gap:0}
-.kpi{display:flex;flex-direction:column;gap:1px;padding:0 8px;border-left:1px solid var(--bds);min-width:0}
-.kpi:first-child{border-left:0;padding-left:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px 12px}
+.kpi{display:flex;flex-direction:column;gap:1px;min-width:0}
+
 .kpi .kl{font-size:10px;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kpi .kv{font:700 18px/1.15 var(--font-data);color:var(--ts);font-variant-numeric:tabular-nums;white-space:nowrap}
 .kpi .kv small{font:400 10px var(--font-cjk);color:var(--tm);margin-left:3px}
 .ch{display:flex;flex-direction:column;gap:2px;min-width:0}
 .ch svg{display:block;width:100%;overflow:visible}
-.ax{display:flex;justify-content:space-between;font:9px var(--font-data);color:var(--tdim);font-variant-numeric:tabular-nums}
+.ax{display:flex;justify-content:space-between;gap:6px;font:9px var(--font-data);color:var(--tdim);font-variant-numeric:tabular-nums;white-space:nowrap}
+@container (max-width:240px){.ax span:nth-child(2):not(:last-child){display:none}}
 .cap{font-size:10px;color:var(--tdim)}
 .sm{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:10px;color:var(--tm)}
 .sm .v{font:700 12px var(--font-data);color:var(--ts);font-variant-numeric:tabular-nums;text-align:right;min-width:56px}
@@ -132,7 +135,7 @@ section.q{display:flex;flex-direction:column;gap:12px;scroll-margin-top:70px}
 .grid12 > div{border:1px dashed var(--bd);border-radius:4px;background:var(--card);font:10px var(--font-cjk);color:var(--tm);padding:4px 6px;display:flex;flex-direction:column;justify-content:space-between;gap:2px;min-width:0}
 .grid12 b{color:var(--ts);font-weight:600;font-size:10px}
 .grid12 .mono{font-size:9px;color:var(--tdim)}
-@media (max-width:640px){.pair{grid-template-columns:1fr}.pc{grid-template-columns:1fr}}
+@media (max-width:640px){.pc{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 
@@ -268,7 +271,7 @@ const stage=(th,inner,label)=>`<div class="mk ${th}"><span class="tl">${label||(
 const pair=f=>`<div class="pair">${stage('dk',f('dk'))}${stage('lt',f('lt'))}</div>`;
 
 /* 常用卡片內容 */
-const taiexBody=()=>`<div class="vl"><span class="n">47,940.13</span><span class="d up">▲ 308.17　+0.65%</span></div><div class="sub"><span class="mono">高 48,379.71　低 47,767.49</span>　成交 1,053.1 億</div><div class="ch">${line(TAIEX,{h:40,col:'var(--up)'})}${ax('08/19','09/30','30 天')}</div>`;
+const taiexBody=()=>`<div class="vl"><span class="n">47,940.13</span><span class="d up">▲ 308.17　+0.65%</span></div><div class="sub"><span class="mono nw">高 48,379.71</span>　<span class="mono nw">低 47,767.49</span>　<span class="nw">成交 1,053.1 億</span></div><div class="ch">${line(TAIEX,{h:40,col:'var(--up)'})}${ax('08/19','09/30','30 天')}</div>`;
 const lightBody=()=>`<div class="vl"><span class="n">0</span><span class="u">次</span><span class="sub">今日（氣象署）</span></div><div class="ch">${bars(LIGHT,{h:36,col:'var(--c3)'})}${ax('09/17','09/30','14 天')}</div>`;
 const powerKpis=(k=3)=>`<div class="kpis" style="--k:${k}"><div class="kpi"><span class="kl">負載</span><span class="kv">33,452<small>MW</small></span></div><div class="kpi"><span class="kl">備轉容量率</span><span class="kv">21.1<small>%</small></span></div><div class="kpi"><span class="kl">供電能力</span><span class="kv">48,452<small>MW</small></span></div>${k>3?'<div class="kpi"><span class="kl">預測尖峰</span><span class="kv" style="font-size:13px">13:00–16:00</span></div>':''}</div>`;
 
