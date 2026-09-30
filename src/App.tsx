@@ -1492,10 +1492,10 @@ export default function App() {
     }
   }, [bootPhase, allReady, loadingTimedOut]);
 
-  // 全部資料載入完成後自動播放
+  // 全部資料載入完成後自動播放（使用者按過暫停就不再自動重啟）
   useEffect(() => {
     if (allReady && timeRange.start > 0) {
-      timeline.play();
+      timeline.autoPlay();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allReady, timeRange.start]);
