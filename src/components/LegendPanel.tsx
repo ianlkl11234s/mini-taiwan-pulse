@@ -1,4 +1,5 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "../map/layerPaintColors";
+import { mapSeamColor } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
 import { FACILITY_STATUS_PAINT_COLORS } from "../map/layerPaintColors";
 import { THEMED_PAINT_COLORS } from "../map/layerPaintColors";
 import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "../map/layerPaintColors";
@@ -1351,7 +1352,7 @@ function JpAccommodationDensityLegend({ isDark = true, scaleIdx }: { isDark?: bo
       <LegendTitle zh={`旅宿密度 · ${scale.shortLabel}`} />
       <FireCatRows
         square
-        stroke={THEMED_PAINT_COLORS.jpAccommodationOutline[isDark ? "dark" : "light"]}
+        stroke={mapSeamColor(isDark)}
         cats={JP_ACCOMMODATION_DENSITY_STOPS.map((stop, index) => ({
           color: JP_ACCOMMODATION_DENSITY_COLORS[index] ?? JP_ACCOMMODATION_DENSITY_COLORS[0],
           label: index === 0 ? "1 間／格" : `≥ ${stop.toLocaleString("zh-TW")} 間／格`,
@@ -2241,7 +2242,7 @@ function RealEstateLegend({ isDark = true, visibility, overlayParams }: { isDark
           return (
             <div key={r.label}>
               <div style={{ fontSize: FONT_SIZE.xs, color: t.textDefault, marginBottom: 2 }}>{r.label}</div>
-              <SwatchGradient gradient={`linear-gradient(to right, ${p.colors.join(", ")})`} stroke={THEMED_PAINT_COLORS.realEstateOutline[isDark ? "dark" : "light"]} />
+              <SwatchGradient gradient={`linear-gradient(to right, ${p.colors.join(", ")})`} stroke={mapSeamColor(isDark)} />
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 1 }}>
                 <span>{lo.toLocaleString()}</span>
                 <span>{hi.toLocaleString()}{excl ? "+" : ""}</span>
@@ -3188,13 +3189,13 @@ function CompanyCapitalGridLegend({ isDark = true, modeIdx, scaleIdx }: { isDark
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <Swatch color={COMPANY_GRID_COLORS[i]!} round={false} stroke={THEMED_PAINT_COLORS.companyGridOutline[isDark ? "dark" : "light"]} />
+            <Swatch color={COMPANY_GRID_COLORS[i]!} round={false} stroke={mapSeamColor(isDark)} />
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{formatGridStop(stop, safeMode === 1)}{i < stops.length - 1 ? `–<${formatGridStop(stops[i + 1]!, safeMode === 1)}` : " 以上"}</span>
           </div>
         ))}
         {safeMode === 2 && (
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <Swatch color={COMPANY_GRID_NULL_COLOR} round={false} stroke={THEMED_PAINT_COLORS.companyGridOutline[isDark ? "dark" : "light"]} />
+            <Swatch color={COMPANY_GRID_NULL_COLOR} round={false} stroke={mapSeamColor(isDark)} />
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值</span>
           </div>
         )}
