@@ -713,6 +713,38 @@
 - **暗／淡**：**只有暗色**（`CARD_THEME = "dark"`），與 §1「暗／淡並行」不一致，列在 §10.3。
 - **實作**：`src/card/`（`CardApp.tsx`、`AnalysisCard.tsx`、`CardMap.tsx`、`cardStyle.ts`、`card.css`）。
 
+### 5.35 監看模式卡片（提案・待拍板）
+
+> ⚠️ **本節是提案，尚未拍板、尚未實作。** 使用者在比較頁 `docs/features/monitor-restyle/picks.html` 選代號後，改寫成定案規格並拿掉這行。盤點與證據見 `docs/features/monitor-restyle/README.md`（2026-09-30）。下面每條後面的代號是比較頁的題目；括號內是**建議**選項，I 題只列利弊不建議。
+
+- **用途**：監看模式（Monitor）split／dock／wall 裡的每一格看板。現況：`MonitorPanel` 只排位置不畫框，24 格的框、標題、數值、圖表、缺值提示各自手刻（3 種框、5 種標題、9 種主數字字級、5 套時間序列、約 20 處缺值畫成 0）。
+- **不新造通用 Card**（§11 KEEP OUT）：把既有 `HazardShell`（＋`Metric`／`MetricRow`／`Note`／`MetaRow`）升格成監看卡標準殼，`Widget`／`SectionLabel` 收斂進去。
+- **A 卡片殼**（建議 A1 框內標題）：`MonitorPanel` 統一畫框；`1px BORDER.panel`、`RADIUS.lg`、padding `10px 12px`；標題列是卡的第一列。
+- **B 尺寸階**（建議 B1）：寬 小 1/3（w4）／中 1/2（w6）／全寬（w12）；圖高 迷你 24／標準 48／大 96。圖一律寬 100% 隨格子伸縮，不寫死 px（加權指數溢出 48px 的根因）。
+- **C 標題列**（建議 C1）：13px bold 中文標題；右側資料時間 10px `FONT_DATA`（當日 `HH:MM`、跨日 `MM/DD`）；只有異常才在時間前加 `chipOutline` pill。不用英文大寫 eyebrow；面板標頭同 §5.1。
+- **D 數值列**（建議 D3）：一格最多一個 22px（`FONT_SIZE.xxl`）主數字；其餘指標 KPI 18px（標籤在上 10px）；副資訊 10px。單位照 §6.2。
+- **E 走勢圖**（建議 E3）：連續量折線（淡面積、最新點、首尾日期）、計數用柱；缺值＝折線斷開＋斜線帶／柱為灰短樁，0＝底線（`HazardTrendBars` 契約）。由擴充 `TimeseriesSparkline`＋`HazardTrendBars` 出，不再手刻。
+- **F 多指標卡**（建議 F3）：主指標大圖（同單位 ≤3 條可疊、線尾標名稱）＋其餘小倍數列（名稱｜走勢｜最新值，共用時間軸）。
+- **G 狀態提示**（建議 G2）：狀態字沿用 §6.4 並新增下表；過期／停更時主數字降 `textMuted`、走勢最後一筆之後畫斜線、卡底一行原因。受影響（資料本身的警訊）用數值與圖的顏色，不改卡底。
+- **H 主題**（建議 H1）：維持全暗（§5.21 現行規則）。
+- **I 指數化**：I0 不新增先修現有／I1 只保留戰情壓力總指數／I2 分領域子指數／I3 每格 0–100 相對位置，由使用者決定。
+- **K 缺值修正**（建議 K1）：改版同時把 loader／元件的 `?? 0`、`|| 0`、補 0 改成保留 null；RPC 端與上游停更另開資料工單。
+
+**提案中的狀態字**（擴充 §6.4；「週期」＝該格來源的預期更新間隔，每格在實作時登記）：
+
+| 狀態 | 條件 | 顯示 |
+|---|---|---|
+| 即時 | 最新資料在 1 個週期內 | 只顯示時間 |
+| 延遲 | 超過 2 個週期 | 時間改 `statusWarn` |
+| 過期 | 超過 6 個週期或已跨日（日更資料超過 2 天） | pill「過期」`statusWarn`＋G 題畫法 |
+| 停更 | 超過 7 天，或來源已下架 | pill「停更 N 天」／「來源已下架」`statusErr`＋一行原因 |
+| 無資料 | 從未取得 | 「—」＋原因（§6.5） |
+| 收盤／休市 | 來源依時段正常暫停 | 中性 pill，不降灰 |
+| 讀取中／更新中斷／無權限 | 傳輸狀態（現有 `MonitorDataStatus`） | 維持現行 |
+
+- **禁止**（提案）：寫死圖寬 px；缺值補 0 或合成值當資料（熱度倍數 `1＋則數×0.28`、未就緒用 50 定色）；印內部欄位名（`latest_valid_day`、`border_airport_snapshot`）；個別卡片額外套 `zoom`；英文大寫段落標。
+- **實作**（現況）：`src/components/intel/monitor/`（`MonitorPanel.tsx`、`monitorSplitLayout.ts`、各卡元件）、`PressureRing.tsx`（`Widget`／`SectionLabel`／`Sparkline`）、`HazardCards.tsx`（`HazardShell`）、`HazardTrendBars.tsx`、`MonitorDataStatus.tsx`。
+
 ## 6. 文案規則
 
 ### 6.1 標籤一律中文
