@@ -249,6 +249,42 @@ export function useEarthquakesGlobalLayer(
     }
     if (!visible) return;
 
+    // ripple RAF 只在「有正在播放的漣漪」時跑：時間窗內有新地震 → 啟動；沒有 → 停止
+    let cancelRaf: (() => void) | null = null;
+    const setRippleActive = (on: boolean) => {
+      if (on && !cancelRaf) cancelRaf = startThrottledRaf(rippleTick);
+      else if (!on && cancelRaf) {
+        cancelRaf();
+        cancelRaf = null;
+      }
+    };
+    // 半徑用 data-driven expression，一次 setPaintProperty 服務全部震央
+    const rippleTick = (now: number) => {
+      const m = mapRef.current;
+      if (!m) return;
+      // style 切換後 layers 可能消失 → 自癒重建
+      if (layersReadyRef.current && !m.getLayer(RIPPLE_IDS[0]!)) layersReadyRef.current = false;
+      if (!layersReadyRef.current) ensureSource(m);
+      if (!layersReadyRef.current) return;
+      for (let i = 0; i < RIPPLE_COUNT; i++) {
+        const id = RIPPLE_IDS[i]!;
+        if (!m.getLayer(id)) continue;
+        const phase =
+          ((now + i * (RIPPLE_CYCLE_MS / RIPPLE_COUNT)) % RIPPLE_CYCLE_MS) / RIPPLE_CYCLE_MS;
+        const eased = 1 - Math.pow(1 - phase, 2);
+        // 規模越大，擴散範圍越大
+        const baseR = 6;
+        const maxAdd = 60;
+        m.setPaintProperty(id, "circle-radius", [
+          "+",
+          ["*", ["get", "mag"], 2],
+          baseR + maxAdd * eased,
+        ] as unknown as ExpressionSpecification);
+        m.setPaintProperty(id, "circle-stroke-opacity", 0.7 * (1 - eased));
+        m.setPaintProperty(id, "circle-stroke-width", 2.5 * (1 - eased * 0.5));
+      }
+    };
+
     const applyFilter = (currentTime: number) => {
       // 顯示窗下界：僅當日 → 台北日界 00:00；其餘 → 游標往前 N 天
       const onlyToday = lookbackDays <= 1;
@@ -284,10 +320,22 @@ export function useEarthquakesGlobalLayer(
         if (map.getLayer(id))
           map.setFilter(id, rippleFilter as unknown as FilterSpecification);
       }
+
+      // 與 rippleFilter 同條件：有符合的地震才需要 RAF
+      const lo = currentTime - FRESH_WINDOW;
+      setRippleActive(
+        eventsRef.current.some(
+          (e) => e.observed_ts > lo && e.observed_ts <= currentTime && e.observed_ts >= lowerBound,
+        ),
+      );
     };
 
     applyFilter(timeStore.getTime()); // 初始化
-    return timeStore.subscribeThrottled(500, applyFilter);
+    const unsub = timeStore.subscribeThrottled(500, applyFilter);
+    return () => {
+      unsub();
+      setRippleActive(false);
+    };
   }, [visible, lookbackDays, ensureSource, mapRef, mapTick, dataTick]);
 
   // 套用 opacity（乘以各 layer 的 base opacity；ripple 由 RAF 全權改寫，不在此列）
@@ -304,41 +352,4 @@ export function useEarthquakesGlobalLayer(
       map.setPaintProperty(LAYER_PRE, "circle-stroke-opacity", PRE_STROKE_OPACITY * o);
     }
   }, [opacity, visible, mapRef, mapTick, dataTick]);
-
-  // ripple 動畫：半徑用 data-driven expression，一次 setPaintProperty 服務全部震央
-  useEffect(() => {
-    if (!visible) return;
-
-    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
-    return startThrottledRaf((now) => {
-      const map = mapRef.current;
-      if (!map) return;
-
-      // style 切換後 layers 可能消失 → 自癒重建
-      if (layersReadyRef.current && !map.getLayer(RIPPLE_IDS[0]!)) {
-        layersReadyRef.current = false;
-      }
-      if (!layersReadyRef.current) ensureSource(map);
-
-      if (layersReadyRef.current) {
-        for (let i = 0; i < RIPPLE_COUNT; i++) {
-          const id = RIPPLE_IDS[i]!;
-          if (!map.getLayer(id)) continue;
-          const phase =
-            ((now + i * (RIPPLE_CYCLE_MS / RIPPLE_COUNT)) % RIPPLE_CYCLE_MS) / RIPPLE_CYCLE_MS;
-          const eased = 1 - Math.pow(1 - phase, 2);
-          // 規模越大，擴散範圍越大
-          const baseR = 6;
-          const maxAdd = 60;
-          map.setPaintProperty(id, "circle-radius", [
-            "+",
-            ["*", ["get", "mag"], 2],
-            baseR + maxAdd * eased,
-          ] as unknown as ExpressionSpecification);
-          map.setPaintProperty(id, "circle-stroke-opacity", 0.7 * (1 - eased));
-          map.setPaintProperty(id, "circle-stroke-width", 2.5 * (1 - eased * 0.5));
-        }
-      }
-    });
-  }, [visible, ensureSource, mapRef, mapTick]);
 }
