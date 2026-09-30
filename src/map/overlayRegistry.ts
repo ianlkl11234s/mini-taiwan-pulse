@@ -1,7 +1,8 @@
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
 import type { OverlayConfig } from "../types";
 import { withPointSpec } from "./pointSpec";
-import { POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX } from "./mapStyleScale";
+import { withLineFillSpec } from "./lineFillSpec";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, mapSeamColor } from "./mapStyleScale";
 
 /** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
 const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
@@ -4951,7 +4952,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       paint: (_isDark, p) => ({
         "fill-color": jpBuildingHeightColorExpr("height_median"),
         "fill-opacity": p?.jpBuildingHeightOpacity ?? 0.75,
-        "fill-outline-color": "rgba(255,255,255,0.25)",
       }),
     }],
   },
@@ -6336,7 +6336,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "fill-color": "#22d3ee",
             "fill-opacity": o,
-            "fill-outline-color": "#67e8f9",
           };
         },
       },
@@ -6917,14 +6916,24 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         filter: ["==", ["geometry-type"], "Polygon"],
-        paint: (isDark, params) => {
+        paint: (_isDark, params) => {
           const o = params?.parkingOnstreetOpacity ?? 0.6;
           return {
             "fill-color": neutralCapacityColorExpr() as unknown as string,
             "fill-opacity": o,
-            "fill-outline-color": isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)",
           };
         },
+      },
+      {
+        // F-2：分級面外框＝1px 底圖色細縫（取代原本面圖層內建的固定 1px 外框）
+        suffix: "outline",
+        type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (isDark) => ({
+          "line-color": mapSeamColor(isDark),
+          "line-width": GRADED_SEAM.width,
+          "line-opacity": GRADED_SEAM.opacity[isDark ? "dark" : "light"],
+        }),
       },
       {
         suffix: "circle",
@@ -7084,7 +7093,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "#475569",
             ],
             "fill-opacity": o * 0.35,
-            "fill-outline-color": "#7AAEC0",
           };
         },
       },
@@ -7909,7 +7917,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: () => ({
           "fill-color": "#4b5563",
           "fill-opacity": 0,
-          "fill-outline-color": "rgba(0,0,0,0)",
         }),
       },
       {
@@ -7920,7 +7927,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const w = params?.countyBoundaryWidth ?? 1;
           return {
-            "line-color": isDark ? "#9ca3af" : "#374151",
+            "line-color": BOUNDARY_GRAY[isDark ? "dark" : "light"],
             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.8 * w, 8, 1.4 * w, 12, 2.4 * w],
             "line-opacity": params?.countyBoundaryOpacity ?? 0.85,
           };
@@ -7942,7 +7949,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: () => ({
           "fill-color": "#6b7280",
           "fill-opacity": 0,
-          "fill-outline-color": "rgba(0,0,0,0)",
         }),
       },
       {
@@ -7953,7 +7959,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const w = params?.townshipBoundaryWidth ?? 1;
           return {
-            "line-color": isDark ? "#94a3b8" : "#4b5563",
+            "line-color": BOUNDARY_GRAY[isDark ? "dark" : "light"],
             "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5 * w, 11, 1.0 * w, 14, 1.8 * w],
             "line-opacity": params?.townshipBoundaryOpacity ?? 0.75,
           };
@@ -7975,7 +7981,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: () => ({
           "fill-color": "#9ca3af",
           "fill-opacity": 0,
-          "fill-outline-color": "rgba(0,0,0,0)",
         }),
       },
       {
@@ -7986,7 +7991,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const w = params?.villageBoundaryWidth ?? 1;
           return {
-            "line-color": isDark ? "#cbd5e1" : "#6b7280",
+            "line-color": BOUNDARY_GRAY[isDark ? "dark" : "light"],
             "line-width": ["interpolate", ["linear"], ["zoom"], 11, 0.4 * w, 14, 0.9 * w, 17, 1.6 * w],
             "line-opacity": params?.villageBoundaryOpacity ?? 0.65,
           };
@@ -10866,4 +10871,4 @@ OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
-OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...OVERLAY_REGISTRY.map(withPointSpec));
+OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...OVERLAY_REGISTRY.map(withPointSpec).map(withLineFillSpec));

@@ -644,7 +644,12 @@ for (const entry of LEGEND_REGISTRY) {
   }
   // 只看「主色」屬性（不含描邊、外框、halo、透明度）：主色隨底圖換、圖例卻不換 → 色票對不上其中一邊
   const MAIN_COLOR = /^(circle-color|line-color|fill-color|fill-extrusion-color|icon-color|heatmap-color|raster-color)$/;
+  // 面圖層的外框線（同 config 有看得見的 fill、suffix 不是中心線 core）顏色是 F-2 外框（中性灰／底圖色細縫），不算主色；
+  // 行政界的面是透明點擊面，界線本身就是主體
+  const isOutline = (c: (typeof memberCfgs)[number], l: (typeof memberCfgs)[number]["layers"][number]) =>
+    l.type === "line" && !/core/.test(l.suffix) && c.layers.some((x) => x.type === "fill" && (asObj(x.paint.dark) ?? {})["fill-opacity"] !== 0);
   const mainColorDiffers = memberCfgs.some((c) => c.layers.some((l) => {
+    if (isOutline(c, l)) return false;
     const d = asObj(l.paint.dark) ?? {}; const li = asObj(l.paint.light) ?? {};
     return Object.keys(d).some((p) => MAIN_COLOR.test(p) && JSON.stringify(d[p]) !== JSON.stringify(li[p]));
   }));

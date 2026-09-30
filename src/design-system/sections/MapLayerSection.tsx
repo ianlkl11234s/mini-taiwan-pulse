@@ -6,11 +6,12 @@
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { COLORS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import {
-  BOUNDARY_GRAY, FILL_OPACITY, GRADED_SEAM, HEATMAP, LABEL, LINE_DASH, LINE_OPACITY, LINE_WIDTH, MAP_LOCAL_IDEOGRAPH_FONT, MAP_SEAM,
+  BOUNDARY_GRAY, FILL_OPACITY, FILL_OUTLINE, GRADED_SEAM, HEATMAP, LABEL, LINE_DASH, LINE_OPACITY, LINE_WIDTH, MAP_LOCAL_IDEOGRAPH_FONT, MAP_SEAM,
   MISSING_HATCH, POINT_ICON_PX, POINT_OPACITY, POINT_RADIUS, POINT_STROKE, hatchImageData, type HatchKind,
 } from "../../map/mapStyleScale";
 import { DECORATION_SUFFIX_RE, LIVE_DECORATION_CAP, LIVE_DECORATION_LAYERS } from "../../map/pointSpec";
 import { HOOK_POINT_TIERS, POINT_TIERS } from "../../map/pointTiers";
+import { FILL_TIERS, LINE_TIERS } from "../../map/lineFillTiers";
 import { Kv, Pair, Section, Spec, Sub, Tag, mockMapBg, objRows, SPEC_MAP, type SectionDef } from "../kit";
 
 const theme = (isDark: boolean) => (isDark ? "dark" : "light") as "dark" | "light";
@@ -219,7 +220,7 @@ function FillsDemo({ isDark }: { isDark: boolean }) {
           </g>
         ))}
       </Zoomed>
-      <Kv rows={objRows("FILL_OPACITY", FILL_OPACITY)} />
+      <Kv rows={[...objRows("FILL_OPACITY", FILL_OPACITY), ...objRows("FILL_OUTLINE", FILL_OUTLINE)]} />
     </Sub>
     <Sub title="統計分級面細縫（有值 vs 無值）" kind="real">
       <Zoomed w={3 * cw + 16} h={2 * ch + 16} isDark={isDark} zoom={3}>
@@ -303,6 +304,16 @@ function HeatLabelDemo({ isDark }: { isDark: boolean }) {
   </>;
 }
 
+function LineFillTierTable() {
+  const count = (vals: string[]) => Object.entries(vals.reduce<Record<string, number>>((a, v) => ({ ...a, [v]: (a[v] ?? 0) + 1 }), {}));
+  const rows: [string, string][] = [
+    ["FILL_TIERS（面）", count(Object.values(FILL_TIERS) as string[]).map(([k, n]) => `${k} ${n}`).join("、")],
+    ["LINE_TIERS 寬（線）", count(Object.values(LINE_TIERS).map((t) => t.width)).map(([k, n]) => `${k} ${n}`).join("、")],
+    ["LINE_TIERS 透明度（線）", count(Object.values(LINE_TIERS).map((t) => t.opacity)).map(([k, n]) => `${k} ${n}`).join("、")],
+  ];
+  return <Kv rows={rows} />;
+}
+
 function TierTable() {
   const groups = [
     { name: "POINT_TIERS（OVERLAY_REGISTRY，withPointSpec 套用）", obj: POINT_TIERS as Record<string, string> },
@@ -361,6 +372,9 @@ export function MapLayerSection() {
       <Pair render={(isDark) => <HeatLabelDemo isDark={isDark} />} />
       <Sub title="點分階表（pointTiers.ts）" kind="real">
         <TierTable />
+      </Sub>
+      <Sub title="線面分階表（lineFillTiers.ts，withLineFillSpec 套用）" kind="real">
+        <LineFillTierTable />
       </Sub>
     </Section>
   );

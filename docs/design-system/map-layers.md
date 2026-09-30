@@ -181,7 +181,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 > 每條有代號（對應 §7）。數值以「現況中位值」為錨，並對齊 viz-library 與 `layer-onboarding` skill 的 UX baseline。以下是**拍板後的版本**；與原提案不同處標「拍板改」。
 >
-> **套用狀態（2026-09-29）**：P-1／P-2／P-5／P-6（R2）、F-2 統計／F-3（R1）、T-1（R1）已上線。其餘條目的常數已在 `src/map/mapStyleScale.ts` 定義，但**還沒有任何圖層引用**（標「R3／R5 待接線」）：`LINE_WIDTH`／`lineWidthExpr`、`LINE_DASH`（只有活的元件頁展示引用）、`LINE_OPACITY`、`BOUNDARY_GRAY`（只被統計細縫 `gradedSeamPaint` 內部使用）、`FILL_OPACITY`、`HEATMAP`、`LABEL`、`POINT_OPACITY`。部分 hook 有同名的區域常數（例 `useJpRailwaysLayer.ts` 的 `LINE_WIDTH`），不是這裡的 SSOT。
+> **套用狀態（2026-09-30）**：P-1／P-2／P-5／P-6（R2）、F-2 統計／F-3（R1）、T-1（R1）、**L-1～L-5、F-1、F-2、K-4 的 registry 線面（R3a）**已上線。R3a 只涵蓋 OVERLAY_REGISTRY 畫的線與面（`src/map/lineFillTiers.ts` 分階、`src/map/lineFillSpec.ts` 的 `withLineFillSpec` 統一套用）；hook 自己畫的線面、G-3 網格空格、G-4 影像、T-2／T-3 文字、F-4 擠出留到 R3b。尚未引用的常數：`HEATMAP`、`LABEL`、`POINT_OPACITY`（R3b／R5）。部分 hook 有同名的區域常數（例 `useJpRailwaysLayer.ts` 的 `LINE_WIDTH`），不是這裡的 SSOT。
 
 ### 3.1 點
 
@@ -260,7 +260,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 ### 3.2 線
 
-**L-1 線寬三階**（px，`interpolate linear zoom`，再乘線寬滑桿；常數 `LINE_WIDTH`／`lineWidthExpr()` 已定義，**R3 待接線**）
+**L-1 線寬三階**（px，`interpolate linear zoom`，再乘線寬滑桿；常數 `LINE_WIDTH`／`lineWidthExpr()`；registry 線已接線（R3a），各層分階見 `lineFillTiers.ts`）
 
 | 階 | z10 | z14 | 用途 |
 |---|---|---|---|
@@ -272,13 +272,13 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 理由：現況中位 z10 0.93／z14 1.0、P75 1.8；本案標準 z14 提到 2，讓 z14 的線與 6px 點視覺重量相當。viz-library L1（1.5／2.5／4）是分析結果在固定尺度的值，對應本案 z12 附近的標準～強調。onboarding 表（主要路網 z6 1／z14 3）與本案強調接近。
 
-**L-2 虛線只用在四種語意**：規劃中／施工中、非實體或推估（海纜、推估路線）、法定界線（海域）、網格外框。值收斂成兩種：`[2,2]`（一般）、`[4,3]`（界線）；`[2,1]` 改 `[2,2]`。實線不得用來表示「不確定」。（常數 `LINE_DASH`；R3 待接線，`[2,1]` 尚未改。）
+**L-2 虛線只用在四種語意**：規劃中／施工中、非實體或推估（海纜、推估路線）、法定界線（海域）、網格外框。值收斂成兩種：`[2,2]`（一般）、`[4,3]`（界線）；`[2,1]` 改 `[2,2]`。實線不得用來表示「不確定」。（常數 `LINE_DASH`；R3a 已把 registry 的 `[2,1]`（噪音格網外框）改成 `[2,2]`；依資料變化的虛線（離岸風場依狀態）保留。）
 
 **L-3 端點與接合**：路網、軌跡、河川、管線 `line-cap: round`、`line-join: round`；界線與網格 `butt`／`miter`（保持銳角）。
 
-**L-4 透明度**：標準 0.85、參考線 0.6、網格線 0.4；不低於 0.3（現況 `policeIso*` 0.04 在淡底圖幾乎看不到）。（常數 `LINE_OPACITY`；R3 待接線。）
+**L-4 透明度**：標準 0.85、參考線 0.6、網格線 0.4；不低於 0.3（現況 `policeIso*` 0.04 在淡底圖幾乎看不到）。（常數 `LINE_OPACITY`；registry 線已接線（R3a）。透明度依資料變化的線（堤防待建、電壓）與「保留」的面圖層外框（警察等時圈、Ookla 等）不套階，列為已知例外。）
 
-**L-5 道路類與邊界類**（常數 `BOUNDARY_GRAY`；R3 待接線）
+**L-5 道路類與邊界類**（常數 `BOUNDARY_GRAY`；行政界三層已接線（R3a）；L-3：行政界、海域界、流域界尖角，其他主體線圓頭圓角）
 
 | 類 | 顏色 | 寬 | 暗／淡 |
 |---|---|---|---|
@@ -290,7 +290,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 ### 3.3 面
 
-**F-1 面透明度三階**（常數 `FILL_OPACITY`；統計 0.55 本來就是現值，其餘 R3 待接線）
+**F-1 面透明度三階**（常數 `FILL_OPACITY`；統計 0.55 本來就是現值；registry 面已接線（R3a），透明度依資料變化的面保留）
 
 | 階 | fill-opacity | 用途 | 依據 |
 |---|---|---|---|
@@ -312,7 +312,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 一律用獨立 line 子圖層畫外框，不用 `fill-outline-color`（固定 1px、無法隨縮放；現況 7 處）。
 
-統計分級面已實作（R1，#391）：`gradedSeamPaint(isDark, hasValue)`（`GRADED_SEAM`：寬 1、暗 0.6／淡 0.8、無數值 0.5），外框透明度**不綁**透明度滑桿。其他面類型 R3 待做。
+統計分級面已實作（R1，#391）：`gradedSeamPaint(isDark, hasValue)`（`GRADED_SEAM`：寬 1、暗 0.6／淡 0.8、無數值 0.5），外框透明度**不綁**透明度滑桿。其他面類型已由 R3a 接線（常數 `FILL_OUTLINE`）：覆蓋面 1px 同色 0.8、背景面 0.5px 中性灰 0.6、分級面與網格底圖色細縫（網格 0.5px），外框顏色依資料變化時（例：港口依等級、離岸風場依狀態）保留，屬資料編碼。registry 已無 `fill-outline-color`（`lineFillSpec.test.ts` 守門）；`jpBuildingHeight` 走網格「無外框」，`parkingOnstreet` 新增 `outline` 子圖層。
 
 **F-3 分級色階**：不自創。統計圖層照 `statistics-layer-guidelines.md` §4（各主題 ColorBrewer 序列色、正負用 PuOr、門檻不隨當次資料重算、至少 `breaks + 1` 色）；Agent 分析結果照 viz-library §1（viridis／magma、暗淡方向相反、5 級）。缺值（拍板 A）：統計圖層改成 viz-library N1「透明底＋45° 細斜線」，取代舊的灰色 `#64748b`＋遮蔽斜線，全站缺值只有一種畫法。已實作（R1）：**缺值＝透明底＋45° 單向細斜線；遮蔽（suppressed）＝交叉斜線**，與缺值區分（2026-09-28 使用者確認）。8px 圖磚、暗白／淡黑 alpha 0.35（`MISSING_HATCH`、`hatchImageData()`）；圖例 `SwatchHatch` 同一組顏色。
 
@@ -337,7 +337,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 |---|---|
 | 點描邊色（P-2）、線外框色（L-6）、行政界線色（L-5）、文字色與 halo（T-2）、序列色階方向（viz-library：暗底越亮越多、淡底越深越多）、類別色的淡色版（viz-library C2） | 半徑、線寬、面透明度、點透明度、虛線、高度 |
 
-現況有 11 層改線寬、10 層改面透明度、11 層改點透明度（去重共 23 層），拍板後逐層改成只換色（若淡底圖真的需要更不透明，應整體調 F-1 的值，而不是單層例外）。
+現況有 11 層改線寬、10 層改面透明度、11 層改點透明度（去重共 23 層），拍板後逐層改成只換色（若淡底圖真的需要更不透明，應整體調 F-1 的值，而不是單層例外）。R3a 已處理 registry 線面（`lineFillSpec.test.ts` 的 K-4 測試守門），剩依資料的「保留」層與 hook 圖層。
 
 ### 3.7 顏色
 

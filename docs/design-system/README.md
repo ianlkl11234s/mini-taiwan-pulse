@@ -4,7 +4,7 @@
 
 ## 目前進度
 
-> 最後更新：2026-09-29（master 至 #408）。**每一輪結束時更新這一節**；細節與理由寫在 [`CHANGELOG.md`](./CHANGELOG.md)。
+> 最後更新：2026-09-30（R3a 分支 `feat/map-restyle-r3-line-fill`；master 至 #457）。**每一輪結束時更新這一節**；細節與理由寫在 [`CHANGELOG.md`](./CHANGELOG.md)。
 
 ### 各條工作線
 
@@ -18,8 +18,9 @@
 | Design system 文件 v2（本資料夾、活的元件頁、快照） | ✅ 完成 | #402 | 新元件記得在活頁加一段、跑 `npm run design:snapshot` |
 | 地圖 R1 基礎（共用數值、統計圖層、圖例 kit、地圖中文字） | ✅ 完成 | #391 | — |
 | 地圖 R2 點圖層（registry 191 層＋hook 122 層） | ✅ 完成 | #392、#393、#396、#398、#401 | 新圖層照 `pointTiers.ts` 登記分階（#407 土壤液化已照做） |
-| 地圖 R3 線與面 | ⏳ 未開始 | — | 線寬三階、線透明度、面透明度、行政界灰、7 處 `fill-outline-color`（常數已在 `mapStyleScale.ts`，未接線） |
-| 地圖 R4 圖例對齊 | ⏳ 未開始 | — | 29 個圖例與圖層不一致、LegendPanel 手寫色票 90 處、註記改 `LegendNote` |
+| 地圖 R3a 線與面（registry） | 🔶 PR 待 merge | R3a PR | registry 106 層線面接上分階（`lineFillTiers.ts`＋`lineFillSpec.ts`）；新圖層的線面照 `lineFillTiers.ts` 登記 |
+| 地圖 R3b 線面（hook）＋網格／影像／文字 | ⏳ 未開始 | — | hook 自畫線面、G-3 網格空格、G-4 影像、T-2／T-3 文字、F-4 擠出 |
+| 地圖 R4 圖例對齊 | 🔶 Codex 進行中 | — | 交接 `docs/features/map-layer-restyle/handoff-r4-legend.md`（分支 `feat/map-restyle-r4-legend`）；完成後 Claude 驗收 |
 | 地圖 R5 熱區＋密度透明度 | ⏳ 未開始 | — | 超過 10 萬點改熱區（日本宗教設施低縮放糊塊）、P-3 密度透明度、聚合泡泡描邊、泡泡 M3 |
 | 地圖 R6 Three.js／Mapbox 切換 | ⏳ 未開始 | — | **先要使用者決定**範圍與開關位置 |
 | 開站加速 | 🔶 部分 | 地形延後載入 #395 | 關閉的圖層不建資料來源、Three.js 圖層打開才建 |
