@@ -1,7 +1,12 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 const h3 = vi.hoisted(() => ({ cellToBoundary: vi.fn(() => [[25, 121], [25.1, 121.1], [25.2, 121]]) }));
 vi.mock("h3-js", () => h3);
+
+import { loadH3 } from "../../../map/h3Runtime";
+
+// h3-js 改為按需載入：同步斷言前先把（mock 的）模組載好。
+beforeAll(() => loadH3());
 
 import { bindGridStyleRehydration } from "../gridHosts";
 import { updateH3Layer } from "../../../map/h3LayerFactory";

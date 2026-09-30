@@ -1,4 +1,4 @@
-import { cellToBoundary } from "h3-js";
+import { deferUntilH3, requireH3 } from "./h3Runtime";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { YoubikeH3CellData } from "../data/youbikeH3Loader";
 
@@ -54,7 +54,7 @@ function youbikeCellsToGeoJSON(
   if (maxCapacity === 0) maxCapacity = 1;
 
   const features: GeoJSON.Feature[] = cells.map((cell) => {
-    const boundary = cellToBoundary(cell.h);
+    const boundary = requireH3().cellToBoundary(cell.h);
     const coords = boundary.map(([lat, lng]) => [lng, lat]);
     coords.push(coords[0]!);
 
@@ -132,6 +132,7 @@ export function updateYoubikeLayer(
   params: YoubikeLayerParams,
   visible: boolean,
 ): void {
+  if (deferUntilH3("h3-youbike", visible && cells.length > 0, () => updateYoubikeLayer(map, cells, params, visible))) return;
   ensureYoubikeLayers(map);
   const source = map.getSource(SOURCE_ID);
   if (!source || source.type !== "geojson") return;
