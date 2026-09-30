@@ -1,5 +1,7 @@
 # R3b 線面（hook）＋網格／影像／文字／擠出
 
+PR：[ #475 ](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/475)。
+
 狀態：使用者於 2026-09-30 確認建議＋D 區修正；本分支實作，待 Claude 驗收，未 merge。
 
 基準：`origin/master` 的 `84c9fef9`；第一段提案 commit `4d84c90c`；樣式實作 `af169b58`、lifecycle 修正 `4f4b40e4`。比較頁：[r3b-compare.html](./r3b-compare.html)。
