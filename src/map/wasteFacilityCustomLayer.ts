@@ -65,8 +65,8 @@ export interface WasteFacilityLayerOptions {
   onSceneReady?: (scenes: WasteFacility3DScenes) => void;
 }
 
-/** 焚化爐轉環／閃電等裝飾動畫是否在可見時持續重繪（預設否：靜態圖層不常駐重畫）。 */
-const ANIMATE_WHILE_VISIBLE = false;
+/** 焚化爐轉環／閃電等裝飾動畫：任一子圖層可見時持續重繪（時間軸暫停也不停），全關則 0 repaint。 */
+const ANIMATE_WHILE_VISIBLE = true;
 
 const ALL_KEYS: WasteFacility3DKey[] = [
   "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
@@ -137,8 +137,7 @@ export function createWasteFacilityLayer(opts: WasteFacilityLayerOptions): Custo
         }
       }
 
-      // 靜態圖層：只在資料／可見性／參數改變時重畫（由 useThreeJsLayers wake-up 通道觸發）。
-      // 焚化爐轉環／閃電因此只在相機移動或輸入改變時前進；要恢復持續動畫把 ANIMATE_WHILE_VISIBLE 改 true。
+      // 裝飾動畫：任一子圖層可見時自排下一幀；全部關閉時不再 triggerRepaint。
       let anyVisible = false;
       for (const k of ALL_KEYS) {
         if (vis[k]) {

@@ -6,10 +6,10 @@ import { FireStationScene, type FireStationRow } from "../three/FireStationScene
  * 疊在既有 Mapbox circle 之上（circle 仍負責俯視標示 + click popup）。
  * onAdd 時自 fetch /geo/fire_stations.geojson 餵 scene（一次性，與 overlay 共用同檔已被瀏覽器快取）。
  *
- * 重繪策略：靜態圖層，只在資料／可見性／參數改變時重畫（由 useThreeJsLayers wake-up 通道觸發），
- * 漣漪動畫因此只在相機移動或輸入改變時前進。要恢復「可見時持續漣漪」把下方旗標改 true。
+ * 重繪策略：漣漪是純裝飾動畫——圖層可見時持續重畫（時間軸暫停也不停）；
+ * 關閉後 render() 提早 return、不再 triggerRepaint，因此 0 repaint。
  */
-const ANIMATE_WHILE_VISIBLE = false;
+const ANIMATE_WHILE_VISIBLE = true;
 
 export interface FireStationLayerOptions {
   id?: string;
