@@ -100,32 +100,32 @@ export function LegendNum({ children }: { children: ReactNode }) {
 
 // ── 色票 ──────────────────────────────────────────────────
 /** LG-1 點類別：10×10 圓，1px 底圖色描邊。 */
-export function SwatchDot({ color, opacity = 0.9 }: { color: string; opacity?: number }) {
+export function SwatchDot({ color, opacity = 0.9, stroke, strokeWidth = 1, glow }: { color: string; opacity?: number; stroke?: string; strokeWidth?: number; glow?: string }) {
   const t = useLegendTheme();
   const d = LEGEND_SWATCH.dot;
-  return <span aria-hidden="true" style={{ width: d, height: d, borderRadius: RADIUS.full, background: color, opacity, boxShadow: `0 0 0 1px ${t.seam}`, flexShrink: 0, display: "inline-block" }} />;
+  return <span aria-hidden="true" style={{ width: d, height: d, borderRadius: RADIUS.full, background: color, opacity, boxSizing: "border-box", border: stroke ? `${strokeWidth}px solid ${stroke}` : undefined, boxShadow: `${stroke ? "0 0 0 0 transparent" : `0 0 0 1px ${t.seam}`}${glow ? `, 0 0 5px ${glow}` : ""}`, flexShrink: 0, display: "inline-block" }} />;
 }
 
 /** LG-2 面類別：12×10 方、圓角 2；outline 表示只有外框的面。 */
-export function SwatchSquare({ color, outline = false, opacity = 0.9 }: { color: string; outline?: boolean; opacity?: number }) {
+export function SwatchSquare({ color, outline = false, opacity = 0.9, stroke }: { color: string; outline?: boolean; opacity?: number; stroke?: string }) {
   const s = LEGEND_SWATCH.square;
   return (
     <span
       aria-hidden="true"
       style={{
         width: s.width, height: s.height, borderRadius: s.radius, boxSizing: "border-box", flexShrink: 0, display: "inline-block",
-        background: outline ? "transparent" : color, border: outline ? `2px solid ${color}` : "none", opacity,
+        background: outline ? "transparent" : color, border: outline ? `2px solid ${color}` : stroke ? `1px solid ${stroke}` : "none", opacity,
       }}
     />
   );
 }
 
 /** LG-4 線型：20px 線段；dash 同地圖 line-dasharray（線寬倍數）。 */
-export function SwatchLine({ color, width = 2, dash }: { color: string; width?: number; dash?: readonly number[] }) {
+export function SwatchLine({ color, width = 2, dash, opacity = 1 }: { color: string; width?: number; dash?: readonly number[]; opacity?: number }) {
   const w = Math.max(LEGEND_SWATCH.line.minHeight, width);
   const h = Math.ceil(w) + 2;
   return (
-    <svg aria-hidden="true" width={LEGEND_SWATCH.line.width} height={h} style={{ flexShrink: 0 }}>
+    <svg aria-hidden="true" width={LEGEND_SWATCH.line.width} height={h} style={{ flexShrink: 0, opacity }}>
       <line x1={0} y1={h / 2} x2={LEGEND_SWATCH.line.width} y2={h / 2} stroke={color} strokeWidth={w} strokeDasharray={dash ? dash.map((d) => d * w).join(" ") : undefined} />
     </svg>
   );
@@ -149,11 +149,11 @@ export function SwatchSteps({ colors, breaks }: { colors: readonly string[]; bre
 }
 
 /** LG-8 熱區／影像：漸層條＋兩端（或多點）標籤。 */
-export function SwatchGradient({ gradient, labels }: { gradient: string; labels?: readonly ReactNode[] }) {
+export function SwatchGradient({ gradient, labels, stroke }: { gradient: string; labels?: readonly ReactNode[]; stroke?: string }) {
   const t = useLegendTheme();
   return (
     <div>
-      <div style={{ height: LEGEND_SWATCH.gradient.height, borderRadius: RADIUS.sm, background: gradient }} />
+      <div style={{ height: LEGEND_SWATCH.gradient.height, borderRadius: RADIUS.sm, background: gradient, border: stroke ? `1px solid ${stroke}` : undefined }} />
       {labels && (
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textDim }}>
           {labels.map((l, i) => <span key={i}>{l}</span>)}

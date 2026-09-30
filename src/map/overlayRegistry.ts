@@ -1,3 +1,8 @@
+import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
+import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
+import { THEMED_PAINT_COLORS } from "./layerPaintColors";
+import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "./layerPaintColors";
+import { FOSSIL_PAINT_COLORS } from "./layerPaintColors";
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
 import type { OverlayConfig } from "../types";
 import { withPointSpec } from "./pointSpec";
@@ -156,6 +161,7 @@ import {
   JP_ACCOMMODATION_DENSITY_SCALES,
   type JpAccommodationDensityScale,
 } from "../data/jpTourismTypes";
+import { medicalPoiColor } from "../data/medicalPOITypes";
 
 function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): OverlayConfig {
   return {
@@ -175,7 +181,7 @@ function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): Over
       {
         suffix: "outline", type: "line", minzoom: 9,
         paint: (isDark, params) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.18)" : "rgba(124,45,18,0.28)",
+          "line-color": THEMED_PAINT_COLORS.jpAccommodationOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 9, 0.15, 14, 0.55],
           "line-opacity": params?.jpAccommodationDensityOpacity ?? 0.72,
         }),
@@ -220,7 +226,7 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
       {
         suffix: "outline", type: "line", minzoom: 10,
         paint: (isDark, p) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.18)",
+          "line-color": THEMED_PAINT_COLORS.companyGridOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.15, 14, 0.55],
           "line-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
@@ -845,7 +851,7 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
         suffix: `${type}-line`,
         type: "line",
         paint: (isDark) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.15)",
+          "line-color": THEMED_PAINT_COLORS.realEstateOutline[isDark ? "dark" : "light"],
           "line-width": 0.3,
         }),
       },
@@ -2387,7 +2393,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
         ],
         paint: (isDark: boolean, params?: Record<string, number>) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
           "line-opacity": params?.[`${key}Opacity`] ?? 0.65,
         }),
@@ -2424,7 +2430,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "line",
         ...(grid === 14 ? { maxzoom: 15 } : { minzoom: 15 }),
         paint: (isDark: boolean, params?: Record<string, number>) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.45)" : "rgba(15,23,42,0.45)",
+          "line-color": THEMED_PAINT_COLORS.ooklaTaiwanOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.2, 12, 0.5, 16, 0.9],
           "line-opacity": (params?.[`${key}Opacity`] ?? 0.75) * 0.8,
         }),
@@ -2453,7 +2459,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-color": THEMED_PAINT_COLORS.school[isDark ? "dark" : "light"],
             "circle-opacity": (params?.eduSchoolsOpacity ?? 0.85) * (isDark ? 0.14 : 0.18),
           };
         },
@@ -2468,8 +2474,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           // 而真實存在的「空大及大專校院附設進修學校」10 校落 fallback 藍。改走 educationTypes SSOT，
           // 與 5 個 eduSchool* 分級層同色（9 種 school_level 全覆蓋，共 4,315 點）。
           const color = useLevelColor
-            ? (schoolLevelColorExpr(isDark ? "#42a5f5" : "#1565c0") as unknown as string)
-            : (isDark ? "#42a5f5" : "#1565c0");
+            ? (schoolLevelColorExpr(THEMED_PAINT_COLORS.school[isDark ? "dark" : "light"]) as unknown as string)
+            : (THEMED_PAINT_COLORS.school[isDark ? "dark" : "light"]);
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2696,10 +2702,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-blur": 1,
             "circle-color": [
               "match", ["get", "type"],
-              "district_office", "#8d6e63",
-              "household_registration", "#7986cb",
-              "land_office", "#9ccc65",
-              "#8d6e63",
+              "district_office", GOV_SERVICE_PAINT_COLORS.district_office,
+              "household_registration", GOV_SERVICE_PAINT_COLORS.household_registration,
+              "land_office", GOV_SERVICE_PAINT_COLORS.land_office,
+              GOV_SERVICE_PAINT_COLORS.district_office,
             ] as unknown as string,
             "circle-opacity": 0.15,
           };
@@ -2718,10 +2724,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": [
               "match", ["get", "type"],
-              "district_office", "#8d6e63",
-              "household_registration", "#7986cb",
-              "land_office", "#9ccc65",
-              "#8d6e63",
+              "district_office", GOV_SERVICE_PAINT_COLORS.district_office,
+              "household_registration", GOV_SERVICE_PAINT_COLORS.household_registration,
+              "land_office", GOV_SERVICE_PAINT_COLORS.land_office,
+              GOV_SERVICE_PAINT_COLORS.district_office,
             ] as unknown as string,
             "circle-stroke-color": "#3e2723",
             "circle-stroke-width": [
@@ -2985,7 +2991,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#e53935" : "#c62828",
+            "circle-color": medicalPoiColor("hospital", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
@@ -3001,7 +3007,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#e53935" : "#c62828",
+            "circle-color": medicalPoiColor("hospital", isDark),
             "circle-stroke-color": isDark ? "#ef9a9a" : "#b71c1c",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3033,7 +3039,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-color": medicalPoiColor("clinic", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
@@ -3049,7 +3055,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-color": medicalPoiColor("clinic", isDark),
             "circle-stroke-color": isDark ? "#90caf9" : "#0d47a1",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3081,7 +3087,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#66bb6a" : "#2e7d32",
+            "circle-color": medicalPoiColor("pharmacy", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
@@ -3097,7 +3103,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#66bb6a" : "#2e7d32",
+            "circle-color": medicalPoiColor("pharmacy", isDark),
             "circle-stroke-color": isDark ? "#a5d6a7" : "#1b5e20",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3129,7 +3135,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#fdd835" : "#f9a825",
+            "circle-color": medicalPoiColor("aed", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
@@ -3145,7 +3151,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#fdd835" : "#f9a825",
+            "circle-color": medicalPoiColor("aed", isDark),
             "circle-stroke-color": isDark ? "#fff176" : "#f57f17",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3177,7 +3183,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-color": medicalPoiColor("ltc", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
@@ -3193,7 +3199,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-color": medicalPoiColor("ltc", isDark),
             "circle-stroke-color": isDark ? "#ce93d8" : "#6a1b9a",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3234,7 +3240,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               5, 14 * s, 10, 24 * s, 14, 36 * s,
             ],
             "circle-blur": 1.2,
-            "circle-color": isDark ? "#ffffff" : "#fffbeb",
+            "circle-color": THEMED_PAINT_COLORS.newsCriticalHalo[isDark ? "dark" : "light"],
             "circle-opacity": [
               "case",
               isCritical,
@@ -3255,7 +3261,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               5, 6 * s, 10, 12 * s, 14, 18 * s,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#ff9800" : "#e65100",
+            "circle-color": THEMED_PAINT_COLORS.newsGlow[isDark ? "dark" : "light"],
             "circle-opacity": isDark ? 0.15 : 0.18,
           };
         },
@@ -3526,9 +3532,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, p) => ({
           "line-color": [
             "match", ["get", "t"],
-            "灌溉專用渠道", isDark ? "#2dd4bf" : "#0d9488",
-            "下游具引灌需求", isDark ? "#a78bfa" : "#7c3aed",
-            isDark ? "#94a3b8" : "#64748b",
+            "灌溉專用渠道", THEMED_PAINT_COLORS.canalIrrigation[isDark ? "dark" : "light"],
+            "下游具引灌需求", THEMED_PAINT_COLORS.canalDownstream[isDark ? "dark" : "light"],
+            THEMED_PAINT_COLORS.canalOther[isDark ? "dark" : "light"],
           ] as unknown as string,
           "line-width": 3 * (p?.waterCanalWidth ?? 1),
           "line-blur": 2,
@@ -3541,9 +3547,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, p) => ({
           "line-color": [
             "match", ["get", "t"],
-            "灌溉專用渠道", isDark ? "#2dd4bf" : "#0d9488",
-            "下游具引灌需求", isDark ? "#a78bfa" : "#7c3aed",
-            isDark ? "#94a3b8" : "#64748b",
+            "灌溉專用渠道", THEMED_PAINT_COLORS.canalIrrigation[isDark ? "dark" : "light"],
+            "下游具引灌需求", THEMED_PAINT_COLORS.canalDownstream[isDark ? "dark" : "light"],
+            THEMED_PAINT_COLORS.canalOther[isDark ? "dark" : "light"],
           ] as unknown as string,
           "line-width": (isDark ? 0.5 : 0.8) * (p?.waterCanalWidth ?? 1),
           "line-opacity": (isDark ? 0.7 : 0.75) * (p?.waterCanalOpacity ?? 1),
@@ -4210,7 +4216,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "outline", type: "line", minzoom: 5,
         paint: (isDark, p) => ({
-          "line-color": isDark ? "#86efac" : "#15803d",
+          "line-color": THEMED_PAINT_COLORS.industrialParkOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.55, 12, 1.2, 15, 2],
           "line-opacity": Math.min(1, (p?.industrialParkBoundariesOpacity ?? 0.24) * 3),
         }),
@@ -4233,7 +4239,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "outline", type: "line", minzoom: 5,
         paint: (isDark, p) => ({
-          "line-color": isDark ? "#ddd6fe" : "#6d28d9",
+          "line-color": THEMED_PAINT_COLORS.industrialComparisonOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 12, 1.15, 15, 1.8],
           "line-opacity": Math.min(1, (p?.industrialParkComparisonOpacity ?? 0.68) * 1.25),
         }),
@@ -5356,12 +5362,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "source"],
-              "A_forest", "#d62728",
-              "B_osm", "#1f77b4",
-              "C_np_sheipa", "#2ca02c",
-              "C_np_kinmen", "#9467bd",
-              "D_taipei_grand", "#ff7f0e",
-              "D_newtaipei", "#e377c2",
+              "A_forest", HIKING_TRAIL_PAINT_COLORS.A_forest,
+              "B_osm", HIKING_TRAIL_PAINT_COLORS.B_osm,
+              "C_np_sheipa", HIKING_TRAIL_PAINT_COLORS.C_np_sheipa,
+              "C_np_kinmen", HIKING_TRAIL_PAINT_COLORS.C_np_kinmen,
+              "D_taipei_grand", HIKING_TRAIL_PAINT_COLORS.D_taipei_grand,
+              "D_newtaipei", HIKING_TRAIL_PAINT_COLORS.D_newtaipei,
               "#888888",
             ],
             "line-width": 5 * w,
@@ -5381,12 +5387,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "source"],
-              "A_forest", "#d62728",
-              "B_osm", "#1f77b4",
-              "C_np_sheipa", "#2ca02c",
-              "C_np_kinmen", "#9467bd",
-              "D_taipei_grand", "#ff7f0e",
-              "D_newtaipei", "#e377c2",
+              "A_forest", HIKING_TRAIL_PAINT_COLORS.A_forest,
+              "B_osm", HIKING_TRAIL_PAINT_COLORS.B_osm,
+              "C_np_sheipa", HIKING_TRAIL_PAINT_COLORS.C_np_sheipa,
+              "C_np_kinmen", HIKING_TRAIL_PAINT_COLORS.C_np_kinmen,
+              "D_taipei_grand", HIKING_TRAIL_PAINT_COLORS.D_taipei_grand,
+              "D_newtaipei", HIKING_TRAIL_PAINT_COLORS.D_newtaipei,
               "#888888",
             ],
             "line-width": [
@@ -5423,7 +5429,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.2)",
+          "line-color": THEMED_PAINT_COLORS.ecoNetworkOutline[isDark ? "dark" : "light"],
           "line-width": 0.8,
           "line-opacity": 1,
         }),
@@ -5452,7 +5458,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (_isDark, params) => ({
-          "fill-color": "#15803D",
+          "fill-color": FORESTRY_PAINT_COLORS.forestCompartments,
           "fill-opacity": params?.forestCompartmentsOpacity ?? 0.45,
         }),
       },
@@ -5460,7 +5466,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark, params) => ({
-          "line-color": isDark ? "#22c55e" : "#166534",
+          "line-color": THEMED_PAINT_COLORS.forestCompartmentsOutline[isDark ? "dark" : "light"],
           "line-width": params?.forestCompartmentsOutlineWidth ?? 0.5,
           "line-opacity": (params?.forestCompartmentsShowOutline ?? 1) ? 0.7 : 0,
         }),
@@ -5480,7 +5486,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (_isDark, params) => ({
-          "fill-color": ["match", ["get", "種類"], ...FOREST_RESERVE_TYPE_MATCH, "#0F766E"],
+          "fill-color": ["match", ["get", "種類"], ...FOREST_RESERVE_TYPE_MATCH, FORESTRY_PAINT_COLORS.forestReserve],
           "fill-opacity": params?.forestReserveOpacity ?? 0.6,
         }),
       },
@@ -5488,7 +5494,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark, params) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.25)",
+          "line-color": THEMED_PAINT_COLORS.forestReserveOutline[isDark ? "dark" : "light"],
           "line-width": params?.forestReserveOutlineWidth ?? 0.5,
           "line-opacity": (params?.forestReserveShowOutline ?? 1) ? 0.7 : 0,
         }),
@@ -5507,7 +5513,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (_isDark, params) => ({
-          "fill-color": "#65A30D",
+          "fill-color": FORESTRY_PAINT_COLORS.forestRecreation,
           "fill-opacity": params?.forestRecreationOpacity ?? 0.6,
         }),
       },
@@ -5515,7 +5521,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark, params) => ({
-          "line-color": isDark ? "#a3e635" : "#4d7c0f",
+          "line-color": THEMED_PAINT_COLORS.forestRecreationOutline[isDark ? "dark" : "light"],
           "line-width": params?.forestRecreationOutlineWidth ?? 0.5,
           "line-opacity": (params?.forestRecreationShowOutline ?? 1) ? 0.8 : 0,
         }),
@@ -5537,7 +5543,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestTreatmentWorksScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.55 * scale,
-            "circle-color": "#F59E0B",
+            "circle-color": FORESTRY_PAINT_COLORS.forestTreatmentWorks,
             "circle-stroke-color": "#b45309",
             "circle-stroke-width": 0.4,
             "circle-opacity": params?.forestTreatmentWorksOpacity ?? 0.85,
@@ -5561,7 +5567,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestFlatParksScale ?? 1.3;
           return {
             "circle-radius": BASE_RADIUS * 1.0 * scale,
-            "circle-color": "#A3E635",
+            "circle-color": FORESTRY_PAINT_COLORS.forestFlatParks,
             "circle-stroke-color": "#365314",
             "circle-stroke-width": 1,
             "circle-opacity": params?.forestFlatParksOpacity ?? 0.9,
@@ -5670,7 +5676,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestDamLakesScale ?? 1.2;
           return {
             "circle-radius": BASE_RADIUS * 0.85 * scale,
-            "circle-color": "#06B6D4",
+            "circle-color": FORESTRY_PAINT_COLORS.forestDamLakes,
             "circle-stroke-color": "#0e7490",
             "circle-stroke-width": 0.8,
             "circle-opacity": params?.forestDamLakesOpacity ?? 0.95,
@@ -5696,7 +5702,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const w = params?.forestRoadsWidth ?? 1;
           return {
-            "line-color": "#A16207",
+            "line-color": FORESTRY_PAINT_COLORS.forestRoads,
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
               7, 0.4 * w, 11, 1.2 * w, 14, 2.4 * w, 16, 3.2 * w,
@@ -5722,7 +5728,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestAlishanRailScale ?? 1.2;
           return {
             "circle-radius": BASE_RADIUS * 0.8 * scale,
-            "circle-color": "#92400E",
+            "circle-color": FORESTRY_PAINT_COLORS.forestAlishanRail,
             "circle-stroke-color": "#fff",
             "circle-stroke-width": 1,
             "circle-opacity": params?.forestAlishanRailOpacity ?? 0.95,
@@ -5746,7 +5752,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestTrailSignsScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.6 * scale,
-            "circle-color": "#84CC16",
+            "circle-color": FORESTRY_PAINT_COLORS.forestTrailSigns,
             "circle-stroke-color": "#365314",
             "circle-stroke-width": 0.5,
             "circle-opacity": params?.forestTrailSignsOpacity ?? 0.85,
@@ -5770,7 +5776,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestSignalPointsScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.7 * scale,
-            "circle-color": "#22C55E",
+            "circle-color": FORESTRY_PAINT_COLORS.forestSignalPoints,
             "circle-stroke-color": "#14532d",
             "circle-stroke-width": 0.6,
             "circle-opacity": params?.forestSignalPointsOpacity ?? 0.85,
@@ -5822,7 +5828,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestEducationCentersScale ?? 1.2;
           return {
             "circle-radius": BASE_RADIUS * 1.1 * scale,
-            "circle-color": "#0EA5E9",
+            "circle-color": FORESTRY_PAINT_COLORS.forestEducationCenters,
             "circle-stroke-color": "#fff",
             "circle-stroke-width": 1.2,
             "circle-opacity": params?.forestEducationCentersOpacity ?? 0.9,
@@ -5846,7 +5852,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestWildlifeScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.65 * scale,
-            "circle-color": "#A855F7",
+            "circle-color": FORESTRY_PAINT_COLORS.forestWildlife,
             "circle-stroke-color": "#581c87",
             "circle-stroke-width": 0.5,
             "circle-opacity": params?.forestWildlifeOpacity ?? 0.85,
@@ -7045,7 +7051,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6,  radius(2, 14),
               12, radius(5, 32),
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": o,
             "circle-stroke-width": [
               "case", ["==", ["get", "has_realtime"], true], 1.4, 1,
@@ -7140,7 +7146,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
                 Math.log10(0.5), 4, Math.log10(6000), 26]],
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": [
               "*", o,
               ["match", ["get", "status"],
@@ -7152,10 +7158,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-width": 1.2,
             "circle-stroke-color": [
               "match", ["get", "status"],
-              "construction", "#fff500",        // 霓虹電光黃
-              "pre-construction", "#00d4ff",    // 霓虹電光藍
-              "announced", "#a5b4fc",           // 霓虹淡紫藍
-              "#a5b4fc",
+              "construction", FACILITY_STATUS_PAINT_COLORS.construction,        // 霓虹電光黃
+              "pre-construction", FACILITY_STATUS_PAINT_COLORS.preConstruction,    // 霓虹電光藍
+              "announced", FACILITY_STATUS_PAINT_COLORS.announced,           // 霓虹淡紫藍
+              FACILITY_STATUS_PAINT_COLORS.announced,
             ],
             // 注意：mapbox-gl 不支援 circle stroke dasharray
           };
@@ -7186,7 +7192,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
                 Math.log10(0.5), 4, Math.log10(6000), 22]],
             ],
-            "circle-color": "#525252",
+            "circle-color": FACILITY_STATUS_PAINT_COLORS.historical,
             "circle-opacity": [
               "*", o,
               ["match", ["get", "status"],
@@ -7196,7 +7202,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
                 0.4],
             ],
             "circle-stroke-width": 1,
-            "circle-stroke-color": "#737373",
+            "circle-stroke-color": FACILITY_STATUS_PAINT_COLORS.historicalStroke,
           };
         },
       },
@@ -7225,7 +7231,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
                 Math.log10(0.5), 3, Math.log10(100), 12]],
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": o * 0.9,
             "circle-stroke-width": 0.6,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -7256,7 +7262,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 5.5],
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": o * 0.75,
             "circle-stroke-width": 0.4,
             "circle-stroke-color": isDark ? "#1f2937" : "#e5e7eb",
@@ -7295,7 +7301,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#41AEF2",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationCpc,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7326,7 +7332,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#22C55E",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationFpcc,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7357,7 +7363,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#F2522E",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationTaisugar,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7388,7 +7394,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3],
               15, ["*", s, 5],
             ],
-            "circle-color": "#D1D5DB",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationOther,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7419,7 +7425,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 4],
               15, ["*", s, 7],
             ],
-            "circle-color": "#0FBFBF",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationCanonical,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7450,7 +7456,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 5],
               15, ["*", s, 8],
             ],
-            "circle-color": "#F2622E",
+            "circle-color": FOSSIL_PAINT_COLORS.lpgSubpackaging,
             "circle-opacity": o,
             "circle-stroke-width": 0.8,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -7481,7 +7487,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3],
               15, ["*", s, 5],
             ],
-            "circle-color": "#D9863D",
+            "circle-color": FOSSIL_PAINT_COLORS.lpgRetailers,
             "circle-opacity": o,
             "circle-stroke-width": 0.5,
             "circle-stroke-color": isDark ? "#1f2937" : "#ffffff",
@@ -7512,7 +7518,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 16],
             ],
             "circle-blur": 0.7,
-            "circle-color": "#F2B84B",
+            "circle-color": FOSSIL_PAINT_COLORS.lngTerminal,
             "circle-opacity": o * 0.35,
           };
         },
@@ -7529,7 +7535,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, ["*", s, 3],
               12, ["*", s, 8],
             ],
-            "circle-color": "#F2B84B",
+            "circle-color": FOSSIL_PAINT_COLORS.lngTerminal,
             "circle-opacity": o,
             "circle-stroke-width": 1.2,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -7554,7 +7560,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.pipelineGasOpacity ?? 0.8;
           const w = params?.pipelineGasWidth ?? 2.0;
           return {
-            "line-color": "#F2D64B",
+            "line-color": FOSSIL_PAINT_COLORS.pipelineGas,
             "line-width": w,
             "line-opacity": o,
           };
@@ -7578,7 +7584,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.pipelineOilGasOpacity ?? 0.7;
           const w = params?.pipelineOilGasWidth ?? 1.5;
           return {
-            "line-color": "#EDF249",
+            "line-color": FOSSIL_PAINT_COLORS.pipelineOilGas,
             "line-width": w,
             "line-opacity": o,
             "line-dasharray": [2, 2],
@@ -7606,7 +7612,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6 * scale, 10, 18 * scale, 14, 36 * scale],
             "circle-blur": 0.8,
-            "circle-color": "#F97316",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "circle-opacity": o * 0.5,
           };
         },
@@ -7620,7 +7626,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.industrialRefineryScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2 * scale, 10, 5 * scale, 14, 9 * scale],
-            "circle-color": "#F97316",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "circle-opacity": o,
           };
         },
@@ -7632,7 +7638,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
           return {
-            "fill-color": "#F97316",
+            "fill-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "fill-opacity": o * 0.5,
           };
         },
@@ -7645,7 +7651,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialRefineryOpacity ?? 0.55;
           const show = (params?.industrialRefineryOutline ?? 1) > 0;
           return {
-            "line-color": "#F97316",
+            "line-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -7672,7 +7678,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5 * scale, 10, 14 * scale, 14, 28 * scale],
             "circle-blur": 0.8,
-            "circle-color": "#06B6D4",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "circle-opacity": o * 0.5,
           };
         },
@@ -7686,7 +7692,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.industrialStorageTankScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5 * scale, 10, 4 * scale, 14, 7 * scale],
-            "circle-color": "#06B6D4",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "circle-opacity": o,
           };
         },
@@ -7698,7 +7704,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           return {
-            "fill-color": "#06B6D4",
+            "fill-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "fill-opacity": o * 0.5,
           };
         },
@@ -7711,7 +7717,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           const show = (params?.industrialStorageTankOutline ?? 1) > 0;
           return {
-            "line-color": "#06B6D4",
+            "line-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "line-width": show ? 2 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -7738,7 +7744,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7 * scale, 10, 20 * scale, 14, 40 * scale],
             "circle-blur": 0.8,
-            "circle-color": "#D946EF",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "circle-opacity": o * 0.55,
           };
         },
@@ -7752,7 +7758,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.industrialPowerPlantScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5 * scale, 10, 6 * scale, 14, 10 * scale],
-            "circle-color": "#D946EF",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "circle-opacity": o,
           };
         },
@@ -7764,7 +7770,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           return {
-            "fill-color": "#D946EF",
+            "fill-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "fill-opacity": o * 0.5,
           };
         },
@@ -7777,7 +7783,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           const show = (params?.industrialPowerPlantOutline ?? 1) > 0;
           return {
-            "line-color": "#D946EF",
+            "line-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -7807,7 +7813,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 13],
             ],
             "circle-blur": 0.7,
-            "circle-color": "#3B82F6",
+            "circle-color": FOSSIL_PAINT_COLORS.coalTerminal,
             "circle-opacity": o * 0.35,
           };
         },
@@ -7824,7 +7830,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, ["*", s, 3],
               12, ["*", s, 7],
             ],
-            "circle-color": "#3B82F6",
+            "circle-color": FOSSIL_PAINT_COLORS.coalTerminal,
             "circle-opacity": o,
             "circle-stroke-width": 1.2,
             "circle-stroke-color": isDark ? "#fafafa" : "#ffffff",
@@ -8177,12 +8183,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           // 依 highway 分色（catalog: motorway+link 6.9k / trunk 4.2k / primary 16k / secondary 13k / tertiary 37k / others）
           const colorExpr: unknown[] = [
             "match", ["get", "highway"],
-            ["motorway", "motorway_link"], "#fb923c",
-            ["trunk", "trunk_link"], "#f87171",
-            ["primary", "primary_link"], "#fcd34d",
-            ["secondary", "secondary_link"], "#9ca3af",
-            ["tertiary", "tertiary_link"], "#d4d4d4",
-            "#e5e7eb",
+            ["motorway", "motorway_link"], ROAD_DRIVE_PAINT_COLORS.motorway,
+            ["trunk", "trunk_link"], ROAD_DRIVE_PAINT_COLORS.trunk,
+            ["primary", "primary_link"], ROAD_DRIVE_PAINT_COLORS.primary,
+            ["secondary", "secondary_link"], ROAD_DRIVE_PAINT_COLORS.secondary,
+            ["tertiary", "tertiary_link"], ROAD_DRIVE_PAINT_COLORS.tertiary,
+            ROAD_DRIVE_PAINT_COLORS.other,
           ];
           const widthExpr: unknown[] = [
             "interpolate", ["linear"], ["zoom"],

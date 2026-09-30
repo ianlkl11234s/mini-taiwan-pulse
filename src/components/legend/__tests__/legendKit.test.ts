@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { LEGEND_SWATCH, LegendCompactCtx, LegendNote, LegendThemeCtx, LegendTitle, LIGHT_LEGEND, SwatchDot, SwatchHatch } from "../legendKit";
 import { hatchImageData } from "../../../map/mapStyleScale";
+import { MEDICAL_POI_TYPES, MEDICAL_POI_PAINT_COLORS, medicalPoiColor } from "../../../data/medicalPOITypes";
 
 const legendPanelSource = () => readFileSync(fileURLToPath(new URL("../../LegendPanel.tsx", import.meta.url)), "utf8");
 
@@ -44,6 +45,23 @@ describe("LegendPanel 收斂 ratchet", () => {
 
   it("手寫色票尺寸（width: N, height: N）只能減少，新圖例請用 legendKit 的 Swatch*", () => {
     const count = legendPanelSource().match(/width: \d+, height: \d+/g)?.length ?? 0;
-    expect(count).toBeLessThanOrEqual(90);
+    expect(count).toBeLessThanOrEqual(6);
+  });
+
+  it("R4 A 類圖例以對應 geometry 的 legendKit 色票渲染", () => {
+    const source = legendPanelSource();
+    expect(source).toContain('<FireCatRows cats={OSM_ROAD_DRIVE_CATS} line />');
+    expect(source).toContain('<NetworkStructuresLegend title="橋梁承載類型" rows={CARRIER_KINDS} line />');
+    expect(source).toContain('<FireCatRows cats={FIRE_HYDRANT_CATS} />');
+    expect(source).toContain('<NoiseLegendRows rows={rows} dot />');
+    expect(source).toContain('<NoiseLegendRows rows={Object.values(SOUND_CAMERA_PRECISION_META)} dot />');
+    expect(source).toContain('square ? <SwatchSquare color={color} /> : <SwatchDot color={color} />');
+  });
+
+  it("R4 K-1：醫療圖例與 paint 共用暗／淡主色常數", () => {
+    for (const item of MEDICAL_POI_TYPES) {
+      expect(medicalPoiColor(item.id, true)).toBe(MEDICAL_POI_PAINT_COLORS[item.id].dark);
+      expect(medicalPoiColor(item.id, false)).toBe(MEDICAL_POI_PAINT_COLORS[item.id].light);
+    }
   });
 });
