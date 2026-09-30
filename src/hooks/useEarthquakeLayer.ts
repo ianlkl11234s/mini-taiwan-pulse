@@ -108,10 +108,13 @@ function buildLayers(map: MapboxMap) {
         "circle-stroke-color": COLOR_EXPR,
         "circle-stroke-width": 2,
         "circle-stroke-opacity": 0,
-        // 動畫由 RAF 逐幀改寫：關掉 GL transition，否則關閉當下 transition 卡住、持續 render
+        // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
+        // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
         "circle-radius-transition": { duration: 0, delay: 0 },
         "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
         "circle-stroke-width-transition": { duration: 0, delay: 0 },
+        "circle-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-color-transition": { duration: 0, delay: 0 },
       },
     } as CircleLayer);
   }
