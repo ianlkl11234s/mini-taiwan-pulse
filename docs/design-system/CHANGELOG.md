@@ -21,9 +21,20 @@
 | 護欄 | `src/map/__tests__/lineFillSpec.test.ts`（階值、K-4、虛線、禁用 `fill-outline-color`） |
 | 盤點修正 | `design:audit-layers` 判斷「圖例暗淡不一致」時不再把面圖層外框線當主色（原本 8 個誤報：`forestCompartments`、`ecoNetworkZones`、`companyCapitalGrid`、`ooklaPerformanceGrid`、`jpAccommodationDensity`、`realEstateRentalGrid`、`industrialParkBoundaries`、`industrialParkComparison`） |
 
-### 地圖 R4 圖例對齊（進行中）
+### 地圖 R4 圖例對齊與識別色 — map-layers §3.7、§4.3
 
-- 交給 Codex 平行做，交接 `docs/features/map-layer-restyle/handoff-r4-legend.md`；分工：R4 只動圖例與顏色常數，R3 動寬度、透明度、外框。
+Codex 實作、Claude 驗收（`docs/features/map-layer-restyle/R4-report.md`）。原則：地圖是對的，圖例去對齊地圖；地圖畫法零改動（黃金快照零差異）。
+
+| 決定 | 內容 |
+|---|---|
+| 形狀 | 面圖層改方塊（建物、都市紋理、不動產市值）、點圖層改圓點（消防栓、政府機關、噪音稽查、聲音照相）、線圖層改線段（橋梁承載、OSM 道路） |
+| 色票同源 | 圖例色票改引用與 paint 同一常數：新檔 `src/map/layerPaintColors.ts`（化石燃料、政府機關、道路、林業、步道、設施狀態、主題色）、`medicalPOITypes.ts` 的 `medicalPoiColor` |
+| 暗淡 | 醫療 5 層、學校、新聞、渠道等圖例依暗淡切換；分級面／網格外框描邊用 `mapSeamColor`（與 R3a 同源） |
+| 化石燃料 | 圖例原本用品牌色（中油綠等），地圖實際畫 registry 色（中油淺藍 `#41AEF2`）；依原則改成地圖色 |
+| 裁處分層 | 嚴重度在地圖上不是用顏色表示，圖例的嚴重度三列拿掉色票只留文字；介質色票保留 |
+| K-1 | 13 層識別色（manifest `color`）改成地圖暗色版主色：醫療 5 層、AED、計程車招呼站、清運點、海纜、登陸站、溫泉區、風景區、農路、歷史電廠 |
+| 手寫色票 | `LegendPanel.tsx` 90 → 6（剩的 kit 無對應元件） |
+| 盤點 | `legendsWithIssues` 28 → 3（剩的 3 個是屬性色，程式同源，盤點讀不到） |
 
 ## 2026-09-29
 

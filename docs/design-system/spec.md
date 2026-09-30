@@ -889,7 +889,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 說明／分享視窗 | ✅ 符合 | H2、語言分段、`kbd`、分享欄位 `1fr auto`（§5.27） |
 | 手機標頭 | ✅ 符合（M1） | 手機時間軸條淡色時仍是暗色底（§10.3） |
 | 層級（z-index） | ⚠️ 部分 | 表內元件已歸層；仍有 17 處寫死數字（15 檔，含已登記特例），見 §5.25 與 guard 基準 |
-| 圖例 | ⚠️ 部分 | `legendKit` 已上線（§5.32）；29 個圖例與圖層樣式不一致（R4，[`map-layers.md`](./map-layers.md) §4.3）；`LegendPanel.tsx` 仍有 90 處手寫色票（ratchet 只准減少） |
+| 圖例 | ⚠️ 部分 | `legendKit` 已上線（§5.32）；R4 已對齊 28 個不一致圖例（[`map-layers.md`](./map-layers.md) §4.3）；`LegendPanel.tsx` 手寫色票剩 6 處（ratchet 只准減少） |
 | 載入狀態條（§5.30） | ✅ 符合 | #390 |
 | Agent 處理中光暈（§5.31） | ✅ 符合 | #390 |
 | 開站畫面（§5.33） | ✅ 符合 | #395 |
@@ -922,7 +922,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 按鈕 pressed 態 | 未定義 | §5.7 |
 | 點圖層字面值（R2） | `overlayRegistry.ts` 裡 192 個點圖層的 `circle-radius`／`circle-stroke-*` 字面值已被 `pointSpec.ts` 覆寫、不生效；改大小請改 `pointTiers.ts`，字面值逐層調整時清除 | `src/map/pointSpec.ts` |
 | 泡泡圖層（P-1 B 後續） | registry 38＋hook 16＝54 個依資料放大的點圖層仍用各自的半徑範圍，部分還隨縮放；待逐層改成 M3（面積∝值、rMin 4／rMax 28）。泡泡即時層（`newsEvents`、`a1AccidentRealtime`）的光暈半徑未設上限 | `pointTiers.ts` 的 `B`、`pointSpec.ts` |
-| 圖例手寫色票 | `LegendPanel.tsx` 仍有 90 處手寫 `width／height` 色票（8×8、9×9、14×10…），未走 `legendKit`；ratchet 只准減少 | `legendKit.test.ts` |
+| 圖例手寫色票 | `LegendPanel.tsx` 剩 6 處手寫 `width／height` 色票（表演場館大小對照、航空空域虛線框、電網 1.5px 線、離岸風電複合圖樣），kit 尚無對應元件；ratchet 只准減少 | `legendKit.test.ts` |
 | 圖例精簡版（LG-9） | 只有 `LegendNote` 會在停靠 popup 開著時收起；手寫註記 div 不會 | `LegendPanel.tsx` |
 | 點圖層資料編碼描邊（registry） | #392 曾把 34 層依資料變化的描邊蓋成細縫，#401 還原（`withPointSpec` 以 `isDataDriven()` 判斷）。#401 合併前以本列為準 | `src/map/pointSpec.ts` |
 

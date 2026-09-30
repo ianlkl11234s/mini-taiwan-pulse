@@ -63,7 +63,7 @@
 3. **兩種底圖**：暗色（預設）與淡色（`light`／`streets`）各看一次；確認描邊、文字 halo、線色有跟著切換。
 4. **四鐵則**：透明度滑桿有效（0.1 與 1.0 兩端）、圖例色與地圖一致（同色、同級距、同單位）、點得到 popup（R2 選取圈出現在正確位置）、選項 ≥4 時是原生下拉。
 5. **重跑盤點**：`npm run design:audit-layers`，`git diff docs/design-system/layer-style-inventory.json` 只該動到這一層（與它的圖例）。
-6. `npx tsc -b`；改到 `overlayRegistry` paint 時黃金快照會紅——確認差異是本次有意的，再照 `scripts/preprocess/dump-layer-golden.ts` 檔頭說明重產 fixture。點圖層另跑 `src/map/__tests__/pointSpec.test.ts`、`hookPointSpec.test.ts`（hook 內隨縮放的點半徑 ≤ 3 處、非 B 的 hook 檔必用 `pointRadius(`＋`pointStrokePaint(`、不得手寫描邊透明度公式）；圖例跑 `src/components/legend/__tests__/legendKit.test.ts`（`LegendPanel.tsx` 手寫色票 ≤ 90，只准減少）。
+6. `npx tsc -b`；改到 `overlayRegistry` paint 時黃金快照會紅——確認差異是本次有意的，再照 `scripts/preprocess/dump-layer-golden.ts` 檔頭說明重產 fixture。點圖層另跑 `src/map/__tests__/pointSpec.test.ts`、`hookPointSpec.test.ts`（hook 內隨縮放的點半徑 ≤ 3 處、非 B 的 hook 檔必用 `pointRadius(`＋`pointStrokePaint(`、不得手寫描邊透明度公式）；圖例跑 `src/components/legend/__tests__/legendKit.test.ts`（`LegendPanel.tsx` 手寫色票 ≤ 6，只准減少）。
 
 ---
 
@@ -341,7 +341,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 ### 3.7 顏色
 
-- **K-1 `LAYER_COLORS` 的角色**：圖層的**識別色**（側欄 icon、單色圖層的預設 paint 色、圖例標題色塊）。單色圖層的 paint 主色必須等於 `LAYER_COLORS`（現況 10 層不一致）。拍板 B：**以地圖現在的顏色為準**：`LAYER_COLORS` 改成地圖的暗色版主色；若地圖暗淡不同色，圖例色票跟著暗淡切換（醫療 5 層：暗 `#e53935`／淡 `#c62828`）；類別或序列圖層的 paint 用自己的色票，`LAYER_COLORS` 只當識別，不要求出現在 paint。
+- **K-1 `LAYER_COLORS` 的角色**：圖層的**識別色**（側欄 icon、單色圖層的預設 paint 色、圖例標題色塊）。單色圖層的 paint 主色必須等於 `LAYER_COLORS`（R4 前 13 層不一致，R4 已把 manifest 的 `color` 改成地圖暗色版主色）。拍板 B：**以地圖現在的顏色為準**：`LAYER_COLORS` 改成地圖的暗色版主色；若地圖暗淡不同色，圖例色票跟著暗淡切換（醫療 5 層：暗 `#e53935`／淡 `#c62828`）；類別或序列圖層的 paint 用自己的色票，`LAYER_COLORS` 只當識別，不要求出現在 paint。
 - **K-2 類別色與序列色分工**：拍板**不採用**「一般圖層 ≤ 7 類＋其他」的限制：一般圖層的類別數與配色維持各層自訂（例：非都市分區 12 類照舊）。**不做自動縮減**：程式不得自動把少數類別併成「其他」或自動減色；某層要縮減類別，由該層在自己的色票與圖例中明確定義（2026-09-28 使用者確認）。viz-library C2 只約束分析結果；統計圖層仍照 `statistics-layer-guidelines.md` §4。
 - **K-3 語意色不可挪用**：`spec.md` §3.5 STATUS（即時綠、警告橘、錯誤紅）與 §3.15 災害語意色只給狀態與警報；資料類別不得用這幾個色號表達一般分類。紅色保留給警報，一律搭配圖示或文字。拍板 B：**只寫成規則**，不加自動 guard，靠 review 把關。
 
@@ -416,6 +416,8 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - 圖例內的註記與來源可收合；色階、分界數字、單位不可收合。
 
 ### 4.3 與圖層樣式不一致的圖例（29 個）
+
+> **R4（2026-09-30）已處理**：28 個對齊（形狀、色票、暗淡），色票引用與 paint 同一常數（`src/map/layerPaintColors.ts`、各 `src/data/*Types.ts`）。盤點仍列 3 個（`facPrimary`、`parkingOnstreet`、`powerPlants`）：顏色寫在 feature 屬性（`facilityFuelColor`／`fuelColorOf`／空位率色階），圖例與 hook 讀同一張色表，盤點腳本讀不到屬性色，接受為已知限制。「暗淡只有一套」中有 8 個其實是外框線造成的盤點誤報（R3a 已修腳本）；分級面／網格外框的圖例描邊改用 `mapSeamColor`，與 R3a 地圖同源。細節見 `docs/features/map-layer-restyle/R4-report.md`。
 
 來源：`legends[].issues`（2026-09-29 重產）。R4 處理。分四類；「另有 hook 可能覆寫 paint」的需人工在瀏覽器確認哪一邊是實際畫面。
 

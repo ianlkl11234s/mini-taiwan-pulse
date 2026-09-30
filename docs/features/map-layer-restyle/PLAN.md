@@ -2,7 +2,7 @@
 
 > 依據：[`docs/design-system-map-layers.md`](../../design-system-map-layers.md) §3／§4（2026-09-28 拍板版）與 §7 拍板結果。
 > 盤點資料：`docs/design-system/layer-style-inventory.json`（`npm run design:audit-layers` 重產）。
-> 狀態：2026-09-30 R1（#391）、R2（#392、#393、#396、#398、#401）完成；R3 拆成 R3a（registry 線面，進行中）與 R3b；R4 由 Codex 平行進行（`handoff-r4-legend.md`）。規格以 [`docs/design-system/map-layers.md`](../../design-system/map-layers.md) 為準。
+> 狀態：2026-09-30 R1（#391）、R2（#392、#393、#396、#398、#401）完成；R3 拆成 R3a（registry 線面，進行中）與 R3b；R4 由 Codex 平行實作、Claude 驗收（`handoff-r4-legend.md`、`R4-report.md`），PR 依賴 R3a。規格以 [`docs/design-system/map-layers.md`](../../design-system/map-layers.md) 為準。
 
 ## 範圍（盤點數字）
 
