@@ -37,8 +37,59 @@ export async function fetchDataset(id: string): Promise<GeoFeature[]> {
 async function fetchFeatures(url: string): Promise<GeoFeature[]> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`載入資料失敗（${res.status}）：${url}`);
-  const gj = (await res.json()) as FeatureCollection;
-  return gj.features ?? [];
+  return parseDatasetPayload(await res.json(), url);
+}
+
+/**
+ * 解析資料集 payload：GeoJSON FeatureCollection 或 columnar 點位（PF-14）。
+ * 無法辨識的格式直接 throw，避免被當成「0 筆」的有效結果。
+ */
+export function parseDatasetPayload(payload: unknown, url = "(inline)"): GeoFeature[] {
+  const p = payload as { type?: unknown; format?: unknown; features?: unknown };
+  if (p && p.format === COLUMNAR_FORMAT) return decodeColumnarPoints(payload as ColumnarPoints);
+  if (p && p.type === "FeatureCollection") return ((p as FeatureCollection).features ?? []);
+  throw new Error(`無法辨識的資料集格式：${url}`);
+}
+
+// ── columnar 點位格式（scripts/preprocess/build-waste-stops-chat.py 產出）──
+// lng/lat 平行陣列 + properties：字串欄位為 { dict, codes } 字典編碼，數值欄位為原值陣列。
+// 解碼後的 properties 欄位順序即檔案內宣告順序（availableFields 依此）。
+
+export const COLUMNAR_FORMAT = "pulse-columnar-points/v1";
+
+type ColumnarColumn = { dict: unknown[]; codes: number[] } | unknown[];
+export interface ColumnarPoints {
+  format: typeof COLUMNAR_FORMAT;
+  count: number;
+  lng: number[];
+  lat: number[];
+  properties: Record<string, ColumnarColumn>;
+}
+
+export function decodeColumnarPoints(data: ColumnarPoints): GeoFeature[] {
+  const n = data.count;
+  if (data.lng.length !== n || data.lat.length !== n) {
+    throw new Error(`columnar 座標長度與 count（${n}）不符`);
+  }
+  const cols = Object.entries(data.properties).map(([key, col]) => {
+    const get = Array.isArray(col)
+      ? (i: number) => col[i]
+      : (i: number) => col.dict[col.codes[i] as number];
+    const len = Array.isArray(col) ? col.length : col.codes.length;
+    if (len !== n) throw new Error(`columnar 欄位 ${key} 長度與 count（${n}）不符`);
+    return [key, get] as const;
+  });
+  const features: GeoFeature[] = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const properties: Record<string, unknown> = {};
+    for (const [key, get] of cols) properties[key] = get(i);
+    features[i] = {
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [data.lng[i], data.lat[i]] },
+      properties,
+    };
+  }
+  return features;
 }
 
 /** 測試 / 重載用 */
