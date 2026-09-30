@@ -318,9 +318,10 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
     if (!base || recipe.dimensions?.education_stage !== view.stage) throw new Error('教育學制或指標不符固定入口');
     recipe = {...recipe, layerKey: base.layerKey};
   }
-  // PF-7: agri/social exact selectors live in the lazily imported recipe details (registered in loadingRegistry).
+  // PF-7/PF-10: agri/social exact selectors live in that family's lazily imported recipe details (registered in loadingRegistry).
   const detailsKey = recipe.sourceLayerKey ?? recipe.layerKey;
-  if (detailsKey && (getAgriRecipe(detailsKey) || getSocialRecipe(detailsKey))) await ensureStatisticsRecipeDetails();
+  const detailsFamily = !detailsKey ? null : getAgriRecipe(detailsKey) ? 'agri' : getSocialRecipe(detailsKey) ? 'social' : null;
+  if (detailsFamily) await ensureStatisticsRecipeDetails(detailsFamily);
     const [catalogResponse, releasesResponse] = await Promise.all([
       request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, signal, recipe),
       request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, signal, recipe),

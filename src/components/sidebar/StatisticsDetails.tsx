@@ -245,10 +245,9 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
   const source = state.source;
   const freshness = source?.freshness as { last_checked_at?: string; outcome?: string } | undefined;
   const activeBaseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
-  // PF-7: agri/social exact selectors (and education stage options) come from the lazily loaded recipe details.
-  const needsRecipeDetails = Boolean(getAgriRecipe(activeBaseKey) || getSocialRecipe(activeBaseKey) || getEducationPresentationView(layerKey));
-  const recipeDetailsReady = useStatisticsRecipeDetails(needsRecipeDetails);
-  const selectorsReady = !needsRecipeDetails || recipeDetailsReady;
+  // PF-7/PF-10: agri/social exact selectors (and education stage options, social-backed) come from that family's lazily loaded details.
+  const recipeDetailsFamily = getAgriRecipe(activeBaseKey) ? 'agri' : getSocialRecipe(activeBaseKey) || getEducationPresentationView(layerKey) ? 'social' : null;
+  const selectorsReady = useStatisticsRecipeDetails(recipeDetailsFamily);
   const selected = state.selection?.releaseId ?? state.release?.release_id ?? '';
   const selectable = selectorsReady ? statisticsReleaseOptions(layerKey, state.releases, state.selection?.indicatorId) : [];
   const unparseableCount = selectorsReady ? unparseableStatisticsReleaseCount(layerKey, state.releases, state.selection?.indicatorId) : 0;

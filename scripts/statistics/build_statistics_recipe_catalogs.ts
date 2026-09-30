@@ -10,7 +10,7 @@ import { deriveStatisticsRecipeCatalog, STATISTICS_RECIPE_CATALOG_SPECS } from "
 
 for (const spec of STATISTICS_RECIPE_CATALOG_SPECS) {
   const document = JSON.parse(readFileSync(resolve(spec.source), "utf8"));
-  const catalog = deriveStatisticsRecipeCatalog(document, spec.omitRecipeKeys, basename(spec.source));
+  const catalog = deriveStatisticsRecipeCatalog(document, spec.omitRecipeKeys, basename(spec.source), { keepReleaseOptions: spec.keepReleaseOptions });
   const text = `${JSON.stringify(catalog, null, 2)}\n`;
   writeFileSync(resolve(spec.catalog), text);
   console.log(`${spec.catalog}: ${Buffer.byteLength(text)} bytes (${document.recipes.length} recipes)`);
