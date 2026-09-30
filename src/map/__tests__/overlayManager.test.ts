@@ -468,7 +468,7 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
     expect(global.attribution).toContain("Ookla");
     expect(taiwan.attribution).toBe(global.attribution);
 
-    for (const entry of [global, taiwan]) {
+    for (const entry of [global, ookla("ooklaFixedPerformance", "ookla-fixed-global"), taiwan]) {
       expect(entry.pmtiles, `${entry.sourceId} 應走 PMTiles`).toBeTruthy();
       const mock = createMockMap();
       addOverlay(mock.map, entry, true, {});

@@ -2363,12 +2363,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
   ...(([
     { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
-    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global.geojson", pmtiles: undefined },
+    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
   ] as const).map(({ svc, key, sourceUrl, pmtiles }) => ({
     id: key,
     sourceUrl,
     sourceId: `ookla-${svc}-global`,
-    ...(pmtiles ? { pmtiles } : {}),
+    pmtiles,
     attribution: OOKLA_GRID_META.attribution,
     rebuildOnParamChange: ["fill", "line"],
     layers: [
