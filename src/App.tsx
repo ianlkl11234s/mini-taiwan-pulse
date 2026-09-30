@@ -123,6 +123,7 @@ import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapte
 import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
+import { requestThreeRepaint } from "./state/threeRepaintSignal";
 import { bumpHostRender, type AppLayerHostDeps } from "./layers/layerHostDeps";
 import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
 
@@ -608,6 +609,16 @@ export default function App() {
   temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
 
+  // 上面這些 ref 餵 3D 圖層；值換了就叫醒重畫一次（PF-9：明確 deps，取代
+  // useThreeJsLayers 以前「無 deps effect 每次 App render 比對 ref」的隱性依賴）
+  useEffect(() => {
+    requestThreeRepaint();
+  }, [
+    displayedFlights, ships, renderMode, isDarkTheme, showTrails, railData, lighthousePositions,
+    thsrPillarData, traPillarData, metroPillarData, airportPillarData, portPillarData,
+    temperatureData, timeline.playing,
+  ]);
+
   // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
   useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
 
@@ -639,6 +650,7 @@ export default function App() {
   const { byType: wasteDisposalByType } = useWasteDisposalPointLayer(wasteDisposalVis);
   const wasteFacilityByTypeRef = useRef(wasteFacilityByType);
   wasteFacilityByTypeRef.current = wasteFacilityByType;
+  useEffect(() => { requestThreeRepaint(); }, [wasteFacilityByType]);
 
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {

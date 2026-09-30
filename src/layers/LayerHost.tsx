@@ -39,8 +39,8 @@
 // compare** 做 React.memo：任何一欄身分變了才整批重跑，欄位新增自動納入比較，
 // 不用另外維護 deps 清單。
 // 保真條件（已查核）：
-//   - Host 內沒有「無 deps 陣列」的 effect（掃描 src/ 只有 App 端的 useThreeJsLayers
-//     一支，不在 Host 內），effect 只會因 deps 變動重跑 —— 跳過 render 不會漏跑。
+//   - Host 內沒有「無 deps 陣列」的 effect（App 端 useThreeJsLayers 原本那支也已於
+//     PF-9 改成 threeRepaintSignal 訂閱），effect 只會因 deps 變動重跑 —— 跳過 render 不會漏跑。
 //   - Host 的時間驅動一律走 timeStore 訂閱（YoubikeHost 自己訂分鐘粒度）、參數走
 //     useLayerParams 訂閱，都不依賴 App 重渲把新值帶進來。
 //

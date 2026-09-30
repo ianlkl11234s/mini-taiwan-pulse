@@ -4,6 +4,7 @@ import { RailEngine } from "../engines/RailEngine";
 import { TraTrainEngine } from "../engines/TraTrainEngine";
 import { timeStore } from "../state/timeStore";
 import { liveCountStore } from "../state/liveCountStore";
+import { requestThreeRepaint } from "../state/threeRepaintSignal";
 
 export function useRailEngine(
   railData: RailData | null,
@@ -51,6 +52,7 @@ export function useRailEngine(
     };
 
     update(timeStore.getTime()); // 初始化
+    requestThreeRepaint(); // 非 tick 換了資料 ref（PF-9）
     return timeStore.subscribe(update);
   }, [railData, enabled]);
 
@@ -59,6 +61,7 @@ export function useRailEngine(
     if (!enabled) {
       activeTrainsRef.current = [];
       liveCountStore.set("trains", 0);
+      requestThreeRepaint();
     }
   }, [enabled]);
 
