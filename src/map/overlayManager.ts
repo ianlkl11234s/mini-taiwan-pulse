@@ -262,6 +262,8 @@ export function addOverlay(
     } as mapboxgl.AnyLayer);
     // __filter 併入快照僅供 rebuild 變更偵測比對用，不會送進 mapbox（見下方 updateOverlayTheme）
     cache.set(id, snapshotPaint({ ...paint, ...(filter ? { __filter: filter } : {}) }));
+    // style reload 後 layer 是全新的 → 舊 layer 隱藏期間延後的 paint 作廢
+    dropPendingPaint(map, id);
   }
 }
 
@@ -305,6 +307,7 @@ export function updateOverlayTheme(
         if (map.getLayer(id)) {
           if (map.getLayoutProperty(id, "visibility") === "none") wasHidden = true;
           map.removeLayer(id);
+          dropPendingPaint(map, id);
         }
       }
       for (const spec of config.layers) {
@@ -374,6 +377,7 @@ export function releaseOverlaySnapshots(map: OverlayMap, config: OverlayConfig) 
     const id = layerId(config, spec.suffix);
     paintCacheByMap.get(map)?.delete(id);
     layoutCacheByMap.get(map)?.delete(id);
+    dropPendingPaint(map, id);
   }
 }
 
@@ -399,6 +403,7 @@ function applyLayoutDiff(
     }
   }
   cache.set(id, next);
+  if (layout.visibility !== "none") flushPendingPaint(map, id);
 }
 
 function applyPaintDiff(
@@ -411,10 +416,64 @@ function applyPaintDiff(
   const { changed, serialized } = diffPaint(cache.get(id), paint);
   // 無快照（理論上 addOverlay 都會建立）→ 保守全套用
   for (const [key, value] of changed) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    map.setPaintProperty(id, key as any, value);
+    setPaintPropertyGuarded(map, id, key, value);
   }
   cache.set(id, serialized);
+}
+
+/** 隱藏 layer 被延後的 paint：layerId → { prop → value }；layer 變回可見時補套。 */
+const pendingPaintByMap = new WeakMap<object, Map<string, Map<string, unknown>>>();
+
+/**
+ * setPaintProperty，但 `visibility: none` 的 layer 延後到變回可見才真的寫入。
+ *
+ * 背景（A0）：Mapbox 對 layer 改任一 paint 值，會替該 layer **所有** transitionable
+ * paint 建 transition prior（預設 300ms）；prior 只在 layer recalculate 時才清掉，而
+ * 隱藏 layer 不 recalculate → prior 永遠留著、`style.hasTransitions()` 恆 true →
+ * 全關＋暫停時地圖仍無限重畫。只把該屬性的 `-transition` 設 0 擋不住（其他屬性一樣
+ * 會拿到 prior），所以隱藏時乾脆不寫，交給 `flushPendingPaint` 在顯示時補上。
+ * 可見 layer 直接寫入，並清掉同屬性的待補值（避免之後被舊值蓋回）。
+ */
+export function setPaintPropertyGuarded(
+  map: Pick<OverlayMap, "getLayoutProperty" | "setPaintProperty">,
+  id: string,
+  name: string,
+  value: unknown,
+): void {
+  let pendingById = pendingPaintByMap.get(map);
+  if (map.getLayoutProperty(id, "visibility") === "none") {
+    if (!pendingById) {
+      pendingById = new Map();
+      pendingPaintByMap.set(map, pendingById);
+    }
+    let pending = pendingById.get(id);
+    if (!pending) {
+      pending = new Map();
+      pendingById.set(id, pending);
+    }
+    pending.set(name, value);
+    return;
+  }
+  pendingById?.get(id)?.delete(name);
+  map.setPaintProperty(id, name, value);
+}
+
+/** layer 已設為可見後呼叫：補套隱藏期間延後的 paint。 */
+export function flushPendingPaint(
+  map: Pick<OverlayMap, "getLayer" | "getLayoutProperty" | "setPaintProperty">,
+  id: string,
+): void {
+  const pendingById = pendingPaintByMap.get(map);
+  const pending = pendingById?.get(id);
+  if (!pending) return;
+  if (!map.getLayer(id) || map.getLayoutProperty(id, "visibility") === "none") return;
+  pendingById!.delete(id);
+  for (const [name, value] of pending) map.setPaintProperty(id, name, value);
+}
+
+/** layer 被移除／重建（paint 隨 addLayer 重給）時丟掉待補值。 */
+function dropPendingPaint(map: object, id: string): void {
+  pendingPaintByMap.get(map)?.delete(id);
 }
 
 // ── Static GeoJSON lazy hydration ──
@@ -554,6 +613,7 @@ export function setOverlayVisible(
       const modeAllows = resolvedLayout?.visibility !== "none";
       const v = visible && modeAllows ? "visible" : "none";
       map.setLayoutProperty(id, "visibility", v);
+      if (v === "visible") flushPendingPaint(map, id);
     }
   }
 }

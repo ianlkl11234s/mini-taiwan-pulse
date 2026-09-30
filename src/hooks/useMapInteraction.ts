@@ -1,11 +1,11 @@
-import { pickHistoricalFlightTrail } from "../map/historicalFlightTrails";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
-import { getRealEstatePointsScene } from "../map/realEstatePointsCustomLayer";
+// C1b：3D 模組按需載入 —— 未載入代表該圖層從沒開過，點擊時直接跳過
+import { historicalFlightTrailsModule, realEstatePointsModule } from "../map/lazyThreeLayers";
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
@@ -132,7 +132,7 @@ export function useMapInteraction(
       for (const country of ["TW", "JP"] as const) {
         const layerType = country === "TW" ? "historicalFlightTrails" : "jpHistoricalFlightTrails";
         if (!vis?.[layerType]) continue;
-        const hit = pickHistoricalFlightTrail(map, country, e.point.x, e.point.y, w, h);
+        const hit = historicalFlightTrailsModule.get()?.pickHistoricalFlightTrail(map, country, e.point.x, e.point.y, w, h) ?? null;
         if (hit) {
           setFeatureInfo(country === "TW"
             ? { layerType: "historicalFlightTrails", properties: hit.properties ?? {} }
@@ -324,7 +324,7 @@ export function useMapInteraction(
       // 這裡用 CPU 端逐點投影補回（見 RealEstatePointsScene.pickPoint）。
       // ⚠️ 只帶 buffer 內真實存在的欄位；地址／行政區／總價／坪數不在二進位格式裡。
       if (vis?.realEstateRentalPoint || vis?.realEstateSalePoint || vis?.realEstatePresalePoint) {
-        const reScene = getRealEstatePointsScene();
+        const reScene = realEstatePointsModule.get()?.getRealEstatePointsScene() ?? null;
         if (reScene) {
           const hit = reScene.pickPoint(e.point.x, e.point.y, w, h);
           if (hit) {

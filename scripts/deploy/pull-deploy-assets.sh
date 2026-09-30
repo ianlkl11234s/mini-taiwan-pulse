@@ -26,14 +26,17 @@ aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
 
 echo "[pull] sync geo → $DATA_DIR/geo/（扁平 S3 + include filter）"
 aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
-  --include "provincial_road.geojson" --include "national_highway.geojson" \
-  --include "bus_stations_city.geojson" --include "bus_stations_intercity.geojson" \
+  --include "bus_stations_intercity.geojson" \
   --include "bike_stations.geojson" --include "cycling_routes.geojson" \
   --include "freeway_congestion.geojson" --include "weather_stations.geojson" \
   --include "convenience_stores.geojson" \
   --include "active_faults.geojson" \
   --include "water_*.geojson" --include "water_*.pmtiles" --include "fire_*.geojson" \
-  --include "medical_*.geojson"
+  --include "medical_*.geojson" \
+  --exclude "water_flood_extreme.geojson" --exclude "water_reservoirs.geojson" --exclude "water_rivers.geojson" \
+  --exclude "water_river_polygons.geojson" --exclude "water_canals.geojson" --exclude "fire_hydrants.geojson" \
+  --exclude "medical_clinics.geojson" --exclude "medical_pharmacies.geojson" --exclude "medical_aed.geojson" --exclude "medical_ltc.geojson"
+# ↑ 2026-09-30：前端已改走 PMTiles、src 零引用的舊 GeoJSON（後置 --exclude 優先於 glob include）；provincial_road／national_highway／bus_stations_city 同理已自 include 移除
 
 # PT-1 PMTiles（geo 鏡像子前綴 deploy-assets/geo/）→ /data/geo/（前端請求 /geo/*.pmtiles）
 # 與上方扁平 geojson include-filter 並存；aws s3 sync 非破壞（無 --delete），兩者同進 /data/geo/ 不衝突。
@@ -65,12 +68,17 @@ aws s3 sync "$S3/medical/" "$DATA_DIR/medical/" --no-progress
 #    rm -f 清掉既有 volume 殘留舊檔（防繼續供應）。見 docs/features/owner-gated-layers。
 echo "[pull] sync agriculture → $DATA_DIR/agriculture/"
 aws s3 sync "$S3/agriculture/" "$DATA_DIR/agriculture/" --no-progress \
-  --exclude "livestock_farms.geojson" --exclude "slaughterhouses.geojson"
+  --exclude "livestock_farms.geojson" --exclude "slaughterhouses.geojson" \
+  --exclude "agri_retail_companies.geojson" --exclude "produce_wholesale_companies.geojson" \
+  --exclude "farm_roads.geojson" --exclude "eco_network_zones.geojson"  # 2026-09-30 前端走 .pmtiles、src 零引用
 rm -f "$DATA_DIR/agriculture/livestock_farms.geojson" "$DATA_DIR/agriculture/slaughterhouses.geojson"
 
 # 工商登記：版本化 GeoJSON / PMTiles → /data/business_registry/（dated filename 不覆寫舊版）
 echo "[pull] sync business_registry → $DATA_DIR/business_registry/"
-aws s3 sync "$S3/business_registry/" "$DATA_DIR/business_registry/" --no-progress
+aws s3 sync "$S3/business_registry/" "$DATA_DIR/business_registry/" --no-progress \
+  --exclude "company_points_202608.pmtiles" --exclude "company_capital_grid_202608.pmtiles" \
+  --exclude "regulated_facilities_20260818.pmtiles" --exclude "factory_locations_202606.pmtiles" \
+  --exclude "common_registration_addresses_202608.geojson"  # 2026-09-30 舊版資產（前端已切 _r2／_allzoom）
 
 # 產業園區：版本化 PMTiles → /data/industrial_zone/（dated filename 不覆寫舊版）
 echo "[pull] sync industrial_zone → $DATA_DIR/industrial_zone/"
@@ -88,7 +96,8 @@ aws s3 sync "$S3/education/" "$DATA_DIR/education/" --no-progress
 # 林業：鏡像子前綴 deploy-assets/forestry/ → /data/forestry/（整夾 sync，加新檔免改腳本）
 # 2026-06-10 補：FOREST_FILES 上傳端 6/7 就有、pull 端漏寫 → 容器 /forestry/ 大檔 404
 echo "[pull] sync forestry → $DATA_DIR/forestry/"
-aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress --exclude "forest_reserve.geojson"
+aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress --exclude "forest_reserve.geojson" \
+  --exclude "forest_roads.geojson" --exclude "hiking_trails.geojson"  # 2026-09-30 前端走 .pmtiles、src 零引用
 
 # 養殖漁業：鏡像子前綴 deploy-assets/fishery/ → /data/fishery/（ponds/衛星偵測 PMTiles 大檔；生產區/箱網 geojson 小檔在 dist fallback）
 echo "[pull] sync fishery → $DATA_DIR/fishery/"
@@ -171,7 +180,8 @@ aws s3 sync "$S3/tourism/" "$DATA_DIR/tourism/" --no-progress
 
 # 房地產：鏡像子前綴 deploy-assets/coverage/ → /data/coverage/（real_estate_* 大檔；gas 小檔在 dist fallback）
 echo "[pull] sync coverage → $DATA_DIR/coverage/"
-aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress
+aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress \
+  --exclude "real_estate_points.pmtiles"  # 2026-09-30 前端零引用（點位走 real_estate_points_buffer.bin）
 
 # EM-15 嵌入用歷史快照：整夾 sync（之後加新日期/新圖層零改腳本）
 # EM-16 起本夾含 flights/ships/rail 的 `.json.gz`：S3 端**沒有** Content-Encoding metadata，

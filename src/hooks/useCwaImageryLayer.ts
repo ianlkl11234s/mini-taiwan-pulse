@@ -343,12 +343,14 @@ export function useCwaImageryLayer({
     const run = (currentTimeSec: number) => {
       // 每個 dataset 各自處理，避免雲圖在 style transition 拋錯時連帶跳過雷達關閉。
       try {
-        reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
+        // 可見性同時看 visRef（render 時更新的最新值）：被關掉後若還有舊 closure 的 run
+        // 遲到觸發（實測 All Off 後曾有一次舊 timer 把雷達又設回 visible），也只會隱藏。
+        reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible && visRef.current.cloud, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
       } catch {
         scheduleRetry();
       }
       try {
-        reconcile(radarRef.current, RADAR_DATASET, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
+        reconcile(radarRef.current, RADAR_DATASET, radarVisible && visRef.current.radar, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
       } catch {
         scheduleRetry();
       }
@@ -368,11 +370,30 @@ export function useCwaImageryLayer({
       map!.once("idle", retry);
     }
     const onStyleLoad = () => run(timeStore.getTime());
+    const allHidden = () => [cloudRef.current, radarRef.current].every((state) => {
+      const id = state.handle?.layerId;
+      try {
+        return !id || !map.getLayer(id) || map.getLayoutProperty(id, "visibility") === "none";
+      } catch {
+        return false;
+      }
+    });
 
     // 不用 isStyleLoaded() 擋住 visibility=false：tile busy 時它也可能是 false，
     // 但已存在的 layer 仍必須立刻 setVisible(false)。失敗才等 idle 重試。
     run(timeStore.getTime());
-    unsubTime = timeStore.subscribeThrottled(1000, run);
+    if (cloudVisible || radarVisible) {
+      unsubTime = timeStore.subscribeThrottled(1000, run);
+    } else if (!allHidden()) {
+      // 兩層都關：run 只做 setVisible(false)，常駐每秒呼叫會一直 setLayoutProperty → 重畫。
+      // 但 style 轉換中 hide 可能丟例外，而 scheduleRetry 等的 idle 在播放中不會來 →
+      // 每秒重試到確實隱藏為止，然後自行退訂。
+      const unsub = timeStore.subscribeThrottled(1000, (t) => {
+        run(t);
+        if (allHidden()) { unsub(); if (unsubTime === unsub) unsubTime = null; }
+      });
+      unsubTime = unsub;
+    }
     map.on("style.load", onStyleLoad);
     return () => {
       disposed = true;

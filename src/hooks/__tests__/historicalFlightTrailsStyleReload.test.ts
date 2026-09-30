@@ -61,9 +61,13 @@ vi.mock("../../state/historicalFlightTrailsStore", () => ({
   setHistoricalFlightStatus: status.set,
   useHistoricalFlightRetryRevision: () => 0,
 }));
-vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }));
+vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn(), withLoading: (_id: string, _label: string, p: Promise<unknown>) => p }));
 
 import { useHistoricalFlightTrailsLayer } from "../useHistoricalFlightTrailsLayer";
+import { historicalFlightTrailsModule } from "../../map/lazyThreeLayers";
+
+// C1b：3D 模組改為按需載入；預先載入讓本測試走同步路徑（載入流程另見 lazyThreeLayers.test）
+await historicalFlightTrailsModule.load();
 
 const lineId = "historical-flight-trails-tw-3d";
 const asset = { path: "releases/r1/tw_RCTP_2026-03-10.geojson", bytes: 3, sha256: "a".repeat(64) };

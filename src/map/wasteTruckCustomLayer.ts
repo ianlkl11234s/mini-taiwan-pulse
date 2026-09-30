@@ -2,6 +2,7 @@ import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
 import type { WasteTrailRow } from "../data/wasteLoader";
 import { WasteTruckScene } from "../three/WasteTruckScene";
 import { WasteMusicNoteScene } from "../three/WasteMusicNoteScene";
+import { subscribeTimeRepaint } from "./customLayer";
 
 /**
  * 垃圾車 Custom Layer
@@ -37,6 +38,7 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
   const noteScene = new WasteMusicNoteScene();
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
+  let unsubTime: (() => void) | null = null;
 
   return {
     id: opts.id ?? "waste-truck-3d",
@@ -47,6 +49,7 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
       map = mapInstance;
       truckScene.init(gl);
       noteScene.init(gl);
+      unsubTime = subscribeTimeRepaint(() => map, opts.getIsVisible);
       opts.onSceneReady?.(truckScene, noteScene);
     },
 
@@ -73,14 +76,19 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
         noteScene.setSizeMultiplier(opts.getMusicNoteSize?.() ?? 1);
         noteScene.setBaseHeightMeters(opts.getMusicNoteZOffset?.() ?? 70);
         const nowMs = Date.now();
-        noteScene.spawnFromTrucks(truckScene.getCollectingPositions(), nowMs);
+        const collecting = truckScene.getCollectingPositions();
+        noteScene.spawnFromTrucks(collecting, nowMs);
         noteScene.render(matrix, nowMs);
+        // 音符是裝飾動畫、走實際時鐘：圖層可見且有收運中車輛（或音符尚未飄完）時持續重繪，
+        // 時間軸暫停也不停；圖層關閉 → 上方提早 return，不再排幀。
+        if (collecting.length > 0 || noteScene.hasActiveNotes(nowMs)) map?.triggerRepaint();
       }
-
-      map?.triggerRepaint();
+      // 車輛位置的時間變動由 subscribeTimeRepaint 驅動（暫停且無音符 → 0 次重繪）
     },
 
     onRemove() {
+      unsubTime?.();
+      unsubTime = null;
       truckScene.dispose();
       noteScene.dispose();
     },

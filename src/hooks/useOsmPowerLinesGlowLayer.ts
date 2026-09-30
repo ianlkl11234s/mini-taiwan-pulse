@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
-  createOsmPowerLinesGlowLayer,
   OSM_POWER_LINES_GLOW_LAYER_ID,
-} from "../map/osmPowerLinesGlowCustomLayer";
+  osmPowerLinesGlowModule,
+  mountLazyCustomLayer,
+  removeLazyCustomLayer,
+} from "../map/lazyThreeLayers";
 import type { PowerLineFeature } from "../three/OsmPowerLinesGlowScene";
 import { fetchOsmPowerLines, powerLineTierKv } from "../data/energyLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -41,14 +43,13 @@ export function useOsmPowerLinesGlowLayer(
     const tryMount = () => {
       if (map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) return;
       try {
-        const layer = createOsmPowerLinesGlowLayer({
+        // C1b：three 模組第一次可見才載入；錨點佔住原位置
+        mountLazyCustomLayer(map, OSM_POWER_LINES_GLOW_LAYER_ID, osmPowerLinesGlowModule, (m) => m.createOsmPowerLinesGlowLayer({
           getIsVisible: () => visibleRef.current,
           getOpacity:   () => opacityRef.current,
           getWidthMul:  () => widthRef.current,
           getFeatures:  () => featuresRef.current,
-        });
-        map.addLayer(layer);
-        console.log("[osmPowerLinesGlow] CustomLayer mounted ✓");
+        }), () => visibleRef.current);
       } catch (e) {
         console.log("[osmPowerLinesGlow] addLayer 失敗 → idle 重試", e);
         map.once("idle", tryMount);
@@ -59,9 +60,7 @@ export function useOsmPowerLinesGlowLayer(
     return () => {
       map.off("style.load", tryMount);
       try {
-        if (map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) {
-          map.removeLayer(OSM_POWER_LINES_GLOW_LAYER_ID);
-        }
+        removeLazyCustomLayer(map, OSM_POWER_LINES_GLOW_LAYER_ID);
       } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, mapTick]);

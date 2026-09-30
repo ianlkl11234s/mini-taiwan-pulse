@@ -1,4 +1,4 @@
-import { cellToBoundary } from "h3-js";
+import { deferUntilH3, requireH3 } from "./h3Runtime";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { H3CellData } from "../data/h3Loader";
 
@@ -90,7 +90,7 @@ function h3CellsToGeoJSON(
 
   const features: GeoJSON.Feature[] = cells.map((cell) => {
     // cellToBoundary returns [lat, lng][], GeoJSON needs [lng, lat][]
-    const boundary = cellToBoundary(cell.h);
+    const boundary = requireH3().cellToBoundary(cell.h);
     const coords = boundary.map(([lat, lng]) => [lng, lat]);
     coords.push(coords[0]!); // close ring
 
@@ -181,6 +181,7 @@ export function updateH3Layer(
   params: H3LayerParams,
   visible: boolean,
 ): void {
+  if (deferUntilH3("h3-population", cells.length > 0, () => updateH3Layer(map, cells, params, visible))) return;
   ensureH3Layers(map);
   const source = map.getSource(SOURCE_ID);
   if (!source || source.type !== "geojson") return;

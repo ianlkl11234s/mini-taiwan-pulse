@@ -18,6 +18,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { startThrottledRaf } from "../utils/throttledRaf";
 
 /**
  * NCDR 災害示警 timeline 圖層（5 主題群組）
@@ -45,7 +46,6 @@ const CACHE_MAX = 7;
  */
 const PULSE_IDS = ["disaster-alert-pulse-0", "disaster-alert-pulse-1"];
 const PULSE_CYCLE_MS = 2200;
-const PULSE_FRAME_MS = 40;
 const PULSE_R_MIN = 7;
 const PULSE_R_MAX = 9;
 const PULSE_PEAK_OPACITY = 0.35;
@@ -172,6 +172,14 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
         "circle-stroke-width": 2.5,
         "circle-stroke-opacity": 0,
         "circle-blur": 0.6,
+        // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
+        // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
+        "circle-radius-transition": { duration: 0, delay: 0 },
+        "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
+        "circle-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-width-transition": { duration: 0, delay: 0 },
+        "circle-blur-transition": { duration: 0, delay: 0 },
       },
     } as CircleLayer);
   }
@@ -372,15 +380,10 @@ export function useDisasterAlertLayer(
       return;
     }
 
-    let raf = 0;
-    let lastFrame = 0;
-    const animate = () => {
-      raf = requestAnimationFrame(animate);
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
+    const stop = startThrottledRaf((now) => {
       const m = mapRef.current;
       if (!m) return;
-      const now = performance.now();
-      if (now - lastFrame < PULSE_FRAME_MS) return;
-      lastFrame = now;
 
       for (let i = 0; i < PULSE_IDS.length; i++) {
         const id = PULSE_IDS[i]!;
@@ -395,10 +398,9 @@ export function useDisasterAlertLayer(
           (1 - phase) * PULSE_PEAK_OPACITY * opacityRef.current,
         );
       }
-    };
-    raf = requestAnimationFrame(animate);
+    });
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       const m = mapRef.current;
       if (!m) return;
       try {

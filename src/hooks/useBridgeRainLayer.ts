@@ -76,7 +76,26 @@ export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, vi
     const map = mapRef.current;
     if (!map) return;
     let cancelled = false;
-    const apply = () => { if (map.isStyleLoaded()) render(map, rowsRef.current, visible, opacityRef.current, isDarkRef.current); };
+    let retryTimer: number | null = null;
+    // isStyleLoaded() 在任何 tile 載入中都回 false（首載／busy 期間可長時間 false）。
+    // 以前這裡直接放棄且不重試 → 關閉圖層時隱藏被吃掉、點位留在畫面上。
+    // 改為：隱藏只需 setLayoutProperty（既有 layer 任何時刻都安全）→ 立刻套用；
+    // 顯示需要建 source／setData → style 未就緒時每 150ms 有界重試（effect 清理或換狀態即停）。
+    const apply = () => {
+      if (cancelled) return;
+      if (map.isStyleLoaded()) {
+        render(map, rowsRef.current, visible, opacityRef.current, isDarkRef.current);
+        return;
+      }
+      if (!visible) {
+        if (map.getLayer(BRIDGE_RAIN_CLICK_LAYER)) map.setLayoutProperty(BRIDGE_RAIN_CLICK_LAYER, "visibility", "none");
+        return;
+      }
+      if (retryTimer === null) {
+        retryTimer = window.setTimeout(() => { retryTimer = null; apply(); }, 150);
+      }
+    };
+    const clearRetry = () => { if (retryTimer !== null) { window.clearTimeout(retryTimer); retryTimer = null; } };
     const refresh = async () => {
       try {
         const rows = await fetchRainGaugeLatest();
@@ -93,9 +112,9 @@ export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, vi
     if (visible) {
       void refresh();
       const timer = window.setInterval(() => { void refresh(); }, REFRESH_MS);
-      return () => { cancelled = true; window.clearInterval(timer); };
+      return () => { cancelled = true; window.clearInterval(timer); clearRetry(); };
     }
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearRetry(); };
   }, [mapRef, visible, mapTick]);
   useEffect(() => {
     const map = mapRef.current;

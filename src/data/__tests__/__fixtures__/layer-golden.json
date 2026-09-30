@@ -22088,10 +22088,38 @@
                 "#94a3b8"
               ],
               "circle-opacity": 0.82,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             },
             "light": {
               "circle-color": [
@@ -22119,10 +22147,38 @@
                 "#94a3b8"
               ],
               "circle-opacity": 0.82,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             }
           },
           "suffix": "manufacturing-circle",
@@ -23575,18 +23631,74 @@
             "dark": {
               "circle-color": "#0d9488",
               "circle-opacity": 0.76,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             },
             "light": {
               "circle-color": "#0d9488",
               "circle-opacity": 0.76,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             }
           },
           "suffix": "circle",
@@ -23615,18 +23727,74 @@
             "dark": {
               "circle-color": "#d97706",
               "circle-opacity": 0.72,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             },
             "light": {
               "circle-color": "#d97706",
               "circle-opacity": 0.72,
-              "circle-radius": 4.5,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                7,
+                1,
+                11,
+                2,
+                14,
+                4.5
+              ],
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                13,
+                1
+              ]
             }
           },
           "suffix": "circle",

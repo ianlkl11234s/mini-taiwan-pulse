@@ -118,6 +118,15 @@ export function updateAgricultureLayer(
 ): void {
   if (map.getLayer(FTW_FILL_ID)) {
     map.setLayoutProperty(FTW_FILL_ID, "visibility", visible ? "visible" : "none");
+  }
+  // 隱藏時不改 paint：隱藏 layer 不會 recalculate，改 paint 留下的 transition prior
+  // 永遠清不掉 → style.hasTransitions() 恆 true → 地圖無限重畫（A0）。
+  // 開啟時 MapView 會再以 visible=true 呼叫本函式補上 paint。
+  if (!visible) {
+    if (map.getLayer(FTW_OUTLINE_ID)) map.setLayoutProperty(FTW_OUTLINE_ID, "visibility", "none");
+    return;
+  }
+  if (map.getLayer(FTW_FILL_ID)) {
     map.setPaintProperty(FTW_FILL_ID, "fill-opacity", [
       "*", params.opacity,
       [
@@ -133,14 +142,17 @@ export function updateAgricultureLayer(
   if (map.getLayer(FTW_OUTLINE_ID)) {
     const showOutline = visible && params.showOutline;
     map.setLayoutProperty(FTW_OUTLINE_ID, "visibility", showOutline ? "visible" : "none");
-    // ["zoom"] 不能被 ["*", ...] 包起來，倍率直接乘進 stops
-    const w = params.outlineWidth;
-    map.setPaintProperty(FTW_OUTLINE_ID, "line-width", [
-      "interpolate", ["linear"], ["zoom"],
-      10, 0.2 * w,
-      13, 0.6 * w,
-      16, 1.2 * w,
-    ]);
+    // 同上：outline 隱藏時不改 paint（打開 showOutline 時會再呼叫本函式補上）
+    if (showOutline) {
+      // ["zoom"] 不能被 ["*", ...] 包起來，倍率直接乘進 stops
+      const w = params.outlineWidth;
+      map.setPaintProperty(FTW_OUTLINE_ID, "line-width", [
+        "interpolate", ["linear"], ["zoom"],
+        10, 0.2 * w,
+        13, 0.6 * w,
+        16, 1.2 * w,
+      ]);
+    }
   }
 }
 

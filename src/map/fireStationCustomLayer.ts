@@ -5,7 +5,11 @@ import { FireStationScene, type FireStationRow } from "../three/FireStationScene
  * 消防分隊 3D Custom Layer — 光柱（高度依階級）+ 向外擴張漣漪。
  * 疊在既有 Mapbox circle 之上（circle 仍負責俯視標示 + click popup）。
  * onAdd 時自 fetch /geo/fire_stations.geojson 餵 scene（一次性，與 overlay 共用同檔已被瀏覽器快取）。
+ *
+ * 重繪策略：漣漪是純裝飾動畫——圖層可見時持續重畫（時間軸暫停也不停）；
+ * 關閉後 render() 提早 return、不再 triggerRepaint，因此 0 repaint。
  */
+const ANIMATE_WHILE_VISIBLE = true;
 
 export interface FireStationLayerOptions {
   id?: string;
@@ -61,7 +65,7 @@ export function createFireStationLayer(opts: FireStationLayerOptions): CustomLay
       const sc = opts.getScale?.() ?? 1;
       if (sc !== lastScale) { lastScale = sc; scene.setScale(sc); }
       scene.render(matrix);
-      map?.triggerRepaint();
+      if (ANIMATE_WHILE_VISIBLE) map?.triggerRepaint();
     },
 
     onRemove() {

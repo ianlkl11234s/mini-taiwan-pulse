@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Map as MapboxMap } from 'mapbox-gl';
 import { fetchHistoricalFlightAllAirports, fetchHistoricalFlightAsset, fetchHistoricalFlightManifest } from '../data/historicalFlightTrailsLoader';
 import { HISTORICAL_FLIGHT_ALL_AIRPORTS, type HistoricalFlightCollection, type HistoricalFlightCountry, type HistoricalFlightParams } from '../data/historicalFlightTrailsTypes';
-import { hideHistoricalFlightTrails, renderHistoricalFlightTrails, removeHistoricalFlightTrails } from '../map/historicalFlightTrails';
+import { historicalFlightTrailsModule } from '../map/lazyThreeLayers';
 import { setHistoricalFlightStatus, useHistoricalFlightRetryRevision } from '../state/historicalFlightTrailsStore';
 import { useMapReadyTick } from './useMapReadyTick';
 
@@ -14,6 +14,17 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
   const mapTick = useMapReadyTick(mapRef, visible);
   const retryRevision = useHistoricalFlightRetryRevision(country);
   const [loaded, setLoaded] = useState<{ selector: string; data: HistoricalFlightCollection } | null>(null);
+  // C1b：three 模組第一次可見才載入（與資料並行）；載入完成 → 重跑 draw effect
+  const [layerModuleReady, setLayerModuleReady] = useState(() => historicalFlightTrailsModule.get() !== null);
+  useEffect(() => {
+    if (!visible || layerModuleReady) return;
+    let cancelled = false;
+    historicalFlightTrailsModule.ensure().then(
+      () => { if (!cancelled) setLayerModuleReady(true); },
+      (error: unknown) => console.error('[historicalFlightTrails] failed to load 3D module', error),
+    );
+    return () => { cancelled = true; };
+  }, [visible, layerModuleReady]);
   useEffect(() => {
     if (!visible) { setHistoricalFlightStatus(country, { state: 'idle', message: '' }); return; }
     let cancelled = false;
@@ -60,7 +71,10 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    // 模組未載入 = 從沒建過圖層：關閉時無需 hide/remove，開啟時等模組
+    const layerModule = historicalFlightTrailsModule.get();
+    if (!map || !layerModule) return;
+    const { hideHistoricalFlightTrails, removeHistoricalFlightTrails, renderHistoricalFlightTrails } = layerModule;
     let drawing = false;
     const draw = () => {
       if (drawing) return;
@@ -93,10 +107,10 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
     map.on('idle', restore);
     map.on('style.load', draw);
     return () => { map.off('styledata', restore); map.off('style.load', draw); map.off('idle', restore); };
-  }, [mapRef, mapTick, visible, loaded, selector, country, airport, date, opacity, width, direction, routeScope, altitudeScale]);
+  }, [mapRef, mapTick, visible, loaded, selector, country, airport, date, opacity, width, direction, routeScope, altitudeScale, layerModuleReady]);
 
   useEffect(() => {
     const map = mapRef.current;
-    return () => { if (map) removeHistoricalFlightTrails(map, country); };
+    return () => { if (map) historicalFlightTrailsModule.get()?.removeHistoricalFlightTrails(map, country); };
   }, [mapRef, mapTick, country]);
 }

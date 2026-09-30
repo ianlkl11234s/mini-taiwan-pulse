@@ -1,4 +1,4 @@
-import { cellToBoundary } from "h3-js";
+import { deferUntilH3, requireH3 } from "./h3Runtime";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { DemographicH3CellData, SocioeconomicH3CellData, SpatialEconomyH3CellData } from "../data/h3Loader";
 
@@ -118,7 +118,7 @@ function demographicsToGeoJSON(
   if (maxVal === 0) maxVal = 1;
 
   const features: GeoJSON.Feature[] = cells.map((cell) => {
-    const boundary = cellToBoundary(cell.h);
+    const boundary = requireH3().cellToBoundary(cell.h);
     const coords = boundary.map(([lat, lng]) => [lng, lat]);
     coords.push(coords[0]!);
 
@@ -225,6 +225,9 @@ function updateDemographicsLayer(
   elevationScale: number,
   visible: boolean,
 ): void {
+  if (deferUntilH3(srcId, cells.length > 0, () => updateDemographicsLayer(
+    map, srcId, fillId, extId, cells, metric, opacity, contrast, extruded, elevationScale, visible,
+  ))) return;
   ensureSourceAndLayers(map, srcId, fillId, extId);
   const source = map.getSource(srcId);
   if (!source || source.type !== "geojson") return;
@@ -323,7 +326,7 @@ function genericToGeoJSON<T extends { h: string }>(
   if (maxVal === 0) maxVal = 1;
 
   const features: GeoJSON.Feature[] = cells.map((cell) => {
-    const boundary = cellToBoundary(cell.h);
+    const boundary = requireH3().cellToBoundary(cell.h);
     const coords = boundary.map(([lat, lng]) => [lng, lat]);
     coords.push(coords[0]!);
 
@@ -363,6 +366,7 @@ export function updateSocioLayer(
   params: SocioeconomicParams,
   visible: boolean,
 ): void {
+  if (deferUntilH3(SOCIO_SRC, cells.length > 0, () => updateSocioLayer(map, cells, params, visible))) return;
   ensureSourceAndLayers(map, SOCIO_SRC, SOCIO_FILL, SOCIO_EXT);
   const source = map.getSource(SOCIO_SRC);
   if (!source || source.type !== "geojson") return;
@@ -409,6 +413,7 @@ export function updateSpatialLayer(
   params: SpatialEconomyParams,
   visible: boolean,
 ): void {
+  if (deferUntilH3(SPATIAL_SRC, cells.length > 0, () => updateSpatialLayer(map, cells, params, visible))) return;
   ensureSourceAndLayers(map, SPATIAL_SRC, SPATIAL_FILL, SPATIAL_EXT);
   const source = map.getSource(SPATIAL_SRC);
   if (!source || source.type !== "geojson") return;

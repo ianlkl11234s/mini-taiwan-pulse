@@ -11,7 +11,7 @@ import { setGfwHourlyTracksDetailContext } from "../data/gfwHourlyDetailLoader";
 import { gfwFreshness } from "../data/gfwFreshness";
 import { withLoading } from "../lib/loadingRegistry";
 import { showTransientNotice } from "../components/TransientNotice";
-import { createGfwV4TrackCustomLayer, GFW_V4_TRACK_CUSTOM_LAYER_ID } from "../map/gfwV4TrackCustomLayer";
+import { GFW_V4_TRACK_CUSTOM_LAYER_ID, gfwV4TrackLayerModule } from "../map/lazyThreeLayers";
 import type { GfwV4SpatialPointFrame } from "../three/GfwV4TrackScene";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -156,7 +156,9 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
         // participates in neither rendering nor queries, and is never setData'd.
         if (map.getLayer(GFW_V4_TRACK_HIT_LAYER_ID)) map.removeLayer(GFW_V4_TRACK_HIT_LAYER_ID);
         if (!map.getSource(GFW_V4_TRACK_HIT_SOURCE_ID)) map.addSource(GFW_V4_TRACK_HIT_SOURCE_ID, { type: "geojson", data: EMPTY, attribution: GFW_V4_TRACK_ATTRIBUTION });
-        if (!map.getLayer(GFW_V4_TRACK_CUSTOM_LAYER_ID)) map.addLayer(createGfwV4TrackCustomLayer({
+        // C1b：three 模組在 start()（圖層可見）時才載入；未載入代表圖層從未開過 → 只放 attribution source。
+        const layerModule = gfwV4TrackLayerModule.get();
+        if (layerModule && !map.getLayer(GFW_V4_TRACK_CUSTOM_LAYER_ID)) map.addLayer(layerModule.createGfwV4TrackCustomLayer({
           budget: GFW_V4_TRACK_BUDGET,
           getFrame: () => null,
           getSpatialFrame: () => pointRef.current,
@@ -319,7 +321,10 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
     const render = (epoch: number) => evaluate(epoch, false);
 
     const start = async () => { try {
-      const loaded = await withLoading("gfw-v4-tracks:manifest", "GFW v4 航跡正式 release", loadGfwV4Release());
+      const [loaded] = await Promise.all([
+        withLoading("gfw-v4-tracks:manifest", "GFW v4 航跡正式 release", loadGfwV4Release()),
+        gfwV4TrackLayerModule.ensure(),
+      ]);
       if (!loaded) throw new Error("formal schema-4 release unavailable");
       release = loaded;
       // release 一次 effect 只賦值一次 → 542 個 artifact 的 flatMap 只做一次，之後全部複用。

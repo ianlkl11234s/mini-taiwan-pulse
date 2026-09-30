@@ -5,6 +5,21 @@ import { ShipScene } from "../three/ShipScene";
 import { RailScene } from "../three/RailScene";
 import { setAltExaggeration, getAltExaggeration, setAltOffset, getAltOffset } from "../utils/coordinates";
 import { loadingRegistry } from "../lib/loadingRegistry";
+import { timeStore } from "../state/timeStore";
+
+/**
+ * 時間驅動圖層的重繪觸發：時間值改變且圖層可見時才 triggerRepaint。
+ * 暫停（timeStore 不再 setTime）→ 0 次重繪；播放中每幀時間都在變 → 每幀畫（平滑不變）。
+ * 資料／參數／可見性改變由 useThreeJsLayers 的 wake-up 通道負責；相機移動 Mapbox 本來就會重畫。
+ */
+export function subscribeTimeRepaint(
+  getMap: () => MapboxMap | null,
+  getIsVisible: () => boolean,
+): () => void {
+  return timeStore.subscribe(() => {
+    if (getIsVisible()) getMap()?.triggerRepaint();
+  });
+}
 
 // 首次開啟 flight/ship 圖層時，Three.js 軌跡建構是同步阻塞主執行緒（5-10s）。
 // 用「首幀只啟動 loading 圈圈並 return、下一幀才真正建構」讓圈圈先畫出來，
@@ -38,6 +53,12 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
   let gate: RenderGateState = "off";
   let loadId = "";
   let armFrames = 0;
+  let unsubTime: (() => void) | null = null;
+  // 只在時間／資料／模式／參數變動時才重算軌跡（相機移動觸發的 render 直接重畫上一份結果）
+  let lastFlights: Flight[] | null = null;
+  let lastTime = Number.NaN;
+  let lastMode: RenderMode | null = null;
+  let sceneDirty = true;
 
   return {
     id: "flight-3d",
@@ -48,6 +69,7 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
       map = mapInstance;
       flightScene.init(gl);
       opts.onSceneReady?.(flightScene);
+      unsubTime = subscribeTimeRepaint(() => map, opts.getIsVisible);
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
@@ -60,6 +82,7 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
       if (gate === "off") {
         gate = "spinning";
         armFrames = 0;
+        sceneDirty = true;
         loadId = `flight-3d:${Date.now()}`;
         loadingRegistry.start(loadId, "航班軌跡 渲染中");
         map?.triggerRepaint();
@@ -83,6 +106,7 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
       if (isDark !== lastDarkTheme) {
         lastDarkTheme = isDark;
         flightScene.setTheme(isDark);
+        sceneDirty = true;
       }
 
       // 高度參數變更 → 更新座標模組 + 強制重建靜態軌跡
@@ -92,10 +116,13 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
         lastAltExag = altExag;
         lastAltOffset = altOff;
         flightScene.forceRebuildStatic();
+        sceneDirty = true;
       }
 
+      const needUpdate = sceneDirty || flights !== lastFlights || time !== lastTime || mode !== lastMode;
+
       // 先更新靜態軌跡（可能重建 mesh）
-      flightScene.updateStaticTrails(flights, mode);
+      if (needUpdate) flightScene.updateStaticTrails(flights, mode);
 
       // showTrails 切換
       const showTrails = opts.getShowTrails();
@@ -108,7 +135,13 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
       flightScene.setStaticOpacity(opts.getStaticOpacity());
       flightScene.setOrbScale(opts.getOrbScale());
 
-      flightScene.update(flights, time);
+      if (needUpdate) {
+        flightScene.update(flights, time);
+        lastFlights = flights;
+        lastTime = time;
+        lastMode = mode;
+        sceneDirty = false;
+      }
       flightScene.render(matrix);
 
       // 首幀建構完成 → 收掉 loading 圈圈
@@ -116,12 +149,12 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
         gate = "on";
         if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
       }
-
-      // 請求持續重繪（動畫）
-      map?.triggerRepaint();
+      // 不再無條件每幀 triggerRepaint：時間變動由 subscribeTimeRepaint 驅動
     },
 
     onRemove() {
+      unsubTime?.();
+      unsubTime = null;
       if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
       flightScene.dispose();
     },
@@ -148,6 +181,7 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
   let gate: RenderGateState = "off";
   let loadId = "";
   let armFrames = 0;
+  let unsubTime: (() => void) | null = null;
 
   return {
     id: "ship-3d",
@@ -158,6 +192,7 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
       map = mapInstance;
       shipScene.init(gl);
       opts.onSceneReady?.(shipScene);
+      unsubTime = subscribeTimeRepaint(() => map, opts.getIsVisible);
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
@@ -199,11 +234,12 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
         gate = "on";
         if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
       }
-
-      map?.triggerRepaint();
+      // 不再無條件每幀 triggerRepaint：時間變動由 subscribeTimeRepaint 驅動
     },
 
     onRemove() {
+      unsubTime?.();
+      unsubTime = null;
       if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
       shipScene.dispose();
     },
@@ -231,6 +267,7 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
   let lastTrackFeatures: GeoJSON.FeatureCollection | null = null;
+  let unsubTime: (() => void) | null = null;
 
   return {
     id: "rail-3d",
@@ -241,6 +278,7 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
       map = mapInstance;
       railScene.init(gl);
       opts.onSceneReady?.(railScene);
+      unsubTime = subscribeTimeRepaint(() => map, opts.getIsVisible);
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
@@ -265,11 +303,12 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
       const trains = opts.getTrainVisible() ? opts.getTrains() : [];
       railScene.update(trains, opts.getCurrentTime());
       railScene.render(matrix);
-
-      map?.triggerRepaint();
+      // 不再無條件每幀 triggerRepaint：時間變動由 subscribeTimeRepaint 驅動
     },
 
     onRemove() {
+      unsubTime?.();
+      unsubTime = null;
       railScene.dispose();
     },
   };

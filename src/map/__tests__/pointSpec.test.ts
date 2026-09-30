@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
-import { DECORATION_SUFFIX_RE, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, isDataDriven, withPointSpec } from "../pointSpec";
+import { DECORATION_SUFFIX_RE, DENSE_POINT_OVERRIDES, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, isDataDriven, withPointSpec } from "../pointSpec";
 import { POINT_TIERS } from "../pointTiers";
 import { POINT_RADIUS } from "../mapStyleScale";
 import { getParamsSpec } from "../../data/layerParamsSpec";
@@ -20,7 +20,7 @@ describe("R2 點圖層規格（pointSpec）", () => {
     const bad: string[] = [];
     for (const c of OVERLAY_REGISTRY) {
       const tier = POINT_TIERS[c.id];
-      if (!tier || tier === "B") continue;
+      if (!tier || tier === "B" || DENSE_POINT_OVERRIDES.has(c.id)) continue; // 特例另有測試
       for (const l of mainCircles(c)) {
         for (const dark of [true, false]) {
           const r = l.paint(dark, {})["circle-radius"];
@@ -33,7 +33,7 @@ describe("R2 點圖層規格（pointSpec）", () => {
 
   it("P-2 A：固定描邊一律是底圖色 1px；依資料變化的描邊（資料編碼）保留", () => {
     for (const c of OVERLAY_REGISTRY) {
-      if (!POINT_TIERS[c.id]) continue;
+      if (!POINT_TIERS[c.id] || DENSE_POINT_OVERRIDES.has(c.id)) continue;
       for (const l of mainCircles(c)) {
         for (const [dark, seam] of [[true, "#0a0a14"], [false, "#ffffff"]] as const) {
           const p = l.paint(dark, {});
@@ -41,6 +41,35 @@ describe("R2 點圖層規格（pointSpec）", () => {
           if (!isDataDriven(p["circle-stroke-width"])) expect(p["circle-stroke-width"]).toBe(1);
         }
       }
+    }
+  });
+
+  it("特例（2026-09-30）：全台 8–18 萬點的三層半徑隨縮放、低 zoom 無描邊，高 zoom 回 M 階與 1px 描邊", () => {
+    const zoomAt = (expr: unknown, z: number): number => {
+      const a = expr as unknown[];
+      const stops = a.slice(3) as number[];
+      for (let i = 0; i < stops.length; i += 2) if (z <= stops[i]!) {
+        if (i === 0 || z === stops[i]) return stops[i + 1]!;
+        const [z0, v0, z1, v1] = [stops[i - 2]!, stops[i - 1]!, stops[i]!, stops[i + 1]!];
+        return v0 + ((v1 - v0) * (z - z0)) / (z1 - z0);
+      }
+      return stops[stops.length - 1]!;
+    };
+    for (const id of DENSE_POINT_OVERRIDES) {
+      expect(POINT_TIERS[id as never]).toBe("M");
+      const l = mainCircles(OVERLAY_REGISTRY.find((x) => x.id === id)!)[0]!;
+      for (const dark of [true, false]) {
+        const p = l.paint(dark, {});
+        expect(zoomAt(p["circle-radius"], 0)).toBeLessThan(1);
+        expect(zoomAt(p["circle-radius"], 7)).toBeLessThanOrEqual(1);
+        expect(zoomAt(p["circle-radius"], 14)).toBe(POINT_RADIUS.M);
+        expect(zoomAt(p["circle-stroke-width"], 11)).toBe(0);
+        expect(zoomAt(p["circle-stroke-width"], 14)).toBe(1);
+        expect(p["circle-stroke-color"]).toBe(dark ? "#0a0a14" : "#ffffff");
+      }
+      // 大小滑桿照舊乘上去
+      const scaled = l.paint(true, { [`${id}Scale`]: 2 });
+      expect(zoomAt(scaled["circle-radius"], 14)).toBeGreaterThanOrEqual(POINT_RADIUS.M);
     }
   });
 
