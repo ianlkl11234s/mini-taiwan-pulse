@@ -74,6 +74,17 @@ export const gradedSeamPaint = (isDark: boolean, hasValue: unknown) => {
 };
 
 /**
+ * F-2：一般面的外框（獨立 line 子圖層，不用 fill-outline-color）。
+ * 覆蓋面＝與面同色 1px 0.8；背景面＝0.5px 行政界中性灰 0.6；網格＝0.5px 底圖色格縫（透明度同 GRADED_SEAM）。
+ * 寬度與透明度仍乘該層的線寬／透明度滑桿（以預設值為 1）。
+ */
+export const FILL_OUTLINE = {
+  coverage: { width: 1, opacity: 0.8 },
+  background: { width: 0.5, opacity: LINE_OPACITY.reference },
+  gridSeamWidth: 0.5,
+} as const;
+
+/**
  * F-3 A（viz-library N1）：缺值＝透明底＋45° 細斜線（暗白 35%／淡黑 35%）；
  * 遮蔽（suppressed）＝透明底＋交叉斜線，與缺值區分（statistics-layer-guidelines §2）。
  */
