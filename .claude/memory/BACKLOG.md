@@ -156,14 +156,12 @@
 
 ## Performance audit follow-ups (2026-09-30)
 
-> Audit trigger: opening 工商登記 layers spun up the fans. Shipped: #464 (render lifecycle — stuck paint transitions, All Off, repaint only on change, dense point overrides, lazy 3D/h3 chunks, deploy exclusions), analytics #124 + #467 (allzoom `--buffer=8`, bus route JSON without `cumDist`, 4 GeoJSON → PMTiles), #471 (no App re-render per timeline tick, lazy statistics recipe details, superseded assets off the deploy lists), and the follow-up PR for PF-8–PF-12 (per-key LayerHost visibility, explicit 3D repaint signal, per-family recipe details, ripple only inside the quake window, flight count reset, cancelled loads not flagged as failures, superseded GeoJSON out of the image). PF-1/2/4/6/7/8/9/10/11/12 closed; history is in those PRs. Remaining items below.
+> Audit trigger: opening 工商登記 layers spun up the fans. Shipped: #464 (render lifecycle — stuck paint transitions, All Off, repaint only on change, dense point overrides, lazy 3D/h3 chunks, deploy exclusions), analytics #124 + #467 (allzoom `--buffer=8`, bus route JSON without `cumDist`, 4 GeoJSON → PMTiles), #471 (no App re-render per timeline tick, lazy statistics recipe details, superseded assets off the deploy lists), and the follow-up PR for PF-8–PF-12 (per-key LayerHost visibility, explicit 3D repaint signal, per-family recipe details, ripple only inside the quake window, flight count reset, cancelled loads not flagged as failures, superseded GeoJSON out of the image). PF-1/2/4/6–14 closed (PF-13 ship count reset and PF-14 chat waste-stop columnar file in the PF-13/14 PR); history is in those PRs. Remaining items below.
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
 | PF-3 | P3 | conditional | Optional RDP simplification of bus route geometry (~3 m). | Deferred by owner 2026-09-30. Measured on the `cumDist`-free intercity file: gzip 14.5 → 3.0 MB at ~3 m. Must recompute progress/`totalDist` and re-validate replay; regenerate `*_v2` (or `_v3`) names for the 4 S3 files. | Owner decides to proceed. |
 | PF-5 | P3 | conditional | Cap Mapbox render resolution on Retina. | mapbox-gl 3.18 has no `pixelRatio` option; only a global `window.devicePixelRatio` override works, which also softens Three.js and other canvases. | Owner decision recorded. |
-| PF-13 | P3 | ready | Clear the ship count when the ships layer is off. | Sidebar keeps showing the last ship count (e.g. 9,592) after ships are switched off or All Off; App still passes `ships.length`. Mirror PF-11b: write ships into `src/state/liveCountStore.ts`, 0 when hidden. | Ship count disappears on close and All Off. |
-| PF-14 | P3 | ready | Move the chat tool off the full waste-stop GeoJSON, then drop it from the image. | `src/chat/tools/datasets.ts:145` (`wasteStopsStatic`) still fetches `./geo/waste_stops_static.geojson` at runtime, so it stays in the image while the map uses PMTiles; the other three superseded GeoJSON are already in `.dockerignore`. | Chat waste-stop queries work without the GeoJSON; file added to `.dockerignore`. |
 
 ## Weekly audit findings
 

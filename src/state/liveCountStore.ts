@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-//  liveCountStore — 動態計數（航班 / 列車 / 公車 / 公路客運 / 觀光巴士）
+//  liveCountStore — 動態計數（航班 / 船舶 / 列車 / 公車 / 公路客運 / 觀光巴士）
 // ══════════════════════════════════════════════════════════════════
 //
 // 引擎在 timeStore 訂閱裡每 500ms 更新一次計數。以前是各 hook 的 useState，
@@ -8,10 +8,11 @@
 
 import { useSyncExternalStore } from "react";
 
-export type LiveCountKey = "flights" | "trains" | "buses" | "busesIntercity" | "touristShuttle";
+export type LiveCountKey = "flights" | "ships" | "trains" | "buses" | "busesIntercity" | "touristShuttle";
 
 const values: Record<LiveCountKey, number> = {
   flights: 0,
+  ships: 0,
   trains: 0,
   buses: 0,
   busesIntercity: 0,
@@ -19,6 +20,7 @@ const values: Record<LiveCountKey, number> = {
 };
 const listeners: Record<LiveCountKey, Set<() => void>> = {
   flights: new Set(),
+  ships: new Set(),
   trains: new Set(),
   buses: new Set(),
   busesIntercity: new Set(),
@@ -43,6 +45,7 @@ export const liveCountStore = {
 /** 側欄圖層 key → 計數 key（只有這幾層有即時計數） */
 const LAYER_TO_COUNT: Partial<Record<string, LiveCountKey>> = {
   flights: "flights",
+  ships: "ships",
   rail: "trains",
   busLive: "buses",
   busIntercityLive: "busesIntercity",

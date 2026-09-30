@@ -41,8 +41,9 @@ public/jp-heights
 
 # PF-12: these full GeoJSON files were replaced by dated PMTiles (PF-4). They stay in the repo as
 # upstream inputs for build-static-pmtiles-pf4.py and contract tests, but must not ship in the image.
-# NOTE: public/geo/waste_stops_static.geojson is NOT listed: src/chat/tools/datasets.ts still
-# fetches it at runtime (chat wasteStopsStatic dataset).
+# PF-14: waste_stops_static.geojson is also the input of build-waste-stops-chat.py; the chat
+# wasteStopsStatic dataset now fetches public/geo/waste_stops_chat_<date>.json instead.
+public/geo/waste_stops_static.geojson
 public/geo/ookla_fixed_global.geojson
 public/geo/ookla_mobile_global.geojson
 public/world/jp_religion_osm.geojson

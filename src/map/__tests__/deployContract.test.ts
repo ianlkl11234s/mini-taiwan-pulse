@@ -573,6 +573,7 @@ describe("deploy 契約（manifest 逐檔）", () => {
       "geo/ookla_fixed_global.geojson",
       "geo/ookla_mobile_global.geojson",
       "world/jp_religion_osm.geojson",
+      "geo/waste_stops_static.geojson", // PF-14：聊天改讀 waste_stops_chat_<date>.json
     ];
     for (const asset of stripped) {
       expect(dockerIgnore, `.dockerignore 缺 ${asset}`).toContain(`public/${asset}`);

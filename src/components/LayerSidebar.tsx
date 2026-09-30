@@ -55,8 +55,8 @@ interface LayerSidebarProps {
   displayMode: DisplayMode;
   isDarkTheme: boolean;
   isMobile?: boolean;
-  /** 航班／列車／公車／客運的即時計數不在這裡：row 以 `useLayerLiveCount` per-key 訂閱 liveCountStore */
-  counts: { ships: number; wasteTrucks?: number; windPlan?: number };
+  /** 航班／船舶／列車／公車／客運的即時計數不在這裡：row 以 `useLayerLiveCount` per-key 訂閱 liveCountStore */
+  counts: { wasteTrucks?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
@@ -98,7 +98,6 @@ export function LayerSidebar({
 
   const getCount = (key: keyof LayerVisibility): number | undefined => {
     switch (key) {
-      case "ships": return counts.ships;
       case "wasteTruck": return counts.wasteTrucks;
       case "windPlan": return counts.windPlan;
       default: return undefined;

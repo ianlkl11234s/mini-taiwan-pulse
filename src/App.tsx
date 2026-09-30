@@ -1651,11 +1651,10 @@ export default function App() {
   // ── Sidebar props 穩定化（讓 IconRailSidebar / LayersPanel 能用 React.memo） ──
 
   const sidebarCounts = useMemo(() => ({
-    ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-    // 航班／列車／公車／客運計數走 liveCountStore（側欄 row 自己 per-key 訂閱，PF-6；
-    // 航班於圖層關閉時歸零，PF-11）
+    // 航班／船舶／列車／公車／客運計數走 liveCountStore（側欄 row 自己 per-key 訂閱，PF-6；
+    // 航班、船舶於圖層關閉時歸零，PF-11／PF-13）
     wasteTrucks: wasteCount,
-  }), [ships.length, wasteCount]);
+  }), [wasteCount]);
 
   // owner-only 圖層：非 owner 的開啟意圖一律攔截（回 true = 呼叫端直接 return no-op）。
   // 未登入 → 導 Google 登入；已登入非 owner → 顯示「私人圖層」提示。
@@ -2642,7 +2641,6 @@ export default function App() {
                       isDarkTheme={true}
                       isMobile={true}
                       counts={{
-                        ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                         wasteTrucks: wasteCount,
                       }}
                       onLayerClick={handleLayerClick}
