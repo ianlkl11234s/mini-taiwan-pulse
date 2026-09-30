@@ -1,9 +1,9 @@
 
-/** Registry fossil-fuel primary colors; legend and paint share exact values. */
+/** Registry fossil-fuel primary colors; legend and paint share exact values. 加油站三家業者用品牌色（中油綠、台塑藍、台糖橘，2026-09-30 使用者指定）。 */
 export const FOSSIL_PAINT_COLORS = {
-  "gasStationCpc": "#41AEF2",
-  "gasStationFpcc": "#22C55E",
-  "gasStationTaisugar": "#F2522E",
+  "gasStationCpc": "#00875A",
+  "gasStationFpcc": "#1E40AF",
+  "gasStationTaisugar": "#EA580C",
   "gasStationOther": "#D1D5DB",
   "gasStationCanonical": "#0FBFBF",
   "lpgSubpackaging": "#F2622E",
