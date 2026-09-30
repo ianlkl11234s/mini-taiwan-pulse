@@ -153,7 +153,7 @@ describe("工廠／製造業／列管設施原點與密度分離", () => {
   it.each(["factoryLocations", "manufacturingCompanyPoints", "regulatedFacilities"] as const)("%s 全台尺度沒有 cluster 概覽或 zoom 隱藏", (key) => {
     const configs = OVERLAY_REGISTRY.filter((item) => item.id === key);
     expect(configs).toHaveLength(1);
-    expect(configs[0]!.sourceUrl).toMatch(/_allzoom\.pmtiles$/);
+    expect(configs[0]!.sourceUrl).toMatch(/_allzoom_b8\.pmtiles$/);
     expect(configs[0]!.pmtiles?.minzoom).toBe(0);
     expect(configs[0]!.layers).toHaveLength(1);
     expect(configs[0]!.layers[0]!.minzoom).toBe(0);

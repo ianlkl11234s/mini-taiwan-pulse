@@ -4130,7 +4130,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "manufacturingCompanyPoints",
-    sourceUrl: "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles",
+    sourceUrl: "./business_registry/manufacturing_company_points_202608_allzoom_b8.pmtiles",
     sourceId: "business-registry-manufacturing-company-points",
     pmtiles: { sourceLayer: "manufacturing_company_points", minzoom: 0, maxzoom: 14 },
     layers: [
@@ -4156,7 +4156,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...INDUSTRIAL_DENSITY_DATASETS.flatMap(({ key }) => industrialDensitySources(key).map((source) => industrialDensityOverlay(key, source))),
   {
     id: "factoryLocations",
-    sourceUrl: "./business_registry/factory_locations_202606_allzoom.pmtiles",
+    sourceUrl: "./business_registry/factory_locations_202606_allzoom_b8.pmtiles",
     sourceId: "business-registry-factory-locations",
     pmtiles: { sourceLayer: "factory_locations", minzoom: 0, maxzoom: 14 },
     layers: [
@@ -4179,7 +4179,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "regulatedFacilities",
-    sourceUrl: "./business_registry/regulated_facilities_20260818_allzoom.pmtiles",
+    sourceUrl: "./business_registry/regulated_facilities_20260818_allzoom_b8.pmtiles",
     sourceId: "business-registry-regulated-facilities",
     pmtiles: { sourceLayer: "regulated_facilities", minzoom: 0, maxzoom: 14 },
     layers: [

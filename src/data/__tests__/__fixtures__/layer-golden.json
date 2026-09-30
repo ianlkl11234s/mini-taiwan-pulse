@@ -22204,7 +22204,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-manufacturing-company-points",
-      "sourceUrl": "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles"
+      "sourceUrl": "./business_registry/manufacturing_company_points_202608_allzoom_b8.pmtiles"
     },
     {
       "dynamicData": null,
@@ -23724,7 +23724,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-factory-locations",
-      "sourceUrl": "./business_registry/factory_locations_202606_allzoom.pmtiles"
+      "sourceUrl": "./business_registry/factory_locations_202606_allzoom_b8.pmtiles"
     },
     {
       "dynamicData": null,
@@ -23820,7 +23820,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-regulated-facilities",
-      "sourceUrl": "./business_registry/regulated_facilities_20260818_allzoom.pmtiles"
+      "sourceUrl": "./business_registry/regulated_facilities_20260818_allzoom_b8.pmtiles"
     },
     {
       "dynamicData": null,
