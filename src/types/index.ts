@@ -557,35 +557,35 @@ export const WASTE_GROUP_CITIES: Record<BusGroup, string[]> = {
 };
 
 export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
-  Taipei:           { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
-  NewTaipei:        { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },
-  Taoyuan:          { label: "桃園", jsonFile: "./bus/taoyuan_bus_routes.json" },
-  Taichung:         { label: "台中", jsonFile: "./bus/taichung_bus_routes.json" },
-  Tainan:           { label: "台南", jsonFile: "./bus/tainan_bus_routes.json" },
-  Kaohsiung:        { label: "高雄", jsonFile: "./bus/kaohsiung_bus_routes.json" },
-  Keelung:          { label: "基隆", jsonFile: "./bus/keelung_bus_routes.json" },
-  Hsinchu:          { label: "新竹市", jsonFile: "./bus/hsinchu_bus_routes.json" },
-  Chiayi:           { label: "嘉義市", jsonFile: "./bus/chiayi_bus_routes.json" },
-  HsinchuCounty:    { label: "新竹縣", jsonFile: "./bus/hsinchucounty_bus_routes.json" },
-  MiaoliCounty:     { label: "苗栗", jsonFile: "./bus/miaolicounty_bus_routes.json" },
-  ChanghuaCounty:   { label: "彰化", jsonFile: "./bus/changhuacounty_bus_routes.json" },
-  NantouCounty:     { label: "南投", jsonFile: "./bus/nantoucounty_bus_routes.json" },
-  YunlinCounty:     { label: "雲林", jsonFile: "./bus/yunlincounty_bus_routes.json" },
-  ChiayiCounty:     { label: "嘉義縣", jsonFile: "./bus/chiayicounty_bus_routes.json" },
-  PingtungCounty:   { label: "屏東", jsonFile: "./bus/pingtungcounty_bus_routes.json" },
-  YilanCounty:      { label: "宜蘭", jsonFile: "./bus/yilancounty_bus_routes.json" },
-  HualienCounty:    { label: "花蓮", jsonFile: "./bus/hualiencounty_bus_routes.json" },
-  TaitungCounty:    { label: "台東", jsonFile: "./bus/taitungcounty_bus_routes.json" },
-  PenghuCounty:     { label: "澎湖", jsonFile: "./bus/penghucounty_bus_routes.json" },
-  KinmenCounty:     { label: "金門", jsonFile: "./bus/kinmencounty_bus_routes.json" },
-  LienchiangCounty: { label: "連江", jsonFile: "./bus/lienchiangcounty_bus_routes.json" },
+  Taipei:           { label: "台北", jsonFile: "./bus/taipei_bus_routes_v2.json" },
+  NewTaipei:        { label: "新北", jsonFile: "./bus/newtaipei_bus_routes_v2.json" },
+  Taoyuan:          { label: "桃園", jsonFile: "./bus/taoyuan_bus_routes_v2.json" },
+  Taichung:         { label: "台中", jsonFile: "./bus/taichung_bus_routes_v2.json" },
+  Tainan:           { label: "台南", jsonFile: "./bus/tainan_bus_routes_v2.json" },
+  Kaohsiung:        { label: "高雄", jsonFile: "./bus/kaohsiung_bus_routes_v2.json" },
+  Keelung:          { label: "基隆", jsonFile: "./bus/keelung_bus_routes_v2.json" },
+  Hsinchu:          { label: "新竹市", jsonFile: "./bus/hsinchu_bus_routes_v2.json" },
+  Chiayi:           { label: "嘉義市", jsonFile: "./bus/chiayi_bus_routes_v2.json" },
+  HsinchuCounty:    { label: "新竹縣", jsonFile: "./bus/hsinchucounty_bus_routes_v2.json" },
+  MiaoliCounty:     { label: "苗栗", jsonFile: "./bus/miaolicounty_bus_routes_v2.json" },
+  ChanghuaCounty:   { label: "彰化", jsonFile: "./bus/changhuacounty_bus_routes_v2.json" },
+  NantouCounty:     { label: "南投", jsonFile: "./bus/nantoucounty_bus_routes_v2.json" },
+  YunlinCounty:     { label: "雲林", jsonFile: "./bus/yunlincounty_bus_routes_v2.json" },
+  ChiayiCounty:     { label: "嘉義縣", jsonFile: "./bus/chiayicounty_bus_routes_v2.json" },
+  PingtungCounty:   { label: "屏東", jsonFile: "./bus/pingtungcounty_bus_routes_v2.json" },
+  YilanCounty:      { label: "宜蘭", jsonFile: "./bus/yilancounty_bus_routes_v2.json" },
+  HualienCounty:    { label: "花蓮", jsonFile: "./bus/hualiencounty_bus_routes_v2.json" },
+  TaitungCounty:    { label: "台東", jsonFile: "./bus/taitungcounty_bus_routes_v2.json" },
+  PenghuCounty:     { label: "澎湖", jsonFile: "./bus/penghucounty_bus_routes_v2.json" },
+  KinmenCounty:     { label: "金門", jsonFile: "./bus/kinmencounty_bus_routes_v2.json" },
+  LienchiangCounty: { label: "連江", jsonFile: "./bus/lienchiangcounty_bus_routes_v2.json" },
 };
 
 /** 公路客運（InterCity）路線靜態檔路徑（全國單一檔案，無 city 切換） */
-export const BUS_INTERCITY_ROUTES_JSON = "./bus/intercity_bus_routes.json";
+export const BUS_INTERCITY_ROUTES_JSON = "./bus/intercity_bus_routes_v2.json";
 
 /** 台灣好行（Tourist Shuttle）路線靜態檔路徑（全國單一檔案，無 city 切換） */
-export const TOURIST_SHUTTLE_ROUTES_JSON = "./bus/tourist_shuttle_routes.json";
+export const TOURIST_SHUTTLE_ROUTES_JSON = "./bus/tourist_shuttle_routes_v2.json";
 
 export interface BusRouteGeometry {
   routeUid: string;
