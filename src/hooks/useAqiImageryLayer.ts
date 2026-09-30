@@ -157,6 +157,7 @@ export function useAqiImageryLayer({
           },
           initialUrl: url,
           opacity,
+          resampling: "nearest",
         });
         state.currentIso = frame.observedAtIso;
         keepLoadingUntilMapIdle(map, "aqi-imagery-render", "空品色階 渲染中", null);

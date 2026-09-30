@@ -14,10 +14,12 @@ import {
   useBridgeResilienceDestinations, useBridgeResilienceOrigin, useBridgeResilienceSelection,
 } from "../data/bridgeResilienceStore";
 import { loadBridgeResilienceData, loadVillageDestinations } from "../data/bridgeResilienceLoader";
+import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle, withLoading } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { bridgeResiliencePrivateAccessToken, useBridgeResiliencePrivateAccess } from "./useBridgeResiliencePrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 
 /** 圖層參數（layerParamsStore）：模式、村里、色階指標、替代路線、聯合情境。 */
 export interface BridgeResilienceControls {
@@ -70,7 +72,7 @@ export function buildBridgeResilienceLayers(state: Snapshot): (FillLayer | LineL
   const hidden = { visibility: "none" as const };
   const base = (id: string, type: "fill" | "line", layer: string) => ({ id, type, source: SRC, "source-layer": layer, layout: hidden });
   return [
-    { ...base(IDS.villageFill, "fill", LAYERS.villages), paint: { "fill-color": fillColor(controls.metric, focus), "fill-opacity": o * 0.62 } },
+    { ...base(IDS.villageFill, "fill", LAYERS.villages), paint: hookFillPaint("bridgeResilienceTwinCity", IDS.villageFill, { "fill-color": fillColor(controls.metric, focus), "fill-opacity": o * 0.62 }, { "fill-color": fillColor(controls.metric, focus), "fill-opacity": Number(paramDefault("bridgeResilienceTwinCity", "bridgeResilienceTwinCityOpacity") ?? 1) * 0.62 }) },
     { ...base(IDS.villageOutline, "line", LAYERS.villages), paint: { "line-color": BRIDGE_RESILIENCE_COLORS.villageOutline, "line-width": 0.5, "line-opacity": o * 0.22 } },
     // 目的地視角：前 20 名受影響目的地（細藍外框）與起點（白色粗外框）。起點視角時 filter 不命中任何 feature。
     { ...base(IDS.destTop, "line", LAYERS.villages), filter: destTopFilter(focus.topIds),
@@ -117,7 +119,7 @@ function syncLayers(map: MapboxMap, state: Snapshot) {
   paint(IDS.origin, "line-opacity", Math.max(0.9, o));
   filter(IDS.destTop, destTopFilter(focus.topIds));
   filter(IDS.origin, originFilter(focus.originId));
-  paint(IDS.villageFill, "fill-opacity", o * 0.62);
+  paint(IDS.villageFill, "fill-opacity", hookFillOpacity("bridgeResilienceTwinCity", IDS.villageFill, o * 0.62, Number(paramDefault("bridgeResilienceTwinCity", "bridgeResilienceTwinCityOpacity") ?? 1) * 0.62));
   paint(IDS.villageOutline, "line-opacity", o * 0.22);
   paint(IDS.structure, "line-opacity", o);
   paint(IDS.ground, "line-opacity", o * BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR);

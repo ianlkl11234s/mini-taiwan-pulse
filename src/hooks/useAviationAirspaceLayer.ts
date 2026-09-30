@@ -4,6 +4,7 @@ import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * 航空器空域 eAIP — 共用 1 份 PMTiles，filter 拆兩個 toggle：
@@ -138,14 +139,14 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 5,
           filter: TMA_ONLY,
-          paint: {
+          paint: hookFillPaint("aviationControl", CONTROL_FILL, {
             "fill-color": COLOR_EXPR,
             "fill-opacity": controlFillOpacity,
             "fill-antialias": false,
-          },
+          }, { "fill-color": COLOR_EXPR, "fill-opacity": 0.22 * 0.7, "fill-antialias": false }),
         });
       } else {
-        map.setPaintProperty(CONTROL_FILL, "fill-opacity", controlFillOpacity);
+        map.setPaintProperty(CONTROL_FILL, "fill-opacity", hookFillOpacity("aviationControl", CONTROL_FILL, controlFillOpacity, 0.22 * 0.7));
       }
       if (!map.getLayer(CONTROL_LINE)) {
         map.addLayer({
@@ -155,15 +156,16 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 4,
           filter: FIR_AND_TMA,
-          paint: {
+          layout: hookLineLayout("aviationControl", CONTROL_LINE),
+          paint: hookLinePaint("aviationControl", CONTROL_LINE, {
             "line-color": COLOR_EXPR,
             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 8, 1.4, 12, 2.2],
             "line-opacity": controlLineOpacity,
             "line-dasharray": [4, 2],
-          },
+          }, { "line-color": COLOR_EXPR, "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 8, 1.4, 12, 2.2], "line-opacity": Math.min(1, 0.7 * 0.9 + 0.2), "line-dasharray": [4, 2] }),
         });
       } else {
-        map.setPaintProperty(CONTROL_LINE, "line-opacity", controlLineOpacity);
+        map.setPaintProperty(CONTROL_LINE, "line-opacity", hookLineOpacity("aviationControl", CONTROL_LINE, controlLineOpacity, Math.min(1, 0.7 * 0.9 + 0.2)));
       }
 
       // ── Restricted 群：CTR/CONTROL/SURFACE/RCR/DANGER/ULZ/CIRCUIT ──
@@ -179,14 +181,14 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 5,
           filter: RESTRICTED_LAYERS,
-          paint: {
+          paint: hookFillPaint("aviationRestricted", RESTRICTED_FILL, {
             "fill-color": COLOR_EXPR,
             "fill-opacity": restrictedFillOpacity,
             "fill-antialias": false,
-          },
+          }, { "fill-color": COLOR_EXPR, "fill-opacity": ["*", RESTRICTED_OPACITY_FACTOR, 0.7] as unknown as mapboxgl.ExpressionSpecification, "fill-antialias": false }),
         });
       } else {
-        map.setPaintProperty(RESTRICTED_FILL, "fill-opacity", restrictedFillOpacity);
+        map.setPaintProperty(RESTRICTED_FILL, "fill-opacity", hookFillOpacity("aviationRestricted", RESTRICTED_FILL, restrictedFillOpacity, ["*", RESTRICTED_OPACITY_FACTOR, 0.7] as unknown as mapboxgl.ExpressionSpecification));
       }
       if (!map.getLayer(RESTRICTED_LINE)) {
         map.addLayer({
@@ -196,14 +198,15 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 6,
           filter: RESTRICTED_LAYERS,
-          paint: {
+          layout: hookLineLayout("aviationRestricted", RESTRICTED_LINE),
+          paint: hookLinePaint("aviationRestricted", RESTRICTED_LINE, {
             "line-color": COLOR_EXPR,
             "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 10, 1.0, 12, 1.6],
             "line-opacity": restrictedLineOpacity,
-          },
+          }, { "line-color": COLOR_EXPR, "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 10, 1.0, 12, 1.6], "line-opacity": Math.min(1, 0.7 * 0.9 + 0.2) }),
         });
       } else {
-        map.setPaintProperty(RESTRICTED_LINE, "line-opacity", restrictedLineOpacity);
+        map.setPaintProperty(RESTRICTED_LINE, "line-opacity", hookLineOpacity("aviationRestricted", RESTRICTED_LINE, restrictedLineOpacity, Math.min(1, 0.7 * 0.9 + 0.2)));
       }
 
       setVis(map, CONTROL_FILL, controlVisible);

@@ -24,6 +24,7 @@ import {
 import { propagate, splitAtDateline } from "../data/satelliteSGP4";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { POINT_STROKE, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 
@@ -215,12 +216,13 @@ export function useSatellitesLayer(
         type: "line",
         source: SAT_SRC_FOOTPRINT,
         filter: ["==", ["get", "ring"], "outer"],
-        paint: {
+        layout: hookLineLayout("satellitesYaogan", SAT_LAYER_FOOTPRINT_OUTER),
+        paint: hookLinePaint("satellitesYaogan", SAT_LAYER_FOOTPRINT_OUTER, {
           "line-color": COLOR_EXPR,
           "line-width": 1,
           "line-opacity": 0.35,
           "line-dasharray": [3, 3],
-        },
+        }, { "line-color": COLOR_EXPR, "line-width": 1, "line-opacity": 0.35, "line-dasharray": [3, 3] }),
       } as LineLayer);
     }
     if (!map.getLayer(SAT_LAYER_FOOTPRINT_INNER)) {
@@ -229,11 +231,10 @@ export function useSatellitesLayer(
         type: "fill",
         source: SAT_SRC_FOOTPRINT,
         filter: ["==", ["get", "ring"], "inner"],
-        paint: {
+        paint: hookFillPaint("satellitesYaogan", SAT_LAYER_FOOTPRINT_INNER, {
           "fill-color": COLOR_EXPR,
           "fill-opacity": 0.35,
-          "fill-outline-color": COLOR_EXPR,
-        },
+        }, { "fill-color": COLOR_EXPR, "fill-opacity": 0.35 }),
       } as FillLayer);
     }
     if (!map.getLayer(SAT_LAYER_TRACK)) {
@@ -241,11 +242,12 @@ export function useSatellitesLayer(
         id: SAT_LAYER_TRACK,
         type: "line",
         source: SAT_SRC_TRACK,
-        paint: {
+        layout: hookLineLayout("satellitesYaogan", SAT_LAYER_TRACK),
+        paint: hookLinePaint("satellitesYaogan", SAT_LAYER_TRACK, {
           "line-color": COLOR_EXPR,
           "line-width": 1.4,
           "line-opacity": 0.5,
-        },
+        }, { "line-color": COLOR_EXPR, "line-width": 1.4, "line-opacity": 0.5 }),
       } as LineLayer);
     }
     if (!map.getLayer(SAT_LAYER_POINT)) {
@@ -515,13 +517,13 @@ export function useSatellitesLayer(
     if (!map || !layersReadyRef.current) return;
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(SAT_LAYER_FOOTPRINT_INNER)) {
-      map.setPaintProperty(SAT_LAYER_FOOTPRINT_INNER, "fill-opacity", 0.35 * o);
+      map.setPaintProperty(SAT_LAYER_FOOTPRINT_INNER, "fill-opacity", hookFillOpacity("satellitesYaogan", SAT_LAYER_FOOTPRINT_INNER, 0.35 * o, 0.35));
     }
     if (map.getLayer(SAT_LAYER_FOOTPRINT_OUTER)) {
-      map.setPaintProperty(SAT_LAYER_FOOTPRINT_OUTER, "line-opacity", 0.35 * o);
+      map.setPaintProperty(SAT_LAYER_FOOTPRINT_OUTER, "line-opacity", hookLineOpacity("satellitesYaogan", SAT_LAYER_FOOTPRINT_OUTER, 0.35 * o, 0.35));
     }
     if (map.getLayer(SAT_LAYER_TRACK)) {
-      map.setPaintProperty(SAT_LAYER_TRACK, "line-opacity", 0.5 * o);
+      map.setPaintProperty(SAT_LAYER_TRACK, "line-opacity", hookLineOpacity("satellitesYaogan", SAT_LAYER_TRACK, 0.5 * o, 0.5));
     }
     if (map.getLayer(SAT_LAYER_POINT)) {
       map.setPaintProperty(SAT_LAYER_POINT, "circle-opacity", 1 * o);

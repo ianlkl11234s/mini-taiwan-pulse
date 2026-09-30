@@ -20,7 +20,7 @@ import {
   type GfwHourlyGridDataWindowState,
 } from "../state/gfwHourlyGridDataWindowStore";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { pointStrokePaint } from "../map/mapStyleScale";
+import { LABEL, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import {
   GFW_HOURLY_GRID_V3_FILL_OPACITY,
@@ -280,14 +280,14 @@ function ensureLayer(
         visibility: "none",
         "text-field": ["case", [">", ["get", "vessel_count"], 1], ["to-string", ["get", "vessel_count"]], ""],
         "text-size": ["step", ["get", "vessel_count"], 10, 10, 11, 50, 12],
-        "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+        "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
         "text-allow-overlap": true,
         "text-ignore-placement": true,
       },
       paint: {
         "text-color": "#fff7ed",
         "text-halo-color": "#431407",
-        "text-halo-width": 0.8,
+        "text-halo-width": LABEL.haloWidth,
         "text-opacity": 0.9,
       },
     } as SymbolLayer);

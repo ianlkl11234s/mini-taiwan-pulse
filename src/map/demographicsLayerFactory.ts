@@ -1,6 +1,8 @@
 import { deferUntilH3, requireH3 } from "./h3Runtime";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { DemographicH3CellData, SocioeconomicH3CellData, SpatialEconomyH3CellData } from "../data/h3Loader";
+import { hookFillOpacity, hookFillPaint } from "./lineFillSpec";
+import { EXTRUSION } from "./mapStyleScale";
 
 // ── Layer IDs ──
 
@@ -165,6 +167,7 @@ export interface IndicatorsParams {
 
 function ensureSourceAndLayers(
   map: MapboxMap,
+  key: string,
   srcId: string,
   fillId: string,
   extId: string,
@@ -181,10 +184,13 @@ function ensureSourceAndLayers(
       type: "fill",
       source: srcId,
       layout: { visibility: "none" },
-      paint: {
+      paint: hookFillPaint(key, fillId, {
         "fill-color": ["get", "color"],
         "fill-opacity": 0.6,
-      },
+      }, {
+        "fill-color": ["get", "color"],
+        "fill-opacity": 0.6,
+      }),
     });
   }
   if (!map.getLayer(extId)) {
@@ -195,25 +201,27 @@ function ensureSourceAndLayers(
       layout: { visibility: "none" },
       paint: {
         "fill-extrusion-color": ["get", "color"],
-        "fill-extrusion-height": ["*", ["get", "height"], 5000],
-        "fill-extrusion-opacity": 0.6,
+        "fill-extrusion-height": ["*", ["get", "height"], EXTRUSION.gridHeightUnit * EXTRUSION.gridHeightBase * EXTRUSION.heightMultiplier],
+        "fill-extrusion-opacity": EXTRUSION.opacity,
+        "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
       },
     });
   }
 }
 
 export function ensurePopCountLayers(map: MapboxMap): void {
-  ensureSourceAndLayers(map, POP_COUNT_SRC, POP_COUNT_FILL, POP_COUNT_EXT);
+  ensureSourceAndLayers(map, "popCount", POP_COUNT_SRC, POP_COUNT_FILL, POP_COUNT_EXT);
 }
 
 export function ensureIndicatorsLayers(map: MapboxMap): void {
-  ensureSourceAndLayers(map, INDICATORS_SRC, INDICATORS_FILL, INDICATORS_EXT);
+  ensureSourceAndLayers(map, "indicators", INDICATORS_SRC, INDICATORS_FILL, INDICATORS_EXT);
 }
 
 // ── Update layer data + paint ──
 
 function updateDemographicsLayer(
   map: MapboxMap,
+  key: string,
   srcId: string,
   fillId: string,
   extId: string,
@@ -226,9 +234,9 @@ function updateDemographicsLayer(
   visible: boolean,
 ): void {
   if (deferUntilH3(srcId, cells.length > 0, () => updateDemographicsLayer(
-    map, srcId, fillId, extId, cells, metric, opacity, contrast, extruded, elevationScale, visible,
+    map, key, srcId, fillId, extId, cells, metric, opacity, contrast, extruded, elevationScale, visible,
   ))) return;
-  ensureSourceAndLayers(map, srcId, fillId, extId);
+  ensureSourceAndLayers(map, key, srcId, fillId, extId);
   const source = map.getSource(srcId);
   if (!source || source.type !== "geojson") return;
 
@@ -248,10 +256,10 @@ function updateDemographicsLayer(
   map.setLayoutProperty(fillId, "visibility", extruded ? "none" : "visible");
   map.setLayoutProperty(extId, "visibility", extruded ? "visible" : "none");
 
-  map.setPaintProperty(fillId, "fill-opacity", opacity);
-  map.setPaintProperty(extId, "fill-extrusion-opacity", opacity);
+  map.setPaintProperty(fillId, "fill-opacity", hookFillOpacity(key, fillId, opacity, 0.6));
+  map.setPaintProperty(extId, "fill-extrusion-opacity", Math.min(1, EXTRUSION.opacity * (opacity / 0.6)));
   map.setPaintProperty(extId, "fill-extrusion-height",
-    ["*", ["get", "height"], elevationScale * 100],
+    ["*", ["get", "height"], elevationScale * EXTRUSION.gridHeightUnit * EXTRUSION.gridHeightBase * EXTRUSION.heightMultiplier],
   );
 }
 
@@ -262,7 +270,7 @@ export function updatePopCountLayer(
   visible: boolean,
 ): void {
   updateDemographicsLayer(
-    map, POP_COUNT_SRC, POP_COUNT_FILL, POP_COUNT_EXT,
+    map, "popCount", POP_COUNT_SRC, POP_COUNT_FILL, POP_COUNT_EXT,
     cells, "p", params.opacity, params.contrast,
     params.extruded, params.elevationScale, visible,
   );
@@ -275,7 +283,7 @@ export function updateIndicatorsLayer(
   visible: boolean,
 ): void {
   updateDemographicsLayer(
-    map, INDICATORS_SRC, INDICATORS_FILL, INDICATORS_EXT,
+    map, "indicators", INDICATORS_SRC, INDICATORS_FILL, INDICATORS_EXT,
     cells, params.metric, params.opacity, params.contrast,
     params.extruded, params.elevationScale, visible,
   );
@@ -357,7 +365,7 @@ export interface SocioeconomicParams {
 }
 
 export function ensureSocioLayers(map: MapboxMap): void {
-  ensureSourceAndLayers(map, SOCIO_SRC, SOCIO_FILL, SOCIO_EXT);
+  ensureSourceAndLayers(map, "socioeconomic", SOCIO_SRC, SOCIO_FILL, SOCIO_EXT);
 }
 
 export function updateSocioLayer(
@@ -367,7 +375,7 @@ export function updateSocioLayer(
   visible: boolean,
 ): void {
   if (deferUntilH3(SOCIO_SRC, cells.length > 0, () => updateSocioLayer(map, cells, params, visible))) return;
-  ensureSourceAndLayers(map, SOCIO_SRC, SOCIO_FILL, SOCIO_EXT);
+  ensureSourceAndLayers(map, "socioeconomic", SOCIO_SRC, SOCIO_FILL, SOCIO_EXT);
   const source = map.getSource(SOCIO_SRC);
   if (!source || source.type !== "geojson") return;
 
@@ -388,9 +396,9 @@ export function updateSocioLayer(
   }
   map.setLayoutProperty(SOCIO_FILL, "visibility", params.extruded ? "none" : "visible");
   map.setLayoutProperty(SOCIO_EXT, "visibility", params.extruded ? "visible" : "none");
-  map.setPaintProperty(SOCIO_FILL, "fill-opacity", params.opacity);
-  map.setPaintProperty(SOCIO_EXT, "fill-extrusion-opacity", params.opacity);
-  map.setPaintProperty(SOCIO_EXT, "fill-extrusion-height", ["*", ["get", "height"], params.elevationScale * 100]);
+  map.setPaintProperty(SOCIO_FILL, "fill-opacity", hookFillOpacity("socioeconomic", SOCIO_FILL, params.opacity, 0.6));
+  map.setPaintProperty(SOCIO_EXT, "fill-extrusion-opacity", Math.min(1, EXTRUSION.opacity * (params.opacity / 0.6)));
+  map.setPaintProperty(SOCIO_EXT, "fill-extrusion-height", ["*", ["get", "height"], params.elevationScale * EXTRUSION.gridHeightUnit * EXTRUSION.gridHeightBase * EXTRUSION.heightMultiplier]);
 }
 
 // ── Spatial Economy layers ──
@@ -404,7 +412,7 @@ export interface SpatialEconomyParams {
 }
 
 export function ensureSpatialLayers(map: MapboxMap): void {
-  ensureSourceAndLayers(map, SPATIAL_SRC, SPATIAL_FILL, SPATIAL_EXT);
+  ensureSourceAndLayers(map, "spatialEconomy", SPATIAL_SRC, SPATIAL_FILL, SPATIAL_EXT);
 }
 
 export function updateSpatialLayer(
@@ -414,7 +422,7 @@ export function updateSpatialLayer(
   visible: boolean,
 ): void {
   if (deferUntilH3(SPATIAL_SRC, cells.length > 0, () => updateSpatialLayer(map, cells, params, visible))) return;
-  ensureSourceAndLayers(map, SPATIAL_SRC, SPATIAL_FILL, SPATIAL_EXT);
+  ensureSourceAndLayers(map, "spatialEconomy", SPATIAL_SRC, SPATIAL_FILL, SPATIAL_EXT);
   const source = map.getSource(SPATIAL_SRC);
   if (!source || source.type !== "geojson") return;
 
@@ -435,7 +443,7 @@ export function updateSpatialLayer(
   }
   map.setLayoutProperty(SPATIAL_FILL, "visibility", params.extruded ? "none" : "visible");
   map.setLayoutProperty(SPATIAL_EXT, "visibility", params.extruded ? "visible" : "none");
-  map.setPaintProperty(SPATIAL_FILL, "fill-opacity", params.opacity);
-  map.setPaintProperty(SPATIAL_EXT, "fill-extrusion-opacity", params.opacity);
-  map.setPaintProperty(SPATIAL_EXT, "fill-extrusion-height", ["*", ["get", "height"], params.elevationScale * 100]);
+  map.setPaintProperty(SPATIAL_FILL, "fill-opacity", hookFillOpacity("spatialEconomy", SPATIAL_FILL, params.opacity, 0.6));
+  map.setPaintProperty(SPATIAL_EXT, "fill-extrusion-opacity", Math.min(1, EXTRUSION.opacity * (params.opacity / 0.6)));
+  map.setPaintProperty(SPATIAL_EXT, "fill-extrusion-height", ["*", ["get", "height"], params.elevationScale * EXTRUSION.gridHeightUnit * EXTRUSION.gridHeightBase * EXTRUSION.heightMultiplier]);
 }

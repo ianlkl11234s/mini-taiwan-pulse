@@ -6,6 +6,7 @@
  * 分析結果（viz-library）另有規格，不走本檔。
  */
 
+import type { ExpressionSpecification } from "mapbox-gl";
 import { FONT_CJK } from "../styles/designTokens";
 
 type Theme = "dark" | "light";
@@ -130,3 +131,30 @@ export const LABEL = {
   minZoom: 13,
   halo: { dark: "rgba(15,23,42,0.92)", light: "rgba(255,255,255,0.94)" },
 } as const;
+
+/** G-4：所有 raster 的預設透明度與 slider 範圍。 */
+export const RASTER = { opacity: 0.7, sliderMin: 0.3, sliderMax: 1 } as const;
+/** F-4：擠出圖層共用視覺常數。高度倍率由各 layer 保留既有基準換算。 */
+export const EXTRUSION = {
+  opacity: 0.85,
+  verticalGradient: true,
+  heightMultiplier: 1,
+  gridHeightUnit: 100,
+  gridHeightBase: 50,
+  propertyValueHeightBase: 40,
+  youbikeHeightBase: 80,
+} as const;
+
+export const poiLabelLayout = () => ({
+  "text-size": ["interpolate", ["linear"], ["zoom"], 10, LABEL.poi[0], 14, LABEL.poi[1]] as ExpressionSpecification,
+  "text-allow-overlap": false,
+});
+export const badgeLabelLayout = () => ({
+  "text-size": ["interpolate", ["linear"], ["zoom"], 10, LABEL.badge[0], 14, LABEL.badge[1]] as ExpressionSpecification,
+  "text-allow-overlap": true,
+  "text-ignore-placement": true,
+});
+export const labelHaloPaint = (isDark: boolean) => ({
+  "text-halo-color": LABEL.halo[themeOf(isDark)],
+  "text-halo-width": LABEL.haloWidth,
+});

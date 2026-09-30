@@ -96,7 +96,7 @@ export const H3PopulationHost: LayerHostComponent = ({ deps }) => {
   const h3Params = useMemo(() => ({
     opacity: paramNum(values, "h3Population", "h3Opacity"),
     extruded: paramBool(values, "h3Population", "h3Extruded"),
-    elevationScale: paramNum(values, "h3Population", "h3ElevationScale"),
+    elevationScale: paramNum(values, "h3Population", "h3ElevationScale") || 1,
     metric: oneOfParam(paramStr(values, "h3Population", "h3Metric"), H3_METRICS, "day"),
     contrast: paramNum(values, "h3Population", "h3Contrast"),
   }), [values]);
@@ -124,7 +124,7 @@ export const PopCountHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "popCount", "pcOpacity"),
     contrast: paramNum(values, "popCount", "pcContrast"),
     extruded: paramBool(values, "popCount", "pcExtruded"),
-    elevationScale: paramNum(values, "popCount", "pcElevationScale"),
+    elevationScale: paramNum(values, "popCount", "pcElevationScale") || 1,
   }), [values]);
 
   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
@@ -155,7 +155,7 @@ export const IndicatorsHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "indicators", "indOpacity"),
     contrast: paramNum(values, "indicators", "indContrast"),
     extruded: paramBool(values, "indicators", "indExtruded"),
-    elevationScale: paramNum(values, "indicators", "indElevationScale"),
+    elevationScale: paramNum(values, "indicators", "indElevationScale") || 1,
   }), [values]);
 
   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
@@ -185,7 +185,7 @@ export const SocioeconomicHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "socioeconomic", "socioOpacity"),
     contrast: paramNum(values, "socioeconomic", "socioContrast"),
     extruded: paramBool(values, "socioeconomic", "socioExtruded"),
-    elevationScale: paramNum(values, "socioeconomic", "socioElevation"),
+    elevationScale: paramNum(values, "socioeconomic", "socioElevation") || 1,
   }), [values]);
 
   const { mapRef, socioDataMap, demoResolution } = deps;
@@ -212,7 +212,7 @@ export const SpatialEconomyHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "spatialEconomy", "spatialOpacity"),
     contrast: paramNum(values, "spatialEconomy", "spatialContrast"),
     extruded: paramBool(values, "spatialEconomy", "spatialExtruded"),
-    elevationScale: paramNum(values, "spatialEconomy", "spatialElevation"),
+    elevationScale: paramNum(values, "spatialEconomy", "spatialElevation") || 1,
   }), [values]);
 
   const { mapRef, spatialDataMap, demoResolution } = deps;
@@ -238,7 +238,7 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "youbikeFullness", "ybOpacity"),
     contrast: paramNum(values, "youbikeFullness", "ybContrast"),
     extruded: paramBool(values, "youbikeFullness", "ybExtruded"),
-    elevationScale: paramNum(values, "youbikeFullness", "ybElevationScale"),
+    elevationScale: paramNum(values, "youbikeFullness", "ybElevationScale") || 1,
     heightMode: oneOfParam(
       paramStr(values, "youbikeFullness", "ybHeightMode"), YB_HEIGHT_MODES, "mixed",
     ),

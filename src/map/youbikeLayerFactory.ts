@@ -1,6 +1,8 @@
 import { deferUntilH3, requireH3 } from "./h3Runtime";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { YoubikeH3CellData } from "../data/youbikeH3Loader";
+import { hookFillOpacity, hookFillPaint } from "./lineFillSpec";
+import { EXTRUSION } from "./mapStyleScale";
 
 const SOURCE_ID = "h3-youbike-src";
 const FILL_LAYER_ID = "h3-youbike-fill";
@@ -100,12 +102,17 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       type: "fill",
       source: SOURCE_ID,
       layout: { visibility: "none" },
-      paint: {
+      paint: hookFillPaint("youbikeFullness", FILL_LAYER_ID, {
         "fill-color": ["get", "color"],
         "fill-color-transition": { duration: 800, delay: 0 },
         "fill-opacity": 0.6,
         "fill-opacity-transition": { duration: 500, delay: 0 },
-      },
+      }, {
+        "fill-color": ["get", "color"],
+        "fill-color-transition": { duration: 800, delay: 0 },
+        "fill-opacity": 0.6,
+        "fill-opacity-transition": { duration: 500, delay: 0 },
+      }),
     });
   }
   if (!map.getLayer(EXTRUSION_LAYER_ID)) {
@@ -117,9 +124,10 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       paint: {
         "fill-extrusion-color": ["get", "color"],
         "fill-extrusion-color-transition": { duration: 800, delay: 0 },
-        "fill-extrusion-height": ["*", ["get", "height"], 5000],
+        "fill-extrusion-height": ["*", ["get", "height"], EXTRUSION.gridHeightUnit * EXTRUSION.youbikeHeightBase * EXTRUSION.heightMultiplier],
         "fill-extrusion-height-transition": { duration: 800, delay: 0 },
-        "fill-extrusion-opacity": 0.6,
+        "fill-extrusion-opacity": EXTRUSION.opacity,
+        "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
         "fill-extrusion-opacity-transition": { duration: 500, delay: 0 },
       },
     });
@@ -164,11 +172,11 @@ export function updateYoubikeLayer(
   // transition prior（本層 fill-opacity 有 500ms 明示 transition）永遠清不掉 →
   // style.hasTransitions() 恆 true → 地圖無限重畫（A0）。切換 extruded 會帶新 params 重跑。
   if (params.extruded) {
-    map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", params.opacity);
+    map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", Math.min(1, EXTRUSION.opacity * (params.opacity / 0.65)));
     map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-height",
-      ["*", ["get", "height"], params.elevationScale * 100],
+      ["*", ["get", "height"], params.elevationScale * EXTRUSION.gridHeightUnit * EXTRUSION.youbikeHeightBase * EXTRUSION.heightMultiplier],
     );
   } else {
-    map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", params.opacity);
+    map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", hookFillOpacity("youbikeFullness", FILL_LAYER_ID, params.opacity, 0.65));
   }
 }

@@ -4,6 +4,7 @@ import { fetchJpAirports } from "../data/jpAirportsLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 
 const DEFAULT_OPACITY = Number(paramDefault("jpAirports", "jpAirportsOpacity") ?? 1);
 
@@ -32,10 +33,7 @@ function fillLayer(opacity: number): FillLayer {
     type: "fill",
     source: SOURCE_ID,
     layout: { visibility: "none" },
-    paint: {
-      "fill-color": COLOR,
-      "fill-opacity": clampOpacity(opacity),
-    },
+    paint: hookFillPaint("jpAirports", FILL_LAYER_ID, { "fill-color": COLOR, "fill-opacity": clampOpacity(opacity) }, { "fill-color": COLOR, "fill-opacity": DEFAULT_OPACITY }),
   } as FillLayer;
 }
 
@@ -44,12 +42,8 @@ function lineLayer(): LineLayer {
     id: LINE_LAYER_ID,
     type: "line",
     source: SOURCE_ID,
-    layout: { visibility: "none" },
-    paint: {
-      "line-color": COLOR,
-      "line-opacity": 0.6,
-      "line-width": LINE_WIDTH,
-    },
+    layout: { visibility: "none", ...hookLineLayout("jpAirports", LINE_LAYER_ID) },
+    paint: hookLinePaint("jpAirports", LINE_LAYER_ID, { "line-color": COLOR, "line-opacity": 0.6, "line-width": LINE_WIDTH }, { "line-color": COLOR, "line-opacity": 0.6, "line-width": LINE_WIDTH }),
   } as LineLayer;
 }
 
@@ -142,7 +136,7 @@ export function useJpAirportsLayer(
       const showPolygon = displayMode === "polygon";
       if (map.getLayer(FILL_LAYER_ID)) {
         map.setLayoutProperty(FILL_LAYER_ID, "visibility", showPolygon ? "visible" : "none");
-        map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", clampOpacity(opacity));
+        map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", hookFillOpacity("jpAirports", FILL_LAYER_ID, clampOpacity(opacity), DEFAULT_OPACITY));
       }
       if (map.getLayer(LINE_LAYER_ID)) {
         map.setLayoutProperty(LINE_LAYER_ID, "visibility", showPolygon ? "visible" : "none");

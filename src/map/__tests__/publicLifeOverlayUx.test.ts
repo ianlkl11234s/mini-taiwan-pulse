@@ -6,7 +6,7 @@ const LABEL_MINZOOM: Record<string, number> = {
   publicWasteBaskets: 15,
   materialRecyclingPoints: 14,
   playgrounds: 14,
-  visitorCentres: 10,
+  visitorCentres: 13,
   publicToilets: 16,
 };
 
@@ -41,6 +41,17 @@ describe("public life overlay UX", () => {
         expect(typeof overlay.layers.find((layer) => layer.suffix === suffix)?.filter, `${id}/${suffix}`).toBe("function");
       }
     }
+  });
+
+  it("公共廁所獨立 label 也使用 POI 字級與主題 halo", () => {
+    const label = OVERLAY_REGISTRY.find((config) => config.id === "publicToilets")!.layers.find((layer) => layer.suffix === "label")!;
+    expect(label.layout).toMatchObject({
+      "text-size": ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 12],
+    });
+    expect(label.paint(true, {})).toMatchObject({
+      "text-halo-color": "rgba(15,23,42,0.92)",
+      "text-halo-width": 1.25,
+    });
   });
 
   it("PMTiles 點層不建立 symbol label，避開 production Mapbox placement crash", () => {

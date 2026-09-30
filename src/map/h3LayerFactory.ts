@@ -1,6 +1,8 @@
 import { deferUntilH3, requireH3 } from "./h3Runtime";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { H3CellData } from "../data/h3Loader";
+import { hookFillOpacity, hookFillPaint } from "./lineFillSpec";
+import { EXTRUSION } from "./mapStyleScale";
 
 const SOURCE_ID = "h3-population-src";
 const FILL_LAYER_ID = "h3-population-fill";
@@ -151,10 +153,13 @@ export function ensureH3Layers(map: MapboxMap): void {
       type: "fill",
       source: SOURCE_ID,
       layout: { visibility: "none" },
-      paint: {
+      paint: hookFillPaint("h3Population", FILL_LAYER_ID, {
         "fill-color": ["get", "color"],
         "fill-opacity": 0.6,
-      },
+      }, {
+        "fill-color": ["get", "color"],
+        "fill-opacity": 0.6,
+      }),
     });
   }
   if (!map.getLayer(EXTRUSION_LAYER_ID)) {
@@ -165,8 +170,9 @@ export function ensureH3Layers(map: MapboxMap): void {
       layout: { visibility: "none" },
       paint: {
         "fill-extrusion-color": ["get", "color"],
-        "fill-extrusion-height": ["*", ["get", "height"], 5000],
-        "fill-extrusion-opacity": 0.6,
+        "fill-extrusion-height": ["*", ["get", "height"], EXTRUSION.gridHeightUnit * EXTRUSION.gridHeightBase * EXTRUSION.heightMultiplier],
+        "fill-extrusion-opacity": EXTRUSION.opacity,
+        "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
       },
     });
   }
@@ -201,10 +207,10 @@ export function updateH3Layer(
   map.setLayoutProperty(EXTRUSION_LAYER_ID, "visibility", params.extruded ? "visible" : "none");
 
   // Paint properties
-  map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", params.opacity);
-  map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", params.opacity);
+  map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", hookFillOpacity("h3Population", FILL_LAYER_ID, params.opacity, 0.6));
+  map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", Math.min(1, EXTRUSION.opacity * (params.opacity / 0.6)));
   map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-height",
-    ["*", ["get", "height"], params.elevationScale * 100],
+    ["*", ["get", "height"], params.elevationScale * EXTRUSION.gridHeightUnit * EXTRUSION.gridHeightBase * EXTRUSION.heightMultiplier],
   );
 }
 

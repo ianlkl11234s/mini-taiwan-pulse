@@ -1,5 +1,5 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "../map/layerPaintColors";
-import { mapSeamColor } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
+import { BOUNDARY_GRAY, mapSeamColor } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
 import { FACILITY_STATUS_PAINT_COLORS } from "../map/layerPaintColors";
 import { THEMED_PAINT_COLORS } from "../map/layerPaintColors";
 import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "../map/layerPaintColors";
@@ -1780,6 +1780,7 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
 }
 
 function PropertyValueAdminLegend({ levelIdx }: { levelIdx: number }) {
+  const t = useLegendTheme();
   const level = resolvePropertyValueAdminLevel(levelIdx);
   const config = PROPERTY_VALUE_ADMIN_LEVELS[level];
   const bounds = [0, ...config.breaks];
@@ -1790,9 +1791,9 @@ function PropertyValueAdminLegend({ levelIdx }: { levelIdx: number }) {
         {PROPERTY_VALUE_ADMIN_COLORS.map((color, index) => {
           const lower = formatPropertyValueTwd(bounds[index]!);
           const upper = config.breaks[index];
-          return <UrbanDotRow key={color} color={color} label={upper ? `${lower} – < ${formatPropertyValueTwd(upper)}` : `${lower} 以上`} />;
+          return <LegendRow key={color} swatch={<SwatchSquare color={color} stroke={mapSeamColor(t.isDark)} />}>{upper ? `${lower} – < ${formatPropertyValueTwd(upper)}` : `${lower} 以上`}</LegendRow>;
         })}
-        <UrbanDotRow color={PROPERTY_VALUE_ADMIN_MISSING_COLOR} label="來源缺值（不是 0）" />
+        <LegendRow swatch={<SwatchSquare color={PROPERTY_VALUE_ADMIN_MISSING_COLOR} stroke={mapSeamColor(t.isDark)} />}>來源缺值（不是 0）</LegendRow>
       </div>
       <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
         市場交易建物模型估值聚合；{level === "township" ? "鄉鎮市區界自 z6 顯示。" : "19 / 22 縣市有數值。"}
@@ -6235,13 +6236,13 @@ function JpMedicalLegend({ layerKey }: { layerKey: string }) {
     <strong>{row.label}</strong>
     <div style={{ margin: "4px 0" }}><JpMedicalStatus kind={kind} layerKey={layerKey} /></div>
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      {kind === "areas" ? <SwatchSquare color={row.color} /> : <SwatchDot color={row.color} />}{row.label}
+      {kind === "areas" ? <SwatchSquare color={row.color} stroke={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} /> : <SwatchDot color={row.color} />}{row.label}
     </div>
     {kind !== "areas" && <>
       <div style={{ color: t.textDim, marginTop: 5 }}>zoom &lt; 8：10 km 等面積格內筆數</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 8px", marginTop: 3 }}>
         {JP_MEDICAL_GRID_BANDS.map((band) => <span key={band.min} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-          <SwatchSquare color={band.color} />{band.label}
+          <SwatchSquare color={band.color} stroke={mapSeamColor(t.isDark)} />{band.label}
         </span>)}
       </div>
     </>}

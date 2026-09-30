@@ -11,6 +11,7 @@ import {
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 function firstSymbolLayerId(map: MapboxMap): string | undefined {
   try { return map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id; } catch { return undefined; }
@@ -39,7 +40,7 @@ function applyLevelState(map: MapboxMap, data: PropertyValueAdmin, level: Proper
  * county / township 使用獨立 source，避免與底圖邊界 toggle 互相清掉 state。
  */
 export function usePropertyValueAdminLayer(
-  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, levelIdx: number, opacity: number,
+  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, levelIdx: number, opacity: number, isDark = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<PropertyValueAdmin | null>(null);
@@ -86,13 +87,12 @@ export function usePropertyValueAdminLayer(
         source: config.sourceId,
         "source-layer": config.sourceLayer,
         minzoom: config.minzoom,
-        paint: {
+        paint: hookFillPaint("propertyValueAdmin", config.fillLayerId, {
           "fill-color": propertyValueAdminColorExpression(level) as ExpressionSpecification,
           "fill-opacity": opacity,
-          "fill-outline-color": "rgba(0,0,0,0)",
-        },
+        }, { "fill-color": propertyValueAdminColorExpression(level) as ExpressionSpecification, "fill-opacity": 0.65 }),
       } as unknown as FillLayer, before);
-    } else map.setPaintProperty(config.fillLayerId, "fill-opacity", opacity);
+    } else map.setPaintProperty(config.fillLayerId, "fill-opacity", hookFillOpacity("propertyValueAdmin", config.fillLayerId, opacity, 0.65));
     if (!map.getLayer(config.lineLayerId)) {
       map.addLayer({
         id: config.lineLayerId,
@@ -100,13 +100,15 @@ export function usePropertyValueAdminLayer(
         source: config.sourceId,
         "source-layer": config.sourceLayer,
         minzoom: config.minzoom,
-        paint: {
+        layout: hookLineLayout("propertyValueAdmin", config.lineLayerId),
+        paint: hookLinePaint("propertyValueAdmin", config.lineLayerId, {
           "line-color": "#fef3c7",
           "line-width": ["interpolate", ["linear"], ["zoom"], config.minzoom, 0.4, 10, 1.1],
           "line-opacity": Math.min(1, opacity + 0.15),
-        },
+        }, { "line-color": "#fef3c7", "line-width": ["interpolate", ["linear"], ["zoom"], config.minzoom, 0.4, 10, 1.1], "line-opacity": Math.min(1, 0.65 + 0.15) }, isDark),
       } as unknown as LineLayer, before);
-    } else map.setPaintProperty(config.lineLayerId, "line-opacity", Math.min(1, opacity + 0.15));
+    } else map.setPaintProperty(config.lineLayerId, "line-opacity", hookLineOpacity("propertyValueAdmin", config.lineLayerId, Math.min(1, opacity + 0.15), Math.min(1, 0.65 + 0.15), isDark));
+    map.setPaintProperty(config.lineLayerId, "line-color", hookLinePaint("propertyValueAdmin", config.lineLayerId, { "line-color": "#fef3c7" }, {}, isDark)["line-color"] as string);
 
     setLevelVisible(map, level === "county" ? "township" : "county", false);
     setLevelVisible(map, level, true);
@@ -114,5 +116,5 @@ export function usePropertyValueAdminLayer(
     flush();
     map.on("sourcedata", flush);
     return () => { map.off("sourcedata", flush); };
-  }, [mapRef, visible, level, opacity, mapTick, dataTick]);
+  }, [mapRef, visible, level, opacity, isDark, mapTick, dataTick]);
 }

@@ -10,6 +10,7 @@ import { timeStore } from "../state/timeStore";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookLineLayout, hookLineOpacity, hookLinePaint, hookLineWidth } from "../map/lineFillSpec";
 
 /**
  * 省道路況（TDX live_highway）動態圖層 — v1 highway only。
@@ -93,12 +94,12 @@ export function useRoadCongestionLayer(
           type: "line",
           source: SOURCE_ID,
           "source-layer": SOURCE_LAYER,
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
+          layout: hookLineLayout("roadCongestion", LAYER_LINE),
+          paint: hookLinePaint("roadCongestion", LAYER_LINE, {
             "line-color": COLOR_EXPR,
             "line-width": widthExpr(width),
             "line-opacity": opacity,
-          },
+          }, { "line-color": COLOR_EXPR, "line-width": widthExpr(1), "line-opacity": 0.85 }),
         } as unknown as LineLayer);
       }
       if (!map.getLayer(LAYER_HIT)) {
@@ -225,8 +226,8 @@ export function useRoadCongestionLayer(
     const map = mapRef.current;
     if (!map || !layersReadyRef.current) return;
     if (map.getLayer(LAYER_LINE)) {
-      map.setPaintProperty(LAYER_LINE, "line-width", widthExpr(width));
-      map.setPaintProperty(LAYER_LINE, "line-opacity", opacity);
+      map.setPaintProperty(LAYER_LINE, "line-width", hookLineWidth("roadCongestion", LAYER_LINE, widthExpr(width), widthExpr(1)));
+      map.setPaintProperty(LAYER_LINE, "line-opacity", hookLineOpacity("roadCongestion", LAYER_LINE, opacity, 0.85));
     }
   }, [width, opacity, mapRef, mapTick]);
 }

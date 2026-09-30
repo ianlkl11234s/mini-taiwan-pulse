@@ -3,6 +3,7 @@ import type { Map as MapboxMap, ExpressionSpecification } from "mapbox-gl";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 
 /**
  * 坡度分級（建管六級坡）靜態向量圖層 — slope_vector.pmtiles polygon。
@@ -80,14 +81,14 @@ export function useSlopeVectorLayer(
           source: SOURCE_ID,
           "source-layer": SOURCE_LAYER,
           minzoom: 5,
-          paint: {
+          paint: hookFillPaint("slopeVector", FILL_LAYER, {
             "fill-color": COLOR_EXPR,
             "fill-opacity": opacity,
             "fill-antialias": false,
-          },
+          }, { "fill-color": COLOR_EXPR, "fill-opacity": 0.6, "fill-antialias": false }),
         });
       } else {
-        map.setPaintProperty(FILL_LAYER, "fill-opacity", opacity);
+        map.setPaintProperty(FILL_LAYER, "fill-opacity", hookFillOpacity("slopeVector", FILL_LAYER, opacity, 0.6));
       }
       setVis(map, FILL_LAYER, true);
       return true;

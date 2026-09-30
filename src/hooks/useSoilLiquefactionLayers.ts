@@ -11,6 +11,7 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { gradedSeamPaint, hatchImageData, hatchImageId, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { hookFillOpacity, hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
 import { soilLiquefactionPrivateAccessToken, useSoilLiquefactionPrivateAccess } from "./useSoilLiquefactionPrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -80,6 +81,7 @@ export const weakSoilMissingFilter = (key: WeakSoilLayerKey) => ["!", weakSoilVa
 
 const siteStroke = (opacity: number, isDark: boolean) =>
   pointStrokePaint(isDark, clamp(opacity) / Number(paramDefault("liquefactionMonitoringSites", "liquefactionMonitoringSitesOpacity") ?? 1));
+const opacityDefault = (key: SoilLiquefactionLayerKey) => Number(paramDefault(key, `${key}Opacity`) ?? 1);
 
 type Snapshot = { visibility: SoilLiquefactionVisibility; opacity: SoilLiquefactionOpacity; isDark: boolean };
 
@@ -93,16 +95,16 @@ export function buildSoilLiquefactionLayers(state: Snapshot): (FillLayer | LineL
   const hidden = { visibility: "none" as const };
   return [
     { id: ids.potentialFill, type: "fill", source, "source-layer": potential, filter: POTENTIAL_FILL_FILTER, layout: hidden,
-      paint: { "fill-color": potentialFillColor(), "fill-opacity": clamp(opacity.soilLiquefactionPotential) } } as FillLayer,
+      paint: hookFillPaint("soilLiquefactionPotential", ids.potentialFill, { "fill-color": potentialFillColor(), "fill-opacity": clamp(opacity.soilLiquefactionPotential) }, { "fill-color": potentialFillColor(), "fill-opacity": opacityDefault("soilLiquefactionPotential") }) } as FillLayer,
     { id: ids.potentialNotInvestigated, type: "fill", source, "source-layer": potential, filter: POTENTIAL_NOT_INVESTIGATED_FILTER, layout: hidden,
-      paint: { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": clamp(opacity.soilLiquefactionPotential) } } as FillLayer,
+      paint: hookFillPaint("soilLiquefactionPotential", ids.potentialNotInvestigated, { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": clamp(opacity.soilLiquefactionPotential) }, { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": opacityDefault("soilLiquefactionPotential") }) } as FillLayer,
     { id: ids.potentialOutline, type: "line", source, "source-layer": potential, layout: hidden,
-      paint: gradedSeamPaint(isDark, POTENTIAL_HAS_CLASS) } as LineLayer,
+      paint: hookLinePaint("soilLiquefactionPotential", ids.potentialOutline, gradedSeamPaint(isDark, POTENTIAL_HAS_CLASS), gradedSeamPaint(isDark, POTENTIAL_HAS_CLASS), isDark) } as LineLayer,
     ...WEAK_SOIL_LAYER_KEYS.flatMap((key) => [
       { id: ids.weakFill(key), type: "fill", source, "source-layer": weak, minzoom: WEAK_SOIL_MIN_ZOOM, filter: weakSoilValueFilter(key), layout: hidden,
-        paint: { "fill-color": weakSoilFillColor(key), "fill-opacity": clamp(opacity[key]) } } as FillLayer,
+        paint: hookFillPaint(key, ids.weakFill(key), { "fill-color": weakSoilFillColor(key), "fill-opacity": clamp(opacity[key]) }, { "fill-color": weakSoilFillColor(key), "fill-opacity": opacityDefault(key) }) } as FillLayer,
       { id: ids.weakMissing(key), type: "fill", source, "source-layer": weak, minzoom: WEAK_SOIL_MIN_ZOOM, filter: weakSoilMissingFilter(key), layout: hidden,
-        paint: { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": clamp(opacity[key]) } } as FillLayer,
+        paint: hookFillPaint(key, ids.weakMissing(key), { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": clamp(opacity[key]) }, { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": opacityDefault(key) }) } as FillLayer,
     ]),
     { id: ids.sites, type: "circle", source, "source-layer": SOIL_LIQUEFACTION_SOURCE_LAYERS.monitoringSites, layout: hidden,
       paint: { "circle-color": LIQUEFACTION_SITE_COLOR, "circle-opacity": clamp(opacity.liquefactionMonitoringSites),
@@ -126,12 +128,12 @@ function syncLayers(map: MapboxMap, state: Snapshot) {
     for (const [name, value] of Object.entries(paint)) map.setPaintProperty(id, name as never, value as never);
   };
   const hatch = hatchImageId("missing", isDark);
-  set(ids.potentialFill, visibility.soilLiquefactionPotential, { "fill-opacity": clamp(opacity.soilLiquefactionPotential) });
-  set(ids.potentialNotInvestigated, visibility.soilLiquefactionPotential, { "fill-pattern": hatch, "fill-opacity": clamp(opacity.soilLiquefactionPotential) });
-  set(ids.potentialOutline, visibility.soilLiquefactionPotential, gradedSeamPaint(isDark, POTENTIAL_HAS_CLASS));
+  set(ids.potentialFill, visibility.soilLiquefactionPotential, { "fill-opacity": hookFillOpacity("soilLiquefactionPotential", ids.potentialFill, clamp(opacity.soilLiquefactionPotential), opacityDefault("soilLiquefactionPotential")) });
+  set(ids.potentialNotInvestigated, visibility.soilLiquefactionPotential, { "fill-pattern": hatch, "fill-opacity": hookFillOpacity("soilLiquefactionPotential", ids.potentialNotInvestigated, clamp(opacity.soilLiquefactionPotential), opacityDefault("soilLiquefactionPotential")) });
+  set(ids.potentialOutline, visibility.soilLiquefactionPotential, hookLinePaint("soilLiquefactionPotential", ids.potentialOutline, gradedSeamPaint(isDark, POTENTIAL_HAS_CLASS), gradedSeamPaint(isDark, POTENTIAL_HAS_CLASS), isDark));
   for (const key of WEAK_SOIL_LAYER_KEYS) {
-    set(ids.weakFill(key), visibility[key], { "fill-opacity": clamp(opacity[key]) });
-    set(ids.weakMissing(key), visibility[key], { "fill-pattern": hatch, "fill-opacity": clamp(opacity[key]) });
+    set(ids.weakFill(key), visibility[key], { "fill-opacity": hookFillOpacity(key, ids.weakFill(key), clamp(opacity[key]), opacityDefault(key)) });
+    set(ids.weakMissing(key), visibility[key], { "fill-pattern": hatch, "fill-opacity": hookFillOpacity(key, ids.weakMissing(key), clamp(opacity[key]), opacityDefault(key)) });
   }
   set(ids.sites, visibility.liquefactionMonitoringSites, {
     "circle-opacity": clamp(opacity.liquefactionMonitoringSites),

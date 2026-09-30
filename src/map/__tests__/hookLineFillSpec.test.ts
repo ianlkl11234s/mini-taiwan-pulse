@@ -1,0 +1,62 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { hookFillPaint, hookLinePaint, valueAtZ14, withLineFillSpec } from "../lineFillSpec";
+import { HOOK_FILL_TIERS, HOOK_LINE_TIERS } from "../lineFillTiers";
+import { FILL_OPACITY, LINE_OPACITY, LINE_WIDTH, mapSeamColor } from "../mapStyleScale";
+import type { OverlayConfig } from "../../types";
+
+const base = { "line-width": 2, "line-opacity": 0.5, "line-color": "#abc", "line-dasharray": [2, 1] };
+describe("R3b hook line/fill contract", () => {
+  it("hook fill-outline-color ratchet remains zero (F2 independent outlines)", () => {
+    const root = new URL("../../hooks/", import.meta.url);
+    const hits = readdirSync(root).filter(file => file.endsWith(".ts"))
+      .filter(file => /["']fill-outline-color["']\s*:/.test(readFileSync(new URL(file, root), "utf8")));
+    expect(hits).toEqual([]);
+  });
+
+  it("all confirmed tiers normalize defaults and scale/clamp sliders", () => {
+    for (const [name, tier] of Object.entries(HOOK_LINE_TIERS)) {
+      const [key, id] = name.split("/") as [string, string];
+      const p = hookLinePaint(key, id, base, base);
+      if (!tier.outline && tier.width !== "keep") expect(valueAtZ14(p["line-width"]), name).toBe(LINE_WIDTH[tier.width][1]);
+      if (!tier.outline && tier.opacity !== "keep") expect(p["line-opacity"], name).toBe(LINE_OPACITY[tier.opacity]);
+      const high = hookLinePaint(key, id, { ...base, "line-opacity": 100 }, base);
+      if (tier.opacity !== "keep" || tier.outline) expect(Number(high["line-opacity"]), name).toBeLessThanOrEqual(1);
+    }
+    for (const [name, tier] of Object.entries(HOOK_FILL_TIERS)) {
+      if (tier === "keep") continue;
+      const [key, id] = name.split("/") as [string, string];
+      const def = { "fill-opacity": 0.6 };
+      expect(hookFillPaint(key, id, def, def)["fill-opacity"], name).toBe(FILL_OPACITY[tier]);
+      expect(hookFillPaint(key, id, { "fill-opacity": 0 }, def)["fill-opacity"], name).toBe(0);
+      expect(hookFillPaint(key, id, { "fill-opacity": 6 }, def)["fill-opacity"], name).toBeLessThanOrEqual(1);
+    }
+  });
+  it("shares registry calculation and preserves data encodings including outlines", () => {
+    const c = { id: "osmPowerLines", layers: [{suffix:"cable", type:"line", paint:()=>base}] } as unknown as OverlayConfig;
+    // Both entry points execute the same lineWrap; use a matching standard tier.
+    const hook = hookLinePaint("soilLiquefactionPotential", "soil-liquefaction-potential-outline", base, base);
+    expect(hook["line-width"]).toEqual(["interpolate", ["linear"], ["zoom"], 10, 0.5, 14, 1]);
+    expect(withLineFillSpec(c).layers[0]!.paint(true, {})["line-width"]).toEqual(hook["line-width"]);
+    const encoded = { "line-width": ["get", "width"], "line-opacity": ["feature-state", "opacity"], "line-color": ["get", "color"], "line-dasharray": ["case", ["get", "forecast"], ["literal", [1, 2.5]], ["literal", [2, 2]]] };
+    expect(hookLinePaint("propertyValueAdmin", "property-value-admin-county-line", encoded, encoded)).toEqual(encoded);
+    const missing = { "fill-opacity": ["case", ["has", "value"], 0.6, 0] };
+    expect(hookFillPaint("fireIsochrone", "fire-isochrone-coverage-fill", missing, missing)).toEqual(missing);
+  });
+  it("F2 seam theme is shared and hidden/data-driven paints stay intact", () => {
+    for (const dark of [true, false]) {
+      expect(hookLinePaint("propertyValueAdmin", "property-value-admin-county-line", base, base, dark)["line-color"]).toBe(mapSeamColor(dark));
+    }
+    expect(hookFillPaint("fireIsochrone", "fire-isochrone-coverage-fill", { "fill-opacity": 0 }, { "fill-opacity": 0 })["fill-opacity"]).toBe(0);
+  });
+  it("confirmed non-keep hook files reference the shared helper", () => {
+    const tiers = readFileSync(new URL("../lineFillTiers.ts", import.meta.url), "utf8").split("export const HOOK_LINE_TIERS")[1]!;
+    const files = new Set<string>();
+    for (const line of tiers.split("\n")) {
+      const file = line.match(/\/\/ (src\/[^ ]+\.ts)\s*$/)?.[1];
+      if (file && !/: "keep",/.test(line)) files.add(file);
+    }
+    const missing = [...files].filter(file => !/hook(?:Line|Fill)/.test(readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8")));
+    expect(missing).toEqual([]);
+  });
+});

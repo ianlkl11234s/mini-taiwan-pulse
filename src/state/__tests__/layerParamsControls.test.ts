@@ -259,7 +259,7 @@ describe("buildParamControls", () => {
     const after = buildParamControls("propertyValueGrid") ?? [];
     expect(after, "3D 打開後對比／高度兩個控件要出現").toHaveLength(6);
     expect(after[4]).toMatchObject({ label: "對比 1.8" });
-    expect(after[5]).toMatchObject({ label: "整體高度 40" });
+    expect(after[5]).toMatchObject({ label: "高度倍率 1.00" });
 
     (after[3] as ToggleConfig).onChange(false);
     expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(4);
@@ -281,7 +281,7 @@ describe("buildParamControls", () => {
     expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(4);
     const out = encodeParamsToOverlay(layerParamsStore.getAll());
     expect(out["propertyValueGridContrast"]).toBe(1.8);
-    expect(out["propertyValueGridElevationScale"]).toBe(40);
+    expect(out["propertyValueGridElevationScale"]).toBe(1);
   });
 
   it("disableRule：150m 尺度停用人均市值並在 label 講明，換尺度就解除", () => {

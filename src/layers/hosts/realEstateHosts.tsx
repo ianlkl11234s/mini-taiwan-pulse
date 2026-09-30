@@ -59,7 +59,8 @@ export const PropertyValueAdminHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.propertyValueAdmin,
     p.propertyValueAdminLevelIdx ?? 0,
-    p.propertyValueAdminOpacity ?? 0.7,
+    p.propertyValueAdminOpacity ?? 0.65,
+    deps.isDarkTheme,
   );
   return null;
 };

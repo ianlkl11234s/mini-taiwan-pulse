@@ -19,6 +19,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { startThrottledRaf } from "../utils/throttledRaf";
+import { hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * NCDR 災害示警 timeline 圖層（5 主題群組）
@@ -118,10 +119,10 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
         type: "fill",
         source: SOURCE_ID,
         filter: polyFilter,
-        paint: {
+        paint: hookFillPaint(group, ids.fill, {
           "fill-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
           "fill-opacity": SEVERITY_FILL_OPACITY,
-        },
+        }, { "fill-color": ["get", "tcolor"] as unknown as ExpressionSpecification, "fill-opacity": SEVERITY_FILL_OPACITY }),
       } as FillLayer);
     }
 
@@ -131,12 +132,12 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
         type: "line",
         source: SOURCE_ID,
         filter: polyFilter,
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
+        layout: hookLineLayout(group, ids.line),
+        paint: hookLinePaint(group, ids.line, {
           "line-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
           "line-width": 1.5,
           "line-opacity": 0.9,
-        },
+        }, { "line-color": ["get", "tcolor"] as unknown as ExpressionSpecification, "line-width": 1.5, "line-opacity": 0.9 }),
       } as LineLayer);
     }
 
@@ -427,7 +428,7 @@ export function useDisasterAlertLayer(
         ] as unknown as ExpressionSpecification);
       }
       if (map.getLayer(ids.line)) {
-        map.setPaintProperty(ids.line, "line-opacity", 0.9 * o);
+        map.setPaintProperty(ids.line, "line-opacity", hookLineOpacity(group, ids.line, 0.9 * o, 0.9 * OPACITY_DEFAULT, isDark));
       }
       if (map.getLayer(ids.point)) {
         map.setPaintProperty(ids.point, "circle-opacity", 0.85 * o);
