@@ -154,6 +154,9 @@ export function useThreeJsLayers({
   const addFlightLayer = (map: MapboxMap, beforeId?: string) => {
     const bundle = threeBundle;
     if (!bundle) return;
+    // 單獨重建（App 換機場／模式，未帶 beforeId）只在 3D 圖層組已加入時才做；
+    // 否則 bundle 被預載但圖層組未加入時會單獨加出 flight-3d，讓 ensureThreeLayersIfNeeded 誤判已加入
+    if (beforeId === undefined && !map.getLayer("flight-3d")) return;
     mapInstanceRef.current = map;
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
     const layer = bundle.createFlightLayer({
@@ -480,13 +483,16 @@ export function useThreeJsLayers({
     addFireStationLayer(map, before);
   };
 
+  const threeEnsurePendingRef = useRef(false);
   /** 有 3D 圖層可見、錨點在、但 3D 圖層還沒加 → 載入 bundle（掛 loading UI）後加入。 */
   const ensureThreeLayersIfNeeded = () => {
     const map = mapInstanceRef.current;
     if (!map || !map.getLayer(THREE_LAYERS_ANCHOR_ID) || map.getLayer("flight-3d")) return;
     if (!anyThreeLayerVisible(layerVisibilityStore.getAll(), paramRefs.fireStations3D.current)) return;
+    if (threeEnsurePendingRef.current) return; // 載入中：參數／可見性連續變動不重複掛 loading
+    threeEnsurePendingRef.current = true;
     const pending = threeBundle ? Promise.resolve(threeBundle) : withLoading("three-layers", "3D 圖層工具", loadThreeLayerBundle());
-    pending.then(
+    pending.finally(() => { threeEnsurePendingRef.current = false; }).then(
       () => {
         // 等待期間換了地圖／切底圖（錨點會在 style.load 後的 addAllLayers 重建，屆時 bundle 已在，直接加）
         if (mapInstanceRef.current !== map || !map.getLayer(THREE_LAYERS_ANCHOR_ID) || map.getLayer("flight-3d")) return;
