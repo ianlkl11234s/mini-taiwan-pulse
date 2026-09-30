@@ -31,6 +31,7 @@ Codex 實作、Claude 驗收（`docs/features/map-layer-restyle/R4-report.md`）
 | 色票同源 | 圖例色票改引用與 paint 同一常數：新檔 `src/map/layerPaintColors.ts`（化石燃料、政府機關、道路、林業、步道、設施狀態、主題色）、`medicalPOITypes.ts` 的 `medicalPoiColor` |
 | 暗淡 | 醫療 5 層、學校、新聞、渠道等圖例依暗淡切換；分級面／網格外框描邊用 `mapSeamColor`（與 R3a 同源） |
 | 化石燃料 | 圖例原本用品牌色（中油綠等），地圖實際畫 registry 色（中油淺藍 `#41AEF2`）；依原則改成地圖色 |
+| 加油站品牌色（R4 後續） | 使用者指定加油站三家業者改用品牌色，地圖與圖例一起改（同一常數 `FOSSIL_PAINT_COLORS`）：中油 `#00875A`、台塑 `#1E40AF`、台糖 `#EA580C`；「其他」與 SSOT 總表不是品牌，維持原色；manifest 識別色同步 |
 | 裁處分層 | 嚴重度在地圖上不是用顏色表示，圖例的嚴重度三列拿掉色票只留文字；介質色票保留 |
 | K-1 | 13 層識別色（manifest `color`）改成地圖暗色版主色：醫療 5 層、AED、計程車招呼站、清運點、海纜、登陸站、溫泉區、風景區、農路、歷史電廠 |
 | 手寫色票 | `LegendPanel.tsx` 90 → 6（剩的 kit 無對應元件） |

@@ -10852,7 +10852,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "能源 Energy", group: "石化 · 加油站" },
     label: "加油站 中油 CPC",
     expandable: true,
-    color: "#41AEF2",
+    color: "#00875A",
     icon: Fuel,
     upstream: {
       status: "verified",
@@ -10876,7 +10876,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "能源 Energy", group: "石化 · 加油站" },
     label: "加油站 台塑 FPCC",
     expandable: true,
-    color: "#22C55E",
+    color: "#1E40AF",
     icon: Fuel,
     upstream: {
       status: "verified",
@@ -10900,7 +10900,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "能源 Energy", group: "石化 · 加油站" },
     label: "加油站 台糖 Taisugar",
     expandable: true,
-    color: "#F2522E",
+    color: "#EA580C",
     icon: Fuel,
     upstream: {
       status: "verified",
