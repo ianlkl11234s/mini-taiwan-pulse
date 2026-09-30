@@ -1,6 +1,7 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
 import type { BusVehicle, BusColorMode } from "../types";
 import { BusScene } from "../three/BusScene";
+import { subscribeTimeRepaint } from "./customLayer";
 
 export interface BusLayerOptions {
   /** 自訂 layer id（預設 "bus-3d"；若要同時加兩個 bus layer 需指定不同 id） */
@@ -23,6 +24,7 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
   const busScene = new BusScene(opts.maxInstances ?? 5000);
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
+  let unsubTime: (() => void) | null = null;
 
   return {
     id: opts.id ?? "bus-3d",
@@ -33,6 +35,8 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
       map = mapInstance;
       busScene.init(gl);
       opts.onSceneReady?.(busScene);
+      // 公車位置由 engine 在 timeStore 訂閱內更新 → 時間變動才需重畫
+      unsubTime = subscribeTimeRepaint(() => map, opts.getIsVisible);
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
@@ -52,11 +56,12 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
       else busScene.setOpacityMultiplier(opts.getOpacityMultiplier?.() ?? 1);
       busScene.update(opts.getBuses(), opts.getColorMode());
       busScene.render(matrix);
-
-      map?.triggerRepaint();
+      // 不再無條件每幀 triggerRepaint：時間變動由 subscribeTimeRepaint 驅動（暫停 → 0 次重繪）
     },
 
     onRemove() {
+      unsubTime?.();
+      unsubTime = null;
       busScene.dispose();
     },
   };

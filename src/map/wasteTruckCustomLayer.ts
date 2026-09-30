@@ -2,6 +2,7 @@ import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
 import type { WasteTrailRow } from "../data/wasteLoader";
 import { WasteTruckScene } from "../three/WasteTruckScene";
 import { WasteMusicNoteScene } from "../three/WasteMusicNoteScene";
+import { subscribeTimeRepaint } from "./customLayer";
 
 /**
  * 垃圾車 Custom Layer
@@ -37,6 +38,7 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
   const noteScene = new WasteMusicNoteScene();
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
+  let unsubTime: (() => void) | null = null;
 
   return {
     id: opts.id ?? "waste-truck-3d",
@@ -47,6 +49,7 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
       map = mapInstance;
       truckScene.init(gl);
       noteScene.init(gl);
+      unsubTime = subscribeTimeRepaint(() => map, opts.getIsVisible);
       opts.onSceneReady?.(truckScene, noteScene);
     },
 
@@ -76,11 +79,13 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
         noteScene.spawnFromTrucks(truckScene.getCollectingPositions(), nowMs);
         noteScene.render(matrix, nowMs);
       }
-
-      map?.triggerRepaint();
+      // 不再無條件每幀 triggerRepaint：時間變動由 subscribeTimeRepaint 驅動（暫停 → 0 次重繪）
+      // 註：音符動畫走 Date.now()，暫停時會停在當下畫面（隨時間恢復）
     },
 
     onRemove() {
+      unsubTime?.();
+      unsubTime = null;
       truckScene.dispose();
       noteScene.dispose();
     },

@@ -33,15 +33,13 @@ export function createCombinedStationPillarLayer(
   }));
 
   let renderer: THREE.WebGLRenderer | null = null;
-  let map: MapboxMap | null = null;
 
   return {
     id: "station-pillar-3d",
     type: "custom" as const,
     renderingMode: "3d" as const,
 
-    onAdd(mapInstance: MapboxMap, gl: WebGLRenderingContext) {
-      map = mapInstance;
+    onAdd(_map: MapboxMap, gl: WebGLRenderingContext) {
       renderer = new THREE.WebGLRenderer({
         canvas: gl.canvas as HTMLCanvasElement,
         context: gl as unknown as WebGL2RenderingContext,
@@ -55,7 +53,6 @@ export function createCombinedStationPillarLayer(
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      let anyVisible = false;
 
       for (const entry of entries) {
         // 延遲初始化：等 positions 準備好
@@ -74,11 +71,10 @@ export function createCombinedStationPillarLayer(
 
         if (entry.group.getIsVisible()) {
           entry.scene.render(matrix);
-          anyVisible = true;
         }
       }
 
-      if (anyVisible) map?.triggerRepaint();
+      // 靜態光柱：不自行 triggerRepaint；資料／可見性／參數變動由 useThreeJsLayers wake-up 通道觸發
     },
 
     onRemove() {
