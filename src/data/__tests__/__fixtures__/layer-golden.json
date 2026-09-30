@@ -8061,13 +8061,17 @@
           "type": "line"
         }
       ],
-      "pmtiles": null,
+      "pmtiles": {
+        "maxzoom": 6,
+        "minzoom": 0,
+        "sourceLayer": "ookla"
+      },
       "rebuildOnParamChange": [
         "fill",
         "line"
       ],
       "sourceId": "ookla-mobile-global",
-      "sourceUrl": "./geo/ookla_mobile_global.geojson"
+      "sourceUrl": "./geo/ookla_mobile_global_20260930.pmtiles"
     },
     {
       "dynamicData": null,

@@ -48,3 +48,12 @@
 - 將既有海纜與登陸站納入「全球骨幹」。
 - 新增 PCH Active IXP 892 點，支援洲區圖例、參與者數泡泡、透明度與 popup。
 - Breaking：無；未部署、未新增資料庫 migration。
+
+## 2026-09-30 — Ookla 全球格網改 PMTiles（PF-4）
+
+- `ooklaMobilePerformance`：`ookla_mobile_global.geojson`（18.97 MB，58,590 格）→
+  `geo/ookla_mobile_global_20260930.pmtiles`（12.99 MB，source-layer `ookla`，Z0–z6）。
+  轉檔 `scripts/preprocess/build-static-pmtiles-pf4.py`：`-pf -pk --no-tiny-polygon-reduction -b 0 -ai`，
+  不抽稀、不 coalesce；z0–z6 每級皆 58,590 格，z6 逐筆比對屬性與 bbox（偏移 0°）。
+  格網對齊 mercator tile，z6 切片 overzoom 無損；`z` filter／配色／opacity／popup 欄位不變。
+- 原 GeoJSON 保留在本機與 git（`staticDataContract` 仍釘其 SHA），前端不再引用。
