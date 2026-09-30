@@ -532,7 +532,8 @@ for f in \
   public/world/jp_accommodation_local_20260910.geojson \
   public/world/jp_accommodation_osm_allzoom_20260910.pmtiles \
   public/world/jp_world_heritage_unesco_current.geojson \
-  public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles; do
+  public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles \
+  public/world/jp_religion_osm_20260930.pmtiles; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   key="$PREFIX/world/$name"

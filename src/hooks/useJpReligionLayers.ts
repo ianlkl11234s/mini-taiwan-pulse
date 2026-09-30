@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CircleLayer, ExpressionSpecification, Map as MapboxMap } from "mapbox-gl";
-import {
-  fetchJpReligionOsm,
-  fetchJpReligionWikidata,
-} from "../data/jpReligionLoader";
+import { fetchJpReligionWikidata } from "../data/jpReligionLoader";
 import { JP_RELIGION_COLOR_EXPRESSION } from "../data/jpReligionTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
@@ -15,6 +12,7 @@ const GSI_SOURCE_ID = "jp-religion-gsi";
 const GSI_SOURCE_LAYER = "jp_religion_gsi";
 const GSI_LAYER_ID = "jp-religion-gsi-circle";
 const OSM_SOURCE_ID = "jp-religion-osm";
+const OSM_SOURCE_LAYER = "jp_religion_osm";
 const OSM_LAYER_ID = "jp-religion-osm-circle";
 const WIKIDATA_SOURCE_ID = "jp-religion-wikidata";
 const WIKIDATA_LAYER_ID = "jp-religion-wikidata-circle";
@@ -60,72 +58,104 @@ function circleLayer(
 
 const strokeFactor = (opacity: number, defaultOpacity: number) => clampOpacity(opacity) / defaultOpacity;
 
-function gsiAbsoluteUrl(): string {
-  const relative = `${import.meta.env.BASE_URL ?? "/"}world/jp_religion_gsi.pmtiles`;
+function worldAbsoluteUrl(file: string): string {
+  const relative = `${import.meta.env.BASE_URL ?? "/"}world/${file}`;
   return new URL(relative, window.location.href).href;
 }
 
-function useGsiLayer(
+interface PmtilesLayerConfig {
+  sourceId: string;
+  sourceLayer: string;
+  layerId: string;
+  /** public/world/ 下的檔名 */
+  file: string;
+  opacityDefault: number;
+  /** 指定時在一般描邊之後覆寫 circle-stroke-width（GSI 低 zoom 不畫描邊） */
+  strokeWidth?: number | ExpressionSpecification;
+}
+
+function usePmtilesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number,
   scale: number,
   isDarkTheme: boolean,
+  config: PmtilesLayerConfig,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const { sourceId, sourceLayer, layerId, file, opacityDefault, strokeWidth } = config;
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (!visible) {
-      if (map.getLayer(GSI_LAYER_ID)) map.setLayoutProperty(GSI_LAYER_ID, "visibility", "none");
+      if (map.getLayer(layerId)) map.setLayoutProperty(layerId, "visibility", "none");
       return;
     }
 
     const mount = () => {
       const isDark = isDarkTheme;
       registerPmtilesSourceTypeOnce();
-      if (!map.getSource(GSI_SOURCE_ID)) {
-        map.addSource(GSI_SOURCE_ID, {
+      if (!map.getSource(sourceId)) {
+        map.addSource(sourceId, {
           type: PMTILES_SOURCE_TYPE,
-          url: gsiAbsoluteUrl(),
+          url: worldAbsoluteUrl(file),
           minzoom: 4,
           maxzoom: 14,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
-      if (!map.getLayer(GSI_LAYER_ID)) {
+      if (!map.getLayer(layerId)) {
         // 圖層不設 maxzoom；z15+ 必須 overzoom z14 tiles，不能變空白。
         map.addLayer(circleLayer(
-          GSI_LAYER_ID,
-          GSI_SOURCE_ID,
+          layerId,
+          sourceId,
           pointRadius("M", scale),
           opacity,
-          strokeFactor(opacity, GSI_OPACITY_DEFAULT),
+          strokeFactor(opacity, opacityDefault),
           isDark,
-          GSI_SOURCE_LAYER,
-          GSI_STROKE_WIDTH,
+          sourceLayer,
+          strokeWidth,
         ));
       }
-      if (map.getLayer(GSI_LAYER_ID)) {
-        map.setLayoutProperty(GSI_LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(GSI_LAYER_ID, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(GSI_LAYER_ID, "circle-radius", pointRadius("M", scale));
+      if (map.getLayer(layerId)) {
+        map.setLayoutProperty(layerId, "visibility", "visible");
+        map.setPaintProperty(layerId, "circle-opacity", clampOpacity(opacity));
+        map.setPaintProperty(layerId, "circle-radius", pointRadius("M", scale));
         {
-          const stroke = pointStrokePaint(isDark, strokeFactor(opacity, GSI_OPACITY_DEFAULT));
-          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
-          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
-          map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+          const stroke = pointStrokePaint(isDark, strokeFactor(opacity, opacityDefault));
+          map.setPaintProperty(layerId, "circle-stroke-color", stroke["circle-stroke-color"]);
+          map.setPaintProperty(layerId, "circle-stroke-width", stroke["circle-stroke-width"]);
+          map.setPaintProperty(layerId, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
         }
-        map.setPaintProperty(GSI_LAYER_ID, "circle-stroke-width", GSI_STROKE_WIDTH);
+        if (strokeWidth !== undefined) map.setPaintProperty(layerId, "circle-stroke-width", strokeWidth);
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sourceId, sourceLayer, layerId, file, opacityDefault, strokeWidth]);
 }
+
+const GSI_CONFIG: PmtilesLayerConfig = {
+  sourceId: GSI_SOURCE_ID,
+  sourceLayer: GSI_SOURCE_LAYER,
+  layerId: GSI_LAYER_ID,
+  file: "jp_religion_gsi.pmtiles",
+  opacityDefault: GSI_OPACITY_DEFAULT,
+  strokeWidth: GSI_STROKE_WIDTH,
+};
+
+// 2026-09-30 PF-4：原 10.9 MB 整包 GeoJSON → PMTiles（-r1 全量 71,040 點，Z4–z14 比照 GSI；
+// scripts/preprocess/build-static-pmtiles-pf4.py）。屬性 id／religion／name 與 popup 契約不變。
+const OSM_CONFIG: PmtilesLayerConfig = {
+  sourceId: OSM_SOURCE_ID,
+  sourceLayer: OSM_SOURCE_LAYER,
+  layerId: OSM_LAYER_ID,
+  file: "jp_religion_osm_20260930.pmtiles",
+  opacityDefault: OSM_OPACITY_DEFAULT,
+};
 
 interface GeoJsonLayerConfig {
   sourceId: string;
@@ -217,14 +247,6 @@ function useGeoJsonLayer(
   ]);
 }
 
-const OSM_CONFIG: GeoJsonLayerConfig = {
-  sourceId: OSM_SOURCE_ID,
-  layerId: OSM_LAYER_ID,
-  fetcher: fetchJpReligionOsm,
-  logName: "OSM",
-  opacityDefault: OSM_OPACITY_DEFAULT,
-};
-
 const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
   sourceId: WIKIDATA_SOURCE_ID,
   layerId: WIKIDATA_LAYER_ID,
@@ -259,15 +281,8 @@ export function useJpReligionLayers(
   scale: JpReligionLayerScale,
   isDarkTheme = true,
 ) {
-  useGsiLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi, isDarkTheme);
-  useGeoJsonLayer(
-    mapRef,
-    visibility.jpReligionOsm,
-    opacity.jpReligionOsm,
-    scale.jpReligionOsm,
-    OSM_CONFIG,
-    isDarkTheme,
-  );
+  usePmtilesLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi, isDarkTheme, GSI_CONFIG);
+  usePmtilesLayer(mapRef, visibility.jpReligionOsm, opacity.jpReligionOsm, scale.jpReligionOsm, isDarkTheme, OSM_CONFIG);
   useGeoJsonLayer(
     mapRef,
     visibility.jpReligionWikidata,

@@ -1825,8 +1825,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useJpReligionLayers lazy-load 靜態 GeoJSON，自建 circle source/layer",
-      staticAssets: ["./world/jp_religion_osm.geojson"],
+      note: "useJpReligionLayers 自建 mapbox-pmtiles source；source-layer=jp_religion_osm，Z4–z14（2026-09-30 PF-4 由整包 GeoJSON 改）",
+      staticAssets: ["./world/jp_religion_osm_20260930.pmtiles"],
     },
     legend: "jpReligion",
     popup: "jpReligionOsm",
