@@ -33,7 +33,7 @@ import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
 import { useWasteScheduleLayer } from "./hooks/useWasteScheduleLayer";
-import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/WasteScheduleScene";
+import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/wasteScheduleConstants";
 import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
 import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
 import {
