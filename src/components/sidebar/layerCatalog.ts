@@ -2118,6 +2118,9 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "bssNationalBridgePreview", "bssNationalBridgePointsPreview",
   // 雙北跨河橋梁韌性（研究中）：同一 BSS 授權 HOLD；私人 PMTiles＋JSON 只經 owner-authenticated Range API。
   "bridgeResilienceTwinCity",
+  // 土壤液化／軟弱土層（RIGHTS_HOLD）：私人 PMTiles 只經 owner-authenticated Range API。
+  "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
+  "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
 ]);
 
 /**
