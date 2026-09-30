@@ -1,5 +1,7 @@
-import rawRecipes from "./socialStatisticsRecipes.json?raw";
+import catalogJson from "./socialStatisticsRecipes.catalog.json";
 import type { StatisticsLevel, StatisticsRelease } from "./regionalStatisticsLoader";
+import type { StatisticsReleaseSummary } from "./statisticsRecipeCatalog";
+import { socialRecipeDetailsDocument } from "./statisticsRecipeDetails";
 
 export interface SocialReleaseOption {
   release_id: string;
@@ -44,9 +46,16 @@ export type SocialStatisticsScope =
   | "local_frontend_wiring_ready_not_production"
   | "production_published";
 
-interface SocialRecipeDocument {
+export interface SocialRecipeDocument {
   scope: SocialStatisticsScope;
   recipes: SocialRecipe[];
+}
+
+/** 首屏同步目錄：不含 release_options／fragment_context，改帶由同一份 SSOT 派生的 release_summary。 */
+export type SocialRecipeCatalogEntry = Omit<SocialRecipe, "release_options" | "fragment_context"> & { release_summary: StatisticsReleaseSummary };
+interface SocialRecipeCatalogDocument {
+  scope: SocialStatisticsScope;
+  recipes: SocialRecipeCatalogEntry[];
 }
 
 export const SOCIAL_ENABLED_STATISTICS_KEYS = [
@@ -56,18 +65,27 @@ export const SOCIAL_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type SocialStatisticsLayerKey = typeof SOCIAL_ENABLED_STATISTICS_KEYS[number];
 
-// Vite/Vitest return a string for `?raw`; Node/tsx audit scripts can expose
-// the already-parsed JSON object.  Supporting both keeps manifest audits usable.
-const document = (typeof rawRecipes === "string" ? JSON.parse(rawRecipes) : rawRecipes) as SocialRecipeDocument;
-export const SOCIAL_STATISTICS_SCOPE = document.scope;
-export const SOCIAL_STATISTICS_RECIPES = document.recipes;
+const catalog = catalogJson as unknown as SocialRecipeCatalogDocument;
+export const SOCIAL_STATISTICS_SCOPE = catalog.scope;
+export const SOCIAL_STATISTICS_RECIPES: readonly SocialRecipeCatalogEntry[] = catalog.recipes;
 export const SOCIAL_ENABLED_STATISTICS_RECIPES = SOCIAL_STATISTICS_RECIPES.filter((recipe) => recipe.enabled);
 export const SOCIAL_STATISTICS_RECIPES_BY_KEY = Object.fromEntries(
   SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, recipe]),
-) as Record<SocialStatisticsLayerKey, SocialRecipe>;
+) as Record<SocialStatisticsLayerKey, SocialRecipeCatalogEntry>;
 
-export function getSocialRecipe(key: string): SocialRecipe | undefined {
+export function getSocialRecipe(key: string): SocialRecipeCatalogEntry | undefined {
   return SOCIAL_STATISTICS_RECIPES.find((recipe) => recipe.layer_key === key);
+}
+
+/** 完整配方（含 release_options）；明細未載入時丟 STATISTICS_RECIPE_DETAILS_NOT_LOADED。 */
+export function getSocialRecipeDetails(key: string): SocialRecipe | undefined {
+  if (!getSocialRecipe(key)) return undefined;
+  return socialRecipeDetailsDocument().recipes.find((recipe) => recipe.layer_key === key);
+}
+
+/** 已啟用配方的完整明細（研究 dataset adapter 用）；明細未載入時丟錯。 */
+export function socialEnabledRecipeDetails(): SocialRecipe[] {
+  return socialRecipeDetailsDocument().recipes.filter((recipe) => recipe.enabled);
 }
 
 function sameDimensions(a: Record<string, string>, b: Record<string, unknown>): boolean {
@@ -77,7 +95,7 @@ function sameDimensions(a: Record<string, string>, b: Record<string, unknown>): 
 
 /** Intersects public releases with the SSOT's immutable exact tuples. */
 export function socialReleaseOptions(key: string, releases: readonly StatisticsRelease[]) {
-  const recipe = getSocialRecipe(key);
+  const recipe = getSocialRecipeDetails(key);
   if (!recipe?.enabled) return [];
   const published = new Map(releases.map((release) => [release.release_id, release]));
   return recipe.release_options
@@ -102,7 +120,7 @@ export function resolveSocialRelease(
   release: Pick<StatisticsRelease, "release_id" | "period_start" | "period_end">,
   selectedDimensions: Record<string, unknown>,
 ) {
-  const recipe = getSocialRecipe(key);
+  const recipe = getSocialRecipeDetails(key);
   if (!recipe?.enabled) return null;
   const matches = recipe.release_options.filter((option) => option.release_id === release.release_id
     && option.period_start === release.period_start

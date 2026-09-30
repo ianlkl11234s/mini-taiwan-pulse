@@ -4,9 +4,12 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
-import { RESEARCH_QUERY_EXECUTOR, registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
+import { ensureStatisticsResearchDatasets, RESEARCH_QUERY_EXECUTOR, registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
 import { describeRegisteredLayer } from "../../src/research/registeredLayerReader.ts";
 import { COMPARISON_ENABLED_RECIPES } from "../../src/data/comparisonStatisticsRecipes.ts";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+await ensureStatisticsResearchDatasets();
 
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const worktreeMarker = `${sep}.worktrees${sep}`;

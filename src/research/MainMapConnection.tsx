@@ -27,7 +27,7 @@ import { describeLayers } from "./layerExploration";
 import { describeLayer, discoverLayers, findPlaces } from "./discovery";
 import { applyLayerControl, describeLayerControls, validateLayerControl } from "./layerControls";
 import { resolveOfflineLocation } from "./addressLookup";
-import { describeDataset, ensureDataset, searchDatasets } from "./researchDatasets";
+import { describeDataset, ensureDataset, ensureStatisticsResearchDatasets, searchDatasets } from "./researchDatasets";
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
@@ -353,9 +353,11 @@ export function MainMapConnection(props: Props) {
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
       const epoch = connectionEpoch.current;
+      if (!EXPLORATION_OPERATIONS.has(request.operation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
+      // PF-7: statistics-recipe datasets register after their lazily imported details load (loadingRegistry task).
+      await ensureStatisticsResearchDatasets();
       const current = latest.current;
       const visible = current.bridge.getVisibleLayerKeys();
-      if (!EXPLORATION_OPERATIONS.has(request.operation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
       const discoveryContext = { locked: current.locked, visible: new Set(visible) };
       let result: Record<string, unknown>;
       switch (request.operation) {

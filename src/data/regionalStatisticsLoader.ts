@@ -4,7 +4,8 @@ import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from './s
 import { withLoading } from '../lib/loadingRegistry';
 import { cachedByKey } from '../lib/loaderCache';
 import { statisticsGeometryCache, waitForGeometry, type StatisticsBoundaryGeometry } from './statisticsGeometryCache';
-import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease, type AgriRecipe } from './agriStatisticsRecipes';
+import { agriReleaseOptions, getAgriRecipe, getAgriRecipeDetails, resolveAgriRelease, type AgriRecipe } from './agriStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from './statisticsRecipeDetails';
 import { getLaborRecipe, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from './laborStatisticsRecipes';
 
 export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2';
@@ -277,8 +278,9 @@ async function previewRequest<T>(route: string, query: Record<string, unknown>, 
 }
 
 async function request<T>(route: string, query: Record<string, unknown>, signal?: AbortSignal, recipe?: StatisticsRecipe): Promise<T> {
-  const agri = recipe?.layerKey ? getAgriRecipe(recipe.layerKey) : undefined;
-  if (agriPreviewEnabled() && agri) return previewRequest<T>(route, query, recipe!, agri, signal);
+  // Preview needs the exact release_options; resolveStatisticsRecipe has already awaited the details.
+  const agri = agriPreviewEnabled() && recipe?.layerKey ? getAgriRecipeDetails(recipe.layerKey) : undefined;
+  if (agri) return previewRequest<T>(route, query, recipe!, agri, signal);
   const base = statisticsCdnBase(recipe);
   const manifest = await cdnManifest(base, signal);
   if (route === 'catalog') return manifest.catalog as T;
@@ -316,6 +318,9 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
     if (!base || recipe.dimensions?.education_stage !== view.stage) throw new Error('教育學制或指標不符固定入口');
     recipe = {...recipe, layerKey: base.layerKey};
   }
+  // PF-7: agri/social exact selectors live in the lazily imported recipe details (registered in loadingRegistry).
+  const detailsKey = recipe.sourceLayerKey ?? recipe.layerKey;
+  if (detailsKey && (getAgriRecipe(detailsKey) || getSocialRecipe(detailsKey))) await ensureStatisticsRecipeDetails();
     const [catalogResponse, releasesResponse] = await Promise.all([
       request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, signal, recipe),
       request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, signal, recipe),
@@ -326,7 +331,7 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
     let effectiveRecipe = recipe;
     const contractLayerKey = recipe.sourceLayerKey ?? recipe.layerKey;
     const social = contractLayerKey ? getSocialRecipe(contractLayerKey) : undefined;
-    const agri = contractLayerKey ? getAgriRecipe(contractLayerKey) : undefined;
+    const agri = contractLayerKey ? getAgriRecipeDetails(contractLayerKey) : undefined;
     const labor = contractLayerKey ? getLaborRecipe(contractLayerKey) : undefined;
     const compatibleReleases = () => releases
       .filter(item => !item.levels || item.levels.includes(recipe.level))

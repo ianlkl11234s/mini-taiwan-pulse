@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore, type CSSProperties } from 'react';
 import { getAgriRecipe, agriReleaseOptions, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriStatisticsRecipes';
-import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from '../../data/socialStatisticsRecipes';
+import { getSocialRecipe, getSocialRecipeDetails, socialReleaseOptions, resolveSocialRelease } from '../../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatisticsPresentationView, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from '../../data/laborStatisticsRecipes';
 import { getComparisonRecipe, comparisonReleaseOptions } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
@@ -13,6 +13,7 @@ import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../..
 import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
 import { LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
+import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
@@ -172,7 +173,7 @@ export function statisticsReleaseOptions(key: StatisticsRenderKey, releases: Sta
 export function unparseableStatisticsReleaseCount(key: StatisticsRenderKey, releases: StatisticsRelease[], selectedIndicator?: string): number {
   const baseKey = statisticsBaseKey(key, selectedIndicator);
   const view = getEducationPresentationView(key);
-  const source = getSocialRecipe(baseKey) ?? getComparisonRecipe(baseKey);
+  const source = getSocialRecipeDetails(baseKey) ?? getComparisonRecipe(baseKey);
   const scopedReleaseIds = view && source
     ? new Set(source.release_options.filter(option => option.dimensions.education_stage === view.stage).map(option => option.release_id))
     : null;
@@ -244,9 +245,15 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
   const source = state.source;
   const freshness = source?.freshness as { last_checked_at?: string; outcome?: string } | undefined;
   const activeBaseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
+  // PF-7: agri/social exact selectors (and education stage options) come from the lazily loaded recipe details.
+  const needsRecipeDetails = Boolean(getAgriRecipe(activeBaseKey) || getSocialRecipe(activeBaseKey) || getEducationPresentationView(layerKey));
+  const recipeDetailsReady = useStatisticsRecipeDetails(needsRecipeDetails);
+  const selectorsReady = !needsRecipeDetails || recipeDetailsReady;
   const selected = state.selection?.releaseId ?? state.release?.release_id ?? '';
-  const selectable = statisticsReleaseOptions(layerKey, state.releases, state.selection?.indicatorId);
-  const unparseableCount = unparseableStatisticsReleaseCount(layerKey, state.releases, state.selection?.indicatorId);
+  const selectable = selectorsReady ? statisticsReleaseOptions(layerKey, state.releases, state.selection?.indicatorId) : [];
+  const unparseableCount = selectorsReady ? unparseableStatisticsReleaseCount(layerKey, state.releases, state.selection?.indicatorId) : 0;
+  const educationStageOptions = (metricKey: StatisticsLayerKey, stage: string) => ((getSocialRecipeDetails(metricKey) ?? getComparisonRecipe(metricKey))?.release_options ?? [])
+    .filter(option => option.dimensions.education_stage === stage);
   const defaultReleaseId = 'releaseId' in STATISTICS_RECIPES[activeBaseKey] ? STATISTICS_RECIPES[activeBaseKey].releaseId : undefined;
   const configured = selectable.find(option => option.releaseId === selected && (!state.selection?.dimensions || JSON.stringify(Object.entries(option.dimensions).sort()) === JSON.stringify(Object.entries(state.selection.dimensions).sort())))
     ?? selectable.find(option => option.releaseId === defaultReleaseId)
@@ -299,22 +306,23 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
   });
   return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
     <style>{`.statistics-details summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}.statistics-details label.statistics-filter-label{font:10px/1.35 var(--font-cjk);color:var(--lpc-muted,currentColor)}`}</style>
-    {state.loading && <span role="status">統計資料載入中…</span>}
+    {(state.loading || !selectorsReady) && <span role="status">統計資料載入中…</span>}
     {state.error && <div role="alert">{state.error}<button type="button" className="lpc-btn" style={{ marginLeft: SPACING.xs }} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
     {agri && import.meta.env.DEV && import.meta.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>本地 Preview · 真實交付資料 · 尚未發布至正式 API</p>}
     {labor && import.meta.env.DEV && import.meta.env.VITE_LABOR_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>勞動與所得本地 Preview · 已驗證 incremental snapshot · 尚未發布至正式 CDN</p>}
     {view && import.meta.env.DEV && <a href="/statistics-accessibility-review.html" target="_blank" rel="noreferrer">教育路網可達性：開啟本地試算</a>}
     {view && <label className="statistics-filter-label" style={filterLabel}>指標
-      <select className="statistics-detail-control lpc-select" aria-label={`${view.label} 指標`} style={control} value={activeBaseKey} onChange={event => {
+      <select className="statistics-detail-control lpc-select" aria-label={`${view.label} 指標`} style={control} value={activeBaseKey} disabled={!selectorsReady} onChange={event => {
         const nextBaseKey = event.target.value as StatisticsLayerKey;
-        const options = (getSocialRecipe(nextBaseKey) ?? getComparisonRecipe(nextBaseKey))?.release_options.filter(option => option.dimensions.education_stage === view.stage) ?? [];
+        const options = educationStageOptions(nextBaseKey, view.stage);
         const option = options.find(candidate => candidate.period_start === selectedRelease?.period_start && candidate.period_end === selectedRelease?.period_end);
         if (!option) return;
         regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, STATISTICS_RECIPES[nextBaseKey].indicator_id), releaseId: option.release_id, dimensions: option.dimensions, allowReleaseFallback: false });
         void regionalStatisticsStore.load(layerKey);
       }}>{view.metrics.map(metric => {
-        const enabled = ((getSocialRecipe(metric.layerKey) ?? getComparisonRecipe(metric.layerKey))?.release_options ?? [])
-          .some(option => option.dimensions.education_stage === view.stage && option.period_start === selectedRelease?.period_start && option.period_end === selectedRelease?.period_end);
+        // While details load the whole select is disabled; do not label metrics as unavailable yet.
+        const enabled = !selectorsReady || educationStageOptions(metric.layerKey, view.stage)
+          .some(option => option.period_start === selectedRelease?.period_start && option.period_end === selectedRelease?.period_end);
         return <option key={metric.layerKey} value={metric.layerKey} disabled={!enabled}>{metric.label}{enabled ? '' : '（此學年未提供）'}</option>;
       })}</select>
     </label>}

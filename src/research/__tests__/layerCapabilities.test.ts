@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { listLayerCapabilities } from "../layerCapabilities";
+import { ensureStatisticsResearchDatasets } from "../researchDatasets";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+beforeAll(() => ensureStatisticsResearchDatasets());
 
 describe("layer capability registry", () => {
   it("pages every manifest layer without treating rendering as a reader", () => {

@@ -1,4 +1,4 @@
-import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialRecipe } from "../data/socialStatisticsRecipes";
+import { socialEnabledRecipeDetails, type SocialRecipe } from "../data/socialStatisticsRecipes";
 import { loadRegionalStatistics } from "../data/regionalStatisticsLoader";
 import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type SourceReceipt } from "./dataContracts";
 import { createAdminStatisticsAdapter } from "./queryAdapters";
@@ -120,7 +120,8 @@ function asMultiPolygon(geometry: GeoJSON.Geometry | null): GeoJSON.MultiPolygon
  * caller-controlled selector, and its dimensions remain recipe-whitelisted.
  */
 export function createSocialStatisticsAdapters(
-  recipes: readonly SocialRecipe[] = SOCIAL_ENABLED_STATISTICS_RECIPES,
+  // Full recipes (release_options) come from the lazily loaded details; callers await ensureStatisticsRecipeDetails().
+  recipes: readonly SocialRecipe[] = socialEnabledRecipeDetails(),
   loader: RegionalStatisticsLoader = loadRegionalStatistics,
 ): QueryAdapter[] {
   return recipes.map(recipe => {

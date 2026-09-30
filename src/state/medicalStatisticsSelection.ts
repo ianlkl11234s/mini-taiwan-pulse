@@ -1,6 +1,7 @@
 import type { LayerVisibility } from '../types';
-import { getSocialRecipe } from '../data/socialStatisticsRecipes';
-import { getAgriRecipe } from '../data/agriStatisticsRecipes';
+import { getSocialRecipe, getSocialRecipeDetails } from '../data/socialStatisticsRecipes';
+import { getAgriRecipe, getAgriRecipeDetails } from '../data/agriStatisticsRecipes';
+import { ensureStatisticsRecipeDetails, statisticsRecipeDetailsLoaded } from '../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { STATISTICS_RECIPES } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
@@ -16,8 +17,13 @@ type Recipe = { dataset_id: string; indicator_id: string; level: string; label: 
 
 const METRIC_DIMENSIONS = new Set(['source_field', 'denominator_period', 'bed_measure']);
 
+/** Agri/social exact release_options live in the lazily loaded recipe details (PF-7). */
+function needsRecipeDetails(key: string): boolean {
+  return Boolean(getSocialRecipe(key) || getAgriRecipe(key));
+}
+
 function recipe(key: string): Recipe {
-  return getSocialRecipe(key) ?? getAgriRecipe(key) ?? getComparisonRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
+  return getSocialRecipeDetails(key) ?? getAgriRecipeDetails(key) ?? getComparisonRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
 }
 
 function releaseOptions(key: string, source: NonNullable<Recipe>): ReleaseOption[] {
@@ -78,6 +84,8 @@ async function ensureReleaseMetadata(key: keyof LayerVisibility, source: NonNull
 /** Switch only among family members using the same period and shared identity dimensions. */
 export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility, members: readonly (keyof LayerVisibility)[]) {
   if (!members.includes(from) || !members.includes(to) || !isStatisticsChoropleth(to)) return false;
+  // Not loaded yet: the caller falls back to prepareMedicalStatisticsVariant (shows switching state).
+  if ((needsRecipeDetails(from) || needsRecipeDetails(to)) && !statisticsRecipeDetailsLoaded()) return false;
   const source = recipe(from); const target = recipe(to);
   if (!source || !target) return false;
   const sourceOption = selectionOption(from, source);
@@ -95,6 +103,12 @@ export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: 
 /** Preload a target before switching; cancellation leaves both selection and visibility unchanged. */
 export async function prepareMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility, members: readonly (keyof LayerVisibility)[], isCurrent: () => boolean = () => true) {
   if (!members.includes(from) || !members.includes(to) || !isStatisticsChoropleth(to)) return false;
+  try {
+    if (needsRecipeDetails(from) || needsRecipeDetails(to)) await ensureStatisticsRecipeDetails();
+  } catch {
+    return false;
+  }
+  if (!isCurrent()) return false;
   const source = recipe(from); const target = recipe(to);
   if (!source || !target) return false;
   try {
