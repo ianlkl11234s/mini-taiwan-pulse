@@ -123,7 +123,7 @@ import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapte
 import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
-import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
+import { bumpHostRender, type AppLayerHostDeps } from "./layers/layerHostDeps";
 import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
 
 /** 手機標頭 M1 的 30×30 圖示按鈕（圓角 6） */
@@ -1902,9 +1902,10 @@ export default function App() {
   // ⚠️ 刻意不 useMemo：LayerHosts 是 React.memo 並對本物件逐欄位 shallow compare
   //    （PF-6），欄位身分沒變就跳過 104 個 Host；因此新增欄位時務必給穩定身分
   //    （useCallback / useMemo / ref），不要傳 inline 函式或每次新建的物件。
-  const hostDeps: LayerHostDeps = {
+  // ⚠️ layerVisibility 不在這裡（PF-8）：各 Host 經 HostSlot 只訂閱自己讀到的 key，
+  //    開關一層不會讓 LayerHosts 整批重跑。
+  const hostDeps: AppLayerHostDeps = {
     mapRef,
-    layerVisibility,
     isDarkTheme,
     mapStyleId,
     timeMode: timeline.timeMode,
