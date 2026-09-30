@@ -2374,7 +2374,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     label: "OSM 通訊海纜 Submarine Cable",
     expandable: true,
-    color: "#2196F3",
+    color: "#26c6da",
     icon: Cable,
     upstream: {
       status: "verified",
@@ -2394,7 +2394,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     label: "OSM 海纜登陸站 Landing Station",
     expandable: true,
-    color: "#26c6da",
+    color: "#ffb74d",
     icon: Radio,
     upstream: {
       status: "verified",
@@ -3038,7 +3038,7 @@ export const LAYER_MANIFEST = {
     label: "溫泉露頭區 Hot Spring Zones",
     labelMobile: "溫泉露頭區",
     expandable: true,
-    color: "#880e4f",
+    color: "#c2185b",
     icon: ThermometerSun,
     upstream: {
       status: "verified",
@@ -3061,7 +3061,7 @@ export const LAYER_MANIFEST = {
     label: "國家風景區 Scenic Areas",
     labelMobile: "國家風景區",
     expandable: true,
-    color: "#00695c",
+    color: "#26a69a",
     icon: Mountain,
     upstream: {
       status: "verified",
@@ -4608,7 +4608,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "醫療 Medical", group: "點位" },
     label: "醫院 Hospital",
     expandable: true,
-    color: "#d32f2f",
+    color: "#e53935",
     icon: Hospital,
     upstream: {
       status: "verified",
@@ -4628,7 +4628,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "醫療 Medical", group: "點位" },
     label: "診所 / 其他醫療 Clinic",
     expandable: true,
-    color: "#1976d2",
+    color: "#42a5f5",
     icon: Stethoscope,
     upstream: {
       status: "verified",
@@ -4655,7 +4655,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "醫療 Medical", group: "點位" },
     label: "藥局 Pharmacy",
     expandable: true,
-    color: "#388e3c",
+    color: "#66bb6a",
     icon: Pill,
     upstream: {
       status: "verified",
@@ -4682,7 +4682,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "醫療 Medical", group: "點位" },
     label: "AED 點位 AED",
     expandable: true,
-    color: "#fbc02d",
+    color: "#fdd835",
     icon: HeartPulse,
     upstream: {
       status: "verified",
@@ -4709,7 +4709,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "醫療 Medical", group: "點位" },
     label: "長照機構 LTC",
     expandable: true,
-    color: "#8e24aa",
+    color: "#ab47bc",
     icon: Accessibility,
     upstream: {
       status: "verified",
@@ -8428,7 +8428,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "投放點" },
     label: "全台清運點位 Stops (靜態)",
     expandable: true,
-    color: "#d97706",
+    color: "#fbbf24",
     icon: MapPinned,
     upstream: {
       status: "verified",
@@ -9529,7 +9529,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "農業 Agriculture", group: "線" },
     label: "農路 Farm Roads",
     expandable: true,
-    color: "#7a8670",
+    color: "#a4b494",
     icon: Route,
     upstream: {
       status: "verified",
@@ -10252,7 +10252,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "交通 Move", group: "路網" },
     label: "計程車招呼站 Taxi Stand",
     expandable: true,
-    color: "#f9a825",
+    color: "#ffd54f",
     icon: Car,
     upstream: {
       status: "verified",
@@ -10508,7 +10508,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "能源 Energy", group: "電力 · 廠" },
     label: "發電廠 歷史・退役 Historical",
     expandable: true,
-    color: "#8C5D42",
+    color: "#525252",
     icon: Power,
     upstream: {
       status: "verified",
