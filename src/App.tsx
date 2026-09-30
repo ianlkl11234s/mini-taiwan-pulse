@@ -1899,8 +1899,9 @@ export default function App() {
 
   // ── LayerHost 的跨切面依賴（AR-22 P1）────────────────────────────
   // 圖層自己的參數**不在這裡** —— 每個 Host 用 `useLayerParams(key)` 自己訂閱。
-  // ⚠️ 刻意不 memo：Host 沒有 React.memo，identity 換不換都會重跑，
-  //    加 memo 只是多一份 deps 清單要維護（且漏一項就是靜默不更新）。
+  // ⚠️ 刻意不 useMemo：LayerHosts 是 React.memo 並對本物件逐欄位 shallow compare
+  //    （PF-6），欄位身分沒變就跳過 104 個 Host；因此新增欄位時務必給穩定身分
+  //    （useCallback / useMemo / ref），不要傳 inline 函式或每次新建的物件。
   const hostDeps: LayerHostDeps = {
     mapRef,
     layerVisibility,

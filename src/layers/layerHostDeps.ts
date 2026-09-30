@@ -15,9 +15,11 @@
 // `useLayerParams(key)` 訂閱（見 `layerParamsAccess.ts`），不經 App 的
 // `useLayerParamsRuntime()` 整包快照 —— 那正是本次搬遷要拆掉的耦合。
 //
-// ⚠️ **不要 memo 這個物件，也不要 `React.memo` 任何 Host**：現況是「App 一 render
-// 全部 hook 重跑」，本棒是**等價重構**，行為必須逐位保真。per-key 訂閱帶來的
-// re-render 收斂是第 4 階段的事（那時 App 端才解除全店訂閱）。
+// ⚠️ **App 端不要 useMemo 這個物件**：`LayerHosts`（LayerHost.tsx）已用 React.memo
+// 對本物件**逐欄位 shallow compare**（PF-6），App 每次 render 組新字面即可，欄位
+// 身分沒變就整批跳過。因此每個欄位本身必須身分穩定（callback 用 useCallback、
+// 衍生物件用 useMemo），否則會讓 104 個 Host 每次 App render 都重跑。
+// per-key visibility 訂閱（切一層只重跑該層 Host）仍是第 4 階段的事。
 
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { AppMode, AqiProduct, FeatureInfo, LayerVisibility, RailData, TimeMode } from "../types";
@@ -36,7 +38,7 @@ import type { PowerDashboard } from "../data/energyLoader";
 /**
  * Host 的跨切面依賴。**單一 props bundle**（不用 context）——
  * context 要多包一層 Provider 且讀取端隱形，props 反而讓「這個 Host 吃了什麼」
- * 在 registry 檔裡一眼可見。App 每次 render 直接組一個新字面即可（見上方 ⚠️）。
+ * 在 registry 檔裡一眼可見。App 每次 render 直接組一個新字面即可（LayerHosts 逐欄位比較，見上方 ⚠️）。
  */
 export interface LayerHostDeps {
   // ── 地圖與外觀 ──
