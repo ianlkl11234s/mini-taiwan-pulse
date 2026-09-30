@@ -1699,11 +1699,8 @@ export default function App() {
 
   const handleAllOff = useCallback(() => {
     sessionTracker.logWithSnapshot("all_off", {}, layerVisibilityRef.current);
-    setLayerVisibility((prev) => {
-      const next = { ...prev };
-      for (const k in next) next[k as keyof typeof next] = false;
-      return next;
-    });
+    // 與逐一關閉同一條路徑（統計面經 statisticsDisplayModeStore 關閉），結果一致
+    setLayerVisibility((prev) => statisticsDisplayModeStore.allOff(prev));
     // FeatureInfo 自帶 selected-feature halo；全部關閉時不可留下孤立光暈／popup。
     setFeatureInfo(null);
     setExpandedLayer(null);
