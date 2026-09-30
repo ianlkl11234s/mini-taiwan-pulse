@@ -20,6 +20,7 @@ import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { GLOBAL_EVENT_ICON_RADIUS, filterGlobalEvents, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
+import { startThrottledRaf } from "../utils/throttledRaf";
 
 const SOURCE_ID = "global-events-current";
 export const GLOBAL_EVENTS_LAYER_ID = "global-events-current-circle";
@@ -211,7 +212,7 @@ export function useGlobalEventsLayer(
   const signatureRef = useRef("");
   const listSignatureRef = useRef("");
   const requestRef = useRef(0);
-  const rafRef = useRef(0);
+  const stopPulseLoopRef = useRef<(() => void) | null>(null);
   const opacityRef = useRef(opacity);
   const relationsRef = useRef(showRelations);
   relationsRef.current = showRelations;
@@ -244,8 +245,8 @@ export function useGlobalEventsLayer(
   }, []);
 
   const stopPulse = useCallback((map?: MapboxMap) => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = 0;
+    stopPulseLoopRef.current?.();
+    stopPulseLoopRef.current = null;
     if (map?.getLayer(GLOBAL_EVENTS_PULSE_LAYER_ID)) {
       map.setPaintProperty(GLOBAL_EVENTS_PULSE_LAYER_ID, "circle-stroke-opacity", 0);
     }
@@ -255,10 +256,11 @@ export function useGlobalEventsLayer(
     stopPulse(map);
     if (transitions.size === 0 || prefersReducedMotion()) return;
     const startedAt = performance.now();
-    const animate = (now: number) => {
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
+    stopPulseLoopRef.current = startThrottledRaf((now) => {
       if (!map.getLayer(GLOBAL_EVENTS_PULSE_LAYER_ID)) {
-        rafRef.current = 0;
-        return;
+        stopPulseLoopRef.current = null;
+        return false;
       }
       // RAF timestamps mark the frame start and can precede performance.now() sampled
       // later in that same frame. Clamp both ends before deriving Mapbox paint values.
@@ -269,13 +271,12 @@ export function useGlobalEventsLayer(
         "circle-stroke-opacity",
         Math.sin(Math.PI * phase) * Math.max(0, Math.min(1, opacityRef.current)),
       );
-      if (phase < 1) rafRef.current = requestAnimationFrame(animate);
-      else {
-        rafRef.current = 0;
+      if (phase >= 1) {
+        stopPulseLoopRef.current = null;
         map.setPaintProperty(GLOBAL_EVENTS_PULSE_LAYER_ID, "circle-stroke-opacity", 0);
+        return false;
       }
-    };
-    rafRef.current = requestAnimationFrame(animate);
+    });
   }, [stopPulse]);
 
   useEffect(() => {

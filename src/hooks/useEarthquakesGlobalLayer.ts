@@ -10,6 +10,7 @@ import {
   EARTHQUAKE_GLOBAL_DAYS_DEFAULT,
   type EarthquakeGlobalEvent,
 } from "../data/earthquakesGlobalLoader";
+import { startThrottledRaf } from "../utils/throttledRaf";
 
 /**
  * USGS 全球地震 — timeline 連動 + 擴散圈動畫。
@@ -44,7 +45,6 @@ const PRE_WINDOW = 1800; // 30 分鐘
 /** 剛發生視窗：擴散動畫持續多久（秒，timeline 時間） */
 const FRESH_WINDOW = 1200; // 20 分鐘
 const RIPPLE_CYCLE_MS = 2400;
-const FRAME_INTERVAL = 33;
 
 const SEC_PER_DAY = 86400;
 const POST_OPACITY = 0.55;
@@ -148,8 +148,6 @@ export function useEarthquakesGlobalLayer(
   const eventsRef = useRef<EarthquakeGlobalEvent[]>([]);
   const dataReadyRef = useRef(false);
   const layersReadyRef = useRef(false);
-  const rafRef = useRef(0);
-  const lastFrameRef = useRef(0);
   /**
    * 資料到位／換天數重抓後 +1。filter effect 必須靠它重跑 ——
    * mapTick 只在「map 從 null 變 ready」時跳，抓到資料本身不會通知 React。
@@ -304,18 +302,10 @@ export function useEarthquakesGlobalLayer(
   useEffect(() => {
     if (!visible) return;
 
-    const animate = () => {
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
+    return startThrottledRaf((now) => {
       const map = mapRef.current;
-      if (!map) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      const now = performance.now();
-      if (now - lastFrameRef.current < FRAME_INTERVAL) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      lastFrameRef.current = now;
+      if (!map) return;
 
       // style 切換後 layers 可能消失 → 自癒重建
       if (layersReadyRef.current && !map.getLayer(RIPPLE_IDS[0]!)) {
@@ -342,11 +332,6 @@ export function useEarthquakesGlobalLayer(
           map.setPaintProperty(id, "circle-stroke-width", 2.5 * (1 - eased * 0.5));
         }
       }
-
-      rafRef.current = requestAnimationFrame(animate);
-    };
-
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
+    });
   }, [visible, ensureSource, mapRef, mapTick]);
 }
