@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import {
-  createPowerGenerationBeamLayer,
   POWER_GENERATION_BEAM_LAYER_ID,
-} from "../map/powerGenerationBeamCustomLayer";
+  powerGenerationBeamModule,
+  mountLazyCustomLayer,
+} from "../map/lazyThreeLayers";
 import {
   fetchPowerGeneration24h,
   invalidatePowerGeneration24h,
@@ -93,15 +94,14 @@ export function usePowerGenerationBeamLayer(
     const tryMount = () => {
       if (map.getLayer(POWER_GENERATION_BEAM_LAYER_ID)) return;
       try {
-        const layer = createPowerGenerationBeamLayer({
+        // C1b：three 模組第一次可見才載入；錨點佔住原位置
+        mountLazyCustomLayer(map, POWER_GENERATION_BEAM_LAYER_ID, powerGenerationBeamModule, (m) => m.createPowerGenerationBeamLayer({
           getIsVisible: () => visibleRef.current,
           getOpacity: () => opacityRef.current,
           getHeightScale: () => heightScaleRef.current,
           getSizeScale: () => sizeScaleRef.current,
           getPlants: () => plantsRef.current,
-        });
-        map.addLayer(layer);
-        console.log("[PowerBeam] CustomLayer mounted ✓");
+        }), () => visibleRef.current);
       } catch (e) {
         console.log("[PowerBeam] addLayer 失敗（style 還在 load）→ idle 後重試", e);
         map.once("idle", tryMount);

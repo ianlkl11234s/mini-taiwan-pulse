@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
   fetchReservoirStatusDay,
@@ -7,8 +7,8 @@ import {
   type ReservoirDayRow,
 } from "../data/reservoirStatusLoader";
 import { fetchReservoirOpsRecent } from "../data/reservoirOpsLoader";
-import { ReservoirScene } from "../three/ReservoirScene";
-import { createReservoirLayer } from "../map/reservoirCustomLayer";
+import type { ReservoirScene } from "../three/ReservoirScene";
+import { reservoirLayerModule } from "../map/lazyThreeLayers";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -139,6 +139,9 @@ export function useReservoirStatusLayer(
   const byIdRef = useRef<Map<string, ReservoirSeries>>(new Map());
   const currentDateRef = useRef<string>("");
 
+  // C1b：three 模組第一次可見才載入；載入完成 → 重跑掛載 effect
+  const [layerModuleReady, setLayerModuleReady] = useState(() => reservoirLayerModule.get() !== null);
+
   visibleRef.current = visible;
   isDarkRef.current = isDark;
   heightScaleRef.current = heightScale;
@@ -153,6 +156,16 @@ export function useReservoirStatusLayer(
     if (!map) return;
 
     let cancelled = false;
+    const layerModule = reservoirLayerModule.get();
+    if (!layerModule) {
+      // 關閉期間不會走到這裡（上面 !visible 已 return）；載入完成時若已關閉，cancelled 擋住、不加圖層
+      reservoirLayerModule.ensure().then(
+        () => { if (!cancelled) setLayerModuleReady(true); },
+        (err) => console.error("[Reservoir] failed to load 3D module", err),
+      );
+      return () => { cancelled = true; };
+    }
+    const { ReservoirScene, createReservoirLayer } = layerModule;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
     const attach = () => {
@@ -207,7 +220,7 @@ export function useReservoirStatusLayer(
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
     };
-  }, [mapRef, visible, sceneRef, statusesRef, mapTick]);
+  }, [mapRef, visible, sceneRef, statusesRef, mapTick, layerModuleReady]);
 
   // ── visible=true：fetch day + 訂閱 date/time ──
   useEffect(() => {
