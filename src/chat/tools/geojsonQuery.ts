@@ -47,7 +47,9 @@ async function fetchFeatures(url: string): Promise<GeoFeature[]> {
 export function parseDatasetPayload(payload: unknown, url = "(inline)"): GeoFeature[] {
   const p = payload as { type?: unknown; format?: unknown; features?: unknown };
   if (p && p.format === COLUMNAR_FORMAT) return decodeColumnarPoints(payload as ColumnarPoints);
-  if (p && p.type === "FeatureCollection") return ((p as FeatureCollection).features ?? []);
+  // 沿用舊的寬鬆度：有 features 陣列即接受（部分 S3 檔可能沒帶 type）。
+  if (p && Array.isArray(p.features)) return (p as FeatureCollection).features as GeoFeature[];
+  if (p && p.type === "FeatureCollection") return [];
   throw new Error(`無法辨識的資料集格式：${url}`);
 }
 

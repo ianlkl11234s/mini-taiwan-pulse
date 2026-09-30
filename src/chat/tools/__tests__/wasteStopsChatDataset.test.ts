@@ -100,6 +100,8 @@ describe("geojsonQuery columnar 解碼", () => {
   it("長度不符或未知格式直接 throw（不回 0 筆）", () => {
     expect(() => decodeColumnarPoints({ ...sample, lng: [1] })).toThrow(/長度/);
     expect(() => parseDatasetPayload({ foo: 1 })).toThrow(/無法辨識/);
+    // 沒帶 type 的 features 陣列維持舊行為照收
+    expect(parseDatasetPayload({ features: [] })).toEqual([]);
   });
 
   describe("fetchDataset 走 columnar", () => {
