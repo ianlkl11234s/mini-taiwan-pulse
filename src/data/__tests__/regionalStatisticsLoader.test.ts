@@ -10,7 +10,8 @@ import {
   STATISTICS_CDN_FETCH_TIMEOUT_MS,
   statisticsBoundaryFetchUrl,
 } from '../regionalStatisticsLoader';
-import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease } from '../agriStatisticsRecipes';
+import { agriReleaseOptions, getAgriRecipeDetails, resolveAgriRelease } from '../agriStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../statisticsRecipeDetails';
 import { statisticsGeometryCache } from '../statisticsGeometryCache';
 
 const CDN_BASE = 'https://cdn.test/statistics/v1';
@@ -209,8 +210,9 @@ describe('regional statistics R2 CDN contract', () => {
     expect(normalizeAgriPreviewHealth({ status: 'STALE', coverage: { observed: { township_count: 3, status: 'PARTIAL' }, expected: { township_count: 368 } } }, 'township')).toMatchObject({ availability: 'STALE', coverage_status: 'PARTIAL', coverage_numerator: 3, coverage_denominator: 368 });
   });
 
-  it('keeps preview whitelist tuples exact and defaults to the latest verified option', () => {
-    const agri = getAgriRecipe('statsCropPlantedAreaTownship')!;
+  it('keeps preview whitelist tuples exact and defaults to the latest verified option', async () => {
+    await ensureStatisticsRecipeDetails();
+    const agri = getAgriRecipeDetails('statsCropPlantedAreaTownship')!;
     const releases = [...new Map(agri.release_options.map(option => [option.release_id, { release_id: option.release_id, dataset_id: agri.dataset_id, indicator_id: agri.indicator_id, boundary_version: agri.boundary_version, period_start: option.period_start, period_end: option.period_end, levels: [agri.level] }])).values()];
     const selected = agriReleaseOptions(agri.layer_key, releases)[0]!;
     const selectedRelease = releases.find(item => item.release_id === selected.releaseId)!;

@@ -1,8 +1,12 @@
 import { readFile } from "node:fs/promises";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, afterEach, describe, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { assertResultCollectionBudget, presentationMetrics, ResearchAnalysisSession } from "../researchAnalysisSession";
 import { validQueryResultData } from "../QueryResponder";
+import { ensureStatisticsResearchDatasets } from "../researchDatasets";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+beforeAll(() => ensureStatisticsResearchDatasets());
 
 afterEach(() => { clearPointDatasetCache(); vi.unstubAllGlobals(); });
 

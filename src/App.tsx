@@ -22,7 +22,7 @@ import { createMapInstanceEvents } from "./map/mapInstanceEvents";
 import { useAirspaceData } from "./hooks/useAirspaceData";
 import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
-import { historicalPeriodSnapshot, restoreTimelineSnapshot, useTimeline, type TimelineModeSnapshot } from "./hooks/useTimeline";
+import { historicalPeriodSnapshot, restoreTimelineSnapshot, useTimeline, useUiTime, type TimelineModeSnapshot } from "./hooks/useTimeline";
 import { timeStore } from "./state/timeStore";
 import { useIsMobile } from "./hooks/useIsMobile";
 // AR-22 P4：`useLayerParamsRuntime` 已整支退役。參數的消費端各自 per-key 訂閱
@@ -85,7 +85,7 @@ import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
 import { leftPanelsToClose, type LeftPanelState } from "./state/leftPanelMutex";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
-import { TimelineControls } from "./components/TimelineControls";
+import { LiveTimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
@@ -172,6 +172,24 @@ export function BasemapLabelToggle({
     >
       地名：{visible ? "開" : "關"}
     </button>
+  );
+}
+
+/** 左上日期時間文字：自己 4Hz 訂閱時間，App 本體不隨時間 tick 重渲（PF-6） */
+function UiDateTimeText() {
+  const currentTime = useUiTime();
+  return (
+    <>
+      {new Date(currentTime * 1000).toLocaleString("zh-TW", {
+        timeZone: "Asia/Taipei",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })}
+    </>
   );
 }
 
@@ -480,7 +498,8 @@ export default function App() {
   const researchTimelineRef = useRef<(TimelineSnapshot & TimelineActions) | null>(null);
   const researchHistoricalModeRef = useRef(false);
   researchTimelineRef.current = {
-    currentTime: timeline.currentTime,
+    // App 不訂閱 4Hz 時間（PF-6）；bridge 讀取時直接取 timeStore
+    get currentTime() { return timeStore.getTime(); },
     mode: timeline.timeMode,
     playing: timeline.playing,
     speed: timeline.speed,
@@ -554,7 +573,7 @@ export default function App() {
   const mapRef = useRef<MapboxMap | null>(null);
   const flightsRef = useRef<Flight[]>([]);
   const shipsRef = useRef(ships);
-  const timeRef = useRef(timeline.currentTime);
+  const timeRef = useRef(timeStore.getTime());
   const renderModeRef = useRef(renderMode);
   const isDarkThemeRef = useRef(isDarkTheme);
   const showTrailsRef = useRef(showTrails);
@@ -592,9 +611,9 @@ export default function App() {
   // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
   useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
 
-  const { trainCount, activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
-  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
-  const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
+  const { activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
+  const { activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
+  const { activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
   const { activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
     useTouristShuttleLayer(layerVisibility.touristShuttleLive, timeline.timeMode);
@@ -1425,28 +1444,7 @@ export default function App() {
   // 人口 / 指標 / 社經 / 空間經濟 四張網格的上圖 effect 已搬進 LayerHost
   //（PopCountHost / IndicatorsHost / SocioeconomicHost / SpatialEconomyHost）
 
-  // YouBike Fullness: sync with main timeline
-  // 訂閱 timeStore 分鐘粒度（不走 React 4Hz re-render），每 60 秒模擬時間更新一次
-  const [youbikeTimeKey, setYoubikeTimeKey] = useState(
-    () => Math.floor(timeStore.getTime() / 60) * 60,
-  );
-  // 只在 YouBike 圖層開啟時訂閱：關閉後不該每個模擬分鐘都 setState（會讓 App 與所有
-  // LayerHost 跟著 re-render）。重開時先同步到當下分鐘。
-  const youbikeVisible = layerVisibility.youbikeFullness;
-  useEffect(() => {
-    if (!youbikeVisible) return;
-    let lastMinute = Math.floor(timeStore.getTime() / 60);
-    setYoubikeTimeKey(lastMinute * 60);
-    return timeStore.subscribe((t) => {
-      const minute = Math.floor(t / 60);
-      if (minute !== lastMinute) {
-        lastMinute = minute;
-        setYoubikeTimeKey(minute * 60);
-      }
-    });
-  }, [youbikeVisible]);
-
-  // YouBike 網格上圖已搬進 LayerHost 的 YoubikeHost（youbikeTimeKey 經 hostDeps 傳入）
+  // YouBike 網格上圖與分鐘粒度時間訂閱都在 LayerHost 的 YoubikeHost（PF-6：不再經 App state）
 
   // ESC 退出拍攝模式
   useEffect(() => {
@@ -1643,11 +1641,9 @@ export default function App() {
   const sidebarCounts = useMemo(() => ({
     flights: displayedFlights.length,
     ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-    trains: trainCount,
-    buses: busCount,
-    busesIntercity: busIntercityCount,
+    // 列車／公車／客運計數走 liveCountStore（側欄 row 自己 per-key 訂閱，PF-6）
     wasteTrucks: wasteCount,
-  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount, wasteCount]);
+  }), [displayedFlights.length, ships.length, wasteCount]);
 
   // owner-only 圖層：非 owner 的開啟意圖一律攔截（回 true = 呼叫端直接 return no-op）。
   // 未登入 → 導 Google 登入；已登入非 owner → 顯示「私人圖層」提示。
@@ -1903,8 +1899,9 @@ export default function App() {
 
   // ── LayerHost 的跨切面依賴（AR-22 P1）────────────────────────────
   // 圖層自己的參數**不在這裡** —— 每個 Host 用 `useLayerParams(key)` 自己訂閱。
-  // ⚠️ 刻意不 memo：Host 沒有 React.memo，identity 換不換都會重跑，
-  //    加 memo 只是多一份 deps 清單要維護（且漏一項就是靜默不更新）。
+  // ⚠️ 刻意不 useMemo：LayerHosts 是 React.memo 並對本物件逐欄位 shallow compare
+  //    （PF-6），欄位身分沒變就跳過 104 個 Host；因此新增欄位時務必給穩定身分
+  //    （useCallback / useMemo / ref），不要傳 inline 函式或每次新建的物件。
   const hostDeps: LayerHostDeps = {
     mapRef,
     layerVisibility,
@@ -1951,7 +1948,6 @@ export default function App() {
     socioDataMap,
     spatialDataMap,
     getYoubikeCellsForTime,
-    youbikeTimeKey,
   };
 
   return (
@@ -2103,15 +2099,7 @@ export default function App() {
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
               }}
             >
-              {new Date(timeline.currentTime * 1000).toLocaleString("zh-TW", {
-                timeZone: "Asia/Taipei",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              })}
+              <UiDateTimeText />
             </div>
             <CameraHud
               store={cameraHud}
@@ -2418,11 +2406,9 @@ export default function App() {
 
           {/* 時間軸：依 mode 切換 realtime / historical */}
           {appMode === "realtime" ? (
-            <TimelineControls
+            <LiveTimelineControls
               playing={timeline.playing}
               speed={timeline.speed}
-              progress={timeline.progress}
-              currentTime={timeline.currentTime}
               timeMode={timeline.timeMode}
               selectedDate={timeline.selectedDate}
               rangeDays={timeline.rangeDays}
@@ -2578,11 +2564,9 @@ export default function App() {
             }}
           >
             {appMode === "realtime" ? (
-              <TimelineControls
+              <LiveTimelineControls
                 playing={timeline.playing}
                 speed={timeline.speed}
-                progress={timeline.progress}
-                currentTime={timeline.currentTime}
                 timeMode={timeline.timeMode}
                 selectedDate={timeline.selectedDate}
                 rangeDays={timeline.rangeDays}
@@ -2647,9 +2631,6 @@ export default function App() {
                       counts={{
                         flights: displayedFlights.length,
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                        trains: trainCount,
-                        buses: busCount,
-                        busesIntercity: busIntercityCount,
                         wasteTrucks: wasteCount,
                       }}
                       onLayerClick={handleLayerClick}

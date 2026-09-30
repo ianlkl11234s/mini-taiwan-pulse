@@ -112,11 +112,12 @@ interface UseTimelineOptions {
   timeMode?: TimeMode;
 }
 
+// ⚠️ 不回傳 currentTime / progress：useTimeline 由 App 呼叫，若在這裡訂閱 4Hz 時間，
+// 播放中整個 App（含所有 LayerHost）會每 250ms 重渲一次（PF-6）。需要顯示時間的
+// 元件自己呼叫 `useUiTime()`；邏輯要時間就在 effect 內 timeStore.subscribe*。
 interface UseTimelineReturn {
-  currentTime: number;
   playing: boolean;
   speed: number;
-  progress: number;
   timeMode: TimeMode;
   /** 目前選定的日期 */
   selectedDate: Date;
@@ -150,6 +151,14 @@ const UI_TIME_THROTTLE_MS = 250;
 const subscribeUiTime = (cb: () => void) =>
   timeStore.subscribeThrottled(UI_TIME_THROTTLE_MS, cb);
 const getTimeSnapshot = () => timeStore.getTime();
+
+/**
+ * 顯示用的目前時間（4Hz 節流訂閱 timeStore）。只給「真的要把時間畫出來」的葉元件用
+ * （TimelineControls 包裝、時鐘文字）；呼叫它的元件播放中會 4Hz 重渲，勿在 App 層呼叫。
+ */
+export function useUiTime(): number {
+  return useSyncExternalStore(subscribeUiTime, getTimeSnapshot);
+}
 
 export interface ReplayFrameAdvance {
   time: number;
@@ -197,9 +206,10 @@ export function useTimeline({
   }, [selectedDate, rangeDays]);
 
   // 首次掛載寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）。
-  // ⚠️ 必走 effect 不可放 render body：本 hook 下方以 useSyncExternalStore 訂閱 timeStore
-  // （currentTime），若在 App render 期間直接 timeStore.setTime() 會同步通知該訂閱者，觸發
-  // React「Cannot update a component (App) while rendering a different component (App)」警告。
+  // ⚠️ 必走 effect 不可放 render body：`useUiTime()` 的訂閱者（TimelineControls、時鐘等）
+  // 以 useSyncExternalStore 訂閱 timeStore，若在 App render 期間直接 timeStore.setTime()
+  // 會同步通知這些訂閱者，觸發 React「Cannot update a component (X) while rendering a
+  // different component (App)」警告。
   const initRef = useRef(false);
   useEffect(() => {
     if (initRef.current) return;
@@ -218,12 +228,9 @@ export function useTimeline({
   const rafRef = useRef<number>(0);
   const lastFrameRef = useRef<number>(0);
 
-  // UI 取用的 currentTime：節流訂閱，不隨每幀 re-render。
-  // 動畫迴圈請直接 timeStore.getTime()，不要經過這個值。
-  const currentTime = useSyncExternalStore(subscribeUiTime, getTimeSnapshot);
-
+  // 顯示用時間改由葉元件 `useUiTime()` 自己訂閱（見 UseTimelineReturn 上方註解）。
+  // 動畫迴圈請直接 timeStore.getTime()。
   const duration = windowEnd - windowStart;
-  const progress = duration > 0 ? (currentTime - windowStart) / duration : 0;
 
   // 日期切換時重置 currentTime
   const setSelectedDate = useCallback((d: Date) => {
@@ -234,8 +241,8 @@ export function useTimeline({
 
   // ⚠️ 副作用不可放進 useState updater：updater 由 React 在 **render 期間** 執行
   // （basicStateReducer），此時 timeStore.setTime() 會經 scheduleThrottled 的 leading
-  // edge **同步**通知本 hook 下方的 useSyncExternalStore 訂閱者 → forceStoreRerender(App)
-  // → React「Cannot update a component (App) while rendering a different component (App)」。
+  // edge **同步**通知 `useUiTime()` 的 useSyncExternalStore 訂閱者 → forceStoreRerender
+  // → React「Cannot update a component (X) while rendering a different component (App)」。
   // 改為在 handler 內用當前 selectedDate 算出 next（與上方 setSelectedDate 同模式）。
   const shiftDate = useCallback((days: number) => {
     const next = addDays(selectedDate, days);
@@ -344,10 +351,8 @@ export function useTimeline({
   }, []);
 
   return {
-    currentTime,
     playing,
     speed,
-    progress,
     timeMode,
     selectedDate,
     rangeDays,

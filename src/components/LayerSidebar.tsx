@@ -29,6 +29,7 @@ import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
+import { useLayerLiveCount } from "../state/liveCountStore";
 
 const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
 /** Mobile has the same two entry points as desktop: general layers and statistics. */
@@ -54,7 +55,8 @@ interface LayerSidebarProps {
   displayMode: DisplayMode;
   isDarkTheme: boolean;
   isMobile?: boolean;
-  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; wasteTrucks?: number; windPlan?: number };
+  /** 列車／公車／客運的即時計數不在這裡：row 以 `useLayerLiveCount` per-key 訂閱 liveCountStore */
+  counts: { flights: number; ships: number; wasteTrucks?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
@@ -98,9 +100,6 @@ export function LayerSidebar({
     switch (key) {
       case "flights": return counts.flights;
       case "ships": return counts.ships;
-      case "rail": return counts.trains;
-      case "busLive": return counts.buses;
-      case "busIntercityLive": return counts.busesIntercity;
       case "wasteTruck": return counts.wasteTrucks;
       case "windPlan": return counts.windPlan;
       default: return undefined;
@@ -602,11 +601,7 @@ function SidebarContent({
                     }}
                   >
                     {displayLabel}
-                    {count != null && count > 0 && !locked && (
-                      <span style={{ marginLeft: 4, opacity: 0.5, fontSize: baseFontSize - 1 }}>
-                        {count}
-                      </span>
-                    )}
+                    {!locked && <RowCount layerKey={key} count={count} fontSize={baseFontSize - 1} />}
                   </button>
 
                   {statisticsVisual && !locked && <LayerToggleSwitch on={active} onChange={() => onToggleVisibility(key)} label={`${displayLabel} 顯示`} {...togglePalette} />}
@@ -697,5 +692,16 @@ function ExpandedPanel({
       {historicalCountry && <HistoricalFlightTrailControls country={historicalCountry} isDarkTheme={isDarkTheme} />}
       <ParamControlList controls={controls} />
     </LayerControlArea>
+  );
+}
+
+/** row 右側數字：列車／公車／客運 per-key 訂閱 liveCountStore，只重渲這個葉元件（PF-6） */
+function RowCount({ layerKey, count, fontSize }: { layerKey: string; count: number | undefined; fontSize: number }) {
+  const shown = useLayerLiveCount(layerKey) ?? count;
+  if (shown == null || shown <= 0) return null;
+  return (
+    <span style={{ marginLeft: 4, opacity: 0.5, fontSize }}>
+      {shown}
+    </span>
   );
 }

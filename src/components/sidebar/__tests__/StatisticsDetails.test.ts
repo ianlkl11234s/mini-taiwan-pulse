@@ -1,8 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDetailControlStyle, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
 import { medicalStatisticsSelectStyle } from '../MedicalStatisticsGroupControls';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
-import { getSocialRecipe } from '../../../data/socialStatisticsRecipes';
+import { getSocialRecipeDetails } from '../../../data/socialStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../../../data/statisticsRecipeDetails';
+
+beforeAll(() => ensureStatisticsRecipeDetails());
 import { getLaborRecipe, laborLocationSemantics } from '../../../data/laborStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
@@ -112,7 +115,7 @@ describe('statisticsDimensionSummary', () => {
 
   it('does not alert a county housing recipe about the same indicator’s township release, but retains same-level mismatches', () => {
     const key = 'statsHousingTotalCounty';
-    const recipe = getSocialRecipe(key)!;
+    const recipe = getSocialRecipeDetails(key)!;
     const option = recipe.release_options[0]!;
     const release = {
       release_id: option.release_id,
@@ -130,7 +133,7 @@ describe('statisticsDimensionSummary', () => {
   });
 
   it('formats social legend labels from recipe format while marking rounded boundaries approximate', () => {
-    const social = getSocialRecipe('statsHousingUnusedPctCounty')!;
+    const social = getSocialRecipeDetails('statsHousingUnusedPctCounty')!;
     expect(statisticsLegendRows(STATISTICS_RECIPES.statsHousingUnusedPctCounty, social.format).map(row => row.label)).toEqual([
       '低於 ≈12.4', '≈12.4 至未滿 ≈13.26', '≈13.26 至未滿 ≈13.93', '≈13.93 至未滿 ≈16.64', '≈16.64 以上',
     ]);

@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { RailData, RailTrain } from "../types";
 import { RailEngine } from "../engines/RailEngine";
 import { TraTrainEngine } from "../engines/TraTrainEngine";
 import { timeStore } from "../state/timeStore";
+import { liveCountStore } from "../state/liveCountStore";
 
 export function useRailEngine(
   railData: RailData | null,
@@ -11,8 +12,6 @@ export function useRailEngine(
   const railEngineRef = useRef<RailEngine | null>(null);
   const traEngineRef = useRef<TraTrainEngine | null>(null);
   const activeTrainsRef = useRef<RailTrain[]>([]);
-  // 只用於 UI 顯示數字，throttle 更新避免每幀 re-render
-  const [trainCount, setTrainCount] = useState(0);
 
   // 初始化 RailEngine + TraTrainEngine
   useEffect(() => {
@@ -42,11 +41,12 @@ export function useRailEngine(
       }
       activeTrainsRef.current = allTrains;
 
-      // 每 500ms 才更新一次計數（給 UI 顯示用）
+      // 每 500ms 才更新一次計數（給 UI 顯示用）。寫外部 store 而非 useState：
+      // 本 hook 掛在 App，setState 會讓 App 播放中每 500ms 整棵重渲（PF-6）
       const ts = performance.now();
       if (ts - lastCountUpdate > 500) {
         lastCountUpdate = ts;
-        setTrainCount(allTrains.length);
+        liveCountStore.set("trains", allTrains.length);
       }
     };
 
@@ -58,9 +58,9 @@ export function useRailEngine(
   useEffect(() => {
     if (!enabled) {
       activeTrainsRef.current = [];
-      setTrainCount(0);
+      liveCountStore.set("trains", 0);
     }
   }, [enabled]);
 
-  return { trainCount, activeTrainsRef };
+  return { activeTrainsRef };
 }

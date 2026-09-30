@@ -20,8 +20,11 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
-import { registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
+import { ensureStatisticsResearchDatasets, registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
 import { panelForExplorationLayers } from "../../src/research/explorationNavigation.ts";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+await ensureStatisticsResearchDatasets();
 
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const docsDir = resolve(root, "docs/features/general-analysis");

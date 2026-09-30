@@ -6,6 +6,7 @@ import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, 
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
+import type { StatisticsReleaseSummary } from "./statisticsRecipeCatalog";
 export interface StatisticsReleaseOption {
   releaseId: string;
   dimensions: Record<string, string>;
@@ -179,6 +180,11 @@ export const taoyuanAirportReleaseSelector: StatisticsReleaseSelector = { resolv
   return TAOYUAN_AIRPORT_RELEASES.has(release.release_id) && release.period_start === '2022-01-01' && release.period_end === '2022-12-31' ? { releaseId: release.release_id, dimensions: TAOYUAN_AIRPORT_DIMENSIONS } : null;
 } };
 
+/** Same wording as the full-recipe rule: count > 1 → 完整選項；otherwise the first delivered option's period. */
+function releaseSummaryFrequency(summary: StatisticsReleaseSummary): string {
+  return summary.count > 1 ? "依已公開完整選項" : `${summary.first?.period_start ?? "已公開"} 至 ${summary.first?.period_end ?? ""}`;
+}
+
 export const STATISTICS_RECIPES = {
   ...Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, {
     dataset_id: recipe.dataset_id, indicator_id: recipe.indicator_id, label: recipe.label,
@@ -335,10 +341,9 @@ export const STATISTICS_RECIPES = {
     level: recipe.level as StatisticsLevel,
     label: recipe.label,
     unit: recipe.unit,
-    frequency: recipe.release_options.length > 1 ? "依已公開完整選項" : `${recipe.release_options[0]?.period_start ?? "已公開"} 至 ${recipe.release_options[0]?.period_end ?? ""}`,
-    dimensions: recipe.release_options[0]?.dimensions ?? {},
+    frequency: releaseSummaryFrequency(recipe.release_summary),
+    dimensions: recipe.release_summary.first?.dimensions ?? {},
     includeHealth: true,
-    releaseOptions: recipe.release_options,
     provenance: {
       boundaryVersion: recipe.boundary_version,
       sourceStatisticalBoundaryVersion: recipe.source_statistical_boundary_version,
@@ -351,7 +356,7 @@ export const STATISTICS_RECIPES = {
     colors: recipe.legend.colors,
   }])) as Record<keyof typeof AGRI_STATISTICS_RECIPES_BY_KEY, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
-    dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
   }>,
   ...Object.fromEntries(Object.entries(SOCIAL_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
     dataset_id: recipe.dataset_id,
@@ -359,23 +364,21 @@ export const STATISTICS_RECIPES = {
     level: recipe.level as StatisticsLevel,
     label: recipe.label,
     unit: recipe.unit,
-    frequency: recipe.release_options.length > 1 ? "依已公開完整選項" : `${recipe.release_options[0]?.period_start ?? "已公開"} 至 ${recipe.release_options[0]?.period_end ?? ""}`,
-    dimensions: recipe.release_options[0]?.dimensions ?? {},
+    frequency: releaseSummaryFrequency(recipe.release_summary),
+    dimensions: recipe.release_summary.first?.dimensions ?? {},
     includeHealth: true,
-    releaseOptions: recipe.release_options,
     provenance: {
       boundaryVersion: recipe.boundary_version,
       boundarySemantics: recipe.boundary_semantics,
       disclosure: recipe.disclosure,
       relatedLayerKeys: recipe.related_layer_keys,
-      fragmentContext: recipe.fragment_context,
       sourceFamily: recipe.source_family,
     },
     breaks: recipe.legend.breaks,
     colors: recipe.legend.colors,
   }])) as Record<SocialStatisticsLayerKey, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
-    dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
   }>,
   ...Object.fromEntries(Object.entries(LABOR_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
     dataset_id: recipe.dataset_id,
@@ -414,8 +417,10 @@ export function statisticsBaseKey(key: StatisticsRenderKey, selectedIndicator?: 
   return view.metrics.find(metric => STATISTICS_RECIPES[metric.layerKey].indicator_id === selectedIndicator)?.layerKey ?? view.metrics[0]!.layerKey;
 }
 function educationMetricInitial(key: StatisticsLayerKey, stage: string) {
-  const source = getSocialRecipe(key) ?? getComparisonRecipe(key);
-  return source?.release_options.filter(option => option.dimensions.education_stage === stage)
+  // Social catalog carries the precomputed latest option per stage (same sort as below).
+  const social = getSocialRecipe(key);
+  if (social) return social.release_summary.education_stages?.[stage]?.latest;
+  return getComparisonRecipe(key)?.release_options.filter(option => option.dimensions.education_stage === stage)
     .sort((a, b) => b.period_end.localeCompare(a.period_end) || b.period_start.localeCompare(a.period_start))[0];
 }
 export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string) {

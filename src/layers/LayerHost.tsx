@@ -32,13 +32,33 @@
 // 才吃得到」型的相依（前兩者訂閱 store、後三者是 fetch → setState），
 // 但這是本棒已知的行為差異，交接時列在風險點。
 //
-// ⚠️ **不要 `React.memo`**：現況是「App 一 render 全部 hook 重跑」，本棒是等價
-// 重構，行為必須逐位保真。per-key 訂閱帶來的 re-render 收斂是第 4 階段的事。
+// ── memo（PF-6，2026-09-30）────────────────────────────────────────
+// P1 時刻意不 memo（等價重構，要「App 一 render 全部 hook 重跑」逐位保真）。
+// PF-6 解除：App 已不再訂閱 4Hz 時間 / 500ms 車輛計數，剩下的 App render 多半
+// 與圖層無關（tooltip、面板開合…）。`LayerHosts` 以 deps **逐欄位 shallow
+// compare** 做 React.memo：任何一欄身分變了才整批重跑，欄位新增自動納入比較，
+// 不用另外維護 deps 清單。
+// 保真條件（已查核）：
+//   - Host 內沒有「無 deps 陣列」的 effect（掃描 src/ 只有 App 端的 useThreeJsLayers
+//     一支，不在 Host 內），effect 只會因 deps 變動重跑 —— 跳過 render 不會漏跑。
+//   - Host 的時間驅動一律走 timeStore 訂閱（YoubikeHost 自己訂分鐘粒度）、參數走
+//     useLayerParams 訂閱，都不依賴 App 重渲把新值帶進來。
+// per-key visibility 訂閱（切一層只重跑該層 Host）仍是後續第 4 階段的事。
 
+import { memo } from "react";
 import { LAYER_HOOK_REGISTRY } from "./layerHookRegistry";
 import { bumpHostRender, type LayerHostDeps } from "./layerHostDeps";
 
-export function LayerHosts({ deps }: { deps: LayerHostDeps }) {
+function sameDeps(prev: { deps: LayerHostDeps }, next: { deps: LayerHostDeps }): boolean {
+  const a = prev.deps as unknown as Record<string, unknown>;
+  const b = next.deps as unknown as Record<string, unknown>;
+  const keys = Object.keys(b);
+  if (keys.length !== Object.keys(a).length) return false;
+  for (const k of keys) if (!Object.is(a[k], b[k])) return false;
+  return true;
+}
+
+export const LayerHosts = memo(function LayerHosts({ deps }: { deps: LayerHostDeps }) {
   bumpHostRender("LayerHosts");
   return (
     <>
@@ -47,4 +67,4 @@ export function LayerHosts({ deps }: { deps: LayerHostDeps }) {
       ))}
     </>
   );
-}
+}, sameDeps);

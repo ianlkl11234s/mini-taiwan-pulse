@@ -2,7 +2,8 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { webcrypto } from 'node:crypto';
 import { afterEach, expect, it, vi } from 'vitest';
-import { SOCIAL_ENABLED_STATISTICS_RECIPES } from '../socialStatisticsRecipes';
+import { socialEnabledRecipeDetails } from '../socialStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../statisticsRecipeDetails';
 import { loadRegionalStatistics, clearRegionalStatisticsCdnCache } from '../regionalStatisticsLoader';
 import { statisticsGeometryCache } from '../statisticsGeometryCache';
 
@@ -22,8 +23,9 @@ it.skipIf(!root)('loads all 416 delivered exact selectors through the real hash-
     return new Response(await readFile(path));
   });
   clearRegionalStatisticsCdnCache(); statisticsGeometryCache.clear();
+  await ensureStatisticsRecipeDetails();
   const results = [];
-  for (const recipe of SOCIAL_ENABLED_STATISTICS_RECIPES) {
+  for (const recipe of socialEnabledRecipeDetails()) {
     for (const option of recipe.release_options) {
       const result = await loadRegionalStatistics({ layerKey: recipe.layer_key, datasetId: recipe.dataset_id,
         indicatorId: recipe.indicator_id, level: recipe.level, releaseId: option.release_id,
@@ -41,7 +43,7 @@ it.skipIf(!root)('loads all 416 delivered exact selectors through the real hash-
     }
   }
   expect(results).toHaveLength(416);
-  const first = SOCIAL_ENABLED_STATISTICS_RECIPES[0]!;
+  const first = socialEnabledRecipeDetails()[0]!;
   await expect(loadRegionalStatistics({ layerKey: first.layer_key, datasetId: first.dataset_id,
     indicatorId: first.indicator_id, level: first.level, releaseId: 'unknown-release', allowReleaseFallback: true,
     dimensions: first.release_options[0]!.dimensions })).rejects.toThrow('指定統計期別');

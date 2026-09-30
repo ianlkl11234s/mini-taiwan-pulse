@@ -1,13 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../medicalStatisticsSelection';
 import { regionalStatisticsStore } from '../regionalStatisticsStore';
 import { layerVisibilityStore, buildDefaultVisibility } from '../layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../statisticsDisplayModeStore';
 import { layerParamsStore } from '../layerParamsStore';
-import { getSocialRecipe } from '../../data/socialStatisticsRecipes';
-import { getAgriRecipe } from '../../data/agriStatisticsRecipes';
+import { getSocialRecipeDetails } from '../../data/socialStatisticsRecipes';
+import { getAgriRecipeDetails } from '../../data/agriStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 const beds = ['statsHealthHospitalBedTotal', 'statsHealthAcuteBedTotal', 'statsHealthIcuBedTotal', 'statsHealthHospiceBedTotal'] as const;
+beforeAll(() => ensureStatisticsRecipeDetails());
 beforeEach(() => {
   statisticsDisplayModeStore.reset();
   vi.restoreAllMocks();
@@ -16,7 +18,7 @@ beforeEach(() => {
 });
 describe('medical family switching', () => {
   it('maps the 2024 release to the matching target ID, retaining opacity and other overlap layers', () => {
-    const recipe = getSocialRecipe(beds[0])!;
+    const recipe = getSocialRecipeDetails(beds[0])!;
     const old = recipe.release_options.find(option => option.dimensions.roc_year === '113')!;
     regionalStatisticsStore.setSelection(beds[0], { layerKey: beds[0], datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, releaseId: old.release_id, dimensions: old.dimensions });
     statisticsDisplayModeStore.setMode('overlap', layerVisibilityStore.getAll());
@@ -43,7 +45,7 @@ describe('medical family switching', () => {
   it('allows a listed count-to-ratio switch when source_field differs but period matches', () => {
     const from = 'statsHealthAcuteBedTotal' as const;
     const to = 'statsComparisonAcuteBedTotalPer10000PopulationTownship' as const;
-    const source = getSocialRecipe(from)!;
+    const source = getSocialRecipeDetails(from)!;
     const selected = source.release_options.find(option => option.dimensions.roc_year === '113')!;
     regionalStatisticsStore.setSelection(from, { layerKey: from, datasetId: source.dataset_id, indicatorId: source.indicator_id, level: source.level, releaseId: selected.release_id, dimensions: selected.dimensions });
     expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(true);
@@ -52,7 +54,7 @@ describe('medical family switching', () => {
   it('retains animal and quarter when switching livestock variants', () => {
     const from = 'statsLivestockFarmCountTownship' as const;
     const to = 'statsLivestockHeadCountTownship' as const;
-    const source = getAgriRecipe(from)!;
+    const source = getAgriRecipeDetails(from)!;
     const selected = source.release_options[0]!;
     regionalStatisticsStore.setSelection(from, { layerKey: from, datasetId: source.dataset_id, indicatorId: source.indicator_id, level: source.level, releaseId: selected.release_id, dimensions: selected.dimensions });
     expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(true);
@@ -61,7 +63,7 @@ describe('medical family switching', () => {
   it('rejects an identity mismatch instead of selecting another livestock tuple', () => {
     const from = 'statsLivestockFarmCountTownship' as const;
     const to = 'statsLivestockHeadCountTownship' as const;
-    const source = getAgriRecipe(from)!;
+    const source = getAgriRecipeDetails(from)!;
     const selected = source.release_options[0]!;
     regionalStatisticsStore.setSelection(from, { layerKey: from, datasetId: source.dataset_id, indicatorId: source.indicator_id, level: source.level, releaseId: selected.release_id, dimensions: { ...selected.dimensions, animal: '不存在的畜種', quarter: '2099-Q4' } });
     expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(false);
