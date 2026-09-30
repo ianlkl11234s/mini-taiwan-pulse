@@ -76,11 +76,14 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
         noteScene.setSizeMultiplier(opts.getMusicNoteSize?.() ?? 1);
         noteScene.setBaseHeightMeters(opts.getMusicNoteZOffset?.() ?? 70);
         const nowMs = Date.now();
-        noteScene.spawnFromTrucks(truckScene.getCollectingPositions(), nowMs);
+        const collecting = truckScene.getCollectingPositions();
+        noteScene.spawnFromTrucks(collecting, nowMs);
         noteScene.render(matrix, nowMs);
+        // 音符是裝飾動畫、走實際時鐘：圖層可見且有收運中車輛（或音符尚未飄完）時持續重繪，
+        // 時間軸暫停也不停；圖層關閉 → 上方提早 return，不再排幀。
+        if (collecting.length > 0 || noteScene.hasActiveNotes(nowMs)) map?.triggerRepaint();
       }
-      // 不再無條件每幀 triggerRepaint：時間變動由 subscribeTimeRepaint 驅動（暫停 → 0 次重繪）
-      // 註：音符動畫走 Date.now()，暫停時會停在當下畫面（隨時間恢復）
+      // 車輛位置的時間變動由 subscribeTimeRepaint 驅動（暫停且無音符 → 0 次重繪）
     },
 
     onRemove() {

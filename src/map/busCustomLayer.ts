@@ -54,9 +54,11 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
       // 用 multiplier，避免預設畫面從暗 0.85／亮 0.7 被覆蓋成 1。
       if (opts.getOpacity) busScene.setOpacity(opts.getOpacity());
       else busScene.setOpacityMultiplier(opts.getOpacityMultiplier?.() ?? 1);
-      busScene.update(opts.getBuses(), opts.getColorMode());
+      const settling = busScene.update(opts.getBuses(), opts.getColorMode());
       busScene.render(matrix);
-      // 不再無條件每幀 triggerRepaint：時間變動由 subscribeTimeRepaint 驅動（暫停 → 0 次重繪）
+      // 時間變動由 subscribeTimeRepaint 驅動；無路線車輛的 lerp 尚未收斂時自排下一幀，
+      // 收斂（貼齊目標）後停止 → 暫停時不會卡在半路，也不會常駐重繪。
+      if (settling) map?.triggerRepaint();
     },
 
     onRemove() {

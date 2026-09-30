@@ -154,6 +154,8 @@ export class WasteMusicNoteScene {
   private writeIdx = 0;
   /** 每車上次 spawn 時間 (相對 ms，從 init 起算) */
   private lastSpawnPerTruck = new Map<string, number>();
+  /** 最近一次 spawn 的相對時間（ms）；用來判斷畫面上是否還有飄浮中的音符 */
+  private lastSpawnRel = -1e9;
   /** 是否已初始化 */
   private inited = false;
   /** 起始時間 (epoch ms)，用來計算相對時間，避免 float32 精度爆炸 */
@@ -252,6 +254,7 @@ export class WasteMusicNoteScene {
       const last = this.lastSpawnPerTruck.get(t.vehicle_no) ?? -1e9;
       if (tRel - last < SPAWN_INTERVAL_MS) continue;
       this.lastSpawnPerTruck.set(t.vehicle_no, tRel);
+      this.lastSpawnRel = tRel;
 
       const idx = this.writeIdx;
       this.writeIdx = (this.writeIdx + 1) % MAX_NOTES;
@@ -276,6 +279,11 @@ export class WasteMusicNoteScene {
         if (!active.has(k)) this.lastSpawnPerTruck.delete(k);
       }
     }
+  }
+
+  /** 畫面上是否還有未結束壽命的音符（決定裝飾動畫是否需要繼續排下一幀）。 */
+  hasActiveNotes(nowMs: number): boolean {
+    return nowMs - this.t0Ms - this.lastSpawnRel < LIFESPAN_MS;
   }
 
   setViewport(w: number, h: number) {

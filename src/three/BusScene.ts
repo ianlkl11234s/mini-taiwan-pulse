@@ -56,6 +56,8 @@ export class BusScene {
   /** 視覺平滑：記住每輛車的上一幀 Mercator 座標 */
   private prevMercator = new Map<string, { x: number; y: number; z: number }>();
   private smoothFactor = 0.15; // 0=不動, 1=無平滑
+  /** 平滑收斂門檻（Mercator 單位，約 4cm）：距目標小於此值即直接貼齊，視為已收斂 */
+  private static readonly SETTLE_EPS = 1e-9;
 
   private lastMatrix: THREE.Matrix4 | null = null;
   private _dummy = new THREE.Matrix4();
@@ -174,8 +176,13 @@ export class BusScene {
     return c;
   }
 
-  update(buses: BusVehicle[], colorMode: BusColorMode = "route") {
-    if (!this.instancedMesh) return;
+  /**
+   * @returns 是否仍有無路線車輛正在往目標 lerp（尚未收斂）。
+   *          呼叫端據此決定要不要再排下一幀，收斂後即停止重繪。
+   */
+  update(buses: BusVehicle[], colorMode: BusColorMode = "route"): boolean {
+    if (!this.instancedMesh) return false;
+    let settling = false;
     // density 模式：直接讀 bus.density（preprocess 算好的班次/小時，固定值）
     // 不再每 frame 統計，負擔更低；顏色對同一班車永遠相同
 
@@ -208,6 +215,16 @@ export class BusScene {
           fx = prev.x + (target.x - prev.x) * s;
           fy = prev.y + (target.y - prev.y) * s;
           fz = prev.z + (target.z - prev.z) * s;
+          const eps = BusScene.SETTLE_EPS;
+          if (
+            Math.abs(target.x - fx) < eps &&
+            Math.abs(target.y - fy) < eps &&
+            Math.abs(target.z - fz) < eps
+          ) {
+            fx = target.x; fy = target.y; fz = target.z;
+          } else {
+            settling = true;
+          }
         } else {
           fx = target.x; fy = target.y; fz = target.z;
         }
@@ -258,6 +275,7 @@ export class BusScene {
         if (!activeKeys.has(key)) this.prevMercator.delete(key);
       }
     }
+    return settling;
   }
 
   render(matrix: number[]) {
