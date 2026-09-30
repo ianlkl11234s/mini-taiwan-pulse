@@ -568,6 +568,18 @@ describe("deploy 契約（manifest 逐檔）", () => {
     }
   });
 
+  it("已改 PMTiles 的舊整包 GeoJSON 不進 image（PF-12），且無 runtime 引用", () => {
+    const stripped = [
+      "geo/ookla_fixed_global.geojson",
+      "geo/ookla_mobile_global.geojson",
+      "world/jp_religion_osm.geojson",
+    ];
+    for (const asset of stripped) {
+      expect(dockerIgnore, `.dockerignore 缺 ${asset}`).toContain(`public/${asset}`);
+      expect(ASSETS.has(`./${asset}`), `${asset} 仍被 manifest 當 runtime 資產引用`).toBe(false);
+    }
+  });
+
   it("sanity：三個解析器都有掃到東西（空轉 = 假綠，比缺口更危險）", () => {
     expect(ASSETS.size, "manifest 靜態資產枚舉為空 → 收集器壞了").toBeGreaterThan(150);
     expect(NGINX_LOCS.length, "nginx location 解析為空").toBeGreaterThan(20);
