@@ -78,7 +78,12 @@ echo "[pull] sync business_registry → $DATA_DIR/business_registry/"
 aws s3 sync "$S3/business_registry/" "$DATA_DIR/business_registry/" --no-progress \
   --exclude "company_points_202608.pmtiles" --exclude "company_capital_grid_202608.pmtiles" \
   --exclude "regulated_facilities_20260818.pmtiles" --exclude "factory_locations_202606.pmtiles" \
-  --exclude "common_registration_addresses_202608.geojson"  # 2026-09-30 舊版資產（前端已切 _r2／_allzoom）
+  --exclude "common_registration_addresses_202608.geojson" \
+  --exclude "factory_locations_202606_allzoom.pmtiles" --exclude "manufacturing_company_points_202608_allzoom.pmtiles" \
+  --exclude "regulated_facilities_20260818_allzoom.pmtiles"  # 2026-09-30 舊版資產（前端已切 _r2／_allzoom_b8）
+rm -f "$DATA_DIR/business_registry/factory_locations_202606_allzoom.pmtiles" \
+  "$DATA_DIR/business_registry/manufacturing_company_points_202608_allzoom.pmtiles" \
+  "$DATA_DIR/business_registry/regulated_facilities_20260818_allzoom.pmtiles"
 
 # 產業園區：版本化 PMTiles → /data/industrial_zone/（dated filename 不覆寫舊版）
 echo "[pull] sync industrial_zone → $DATA_DIR/industrial_zone/"
@@ -269,6 +274,10 @@ for f in taipei_bus_routes_v2.json intercity_bus_routes_v2.json pingtungcounty_b
       gunzip -c "$gz" > "$DATA_DIR/bus/$f"
     fi
   fi
+done
+# 2026-09-30：v1（含 cumDist）四個大檔已由 _v2 取代，清掉 volume 上的舊檔與 cache
+for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json tourist_shuttle_routes.json; do
+  rm -f "$DATA_DIR/bus/$f" "$CACHE/$f.gz"
 done
 
 # 日本醫療：按當前 release allowlist 驗 SHA/bytes，所有檔案成功後才原子更新 current。

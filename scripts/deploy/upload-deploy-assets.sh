@@ -224,7 +224,8 @@ done
 # 同名 S3 object 若內容相同就跳過（讓整支部署腳本可安全重跑）；內容不同才拒絕覆寫。
 # 新月份應產生新檔名並另開前端 PR 切換 URL。
 # 2026-09-30：舊版資產（前端已切 _r2／_allzoom，src 零引用）不再部署；本機檔與 S3 既有物件不動。
-BUSINESS_REGISTRY_LEGACY=" company_points_202608.pmtiles company_capital_grid_202608.pmtiles regulated_facilities_20260818.pmtiles factory_locations_202606.pmtiles common_registration_addresses_202608.geojson "
+# 2026-09-30（#467 後）：buffer-64 的 *_allzoom.pmtiles 已被 *_allzoom_b8.pmtiles 取代，同樣不再部署。
+BUSINESS_REGISTRY_LEGACY=" company_points_202608.pmtiles company_capital_grid_202608.pmtiles regulated_facilities_20260818.pmtiles factory_locations_202606.pmtiles common_registration_addresses_202608.geojson factory_locations_202606_allzoom.pmtiles manufacturing_company_points_202608_allzoom.pmtiles regulated_facilities_20260818_allzoom.pmtiles "
 for f in public/business_registry/*.geojson public/business_registry/*.pmtiles public/business_registry/*.json; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
