@@ -27,6 +27,7 @@ import { loadH3 } from "../map/h3Runtime";
 import { installLayerChunkPrewarm } from "../lib/prewarmLayerChunks";
 import { layerParamsStore } from "../state/layerParamsStore";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
+import { subscribeThreeRepaint } from "../state/threeRepaintSignal";
 
 // ── C1：three.js 相關 chunk 按需載入 ──
 // 這 13 個 custom layer 不再於開站時掛上；第一次有 3D 圖層可見才 import + 加入。
@@ -115,7 +116,8 @@ export function useThreeJsLayers({
   //   - 時間：各時間驅動圖層在 onAdd 自行訂閱 timeStore（見 customLayer.ts subscribeTimeRepaint）
   //   - 參數：paramRefs 由 layerParamsStore 訂閱者寫入，不一定觸發 App render → 直接訂閱
   //   - 可見性：layerVisibilityStore 訂閱（關閉也要重畫一次，清掉上一幀的 3D 殘影）
-  //   - 資料／主題／模式：App render 期間寫入 ref → 每次 render 後比對 identity，有變才重畫
+  //   - 資料／主題／模式：threeRepaintSignal（PF-9）—— App 以帶明確 deps 的 effect 發訊號，
+  //     engine / 垃圾車 hook 在非時間 tick 換掉資料 ref 時發訊號；不再依賴「App 有 render」
   // Mapbox 會把同一幀內多次 triggerRepaint 合併，多叫一次只多畫一幀。
   const mapInstanceRef = useRef<MapboxMap | null>(null);
   const repaint = () => mapInstanceRef.current?.triggerRepaint();
@@ -126,30 +128,12 @@ export function useThreeJsLayers({
     const onVis = () => { repaint(); ensureThreeLayersIfNeeded(); };
     const unsubParams = layerParamsStore.subscribe(onParams);
     const unsubVis = layerVisibilityStore.subscribe(onVis);
+    const unsubData = subscribeThreeRepaint(repaint);
     // 第一次開任一圖層後，背景預載 3D／H3 基礎工具，之後開圖層只等資料
     const uninstallPrewarm = installLayerChunkPrewarm([loadThreeLayerBundle, loadH3]);
-    return () => { unsubParams(); unsubVis(); uninstallPrewarm(); };
+    return () => { unsubParams(); unsubVis(); unsubData(); uninstallPrewarm(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const lastInputsRef = useRef<unknown[]>([]);
-  useEffect(() => {
-    const inputs: unknown[] = [
-      flightsRef.current, renderModeRef.current, isDarkThemeRef.current, showTrailsRef.current,
-      shipsRef.current, activeTrainsRef.current, activeBusesRef.current,
-      activeBusesIntercityRef.current, activeBusesTouristShuttleRef.current, wasteTrailsRef.current, wasteScheduleRoutesRef.current,
-      wasteFacilityByTypeRef.current, railDataRef.current, lighthousePositionsRef.current,
-      thsrPillarDataRef.current, traPillarDataRef.current, metroPillarDataRef.current,
-      airportPillarDataRef.current, portPillarDataRef.current, temperatureDataRef.current,
-      playingRef.current, layerVisibilityRef.current,
-    ];
-    const prev = lastInputsRef.current;
-    const changed = inputs.length !== prev.length || inputs.some((v, i) => v !== prev[i]);
-    if (changed) {
-      lastInputsRef.current = inputs;
-      repaint();
-    }
-  });
 
   const addFlightLayer = (map: MapboxMap, beforeId?: string) => {
     const bundle = threeBundle;

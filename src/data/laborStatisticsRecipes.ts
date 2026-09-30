@@ -1,4 +1,6 @@
-import rawRecipes from "./laborStatisticsRecipes.json?raw";
+// PF-10：首屏只帶派生目錄（去掉執行期無讀取者的 fragment_context）；交付 JSON 仍是 SSOT，
+// 由 scripts/statistics/build_statistics_recipe_catalogs.ts 產生、statisticsRecipeCatalog.test.ts 保證一致。
+import catalogJson from "./laborStatisticsRecipes.catalog.json";
 import type { StatisticsLevel, StatisticsRelease } from "./regionalStatisticsLoader";
 
 export interface LaborReleaseOption {
@@ -34,7 +36,6 @@ export interface LaborRecipe {
   boundary_semantics: string;
   source_statistical_boundary_version?: string;
   disclosure: string;
-  fragment_context?: Record<string, unknown>;
   source_family?: string;
   publisher?: string;
   license?: string;
@@ -126,9 +127,7 @@ export function isLaborStatisticsPresentationSelection(
     && metric.valueTransform === selection.valueTransform);
 }
 
-// Vite/Vitest return a string for \`?raw\`; Node/tsx audit scripts can expose
-// the already-parsed JSON object. Supporting both keeps manifest audits usable.
-const document = (typeof rawRecipes === "string" ? JSON.parse(rawRecipes) : rawRecipes) as LaborRecipeDocument;
+const document = catalogJson as unknown as LaborRecipeDocument;
 export const LABOR_STATISTICS_SCOPE = document.scope;
 export const LABOR_STATISTICS_RECIPES = document.recipes;
 export const LABOR_ENABLED_STATISTICS_RECIPES = LABOR_STATISTICS_RECIPES.filter((recipe) => recipe.enabled);

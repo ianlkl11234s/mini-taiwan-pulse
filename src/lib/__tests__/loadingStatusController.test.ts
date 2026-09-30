@@ -98,4 +98,40 @@ describe("loadingRegistry 事件", () => {
     expect(events.map((e) => `${e.type}:${e.id}`)).toEqual(["start:ok", "end:ok", "start:sb", "fail:sb", "start:rj", "fail:rj"]);
     expect(loadingRegistry.snapshot()).toEqual([]);
   });
+
+  it("withLoading signal：呼叫端取消（signal 已 abort）發 end；未取消的 reject 仍發 fail", async () => {
+    const events: LoadingEvent[] = [];
+    const off = loadingRegistry.subscribeEvents((e) => events.push(e));
+    const cancelled = new AbortController();
+    const abortError = new DOMException("aborted", "AbortError");
+    const pending = withLoading("cx", "取消", new Promise((_, reject) => cancelled.signal.addEventListener("abort", () => reject(abortError))), { signal: cancelled.signal });
+    cancelled.abort();
+    await expect(pending).rejects.toBe(abortError);
+    await expect(withLoading("live", "真失敗", Promise.reject(new Error("boom")), { signal: new AbortController().signal })).rejects.toThrow("boom");
+    // AbortError without the caller's signal (e.g. an internal timeout controller) is still a real failure.
+    await expect(withLoading("bare", "逾時", Promise.reject(new DOMException("aborted", "AbortError")))).rejects.toThrow();
+    const done = new AbortController();
+    const value = withLoading("late", "完成後取消", Promise.resolve(7), { signal: done.signal });
+    done.abort();
+    await expect(value).resolves.toBe(7);
+    off();
+    expect(events.map((e) => `${e.type}:${e.id}`)).toEqual(["start:cx", "end:cx", "start:live", "fail:live", "start:bare", "fail:bare", "start:late", "end:late"]);
+    expect(loadingRegistry.snapshot()).toEqual([]);
+  });
+
+  it("controller：取消只結束任務，不進入 error 狀態，也不吞掉下一個 start", () => {
+    vi.useFakeTimers();
+    try {
+      const { start, end, last, c } = setup();
+      start("a", "統計");
+      vi.advanceTimersByTime(T.showDelayMs + 1);
+      end("a", "統計"); // cancelled request → end
+      start("a", "統計"); // StrictMode rerun
+      vi.advanceTimersByTime(T.showDelayMs + 1);
+      expect(last().phase).toBe("loading");
+      c.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
