@@ -15,7 +15,8 @@ import { interpolateOnLineString } from "../../engines/railUtils";
 import type { BusRouteGeometry } from "../../types";
 
 const BUS_DIR = resolve(__dirname, "../../../public/bus");
-const TRACKED = ["kaohsiung", "newtaipei", "chiayi", "hsinchucounty"].map((c) => `${c}_bus_routes.json`);
+// 縣市小檔已原地去 cumDist；chiayi 保留原內容（研究資料集以其 SHA-256 為身分），可當 git 內基準
+const TRACKED = ["chiayi_bus_routes.json"];
 const BIG = ["intercity_bus_routes.json", "taipei_bus_routes.json", "pingtungcounty_bus_routes.json", "tourist_shuttle_routes.json"];
 
 const DEG_TOL = 0.5 / 111_000; // 0.5 m（degree 空間）

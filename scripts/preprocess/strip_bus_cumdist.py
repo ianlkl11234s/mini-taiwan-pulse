@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
 一次性轉換：public/bus/*_bus_routes.json 與 tourist_shuttle_routes.json 去掉可推導的 cumDist，
-輸出 <name>_v2.json（舊檔保留）。其他欄位與座標原封不動。
+其他欄位與座標原封不動。
+  - 走 S3 的 4 個大檔（BIG_FILES）→ 輸出 <name>_v2.json（舊檔保留，換檔名避開快取）
+  - 其餘進 git 的縣市小檔 → 原地覆寫（舊內容留在 git 歷史；loader 兩種格式都吃）
+  - chiayi_bus_routes.json 不動：src/research/busRouteDatasetAdapter.ts 以該檔 SHA-256
+    作研究資料集身分，已記錄於 analysis 驗收證據（runtime/n03-*）
+已無 cumDist 的檔案自動略過（可重跑）。
 
 cumDist 由前端 busLoader.computeCumDist 依 coords 重算；本腳本先以原產生腳本
 （preprocess-bus-routes.py / taipei-gis-analytics 08_build_tourist_shuttle_routes.py）
@@ -16,6 +21,13 @@ import os
 import sys
 
 BUS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "public", "bus")
+BIG_FILES = {
+    "taipei_bus_routes.json",
+    "intercity_bus_routes.json",
+    "pingtungcounty_bus_routes.json",
+    "tourist_shuttle_routes.json",
+}
+SKIP_FILES = {"chiayi_bus_routes.json"}
 
 
 def compute_cum_dist(coords):
@@ -28,10 +40,14 @@ def compute_cum_dist(coords):
     return cum
 
 
-def convert(src):
-    dst = src[: -len(".json")] + "_v2.json"
+def convert(src, in_place):
+    dst = src if in_place else src[: -len(".json")] + "_v2.json"
+    src_size = os.path.getsize(src)
     with open(src, encoding="utf-8") as f:
         data = json.load(f)
+    if not any("cumDist" in r for r in data.values()):
+        print(f"{os.path.basename(src)}: 已無 cumDist，略過")
+        return
     out = {}
     for key, r in data.items():
         cum = compute_cum_dist(r["coords"])
@@ -49,14 +65,17 @@ def convert(src):
     for key, r in data.items():
         assert back[key] == {k: v for k, v in r.items() if k != "cumDist"}, key
     print(f"{os.path.basename(src)} → {os.path.basename(dst)}  routes={len(data)}  "
-          f"{os.path.getsize(src):,} → {os.path.getsize(dst):,} bytes")
+          f"{src_size:,} → {os.path.getsize(dst):,} bytes")
 
 
 def main():
     files = sorted(glob.glob(os.path.join(BUS_DIR, "*_bus_routes.json")))
     files.append(os.path.join(BUS_DIR, "tourist_shuttle_routes.json"))
     for src in files:
-        convert(src)
+        name = os.path.basename(src)
+        if name in SKIP_FILES:
+            continue
+        convert(src, in_place=name not in BIG_FILES)
 
 
 if __name__ == "__main__":
