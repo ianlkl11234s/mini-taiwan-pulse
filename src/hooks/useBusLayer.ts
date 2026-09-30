@@ -11,6 +11,7 @@ import type { BusVehicle, BusTrail, TimeMode } from "../types";
 import { BusEngine } from "../engines/BusEngine";
 import { loadBusRoutesForCity, fetchBusCurrent, fetchBusTrails } from "../data/busLoader";
 import { timeStore } from "../state/timeStore";
+import { liveCountStore } from "../state/liveCountStore";
 // AR-22 P4：城市清單改由本 hook 自己從 store 讀（per-key 訂閱）
 import { useLayerParams } from "../state/layerParamsStore";
 import { enabledBusCitiesOf } from "../state/layerParamRefs";
@@ -35,7 +36,6 @@ export function useBusLayer(
   const cities = useMemo(() => enabledBusCitiesOf(busParams), [busParams]);
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
-  const [busCount, setBusCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   // Replay LRU cache
@@ -186,7 +186,7 @@ export function useBusLayer(
       const ts = performance.now();
       if (ts - lastCountUpdate > 500) {
         lastCountUpdate = ts;
-        setBusCount(activeBusesRef.current.length);
+        liveCountStore.set("buses", activeBusesRef.current.length);
       }
     };
 
@@ -198,9 +198,9 @@ export function useBusLayer(
   useEffect(() => {
     if (!enabled) {
       activeBusesRef.current = [];
-      setBusCount(0);
+      liveCountStore.set("buses", 0);
     }
   }, [enabled]);
 
-  return { busCount, activeBusesRef, loading, loadDay };
+  return { activeBusesRef, loading, loadDay };
 }

@@ -16,6 +16,7 @@ import {
   fetchTouristShuttleTrails,
 } from "../data/touristShuttleLoader";
 import { timeStore } from "../state/timeStore";
+import { liveCountStore } from "../state/liveCountStore";
 
 const POLL_INTERVAL = 30_000;
 const MAX_CACHED_DAYS = 3;
@@ -32,7 +33,6 @@ export function useTouristShuttleLayer(
 ) {
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
-  const [busCount, setBusCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const cacheRef = useRef<CachedDay[]>([]);
@@ -167,7 +167,7 @@ export function useTouristShuttleLayer(
       const ts = performance.now();
       if (ts - lastCountUpdate > 500) {
         lastCountUpdate = ts;
-        setBusCount(activeBusesRef.current.length);
+        liveCountStore.set("touristShuttle", activeBusesRef.current.length);
       }
     };
 
@@ -178,9 +178,9 @@ export function useTouristShuttleLayer(
   useEffect(() => {
     if (!enabled) {
       activeBusesRef.current = [];
-      setBusCount(0);
+      liveCountStore.set("touristShuttle", 0);
     }
   }, [enabled]);
 
-  return { busCount, activeBusesRef, loading, loadDay };
+  return { activeBusesRef, loading, loadDay };
 }

@@ -611,9 +611,9 @@ export default function App() {
   // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
   useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
 
-  const { trainCount, activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
-  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
-  const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
+  const { activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
+  const { activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
+  const { activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
   const { activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
     useTouristShuttleLayer(layerVisibility.touristShuttleLive, timeline.timeMode);
@@ -1641,11 +1641,9 @@ export default function App() {
   const sidebarCounts = useMemo(() => ({
     flights: displayedFlights.length,
     ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-    trains: trainCount,
-    buses: busCount,
-    busesIntercity: busIntercityCount,
+    // 列車／公車／客運計數走 liveCountStore（側欄 row 自己 per-key 訂閱，PF-6）
     wasteTrucks: wasteCount,
-  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount, wasteCount]);
+  }), [displayedFlights.length, ships.length, wasteCount]);
 
   // owner-only 圖層：非 owner 的開啟意圖一律攔截（回 true = 呼叫端直接 return no-op）。
   // 未登入 → 導 Google 登入；已登入非 owner → 顯示「私人圖層」提示。
@@ -2632,9 +2630,6 @@ export default function App() {
                       counts={{
                         flights: displayedFlights.length,
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                        trains: trainCount,
-                        buses: busCount,
-                        busesIntercity: busIntercityCount,
                         wasteTrucks: wasteCount,
                       }}
                       onLayerClick={handleLayerClick}
