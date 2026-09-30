@@ -1,6 +1,6 @@
 import {
   BRIDGE_RESILIENCE_ASSETS, bridgeResilienceAssetUrl,
-  type BridgeResilienceAssetName, type BridgeResilienceData, type BridgeSummary, type VillageImpacts,
+  type BridgeResilienceAssetName, type BridgeResilienceData, type BridgeSummary, type VillageDestinations, type VillageImpacts,
 } from "./bridgeResilienceTypes";
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
@@ -39,4 +39,18 @@ export async function loadBridgeResilienceData(token: string, fetchFn?: FetchLik
     fetchPrivateJson<VillageImpacts>("impacts", token, fetchFn, signal),
   ]);
   return validateBridgeResilienceData(summary, impacts);
+}
+
+/** 目的地視角資料（village_destinations.json）：不合格式就中止，不合成空資料。 */
+export function validateVillageDestinations(dest: VillageDestinations): VillageDestinations {
+  const ok = Array.isArray(dest?.scenarios) && Array.isArray(dest?.villages) && Array.isArray(dest?.village_names)
+    && Array.isArray(dest?.districts) && Array.isArray(dest?.village_district) && !!dest?.data && typeof dest.data === "object"
+    && dest.village_names.length === dest.villages.length && dest.village_district.length === dest.villages.length;
+  if (!ok) throw new Error("village_destinations 格式不符");
+  return dest;
+}
+
+/** 懶載入：第一次點村里才抓（6.4 MB，單一 Range）。 */
+export async function loadVillageDestinations(token: string, fetchFn?: FetchLike, signal?: AbortSignal): Promise<VillageDestinations> {
+  return validateVillageDestinations(await fetchPrivateJson<VillageDestinations>("destinations", token, fetchFn, signal));
 }

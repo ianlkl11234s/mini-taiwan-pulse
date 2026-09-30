@@ -227,7 +227,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["changhua-traffic-signals-circle"], type: "changhuaTrafficSignals" },
   { layers: ["bss-national-bridge-preview-point"], type: "bssNationalBridgePointsPreview" },
   { layers: ["bss-national-bridge-preview-original-direction-line", "bss-national-bridge-preview-offset-direction-line", "bss-national-bridge-preview-ordinary-route-context", "bss-national-bridge-preview-near-curved-carrier-local-context", "bss-national-bridge-preview-waterway-crossing-context", "bss-national-bridge-preview-multi-near-carrier-waterway-context", "bss-national-bridge-preview-tied-route-consensus-context", "bss-national-bridge-preview-no-waterway-carrier-consensus-context", "bss-national-bridge-preview-no-crossing-nearest-route-context", "bss-national-bridge-preview-stage1-local-direction-candidate"], type: "bssNationalBridgePreview" },
-  { layers: ["bridge-resilience-hit", "bridge-resilience-structure", "bridge-resilience-ground"], type: "bridgeResilienceTwinCity" },
+  // 村里面在最底層：橋線先命中；命中村里＝進入目的地視角（useMapInteraction 分流，不換 popup）。
+  { layers: ["bridge-resilience-hit", "bridge-resilience-structure", "bridge-resilience-ground", "bridge-resilience-village-fill"], type: "bridgeResilienceTwinCity" },
   { layers: ["taipei-road-tunnels-circle"], type: "taipeiRoadTunnels" },
   { layers: ["tainan-road-tunnels-circle"], type: "tainanRoadTunnels" },
   { layers: ["official-bridges-hsinchu-line", "official-bridges-hsinchu-coincident-endpoints"], type: "officialBridgesHsinchu" },

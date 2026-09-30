@@ -28,7 +28,7 @@ const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作�
 const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
 const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
-const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-resilience-layer-20260930/bridge-resilience.local/bridge-display-bundle-20260930-v1";
+const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-destination-view-20260930/bridge-resilience.local/bridge-display-bundle-20260930-v2";
 const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
 const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
@@ -78,9 +78,9 @@ export const BSS_BRIDGE_ASSETS = Object.freeze({
 // 橋梁韌性 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
 export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
   tiles: Object.freeze({
-    filename: "bridge-resilience-20260930-v1.pmtiles",
-    size: 1944543,
-    sha256: "3075cae8e85b96bcd07238d542c6ee1480cc35d1489dc3d10e46430ad7af2dd9",
+    filename: "bridge-resilience-20260930-v2.pmtiles",
+    size: 1944552,
+    sha256: "434e38bdcdf63c940529a7320242feb3c6fe8d5d560c94443b433c1fc8b88852",
   }),
   summary: Object.freeze({
     filename: "bridge_summary.json",
@@ -91,6 +91,11 @@ export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
     filename: "village_impacts.json",
     size: 1333831,
     sha256: "4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764",
+  }),
+  destinations: Object.freeze({
+    filename: "village_destinations.json",
+    size: 6425352,
+    sha256: "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5",
   }),
 });
 

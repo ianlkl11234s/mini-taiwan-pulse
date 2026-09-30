@@ -5,17 +5,17 @@
 - 先用 bundle 的 receipt.json 驗每個輸入檔的 SHA-256 與大小，任何不符即中止。
 - bridges／replacement_routes／villages 三份 GeoJSON 打成一個 PMTiles（source-layer 同名）。
   villages 以 int(VILLCODE) 當 feature id，前端 feature-state 才能穩定對應（不依賴 promoteId）。
-- bridge_summary.json、village_impacts.json 原檔複製（走 sidecar 同家族的私人 Range 路由）。
-- 已知：上游 bridges.geojson 有 77 處裸 NaN（無名匝道的 name），非合法 JSON；這裡把 NaN 屬性移除，
-  其餘幾何與欄位不變。上游 SHA 仍以原檔驗證。
+- bridge_summary.json、village_impacts.json、village_destinations.json 原檔複製（走 sidecar 同家族的私人 Range 路由）。
+- v2 bundle 的 bridges.geojson 已把 v1 的 77 個裸 NaN（無名匝道的 name）改成 null；這裡仍對 null／NaN 一律
+  移除該屬性（無名就是沒有 name 欄位），其餘幾何與欄位不變。上游 SHA 仍以原檔驗證。
 - 輸出 local_validation.json（三個資產的 size／sha256），供 sidecar 契約與上傳腳本核對。
 需要 tippecanoe（brew install tippecanoe）。
 """
 import hashlib, json, math, shutil, subprocess, sys
 from pathlib import Path
 
-PMTILES = "bridge-resilience-20260930-v1.pmtiles"
-JSONS = ("bridge_summary.json", "village_impacts.json")
+PMTILES = "bridge-resilience-20260930-v2.pmtiles"
+JSONS = ("bridge_summary.json", "village_impacts.json", "village_destinations.json")
 
 
 def sha256(path: Path) -> str:
@@ -27,7 +27,7 @@ def sha256(path: Path) -> str:
 
 
 def load_lenient(path: Path):
-    """讀 GeoJSON；NaN 轉 None（json 預設就接受 NaN 字面值，回傳 float nan）。"""
+    """讀 GeoJSON；null／NaN 屬性一律移除（json 預設接受 NaN 字面值，回傳 float nan）。"""
     def fix(x):
         if isinstance(x, float) and math.isnan(x):
             return None
