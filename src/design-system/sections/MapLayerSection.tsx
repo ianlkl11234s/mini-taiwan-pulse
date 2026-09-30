@@ -7,11 +7,11 @@ import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { COLORS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import {
   BOUNDARY_GRAY, FILL_OPACITY, FILL_OUTLINE, GRADED_SEAM, HEATMAP, LABEL, LINE_DASH, LINE_OPACITY, LINE_WIDTH, MAP_LOCAL_IDEOGRAPH_FONT, MAP_SEAM,
-  MISSING_HATCH, POINT_ICON_PX, POINT_OPACITY, POINT_RADIUS, POINT_STROKE, hatchImageData, type HatchKind,
+  RASTER, EXTRUSION, MISSING_HATCH, POINT_ICON_PX, POINT_OPACITY, POINT_RADIUS, POINT_STROKE, hatchImageData, type HatchKind,
 } from "../../map/mapStyleScale";
 import { DECORATION_SUFFIX_RE, LIVE_DECORATION_CAP, LIVE_DECORATION_LAYERS } from "../../map/pointSpec";
 import { HOOK_POINT_TIERS, POINT_TIERS } from "../../map/pointTiers";
-import { FILL_TIERS, LINE_TIERS } from "../../map/lineFillTiers";
+import { FILL_TIERS, LINE_TIERS, HOOK_FILL_TIERS, HOOK_LINE_TIERS } from "../../map/lineFillTiers";
 import { Kv, Pair, Section, Spec, Sub, Tag, mockMapBg, objRows, SPEC_MAP, type SectionDef } from "../kit";
 
 const theme = (isDark: boolean) => (isDark ? "dark" : "light") as "dark" | "light";
@@ -307,6 +307,8 @@ function HeatLabelDemo({ isDark }: { isDark: boolean }) {
 function LineFillTierTable() {
   const count = (vals: string[]) => Object.entries(vals.reduce<Record<string, number>>((a, v) => ({ ...a, [v]: (a[v] ?? 0) + 1 }), {}));
   const rows: [string, string][] = [
+    ["HOOK_FILL_TIERS（hook 面）", count(Object.values(HOOK_FILL_TIERS)).map(([k, n]) => `${k} ${n}`).join("、")],
+    ["HOOK_LINE_TIERS（hook 線／外框）", `${Object.keys(HOOK_LINE_TIERS).length} 個子圖層；與 withLineFillSpec 共用計算`],
     ["FILL_TIERS（面）", count(Object.values(FILL_TIERS) as string[]).map(([k, n]) => `${k} ${n}`).join("、")],
     ["LINE_TIERS 寬（線）", count(Object.values(LINE_TIERS).map((t) => t.width)).map(([k, n]) => `${k} ${n}`).join("、")],
     ["LINE_TIERS 透明度（線）", count(Object.values(LINE_TIERS).map((t) => t.opacity)).map(([k, n]) => `${k} ${n}`).join("、")],
@@ -373,7 +375,10 @@ export function MapLayerSection() {
       <Sub title="點分階表（pointTiers.ts）" kind="real">
         <TierTable />
       </Sub>
-      <Sub title="線面分階表（lineFillTiers.ts，withLineFillSpec 套用）" kind="real">
+      <Sub title="R3b 影像與擠出（mapStyleScale.ts）" kind="real">
+        <Kv rows={[["RASTER 透明度／滑桿", `${RASTER.opacity} ／ ${RASTER.sliderMin}–${RASTER.sliderMax}`], ["EXTRUSION 透明度", EXTRUSION.opacity], ["vertical-gradient", String(EXTRUSION.verticalGradient)], ["高度倍率預設", EXTRUSION.heightMultiplier], ["D 密度", "POI max(現值, 13)；徽章保留原 minzoom，GFW 保留 step 字級"], ["B 網格", "14 層維持零值／缺值／遮蔽語意"]]} />
+      </Sub>
+      <Sub title="線面分階表（lineFillTiers.ts，registry／hook 共用）" kind="real">
         <LineFillTierTable />
       </Sub>
     </Section>

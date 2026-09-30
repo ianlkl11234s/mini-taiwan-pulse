@@ -5,6 +5,12 @@
 
 ## 2026-09-30
 
+### 地圖 R3b hook 線面與影像／文字／擠出
+
+使用者確認 `r3b-tiers.html` 建議，另修正 D 區：計數徽章保留出現縮放與 GFW 資料驅動字級，POI minzoom 取現值與 13 的較大值。A 共 184 列（裝飾與資料編碼保留）；B 14 層全部維持；C 9 層影像統一預設 0.7／滑桿 0.3–1；D 提案 9 個選項／10 個文字子層，實作核對排除 noiseCapture 誤列後為 8 個／9 子層；E 9 層擠出預設 0.85、vertical-gradient 開啟，高度倍率 1 對應原高度。hook 與 registry 共用計算，新增與更新 paint 一致；沒有修改資料來源、零值／缺值或 popup。
+
+完整逐層差異、測試與本機資料限制見 [`R3b-report.md`](../features/map-layer-restyle/R3b-report.md)，視覺對照見 [`r3b-compare.html`](../features/map-layer-restyle/r3b-compare.html)。此輪待 Claude 驗收，尚未 merge。
+
 ### 地圖 R3a 線與面（registry）— map-layers §3.2、§3.3
 
 | 決定 | 內容 |
