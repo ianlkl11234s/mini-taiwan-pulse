@@ -158,12 +158,16 @@ describe("私人 JSON 載入", () => {
     await expect(fetchPrivateJson("impacts", "t", json({}, 200))).rejects.toThrow("尚未就緒");
   });
   it("格式不符時中止，不合成空資料", async () => {
-    expect(() => validateBridgeResilienceData({} as never, IMPACTS, DECAY, DECAY_SUMMARY)).toThrow();
-    expect(() => validateBridgeResilienceData({ bridges: {} }, { scenarios: [] } as never, DECAY, DECAY_SUMMARY)).toThrow();
-    expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, {} as never, DECAY_SUMMARY)).toThrow("decay_village_impacts");
-    expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, DECAY, {} as never)).toThrow("decay_summary");
-    const both = await loadBridgeResilienceData("t", async (u) => new Response(JSON.stringify(u.endsWith("/decay-summary") ? DECAY_SUMMARY : u.endsWith("/decay-impacts") ? DECAY : u.endsWith("/summary") ? { bridges: {} } : IMPACTS), { status: 206 }));
+    const FP = { bridges: {} };
+    expect(() => validateBridgeResilienceData({} as never, IMPACTS, DECAY, DECAY_SUMMARY, FP)).toThrow();
+    expect(() => validateBridgeResilienceData({ bridges: {} }, { scenarios: [] } as never, DECAY, DECAY_SUMMARY, FP)).toThrow();
+    expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, {} as never, DECAY_SUMMARY, FP)).toThrow("decay_village_impacts");
+    expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, DECAY, {} as never, FP)).toThrow("decay_summary");
+    expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, DECAY, DECAY_SUMMARY, {} as never)).toThrow("bridge_fingerprint");
+    const fp = { version: "v1", bridges: { 三鶯大橋: { modes: { car: { percentiles: { barrier: 51 } } } } } };
+    const both = await loadBridgeResilienceData("t", async (u) => new Response(JSON.stringify(u.endsWith("/fingerprint") ? fp : u.endsWith("/decay-summary") ? DECAY_SUMMARY : u.endsWith("/decay-impacts") ? DECAY : u.endsWith("/summary") ? { bridges: {} } : IMPACTS), { status: 206 }));
     expect(both.impacts.scenarios).toHaveLength(3);
+    expect(both.fingerprint.bridges["三鶯大橋"]?.modes.car?.percentiles.barrier).toBe(51);
     expect(both.decayImpacts.scenarios).toHaveLength(3);
   });
 });

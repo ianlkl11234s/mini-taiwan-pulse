@@ -5,7 +5,7 @@ import type { ExpressionSpecification } from "mapbox-gl";
  *
  * 來源：taipei-gis-analytics `bridge-display-bundle-20261001-v3`（專題 README §8／§8b）。
  * 一個私人 PMTiles（三個 source-layer）＋五份私人 JSON，全部只經同源 Range API
- * `/api/private-research/bridge-resilience/{tiles,summary,impacts,destinations,decay-impacts,decay-summary}` 讀取（每個請求帶 Bearer，sidecar 驗站主）。
+ * `/api/private-research/bridge-resilience/{tiles,summary,impacts,destinations,decay-impacts,decay-summary,fingerprint}` 讀取（每個請求帶 Bearer，sidecar 驗站主）。
  * 授權為 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：不得進公開 CDN／static／release allowlist。
  *
  * 語意（必守）：
@@ -34,6 +34,7 @@ export const BRIDGE_RESILIENCE_ASSETS = {
   destinations: { filename: "village_destinations.json", size: 6425352, sha256: "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5" },
   "decay-impacts": { filename: "decay_village_impacts.json", size: 864533, sha256: "a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873" },
   "decay-summary": { filename: "decay_summary.json", size: 55424, sha256: "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0" },
+  fingerprint: { filename: "bridge_fingerprint.json", size: 54886, sha256: "263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4" },
 } as const;
 export type BridgeResilienceAssetName = keyof typeof BRIDGE_RESILIENCE_ASSETS;
 export const bridgeResilienceAssetUrl = (name: BridgeResilienceAssetName) => `${BRIDGE_RESILIENCE_PRIVATE_ENDPOINT}/${name}`;
@@ -164,6 +165,7 @@ export interface VillageImpacts {
 }
 export interface BridgeResilienceData {
   summary: BridgeSummary; impacts: VillageImpacts; decayImpacts: DecayVillageImpacts; decaySummary: DecaySummary;
+  fingerprint: BridgeFingerprint;
 }
 
 // ── 距離遞減版（decay_village_impacts.json／decay_summary.json）────────
@@ -190,6 +192,28 @@ export interface DecayModeSummary {
 export interface DecaySummary {
   meta?: Record<string, unknown>;
   bridges: Record<string, { is_joint?: boolean; river?: string; modes: Partial<Record<BridgeMode, DecayModeSummary>> }>;
+}
+
+// ── 四維 fingerprint（bridge_fingerprint.json）──────────────────────
+
+/** 四個維度：26 座單橋內的百分位（0–100，越高越關鍵）；不加總、不合成分數。 */
+export type FingerprintDimension = "barrier" | "network" | "population" | "lack_of_redundancy";
+export const FINGERPRINT_DIMENSIONS: readonly FingerprintDimension[] = ["barrier", "network", "population", "lack_of_redundancy"];
+export const FINGERPRINT_LABELS: Record<FingerprintDimension, string> = {
+  barrier: "阻隔", network: "路網", population: "人口", lack_of_redundancy: "缺乏替代",
+};
+export interface FingerprintModeEntry {
+  /** null＝未提供（例如聯合情境不參與排名），不是 0。 */
+  percentiles: Partial<Record<FingerprintDimension, number | null>>;
+  null_reasons?: Record<string, string>;
+}
+export interface FingerprintBridgeEntry {
+  river?: string; is_joint?: boolean;
+  modes: Partial<Record<BridgeMode, FingerprintModeEntry>>;
+}
+export interface BridgeFingerprint {
+  version?: string; tau_min?: number; no_composite_score?: boolean;
+  bridges: Record<string, FingerprintBridgeEntry>;
 }
 
 // ── 純函式（測試涵蓋）──────────────────────────────────────────────

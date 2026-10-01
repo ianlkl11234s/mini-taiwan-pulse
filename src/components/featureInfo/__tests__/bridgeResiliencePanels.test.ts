@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { bridgeResilienceDataStore, bridgeResilienceSelection } from "../../../data/bridgeResilienceStore";
 import { BRIDGE_RESILIENCE_KEY, decodeDestinationView, type BridgeModeSummary, type BridgeResilienceData, type DecayModeSummary, type VillageDestinations } from "../../../data/bridgeResilienceTypes";
 import { layerParamsStore } from "../../../state/layerParamsStore";
-import { altBridgesText, BridgeResiliencePanel, decayRankText, decayTauRankText, decayTopVillagesText, DestinationSection } from "../bridgeResiliencePanels";
+import { altBridgesText, BridgeResiliencePanel, decayRankText, decayTauRankText, decayTopVillagesText, DestinationSection, fingerprintValue } from "../bridgeResiliencePanels";
 
 const mode = (over: Partial<BridgeModeSummary> = {}): BridgeModeSummary => ({
   p90_dT_s: 214.42, mean_dT_s: 135.08, accessibility_loss: 0.00076, exposed_population_gt60s: 5858940, stranded_population: 0,
@@ -19,7 +19,17 @@ const decayMode = (over: Partial<DecayModeSummary> = {}): DecayModeSummary => ({
   ...over,
 });
 const JOINT_NULL = decayMode({ decay_impact_rank: null, uniform_impact_rank: null, rank_tau10: null, rank_tau30: null });
+const FINGERPRINT: BridgeResilienceData["fingerprint"] = { version: "bridge-fingerprint-20261002-v1", no_composite_score: true, bridges: {
+  三鶯大橋: { river: "大漢溪", is_joint: false, modes: {
+    car: { percentiles: { barrier: 51, network: 68, population: 76, lack_of_redundancy: 68 } },
+    scooter: { percentiles: { barrier: 51, network: 24.4, population: null, lack_of_redundancy: 40 }, null_reasons: { population: "測試用缺值" } },
+  } },
+  "關渡大橋+淡江大橋": { river: "淡水河", is_joint: true, modes: {
+    car: { percentiles: { barrier: null, network: null, population: null, lack_of_redundancy: null }, null_reasons: { percentiles: "聯合情境另列、不參與 26 座排名" } },
+  } },
+} };
 const DATA: BridgeResilienceData = {
+  fingerprint: FINGERPRINT,
   impacts: { scenarios: [], villages: {} },
   decayImpacts: { scenarios: [], villages: {} },
   decaySummary: { bridges: {
@@ -130,6 +140,52 @@ describe("雙北跨河橋梁韌性 popup（距離遞減，預設）", () => {
     expect(section(false)).not.toContain("目的地明細是不分遠近版");
     bridgeResilienceDataStore.set(DATA);
     bridgeResilienceSelection.select("三鶯大橋");
+  });
+});
+
+describe("為什麼重要（四維 fingerprint）", () => {
+  beforeEach(() => { bridgeResilienceDataStore.set(null); bridgeResilienceSelection.clear(); layerParamsStore.reset(); });
+  const bars = (html: string) => [...html.matchAll(/role="img" aria-label="([^"]+)"/g)].map((m) => m[1]);
+  it("汽車：四條長條依目前模式，標籤＋數字；說明收在「四維怎麼算」", () => {
+    bridgeResilienceDataStore.set(DATA);
+    const html = render("三鶯大橋");
+    expect(html).toContain("為什麼重要（26 座內百分位）");
+    expect(bars(html)).toEqual(["阻隔 51／100", "路網 68／100", "人口 76／100", "缺乏替代 68／100"]);
+    expect(html).toContain("width:68%");
+    expect(html).toContain("四維怎麼算");
+    for (const text of ["同河 5 km", "新北大橋", "上界", "同分取平均名次", "不合成總分"]) expect(html).toContain(text);
+  });
+  it("機車：換成機車的百分位（四捨五入）；null 寫「未提供」不畫長條、不當 0", () => {
+    bridgeResilienceDataStore.set(DATA);
+    layerParamsStore.setParam(BRIDGE_RESILIENCE_KEY, "bridgeResilienceMode", "scooter");
+    const html = render("三鶯大橋");
+    expect(bars(html)).toEqual(["阻隔 51／100", "路網 24／100", "缺乏替代 40／100"]);
+    expect(html).not.toContain("人口 0／100");
+    const block = html.slice(html.indexOf("fi-fingerprint"));
+    expect(block).toContain("未提供");
+  });
+  it("聯合情境顯示「聯合情境不排名」，不畫長條", () => {
+    bridgeResilienceDataStore.set(DATA);
+    layerParamsStore.setParam(BRIDGE_RESILIENCE_KEY, "bridgeResilienceJoint", true);
+    const html = render("淡江大橋");
+    expect(html).toContain("聯合情境不排名");
+    expect(bars(html)).toEqual([]);
+  });
+  it("資料載入中顯示載入中；橋不在 fingerprint 時寫「未提供」", () => {
+    expect(render("三鶯大橋")).toContain("為什麼重要（26 座內百分位）");
+    expect(render("三鶯大橋").slice(render("三鶯大橋").indexOf("fi-fingerprint"))).toContain("載入中…");
+    bridgeResilienceDataStore.set(DATA);
+    const html = render("淡江大橋");
+    expect(bars(html)).toEqual([]);
+    expect(html.slice(html.indexOf("fi-fingerprint"))).toContain("未提供");
+  });
+  it("百分位顯示值：四捨五入、夾 0–100；非數字回 null", () => {
+    expect(fingerprintValue(88.6)).toBe(89);
+    expect(fingerprintValue(0)).toBe(0);
+    expect(fingerprintValue(120)).toBe(100);
+    expect(fingerprintValue(null)).toBeNull();
+    expect(fingerprintValue(undefined)).toBeNull();
+    expect(fingerprintValue(Number.NaN)).toBeNull();
   });
 });
 

@@ -1,5 +1,6 @@
 import { FONT_SIZE } from "../../styles/designTokens";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../../data/networkStructuresTypes";
+import { BSS_BRIDGE_V5_CLASS_LABELS, BSS_BRIDGE_V5_LINE_COLORS } from "../../data/bssBridgeTypes";
 import { PopupDetails, PopupScroll, Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 
@@ -125,6 +126,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
     point_only: "僅點位",
     unresolved_reference: "來源對照待補",
     supplemental_aligned_osm_direction_candidate: "附近橋線同向推估（新增方向候選）",
+    official_approximate_axis: "新北官方頭尾近似軸",
   }[String(props.stage1_source_group)] ?? "來源分組未提供";
   const stage1StatusText = stage1Supported ? "位置與無向局部方向有支持"
     : props.stage1_status === "supported" ? "標示為支持但缺 stage1 release，維持待確認"
@@ -154,8 +156,12 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
   const drawnLength = isFixedDirectionGlyph ? "固定 30 m 方向示意，不是橋長" : isOrdinaryRoute || isWaterwayCrossing || isMultiBridgeCrossing ? "最多 30 m 固定方向示意，不是橋長" : numberText(props.line_drawn_length_m, " m");
   const pointTierText = text(props.line_tier, text(props.unified_tier, "未提供；點位不代表有方向線"));
   const showPointReason = !isLine && props.point_only_reason != null;
+  const isOsmEntityLine = isLine && props.line_source_kind === "osm_bridge_entity";
+  const lineSourceKindText = props.line_source_kind === "osm_bridge_entity" ? "OSM 橋實體（整段）" : text(props.line_source_kind);
+  const v5ClassText = BSS_BRIDGE_V5_CLASS_LABELS[String(props.v5_class)] ?? "未提供";
+  const v5LineColor = isLine ? BSS_BRIDGE_V5_LINE_COLORS[String(props.v5_class) as keyof typeof BSS_BRIDGE_V5_LINE_COLORS] : undefined;
   return <>
-    <Title color={isNoCrossingNearestRoute ? "#f472b6" : isNoWaterwayCarrierConsensus ? "#60a5fa" : isTiedRouteConsensus ? "#fb7185" : isMultiBridgeCrossing ? "#bef264" : isWaterwayCrossing ? "#e879f9" : isCurvedLocal ? "#2dd4bf" : isOrdinaryRoute ? "#a78bfa" : isOffset ? "#f97316" : isLine ? "#22d3ee" : "#facc15"}>{text(props.bss_name, "BSS 橋梁研究（進行中）")}</Title>
+    <Title color={v5LineColor ?? (isNoCrossingNearestRoute ? "#f472b6" : isNoWaterwayCarrierConsensus ? "#60a5fa" : isTiedRouteConsensus ? "#fb7185" : isMultiBridgeCrossing ? "#bef264" : isWaterwayCrossing ? "#e879f9" : isCurvedLocal ? "#2dd4bf" : isOrdinaryRoute ? "#a78bfa" : isOffset ? "#f97316" : isLine ? "#22d3ee" : "#facc15")}>{text(props.bss_name, "BSS 橋梁研究（進行中）")}</Title>
     <PopupScroll>
       <Row label="狀態" value="進行中・站主限定；不是已確認橋身或路網" />
       <Row label="第一階段" value={stage1StatusText} />
@@ -166,6 +172,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         : showPointReason
           ? <Row label="目前僅留點原因" value={text(props.point_only_reason)} />
           : <Row label="方向線層級" value={pointTierText} />}
+      <Row label="v5 分類" value={v5ClassText} />
       <PopupDetails summary="審核與來源">
         <Row label="第一階段支持" value={`位置：${stage1SupportText(props.stage1_location_supported)}；無向局部方向：${stage1SupportText(props.stage1_direction_supported)}`} />
         {!!props.stage1_reason && <Row label="第一階段理由" value={text(props.stage1_reason)} />}
@@ -183,9 +190,15 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         {!!props.facility_form_hint_evidence && <Row label="形態線索" value={text(props.facility_form_hint_evidence)} />}
         <Row label="網路連通性" value={text(props.network_connectivity_status, "not_evaluated")} />
         <Row label="BSS source key" value={text(props.source_key)} />
+        <Row label="橋實體 ID" value={text(props.entity_id)} />
+        <Row label="配對分數" value={numberText(props.match_score)} />
+        <Row label="名稱相似度" value={numberText(props.name_similarity)} />
+        <Row label="長度比（登錄÷實體）" value={numberText(props.length_ratio)} />
+        <Row label="同實體紀錄數" value={numberText(props.entity_match_count)} />
+        <Row label="官方軸方向差" value={numberText(props.official_axis_bearing_diff_deg, "°")} />
         {isLine && <>
-          <Row label="方向線層級" value={isStage1LocalDirectionCandidate ? "附近橋線同向推估的新增方向候選；未確認唯一 reference" : isNoCrossingNearestRoute ? "無水系交會；最近一般路線有距離優勢的方向參考，低把握度" : isNoWaterwayCarrierConsensus ? "多條已標橋承載線的共同方向；無可用水系交會，低把握度" : isTiedRouteConsensus ? "多條普通路線水系交會的共同方向；低把握度" : isMultiBridgeCrossing ? "多候選已標橋線與水系交會方向參考；未確認同橋" : isWaterwayCrossing ? "普通路線與水系交會方向參考；未確認是橋" : isCurvedLocal ? "已標橋線局部方向參考；未確認橋跨方向" : isOrdinaryRoute ? "普通路網方向參考；不是已辨識橋線" : isOffset ? "offset 低把握度候選" : "original 原始候選"} />
-          <Row label="方向來源" value={isNoCrossingNearestRoute ? "OSM 未標橋的一般路線（距離優勢）" : isTiedRouteConsensus ? "OSM 多條普通路線（方向一致）" : isNoWaterwayCarrierConsensus ? "OSM 多條已標橋承載線（方向一致）" : text(props.line_source_kind)} />
+          <Row label="方向線層級" value={isStage1LocalDirectionCandidate ? "附近橋線同向推估的新增方向候選；未確認唯一 reference" : isNoCrossingNearestRoute ? "無水系交會；最近一般路線有距離優勢的方向參考，低把握度" : isNoWaterwayCarrierConsensus ? "多條已標橋承載線的共同方向；無可用水系交會，低把握度" : isTiedRouteConsensus ? "多條普通路線水系交會的共同方向；低把握度" : isMultiBridgeCrossing ? "多候選已標橋線與水系交會方向參考；未確認同橋" : isWaterwayCrossing ? "普通路線與水系交會方向參考；未確認是橋" : isCurvedLocal ? "已標橋線局部方向參考；未確認橋跨方向" : isOrdinaryRoute ? "普通路網方向參考；不是已辨識橋線" : isOffset ? "offset 低把握度候選" : isOsmEntityLine ? "OSM 橋實體整段幾何（v5 配對）；身份仍待審核" : "original 原始候選"} />
+          <Row label="方向來源" value={isNoCrossingNearestRoute ? "OSM 未標橋的一般路線（距離優勢）" : isTiedRouteConsensus ? "OSM 多條普通路線（方向一致）" : isNoWaterwayCarrierConsensus ? "OSM 多條已標橋承載線（方向一致）" : lineSourceKindText} />
           {isStage1LocalDirectionCandidate && <Row label="附近橋線候選" value={`${text(props.carrier_ids_json)}；可有多值，不代表唯一 reference`} />}
           {!isLowConfidenceConsensus && !isNoCrossingNearestRoute && <Row label="方向來源 feature ID" value={text(props.line_source_feature_id)} />}
           {!isLowConfidenceConsensus && !isNoCrossingNearestRoute && <Row label="方向來源網址" value={text(props.line_source_url)} />}
@@ -245,10 +258,10 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
       </PopupDetails>
       <PopupDetails summary="說明與限制">
         <Row label="第一階段範圍" value="完整形狀非必要；局部方向不是橋頭尾、工程長度或路網邊，也不確認具名實橋、分類或實體去重" />
-        <Row label="第一階段整體" value="正式 300：103 支持、2 負向、195 未定；3% 尚未證明，不能外推全臺" />
+        <Row label="第一階段整體（v4 抽驗）" value="正式 300：103 支持、2 負向、195 未定；3% 尚未證明，不能外推全臺；未對 v5 線重抽" />
         <Row label="路網邊狀態" value="未驗證，不能直接用於可及性計算" />
-        {isLine && <Row label="長度語意" value={isFixedDirectionGlyph ? "以登錄點為中心的固定方向短線；不是橋身、端點或工程橋長" : isMultiBridgeCrossing ? "多候選 OSM 橋線在水系交會附近的短線；不代表同橋身份、端點或工程橋長" : isWaterwayCrossing ? "水系交會處的普通 OSM 路線短線，不代表橋身、端點或工程橋長" : isCurvedLocal ? "已標橋 OSM way 的局部短線，可能是引道；不代表橋身或工程橋長" : isOrdinaryRoute ? "普通 OSM 路線的局部短線，不代表橋身、端點或工程橋長" : "繪製方向候選，不是登錄、量測或工程橋長"} />}
-        <Row label="限制" value="23,772 條不同來源的方向候選／參考線均不是已驗證實體橋身；不可據此計算橋座數、橋長、道路連通或可通行性。" />
+        {isLine && <Row label="長度語意" value={isFixedDirectionGlyph ? "以登錄點為中心的固定方向短線；不是橋身、端點或工程橋長" : isMultiBridgeCrossing ? "多候選 OSM 橋線在水系交會附近的短線；不代表同橋身份、端點或工程橋長" : isWaterwayCrossing ? "水系交會處的普通 OSM 路線短線，不代表橋身、端點或工程橋長" : isCurvedLocal ? "已標橋 OSM way 的局部短線，可能是引道；不代表橋身或工程橋長" : isOrdinaryRoute ? "普通 OSM 路線的局部短線，不代表橋身、端點或工程橋長" : isOsmEntityLine ? "OSM 橋實體成員路段總長（含各車道、未裁切到登錄範圍），不是 BSS 登錄或工程橋長" : "繪製方向候選，不是登錄、量測或工程橋長"} />}
+        <Row label="限制" value="v5 共 23,276 條線（OSM 橋實體整段 17,830、新北官方頭尾近似軸 206、路網推估 5,240）均不是已審核實體橋身；不可據此計算橋座數、橋長、道路連通或可通行性。" />
         <Row label="BSS 來源" value={text(props.bss_source_url)} />
         <Row label="BSS 擷取時間" value={text(props.bss_retrieved_at_utc)} />
         <Row label="BSS 重用狀態" value={text(props.bss_source_license_status)} />

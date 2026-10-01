@@ -17,7 +17,7 @@ import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react
 import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
 import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_WEIGHTINGS, DECAY_RAMP, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
 import { useBridgeResilienceOrigin } from "../data/bridgeResilienceStore";
-import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_STAGE1_LINE_COLOR } from "../data/bssBridgeTypes";
+import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_V5_LINE_COLORS } from "../data/bssBridgeTypes";
 import { LIQUEFACTION_SITE_COLOR, SOIL_POTENTIAL_CLASSES, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS, WEAK_SOIL_MIN_ZOOM, WEAK_SOIL_SPT_THRESHOLD } from "../data/soilLiquefactionTypes";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BORDER, COLORS, ELEVATION, LIGHT, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -1239,17 +1239,24 @@ function JpWaterFloodHazardLegend() {
   </div>;
 }
 
-const BSS_BRIDGE_CLASS_LEGEND: readonly { key: keyof typeof BSS_BRIDGE_ACCESS_COLORS; line: string; point: string }[] = [
-  { key: "road_bridge_carrier_candidate", line: "既有一般道路候選分類（非第一階段驗證）", point: "既有一般道路候選分類" },
-  { key: "road_elevated_or_expressway_review", line: "既有高架／快速道路候選分類", point: "既有高架／快速道路候選分類" },
-  { key: "road_unresolved", line: "既有道路類型未定線索", point: "既有道路類型未定線索" },
-  { key: "foot_or_rail_register_only", line: "既有人行／鐵道清冊線索", point: "既有人行／鐵道清冊線索" },
+const BSS_BRIDGE_CLASS_LEGEND: readonly { key: keyof typeof BSS_BRIDGE_ACCESS_COLORS; point: string }[] = [
+  { key: "road_bridge_carrier_candidate", point: "既有一般道路候選分類" },
+  { key: "road_elevated_or_expressway_review", point: "既有高架／快速道路候選分類" },
+  { key: "road_unresolved", point: "既有道路類型未定線索" },
+  { key: "foot_or_rail_register_only", point: "既有人行／鐵道清冊線索" },
+];
+
+const BSS_BRIDGE_V5_LINE_LEGEND: readonly { key: keyof typeof BSS_BRIDGE_V5_LINE_COLORS; label: string; dash?: number[] }[] = [
+  { key: "osm_entity_unique", label: "唯一 OSM 橋實體（整段，14,291）" },
+  { key: "osm_entity_multi_segment", label: "同實體多標段（3,539）" },
+  { key: "official_axis_only", label: "僅新北官方頭尾近似軸（206）" },
+  { key: "network_inferred_only", label: "僅路網推估，低把握度（5,240）", dash: [2, 1] },
 ];
 
 function BssBridgeSharedNotes() {
   return <>
-    <LegendNote>26,188 筆是來源紀錄，不是去重後橋座數；2,416 筆只有點、沒有方向線。</LegendNote>
-    <LegendNote>影像抽驗 300 筆：103 支持、2 負向、195 未定；整體錯誤率 &lt;3% 尚未證明。</LegendNote>
+    <LegendNote>v5：26,188 筆是來源紀錄，不是去重後橋座數；2,912 筆只有點、沒有線（多候選待複核 1,731、無候選 1,181）。</LegendNote>
+    <LegendNote>v4 影像抽驗 300 筆：103 支持、2 負向、195 未定；整體錯誤率 &lt;3% 尚未證明。</LegendNote>
     <LegendNote>{BSS_BRIDGE_RIGHTS_TEXT}；進行中，非已驗證實橋或路網。</LegendNote>
   </>;
 }
@@ -1257,11 +1264,10 @@ function BssBridgeSharedNotes() {
 function BssBridgeLineLegend() {
   return <div>
     <LegendTitle zh="全臺橋梁方向候選（進行中）" en="Bridge Direction Candidates" />
-    {BSS_BRIDGE_CLASS_LEGEND.map((item) => (
-      <LegendRow key={item.key} swatch={<SwatchLine color={BSS_BRIDGE_ACCESS_COLORS[item.key]} />}>{item.line}</LegendRow>
+    {BSS_BRIDGE_V5_LINE_LEGEND.map((item) => (
+      <LegendRow key={item.key} swatch={<SwatchLine color={BSS_BRIDGE_V5_LINE_COLORS[item.key]} dash={item.dash} />}>{item.label}</LegendRow>
     ))}
-    <LegendRow swatch={<SwatchLine color={BSS_BRIDGE_STAGE1_LINE_COLOR} dash={[1, 1]} />}>新增局部方向候選（11 條；未影像確認）</LegendRow>
-    <LegendNote>23,772 條線全是無向局部走向候選（固定短線示意），不是橋長、橋頭尾或路網；實線／虛線／點線保留方向來源層級，點線段看來源。</LegendNote>
+    <LegendNote>依 v5 分類著色；23,276 條線中 OSM 橋實體為整段幾何（未裁切到登錄範圍），路網推估為固定短線示意。都不是已審核身份、工程橋長或路網；「交通類別」篩選仍依既有分類。</LegendNote>
     <BssBridgeSharedNotes />
   </div>;
 }

@@ -24,11 +24,11 @@ const SOIL_LIQUEFACTION_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_�
 const SOIL_LIQUEFACTION_PATH = "/api/private-research/soil-liquefaction";
 const SOIL_LIQUEFACTION_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const SOIL_LIQUEFACTION_S3_PREFIX = "private-research/soil-liquefaction";
-const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/transport-facilities-20260923/bss-bridge-pilot.local/bridge-location-direction-preview-20260927-v4";
+const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/transportation/bridge_resilience/bss-bridge-location-direction-preview-20261002-v5";
 const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
 const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
-const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-decay-view-20261001/bridge-resilience.local/bridge-display-bundle-20261001-v3";
+const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-fingerprint-popup-20261002/bridge-resilience.local/bridge-display-bundle-20261002-v3-fp";
 const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
 const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
@@ -67,11 +67,13 @@ export const SOIL_LIQUEFACTION_ASSETS = Object.freeze({
 });
 
 // BSS 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
+// v5（OSM 橋實體幾何）。回滾：改回 v4 bss_bridge_location_direction_preview_20260927_v4.pmtiles
+// size 63367460、sha256 2d71de78be8b4c3c19b8a683946a1f083f37e160182b8932cd288fdbe713072f（S3 物件保留）。
 export const BSS_BRIDGE_ASSETS = Object.freeze({
   tiles: Object.freeze({
-    filename: "bss_bridge_location_direction_preview_20260927_v4.pmtiles",
-    size: 63367460,
-    sha256: "2d71de78be8b4c3c19b8a683946a1f083f37e160182b8932cd288fdbe713072f",
+    filename: "bss_bridge_location_direction_preview_20261002_v5.pmtiles",
+    size: 79869337,
+    sha256: "a7f1ea3fca7bc5331912f3fca5e94d09c1fdb3e21e696bc9e117d7957a046400",
   }),
 });
 
@@ -107,6 +109,12 @@ export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
     filename: "decay_summary.json",
     size: 55424,
     sha256: "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0",
+  }),
+  // 四維 fingerprint（analytics bridge-fingerprint-20261002-v1/fingerprint.json 原檔）：26 座內百分位，不合成總分。
+  fingerprint: Object.freeze({
+    filename: "bridge_fingerprint.json",
+    size: 54886,
+    sha256: "263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4",
   }),
 });
 
