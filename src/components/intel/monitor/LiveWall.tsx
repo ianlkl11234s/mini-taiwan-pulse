@@ -551,7 +551,7 @@ export const LiveWall = memo(function LiveWall() {
       </div>
       <div
         style={{
-          display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(200px, 1fr))" : "1fr 1fr",
+          display: "grid", gridTemplateColumns: v2 ? "repeat(2, minmax(0, 1fr))" : "1fr 1fr",
           gridTemplateRows: v2 ? undefined : "1fr 1fr", gap: 10,
         }}
       >

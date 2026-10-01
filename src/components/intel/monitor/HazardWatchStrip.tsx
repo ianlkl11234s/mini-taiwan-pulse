@@ -206,7 +206,7 @@ export const HazardWatchStrip = memo(function HazardWatchStrip() {
 
       <div
         style={{
-          display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(200px, 1fr))" : "1fr 1fr", gap: 10,
+          display: "grid", gridTemplateColumns: v2 ? "repeat(2, minmax(0, 1fr))" : "1fr 1fr", gap: 10,
         }}
       >
         {HAZARD_CHANNELS.map((ch) => (
