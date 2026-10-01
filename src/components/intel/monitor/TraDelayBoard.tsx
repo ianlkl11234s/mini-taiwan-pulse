@@ -10,6 +10,7 @@ import { useChartTooltip } from "../../ChartHoverTooltip";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 /**
@@ -70,7 +71,7 @@ export function TraDelayBoard({ open }: Props) {
         {!v2 && <SectionLabel>TRA DELAY</SectionLabel>}
         <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
         <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
-        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+        <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim }}>
           {daysQuery.status === "unknown" ? "資料載入中…" : "尚無台鐵誤點資料"}
         </div>
       </div>
@@ -117,7 +118,7 @@ export function TraDelayBoard({ open }: Props) {
       {trains.length > 0 && (
         <div style={{ marginBottom: 8 }}>
           <div style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 4,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginBottom: 4,
           }}>
             最誤點車次
           </div>
@@ -130,19 +131,19 @@ export function TraDelayBoard({ open }: Props) {
               }}
             >
               <span style={{
-                fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textStrong,
-                minWidth: 38,
+                fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textStrong,
+                minWidth: v2 ? 48 : 38,
               }}>
                 {t.trainNo}
               </span>
               <span style={{
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
-                minWidth: 52, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
+                minWidth: v2 ? 64 : 52, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>
                 {t.trainType}
               </span>
               <span style={{
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim,
                 flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>
                 {t.originStation && t.destinationStation
@@ -150,8 +151,8 @@ export function TraDelayBoard({ open }: Props) {
                   : "班表外加班車"}
               </span>
               <span style={{
-                fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: delayColor(t.maxDelayMin),
-                minWidth: 32, textAlign: "right",
+                fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: delayColor(t.maxDelayMin),
+                minWidth: v2 ? 40 : 32, textAlign: "right",
               }}>
                 {t.maxDelayMin ?? "—"}′
               </span>
@@ -160,7 +161,7 @@ export function TraDelayBoard({ open }: Props) {
                 && t.maxDelayMin - t.p90DelayMin >= 20 && (
                 <span
                   title={`多數時間僅 ${t.p90DelayMin} 分，此峰值疑為上游資料尖刺`}
-                  style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}
+                  style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}
                 >
                   ⚠
                 </span>
@@ -171,7 +172,7 @@ export function TraDelayBoard({ open }: Props) {
       )}
 
       <div style={{
-        fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, lineHeight: 1.5,
+        fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, lineHeight: 1.5,
       }}>
         {latest.serviceDate}
         {latest.coveragePct !== null && latest.scheduledTrains !== null && (
@@ -205,6 +206,7 @@ const TREND_LINES = [
 const CHART_H = 46;
 
 function DelayTrendChart({ days }: { days: TraDelayDay[] }) {
+  const v2 = useMonitorV2();
   const tip = useChartTooltip();
 
   const geom = useMemo(() => {
@@ -263,8 +265,8 @@ function DelayTrendChart({ days }: { days: TraDelayDay[] }) {
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{
-        display: "flex", justifyContent: "space-between", alignItems: "baseline",
-        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3,
+        display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: v2 ? "wrap" : undefined,
+        fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginBottom: 3,
       }}>
         <span>到站誤點比例 近 {geom.pts.length} 天</span>
         <span>{geom.gaps > 0 && `${geom.gaps} 天缺班表・`}上緣 {(geom.max * 100).toFixed(0)}%</span>
@@ -298,11 +300,11 @@ function DelayTrendChart({ days }: { days: TraDelayDay[] }) {
       </div>
 
       {/* 圖例 */}
-      <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+      <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: v2 ? "wrap" : undefined }}>
         {TREND_LINES.map((l) => (
           <span key={l.label} style={{
             display: "flex", alignItems: "center", gap: 4,
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim,
           }}>
             <span style={{ width: 8, height: 2, background: l.color, display: "inline-block" }} />
             {l.label}
@@ -318,6 +320,7 @@ function DelayTrendChart({ days }: { days: TraDelayDay[] }) {
 function Stat({ label, value, sub, color }: {
   label: string; value: string; sub: string; color: string;
 }) {
+  const v2 = useMonitorV2();
   return (
     <div style={{
       flex: 1, padding: "6px 8px", borderRadius: RADIUS.sm,
@@ -325,17 +328,17 @@ function Stat({ label, value, sub, color }: {
       minWidth: 0,
     }}>
       <div style={{
-        fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 2,
+        fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginBottom: 2,
       }}>
         {label}
       </div>
-      <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, color, lineHeight: 1.1 }}>
+      <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.lg), color, lineHeight: 1.1 }}>
         {value}
       </div>
       {sub && (
         <div style={{
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2,
-          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, marginTop: 2,
+          whiteSpace: v2 ? "normal" : "nowrap", overflow: "hidden", textOverflow: v2 ? "clip" : "ellipsis",
         }}>
           {sub}
         </div>

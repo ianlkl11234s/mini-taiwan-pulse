@@ -13,6 +13,7 @@ import { buildErRegionGroups, buildErSummary, ER_SEVERITY_ORDER, type ErHospital
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 interface Props { open: boolean }
@@ -77,7 +78,7 @@ export function ERCard({ open }: Props) {
         {v2 ? (
           <SectionLabel>等床 · {readableLatest ? latest.length : "—"} 院 24h 等一般病床</SectionLabel>
         ) : (
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.2px", color: COLORS.textDim }}>
             ER WAIT · {readableLatest ? latest.length : "—"} 院 24h 等一般病床
           </span>
         )}
@@ -90,7 +91,7 @@ export function ERCard({ open }: Props) {
         {allHospitals.length > 0 && <ErWaitTrend14d spark={trend14dSpark} />}
 
         {groups.length === 0 ? (
-          <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
+          <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint, padding: "8px 0" }}>
             {latestQuery.status === "unknown" ? "資料載入中…" : "尚無急診觀測資料"}
           </div>
         ) : groups.map((g) => {
@@ -98,15 +99,15 @@ export function ERCard({ open }: Props) {
           return (
           <div key={g.region} data-testid={`er-region-${g.region}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontFamily: FONT_CJK, fontSize: 11, fontWeight: 700, color: COLORS.textDefault }}>
+              <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 11), fontWeight: 700, color: COLORS.textDefault }}>
                 {g.region}
               </span>
-              <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>
                 {g.hospitals.length} 院
               </span>
               <span
                 data-testid={`er-region-total-${g.region}`}
-                style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}
+                style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}
               >
                 Σ {regionSummary.total.toLocaleString()} 等床
               </span>
@@ -116,7 +117,7 @@ export function ERCard({ open }: Props) {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                gridTemplateColumns: v2 ? "repeat(auto-fill, minmax(170px, 1fr))" : "repeat(auto-fill, minmax(140px, 1fr))",
                 gap: 6,
               }}
             >
@@ -128,7 +129,7 @@ export function ERCard({ open }: Props) {
           );
         })}
 
-        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+        <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>
           {v2 ? "來源：衛福部 急診即時訂閱" : "來源：衛福部 急診即時訂閱（get_er_hospital_latest / 24h_all）"}
         </div>
       </div>
@@ -168,17 +169,17 @@ function HospitalCell({ cell, sparkTimes }: { cell: ErHospitalCell; sparkTimes: 
       >
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: 10.5, color: COLORS.textDefault,
+            fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: COLORS.textDefault,
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
           {cell.name}
         </span>
         <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 14, fontWeight: 700, color, lineHeight: 1.1 }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 14), fontWeight: 700, color, lineHeight: 1.1 }}>
             {cell.wait == null ? "—" : cell.wait}
           </span>
-          <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint }}>等床</span>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>等床</span>
         </div>
       </div>
       {/* 逐點 hover 顯示時間 + 等床數，取代原本蓋住整格（含此圖）的 HTML title
@@ -212,17 +213,17 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexShrink: 0 }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>全台等床</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), color: COLORS.textMuted }}>全台等床</span>
         <span
           data-testid="er-national-total"
           style={{
-            fontFamily: FONT_DATA, fontSize: 20, fontWeight: 700, color: "#fff",
+            fontFamily: FONT_DATA, fontSize: fs(v2, 20), fontWeight: 700, color: "#fff",
             fontVariantNumeric: "tabular-nums", lineHeight: 1,
           }}
         >
           {summary.total.toLocaleString()}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint }}>人</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9), color: COLORS.textFaint }}>人</span>
       </div>
 
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3 }}>
@@ -255,14 +256,14 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
             <span
               key={lv}
               data-testid={`er-national-count-${lv}`}
-              style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textMuted }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textMuted }}
             >
               <span style={{ width: 5, height: 5, borderRadius: RADIUS.full, background: ER_LEVEL_COLORS[lv] }} />
               {ER_LEVEL_LABELS[lv]} {summary.counts[lv]} 院
             </span>
           ))}
           {summary.noData > 0 && (
-            <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>
               無資料 {summary.noData}
             </span>
           )}
@@ -280,12 +281,12 @@ function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
       {v2 ? (
         <SectionLabel>近 14 天 · 全台等床</SectionLabel>
       ) : (
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1px", color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), letterSpacing: "1px", color: COLORS.textFaint }}>
           14D TREND · 全台等床
         </span>
       )}
       {spark.length === 0 ? (
-        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
+        <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
           載入中…
         </div>
       ) : (

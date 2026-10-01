@@ -12,6 +12,7 @@ import {
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 /**
@@ -71,7 +72,7 @@ export function PlaBoard({ open }: Props) {
         <MonitorDataStatus label="共機統計摘要" query={summaryQuery} />
         <MonitorDataStatus label="共機機型統計" query={kindsQuery} />
         {!latest || !summary ? (
-          <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "10px 0" }}>
+          <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint, padding: "10px 0" }}>
             {daysQuery.status === "unknown" || summaryQuery.status === "unknown" ? "資料載入中…" : "尚無可用共機態勢資料"}
           </div>
         ) : (
@@ -80,7 +81,7 @@ export function PlaBoard({ open }: Props) {
             <TrendRow days={days} summary={summary} />
             <ZoneRow days={days} summary={summary} />
             <KindRow kinds={kinds} summary={summary} />
-            <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.5 }}>
+            <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, lineHeight: 1.5 }}>
               中共解放軍臺海周邊海、空域動態 · @MoNDefense · 每日 0600 (UTC+8) 截止 ·
               分級為近 {summary.windowDays} 天滾動百分位（相對值，非絕對威脅評估）
             </div>
@@ -109,22 +110,22 @@ function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSitua
     <div style={{ display: "flex", gap: 12, alignItems: "stretch" }}>
       <div
         style={{
-          flex: "0 0 128px", borderRadius: RADIUS.lg,
+          flex: v2 ? "0 1 168px" : "0 0 128px", minWidth: v2 ? 0 : undefined, borderRadius: RADIUS.lg,
           border: `1px solid ${color}66`, background: `${color}14`,
           padding: "8px 10px", display: "flex", flexDirection: "column", gap: 3,
         }}
       >
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textDim }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px", color: COLORS.textDim }}>
           {v2 ? "嚴重度" : "SEVERITY"}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 22, fontWeight: 700, lineHeight: 1.1, color }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 22), fontWeight: 700, lineHeight: 1.1, color }}>
           {label}
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>{band}</span>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>{band}</span>
         {day.resonance && (
           <span
             style={{
-              marginTop: 1, alignSelf: "flex-start", fontFamily: FONT_CJK, fontSize: 9,
+              marginTop: 1, alignSelf: "flex-start", fontFamily: FONT_CJK, fontSize: fs(v2, 9),
               padding: "1px 5px", borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.55)", color: "#ff8080",
             }}
@@ -136,17 +137,17 @@ function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSitua
 
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 30, fontWeight: 700, lineHeight: 1, color: "#fff" }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 30), fontWeight: 700, lineHeight: 1, color: "#fff" }}>
             {day.sorties ?? "—"}
           </span>
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>架次</span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textMuted }}>架次</span>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: COLORS.textFaint }}>
             {day.reportDate} 0600 ~ {day.periodEnd ?? "—"} 0600
           </span>
         </div>
         <AxisBar label="規模 架次" pct={day.pctSorties} value={day.sorties} unit="架次" />
         <AxisBar label="強度 越中線" pct={day.pctCrossed} value={day.crossedMedian} unit="架次" />
-        <div style={{ display: "flex", gap: 14, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+        <div style={{ display: "flex", gap: v2 ? "2px 14px" : 14, flexWrap: v2 ? "wrap" : undefined, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim }}>
           <span>共艦 <b style={{ color: COLORS.textDefault }}>{day.planVessels ?? "—"}</b> 艘</span>
           <span>公務船 <b style={{ color: COLORS.textDefault }}>{day.officialShips ?? "—"}</b> 艘</span>
           <span>近 {summary.windowDays} 天 <b style={{ color: COLORS.textDefault }}>{summary.daysCrossed}</b> 天有越線</span>
@@ -160,6 +161,7 @@ function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSitua
 function AxisBar({ label, pct, value, unit }: {
   label: string; pct: number | null; value: number | null; unit: string;
 }) {
+  const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const p = pct ?? 0;
   const color = p >= 97 ? "#ef4444" : p >= 90 ? "#fb923c" : p >= 75 ? "#fbbf24" : p >= 50 ? "#94a3b8" : "#34d399";
@@ -172,7 +174,7 @@ function AxisBar({ label, pct, value, unit }: {
       }))}
       style={{ display: "flex", alignItems: "center", gap: 7 }}
     >
-      <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textDim, width: 62, flex: "none" }}>
+      <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: COLORS.textDim, width: v2 ? 84 : 62, flex: "none" }}>
         {label}
       </span>
       <div style={{ flex: 1, height: 7, borderRadius: 3, background: "rgba(255,255,255,0.06)", position: "relative", minWidth: 0 }}>
@@ -182,7 +184,7 @@ function AxisBar({ label, pct, value, unit }: {
           <div key={t} style={{ position: "absolute", left: `${t}%`, top: -1, bottom: -1, width: 1, background: "rgba(255,255,255,0.25)" }} />
         ))}
       </div>
-      <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDefault, width: 66, flex: "none", textAlign: "right" }}>
+      <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: COLORS.textDefault, width: v2 ? 112 : 66, flex: "none", textAlign: "right", whiteSpace: v2 ? "nowrap" : undefined }}>
         {value ?? "—"} {unit} · p{pct ?? "—"}
       </span>
       {tip.node}
@@ -236,7 +238,7 @@ function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSitua
                   aria-pressed={on}
                   title={`趨勢圖看近 ${w} 天（分級仍以近 ${summary.windowDays} 天為基準）`}
                   style={{
-                    fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "0.6px",
+                    fontFamily: FONT_DATA, fontSize: fs(v2, 9), letterSpacing: "0.6px",
                     padding: "1px 6px", borderRadius: RADIUS.md, cursor: "pointer",
                     background: on ? "rgba(239,68,68,0.18)" : "transparent",
                     border: `1px solid ${on ? "rgba(239,68,68,0.55)" : COLORS.borderSoft}`,
@@ -290,7 +292,7 @@ function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSitua
         })}
         {tip.node}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: v2 ? "wrap" : undefined, fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
         <span>{shown[0]?.reportDate ?? summary.dateFrom}</span>
         <span style={{ textAlign: "center" }}>
           本區間 中位 {stats.p50} · 最高 {stats.max} 架次（柱高比例）
@@ -316,6 +318,7 @@ const ZONES = [
 ] as const;
 
 function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+  const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const latest = days.length ? days[days.length - 1]! : null;
   const maxDays = Math.max(...ZONES.map((z) => summary.zones[z.key]), 1);
@@ -343,13 +346,13 @@ function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituat
               }))}
               style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-              <span style={{ fontFamily: FONT_CJK, fontSize: 10, width: 30, flex: "none", color: on ? "#ff8080" : COLORS.textDim, fontWeight: on ? 700 : 400 }}>
+              <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), width: v2 ? 52 : 30, flex: "none", whiteSpace: v2 ? "nowrap" : undefined, color: on ? "#ff8080" : COLORS.textDim, fontWeight: on ? 700 : 400 }}>
                 {on ? "●" : "○"}{z.label}
               </span>
               <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", minWidth: 0 }}>
                 <div style={{ width: `${(n / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: color }} />
               </div>
-              <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, width: 54, flex: "none", textAlign: "right" }}>
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint, width: v2 ? 84 : 54, flex: "none", textAlign: "right", whiteSpace: v2 ? "nowrap" : undefined }}>
                 {n} 天 {pct}%
               </span>
             </div>
@@ -364,6 +367,7 @@ function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituat
 /* ── 侵擾方式（機型）────────────────────────────────────── */
 
 function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituationSummary }) {
+  const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const shown = useMemo(() => kinds.filter((k) => k.days > 0).slice(0, 6), [kinds]);
   if (!shown.length) return null;
@@ -397,14 +401,14 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
               }))}
               style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-              <span style={{ fontFamily: FONT_CJK, fontSize: 10, width: 44, flex: "none", color: rare ? "#c4b5fd" : COLORS.textDim }}>
+              <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), width: v2 ? 64 : 44, flex: "none", whiteSpace: v2 ? "nowrap" : undefined, color: rare ? "#c4b5fd" : COLORS.textDim }}>
                 {label}
               </span>
               <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", minWidth: 0 }}>
                 <div style={{ width: `${(k.days / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: color }} />
               </div>
               <span
-                style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, width: 62, flex: "none", textAlign: "right" }}
+                style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint, width: v2 ? 84 : 62, flex: "none", textAlign: "right", whiteSpace: v2 ? "nowrap" : undefined }}
               >
                 {k.days} 天{mixed ? " *" : ""}
               </span>
@@ -412,7 +416,7 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
           );
         })}
       </div>
-      <span style={{ fontSize: 8.5, color: COLORS.textFaint }}>
+      <span style={{ fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
         * 該機型有部分項次與其他機型合併計數，架次不可拆；「出動天數」不受影響、為精確值
       </span>
       {tip.node}
@@ -424,7 +428,7 @@ function RowLabel({ children, right }: { children: React.ReactNode; right?: Reac
   const v2 = useMonitorV2();
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-      <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.1px", color: COLORS.textDim, whiteSpace: v2 ? "normal" : "nowrap", minWidth: 0 }}>
+      <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.1px", color: COLORS.textDim, whiteSpace: v2 ? "normal" : "nowrap", minWidth: 0 }}>
         {children}
       </span>
       <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />

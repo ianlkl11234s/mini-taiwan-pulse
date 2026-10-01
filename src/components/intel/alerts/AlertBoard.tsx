@@ -13,6 +13,7 @@ import {
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { useMonitorV2 } from "../monitor/monitorStyle";
+import { fs } from "../monitor/monitorFont";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 /** 24 桶（hour-of-day 0-23，見 get_alert_series_24h）→ hover 標題用時:分 */
@@ -79,7 +80,7 @@ function AlertTrend({
       >
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
             color: COLORS.textFaint,
           }}
         >
@@ -88,7 +89,7 @@ function AlertTrend({
         <span style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm),
             color: COLORS.textMuted,
           }}
         >
@@ -209,17 +210,28 @@ function GroupCard({
             「民生」實測會折行，兩個標籤都鎖不折 */}
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 600,
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 600,
             color: COLORS.textDefault, whiteSpace: "nowrap",
           }}
         >
           {def.label}
         </span>
         <div style={{ flex: 1 }} />
-        {!v2 && (
+        {/* v2：最熱警報詞移到組名同一行右側（字級 S13 下獨立一行放不進固定高格子） */}
+        {v2 ? (
+          <span
+            title={topTerm ?? undefined}
+            style={{
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted,
+              minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}
+          >
+            {topTerm ?? ""}
+          </span>
+        ) : (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: def.color,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: def.color,
               letterSpacing: "0.5px", whiteSpace: "nowrap",
             }}
           >
@@ -230,7 +242,7 @@ function GroupCard({
       <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: v2 ? "wrap" : undefined, rowGap: v2 ? 2 : undefined }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700,
             color: hot ? def.color : COLORS.textStrong,
             lineHeight: 1,
           }}
@@ -240,7 +252,7 @@ function GroupCard({
         {severe > 0 && (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 9.5, fontWeight: 700,
+              fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), fontWeight: 700,
               color: v2 ? COLORS.statusErr : "#ef4444",
               whiteSpace: v2 ? "nowrap" : undefined,
             }}
@@ -249,14 +261,16 @@ function GroupCard({
           </span>
         )}
       </div>
-      <span
-        style={{
-          fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
-          height: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        }}
-      >
-        {topTerm ?? "—"}
-      </span>
+      {!v2 && (
+        <span
+          style={{
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint,
+            height: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}
+        >
+          {topTerm ?? "—"}
+        </span>
+      )}
       <Sparkline data={spark} color={def.color} />
     </button>
   );
@@ -266,6 +280,7 @@ function GroupCard({
 function AlertDrawer({
   group, nowTs,
 }: { group: AlertGroupShort; nowTs: number }) {
+  const v2 = useMonitorV2();
   const def = ALERT_GROUPS_DEF[group];
   const [rows, setRows] = useState<ActiveAlert[] | null>(null);
 
@@ -281,7 +296,7 @@ function AlertDrawer({
     return (
       <div
         style={{
-          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
           color: COLORS.textFaint,
         }}
       >
@@ -294,7 +309,7 @@ function AlertDrawer({
     return (
       <div
         style={{
-          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
           color: COLORS.textFaint,
         }}
       >
@@ -332,16 +347,16 @@ function AlertDrawer({
             />
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
                 color: COLORS.textDefault, flex: 1,
                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
               title={r.headline}
             >
-              <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.sm }}>{r.county} · </span>
+              <span style={{ color: COLORS.textMuted, fontSize: fs(v2, FONT_SIZE.sm) }}>{r.county} · </span>
               {r.headline || r.term}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: COLORS.textFaint }}>
               {relTime(r.sent_ts, nowTs)}
             </span>
           </div>
@@ -360,7 +375,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
     const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
     const at = lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "";
     return (
-      <div style={{ ...(v2 ? {} : { padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}` }), color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>
+      <div style={{ ...(v2 ? {} : { padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}` }), color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>
         {label}{at}
       </div>
     );
@@ -382,7 +397,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           <IntelIcon d={MICON.check!} size={12} color={COLORS.statusLive} />
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: 11.5, color: COLORS.statusLive, fontWeight: 600,
+              fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), color: COLORS.statusLive, fontWeight: 600,
             }}
           >
             {v2 ? "目前全國無生效中警報" : "目前全國無 active 警報"}
@@ -390,7 +405,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           <div style={{ flex: 1 }} />
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
               color: COLORS.textFaint,
             }}
           >
@@ -415,7 +430,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
         {!v2 && (
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700,
               color: COLORS.textStrong, letterSpacing: "0.5px",
             }}
           >
@@ -424,14 +439,14 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
         )}
         <span
           style={{
-            fontFamily: v2 ? FONT_CJK : FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: v2 ? "0.5px" : "1.5px",
+            fontFamily: v2 ? FONT_CJK : FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: v2 ? "0.5px" : "1.5px",
             color: COLORS.textDim,
           }}
         >
           {v2 ? "災防科技中心＋氣象署" : "NCDR + CWA"}
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
           {tally.total} 則
         </span>
         {tally.severe > 0 && (
@@ -440,7 +455,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               padding: "1px 6px", borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.18)",
               border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), fontWeight: 700,
               color: "#ef4444",
               animation: "alertBreathe 2s ease-in-out infinite",
             }}
@@ -511,7 +526,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
             />
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 700,
+                fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), fontWeight: 700,
                 color: COLORS.textStrong,
               }}
             >

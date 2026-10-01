@@ -1,4 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useMonitorV2 } from "./intel/monitor/monitorStyle";
+import { fs, MF } from "./intel/monitor/monitorFont";
 import { COLORS, FONT_SIZE, SURFACE, BORDER, RADIUS, WHITE_ALPHA } from "../styles/designTokens";
 
 /**
@@ -139,10 +141,16 @@ function fmtTooltipDate(t: number, format: "date" | "datetime"): string {
 }
 
 const DEFAULT_W = 256;  // fallback 寬（量到容器實際寬度前使用），原配 popup 280 寬扣 padding
-const PAD_L = 30;       // 左邊讓出空間給 Y 軸數字
+const BASE_PAD_L = 30;  // 左邊讓出空間給 Y 軸數字
 const PAD_R = 8;
 const PAD_T = 6;
-const PAD_B = 14;
+const BASE_PAD_B = 14;
+// 監看新版（v2）軸字 13px：左右下邊界要放寬，X 軸 tick 另依間距疏化
+const V2_PAD_L = 40;
+const V2_PAD_B = 22;
+const V2_TICK_MIN_GAP = 52;
+/** 迷你圖矮於此值時，v2 軸字只留首尾（Y 軸上下刻度、X 軸頭尾日期） */
+const V2_MIN_FULL_AXIS_H = 80;
 
 function niceTicks(min: number, max: number, count = 3): number[] {
   if (!isFinite(min) || !isFinite(max) || min === max) {
@@ -211,6 +219,11 @@ export function TimeseriesSparkline({
   tooltipDateFormat = "datetime",
   compactYAxis = false,
 }: TimeseriesSparklineProps) {
+  const v2 = useMonitorV2();
+  const PAD_L = v2 ? V2_PAD_L : BASE_PAD_L;
+  const PAD_B = v2 ? V2_PAD_B : BASE_PAD_B;
+  // SVG 軸字：舊版維持 fontSize={8} 屬性；v2 用 style 蓋掉（CSS 變數在 style 才保證解析）
+  const axisTextStyle = v2 ? { fontSize: MF.cap } : undefined;
   const wrapRef = useRef<HTMLDivElement>(null);
   const [w, setW] = useState(DEFAULT_W);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
@@ -297,8 +310,24 @@ export function TimeseriesSparkline({
       }
     }
 
-    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, timeTicks };
-  }, [data, timeDomain, warningValue, height, w, gapSec, extraSeries]);
+    // v2 軸字變大：X 軸 tick 依最小間距疏化（保留首尾）；矮圖只留首尾
+    let shownTimeTicks = timeTicks;
+    if (v2 && timeTicks.length > 2) {
+      if (height < V2_MIN_FULL_AXIS_H) {
+        shownTimeTicks = [timeTicks[0]!, timeTicks[timeTicks.length - 1]!];
+      } else {
+        const last = timeTicks[timeTicks.length - 1]!;
+        const kept = [timeTicks[0]!];
+        for (const tk of timeTicks.slice(1, -1)) {
+          if (tk.x - kept[kept.length - 1]!.x >= V2_TICK_MIN_GAP && last.x - tk.x >= V2_TICK_MIN_GAP) kept.push(tk);
+        }
+        kept.push(last);
+        shownTimeTicks = kept;
+      }
+    }
+
+    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, timeTicks: shownTimeTicks };
+  }, [data, timeDomain, warningValue, height, w, gapSec, extraSeries, v2, PAD_L, PAD_B]);
 
   function handleMouseMove(e: ReactMouseEvent<SVGSVGElement>) {
     if (!showTooltip || !view || data.length === 0) return;
@@ -325,7 +354,7 @@ export function TimeseriesSparkline({
     return (
       <div
         style={{
-          fontSize: FONT_SIZE.sm,
+          fontSize: fs(v2, FONT_SIZE.sm),
           color: COLORS.textDim,
           padding: "8px 4px",
           textAlign: "center",
@@ -347,8 +376,10 @@ export function TimeseriesSparkline({
         onMouseLeave={showTooltip ? handleMouseLeave : undefined}
       >
         {/* Y 軸 grid + tick label */}
-        {view.ticks.map((tv) => {
+        {view.ticks.map((tv, ti) => {
           const y = view.yScale(tv);
+          // v2 矮圖：Y 軸字只留首尾，格線照畫
+          const showYLabel = !(v2 && height < V2_MIN_FULL_AXIS_H) || ti === 0 || ti === view.ticks.length - 1;
           return (
             <g key={`y-${tv}`}>
               <line
@@ -359,16 +390,17 @@ export function TimeseriesSparkline({
                 stroke="rgba(255,255,255,0.08)"
                 strokeWidth={0.5}
               />
-              <text
+              {showYLabel && <text
                 x={PAD_L - 4}
-                y={y + 3}
+                y={y + (v2 ? 4.5 : 3)}
                 fontSize={8}
+                style={axisTextStyle}
                 textAnchor="end"
                 fill="rgba(255,255,255,0.5)"
                 fontFamily="monospace"
               >
                 {fmtTick(tv, view.tickStep, compactYAxis)}
-              </text>
+              </text>}
             </g>
           );
         })}
@@ -389,6 +421,7 @@ export function TimeseriesSparkline({
               x={w - PAD_R - 2}
               y={view.yScale(warningValue) - 2}
               fontSize={8}
+              style={axisTextStyle}
               textAnchor="end"
               fill={warningColor}
               fontFamily="monospace"
@@ -477,6 +510,7 @@ export function TimeseriesSparkline({
             x={tk.x}
             y={height - 2}
             fontSize={8}
+            style={axisTextStyle}
             textAnchor={tk.x < PAD_L + 12 ? "start" : tk.x > w - PAD_R - 12 ? "end" : "middle"}
             fill="rgba(255,255,255,0.5)"
             fontFamily="monospace"
@@ -489,8 +523,9 @@ export function TimeseriesSparkline({
         {unit && (
           <text
             x={w - PAD_R}
-            y={PAD_T + 8}
+            y={PAD_T + (v2 ? 12 : 8)}
             fontSize={8}
+            style={axisTextStyle}
             textAnchor="end"
             fill="rgba(255,255,255,0.4)"
             fontFamily="monospace"
@@ -522,9 +557,9 @@ export function TimeseriesSparkline({
               });
             }
 
-            const charW = 5;
+            const charW = v2 ? 7.5 : 5;
             const boxW = Math.max(...lines.map((l) => l.text.length)) * charW + 18;
-            const lineH = 11;
+            const lineH = v2 ? 17 : 11;
             const boxH = lines.length * lineH + 8;
             const gap = 6;
 
@@ -559,8 +594,9 @@ export function TimeseriesSparkline({
                     )}
                     <text
                       x={boxX + (l.dot ? 14 : 6)}
-                      y={boxY + 4 + i * lineH + lineH / 2 + 3}
+                      y={boxY + 4 + i * lineH + lineH / 2 + (v2 ? 4.5 : 3)}
                       fontSize={8}
+                      style={axisTextStyle}
                       fill={i === 0 ? COLORS.textStrong : COLORS.textDefault}
                       fontFamily="monospace"
                     >

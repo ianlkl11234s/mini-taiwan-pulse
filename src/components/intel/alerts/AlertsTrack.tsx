@@ -5,7 +5,7 @@ import {
   type AlertGroupShort,
 } from "../intelTokens";
 import { useMonitorV2 } from "../monitor/monitorStyle";
-import { FONT_SIZE } from "../../../styles/designTokens";
+import { fs } from "../monitor/monitorFont";
 import { useChartTooltip, fmtChartValue, type ChartTooltipContent } from "../../ChartHoverTooltip";
 
 interface Props {
@@ -83,7 +83,7 @@ export function AlertsTrack({
       >
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, letterSpacing: v2 ? "0.5px" : "1.8px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: v2 ? "0.5px" : "1.8px",
             color: COLORS.textFaint,
           }}
         >

@@ -20,6 +20,7 @@ import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import type { IntelQueryState } from "../../../hooks/useIntelPollingQuery";
@@ -91,8 +92,9 @@ function HazardShell({
           />
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 700,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700,
               color: COLORS.textStrong, minWidth: 0,
+              ...(v2 ? { overflowWrap: "anywhere" as const } : null),
             }}
           >
             {healthTitle}
@@ -102,7 +104,7 @@ function HazardShell({
             <span
               key={b}
               style={{
-                fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, fontWeight: 700, letterSpacing: "0.5px",
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), fontWeight: 700, letterSpacing: "0.5px",
                 color: COLORS.accent, padding: "1px 5px", borderRadius: RADIUS.md,
                 background: COLORS.accentFaint, border: `1px solid ${COLORS.accentSoft}`,
                 whiteSpace: "nowrap",
@@ -115,7 +117,7 @@ function HazardShell({
         {query && <MonitorDataStatus label={label} query={query} />}
         {dailyQuery && <MonitorDataStatus label={`${label} 趨勢`} query={dailyQuery} />}
         {children}
-        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{footer}</div>
+        <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>{footer}</div>
       </div>
     </div>
   );
@@ -123,17 +125,18 @@ function HazardShell({
 
 /** 大數字 + 單位 */
 function Metric({ value, unit, color }: { value: string; unit: string; color?: string }) {
+  const v2 = useMonitorV2();
   return (
     <div>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700,
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700,
           color: color ?? COLORS.textStrong,
         }}
       >
         {value}
       </span>
-      <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, marginLeft: 4 }}>{unit}</span>
+      <span style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted, marginLeft: 4 }}>{unit}</span>
     </div>
   );
 }
@@ -148,8 +151,9 @@ function MetricRow({ children }: { children: ReactNode }) {
 }
 
 function Note({ children, color }: { children: ReactNode; color?: string }) {
+  const v2 = useMonitorV2();
   return (
-    <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: color ?? COLORS.textMuted, lineHeight: 1.45 }}>
+    <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: color ?? COLORS.textMuted, lineHeight: 1.45 }}>
       {children}
     </div>
   );
@@ -157,11 +161,14 @@ function Note({ children, color }: { children: ReactNode; color?: string }) {
 
 /** 左右對齊的小字列 */
 function MetaRow({ left, right }: { left: ReactNode; right?: ReactNode }) {
+  const v2 = useMonitorV2();
   return (
     <div
       style={{
-        fontSize: FONT_SIZE.xs, color: COLORS.textDim,
+        fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim,
         display: "flex", justifyContent: "space-between", gap: 8,
+        // v2：1/3 寬格約 207px、13px 字下左右兩段放不下就換行，不重疊
+        ...(v2 ? { flexWrap: "wrap" as const, rowGap: 2 } : null),
       }}
     >
       <span>{left}</span>
@@ -464,12 +471,12 @@ export function EarthquakeCard({ open, nowTs }: Props) {
     >
       <MetricRow>
         <div>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, color: COLORS.textMuted, marginRight: 3 }}>M</span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700, color }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), color: COLORS.textMuted, marginRight: 3 }}>M</span>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700, color }}>
             {latest.magnitude.toFixed(1)}
           </span>
         </div>
-        <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+        <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
           深度 {latest.depth_km.toFixed(1)} km
         </div>
       </MetricRow>
@@ -566,7 +573,7 @@ export function RadiationCard({ open }: Props) {
     >
       <MetricRow>
         <Metric value={fmtDose(data.avg_usvh)} unit="µSv/h 平均" />
-        <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+        <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
           最高 {fmtDose(data.max_usvh)}{data.max_station ? ` · ${data.max_station}` : ""}
         </div>
       </MetricRow>
@@ -671,7 +678,7 @@ export function LightningCard({ open, nowTs }: Props) {
               unit="次 / 近 1h"
               color={active ? COLORS.statusWarn : COLORS.textStrong}
             />
-            <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+            <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
               今日累計 {data.countDay.toLocaleString("zh-TW")} 次
             </div>
           </MetricRow>

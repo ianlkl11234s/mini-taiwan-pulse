@@ -11,6 +11,7 @@ import {
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 /**
@@ -226,7 +227,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
       {/* 頭 */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
         {!v2 && (
-          <span style={{ fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong }}>
+          <span style={{ fontSize: fs(v2, FONT_SIZE.md), fontWeight: 600, color: COLORS.textStrong }}>
             特殊船舶接近帶
           </span>
         )}
@@ -234,7 +235,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
           <>
             <span
               style={{
-                fontSize: FONT_SIZE.sm,
+                fontSize: fs(v2, FONT_SIZE.sm),
                 padding: "1px 6px",
                 borderRadius: RADIUS.pill,
                 background: `${ZONE_COLORS[latest.level]}22`,
@@ -244,12 +245,12 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             >
               {ZONE_LABEL[latest.deepestZone]}
             </span>
-            <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, fontFamily: FONT_DATA }}>
+            <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textMuted, fontFamily: FONT_DATA }}>
               {fmtDay(latest.day)} · {latest.ships} 艘 · 最近 {fmtDist(latest.minDistNm)}
             </span>
           </>
         ) : (
-          <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textDim }}>
+          <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textDim }}>
             {rowsQuery.status === "unknown" ? "資料載入中…" : rowsQuery.status === "ready" ? `${windowDays} 天內無觀測紀錄` : "資料暫不可用"}
           </span>
         )}
@@ -263,7 +264,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             key={w}
             onClick={() => setWindowDays(w)}
             style={{
-              fontSize: FONT_SIZE.xs,
+              fontSize: fs(v2, FONT_SIZE.xs),
               padding: "2px 7px",
               borderRadius: RADIUS.sm,
               cursor: "pointer",
@@ -340,8 +341,8 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
           const days = windowed.filter((a) => (a.byClass.get(cls) ?? 0) > 0).length;
           const pct = windowed.length ? (days / windowed.length) * 100 : 0;
           return (
-            <div key={cls} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: FONT_SIZE.sm }}>
-              <span style={{ width: 52, color: COLORS.textMuted, flexShrink: 0 }}>
+            <div key={cls} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: fs(v2, FONT_SIZE.sm) }}>
+              <span style={{ width: v2 ? 64 : 52, color: COLORS.textMuted, flexShrink: 0 }}>
                 {CLASS_SHORT[cls]}
               </span>
               <div
@@ -355,7 +356,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
               >
                 <div style={{ width: `${pct}%`, height: "100%", background: COLORS.accent }} />
               </div>
-              <span style={{ width: 46, textAlign: "right", color: COLORS.textDim, fontFamily: FONT_DATA }}>
+              <span style={{ width: v2 ? 58 : 46, textAlign: "right", whiteSpace: v2 ? "nowrap" : undefined, color: COLORS.textDim, fontFamily: FONT_DATA }}>
                 {days} 天
               </span>
             </div>
@@ -363,14 +364,14 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
         })}
       </div>
       </> : (
-        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>不以空資料推斷未出現特殊船舶。</div>
+        <div style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim }}>不以空資料推斷未出現特殊船舶。</div>
       )}
 
       {/*
         誠實限制。與共機卡的關鍵差異：那邊是國防部官方全量通報，這邊是船自願廣播的 AIS。
         不寫清楚會讓讀者把「AIS 看到的」當成「實際發生的」。
       */}
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, lineHeight: 1.5 }}>
+      <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, lineHeight: 1.5 }}>
         AIS 自願廣播 · 觀測下限非全量 · 僅臺灣本島（含澎湖）· 金馬烏坵東引無公告基線不可判定
       </div>
     </div>

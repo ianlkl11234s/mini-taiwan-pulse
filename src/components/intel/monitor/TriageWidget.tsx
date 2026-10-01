@@ -4,6 +4,7 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 function DistBar({
@@ -13,13 +14,14 @@ function DistBar({
   levels: { label: string; color: string }[];
   counts: number[];
 }) {
+  const v2 = useMonitorV2();
   const total = counts.reduce((a, b) => a + b, 0) || 1;
   const tip = useChartTooltip();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "0.5px",
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "0.5px",
           color: COLORS.textDim,
         }}
       >
@@ -56,7 +58,7 @@ function DistBar({
             key={i}
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
-              fontFamily: FONT_CJK, fontSize: 9.5,
+              fontFamily: FONT_CJK, fontSize: fs(v2, 9.5),
               color: counts[i] ? COLORS.textDefault : COLORS.textGhost,
               whiteSpace: "nowrap",
             }}
@@ -108,7 +110,7 @@ export function TriageWidget({ events }: Props) {
   return (
     <Widget style={{ gridColumn: "1 / -1" }}>
       {!v2 && <SectionLabel>信號分級 · TRIAGE</SectionLabel>}
-      <div style={{ display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(140px, 1fr))" : "repeat(3, 1fr)", gap: 18 }}>
+      <div style={{ display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(170px, 1fr))" : "repeat(3, 1fr)", gap: 18 }}>
         <DistBar label={v2 ? "地理相關" : "地理相關 GIS_RELEVANCE"} levels={GIS_LEVELS} counts={tri.gis} />
         <DistBar label={v2 ? "嚴重程度" : "嚴重程度 SEVERITY"} levels={SEV_LEVELS} counts={tri.sev} />
         <DistBar

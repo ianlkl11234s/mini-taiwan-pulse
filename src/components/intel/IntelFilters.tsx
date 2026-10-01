@@ -3,6 +3,8 @@ import { FONT_CJK, FONT_DATA, COUNTY_OPTIONS } from "./intelTokens";
 import { neutralFill, useIntelTheme, type IntelPalette } from "./intelTheme";
 import { RADIUS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../data/newsEventTypes";
+import { useMonitorV2 } from "./monitor/monitorStyle";
+import { fs } from "./monitor/monitorFont";
 
 export type TimeRange = "1h" | "6h" | "24h";
 
@@ -28,7 +30,7 @@ const TIME_OPTS: { k: TimeRange; label: string }[] = [
   { k: "24h", label: "24h" },
 ];
 
-function chip(active: boolean, palette: IntelPalette): CSSProperties {
+function chip(active: boolean, palette: IntelPalette, v2: boolean): CSSProperties {
   return {
     display: "inline-flex",
     alignItems: "center",
@@ -36,7 +38,7 @@ function chip(active: boolean, palette: IntelPalette): CSSProperties {
     borderRadius: RADIUS.md,
     cursor: "pointer",
     fontFamily: FONT_CJK,
-    fontSize: FONT_SIZE.base,
+    fontSize: fs(v2, FONT_SIZE.base),
     whiteSpace: "nowrap",
     background: active ? neutralFill(0.12, palette.isDark) : neutralFill(0.03, palette.isDark),
     border: `1px solid ${active ? palette.borderStrong : palette.borderSoft}`,
@@ -45,7 +47,7 @@ function chip(active: boolean, palette: IntelPalette): CSSProperties {
   };
 }
 
-function segBtn(active: boolean, palette: IntelPalette): CSSProperties {
+function segBtn(active: boolean, palette: IntelPalette, v2: boolean): CSSProperties {
   return {
     padding: "3px 10px",
     borderRadius: RADIUS.md,
@@ -53,7 +55,7 @@ function segBtn(active: boolean, palette: IntelPalette): CSSProperties {
     cursor: "pointer",
     whiteSpace: "nowrap",
     fontFamily: FONT_CJK,
-    fontSize: 10.5,
+    fontSize: fs(v2, 10.5),
     background: active ? neutralFill(0.12, palette.isDark) : "transparent",
     color: active ? palette.textStrong : palette.textDim,
     transition: "all .12s",
@@ -68,6 +70,7 @@ export function IntelFilters({
   eventsOnly, onEventsOnly,
 }: Props) {
   const palette = useIntelTheme();
+  const v2 = useMonitorV2();
   // 分段軌道／select trigger：暗＝原字面（不變），淡＝§5.8/§5.9 規格值 LIGHT.controlBg。
   const trackBg = palette.isDark ? "rgba(0,0,0,0.4)" : LIGHT.controlBg;
   const selectBg = palette.isDark ? "rgba(0,0,0,0.45)" : LIGHT.controlBg;
@@ -85,7 +88,7 @@ export function IntelFilters({
     >
       {/* category chips */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-        <button onClick={onResetCats} style={chip(cats.length === 0, palette)}>
+        <button onClick={onResetCats} style={chip(cats.length === 0, palette, v2)}>
           全部
         </button>
         {NEWS_CATEGORIES.map((c) => {
@@ -102,7 +105,7 @@ export function IntelFilters({
                 borderRadius: RADIUS.md,
                 cursor: "pointer",
                 fontFamily: FONT_CJK,
-                fontSize: FONT_SIZE.base,
+                fontSize: fs(v2, FONT_SIZE.base),
                 whiteSpace: "nowrap",
                 background: on ? `${c.color}26` : neutralFill(0.03, palette.isDark),
                 border: `1px solid ${on ? c.color : palette.borderSoft}`,
@@ -127,7 +130,7 @@ export function IntelFilters({
 
       {/* time range + 相關度（同一橫排） */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>近</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint }}>近</span>
         <div
           style={{
             display: "flex",
@@ -139,12 +142,12 @@ export function IntelFilters({
           }}
         >
           {TIME_OPTS.map((o) => (
-            <button key={o.k} onClick={() => onTimeRange(o.k)} style={segBtn(timeRange === o.k, palette)}>
+            <button key={o.k} onClick={() => onTimeRange(o.k)} style={segBtn(timeRange === o.k, palette, v2)}>
               {o.label}
             </button>
           ))}
         </div>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint, marginLeft: 6 }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint, marginLeft: 6 }}>
           相關度
         </span>
         <div
@@ -162,7 +165,7 @@ export function IntelFilters({
               [0, "全部"], [2, "地方+"], [3, "重大"],
             ] as const
           ).map(([v, label]) => (
-            <button key={v} onClick={() => onMinRelevance(v)} style={segBtn(minRelevance === v, palette)}>
+            <button key={v} onClick={() => onMinRelevance(v)} style={segBtn(minRelevance === v, palette, v2)}>
               {label}
             </button>
           ))}
@@ -176,7 +179,7 @@ export function IntelFilters({
           onChange={(ev) => onCounty(ev.target.value)}
           style={{
             fontFamily: FONT_CJK,
-            fontSize: 10.5,
+            fontSize: fs(v2, 10.5),
             padding: "4px 10px",
             borderRadius: RADIUS.lg,
             background: selectBg,
@@ -204,7 +207,7 @@ export function IntelFilters({
             borderRadius: RADIUS.lg,
             cursor: "pointer",
             fontFamily: FONT_CJK,
-            fontSize: 10.5,
+            fontSize: fs(v2, 10.5),
             whiteSpace: "nowrap",
             background: eventsOnly ? palette.accentFaint : neutralFill(0.03, palette.isDark),
             border: `1px solid ${eventsOnly ? palette.accentSoft : palette.borderSoft}`,
@@ -223,7 +226,7 @@ export function IntelFilters({
               border: eventsOnly ? "none" : `1px solid ${palette.borderStrong}`,
               background: eventsOnly ? palette.accent : "transparent",
               color: palette.isDark ? "#04121f" : "#ffffff",
-              fontSize: FONT_SIZE.xs,
+              fontSize: fs(v2, FONT_SIZE.xs),
               fontWeight: 700,
               fontFamily: FONT_DATA,
             }}

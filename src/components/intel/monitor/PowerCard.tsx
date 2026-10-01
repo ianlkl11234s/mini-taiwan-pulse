@@ -3,6 +3,7 @@ import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE, BORDER } from "../../../styles/designTokens";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
@@ -102,14 +103,14 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
               boxShadow: `0 0 7px ${dotColor}`, flexShrink: 0,
             }}
           />
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 700, color: COLORS.textStrong }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: COLORS.textStrong }}>
             {indLabel}
           </span>
           <div style={{ flex: 1 }} />
           {!v2 && (
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textFaint,
                 padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
                 whiteSpace: "nowrap",
               }}
@@ -129,14 +130,14 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
           />
           <Stat label="供電能力" value={fmtMW(status?.supply_capacity_mw)} unit="MW" />
           {status?.peak_hour_range && (
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted }}>
               預測尖峰 {status.peak_hour_range}
             </span>
           )}
         </div>
 
         {/* 4 區用電 mini-bars */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(110px, 1fr))" : "repeat(4, 1fr)", gap: 8 }}>
           {regions.map(({ region: r, mw: v, pct }) => {
             return (
               <div
@@ -155,9 +156,9 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
                 }}
               >
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                  <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>{r}</span>
+                  <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), color: COLORS.textMuted }}>{r}</span>
                   <div style={{ flex: 1 }} />
-                  <span style={{ fontFamily: FONT_DATA, fontSize: 11, fontWeight: 700, color: COLORS.textDefault }}>
+                  <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 11), fontWeight: 700, color: COLORS.textDefault }}>
                     {fmtMW(v)}
                   </span>
                 </div>
@@ -195,18 +196,18 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
           }}
         >
           <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-            <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>24h 尖峰</span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 13, fontWeight: 700, color: "#fff" }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), color: COLORS.textMuted }}>24h 尖峰</span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 13), fontWeight: 700, color: "#fff" }}>
               {Math.round(kpis.peakMW).toLocaleString()}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>MW</span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>MW</span>
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-            <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>當前合計</span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 13, fontWeight: 700, color: "#fff" }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), color: COLORS.textMuted }}>當前合計</span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 13), fontWeight: 700, color: "#fff" }}>
               {Math.round(kpis.latestMW).toLocaleString()}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>MW</span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>MW</span>
           </div>
           <div style={{ flex: 1, minWidth: 120 }}>
             <div
@@ -236,7 +237,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
                   key={s.fuel}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 3,
-                    fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textMuted,
+                    fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textMuted,
                   }}
                 >
                   <span
@@ -267,13 +268,13 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
           {v2 ? (
             <SectionLabel>機組出力 · {day == null && dayStatus !== "ready" ? "—" : plants.length} 廠 24h</SectionLabel>
           ) : (
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.2px", color: COLORS.textDim }}>
               UNIT OUTPUT · {day == null && dayStatus !== "ready" ? "—" : plants.length} 廠 24h
             </span>
           )}
         </div>
         {plants.length === 0 ? (
-          <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
+          <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint, padding: "8px 0" }}>
             {dayStatus === "denied"
               ? "機組出力需登入後檢視"
               : dayStatus === "error"
@@ -283,7 +284,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
         ) : (
           <div
             data-testid="power-plant-grid"
-            style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}
+            style={{ display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(150px, 1fr))" : "repeat(3, 1fr)", gap: 8 }}
           >
             {plants.map((p) => (
               <PlantSparkRow
@@ -335,7 +336,7 @@ function PowerTrend30d({ trend }: { trend: PowerDailyTrendRow[] }) {
         30 天趨勢 · 備轉容量率{minRate != null ? ` · 區間最低 ${minRate.toFixed(1)}%` : ""}
       </SectionLabel>
       {spark.length === 0 ? (
-        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
+        <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint, padding: "8px 0" }}>
           等待每日趨勢資料…
         </div>
       ) : (
@@ -384,7 +385,7 @@ function PowerCapacityVsLoad30d({ trend }: { trend: PowerDailyTrendRow[] }) {
         <TrendLegendDot color={COLORS.statusWarn} label="尖峰負載" />
       </div>
       {supplySpark.length === 0 ? (
-        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
+        <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint, padding: "8px 0" }}>
           等待每日趨勢資料…
         </div>
       ) : (
@@ -407,11 +408,12 @@ function PowerCapacityVsLoad30d({ trend }: { trend: PowerDailyTrendRow[] }) {
 }
 
 function TrendLegendDot({ color, label }: { color: string; label: string }) {
+  const v2 = useMonitorV2();
   return (
     <span
       style={{
         display: "inline-flex", alignItems: "center", gap: 4,
-        fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textMuted,
+        fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textMuted,
       }}
     >
       <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: color }} />
@@ -423,18 +425,19 @@ function TrendLegendDot({ color, label }: { color: string; label: string }) {
 function Stat({
   label, value, unit, big,
 }: { label: string; value: string; unit: string; big?: boolean }) {
+  const v2 = useMonitorV2();
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-      <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>{label}</span>
+      <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), color: COLORS.textMuted }}>{label}</span>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: big ? 22 : 14, fontWeight: 700,
+          fontFamily: FONT_DATA, fontSize: fs(v2, big ? 22 : 14), fontWeight: 700,
           color: "#fff", lineHeight: 1,
         }}
       >
         {value}
       </span>
-      <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>{unit}</span>
+      <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>{unit}</span>
     </div>
   );
 }
@@ -464,7 +467,7 @@ function PlantSparkRow({
       <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: 10.5, color: COLORS.textDefault,
+            fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: COLORS.textDefault,
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}
           title={name}
@@ -472,12 +475,12 @@ function PlantSparkRow({
           {name}
         </span>
         <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 10), color: COLORS.textMuted }}>
             {mw != null ? Math.round(mw).toLocaleString() : "—"}
           </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>MW</span>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>MW</span>
           {rate != null && (
-            <span style={{ fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700, color: rateColor }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), fontWeight: 700, color: rateColor }}>
               {Math.round(rate * 100)}%
             </span>
           )}

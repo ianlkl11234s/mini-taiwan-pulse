@@ -2,6 +2,7 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { Sparkline } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import type { PublicHealthWeek, CdcDisease } from "../../../data/intelLoaders";
 
@@ -28,14 +29,14 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
           }}
         />
         <span
-          style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 700, color: COLORS.textStrong }}
+          style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: COLORS.textStrong }}
         >
           {d.label}
         </span>
         <div style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, color: COLORS.textFaint,
+            fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textFaint,
             padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
           }}
         >
@@ -46,12 +47,12 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, whiteSpace: "nowrap" }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 26, fontWeight: 700, lineHeight: 1, color: "#fff",
+            fontFamily: FONT_DATA, fontSize: fs(v2, 26), fontWeight: 700, lineHeight: 1, color: "#fff",
           }}
         >
           {d.value}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textMuted }}>{d.unit}</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: COLORS.textMuted }}>{d.unit}</span>
       </div>
 
       <div
@@ -60,12 +61,12 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
         }}
       >
         <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700, color: yc }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700, color: yc }}>
             {worse ? "↑" : "↓"}
             {worse ? "+" : ""}
             {d.yoy}%
           </span>
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
             vs 去年同期
           </span>
         </span>
@@ -89,7 +90,7 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
 
       <div
         style={{
-          marginTop: "auto", fontFamily: FONT_CJK, fontSize: 9.5,
+          marginTop: "auto", fontFamily: FONT_CJK, fontSize: fs(v2, 9.5),
           color: COLORS.textDim, whiteSpace: "nowrap",
           overflow: "hidden", textOverflow: "ellipsis",
         }}
@@ -115,13 +116,13 @@ export function SituationCards({ health }: Props) {
         <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px", color: COLORS.textDefault,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px", color: COLORS.textDefault,
           }}
         >
           公衛 · HEALTH BOARD
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
           CDC 截至 ISO 第 W{health.week > 0 ? health.week : "—"} 週
         </span>
       </div>}
@@ -134,9 +135,9 @@ export function SituationCards({ health }: Props) {
         ))}
         {health.diseases.length === 0 && (
           <>
-            <div style={emptyCardStyle}>等待 CDC 週報資料…</div>
-            <div style={emptyCardStyle}>等待 CDC 週報資料…</div>
-            <div style={emptyCardStyle}>等待 CDC 週報資料…</div>
+            <div style={emptyCardStyle(v2)}>等待 CDC 週報資料…</div>
+            <div style={emptyCardStyle(v2)}>等待 CDC 週報資料…</div>
+            <div style={emptyCardStyle(v2)}>等待 CDC 週報資料…</div>
           </>
         )}
       </div>
@@ -144,9 +145,9 @@ export function SituationCards({ health }: Props) {
   );
 }
 
-const emptyCardStyle: React.CSSProperties = {
+const emptyCardStyle = (v2: boolean): React.CSSProperties => ({
   borderRadius: RADIUS.xl, border: `1px dashed ${COLORS.borderSoft}`,
   background: "rgba(255,255,255,0.01)", padding: "12px 13px",
-  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
+  fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint,
   display: "flex", alignItems: "center", justifyContent: "center",
-};
+});

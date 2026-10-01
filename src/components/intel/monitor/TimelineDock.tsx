@@ -9,6 +9,7 @@ import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { AlertsTrack } from "../alerts/AlertsTrack";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useWallClock } from "../../../hooks/useWallClock";
 
 interface Props {
@@ -129,14 +130,14 @@ export function TimelineDock({
         {!v2 && (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "2px",
               color: COLORS.textMuted, whiteSpace: "nowrap",
             }}
           >
             時間軸 TIMELINE DOCK
           </span>
         )}
-        <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textFaint, whiteSpace: "nowrap" }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: COLORS.textFaint, whiteSpace: "nowrap" }}>
           新聞密度 · 每小時
         </span>
         <div style={{ flex: 1 }} />
@@ -171,8 +172,8 @@ export function TimelineDock({
         </button>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700,
-            minWidth: 58, textAlign: "center",
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700,
+            minWidth: v2 ? 74 : 58, textAlign: "center",
             color: isLive ? COLORS.statusLive : COLORS.statusWarn,
           }}
         >
@@ -183,7 +184,7 @@ export function TimelineDock({
           style={{
             display: "inline-flex", alignItems: "center", gap: 5,
             padding: "4px 10px", borderRadius: RADIUS.lg, cursor: "pointer",
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: "0.5px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 700, letterSpacing: "0.5px",
             background: isLive ? COLORS.statusLiveSoft : "rgba(255,255,255,0.05)",
             border: isLive ? `1px solid ${COLORS.statusLiveBorder}` : `1px solid ${COLORS.borderMid}`,
             color: isLive ? COLORS.statusLive : COLORS.textMuted,
@@ -301,7 +302,7 @@ export function TimelineDock({
           >
             <div
               style={{
-                fontFamily: FONT_DATA, fontSize: 10.5,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 10.5),
                 color: "#fff", fontWeight: 700, marginBottom: 4,
               }}
             >
@@ -313,7 +314,7 @@ export function TimelineDock({
                   key={c.key}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 3,
-                    fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDefault,
+                    fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: COLORS.textDefault,
                   }}
                 >
                   <span
@@ -325,7 +326,7 @@ export function TimelineDock({
                 </span>
               ))}
               {hovered.total === 0 && (
-                <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textFaint }}>
+                <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: COLORS.textFaint }}>
                   無事件
                 </span>
               )}
@@ -334,7 +335,7 @@ export function TimelineDock({
         )}
       </div>
 
-      <div style={{ position: "relative", height: 14, marginTop: 3, flexShrink: 0 }}>
+      <div style={{ position: "relative", height: v2 ? 18 : 14, marginTop: 3, flexShrink: 0 }}>
         {TICKS.map((t) => (
           <span
             key={t}
@@ -342,7 +343,7 @@ export function TimelineDock({
               position: "absolute", left: `${(t / 24) * 100}%`,
               transform:
                 t === 0 ? "none" : t === 24 ? "translateX(-100%)" : "translateX(-50%)",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint,
             }}
           >
             {t === 24 ? "23:59" : `${String(t).padStart(2, "0")}:00`}

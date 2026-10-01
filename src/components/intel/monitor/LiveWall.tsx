@@ -6,6 +6,7 @@ import { SURFACE, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTok
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 export interface LiveChannel {
@@ -133,14 +134,14 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
           background: "rgba(0,0,0,0.72)", color: "#fff",
           border: `1px solid ${COLORS.borderMid}`, cursor: "pointer",
           backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-          fontFamily: FONT_CJK, fontSize: 10.5,
+          fontFamily: FONT_CJK, fontSize: fs(v2, 10.5),
         }}
       >
         <span style={{ fontWeight: 700 }}>{cur.name}</span>
         {!v2 && (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
               color: COLORS.textMuted, letterSpacing: "0.5px",
             }}
           >
@@ -152,7 +153,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
             display: "inline-block",
             transform: open ? "rotate(180deg)" : "none",
             transition: "transform .2s",
-            fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
+            fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
           }}
         >
           ▾
@@ -163,7 +164,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
         <div
           style={{
             position: "absolute", bottom: "calc(100% + 6px)", left: 0,
-            width: 232, maxWidth: v2 ? "80vw" : undefined, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
+            width: v2 ? 264 : 232, maxWidth: v2 ? "80vw" : undefined, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
             border: `1px solid ${COLORS.borderMid}`,
             background: SURFACE.solid,
             backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
@@ -179,14 +180,14 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
           >
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, letterSpacing: "1.4px",
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "1.4px",
                 color: COLORS.textDim,
               }}
             >
               {v2 ? "選擇頻道" : "SELECT CHANNEL"}
             </span>
             <div style={{ flex: 1 }} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
               {channels.length} 家可看
             </span>
           </div>
@@ -207,14 +208,14 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     >
                       <span
                         style={{
-                          fontFamily: FONT_CJK, fontSize: 8.5, letterSpacing: "1px",
+                          fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), letterSpacing: "1px",
                           color: COLORS.textDim,
                         }}
                       >
                         {c.tag}
                       </span>
                       <span style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
-                      <span style={{ fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textFaint }}>
+                      <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: COLORS.textFaint }}>
                         {channels.filter((x) => x.tag === c.tag).length}
                       </span>
                     </div>
@@ -253,7 +254,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                       <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                         <span
                           style={{
-                            fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 700,
+                            fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), fontWeight: 700,
                             color: active ? "#fff" : COLORS.textDefault,
                           }}
                         >
@@ -262,7 +263,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                         {!v2 && (
                           <span
                             style={{
-                              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+                              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
                               color: COLORS.textFaint, letterSpacing: "0.5px",
                             }}
                           >
@@ -272,7 +273,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                         {c.emergency && (
                           <span
                             style={{
-                              fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: "#04121f", fontWeight: 700,
+                              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: "#04121f", fontWeight: 700,
                               padding: "0px 5px", borderRadius: RADIUS.md,
                               background: COLORS.statusWarn,
                             }}
@@ -284,7 +285,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                       {(c.note || inOther) && (
                         <span
                           style={{
-                            fontFamily: FONT_CJK, fontSize: 8.5,
+                            fontFamily: FONT_CJK, fontSize: fs(v2, 8.5),
                             color: inOther ? COLORS.accent : COLORS.textFaint,
                             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                           }}
@@ -296,7 +297,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     {active && (
                       <span
                         style={{
-                          fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.accent, flexShrink: 0,
+                          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.accent, flexShrink: 0,
                         }}
                       >
                         ✓
@@ -359,10 +360,10 @@ function LiveSlot({
               position: "absolute", inset: 0, display: "flex",
               flexDirection: "column", alignItems: "center", justifyContent: "center",
               gap: 6, color: COLORS.textFaint,
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, textAlign: "center", padding: 16,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), textAlign: "center", padding: 16,
             }}
           >
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px" }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px" }}>
               {resolved?.last_error ? (v2 ? "解析失敗" : "RESOLVER ERROR") : (v2 ? "解析中…" : "RESOLVING…")}
             </span>
             <span>
@@ -396,7 +397,7 @@ function LiveSlot({
             />
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, fontWeight: 700,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), fontWeight: 700,
                 color: "#fff", letterSpacing: "0.5px",
               }}
             >
@@ -405,7 +406,7 @@ function LiveSlot({
           </span>
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700, color: "#fff",
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700, color: "#fff",
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
@@ -414,7 +415,7 @@ function LiveSlot({
           {emergency && (
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: "#04121f", fontWeight: 700,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: "#04121f", fontWeight: 700,
                 padding: "1px 6px", borderRadius: RADIUS.md, background: COLORS.statusWarn,
               }}
             >
@@ -433,7 +434,7 @@ function LiveSlot({
         <ChannelMenu value={chId} onPick={onPick} usedIds={usedIds} channels={channels} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)", pointerEvents: "none",
           }}
         >
@@ -524,7 +525,7 @@ export const LiveWall = memo(function LiveWall() {
         {!v2 && (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px",
               color: COLORS.textDefault,
             }}
           >
@@ -535,7 +536,7 @@ export const LiveWall = memo(function LiveWall() {
         {ctsLive ? (
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.statusWarn,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.statusWarn,
               padding: "2px 8px", borderRadius: RADIUS.md,
               background: COLORS.statusWarnSoft,
               border: "1px solid rgba(255,152,0,0.3)",
@@ -544,7 +545,7 @@ export const LiveWall = memo(function LiveWall() {
             ⚠ 華視已切換防災直播
           </span>
         ) : (
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
             4 格同步 · 可切換 {availableChannels.length} 家
           </span>
         )}
@@ -575,7 +576,7 @@ export const LiveWall = memo(function LiveWall() {
           marginTop: 7,
           textAlign: "center",
           fontFamily: FONT_CJK,
-          fontSize: 9.5,
+          fontSize: fs(v2, 9.5),
           color: COLORS.textFaint,
           lineHeight: 1.5,
         }}

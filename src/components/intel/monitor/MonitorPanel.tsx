@@ -63,6 +63,7 @@ import {
 } from "./monitorStyle";
 import { MonitorCardFrame, MonitorCardTime } from "./MonitorCardFrame";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
+import { MF } from "./monitorFont";
 
 const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
@@ -100,14 +101,15 @@ const MONITOR_STACK_ORDER_SPLIT: MonitorGridItem[] = [...MONITOR_SPLIT_VISIBLE_L
 const monitorTreeSplit: MonitorNode = buildMonitorTree(MONITOR_SPLIT_VISIBLE_LAYOUT);
 
 // ── v2 卡片殼的高度補償 ──
-// v2 每格多一條標題列（約 1 列高），固定高的格子（非 fit:content）內容會被裁掉
-// （實測警訊整合六宮格、信號分級第三欄）。只加高這幾格並順移其下的格子，
-// 維持左右兩欄同止（split：左 14+4＝右 6+7+5＝18；dock：左 13＝中 8+5＝右 9+4）。
+// v2 每格多一條標題列，且字級改 S13（最小 13px），固定高的格子（非 fit:content）內容
+// 會被裁掉。依 1920 實測加高並順移其下格子，維持左右兩欄同止：
+// split：左 新聞 14＋信號分級 6＝右 時間軸 6＋警訊 8＋熱區 6＝20（信號分級在 1496 寬圖例會換行，多給一列）
+// dock ：左 新聞 15＝中 警訊 9＋熱區 6＝右 時間軸 10＋信號分級 5
 const V2_ADJUST_SPLIT: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>> = {
-  alertBoard: { h: 7 }, hotZones: { y: 13 }, triage: { h: 4 },
+  alertBoard: { h: 8 }, hotZones: { y: 14, h: 6 }, triage: { y: 14, h: 6 },
 };
 const V2_ADJUST_DOCK: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>> = {
-  newsFeed: { h: 13 }, alertBoard: { h: 8 }, hotZones: { y: 8 }, triage: { h: 4 },
+  newsFeed: { h: 15 }, alertBoard: { h: 9 }, hotZones: { y: 9, h: 6 }, timeline: { h: 10 }, triage: { y: 10, h: 5 },
 };
 const adjustLayout = (
   layout: MonitorGridItem[], adj: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>>,
@@ -789,7 +791,7 @@ export function MonitorPanel({
           }}
         >
           <IntelIcon d={MICON.grid!} size={15} color={COLORS.accent} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: v2 ? COLORS.textStrong : "#fff" }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: v2 ? MF.title : FONT_SIZE.lg, fontWeight: 700, color: v2 ? COLORS.textStrong : "#fff" }}>
             監看模式
           </span>
           {v2 ? (
@@ -797,7 +799,7 @@ export function MonitorPanel({
               style={{
                 padding: "1px 6px", borderRadius: RADIUS.md,
                 border: `1px solid ${COLORS.statusWarn}`,
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.statusWarn, whiteSpace: "nowrap",
+                fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.statusWarn, whiteSpace: "nowrap",
               }}
               title="本模式仍在打磨中，數據與互動可能還會調整"
             >
@@ -833,7 +835,7 @@ export function MonitorPanel({
             overflow:hidden 裁掉且點不到（1440 實測超出 30px）。 */}
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
+            fontFamily: FONT_DATA, fontSize: v2 ? MF.label : FONT_SIZE.sm, color: COLORS.textFaint,
             marginTop: isWall ? 0 : 4, whiteSpace: "nowrap",
             minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
           }}
@@ -861,7 +863,7 @@ export function MonitorPanel({
                 onMouseDown={(e) => e.stopPropagation()}
                 style={{
                   padding: "3px 8px", borderRadius: 3, border: "none", cursor: "pointer",
-                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, whiteSpace: "nowrap",
+                  fontFamily: FONT_CJK, fontSize: MF.label, whiteSpace: "nowrap",
                   background: active ? COLORS.accentFaint : "transparent",
                   color: active ? COLORS.accent : COLORS.textMuted,
                 }}
@@ -885,7 +887,7 @@ export function MonitorPanel({
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
                   padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
-                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                  fontFamily: FONT_CJK, fontSize: v2 ? MF.label : FONT_SIZE.base,
                   whiteSpace: "nowrap",
                   background: active ? COLORS.accentFaint : "rgba(255,255,255,0.05)",
                   border: active ? `1px solid ${COLORS.accentSoft}` : `1px solid ${COLORS.borderMid}`,
@@ -912,7 +914,7 @@ export function MonitorPanel({
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
             marginTop: isWall ? 0 : 4,
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, whiteSpace: "nowrap",
+            fontFamily: FONT_CJK, fontSize: v2 ? MF.label : FONT_SIZE.base, whiteSpace: "nowrap",
             background: "rgba(255,255,255,0.05)",
             border: `1px solid ${COLORS.borderMid}`,
             color: COLORS.textDefault,
@@ -939,7 +941,8 @@ export function MonitorPanel({
           欄寬算式與 gap 全部沿用原值，不必為了放大字另調一套座標。 */}
       <div
         style={{
-          zoom: MONITOR_CONTENT_ZOOM,
+          // 新版用監看專用字級（S13，monitorFont.ts），不再整體放大；舊版維持 1.15
+          zoom: v2 ? 1 : MONITOR_CONTENT_ZOOM,
           display: "flex", flexDirection: "column", gap: MONITOR_GRID_GAP,
         }}
       >
