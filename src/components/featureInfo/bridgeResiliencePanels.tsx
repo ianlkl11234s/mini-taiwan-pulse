@@ -13,13 +13,12 @@ import {
 } from "../../data/bridgeResilienceStore";
 import { paramBool, paramStr } from "../../layers/layerParamsAccess";
 import { layerParamsStore, useLayerParams } from "../../state/layerParamsStore";
-import { Row, Title } from "./shared";
+import { PopupDetails, PopupScroll, Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 
 const KEY = BRIDGE_RESILIENCE_KEY;
 const TOP_N = 3;
 const DEST_TOP_LIST = 5;
-const SCROLL_MAX_HEIGHT = 320;
 const setParam = (name: string, value: string | boolean) => layerParamsStore.setParam(KEY, name, value);
 
 /** 「名稱（占比%）」前 3 名；空陣列回「無」。占比是前 50 組受影響起訖對的權重占比，非流量預測。 */
@@ -187,7 +186,7 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
     </div>
     {showVillages && !origin && <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, padding: "2px 0" }}>點地圖上的村里，可看它去哪些地方變慢。</div>}
     {/* 內容區有高度上限、可捲動；展開「說明與限制」後也在這裡捲動，不撐高整個 popup。 */}
-    <div className="fi-scroll" style={{ maxHeight: SCROLL_MAX_HEIGHT, overflowY: "auto", overscrollBehavior: "contain" }}>
+    <PopupScroll>
       {showVillages && origin && <DestinationSection view={view} status={destStatus} originCode={origin} modeLabel={BRIDGE_MODE_LABELS[mode]} uniformNote={weighting === "decay"} />}
       {!entry && <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>{data ? "此橋沒有模擬指標。" : "指標載入中…"}</div>}
       {entry && weighting === "decay" && <DecayRows decay={decay} mode={mode} />}
@@ -198,8 +197,7 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
         {typeof stranded === "number" && stranded > 0 && <Row label="孤立人口" value={populationText(stranded)} />}
       </>}
       {entry && <Row label="替代橋" value={sameRiver?.length ? altBridgesText(sameRiver, 2) : `路徑上其他橋：${altBridgesText(otherOnRoute, 2)}`} />}
-      <details className="fi-details" style={{ marginTop: 6 }}>
-        <summary style={{ cursor: "pointer", fontSize: FONT_SIZE.sm, color: t.textMuted, padding: "4px 0" }}>說明與限制</summary>
+      <PopupDetails summary="說明與限制">
         <Row label="研究狀態" value="研究中；站主限定（BSS 授權 HOLD）。是單橋失效後果，不是風險" />
         {entry && <Row label="複核日期" value={review?.latest_review_date ?? ""} mono />}
         {weighting === "decay" && <DecayDetailRows decay={decay} mode={mode} />}
@@ -213,7 +211,7 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
         {entry && <Row label="替代路線" value="只畫戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的" />}
         {review?.notes?.map((note) => <Row key={note} label="複核備註" value={note} />)}
         {BRIDGE_RESILIENCE_LIMITS_TEXT.map((text, i) => <Row key={text} label={i === 0 ? "限制" : ""} value={text} />)}
-      </details>
-    </div>
+      </PopupDetails>
+    </PopupScroll>
   </>;
 }
