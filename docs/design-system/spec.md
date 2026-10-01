@@ -731,6 +731,8 @@
   | KPI 數值 | 19 | `--mon-f-kpi` |
   | 主數字 | 24 | `--mon-f-main` |
 
+  行高：卡內預設 1.45（`.mtp-mcard`），卡內區塊間距 10px；主數字等自訂行高的不受影響。
+
   實作：`monitorFont.ts`（`MON_FONT_PX`、`MF`、`fs(v2, legacyPx)`：≤9.5→cap、≤10.5→label、≤12.5→body、≤15→title、≤21→kpi、≥22→main；≥36 的一次性大字原樣）、`monitorCard.css` 變數。全站 7 階（§3.13）不變；監看以外（即時情報面板等）不受影響。
 
 - **新舊版切換**：面板標頭「新版／舊版」，預設新版，存 localStorage `mtp-monitor-style`；舊版是改版前畫面原樣，供對照或退回。各卡以 `useMonitorV2()` 分支，**舊版樣式值不改**。
