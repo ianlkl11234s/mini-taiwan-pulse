@@ -26,6 +26,7 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 
 import type { LayerVisibility, TransportType } from "../../types";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
+import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -203,6 +204,16 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  */
 export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療設施", "長照服務", "醫療圈", "水資源", "高度與地表"];
 
+/** 環境統計依 recipe 的中分類／小分組派生；raw 在 ratio 前，toggle 群組只在第一個成員渲染。 */
+function environmentLayers(match: (recipe: EnvironmentRecipe) => boolean): LayerDef[] {
+  return ENVIRONMENT_ENABLED_STATISTICS_RECIPES.filter(match).map((recipe) => fromManifest(recipe.layer_key as ManifestKey));
+}
+function environmentSubgroups(group: string): SubGroupDef[] {
+  const subgroups = [...new Set(ENVIRONMENT_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.group === group).map((recipe) => recipe.subgroup))];
+  return subgroups.map((title) => ({ title, layers: environmentLayers((recipe) => recipe.group === group && recipe.subgroup === title) }));
+}
+const environmentDataTheme = (group: string): ThemeDef => ({ title: ENVIRONMENT_STATISTICS_THEME_TITLES[group]!, groups: environmentSubgroups(group) });
+
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "工作與所得 Work & Income", groups: [
@@ -233,8 +244,12 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
     { title: "土地使用結構", layers: [fromManifest("statsRoadLandAreaTownship"), fromManifest("statsRailLandAreaTownship"), fromManifest("statsAirportLandAreaTownship"), fromManifest("statsPortLandAreaTownship")] },
   ] },
   { title: "水資源統計 Water Statistics", groups: [{ title: "畜牧用水", layers: [fromManifest("statsPigWaterCounty")] }, { title: "公共給水", layers: [fromManifest("statsWaterSupplyHistorical")] }] },
-  { title: "廢棄物統計 Waste Statistics", groups: [{ title: "清運量能", layers: [fromManifest("statsWasteCounty")] }, { title: "回收成果", layers: [fromManifest("statsWasteRecyclingRate")] }] },
-  { title: "資源回收統計 Recycling Statistics", groups: [{ title: "資源回收量能", layers: [fromManifest("statsRecyclingCounty")] }] },
+  { title: "廢棄物統計 Waste Statistics", groups: [{ title: "清運量能", layers: [fromManifest("statsWasteCounty")] }, { title: "回收成果", layers: [fromManifest("statsWasteRecyclingRate")] }, ...environmentSubgroups("廢棄物統計")] },
+  { title: "資源回收統計 Recycling Statistics", groups: [{ title: "資源回收量能", layers: [fromManifest("statsRecyclingCounty")] }, ...environmentSubgroups("資源回收統計")] },
+  environmentDataTheme("水質與污水統計"),
+  environmentDataTheme("空氣品質統計"),
+  environmentDataTheme("污染與公害統計"),
+  environmentDataTheme("環境治理統計"),
   { title: "能源統計 Energy Statistics", groups: [{ title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] }] },
   // 舊稻作 saved-state/語意入口維持原 section；cross-topic index 另由 recipe metadata 提供。
   { title: "農業統計 Agriculture Statistics", groups: [{ title: "稻作生產", layers: [fromManifest("statsRiceHarvest")] }] },
@@ -383,7 +398,9 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] },
       { title: "廢棄物與回收", layers: [
         fromManifest("statsWasteCounty"), fromManifest("statsRecyclingCounty"), fromManifest("statsWasteRecyclingRate"),
+        ...environmentLayers((recipe) => recipe.tab_group === "廢棄物與回收"),
       ] },
+      ...["水質與污水", "空氣品質", "污染與公害", "環境治理"].map((title) => ({ title, layers: environmentLayers((recipe) => recipe.tab_group === title) })),
     ],
   },
   {
@@ -1387,6 +1404,15 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "水質與污水 Water Quality",
+        layers: [
+          fromManifest("riverRpiStations"),
+          fromManifest("waterQualityStations"),
+          fromManifest("sewageTreatmentPlants"),
+          fromManifest("drinkingWaterProtectionZones"),
+        ],
+      },
+      {
         title: "環境污染",
         layers: [
           fromManifest("pollutionFacility"),
@@ -1981,6 +2007,10 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "住宅存量與使用": "city",
   "房地產統計 Real Estate Statistics": "city",
   "資源回收統計 Recycling Statistics": "environment",
+  "水質與污水統計 Water Quality & Sewage Statistics": "environment",
+  "空氣品質統計 Air Quality Statistics": "environment",
+  "污染與公害統計 Pollution & Nuisance Statistics": "environment",
+  "環境治理統計 Environmental Enforcement Statistics": "environment",
   "治安與交通 Safety & Transport": "safety",
   "行政區參考 Administrative Boundaries": "baseline",
   "底圖 Base Map": "baseline",

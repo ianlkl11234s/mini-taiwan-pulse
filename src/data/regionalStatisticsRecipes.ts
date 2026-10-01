@@ -3,6 +3,7 @@ import { statisticsVisualColors } from "./statisticsVisuals";
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
 import { SOCIAL_STATISTICS_RECIPES_BY_KEY, getSocialRecipe, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
+import { ENVIRONMENT_STATISTICS_RECIPES_BY_KEY, environmentDefaultDimensions, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
@@ -402,6 +403,31 @@ export const STATISTICS_RECIPES = {
   }])) as Record<LaborStatisticsLayerKey, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  // 環境統計：不放 releaseId，loader 由 exact whitelist 取最新公開期別與預設 dimension（總計）。
+  ...Object.fromEntries(Object.entries(ENVIRONMENT_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => {
+    const periods = new Set(recipe.release_options.map(option => option.release_id));
+    const only = recipe.release_options[0];
+    return [key, {
+      dataset_id: recipe.dataset_id,
+      indicator_id: recipe.indicator_id,
+      level: recipe.level as StatisticsLevel,
+      label: recipe.label,
+      unit: recipe.unit,
+      frequency: periods.size > 1 ? `年度（${periods.size} 個已公開期別）` : `${only?.period_start ?? "已公開"} 至 ${only?.period_end ?? ""}`,
+      dimensions: environmentDefaultDimensions(recipe),
+      includeHealth: true,
+      provenance: {
+        boundaryVersion: recipe.boundary_version,
+        locationSemantics: recipe.location_semantics,
+        disclosure: recipe.disclosure,
+      },
+      breaks: recipe.legend.breaks,
+      colors: statisticsVisualColors(key, recipe.label, recipe.legend.breaks),
+    }];
+  })) as Record<EnvironmentStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
   }>,
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;

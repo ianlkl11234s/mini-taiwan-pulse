@@ -161,7 +161,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-29: +8 土壤液化 owner-only 圖層（潛勢、弱層 6、監測站）。
     // 2026-09-29: +2 全臺橋梁方向候選／清冊點位（進行中，站主限定私人 PMTiles）。
     // 2026-09-30: +1 雙北跨河橋梁韌性（研究中，站主限定私人 PMTiles＋JSON）。
-    expect(keys.length).toBe(814);
+    // 2026-10-02: +37 環境統計 Statistics 圖層（環境部／國土管理署 18 dataset）。
+    // 2026-10-02: +4 水質與污水靜態圖層（RPI 測站、水質測站、污水處理廠、飲用水水源水質保護區）。
+    expect(keys.length).toBe(855);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

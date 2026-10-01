@@ -78,10 +78,13 @@ export function deriveStatisticsRecipeCatalog(
  * - agri／social：明細（release_options 等）由 statisticsRecipeDetails 依家族 dynamic import。
  * - labor（PF-10）：release_options 首屏即用（STATISTICS_RECIPES 的 frequency／dimensions）故保留；
  *   `fragment_context` 是交付紀錄，前端執行期無讀取者，只留在交付 JSON（SSOT），不進 bundle。
+ * - environment：同 labor 保留 release_options（STATISTICS_RECIPES 預設 dimensions 與期別白名單首屏即用）；
+ *   `delivery`（breaks 依據、raw SHA、coverage 收據）只留在交付 JSON。
  * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
  */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "agri", source: "src/data/agriStatisticsRecipes.json", catalog: "src/data/agriStatisticsRecipes.catalog.json", omitRecipeKeys: [], keepReleaseOptions: false },
   { family: "social", source: "src/data/socialStatisticsRecipes.json", catalog: "src/data/socialStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context"], keepReleaseOptions: false },
   { family: "labor", source: "src/data/laborStatisticsRecipes.json", catalog: "src/data/laborStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context"], keepReleaseOptions: true },
+  { family: "environment", source: "src/data/environmentStatisticsRecipes.json", catalog: "src/data/environmentStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
 ] as const;

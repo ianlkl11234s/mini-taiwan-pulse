@@ -61,6 +61,12 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsDimensionSummary({ roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' })).toBe('期間：民國 114 年・12 月；系統：臺中捷運；地理語意：車站所在地');
   });
 
+  it('humanizes environment dimensions instead of showing source tokens', () => {
+    expect(statisticsDimensionSummary({ inspection_type: 'other_stationary' }, { period_start: '2025-01-01', period_end: '2025-12-31' }))
+      .toBe('期間：2025 年；稽查類別：其他固定污染源');
+    expect(statisticsDimensionSummary({ wastewater_source: 'agricultural' })).toBe('污水來源：農業');
+  });
+
   it('humanizes labor exact selectors without hiding the industry subset rule', () => {
     expect(statisticsDimensionSummary({ industry: 'manufacturing', period: 'H1', roc_year: '115' }, undefined, 'labor_statistics'))
       .toBe('期間：民國 115 年；行業：製造業（工業子集）；期別：上半年');

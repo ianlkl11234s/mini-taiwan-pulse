@@ -3,6 +3,7 @@ import { getComparisonRecipe, STATISTICS_COMPARISONS_UI_ENABLED } from "./compar
 import { isStatisticsLayer, STATISTICS_RECIPES, statisticsBaseKey } from "./regionalStatisticsRecipes";
 import { getSocialRecipe } from "./socialStatisticsRecipes";
 import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
+import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
 export type StatisticsSourceKind = "source" | "derived" | "presentation";
@@ -104,6 +105,26 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       period: periodLabel(labor.release_options),
       contract: `只接受已驗證 exact release selector；資料期與顯示邊界版本分開揭露。${presentation ? " 衍生比例沿用已登錄的 participation_rate selector，不新增來源 release。" : ""}`,
       disclosure: `${laborLocationSemantics(labor)} ${derivedDisclosure} ${labor.disclosure}`.trim(),
+    };
+  }
+
+  const environment = getEnvironmentRecipe(key);
+  if (environment) {
+    const periods = [...new Map(environment.release_options.map(option => [option.release_id, option])).values()];
+    const raw = environment.pair_raw_key ? getEnvironmentRecipe(environment.pair_raw_key) : undefined;
+    return {
+      kind: environment.derived ? "derived" : "source",
+      datasetIds: [environment.dataset_id],
+      label: environment.derived ? "衍生環境統計比例" : "原始環境統計快照",
+      metricLabel: environment.label,
+      unit: environment.unit,
+      level: environment.level,
+      period: periodLabel(periods),
+      contract: `只接受 ${periods.length} 個已公開期別、${environment.release_options.length} 個 exact release selector${environment.dimension ? `（含 ${environment.dimension.options.length} 個細項）` : ""}；${raw ? `分子為「${raw.label}」同期同細項。` : "數值保留來源值，缺值不補 0。"}`,
+      disclosure: `位置口徑：${environment.location_semantics} ${environment.disclosure}`,
+      sourceUrl: environment.source_landing_url,
+      provider: environment.publisher,
+      license: environment.license,
     };
   }
 

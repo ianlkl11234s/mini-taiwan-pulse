@@ -67,6 +67,17 @@ describe('getStatisticsVisual', () => {
     }
   });
 
+  it('routes environment statistics to BuPu and water utilities to GnBu, never transport or fallback', () => {
+    expect(getStatisticsVisual('statsMotorArrivalRateCounty', '機車定檢到檢率').theme).toBe('環境');
+    expect(getStatisticsVisual('statsComplaintsCounty', '公害陳情案件數').theme).toBe('環境');
+    expect(getStatisticsVisual('statsBodDischargedPerKm2County', '廢（污）水 BOD 排放量每平方公里').theme).toBe(getStatisticsVisual('statsBodDischargedCounty').theme);
+    expect(getStatisticsVisual('statsTapWaterFailuresCounty', '自來水不合格件數').theme).toBe('公用事業');
+    expect(getStatisticsVisual('statsSewerConnectionCounty', '公共污水下水道用戶接管普及率').theme).toBe('公用事業');
+    // 既有層不因新增 key 映射而改道
+    expect(getStatisticsVisual('statsWaterSupplyHistorical').icon).toBe(Droplets);
+    expect(getStatisticsVisual('statsWasteCounty').icon).toBe(Trash2);
+  });
+
   it('uses the eight-class colorblind-friendly income palette for village income', () => {
     expect(getStatisticsVisual('statsLaborVillageIncomeMedian', '綜合所得中位數').colors).toEqual([
       '#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e',
@@ -97,8 +108,9 @@ describe('getStatisticsVisual', () => {
   });
 
   it('covers all source keys, presentation views, and their manifest entries', () => {
-    expect(STATISTICS_KEYS).toHaveLength(308);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(320);
+    // 2026-10-02: +37 環境統計（環境部／國土管理署 18 dataset）。
+    expect(STATISTICS_KEYS).toHaveLength(345);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(357);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

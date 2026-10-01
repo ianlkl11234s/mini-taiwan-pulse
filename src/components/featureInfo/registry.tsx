@@ -149,6 +149,9 @@ import {
   OfficialNoiseMonitoringPanel, NoiseCaptureGridPanel, NoiseControlZonesPanel,
   AviationNoiseZonesPanel, NoiseEnforcementEventsPanel, SoundCameraLocationsPanel,
 } from "./noisePanels";
+import {
+  RiverRpiStationsPanel, WaterQualityStationsPanel, SewageTreatmentPlantsPanel, DrinkingWaterProtectionZonesPanel,
+} from "./environmentLayerPanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
@@ -494,6 +497,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   aviationNoiseZones: AviationNoiseZonesPanel,
   noiseEnforcementEvents: NoiseEnforcementEventsPanel,
   soundCameraLocations: SoundCameraLocationsPanel,
+  riverRpiStations: RiverRpiStationsPanel,
+  waterQualityStations: WaterQualityStationsPanel,
+  sewageTreatmentPlants: SewageTreatmentPlantsPanel,
+  drinkingWaterProtectionZones: DrinkingWaterProtectionZonesPanel,
   // AI 助手標記點
   chatHighlight: ChatHighlightPanel,
   // 與 Agent 協作：暫時分析結果
@@ -967,6 +974,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   aviationNoiseZones: "航空噪音法定里別",
   noiseEnforcementEvents: "噪音裁處事件",
   soundCameraLocations: "聲音照相設備／路段",
+  riverRpiStations: "河川污染指數測站",
+  waterQualityStations: "水質監測站",
+  sewageTreatmentPlants: "公共污水處理廠",
+  drinkingWaterProtectionZones: "飲用水水源水質保護區（環境部）",
   // AI 助手標記點
   chatHighlight: "地圖標記",
   // 與 Agent 協作：暫時分析結果

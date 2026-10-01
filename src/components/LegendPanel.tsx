@@ -58,6 +58,7 @@ import { legendKeys } from "../data/legendGroups";
 import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
+import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES } from "../data/environmentStatisticsRecipes";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
@@ -231,6 +232,9 @@ import {
   OFFICIAL_NOISE_FRESHNESS, OFFICIAL_NOISE_COLOR_EXPR, NOISE_CONTROL_ZONE_META, AVIATION_NOISE_ZONE_META,
   SOUND_CAMERA_PRECISION_META, NOISE_CAPTURE_ATTRIBUTION,
 } from "../data/noiseTypes";
+import {
+  DRINKING_WATER_ZONE_TYPES, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR, WATER_QUALITY_STATION_TYPES,
+} from "../data/environmentLayerTypes";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -369,6 +373,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
   ...LABOR_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...ENVIRONMENT_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
@@ -658,6 +666,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "aviationNoiseZones", render: () => <AviationNoiseZonesLegend /> },
   { id: "noiseEnforcementEvents", render: () => <NoiseEnforcementEventsLegend /> },
   { id: "soundCameraLocations", render: () => <SoundCameraLocationsLegend /> },
+  { id: "riverRpiStations", render: () => <RiverRpiStationsLegend /> },
+  { id: "waterQualityStations", render: () => <WaterQualityStationsLegend /> },
+  { id: "sewageTreatmentPlants", render: () => <SewageTreatmentPlantsLegend /> },
+  { id: "drinkingWaterProtectionZones", render: () => <DrinkingWaterProtectionZonesLegend /> },
   // 🎓 教育 17 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
   {
     id: "schools",
@@ -6211,6 +6223,58 @@ function SoundCameraLocationsLegend() {
       <NoiseLegendRows rows={Object.values(SOUND_CAMERA_PRECISION_META)} dot />
       <NoiseLegendNote source="臺南市／彰化縣環保局官方清單 · 政府資料開放授權條款第 1 版">
         333 筆清單中只有 267 筆可畫；66 筆 pending 未以行政區中心補位。位置可能是地址、路段或模糊定位；清單不代表即時運作、違規事件位置或 dB。v1 只涵蓋臺南與彰化。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function RiverRpiStationsLegend() {
+  return (
+    <div>
+      <NoiseLegendTitle>河川污染指數 RPI（最新一次）</NoiseLegendTitle>
+      <NoiseLegendRows rows={RIVER_RPI_CLASSES} dot />
+      <LegendRow swatch={<SwatchDot color="transparent" stroke={RIVER_RPI_NO_DATA_COLOR} strokeWidth={2} />}>無 RPI 資料（不代表乾淨）</LegendRow>
+      <NoiseLegendNote source="環境部河川水質監測（WQX_P_01）· 政府資料開放授權條款第 1 版">
+        官方四級：RPI ≤2 未（稍）受污染、≤3 輕度、≤6 中度、&gt;6 嚴重。每月更新、約延遲 2 個月；顏色只代表該站最新一次採樣，不是長期平均。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function WaterQualityStationsLegend() {
+  return (
+    <div>
+      <NoiseLegendTitle>水質監測站</NoiseLegendTitle>
+      <NoiseLegendRows rows={WATER_QUALITY_STATION_TYPES} dot />
+      <LegendRow swatch={<SwatchDot color="transparent" stroke={WATER_QUALITY_STATION_TYPES[0].color} strokeWidth={2} />}>中空：無讀值（不代表乾淨）</LegendRow>
+      <NoiseLegendNote source="環境部、經濟部水利署、臺北翡翠水庫管理局 · 政府資料開放授權條款第 1 版">
+        只標示測站位置與最新採樣日，不代表水質好壞；無座標或座標在臺灣外的 607 站未畫出。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function SewageTreatmentPlantsLegend() {
+  return (
+    <div>
+      <NoiseLegendTitle>公共污水處理廠</NoiseLegendTitle>
+      <LegendRow swatch={<SwatchDot color={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants} />}>地址精確／路段定位</LegendRow>
+      <LegendRow swatch={<SwatchDot color={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants} opacity={0.35} stroke={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants} strokeWidth={2} />}>位置不確定（區域中心／約略位置）</LegendRow>
+      <NoiseLegendNote source="內政部 data.gov.tw 26496 · 地址經 Google 定位">
+        82 廠中 14 處只定位到區域中心或約略位置，點位不等於廠址。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function DrinkingWaterProtectionZonesLegend() {
+  return (
+    <div>
+      <NoiseLegendTitle>飲用水水源水質保護區（環境部）</NoiseLegendTitle>
+      <LegendRow swatch={<SwatchSquare color={DRINKING_WATER_ZONE_TYPES[0].color} />}>{DRINKING_WATER_ZONE_TYPES[0].label}</LegendRow>
+      <LegendRow swatch={<SwatchLine color={DRINKING_WATER_ZONE_TYPES[1].color} dash={[2, 2]} />}>{DRINKING_WATER_ZONE_TYPES[1].label}（虛線）</LegendRow>
+      <NoiseLegendNote source="環境部 GISEPA_P_13（2026-07-20 版）· 政府資料開放授權條款第 1 版">
+        依飲用水管理條例公告；與水資源「管制區」（水利署依自來水法劃設的自來水水質水量保護區）法源與範圍不同，不可視為同一圖層。
       </NoiseLegendNote>
     </div>
   );

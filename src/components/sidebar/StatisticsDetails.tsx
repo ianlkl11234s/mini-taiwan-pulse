@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore, type CSSProperties } from 'react';
 import { getAgriRecipe, agriReleaseOptions, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriStatisticsRecipes';
 import { getSocialRecipe, getSocialRecipeDetails, socialReleaseOptions, resolveSocialRelease } from '../../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatisticsPresentationView, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from '../../data/laborStatisticsRecipes';
+import { environmentDimensionLabel, environmentDimensionValueLabel, environmentLegendRows, environmentReleaseOptions, getEnvironmentRecipe, resolveEnvironmentRelease } from '../../data/environmentStatisticsRecipes';
 import { getComparisonRecipe, comparisonReleaseOptions } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -100,7 +101,7 @@ const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
 function statisticsDimensionLabel(key: string): string {
   if (key === 'roc_year') return '年度';
   if (key === 'month') return '月份';
-  return DIMENSION_LABELS[key] ?? key;
+  return DIMENSION_LABELS[key] ?? environmentDimensionLabel(key) ?? key;
 }
 
 const BICYCLE_SOURCE_FIELD_LABELS: Record<string, string> = { COLUMN1: '市區租借站數', COLUMN3: '市區年租借次數', COLUMN5: '河濱租借站數', COLUMN6: '河濱自行車數', COLUMN7: '河濱年租借次數' };
@@ -116,7 +117,7 @@ function statisticsDimensionValueLabel(key: string, value: string, datasetId?: s
       : BICYCLE_SOURCE_FIELD_LABELS;
     return labels[value] ?? value;
   }
-  return DIMENSION_VALUE_LABELS[key]?.[value] ?? value;
+  return DIMENSION_VALUE_LABELS[key]?.[value] ?? environmentDimensionValueLabel(key, value) ?? value;
 }
 
 /** Compact, human-readable selection text for the collapsed filter disclosure. */
@@ -163,6 +164,7 @@ export function statisticsReleaseOptions(key: StatisticsRenderKey, releases: Sta
   if (getAgriRecipe(baseKey)) return restrictToViewStage(agriReleaseOptions(baseKey, releases));
   if (getSocialRecipe(baseKey)) return restrictToViewStage(socialReleaseOptions(baseKey, releases));
   if (getLaborRecipe(baseKey)) return restrictToViewStage(laborReleaseOptions(baseKey, releases));
+  if (getEnvironmentRecipe(baseKey)) return environmentReleaseOptions(baseKey, releases);
   const recipe = STATISTICS_RECIPES[baseKey];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return [];
   return restrictToViewStage(releases.flatMap(release => {
@@ -191,7 +193,7 @@ export function unparseableStatisticsReleaseCount(key: StatisticsRenderKey, rele
     const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
     return compatible.filter(release => !allowed.has(release.release_id)).length;
   }
-  if (getLaborRecipe(baseKey)) {
+  if (getLaborRecipe(baseKey) || getEnvironmentRecipe(baseKey)) {
     const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
     return compatible.filter(release => !allowed.has(release.release_id)).length;
   }
@@ -265,6 +267,7 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
   const agri = getAgriRecipe(activeBaseKey);
   const social = getSocialRecipe(activeBaseKey);
   const labor = getLaborRecipe(activeBaseKey);
+  const environment = getEnvironmentRecipe(activeBaseKey);
   const laborView = getLaborStatisticsPresentationView(layerKey);
   const selectedLaborMetric = getLaborStatisticsPresentationMetric(layerKey, state.selection?.indicatorId);
   const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease, recipe.dataset_id);
@@ -287,6 +290,21 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
     const resolved = social && release ? resolveSocialRelease(activeBaseKey, release, option.dimensions)
       : labor && release ? resolveLaborRelease(activeBaseKey, release, option.dimensions)
         : option;
+    if (!resolved) return;
+    regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, state.selection?.indicatorId), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
+    void regionalStatisticsStore.load(layerKey);
+  };
+  // 環境統計：期別是 release、細項是 dimension；兩者分開選，只列已公開的 exact tuple。
+  const environmentPeriods = environment ? [...new Set(selectable.map(option => option.releaseId))] : [];
+  const environmentDimensionKey = environment?.dimension?.key;
+  const environmentDimensionValues = environmentDimensionKey && configured
+    ? selectable.filter(option => option.releaseId === configured.releaseId).map(option => option.dimensions[environmentDimensionKey]).filter((value): value is string => typeof value === 'string')
+    : [];
+  const chooseEnvironmentOption = (releaseId: string, dimensionValue?: string) => {
+    const option = selectable.find(candidate => candidate.releaseId === releaseId && (!environmentDimensionKey || candidate.dimensions[environmentDimensionKey] === (dimensionValue ?? selectorDimensions?.[environmentDimensionKey])))
+      ?? selectable.find(candidate => candidate.releaseId === releaseId);
+    const release = option ? state.releases.find(candidate => candidate.release_id === option.releaseId) : undefined;
+    const resolved = option && release ? resolveEnvironmentRelease(activeBaseKey, release, option.dimensions) : null;
     if (!resolved) return;
     regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, state.selection?.indicatorId), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
@@ -339,7 +357,20 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         資料篩選{selectionSummary && <span title={selectionSummary}>：{selectionSummary}</span>}
       </summary>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: SPACING.xs, minWidth: 0, maxWidth: '100%', paddingTop: SPACING.xs }} aria-label={`${recipe.label} 篩選器`}>
-        {selectorDimensions && selectableDimensionKeys.map((key, index) => {
+        {environment && environmentPeriods.length > 0 && <label className="statistics-filter-label" style={{ ...filterLabel, ...(environmentDimensionValues.length > 1 ? {} : { gridColumn: '1 / -1' }) }}>資料期別
+          <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} 資料期別`} style={control} value={configured?.releaseId ?? ''} onChange={event => chooseEnvironmentOption(event.target.value)}>
+            {environmentPeriods.map(releaseId => {
+              const release = state.releases.find(candidate => candidate.release_id === releaseId);
+              return <option key={releaseId} value={releaseId}>{release ? statisticsPeriodLabel(release) : '已公開期別'}</option>;
+            })}
+          </select>
+        </label>}
+        {environment && environmentDimensionKey && environmentDimensionValues.length > 1 && <label className="statistics-filter-label" style={filterLabel}>{statisticsDimensionLabel(environmentDimensionKey)}
+          <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} ${statisticsDimensionLabel(environmentDimensionKey)}`} style={control} value={selectorDimensions?.[environmentDimensionKey] ?? ''} onChange={event => configured && chooseEnvironmentOption(configured.releaseId, event.target.value)}>
+            {environmentDimensionValues.map(value => <option key={value} value={value}>{statisticsDimensionValueLabel(environmentDimensionKey, value)}</option>)}
+          </select>
+        </label>}
+        {!environment && selectorDimensions && selectableDimensionKeys.map((key, index) => {
           const value = selectorDimensions[key]!;
           const filters = Object.fromEntries(selectorDimensionKeys.slice(0, selectorDimensionKeys.indexOf(key)).map(filterKey => [filterKey, selectorDimensions[filterKey]!])) as Partial<Record<string, string>>;
           return <label key={key} className="statistics-filter-label" style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
@@ -349,13 +380,15 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
             </select>
           </label>;
         })}
-        {state.releases.length > 0 && !selectorDimensions && <label className="statistics-filter-label" style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} 資料期別`} style={control} value={String(selected)} onChange={event => {
+        {state.releases.length > 0 && !selectorDimensions && !environment && <label className="statistics-filter-label" style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} 資料期別`} style={control} value={String(selected)} onChange={event => {
           regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value, allowReleaseFallback: false });
           void regionalStatisticsStore.load(layerKey);
         }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
       </div>
     </details>}
     {labor && <p style={factStyle}><strong>位置口徑：</strong>{laborLocationSemantics(labor)}</p>}
+    {environment && <p style={factStyle}><strong>位置口徑：</strong>{environment.location_semantics}</p>}
+    {environment && <p style={factStyle}><strong>資料限制：</strong>{environment.disclosure}</p>}
     <details><summary>來源與處理紀錄</summary>
       <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         {agri && <span>{agri.disclosure ?? agri.boundary_semantics}</span>}
@@ -363,6 +396,8 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         {social?.disclosure && <span>{social.disclosure}</span>}
         {social && <span>參考邊界：{social.boundary_version}；{social.boundary_semantics ?? '以交付資料的參考邊界呈現。'}</span>}
         {labor && <span>顯示參考邊界：{labor.boundary_version}；{labor.boundary_semantics}</span>}
+        {environment && <span>來源資料集：{environment.source_title ?? '未提供'}（{environment.publisher}）；顯示參考邊界：{environment.boundary_version}</span>}
+        {environment?.derived && <span>衍生指標：分子與原始數同一期別、同一細項；分母說明見資料限制。</span>}
         {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>製造業是工業的子集；不得與工業加總。</span>}
         {selectedLaborMetric?.formula && <span>衍生方式：{selectedLaborMetric.formula}</span>}
         <span>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</span>
@@ -373,6 +408,7 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <span>人均指標的分母為全體戶籍人口，並非學齡人口；學年度統計與人口統計之間存在時間差。</span>}
         {'interpretationNote' in recipe && <span>{String(recipe.interpretationNote)}</span>}
         {agri && state.data && <span>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</span>}
+        {environment && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；缺值：{state.data.features.filter(f => f.properties?.status !== 'observed').length}。缺值以斜線表示，不等於 0。</span>}
         {labor && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；來源未涵蓋 source_not_covered：{state.data.features.filter(f => f.properties?.missing_reason === 'source_not_covered').length}；來源 join／時間不匹配 source_join_or_time_mismatch：{state.data.features.filter(f => f.properties?.missing_reason === 'source_join_or_time_mismatch').length}。三者不互相替代。</span>}
         {unparseableCount > 0 && <span role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇。</span>}
         {state.health?.coverage_status && <span>{coverageStatusLabel}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</span>}
@@ -405,6 +441,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const agri = getAgriRecipe(baseKey);
   const social = getSocialRecipe(baseKey);
   const labor = getLaborRecipe(baseKey);
+  const environment = getEnvironmentRecipe(baseKey);
   const t = useLegendTheme();
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
@@ -415,8 +452,8 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {state.health?.coverage_status && <span>{statisticsCoverageStatusLabel(Boolean(agri))}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     <span>{recipe.breaks.some(value => value < 0) ? '棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞' : '淺 → 深：數值低 → 高；請依本指標的數字區間比較'}</span>
-    {statisticsLegendRows(recipe, social?.format ?? labor?.format).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
-    <LegendRow swatch={<SwatchHatch kind="missing" />}>{social || labor ? '斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階' : '斜線：缺資料／未發布數值'}</LegendRow>
+    {((environment && environmentLegendRows(environment, recipe.colors)) || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
+    <LegendRow swatch={<SwatchHatch kind="missing" />}>{social || labor || environment ? '斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階' : '斜線：缺資料／未發布數值'}</LegendRow>
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>交叉斜線：遮蔽 suppressed（*）</LegendRow>}
     {agri && <span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span>}
     {labor && <><span>位置口徑：{laborLocationSemantics(labor)}</span><span>資料期與顯示邊界 {labor.boundary_version} 分開揭露</span></>}

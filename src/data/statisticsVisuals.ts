@@ -7,7 +7,18 @@ import {
   Bus,
   Car,
   ChartNoAxesCombined,
+  ClipboardCheck,
   Droplets,
+  Factory,
+  Flame,
+  FlaskConical,
+  Gauge,
+  Gavel,
+  Megaphone,
+  Shovel,
+  Utensils,
+  Waves,
+  Wind,
   Fish,
   GraduationCap,
   HeartHandshake,
@@ -101,11 +112,40 @@ function visual(theme: StatisticsTheme, icon: LucideIcon): StatisticsVisual {
   return { ...theme, icon };
 }
 
+type ThemeName = keyof typeof THEMES;
+/**
+ * 環境統計 37 層（environmentStatisticsRecipes）以 key 明確指定，避免「機車」「水」等
+ * 字詞落入交通或供水分支。環境＝BuPu；自來水／污水下水道屬公用事業＝GnBu。
+ * 刻意不 import recipe，維持本檔無循環依賴。
+ */
+const ENVIRONMENT_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = {
+  statsComplaintsCounty: ['environment', Megaphone], statsComplaintsPer10kDerivedCounty: ['environment', Megaphone],
+  statsComplaintTargetCounty: ['environment', Megaphone], statsComplaintCasesPndCounty: ['environment', Megaphone],
+  statsComplaintPopulationCounty: ['environment', Megaphone], statsComplaintsPer10kCounty: ['environment', Megaphone],
+  statsBurningComplaintsCounty: ['environment', Flame], statsBurningComplaintsPer10kCounty: ['environment', Flame],
+  statsSoilControlAreaCounty: ['environment', Shovel], statsSoilRemediationAreaCounty: ['environment', Shovel],
+  statsEnvInspectionsCounty: ['environment', ClipboardCheck], statsEnvInspectionsPerFacilityCounty: ['environment', ClipboardCheck],
+  statsEnvFineCasesCounty: ['environment', Gavel], statsEnvFineRateCounty: ['environment', Gavel],
+  statsEnvFineAmountCounty: ['environment', Gavel], statsEnvFineCollectedCounty: ['environment', Gavel],
+  statsAqiPoorRatioCounty: ['environment', Wind],
+  statsMotorArrivalRateCounty: ['environment', Gauge], statsMotorNotifiedCounty: ['environment', Gauge], statsMotorTestedCounty: ['environment', Gauge],
+  statsBodGeneratedCounty: ['environment', FlaskConical], statsBodDischargedCounty: ['environment', FlaskConical], statsBodDischargedPerKm2County: ['environment', FlaskConical],
+  statsWasteGeneratedCounty: ['environment', Trash2], statsWasteGeneratedPer10kCounty: ['environment', Trash2], statsWastePerCapitaCounty: ['environment', Trash2],
+  statsGeneralGarbageCounty: ['environment', Trash2], statsGeneralGarbagePer10kCounty: ['environment', Trash2],
+  statsFoodWasteCounty: ['environment', Utensils],
+  statsRecyclingAmountCounty: ['environment', Recycle], statsRecyclingPer10kCounty: ['environment', Recycle],
+  statsResponsibleEnterprisesCounty: ['environment', Factory],
+  statsTapWaterTestsCounty: ['utilities', Droplets], statsTapWaterFailuresCounty: ['utilities', Droplets], statsTapWaterFailureRateCounty: ['utilities', Droplets],
+  statsSewerConnectionCounty: ['utilities', Waves], statsSewageTreatmentCounty: ['utilities', Waves],
+};
+
 /**
  * Presentation semantics only. This deliberately does not import recipe or manifest
  * modules, so the statistics registry can consume it without a dependency cycle.
  */
 export function getStatisticsVisual(key: string, label?: string, group?: string): StatisticsVisual {
+  const environment = ENVIRONMENT_KEY_VISUALS[key];
+  if (environment) return visual(THEMES[environment[0]], environment[1]);
   const text = textFor(key, label, group);
 
   if (has(text, ['教育', 'education', '學校', '學院', '幼兒園', '國小', '國中', '高中'])) {
