@@ -681,14 +681,14 @@ test("bridge resilience assets enforce owner, probe, range and unknown asset bou
   const deps = (authenticate) => ({ config: allenConfig, authenticate, gateway: privateGateway, revokedSessions });
   assert.equal((await handleBridgeResilienceRequest(bridgeResilienceRequest(), deps(async () => ({ status: 401 })))).status, 401);
   assert.equal((await handleBridgeResilienceRequest(bridgeResilienceRequest(), deps(async () => ({ status: 403 })))).status, 403);
-  for (const name of ["tiles", "summary", "impacts", "destinations"]) {
+  for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary"]) {
     const probe = await handleBridgeResilienceRequest(request(`/api/private-research/bridge-resilience/${name}?access=1`), deps(allenOwner));
     assert.equal(probe.status, 200);
     assert.deepEqual(await probe.json(), { allowed: true });
   }
   assert.equal(calls.head, 0);
   let expectedGets = 0;
-  for (const name of ["tiles", "summary", "impacts", "destinations"]) {
+  for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary"]) {
     const range = await handleBridgeResilienceRequest(bridgeResilienceRequest(name, { headers: { Range: "bytes=0-3" } }), deps(allenOwner));
     assert.equal(range.status, 206);
     assert.equal(range.headers.get("content-range"), `bytes 0-3/${BRIDGE_RESILIENCE_ASSETS[name].size}`);
@@ -703,10 +703,12 @@ test("bridge resilience assets enforce owner, probe, range and unknown asset bou
 
 test("bridge resilience S3 gateway uses immutable private keys", async () => {
   for (const [name, filename] of [
-    ["tiles", "bridge-resilience-20260930-v2.pmtiles"],
+    ["tiles", "bridge-resilience-20261001-v3.pmtiles"],
     ["summary", "bridge_summary.json"],
     ["impacts", "village_impacts.json"],
     ["destinations", "village_destinations.json"],
+    ["decay-impacts", "decay_village_impacts.json"],
+    ["decay-summary", "decay_summary.json"],
   ]) {
     assert.equal(BRIDGE_RESILIENCE_ASSETS[name].filename, filename);
     const bytes = Buffer.from(`bridge-resilience-${name}`);
@@ -759,12 +761,12 @@ test("bridge resilience warmup is independent and shares the revoke boundary", a
     assert.equal((await jp.json()).error, "private Japan water sidecar unavailable");
     const allen = await fetch(`${root}/allen-coral-atlas/benthic`, { headers });
     assert.equal(allen.status, 206);
-    for (const name of ["tiles", "summary", "impacts", "destinations"]) {
+    for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary"]) {
       const br = await fetch(`${root}/bridge-resilience/${name}?access=1`, { headers: { Authorization: "Bearer owner" } });
       assert.equal(br.status, 200);
     }
     await fetch(`${root}/allen-coral-atlas/revoke`, { method: "POST", headers: { Authorization: "Bearer owner" } });
-    for (const name of ["tiles", "summary", "impacts", "destinations"]) {
+    for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary"]) {
       assert.equal((await fetch(`${root}/bridge-resilience/${name}`, { headers })).status, 401);
     }
   } finally {
@@ -785,7 +787,7 @@ test("bridge resilience failed warmup fails closed without affecting other famil
     const address = server.address();
     assert.ok(address && typeof address !== "string");
     const root = `http://127.0.0.1:${address.port}/api/private-research`;
-    for (const name of ["tiles", "summary", "impacts", "destinations"]) {
+    for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary"]) {
       const br = await fetch(`${root}/bridge-resilience/${name}?access=1`, { headers: { Authorization: "Bearer owner" } });
       assert.equal(br.status, 503);
       assert.equal((await br.json()).error, "private bridge resilience sidecar unavailable");
@@ -799,10 +801,12 @@ test("bridge resilience failed warmup fails closed without affecting other famil
 
 test("bridge resilience assets pin filename, size and sha256", () => {
   const expected = {
-    tiles: ["bridge-resilience-20260930-v2.pmtiles", 1944552, "434e38bdcdf63c940529a7320242feb3c6fe8d5d560c94443b433c1fc8b88852"],
+    tiles: ["bridge-resilience-20261001-v3.pmtiles", 2091890, "61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc"],
     summary: ["bridge_summary.json", 63004, "4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574"],
     impacts: ["village_impacts.json", 1333831, "4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764"],
     destinations: ["village_destinations.json", 6425352, "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5"],
+    "decay-impacts": ["decay_village_impacts.json", 864533, "a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873"],
+    "decay-summary": ["decay_summary.json", 55424, "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0"],
   };
   assert.deepEqual(Object.keys(BRIDGE_RESILIENCE_ASSETS).sort(), Object.keys(expected).sort());
   for (const [name, [filename, size, sha256]] of Object.entries(expected)) {
