@@ -57662,12 +57662,27 @@
         "value": "car"
       },
       {
+        "label": "權重",
+        "options": [
+          {
+            "label": "距離遞減（平均行程 20 分）",
+            "value": "decay"
+          },
+          {
+            "label": "不分遠近",
+            "value": "uniform"
+          }
+        ],
+        "type": "select",
+        "value": "decay"
+      },
+      {
         "label": "顯示受影響村里（先點選一座橋；再點村里看目的地視角）",
         "type": "toggle",
         "value": false
       },
       {
-        "label": "村里色階",
+        "label": "村里色階（僅不分遠近）",
         "options": [
           {
             "label": "額外時間 p90",

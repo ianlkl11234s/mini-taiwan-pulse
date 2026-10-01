@@ -5,9 +5,9 @@ import {
   BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_MAX_ZOOM,
   BRIDGE_RESILIENCE_MIN_ZOOM, BRIDGE_RESILIENCE_PRIVATE_ENDPOINT, BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT,
   BRIDGE_RESILIENCE_SOURCE_ID, BRIDGE_RESILIENCE_SOURCE_LAYERS, bridgeModeColorExpression,
-  decodeDestinationView, decodeVillageScenario, destinationFillColorExpression, destinationTopIds, destinationVillageStates,
+  decayFillColorExpression, decodeDecayVillageScenario, decodeDestinationView, decodeVillageScenario, destinationFillColorExpression, destinationTopIds, destinationVillageStates,
   effectiveScenarioUid, highlightUids, scenarioKey, villageFillColorExpression,
-  type BridgeMode, type BridgeResilienceData, type DestinationView, type VillageDestinations, type VillageMetric,
+  type BridgeMode, type BridgeResilienceData, type BridgeWeighting, type DestinationView, type VillageDestinations, type VillageMetric,
 } from "../data/bridgeResilienceTypes";
 import {
   bridgeResilienceDataStore, bridgeResilienceDestinationsStore, bridgeResilienceDestinationStatus, bridgeResilienceOrigin,
@@ -21,9 +21,9 @@ import { bridgeResiliencePrivateAccessToken, useBridgeResiliencePrivateAccess } 
 import { useMapReadyTick } from "./useMapReadyTick";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 
-/** 圖層參數（layerParamsStore）：模式、村里、色階指標、替代路線、聯合情境。 */
+/** 圖層參數（layerParamsStore）：模式、權重、村里、色階指標（僅不分遠近）、替代路線、聯合情境。 */
 export interface BridgeResilienceControls {
-  mode: BridgeMode; showVillages: boolean; metric: VillageMetric; showRoutes: boolean; joint: boolean;
+  mode: BridgeMode; weighting: BridgeWeighting; showVillages: boolean; metric: VillageMetric; showRoutes: boolean; joint: boolean;
 }
 
 const clamp = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
@@ -47,7 +47,9 @@ export function originFilter(originId: number | null): unknown[] {
 export function destTopFilter(topIds: readonly number[]): unknown[] {
   return topIds.length ? ["in", ["id"], ["literal", [...topIds]]] : [...NO_ID];
 }
-const fillColor = (metric: VillageMetric, focus: DestinationFocus) => (focus.active ? destinationFillColorExpression() : villageFillColorExpression(metric));
+/** 目的地視角（只有不分遠近版資料）優先；否則依權重：距離遞減 7 級秒數色階，或不分遠近的 p90／占比色階。 */
+export const fillColor = (metric: VillageMetric, weighting: BridgeWeighting, focus: DestinationFocus) =>
+  (focus.active ? destinationFillColorExpression() : weighting === "decay" ? decayFillColorExpression() : villageFillColorExpression(metric));
 const equalsFilter = (uid: string | null) => (uid ? ["==", ["get", "bridge_uid"], uid] : NO_MATCH);
 
 /** 高亮：選中橋；聯合情境時兩座成員橋同時高亮（聯合情境沒有自己的線）。 */
@@ -72,7 +74,7 @@ export function buildBridgeResilienceLayers(state: Snapshot): (FillLayer | LineL
   const hidden = { visibility: "none" as const };
   const base = (id: string, type: "fill" | "line", layer: string) => ({ id, type, source: SRC, "source-layer": layer, layout: hidden });
   return [
-    { ...base(IDS.villageFill, "fill", LAYERS.villages), paint: hookFillPaint("bridgeResilienceTwinCity", IDS.villageFill, { "fill-color": fillColor(controls.metric, focus), "fill-opacity": o * 0.62 }, { "fill-color": fillColor(controls.metric, focus), "fill-opacity": Number(paramDefault("bridgeResilienceTwinCity", "bridgeResilienceTwinCityOpacity") ?? 1) * 0.62 }) },
+    { ...base(IDS.villageFill, "fill", LAYERS.villages), paint: hookFillPaint("bridgeResilienceTwinCity", IDS.villageFill, { "fill-color": fillColor(controls.metric, controls.weighting, focus), "fill-opacity": o * 0.62 }, { "fill-color": fillColor(controls.metric, controls.weighting, focus), "fill-opacity": Number(paramDefault("bridgeResilienceTwinCity", "bridgeResilienceTwinCityOpacity") ?? 1) * 0.62 }) },
     { ...base(IDS.villageOutline, "line", LAYERS.villages), paint: { "line-color": BRIDGE_RESILIENCE_COLORS.villageOutline, "line-width": 0.5, "line-opacity": o * 0.22 } },
     // 目的地視角：前 20 名受影響目的地（細藍外框）與起點（白色粗外框）。起點視角時 filter 不命中任何 feature。
     { ...base(IDS.destTop, "line", LAYERS.villages), filter: destTopFilter(focus.topIds),
@@ -114,7 +116,7 @@ function syncLayers(map: MapboxMap, state: Snapshot) {
   for (const id of villageIds) set(id, villagesOn);
   const paint = (id: string, prop: string, value: unknown) => { if (map.getLayer(id)) map.setPaintProperty(id, prop as never, value as never); };
   const filter = (id: string, value: unknown[]) => { if (map.getLayer(id)) map.setFilter(id, value as never); };
-  paint(IDS.villageFill, "fill-color", fillColor(controls.metric, focus));
+  paint(IDS.villageFill, "fill-color", fillColor(controls.metric, controls.weighting, focus));
   paint(IDS.destTop, "line-opacity", Math.max(0.7, o));
   paint(IDS.origin, "line-opacity", Math.max(0.9, o));
   filter(IDS.destTop, destTopFilter(focus.topIds));
@@ -141,10 +143,12 @@ function removeAll(map: MapboxMap) {
 export function applyVillageState(
   map: Pick<MapboxMap, "getSource" | "setFeatureState" | "removeFeatureState">,
   data: BridgeResilienceData | null, scenario: string | null, metric: VillageMetric, enabled: boolean,
+  weighting: BridgeWeighting = "uniform",
 ): number {
   if (!map.getSource(SRC)) return 0;
   const target = { source: SRC, sourceLayer: LAYERS.villages };
-  const values = enabled && data && scenario ? decodeVillageScenario(data.impacts, scenario, metric) : null;
+  const values = !(enabled && data && scenario) ? null
+    : weighting === "decay" ? decodeDecayVillageScenario(data.decayImpacts, scenario) : decodeVillageScenario(data.impacts, scenario, metric);
   try {
     if (!values) { map.removeFeatureState(target); return 0; }
     for (const [id, value] of values) map.setFeatureState({ ...target, id }, value === null ? { has: 0, v: 0 } : { has: 1, v: value });
@@ -198,7 +202,7 @@ export function useBridgeResilienceLayers(
   const focus: DestinationFocus = originId === null ? NO_FOCUS : { originId, topIds: destinationTopIds(view), active: !!view };
   const latest = useRef<Snapshot>({ visible, opacity, controls, selected, focus });
   latest.current = { visible, opacity, controls, selected, focus };
-  const stateKey = [visible ? 1 : 0, clamp(opacity), controls.mode, controls.showVillages ? 1 : 0, controls.metric, controls.showRoutes ? 1 : 0, controls.joint ? 1 : 0, selected ?? "",
+  const stateKey = [visible ? 1 : 0, clamp(opacity), controls.mode, controls.weighting, controls.showVillages ? 1 : 0, controls.metric, controls.showRoutes ? 1 : 0, controls.joint ? 1 : 0, selected ?? "",
     focus.originId ?? "", focus.active ? 1 : 0, focus.topIds.join("|")].join(",");
 
   // 沒有橋、圖層關閉或村里關閉時，起點視角就沒有意義：清起點（橋的選取不受影響）。
@@ -300,12 +304,12 @@ export function useBridgeResilienceLayers(
     const map = mapRef.current; if (!map) return;
     const enabled = visible && controls.showVillages;
     // 目的地視角優先；否則（或目的地資料還沒好）維持起點視角的色階。
-    const paintStates = () => { if (view && destinations) applyDestinationState(map, destinations, view); else applyVillageState(map, data, scenario, controls.metric, enabled); };
+    const paintStates = () => { if (view && destinations) applyDestinationState(map, destinations, view); else applyVillageState(map, data, scenario, controls.metric, enabled, controls.weighting); };
     paintStates();
     const onSourceData = (event: { sourceId?: string; isSourceLoaded?: boolean }) => {
       if (event.sourceId === SRC && event.isSourceLoaded) { map.off("sourcedata", onSourceData as never); paintStates(); }
     };
     if (enabled && !map.isSourceLoaded?.(SRC)) map.on("sourcedata", onSourceData as never);
     return () => { map.off("sourcedata", onSourceData as never); };
-  }, [mapRef, mountRevision, data, destinations, view, scenario, visible, controls.metric, controls.showVillages]);
+  }, [mapRef, mountRevision, data, destinations, view, scenario, visible, controls.metric, controls.weighting, controls.showVillages]);
 }
