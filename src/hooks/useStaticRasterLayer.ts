@@ -59,6 +59,7 @@ export function useStaticRasterLayer({
           bbox,
           initialUrl: url,
           opacity,
+          resampling: "linear",
           beforeId,
         });
       } else {

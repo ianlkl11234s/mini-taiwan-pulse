@@ -16,6 +16,7 @@ import {
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { startThrottledRaf } from "../utils/throttledRaf";
 
 /**
@@ -127,10 +128,10 @@ function buildLayers(map: MapboxMap, opacity: number, trailDays: number): boolea
       id: FILL_ID,
       type: "fill",
       source: SOURCE_ID,
-      paint: {
+      paint: hookFillPaint("plaActivity", FILL_ID, {
         "fill-color": ["get", "kind_color"] as unknown as ExpressionSpecification,
         "fill-opacity": fillOpacityExpr(opacity, trailDays),
-      },
+      }, { "fill-color": ["get", "kind_color"] as unknown as ExpressionSpecification, "fill-opacity": fillOpacityExpr(0.7, 7) }),
     } as FillLayer);
   }
 
@@ -139,13 +140,13 @@ function buildLayers(map: MapboxMap, opacity: number, trailDays: number): boolea
       id: LINE_ID,
       type: "line",
       source: SOURCE_ID,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
+      layout: hookLineLayout("plaActivity", LINE_ID),
+      paint: hookLinePaint("plaActivity", LINE_ID, {
         "line-color": ["get", "kind_color"] as unknown as ExpressionSpecification,
         "line-width": lineWidth(trailDays),
         "line-opacity": lineOpacityExpr(opacity, trailDays),
         "line-dasharray": LINE_DASH,
-      },
+      }, { "line-color": ["get", "kind_color"] as unknown as ExpressionSpecification, "line-width": lineWidth(7), "line-opacity": lineOpacityExpr(0.7, 7), "line-dasharray": LINE_DASH }),
     } as LineLayer);
   }
 

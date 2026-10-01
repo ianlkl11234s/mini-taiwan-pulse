@@ -332,7 +332,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       updateStaticTrails(map, flightsRef.current, isDarkThemeRef.current, is3d);
       if (is3d) {
         const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
-        setStaticTrailsOpacity(map, line, glow);
+        setStaticTrailsOpacity(map, line, glow, isDarkThemeRef.current);
       }
 
       // Live Status 模式：隱藏 2D 軌跡
@@ -477,7 +477,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     updateStaticTrails(map, flights, isDarkTheme, is3d);
     if (is3d) {
       const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkTheme);
-      setStaticTrailsOpacity(map, line, glow);
+      setStaticTrailsOpacity(map, line, glow, isDarkThemeRef.current);
     }
   }, [renderMode, flights, isDarkTheme]);
 
@@ -489,7 +489,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     const onZoom = () => {
       if (!map.isStyleLoaded()) return;
       const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
-      setStaticTrailsOpacity(map, line, glow);
+      setStaticTrailsOpacity(map, line, glow, isDarkThemeRef.current);
     };
     map.on("zoom", onZoom);
     return () => { map.off("zoom", onZoom); };

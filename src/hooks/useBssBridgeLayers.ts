@@ -10,6 +10,7 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { bssBridgePrivateAccessToken, useBssBridgePrivateAccess } from "./useBssBridgePrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -36,13 +37,18 @@ export function buildBssBridgeLayers(state: Snapshot): (LineLayer | CircleLayer)
   const lines = BSS_BRIDGE_LINE_ROLES.map((spec) => ({
     id: spec.id, type: "line", source: BSS_BRIDGE_SOURCE_ID, "source-layer": BSS_BRIDGE_SOURCE_LAYER,
     filter: bssBridgeLineFilter(spec.role, controls.lineClass, controls.lineQuality),
-    layout: hidden,
-    paint: {
+    layout: { ...hidden, ...hookLineLayout("bssNationalBridgePreview", spec.id) },
+    paint: hookLinePaint("bssNationalBridgePreview", spec.id, {
       "line-color": spec.role === "stage1_local_direction_candidate" ? BSS_BRIDGE_STAGE1_LINE_COLOR : bssBridgeAccessColorExpression,
       "line-width": lineWidth(spec.wide),
       "line-opacity": clamp(opacity.bssNationalBridgePreview),
       ...(spec.dash ? { "line-dasharray": [...spec.dash] } : {}),
-    },
+    }, {
+      "line-color": spec.role === "stage1_local_direction_candidate" ? BSS_BRIDGE_STAGE1_LINE_COLOR : bssBridgeAccessColorExpression,
+      "line-width": lineWidth(spec.wide),
+      "line-opacity": Number(paramDefault("bssNationalBridgePreview", "bssNationalBridgePreviewOpacity") ?? 1),
+      ...(spec.dash ? { "line-dasharray": [...spec.dash] } : {}),
+    }, isDark),
   }) as unknown as LineLayer);
   const point = {
     id: BSS_BRIDGE_POINT_LAYER_ID, type: "circle", source: BSS_BRIDGE_SOURCE_ID, "source-layer": BSS_BRIDGE_SOURCE_LAYER,
@@ -67,7 +73,7 @@ function syncLayers(map: MapboxMap, state: Snapshot) {
     if (!map.getLayer(spec.id)) continue;
     map.setLayoutProperty(spec.id, "visibility", visibility.bssNationalBridgePreview ? "visible" : "none");
     map.setFilter(spec.id, bssBridgeLineFilter(spec.role, controls.lineClass, controls.lineQuality) as never);
-    map.setPaintProperty(spec.id, "line-opacity", clamp(opacity.bssNationalBridgePreview));
+    map.setPaintProperty(spec.id, "line-opacity", hookLineOpacity("bssNationalBridgePreview", spec.id, clamp(opacity.bssNationalBridgePreview), Number(paramDefault("bssNationalBridgePreview", "bssNationalBridgePreviewOpacity") ?? 1), isDark));
   }
   if (map.getLayer(BSS_BRIDGE_POINT_LAYER_ID)) {
     map.setLayoutProperty(BSS_BRIDGE_POINT_LAYER_ID, "visibility", visibility.bssNationalBridgePointsPreview ? "visible" : "none");

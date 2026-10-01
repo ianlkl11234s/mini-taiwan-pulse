@@ -7,6 +7,7 @@ import type {
   FilterSpecification,
 } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { timeStore } from "../state/timeStore";
 import {
   fetchTyphoonPoints,
@@ -114,12 +115,12 @@ export function useTyphoonTracksLayer(
         type: "line",
         source: SRC_LINES,
         filter: ["==", ["get", "point_type"], "observed"],
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
+        layout: hookLineLayout("typhoonTracks", LAYER_LINE_OBS),
+        paint: hookLinePaint("typhoonTracks", LAYER_LINE_OBS, {
           "line-color": OBS_COLOR,
           "line-width": ["interpolate", ["linear"], ["zoom"], 3, 2, 8, 4.5] as unknown as ExpressionSpecification,
           "line-opacity": 0.95,
-        },
+        }, { "line-color": OBS_COLOR, "line-width": ["interpolate", ["linear"], ["zoom"], 3, 2, 8, 4.5] as unknown as ExpressionSpecification, "line-opacity": 0.95 }),
       } as LineLayer);
     }
     if (!map.getLayer(LAYER_LINE_FCST)) {
@@ -128,13 +129,14 @@ export function useTyphoonTracksLayer(
         type: "line",
         source: SRC_LINES,
         filter: ["==", ["get", "point_type"], "forecast"],
-        layout: { "line-cap": "butt", "line-join": "round" },
-        paint: {
+        // 預測線是點狀虛線 [1, 2.5]，圓頭會把點拉長、間隔變短 → 維持平頭（L-3 例外）
+        layout: { ...hookLineLayout("typhoonTracks", LAYER_LINE_FCST), "line-cap": "butt" },
+        paint: hookLinePaint("typhoonTracks", LAYER_LINE_FCST, {
           "line-color": FCST_COLOR,
           "line-width": ["interpolate", ["linear"], ["zoom"], 3, 1, 8, 2] as unknown as ExpressionSpecification,
           "line-opacity": 0.8,
           "line-dasharray": [1, 2.5],
-        },
+        }, { "line-color": FCST_COLOR, "line-width": ["interpolate", ["linear"], ["zoom"], 3, 1, 8, 2] as unknown as ExpressionSpecification, "line-opacity": 0.8, "line-dasharray": [1, 2.5] }),
       } as LineLayer);
     }
     if (!map.getLayer(LAYER_POINTS)) {
@@ -254,8 +256,8 @@ export function useTyphoonTracksLayer(
     if (!map) return;
     if (!layersReadyRef.current) return;
     const o = Math.max(0, Math.min(1, opacity));
-    if (map.getLayer(LAYER_LINE_OBS)) map.setPaintProperty(LAYER_LINE_OBS, "line-opacity", 0.9 * o);
-    if (map.getLayer(LAYER_LINE_FCST)) map.setPaintProperty(LAYER_LINE_FCST, "line-opacity", 0.7 * o);
+    if (map.getLayer(LAYER_LINE_OBS)) map.setPaintProperty(LAYER_LINE_OBS, "line-opacity", hookLineOpacity("typhoonTracks", LAYER_LINE_OBS, 0.9 * o, 0.9 * 0.9));
+    if (map.getLayer(LAYER_LINE_FCST)) map.setPaintProperty(LAYER_LINE_FCST, "line-opacity", hookLineOpacity("typhoonTracks", LAYER_LINE_FCST, 0.7 * o, 0.7 * 0.9));
     if (map.getLayer(LAYER_POINTS)) {
       map.setPaintProperty(LAYER_POINTS, "circle-opacity", 0.85 * o);
       for (const [k, v] of Object.entries(typhoonPointStroke(isDark, o / OPACITY_DEFAULT))) {

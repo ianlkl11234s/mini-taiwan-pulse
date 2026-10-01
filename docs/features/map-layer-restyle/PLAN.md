@@ -2,7 +2,7 @@
 
 > 依據：[`docs/design-system-map-layers.md`](../../design-system-map-layers.md) §3／§4（2026-09-28 拍板版）與 §7 拍板結果。
 > 盤點資料：`docs/design-system/layer-style-inventory.json`（`npm run design:audit-layers` 重產）。
-> 狀態：2026-09-30 R1（#391）、R2（#392、#393、#396、#398、#401）、R3a（#461）、R4（#465，加油站品牌色 #468）完成；下一步 R3b（交給 Codex，`handoff-r3b.md`）。規格以 [`docs/design-system/map-layers.md`](../../design-system/map-layers.md) 為準。
+> 狀態：2026-09-30 R1（#391）、R2（#392、#393、#396、#398、#401）、R3a（#461）、R4（#465，加油站品牌色 #468）完成；R3b 按確認版完成本地實作，待 Claude 驗收（`R3b-report.md`）。規格以 [`docs/design-system/map-layers.md`](../../design-system/map-layers.md) 為準。
 
 ## 範圍（盤點數字）
 
@@ -90,7 +90,7 @@
 
 拆兩個 PR（同 R2 的 registry／hook 分法）：
 - **R3a（2026-09-30）**：OVERLAY_REGISTRY 畫的線與面——L-1～L-5、F-1、F-2、K-4。分階頁 `r3-tiers.html`（使用者確認照建議，只改 `osmPowerLines/cable` 透明度 0.6 → 0.85）→ `src/map/lineFillTiers.ts`；統一套用 `src/map/lineFillSpec.ts`；測試 `src/map/__tests__/lineFillSpec.test.ts`。
-- **R3b**：hook 自己畫的線面、G-3 網格空格不畫、G-4 影像、T-2／T-3 文字、F-4 擠出。
+- **R3b（2026-09-30 使用者確認）**：hook 線面、G-4 影像、T-2／T-3 文字、F-4 擠出接線；G-3 的 14 層全部維持。計數徽章不升 minzoom，POI 取 max(現值, 13)。待 Claude 依 `R3b-report.md` 驗收；不要 merge。
 
 原始規劃表：
 

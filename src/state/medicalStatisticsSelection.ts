@@ -1,7 +1,7 @@
 import type { LayerVisibility } from '../types';
 import { getSocialRecipe, getSocialRecipeDetails } from '../data/socialStatisticsRecipes';
 import { getAgriRecipe, getAgriRecipeDetails } from '../data/agriStatisticsRecipes';
-import { ensureStatisticsRecipeDetails, statisticsRecipeDetailsLoaded } from '../data/statisticsRecipeDetails';
+import { ensureStatisticsRecipeDetails, statisticsRecipeDetailsLoaded, type StatisticsRecipeFamily } from '../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { STATISTICS_RECIPES } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
@@ -17,9 +17,14 @@ type Recipe = { dataset_id: string; indicator_id: string; level: string; label: 
 
 const METRIC_DIMENSIONS = new Set(['source_field', 'denominator_period', 'bed_measure']);
 
-/** Agri/social exact release_options live in the lazily loaded recipe details (PF-7). */
-function needsRecipeDetails(key: string): boolean {
-  return Boolean(getSocialRecipe(key) || getAgriRecipe(key));
+/** Agri/social exact release_options live in that family's lazily loaded recipe details (PF-7/PF-10). */
+function recipeDetailsFamilies(...keys: string[]): StatisticsRecipeFamily[] {
+  const families = new Set<StatisticsRecipeFamily>();
+  for (const key of keys) {
+    if (getAgriRecipe(key)) families.add('agri');
+    else if (getSocialRecipe(key)) families.add('social');
+  }
+  return [...families];
 }
 
 function recipe(key: string): Recipe {
@@ -85,7 +90,7 @@ async function ensureReleaseMetadata(key: keyof LayerVisibility, source: NonNull
 export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility, members: readonly (keyof LayerVisibility)[]) {
   if (!members.includes(from) || !members.includes(to) || !isStatisticsChoropleth(to)) return false;
   // Not loaded yet: the caller falls back to prepareMedicalStatisticsVariant (shows switching state).
-  if ((needsRecipeDetails(from) || needsRecipeDetails(to)) && !statisticsRecipeDetailsLoaded()) return false;
+  if (!statisticsRecipeDetailsLoaded(recipeDetailsFamilies(from, to))) return false;
   const source = recipe(from); const target = recipe(to);
   if (!source || !target) return false;
   const sourceOption = selectionOption(from, source);
@@ -104,7 +109,7 @@ export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: 
 export async function prepareMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility, members: readonly (keyof LayerVisibility)[], isCurrent: () => boolean = () => true) {
   if (!members.includes(from) || !members.includes(to) || !isStatisticsChoropleth(to)) return false;
   try {
-    if (needsRecipeDetails(from) || needsRecipeDetails(to)) await ensureStatisticsRecipeDetails();
+    await ensureStatisticsRecipeDetails(recipeDetailsFamilies(from, to));
   } catch {
     return false;
   }

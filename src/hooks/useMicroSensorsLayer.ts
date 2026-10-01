@@ -29,7 +29,7 @@ import { microSensorColorExpr } from "../data/microSensorTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { MicroSensor } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { pointStrokePaint } from "../map/mapStyleScale";
+import { badgeLabelLayout, labelHaloPaint, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 
 const OPACITY_DEFAULT = Number(paramDefault("aqiMicroSensors", "aqiMicroOpacity"));
@@ -78,10 +78,12 @@ function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx
         filter: ["has", "point_count"],
         layout: {
           "text-field": ["get", "point_count_abbreviated"],
-          "text-size": 11,
-          "text-font": ["literal", ["Open Sans Regular", "Arial Unicode MS Regular"]],
+          ...badgeLabelLayout(),
+          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+          "text-allow-overlap": true,
+          "text-ignore-placement": true,
         },
-        paint: { "text-color": "#ffffff", "text-opacity": opacity },
+        paint: { "text-color": "#ffffff", "text-opacity": opacity, ...labelHaloPaint(isDark) },
       } as SymbolLayer);
     }
   }
@@ -130,6 +132,8 @@ export function useMicroSensorsLayer(
   const modeIdxRef = useRef(modeIdx);
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
+  const themeRef = useRef(isDark);
+  themeRef.current = isDark;
 
   // ── Loader：首次開啟時載入 + 每 5 分鐘自動 refetch 最新快照 ──
   useEffect(() => {
@@ -183,7 +187,7 @@ export function useMicroSensorsLayer(
       // 不管是關閉或切 cluster 模式都先移除乾淨再重建（Mapbox cluster 設定不能動態改）
       removeLayers(m);
       if (!visible) return;
-      ensureLayers(m, isDark, cluster, modeIdxRef.current, opacityRef.current);
+      ensureLayers(m, themeRef.current, cluster, modeIdxRef.current, opacityRef.current);
       if (loadedRef.current && dataRef.current.length > 0) {
         const src = m.getSource(SOURCE_ID) as GeoJSONSource | undefined;
         if (src) {
@@ -206,7 +210,7 @@ export function useMicroSensorsLayer(
       };
     }
     apply();
-  }, [mapRef, visible, isDark, cluster, mapTick]);
+  }, [mapRef, visible, cluster, mapTick]);
 
   // ── 顯示模式切換：只換 circle-color 欄位，不動 source / 不重建 layer ──
   useEffect(() => {
@@ -227,10 +231,17 @@ export function useMicroSensorsLayer(
     const map = mapRef.current;
     if (!map || !visible || !map.isStyleLoaded()) return;
     if (map.getLayer(LAYER_CLUSTER)) {
+      map.setPaintProperty(LAYER_CLUSTER, "circle-color", isDark ? "rgba(126, 87, 194, 0.85)" : "rgba(126, 87, 194, 0.75)");
+      map.setPaintProperty(LAYER_CLUSTER, "circle-stroke-color", isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.3)");
       map.setPaintProperty(LAYER_CLUSTER, "circle-opacity", opacity);
       map.setPaintProperty(LAYER_CLUSTER, "circle-stroke-opacity", opacity);
     }
-    if (map.getLayer(LAYER_CLUSTER_COUNT)) map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-opacity", opacity);
+    if (map.getLayer(LAYER_CLUSTER_COUNT)) {
+      map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-opacity", opacity);
+      const halo = labelHaloPaint(isDark);
+      map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-halo-color", halo["text-halo-color"]);
+      map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-halo-width", halo["text-halo-width"]);
+    }
     if (map.getLayer(LAYER_POINT)) {
       map.setPaintProperty(LAYER_POINT, "circle-opacity", (cluster ? 0.9 : 0.85) * opacity);
       {

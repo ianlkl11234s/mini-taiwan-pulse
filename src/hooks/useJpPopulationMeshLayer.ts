@@ -4,6 +4,8 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { jpPopulationMeshFillColor } from "../data/jpPopulationMeshModes";
+import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 
 const SOURCE_ID = "jp-population-mesh";
 const SOURCE_LAYER = "jp_population_mesh_1km";
@@ -13,6 +15,7 @@ const MINZOOM = 4;
 // ⚠️ 產製配方是 tippecanoe -Z4 -z11 —— 沒有 z12 以上的磚。
 //    source 寫 11、圖層不設 maxzoom，讓 z12+ overzoom z11 而不是整層消失。
 const MAXZOOM = 11;
+const OPACITY_DEFAULT = Number(paramDefault("jpPopulationMesh1km", "jpPopulationMesh1kmOpacity") ?? 1);
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -26,16 +29,14 @@ function absoluteUrl(relativeFile: string): string {
 // outline 0：176,896 格 1km 網格，畫框線會糊成一片灰、也吃掉 choropleth 的顏色辨識度
 // （見 handoff 對本層的 UX 指定）→ 只加 fill 子層，不加 line 子層。
 function meshFillLayer(opacity: number, modeIdx: number): FillLayer {
+  const color = jpPopulationMeshFillColor(modeIdx);
   return {
     id: LAYER_ID,
     type: "fill",
     source: SOURCE_ID,
     "source-layer": SOURCE_LAYER,
     layout: { visibility: "none" },
-    paint: {
-      "fill-color": jpPopulationMeshFillColor(modeIdx),
-      "fill-opacity": clampOpacity(opacity),
-    },
+    paint: hookFillPaint("jpPopulationMesh1km", LAYER_ID, { "fill-color": color, "fill-opacity": clampOpacity(opacity) }, { "fill-color": color, "fill-opacity": OPACITY_DEFAULT }),
   } as FillLayer;
 }
 
@@ -76,7 +77,7 @@ export function useJpPopulationMeshLayer(
       }
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LAYER_ID, "fill-opacity", clampOpacity(opacity));
+        map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpPopulationMesh1km", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
         map.setPaintProperty(LAYER_ID, "fill-color", jpPopulationMeshFillColor(modeIdx));
       }
     };

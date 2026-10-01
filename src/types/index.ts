@@ -683,6 +683,11 @@ export interface OverlayConfig {
   geojsonTransform?: "centroid";
   layers: OverlayLayerSpec[];
   rebuildOnParamChange?: string[];
+  /**
+   * 指定後，`rebuildOnParamChange` 只在這些參數的值改變時重建；其他 paint／theme
+   * 變動走 diff 式 `setPaintProperty`。適合只有 callback filter 需要重建的 layer。
+   */
+  rebuildOnParamKeys?: string[];
   filter?: unknown[];
   /**
    * 設定後 sourceUrl 視為 PMTiles 切片（HTTP Range Request 按需載入），

@@ -17,6 +17,7 @@ import {
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 
@@ -120,12 +121,12 @@ function buildLayers(map: MapboxMap, opacity: number, isDarkTheme: boolean): boo
       id: TRAIL_LINE_ID,
       type: "line",
       source: TRAILS_SOURCE_ID,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
+      layout: hookLineLayout("vesselWatch", TRAIL_LINE_ID),
+      paint: hookLinePaint("vesselWatch", TRAIL_LINE_ID, {
         "line-color": CLASS_COLOR,
         "line-width": 1.4,
         "line-opacity": opacity * TRAIL_OPACITY_RATIO,
-      },
+      }, { "line-color": CLASS_COLOR, "line-width": 1.4, "line-opacity": OPACITY_DEFAULT * TRAIL_OPACITY_RATIO }),
     } as LineLayer);
   }
 
@@ -359,7 +360,7 @@ export function useVesselWatchLayer(
       }
     }
     if (map.getLayer(TRAIL_LINE_ID)) {
-      map.setPaintProperty(TRAIL_LINE_ID, "line-opacity", o * TRAIL_OPACITY_RATIO);
+      map.setPaintProperty(TRAIL_LINE_ID, "line-opacity", hookLineOpacity("vesselWatch", TRAIL_LINE_ID, o * TRAIL_OPACITY_RATIO, OPACITY_DEFAULT * TRAIL_OPACITY_RATIO));
     }
   }, [opacity, isDarkTheme, visible, mapRef, mapTick]);
 }

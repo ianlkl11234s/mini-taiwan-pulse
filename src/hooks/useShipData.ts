@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Ship } from "../types";
 import { fetchShipDates, fetchShipDayArrow, loadShipsWithDates } from "../data/shipLoader";
 import type { ShipDateInfo } from "../data/shipLoader";
+import { liveCountStore } from "../state/liveCountStore";
 
 /** LRU 快取上限（天數） */
 const CACHE_MAX = 7;
@@ -194,6 +195,11 @@ export function useShipData(enabled: boolean): UseShipDataReturn {
     if (!enabledRef.current || !apiAvailable.current) return;
     prefetchDate(formatDate(date));
   }, [prefetchDate]);
+
+  // 側欄船舶數：圖層關閉（含 All Off）即歸零，比照航班（PF-13）
+  useEffect(() => {
+    liveCountStore.set("ships", enabled ? ships.length : 0);
+  }, [enabled, ships.length]);
 
   return { ships, timeRange, loading, dayLoading, availableDates, loadDay, prefetch, activeDate };
 }

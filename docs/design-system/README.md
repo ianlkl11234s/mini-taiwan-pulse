@@ -19,7 +19,7 @@
 | 地圖 R1 基礎（共用數值、統計圖層、圖例 kit、地圖中文字） | ✅ 完成 | #391 | — |
 | 地圖 R2 點圖層（registry 191 層＋hook 122 層） | ✅ 完成 | #392、#393、#396、#398、#401 | 新圖層照 `pointTiers.ts` 登記分階（#407 土壤液化已照做） |
 | 地圖 R3a 線與面（registry） | ✅ 完成 | #461 | registry 106 層線面接上分階（`lineFillTiers.ts`＋`lineFillSpec.ts`）；新圖層的線面照 `lineFillTiers.ts` 登記 |
-| 地圖 R3b 線面（hook）＋網格／影像／文字 | 🔶 交給 Codex | — | 交接 `docs/features/map-layer-restyle/handoff-r3b.md`；兩段式：先出分階提案頁 `r3b-tiers.html` 給使用者選，再實作 |
+| 地圖 R3b 線面（hook）＋網格／影像／文字／擠出 | 🔶 待 Claude 驗收 | #475 | 使用者已確認提案與 D 區修正；[逐層報告](../features/map-layer-restyle/R3b-report.md)／[前後對照](../features/map-layer-restyle/r3b-compare.html) |
 | 地圖 R4 圖例對齊 | ✅ 完成 | #465、加油站品牌色 #468 | 28 個不一致圖例已對齊（盤點剩 3 個屬性色、程式同源）；K-1 13 層識別色改地圖現色；手寫色票 90 → 6。新圖例色票一律引用 paint 同一常數（`src/map/layerPaintColors.ts`） |
 | 地圖 R5 熱區＋密度透明度 | ⏳ 未開始 | — | 超過 10 萬點改熱區（日本宗教設施低縮放糊塊）、P-3 密度透明度、聚合泡泡描邊、泡泡 M3 |
 | 地圖 R6 Three.js／Mapbox 切換 | ⏳ 未開始 | — | **先要使用者決定**範圍與開關位置 |
@@ -34,7 +34,6 @@
 
 ### 已知未修
 
-- **時間軸**：播放會一路播進還沒有資料的未來時段；按過暫停後，資料重新載入時會被自動播放重啟。
 - **切主題重抓資料**：少數 hook（淹水感測、地下水、水利 IoT、河川水位、雨量、漁船軌跡、抽水站、清潔隊）切主題時會重新抓資料（master 既有，未重構）。
 - 其他零星項目：[`spec.md` §10.3](./spec.md)。
 

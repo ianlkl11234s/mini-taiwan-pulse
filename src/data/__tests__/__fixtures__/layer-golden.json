@@ -3085,7 +3085,7 @@
                 21
               ],
               "raster-fade-duration": 0,
-              "raster-opacity": 0.75,
+              "raster-opacity": 0.7,
               "raster-resampling": "nearest"
             },
             "light": {
@@ -3127,7 +3127,7 @@
                 21
               ],
               "raster-fade-duration": 0,
-              "raster-opacity": 0.75,
+              "raster-opacity": 0.7,
               "raster-resampling": "nearest"
             }
           },
@@ -9968,6 +9968,7 @@
             ]
           ],
           "layout": {
+            "text-allow-overlap": false,
             "text-field": [
               "get",
               "name"
@@ -9987,10 +9988,10 @@
               [
                 "zoom"
               ],
-              14,
               10,
-              17,
-              13
+              10,
+              14,
+              12
             ],
             "text-variable-anchor": [
               "top",
@@ -28085,7 +28086,8 @@
                 ],
                 3
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             },
             "light": {
               "fill-extrusion-base": 0,
@@ -28135,7 +28137,8 @@
                 ],
                 3
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             }
           },
           "suffix": "extrusion",
@@ -28519,7 +28522,8 @@
                 "get",
                 "height"
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             },
             "light": {
               "fill-extrusion-base": 0,
@@ -28581,7 +28585,8 @@
                 "get",
                 "height"
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             }
           },
           "suffix": "extrusion",
@@ -28775,7 +28780,8 @@
                 ],
                 4000
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             },
             "light": {
               "fill-extrusion-base": 0,
@@ -28842,7 +28848,8 @@
                 ],
                 4000
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             }
           },
           "suffix": "extrusion",
@@ -29036,7 +29043,8 @@
                 ],
                 4000
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             },
             "light": {
               "fill-extrusion-base": 0,
@@ -29103,7 +29111,8 @@
                 ],
                 4000
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             }
           },
           "suffix": "extrusion",
@@ -29297,7 +29306,8 @@
                 ],
                 4000
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             },
             "light": {
               "fill-extrusion-base": 0,
@@ -29364,7 +29374,8 @@
                 ],
                 4000
               ],
-              "fill-extrusion-opacity": 0
+              "fill-extrusion-opacity": 0,
+              "fill-extrusion-vertical-gradient": true
             }
           },
           "suffix": "extrusion",
@@ -54727,6 +54738,7 @@
             ]
           ],
           "layout": {
+            "text-allow-overlap": false,
             "text-field": [
               "get",
               "name"
@@ -54746,10 +54758,10 @@
               [
                 "zoom"
               ],
-              12,
               10,
-              16,
-              13
+              10,
+              14,
+              12
             ],
             "text-variable-anchor": [
               "top",
@@ -54892,6 +54904,7 @@
             ]
           ],
           "layout": {
+            "text-allow-overlap": false,
             "text-field": [
               "get",
               "name"
@@ -54911,10 +54924,10 @@
               [
                 "zoom"
               ],
-              12,
               10,
-              16,
-              13
+              10,
+              14,
+              12
             ],
             "text-variable-anchor": [
               "top",
@@ -55145,6 +55158,7 @@
             ]
           ],
           "layout": {
+            "text-allow-overlap": false,
             "text-field": [
               "get",
               "name"
@@ -55164,10 +55178,10 @@
               [
                 "zoom"
               ],
-              12,
               10,
-              16,
-              13
+              10,
+              14,
+              12
             ],
             "text-variable-anchor": [
               "top",
@@ -55808,6 +55822,7 @@
             ]
           ],
           "layout": {
+            "text-allow-overlap": false,
             "text-field": [
               "get",
               "name"
@@ -55827,10 +55842,10 @@
               [
                 "zoom"
               ],
-              12,
               10,
-              16,
-              13
+              10,
+              14,
+              12
             ],
             "text-variable-anchor": [
               "top",
@@ -55839,7 +55854,7 @@
               "right"
             ]
           },
-          "minzoom": 10,
+          "minzoom": 13,
           "paint": {
             "dark": {
               "text-color": "#f8fafc",
@@ -57081,7 +57096,7 @@
       {
         "label": "透明度 0.70",
         "max": 1,
-        "min": 0.1,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
         "value": 0.7,
@@ -59616,24 +59631,24 @@
     ],
     "cwaCloudImagery": [
       {
-        "label": "透明度 1.00",
+        "label": "透明度 0.70",
         "max": 1,
-        "min": 0,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "cwaRadarImagery": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.70",
         "max": 1,
-        "min": 0,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "cyclingRoutes": [
@@ -59765,7 +59780,7 @@
       {
         "label": "透明度 0.70",
         "max": 1,
-        "min": 0,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
         "value": 0.7,
@@ -61640,13 +61655,13 @@
         "value": false
       },
       {
-        "label": "高度 50",
-        "max": 200,
-        "min": 10,
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
         "name": "高度",
-        "step": 10,
-        "value": 50,
-        "valueText": "50"
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "指標",
@@ -61898,13 +61913,13 @@
         "value": false
       },
       {
-        "label": "高度 50",
-        "max": 200,
-        "min": 10,
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
         "name": "高度",
-        "step": 10,
-        "value": 50,
-        "valueText": "50"
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "industrialParkBoundaries": [
@@ -62991,7 +63006,7 @@
       {
         "label": "透明度 0.70",
         "max": 1,
-        "min": 0.1,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
         "value": 0.7,
@@ -65832,13 +65847,13 @@
         "value": false
       },
       {
-        "label": "高度 50",
-        "max": 200,
-        "min": 10,
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
         "name": "高度",
-        "step": 10,
-        "value": 50,
-        "valueText": "50"
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "ports": [
@@ -66050,13 +66065,13 @@
     "powerStatusHud": [],
     "precipRaster": [
       {
-        "label": "透明度 0.60",
+        "label": "透明度 0.70",
         "max": 1,
-        "min": 0.1,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.6,
-        "valueText": "0.60"
+        "value": 0.7,
+        "valueText": "0.70"
       },
       {
         "label": "累積時長",
@@ -67492,13 +67507,13 @@
         "value": false
       },
       {
-        "label": "高度 50",
-        "max": 200,
-        "min": 10,
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
         "name": "高度",
-        "step": 10,
-        "value": 50,
-        "valueText": "50"
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "soilLiquefactionPotential": [
@@ -67605,13 +67620,13 @@
         "value": false
       },
       {
-        "label": "高度 50",
-        "max": 200,
-        "min": 10,
+        "label": "高度 1.00",
+        "max": 4,
+        "min": 0.2,
         "name": "高度",
-        "step": 10,
-        "value": 50,
-        "valueText": "50"
+        "step": 0.2,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "speedCamera": [
@@ -72529,13 +72544,13 @@
         "value": "0"
       },
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.70",
         "max": 1,
-        "min": 0.2,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "urbanZoningNewTaipei": [
@@ -74158,13 +74173,13 @@
         "value": true
       },
       {
-        "label": "高度 80",
-        "max": 200,
-        "min": 10,
+        "label": "高度 1.000",
+        "max": 2.5,
+        "min": 0.125,
         "name": "高度",
-        "step": 10,
-        "value": 80,
-        "valueText": "80"
+        "step": 0.125,
+        "value": 1,
+        "valueText": "1.000"
       }
     ]
   }

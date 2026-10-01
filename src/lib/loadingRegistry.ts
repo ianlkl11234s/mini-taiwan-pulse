@@ -87,8 +87,17 @@ function isErrorResult(value: unknown): boolean {
   return typeof value === "object" && value !== null && "error" in value && (value as { error: unknown }).error != null;
 }
 
+export interface WithLoadingOptions {
+  /**
+   * 呼叫端自己的取消訊號（例如 store 被新請求 supersede、元件卸載）。reject 時若此 signal 已 abort，
+   * 視為「取消」而非失敗：照樣結束任務（`end` 事件），不觸發右上「載入失敗」。
+   * 只放呼叫端的取消訊號；逾時請用獨立的 controller 並轉成一般 Error，才會照常記為失敗。
+   */
+  signal?: AbortSignal;
+}
+
 /** 包裝 Promise / thenable（含 Supabase query builder）：自動 start / end */
-export function withLoading<T>(id: string, label: string, p: PromiseLike<T>): Promise<T> {
+export function withLoading<T>(id: string, label: string, p: PromiseLike<T>, options: WithLoadingOptions = {}): Promise<T> {
   loadingRegistry.start(id, label);
   return Promise.resolve(p).then(
     (value) => {
@@ -96,7 +105,7 @@ export function withLoading<T>(id: string, label: string, p: PromiseLike<T>): Pr
       return value;
     },
     (err) => {
-      loadingRegistry.end(id, true);
+      loadingRegistry.end(id, !options.signal?.aborted);
       throw err;
     },
   );

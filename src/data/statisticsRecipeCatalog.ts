@@ -51,26 +51,37 @@ export function summarizeStatisticsReleaseOptions(options: readonly ReleaseOptio
   return summary;
 }
 
-/** 目錄 = 完整文件去掉 `omitRecipeKeys`（至少 release_options），每筆配方加上 release_summary。 */
+/**
+ * 目錄 = 完整文件去掉 `omitRecipeKeys`（預設連 release_options 一起移除，並加上 release_summary）。
+ * `keepReleaseOptions`（PF-10 勞動）：release_options 首屏就要用且很小，原樣保留、不加 summary，只去掉 omitRecipeKeys。
+ */
 export function deriveStatisticsRecipeCatalog(
   document: RecipeDocumentLike,
   omitRecipeKeys: readonly string[],
   generatedFrom: string,
+  options: { keepReleaseOptions?: boolean } = {},
 ): Record<string, unknown> {
-  const omit = new Set(["release_options", ...omitRecipeKeys]);
+  const omit = new Set(options.keepReleaseOptions ? omitRecipeKeys : ["release_options", ...omitRecipeKeys]);
   return {
     ...document,
     catalog_generated_from: generatedFrom,
     catalog_generator: "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts",
     recipes: document.recipes.map((recipe) => ({
       ...Object.fromEntries(Object.entries(recipe).filter(([key]) => !omit.has(key))),
-      release_summary: summarizeStatisticsReleaseOptions(recipe.release_options),
+      ...(options.keepReleaseOptions ? {} : { release_summary: summarizeStatisticsReleaseOptions(recipe.release_options) }),
     })),
   };
 }
 
-/** 各家族從目錄移到明細的欄位；目錄與明細一致性測試共用這份設定。 */
+/**
+ * 各家族從目錄移到明細的欄位；目錄與明細一致性測試共用這份設定。
+ * - agri／social：明細（release_options 等）由 statisticsRecipeDetails 依家族 dynamic import。
+ * - labor（PF-10）：release_options 首屏即用（STATISTICS_RECIPES 的 frequency／dimensions）故保留；
+ *   `fragment_context` 是交付紀錄，前端執行期無讀取者，只留在交付 JSON（SSOT），不進 bundle。
+ * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
+ */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
-  { family: "agri", source: "src/data/agriStatisticsRecipes.json", catalog: "src/data/agriStatisticsRecipes.catalog.json", omitRecipeKeys: [] },
-  { family: "social", source: "src/data/socialStatisticsRecipes.json", catalog: "src/data/socialStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context"] },
+  { family: "agri", source: "src/data/agriStatisticsRecipes.json", catalog: "src/data/agriStatisticsRecipes.catalog.json", omitRecipeKeys: [], keepReleaseOptions: false },
+  { family: "social", source: "src/data/socialStatisticsRecipes.json", catalog: "src/data/socialStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context"], keepReleaseOptions: false },
+  { family: "labor", source: "src/data/laborStatisticsRecipes.json", catalog: "src/data/laborStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context"], keepReleaseOptions: true },
 ] as const;

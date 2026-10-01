@@ -19,6 +19,7 @@ import {
 } from "../../map/climateRamps";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { paramBool, paramNum, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
+import { RASTER } from "../../map/mapStyleScale";
 
 /** 全球地震（USGS） */
 export const EarthquakesGlobalHost: LayerHostComponent = ({ deps }) => {
@@ -80,6 +81,7 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     ["all", ...GLOBAL_EVENT_CATEGORIES.map((item) => item.value)][p.globalEventsCategoryIdx ?? 0] ?? "all",
     p.globalEventsMinSeverity ?? 3,
     (p.globalEventsTaiwanOnly ?? 0) === 1,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -168,7 +170,7 @@ export const DustForecastHost: LayerHostComponent = ({ deps }) => {
   useDustForecastLayer(
     deps.mapRef,
     deps.layerVisibility.dustForecast,
-    p.dustForecastOpacity ?? 0.7,
+    p.dustForecastOpacity ?? RASTER.opacity,
   );
   return null;
 };

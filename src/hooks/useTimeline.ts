@@ -129,6 +129,8 @@ interface UseTimelineReturn {
   windowEnd: number;
   play: () => void;
   pause: () => void;
+  /** 資料載入完成時呼叫；使用者暫停過則不播放 */
+  autoPlay: () => void;
   toggle: () => void;
   setSpeed: (s: number) => void;
   seek: (time: number) => void;
@@ -165,17 +167,23 @@ export interface ReplayFrameAdvance {
   reachedEnd: boolean;
 }
 
-/** Replay 沒有 loop mode；抵達視窗尾端時停在尾端。 */
+/** Replay 沒有 loop mode；抵達尾端時停在尾端。已經在尾端之後（使用者拖進未來）就原地停，不往回跳。 */
 export function advanceReplayFrame(
   current: number,
   elapsedSeconds: number,
   speed: number,
-  windowEnd: number,
+  end: number,
 ): ReplayFrameAdvance {
+  if (current >= end) return { time: current, reachedEnd: true };
   const next = current + elapsedSeconds * speed;
-  return next >= windowEnd
-    ? { time: windowEnd, reachedEnd: true }
+  return next >= end
+    ? { time: end, reachedEnd: true }
     : { time: next, reachedEnd: false };
+}
+
+/** 播放終點：視窗結尾與「現在」取較早者——不播進還沒發生的未來。 */
+export function replayPlaybackEnd(windowEnd: number, nowUnix: number): number {
+  return Math.min(windowEnd, nowUnix);
 }
 
 export function useTimeline({
@@ -287,7 +295,7 @@ export function useTimeline({
       const dt = (now - lastFrameRef.current) / 1000;
       lastFrameRef.current = now;
 
-      const frame = advanceReplayFrame(timeStore.getTime(), dt, speed, windowEnd);
+      const frame = advanceReplayFrame(timeStore.getTime(), dt, speed, replayPlaybackEnd(windowEnd, Date.now() / 1000));
       timeStore.setTime(frame.time);
       if (frame.reachedEnd) {
         setPlaying(false);
@@ -303,12 +311,25 @@ export function useTimeline({
     return () => cancelAnimationFrame(rafRef.current);
   }, [timeMode, playing, speed, windowStart, windowEnd]);
 
+  // 使用者（或場景）主動暫停過 → 資料重載後的自動播放不可把它重新啟動；按播放才清掉。
+  const userPausedRef = useRef(false);
   const play = useCallback(() => {
+    userPausedRef.current = false;
     if (timeMode === "replay") setPlaying(true);
   }, [timeMode]);
-  const pause = useCallback(() => setPlaying(false), []);
+  const pause = useCallback(() => {
+    userPausedRef.current = true;
+    setPlaying(false);
+  }, []);
   const toggle = useCallback(() => {
-    if (timeMode === "replay") setPlaying((p) => !p);
+    if (timeMode !== "replay") return;
+    userPausedRef.current = playing;
+    setPlaying(!playing);
+  }, [timeMode, playing]);
+  /** 資料載入完成時的自動播放：使用者暫停過就不動。 */
+  const autoPlay = useCallback(() => {
+    if (userPausedRef.current) return;
+    if (timeMode === "replay") setPlaying(true);
   }, [timeMode]);
 
   const seek = useCallback(
@@ -361,6 +382,7 @@ export function useTimeline({
     play,
     pause,
     toggle,
+    autoPlay,
     setSpeed,
     seek,
     jumpToTime,

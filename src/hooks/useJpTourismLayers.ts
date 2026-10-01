@@ -13,6 +13,7 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 type GeometryKind = "point" | "polygon";
@@ -187,13 +188,14 @@ export function useJpTourismLayers(
         }
 
         if (visible && sourceReady && config.kind === "polygon") {
+          const defaultOpacity = Number(paramDefault(config.key, `${config.key}Opacity`) ?? 1);
           if (!map.getLayer(fillId)) {
             map.addLayer({
               id: fillId, type: "fill", source: sid,
               ...sourceLayerRef,
               ...(filter ? { filter } : {}),
               layout: { visibility: "none" },
-              paint: { "fill-color": JP_TOURISM_COLORS[config.key], "fill-opacity": clampOpacity(opacity[config.key]) },
+              paint: hookFillPaint(config.key, fillId, { "fill-color": JP_TOURISM_COLORS[config.key], "fill-opacity": clampOpacity(opacity[config.key]) }, { "fill-color": JP_TOURISM_COLORS[config.key], "fill-opacity": defaultOpacity }),
             });
           }
           if (!map.getLayer(lineId)) {
@@ -201,8 +203,8 @@ export function useJpTourismLayers(
               id: lineId, type: "line", source: sid,
               ...sourceLayerRef,
               ...(filter ? { filter } : {}),
-              layout: { visibility: "none" },
-              paint: { "line-color": JP_TOURISM_COLORS[config.key], "line-opacity": Math.min(1, clampOpacity(opacity[config.key]) + 0.25), "line-width": 0.8 },
+              layout: { visibility: "none", ...hookLineLayout(config.key, lineId) },
+              paint: hookLinePaint(config.key, lineId, { "line-color": JP_TOURISM_COLORS[config.key], "line-opacity": Math.min(1, clampOpacity(opacity[config.key]) + 0.25), "line-width": 0.8 }, { "line-color": JP_TOURISM_COLORS[config.key], "line-opacity": Math.min(1, defaultOpacity + 0.25), "line-width": 0.8 }, isDark),
             });
           }
         }
@@ -218,9 +220,11 @@ export function useJpTourismLayers(
             for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(id, prop, stroke[prop]);
             if (filter) map.setFilter(id, filter);
           } else if (id === fillId) {
-            map.setPaintProperty(id, "fill-opacity", clampOpacity(opacity[config.key]));
+            const defaultOpacity = Number(paramDefault(config.key, `${config.key}Opacity`) ?? 1);
+            map.setPaintProperty(id, "fill-opacity", hookFillOpacity(config.key, fillId, clampOpacity(opacity[config.key]), defaultOpacity));
           } else {
-            map.setPaintProperty(id, "line-opacity", Math.min(1, clampOpacity(opacity[config.key]) + 0.25));
+            const defaultOpacity = Number(paramDefault(config.key, `${config.key}Opacity`) ?? 1);
+            map.setPaintProperty(id, "line-opacity", hookLineOpacity(config.key, lineId, Math.min(1, clampOpacity(opacity[config.key]) + 0.25), Math.min(1, defaultOpacity + 0.25), isDark));
           }
         }
       }

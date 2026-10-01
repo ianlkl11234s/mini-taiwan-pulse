@@ -70,6 +70,7 @@ import {
   CHILD_SERVICE_CLASSES, LTC_SERVICE_TYPES, NURSING_HOME_TYPES, WELFARE_PRECISION_MODES,
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
+import { RASTER, EXTRUSION } from "../map/mapStyleScale";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
@@ -747,8 +748,8 @@ function gridContrastSlider(name: string): SliderParamSpec {
 }
 function gridHeightSlider(name: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "高度", digits: 0,
-    default: def, min: 10, max: 200, step: 10, out: null,
+    kind: "slider", name, labelPrefix: "高度", digits: def === 80 ? 3 : 2,
+    default: EXTRUSION.heightMultiplier, min: 10 / def, max: 200 / def, step: 10 / def, out: null,
   };
 }
 
@@ -1570,7 +1571,7 @@ export const LAYER_PARAMS_SPEC = {
   jpWaterGroundwaterSites: [opacitySlider("jpWaterGroundwaterSitesOpacity", 0.82)],
   jpWaterNilimDams: [opacitySlider("jpWaterNilimDamsOpacity", 0.82)],
   jpWaterAgriculturalPonds: [opacitySlider("jpWaterAgriculturalPondsOpacity", 0.55)],
-  jpWaterFloodHazard: [opacitySlider("jpWaterFloodHazardOpacity", 0.7)],
+  jpWaterFloodHazard: [{ kind: "slider", name: "jpWaterFloodHazardOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpWaterLocalFacilities: [opacitySlider("jpWaterLocalFacilitiesOpacity", 0.85)],
   jpWaterQualityStations: [opacitySlider("jpWaterQualityStationsOpacity", 0.75)],
   jpWaterLevelStations: [opacitySlider("jpWaterLevelStationsOpacity", 0.85)],
@@ -1774,7 +1775,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   dustForecast: [
-    { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   waterBasins: [
     { kind: "slider", name: "waterBasinOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
@@ -1938,14 +1939,14 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("hikingTrailsOpacity", 0.85),
   ],
   canopyHeight: [
-    { kind: "slider", name: "canopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.3, max: 1, step: 0.05 },
+    { kind: "slider", name: "canopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   jpBuildingHeight: [
     { kind: "select", name: "jpBuildingHeightModeIdx", label: "呈現", default: "0", options: [...JP_BUILDING_HEIGHT_MODES], out: "jpBuildingHeightModeIdx", encode: JP_BUILDING_HEIGHT_MODES.map((mode) => mode.value) },
     { kind: "slider", name: "jpBuildingHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0.3, max: 1, step: 0.05 },
   ],
   jpCanopyHeight: [
-    { kind: "slider", name: "jpCanopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.3, max: 1, step: 0.05 },
+    { kind: "slider", name: "jpCanopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   canopyGiants: [
     { kind: "slider", name: "canopyGiantsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.3, max: 1, step: 0.05 },
@@ -2324,7 +2325,7 @@ export const LAYER_PARAMS_SPEC = {
       options: URBAN_HEAT_MODES.map((m) => ({ label: m.label, value: m.value })),
       out: "urbanHeatModeIdx", encode: URBAN_HEAT_MODES.map((o) => o.value),
     },
-    { kind: "slider", name: "urbanHeatOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0.2, max: 1, step: 0.05 },
+    { kind: "slider", name: "urbanHeatOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   schools: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
@@ -2783,7 +2784,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   precipRaster: [
-    opacitySlider("precipRasterOpacity", 0.6),
+    { kind: "slider", name: "precipRasterOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
     {
       kind: "select", name: "precipRasterHours", label: "累積時長", default: "24",
       options: [
@@ -2944,8 +2945,8 @@ export const LAYER_PARAMS_SPEC = {
       showWhen: { param: "propertyValueGridExtruded", equals: true },
     },
     {
-      kind: "slider", name: "propertyValueGridElevationScale", labelPrefix: "整體高度", digits: 0,
-      default: 40, min: 10, max: 400, step: 10,
+      kind: "slider", name: "propertyValueGridElevationScale", labelPrefix: "高度倍率", digits: 2,
+      default: EXTRUSION.heightMultiplier, min: 0.25, max: 10, step: 0.25,
       showWhen: { param: "propertyValueGridExtruded", equals: true },
     },
   ],
@@ -3069,19 +3070,19 @@ export const LAYER_PARAMS_SPEC = {
   cwaCloudImagery: [
     {
       kind: "slider", name: "cwaCloudOpacity", labelPrefix: "透明度", digits: 2,
-      default: 1.0, min: 0, max: 1, step: 0.05, out: null,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05, out: null,
     },
   ],
   cwaRadarImagery: [
     {
       kind: "slider", name: "cwaRadarOpacity", labelPrefix: "透明度", digits: 2,
-      default: 0.85, min: 0, max: 1, step: 0.05, out: null,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05, out: null,
     },
   ],
   aqiImagery: [
     {
       kind: "slider", name: "aqiImageryOpacity", labelPrefix: "透明度", digits: 2,
-      default: 0.7, min: 0.1, max: 1, step: 0.05, out: null,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05, out: null,
     },
   ],
   aqiMicroSensors: [
