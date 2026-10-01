@@ -275,6 +275,7 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: village_destinations.json",
   "PRIVATE_OWNER_ONLY: decay_village_impacts.json",
   "PRIVATE_OWNER_ONLY: decay_summary.json",
+  "PRIVATE_OWNER_ONLY: bridge_fingerprint.json",
 ]);
 
 /**
@@ -345,7 +346,7 @@ describe("deploy 契約（nginx + pull script）", () => {
   });
 
   it("橋梁韌性只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
-    const location = nginxConf.match(/location ~ \^\/api\/private-research\/bridge-resilience\/\(tiles\|summary\|impacts\|destinations\|decay-impacts\|decay-summary\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/bridge-resilience\/\(tiles\|summary\|impacts\|destinations\|decay-impacts\|decay-summary\|fingerprint\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
     expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
     expect(location).toContain("proxy_set_header Authorization $http_authorization;");
     expect(location).toContain("proxy_set_header Range $http_range;");

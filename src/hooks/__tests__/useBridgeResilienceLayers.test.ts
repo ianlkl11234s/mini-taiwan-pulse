@@ -67,7 +67,7 @@ describe("村里 feature-state", () => {
     scenarios: ["三鶯大橋|car", "關渡大橋+淡江大橋|car"],
     villages: { "63000010002": { decay_mean_dT_s: [null, 5] }, "65000160008": { decay_mean_dT_s: [0, 130] } },
   };
-  const data = { summary: { bridges: {} }, decaySummary: { bridges: {} }, decayImpacts, impacts: {
+  const data = { summary: { bridges: {} }, decaySummary: { bridges: {} }, fingerprint: { bridges: {} }, decayImpacts, impacts: {
     scenarios: ["三鶯大橋|car"], villages: { "63000010002": { p90_dT_s: [null], affected_dest_pop_share: [0] }, "65000160008": { p90_dT_s: [120], affected_dest_pop_share: [0.2] } },
   } as VillageImpacts };
   const fakeMap = () => ({ getSource: vi.fn(() => ({})), setFeatureState: vi.fn(), removeFeatureState: vi.fn() });
