@@ -28,7 +28,7 @@ const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作�
 const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
 const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
-const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-decay-view-20261001/bridge-resilience.local/bridge-display-bundle-20261001-v3";
+const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-fingerprint-popup-20261002/bridge-resilience.local/bridge-display-bundle-20261002-v3-fp";
 const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
 const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
@@ -107,6 +107,12 @@ export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
     filename: "decay_summary.json",
     size: 55424,
     sha256: "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0",
+  }),
+  // 四維 fingerprint（analytics bridge-fingerprint-20261002-v1/fingerprint.json 原檔）：26 座內百分位，不合成總分。
+  fingerprint: Object.freeze({
+    filename: "bridge_fingerprint.json",
+    size: 54886,
+    sha256: "263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4",
   }),
 });
 
