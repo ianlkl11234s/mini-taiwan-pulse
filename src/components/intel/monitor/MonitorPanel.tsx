@@ -5,7 +5,7 @@ import {
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
-import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { ELEVATION, RADIUS, FONT_SIZE, CONTROL } from "../../../styles/designTokens";
 import { type IntelCardEvent } from "../IntelCard";
 import { type TimeRange } from "../IntelFilters";
 import { fetchPressureIndex, fetchMarketIndex, trendingKeys as buildTrendingKeys,
@@ -58,6 +58,11 @@ import {
   MONITOR_SPLIT_DOCK, MONITOR_SPLIT_VISIBLE_LAYOUT, type MonitorMode,
 } from "./monitorSplitLayout";
 import { useNewsFilter } from "../../../hooks/useNewsFilter";
+import {
+  MonitorStyleContext, loadMonitorStyle, saveMonitorStyle, type MonitorStyle,
+} from "./monitorStyle";
+import { MonitorCardFrame } from "./MonitorCardFrame";
+import { MONITOR_CARD_META } from "./monitorCardMeta";
 
 const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
@@ -93,6 +98,13 @@ const MONITOR_STACK_ORDER_SPLIT: MonitorGridItem[] = [...MONITOR_SPLIT_VISIBLE_L
 );
 /** split 座標 → 欄/列樹 */
 const monitorTreeSplit: MonitorNode = buildMonitorTree(MONITOR_SPLIT_VISIBLE_LAYOUT);
+
+/** v2 標頭的中文模式名（舊版維持 Dock／Split／Wall） */
+const MODE_LABEL_V2: Record<MonitorMode, string> = { dock: "停靠", split: "分割", wall: "全屏" };
+const STYLE_OPTIONS: { key: MonitorStyle; label: string }[] = [
+  { key: "v2", label: "新版" },
+  { key: "legacy", label: "舊版" },
+];
 
 /** header 的三段模式切換選項 */
 const MODE_OPTIONS: { key: MonitorMode; label: string; icon: string[] }[] = [
@@ -278,6 +290,13 @@ export function MonitorPanel({
 
   // ── 面板尺寸 + 呈現模式 ──
   const [height, setHeight] = useState(0.62);
+  // 卡片樣式版本（spec §5.35）：新版統一卡片殼；舊版保留給使用者切回對照
+  const [monitorStyle, setMonitorStyleState] = useState<MonitorStyle>(loadMonitorStyle);
+  const setMonitorStyle = (s: MonitorStyle) => {
+    setMonitorStyleState(s);
+    saveMonitorStyle(s);
+  };
+  const v2 = monitorStyle === "v2";
   const [modeState, setModeState] = useState<MonitorMode>("dock");
   const mode = modeProp ?? modeState;
   const setMode = onModeChangeProp ?? setModeState;
@@ -662,11 +681,25 @@ export function MonitorPanel({
     lightning: <LightningCard open={open} nowTs={now} />,
   };
 
+  // v2：每格包進標準卡片殼（框＋標題列），各卡只畫內容
+  const cells = (v2
+    ? Object.fromEntries(
+        (Object.keys(widgets) as MonitorWidgetId[]).map((id) => [
+          id,
+          <MonitorCardFrame key={id} widgetId={id} title={MONITOR_CARD_META[id].title} en={MONITOR_CARD_META[id].en}>
+            {widgets[id]}
+          </MonitorCardFrame>,
+        ]),
+      )
+    : widgets) as Record<MonitorWidgetId, ReactNode>;
+
   const isWall = mode === "wall";
   const isSplit = mode === "split";
 
   return (
+    <MonitorStyleContext.Provider value={monitorStyle}>
     <div
+      className="mtp-mon"
       style={{
         position: "fixed",
         left: isSplit ? `${(1 - MONITOR_SPLIT_DOCK.widthPct) * 100}%` : (isWall ? 0 : 64),
@@ -723,9 +756,21 @@ export function MonitorPanel({
           }}
         >
           <IntelIcon d={MICON.grid!} size={15} color={COLORS.accent} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff" }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: v2 ? COLORS.textStrong : "#fff" }}>
             監看模式
           </span>
+          {v2 ? (
+            <span
+              style={{
+                padding: "1px 6px", borderRadius: RADIUS.md,
+                border: `1px solid ${COLORS.statusWarn}`,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.statusWarn, whiteSpace: "nowrap",
+              }}
+              title="本模式仍在打磨中，數據與互動可能還會調整"
+            >
+              測試中
+            </span>
+          ) : <>
           <span
             style={{
               fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim,
@@ -746,6 +791,7 @@ export function MonitorPanel({
           >
             BETA
           </span>
+          </>}
         </div>
         {/* ⚠️ 這行必須是 header 裡唯一可壓縮的東西：flex row 沒有 wrap，其餘項目
             （標題群、三顆模式鈕、退出）都是 nowrap 且 min-width:auto，誰都縮不了。
@@ -759,9 +805,39 @@ export function MonitorPanel({
             minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
-          今日 {allEventsToday.length} 則 · SITUATIONAL AWARENESS
+          {v2 ? <>今日 <span style={{ fontFamily: FONT_DATA }}>{allEventsToday.length}</span> 則新聞</> : <>今日 {allEventsToday.length} 則 · SITUATIONAL AWARENESS</>}
         </span>
         <div style={{ flex: 1 }} />
+        <div
+          role="group"
+          aria-label="卡片樣式"
+          style={{
+            display: "inline-flex", flexShrink: 0, padding: 2, gap: 2,
+            borderRadius: RADIUS.md, border: `1px solid ${CONTROL.border}`, marginTop: isWall ? 0 : 4,
+          }}
+        >
+          {STYLE_OPTIONS.map(({ key, label }) => {
+            const active = monitorStyle === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={active}
+                title={key === "v2" ? "統一卡片樣式（2026-10 改版）" : "改版前的樣式"}
+                onClick={(e) => { e.stopPropagation(); setMonitorStyle(key); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  padding: "3px 8px", borderRadius: 3, border: "none", cursor: "pointer",
+                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, whiteSpace: "nowrap",
+                  background: active ? COLORS.accentFaint : "transparent",
+                  color: active ? COLORS.accent : COLORS.textMuted,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: isWall ? 0 : 4 }}>
           {MODE_OPTIONS.map(({ key, label, icon }) => {
             const active = mode === key;
@@ -788,7 +864,7 @@ export function MonitorPanel({
                   size={13}
                   color={active ? COLORS.accent : "currentColor"}
                 />
-                {label}
+                {v2 ? MODE_LABEL_V2[key] : label}
               </button>
             );
           })}
@@ -850,10 +926,10 @@ export function MonitorPanel({
                   overflow: item.fit === "content" ? "visible" : "auto",
                 }}
               >
-                {widgets[item.i]}
+                {cells[item.i]}
               </div>
             ))
-          : renderMonitorNode(isSplit ? monitorTreeSplit : monitorTree, widgets)}
+          : renderMonitorNode(isSplit ? monitorTreeSplit : monitorTree, cells)}
       </div>
       </div>
 
@@ -896,5 +972,6 @@ export function MonitorPanel({
         }
       `}</style>
     </div>
+    </MonitorStyleContext.Provider>
   );
 }

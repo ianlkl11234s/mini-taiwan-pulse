@@ -1,5 +1,6 @@
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
 import { type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
@@ -324,6 +325,15 @@ export function Sparkline({
 }
 
 export function SectionLabel({ children, color }: { children: React.ReactNode; color?: string }) {
+  const v2 = useMonitorV2();
+  // v2：卡片標題由 MonitorCardFrame 畫；卡內的 SectionLabel 只當小節標（中文、不轉大寫、非等寬）
+  if (v2) {
+    return (
+      <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: 600, color: COLORS.textMuted }}>
+        {children}
+      </div>
+    );
+  }
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
       <span
@@ -346,6 +356,11 @@ export function SectionLabel({ children, color }: { children: React.ReactNode; c
 export function Widget({
   children, style,
 }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const v2 = useMonitorV2();
+  // v2：框由 MonitorCardFrame 畫，這層只排版
+  if (v2) {
+    return <div style={{ display: "flex", flexDirection: "column", minWidth: 0, ...style, border: undefined, background: undefined, padding: 0, borderRadius: undefined }}>{children}</div>;
+  }
   return (
     <div
       style={{

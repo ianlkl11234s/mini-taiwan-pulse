@@ -19,6 +19,7 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import type { IntelQueryState } from "../../../hooks/useIntelPollingQuery";
 import {
@@ -66,11 +67,13 @@ function HazardShell({
   const failed = queries.some((q) => q.status === "error");
   const healthTitle = denied ? "資料無權限讀取" : failed ? "資料更新中斷" : title;
   const healthDot = denied || failed ? COLORS.textDim : dot;
+  const v2 = useMonitorV2();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color={labelColor}>{label}</SectionLabel>
+      {/* v2：段落標與外框由 MonitorCardFrame 畫 */}
+      {!v2 && <SectionLabel color={labelColor}>{label}</SectionLabel>}
       <div
-        style={{
+        style={v2 ? { display: "flex", flexDirection: "column", gap: 8 } : {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: `linear-gradient(160deg, ${tint}, rgba(255,255,255,0.012))`,
