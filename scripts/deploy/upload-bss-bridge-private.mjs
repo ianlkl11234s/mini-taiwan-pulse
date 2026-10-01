@@ -4,6 +4,7 @@
  * 僅站主可讀；不屬於 build、公開資產同步或 CDN upload。
  */
 import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { S3Client, GetBucketPolicyCommand, GetBucketOwnershipControlsCommand, PutObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { BSS_BRIDGE_ASSETS } from '../../server/coral-private/coral-private-server.mjs';
@@ -15,15 +16,16 @@ const region = 'ap-southeast-2';
 const prefix = 'private-research/bss-bridge';
 const client = new S3Client({ region, credentials: { accessKeyId: process.env.S3_ACCESS_KEY, secretAccessKey: process.env.S3_SECRET_KEY } });
 
-// Single source of truth: BSS_BRIDGE_ASSETS in the sidecar. The package has no top-level
-// size/sha256 receipt; local_validation.json carries pmtiles_sha256 and the size comes from the bytes on disk.
-const validation = JSON.parse(await readFile(`${root}/local_validation.json`, 'utf8'));
-if (typeof validation.pmtiles_sha256 !== 'string') throw new Error('local_validation.json has no pmtiles_sha256');
+// Single source of truth: BSS_BRIDGE_ASSETS in the sidecar. v4 carries pmtiles_sha256 in
+// local_validation.json; v5+ packages carry it in receipt.json. Size comes from the bytes on disk.
+const validationFile = existsSync(`${root}/local_validation.json`) ? 'local_validation.json' : 'receipt.json';
+const validation = JSON.parse(await readFile(`${root}/${validationFile}`, 'utf8'));
+if (typeof validation.pmtiles_sha256 !== 'string') throw new Error(`${validationFile} has no pmtiles_sha256`);
 
 const assets = Object.entries(BSS_BRIDGE_ASSETS).map(([name, a]) => [name, a.filename, a.size, a.sha256]);
 for (const [, filename, size, sha256] of assets) {
   if (!size || !/^[0-9a-f]{64}$/.test(sha256)) throw new Error('BSS_BRIDGE_ASSETS is invalid; stop publication');
-  if (validation.pmtiles_sha256 !== sha256) throw new Error('local_validation.json does not match BSS_BRIDGE_ASSETS');
+  if (validation.pmtiles_sha256 !== sha256) throw new Error(`${validationFile} does not match BSS_BRIDGE_ASSETS`);
   const local = await readFile(`${root}/${filename}`);
   if (local.length !== size || createHash('sha256').update(local).digest('hex') !== sha256) throw new Error('Local file does not match BSS_BRIDGE_ASSETS');
 }

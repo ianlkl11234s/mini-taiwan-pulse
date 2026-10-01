@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { featureFilter, validate } from "mapbox-gl/dist/style-spec/index.cjs";
 import {
   BSS_BRIDGE_LINE_ROLES, BSS_BRIDGE_POINT_LAYER_ID, BSS_BRIDGE_PRIVATE_ENDPOINT, BSS_BRIDGE_PRIVATE_LAYER_KEYS,
-  BSS_BRIDGE_SOURCE_ID, isBssBridgePrivateLayer,
+  BSS_BRIDGE_SOURCE_ID, BSS_BRIDGE_V5_LINE_COLORS, bssBridgeAccessColorExpression, bssBridgeV5LineColorExpression, isBssBridgePrivateLayer,
 } from "../../data/bssBridgeTypes";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
@@ -40,6 +40,15 @@ describe("BSS 橋梁研究 owner-only PMTiles 契約", () => {
     expect(errors).toEqual([]);
     const clickable = new Set(GIS_LAYERS.flatMap((entry) => entry.layers));
     for (const layer of layers) expect(clickable.has(layer.id), layer.id).toBe(true);
+  });
+
+  it("v5：線依 v5_class 著色（與圖例共用色票），點仍依交通類別", () => {
+    const layers = buildBssBridgeLayers(STATE);
+    const original = layers.find((layer) => layer.id === "bss-national-bridge-preview-original-direction-line")!;
+    expect((original.paint as Record<string, unknown>)["line-color"]).toEqual(bssBridgeV5LineColorExpression);
+    expect(JSON.stringify(bssBridgeV5LineColorExpression)).toContain(BSS_BRIDGE_V5_LINE_COLORS.osm_entity_multi_segment);
+    const point = layers.find((layer) => layer.id === BSS_BRIDGE_POINT_LAYER_ID)!;
+    expect((point.paint as Record<string, unknown>)["circle-color"]).toEqual(bssBridgeAccessColorExpression);
   });
 
   it("點層固定 S 階半徑並跟大小滑桿，透明度與線層各自獨立", () => {

@@ -583,7 +583,7 @@ test("bss bridge assets enforce owner, probe, range and unknown asset boundaries
 test("bss bridge S3 gateway uses immutable private keys", async () => {
   const bytes = Buffer.from("bss-bridge");
   const asset = Object.freeze({
-    filename: "bss_bridge_location_direction_preview_20260927_v4.pmtiles",
+    filename: "bss_bridge_location_direction_preview_20261002_v5.pmtiles",
     size: bytes.length,
     sha256: createHash("sha256").update(bytes).digest("hex"),
   });
@@ -595,7 +595,7 @@ test("bss bridge S3 gateway uses immutable private keys", async () => {
   await gateway.head(asset);
   assert.deepEqual(calls, [{
     Bucket: "migu-private-research-ap-southeast-2",
-    Key: `private-research/bss-bridge/${asset.sha256}/bss_bridge_location_direction_preview_20260927_v4.pmtiles`,
+    Key: `private-research/bss-bridge/${asset.sha256}/bss_bridge_location_direction_preview_20261002_v5.pmtiles`,
     ChecksumMode: "ENABLED",
   }]);
 });

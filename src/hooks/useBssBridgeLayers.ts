@@ -3,7 +3,7 @@ import type { CircleLayer, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_ATTRIBUTION, BSS_BRIDGE_LINE_ROLES, BSS_BRIDGE_MAX_ZOOM, BSS_BRIDGE_MIN_ZOOM,
   BSS_BRIDGE_POINT_LAYER_ID, BSS_BRIDGE_POINT_MIN_ZOOM, BSS_BRIDGE_PRIVATE_ENDPOINT, BSS_BRIDGE_SELECTION_CLEAR_EVENT,
-  BSS_BRIDGE_SOURCE_ID, BSS_BRIDGE_SOURCE_LAYER, BSS_BRIDGE_STAGE1_LINE_COLOR, bssBridgeAccessColorExpression,
+  BSS_BRIDGE_SOURCE_ID, BSS_BRIDGE_SOURCE_LAYER, BSS_BRIDGE_STAGE1_LINE_COLOR, bssBridgeAccessColorExpression, bssBridgeV5LineColorExpression,
   bssBridgeLineFilter, bssBridgePointFilter, type BssBridgeLayerKey,
 } from "../data/bssBridgeTypes";
 import { paramDefault } from "../data/layerParamsSpec";
@@ -39,12 +39,12 @@ export function buildBssBridgeLayers(state: Snapshot): (LineLayer | CircleLayer)
     filter: bssBridgeLineFilter(spec.role, controls.lineClass, controls.lineQuality),
     layout: { ...hidden, ...hookLineLayout("bssNationalBridgePreview", spec.id) },
     paint: hookLinePaint("bssNationalBridgePreview", spec.id, {
-      "line-color": spec.role === "stage1_local_direction_candidate" ? BSS_BRIDGE_STAGE1_LINE_COLOR : bssBridgeAccessColorExpression,
+      "line-color": spec.role === "stage1_local_direction_candidate" ? BSS_BRIDGE_STAGE1_LINE_COLOR : bssBridgeV5LineColorExpression,
       "line-width": lineWidth(spec.wide),
       "line-opacity": clamp(opacity.bssNationalBridgePreview),
       ...(spec.dash ? { "line-dasharray": [...spec.dash] } : {}),
     }, {
-      "line-color": spec.role === "stage1_local_direction_candidate" ? BSS_BRIDGE_STAGE1_LINE_COLOR : bssBridgeAccessColorExpression,
+      "line-color": spec.role === "stage1_local_direction_candidate" ? BSS_BRIDGE_STAGE1_LINE_COLOR : bssBridgeV5LineColorExpression,
       "line-width": lineWidth(spec.wide),
       "line-opacity": Number(paramDefault("bssNationalBridgePreview", "bssNationalBridgePreviewOpacity") ?? 1),
       ...(spec.dash ? { "line-dasharray": [...spec.dash] } : {}),

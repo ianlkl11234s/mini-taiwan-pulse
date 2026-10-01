@@ -267,7 +267,7 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   // 土壤液化（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）：同樣只走 owner-authenticated Range sidecar。
   "PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles",
   // BSS 橋梁（HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED）：授權 HOLD，只走 owner-authenticated Range sidecar。
-  "PRIVATE_OWNER_ONLY: bss_bridge_location_direction_preview_20260927_v4.pmtiles",
+  "PRIVATE_OWNER_ONLY: bss_bridge_location_direction_preview_20261002_v5.pmtiles",
   // 橋梁韌性（同 HOLD 授權）：僅站主 sidecar。
   "PRIVATE_OWNER_ONLY: bridge-resilience-20261001-v3.pmtiles",
   "PRIVATE_OWNER_ONLY: bridge_summary.json",
