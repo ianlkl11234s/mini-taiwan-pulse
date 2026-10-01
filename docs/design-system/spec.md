@@ -509,7 +509,7 @@
   - 共通：10px、padding `3px 5px`（外框版 `2px 5px`）、圓角 3。
 - **篩選**：分段控制（§5.8）；事件列表用左線時間軸（§5.6）。
 - **禁止**：自訂第三種徽章公式；分類與程度用同一種外觀。
-- **暗／淡**：`intel/intelTheme.tsx` 的 `IntelPalette`（`DARK_INTEL`／`LIGHT_INTEL`，淡色一律取自本檔 `LIGHT`）＋ `IntelThemeProvider`／`useIntelTheme()` 分發，由 `IntelPanel` 依 `isDarkTheme` 建 palette；未被 Provider 包住時 fallback 深色（Monitor Mode 的戰情看板刻意維持全暗，`monitor/NewsFeedPanel.tsx` 顯式套 `DARK_INTEL`，不隨主站底圖切換）。
+- **暗／淡**：`intel/intelTheme.tsx` 的 `IntelPalette`（`DARK_INTEL`／`LIGHT_INTEL`，淡色一律取自本檔 `LIGHT`）＋ `IntelThemeProvider`／`useIntelTheme()` 分發，由 `IntelPanel` 依 `isDarkTheme` 建 palette；未被 Provider 包住時 fallback 深色（Monitor Mode 目前仍刻意維持全暗，`monitor/NewsFeedPanel.tsx` 顯式套 `DARK_INTEL`；2026-10-01 拍板改為跟底圖主題（§5.35 H2），實作後改寫本句）。
 - **淡色徽章對比規則**：`chipTint`／`chipOutline` 的底色／框線沿用資料 hue 不變（§3.16 資料色不進 token）；但淡色主題若直接拿該 hue 當「字」色，淺色相（黃、淺綠、青…）對近白面板對比不足。呼叫端改用 `intelTheme.ts` 的 `chipText(color, palette)`：暗色原樣回傳，淡色把 hue 與 `LIGHT.textStrong` 依 45%／55% 混色（`CHIP_TEXT_MIX = 0.55`）。已對 7 個新聞分類、6 個警示分類、4 個嚴重度色、`COLORS.cluster` 共 18 色驗證 WCAG 對比：`chipOutline`（字疊在不透明面板底，對純白量測即精確值）全數 ≥5.32:1；`chipTint`（字疊在「白＋該色 14% alpha」的真實淡底，對比略低於純白版本）全數 ≥5.01:1；兩者最低都是 lifeline `#a3e635`（見 `intel/__tests__/intelTheme.contrast.test.ts`，兩種底各自量測，未達標顏色目前為零）。`GIS_LEVELS`／`SEV_LEVELS` 的分級色另用 `levelColor()` 轉換（白色半透明佔位→中性文字階；與 accent／statusWarn／statusErr 同值→換成對應 palette 欄位；其餘資料 hue→`chipText`）。
 - **實作**：`src/components/intel/{IntelHeader.tsx,IntelCard.tsx,IntelFilters.tsx,intelTokens.ts,intelTheme.tsx}`、`intel/alerts/{AlertCard.tsx,AlertSummaryBar.tsx,FeedTabs.tsx}`。
 
@@ -713,6 +713,48 @@
 - **地圖**：配色取 `vizSpec` 暗色組（與主站分析結果同一套取色規則）；圖例色票 12×8；地圖標籤 11px（點）／12px（面）、halo 1.2／1.4（字型 `LABEL_FONT`，與 map-layers T-1／T-2 不同，待確認是否要對齊）。
 - **暗／淡**：**只有暗色**（`CARD_THEME = "dark"`），與 §1「暗／淡並行」不一致，列在 §10.3。
 - **實作**：`src/card/`（`CardApp.tsx`、`AnalysisCard.tsx`、`CardMap.tsx`、`cardStyle.ts`、`card.css`）。
+
+### 5.35 監看模式卡片
+
+2026-10-01 拍板（比較頁 `docs/features/monitor-restyle/picks.html`，代號 A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1），**尚未實作**；實作分階段見 `docs/features/monitor-restyle/README.md`「實作順序」。盤點與證據同目錄（2026-09-30）。
+
+- **用途**：監看模式（Monitor）split／dock／wall 裡的每一格看板。改版前 `MonitorPanel` 只排位置不畫框，24 格各自手刻（3 種框、5 種標題、9 種主數字字級、5 套時間序列、約 20 處缺值畫成 0）。
+- **不新造通用 Card**（§11 KEEP OUT）：把既有 `HazardShell`（＋`Metric`／`MetricRow`／`Note`／`MetaRow`）升格成監看卡標準殼，`Widget`／`SectionLabel` 收斂進去。
+- **卡片殼（A1）**：`MonitorPanel` 統一畫框，各卡不再自畫；`1px BORDER.panel`、`RADIUS.lg`、padding `10px 12px`；標題列是卡的第一列。不再有框外段落標、無框卡、卡內第二層英文標題、個別卡片額外 `zoom`。
+- **尺寸階（B1）**：格寬 小 1/3（w4）／中 1/2（w6）／全寬（w12）；圖高 迷你 24（列內）／標準 48（卡內主圖）／大 96（全寬主角圖）。圖一律寬 100% 隨格子伸縮，不寫死 px。
+- **標題列（C3）**：13px bold 中文標題＋9px `textDim` 英文名（§6.1 小字附註）；右側資料時間 10px `FONT_DATA`（當日 `HH:MM`、跨日 `MM/DD`）；只有異常才在時間前加 `chipOutline` pill。窄格放不下時**先隱藏英文名**，中文標題、時間、pill 必留。不用英文大寫；面板標頭照 §5.1（`MONITOR`／`BETA`／`SITUATIONAL AWARENESS` 一併中文化）。
+- **數值列（D3）**：主數字 22px bold `FONT_DATA`（`FONT_SIZE.xxl`）；其餘指標 KPI 列（標籤 10px 在上、數值 18px）；副資訊 10px。全站只剩 22／18／10 三階。單位照 §6.2；漲跌色依領域（股市紅漲綠跌，其他依好壞）。
+- **走勢圖（E3）**：連續量（指數、比率、人數、MW）用折線＋淡面積＋最新點＋首尾日期；計數（次數、件數、架次）用柱。缺值：折線斷開並在缺段畫斜線帶（與地圖缺值斜線同語彙）／柱為灰色短樁；0＝底線。由擴充 `TimeseriesSparkline`＋`HazardTrendBars` 的同一個走勢元件出，不再手刻 SVG／CSS 柱。
+- **多指標卡（F3＋雙主圖）**：
+  - 主圖＋其餘小倍數列（名稱｜走勢｜最新值，同寬同高、共用時間軸、各自比例尺，不另放圖例）。
+  - **全寬卡最多 2 個主圖並排**，各配一個 22px 主數字（例：供電＝備轉容量率＋供電能力 vs 尖峰負載）；半寬以下的卡只放 1 個主圖。這是 D3「一格一個 22px」的唯一例外。
+  - 同單位最多 3 條可疊在同一張主圖，名稱標在線尾；不同單位一定分圖。
+- **狀態提示（G2）**：狀態字見下表（擴充 §6.4）。過期／停更時主數字改 `textMuted`、走勢在最後一筆之後到現在畫斜線、卡底一行原因（10px）。收盤／休市只出中性 pill、不降灰。受影響（資料本身的警訊，如供電吃緊、急診壅塞）用數值與圖的顏色表示，不改卡底、不加色條。
+- **主題（H2）**：監看模式跟底圖主題切換暗／淡（取代 §5.21 原本「刻意維持全暗」）。淡色值只取 `LIGHT`；資料色文字走 `chipText()` 並逐格驗對比；影片牆（YouTube iframe）本身維持暗。
+- **指數化（I2）**：分領域子指數 **災害**（颱風、地震、落雷、輻射、警訊）、**民生**（供電、急診、食品價格、公衛）、**國防**（共機、特殊船舶、ISR 衛星）、**網路與交通**（網路觀察、台鐵誤點、機場入出境）。戰情壓力總指數先修好（K1），子指數上線後改由子指數加權合成，權重公開、可展開到原始值。子指數需 gis-platform 預先彙整表與排程（migration 由使用者拍板），排在前端改版之後。停更來源不得默默拉低指數：要在指數旁標出缺了哪些來源。
+- **缺值修正（K1）**：這輪一起把 loader／元件的 `?? 0`、`|| 0`、補 0 改成保留 null；壓力指數 loader 改讀 `updated_at`、`per_signal` 改讀物件；熱區「熱度倍數」合成值改成真實比較或拿掉。RPC 端 `COALESCE(…,0)`（公衛 yoy）與上游停更另開資料工單。
+- **窄格規則**（2026-10-01 使用者在比較頁抓到示意卡數字互壓、標籤被截、漲跌斷行）：
+  - 卡片 `overflow: hidden`＋`min-width: 0`，內容不得畫出格子（改版前 `fit:"content"` 格是 `overflow: visible`）。
+  - 主數字、KPI 數值、漲跌、時間 `white-space: nowrap`；放不下時整組換行，不在數字中間斷行、不縮字。
+  - KPI 列自動折行（每格最小 96px）。副資訊每一項是不可拆的一組。
+  - 標題列：標題與時間同一行優先，pill 放不下才換第二行；標題不截成「…」。
+  - 走勢軸字卡寬低於 240px 時只留首尾日期。
+  - 驗收：1496px（split 不退化單欄的最窄寬度）與 1920px 螢幕，w4／w6 格逐格截圖，暗淡各一。
+
+**狀態字**（擴充 §6.4；「週期」＝該格來源的預期更新間隔，每格實作時登記）：
+
+| 狀態 | 條件 | 顯示 |
+|---|---|---|
+| 即時 | 最新資料在 1 個週期內 | 只顯示時間 |
+| 延遲 | 超過 2 個週期 | 時間改 `statusWarn` |
+| 過期 | 超過 6 個週期或已跨日（日更資料超過 2 天） | pill「過期」`statusWarn`＋G2 畫法 |
+| 停更 | 超過 7 天，或來源已下架 | pill「停更 N 天」／「來源已下架」`statusErr`＋一行原因 |
+| 無資料 | 從未取得 | 「—」＋原因（§6.5） |
+| 收盤／休市 | 來源依時段正常暫停 | 中性 pill，不降灰 |
+| 讀取中／更新中斷／無權限 | 傳輸狀態（現有 `MonitorDataStatus`） | 維持現行 |
+
+- **禁止**：寫死圖寬 px；缺值補 0 或合成值當資料；未就緒時用預設值決定顏色（改版前戰情概覽用 50）；印內部欄位名（`latest_valid_day`、`border_airport_snapshot`）；個別卡片額外 `zoom`；英文大寫標題；各卡自畫外框。
+- **實作**（改版前位置）：`src/components/intel/monitor/`（`MonitorPanel.tsx`、`monitorSplitLayout.ts`、各卡元件）、`PressureRing.tsx`（`Widget`／`SectionLabel`／`Sparkline`）、`HazardCards.tsx`（`HazardShell`）、`HazardTrendBars.tsx`、`MonitorDataStatus.tsx`。
 
 ## 6. 文案規則
 
