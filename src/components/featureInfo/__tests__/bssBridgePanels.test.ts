@@ -163,4 +163,25 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     expect(multiCrossing).toContain("w789");
     expect(multiCrossing).toContain("仍待複核");
   });
+
+  it("popup 精簡：常駐區只留關鍵列，其餘收進三個 details 並可捲動", () => {
+    const html = renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: {
+      bss_name: "精簡示例", source_key: "road:9", bridge_type: "road", county_memberships: "新北市",
+      geometry_role: "original_direction_line", bss_registered_length_m: 3120, line_drawn_length_m: 3028,
+      stage1_status: "not_reviewed", qa_reason: "舊查核備註",
+      stage1_release_id: "a".repeat(40),
+    } }));
+    expect(html).toContain('class="fi-scroll"');
+    expect(html).toContain("max-height:320px");
+    for (const summary of ["審核與來源", "舊綜合 QA", "說明與限制"]) expect(html).toContain(`>${summary}</summary>`);
+    const visible = html.slice(0, html.indexOf("<details"));
+    expect(visible).toContain("長度");
+    expect(visible).toContain("登錄 3,120 m・繪製 3,028 m");
+    expect(visible).not.toContain("BSS source key");
+    expect(visible).not.toContain("舊綜合 QA 查核紀錄");
+    expect(html).toContain("BSS source key");
+    expect(html).toContain("舊綜合 QA 查核紀錄");
+    expect(html).toContain(`${"a".repeat(12)}…`);
+    expect(html).toContain(`title="${"a".repeat(40)}"`);
+  });
 });

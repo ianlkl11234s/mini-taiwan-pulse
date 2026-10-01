@@ -14,6 +14,7 @@ import {
 import { TIMELINE_SECTION, TimelineSection } from "./sections/TimelineSection";
 import { MAP_SECTION, MapLayerSection } from "./sections/MapLayerSection";
 import { BOOT_SECTION, BootSection } from "./sections/BootSection";
+import { MONITOR_SECTION, MonitorSection } from "./sections/MonitorSection";
 
 const SECTIONS: readonly [SectionDef, () => React.JSX.Element][] = [
   [TOKENS_SECTION, TokensSection],
@@ -28,6 +29,7 @@ const SECTIONS: readonly [SectionDef, () => React.JSX.Element][] = [
   [MAP_SECTION, MapLayerSection],
   [BOOT_SECTION, BootSection],
   [LAYOUT_SECTION, LeftDockSection],
+  [MONITOR_SECTION, MonitorSection],
 ];
 
 /** 開站畫面淡入（台灣 0.7s、品牌字 0.3s 後 0.5s）結束後才標 ready，快照不會停在淡入中 */

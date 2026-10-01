@@ -9,6 +9,8 @@ import {
 import { useChartTooltip } from "../../ChartHoverTooltip";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 /**
  * 台鐵誤點監測（migration 369）
@@ -58,10 +60,14 @@ export function TraDelayBoard({ open }: Props) {
     return null;
   }, [days]);
 
+  const v2 = useMonitorV2();
+  // 資料期別＝主數字對應的營運日（YYYY-MM-DD → MM/DD）
+  useMonitorCardHeader({ timeText: latest ? latest.serviceDate.slice(5).replace("-", "/") : null });
+
   if (!latest) {
     return (
       <div>
-        <SectionLabel>TRA DELAY</SectionLabel>
+        {!v2 && <SectionLabel>TRA DELAY</SectionLabel>}
         <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
         <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
         <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
@@ -77,7 +83,7 @@ export function TraDelayBoard({ open }: Props) {
 
   return (
     <div>
-      <SectionLabel>TRA DELAY</SectionLabel>
+      {!v2 && <SectionLabel>TRA DELAY</SectionLabel>}
       <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
       <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
 

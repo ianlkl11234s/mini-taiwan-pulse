@@ -3,6 +3,7 @@ import { COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS } from "../intelTok
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
+import { useMonitorV2 } from "./monitorStyle";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 function DistBar({
@@ -88,6 +89,7 @@ interface Props {
 }
 
 export function TriageWidget({ events }: Props) {
+  const v2 = useMonitorV2();
   const tri = useMemo(() => {
     const gis = [0, 0, 0, 0];
     const sev = [0, 0, 0, 0];
@@ -105,12 +107,12 @@ export function TriageWidget({ events }: Props) {
 
   return (
     <Widget style={{ gridColumn: "1 / -1" }}>
-      <SectionLabel>信號分級 · TRIAGE</SectionLabel>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18 }}>
-        <DistBar label="地理相關 GIS_RELEVANCE" levels={GIS_LEVELS} counts={tri.gis} />
-        <DistBar label="嚴重程度 SEVERITY" levels={SEV_LEVELS} counts={tri.sev} />
+      {!v2 && <SectionLabel>信號分級 · TRIAGE</SectionLabel>}
+      <div style={{ display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(140px, 1fr))" : "repeat(3, 1fr)", gap: 18 }}>
+        <DistBar label={v2 ? "地理相關" : "地理相關 GIS_RELEVANCE"} levels={GIS_LEVELS} counts={tri.gis} />
+        <DistBar label={v2 ? "嚴重程度" : "嚴重程度 SEVERITY"} levels={SEV_LEVELS} counts={tri.sev} />
         <DistBar
-          label="事件性質 IS_EVENT"
+          label={v2 ? "事件性質" : "事件性質 IS_EVENT"}
           levels={[
             { label: "事件", color: COLORS.accent },
             { label: "聲明", color: COLORS.textDim },

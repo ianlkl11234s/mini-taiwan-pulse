@@ -1,18 +1,24 @@
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { Sparkline } from "./PressureRing";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 import type { PublicHealthWeek, CdcDisease } from "../../../data/intelLoaders";
 
 function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
+  const v2 = useMonitorV2();
   // 疾病：升 = 警示 → 紅；降 = 改善 → 綠
   const worse = d.yoy >= 0;
   const yc = worse ? COLORS.statusWarn : COLORS.statusLive;
   return (
     <div
       style={{
-        borderRadius: RADIUS.xl, border: `1px solid ${COLORS.panelBorder}`,
-        background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012))",
-        padding: "12px 13px", display: "flex", flexDirection: "column", gap: 9,
+        ...(v2 ? { minWidth: 0 } : {
+          borderRadius: RADIUS.xl, border: `1px solid ${COLORS.panelBorder}`,
+          background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012))",
+          padding: "12px 13px",
+        }),
+        display: "flex", flexDirection: "column", gap: 9,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -29,7 +35,7 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
         <div style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint,
+            fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, color: COLORS.textFaint,
             padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
           }}
         >
@@ -101,9 +107,11 @@ interface Props {
 // 共機已於 2026-08-03 拆成獨立的 plaBoard widget（PlaBoard.tsx）——
 // 這裡只剩 CDC 健康卡，標題與 grid 欄數同步縮減
 export function SituationCards({ health }: Props) {
+  const v2 = useMonitorV2();
+  useMonitorCardHeader({ timeText: health.week > 0 ? `W${health.week}` : null });
   return (
     <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />
         <span
           style={{
@@ -116,7 +124,7 @@ export function SituationCards({ health }: Props) {
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
           CDC 截至 ISO 第 W{health.week > 0 ? health.week : "—"} 週
         </span>
-      </div>
+      </div>}
       {/* auto-fit + minmax：只有一種疾病時（目前 RPC 只回登革熱）整張卡撐滿欄寬，
           不再固定切三格讓單卡縮成 1/3；三種都回來時窄欄自動折成兩排，
           每格仍有 200px 以上讀得到 sparkline（固定 3 格在 split 的 w6 只剩 ~130px）。 */}

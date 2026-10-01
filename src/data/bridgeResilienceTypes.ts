@@ -3,9 +3,9 @@ import type { ExpressionSpecification } from "mapbox-gl";
 /**
  * 雙北跨河橋梁韌性（研究中）站主限定私人資產契約。
  *
- * 來源：taipei-gis-analytics `bridge-display-bundle-20260930-v2`（專題 README §8／§8b）。
- * 一個私人 PMTiles（三個 source-layer）＋三份私人 JSON，全部只經同源 Range API
- * `/api/private-research/bridge-resilience/{tiles,summary,impacts,destinations}` 讀取（每個請求帶 Bearer，sidecar 驗站主）。
+ * 來源：taipei-gis-analytics `bridge-display-bundle-20261001-v3`（專題 README §8／§8b）。
+ * 一個私人 PMTiles（三個 source-layer）＋五份私人 JSON，全部只經同源 Range API
+ * `/api/private-research/bridge-resilience/{tiles,summary,impacts,destinations,decay-impacts,decay-summary}` 讀取（每個請求帶 Bearer，sidecar 驗站主）。
  * 授權為 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：不得進公開 CDN／static／release allowlist。
  *
  * 語意（必守）：
@@ -28,10 +28,12 @@ export const BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT = "bridge-resilience-select
 
 /** 資產契約；與 sidecar `BRIDGE_RESILIENCE_ASSETS`、上傳腳本共用同一組數字（測試逐一比對）。 */
 export const BRIDGE_RESILIENCE_ASSETS = {
-  tiles: { filename: "bridge-resilience-20260930-v2.pmtiles", size: 1944552, sha256: "434e38bdcdf63c940529a7320242feb3c6fe8d5d560c94443b433c1fc8b88852" },
+  tiles: { filename: "bridge-resilience-20261001-v3.pmtiles", size: 2091890, sha256: "61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc" },
   summary: { filename: "bridge_summary.json", size: 63004, sha256: "4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574" },
   impacts: { filename: "village_impacts.json", size: 1333831, sha256: "4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764" },
   destinations: { filename: "village_destinations.json", size: 6425352, sha256: "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5" },
+  "decay-impacts": { filename: "decay_village_impacts.json", size: 864533, sha256: "a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873" },
+  "decay-summary": { filename: "decay_summary.json", size: 55424, sha256: "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0" },
 } as const;
 export type BridgeResilienceAssetName = keyof typeof BRIDGE_RESILIENCE_ASSETS;
 export const bridgeResilienceAssetUrl = (name: BridgeResilienceAssetName) => `${BRIDGE_RESILIENCE_PRIVATE_ENDPOINT}/${name}`;
@@ -70,6 +72,13 @@ export const BRIDGE_MODES: readonly BridgeMode[] = ["car", "scooter"];
 export const BRIDGE_MODE_LABELS: Record<BridgeMode, string> = { car: "汽車", scooter: "機車" };
 export type VillageMetric = "p90" | "share";
 export const VILLAGE_METRICS: readonly VillageMetric[] = ["p90", "share"];
+/** 權重：距離遞減（預設，τ=20 分鐘）或不分遠近（原版）。 */
+export type BridgeWeighting = "decay" | "uniform";
+export const BRIDGE_WEIGHTINGS: readonly BridgeWeighting[] = ["decay", "uniform"];
+export const BRIDGE_WEIGHTING_LABELS: Record<BridgeWeighting, string> = {
+  decay: "距離遞減（平均行程 20 分）",
+  uniform: "不分遠近",
+};
 
 /** 資料色（不進 chrome token）：汽車、機車分色，地面引道以同色淡化＋虛線。 */
 export const BRIDGE_RESILIENCE_COLORS = {
@@ -85,6 +94,10 @@ export const BRIDGE_RESILIENCE_COLORS = {
   destOrigin: "#ffffff",
   destTop: "#38bdf8",
 } as const;
+/** 距離遞減村里色階（資料色）：平均多花秒數 <1、1–5、5–15、15–30、30–60、60–120、≥120，與 analytics 地圖同分段。 */
+export const DECAY_RAMP = ["#fef3c7", "#fde68a", "#fcd34d", "#fb923c", "#ef4444", "#991b1b", "#4c0519"] as const;
+export const DECAY_MEAN_BREAKS: readonly number[] = [1, 5, 15, 30, 60, 120];
+export const DECAY_MEAN_LABELS: readonly string[] = ["<1 秒", "1–5 秒", "5–15 秒", "15–30 秒", "30–60 秒", "60–120 秒", "≥120 秒"];
 export const BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR = 0.45;
 
 /** 村里色階（資料色）。p90 單位為秒；share 為 0–1 比例。 */
@@ -149,7 +162,35 @@ export interface VillageImpacts {
   fields?: Record<string, unknown>;
   villages: Record<string, Record<string, Array<number | null>>>;
 }
-export interface BridgeResilienceData { summary: BridgeSummary; impacts: VillageImpacts }
+export interface BridgeResilienceData {
+  summary: BridgeSummary; impacts: VillageImpacts; decayImpacts: DecayVillageImpacts; decaySummary: DecaySummary;
+}
+
+// ── 距離遞減版（decay_village_impacts.json／decay_summary.json）────────
+
+/** `villages[VILLCODE].decay_mean_dT_s[i]` 對應 `scenarios[i]`；null＝無可達權重，不是 0。 */
+export interface DecayVillageImpacts {
+  scenarios: string[];
+  tau_min?: number;
+  fields?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+  villages: Record<string, Record<string, Array<number | null>>>;
+}
+export interface DecayTopVillage {
+  VILLCODE: string; county: string; town: string; village: string;
+  pop_hh: number; decay_mean_dT_s: number | null; contribution_person_s: number | null;
+}
+export interface DecayModeSummary {
+  decay_impact: number | null; decay_mean_dT_per_trip: number | null; pop_gt30s: number | null; pop_gt60s: number | null;
+  /** 單橋才有名次；聯合情境為 null（不列名次）。 */
+  decay_impact_rank: number | null; uniform_impact_rank: number | null;
+  rank_tau10: number | null; rank_tau30: number | null;
+  top5_villages: DecayTopVillage[];
+}
+export interface DecaySummary {
+  meta?: Record<string, unknown>;
+  bridges: Record<string, { is_joint?: boolean; river?: string; modes: Partial<Record<BridgeMode, DecayModeSummary>> }>;
+}
 
 // ── 純函式（測試涵蓋）──────────────────────────────────────────────
 
@@ -185,6 +226,30 @@ export function decodeVillageScenario(
     out.set(id, typeof raw === "number" && Number.isFinite(raw) ? raw : null);
   }
   return out;
+}
+
+/**
+ * 距離遞減版：解出一個情境下每個村里的 decay_mean_dT_s（秒）。null 保留為 null（不當 0）；
+ * 0 是真實的 0（最低一級）。情境不存在回 null。
+ */
+export function decodeDecayVillageScenario(decay: DecayVillageImpacts, scenario: string): Map<number, number | null> | null {
+  const index = decay.scenarios.indexOf(scenario);
+  if (index < 0) return null;
+  const out = new Map<number, number | null>();
+  for (const [code, fields] of Object.entries(decay.villages)) {
+    const raw = fields.decay_mean_dT_s?.[index];
+    const id = Number(code);
+    if (!Number.isSafeInteger(id)) continue;
+    out.set(id, typeof raw === "number" && Number.isFinite(raw) ? raw : null);
+  }
+  return out;
+}
+
+/** 距離遞減版村里填色（7 級）；has≠1（null／未設定）一律中性色，不當 0。 */
+export function decayFillColorExpression(): ExpressionSpecification {
+  const step: unknown[] = ["step", ["coalesce", ["feature-state", "v"], 0], DECAY_RAMP[0]];
+  DECAY_MEAN_BREAKS.forEach((value, i) => step.push(value, DECAY_RAMP[i + 1]));
+  return ["case", ["==", ["feature-state", "has"], 1], step, BRIDGE_RESILIENCE_COLORS.villageNeutral] as unknown as ExpressionSpecification;
 }
 
 /** 村里填色：有值走色階；沒有 has=1 的（null／未設定）一律中性色，不當 0。 */
@@ -323,6 +388,23 @@ export function sharePermilleText(permille: number): string {
 // ── 格式化（popup 用）────────────────────────────────────────────────
 
 /** 秒 → 分鐘（1 位小數）；null／非有限值回 null，由呼叫端決定顯示語意。 */
+/** 距離遞減 popup：影響（百萬 人·秒）。null → 未提供。 */
+export function millionPersonSecondsText(value: unknown): string {
+  return typeof value === "number" && Number.isFinite(value)
+    ? `${(value / 1e6).toLocaleString("zh-TW", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} 百萬人·秒`
+    : "未提供";
+}
+/** 每人每次多花秒數（1 位小數）。null → 未提供。 */
+export function secondsText(value: unknown, digits = 1): string {
+  return typeof value === "number" && Number.isFinite(value)
+    ? `${value.toLocaleString("zh-TW", { minimumFractionDigits: digits, maximumFractionDigits: digits })} 秒`
+    : "未提供";
+}
+/** 名次：null（聯合情境不列名次）→ 「不列名次」，不是第 0 名。 */
+export function rankText(rank: number | null | undefined): string {
+  return typeof rank === "number" && Number.isFinite(rank) ? `第 ${rank} 名` : "不列名次";
+}
+
 export function secondsToMinutes(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? Math.round(value / 6) / 10 : null;
 }

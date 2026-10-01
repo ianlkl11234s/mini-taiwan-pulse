@@ -8,9 +8,9 @@ import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import { fetchPrivateJson, loadBridgeResilienceData, validateBridgeResilienceData } from "../bridgeResilienceLoader";
 import {
   BRIDGE_JOINT_KEY, BRIDGE_RESILIENCE_ASSETS, BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_KEY,
-  BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS, BRIDGE_RESILIENCE_RAMP, decodeVillageScenario, effectiveScenarioUid,
-  geometryConfidenceText, highlightUids, lossPercentText, minutesText, populationText, scenarioKey,
-  villageFillColorExpression, type VillageImpacts,
+  BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS, BRIDGE_RESILIENCE_RAMP, DECAY_MEAN_BREAKS, DECAY_RAMP, decayFillColorExpression, decodeDecayVillageScenario, decodeVillageScenario, effectiveScenarioUid,
+  geometryConfidenceText, highlightUids, lossPercentText, millionPersonSecondsText, minutesText, populationText, rankText, scenarioKey, secondsText,
+  villageFillColorExpression, type DecaySummary, type DecayVillageImpacts, type VillageImpacts,
 } from "../bridgeResilienceTypes";
 
 const IMPACTS: VillageImpacts = {
@@ -20,6 +20,60 @@ const IMPACTS: VillageImpacts = {
     "65000160008": { p90_dT_s: [null, 52, null], affected_dest_pop_share: [0, 0.001, 0.5] },
   },
 };
+
+const DECAY: DecayVillageImpacts = {
+  scenarios: ["三鶯大橋|car", "三鶯大橋|scooter", "關渡大橋+淡江大橋|car"],
+  villages: {
+    "63000010002": { decay_mean_dT_s: [0.59, null, 203.4] },
+    "65000160008": { decay_mean_dT_s: [0, 12.5, 61] },
+  },
+};
+const DECAY_SUMMARY: DecaySummary = { bridges: {} };
+
+describe("decay_village_impacts 解碼（距離遞減版）", () => {
+  it("decay_mean_dT_s[i] 對應 scenarios[i]；聯合情境也能解", () => {
+    expect(decodeDecayVillageScenario(DECAY, "三鶯大橋|car")!.get(63000010002)).toBe(0.59);
+    expect(decodeDecayVillageScenario(DECAY, "三鶯大橋|scooter")!.get(65000160008)).toBe(12.5);
+    const joint = decodeDecayVillageScenario(DECAY, `${BRIDGE_JOINT_KEY}|car`)!;
+    expect(joint.get(63000010002)).toBe(203.4);
+    expect(joint.get(65000160008)).toBe(61);
+  });
+  it("null 保留為 null；0 是真實的 0；情境不存在回 null", () => {
+    expect(decodeDecayVillageScenario(DECAY, "三鶯大橋|scooter")!.get(63000010002)).toBeNull();
+    expect(decodeDecayVillageScenario(DECAY, "三鶯大橋|car")!.get(65000160008)).toBe(0);
+    expect(decodeDecayVillageScenario(DECAY, "不存在|car")).toBeNull();
+  });
+  const evalColor = (has: number, v: number | null) => {
+    const compiled = expression.createExpression(decayFillColorExpression(), { type: "color", "property-type": "data-driven", expression: { interpolated: false, parameters: ["zoom", "feature", "feature-state"] } });
+    expect(compiled.result).toBe("success");
+    const color = compiled.value.evaluate({ zoom: 10 }, { type: 3, properties: {} }, { has, v });
+    return [color.r, color.g, color.b].map((c: number) => Math.round(c * 255)).join(",");
+  };
+  const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(",");
+  it("色階 7 級：<1、1–5、5–15、15–30、30–60、60–120、≥120 秒；邊界值落在上一級的下界", () => {
+    expect(DECAY_RAMP).toHaveLength(DECAY_MEAN_BREAKS.length + 1);
+    const cases: Array<[number, number]> = [[0, 0], [0.99, 0], [1, 1], [4.99, 1], [5, 2], [15, 3], [30, 4], [60, 5], [119.9, 5], [120, 6], [900, 6]];
+    for (const [v, bin] of cases) expect(evalColor(1, v), `v=${v}`).toBe(rgb(DECAY_RAMP[bin]!));
+  });
+  it("has≠1（null／未設定）一律中性色，不當 0", () => {
+    expect(evalColor(0, 0)).toBe(rgb(BRIDGE_RESILIENCE_COLORS.villageNeutral));
+    expect(evalColor(0, 0)).not.toBe(rgb(DECAY_RAMP[0]));
+  });
+});
+
+describe("距離遞減 popup 文字", () => {
+  it("影響以百萬人·秒、每人每次多花以秒；null 回「未提供」，不是 0", () => {
+    expect(millionPersonSecondsText(22689297)).toBe("22.7 百萬人·秒");
+    expect(secondsText(3.489)).toBe("3.5 秒");
+    expect(millionPersonSecondsText(null)).toBe("未提供");
+    expect(secondsText(null)).toBe("未提供");
+  });
+  it("名次 null（聯合情境）顯示「不列名次」，不是第 0 名", () => {
+    expect(rankText(1)).toBe("第 1 名");
+    expect(rankText(null)).toBe("不列名次");
+    expect(rankText(null)).not.toContain("0");
+  });
+});
 
 describe("village_impacts 解碼", () => {
   it("villages[VILLCODE][field][i] 對應 scenarios[i]，VILLCODE 轉成 feature id", () => {
@@ -104,10 +158,13 @@ describe("私人 JSON 載入", () => {
     await expect(fetchPrivateJson("impacts", "t", json({}, 200))).rejects.toThrow("尚未就緒");
   });
   it("格式不符時中止，不合成空資料", async () => {
-    expect(() => validateBridgeResilienceData({} as never, IMPACTS)).toThrow();
-    expect(() => validateBridgeResilienceData({ bridges: {} }, { scenarios: [] } as never)).toThrow();
-    const both = await loadBridgeResilienceData("t", async (u) => new Response(JSON.stringify(u.endsWith("/summary") ? { bridges: {} } : IMPACTS), { status: 206 }));
+    expect(() => validateBridgeResilienceData({} as never, IMPACTS, DECAY, DECAY_SUMMARY)).toThrow();
+    expect(() => validateBridgeResilienceData({ bridges: {} }, { scenarios: [] } as never, DECAY, DECAY_SUMMARY)).toThrow();
+    expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, {} as never, DECAY_SUMMARY)).toThrow("decay_village_impacts");
+    expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, DECAY, {} as never)).toThrow("decay_summary");
+    const both = await loadBridgeResilienceData("t", async (u) => new Response(JSON.stringify(u.endsWith("/decay-summary") ? DECAY_SUMMARY : u.endsWith("/decay-impacts") ? DECAY : u.endsWith("/summary") ? { bridges: {} } : IMPACTS), { status: 206 }));
     expect(both.impacts.scenarios).toHaveLength(3);
+    expect(both.decayImpacts.scenarios).toHaveLength(3);
   });
 });
 
@@ -117,12 +174,22 @@ describe("sidecar 資產契約", () => {
   const sidecar = whole.slice(whole.indexOf("export const BRIDGE_RESILIENCE_ASSETS"));
   it("前端契約與 sidecar BRIDGE_RESILIENCE_ASSETS 的檔名／大小／SHA-256 逐一相同", () => {
     for (const [name, asset] of Object.entries(BRIDGE_RESILIENCE_ASSETS)) {
-      const block = sidecar.match(new RegExp(`${name}: Object\\.freeze\\(\\{\\s*filename: "([^"]+)",\\s*size: (\\d+),\\s*sha256: "([0-9a-f]{64})"`, "m"));
+      const block = sidecar.match(new RegExp(`"?${name}"?: Object\\.freeze\\(\\{\\s*filename: "([^"]+)",\\s*size: (\\d+),\\s*sha256: "([0-9a-f]{64})"`, "m"));
       expect(block, name).not.toBeNull();
       expect(block![1]).toBe(asset.filename);
       expect(Number(block![2])).toBe(asset.size);
       expect(block![3]).toBe(asset.sha256);
     }
+  });
+  it("manifest 註記含全部資產檔名與 PMTiles SHA 前綴（三處同步）", () => {
+    const manifest = fs.readFileSync(path.resolve(here, "../layerManifest.ts"), "utf8");
+    const line = manifest.split("\n").find((l) => l.includes("Owner-only same-origin Range API /api/private-research/bridge-resilience/"))!;
+    expect(line).toBeTruthy();
+    for (const [name, asset] of Object.entries(BRIDGE_RESILIENCE_ASSETS)) {
+      expect(line, name).toContain(asset.filename);
+      expect(line, `route ${name}`).toContain(name);
+    }
+    expect(line).toContain(`${BRIDGE_RESILIENCE_ASSETS.tiles.sha256.slice(0, 8)}…${BRIDGE_RESILIENCE_ASSETS.tiles.sha256.slice(-4)}`);
   });
   it("圖層是站主限定（GATED），且原始碼不含外部網址或 env", () => {
     expect(BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS.every((key) => GATED_LAYERS.has(key))).toBe(true);

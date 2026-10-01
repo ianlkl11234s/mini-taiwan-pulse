@@ -15,6 +15,8 @@ import {
 } from "../../../data/isrSatellitePassesLoader";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 export type LoadState = "loading" | "ready" | "error";
 
@@ -314,16 +316,28 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
     ? COLORS.textFaint
     : ISR_PASS_LEVEL_COLORS[latestLevel];
 
+  const v2 = useMonitorV2();
+  // 資料時間＝最新有效日（與其他日更卡一致顯示資料日期）；沒有就退回計算時間。過期沿用既有 freshness 判斷。
+  const computedMs = report?.computedAt ? Date.parse(report.computedAt) : NaN;
+  const latestDayText = report?.latestValidDay ? `${report.latestValidDay.slice(5, 7)}/${report.latestValidDay.slice(8, 10)}` : null;
+  useMonitorCardHeader({
+    time: latestDayText == null && Number.isFinite(computedMs) ? computedMs : null,
+    timeText: latestDayText,
+    state: report?.freshness === "stale" ? { kind: "stale", label: "過期" } : null,
+  });
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
       <MonitorDataStatus label="ISR 過境資料" query={query} />
-      <SectionLabel color="#a78bfa">中國 ISR 衛星 · TERRITORIAL PASS MONITOR</SectionLabel>
+      {!v2 && <SectionLabel color="#a78bfa">中國 ISR 衛星 · TERRITORIAL PASS MONITOR</SectionLabel>}
       <div
         style={{
-          borderRadius: RADIUS.xl,
-          border: `1px solid ${COLORS.panelBorder}`,
-          background: "rgba(255,255,255,0.02)",
-          padding: "11px 13px",
+          ...(v2 ? {} : {
+            borderRadius: RADIUS.xl,
+            border: `1px solid ${COLORS.panelBorder}`,
+            background: "rgba(255,255,255,0.02)",
+            padding: "11px 13px",
+          }),
           display: "flex", flexDirection: "column", gap: 9,
         }}
       >
@@ -340,7 +354,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
             </>
           ) : (
             <span style={{ fontSize: FONT_SIZE.base, color: latest.kind === "error" || latest.kind === "stale" ? COLORS.statusWarn : COLORS.textDim }}>
-              {DISPLAY_LABEL[latest.kind]}
+              {v2 && latest.kind === "stale" ? "最新計數暫不呈現 · 不以 0 代替" : DISPLAY_LABEL[latest.kind]}
             </span>
           )}
         </div>
@@ -358,7 +372,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
                 type="button"
                 onClick={() => setWindowDays(option)}
                 aria-pressed={selected}
-                title={`顯示 latest_valid_day 往前 ${option} 個日曆日`}
+                title={v2 ? `顯示最新有效日往前 ${option} 個日曆日` : `顯示 latest_valid_day 往前 ${option} 個日曆日`}
                 style={{
                   fontSize: 9,
                   padding: "2px 7px",
@@ -462,6 +476,13 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
           </div>
         )}
 
+        {v2 ? (
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, lineHeight: 1.5 }}>
+            資料至 {report?.latestValidDay ?? "—"} · 更新 {formatTimestamp(report?.computedAt ?? null)}
+            {(report?.scopeCoverageComplete === false || report?.coverageComplete === false || report?.chinaIsrCensusComplete === false)
+              ? "；涵蓋範圍未完整，數字僅供參考" : ""}
+          </div>
+        ) : (
         <div
           style={{
             display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
@@ -476,12 +497,13 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
           <span>freshness: {FRESHNESS_LABEL[report?.freshness ?? "unknown"]}</span>
           <span>registry_reviewed: {formatTimestamp(report?.registryReviewedAt ?? null)}</span>
         </div>
+        )}
 
         <div style={{ fontSize: 9, color: COLORS.statusWarn, lineHeight: 1.5 }}>
           v1 YAOGAN／GAOFEN／JILIN 範圍，非全中國 ISR census
         </div>
         <div style={{ fontSize: 9, color: COLORS.textFaint, lineHeight: 1.5 }}>
-          {ISR_PASSES_DEFAULT_REGION} · {ISR_PASSES_DEFAULT_TIER_MODE} · 地面投影穿越不等於實際蒐情；
+          {v2 ? "" : `${ISR_PASSES_DEFAULT_REGION} · ${ISR_PASSES_DEFAULT_TIER_MODE} · `}地面投影穿越不等於實際蒐情；
           缺日與 null 不補 0
         </div>
       </div>

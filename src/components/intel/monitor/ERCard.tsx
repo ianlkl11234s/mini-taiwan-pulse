@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { RADIUS, FONT_SIZE, WHITE_ALPHA } from "../../../styles/designTokens";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { useChartTooltip } from "../../ChartHoverTooltip";
@@ -12,6 +12,8 @@ import { erCongestionColor, ER_LEVEL_COLORS, ER_LEVEL_LABELS, classifyErCongesti
 import { buildErRegionGroups, buildErSummary, ER_SEVERITY_ORDER, type ErHospitalCell, type ErSummary } from "./erCardData";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 interface Props { open: boolean }
 const EMPTY_ER_LATEST: ErHospitalLatest[] = [];
@@ -19,6 +21,7 @@ const EMPTY_ER_SERIES: ErHospital24hAllRow[] = [];
 const EMPTY_ER_TREND: ErWaitTotal14dRow[] = [];
 
 export function ERCard({ open }: Props) {
+  const v2 = useMonitorV2();
   const loadLatest = useCallback(() => fetchErHospitalLatest(), []);
   const loadSeries = useCallback(() => fetchErHospital24hAll(), []);
   const loadTrend = useCallback(() => fetchErWaitTotal14d(), []);
@@ -29,6 +32,13 @@ export function ERCard({ open }: Props) {
   const series = seriesQuery.data;
   const trend14d = trendQuery.data;
   const readableLatest = latestQuery.status === "ready" || latestQuery.lastSuccessAt !== null;
+
+  // v2：最新一筆觀測時間（epoch 秒 → 毫秒）送標題列
+  const latestObservedMs = useMemo(
+    () => latest.reduce((m, r) => Math.max(m, r.observed_ts ?? 0), 0) * 1000,
+    [latest],
+  );
+  useMonitorCardHeader({ time: latestObservedMs > 0 ? latestObservedMs : null });
 
   const groups = useMemo(() => buildErRegionGroups(latest, series), [latest, series]);
   const allHospitals = useMemo(() => groups.flatMap((g) => g.hospitals), [groups]);
@@ -54,9 +64,9 @@ export function ERCard({ open }: Props) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color={COLORS.accent}>急診壅塞 · ER CONGESTION 24H</SectionLabel>
+      {!v2 && <SectionLabel color={COLORS.accent}>急診壅塞 · ER CONGESTION 24H</SectionLabel>}
       <div
-        style={{
+        style={v2 ? { display: "flex", flexDirection: "column", gap: 10, minWidth: 0 } : {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
@@ -64,9 +74,13 @@ export function ERCard({ open }: Props) {
           display: "flex", flexDirection: "column", gap: 10,
         }}
       >
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
-          ER WAIT · {readableLatest ? latest.length : "—"} 院 24h 等一般病床
-        </span>
+        {v2 ? (
+          <SectionLabel>等床 · {readableLatest ? latest.length : "—"} 院 24h 等一般病床</SectionLabel>
+        ) : (
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
+            ER WAIT · {readableLatest ? latest.length : "—"} 院 24h 等一般病床
+          </span>
+        )}
         <MonitorDataStatus label="急診最新快照" query={latestQuery} />
         <MonitorDataStatus label="急診 24h 序列" query={seriesQuery} />
         <MonitorDataStatus label="急診 14 天趨勢" query={trendQuery} />
@@ -115,7 +129,7 @@ export function ERCard({ open }: Props) {
         })}
 
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-          來源：衛福部 急診即時訂閱（get_er_hospital_latest / 24h_all）
+          {v2 ? "來源：衛福部 急診即時訂閱" : "來源：衛福部 急診即時訂閱（get_er_hospital_latest / 24h_all）"}
         </div>
       </div>
     </div>
@@ -130,12 +144,17 @@ function fmtHm(ts: number | undefined): string {
 }
 
 function HospitalCell({ cell, sparkTimes }: { cell: ErHospitalCell; sparkTimes: number[] }) {
+  const v2 = useMonitorV2();
   const color = erCongestionColor(cell.wait);
   const level = classifyErCongestion(cell.wait);
   const hasSpark = cell.spark.length >= 2;
   return (
     <div
-      style={{
+      // v2：不畫框，但保留淡底小格，否則迷你走勢會貼著右邊下一家醫院、看不出屬於誰
+      style={v2 ? {
+        display: "flex", alignItems: "center", gap: 6, minWidth: 0,
+        padding: "4px 6px", borderRadius: RADIUS.md, background: WHITE_ALPHA[4],
+      } : {
         display: "flex", alignItems: "center", gap: 6,
         padding: "5px 7px", borderRadius: RADIUS.md,
         background: "rgba(255,255,255,0.025)",
@@ -181,10 +200,11 @@ function HospitalCell({ cell, sparkTimes }: { cell: ErHospitalCell; sparkTimes: 
 function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
   const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
   const tip = useChartTooltip();
+  const v2 = useMonitorV2();
   return (
     <div
       data-testid="er-national-summary"
-      style={{
+      style={v2 ? { display: "flex", alignItems: "center", gap: 14, minWidth: 0 } : {
         display: "flex", alignItems: "center", gap: 14,
         padding: "6px 10px", borderRadius: RADIUS.lg,
         background: "rgba(255,255,255,0.03)",
@@ -254,11 +274,16 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
 
 /** 全台 14 天等床趨勢（總集列正下方）— TimeseriesSparkline 動態寬版，捨棄首桶（rolling window 邊界偏低） */
 function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
+  const v2 = useMonitorV2();
   return (
     <div data-testid="er-wait-trend-14d" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1px", color: COLORS.textFaint }}>
-        14D TREND · 全台等床
-      </span>
+      {v2 ? (
+        <SectionLabel>近 14 天 · 全台等床</SectionLabel>
+      ) : (
+        <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1px", color: COLORS.textFaint }}>
+          14D TREND · 全台等床
+        </span>
+      )}
       {spark.length === 0 ? (
         <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
           載入中…

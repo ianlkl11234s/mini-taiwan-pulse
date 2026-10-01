@@ -19,6 +19,8 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import type { IntelQueryState } from "../../../hooks/useIntelPollingQuery";
 import {
@@ -66,11 +68,13 @@ function HazardShell({
   const failed = queries.some((q) => q.status === "error");
   const healthTitle = denied ? "資料無權限讀取" : failed ? "資料更新中斷" : title;
   const healthDot = denied || failed ? COLORS.textDim : dot;
+  const v2 = useMonitorV2();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color={labelColor}>{label}</SectionLabel>
+      {/* v2：段落標與外框由 MonitorCardFrame 畫 */}
+      {!v2 && <SectionLabel color={labelColor}>{label}</SectionLabel>}
       <div
-        style={{
+        style={v2 ? { display: "flex", flexDirection: "column", gap: 8 } : {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: `linear-gradient(160deg, ${tint}, rgba(255,255,255,0.012))`,
@@ -98,7 +102,7 @@ function HazardShell({
             <span
               key={b}
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, fontWeight: 700, letterSpacing: "0.5px",
+                fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, fontWeight: 700, letterSpacing: "0.5px",
                 color: COLORS.accent, padding: "1px 5px", borderRadius: RADIUS.md,
                 background: COLORS.accentFaint, border: `1px solid ${COLORS.accentSoft}`,
                 whiteSpace: "nowrap",
@@ -229,6 +233,7 @@ function TyphoonTrendSection({
   pickedDate: string | null;
   onSelectBar: (b: HazardBar) => void;
 }) {
+  const v2 = useMonitorV2();
   const distBars: HazardBar[] = days.map((d) => ({
     key: d.dateKey,
     label: d.dateKey.slice(5).replace("-", "/"),
@@ -257,7 +262,7 @@ function TyphoonTrendSection({
       <HazardTrendBars
         bars={distBars}
         levelColors={PROXIMITY_COLORS}
-        caption={`${TYPHOON_TREND_DAYS}D · 接近程度（柱越高越近）／距離（色）· 可點`}
+        caption={`${v2 ? `近 ${TYPHOON_TREND_DAYS} 天` : `${TYPHOON_TREND_DAYS}D`} · 接近程度（柱越高越近）／距離（色）· 可點`}
         footer={closestKm != null ? `最近 ${Math.round(closestKm).toLocaleString("zh-TW")} km` : undefined}
         height={34}
         unit=" km（距 1500 圈）"
@@ -268,7 +273,7 @@ function TyphoonTrendSection({
       <HazardTrendBars
         bars={nearbyBars}
         levelColors={NEARBY_COLORS}
-        caption={`${TYPHOON_TREND_DAYS}D · 1000km 內颱風數`}
+        caption={`${v2 ? `近 ${TYPHOON_TREND_DAYS} 天` : `${TYPHOON_TREND_DAYS}D`} · 1000km 內颱風數`}
         height={26}
         unit=" 顆"
         onSelectBar={onSelectBar}
@@ -301,10 +306,13 @@ function TyphoonTrendSection({
 }
 
 export function TyphoonCard({ open, nowTs }: Props) {
+  const v2 = useMonitorV2();
   const summaryQuery = useMonitorResource<TyphoonSummary | null>({
     open, queryKey: "typhoon-summary", intervalMs: 30 * 60_000, emptyData: null,
     load: fetchTyphoonSummary,
   });
+  // 標題列資料時間＝最新颱風觀測時刻；無活躍颱風時沒有觀測時間，不送
+  useMonitorCardHeader({ time: summaryQuery.data ? summaryQuery.data.valid_ts * 1000 : null });
   // 逐日接近程度（RPC 349）。與快照分開輪詢：這份跨日才變，且 RPC 實測 45 天約 900ms
   const dailyQuery = useMonitorResource<TyphoonProximityDay[]>({
     open, queryKey: "typhoon-proximity-45d", intervalMs: 30 * 60_000, emptyData: EMPTY_TYHOON_PROXIMITY,
@@ -375,7 +383,7 @@ export function TyphoonCard({ open, nowTs }: Props) {
           （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}
       <MetaRow
         left={`最大風速 ${data.max_wind_kt ?? "—"} kt${windMs != null ? ` · ${windMs} m/s` : ""}`}
-        right={`${data.storm_id} · ${relTime(data.valid_ts, nowTs)}`}
+        right={v2 ? relTime(data.valid_ts, nowTs) : `${data.storm_id} · ${relTime(data.valid_ts, nowTs)}`}
       />
     </HazardShell>
   );
@@ -401,10 +409,13 @@ const EQ_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr]
 const fetchEqDaily = () => fetchEarthquakeDaily(TREND_DAYS);
 
 export function EarthquakeCard({ open, nowTs }: Props) {
+  const v2 = useMonitorV2();
   const summaryQuery = useMonitorResource<EarthquakeSummary | null>({
     open, queryKey: "earthquake-summary", intervalMs: 15 * 60_000, emptyData: null,
     load: fetchEarthquakeSummary,
   });
+  // 標題列資料時間＝最新有感地震發生時刻
+  useMonitorCardHeader({ time: summaryQuery.data?.latest ? summaryQuery.data.latest.occurred_ts * 1000 : null });
   // 逐日趨勢與當下快照分開輪詢：兩者資料來源同一張表但聚合方式不同，
   // 且趨勢只有跨日才會變，沒必要跟快照綁在同一次請求裡。
   const dailyQuery = useMonitorResource({
@@ -466,7 +477,7 @@ export function EarthquakeCard({ open, nowTs }: Props) {
       <HazardTrendBars
         bars={eqBars}
         levelColors={EQ_LEVEL_COLORS}
-        caption={`${TREND_DAYS}D · 次數（柱）／規模（色）`}
+        caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 次數（柱）／規模（色）`}
         footer={eqTotal ? `共 ${eqTotal} 次` : undefined}
         unit=" 次"
       />
@@ -498,6 +509,7 @@ const DOSE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusEr
 const fetchNuclearTrend = () => fetchNuclearDaily(TREND_DAYS);
 
 export function RadiationCard({ open }: Props) {
+  const v2 = useMonitorV2();
   const summaryQuery = useMonitorResource<NuclearSummary | null>({
     open, queryKey: "nuclear-summary", intervalMs: 5 * 60_000, emptyData: null,
     load: fetchNuclearSummary,
@@ -505,6 +517,10 @@ export function RadiationCard({ open }: Props) {
   const dailyQuery = useMonitorResource({
     open, queryKey: "nuclear-daily-14d", intervalMs: 30 * 60_000, emptyData: EMPTY_NUCLEAR_DAILY,
     load: fetchNuclearTrend,
+  });
+  // 標題列資料時間＝有回報站的最新觀測時間（台電 CSV「日期時間」）
+  useMonitorCardHeader({
+    time: summaryQuery.data?.latest_observed_ts != null ? summaryQuery.data.latest_observed_ts * 1000 : null,
   });
   const label = "輻射 · RADIATION";
   const tint = "rgba(34,197,94,0.05)";
@@ -570,7 +586,7 @@ export function RadiationCard({ open }: Props) {
       <HazardTrendBars
         bars={doseBars}
         levelColors={DOSE_LEVEL_COLORS}
-        caption={`${TREND_DAYS}D · 全站平均（柱）／水位（色）`}
+        caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 全站平均（柱）／水位（色）`}
         unit=" µSv/h"
       />
     </HazardShell>
@@ -597,10 +613,13 @@ const STRIKE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.status
 const fetchLightningTrend = () => fetchLightningDaily(TREND_DAYS);
 
 export function LightningCard({ open, nowTs }: Props) {
+  const v2 = useMonitorV2();
   const summaryQuery = useMonitorResource<LightningSummary | null>({
     open, queryKey: "lightning-summary", intervalMs: 5 * 60_000, emptyData: null,
     load: fetchLightningSummary,
   });
+  // 標題列資料時間＝最新一筆落雷時刻；今日無落雷時不送
+  useMonitorCardHeader({ time: summaryQuery.data?.latest ? summaryQuery.data.latest.ts * 1000 : null });
   const dailyQuery = useMonitorResource({
     open, queryKey: "lightning-daily-14d", intervalMs: 30 * 60_000, emptyData: EMPTY_LIGHTNING_DAILY,
     load: fetchLightningTrend,
@@ -668,7 +687,7 @@ export function LightningCard({ open, nowTs }: Props) {
       <HazardTrendBars
         bars={strikeBars}
         levelColors={STRIKE_LEVEL_COLORS}
-        caption={`${TREND_DAYS}D · 次數（柱）／相對多寡（色）`}
+        caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 次數（柱）／相對多寡（色）`}
         footer={strikeMedian ? `有雷日中位 ${strikeMedian.toLocaleString("zh-TW")}` : undefined}
         unit=" 次"
       />

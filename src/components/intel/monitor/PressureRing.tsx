@@ -1,6 +1,8 @@
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
-import { type MouseEvent as ReactMouseEvent } from "react";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader, type MonitorCardState } from "./MonitorCardFrame";
+import { useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import {
@@ -103,6 +105,41 @@ export function CompareLine({ delta, label, muted = false }: { delta: number; la
 
 const EMPTY_MARKET_HISTORY: MarketIndexDailyPoint[] = [];
 
+/** v2：走勢圖寬度隨容器縮放（ResizeObserver 量容器寬後傳給 Sparkline 的 w） */
+function FluidSparkline({
+  fallbackW, ...rest
+}: { fallbackW: number } & Omit<React.ComponentProps<typeof Sparkline>, "w">) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(fallbackW);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const cw = Math.floor(el.clientWidth);
+      if (cw > 0) setW(cw);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{ flex: 1, minWidth: 0, maxWidth: "100%" }}>
+      <Sparkline {...rest} w={w} />
+    </div>
+  );
+}
+
+/** 開盤時間字串 "HH:MM" → 今天該時刻的 epoch 毫秒；格式不符回 null */
+function todayTimeMs(hhmm: string | null | undefined): number | null {
+  const m = /^(\d{1,2}):(\d{2})/.exec(hhmm ?? "");
+  if (!m) return null;
+  const d = new Date();
+  d.setHours(Number(m[1]), Number(m[2]), 0, 0);
+  return d.getTime();
+}
+
 export function TwseTicker({
   data, status, lastSuccessAt, open,
 }: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean }) {
@@ -121,9 +158,20 @@ export function TwseTicker({
   const histFirst = history[0];
   const histLast = history[history.length - 1];
   const histUp = (histLast?.close ?? 0) >= (histFirst?.close ?? 0);
+
+  // v2：收盤時間與狀態送標題列（收盤＝paused；中斷／受限沿用原本的狀態判斷）
+  const v2 = useMonitorV2();
+  let headerState: MonitorCardState | null = null;
+  if (status === "denied") headerState = { kind: "stopped", label: "受限" };
+  else if (status === "error") headerState = { kind: "stale", label: "更新中斷" };
+  else if (status === "ready" && closed && data.status) headerState = { kind: "paused", label: data.status };
+  useMonitorCardHeader({
+    time: status === "ready" ? todayTimeMs(data.time) : lastSuccessAt,
+    state: headerState,
+  });
   return (
     <div
-      style={{
+      style={v2 ? { display: "flex", flexDirection: "column", gap: 6, minWidth: 0 } : {
         borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
@@ -132,7 +180,7 @@ export function TwseTicker({
       }}
     >
       <MonitorDataStatus label="行情歷史" query={historyQuery} />
-      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px",
@@ -150,22 +198,23 @@ export function TwseTicker({
         >
           {status === "ready" ? `${data.status ?? "—"} ${data.time ?? ""}` : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中"}
         </span>
-      </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
+      </div>}
+      <div style={v2 ? { display: "flex", alignItems: "baseline", gap: "2px 9px", flexWrap: "wrap" } : { display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: 24, fontWeight: 700, lineHeight: 1,
             color: closed ? "rgba(255,255,255,0.92)" : "#fff",
+            whiteSpace: "nowrap",
           }}
         >
           {has ? data.index.toLocaleString() : "—"}
         </span>
         {has && (
           <>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: mk }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
               {up ? "▲" : "▼"} {up ? "+" : ""}{data.change.toLocaleString()}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, color: mk }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
               {up ? "+" : ""}{data.change_pct}%
             </span>
           </>
@@ -173,13 +222,13 @@ export function TwseTicker({
       </div>
       <div
         style={{
-          display: "flex", gap: 12, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-          color: COLORS.textDim, whiteSpace: "nowrap",
+          display: "flex", gap: v2 ? "2px 12px" : 12, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+          color: COLORS.textDim, ...(v2 ? { flexWrap: "wrap" as const } : { whiteSpace: "nowrap" as const }),
         }}
       >
-        <span>H <b style={{ color: COLORS.textDefault }}>{has ? data.high.toLocaleString() : "—"}</b></span>
-        <span>L <b style={{ color: COLORS.textDefault }}>{has ? data.low.toLocaleString() : "—"}</b></span>
-        <span>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "高" : "H"} <b style={{ color: COLORS.textDefault }}>{has ? data.high.toLocaleString() : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "低" : "L"} <b style={{ color: COLORS.textDefault }}>{has ? data.low.toLocaleString() : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
       </div>
       {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
         {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
@@ -188,25 +237,39 @@ export function TwseTicker({
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "1.5px",
+              ...(v2
+                ? { fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs }
+                : { fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "1.5px" }),
               color: COLORS.textFaint, whiteSpace: "nowrap",
             }}
           >
-            30D
+            {v2 ? "近 30 日" : "30D"}
           </span>
           {/* 2026-08-10 起 TAIEX 是獨立 widget（不再擠在戰情概覽右側），日線給得起 360×48。
               上限抓 360 是因為 Sparkline 固定寬 + flexShrink:0：grid 模式最窄（容器 1100px）
               時 w5 格內可用寬約 380px，再大就會溢出讓格子橫向捲動。
               逐點 hover 取代原本整段區間的 HTML title。 */}
-          <Sparkline
-            data={closes}
-            color={histUp ? "#ff4d4f" : "#16c784"}
-            w={360}
-            h={48}
-            showTooltip
-            labelAt={(i) => history[i]?.trade_date ?? ""}
-            unit="點"
-          />
+          {v2 ? (
+            <FluidSparkline
+              fallbackW={200}
+              data={closes}
+              color={histUp ? "#ff4d4f" : "#16c784"}
+              h={48}
+              showTooltip
+              labelAt={(i) => history[i]?.trade_date ?? ""}
+              unit="點"
+            />
+          ) : (
+            <Sparkline
+              data={closes}
+              color={histUp ? "#ff4d4f" : "#16c784"}
+              w={360}
+              h={48}
+              showTooltip
+              labelAt={(i) => history[i]?.trade_date ?? ""}
+              unit="點"
+            />
+          )}
         </div>
       )}
     </div>
@@ -324,6 +387,15 @@ export function Sparkline({
 }
 
 export function SectionLabel({ children, color }: { children: React.ReactNode; color?: string }) {
+  const v2 = useMonitorV2();
+  // v2：卡片標題由 MonitorCardFrame 畫；卡內的 SectionLabel 只當小節標（中文、不轉大寫、非等寬）
+  if (v2) {
+    return (
+      <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: 600, color: COLORS.textMuted }}>
+        {children}
+      </div>
+    );
+  }
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
       <span
@@ -346,6 +418,11 @@ export function SectionLabel({ children, color }: { children: React.ReactNode; c
 export function Widget({
   children, style,
 }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const v2 = useMonitorV2();
+  // v2：框由 MonitorCardFrame 畫，這層只排版
+  if (v2) {
+    return <div style={{ display: "flex", flexDirection: "column", minWidth: 0, ...style, border: undefined, background: undefined, padding: 0, borderRadius: undefined }}>{children}</div>;
+  }
   return (
     <div
       style={{

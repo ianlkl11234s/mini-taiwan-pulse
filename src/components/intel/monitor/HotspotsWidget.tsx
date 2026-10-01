@@ -5,6 +5,7 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { getNewsCategoryDef, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
+import { useMonitorV2 } from "./monitorStyle";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 interface Hotspot {
@@ -50,10 +51,11 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
   const ranked = useMemo(() => rankHotspots(events, countyByEventId), [events, countyByEventId]);
   const maxHot = ranked.length ? ranked[0]!.n : 1;
   const tip = useChartTooltip();
+  const v2 = useMonitorV2();
 
   return (
     <Widget>
-      <SectionLabel>熱區 Top 5 · HOTSPOTS</SectionLabel>
+      {!v2 && <SectionLabel>熱區 Top 5 · HOTSPOTS</SectionLabel>}
       <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
         {ranked.slice(0, 5).map((r, i) => {
           const cat = getNewsCategoryDef(r.topCat);
