@@ -184,4 +184,50 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     expect(html).toContain(`${"a".repeat(12)}…`);
     expect(html).toContain(`title="${"a".repeat(40)}"`);
   });
+
+  it("v5：OSM 橋實體整段線顯示 v5 分類（常駐 6 列）與配對欄位，缺值為未提供", () => {
+    const line = renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: {
+      bss_name: "實體示例", source_key: "road:7", bridge_type: "road", county_memberships: "新北市",
+      geometry_role: "original_direction_line", line_source_kind: "osm_bridge_entity",
+      stage1_source_group: "osm_bridge_tagged_candidate_exact_match", v5_class: "osm_entity_multi_segment",
+      entity_id: "osmbe-62c2de105a5e", match_score: 0.5763, name_similarity: null, length_ratio: 0.913,
+      entity_match_count: 3, official_axis_bearing_diff_deg: null, bss_registered_length_m: 120, line_drawn_length_m: 131.5,
+    } }));
+    const visible = line.slice(0, line.indexOf("<details"));
+    expect(visible.match(/class="fi-row"/g)?.length).toBe(6);
+    expect(visible).toContain("v5 分類");
+    expect(visible).toContain("同實體多標段");
+    expect(line).toContain("#60a5fa");
+    for (const label of ["橋實體 ID", "配對分數", "名稱相似度", "長度比（登錄÷實體）", "同實體紀錄數", "官方軸方向差"]) expect(line).toContain(label);
+    expect(line).toContain("osmbe-62c2de105a5e");
+    expect(line).toContain("0.576");
+    expect(line).toContain("0.913");
+    expect(line).toContain("OSM 橋實體（整段）");
+    expect(line).toContain("OSM 橋實體成員路段總長");
+    expect(line).toMatch(/名稱相似度<\/span><span[^>]*>未提供/);
+    expect(line).toMatch(/官方軸方向差<\/span><span[^>]*>未提供/);
+    expect(line).toContain("23,276");
+    expect(line).toContain("第一階段整體（v4 抽驗）");
+    expect(line).not.toContain("23,772");
+    expect(line).not.toContain("2,416");
+
+    const official = renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: {
+      bss_name: "官方軸示例", geometry_role: "original_direction_line", line_source_kind: "official",
+      stage1_source_group: "official_approximate_axis", v5_class: "official_axis_only",
+    } }));
+    expect(official).toContain("新北官方頭尾近似軸");
+    expect(official).toContain("僅官方軸");
+    expect(official).toMatch(/橋實體 ID<\/span><span[^>]*>未提供/);
+
+    const contested = renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: {
+      bss_name: "待複核示例", geometry_role: "point", v5_class: "osm_entity_contested", line_tier: "contested_point_only",
+      point_only_reason: "OSM 橋實體候選未定案", entity_match_count: 0,
+    } }));
+    const contestedVisible = contested.slice(0, contested.indexOf("<details"));
+    expect(contestedVisible.match(/class="fi-row"/g)?.length).toBe(6);
+    expect(contestedVisible).toContain("待複核（多候選）");
+    for (const [cls, label] of [["osm_entity_unique", "唯一 OSM 橋實體"], ["network_inferred_only", "僅路網推估（低把握度）"], ["point_only", "僅點位"]]) {
+      expect(renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: { geometry_role: "point", v5_class: cls } }))).toContain(label);
+    }
+  });
 });

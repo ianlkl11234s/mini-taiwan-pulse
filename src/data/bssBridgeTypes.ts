@@ -7,14 +7,15 @@ import type { ExpressionSpecification } from "mapbox-gl";
  * 授權為 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：不得進公開 CDN／static／release allowlist。
  *
  * 語意（必守）：
- * - 26,188 筆是「來源紀錄」，不是去重後橋座數；23,772 條方向線是「無向局部走向候選」，
- *   不是橋長、橋頭尾或路網邊；2,416 筆只有點。
- * - 影像正式抽驗 300 筆：103 支持、2 負向、195 未定；整體錯誤率 < 3% 尚未證明。
+ * - v5（2026-10-02）：26,188 筆是「來源紀錄」，不是去重後橋座數；23,276 條線＝OSM 橋實體整段 17,830
+ *   （唯一 14,291＋同實體多標段 3,539）＋新北官方頭尾近似軸 206＋路網推估 5,240（低把握度）；
+ *   2,912 筆只有點（待複核多候選 1,731＋無候選 1,181）。線仍不是已審核身份、工程橋長或路網邊。
+ * - v4 影像正式抽驗 300 筆：103 支持、2 負向、195 未定；整體錯誤率 < 3% 尚未證明（歷史證據，未對 v5 重抽）。
  * 分析專題：taipei-gis-analytics/pipelines/analysis/bridge_resilience/
  */
 
 export const BSS_BRIDGE_PRIVATE_ENDPOINT = "/api/private-research/bss-bridge/tiles";
-export const BSS_BRIDGE_PMTILES_FILE = "bss_bridge_location_direction_preview_20260927_v4.pmtiles";
+export const BSS_BRIDGE_PMTILES_FILE = "bss_bridge_location_direction_preview_20261002_v5.pmtiles";
 export const BSS_BRIDGE_ACCESS_DENIED_EVENT = "bss-bridge-access-denied";
 export const BSS_BRIDGE_SELECTION_CLEAR_EVENT = "bss-bridge-selection-clear";
 export const BSS_BRIDGE_SOURCE_LAYER = "bss_bridge_national_preview";
@@ -46,6 +47,30 @@ export const bssBridgeAccessColorExpression: ExpressionSpecification = [
   "match", ["get", "facility_class_candidate"],
   ...Object.entries(BSS_BRIDGE_ACCESS_COLORS).flatMap(([value, color]) => [value, color]),
   BSS_BRIDGE_ACCESS_COLORS.road_unresolved,
+];
+
+/** v5 線分類色（地圖、圖例、popup 標題共用）；contested／point_only 沒有線，只在點圖層。 */
+export const BSS_BRIDGE_V5_LINE_COLORS = {
+  osm_entity_unique: "#22d3ee",
+  osm_entity_multi_segment: "#60a5fa",
+  official_axis_only: "#facc15",
+  network_inferred_only: "#94a3b8",
+} as const;
+
+/** v5_class → 中文（popup「v5 分類」列）。 */
+export const BSS_BRIDGE_V5_CLASS_LABELS: Record<string, string> = {
+  osm_entity_unique: "唯一 OSM 橋實體",
+  osm_entity_multi_segment: "同實體多標段",
+  osm_entity_contested: "待複核（多候選）",
+  official_axis_only: "僅官方軸",
+  network_inferred_only: "僅路網推估（低把握度）",
+  point_only: "僅點位",
+};
+
+export const bssBridgeV5LineColorExpression: ExpressionSpecification = [
+  "match", ["get", "v5_class"],
+  ...Object.entries(BSS_BRIDGE_V5_LINE_COLORS).flatMap(([value, color]) => [value, color]),
+  BSS_BRIDGE_V5_LINE_COLORS.network_inferred_only,
 ];
 
 /** 線層 role → Mapbox layer id（字面值，供點擊接線 ratchet 比對）與線型；實線／虛線／點線保留方向來源層級。 */

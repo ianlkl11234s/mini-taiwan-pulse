@@ -70,10 +70,10 @@
 | 項目 | 內容 |
 |---|---|
 | 標籤／群組 | 「全臺橋梁方向候選（進行中）」「全臺橋梁清冊點位（進行中）」；交通 Move →「橋梁研究（進行中）」 |
-| 語意 | 26,188 筆是 BSS 來源紀錄，不是去重後橋座數；23,772 條無向局部方向候選（含 11 條新增）、2,416 筆只有點；方向線不是橋長、橋頭尾或路網；影像抽驗 300 筆為 103 支持／2 負向／195 未定，整體錯誤率 <3% 尚未證明 |
+| 語意 | v5（2026-10-02）：26,188 筆是 BSS 來源紀錄，不是去重後橋座數；23,276 條線＝OSM 橋實體整段 17,830（唯一 14,291＋同實體多標段 3,539）＋新北官方頭尾近似軸 206＋路網推估 5,240；2,912 筆只有點（多候選待複核 1,731＋無候選 1,181）；線依 `v5_class` 著色，仍不是已審核身份、工程橋長或路網；v4 影像抽驗 300 筆為 103 支持／2 負向／195 未定，整體錯誤率 <3% 尚未證明（未對 v5 重抽） |
 | 來源 | BSS 公開查詢（授權 HOLD）、OpenStreetMap（ODbL）、新北市官方清冊 |
-| 資料檔 | `bss_bridge_location_direction_preview_20260927_v4.pmtiles`，63,367,460 bytes，SHA-256 `2d71de78be8b4c3c19b8a683946a1f083f37e160182b8932cd288fdbe713072f`；source-layer `bss_bridge_national_preview`（z6–15），一個檔兩層共用一個 source |
-| 本機讀取 | sidecar（`node server/coral-private/coral-private-server.mjs`，port 8796；vite dev 已 proxy）預設讀舊工作樹 `.worktrees/transport-facilities-20260923/bss-bridge-pilot.local/bridge-location-direction-preview-20260927-v4/`；可用 `BSS_BRIDGE_PRIVATE_ROOT` 覆寫。PMTiles 不進 `public/`、不 commit |
+| 資料檔 | `bss_bridge_location_direction_preview_20261002_v5.pmtiles`，79,869,337 bytes，SHA-256 `a7f1ea3fca7bc5331912f3fca5e94d09c1fdb3e21e696bc9e117d7957a046400`；source-layer `bss_bridge_national_preview`（z6–15），一個檔兩層共用一個 source。規格：analytics `pipelines/analysis/bridge_resilience/national/v5_layer.py`。回滾：sidecar `BSS_BRIDGE_ASSETS` 改回 v4 `bss_bridge_location_direction_preview_20260927_v4.pmtiles`（63,367,460 bytes，SHA-256 `2d71de78be8b4c3c19b8a683946a1f083f37e160182b8932cd288fdbe713072f`，S3 物件保留） |
+| 本機讀取 | sidecar（`node server/coral-private/coral-private-server.mjs`，port 8796；vite dev 已 proxy）預設讀 analytics `data/processed/transportation/bridge_resilience/bss-bridge-location-direction-preview-20261002-v5/`；可用 `BSS_BRIDGE_PRIVATE_ROOT` 覆寫。PMTiles 不進 `public/`、不 commit |
 | production 路徑 | S3 `migu-private-research-ap-southeast-2` / `private-research/bss-bridge/<sha256>/<filename>`；前端只打同源 `/api/private-research/bss-bridge/tiles`（nginx 精確 location + Range，其餘 404） |
 | 站主限定 | `GATED_LAYERS`＋`App.tsx` `lockedKeys`（`useBssBridgePrivateAccess` 驗證後才解鎖）＋失權即關圖層清 popup；作法同 [土壤液化](../soil-liquefaction/handoff.md)。未加入 `RELEASE_HOLD_LAYERS`（那會連站主也鎖死） |
 | 接線 | `src/data/bssBridgeTypes.ts`（契約、色票、篩選）、`src/hooks/useBssBridgeLayers.ts`、`src/hooks/useBssBridgePrivateAccess.ts`、`src/layers/hosts/bridgeHosts.tsx`；popup `BssNationalBridgePreviewPanel`；sidecar `server/coral-private/coral-private-server.mjs` `BSS_BRIDGE_*` |
@@ -82,7 +82,7 @@
 ### 上線步驟（需使用者授權，Claude 不代為執行）
 
 1. 使用者確認要在授權 HOLD 下以站主限定方式上私人 bucket。
-2. 使用者以 S3 憑證執行：`node scripts/deploy/upload-bss-bridge-private.mjs <v4 資料夾>`（會核對 `local_validation.json` sha256、bytes、bucket policy 無公開 Allow、讀回比對、匿名 HEAD 必須 403）。
+2. 使用者以 S3 憑證執行：`node scripts/deploy/upload-bss-bridge-private.mjs <資料夾>`（v5 起已於 2026-10-02 上傳；會核對 `local_validation.json`（v4）或 `receipt.json`（v5）的 sha256、bytes、bucket policy 無公開 Allow、讀回比對、匿名 HEAD 必須 403）。
 3. Pulse PR（`gh pr merge --merge`）→ 部署。若部署早於上傳，只有 BSS 家族 warm 失敗，站主看到 sidecar unavailable，其他私人家族不受影響。
 4. production 動態 `get_layer_gates()` 若為權威：目前兩個 key 只靠前端 `GATED_LAYERS` 與 sidecar owner 驗證，DB 端沒有 `gated_layers` row；要在後台顯示／管理需 gis-platform 補 row（待拍板）。
 5. 重產 PMTiles 後同步更新 sidecar `BSS_BRIDGE_ASSETS` 的 size／sha256。
