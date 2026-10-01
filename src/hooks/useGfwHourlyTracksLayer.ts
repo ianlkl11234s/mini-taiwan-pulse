@@ -105,6 +105,19 @@ function setVisibility(map: MapboxMap, visible: boolean): void {
   }
 }
 
+function applyTrackPaint(map: MapboxMap, opacity: number, isDarkTheme: boolean): void {
+  const clamped = Math.max(0, Math.min(1, opacity));
+  map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-opacity", hookLineOpacity("gfwHourlyTracks", GFW_HOURLY_TRACKS_LINE_LAYER_ID, clamped * 0.45, 0.75 * 0.45));
+  map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-opacity", clamped);
+  const stroke = pointStrokePaint(isDarkTheme, clamped / OPACITY_DEFAULT);
+  map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+  map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+  map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+  const colors = colorExpression(isDarkTheme);
+  map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-color", colors);
+  map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-color", colors);
+}
+
 export function useGfwHourlyTracksLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -126,6 +139,10 @@ export function useGfwHourlyTracksLayer(
   const noticeActivationRef = useRef(0);
   const pmtilesDateRef = useRef<string | null>(null);
   const framePromiseRef = useRef(new Map<string, Promise<Awaited<ReturnType<typeof loadGfwHourlyTracksFrame>>>>());
+
+  // 透明度／主題只走 ref + 下方樣式 effect，不進資料／訂閱 effect 的 deps
+  const styleRef = useRef({ opacity, isDarkTheme });
+  styleRef.current = { opacity, isDarkTheme };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -307,20 +324,11 @@ export function useGfwHourlyTracksLayer(
           scheduleRetry();
           return;
         }
-        ensureLayers(map, isDarkTheme);
+        ensureLayers(map, styleRef.current.isDarkTheme);
         setVisibility(map, true);
         (map.getSource(GFW_HOURLY_TRACKS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(linesRef.current);
         (map.getSource(GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID) as GeoJSONSource | undefined)?.setData(endpointsRef.current);
-        const clamped = Math.max(0, Math.min(1, opacity));
-        map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-opacity", hookLineOpacity("gfwHourlyTracks", GFW_HOURLY_TRACKS_LINE_LAYER_ID, clamped * 0.45, 0.75 * 0.45));
-        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-opacity", clamped);
-        const stroke = pointStrokePaint(isDarkTheme, clamped / OPACITY_DEFAULT);
-        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
-        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
-        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
-        const colors = colorExpression(isDarkTheme);
-        map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-color", colors);
-        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-color", colors);
+        applyTrackPaint(map, styleRef.current.opacity, styleRef.current.isDarkTheme);
         if (!manifestRef.current && !manifestRefreshStarted) void refreshManifest();
         else if (manifestRef.current) renderFrame(timeStore.getTime());
       } catch {
@@ -340,5 +348,12 @@ export function useGfwHourlyTracksLayer(
       if (retryPending) map.off("idle", retry);
       setGfwHourlyTracksDetailContext(null);
     };
-  }, [mapRef, visible, opacity, trailingHours, isDarkTheme, mapTick]);
+  }, [mapRef, visible, trailingHours, mapTick]);
+
+  // 透明度／主題：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.getLayer(GFW_HOURLY_TRACKS_LINE_LAYER_ID) || !map.getLayer(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID)) return;
+    applyTrackPaint(map, opacity, isDarkTheme);
+  }, [mapRef, visible, opacity, isDarkTheme, mapTick]);
 }

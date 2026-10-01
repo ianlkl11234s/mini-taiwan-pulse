@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMapReadyTick } from "./useMapReadyTick";
 import type {
   Map as MapboxMap,
   CircleLayer,
   ExpressionSpecification,
+  GeoJSONSource,
 } from "mapbox-gl";
 import {
   fetchIotWraRiverDay,
@@ -16,6 +17,7 @@ import {
 } from "./factories/timelineSliceLayer";
 import { paramDefault } from "../data/layerParamsSpec";
 import { pointStrokePaint } from "../map/mapStyleScale";
+import { timeStore } from "../state/timeStore";
 
 /**
  * IoT 河川水位（補強既有 riverLevel；migration 063 預聚合表）
@@ -212,6 +214,12 @@ export function useIotWraRiverLayer(
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
 
+  // 主題／大小／透明度只走 ref + 下方樣式 effect，不進 controller effect 的 deps（避免重抓／重訂閱）
+  const styleRef = useRef({ isDark, scale, opacity });
+  styleRef.current = { isDark, scale, opacity };
+  // 最近一次載入的資料快取，換底圖後重畫用（不重抓）
+  const dataRef = useRef<Map<string, StationSeries> | null>(null);
+
   // showMeasured / showForecast 會進 loadDay 的 filter（且在 deps 內觸發重載），
   // CONFIG 無法是純模組常數 → 在 effect 內組 config，編排仍走 factory controller
   useEffect(() => {
@@ -220,9 +228,39 @@ export function useIotWraRiverLayer(
     if (!map) return;
     const config: TimelineSliceLayerConfig<Map<string, StationSeries>> = {
       ...BASE_CONFIG,
-      loadDay: async (dateKey) =>
-        buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast),
+      loadDay: async (dateKey) => {
+        const built = buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast);
+        dataRef.current = built;
+        return built;
+      },
     };
-    return startTimelineSliceController(map, config, isDark, scale, opacity);
-  }, [mapRef, visible, isDark, scale, opacity, showMeasured, showForecast, mapTick]);
+    const st = styleRef.current;
+    const dispose = startTimelineSliceController(map, config, st.isDark, st.scale, st.opacity);
+
+    // 換底圖（setStyle）會清掉自訂 source/layer：重建後用已快取資料重畫，不重新抓
+    const onStyleLoad = () => {
+      try {
+        const cur = styleRef.current;
+        ensureLayers(map, cur.isDark, cur.scale, cur.opacity);
+        updatePaint(map, cur.isDark, cur.scale, cur.opacity);
+        for (const id of BASE_CONFIG.layerIds) {
+          if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
+        }
+        const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+        if (src && dataRef.current) src.setData(buildFC(dataRef.current, timeStore.getTime()));
+      } catch { /* style 尚未就緒，下次 style.load 再試 */ }
+    };
+    map.on("style.load", onStyleLoad);
+    return () => {
+      map.off("style.load", onStyleLoad);
+      dispose();
+    };
+  }, [mapRef, visible, showMeasured, showForecast, mapTick]);
+
+  // 主題／大小／透明度：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.isStyleLoaded()) return;
+    updatePaint(map, isDark, scale, opacity);
+  }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

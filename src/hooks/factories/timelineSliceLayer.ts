@@ -9,7 +9,7 @@
 //   - currentTime 不進 useEffect deps
 //   - 跨日 subscribeDate、切片 subscribeThrottled、同步讀 getTime()
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
 import { timeStore as realTimeStore } from "../../state/timeStore";
@@ -57,9 +57,14 @@ interface ControllerDeps {
 }
 
 /**
- * 啟動 controller（等同原 hook useEffect body）。回傳 dispose。
+ * 啟動 controller（等同原 hook useEffect body）。回傳 dispose（附 updateStyle）。
  * 呼叫端負責只在 visible=true 且 map 存在時啟動。
+ * 主題、大小、透明度只改樣式：呼叫 dispose.updateStyle()，不可重啟 controller（會重抓整日資料）。
  */
+export type TimelineSliceController = (() => void) & {
+  updateStyle(isDark: boolean, scale: number, opacity: number): void;
+};
+
 export function startTimelineSliceController<D>(
   map: MapboxMap,
   config: TimelineSliceLayerConfig<D>,
@@ -67,7 +72,7 @@ export function startTimelineSliceController<D>(
   scale: number,
   opacity: number,
   deps: ControllerDeps = {},
-): () => void {
+): TimelineSliceController {
   const ts = deps.timeStore ?? realTimeStore;
   const keepLoading = deps.keepLoading ?? keepLoadingUntilMapIdle;
   const throttleMs = config.throttleMs ?? 500;
@@ -76,6 +81,7 @@ export function startTimelineSliceController<D>(
   let pollTimer: ReturnType<typeof setInterval> | null = null;
   let data: D = config.emptyData();
   let currentDate = "";
+  let style = { isDark, scale, opacity };
 
   const setVisibility = (visible: boolean) => {
     for (const id of config.layerIds) {
@@ -85,11 +91,12 @@ export function startTimelineSliceController<D>(
     }
   };
 
-  const attach = () => {
+  const attach = (force = false) => {
     if (cancelled) return;
-    if (!map.isStyleLoaded()) return;
-    config.ensureLayers(map, isDark, scale, opacity);
-    config.updatePaint(map, isDark, scale, opacity);
+    // style.load 當下 isStyleLoaded() 可能仍是 false，但已可 addSource／addLayer
+    if (!force && !map.isStyleLoaded()) return;
+    config.ensureLayers(map, style.isDark, style.scale, style.opacity);
+    config.updatePaint(map, style.isDark, style.scale, style.opacity);
     setVisibility(true);
     if (pollTimer) {
       clearInterval(pollTimer);
@@ -98,7 +105,7 @@ export function startTimelineSliceController<D>(
   };
 
   if (map.isStyleLoaded()) attach();
-  else pollTimer = setInterval(attach, deps.attachPollMs ?? 200);
+  else pollTimer = setInterval(() => attach(), deps.attachPollMs ?? 200);
 
   const redraw = () => {
     if (cancelled) return;
@@ -134,8 +141,19 @@ export function startTimelineSliceController<D>(
   });
   const unsubTime = ts.subscribeThrottled(throttleMs, redraw);
 
-  return () => {
+  // 換底圖（setStyle）會清掉自訂 source／layer：用目前樣式重建，再用已載入的資料重畫（不重抓）。
+  // 以前靠 isDark 進 deps 重啟 controller「順便」重建，代價是每次換主題都重抓整日資料。
+  const onStyleLoad = () => {
+    try {
+      attach(true);
+      redraw();
+    } catch { /* style 尚未可寫，下一次 style.load 再試 */ }
+  };
+  map.on?.("style.load", onStyleLoad);
+
+  const dispose = () => {
     cancelled = true;
+    map.off?.("style.load", onStyleLoad);
     if (pollTimer) clearInterval(pollTimer);
     unsubDate();
     unsubTime();
@@ -145,6 +163,15 @@ export function startTimelineSliceController<D>(
       }
     } catch { /* map 可能已銷毀 */ }
   };
+  return Object.assign(dispose, {
+    updateStyle(nextDark: boolean, nextScale: number, nextOpacity: number) {
+      style = { isDark: nextDark, scale: nextScale, opacity: nextOpacity };
+      if (cancelled) return;
+      if (config.layerIds.some((id) => map.getLayer(id))) {
+        config.updatePaint(map, nextDark, nextScale, nextOpacity);
+      }
+    },
+  });
 }
 
 /**
@@ -161,13 +188,28 @@ export function useTimelineSliceLayer<D>(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
+  const styleRef = useRef({ isDark, scale, opacity });
+  styleRef.current = { isDark, scale, opacity };
+  const controllerRef = useRef<TimelineSliceController | null>(null);
 
+  // 生命週期：只依可見與 map 就緒；主題／大小／透明度不進 deps（否則每次都重抓整日資料）
   useEffect(() => {
     if (!visible) return;
     const map = mapRef.current;
     if (!map) return;
-    return startTimelineSliceController(map, config, isDark, scale, opacity);
+    const { isDark: d, scale: s, opacity: o } = styleRef.current;
+    const controller = startTimelineSliceController(map, config, d, s, o);
+    controllerRef.current = controller;
+    return () => {
+      controllerRef.current = null;
+      controller();
+    };
     // config 為模組層常數，不進 deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef, visible, isDark, scale, opacity, mapTick]);
+  }, [mapRef, visible, mapTick]);
+
+  // 樣式：只 setPaintProperty
+  useEffect(() => {
+    controllerRef.current?.updateStyle(isDark, scale, opacity);
+  }, [isDark, scale, opacity]);
 }

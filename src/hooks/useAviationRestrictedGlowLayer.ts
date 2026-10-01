@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
@@ -71,6 +71,25 @@ function safeIsStyleLoaded(map: MapboxMap): boolean {
   try { return map.isStyleLoaded(); } catch { return false; }
 }
 
+// id-suffix, line-blur, line-width, opacity
+const PASSES: Array<[string, number, number, number]> = [
+  ["halo-far",  12, 18, 0.15],
+  ["halo-mid",   6,  8, 0.30],
+  ["halo-near",  2,  3, 0.55],
+  ["core",       0,  1.2, 0.95],
+];
+
+/** 透明度只改 paint，不進生命週期 effect 的 deps */
+function applyOpacity(map: MapboxMap, opacity: number) {
+  if (map.getLayer("aviation-restricted-glow-fill")) {
+    map.setPaintProperty("aviation-restricted-glow-fill", "fill-opacity", 0.06 * opacity);
+  }
+  for (const [suffix, , , alpha] of PASSES) {
+    const id = `aviation-restricted-glow-${suffix}`;
+    if (map.getLayer(id)) map.setPaintProperty(id, "line-opacity", Math.min(1, alpha * opacity));
+  }
+}
+
 export function useAviationRestrictedGlowLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -78,6 +97,8 @@ export function useAviationRestrictedGlowLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   useEffect(() => {
     let cancelled = false;
@@ -116,25 +137,16 @@ export function useAviationRestrictedGlowLayer(
           filter: RESTRICTED_LAYERS,
           paint: {
             "fill-color": COLOR_EXPR,
-            "fill-opacity": 0.06 * opacity,
+            "fill-opacity": 0.06 * opacityRef.current,
             "fill-antialias": false,
           },
         });
-      } else {
-        map.setPaintProperty("aviation-restricted-glow-fill", "fill-opacity", 0.06 * opacity);
       }
 
       // 2-5. 四層 line 疊光暈
-      const passes: Array<[string, number, number, number]> = [
-        // id-suffix, line-blur, line-width, opacity
-        ["halo-far",  12, 18, 0.15],
-        ["halo-mid",   6,  8, 0.30],
-        ["halo-near",  2,  3, 0.55],
-        ["core",       0,  1.2, 0.95],
-      ];
-      for (const [suffix, blur, width, alpha] of passes) {
+      for (const [suffix, blur, width, alpha] of PASSES) {
         const id = `aviation-restricted-glow-${suffix}`;
-        const paintOpacity = Math.min(1, alpha * opacity);
+        const paintOpacity = Math.min(1, alpha * opacityRef.current);
         if (!map.getLayer(id)) {
           map.addLayer({
             id,
@@ -150,13 +162,11 @@ export function useAviationRestrictedGlowLayer(
               "line-opacity": paintOpacity,
             },
           });
-        } else {
-          map.setPaintProperty(id, "line-opacity", paintOpacity);
         }
       }
 
       for (const id of LAYER_IDS) setVis(map, id, visible);
-      console.log("[AviationRestrictedGlow] ready", { visible, opacity });
+      console.log("[AviationRestrictedGlow] ready", { visible });
       return true;
     };
 
@@ -192,5 +202,11 @@ export function useAviationRestrictedGlowLayer(
       map?.off("style.load", onStyleLoad);
       try { if (map) for (const id of LAYER_IDS) setVis(map, id, false); } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, visible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !safeIsStyleLoaded(map)) return;
+    applyOpacity(map, opacity);
   }, [mapRef, visible, opacity, mapTick]);
 }

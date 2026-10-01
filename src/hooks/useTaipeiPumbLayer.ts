@@ -140,12 +140,16 @@ export function useTaipeiPumbLayer(
   const styleRef = useRef({ scale, opacity, isDark });
   styleRef.current = { scale, opacity, isDark };
 
-  // 樣式／可見度變動：只重套 paint 與資料，不碰輪詢
+  // 樣式／可見度變動：圖層已存在只重套 paint（ensureLayers 的 else 分支）；
+  // 只有圖層／source 不見（換底圖後）才用已快取資料補一次 setData，不重抓、不每次重送
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    try { ensureLayers(map, scale, opacity, isDark); } catch { return; }
-    setData(map, dataRef.current);
+    try {
+      const existed = Boolean(map.getSource(SOURCE_ID) && map.getLayer(LAYER_DOT) && map.getLayer(LAYER_GLOW));
+      ensureLayers(map, scale, opacity, isDark);
+      if (!existed) setData(map, dataRef.current);
+    } catch { return; }
     setVisible(map, visible);
   }, [mapRef, visible, scale, opacity, isDark, mapTick]);
 
@@ -175,7 +179,10 @@ export function useTaipeiPumbLayer(
     if (visible && dataRef.current.length === 0) refresh();
     if (visible) {
       const t = window.setInterval(refresh, REFRESH_MS);
-      return () => { cancelled = true; window.clearInterval(t); };
+      // 換底圖（setStyle）清掉自訂圖層：用已快取資料重建，不重抓
+      const onStyleLoad = () => { if (!cancelled) apply(); };
+      map.on("style.load", onStyleLoad);
+      return () => { cancelled = true; window.clearInterval(t); map.off("style.load", onStyleLoad); };
     }
     return () => { cancelled = true; };
   }, [mapRef, visible, mapTick]);

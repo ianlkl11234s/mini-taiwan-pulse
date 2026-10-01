@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
@@ -69,6 +69,16 @@ function safeIsStyleLoaded(map: MapboxMap): boolean {
   try { return map.isStyleLoaded(); } catch { return false; }
 }
 
+/** 透明度只改 paint，不進生命週期 effect 的 deps */
+function applyOpacity(map: MapboxMap, nfzOpacity: number, restrictedOpacity: number) {
+  const apply = (key: string, fillId: string, lineId: string, opacity: number) => {
+    if (map.getLayer(fillId)) map.setPaintProperty(fillId, "fill-opacity", hookFillOpacity(key, fillId, opacity, 0.45));
+    if (map.getLayer(lineId)) map.setPaintProperty(lineId, "line-opacity", hookLineOpacity(key, lineId, Math.min(1, opacity + 0.3), 0.75));
+  };
+  apply("droneNoFlyZone", NFZ_FILL, NFZ_LINE, nfzOpacity);
+  apply("droneRestrictedZone", RESTRICTED_FILL, RESTRICTED_LINE, restrictedOpacity);
+}
+
 export function useDroneZonesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   nfzVisible: boolean,
@@ -78,6 +88,8 @@ export function useDroneZonesLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
+  const opacityRef = useRef({ nfzOpacity, restrictedOpacity });
+  opacityRef.current = { nfzOpacity, restrictedOpacity };
 
   useEffect(() => {
     const anyVisible = nfzVisible || restrictedVisible;
@@ -122,8 +134,6 @@ export function useDroneZonesLayer(
               "fill-antialias": false,
             }, { "fill-color": color, "fill-opacity": 0.45, "fill-antialias": false }),
           });
-        } else {
-          map.setPaintProperty(id, "fill-opacity", hookFillOpacity(key, id, opacity, 0.45));
         }
       };
       const ensureLine = (key: string, id: string, filter: FilterSpecification, color: string, opacity: number) => {
@@ -142,16 +152,16 @@ export function useDroneZonesLayer(
               "line-opacity": Math.min(1, opacity + 0.3),
             }, { "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 12, 1.2, 14, 2], "line-opacity": 0.75 }),
           });
-        } else {
-          map.setPaintProperty(id, "line-opacity", hookLineOpacity(key, id, Math.min(1, opacity + 0.3), 0.75));
         }
       };
 
+      const { nfzOpacity, restrictedOpacity } = opacityRef.current;
       ensureFill("droneNoFlyZone", NFZ_FILL, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
       ensureLine("droneNoFlyZone", NFZ_LINE, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
       ensureFill("droneRestrictedZone", RESTRICTED_FILL, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
       ensureLine("droneRestrictedZone", RESTRICTED_LINE, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
 
+      applyOpacity(map, nfzOpacity, restrictedOpacity);
       setVis(map, NFZ_FILL, nfzVisible);
       setVis(map, NFZ_LINE, nfzVisible);
       setVis(map, RESTRICTED_FILL, restrictedVisible);
@@ -201,5 +211,11 @@ export function useDroneZonesLayer(
         }
       } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, nfzVisible, restrictedVisible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !(nfzVisible || restrictedVisible) || !safeIsStyleLoaded(map)) return;
+    applyOpacity(map, nfzOpacity, restrictedOpacity);
   }, [mapRef, nfzVisible, restrictedVisible, nfzOpacity, restrictedOpacity, mapTick]);
 }

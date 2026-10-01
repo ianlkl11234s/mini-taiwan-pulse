@@ -281,6 +281,9 @@ export function useMarineObservationLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const loadingRef = useRef(false);
+  // 透明度／主題只走 ref + 下方樣式 effect，不進掛載 effect 的 deps（避免 setData 重送）
+  const styleRef = useRef({ opacity, isDarkTheme });
+  styleRef.current = { opacity, isDarkTheme };
 
   useEffect(() => {
     if (!visible) return;
@@ -332,17 +335,25 @@ export function useMarineObservationLayer(
 
     const mount = () => {
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, sourceNetwork, opacity, dataRef.current ?? EMPTY, isDarkTheme);
+      const st = styleRef.current;
+      ensureLayers(map, sourceNetwork, st.opacity, dataRef.current ?? EMPTY, st.isDarkTheme);
       const source = map.getSource(config.sourceId) as GeoJSONSource | undefined;
       if (source && dataRef.current) source.setData(dataRef.current);
-      updatePaint(map, sourceNetwork, opacity, isDarkTheme);
+      updatePaint(map, sourceNetwork, st.opacity, st.isDarkTheme);
       setLayerVisibility(map, sourceNetwork, true);
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [config.sourceId, isDarkTheme, mapRef, mapTick, opacity, sourceNetwork, visible]);
+  }, [config.sourceId, mapRef, mapTick, sourceNetwork, visible]);
+
+  // 透明度／主題：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.isStyleLoaded()) return;
+    updatePaint(map, sourceNetwork, opacity, isDarkTheme);
+  }, [isDarkTheme, mapRef, mapTick, opacity, sourceNetwork, visible]);
 }
 
 /** One stable host-facing hook for the two independently toggleable source networks. */

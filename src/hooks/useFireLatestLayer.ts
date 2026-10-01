@@ -101,6 +101,11 @@ export function useFireLatestLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const loadedRef = useRef(false);
+  // 最近一次成功載入的事件：換底圖（style.load）後用它重畫，不重抓
+  const eventsRef = useRef<FireEvent[] | null>(null);
+  // 樣式值只走 ref + 下方樣式 effect，不進抓資料 effect 的 deps
+  const styleRef = useRef({ isDarkTheme, opacity, scale });
+  styleRef.current = { isDarkTheme, opacity, scale };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -109,8 +114,9 @@ export function useFireLatestLayer(
 
     const run = async () => {
       try {
-        ensureLayer(map, isDarkTheme);
-        updatePaint(map, isDarkTheme, opacity, scale);
+        const st = styleRef.current;
+        ensureLayer(map, st.isDarkTheme);
+        updatePaint(map, st.isDarkTheme, st.opacity, st.scale);
       } catch {
         return;
       }
@@ -126,12 +132,36 @@ export function useFireLatestLayer(
           : new Date().getFullYear() - 1911;
         const events = await loadFireEventsByYear(maxYear);
         if (cancelled) return;
+        eventsRef.current = events;
         setData(map, events);
         loadedRef.current = true;
       }
       setVisible(map, true);
     };
     run();
-    return () => { cancelled = true; };
+
+    // 換底圖（setStyle）清掉自訂 source／layer：重建後用快取資料重畫（不重抓）
+    const onStyleLoad = () => {
+      if (cancelled) return;
+      try {
+        const st = styleRef.current;
+        ensureLayer(map, st.isDarkTheme);
+        updatePaint(map, st.isDarkTheme, st.opacity, st.scale);
+        if (eventsRef.current) setData(map, eventsRef.current);
+      } catch { /* style 尚未就緒 */ }
+    };
+    map.on("style.load", onStyleLoad);
+
+    return () => {
+      cancelled = true;
+      map.off("style.load", onStyleLoad);
+    };
+  }, [mapRef, visible, mapTick]);
+
+  // 主題／透明度／大小：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible) return;
+    try { updatePaint(map, isDarkTheme, opacity, scale); } catch { /* style 尚未就緒 */ }
   }, [mapRef, visible, isDarkTheme, opacity, scale, mapTick]);
 }

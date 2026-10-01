@@ -94,6 +94,9 @@ export function useGfwFishingEffortLayer(
   const wasVisibleRef = useRef(false);
   const activationRef = useRef(0);
   const noticeActivationRef = useRef(0);
+  // 透明度只走 ref + 下方樣式 effect，不進資料／訂閱 effect 的 deps
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   useEffect(() => {
     const map = mapRef.current;
@@ -185,7 +188,7 @@ export function useGfwFishingEffortLayer(
           setVisibility(map, false);
           return;
         }
-        const clampedOpacity = Math.max(0, Math.min(1, opacity));
+        const clampedOpacity = Math.max(0, Math.min(1, opacityRef.current));
         ensureLayers(map, clampedOpacity);
         source()?.setData(dataRef.current ?? EMPTY);
         map.setPaintProperty(GFW_FISHING_EFFORT_FILL_LAYER_ID, "fill-opacity", hookFillOpacity("gfwFishingEffort", GFW_FISHING_EFFORT_FILL_LAYER_ID, clampedOpacity, 0.58));
@@ -210,5 +213,14 @@ export function useGfwFishingEffortLayer(
       map.off("style.load", applyStyle);
       if (retryPending) map.off("idle", retry);
     };
+  }, [mapRef, visible, mapTick]);
+
+  // 透明度：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.getLayer(GFW_FISHING_EFFORT_FILL_LAYER_ID) || !map.getLayer(GFW_FISHING_EFFORT_OUTLINE_LAYER_ID)) return;
+    const clampedOpacity = Math.max(0, Math.min(1, opacity));
+    map.setPaintProperty(GFW_FISHING_EFFORT_FILL_LAYER_ID, "fill-opacity", hookFillOpacity("gfwFishingEffort", GFW_FISHING_EFFORT_FILL_LAYER_ID, clampedOpacity, 0.58));
+    map.setPaintProperty(GFW_FISHING_EFFORT_OUTLINE_LAYER_ID, "line-opacity", hookLineOpacity("gfwFishingEffort", GFW_FISHING_EFFORT_OUTLINE_LAYER_ID, clampedOpacity, 0.58));
   }, [mapRef, visible, opacity, mapTick]);
 }

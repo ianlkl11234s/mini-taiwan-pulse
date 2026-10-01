@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, ExpressionSpecification } from "mapbox-gl";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
@@ -43,6 +43,13 @@ function safeIsStyleLoaded(map: MapboxMap): boolean {
   try { return map.isStyleLoaded(); } catch { return false; }
 }
 
+/** 透明度只改 paint，不進資料／生命週期 effect 的 deps */
+function applyOpacity(map: MapboxMap, opacity: number) {
+  if (map.getLayer(FILL_LAYER)) {
+    map.setPaintProperty(FILL_LAYER, "fill-opacity", hookFillOpacity("aspectVector", FILL_LAYER, opacity, 0.6));
+  }
+}
+
 export function useAspectVectorLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -51,6 +58,8 @@ export function useAspectVectorLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   useEffect(() => {
     let cancelled = false;
@@ -86,13 +95,12 @@ export function useAspectVectorLayer(
           minzoom: 5,
           paint: hookFillPaint("aspectVector", FILL_LAYER, {
             "fill-color": COLOR_EXPR,
-            "fill-opacity": opacity,
+            "fill-opacity": opacityRef.current,
             "fill-antialias": false,
           }, { "fill-color": COLOR_EXPR, "fill-opacity": 0.6, "fill-antialias": false }),
         });
-      } else {
-        map.setPaintProperty(FILL_LAYER, "fill-opacity", hookFillOpacity("aspectVector", FILL_LAYER, opacity, 0.6));
       }
+      applyOpacity(map, opacityRef.current);
       setVis(map, FILL_LAYER, true);
       return true;
     };
@@ -135,5 +143,11 @@ export function useAspectVectorLayer(
     };
     // styleId 進 deps：底圖 style 切換時 effect 重跑 → 重新 ensureLayer（走與手動 re-toggle
     // 相同的成功路徑）。diff setStyle 會移除自訂圖層且 event listener 重掛不可靠，改靠 React 重跑。
-  }, [mapRef, visible, opacity, styleId, mapTick]);
+  }, [mapRef, visible, styleId, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !safeIsStyleLoaded(map)) return;
+    applyOpacity(map, opacity);
+  }, [mapRef, visible, opacity, mapTick]);
 }
