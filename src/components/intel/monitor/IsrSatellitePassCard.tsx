@@ -16,6 +16,7 @@ import {
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 export type LoadState = "loading" | "ready" | "error";
@@ -344,16 +345,16 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         <div style={{ display: "flex", alignItems: "baseline", gap: 9, flexWrap: "wrap" }}>
           {latest.kind === "ready" ? (
             <>
-              <span style={{ fontFamily: FONT_DATA, fontSize: 28, fontWeight: 700, lineHeight: 1, color: "#fff" }}>
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 28), fontWeight: 700, lineHeight: 1, color: "#fff" }}>
                 {latest.passCount}
               </span>
-              <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>次過境</span>
-              <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+              <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textMuted }}>次過境</span>
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim }}>
                 {latest.day} · {latest.uniqueSatelliteCount} 顆不重複衛星
               </span>
             </>
           ) : (
-            <span style={{ fontSize: FONT_SIZE.base, color: latest.kind === "error" || latest.kind === "stale" ? COLORS.statusWarn : COLORS.textDim }}>
+            <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: latest.kind === "error" || latest.kind === "stale" ? COLORS.statusWarn : COLORS.textDim }}>
               {v2 && latest.kind === "stale" ? "最新計數暫不呈現 · 不以 0 代替" : DISPLAY_LABEL[latest.kind]}
             </span>
           )}
@@ -374,7 +375,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
                 aria-pressed={selected}
                 title={v2 ? `顯示最新有效日往前 ${option} 個日曆日` : `顯示 latest_valid_day 往前 ${option} 個日曆日`}
                 style={{
-                  fontSize: 9,
+                  fontSize: fs(v2, 9),
                   padding: "2px 7px",
                   borderRadius: RADIUS.sm,
                   cursor: "pointer",
@@ -393,7 +394,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         <div
           style={{
             display: "flex", alignItems: "center", gap: "4px 10px", flexWrap: "wrap",
-            fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textDim,
+            fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textDim,
           }}
         >
           <span>{windowDays}D 中位數 {formatMetric(medianPassCount)} 次／日</span>
@@ -429,7 +430,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
               padding: "5px 7px", borderRadius: RADIUS.md,
               color: latestLevelColor, background: `${latestLevelColor}12`,
               border: `1px solid ${latestLevelColor}55`,
-              fontSize: 9, lineHeight: 1.5,
+              fontSize: fs(v2, 9), lineHeight: 1.5,
             }}
           >
             ⚠ 相對量提醒：最新完整日 {latest.passCount} 次，高於所選 {windowDays}D 的
@@ -455,7 +456,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
               aria-label="ISR 相對過境量色階"
               style={{
                 display: "flex", flexWrap: "wrap", gap: "3px 9px",
-                fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDim,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textDim,
               }}
             >
               {ISR_PASS_LEVELS.map((level) => (
@@ -470,14 +471,14 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
                 </span>
               ))}
             </div>
-            <div style={{ fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>
+            <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
               門檻隨所選期間重算；色階非威脅或實際蒐情判定
             </div>
           </div>
         )}
 
         {v2 ? (
-          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, lineHeight: 1.5 }}>
+          <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, lineHeight: 1.5 }}>
             資料至 {report?.latestValidDay ?? "—"} · 更新 {formatTimestamp(report?.computedAt ?? null)}
             {(report?.scopeCoverageComplete === false || report?.coverageComplete === false || report?.chinaIsrCensusComplete === false)
               ? "；涵蓋範圍未完整，數字僅供參考" : ""}
@@ -485,8 +486,9 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         ) : (
         <div
           style={{
-            display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: "3px 10px", fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint,
+            display: "grid", gridTemplateColumns: v2 ? "minmax(0, 1fr)" : "repeat(2, minmax(0, 1fr))",
+            overflowWrap: v2 ? "anywhere" : undefined,
+            gap: "3px 10px", fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint,
           }}
         >
           <span>latest_valid_day: {report?.latestValidDay ?? "—"}</span>
@@ -499,10 +501,10 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         </div>
         )}
 
-        <div style={{ fontSize: 9, color: COLORS.statusWarn, lineHeight: 1.5 }}>
+        <div style={{ fontSize: fs(v2, 9), color: COLORS.statusWarn, lineHeight: 1.5 }}>
           v1 YAOGAN／GAOFEN／JILIN 範圍，非全中國 ISR census
         </div>
-        <div style={{ fontSize: 9, color: COLORS.textFaint, lineHeight: 1.5 }}>
+        <div style={{ fontSize: fs(v2, 9), color: COLORS.textFaint, lineHeight: 1.5 }}>
           {v2 ? "" : `${ISR_PASSES_DEFAULT_REGION} · ${ISR_PASSES_DEFAULT_TIER_MODE} · `}地面投影穿越不等於實際蒐情；
           缺日與 null 不補 0
         </div>

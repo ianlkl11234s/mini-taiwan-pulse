@@ -7,6 +7,13 @@
   --mon-text-dim: var(--text-dim);
   --mon-warn: var(--status-warn);
   --mon-err: var(--status-err);
+  /* 監看新版字級 S13（spec §5.35；與 monitorFont.ts MON_FONT_PX 同值） */
+  --mon-f-cap: 13px;
+  --mon-f-label: 13px;
+  --mon-f-body: 14px;
+  --mon-f-title: 16px;
+  --mon-f-kpi: 19px;
+  --mon-f-main: 24px;
 }
 
 .mtp-mcard {
@@ -24,6 +31,8 @@
   /* 窄格規則：內容不得畫出格子 */
   overflow: hidden;
   font-family: var(--font-cjk);
+  /* 使用者 2026-10-02：上下行太緊；卡內未自訂行高的文字一律 1.45 */
+  line-height: 1.45;
 }
 
 .mtp-mcard__head {
@@ -43,14 +52,14 @@
 }
 
 .mtp-mcard__zh {
-  font-size: var(--font-lg);
+  font-size: var(--mon-f-title);
   font-weight: 700;
   color: var(--mon-text-strong);
   white-space: nowrap;
 }
 
 .mtp-mcard__en {
-  font-size: var(--font-xs);
+  font-size: var(--mon-f-cap);
   color: var(--mon-text-dim);
   white-space: nowrap;
   overflow: hidden;
@@ -68,14 +77,14 @@
 
 .mtp-mcard__time {
   font-family: var(--font-data);
-  font-size: var(--font-sm);
+  font-size: var(--mon-f-label);
   color: var(--mon-text-dim);
   font-variant-numeric: tabular-nums;
 }
 .mtp-mcard__time.is-warn { color: var(--mon-warn); }
 
 .mtp-mcard__pill {
-  font-size: var(--font-sm);
+  font-size: var(--mon-f-label);
   line-height: 1;
   padding: 2px 5px;
   border-radius: var(--radius-md);
@@ -88,12 +97,12 @@
 .mtp-mcard__body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 10px;
   min-width: 0;
   flex: 1 0 auto;
 }
 
 /* 窄格：英文附註先讓位 */
-@container (max-width: 260px) {
+@container (max-width: 300px) {
   .mtp-mcard__en { display: none; }
 }

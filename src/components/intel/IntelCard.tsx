@@ -9,6 +9,8 @@ import { RADIUS, FONT_SIZE, SURFACE, LIGHT } from "../../styles/designTokens";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
 import { useWallClock } from "../../hooks/useWallClock";
+import { useMonitorV2 } from "./monitor/monitorStyle";
+import { fs } from "./monitor/monitorFont";
 
 export interface IntelCardEvent extends ClusterEvent {
   /** 所屬 cluster 的 county / location_name，給卡片顯示 */
@@ -46,15 +48,17 @@ interface Props {
 }
 
 /** 中性 chip 版型（「聲明」／國際事件的研判來源標籤共用；色彩交給 chipOutline(palette.textDim)） */
-const chipGhost: CSSProperties = {
-  fontFamily: FONT_CJK,
-  fontSize: 9.5,
-  whiteSpace: "nowrap",
-  padding: "1px 6px",
-  borderRadius: RADIUS.md,
-};
+function chipGhost(v2: boolean): CSSProperties {
+  return {
+    fontFamily: FONT_CJK,
+    fontSize: fs(v2, 9.5),
+    whiteSpace: "nowrap",
+    padding: "1px 6px",
+    borderRadius: RADIUS.md,
+  };
+}
 
-function btnGhost(palette: IntelPalette): CSSProperties {
+function btnGhost(palette: IntelPalette, v2: boolean): CSSProperties {
   return {
     display: "flex",
     alignItems: "center",
@@ -66,13 +70,14 @@ function btnGhost(palette: IntelPalette): CSSProperties {
     border: `1px solid ${palette.borderMid}`,
     color: palette.textMuted,
     fontFamily: FONT_CJK,
-    fontSize: 10.5,
+    fontSize: fs(v2, 10.5),
     cursor: "pointer",
   };
 }
 
 export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle, nowTs }: Props) {
   const palette = useIntelTheme();
+  const v2 = useMonitorV2();
   // 30s 內相對時間（「3 分鐘前」）視覺無差，元件內訂閱避開父層 1Hz cascade。
   // nowTs prop 退為「mount 時 fallback / SSR」之用。
   const liveNow = Math.floor(useWallClock(30_000, nowTs * 1000) / 1000);
@@ -139,7 +144,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             }}
           >
             <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: cat.color }} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: 600 }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600 }}>
               {cat.label}
             </span>
           </span>
@@ -150,7 +155,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 alignItems: "center",
                 gap: 3,
                 fontFamily: FONT_CJK,
-                fontSize: 9.5,
+                fontSize: fs(v2, 9.5),
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
@@ -167,7 +172,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 alignItems: "center",
                 gap: 3,
                 fontFamily: FONT_CJK,
-                fontSize: 9.5,
+                fontSize: fs(v2, 9.5),
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
@@ -181,7 +186,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             <span
               style={{
                 fontFamily: FONT_CJK,
-                fontSize: 9.5,
+                fontSize: fs(v2, 9.5),
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
@@ -191,13 +196,13 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               重大
             </span>
           )}
-          {e.is_event === false && <span style={{ ...chipGhost, ...chipOutline(palette.textDim) }}>聲明</span>}
-          {e.origin_label && <span style={{ ...chipGhost, ...chipOutline(palette.textDim) }}>{e.origin_label}</span>}
+          {e.is_event === false && <span style={{ ...chipGhost(v2), ...chipOutline(palette.textDim) }}>聲明</span>}
+          {e.origin_label && <span style={{ ...chipGhost(v2), ...chipOutline(palette.textDim) }}>{e.origin_label}</span>}
           <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
             <span
               style={{
                 fontFamily: FONT_CJK,
-                fontSize: 10.5,
+                fontSize: fs(v2, 10.5),
                 color: palette.textMuted,
                 whiteSpace: "nowrap",
               }}
@@ -213,7 +218,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
         <div
           style={{
             fontFamily: FONT_CJK,
-            fontSize: 12.5,
+            fontSize: fs(v2, 12.5),
             fontWeight: 600,
             color: palette.textStrong,
             lineHeight: 1.45,
@@ -234,7 +239,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               marginBottom: 5,
               whiteSpace: "nowrap",
               fontFamily: FONT_CJK,
-              fontSize: FONT_SIZE.sm,
+              fontSize: fs(v2, FONT_SIZE.sm),
               color: palette.textDim,
             }}
           >
@@ -257,7 +262,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
           <div
             style={{
               fontFamily: FONT_CJK,
-              fontSize: FONT_SIZE.base,
+              fontSize: fs(v2, FONT_SIZE.base),
               color: palette.textDefault,
               lineHeight: 1.55,
               display: expanded ? "block" : "-webkit-box",
@@ -280,7 +285,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 alignItems: "center",
                 gap: 4,
                 fontFamily: FONT_DATA,
-                fontSize: 9.5,
+                fontSize: fs(v2, 9.5),
                 color: palette.textDim,
               }}
             >
@@ -294,7 +299,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 alignItems: "center",
                 gap: 4,
                 fontFamily: FONT_CJK,
-                fontSize: 9.5,
+                fontSize: fs(v2, 9.5),
                 color: clusterColor,
               }}
             >
@@ -306,7 +311,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               style={{
                 marginLeft: "auto",
                 fontFamily: FONT_DATA,
-                fontSize: FONT_SIZE.xs,
+                fontSize: fs(v2, FONT_SIZE.xs),
                 color: palette.textFaint,
               }}
             >
@@ -334,7 +339,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 gridTemplateColumns: "auto 1fr",
                 gap: "3px 10px",
                 fontFamily: FONT_CJK,
-                fontSize: FONT_SIZE.sm,
+                fontSize: fs(v2, FONT_SIZE.sm),
               }}
             >
               {e.county && (
@@ -393,7 +398,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                     whiteSpace: "nowrap",
                     ...chipTint(cat.color, chipText(cat.color, palette)),
                     fontFamily: FONT_CJK,
-                    fontSize: 10.5,
+                    fontSize: fs(v2, 10.5),
                     fontWeight: 600,
                     textDecoration: "none",
                   }}
@@ -408,7 +413,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                       navigator.clipboard.writeText(`${e.title}\n${e.url}`);
                     }
                   })}
-                  style={btnGhost(palette)}
+                  style={btnGhost(palette, v2)}
                 >
                   <IntelIcon d={ICON.copy} size={12} /> 複製
                 </button>

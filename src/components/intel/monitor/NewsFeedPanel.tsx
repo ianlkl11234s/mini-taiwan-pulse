@@ -8,6 +8,7 @@ import type { NewsFilter } from "../../../data/newsEventsLoader";
 import type { NewsCategory } from "../../../data/newsEventTypes";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 
 interface Props {
   /** 已套完 timeRange / 分類 / 縣市 篩選的事件（原 MonitorPanel flatEvents） */
@@ -84,7 +85,7 @@ function NewsFeedPanelInner({
         {!v2 && (
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700,
+              fontFamily: FONT_CJK, fontSize: fs(v2, 12.5), fontWeight: 700,
               color: palette.textStrong, whiteSpace: "nowrap",
             }}
           >
@@ -109,7 +110,7 @@ function NewsFeedPanelInner({
           />
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), fontWeight: 700,
               color: statusVisual.color,
             }}
           >
@@ -117,13 +118,13 @@ function NewsFeedPanelInner({
           </span>
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: palette.textMuted }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 10.5), color: palette.textMuted }}>
           {events.length} 則
         </span>
       </div>
 
       {status !== "ready" && (
-        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: palette.textMuted }}>
+        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: palette.textMuted }}>
           {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? (message ?? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}`) : "正在讀取新聞資料"}
         </div>
       )}
@@ -157,10 +158,10 @@ function NewsFeedPanelInner({
             }}
           >
             <IntelIcon d={ICON.radio} size={26} color={palette.textGhost} />
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), color: palette.textMuted }}>
               {status === "error" ? "新聞資料更新中斷" : "目前無符合條件的事件"}
             </div>
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint }}>
               {status === "error" ? (message ?? "請檢查新聞來源與分類流程") : "調整分類 / 縣市，或回到即時"}
             </div>
           </div>

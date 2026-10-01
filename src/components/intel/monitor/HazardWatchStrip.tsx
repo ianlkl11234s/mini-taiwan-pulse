@@ -19,6 +19,7 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useInView } from "../../../hooks/useInView";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 
 interface HazardCh {
   videoId: string;
@@ -79,7 +80,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             style={{
               position: "absolute", inset: 0, display: "flex",
               alignItems: "center", justifyContent: "center",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
               color: COLORS.textFaint, background: "#000",
             }}
           >
@@ -110,7 +111,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             />
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, fontWeight: 700,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), fontWeight: 700,
                 color: "#04121f", letterSpacing: "0.5px",
               }}
             >
@@ -119,7 +120,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           </span>
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700, color: "#fff",
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700, color: "#fff",
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
@@ -128,7 +129,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           {!v2 && (
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDefault,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textDefault,
                 letterSpacing: "0.5px",
                 textShadow: "0 1px 3px rgba(0,0,0,0.9)",
               }}
@@ -152,7 +153,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             padding: "3px 9px", borderRadius: RADIUS.lg,
             background: "rgba(0,0,0,0.72)",
             border: `1px solid ${COLORS.borderMid}`,
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm),
             color: COLORS.textDefault,
             backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
           }}
@@ -162,7 +163,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
         <span style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)",
           }}
         >
@@ -192,14 +193,14 @@ export const HazardWatchStrip = memo(function HazardWatchStrip() {
         <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.statusWarn }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px",
             color: COLORS.textDefault,
           }}
         >
           災防觀測 · HAZARD WATCH
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
           地震 + 天氣 · 24h 監測
         </span>
       </div>}

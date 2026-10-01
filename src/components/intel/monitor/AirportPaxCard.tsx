@@ -7,6 +7,7 @@ import { fetchAirportHourlyPax, type AirportPaxBucket } from "../../../data/airp
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 const AIRPORTS: Array<{ code: string; label: string }> = [
@@ -61,7 +62,7 @@ export function AirportPaxCard({ open }: Props) {
               key={a.code}
               onClick={() => setActiveCode(a.code)}
               style={{
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm),
                 padding: "3px 8px", borderRadius: RADIUS.sm,
                 border: `1px solid ${activeCode === a.code ? "#0ea5e9" : COLORS.panelBorder}`,
                 background: activeCode === a.code ? "rgba(14,165,233,0.18)" : "transparent",
@@ -73,7 +74,7 @@ export function AirportPaxCard({ open }: Props) {
             </button>
           ))}
         </div>
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: FONT_SIZE.sm }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: fs(v2, FONT_SIZE.sm) }}>
           <span style={{ color: "#10b981" }}>
             24h 入 <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{hasReadableData ? sumIn.toLocaleString("zh-TW") : "—"}</span>
           </span>
@@ -83,11 +84,11 @@ export function AirportPaxCard({ open }: Props) {
         </div>
         <MonitorDataStatus label="機場旅客資料" query={query} />
         {query.status === "unknown" ? (
-          <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, textAlign: "center", padding: "8px 0" }}>
+          <div style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim, textAlign: "center", padding: "8px 0" }}>
             載入中…
           </div>
         ) : inSeries.length === 0 ? (
-          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+          <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>
             {v2 ? "無資料（此機場未涵蓋）" : "無資料（border_airport_snapshot 未涵蓋此機場）"}
           </div>
         ) : (
@@ -97,7 +98,7 @@ export function AirportPaxCard({ open }: Props) {
             <TimeseriesSparkline data={outSeries} unit="人" lineColor="#fb7185" height={70} gapSec={2 * 3600} showTooltip seriesLabel="出境" />
           </>
         )}
-        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+        <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>
           {v2 ? "來源：移民署 APIS（每小時）" : "來源：移民署 APIS（每小時 / get_airport_hourly_pax）"}
         </div>
       </div>

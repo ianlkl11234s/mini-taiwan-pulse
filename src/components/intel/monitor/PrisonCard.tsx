@@ -3,6 +3,7 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
@@ -105,7 +106,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
             width: 11, height: 11, borderRadius: RADIUS.full, background: dotColor,
             boxShadow: `0 0 7px ${dotColor}`, flexShrink: 0,
           }} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 700, color: COLORS.textStrong }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: COLORS.textStrong }}>
             {latest ? (v2 ? "全國在監" : `全國在監 (${latest.observed_date})`) : "全國在監（資料載入中）"}
           </span>
         </div>
@@ -113,16 +114,16 @@ export function PrisonCard({ latest, series = [] }: Props) {
           <>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
               <div>
-                <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700, color: COLORS.textStrong }}>
+                <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700, color: COLORS.textStrong }}>
                   {fmt(total)}
                 </span>
-                <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, marginLeft: 4 }}>人</span>
+                <span style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted, marginLeft: 4 }}>人</span>
               </div>
-              <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+              <div style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
                 男 {fmt(latest.male_inmates)} / 女 {fmt(latest.female_inmates)}
               </div>
             </div>
-            <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted, display: "flex", gap: 12, flexWrap: "wrap" }}>
               <span>核定容額 {fmt(cap)}</span>
               <span style={{ color: isOver ? "#fb7185" : COLORS.textMuted }}>
                 超收率 {overPct == null ? "—" : `${Number(overPct).toFixed(2)}%`}
@@ -135,7 +136,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
         {trend.length > 1 ? (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginRight: "auto" }}>
+              <span style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginRight: "auto" }}>
                 在監總數趨勢
               </span>
               {WINDOWS.map((w) => (
@@ -143,7 +144,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
                   key={w}
                   onClick={() => setWindowDays(w)}
                   style={{
-                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+                    fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
                     padding: "2px 7px", borderRadius: RADIUS.sm, cursor: "pointer",
                     background: w === windowDays ? COLORS.accentFaint : "transparent",
                     color: w === windowDays ? COLORS.textStrong : COLORS.textDim,
@@ -169,7 +170,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
             />
           </>
         ) : (
-          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+          <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>
             {/* 兩種「畫不出線」要分清楚：序列本身太短 vs 這個視窗內剛好沒點。
                 回補後前者會消失，後者不該再說「資料庫只有 N 天」（那是假話）。 */}
             {allPoints.length > 1
@@ -177,7 +178,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
               : series.length === 0 ? "尚無可用趨勢資料" : `趨勢待回補：資料庫目前只有 ${allPoints.length || series.length} 天`}
           </div>
         )}
-        <div style={{ fontSize: FONT_SIZE.xs, color: isStale ? "#fbbf24" : COLORS.textDim }}>
+        <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: isStale ? "#fbbf24" : COLORS.textDim }}>
           {v2
             ? (isStale ? "法務部矯正署上游已停止更新" : "來源：法務部矯正署每日資料")
             : isStale

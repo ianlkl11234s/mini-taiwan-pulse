@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { fs } from "./monitorFont";
+import { useMonitorV2 } from "./monitorStyle";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
@@ -39,6 +41,7 @@ interface Props {
 }
 
 export function HourlyHistogramWidget({ events }: Props) {
+  const v2 = useMonitorV2();
   const buckets = useMemo(() => bucketByHour(events), [events]);
   const peak = Math.max(1, ...buckets.map((b) => b.total));
   const nowHour = new Date().getHours();
@@ -64,7 +67,7 @@ export function HourlyHistogramWidget({ events }: Props) {
               key={c.key}
               style={{
                 display: "inline-flex", alignItems: "center", gap: 3,
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim,
                 whiteSpace: "nowrap",
               }}
             >
@@ -131,14 +134,14 @@ export function HourlyHistogramWidget({ events }: Props) {
       <div
         style={{
           display: "flex", justifyContent: "space-between", marginTop: 4,
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint,
           flexShrink: 0,
         }}
       >
         <span>00:00</span>
-        <span>06:00</span>
+        {!v2 && <span>06:00</span>}
         <span>12:00</span>
-        <span>18:00</span>
+        {!v2 && <span>18:00</span>}
         <span>23:59</span>
       </div>
       {tip.node}

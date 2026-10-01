@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { fs } from "./monitorFont";
+import { useMonitorV2 } from "./monitorStyle";
 import { COLORS, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
@@ -66,6 +68,7 @@ export function HazardTrendBars({
   bars, levelColors, height = 44, caption, footer, unit = "",
   onSelectBar, selectedKey = null,
 }: Props) {
+  const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const max = useMemo(() => {
     const vals = bars.map((b) => b.value).filter((v): v is number => v !== null);
@@ -87,9 +90,9 @@ export function HazardTrendBars({
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: 8.5, letterSpacing: "0.6px",
-          color: COLORS.textFaint, whiteSpace: "nowrap", overflow: "hidden",
-          textOverflow: "ellipsis",
+          fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "0.6px",
+          color: COLORS.textFaint, whiteSpace: v2 ? "normal" : "nowrap", overflow: "hidden",
+          textOverflow: v2 ? "clip" : "ellipsis",
         }}
       >
         {caption}
@@ -159,7 +162,7 @@ export function HazardTrendBars({
       <div
         style={{
           display: "flex", justifyContent: "space-between", gap: 4,
-          fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textFaint,
+          fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: COLORS.textFaint,
         }}
       >
         <span>{bars[0]?.label}</span>

@@ -6,6 +6,7 @@ import { getNewsCategoryDef, type NewsCategory } from "../../../data/newsEventTy
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 interface Hotspot {
@@ -86,8 +87,8 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
             >
               <span
                 style={{
-                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700,
-                  color: COLORS.textDim, width: 14,
+                  fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700,
+                  color: COLORS.textDim, ...(v2 ? { minWidth: 18 } : { width: 14 }),
                 }}
               >
                 {i + 1}
@@ -100,7 +101,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
               />
               <span
                 style={{
-                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.md,
+                  fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md),
                   color: COLORS.textStrong, whiteSpace: "nowrap",
                 }}
               >
@@ -108,7 +109,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
               </span>
               <span
                 style={{
-                  fontFamily: FONT_CJK, fontSize: 9.5, color: cat.color,
+                  fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: cat.color,
                   padding: "1px 6px", borderRadius: RADIUS.md,
                   background: `${cat.color}1f`, whiteSpace: "nowrap",
                 }}
@@ -132,8 +133,8 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
               </div>
               <span
                 style={{
-                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700,
-                  color: "#fff", width: 18, textAlign: "right",
+                  fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700,
+                  color: "#fff", ...(v2 ? { minWidth: 26 } : { width: 18 }), textAlign: "right",
                 }}
               >
                 {r.n}
@@ -141,9 +142,9 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
               <span
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 2,
-                  fontFamily: FONT_DATA, fontSize: 9.5,
+                  fontFamily: FONT_DATA, fontSize: fs(v2, 9.5),
                   color: r.surge >= 2 ? COLORS.statusWarn : COLORS.textDim,
-                  width: 40,
+                  ...(v2 ? { minWidth: 50 } : { width: 40 }),
                 }}
               >
                 {r.surge >= 2 && (
@@ -157,7 +158,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
         {ranked.length === 0 && (
           <div
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textFaint,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textFaint,
               padding: "10px 2px",
             }}
           >

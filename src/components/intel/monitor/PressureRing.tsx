@@ -1,6 +1,7 @@
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
 import { useMonitorCardHeader, type MonitorCardState } from "./MonitorCardFrame";
 import { useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
@@ -27,6 +28,7 @@ export function PressureRing({
   stale?: boolean;
   size?: number;
 }) {
+  const v2 = useMonitorV2();
   const r = 52;
   const c = 2 * Math.PI * r;
   const sweep = 0.75; // 270°
@@ -65,17 +67,17 @@ export function PressureRing({
       >
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 40, fontWeight: 700, lineHeight: 1,
+            fontFamily: FONT_DATA, fontSize: fs(v2, 40), fontWeight: 700, lineHeight: 1,
             color: "#fff", letterSpacing: "-1px",
           }}
         >
           {status === "ready" || stale ? Math.round(score) : "—"}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
           {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
         </span>
         <span
-          style={{ fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "2px", color: COLORS.textFaint }}
+          style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: COLORS.textFaint }}
         >
           {status === "ready" ? level.en : "DATA"}
         </span>
@@ -85,18 +87,19 @@ export function PressureRing({
 }
 
 export function CompareLine({ delta, label, muted = false }: { delta: number; label: string; muted?: boolean }) {
+  const v2 = useMonitorV2();
   const up = delta >= 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, width: 40,
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, ...(v2 ? { minWidth: 40 } : { width: 40 }),
           color: muted ? COLORS.textMuted : up ? COLORS.statusWarn : COLORS.statusLive,
         }}
       >
         {up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}
       </span>
-      <span style={{ fontFamily: FONT_CJK, fontSize: 10.5, color: COLORS.textMuted, whiteSpace: "nowrap" }}>
+      <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: COLORS.textMuted, whiteSpace: "nowrap" }}>
         {label}
       </span>
     </div>
@@ -183,7 +186,7 @@ export function TwseTicker({
       {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.2px",
             color: COLORS.textDim, whiteSpace: "nowrap",
           }}
         >
@@ -192,7 +195,7 @@ export function TwseTicker({
         <div style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint,
+            fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint,
             padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", whiteSpace: "nowrap",
           }}
         >
@@ -202,7 +205,7 @@ export function TwseTicker({
       <div style={v2 ? { display: "flex", alignItems: "baseline", gap: "2px 9px", flexWrap: "wrap" } : { display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 24, fontWeight: 700, lineHeight: 1,
+            fontFamily: FONT_DATA, fontSize: fs(v2, 24), fontWeight: 700, lineHeight: 1,
             color: closed ? "rgba(255,255,255,0.92)" : "#fff",
             whiteSpace: "nowrap",
           }}
@@ -211,10 +214,10 @@ export function TwseTicker({
         </span>
         {has && (
           <>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
               {up ? "▲" : "▼"} {up ? "+" : ""}{data.change.toLocaleString()}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
               {up ? "+" : ""}{data.change_pct}%
             </span>
           </>
@@ -222,7 +225,7 @@ export function TwseTicker({
       </div>
       <div
         style={{
-          display: "flex", gap: v2 ? "2px 12px" : 12, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+          display: "flex", gap: v2 ? "2px 12px" : 12, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
           color: COLORS.textDim, ...(v2 ? { flexWrap: "wrap" as const } : { whiteSpace: "nowrap" as const }),
         }}
       >
@@ -230,7 +233,7 @@ export function TwseTicker({
         <span style={{ whiteSpace: "nowrap" }}>{v2 ? "低" : "L"} <b style={{ color: COLORS.textDefault }}>{has ? data.low.toLocaleString() : "—"}</b></span>
         <span style={{ whiteSpace: "nowrap" }}>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
       </div>
-      {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+      {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted }}>
         {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
       </span>}
       {closes.length >= 2 && histFirst && histLast && (
@@ -238,8 +241,8 @@ export function TwseTicker({
           <span
             style={{
               ...(v2
-                ? { fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs }
-                : { fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "1.5px" }),
+                ? { fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs) }
+                : { fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "1.5px" }),
               color: COLORS.textFaint, whiteSpace: "nowrap",
             }}
           >
@@ -391,7 +394,7 @@ export function SectionLabel({ children, color }: { children: React.ReactNode; c
   // v2：卡片標題由 MonitorCardFrame 畫；卡內的 SectionLabel 只當小節標（中文、不轉大寫、非等寬）
   if (v2) {
     return (
-      <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: 600, color: COLORS.textMuted }}>
+      <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600, color: COLORS.textMuted }}>
         {children}
       </div>
     );
@@ -405,7 +408,7 @@ export function SectionLabel({ children, color }: { children: React.ReactNode; c
       />
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px",
           color: COLORS.textDefault, textTransform: "uppercase",
         }}
       >
