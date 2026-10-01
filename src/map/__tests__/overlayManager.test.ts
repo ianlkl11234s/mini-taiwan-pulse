@@ -16,6 +16,7 @@ import {
   geojsonSourceOptions,
   applyLayerOpacity,
   isJpHeightManagedOverlay,
+  updateAllOverlayThemes,
 } from "../overlayManager";
 import type { OverlayConfig } from "../../types";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
@@ -304,6 +305,30 @@ describe("updateOverlayTheme (diff-based)", () => {
     expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
   });
 
+});
+
+describe("updateAllOverlayThemes：隱藏圖層跳過、打開時補套（2026-10-01 效能）", () => {
+  it("隱藏的 overlay 換主題／拖滑桿不算 paint，打開時用最新主題與參數補套一次", () => {
+    const { map, calls } = createMockMap();
+    addOverlay(map, config, true, { waterRiverOpacity: 1, waterRiverWidth: 1 });
+    let vis = "none";
+    (map as unknown as { getLayoutProperty: (id: string) => string }).getLayoutProperty = () => vis;
+    calls.length = 0;
+
+    const hidden = { [config.id]: false } as unknown as Parameters<typeof updateAllOverlayThemes>[4];
+    updateAllOverlayThemes(map, [config], false, { waterRiverOpacity: 0.5, waterRiverWidth: 1 }, hidden);
+    updateAllOverlayThemes(map, [config], true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 }, hidden);
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
+
+    vis = "visible";
+    setOverlayVisible(map, config, true, true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 });
+    expect(calls.filter((c) => c.method === "setPaintProperty").map((c) => c.args)).toEqual([
+      ["water-rivers-core", "line-opacity", 0.85 * 0.25],
+    ]);
+    calls.length = 0;
+    setOverlayVisible(map, config, true, true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 });
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
+  });
 });
 
 describe("setOverlayVisible", () => {

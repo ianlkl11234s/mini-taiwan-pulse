@@ -95,6 +95,24 @@
 - 垃圾車音符：`uOpacity` 只宣告在 vertex shader，fragment 編譯失敗，音符從未畫出。
 - 水庫 3D 柱：切換底圖後不重建。
 
+## 6. 後續：隱藏圖層不算樣式（2026-10-01）
+
+原計畫（`docs/features/perf-lifecycle/handoff-theme-refetch-lazy-overlays.md` P2）是「關閉的圖層開站不建 source／layer」。動手前先量：
+
+| 量測（全關、headless） | 結果 |
+|---|---|
+| 開站 PMTiles 請求 | **0**（隱藏圖層的 PMTiles source 不抓檔頭或圖磚） |
+| 開站 GeoJSON | 已是空 FeatureCollection 起手，打開才 `hydrateOverlayIfNeeded` |
+| style 圖層／source | 595 layer／300 source（約 50 個可見） |
+| `updateAllOverlayThemes` 一次（換主題、拖任何滑桿都會跑） | **約 280ms**；其中 318 組 paint 函式本身只要 1–14ms，其餘是替隱藏圖層比對與暫存 paint |
+
+結論：延後建立省不到網路，卻要處理圖層疊放順序、點擊登記、換底圖重建等風險。改做：
+
+- `updateAllOverlayThemes` 遇到隱藏的 overlay 只記「樣式過期」，不計算、不暫存 paint。
+- `setOverlayVisible` 打開時，若過期就先用當下主題與參數補套一次（呼叫端一律傳入當下值）。
+- `addOverlay`（含換底圖重建）會清掉過期標記。
+- 結果：全關時一次更新 280ms → 0.1ms；隱藏時拖河川透明度 0.3 → 地圖不動，打開時補套成 0.255、開著拖回立即生效（瀏覽器實測）。單元測試：`overlayManager.test.ts`「隱藏圖層跳過、打開時補套」。
+
 ## 3. 沒做／待決定
 
 見 `.claude/memory/BACKLOG.md` §Performance audit follow-ups：

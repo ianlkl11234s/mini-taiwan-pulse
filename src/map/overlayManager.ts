@@ -158,6 +158,20 @@ function resolveFilter(
 // 每個 map instance 一份「上次套用的 paint 快照」（layer id → serialized paint）。
 // style 切換時 layer 會被清掉重建，addOverlay 會重設對應快照，所以不會殘留髒值。
 const paintCacheByMap = new WeakMap<OverlayMap, Map<string, SerializedPaint>>();
+/**
+ * 隱藏中、主題／參數已過期的 overlay（2026-10-01 效能）：updateAllOverlayThemes 不再逐一替
+ * 隱藏圖層計算並暫存 paint（全關時一次換主題約 280ms 全花在這裡），只記成過期；
+ * setOverlayVisible 打開時再用當下主題與參數補套一次。
+ */
+const staleThemeByMap = new WeakMap<OverlayMap, Set<OverlayConfig>>();
+function staleThemeOf(map: OverlayMap): Set<OverlayConfig> {
+  let set = staleThemeByMap.get(map);
+  if (!set) {
+    set = new Set();
+    staleThemeByMap.set(map, set);
+  }
+  return set;
+}
 const rebuildParamCacheByMap = new WeakMap<OverlayMap, Map<string, string>>();
 
 function rebuildParamCacheOf(map: OverlayMap): Map<string, string> {
@@ -282,6 +296,8 @@ export function addOverlay(
   }
   const rebuildSignature = rebuildParamSignature(config, params);
   if (rebuildSignature !== null) rebuildParamCacheOf(map).set(config.sourceId, rebuildSignature);
+  // 剛建好的 layer 已是當下主題與參數
+  staleThemeByMap.get(map)?.delete(config);
 }
 
 /** 更新單一 overlay 主題（深淺色 + params）— diff 式，只動真正改變的 paint key */
@@ -404,6 +420,7 @@ export function releaseOverlaySnapshots(map: OverlayMap, config: OverlayConfig) 
     dropPendingPaint(map, id);
   }
   rebuildParamCacheByMap.get(map)?.delete(config.sourceId);
+  staleThemeByMap.get(map)?.delete(config);
 }
 
 function applyLayoutDiff(
@@ -629,6 +646,10 @@ export function setOverlayVisible(
   isDark = false,
   params?: Record<string, number>,
 ) {
+  // 隱藏期間跳過的主題／參數更新，打開前補套（呼叫端一律傳入當下主題與參數）
+  if (visible && staleThemeByMap.get(map)?.delete(config)) {
+    updateOverlayTheme(map, config, isDark, params, true);
+  }
   for (const spec of config.layers) {
     const id = layerId(config, spec.suffix);
     if (map.getLayer(id)) {
@@ -670,12 +691,12 @@ export function updateAllOverlayThemes(
   visibility?: LayerVisibility,
 ) {
   for (const config of registry) {
-    updateOverlayTheme(
-      map,
-      config,
-      isDark,
-      params,
-      visibility ? isOverlayVisible(config, visibility, params) : true,
-    );
+    const visible = visibility ? isOverlayVisible(config, visibility, params) : true;
+    if (!visible) {
+      // 不替隱藏圖層計算／暫存 paint；打開時由 setOverlayVisible 補套
+      staleThemeOf(map).add(config);
+      continue;
+    }
+    updateOverlayTheme(map, config, isDark, params, true);
   }
 }
