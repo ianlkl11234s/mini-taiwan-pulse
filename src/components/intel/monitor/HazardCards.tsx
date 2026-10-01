@@ -21,6 +21,7 @@ import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
+import { MonitorMetric, MonitorNote, MonitorSub, type MonitorTone } from "./MonitorMetric";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import type { IntelQueryState } from "../../../hooks/useIntelPollingQuery";
@@ -126,6 +127,7 @@ function HazardShell({
 /** 大數字 + 單位 */
 function Metric({ value, unit, color }: { value: string; unit: string; color?: string }) {
   const v2 = useMonitorV2();
+  if (v2) return <MonitorMetric value={value} unit={unit} color={color} />;
   return (
     <div>
       <span
@@ -150,8 +152,17 @@ function MetricRow({ children }: { children: ReactNode }) {
   );
 }
 
+/** v2：狀態色的說明改走 MonitorNote；內文色（地點、展開明細）維持正文字級 */
+const NOTE_TONE: Record<string, MonitorTone> = {
+  [COLORS.textMuted]: "neutral",
+  [COLORS.statusWarn]: "warn",
+  [COLORS.statusErr]: "err",
+};
+
 function Note({ children, color }: { children: ReactNode; color?: string }) {
   const v2 = useMonitorV2();
+  const tone = NOTE_TONE[color ?? COLORS.textMuted];
+  if (v2 && tone) return <MonitorNote tone={tone}>{children}</MonitorNote>;
   return (
     <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: color ?? COLORS.textMuted, lineHeight: 1.45 }}>
       {children}
@@ -162,6 +173,8 @@ function Note({ children, color }: { children: ReactNode; color?: string }) {
 /** 左右對齊的小字列 */
 function MetaRow({ left, right }: { left: ReactNode; right?: ReactNode }) {
   const v2 = useMonitorV2();
+  // v2 左右兩項 → 副資訊列（每項不拆）；單句（例「全部正常（…）」）可能比 1/3 格寬，留原本可換行的寫法
+  if (v2 && right != null) return <MonitorSub items={[left, right]} />;
   return (
     <div
       style={{

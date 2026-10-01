@@ -1,6 +1,7 @@
-import { useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useId, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useMonitorV2 } from "./intel/monitor/monitorStyle";
 import { fs, MF } from "./intel/monitor/monitorFont";
+import { MON_CHART_H, type MonChartTier } from "./intel/monitor/monitorChart";
 import { COLORS, FONT_SIZE, SURFACE, BORDER, RADIUS, WHITE_ALPHA } from "../styles/designTokens";
 
 /**
@@ -34,6 +35,11 @@ export interface TimeseriesSparklineProps {
   warningColor?: string;
   /** 總高度 px（含 padding + axis） */
   height?: number;
+  /**
+   * 監看圖高三階（spec §5.35 B1）：有給時「圖區」高度＝`MON_CHART_H[tier]`（24／48／96），
+   * 總高度自動加上軸字留白，`height` 被忽略。不給維持 `height` 行為。
+   */
+  heightTier?: MonChartTier;
   /** 是否顯示資料區域填色 */
   fillArea?: boolean;
   /**
@@ -210,7 +216,8 @@ export function TimeseriesSparkline({
   warningLabel = "警戒",
   lineColor = "#60a5fa",
   warningColor = "#ef4444",
-  height = 120,
+  height: heightProp = 120,
+  heightTier,
   fillArea = true,
   gapSec,
   extraSeries,
@@ -222,6 +229,11 @@ export function TimeseriesSparkline({
   const v2 = useMonitorV2();
   const PAD_L = v2 ? V2_PAD_L : BASE_PAD_L;
   const PAD_B = v2 ? V2_PAD_B : BASE_PAD_B;
+  // heightTier：圖區高度固定，總高 = 上留白 + 圖區 + 下留白（軸字）
+  // 只在監看新版生效：舊版即使呼叫端傳了 heightTier 也維持原 height（舊版畫面不可變）
+  const height = v2 && heightTier ? PAD_T + MON_CHART_H[heightTier] + PAD_B : heightProp;
+  // 缺口斜線 pattern id：同頁多張圖要唯一；useId 含冒號等字元，url(#…) 前先清掉
+  const hatchId = `spark-gap-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   // SVG 軸字：舊版維持 fontSize={8} 屬性；v2 用 style 蓋掉（CSS 變數在 style 才保證解析）
   const axisTextStyle = v2 ? { fontSize: MF.cap } : undefined;
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -268,6 +280,14 @@ export function TimeseriesSparkline({
       ? buildSegments(extraSeries.data, gapSec).map((seg) => buildSegView(seg, xScale, yScale))
       : [];
     const extraByT = extraSeries ? new Map(extraSeries.data.map((d) => [d.t, d.v])) : undefined;
+    // v2 缺口斜線帶（只看主線）：每個斷線缺口＝前段最後一點到下段第一點
+    const mainSegs = v2 && gapSec != null ? buildSegments(data, gapSec) : [];
+    const gapBands: { x0: number; x1: number }[] = [];
+    for (let i = 0; i + 1 < mainSegs.length; i++) {
+      const a = mainSegs[i]!;
+      const b = mainSegs[i + 1]!;
+      gapBands.push({ x0: xScale(a[a.length - 1]!.t), x1: xScale(b[0]!.t) });
+    }
 
     // X 軸時間 tick：≤48h 取整點（local）、步距 1/2/4/8h；>48h 取日界 00:00、
     // 步距 1/2/4/7/14/30/60 天、標籤 M/D（8h 步距在多日範圍會生出數十個 tick 疊成字牆）
@@ -326,7 +346,7 @@ export function TimeseriesSparkline({
       }
     }
 
-    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, timeTicks: shownTimeTicks };
+    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, gapBands, timeTicks: shownTimeTicks };
   }, [data, timeDomain, warningValue, height, w, gapSec, extraSeries, v2, PAD_L, PAD_B]);
 
   function handleMouseMove(e: ReactMouseEvent<SVGSVGElement>) {
@@ -365,6 +385,27 @@ export function TimeseriesSparkline({
     );
   }
 
+  // v2 最新點：從尾端往回找第一個有限值（NaN／Infinity 不算有值）
+  let latestPoint: SparklinePoint | undefined;
+  for (let i = data.length - 1; i >= 0; i--) {
+    if (Number.isFinite(data[i]!.v)) {
+      latestPoint = data[i];
+      break;
+    }
+  }
+  /** 一段缺值斜線帶（x0→x1、圖區上緣到底線）；P4 停更「最後一筆到現在」可再呼叫一次 */
+  const gapBand = (x0: number, x1: number, key: string) => (
+    <rect
+      key={key}
+      data-testid="sparkline-gap"
+      x={x0}
+      y={PAD_T}
+      width={Math.max(0, x1 - x0)}
+      height={height - PAD_T - PAD_B}
+      fill={`url(#${hatchId})`}
+    />
+  );
+
   return (
     <div ref={wrapRef} style={{ width: "100%" }}>
       <svg
@@ -375,6 +416,17 @@ export function TimeseriesSparkline({
         onMouseMove={showTooltip ? handleMouseMove : undefined}
         onMouseLeave={showTooltip ? handleMouseLeave : undefined}
       >
+        {/* v2 缺值斜線帶（與地圖缺值斜線同語彙），畫在格線與線之下 */}
+        {view.gapBands.length > 0 && (
+          <>
+            <defs>
+              <pattern id={hatchId} width={6} height={6} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1={0} y1={0} x2={0} y2={6} stroke={WHITE_ALPHA[12]} strokeWidth={2} />
+              </pattern>
+            </defs>
+            {view.gapBands.map((b, i) => gapBand(b.x0, b.x1, `gap-${i}`))}
+          </>
+        )}
         {/* Y 軸 grid + tick label */}
         {view.ticks.map((tv, ti) => {
           const y = view.yScale(tv);
@@ -462,13 +514,25 @@ export function TimeseriesSparkline({
           ),
         )}
 
-        {/* 最末點 marker */}
-        <circle
-          cx={view.xScale(data[data.length - 1]!.t)}
-          cy={view.yScale(data[data.length - 1]!.v)}
-          r={2.2}
-          fill={lineColor}
-        />
+        {/* 最末點 marker（v2：最後一個有值點、半徑 2.5） */}
+        {v2 ? (
+          latestPoint && (
+            <circle
+              data-testid="sparkline-latest"
+              cx={view.xScale(latestPoint.t)}
+              cy={view.yScale(latestPoint.v)}
+              r={2.5}
+              fill={lineColor}
+            />
+          )
+        ) : (
+          <circle
+            cx={view.xScale(data[data.length - 1]!.t)}
+            cy={view.yScale(data[data.length - 1]!.v)}
+            r={2.2}
+            fill={lineColor}
+          />
+        )}
 
         {/* 第二條線（extraSeries，opt-in；依缺口分段，同主線邏輯但不填色） */}
         {extraSeries &&
