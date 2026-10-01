@@ -23,9 +23,14 @@ export interface StatisticsDataSourceDefinition {
 }
 
 function periodLabel(options: readonly { period_start: string; period_end: string }[]): string {
-  if (options.length === 0) return "未標示期別";
-  if (options.length === 1) return `${options[0]!.period_start} 至 ${options[0]!.period_end}`;
-  return `${options.length} 個既有公開期別`;
+  return summaryPeriodLabel(options.length, options[0]);
+}
+
+/** Catalog summaries (agri/social) carry the count and the only option when count is 1. */
+function summaryPeriodLabel(count: number, only: { period_start: string; period_end: string } | null | undefined): string {
+  if (count === 0) return "未標示期別";
+  if (count === 1 && only) return `${only.period_start} 至 ${only.period_end}`;
+  return `${count} 個既有公開期別`;
 }
 
 /**
@@ -39,9 +44,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
     const baseKey = statisticsBaseKey(view.key);
     const recipe = getSocialRecipe(baseKey);
     if (!recipe) return undefined;
-    const releaseOptions = recipe.release_options.filter(
-      (option) => option.dimensions.education_stage === view.stage,
-    );
+    const stage = recipe.release_summary.education_stages?.[view.stage];
     return {
       kind: "presentation",
       datasetIds: [recipe.dataset_id],
@@ -49,7 +52,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       metricLabel: view.label,
       unit: recipe.unit,
       level: recipe.level,
-      period: periodLabel(releaseOptions),
+      period: summaryPeriodLabel(stage?.count ?? 0, stage?.latest),
       contract: `固定 ${view.stage} 學制；此卡顯示入口預設指標來源，其他可選指標可各自查閱；不新增來源資料集。`,
       disclosure: recipe.disclosure,
     };
@@ -79,8 +82,8 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       metricLabel: social.label,
       unit: social.unit,
       level: social.level,
-      period: periodLabel(social.release_options),
-      contract: `來源家族：${social.source_family ?? "未標示"}；只接受 ${social.release_options.length} 個既有公開 exact release selector。`,
+      period: summaryPeriodLabel(social.release_summary.count, social.release_summary.first),
+      contract: `來源家族：${social.source_family ?? "未標示"}；只接受 ${social.release_summary.count} 個既有公開 exact release selector。`,
       disclosure: social.disclosure,
     };
   }
@@ -119,8 +122,8 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       metricLabel: agri.label,
       unit: agri.unit,
       level: agri.level,
-      period: periodLabel(agri.release_options),
-      contract: `只接受 ${agri.release_options.length} 個既有公開 exact release selector。`,
+      period: summaryPeriodLabel(agri.release_summary.count, agri.release_summary.first),
+      contract: `只接受 ${agri.release_summary.count} 個既有公開 exact release selector。`,
       disclosure: agri.disclosure,
       sourceUrl: source.source_landing_url ?? source.source_download_url,
       provider: source.publisher,

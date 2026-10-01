@@ -1,5 +1,7 @@
-import rawRecipes from "./agriStatisticsRecipes.json?raw";
+import catalogJson from "./agriStatisticsRecipes.catalog.json";
 import type { StatisticsLevel, StatisticsRelease } from "./regionalStatisticsLoader";
+import type { StatisticsReleaseSummary } from "./statisticsRecipeCatalog";
+import { agriRecipeDetailsDocument } from "./statisticsRecipeDetails";
 
 export interface AgriReleaseOption {
   release_id: string;
@@ -49,8 +51,15 @@ export interface AgriExistingLayerReference {
   compatibility?: string;
 }
 
-interface AgriRecipeDocument {
+export interface AgriRecipeDocument {
   recipes: AgriRecipe[];
+  existing_layer_references: AgriExistingLayerReference[];
+}
+
+/** 首屏同步目錄：不含 release_options，改帶由同一份 SSOT 派生的 release_summary（見 statisticsRecipeCatalog.ts）。 */
+export type AgriRecipeCatalogEntry = Omit<AgriRecipe, "release_options"> & { release_summary: StatisticsReleaseSummary };
+interface AgriRecipeCatalogDocument {
+  recipes: AgriRecipeCatalogEntry[];
   existing_layer_references: AgriExistingLayerReference[];
 }
 
@@ -65,20 +74,28 @@ export const AGRI_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type AgriStatisticsLayerKey = typeof AGRI_ENABLED_STATISTICS_KEYS[number];
 
-// Vite/Vitest load `?raw` as a string, while the Node/tsx runtime used by
-// weekly-audit scripts can expose the already-parsed JSON object.  Accept both
-// so importing layerManifest stays deterministic in either environment.
-const document = (typeof rawRecipes === "string" ? JSON.parse(rawRecipes) : rawRecipes) as AgriRecipeDocument;
-export const AGRI_STATISTICS_RECIPES = document.recipes;
+const catalog = catalogJson as unknown as AgriRecipeCatalogDocument;
+export const AGRI_STATISTICS_RECIPES: readonly AgriRecipeCatalogEntry[] = catalog.recipes;
 /** Existing recipes are index-only cross-topic links, never duplicate sidebar toggles or releases. */
-export const AGRI_EXISTING_LAYER_REFERENCES: readonly AgriExistingLayerReference[] = document.existing_layer_references;
+export const AGRI_EXISTING_LAYER_REFERENCES: readonly AgriExistingLayerReference[] = catalog.existing_layer_references;
 export const AGRI_ENABLED_STATISTICS_RECIPES = AGRI_STATISTICS_RECIPES.filter((recipe) => recipe.enabled);
 export const AGRI_STATISTICS_RECIPES_BY_KEY = Object.fromEntries(
   AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, recipe]),
-) as Record<AgriStatisticsLayerKey, AgriRecipe>;
+) as Record<AgriStatisticsLayerKey, AgriRecipeCatalogEntry>;
 
-export function getAgriRecipe(key: string): AgriRecipe | undefined {
+export function getAgriRecipe(key: string): AgriRecipeCatalogEntry | undefined {
   return AGRI_STATISTICS_RECIPES.find((recipe) => recipe.layer_key === key);
+}
+
+/** 完整配方（含 release_options）；明細未載入時丟 STATISTICS_RECIPE_DETAILS_NOT_LOADED。 */
+export function getAgriRecipeDetails(key: string): AgriRecipe | undefined {
+  if (!getAgriRecipe(key)) return undefined;
+  return agriRecipeDetailsDocument().recipes.find((recipe) => recipe.layer_key === key);
+}
+
+/** 已啟用配方的完整明細；明細未載入時丟錯。 */
+export function agriEnabledRecipeDetails(): AgriRecipe[] {
+  return agriRecipeDetailsDocument().recipes.filter((recipe) => recipe.enabled);
 }
 
 export function isAgriStatisticsLayer(key: string): boolean {
@@ -92,7 +109,7 @@ function sameDimensions(a: Record<string, string>, b: Record<string, unknown>): 
 
 /** Intersects the upstream public releases with the handoff's immutable exact tuples. */
 export function agriReleaseOptions(key: string, releases: readonly StatisticsRelease[]) {
-  const recipe = getAgriRecipe(key);
+  const recipe = getAgriRecipeDetails(key);
   if (!recipe?.enabled) return [];
   const published = new Map(releases.map((release) => [release.release_id, release]));
   return recipe.release_options
@@ -117,7 +134,7 @@ export function resolveAgriRelease(
   release: Pick<StatisticsRelease, "release_id" | "period_start" | "period_end">,
   selectedDimensions: Record<string, unknown>,
 ) {
-  const recipe = getAgriRecipe(key);
+  const recipe = getAgriRecipeDetails(key);
   if (!recipe?.enabled) return null;
   const matches = recipe.release_options.filter((option) => option.release_id === release.release_id
     && option.period_start === release.period_start

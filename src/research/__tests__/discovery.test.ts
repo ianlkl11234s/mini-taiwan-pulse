@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { describeLayer, discoverLayers, findPlaces } from "../discovery";
+import { ensureStatisticsResearchDatasets } from "../researchDatasets";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+beforeAll(() => ensureStatisticsResearchDatasets());
 
 describe("research discovery", () => {
   it("derives searchable layers from the manifest and hides unauthorized metadata", () => {

@@ -1,9 +1,12 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, afterEach, describe, expect, it, vi } from "vitest";
 import { clearNearbyDataCache } from "../nearbyData";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
-import { describeDataset, ensureDataset, queryRecords, RESEARCH_QUERY_EXECUTOR, searchDatasets } from "../researchDatasets";
+import { describeDataset, ensureDataset, queryRecords, RESEARCH_QUERY_EXECUTOR, searchDatasets, ensureStatisticsResearchDatasets } from "../researchDatasets";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../../data/socialStatisticsRecipes";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+beforeAll(() => ensureStatisticsResearchDatasets());
 
 afterEach(() => {
   clearNearbyDataCache();
@@ -45,7 +48,9 @@ describe("built-in research datasets", () => {
   });
 
   it("discovers the pilot families and compiled statistics with explicit geometry and null semantics", () => {
-    expect(searchDatasets("").datasets.map(item => item.datasetId).slice(0, 7)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-nursing-homes-upstream", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries"]);
+    // PF-7: recipe-backed statistics register after their lazily loaded details, so the unranked listing puts them last.
+    expect(searchDatasets("").datasets.map(item => item.datasetId).slice(0, 6)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-nursing-homes-upstream", "tw-news-events", "tw-schools-grid-150m", "tw-public-libraries"]);
+    expect(searchDatasets("水田").datasets[0]?.datasetId).toBe("land-use:paddy-area-township");
     const schoolSearch = searchDatasets("學校", 0, 20);
     expect(new TextEncoder().encode(JSON.stringify(schoolSearch)).byteLength).toBeLessThanOrEqual(16 * 1024);
     expect(schoolSearch.datasets[0]).toMatchObject({ datasetId: expect.any(String), access: { queryEnabled: expect.any(Boolean) }, versionCount: expect.any(Number) });

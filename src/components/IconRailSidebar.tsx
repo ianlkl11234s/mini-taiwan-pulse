@@ -29,6 +29,7 @@ import type {
 // 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
 import { buildParamControls } from "../state/layerParamsControls";
 import { useLayerParams } from "../state/layerParamsStore";
+import { useLayerLiveCount } from "../state/liveCountStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
@@ -84,7 +85,8 @@ interface IconRailSidebarProps {
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
-  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; wasteTrucks?: number; windPlan?: number };
+  /** 航班／船舶／列車／公車／客運的即時計數不在這裡：row 以 `useLayerLiveCount` per-key 訂閱 liveCountStore */
+  counts: { wasteTrucks?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
@@ -258,11 +260,6 @@ export function IconRailSidebar({
 
   const getCount = (key: keyof LayerVisibility): number | undefined => {
     switch (key) {
-      case "flights": return counts.flights;
-      case "ships": return counts.ships;
-      case "rail": return counts.trains;
-      case "busLive": return counts.buses;
-      case "busIntercityLive": return counts.busesIntercity;
       case "wasteTruck": return counts.wasteTrucks;
       case "windPlan": return counts.windPlan;
       default: return undefined;
@@ -749,9 +746,11 @@ interface LayerRowProps {
 }
 
 const LayerRow = memo(function LayerRow({
-  layerKey, label, expandable, active, locked, color, count, isExpanded, Icon,
+  layerKey, label, expandable, active, locked, color, count: staticCount, isExpanded, Icon,
   onLayerClick, onToggleVisibility,
 }: LayerRowProps) {
+  // 列車／公車／客運：只有該 row 訂閱 liveCountStore（播放中 2Hz），其他 row 不重渲
+  const count = useLayerLiveCount(layerKey) ?? staticCount;
   const { DIM, INACTIVE_TEXT, TEXT_STRONG, ROW_HOVER } = useRailTheme();
   // locked：點整列一律走 onToggleVisibility → App 端 gate（未登入導登入 / 已登入顯示提示）
   const handleClick = () =>

@@ -93,10 +93,10 @@ describe("catalogTools.collectLayerDetails", () => {
 });
 
 describe("DATASET_WHITELIST waste entry", () => {
-  it("includes wasteStopsStatic pointing to a static geojson", () => {
+  it("includes wasteStopsStatic pointing to the dated chat snapshot (PF-14)", () => {
     const w = DATASET_WHITELIST.wasteStopsStatic;
     expect(w).toBeTruthy();
-    expect(w!.url).toMatch(/\.geojson$/);
+    expect(w!.url).toMatch(/^\.\/geo\/waste_stops_chat_\d{8}\.json$/);
     expect(w!.label).toBeTruthy();
     expect(w!.description.length).toBeGreaterThan(20);
   });

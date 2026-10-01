@@ -2365,16 +2365,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── Ookla Speedtest performance grid（使用者量測樣本；不是 coverage）──
   // 兩個 service type 共用同一個 download 色階；fill 保持半透明，outline 讓底圖仍可讀。
-  // 全球層一份 GeoJSON 同時裝 z6（約 500km）、z8（約 156km）與 z10（約 78km），靠 `z` 屬性 filter 手動切
-  // —— 兩份資料合檔是為了讓切換不必重建 source（sourceUrl 是 config 的固定字串）。
+  // 全球層一份資料同時裝 z6（約 500km）、z8（約 156km）與 z10（約 78km），靠 `z` 屬性 filter 手動切
+  // —— 合檔是為了讓切換不必重建 source（sourceUrl 是 config 的固定字串）。
+  // 2026-09-30 PF-4：整包 GeoJSON（19–23 MB）改 PMTiles（scripts/preprocess/build-static-pmtiles-pf4.py，
+  // 每個 zoom 全量、不抽稀；格網對齊 mercator tile，z6 切片 overzoom 無損）。
   // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
   ...(([
-    { svc: "mobile", key: "ooklaMobilePerformance" },
-    { svc: "fixed", key: "ooklaFixedPerformance" },
-  ] as const).map(({ svc, key }) => ({
+    { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+  ] as const).map(({ svc, key, sourceUrl, pmtiles }) => ({
     id: key,
-    sourceUrl: `./geo/ookla_${svc}_global.geojson`,
+    sourceUrl,
     sourceId: `ookla-${svc}-global`,
+    pmtiles,
     attribution: OOKLA_GRID_META.attribution,
     rebuildOnParamChange: ["fill", "line"],
     layers: [
@@ -3955,11 +3958,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── Waste Stops Static (全台清運點位散點) ──
+  // 2026-09-30 PF-4：22 MB 整包 GeoJSON → PMTiles（-r1 全量、Z6 對齊 layer minzoom；
+  // scripts/preprocess/build-static-pmtiles-pf4.py）。屬性欄位與 WasteStopsStaticPanel 契約不變。
   {
     id: "wasteStopsStatic",
     opacityParam: "wasteStopsStaticOpacity",
-    sourceUrl: "./geo/waste_stops_static.geojson",
+    sourceUrl: "./geo/waste_stops_static_20260930.pmtiles",
     sourceId: "waste-stops-static",
+    pmtiles: { sourceLayer: "waste_stops", minzoom: 6, maxzoom: 14 },
     layers: [
       {
         suffix: "waste-stops-glow",
@@ -4132,7 +4138,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "manufacturingCompanyPoints",
-    sourceUrl: "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles",
+    sourceUrl: "./business_registry/manufacturing_company_points_202608_allzoom_b8.pmtiles",
     sourceId: "business-registry-manufacturing-company-points",
     pmtiles: { sourceLayer: "manufacturing_company_points", minzoom: 0, maxzoom: 14 },
     layers: [
@@ -4158,7 +4164,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...INDUSTRIAL_DENSITY_DATASETS.flatMap(({ key }) => industrialDensitySources(key).map((source) => industrialDensityOverlay(key, source))),
   {
     id: "factoryLocations",
-    sourceUrl: "./business_registry/factory_locations_202606_allzoom.pmtiles",
+    sourceUrl: "./business_registry/factory_locations_202606_allzoom_b8.pmtiles",
     sourceId: "business-registry-factory-locations",
     pmtiles: { sourceLayer: "factory_locations", minzoom: 0, maxzoom: 14 },
     layers: [
@@ -4181,7 +4187,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "regulatedFacilities",
-    sourceUrl: "./business_registry/regulated_facilities_20260818_allzoom.pmtiles",
+    sourceUrl: "./business_registry/regulated_facilities_20260818_allzoom_b8.pmtiles",
     sourceId: "business-registry-regulated-facilities",
     pmtiles: { sourceLayer: "regulated_facilities", minzoom: 0, maxzoom: 14 },
     layers: [

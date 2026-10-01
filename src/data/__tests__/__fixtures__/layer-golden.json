@@ -8002,13 +8002,17 @@
           "type": "line"
         }
       ],
-      "pmtiles": null,
+      "pmtiles": {
+        "maxzoom": 6,
+        "minzoom": 0,
+        "sourceLayer": "ookla"
+      },
       "rebuildOnParamChange": [
         "fill",
         "line"
       ],
       "sourceId": "ookla-mobile-global",
-      "sourceUrl": "./geo/ookla_mobile_global.geojson"
+      "sourceUrl": "./geo/ookla_mobile_global_20260930.pmtiles"
     },
     {
       "dynamicData": null,
@@ -8202,13 +8206,17 @@
           "type": "line"
         }
       ],
-      "pmtiles": null,
+      "pmtiles": {
+        "maxzoom": 6,
+        "minzoom": 0,
+        "sourceLayer": "ookla"
+      },
       "rebuildOnParamChange": [
         "fill",
         "line"
       ],
       "sourceId": "ookla-fixed-global",
-      "sourceUrl": "./geo/ookla_fixed_global.geojson"
+      "sourceUrl": "./geo/ookla_fixed_global_20260930.pmtiles"
     },
     {
       "dynamicData": null,
@@ -12865,10 +12873,14 @@
           "type": "circle"
         }
       ],
-      "pmtiles": null,
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "waste_stops"
+      },
       "rebuildOnParamChange": null,
       "sourceId": "waste-stops-static",
-      "sourceUrl": "./geo/waste_stops_static.geojson"
+      "sourceUrl": "./geo/waste_stops_static_20260930.pmtiles"
     },
     {
       "dynamicData": null,
@@ -22186,7 +22198,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-manufacturing-company-points",
-      "sourceUrl": "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles"
+      "sourceUrl": "./business_registry/manufacturing_company_points_202608_allzoom_b8.pmtiles"
     },
     {
       "dynamicData": null,
@@ -23502,7 +23514,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-factory-locations",
-      "sourceUrl": "./business_registry/factory_locations_202606_allzoom.pmtiles"
+      "sourceUrl": "./business_registry/factory_locations_202606_allzoom_b8.pmtiles"
     },
     {
       "dynamicData": null,
@@ -23598,7 +23610,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-regulated-facilities",
-      "sourceUrl": "./business_registry/regulated_facilities_20260818_allzoom.pmtiles"
+      "sourceUrl": "./business_registry/regulated_facilities_20260818_allzoom_b8.pmtiles"
     },
     {
       "dynamicData": null,

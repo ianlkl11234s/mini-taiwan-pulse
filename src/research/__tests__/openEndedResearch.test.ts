@@ -1,10 +1,14 @@
-import { afterEach, expect, it, vi } from "vitest";
+import { beforeAll, afterEach, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { exploreData, datasetRecovery } from "../dataExploration";
 import { ResearchAnalysisSession } from "../researchAnalysisSession";
-import { describeDataset } from "../researchDatasets";
+import { describeDataset, ensureStatisticsResearchDatasets } from "../researchDatasets";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+beforeAll(() => ensureStatisticsResearchDatasets());
+
 const context = { locked: new Set<string>(), visible: new Set<string>() };
 afterEach(() => { clearPointDatasetCache(); vi.unstubAllGlobals(); });
 const body = (kind: string) => JSON.stringify({ type: "FeatureCollection", features: [

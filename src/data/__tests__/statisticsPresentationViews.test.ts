@@ -1,11 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { EDUCATION_PRESENTATION_VIEWS } from '../statisticsPresentationViews';
-import { getSocialRecipe } from '../socialStatisticsRecipes';
+import { getSocialRecipeDetails } from '../socialStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../statisticsRecipeDetails';
 import { STATISTICS_KEYS, STATISTICS_RENDER_KEYS, statisticsBaseKey, statisticsRenderRecipe } from '../regionalStatisticsRecipes';
 import { statisticsReleaseOptions, unparseableStatisticsReleaseCount } from '../../components/sidebar/StatisticsDetails';
 import type { StatisticsRelease } from '../regionalStatisticsLoader';
 
 describe('education presentation views', () => {
+  beforeAll(() => ensureStatisticsRecipeDetails());
   it('keeps 12 independent fixed-stage views outside canonical source recipes', () => {
     expect(EDUCATION_PRESENTATION_VIEWS).toHaveLength(12);
     expect(new Set(EDUCATION_PRESENTATION_VIEWS.map(view => view.key)).size).toBe(12);
@@ -34,7 +36,7 @@ describe('education presentation views', () => {
 
   it('filters a presentation selector to the fixed education stage', () => {
     const key = 'statsEducationElementarySchool' as const;
-    const source = getSocialRecipe('statsEducationCountyInstitutionCount')!;
+    const source = getSocialRecipeDetails('statsEducationCountyInstitutionCount')!;
     const releases: StatisticsRelease[] = source.release_options.map(option => ({
       release_id: option.release_id,
       period_start: option.period_start,
@@ -50,7 +52,7 @@ describe('education presentation views', () => {
   });
 
   it('does not warn about the other three stages for a fixed preschool view', () => {
-    const source = getSocialRecipe('statsEducationCountyInstitutionCount')!;
+    const source = getSocialRecipeDetails('statsEducationCountyInstitutionCount')!;
     const releases: StatisticsRelease[] = source.release_options.map(option => ({
       release_id: option.release_id,
       period_start: option.period_start,

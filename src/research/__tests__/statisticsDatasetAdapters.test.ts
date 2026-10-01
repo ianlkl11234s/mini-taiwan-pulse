@@ -1,14 +1,14 @@
-import { describe, expect, it, vi } from "vitest";
-import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../../data/socialStatisticsRecipes";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import { SOCIAL_ENABLED_STATISTICS_RECIPES, socialEnabledRecipeDetails, type SocialRecipe } from "../../data/socialStatisticsRecipes";
 import type { RegionalStatisticsResult } from "../../data/regionalStatisticsLoader";
 import { QueryExecutor } from "../queryExecutor";
 import { MAX_QUERY_RESULT_BYTES } from "../QueryResponder";
-import { describeDataset } from "../researchDatasets";
+import { describeDataset, ensureStatisticsResearchDatasets } from "../researchDatasets";
 import { createSocialStatisticsAdapters, socialStatisticsDatasetId } from "../statisticsDatasetAdapters";
 
 const checksum = "a".repeat(64);
 
-function fixture(recipe: (typeof SOCIAL_ENABLED_STATISTICS_RECIPES)[number], releaseId: string): RegionalStatisticsResult {
+function fixture(recipe: SocialRecipe, releaseId: string): RegionalStatisticsResult {
   const release = recipe.release_options.find(option => option.release_id === releaseId)!;
   return {
     catalog: [], releases: [],
@@ -42,6 +42,8 @@ function fixture(recipe: (typeof SOCIAL_ENABLED_STATISTICS_RECIPES)[number], rel
 }
 
 describe("social statistics dataset compiler", () => {
+  beforeAll(() => ensureStatisticsResearchDatasets());
+
   it("compiles every enabled recipe into a unique valid descriptor", () => {
     const adapters = createSocialStatisticsAdapters();
     const executor = new QueryExecutor(adapters);
@@ -61,7 +63,7 @@ describe("social statistics dataset compiler", () => {
   });
 
   it("uses the exact recipe selector and preserves county status semantics", async () => {
-    const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(item => item.level === "county")!;
+    const recipe = socialEnabledRecipeDetails().find(item => item.level === "county")!;
     const load = vi.fn(async (input: Parameters<typeof import("../../data/regionalStatisticsLoader").loadRegionalStatistics>[0]) => fixture(recipe, input.releaseId!));
     const executor = new QueryExecutor(createSocialStatisticsAdapters([recipe], load));
     const release = recipe.release_options[0]!;
@@ -76,7 +78,7 @@ describe("social statistics dataset compiler", () => {
   });
 
   it("queries township recipes through the same adapter family", async () => {
-    const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(item => item.level === "township")!;
+    const recipe = socialEnabledRecipeDetails().find(item => item.level === "township")!;
     const load = vi.fn(async (input: Parameters<typeof import("../../data/regionalStatisticsLoader").loadRegionalStatistics>[0]) => fixture(recipe, input.releaseId!));
     const executor = new QueryExecutor(createSocialStatisticsAdapters([recipe], load));
     const release = recipe.release_options[0]!;
@@ -87,7 +89,7 @@ describe("social statistics dataset compiler", () => {
   });
 
   it("normalizes one exact release_id filter into the required selector and rejects ambiguity before loading", async () => {
-    const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(item => item.level === "county")!;
+    const recipe = socialEnabledRecipeDetails().find(item => item.level === "county")!;
     const release = recipe.release_options[0]!;
     const load = vi.fn(async (input: Parameters<typeof import("../../data/regionalStatisticsLoader").loadRegionalStatistics>[0]) => fixture(recipe, input.releaseId!));
     const executor = new QueryExecutor(createSocialStatisticsAdapters([recipe], load));
@@ -99,7 +101,7 @@ describe("social statistics dataset compiler", () => {
   });
 
   it("rejects a returned release whose boundary manifest is not the recipe boundary", async () => {
-    const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(item => item.level === "county")!;
+    const recipe = socialEnabledRecipeDetails().find(item => item.level === "county")!;
     const release = recipe.release_options[0]!;
     const mismatch = fixture(recipe, release.release_id);
     mismatch.geometryManifest = { ...mismatch.geometryManifest, boundary_version: "wrong-boundary" };

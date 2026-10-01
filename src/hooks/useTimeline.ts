@@ -112,11 +112,12 @@ interface UseTimelineOptions {
   timeMode?: TimeMode;
 }
 
+// ⚠️ 不回傳 currentTime / progress：useTimeline 由 App 呼叫，若在這裡訂閱 4Hz 時間，
+// 播放中整個 App（含所有 LayerHost）會每 250ms 重渲一次（PF-6）。需要顯示時間的
+// 元件自己呼叫 `useUiTime()`；邏輯要時間就在 effect 內 timeStore.subscribe*。
 interface UseTimelineReturn {
-  currentTime: number;
   playing: boolean;
   speed: number;
-  progress: number;
   timeMode: TimeMode;
   /** 目前選定的日期 */
   selectedDate: Date;
@@ -128,6 +129,8 @@ interface UseTimelineReturn {
   windowEnd: number;
   play: () => void;
   pause: () => void;
+  /** 資料載入完成時呼叫；使用者暫停過則不播放 */
+  autoPlay: () => void;
   toggle: () => void;
   setSpeed: (s: number) => void;
   seek: (time: number) => void;
@@ -151,22 +154,36 @@ const subscribeUiTime = (cb: () => void) =>
   timeStore.subscribeThrottled(UI_TIME_THROTTLE_MS, cb);
 const getTimeSnapshot = () => timeStore.getTime();
 
+/**
+ * 顯示用的目前時間（4Hz 節流訂閱 timeStore）。只給「真的要把時間畫出來」的葉元件用
+ * （TimelineControls 包裝、時鐘文字）；呼叫它的元件播放中會 4Hz 重渲，勿在 App 層呼叫。
+ */
+export function useUiTime(): number {
+  return useSyncExternalStore(subscribeUiTime, getTimeSnapshot);
+}
+
 export interface ReplayFrameAdvance {
   time: number;
   reachedEnd: boolean;
 }
 
-/** Replay 沒有 loop mode；抵達視窗尾端時停在尾端。 */
+/** Replay 沒有 loop mode；抵達尾端時停在尾端。已經在尾端之後（使用者拖進未來）就原地停，不往回跳。 */
 export function advanceReplayFrame(
   current: number,
   elapsedSeconds: number,
   speed: number,
-  windowEnd: number,
+  end: number,
 ): ReplayFrameAdvance {
+  if (current >= end) return { time: current, reachedEnd: true };
   const next = current + elapsedSeconds * speed;
-  return next >= windowEnd
-    ? { time: windowEnd, reachedEnd: true }
+  return next >= end
+    ? { time: end, reachedEnd: true }
     : { time: next, reachedEnd: false };
+}
+
+/** 播放終點：視窗結尾與「現在」取較早者——不播進還沒發生的未來。 */
+export function replayPlaybackEnd(windowEnd: number, nowUnix: number): number {
+  return Math.min(windowEnd, nowUnix);
 }
 
 export function useTimeline({
@@ -197,9 +214,10 @@ export function useTimeline({
   }, [selectedDate, rangeDays]);
 
   // 首次掛載寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）。
-  // ⚠️ 必走 effect 不可放 render body：本 hook 下方以 useSyncExternalStore 訂閱 timeStore
-  // （currentTime），若在 App render 期間直接 timeStore.setTime() 會同步通知該訂閱者，觸發
-  // React「Cannot update a component (App) while rendering a different component (App)」警告。
+  // ⚠️ 必走 effect 不可放 render body：`useUiTime()` 的訂閱者（TimelineControls、時鐘等）
+  // 以 useSyncExternalStore 訂閱 timeStore，若在 App render 期間直接 timeStore.setTime()
+  // 會同步通知這些訂閱者，觸發 React「Cannot update a component (X) while rendering a
+  // different component (App)」警告。
   const initRef = useRef(false);
   useEffect(() => {
     if (initRef.current) return;
@@ -218,12 +236,9 @@ export function useTimeline({
   const rafRef = useRef<number>(0);
   const lastFrameRef = useRef<number>(0);
 
-  // UI 取用的 currentTime：節流訂閱，不隨每幀 re-render。
-  // 動畫迴圈請直接 timeStore.getTime()，不要經過這個值。
-  const currentTime = useSyncExternalStore(subscribeUiTime, getTimeSnapshot);
-
+  // 顯示用時間改由葉元件 `useUiTime()` 自己訂閱（見 UseTimelineReturn 上方註解）。
+  // 動畫迴圈請直接 timeStore.getTime()。
   const duration = windowEnd - windowStart;
-  const progress = duration > 0 ? (currentTime - windowStart) / duration : 0;
 
   // 日期切換時重置 currentTime
   const setSelectedDate = useCallback((d: Date) => {
@@ -234,8 +249,8 @@ export function useTimeline({
 
   // ⚠️ 副作用不可放進 useState updater：updater 由 React 在 **render 期間** 執行
   // （basicStateReducer），此時 timeStore.setTime() 會經 scheduleThrottled 的 leading
-  // edge **同步**通知本 hook 下方的 useSyncExternalStore 訂閱者 → forceStoreRerender(App)
-  // → React「Cannot update a component (App) while rendering a different component (App)」。
+  // edge **同步**通知 `useUiTime()` 的 useSyncExternalStore 訂閱者 → forceStoreRerender
+  // → React「Cannot update a component (X) while rendering a different component (App)」。
   // 改為在 handler 內用當前 selectedDate 算出 next（與上方 setSelectedDate 同模式）。
   const shiftDate = useCallback((days: number) => {
     const next = addDays(selectedDate, days);
@@ -280,7 +295,7 @@ export function useTimeline({
       const dt = (now - lastFrameRef.current) / 1000;
       lastFrameRef.current = now;
 
-      const frame = advanceReplayFrame(timeStore.getTime(), dt, speed, windowEnd);
+      const frame = advanceReplayFrame(timeStore.getTime(), dt, speed, replayPlaybackEnd(windowEnd, Date.now() / 1000));
       timeStore.setTime(frame.time);
       if (frame.reachedEnd) {
         setPlaying(false);
@@ -296,12 +311,25 @@ export function useTimeline({
     return () => cancelAnimationFrame(rafRef.current);
   }, [timeMode, playing, speed, windowStart, windowEnd]);
 
+  // 使用者（或場景）主動暫停過 → 資料重載後的自動播放不可把它重新啟動；按播放才清掉。
+  const userPausedRef = useRef(false);
   const play = useCallback(() => {
+    userPausedRef.current = false;
     if (timeMode === "replay") setPlaying(true);
   }, [timeMode]);
-  const pause = useCallback(() => setPlaying(false), []);
+  const pause = useCallback(() => {
+    userPausedRef.current = true;
+    setPlaying(false);
+  }, []);
   const toggle = useCallback(() => {
-    if (timeMode === "replay") setPlaying((p) => !p);
+    if (timeMode !== "replay") return;
+    userPausedRef.current = playing;
+    setPlaying(!playing);
+  }, [timeMode, playing]);
+  /** 資料載入完成時的自動播放：使用者暫停過就不動。 */
+  const autoPlay = useCallback(() => {
+    if (userPausedRef.current) return;
+    if (timeMode === "replay") setPlaying(true);
   }, [timeMode]);
 
   const seek = useCallback(
@@ -344,10 +372,8 @@ export function useTimeline({
   }, []);
 
   return {
-    currentTime,
     playing,
     speed,
-    progress,
     timeMode,
     selectedDate,
     rangeDays,
@@ -356,6 +382,7 @@ export function useTimeline({
     play,
     pause,
     toggle,
+    autoPlay,
     setSpeed,
     seek,
     jumpToTime,

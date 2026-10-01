@@ -32,19 +32,127 @@
 // 才吃得到」型的相依（前兩者訂閱 store、後三者是 fetch → setState），
 // 但這是本棒已知的行為差異，交接時列在風險點。
 //
-// ⚠️ **不要 `React.memo`**：現況是「App 一 render 全部 hook 重跑」，本棒是等價
-// 重構，行為必須逐位保真。per-key 訂閱帶來的 re-render 收斂是第 4 階段的事。
+// ── memo（PF-6，2026-09-30）────────────────────────────────────────
+// P1 時刻意不 memo（等價重構，要「App 一 render 全部 hook 重跑」逐位保真）。
+// PF-6 解除：App 已不再訂閱 4Hz 時間 / 500ms 車輛計數，剩下的 App render 多半
+// 與圖層無關（tooltip、面板開合…）。`LayerHosts` 以 deps **逐欄位 shallow
+// compare** 做 React.memo：任何一欄身分變了才整批重跑，欄位新增自動納入比較，
+// 不用另外維護 deps 清單。
+// 保真條件（已查核）：
+//   - Host 內沒有「無 deps 陣列」的 effect（App 端 useThreeJsLayers 原本那支也已於
+//     PF-9 改成 threeRepaintSignal 訂閱），effect 只會因 deps 變動重跑 —— 跳過 render 不會漏跑。
+//   - Host 的時間驅動一律走 timeStore 訂閱（YoubikeHost 自己訂分鐘粒度）、參數走
+//     useLayerParams 訂閱，都不依賴 App 重渲把新值帶進來。
+//
+// ── per-key visibility（PF-8，2026-09-30）────────────────────────────
+// `layerVisibility` **不再經 deps 由 App 傳入**（App 面型別 `AppLayerHostDeps` 已剔除
+// 該欄），所以開關圖層不會讓 `LayerHosts` 整批重跑。每個 Host 外包一層 `HostSlot`，
+// 給它一個**追蹤式 visibility 視圖**（Proxy；Host 以函式呼叫掛在 slot 內，視圖不經 props，
+// 原因見 HostSlot 內註解）：Host（或它呼叫的 hook）讀到哪個 key，
+// 該 slot 就只在那些 key 變動時重渲 —— Host 端 `deps.layerVisibility.xxx` 寫法一行不改。
+// 語意與「整包 prop」保真的條件：
+//   - 讀值一律取 store 當下快照（live），首次讀到的 key 立即納入追蹤；追蹤集只增不減。
+//   - 比對基準在**每次** store 通知都前進（不只在有變動時），後追蹤到的 key 不會漏判。
+//   - 視圖物件身分只在「追蹤到的 key 有變」時換新 → `useMemo(..., [deps.layerVisibility])`、
+//     把整包傳進 hook 當 effect deps 的寫法仍會正確重算。
+//   - 迭代整包（Object.keys / spread / `in` 以外的列舉）→ 退化成訂閱全部 key。
+//   - 條件讀取（`appMode === "historical" && v.fireEvents`）：條件成立時 Host 必因
+//     deps 變動重渲，屆時讀到即追蹤。
 
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { LAYER_HOOK_REGISTRY } from "./layerHookRegistry";
-import { bumpHostRender, type LayerHostDeps } from "./layerHostDeps";
+import {
+  bumpHostRender, type AppLayerHostDeps, type LayerHostComponent, type LayerHostDeps,
+} from "./layerHostDeps";
+import { layerVisibilityStore } from "../state/layerVisibilityStore";
+import type { LayerVisibility } from "../types";
 
-export function LayerHosts({ deps }: { deps: LayerHostDeps }) {
+type VisRecord = Record<string, boolean>;
+
+/** 單一 Host 讀過哪些 visibility key（`all` = 曾列舉整包） */
+interface VisTracker {
+  keys: Set<string>;
+  all: boolean;
+}
+
+function trackedChanged(t: VisTracker, prev: VisRecord, next: VisRecord): boolean {
+  if (prev === next) return false;
+  if (t.all) return true;
+  for (const k of t.keys) if (prev[k] !== next[k]) return true;
+  return false;
+}
+
+/** 追蹤式視圖：讀值取 store 當下快照，並把讀到的 key 記進 tracker。 */
+function createVisibilityView(t: VisTracker): LayerVisibility {
+  const live = () => layerVisibilityStore.getAll() as unknown as VisRecord;
+  const track = (k: string | symbol) => {
+    if (typeof k === "string" && k in live()) t.keys.add(k);
+  };
+  return new Proxy({} as LayerVisibility, {
+    get(_target, k) { track(k); return (live() as Record<string | symbol, unknown>)[k]; },
+    has(_target, k) { track(k); return k in live(); },
+    ownKeys() { t.all = true; return Reflect.ownKeys(live()); },
+    getOwnPropertyDescriptor(_target, k) {
+      track(k);
+      const d = Reflect.getOwnPropertyDescriptor(live(), k);
+      // target 是空物件：回報的屬性必須 configurable，否則違反 Proxy invariant
+      return d ? { ...d, configurable: true } : undefined;
+    },
+    set() { return false; },
+    deleteProperty() { return false; },
+  });
+}
+
+function HostSlot({ Host, deps }: { Host: LayerHostComponent; deps: AppLayerHostDeps }) {
+  const trackerRef = useRef<VisTracker | null>(null);
+  trackerRef.current ??= { keys: new Set(), all: false };
+  const tracker = trackerRef.current;
+  // 比對基準：mount 時的快照；之後每次 store 通知都前進
+  const [baseline] = useState(() => layerVisibilityStore.getAll());
+  const baseRef = useRef(baseline);
+  const [version, setVersion] = useState(0);
+
+  useEffect(() => {
+    const check = () => {
+      const next = layerVisibilityStore.getAll();
+      const prev = baseRef.current;
+      baseRef.current = next;
+      if (trackedChanged(tracker, prev as unknown as VisRecord, next as unknown as VisRecord)) {
+        setVersion((v) => v + 1);
+      }
+    };
+    check(); // render → subscribe 之間若已有變動，補一次
+    return layerVisibilityStore.subscribe(check);
+  }, [tracker]);
+
+  // version 是刻意的 deps：追蹤到的 key 變動 → 視圖換身分
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const view = useMemo(() => createVisibilityView(tracker), [tracker, version]);
+  const hostDeps = useMemo<LayerHostDeps>(() => ({ ...deps, layerVisibility: view }), [deps, view]);
+  // ⚠️ 直接呼叫而非 `<Host deps={hostDeps} />`：視圖若成為任何元件的 prop，React 19 dev
+  // 的 Performance Track（logComponentRender → addObjectDiffToProperties）會在 commit
+  // 時深度列舉它，把全部 key 記進 tracker → 此後任何開關都重渲（實測踩到）。
+  // Host 固定於此 slot（key={id}、registry 為常數），hook 數量與順序恆定，hooks 規則成立；
+  // 代價只是 DevTools 上看到的元件名是 HostSlot。
+  return <>{(Host as (props: { deps: LayerHostDeps }) => React.ReactNode)({ deps: hostDeps })}</>;
+}
+
+function sameDeps(prev: { deps: AppLayerHostDeps }, next: { deps: AppLayerHostDeps }): boolean {
+  const a = prev.deps as unknown as Record<string, unknown>;
+  const b = next.deps as unknown as Record<string, unknown>;
+  const keys = Object.keys(b);
+  if (keys.length !== Object.keys(a).length) return false;
+  for (const k of keys) if (!Object.is(a[k], b[k])) return false;
+  return true;
+}
+
+export const LayerHosts = memo(function LayerHosts({ deps }: { deps: AppLayerHostDeps }) {
   bumpHostRender("LayerHosts");
   return (
     <>
       {LAYER_HOOK_REGISTRY.map(({ id, Host }) => (
-        <Host key={id} deps={deps} />
+        <HostSlot key={id} Host={Host} deps={deps} />
       ))}
     </>
   );
-}
+}, sameDeps);

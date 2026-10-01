@@ -10,8 +10,10 @@ import {
   STATISTICS_CDN_FETCH_TIMEOUT_MS,
   statisticsBoundaryFetchUrl,
 } from '../regionalStatisticsLoader';
-import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease } from '../agriStatisticsRecipes';
+import { agriReleaseOptions, getAgriRecipeDetails, resolveAgriRelease } from '../agriStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../statisticsRecipeDetails';
 import { statisticsGeometryCache } from '../statisticsGeometryCache';
+import { loadingRegistry, type LoadingEvent } from '../../lib/loadingRegistry';
 
 const CDN_BASE = 'https://cdn.test/statistics/v1';
 const geometryBytes = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
@@ -191,6 +193,31 @@ describe('regional statistics R2 CDN contract', () => {
     await expect(loading).resolves.toMatchObject({ health: { availability: 'CURRENT' }, values: { total: 2 } });
   });
 
+  it('PF-11: a caller cancellation ends the loading task without flagging 載入失敗, while a real timeout still fails', async () => {
+    vi.useFakeTimers();
+    const events: LoadingEvent[] = [];
+    const off = loadingRegistry.subscribeEvents(event => { if (event.id.startsWith('statistics')) events.push(event); });
+    try {
+      vi.stubGlobal('fetch', vi.fn((_input: RequestInfo | URL, init?: RequestInit) => new Promise<Response>((_, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true });
+      })));
+      const caller = new AbortController();
+      const cancelled = loadRegionalStatistics(recipe, caller.signal).then(() => undefined, error => error);
+      await Promise.resolve();
+      caller.abort();
+      expect(await cancelled).toMatchObject({ name: 'AbortError' });
+      expect(events.map(event => event.type)).toEqual(['start', 'end']);
+      events.length = 0;
+      const timedOut = loadRegionalStatistics(recipe, new AbortController().signal).then(() => undefined, error => error);
+      await vi.advanceTimersByTimeAsync(STATISTICS_CDN_FETCH_TIMEOUT_MS);
+      expect(await timedOut).toMatchObject({ message: 'Statistics CDN 載入逾時' });
+      expect(events.map(event => event.type)).toEqual(['start', 'fail']);
+    } finally {
+      off();
+      vi.useRealTimers();
+    }
+  });
+
   it('rejects a corrupted content-addressed artifact', async () => {
     install({ corruptArtifact: true });
     await expect(loadRegionalStatistics(recipe)).rejects.toThrow('artifact 大小不符');
@@ -209,8 +236,9 @@ describe('regional statistics R2 CDN contract', () => {
     expect(normalizeAgriPreviewHealth({ status: 'STALE', coverage: { observed: { township_count: 3, status: 'PARTIAL' }, expected: { township_count: 368 } } }, 'township')).toMatchObject({ availability: 'STALE', coverage_status: 'PARTIAL', coverage_numerator: 3, coverage_denominator: 368 });
   });
 
-  it('keeps preview whitelist tuples exact and defaults to the latest verified option', () => {
-    const agri = getAgriRecipe('statsCropPlantedAreaTownship')!;
+  it('keeps preview whitelist tuples exact and defaults to the latest verified option', async () => {
+    await ensureStatisticsRecipeDetails('agri');
+    const agri = getAgriRecipeDetails('statsCropPlantedAreaTownship')!;
     const releases = [...new Map(agri.release_options.map(option => [option.release_id, { release_id: option.release_id, dataset_id: agri.dataset_id, indicator_id: agri.indicator_id, boundary_version: agri.boundary_version, period_start: option.period_start, period_end: option.period_end, levels: [agri.level] }])).values()];
     const selected = agriReleaseOptions(agri.layer_key, releases)[0]!;
     const selectedRelease = releases.find(item => item.release_id === selected.releaseId)!;

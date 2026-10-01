@@ -10,7 +10,9 @@ import { yushanHutsAdapter } from "./yushanHutsDataset";
 import { createCemeteryZoningDatasetAdapter } from "./cemeteryZoningDatasetAdapter";
 import { earthquakeReplayAdapter } from "./earthquakeDatasetAdapter";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
-import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
+import { getAgriRecipeDetails, type AgriRecipe } from "../data/agriStatisticsRecipes";
+import { socialEnabledRecipeDetails } from "../data/socialStatisticsRecipes";
+import { ensureStatisticsRecipeDetails } from "../data/statisticsRecipeDetails";
 import { fetchNewsEventsDayClustersStrict } from "../data/newsEventsLoader";
 import { loadRegionalStatisticsValues } from "../data/regionalStatisticsLoader";
 import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type Scalar, type SourceReceipt } from "./dataContracts";
@@ -159,7 +161,9 @@ const localRawBoundaries = [createAdministrativeBoundaryAdapter({
 const localPopulationPreview = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_POPULATION_PREVIEW === "1"
   ? localPopulationPreviewAdapters : [];
 
-const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
+// PF-7: statistics recipe descriptors need the lazily loaded exact release_options;
+// they are registered by ensureStatisticsResearchDatasets() (see below).
+const PADDY_LAYER_KEY = "statsPaddyLandAreaTownship";
 
 const discoveryOnlyDescriptors: readonly DatasetDescriptor[] = [
   {
@@ -280,7 +284,8 @@ const newsDescriptor: DatasetDescriptor = {
   access: boundedAccess({ mode: "owner_only", method: "rpc", fields: ["event_id", "title", "summary", "category", "source", "url", "published_at", "occurred_at", "confidence", "gis_relevance", "severity", "is_event", "geometry", "geometry_precision"], filters: ["event_id", "title", "category", "source", "gis_relevance", "severity", "is_event"], timeFields: ["published_at", "occurred_at"], maxRowsPerQuery: 50, maxScanRows: 10_000 }), supportedOperations: ["query_records", "aggregate"], adapterId: "news-event-rpc-v1",
 };
 
-const statisticsDescriptor: DatasetDescriptor = {
+function paddyStatisticsDescriptor(PADDY: AgriRecipe): DatasetDescriptor {
+  return {
   schemaVersion: "pulse-dataset/0.1", datasetId: "land-use:paddy-area-township", label: PADDY.label, description: "固定 release 與 dimensions 的鄉鎮水田面積行政統計；數值需與 status 一起解讀。",
   layerRefs: [PADDY.layer_key], kind: "admin_statistic", recordGrain: "admin_statistic", primaryKey: ["release_id", "area_code"],
   fields: [
@@ -300,7 +305,8 @@ const statisticsDescriptor: DatasetDescriptor = {
   versions: PADDY.release_options.map(option => ({ versionId: option.release_id, observedAt: option.period_end, availableAt: null, checksumSha256: null, mutable: false })),
   source: { publisher: String(PADDY.source.publisher ?? "unknown"), reference: String(PADDY.source.source_landing_url ?? "unknown"), lineage: "immutable current pointer -> hashed manifest -> exact release artifact; geometry is not returned by query_records" },
   access: boundedAccess({ mode: "public", method: "statistics_snapshot", fields: ["release_id", "area_code", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version"], filters: ["release_id", "area_code", "status", "source_status"], timeFields: ["period_start", "period_end"], maxRowsPerQuery: 50, maxScanRows: 1_000 }), parameters: [{ name: "releaseId", type: "string", required: true, options: PADDY.release_options.map(option => option.release_id) }], supportedOperations: ["query_records", "aggregate"], adapterId: "regional-statistics-v1",
-};
+  };
+}
 
 function receipt(sourceId: string, version: string, reference: string, checksumSha256: string | null = null): SourceReceipt {
   return { sourceId, version, acquiredAt: new Date().toISOString(), checksumSha256, reference };
@@ -405,7 +411,9 @@ const newsAdapter = createNewsEventAdapter(newsDescriptor, async parameters => {
   };
 });
 
-const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, async parameters => {
+function createPaddyStatisticsAdapter(PADDY: AgriRecipe) {
+  const statisticsDescriptor = paddyStatisticsDescriptor(PADDY);
+  return createAdminStatisticsAdapter(statisticsDescriptor, async parameters => {
   const release = PADDY.release_options.find(option => option.release_id === parameters.releaseId);
   if (!release) throw new Error("RELEASE_NOT_ALLOWED");
   const result = await loadRegionalStatisticsValues({ datasetId: PADDY.dataset_id, indicatorId: PADDY.indicator_id, level: PADDY.level, dimensions: release.dimensions, releaseId: release.release_id, layerKey: PADDY.layer_key, includeHealth: true, allowReleaseFallback: false });
@@ -414,14 +422,14 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
     source: receipt("regional-statistics", release.release_id, statisticsDescriptor.source.reference, typeof result.sources.raw_sha256 === "string" ? result.sources.raw_sha256 : null),
     coverage: JSON.stringify(result.health?.coverage ?? release.coverage), freshness: release.health === "STALE" ? "stale" : "unknown", rowsScanned: result.values.total,
   };
-});
+  });
+}
 
 export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   schoolsAdapter,
   medicalHospitalsAdapter,
   nursingHomesUpstreamAdapter,
   newsAdapter,
-  statisticsAdapter,
   schoolsGridAdapter,
   librariesAdapter,
   convenienceStoresAdapter,
@@ -606,8 +614,24 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   ...createBusOperationStatisticsAdapters(),
   ...localRawBoundaries,
   ...localPopulationPreview,
-  ...createSocialStatisticsAdapters(),
 ]);
+
+let statisticsResearchDatasetsRegistered = false;
+
+/**
+ * PF-7：統計配方 dataset（水田面積與社會統計）需要完整 release_options 才能建立 descriptor，
+ * 明細改為 dynamic import 後在此補登記。研究入口（MainMapConnection 的 bridge 回應、稽核腳本）
+ * 先 await 本函式；已登記則只等明細 Promise（通常已完成）。
+ */
+export async function ensureStatisticsResearchDatasets(): Promise<void> {
+  await ensureStatisticsRecipeDetails();
+  if (statisticsResearchDatasetsRegistered) return;
+  statisticsResearchDatasetsRegistered = true;
+  const paddy = getAgriRecipeDetails(PADDY_LAYER_KEY);
+  if (!paddy) throw new Error("STATISTICS_RECIPE_CONTRACT_MISMATCH");
+  RESEARCH_QUERY_EXECUTOR.register(createPaddyStatisticsAdapter(paddy));
+  for (const adapter of createSocialStatisticsAdapters(socialEnabledRecipeDetails())) RESEARCH_QUERY_EXECUTOR.register(adapter);
+}
 
 function allDescriptors(): DatasetDescriptor[] {
   const descriptors = [...RESEARCH_QUERY_EXECUTOR.descriptors(), ...discoveryOnlyDescriptors];
