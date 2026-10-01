@@ -7,6 +7,7 @@ import { IntelFilters, type TimeRange } from "../IntelFilters";
 import type { NewsFilter } from "../../../data/newsEventsLoader";
 import type { NewsCategory } from "../../../data/newsEventTypes";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+import { useMonitorV2 } from "./monitorStyle";
 
 interface Props {
   /** 已套完 timeRange / 分類 / 縣市 篩選的事件（原 MonitorPanel flatEvents） */
@@ -52,7 +53,8 @@ function NewsFeedPanelInner({
   isTrendingFor, nowTs, status, lastSuccessAt, message,
 }: Props) {
   const palette = useIntelTheme();
-  const statusLabel = status === "ready" ? "LIVE" : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
+  const v2 = useMonitorV2();
+  const statusLabel = status === "ready" ? (v2 ? "即時" : "LIVE") : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
   const statusVisual = status === "ready"
     ? { color: palette.statusLive, background: palette.statusLiveSoft, border: palette.statusLiveBorder, animation: "intelRing 1.6s ease-in-out infinite" }
     : status === "denied"
@@ -65,26 +67,30 @@ function NewsFeedPanelInner({
       style={{
         height: "100%", minHeight: 0,
         display: "flex", flexDirection: "column", overflow: "hidden",
-        borderRadius: RADIUS.xl, border: `1px solid ${palette.panelBorder}`,
-        background: neutralFill(0.022, palette.isDark),
+        ...(v2 ? {} : {
+          borderRadius: RADIUS.xl, border: `1px solid ${palette.panelBorder}`,
+          background: neutralFill(0.022, palette.isDark),
+        }),
       }}
     >
       <div
         style={{
           flexShrink: 0,
           display: "flex", alignItems: "center", gap: 8,
-          padding: "11px 14px 9px",
+          padding: v2 ? "6px 14px 6px" : "11px 14px 9px",
         }}
       >
-        <IntelIcon d={ICON.radio} size={15} color={palette.accent} />
-        <span
-          style={{
-            fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700,
-            color: palette.textStrong, whiteSpace: "nowrap",
-          }}
-        >
-          新聞 Feed
-        </span>
+        {!v2 && <IntelIcon d={ICON.radio} size={15} color={palette.accent} />}
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700,
+              color: palette.textStrong, whiteSpace: "nowrap",
+            }}
+          >
+            新聞 Feed
+          </span>
+        )}
         <span
           style={{
             display: "inline-flex", alignItems: "center", gap: 4,

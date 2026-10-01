@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("react", async (importOriginal) => ({
   ...await importOriginal<typeof import("react")>(),
   useEffect: () => {},
+  useLayoutEffect: () => {},
+  useContext: () => undefined,
   useState: <T,>(initial: T) => [initial, vi.fn()] as const,
 }));
 

@@ -5,6 +5,8 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { SURFACE, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 export interface LiveChannel {
   id: string;
@@ -111,6 +113,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const cur = LIVE_CHANNELS.find((c) => c.id === value) ?? LIVE_CHANNELS[0]!;
+  const v2 = useMonitorV2();
 
   useEffect(() => {
     if (!open) return;
@@ -134,14 +137,16 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
         }}
       >
         <span style={{ fontWeight: 700 }}>{cur.name}</span>
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-            color: COLORS.textMuted, letterSpacing: "0.5px",
-          }}
-        >
-          {cur.en}
-        </span>
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+              color: COLORS.textMuted, letterSpacing: "0.5px",
+            }}
+          >
+            {cur.en}
+          </span>
+        )}
         <span
           style={{
             display: "inline-block",
@@ -158,7 +163,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
         <div
           style={{
             position: "absolute", bottom: "calc(100% + 6px)", left: 0,
-            width: 232, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
+            width: 232, maxWidth: v2 ? "80vw" : undefined, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
             border: `1px solid ${COLORS.borderMid}`,
             background: SURFACE.solid,
             backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
@@ -178,7 +183,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                 color: COLORS.textDim,
               }}
             >
-              SELECT CHANNEL
+              {v2 ? "選擇頻道" : "SELECT CHANNEL"}
             </span>
             <div style={{ flex: 1 }} />
             <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint }}>
@@ -254,14 +259,16 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                         >
                           {c.name}
                         </span>
-                        <span
-                          style={{
-                            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-                            color: COLORS.textFaint, letterSpacing: "0.5px",
-                          }}
-                        >
-                          {c.en}
-                        </span>
+                        {!v2 && (
+                          <span
+                            style={{
+                              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+                              color: COLORS.textFaint, letterSpacing: "0.5px",
+                            }}
+                          >
+                            {c.en}
+                          </span>
+                        )}
                         {c.emergency && (
                           <span
                             style={{
@@ -322,6 +329,7 @@ function LiveSlot({
   // 一開就把 4 個 YT player 全載起來吃 CPU/網路（rootMargin: 200px 預載）。
   const slotRef = useRef<HTMLDivElement>(null);
   const visible = useInView(slotRef);
+  const v2 = useMonitorV2();
   return (
     <div
       ref={slotRef}
@@ -355,7 +363,7 @@ function LiveSlot({
             }}
           >
             <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px" }}>
-              {resolved?.last_error ? "RESOLVER ERROR" : "RESOLVING…"}
+              {resolved?.last_error ? (v2 ? "解析失敗" : "RESOLVER ERROR") : (v2 ? "解析中…" : "RESOLVING…")}
             </span>
             <span>
               {resolved?.last_error
@@ -388,11 +396,11 @@ function LiveSlot({
             />
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, fontWeight: 700,
+                fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, fontWeight: 700,
                 color: "#fff", letterSpacing: "0.5px",
               }}
             >
-              LIVE
+              {v2 ? "直播" : "LIVE"}
             </span>
           </span>
           <span
@@ -447,10 +455,20 @@ export const LiveWall = memo(function LiveWall() {
   const setSlot = (i: number) => (id: string) =>
     setSlots((prev) => prev.map((v, k) => (k === i ? id : v)));
   const ctsLive = slots.includes("cts");
+  const v2 = useMonitorV2();
 
   // 抓 realtime.yt_live_current → handle→video_id 對照（10 min refresh）
   const resolverQuery = useMonitorResource({ open: true, queryKey: "live-resolver:all", intervalMs: 10 * 60_000, emptyData: EMPTY_RESOLVER_ROWS, load: loadResolverRows });
   const resolvedRows = resolverQuery.data;
+  const latestResolvedMs = useMemo(() => {
+    let max = 0;
+    for (const r of resolvedRows) {
+      const t = Date.parse(r.updated_at);
+      if (Number.isFinite(t) && t > max) max = t;
+    }
+    return max > 0 ? max : null;
+  }, [resolvedRows]);
+  useMonitorCardHeader({ time: latestResolvedMs });
   const resolvedMap = useMemo(() => {
     const m = new Map<string, YtLiveVideo>();
     for (const r of resolvedRows) m.set(r.handle, r);
@@ -490,23 +508,29 @@ export const LiveWall = memo(function LiveWall() {
   return (
     <div
       style={{
-        gridColumn: "1 / -1", borderRadius: RADIUS.xl,
-        border: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(255,255,255,0.022)",
-        padding: 13, display: "flex", flexDirection: "column",
+        gridColumn: "1 / -1",
+        ...(v2 ? {} : {
+          borderRadius: RADIUS.xl,
+          border: `1px solid ${COLORS.panelBorder}`,
+          background: "rgba(255,255,255,0.022)",
+          padding: 13,
+        }),
+        display: "flex", flexDirection: "column",
       }}
     >
       <MonitorDataStatus label="直播解析" query={resolverQuery} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
-        <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
-            color: COLORS.textDefault,
-          }}
-        >
-          新聞直播 · LIVE WALL
-        </span>
+        {!v2 && <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />}
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
+              color: COLORS.textDefault,
+            }}
+          >
+            新聞直播 · LIVE WALL
+          </span>
+        )}
         <div style={{ flex: 1 }} />
         {ctsLive ? (
           <span
@@ -527,8 +551,8 @@ export const LiveWall = memo(function LiveWall() {
       </div>
       <div
         style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gridTemplateRows: "1fr 1fr", gap: 10,
+          display: "grid", gridTemplateColumns: v2 ? "repeat(2, minmax(0, 1fr))" : "1fr 1fr",
+          gridTemplateRows: v2 ? undefined : "1fr 1fr", gap: 10,
         }}
       >
         {slots.map((chId, i) => {

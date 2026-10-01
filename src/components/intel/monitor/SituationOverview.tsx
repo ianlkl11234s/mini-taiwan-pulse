@@ -10,18 +10,23 @@ import type {
 } from "../../../data/intelLoaders";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 function MiniStat({
-  label, en, value, color,
-}: { label: string; en: string; value: string | number; color?: string }) {
+  label, en, zh, value, color,
+}: { label: string; en: string; /** v2 中文小標（取代英文 eyebrow 與右側 label） */ zh: string; value: string | number; color?: string }) {
+  const v2 = useMonitorV2();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
       <span
-        style={{
+        style={v2 ? {
+          fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim, whiteSpace: "nowrap",
+        } : {
           fontFamily: FONT_DATA, fontSize: 8.5, letterSpacing: "1.2px", color: COLORS.textDim,
         }}
       >
-        {en}
+        {v2 ? zh : en}
       </span>
       <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
         <span
@@ -32,11 +37,13 @@ function MiniStat({
         >
           {value}
         </span>
-        <span
-          style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textMuted, whiteSpace: "nowrap" }}
-        >
-          {label}
-        </span>
+        {!v2 && (
+          <span
+            style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textMuted, whiteSpace: "nowrap" }}
+          >
+            {label}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -45,6 +52,7 @@ function MiniStat({
 /** 10 軌 signal 抽屜 — 按貢獻排序 */
 function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] }) {
   const tip = useChartTooltip();
+  const v2 = useMonitorV2();
   // 防禦：上游若給了非陣列髒資料（型別宣告蓋不住 runtime），這裡收斂成 []
   // 退化成「無資料」提示，不讓 [...signals] 對不可疊代物件炸掉整個 React root。
   const signals = Array.isArray(signalsProp) ? signalsProp : [];
@@ -57,7 +65,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
           animation: "drawerOpen .32s cubic-bezier(.22,1,.36,1)",
         }}
       >
-        ⚠ 尚無 signal 細節（後端未回 per_signal）
+        {v2 ? "尚無指數組成細節" : "⚠ 尚無 signal 細節（後端未回 per_signal）"}
       </div>
     );
   }
@@ -72,14 +80,16 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <span
-          style={{
+          style={v2 ? {
+            fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: 600, color: COLORS.textMuted,
+          } : {
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textDefault,
           }}
         >
-          指數組成 · SIGNAL BREAKDOWN
+          {v2 ? "指數組成" : "指數組成 · SIGNAL BREAKDOWN"}
         </span>
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-          權重「災害重」· 5min EMA
+          {v2 ? "權重「災害重」· 5 分鐘平滑" : "權重「災害重」· 5min EMA"}
         </span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px 22px" }}>
@@ -184,9 +194,16 @@ interface Props {
 export function SituationOverview({
   pressure, smoothedScore, status, lastSuccessAt, sourceHealth, sourceHealthAvailable = true, totalEvents, severeCount,
 }: Props) {
+  const v2 = useMonitorV2();
   const [open, setOpen] = useState(false);
-  const level = pressureLevel(status === "ready" ? smoothedScore : 50);
   const stale = status === "error" && lastSuccessAt !== null;
+  // v2：壓力指數資料時間（asof）送標題列；中斷時標為過期（沿用既有 stale 判斷，不新增門檻）
+  const asofMs = pressure.asof ? Date.parse(pressure.asof) : NaN;
+  useMonitorCardHeader({
+    time: Number.isNaN(asofMs) ? null : asofMs,
+    state: stale ? { kind: "stale", label: "更新中斷" } : null,
+  });
+  const level = pressureLevel(status === "ready" ? smoothedScore : 50);
   const availability = status === "denied"
     ? "壓力指數無權限讀取"
     : status === "error"
@@ -195,7 +212,7 @@ export function SituationOverview({
 
   return (
     <Widget
-      style={{
+      style={v2 ? { position: "relative" } : {
         gridColumn: "1 / -1", padding: 15, position: "relative",
         background: `linear-gradient(150deg, ${level.soft}, rgba(255,255,255,0.012) 46%)`,
         borderColor: open ? `${level.color}66` : COLORS.panelBorder,
@@ -211,15 +228,17 @@ export function SituationOverview({
           }}
         />
       )}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 13 }}>
-        <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: level.color }} />
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px", color: COLORS.textDefault,
-          }}
-        >
-          戰情概覽 · PRESSURE INDEX
-        </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: v2 ? 8 : 13 }}>
+        {!v2 && <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: level.color }} />}
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px", color: COLORS.textDefault,
+            }}
+          >
+            戰情概覽 · PRESSURE INDEX
+          </span>
+        )}
         <span
           style={{
             fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, whiteSpace: "nowrap",
@@ -271,13 +290,13 @@ export function SituationOverview({
           )}
           <div style={{ height: 1, background: COLORS.borderSoft, margin: "1px 0" }} />
           <div style={{ display: "flex", gap: 18, justifyContent: "space-between", maxWidth: 420 }}>
-            <MiniStat en="EVENTS" label="事件" value={totalEvents ?? "—"} />
+            <MiniStat en="EVENTS" label="事件" zh="事件數" value={totalEvents ?? "—"} />
             <MiniStat
-              en="SEVERE ≥3" label="嚴重" value={severeCount ?? "—"}
+              en="SEVERE ≥3" label="嚴重" zh="嚴重（3 級以上）" value={severeCount ?? "—"}
               color={(severeCount ?? 0) > 0 ? COLORS.statusWarn : "#fff"}
             />
             <MiniStat
-              en="SOURCES" label="來源"
+              en="SOURCES" label="來源" zh="資料來源"
               value={sourceHealthAvailable ? `${sourceHealth.ok}/${sourceHealth.total}` : "—"}
             />
           </div>

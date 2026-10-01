@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
 import type { PrisonDay } from "../../../data/prisonLoader";
@@ -35,6 +37,7 @@ function fmt(v: number | null | undefined): string {
 }
 
 export function PrisonCard({ latest, series = [] }: Props) {
+  const v2 = useMonitorV2();
   const [windowDays, setWindowDays] = useState<WindowDays>(365);
   const total = latest?.total_inmates ?? null;
   const cap = latest?.approved_capacity ?? null;
@@ -49,6 +52,12 @@ export function PrisonCard({ latest, series = [] }: Props) {
     return Math.floor((Date.now() - t) / 86_400_000);
   }, [latest?.observed_date]);
   const isStale = staleDays != null && staleDays > STALE_WARN_DAYS;
+
+  // v2：資料日期（MM/DD）與停更狀態送標題列
+  useMonitorCardHeader({
+    timeText: latest?.observed_date ? latest.observed_date.slice(5).replace("-", "/") : null,
+    state: isStale ? { kind: "stopped", label: `停更 ${staleDays} 天` } : null,
+  });
 
   // 停更時燈號一律轉灰：紅／綠是在講「今天超不超收」，資料三個月沒動還亮綠燈就是說謊
   const dotColor = isStale ? COLORS.textDim : isOver ? "#ef4444" : "#10b981";
@@ -81,9 +90,9 @@ export function PrisonCard({ latest, series = [] }: Props) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color={COLORS.accent}>司法矯正 · INMATES</SectionLabel>
+      {!v2 && <SectionLabel color={COLORS.accent}>司法矯正 · INMATES</SectionLabel>}
       <div
-        style={{
+        style={v2 ? { display: "flex", flexDirection: "column", gap: 8, minWidth: 0 } : {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: "linear-gradient(160deg, rgba(124,58,237,0.06), rgba(255,255,255,0.012))",
@@ -97,7 +106,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
             boxShadow: `0 0 7px ${dotColor}`, flexShrink: 0,
           }} />
           <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 700, color: COLORS.textStrong }}>
-            {latest ? `全國在監 (${latest.observed_date})` : "全國在監（資料載入中）"}
+            {latest ? (v2 ? "全國在監" : `全國在監 (${latest.observed_date})`) : "全國在監（資料載入中）"}
           </span>
         </div>
         {latest && (
@@ -169,9 +178,11 @@ export function PrisonCard({ latest, series = [] }: Props) {
           </div>
         )}
         <div style={{ fontSize: FONT_SIZE.xs, color: isStale ? "#fbbf24" : COLORS.textDim }}>
-          {isStale
-            ? `⚠ 上游已 ${staleDays} 天未更新 · 法務部矯正署 prisonmuseum 每日 XML`
-            : "來源：法務部矯正署 prisonmuseum 每日 XML"}
+          {v2
+            ? (isStale ? "法務部矯正署上游已停止更新" : "來源：法務部矯正署每日資料")
+            : isStale
+              ? `⚠ 上游已 ${staleDays} 天未更新 · 法務部矯正署 prisonmuseum 每日 XML`
+              : "來源：法務部矯正署 prisonmuseum 每日 XML"}
         </div>
       </div>
     </div>

@@ -4,6 +4,8 @@ import {
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER,
   type AlertGroupShort,
 } from "../intelTokens";
+import { useMonitorV2 } from "../monitor/monitorStyle";
+import { FONT_SIZE } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue, type ChartTooltipContent } from "../../ChartHoverTooltip";
 
 interface Props {
@@ -26,6 +28,7 @@ export function AlertsTrack({
   const [hoverH, setHoverH] = useState<number | null>(null);
   const draggingRef = useRef(false);
   const tip = useChartTooltip();
+  const v2 = useMonitorV2();
 
   const fracFromClientX = (clientX: number): number => {
     const el = areaRef.current;
@@ -80,11 +83,11 @@ export function AlertsTrack({
       >
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 8.5, letterSpacing: "1.8px",
+            fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, letterSpacing: v2 ? "0.5px" : "1.8px",
             color: COLORS.textFaint,
           }}
         >
-          ALERTS 24H
+          {v2 ? "警報 · 近 24 小時" : "ALERTS 24H"}
         </span>
         <div style={{ flex: 1 }} />
       </div>
