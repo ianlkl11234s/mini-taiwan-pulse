@@ -6,7 +6,7 @@ import { getNewsCategoryDef, type NewsCategory } from "../../../data/newsEventTy
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 interface Hotspot {
@@ -133,7 +133,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
               </div>
               <span
                 style={{
-                  fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700,
+                  fontFamily: FONT_DATA, fontSize: v2 ? MF.body : FONT_SIZE.lg, fontWeight: 700,
                   color: "#fff", ...(v2 ? { minWidth: 26 } : { width: 18 }), textAlign: "right",
                 }}
               >
@@ -142,7 +142,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
               <span
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 2,
-                  fontFamily: FONT_DATA, fontSize: fs(v2, 9.5),
+                  fontFamily: FONT_DATA, fontSize: v2 ? MF.body : 9.5,
                   color: r.surge >= 2 ? COLORS.statusWarn : COLORS.textDim,
                   ...(v2 ? { minWidth: 50 } : { width: 40 }),
                 }}

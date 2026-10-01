@@ -20,7 +20,7 @@ import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
 import { MonitorMetric, MonitorNote, MonitorSub, type MonitorTone } from "./MonitorMetric";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
@@ -51,7 +51,7 @@ type MonitorQuery = Pick<IntelQueryState<unknown>, "status" | "lastSuccessAt">;
 /* ── 共用外殼 ─────────────────────────────────────────── */
 
 function HazardShell({
-  label, labelColor, tint, dot, title, badges, children, footer, query, dailyQuery,
+  label, labelColor, tint, dot, title, badges, status, children, footer, query, dailyQuery,
 }: {
   label: string;
   labelColor: string;
@@ -60,6 +60,8 @@ function HazardShell({
   dot: string;
   title: string;
   badges?: string[];
+  /** v2 專用：有狀態意義的小字（無颱風接近、載入中…）；省略＝卡內不再重複外框標題 */
+  status?: string;
   children?: ReactNode;
   footer: string;
   query?: MonitorQuery;
@@ -71,6 +73,8 @@ function HazardShell({
   const healthTitle = denied ? "資料無權限讀取" : failed ? "資料更新中斷" : title;
   const healthDot = denied || failed ? COLORS.textDim : dot;
   const v2 = useMonitorV2();
+  // v2：外框已有標題，卡內只留有狀態意義的小字（中斷／受限／無颱風接近…）
+  const v2Status = denied || failed ? healthTitle : status;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {/* v2：段落標與外框由 MonitorCardFrame 畫 */}
@@ -84,6 +88,16 @@ function HazardShell({
           display: "flex", flexDirection: "column", gap: 8,
         }}
       >
+        {v2 ? (
+          v2Status && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: healthDot, flexShrink: 0 }} />
+              <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted, overflowWrap: "anywhere" }}>
+                {v2Status}
+              </span>
+            </div>
+          )
+        ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span
             style={{
@@ -115,6 +129,7 @@ function HazardShell({
             </span>
           ))}
         </div>
+        )}
         {query && <MonitorDataStatus label={label} query={query} />}
         {dailyQuery && <MonitorDataStatus label={`${label} 趨勢`} query={dailyQuery} />}
         {children}
@@ -285,6 +300,7 @@ function TyphoonTrendSection({
         caption={`${v2 ? `近 ${TYPHOON_TREND_DAYS} 天` : `${TYPHOON_TREND_DAYS}D`} · 接近程度（柱越高越近）／距離（色）· 可點`}
         footer={closestKm != null ? `最近 ${Math.round(closestKm).toLocaleString("zh-TW")} km` : undefined}
         height={34}
+        heightTier="std"
         unit=" km（距 1500 圈）"
         onSelectBar={onSelectBar}
         selectedKey={pickedDate}
@@ -295,6 +311,7 @@ function TyphoonTrendSection({
         levelColors={NEARBY_COLORS}
         caption={`${v2 ? `近 ${TYPHOON_TREND_DAYS} 天` : `${TYPHOON_TREND_DAYS}D`} · 1000km 內颱風數`}
         height={26}
+        heightTier="std"
         unit=" 顆"
         onSelectBar={onSelectBar}
         selectedKey={pickedDate}
@@ -351,7 +368,7 @@ export function TyphoonCard({ open, nowTs }: Props) {
   if (summaryQuery.lastSuccessAt === null) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="活躍颱風（載入中）" footer={footer}
+        dot={COLORS.textDim} title="活躍颱風（載入中）" status="載入中" footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
         {summaryQuery.status === "error" && <Note>查詢失敗，非「無活躍颱風」。</Note>}
@@ -367,7 +384,7 @@ export function TyphoonCard({ open, nowTs }: Props) {
     // 沒資料（RPC 失敗或窗內真的零觀測）才退回純一句話的空狀態。
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.statusLive} title="目前無活躍颱風" footer={footer}
+        dot={COLORS.statusLive} title="目前無活躍颱風" status="目前無活躍颱風" footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
         <Note>JMA / JTWC 近 24 小時無颱風觀測回報。</Note>
@@ -388,7 +405,8 @@ export function TyphoonCard({ open, nowTs }: Props) {
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
       dot={remote ? COLORS.statusLive : tone.dot}
-      title={remote ? "無颱風接近" : name} query={summaryQuery} dailyQuery={dailyQuery}
+      title={remote ? "無颱風接近" : name} status={remote ? "無颱風接近" : name}
+      query={summaryQuery} dailyQuery={dailyQuery}
       badges={data.sources} footer={footer}
     >
       <MetricRow>
@@ -449,7 +467,7 @@ export function EarthquakeCard({ open, nowTs }: Props) {
   if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="最新有感地震（載入中）" footer={footer}
+        dot={COLORS.textDim} title="最新有感地震（載入中）" status="載入中" footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
         {summaryQuery.status === "error" && <Note>查詢失敗，非「無地震紀錄」。</Note>}
@@ -461,7 +479,7 @@ export function EarthquakeCard({ open, nowTs }: Props) {
   if (!latest) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.statusLive} title="無地震紀錄" footer={footer}
+        dot={COLORS.statusLive} title="無地震紀錄" status="無地震紀錄" footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
         <Note>資料庫中查無地震事件。</Note>
@@ -482,6 +500,10 @@ export function EarthquakeCard({ open, nowTs }: Props) {
       label={label} labelColor={COLORS.accent} tint={tint}
       dot={color} title="最新有感地震" footer={footer} query={summaryQuery} dailyQuery={dailyQuery}
     >
+      {v2 ? (
+        // 「M」前綴放進 value：unit 欄位是尾綴，要保持「M5.9」慣用寫法只能放前面；規模色走 color
+        <MonitorMetric value={`M${latest.magnitude.toFixed(1)}`} color={color} />
+      ) : (
       <MetricRow>
         <div>
           <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), color: COLORS.textMuted, marginRight: 3 }}>M</span>
@@ -493,18 +515,24 @@ export function EarthquakeCard({ open, nowTs }: Props) {
           深度 {latest.depth_km.toFixed(1)} km
         </div>
       </MetricRow>
+      )}
       {latest.location_desc && <Note color={COLORS.textDefault}>{latest.location_desc}</Note>}
       <HazardTrendBars
         bars={eqBars}
         levelColors={EQ_LEVEL_COLORS}
         caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 次數（柱）／規模（色）`}
         footer={eqTotal ? `共 ${eqTotal} 次` : undefined}
+        heightTier="std"
         unit=" 次"
       />
+      {v2 ? (
+        <MonitorSub items={[`深度 ${latest.depth_km.toFixed(1)} km`, `24h 內 ${data.count24h} 次`, relTime(latest.occurred_ts, nowTs)]} />
+      ) : (
       <MetaRow
         left={`24h 內 ${data.count24h} 次`}
         right={relTime(latest.occurred_ts, nowTs)}
       />
+      )}
     </HazardShell>
   );
 }
@@ -549,7 +577,7 @@ export function RadiationCard({ open }: Props) {
   if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="全國環境輻射（載入中）" footer={footer}
+        dot={COLORS.textDim} title="全國環境輻射（載入中）" status="載入中" footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
         {summaryQuery.status === "error" && <Note>查詢失敗，非「上游未回報任何監測站」。</Note>}
@@ -584,12 +612,22 @@ export function RadiationCard({ open }: Props) {
       dot={dot} title="全國環境輻射" badges={[`${data.reporting}/${data.total} 站`]} footer={footer}
       query={summaryQuery} dailyQuery={dailyQuery}
     >
+      {v2 ? (
+        <>
+          <Metric value={fmtDose(data.avg_usvh)} unit="µSv/h 平均" />
+          <MonitorSub items={[
+            `最高 ${fmtDose(data.max_usvh)}${data.max_station ? ` · ${data.max_station}` : ""}`,
+            `${data.reporting}/${data.total} 站回報`,
+          ]} />
+        </>
+      ) : (
       <MetricRow>
         <Metric value={fmtDose(data.avg_usvh)} unit="µSv/h 平均" />
         <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
           最高 {fmtDose(data.max_usvh)}{data.max_station ? ` · ${data.max_station}` : ""}
         </div>
       </MetricRow>
+      )}
       {alarm ? (
         <Note color={COLORS.statusErr}>
           警戒 {data.alarm_count} 站：
@@ -607,6 +645,7 @@ export function RadiationCard({ open }: Props) {
         bars={doseBars}
         levelColors={DOSE_LEVEL_COLORS}
         caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 全站平均（柱）／水位（色）`}
+        heightTier="std"
         unit=" µSv/h"
       />
     </HazardShell>
@@ -651,7 +690,7 @@ export function LightningCard({ open, nowTs }: Props) {
   if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="全國落雷（載入中）" footer={footer}
+        dot={COLORS.textDim} title="全國落雷（載入中）" status="載入中" footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
         {summaryQuery.status === "error" && <Note>查詢失敗，非「無落雷」。</Note>}
@@ -678,12 +717,27 @@ export function LightningCard({ open, nowTs }: Props) {
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
-      dot={dot} title={quiet ? "今日尚無落雷" : "全國落雷"} badges={["CWA"]} footer={footer}
+      dot={dot} title={quiet ? "今日尚無落雷" : "全國落雷"} status={quiet ? "今日尚無落雷" : undefined} badges={["CWA"]} footer={footer}
       query={summaryQuery} dailyQuery={dailyQuery}
     >
       {quiet ? (
         <Note>氣象署源今日（{data.dateKey}）尚無落雷紀錄。</Note>
       ) : (
+        v2 ? (
+          <>
+            <Metric
+              value={data.count1h.toLocaleString("zh-TW")}
+              unit="次 / 近 1h"
+              color={active ? COLORS.statusWarn : COLORS.textStrong}
+            />
+            <MonitorSub items={[
+              `今日累計 ${data.countDay.toLocaleString("zh-TW")} 次`,
+              data.latest
+                ? `最新 ${relTime(data.latest.ts, nowTs)} · ${LIGHTNING_TYPE_LABELS[data.latest.strikeType] ?? "未知型別"}`
+                : "最新 —",
+            ]} />
+          </>
+        ) : (
         <>
           <MetricRow>
             <Metric
@@ -703,12 +757,14 @@ export function LightningCard({ open, nowTs }: Props) {
             }
           />
         </>
+        )
       )}
       <HazardTrendBars
         bars={strikeBars}
         levelColors={STRIKE_LEVEL_COLORS}
         caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 次數（柱）／相對多寡（色）`}
         footer={strikeMedian ? `有雷日中位 ${strikeMedian.toLocaleString("zh-TW")}` : undefined}
+        heightTier="std"
         unit=" 次"
       />
       <MetaRow left={fallbackNote} />

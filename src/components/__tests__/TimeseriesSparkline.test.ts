@@ -145,8 +145,10 @@ describe("TimeseriesSparkline monitor v2 (spec §5.35 E3)", () => {
   });
 
   it("heightTier 讓圖區等於 MON_CHART_H（總高＝圖區＋軸留白）", () => {
-    expect(v2({ data: pts, heightTier: "std" })).toContain('height="76"'); // 6 + 48 + 22
-    expect(v2({ data: pts, heightTier: "lg" })).toContain('height="124"'); // 6 + 96 + 22
+    // v2 上留白 10（無單位）／18（有單位，單位字放在留白裡）
+    expect(v2({ data: pts, heightTier: "std" })).toContain('height="80"'); // 10 + 48 + 22
+    expect(v2({ data: pts, heightTier: "lg" })).toContain('height="128"'); // 10 + 96 + 22
+    expect(v2({ data: pts, heightTier: "std", unit: "點" })).toContain('height="88"'); // 18 + 48 + 22
     // 舊版忽略 heightTier，維持預設 height 120（舊版畫面不可變）
     expect(legacy({ data: pts, heightTier: "mini" })).toContain('height="120"');
   });
