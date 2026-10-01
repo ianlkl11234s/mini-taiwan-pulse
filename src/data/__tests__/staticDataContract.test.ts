@@ -54,6 +54,8 @@ interface OoklaGlobalAssetContract {
   resolutions: Record<number, number>;
 }
 
+// 這兩份是「上游產物」契約（PMTiles 的輸入），前端實際讀的是 PMTiles（由 pmtilesContract 守 sourceLayer）。
+// GeoJSON 保留在 repo 但已列入 .dockerignore（PF-12），不進 image；本測試只讀本機檔。
 // 這兩份檔案各約 19–23 MB；本測試只逐 feature 驗 geometry/properties 與 digest，
 // 不把整份 JSON 複製成 snapshot，避免 fixture 膨脹及重複存放發佈資產。
 const OOKLA_GLOBAL_ASSETS: OoklaGlobalAssetContract[] = [

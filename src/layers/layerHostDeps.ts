@@ -19,7 +19,8 @@
 // 對本物件**逐欄位 shallow compare**（PF-6），App 每次 render 組新字面即可，欄位
 // 身分沒變就整批跳過。因此每個欄位本身必須身分穩定（callback 用 useCallback、
 // 衍生物件用 useMemo），否則會讓 104 個 Host 每次 App render 都重跑。
-// per-key visibility 訂閱（切一層只重跑該層 Host）仍是第 4 階段的事。
+// ⚠️ `layerVisibility` 不由 App 傳（PF-8）：App 組的是 `AppLayerHostDeps`，
+// 由 LayerHost.tsx 的 `HostSlot` 為每個 Host 注入追蹤式視圖（切一層只重跑讀到該 key 的 Host）。
 
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { AppMode, AqiProduct, FeatureInfo, LayerVisibility, RailData, TimeMode } from "../types";
@@ -43,7 +44,10 @@ import type { PowerDashboard } from "../data/energyLoader";
 export interface LayerHostDeps {
   // ── 地圖與外觀 ──
   mapRef: React.RefObject<MapboxMap | null>;
-  /** 整包傳入。本棒不動 visibility 訂閱粒度（那是 AR-21 已定案的 store，另案再拆） */
+  /**
+   * 圖層開關。**由 `HostSlot` 注入的追蹤式視圖**（PF-8），不是 App 傳的整包：
+   * 讀到哪個 key 就只訂閱哪個 key。照一般物件讀即可；不要 mutate。
+   */
   layerVisibility: LayerVisibility;
   isDarkTheme: boolean;
   /** 底圖 id —— slope / aspect 兩層依底圖換色帶 */
@@ -102,6 +106,9 @@ export interface LayerHostDeps {
   spatialDataMap: ReturnType<typeof useH3SpatialEconomy>["spatialDataMap"];
   getYoubikeCellsForTime: ReturnType<typeof useYoubikeH3>["getCellsForTime"];
 }
+
+/** App 端組的 deps：visibility 由 LayerHost.tsx 逐 Host 注入，App 不傳（PF-8） */
+export type AppLayerHostDeps = Omit<LayerHostDeps, "layerVisibility">;
 
 /** registry entry 的 Host 元件型別（一律 `return null`，只掛 hook 不畫東西） */
 export type LayerHostComponent = React.FC<{ deps: LayerHostDeps }>;

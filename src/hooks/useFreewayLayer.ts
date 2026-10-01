@@ -8,6 +8,7 @@ import {
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookLineLayout, hookLineOpacity, hookLinePaint, hookLineWidth } from "../map/lineFillSpec";
 
 /**
  * 國道壅塞動態圖層
@@ -61,8 +62,8 @@ function buildLayers(map: MapboxMap, width: number, isDark: boolean, opacity: nu
       id: LAYER_LINE,
       type: "line",
       source: SOURCE_ID,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
+      layout: hookLineLayout("freewayCongestion", LAYER_LINE),
+      paint: hookLinePaint("freewayCongestion", LAYER_LINE, {
         "line-color": ["get", "color"],
         "line-width": [
           "interpolate",
@@ -74,7 +75,7 @@ function buildLayers(map: MapboxMap, width: number, isDark: boolean, opacity: nu
           16, 5 * width,
         ],
         "line-opacity": (isDark ? 0.75 : 0.65) * opacity,
-      },
+      }, { "line-color": ["get", "color"], "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.5, 10, 1.5, 13, 3, 16, 5], "line-opacity": isDark ? 0.75 : 0.65 }, isDark),
     } as LineLayer);
   }
 
@@ -268,7 +269,7 @@ export function useFreewayLayer(
       map.setPaintProperty(LAYER_GLOW, "line-opacity", (isDark ? 0.08 : 0.12) * opacity);
     }
     if (map.getLayer(LAYER_LINE)) {
-      map.setPaintProperty(LAYER_LINE, "line-width", [
+      map.setPaintProperty(LAYER_LINE, "line-width", hookLineWidth("freewayCongestion", LAYER_LINE, [
         "interpolate",
         ["linear"],
         ["zoom"],
@@ -276,8 +277,8 @@ export function useFreewayLayer(
         10, 1.5 * width,
         13, 3 * width,
         16, 5 * width,
-      ] as unknown as mapboxgl.ExpressionSpecification);
-      map.setPaintProperty(LAYER_LINE, "line-opacity", (isDark ? 0.75 : 0.65) * opacity);
+      ] as unknown as mapboxgl.ExpressionSpecification, ["interpolate", ["linear"], ["zoom"], 6, 0.5, 10, 1.5, 13, 3, 16, 5] as unknown as mapboxgl.ExpressionSpecification));
+      map.setPaintProperty(LAYER_LINE, "line-opacity", hookLineOpacity("freewayCongestion", LAYER_LINE, (isDark ? 0.75 : 0.65) * opacity, isDark ? 0.75 : 0.65, isDark));
     }
   }, [width, isDark, opacity, mapRef, mapTick]);
 }

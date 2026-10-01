@@ -166,7 +166,7 @@ describe("useGfwHourlyTracksLayer timeline", () => {
     expect(notice.show).toHaveBeenCalledWith(expect.stringMatching(
       /^GFW 航跡資料最新完整日：2026-08-21 UTC（落後 \d+ 天 · STALE／已過期）（非即時）$/,
     ));
-    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-tracks-line", "line-opacity", 0.75 * 0.45);
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-tracks-line", "line-opacity", 0.6);
     expect(state.map.setPaintProperty).not.toHaveBeenCalledWith("gfw-hourly-tracks-endpoint-count", "text-opacity", expect.anything());
 
     // 完全相同時刻的重複 callback 不做無意義重算。

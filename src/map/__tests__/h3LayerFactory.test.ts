@@ -48,7 +48,11 @@ describe("H3 grid factories", () => {
     updateH3Layer(map as never, h3Cells, { ...h3Params, opacity: 0.3, extruded: true, elevationScale: 2 }, true);
     expect(source.setData).toHaveBeenCalledTimes(1);
     expect(h3.cellToBoundary).toHaveBeenCalledTimes(1);
-    expect(map.setPaintProperty).toHaveBeenCalledWith("h3-population-fill", "fill-opacity", 0.3);
+    expect(map.setPaintProperty).toHaveBeenCalledWith("h3-population-fill", "fill-opacity", 0.275);
+    expect(map.setPaintProperty).toHaveBeenCalledWith("h3-population-ext", "fill-extrusion-opacity", 0.425);
+    expect(map.setPaintProperty).toHaveBeenCalledWith(
+      "h3-population-ext", "fill-extrusion-height", ["*", ["get", "height"], 10000],
+    );
   });
 
   it("does not read any H3 cell fields during 20 paint-only updates", () => {

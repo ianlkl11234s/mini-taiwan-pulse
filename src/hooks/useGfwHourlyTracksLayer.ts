@@ -13,6 +13,7 @@ import {
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import {
   SHIP_TYPE_COLORS_DARK,
   SHIP_TYPE_COLORS_LIGHT,
@@ -65,12 +66,12 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
       id: GFW_HOURLY_TRACKS_LINE_LAYER_ID,
       type: "line",
       source: GFW_HOURLY_TRACKS_SOURCE_ID,
-      layout: { visibility: "none", "line-cap": "round", "line-join": "round" },
-      paint: {
+      layout: { visibility: "none", ...hookLineLayout("gfwHourlyTracks", GFW_HOURLY_TRACKS_LINE_LAYER_ID) },
+      paint: hookLinePaint("gfwHourlyTracks", GFW_HOURLY_TRACKS_LINE_LAYER_ID, {
         "line-color": colors,
         "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.7, 7, 1.5, 11, 2.8],
         "line-opacity": 0.55,
-      },
+      }, { "line-color": colors, "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.7, 7, 1.5, 11, 2.8], "line-opacity": 0.55 }),
     } as LineLayer);
   }
   if (!map.getLayer(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID)) {
@@ -311,7 +312,7 @@ export function useGfwHourlyTracksLayer(
         (map.getSource(GFW_HOURLY_TRACKS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(linesRef.current);
         (map.getSource(GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID) as GeoJSONSource | undefined)?.setData(endpointsRef.current);
         const clamped = Math.max(0, Math.min(1, opacity));
-        map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-opacity", clamped * 0.45);
+        map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-opacity", hookLineOpacity("gfwHourlyTracks", GFW_HOURLY_TRACKS_LINE_LAYER_ID, clamped * 0.45, 0.75 * 0.45));
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-opacity", clamped);
         const stroke = pointStrokePaint(isDarkTheme, clamped / OPACITY_DEFAULT);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);

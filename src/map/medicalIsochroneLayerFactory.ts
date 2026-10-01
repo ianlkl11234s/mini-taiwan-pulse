@@ -1,3 +1,4 @@
+import { hookFillOpacity } from "./lineFillSpec";
 // 醫療等時圈 + 醫療沙漠圖層 factory（PMTiles 向量切片）
 //
 // 資料：全台 1km grid → 開車到最近大醫院的分鐘數（OSRM），level 分級 le5/le10/le15/over15/unreachable。
@@ -74,7 +75,7 @@ export function ensureMedicalIsochroneLayers(map: MapboxMap): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": COLOR_EXPR as any,
-        "fill-opacity": BASE_OPACITY * MEDICAL_ISOCHRONE_PARAMS_DEFAULT.opacity,
+        "fill-opacity": hookFillOpacity("medIsochrone", FILL_ID, BASE_OPACITY * MEDICAL_ISOCHRONE_PARAMS_DEFAULT.opacity, BASE_OPACITY * MEDICAL_ISOCHRONE_PARAMS_DEFAULT.opacity),
         "fill-antialias": false,
       },
     });
@@ -91,7 +92,7 @@ export function updateMedicalIsochroneLayers(
   const filter = visibilityFilter(vis);
   const show = filter !== null;
   map.setLayoutProperty(FILL_ID, "visibility", show ? "visible" : "none");
-  map.setPaintProperty(FILL_ID, "fill-opacity", BASE_OPACITY * opacity);
+  map.setPaintProperty(FILL_ID, "fill-opacity", hookFillOpacity("medIsochrone", FILL_ID, BASE_OPACITY * opacity, BASE_OPACITY * MEDICAL_ISOCHRONE_PARAMS_DEFAULT.opacity));
   if (filter) {
     map.setFilter(FILL_ID, filter);
   }

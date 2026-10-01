@@ -17,6 +17,7 @@ import {
 } from "../data/busLoader";
 import { timeStore } from "../state/timeStore";
 import { liveCountStore } from "../state/liveCountStore";
+import { requestThreeRepaint } from "../state/threeRepaintSignal";
 
 const POLL_INTERVAL = 30_000;
 const MAX_CACHED_DAYS = 3;
@@ -33,6 +34,12 @@ export function useBusIntercityLayer(
 ) {
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
+  /** 非 tick 灌入資料後立即重算一次位置並叫醒 3D —— 暫停中載入完成也看得到（PF-9） */
+  const refreshActiveBuses = () => {
+    if (!engineRef.current) return;
+    activeBusesRef.current = engineRef.current.update(timeStore.getTime());
+    requestThreeRepaint();
+  };
   const [loading, setLoading] = useState(false);
 
   const cacheRef = useRef<CachedDay[]>([]);
@@ -81,6 +88,7 @@ export function useBusIntercityLayer(
         const positions = await fetchBusIntercityCurrent();
         if (!cancelled && engineRef.current) {
           engineRef.current.ingestPoll(positions, Date.now() / 1000);
+          refreshActiveBuses();
           console.log(`[BusIntercity] Poll: ${positions.length} vehicles`);
         }
       } catch (err) {
@@ -120,6 +128,7 @@ export function useBusIntercityLayer(
     if (cached) {
       loadedDayRef.current = dateStr;
       engineRef.current.ingestTrails(cached.trails);
+      refreshActiveBuses();
       return;
     }
 
@@ -140,6 +149,7 @@ export function useBusIntercityLayer(
 
       loadedDayRef.current = dateStr;
       engineRef.current.ingestTrails(trails);
+      refreshActiveBuses();
     } catch (err) {
       console.warn("[BusIntercity] loadDay error:", err);
     } finally {
@@ -172,6 +182,7 @@ export function useBusIntercityLayer(
     };
 
     update(timeStore.getTime()); // 初始化
+    requestThreeRepaint(); // 非 tick 換了資料 ref（PF-9）
     return timeStore.subscribe(update);
   }, [enabled, engineRef.current !== null]);
 
@@ -179,6 +190,7 @@ export function useBusIntercityLayer(
     if (!enabled) {
       activeBusesRef.current = [];
       liveCountStore.set("busesIntercity", 0);
+      requestThreeRepaint();
     }
   }, [enabled]);
 

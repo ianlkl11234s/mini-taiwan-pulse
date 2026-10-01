@@ -18,6 +18,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * TDX 即時路況事件 timeline 圖層
@@ -65,10 +66,10 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
         activeFilter,
         ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false],
       ] as unknown as FilterSpecification,
-      paint: {
+      paint: hookFillPaint("roadEvents", LAYER_FILL, {
         "fill-color": ["get", "color"] as unknown as ExpressionSpecification,
         "fill-opacity": 0.22,
-      },
+      }, { "fill-color": ["get", "color"] as unknown as ExpressionSpecification, "fill-opacity": 0.22 }),
     } as FillLayer);
   }
 
@@ -81,12 +82,12 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
         activeFilter,
         ["match", ["geometry-type"], ["LineString", "MultiLineString", "Polygon", "MultiPolygon"], true, false],
       ] as unknown as FilterSpecification,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
+      layout: hookLineLayout("roadEvents", LAYER_LINE),
+      paint: hookLinePaint("roadEvents", LAYER_LINE, {
         "line-color": ["get", "color"] as unknown as ExpressionSpecification,
         "line-width": 2,
         "line-opacity": 0.9,
-      },
+      }, { "line-color": ["get", "color"] as unknown as ExpressionSpecification, "line-width": 2, "line-opacity": 0.9 }),
     } as LineLayer);
   }
 
@@ -270,10 +271,10 @@ export function useRoadEventsLayer(
     if (!layersReadyRef.current) return;
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(LAYER_FILL)) {
-      map.setPaintProperty(LAYER_FILL, "fill-opacity", 0.22 * o);
+      map.setPaintProperty(LAYER_FILL, "fill-opacity", hookFillOpacity("roadEvents", LAYER_FILL, 0.22 * o, 0.22 * OPACITY_DEFAULT));
     }
     if (map.getLayer(LAYER_LINE)) {
-      map.setPaintProperty(LAYER_LINE, "line-opacity", 0.9 * o);
+      map.setPaintProperty(LAYER_LINE, "line-opacity", hookLineOpacity("roadEvents", LAYER_LINE, 0.9 * o, 0.9 * OPACITY_DEFAULT, isDark));
     }
     if (map.getLayer(LAYER_POINT)) {
       map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.9 * o);

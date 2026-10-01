@@ -28,7 +28,7 @@ const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作�
 const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
 const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
-const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-destination-view-20260930/bridge-resilience.local/bridge-display-bundle-20260930-v2";
+const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-decay-view-20261001/bridge-resilience.local/bridge-display-bundle-20261001-v3";
 const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
 const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
@@ -78,9 +78,9 @@ export const BSS_BRIDGE_ASSETS = Object.freeze({
 // 橋梁韌性 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
 export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
   tiles: Object.freeze({
-    filename: "bridge-resilience-20260930-v2.pmtiles",
-    size: 1944552,
-    sha256: "434e38bdcdf63c940529a7320242feb3c6fe8d5d560c94443b433c1fc8b88852",
+    filename: "bridge-resilience-20261001-v3.pmtiles",
+    size: 2091890,
+    sha256: "61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc",
   }),
   summary: Object.freeze({
     filename: "bridge_summary.json",
@@ -96,6 +96,17 @@ export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
     filename: "village_destinations.json",
     size: 6425352,
     sha256: "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5",
+  }),
+  // 距離遞減版（v3）：村里 decay_mean_dT_s（原檔）與橋層級精簡摘要（τ=20＋τ=10／30 名次）。
+  "decay-impacts": Object.freeze({
+    filename: "decay_village_impacts.json",
+    size: 864533,
+    sha256: "a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873",
+  }),
+  "decay-summary": Object.freeze({
+    filename: "decay_summary.json",
+    size: 55424,
+    sha256: "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0",
   }),
 });
 

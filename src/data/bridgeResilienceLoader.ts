@@ -1,6 +1,6 @@
 import {
   BRIDGE_RESILIENCE_ASSETS, bridgeResilienceAssetUrl,
-  type BridgeResilienceAssetName, type BridgeResilienceData, type BridgeSummary, type VillageDestinations, type VillageImpacts,
+  type BridgeResilienceAssetName, type BridgeResilienceData, type BridgeSummary, type DecaySummary, type DecayVillageImpacts, type VillageDestinations, type VillageImpacts,
 } from "./bridgeResilienceTypes";
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
@@ -27,18 +27,24 @@ export async function fetchPrivateJson<T>(
   return JSON.parse(text) as T;
 }
 
-export function validateBridgeResilienceData(summary: BridgeSummary, impacts: VillageImpacts): BridgeResilienceData {
+export function validateBridgeResilienceData(
+  summary: BridgeSummary, impacts: VillageImpacts, decayImpacts: DecayVillageImpacts, decaySummary: DecaySummary,
+): BridgeResilienceData {
   if (!summary?.bridges || typeof summary.bridges !== "object") throw new Error("bridge_summary 格式不符");
   if (!Array.isArray(impacts?.scenarios) || !impacts.villages || typeof impacts.villages !== "object") throw new Error("village_impacts 格式不符");
-  return { summary, impacts };
+  if (!Array.isArray(decayImpacts?.scenarios) || !decayImpacts.villages || typeof decayImpacts.villages !== "object") throw new Error("decay_village_impacts 格式不符");
+  if (!decaySummary?.bridges || typeof decaySummary.bridges !== "object") throw new Error("decay_summary 格式不符");
+  return { summary, impacts, decayImpacts, decaySummary };
 }
 
 export async function loadBridgeResilienceData(token: string, fetchFn?: FetchLike, signal?: AbortSignal): Promise<BridgeResilienceData> {
-  const [summary, impacts] = await Promise.all([
+  const [summary, impacts, decayImpacts, decaySummary] = await Promise.all([
     fetchPrivateJson<BridgeSummary>("summary", token, fetchFn, signal),
     fetchPrivateJson<VillageImpacts>("impacts", token, fetchFn, signal),
+    fetchPrivateJson<DecayVillageImpacts>("decay-impacts", token, fetchFn, signal),
+    fetchPrivateJson<DecaySummary>("decay-summary", token, fetchFn, signal),
   ]);
-  return validateBridgeResilienceData(summary, impacts);
+  return validateBridgeResilienceData(summary, impacts, decayImpacts, decaySummary);
 }
 
 /** 目的地視角資料（village_destinations.json）：不合格式就中止，不合成空資料。 */

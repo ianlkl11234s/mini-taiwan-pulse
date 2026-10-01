@@ -142,10 +142,13 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
 
   // ── 廢棄物 / 清運（Waste，全國 22 縣市）──
   wasteStopsStatic: {
-    url: "./geo/waste_stops_static.geojson",
+    // PF-14：聊天專用精簡檔（columnar，只含下列 4 欄 + 座標 5 位小數），由
+    // scripts/preprocess/build-waste-stops-chat.py 從 waste_stops_static.geojson 產生；
+    // 原 GeoJSON 不進 image，地圖圖層走 waste_stops_static_20260930.pmtiles。
+    url: "./geo/waste_stops_chat_20261001.json",
     label: "全台垃圾車清運點位",
     description:
-      "全台垃圾車 / 廚餘車清運停靠點（約 7.3 萬筆，檔案較大）。欄位 city（縣市，涵蓋全 22 縣市）、district（行政區）、vehicle_type（garbage 一般垃圾 / kitchen 廚餘）、routes_count（該點經過的清運路線數）。問「XX 市有幾個清運點 / 各縣市清運點分佈」用 groupBy city。注意：掩埋場 / 焚化爐 / 資收廠等『處理設施』與衣物回收箱等『投放點』不在此靜態檔，其數量請改用 call_rpc 的 get_waste_facility_counts / get_waste_disposal_point_counts。",
+      "全台垃圾車 / 廚餘車清運停靠點（約 7.3 萬筆）。只有這 4 個欄位：city（縣市，涵蓋全 22 縣市）、district（行政區）、vehicle_type（garbage 一般垃圾 / kitchen 廚餘）、routes_count（該點經過的清運路線數）；沒有停靠點名稱 / 地址 / 路線名稱欄位，nearest 與篩選樣本不會帶名稱。問「XX 市有幾個清運點 / 各縣市清運點分佈」用 groupBy city。注意：掩埋場 / 焚化爐 / 資收廠等『處理設施』與衣物回收箱等『投放點』不在此靜態檔，其數量請改用 call_rpc 的 get_waste_facility_counts / get_waste_disposal_point_counts。",
   },
 };
 

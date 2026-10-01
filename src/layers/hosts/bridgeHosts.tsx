@@ -2,7 +2,7 @@
 
 import { useBridgeResilienceLayers } from "../../hooks/useBridgeResilienceLayers";
 import { useBssBridgeLayers } from "../../hooks/useBssBridgeLayers";
-import { BRIDGE_MODES, BRIDGE_RESILIENCE_KEY, VILLAGE_METRICS } from "../../data/bridgeResilienceTypes";
+import { BRIDGE_MODES, BRIDGE_RESILIENCE_KEY, BRIDGE_WEIGHTINGS, VILLAGE_METRICS } from "../../data/bridgeResilienceTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { oneOfParam, paramBool, paramNum, paramStr, useLayerParams } from "../layerParamsAccess";
 
@@ -32,6 +32,7 @@ export const BridgeResilienceHost: LayerHostComponent = ({ deps }) => {
   const values = useLayerParams(BRIDGE_RESILIENCE_KEY);
   useBridgeResilienceLayers(deps.mapRef, deps.layerVisibility.bridgeResilienceTwinCity, paramNum(values, BRIDGE_RESILIENCE_KEY, "bridgeResilienceTwinCityOpacity"), {
     mode: oneOfParam(paramStr(values, BRIDGE_RESILIENCE_KEY, "bridgeResilienceMode"), BRIDGE_MODES, "car"),
+    weighting: oneOfParam(paramStr(values, BRIDGE_RESILIENCE_KEY, "bridgeResilienceWeighting"), BRIDGE_WEIGHTINGS, "decay"),
     metric: oneOfParam(paramStr(values, BRIDGE_RESILIENCE_KEY, "bridgeResilienceVillageMetric"), VILLAGE_METRICS, "p90"),
     showVillages: paramBool(values, BRIDGE_RESILIENCE_KEY, "bridgeResilienceShowVillages"),
     showRoutes: paramBool(values, BRIDGE_RESILIENCE_KEY, "bridgeResilienceShowRoutes"),

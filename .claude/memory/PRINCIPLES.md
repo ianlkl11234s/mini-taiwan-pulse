@@ -332,6 +332,8 @@ tsc -b 一張一張抓，補完再跑會冒下一張。
   - 靜態幾何只在資料變動時需重畫
   - 改由 hook 在 `setStatuses` / `setActiveOps` / `heightScale` / `isDark` / `visible` 變動時主動觸發
   - 動畫型圖層（flight/bus/rail per-frame 位置插值）才需要 render 內 triggerRepaint
+  - 2026-09-30 更新：動畫型圖層也只在「時間真的變動」時重畫（`subscribeTimeRepaint` 訂閱 timeStore），暫停即 0；資料變動走 `threeRepaintSignal`。驗收標準：全關＋暫停 5 秒 map render＝0
+- **不要對隱藏圖層 `setPaintProperty`**（2026-09-30）：Mapbox 會替該圖層所有 paint 屬性建 transition，隱藏圖層不 recalc → `hasTransitions()` 恆 true → 地圖永不 idle。overlay 走 `setPaintPropertyGuarded`；每幀改 paint 的圖層 transition 設 0。見 `.claude/pitfalls/2026-09-30-hidden-layer-paint-transition.md`
 
 - **InstancedMesh 的 fast path**
   - 站點組不變時只更 matrix/color，不 dispose/recreate meshes

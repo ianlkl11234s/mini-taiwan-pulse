@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { RADIUS, FONT_SIZE, FONT_WEIGHT, FONT_DATA } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 
@@ -41,13 +42,14 @@ export function formatTaiwanTime(iso: string | null): string {
   }
 }
 
-export function Row({ label, value, color, mono }: { label: string; value: string; color?: string; mono?: boolean }) {
+export function Row({ label, value, color, mono, title }: { label: string; value: string; color?: string; mono?: boolean; title?: string }) {
   const t = useFeatureTheme();
   if (!value || value === "null" || value === "undefined") return null;
   return (
     <div className="fi-row" style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, lineHeight: 1.3 }}>
       <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{label}</span>
       <span
+        title={title}
         style={{
           color: color ?? t.textStrong,
           wordBreak: "break-word",
@@ -58,6 +60,22 @@ export function Row({ label, value, color, mono }: { label: string; value: strin
       </span>
     </div>
   );
+}
+
+/** Popup 內容區高度上限；超過在 `PopupScroll` 內捲動，不撐高整個 popup。 */
+export const POPUP_SCROLL_MAX_HEIGHT = 320;
+
+export function PopupScroll({ children }: { children: ReactNode }) {
+  return <div className="fi-scroll" style={{ maxHeight: POPUP_SCROLL_MAX_HEIGHT, overflowY: "auto", overscrollBehavior: "contain" }}>{children}</div>;
+}
+
+/** 收合區塊（預設收起），樣式與橋梁韌性 popup 的「說明與限制」一致。 */
+export function PopupDetails({ summary, children }: { summary: string; children: ReactNode }) {
+  const t = useFeatureTheme();
+  return <details className="fi-details" style={{ marginTop: 6 }}>
+    <summary style={{ cursor: "pointer", fontSize: FONT_SIZE.sm, color: t.textMuted, padding: "4px 0" }}>{summary}</summary>
+    {children}
+  </details>;
 }
 
 /**

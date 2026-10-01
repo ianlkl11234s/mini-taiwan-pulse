@@ -158,6 +158,21 @@ function resolveFilter(
 // 每個 map instance 一份「上次套用的 paint 快照」（layer id → serialized paint）。
 // style 切換時 layer 會被清掉重建，addOverlay 會重設對應快照，所以不會殘留髒值。
 const paintCacheByMap = new WeakMap<OverlayMap, Map<string, SerializedPaint>>();
+const rebuildParamCacheByMap = new WeakMap<OverlayMap, Map<string, string>>();
+
+function rebuildParamCacheOf(map: OverlayMap): Map<string, string> {
+  let cache = rebuildParamCacheByMap.get(map);
+  if (!cache) {
+    cache = new Map();
+    rebuildParamCacheByMap.set(map, cache);
+  }
+  return cache;
+}
+
+function rebuildParamSignature(config: OverlayConfig, params?: Record<string, number>): string | null {
+  if (!config.rebuildOnParamKeys?.length) return null;
+  return JSON.stringify(config.rebuildOnParamKeys.map((key) => params?.[key] ?? null));
+}
 
 function paintCacheOf(map: OverlayMap): Map<string, SerializedPaint> {
   let cache = paintCacheByMap.get(map);
@@ -265,6 +280,8 @@ export function addOverlay(
     // style reload 後 layer 是全新的 → 舊 layer 隱藏期間延後的 paint 作廢
     dropPendingPaint(map, id);
   }
+  const rebuildSignature = rebuildParamSignature(config, params);
+  if (rebuildSignature !== null) rebuildParamCacheOf(map).set(config.sourceId, rebuildSignature);
 }
 
 /** 更新單一 overlay 主題（深淺色 + params）— diff 式，只動真正改變的 paint key */
@@ -281,6 +298,10 @@ export function updateOverlayTheme(
 
   // 需要 rebuild 的 layers（如 station points 的 circle-radius）
   if (config.rebuildOnParamChange) {
+    const rebuildSignature = rebuildParamSignature(config, params);
+    const rebuildParamCache = rebuildSignature === null ? null : rebuildParamCacheOf(map);
+    const previousRebuildSignature = rebuildParamCache?.get(config.sourceId);
+    if (rebuildSignature !== null) rebuildParamCache!.set(config.sourceId, rebuildSignature);
     // 先比對 paint 是否真的變了；沒變就完全不 rebuild（避免 slider 拖動時整層重建）
     let needRebuild = false;
     const nextSnapshots = new Map<string, SerializedPaint>();
@@ -294,9 +315,12 @@ export function updateOverlayTheme(
       const filterObj = resolveFilter(spec, params);
       const snapshot = snapshotPaint({ ...paintObj, ...layoutObj, ...(filterObj ? { __filter: filterObj } : {}) });
       nextSnapshots.set(id, snapshot);
-      if (!map.getLayer(id) || !paintSnapshotEquals(cache.get(id), snapshot)) {
+      if (!map.getLayer(id) || (rebuildSignature === null && !paintSnapshotEquals(cache.get(id), snapshot))) {
         needRebuild = true;
       }
+    }
+    if (rebuildSignature !== null && (previousRebuildSignature === undefined || previousRebuildSignature !== rebuildSignature)) {
+      needRebuild = true;
     }
 
     if (needRebuild) {
@@ -341,7 +365,7 @@ export function updateOverlayTheme(
 
     // 非 rebuild layers 仍走 diff 式 setPaintProperty
     for (const spec of config.layers) {
-      if (config.rebuildOnParamChange.includes(spec.suffix)) continue;
+      if (config.rebuildOnParamChange.includes(spec.suffix) && (rebuildSignature === null || needRebuild)) continue;
       applyPaintDiff(map, cache, layerId(config, spec.suffix), applyLayerOpacity(config, spec.paint(isDark, params), params));
       if (typeof spec.layout === "function") {
         const layout = spec.layout(isDark, params);
@@ -379,6 +403,7 @@ export function releaseOverlaySnapshots(map: OverlayMap, config: OverlayConfig) 
     layoutCacheByMap.get(map)?.delete(id);
     dropPendingPaint(map, id);
   }
+  rebuildParamCacheByMap.get(map)?.delete(config.sourceId);
 }
 
 function applyLayoutDiff(

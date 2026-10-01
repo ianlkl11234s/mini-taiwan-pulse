@@ -1,3 +1,4 @@
+import { hookFillOpacity, hookLineWidth, hookLineOpacity, hookLineLayout } from "./lineFillSpec";
 // Agriculture 圖層 factory
 //
 // FTW Fields 2025 (38.6 萬田區) + Agriculture Phase 3 Batch 1 (5 PMTiles + 1 GeoJSON POI)
@@ -84,7 +85,6 @@ export function ensureAgricultureLayers(map: MapboxMap): void {
           0.5, 0.18,
           0.6, 0.42,
         ],
-        "fill-outline-color": "rgba(46, 125, 50, 0.6)",
       },
     });
   }
@@ -96,16 +96,11 @@ export function ensureAgricultureLayers(map: MapboxMap): void {
       source: FTW_SOURCE_ID,
       "source-layer": FTW_SOURCE_LAYER,
       minzoom: 10,
-      layout: { visibility: "none" },
+      layout: { visibility: "none", ...hookLineLayout("agriculture", FTW_OUTLINE_ID) },
       paint: {
         "line-color": "#1b5e20",
-        "line-width": [
-          "interpolate", ["linear"], ["zoom"],
-          10, 0.2,
-          13, 0.6,
-          16, 1.2,
-        ],
-        "line-opacity": 0.55,
+        "line-width": hookLineWidth("agriculture", FTW_OUTLINE_ID, 0.8, 0.8),
+        "line-opacity": hookLineOpacity("agriculture", FTW_OUTLINE_ID, 0.55, 0.55),
       },
     });
   }
@@ -146,12 +141,7 @@ export function updateAgricultureLayer(
     if (showOutline) {
       // ["zoom"] 不能被 ["*", ...] 包起來，倍率直接乘進 stops
       const w = params.outlineWidth;
-      map.setPaintProperty(FTW_OUTLINE_ID, "line-width", [
-        "interpolate", ["linear"], ["zoom"],
-        10, 0.2 * w,
-        13, 0.6 * w,
-        16, 1.2 * w,
-      ]);
+      map.setPaintProperty(FTW_OUTLINE_ID, "line-width", hookLineWidth("agriculture", FTW_OUTLINE_ID, 0.8 * w, 0.8));
     }
   }
 }
@@ -183,6 +173,12 @@ export interface AgriPolyParams {
 
 export const AGRI_POLY_PARAMS_DEFAULT: AgriPolyParams = { opacity: 1 };
 
+const agriPolyKey = (id: string): string => ({
+  "agri-soil-fill": "agriSoil",
+  "agri-leisure-farm-zones-fill": "agriLeisureFarmZones",
+  "agri-rural-regen-fill": "agriRuralRegen",
+} as Record<string, string>)[id] ?? "";
+
 function ensureSimplePolyLayer(map: MapboxMap, cfg: SimplePolyConfig): void {
   registerPmtilesSourceTypeOnce();
   addPmtilesSourceIfMissing(map, cfg.sourceId, cfg.fileName, cfg.minzoom, cfg.maxzoom);
@@ -198,8 +194,7 @@ function ensureSimplePolyLayer(map: MapboxMap, cfg: SimplePolyConfig): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": cfg.fillColor as any,
-        "fill-opacity": cfg.defaultOpacity,
-        ...(cfg.outlineColor ? { "fill-outline-color": cfg.outlineColor } : {}),
+        "fill-opacity": hookFillOpacity(agriPolyKey(cfg.fillId), cfg.fillId, cfg.defaultOpacity, cfg.defaultOpacity),
       },
     });
   }
@@ -214,7 +209,7 @@ function updateSimplePolyLayer(
 ): void {
   if (!map.getLayer(fillId)) return;
   map.setLayoutProperty(fillId, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(fillId, "fill-opacity", baseOpacity * params.opacity);
+  map.setPaintProperty(fillId, "fill-opacity", hookFillOpacity(agriPolyKey(fillId), fillId, baseOpacity * params.opacity, baseOpacity));
 }
 
 // =============================================================================
@@ -282,7 +277,7 @@ export function ensureAgriSoilFertilityLayers(map: MapboxMap): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": SOIL_FERTILITY_METRICS.health.paintExpr as any,
-        "fill-opacity": SOIL_FERT_BASE_OPACITY,
+        "fill-opacity": hookFillOpacity("agriSoilFertility", SOIL_FERT_FILL_ID, SOIL_FERT_BASE_OPACITY, SOIL_FERT_BASE_OPACITY),
       },
     });
   }
@@ -295,7 +290,7 @@ export function updateAgriSoilFertilityLayer(
 ): void {
   if (!map.getLayer(SOIL_FERT_FILL_ID)) return;
   map.setLayoutProperty(SOIL_FERT_FILL_ID, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-opacity", SOIL_FERT_BASE_OPACITY * params.opacity);
+  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-opacity", hookFillOpacity("agriSoilFertility", SOIL_FERT_FILL_ID, SOIL_FERT_BASE_OPACITY * params.opacity, SOIL_FERT_BASE_OPACITY));
   const meta = SOIL_FERTILITY_METRICS[params.metric] ?? SOIL_FERTILITY_METRICS.health;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-color", meta.paintExpr as any);
@@ -408,7 +403,7 @@ export function ensureAgriCropSuitabilityLayers(map: MapboxMap): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": CROP_KIND_COLOR_EXPR as any,
-        "fill-opacity": CROP_BASE_OPACITY,
+        "fill-opacity": hookFillOpacity("agriCropSuitability", CROP_FILL_ID, CROP_BASE_OPACITY, CROP_BASE_OPACITY),
       },
     });
   }
@@ -421,7 +416,7 @@ export function updateAgriCropSuitabilityLayer(
 ): void {
   if (!map.getLayer(CROP_FILL_ID)) return;
   map.setLayoutProperty(CROP_FILL_ID, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(CROP_FILL_ID, "fill-opacity", CROP_BASE_OPACITY * params.opacity);
+  map.setPaintProperty(CROP_FILL_ID, "fill-opacity", hookFillOpacity("agriCropSuitability", CROP_FILL_ID, CROP_BASE_OPACITY * params.opacity, CROP_BASE_OPACITY));
   map.setFilter(CROP_FILL_ID, ["==", ["get", "crop_layer_id"], params.cropLayerId]);
 }
 

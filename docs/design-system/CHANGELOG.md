@@ -36,6 +36,17 @@
 | 狀態 | **等使用者選代號**；§5.35 為草案，拍板後改寫成定案並記一筆 |
 | 文件 | `docs/features/monitor-restyle/`（README 總表、inventory-a／b、data-quality） |
 
+### 地圖 R3b hook 線面與影像／文字／擠出
+
+使用者確認 `r3b-tiers.html` 建議，另修正 D 區：計數徽章保留出現縮放與 GFW 資料驅動字級，POI minzoom 取現值與 13 的較大值。A 共 184 列（裝飾與資料編碼保留）；B 14 層全部維持；C 9 層影像統一預設 0.7／滑桿 0.3–1；D 提案 9 個選項／10 個文字子層，實作核對排除 noiseCapture 誤列後為 8 個／9 子層；E 9 層擠出預設 0.85、vertical-gradient 開啟，高度倍率 1 對應原高度。hook 與 registry 共用計算，新增與更新 paint 一致；沒有修改資料來源、零值／缺值或 popup。
+
+完整逐層差異、測試與本機資料限制見 [`R3b-report.md`](../features/map-layer-restyle/R3b-report.md)，視覺對照見 [`r3b-compare.html`](../features/map-layer-restyle/r3b-compare.html)。Claude 驗收通過（2026-10-01）。驗收時另修：船舶監看航跡與不動產行政區的透明度預設值、BSS 橋梁方向線保留較細、颱風預測點線維持平頭。
+
+### 時間軸播放邊界與暫停（spec §5.24）
+
+- 回放播到「現在」就停（視窗結尾與現在取較早者），不再播進未來；游標在現在之後按播放原地停。
+- 按過暫停後，資料重載（例如打開航班、船舶等圖層）不會再被自動播放重啟；自己按播放才會播。
+
 ### 地圖 R3a 線與面（registry）— map-layers §3.2、§3.3
 
 | 決定 | 內容 |

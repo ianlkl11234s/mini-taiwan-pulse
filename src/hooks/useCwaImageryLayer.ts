@@ -324,6 +324,7 @@ export function useCwaImageryLayer({
           },
           initialUrl: url,
           opacity,
+          resampling: dsId === CLOUD_DATASET ? "linear" : "nearest",
         });
         state.currentIso = frame.observedAtIso;
         keepLoadingUntilMapIdle(map, `cwa-render:${sourceId}`, `CWA 影像 渲染中`, null);

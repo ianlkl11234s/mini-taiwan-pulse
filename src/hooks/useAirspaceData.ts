@@ -10,6 +10,7 @@ import {
   loadAirspaceWithDates,
 } from "../data/airspaceLoader";
 import type { AirspaceDateInfo } from "../data/airspaceLoader";
+import { liveCountStore } from "../state/liveCountStore";
 
 /** LRU 快取上限（天數） */
 const CACHE_MAX = 7;
@@ -203,6 +204,11 @@ export function useAirspaceData(enabled: boolean): UseAirspaceDataReturn {
     if (!enabledRef.current || !apiAvailable.current) return;
     prefetchDate(formatDate(date));
   }, [prefetchDate]);
+
+  // 側欄航班數：圖層關閉（含 All Off）即歸零，比照列車／公車（PF-11）
+  useEffect(() => {
+    liveCountStore.set("flights", enabled ? flights.length : 0);
+  }, [enabled, flights.length]);
 
   return { flights, timeRange, loading, dayLoading, availableDates, loadDay, prefetch, activeDate };
 }

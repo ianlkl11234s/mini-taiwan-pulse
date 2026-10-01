@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only validator.
 import { featureFilter, validate } from "mapbox-gl/dist/style-spec/index.cjs";
 import {
-  BRIDGE_RESILIENCE_CLICK_LAYERS, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_SOURCE_ID, decodeDestinationView, type VillageDestinations, type VillageImpacts,
+  BRIDGE_RESILIENCE_CLICK_LAYERS, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_SOURCE_ID, decodeDestinationView, type DecayVillageImpacts, type VillageDestinations, type VillageImpacts,
 } from "../../data/bridgeResilienceTypes";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
-import { applyDestinationState, applyVillageState, buildBridgeResilienceLayers, destTopFilter, highlightFilter, originFilter, routeFilter, type BridgeResilienceControls } from "../useBridgeResilienceLayers";
+import { applyDestinationState, applyVillageState, buildBridgeResilienceLayers, destTopFilter, fillColor, highlightFilter, originFilter, routeFilter, type BridgeResilienceControls } from "../useBridgeResilienceLayers";
 
 const passes = (filter: unknown, properties: Record<string, unknown>) => featureFilter(filter).filter({ zoom: 10 }, { type: 2, properties });
-const CONTROLS: BridgeResilienceControls = { mode: "car", showVillages: true, metric: "p90", showRoutes: true, joint: false };
+const CONTROLS: BridgeResilienceControls = { mode: "car", weighting: "uniform", showVillages: true, metric: "p90", showRoutes: true, joint: false };
 const STATE = { visible: true, opacity: 0.8, controls: CONTROLS, selected: "三鶯大橋" as string | null };
 
 describe("橋梁韌性 style layers", () => {
@@ -63,7 +63,11 @@ describe("選取高亮與替代路線 filter", () => {
 });
 
 describe("村里 feature-state", () => {
-  const data = { summary: { bridges: {} }, impacts: {
+  const decayImpacts: DecayVillageImpacts = {
+    scenarios: ["三鶯大橋|car", "關渡大橋+淡江大橋|car"],
+    villages: { "63000010002": { decay_mean_dT_s: [null, 5] }, "65000160008": { decay_mean_dT_s: [0, 130] } },
+  };
+  const data = { summary: { bridges: {} }, decaySummary: { bridges: {} }, decayImpacts, impacts: {
     scenarios: ["三鶯大橋|car"], villages: { "63000010002": { p90_dT_s: [null], affected_dest_pop_share: [0] }, "65000160008": { p90_dT_s: [120], affected_dest_pop_share: [0.2] } },
   } as VillageImpacts };
   const fakeMap = () => ({ getSource: vi.fn(() => ({})), setFeatureState: vi.fn(), removeFeatureState: vi.fn() });
@@ -75,6 +79,35 @@ describe("村里 feature-state", () => {
     const share = fakeMap();
     applyVillageState(share as never, data, "三鶯大橋|car", "share", true);
     expect(share.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: 63000010002 }), { has: 1, v: 0 });
+  });
+  it("距離遞減權重：改讀 decay_mean_dT_s；null 寫 has=0、0 是真實 0（has=1）；聯合情境可用", () => {
+    const map = fakeMap();
+    expect(applyVillageState(map as never, data, "三鶯大橋|car", "p90", true, "decay")).toBe(2);
+    expect(map.setFeatureState).toHaveBeenCalledWith({ source: "bridge-resilience", sourceLayer: "villages", id: 63000010002 }, { has: 0, v: 0 });
+    expect(map.setFeatureState).toHaveBeenCalledWith({ source: "bridge-resilience", sourceLayer: "villages", id: 65000160008 }, { has: 1, v: 0 });
+    const joint = fakeMap();
+    applyVillageState(joint as never, data, "關渡大橋+淡江大橋|car", "p90", true, "decay");
+    expect(joint.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: 65000160008 }), { has: 1, v: 130 });
+  });
+  it("距離遞減下 metric（p90／share）不影響結果；切回不分遠近才讀 p90", () => {
+    const a = fakeMap(); const b = fakeMap();
+    applyVillageState(a as never, data, "三鶯大橋|car", "p90", true, "decay");
+    applyVillageState(b as never, data, "三鶯大橋|car", "share", true, "decay");
+    expect(a.setFeatureState.mock.calls).toEqual(b.setFeatureState.mock.calls);
+    const uniform = fakeMap();
+    applyVillageState(uniform as never, data, "三鶯大橋|car", "p90", true, "uniform");
+    expect(uniform.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: 65000160008 }), { has: 1, v: 120 });
+  });
+  it("權重切換改變村里填色運算式；目的地視角（只有不分遠近資料）優先", () => {
+    const focus = { originId: null, topIds: [], active: false };
+    const decay = JSON.stringify(fillColor("p90", "decay", focus));
+    const uniform = JSON.stringify(fillColor("p90", "uniform", focus));
+    expect(decay).not.toBe(uniform);
+    expect(decay).toContain("#4c0519"); // 7 級的最深色
+    expect(decay).toContain("120");
+    expect(JSON.stringify(fillColor("p90", "decay", { originId: 1, topIds: [], active: true }))).toContain("#a855f7");
+    const layer = buildBridgeResilienceLayers({ ...STATE, controls: { ...CONTROLS, weighting: "decay" } }).find((l) => l.id === BRIDGE_RESILIENCE_LAYER_IDS.villageFill)!;
+    expect(JSON.stringify((layer.paint as Record<string, unknown>)["fill-color"])).toBe(decay);
   });
   it("關閉、沒有情境或沒有資料時清空 state；source 不存在不丟例外", () => {
     for (const args of [[data, "三鶯大橋|car", "p90", false], [data, null, "p90", true], [null, "三鶯大橋|car", "p90", true], [data, "不存在|car", "p90", true]] as const) {

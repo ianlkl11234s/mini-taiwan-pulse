@@ -7,7 +7,7 @@ import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensit
 import type { OverlayConfig } from "../types";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, mapSeamColor } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor } from "./mapStyleScale";
 
 /** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
 const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
@@ -387,10 +387,10 @@ function publicLifePointOverlay(
   // 拋出 continuePlacement undefined-length，進而中止整張地圖 render。
   // PMTiles 保留 circle/popup；名稱 label 只加在已驗證穩定的 GeoJSON source。
   const labelLayers: OverlayConfig["layers"] = pmtiles ? [] : [{
-    suffix: "label", type: "symbol", minzoom: options?.labelMinzoom ?? 14,
+    suffix: "label", type: "symbol", minzoom: Math.max(options?.labelMinzoom ?? 14, LABEL.minZoom),
     layout: {
       "text-field": ["get", "name"],
-      "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13],
+      ...poiLabelLayout(),
       "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
       "text-variable-anchor": ["top", "bottom", "left", "right"],
       "text-radial-offset": .8,
@@ -400,8 +400,7 @@ function publicLifePointOverlay(
     filter: labelFilter,
     paint: (dark, p) => ({
       "text-color": dark ? "#f8fafc" : "#0f172a",
-      "text-halo-color": dark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.94)",
-      "text-halo-width": 1.25,
+      ...labelHaloPaint(dark),
       "text-opacity": p?.[`${id}Opacity`] ?? .85,
     }),
   }];
@@ -431,7 +430,7 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
     { suffix: "fill", type: "fill", paint: (_dark, p) => ({ "fill-color": "#15803d", "fill-opacity": (p?.nationalParksOpacity ?? .5) * .55 }) },
     { suffix: "outline", type: "line", paint: (_dark, p) => ({ "line-color": "#22c55e", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .8, 12, 2.2], "line-opacity": p?.nationalParksOpacity ?? .5 }) },
   ] },
-  publicLifePointOverlay("visitorCentres", "./public_life/visitor_centres.geojson", "visitor-centres", PUBLIC_LIFE_COLORS.visitorCentres, undefined, undefined, undefined, { labelMinzoom: 10 }),
+  publicLifePointOverlay("visitorCentres", "./public_life/visitor_centres.geojson", "visitor-centres", PUBLIC_LIFE_COLORS.visitorCentres, undefined, undefined, undefined, { labelMinzoom: 13 }),
   { id: "publicLifeOsmCoverage", sourceUrl: "./public_life/public_life_osm_coverage.pmtiles", sourceId: "public-life-osm-coverage", pmtiles: { sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, attribution: "© OpenStreetMap contributors (ODbL) · 映射密度，不是服務品質、人口覆蓋或道路可達性", rebuildOnParamChange: ["fill", "outline"], layers: [
     { suffix: "fill", type: "fill", paint: (_d, p) => ({ "fill-color": ["step", ["coalesce", ["to-number", ["get", "observed_count"]], 0], "#e2e8f0", 1, "#bfdbfe", 5, "#60a5fa", 15, "#1d4ed8"], "fill-opacity": p?.publicLifeOsmCoverageOpacity ?? .55 }) },
     { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": "#2563eb", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .2, 12, .8], "line-opacity": (p?.publicLifeOsmCoverageOpacity ?? .55) * .8 }) },
@@ -815,14 +814,17 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
             "fill-extrusion-height": propertyValueGridHeightExpr(
               scaleIdx,
               p?.propertyValueGridContrast ?? 1.8,
-              p?.propertyValueGridElevationScale ?? 40,
+              (p?.propertyValueGridElevationScale ?? EXTRUSION.heightMultiplier) * EXTRUSION.propertyValueHeightBase,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ) as any,
             "fill-extrusion-base": 0,
             // ⚠️ fill-extrusion-opacity 不支援 data-driven → 只能給純數字（非 3D 模式壓 0 隱藏）；
             //    v_mkt=0 的格 height 恰為 0（FLOOR 以下 → norm 夾成 0），自然貼地不需另外淡出；
             //    人均灰格的「半透明」在 3D 同樣做不到 data-driven，僅靠 #555 色相標示
-            "fill-extrusion-opacity": extruded ? (p?.propertyValueGridOpacity ?? 0.7) : 0,
+            "fill-extrusion-opacity": extruded
+              ? Math.min(1, EXTRUSION.opacity * ((p?.propertyValueGridOpacity ?? 0.7) / 0.7))
+              : 0,
+            "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
           };
         },
       },
@@ -882,7 +884,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, p) => {
           const mode = resolveUrbanHeatMode(p?.urbanHeatModeIdx ?? 0);
           return {
-            "raster-opacity": p?.urbanHeatOpacity ?? 0.75,
+            "raster-opacity": p?.urbanHeatOpacity ?? RASTER.opacity,
             "raster-resampling": "nearest",
             "raster-fade-duration": 0,
             // 係數作用在 0–255 原始 DN（mapbox computeRasterColorMix 已含 ×255）→ raster-value = 物理值
@@ -2955,7 +2957,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: 16,
         layout: {
           "text-field": ["get", "name"],
-          "text-size": ["interpolate", ["linear"], ["zoom"], 14, 10, 17, 13],
+          ...poiLabelLayout(),
           "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
           "text-variable-anchor": ["top", "bottom", "left", "right"],
           "text-radial-offset": 0.8,
@@ -2969,8 +2971,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ],
         paint: (isDark, params) => ({
           "text-color": isDark ? "#f8fafc" : "#0f172a",
-          "text-halo-color": isDark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.94)",
-          "text-halo-width": 1.25,
+          ...labelHaloPaint(isDark),
           "text-opacity": params?.publicToiletsOpacity ?? 0.75,
         }),
       },
@@ -4915,6 +4916,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "buildings-gba",
     pmtiles: { sourceLayer: "buildings", minzoom: 8, maxzoom: 16 },
     rebuildOnParamChange: ["fill", "extrusion"],
+    rebuildOnParamKeys: ["buildingsGbaMinHeight"],
     layers: [
       {
         suffix: "fill",
@@ -4942,12 +4944,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => [">=", ["get", "h"], p?.buildingsGbaMinHeight ?? 0],
         paint: (_isDark, p) => {
           const modeIdx = p?.buildingsGbaModeIdx ?? 0;
-          const opacity = modeIdx === 2 ? (p?.buildingsGbaOpacity ?? 0.75) : 0; // 非 3D 模式壓 0 隱藏
+          const opacity = modeIdx === 2
+            ? Math.min(1, EXTRUSION.opacity * ((p?.buildingsGbaOpacity ?? 0.75) / 0.75))
+            : 0; // 非 3D 模式壓 0 隱藏
           return {
             "fill-extrusion-color": buildingHeightColorExpr(),
             "fill-extrusion-height": ["coalesce", ["get", "h"], 3],
             "fill-extrusion-base": 0,
             "fill-extrusion-opacity": opacity,
+            "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
           };
         },
       },
@@ -4996,7 +5001,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "fill-extrusion-color": jpBuildingHeightColorExpr(),
           "fill-extrusion-height": ["get", "height"],
           "fill-extrusion-base": 0,
-          "fill-extrusion-opacity": (p?.jpBuildingHeightModeIdx ?? 0) === 1 ? (p?.jpBuildingHeightOpacity ?? 0.75) : 0,
+          "fill-extrusion-opacity": (p?.jpBuildingHeightModeIdx ?? 0) === 1
+            ? Math.min(1, EXTRUSION.opacity * ((p?.jpBuildingHeightOpacity ?? 0.75) / 0.75))
+            : 0,
+          "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
         }),
       },
     ],
@@ -5597,7 +5605,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "raster", type: "raster",
         paint: (_isDark, p) => ({
-          "raster-opacity": p?.canopyHeightOpacity ?? 0.7,
+          "raster-opacity": p?.canopyHeightOpacity ?? RASTER.opacity,
           "raster-resampling": "nearest",
           // mapbox 把 channels 正規化為 0-1 再進 mix，故 R=公尺/255；6.375 = (1/40)×255 → mix 輸出=高度/40
           "raster-color-mix": [6.375, 0, 0, 0],
@@ -5628,7 +5636,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     layers: [{
       suffix: "raster", type: "raster",
       paint: (_isDark, p) => ({
-        "raster-opacity": p?.jpCanopyHeightOpacity ?? 0.7,
+        "raster-opacity": p?.jpCanopyHeightOpacity ?? RASTER.opacity,
         "raster-resampling": "nearest",
         "raster-color-mix": [6.375, 0, 0, 0],
         "raster-color-range": [0, 1],

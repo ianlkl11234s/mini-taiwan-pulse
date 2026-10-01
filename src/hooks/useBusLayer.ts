@@ -12,6 +12,7 @@ import { BusEngine } from "../engines/BusEngine";
 import { loadBusRoutesForCity, fetchBusCurrent, fetchBusTrails } from "../data/busLoader";
 import { timeStore } from "../state/timeStore";
 import { liveCountStore } from "../state/liveCountStore";
+import { requestThreeRepaint } from "../state/threeRepaintSignal";
 // AR-22 P4：城市清單改由本 hook 自己從 store 讀（per-key 訂閱）
 import { useLayerParams } from "../state/layerParamsStore";
 import { enabledBusCitiesOf } from "../state/layerParamRefs";
@@ -36,6 +37,12 @@ export function useBusLayer(
   const cities = useMemo(() => enabledBusCitiesOf(busParams), [busParams]);
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
+  /** 非 tick 灌入資料後立即重算一次位置並叫醒 3D —— 暫停中載入完成也看得到（PF-9） */
+  const refreshActiveBuses = () => {
+    if (!engineRef.current) return;
+    activeBusesRef.current = engineRef.current.update(timeStore.getTime());
+    requestThreeRepaint();
+  };
   const [loading, setLoading] = useState(false);
 
   // Replay LRU cache
@@ -91,6 +98,7 @@ export function useBusLayer(
         const positions = await fetchBusCurrent(cities);
         if (!cancelled && engineRef.current) {
           engineRef.current.ingestPoll(positions, Date.now() / 1000);
+          refreshActiveBuses();
           console.log(`[Bus] Poll: ${positions.length} vehicles`);
         }
       } catch (err) {
@@ -135,6 +143,7 @@ export function useBusLayer(
     if (cached) {
       loadedDayRef.current = fetchKey;
       engineRef.current.ingestTrails(cached.trails);
+      refreshActiveBuses();
       return;
     }
 
@@ -157,6 +166,7 @@ export function useBusLayer(
 
       loadedDayRef.current = fetchKey;
       engineRef.current.ingestTrails(trails);
+      refreshActiveBuses();
     } catch (err) {
       console.warn("[Bus] loadDay error:", err);
     } finally {
@@ -191,6 +201,7 @@ export function useBusLayer(
     };
 
     update(timeStore.getTime()); // 初始化
+    requestThreeRepaint(); // 非 tick 換了資料 ref（PF-9）
     return timeStore.subscribe(update);
   }, [enabled, engineRef.current !== null]);
 
@@ -199,6 +210,7 @@ export function useBusLayer(
     if (!enabled) {
       activeBusesRef.current = [];
       liveCountStore.set("buses", 0);
+      requestThreeRepaint();
     }
   }, [enabled]);
 
