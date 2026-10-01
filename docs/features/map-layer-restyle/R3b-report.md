@@ -411,3 +411,15 @@ A 值核對補充：Drone 真正 slider default 為 .45（line 原預設 .75）�
 | youbikeFullness | `/params/youbikeFullness/5/step` | `10` | `0.125` |
 | youbikeFullness | `/params/youbikeFullness/5/value` | `80` | `1` |
 | youbikeFullness | `/params/youbikeFullness/5/valueText` | `"80"` | `"1.000"` |
+
+## Claude 驗收（2026-10-01）
+
+- 獨立重跑：`npx tsc -b` 通過；`npx vitest run` 446 files 全過（未逾時）；黃金快照差異只在 D 文字、E 漸層、熱島透明度、遊客中心 minzoom（另 6 層 sourceUrl 差異來自 master #476／#477，非本輪）。
+- 併入最新 master（CHANGELOG 衝突已解），合併後重產快照一致。
+- 修正：
+  1. `useVesselWatchLayer.ts` 航跡分階的預設值誤用 0.7，改為規格預設 `OPACITY_DEFAULT`（0.9），預設時才是 reference 0.6。
+  2. `usePropertyValueAdminLayer.ts`、`realEstateHosts.tsx` 預設值 0.65 改回規格 0.7，預設時才是 graded 0.55。
+  3. BSS 橋梁方向線（offset／original／stage1）改 standard，保留方向線比情境線細的區分（原 z15 3.4 對 4）。
+  4. 颱風預測線維持平頭（點狀虛線 `[1, 2.5]` 加圓頭會變形），列為 L-3 例外。
+- 對照頁圖片 PNG → JPEG（28MB → 5.7MB）。
+- 已知、不擋 merge：舊分享連結若帶舊的擠出高度值（例 40），會被當成新倍率（URL 參數沒有範圍檢查；會員場景有）；`useMicroSensorsLayer` 換底圖後的圖層恢復依賴舊流程，master 既有、未在本輪退化；土壤液化接縫改由 thin 主體線包住細縫，視覺差異小。

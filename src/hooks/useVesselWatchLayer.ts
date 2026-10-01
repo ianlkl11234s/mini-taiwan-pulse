@@ -126,7 +126,7 @@ function buildLayers(map: MapboxMap, opacity: number, isDarkTheme: boolean): boo
         "line-color": CLASS_COLOR,
         "line-width": 1.4,
         "line-opacity": opacity * TRAIL_OPACITY_RATIO,
-      }, { "line-color": CLASS_COLOR, "line-width": 1.4, "line-opacity": 0.7 * TRAIL_OPACITY_RATIO }),
+      }, { "line-color": CLASS_COLOR, "line-width": 1.4, "line-opacity": OPACITY_DEFAULT * TRAIL_OPACITY_RATIO }),
     } as LineLayer);
   }
 
@@ -360,7 +360,7 @@ export function useVesselWatchLayer(
       }
     }
     if (map.getLayer(TRAIL_LINE_ID)) {
-      map.setPaintProperty(TRAIL_LINE_ID, "line-opacity", hookLineOpacity("vesselWatch", TRAIL_LINE_ID, o * TRAIL_OPACITY_RATIO, 0.7 * TRAIL_OPACITY_RATIO));
+      map.setPaintProperty(TRAIL_LINE_ID, "line-opacity", hookLineOpacity("vesselWatch", TRAIL_LINE_ID, o * TRAIL_OPACITY_RATIO, OPACITY_DEFAULT * TRAIL_OPACITY_RATIO));
     }
   }, [opacity, isDarkTheme, visible, mapRef, mapTick]);
 }

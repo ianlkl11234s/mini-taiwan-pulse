@@ -90,9 +90,9 @@ export function usePropertyValueAdminLayer(
         paint: hookFillPaint("propertyValueAdmin", config.fillLayerId, {
           "fill-color": propertyValueAdminColorExpression(level) as ExpressionSpecification,
           "fill-opacity": opacity,
-        }, { "fill-color": propertyValueAdminColorExpression(level) as ExpressionSpecification, "fill-opacity": 0.65 }),
+        }, { "fill-color": propertyValueAdminColorExpression(level) as ExpressionSpecification, "fill-opacity": 0.7 }),
       } as unknown as FillLayer, before);
-    } else map.setPaintProperty(config.fillLayerId, "fill-opacity", hookFillOpacity("propertyValueAdmin", config.fillLayerId, opacity, 0.65));
+    } else map.setPaintProperty(config.fillLayerId, "fill-opacity", hookFillOpacity("propertyValueAdmin", config.fillLayerId, opacity, 0.7));
     if (!map.getLayer(config.lineLayerId)) {
       map.addLayer({
         id: config.lineLayerId,
@@ -105,9 +105,9 @@ export function usePropertyValueAdminLayer(
           "line-color": "#fef3c7",
           "line-width": ["interpolate", ["linear"], ["zoom"], config.minzoom, 0.4, 10, 1.1],
           "line-opacity": Math.min(1, opacity + 0.15),
-        }, { "line-color": "#fef3c7", "line-width": ["interpolate", ["linear"], ["zoom"], config.minzoom, 0.4, 10, 1.1], "line-opacity": Math.min(1, 0.65 + 0.15) }, isDark),
+        }, { "line-color": "#fef3c7", "line-width": ["interpolate", ["linear"], ["zoom"], config.minzoom, 0.4, 10, 1.1], "line-opacity": Math.min(1, 0.7 + 0.15) }, isDark),
       } as unknown as LineLayer, before);
-    } else map.setPaintProperty(config.lineLayerId, "line-opacity", hookLineOpacity("propertyValueAdmin", config.lineLayerId, Math.min(1, opacity + 0.15), Math.min(1, 0.65 + 0.15), isDark));
+    } else map.setPaintProperty(config.lineLayerId, "line-opacity", hookLineOpacity("propertyValueAdmin", config.lineLayerId, Math.min(1, opacity + 0.15), Math.min(1, 0.7 + 0.15), isDark));
     map.setPaintProperty(config.lineLayerId, "line-color", hookLinePaint("propertyValueAdmin", config.lineLayerId, { "line-color": "#fef3c7" }, {}, isDark)["line-color"] as string);
 
     setLevelVisible(map, level === "county" ? "township" : "county", false);

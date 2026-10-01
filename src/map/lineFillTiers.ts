@@ -147,10 +147,10 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "bssNationalBridgePreview/bss-national-bridge-preview-near-curved-carrier-local-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
   "bssNationalBridgePreview/bss-national-bridge-preview-no-crossing-nearest-route-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
   "bssNationalBridgePreview/bss-national-bridge-preview-no-waterway-carrier-consensus-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
-  "bssNationalBridgePreview/bss-national-bridge-preview-offset-direction-line": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-offset-direction-line": {"width": "standard", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts（方向線原本比情境線細，保留粗細區分，Claude 驗收修正）
   "bssNationalBridgePreview/bss-national-bridge-preview-ordinary-route-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
-  "bssNationalBridgePreview/bss-national-bridge-preview-original-direction-line": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
-  "bssNationalBridgePreview/bss-national-bridge-preview-stage1-local-direction-candidate": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-original-direction-line": {"width": "standard", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts（方向線原本比情境線細，保留粗細區分，Claude 驗收修正）
+  "bssNationalBridgePreview/bss-national-bridge-preview-stage1-local-direction-candidate": {"width": "standard", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts（方向線原本比情境線細，保留粗細區分，Claude 驗收修正）
   "bssNationalBridgePreview/bss-national-bridge-preview-tied-route-consensus-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
   "bssNationalBridgePreview/bss-national-bridge-preview-waterway-crossing-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
   "coralReefDistribution/coral-reef-distribution-line": {"width": "thin", "opacity": "reference"}, // src/hooks/useCoralReefDistributionLayer.ts

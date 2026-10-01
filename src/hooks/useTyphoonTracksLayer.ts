@@ -129,7 +129,8 @@ export function useTyphoonTracksLayer(
         type: "line",
         source: SRC_LINES,
         filter: ["==", ["get", "point_type"], "forecast"],
-        layout: hookLineLayout("typhoonTracks", LAYER_LINE_FCST),
+        // 預測線是點狀虛線 [1, 2.5]，圓頭會把點拉長、間隔變短 → 維持平頭（L-3 例外）
+        layout: { ...hookLineLayout("typhoonTracks", LAYER_LINE_FCST), "line-cap": "butt" },
         paint: hookLinePaint("typhoonTracks", LAYER_LINE_FCST, {
           "line-color": FCST_COLOR,
           "line-width": ["interpolate", ["linear"], ["zoom"], 3, 1, 8, 2] as unknown as ExpressionSpecification,
