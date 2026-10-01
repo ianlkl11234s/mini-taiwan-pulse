@@ -85,6 +85,23 @@ async function flush() {
 }
 
 describe("startTimelineSliceController", () => {
+  it("updateStyle 只改樣式：不重抓資料、不重訂閱、不 setData", async () => {
+    const { map, setDataCalls } = createMockMap();
+    const ts = createMockTimeStore("2026-06-09", 1234);
+    const paints: unknown[][] = [];
+    const { config, loadCalls } = makeConfig({ updatePaint: (_m, d, s, o) => { paints.push([d, s, o]); } });
+    const dispose = startTimelineSliceController(map, config, true, 1, 1, { timeStore: ts.store, keepLoading: noopKeepLoading });
+    await flush();
+    const loadsBefore = loadCalls.length;
+    const setDataBefore = setDataCalls.length;
+    dispose.updateStyle(false, 1.5, 0.4);
+    await flush();
+    expect(loadCalls.length).toBe(loadsBefore);
+    expect(setDataCalls.length).toBe(setDataBefore);
+    expect(paints[paints.length - 1]).toEqual([false, 1.5, 0.4]);
+    dispose();
+  });
+
   it("attaches layers, loads current day, and redraws", async () => {
     const { map, setDataCalls, layers } = createMockMap();
     const ts = createMockTimeStore("2026-06-09", 1234);

@@ -276,6 +276,9 @@ export function useFloodSensorLayer(
 
   const byStationRef = useRef<Map<string, StationSeries>>(new Map());
   const currentDateRef = useRef<string>("");
+  // 主題／大小／透明度只走 ref + 下方樣式 effect，不進資料 effect 的 deps（避免重抓／重訂閱）
+  const styleRef = useRef({ isDark, scale, opacity });
+  styleRef.current = { isDark, scale, opacity };
 
   useEffect(() => {
     if (!visible) return;
@@ -288,8 +291,9 @@ export function useFloodSensorLayer(
     const attach = () => {
       if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark, scale, opacity);
-      updatePaint(map, isDark, scale, opacity);
+      const st = styleRef.current;
+      ensureLayers(map, st.isDark, st.scale, st.opacity);
+      updatePaint(map, st.isDark, st.scale, st.opacity);
       setLayerVisibility(map, true);
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     };
@@ -330,12 +334,33 @@ export function useFloodSensorLayer(
     });
     const unsubTime = timeStore.subscribeThrottled(THROTTLE_MS, redraw);
 
+    // 換底圖（setStyle）會清掉自訂 source/layer：重建後用已快取資料重畫，不重新抓
+    const onStyleLoad = () => {
+      if (cancelled) return;
+      try {
+        const st = styleRef.current;
+        ensureLayers(map, st.isDark, st.scale, st.opacity);
+        updatePaint(map, st.isDark, st.scale, st.opacity);
+        setLayerVisibility(map, true);
+        redraw();
+      } catch { /* style 尚未就緒，下次 style.load 再試 */ }
+    };
+    map.on("style.load", onStyleLoad);
+
     return () => {
       cancelled = true;
+      map.off("style.load", onStyleLoad);
       if (pollTimer) clearInterval(pollTimer);
       unsubDate();
       unsubTime();
       try { if (map.getLayer(LAYER_DOT)) setLayerVisibility(map, false); } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, visible, mapTick]);
+
+  // 主題／大小／透明度：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.isStyleLoaded()) return;
+    updatePaint(map, isDark, scale, opacity);
   }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

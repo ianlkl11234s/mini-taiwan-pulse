@@ -148,6 +148,9 @@ export function useCwaImageryLayer({
   // 最新可見性（給 subscribeDate / 背景預載 callback 避免閉包過期）
   const visRef = useRef({ cloud: cloudVisible, radar: radarVisible });
   visRef.current = { cloud: cloudVisible, radar: radarVisible };
+  // 透明度只走 ref + 下方樣式 effect，不進 lifecycle effect 的 deps（避免重訂閱 timeStore）
+  const opacityRef = useRef({ cloud: cloudOpacity, radar: radarOpacity });
+  opacityRef.current = { cloud: cloudOpacity, radar: radarOpacity };
   // per-dataset cache：dsId → dateKey → CacheSlot；access order 維護 LRU（last = 最近用過）
   const cacheRef = useRef<Map<string, Map<string, CacheSlot>>>(new Map());
   const orderRef = useRef<Map<string, string[]>>(new Map());
@@ -346,12 +349,12 @@ export function useCwaImageryLayer({
       try {
         // 可見性同時看 visRef（render 時更新的最新值）：被關掉後若還有舊 closure 的 run
         // 遲到觸發（實測 All Off 後曾有一次舊 timer 把雷達又設回 visible），也只會隱藏。
-        reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible && visRef.current.cloud, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
+        reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible && visRef.current.cloud, opacityRef.current.cloud, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
       } catch {
         scheduleRetry();
       }
       try {
-        reconcile(radarRef.current, RADAR_DATASET, radarVisible && visRef.current.radar, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
+        reconcile(radarRef.current, RADAR_DATASET, radarVisible && visRef.current.radar, opacityRef.current.radar, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
       } catch {
         scheduleRetry();
       }
@@ -403,7 +406,13 @@ export function useCwaImageryLayer({
       if (retryPending) map.off("idle", retry);
       if (runRef.current === run) runRef.current = null;
     };
-  }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity, mapTick]);
+  }, [mapRef, cloudVisible, radarVisible, mapTick]);
+
+  // 透明度：只改 paint（handle 已存在才套用；新建 handle 時 reconcile 會帶入最新值）
+  useEffect(() => {
+    try { cloudRef.current.handle?.setOpacity(cloudOpacity); } catch { /* style 轉換中，下次 reconcile 補上 */ }
+    try { radarRef.current.handle?.setOpacity(radarOpacity); } catch { /* 同上 */ }
+  }, [cloudOpacity, radarOpacity, mapTick]);
 
   // 注：原本獨立的 preloadDays effect 已不需要 — window 變動會由 subscribeWindowDateKeys
   // 觸發 ensureFresh，evict 邏輯在那裡執行（保護視窗內所有日）。

@@ -96,24 +96,55 @@ export function useAnimalWelfarePointsLayer(
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const loaded = useRef(false);
+  // 最近一次成功載入的資料：換底圖（style.load）後用它重畫，不重抓
+  const rowsRef = useRef<AnimalWelfarePointRow[] | null>(null);
+  // 樣式值只走 ref + 下方樣式 effect，不進抓資料 effect 的 deps
+  const styleRef = useRef({ opacity, scale, isDark, pointTypeMask });
+  styleRef.current = { opacity, scale, isDark, pointTypeMask };
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     let cancelled = false;
     const run = async () => {
-      ensureLayers(map, opacity, scale, isDark, pointTypeMask);
+      const st = styleRef.current;
+      ensureLayers(map, st.opacity, st.scale, st.isDark, st.pointTypeMask);
       if (!visible) { setVisible(map, false); return; }
       if (!loaded.current) {
         const rows = await fetchAnimalWelfarePoints();
         if (cancelled) return;
+        rowsRef.current = rows;
         setData(map, rows);
         loaded.current = true;
         keepLoadingUntilMapIdle(map, "animal-welfare-points-render", "動物福利服務點圖層渲染中", SOURCE_ID);
       }
-      updatePaint(map, opacity, scale, isDark, pointTypeMask);
+      const cur = styleRef.current;
+      updatePaint(map, cur.opacity, cur.scale, cur.isDark, cur.pointTypeMask);
       setVisible(map, true);
     };
     run().catch((error) => console.warn("[AnimalWelfarePoints] service points unavailable", error));
-    return () => { cancelled = true; };
+
+    // 換底圖（setStyle）清掉自訂 source／layer：重建後用快取資料重畫（不重抓）
+    const onStyleLoad = () => {
+      if (cancelled) return;
+      try {
+        const st = styleRef.current;
+        ensureLayers(map, st.opacity, st.scale, st.isDark, st.pointTypeMask);
+        updatePaint(map, st.opacity, st.scale, st.isDark, st.pointTypeMask);
+        if (rowsRef.current) setData(map, rowsRef.current);
+      } catch { /* style 尚未就緒 */ }
+    };
+    map.on("style.load", onStyleLoad);
+
+    return () => {
+      cancelled = true;
+      map.off("style.load", onStyleLoad);
+    };
+  }, [mapRef, visible, mapTick]);
+
+  // 透明度／大小／主題／類型篩選：只改 paint／filter
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.getLayer(CIRCLE_ID)) return;
+    updatePaint(map, opacity, scale, isDark, pointTypeMask);
   }, [mapRef, visible, opacity, scale, isDark, pointTypeMask, mapTick]);
 }

@@ -136,6 +136,9 @@ export function useFireEventsLayer(
 
   const lastYearRef = useRef<number | null>(null);
   const yearEventsRef = useRef<FireEvent[]>([]);
+  // 主題／透明度只走 ref + 下方樣式 effect，不進資料 effect 的 deps（避免 setData 重送）
+  const styleRef = useRef({ isDarkTheme, opacity });
+  styleRef.current = { isDarkTheme, opacity };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -144,8 +147,8 @@ export function useFireEventsLayer(
 
     const run = async () => {
       try {
-        ensureLayer(map, isDarkTheme);
-        updateOpacity(map, isDarkTheme, opacity);
+        ensureLayer(map, styleRef.current.isDarkTheme);
+        updateOpacity(map, styleRef.current.isDarkTheme, styleRef.current.opacity);
       } catch {
         return;
       }
@@ -165,8 +168,28 @@ export function useFireEventsLayer(
       setVisible(map, true);
     };
     run();
+
+    // 換底圖（setStyle）會清掉自訂 source/layer：用已快取資料重建，不重新抓
+    const onStyleLoad = () => {
+      if (!visible || lastYearRef.current !== year) return;
+      try {
+        ensureLayer(map, styleRef.current.isDarkTheme);
+        updateOpacity(map, styleRef.current.isDarkTheme, styleRef.current.opacity);
+        setData(map, filterByGranularity(yearEventsRef.current, granularity, month, day));
+        setVisible(map, true);
+      } catch { /* style 尚未就緒，下次 style.load 再試 */ }
+    };
+    map.on("style.load", onStyleLoad);
     return () => {
       cancelled = true;
+      map.off("style.load", onStyleLoad);
     };
-  }, [mapRef, visible, year, month, day, granularity, isDarkTheme, opacity, mapTick]);
+  }, [mapRef, visible, year, month, day, granularity, mapTick]);
+
+  // 主題／透明度：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible) return;
+    updateOpacity(map, isDarkTheme, opacity);
+  }, [mapRef, visible, isDarkTheme, opacity, mapTick]);
 }

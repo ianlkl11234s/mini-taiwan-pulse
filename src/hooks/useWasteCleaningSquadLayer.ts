@@ -93,6 +93,11 @@ export function useWasteCleaningSquadLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const loadedRef = useRef(false);
+  // 最近一次成功載入的資料：換底圖（style.load → run）後用它重畫，不重抓
+  const rowsRef = useRef<WasteCleaningSquadRow[] | null>(null);
+  // 主題只改樣式：資料 effect 讀 ref，不把 isDarkTheme 放進 deps
+  const isDarkRef = useRef(isDarkTheme);
+  isDarkRef.current = isDarkTheme;
 
   useEffect(() => {
     const map = mapRef.current;
@@ -116,10 +121,10 @@ export function useWasteCleaningSquadLayer(
         return;
       }
       try {
-        ensureLayer(map, isDarkTheme);
+        ensureLayer(map, isDarkRef.current);
         if (map.getLayer(CORE_LAYER_ID)) {
           {
-            const stroke = pointStrokePaint(isDarkTheme);
+            const stroke = pointStrokePaint(isDarkRef.current);
             map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
             map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
             map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
@@ -132,8 +137,12 @@ export function useWasteCleaningSquadLayer(
       if (!loadedRef.current) {
         const rows = await fetchWasteCleaningSquads();
         if (cancelled) return;
+        rowsRef.current = rows;
         setData(map, rows);
         loadedRef.current = true;
+      } else if (rowsRef.current) {
+        // 換底圖後 source 被清空：用快取重畫
+        setData(map, rowsRef.current);
       }
       setVisible(map, true);
     };
@@ -146,5 +155,15 @@ export function useWasteCleaningSquadLayer(
       map.off("style.load", run);
       if (retryPending) map.off("idle", retry);
     };
+  }, [mapRef, visible, mapTick]);
+
+  // 主題：只改描邊 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.getLayer(CORE_LAYER_ID)) return;
+    const stroke = pointStrokePaint(isDarkTheme);
+    map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
   }, [mapRef, visible, isDarkTheme, mapTick]);
 }

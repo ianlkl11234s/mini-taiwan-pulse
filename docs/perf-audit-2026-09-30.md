@@ -113,6 +113,15 @@
 - `addOverlay`（含換底圖重建）會清掉過期標記。
 - 結果：全關時一次更新 280ms → 0.1ms；隱藏時拖河川透明度 0.3 → 地圖不動，打開時補套成 0.255、開著拖回立即生效（瀏覽器實測）。單元測試：`overlayManager.test.ts`「隱藏圖層跳過、打開時補套」。
 
+## 7. 後續：切主題／拖透明度不重抓資料（2026-10-01）
+
+規則：主題、透明度、大小只改樣式（`setPaintProperty`），不可重抓資料、`setData`、重建圖層或重新訂閱 timeStore。
+
+- 靜態掃描 hook 中「deps 含主題／透明度、body 會抓資料或建圖層」的 effect 共 38 個，逐檔確認：19 個 hook＋共用工廠 `src/hooks/factories/timelineSliceLayer.ts`（地下水、河川水位、雨量）要修；日本 11 個與其餘為冪等 add-if-missing，不用改。
+- 做法：抓資料／生命週期 effect 拿掉樣式 deps，初始樣式讀 ref；另開只 `setPaintProperty` 的樣式 effect。工廠 controller 回傳 `updateStyle()`。
+- 換底圖（`setStyle`）會清掉自訂圖層：以前靠 `isDark` 變動重跑 effect「順便」重建（代價是重抓）。現在各 hook 監聽 `style.load`，用快取資料重建＋`setData`，不重抓。`style.load` 當下 `isStyleLoaded()` 可能仍為 false，重建要略過這個檢查。
+- 瀏覽器實測（雨量、淹水感測、抽水站、IoT 結構物、最新火災、清潔隊、動物福利據點）：暗→淡→暗兩次換底圖，七層都在、筆數不變，資料請求 0（唯一請求是 registry 靜態檔重新灌入，既有行為）；四個透明度滑桿拖到最小，資料請求 0。
+
 ## 3. 沒做／待決定
 
 見 `.claude/memory/BACKLOG.md` §Performance audit follow-ups：

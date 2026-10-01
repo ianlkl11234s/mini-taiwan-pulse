@@ -79,6 +79,9 @@ export function useAqiStationsLayer(
   const stationsRef = useRef<AqiStation[]>([]);
   const fetchingKeyRef = useRef<string>("");
   const lastKeyRef = useRef<string>("");
+  // 主題只改樣式：資料 effect 讀 ref，不把 isDark 放進 deps（避免重訂閱 timeStore）
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
 
   // ── 根據當前時刻（或最新）抓測站資料 + 寫到 Mapbox source ──
   useEffect(() => {
@@ -114,7 +117,7 @@ export function useAqiStationsLayer(
       const m = mapRef.current;
       if (!m) return;
       if (!m.isStyleLoaded()) return;
-      ensureLayers(m, isDark);
+      ensureLayers(m, isDarkRef.current);
 
       // 粒度對齊到小時（避免每分鐘 refetch）
       const hourMs = Math.floor((currentTimeSec * 1000) / 3600000) * 3600000;
@@ -149,6 +152,15 @@ export function useAqiStationsLayer(
       return timeStore.subscribeThrottled(5000, refresh);
     };
 
+    // 換底圖（setStyle）清掉自訂圖層：重建後用已抓的測站資料重畫（不重抓）
+    const onStyleLoad = () => {
+      if (cancelled) return;
+      ensureLayers(map, isDarkRef.current);
+      const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+      if (src && stationsRef.current.length) src.setData(buildStationsGeoJSON(stationsRef.current));
+    };
+    map.on("style.load", onStyleLoad);
+
     let unsub: (() => void) | null = null;
     if (!map.isStyleLoaded()) {
       const onLoad = () => {
@@ -158,6 +170,7 @@ export function useAqiStationsLayer(
       return () => {
         cancelled = true;
         map.off("load", onLoad);
+        map.off("style.load", onStyleLoad);
         if (unsub) unsub();
       };
     }
@@ -165,9 +178,10 @@ export function useAqiStationsLayer(
     unsub = startSubscription();
     return () => {
       cancelled = true;
+      map.off("style.load", onStyleLoad);
       if (unsub) unsub();
     };
-  }, [mapRef, visible, isDark, mapTick]);
+  }, [mapRef, visible, mapTick]);
 
   // ── 主題變更時刷新 paint ──
   useEffect(() => {
