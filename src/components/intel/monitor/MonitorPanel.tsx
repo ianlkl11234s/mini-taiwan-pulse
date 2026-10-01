@@ -58,6 +58,8 @@ import {
   MONITOR_SPLIT_DOCK, MONITOR_SPLIT_VISIBLE_LAYOUT, type MonitorMode,
 } from "./monitorSplitLayout";
 import { useNewsFilter } from "../../../hooks/useNewsFilter";
+import { isNewsLocationEvidencePocEnabled, shouldMountNewsLocationEvidencePoc } from "../../../lib/newsLocationEvidencePocFlag";
+import { NewsLocationEvidencePocPanel } from "./NewsLocationEvidencePocPanel";
 
 const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
@@ -255,6 +257,7 @@ export function MonitorPanel({
   onSelectLocation, externalSelectedId,
   mode: modeProp, onModeChange: onModeChangeProp,
 }: Props) {
+  const showNewsLocationEvidencePoc = shouldMountNewsLocationEvidencePoc(open, isNewsLocationEvidencePocEnabled());
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
   const filter = filterProp ?? storeFilter;
@@ -824,6 +827,11 @@ export function MonitorPanel({
           padding: "14px 16px 18px",
         }}
       >
+        {showNewsLocationEvidencePoc && (
+          <div style={{ marginBottom: MONITOR_GRID_GAP }}>
+            <NewsLocationEvidencePocPanel day={dayKey} open={open} />
+          </div>
+        )}
       {/* 內容縮放層：字級／間距／圖表等比放大（見 MONITOR_CONTENT_ZOOM）。
           刻意包在 gridRef 內層 —— gridRef 要維持實體 px 才量得準 isStacked，
           而 zoom 會讓子層的邏輯座標系縮小（實寬 835 → 邏輯 726），
