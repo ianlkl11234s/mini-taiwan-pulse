@@ -11,6 +11,8 @@ import {
 } from "../../../data/intelLoaders";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 /**
  * 共機擾台戰情板（migration 332/333）
@@ -43,18 +45,23 @@ export function PlaBoard({ open }: Props) {
   const kinds = kindsQuery.data;
 
   const latest = days.length ? days[days.length - 1]! : null;
+  const v2 = useMonitorV2();
+  // 資料期別＝最新 report_date（YYYY-MM-DD → MM/DD）
+  useMonitorCardHeader({ timeText: latest ? latest.reportDate.slice(5).replace("-", "/") : null });
 
   return (
     // zoom：本板內文大量是 8.5~10px 字面值，比其他卡的 FONT_SIZE token 小一截，
     // 疊在 MonitorPanel 的全域縮放之上補齊（見 MONITOR_DENSE_CARD_ZOOM 註解）
-    <div style={{ zoom: MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
-      <SectionLabel color="#ff6b6b">共機擾台 · PLA SITUATION BOARD</SectionLabel>
+    <div style={{ zoom: v2 ? undefined : MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
+      {!v2 && <SectionLabel color="#ff6b6b">共機擾台 · PLA SITUATION BOARD</SectionLabel>}
       <div
         style={{
-          borderRadius: RADIUS.xl,
-          border: `1px solid ${COLORS.panelBorder}`,
-          background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
-          padding: "12px 14px",
+          ...(v2 ? {} : {
+            borderRadius: RADIUS.xl,
+            border: `1px solid ${COLORS.panelBorder}`,
+            background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
+            padding: "12px 14px",
+          }),
           display: "flex", flexDirection: "column", gap: 11,
           // 本板走 fit:"content"（見 monitorLayout）：高度由內容決定，不留死白也不格內捲
           flex: 1, minHeight: 0,
@@ -87,6 +94,7 @@ export function PlaBoard({ open }: Props) {
 /* ── 嚴重度頭部 ─────────────────────────────────────────── */
 
 function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSituationSummary }) {
+  const v2 = useMonitorV2();
   const lv = (day.level ?? 1) as PlaLevel;
   const color = day.level === null ? COLORS.textFaint : PLA_LEVEL_COLORS[lv];
   const label = day.level === null ? "資料未解析" : PLA_LEVEL_LABELS[lv];
@@ -107,7 +115,7 @@ function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSitua
         }}
       >
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textDim }}>
-          SEVERITY
+          {v2 ? "嚴重度" : "SEVERITY"}
         </span>
         <span style={{ fontFamily: FONT_CJK, fontSize: 22, fontWeight: 700, lineHeight: 1.1, color }}>
           {label}
@@ -190,6 +198,7 @@ type TrendWindow = (typeof TREND_WINDOWS)[number];
 
 function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
   const tip = useChartTooltip();
+  const v2 = useMonitorV2();
   const [win, setWin] = useState<TrendWindow>(120);
   const shown = useMemo(() => (win >= days.length ? days : days.slice(-win)), [days, win]);
 
@@ -241,7 +250,7 @@ function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSitua
           </div>
         }
       >
-        {win}D TREND · 架次（柱）／越中線（疊色）· 灰=解析失敗
+        {v2 ? `近 ${win} 天` : `${win}D TREND`} · 架次（柱）／越中線（疊色）· 灰=解析失敗
       </RowLabel>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height: 190, flex: "none" }}>
         {shown.map((d) => {
@@ -412,9 +421,10 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
 }
 
 function RowLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+  const v2 = useMonitorV2();
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-      <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.1px", color: COLORS.textDim, whiteSpace: "nowrap" }}>
+      <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.1px", color: COLORS.textDim, whiteSpace: v2 ? "normal" : "nowrap", minWidth: 0 }}>
         {children}
       </span>
       <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />

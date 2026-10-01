@@ -61,7 +61,7 @@ import { useNewsFilter } from "../../../hooks/useNewsFilter";
 import {
   MonitorStyleContext, loadMonitorStyle, saveMonitorStyle, type MonitorStyle,
 } from "./monitorStyle";
-import { MonitorCardFrame } from "./MonitorCardFrame";
+import { MonitorCardFrame, MonitorCardTime } from "./MonitorCardFrame";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
 
 const EMPTY_PRESSURE: PressureIndexNow = {
@@ -98,6 +98,27 @@ const MONITOR_STACK_ORDER_SPLIT: MonitorGridItem[] = [...MONITOR_SPLIT_VISIBLE_L
 );
 /** split 座標 → 欄/列樹 */
 const monitorTreeSplit: MonitorNode = buildMonitorTree(MONITOR_SPLIT_VISIBLE_LAYOUT);
+
+// ── v2 卡片殼的高度補償 ──
+// v2 每格多一條標題列（約 1 列高），固定高的格子（非 fit:content）內容會被裁掉
+// （實測警訊整合六宮格、信號分級第三欄）。只加高這幾格並順移其下的格子，
+// 維持左右兩欄同止（split：左 14+4＝右 6+7+5＝18；dock：左 13＝中 8+5＝右 9+4）。
+const V2_ADJUST_SPLIT: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>> = {
+  alertBoard: { h: 7 }, hotZones: { y: 13 }, triage: { h: 4 },
+};
+const V2_ADJUST_DOCK: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>> = {
+  newsFeed: { h: 13 }, alertBoard: { h: 8 }, hotZones: { y: 8 }, triage: { h: 4 },
+};
+const adjustLayout = (
+  layout: MonitorGridItem[], adj: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>>,
+): MonitorGridItem[] => layout.map((it) => ({ ...it, ...adj[it.i] }));
+const V2_LAYOUT = adjustLayout(MONITOR_VISIBLE_LAYOUT, V2_ADJUST_DOCK);
+const V2_LAYOUT_SPLIT = adjustLayout(MONITOR_SPLIT_VISIBLE_LAYOUT, V2_ADJUST_SPLIT);
+const byYX = (a: MonitorGridItem, b: MonitorGridItem) => a.y - b.y || a.x - b.x;
+const V2_STACK_ORDER = [...V2_LAYOUT].sort(byYX);
+const V2_STACK_ORDER_SPLIT = [...V2_LAYOUT_SPLIT].sort(byYX);
+const v2Tree: MonitorNode = buildMonitorTree(V2_LAYOUT);
+const v2TreeSplit: MonitorNode = buildMonitorTree(V2_LAYOUT_SPLIT);
 
 /** v2 標頭的中文模式名（舊版維持 Dock／Split／Wall） */
 const MODE_LABEL_V2: Record<MonitorMode, string> = { dock: "停靠", split: "分割", wall: "全屏" };
@@ -576,15 +597,25 @@ export function MonitorPanel({
 
   const severeCount = allEventsToday.filter((e) => (e.severity ?? 0) >= 3).length;
 
+  // 新聞三格（時間軸、熱區、信號分級）的資料時間＝已上圖的最新一則發布時間。
+  // 取未經縣市／類別篩選的整份資料，否則切到冷門縣市時間會倒退、看起來像停更。
+  let latestNewsTs: number | null = null;
+  for (const c of clusters) for (const e of c.events) {
+    if (latestNewsTs === null || e.published_ts > latestNewsTs) latestNewsTs = e.published_ts;
+  }
+  const newsTime = <MonitorCardTime time={latestNewsTs != null ? latestNewsTs * 1000 : null} />;
+
   // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
   const newsDerived = (children: ReactNode) => <>
+    {newsTime}
     <MonitorDataStatus label="新聞資料" query={clustersQuery} />
     {clustersQuery.lastSuccessAt !== null ? children : null}
   </>;
 
   const widgets: Record<MonitorWidgetId, ReactNode> = {
+    // 警訊整合不送資料時間：警報 RPC 只回計數、不帶警報時間（瀏覽器收到的時間不是資料時間）
     newsFeed: (
-      <><MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
+      <>{newsTime}<MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
         events={flatEvents}
         cats={cats}
         onToggleCat={toggleCat}
@@ -727,7 +758,9 @@ export function MonitorPanel({
         style={{
           flexShrink: 0, position: "relative",
           display: "flex", alignItems: "center", gap: 10,
-          padding: "8px 14px",
+          // v2：窄面板（1440 以下的 split）時整排換行，切換鈕與「退出」不會被裁掉
+          flexWrap: v2 ? "wrap" : undefined, rowGap: v2 ? 6 : undefined,
+          padding: v2 ? "10px 14px" : "8px 14px",
           borderBottom: `1px solid ${COLORS.panelBorder}`,
           cursor: mode === "dock" ? "ns-resize" : "default",
         }}
@@ -911,7 +944,9 @@ export function MonitorPanel({
         }}
       >
         {isStacked
-          ? (isSplit ? MONITOR_STACK_ORDER_SPLIT : MONITOR_STACK_ORDER).map((item) => (
+          ? (v2
+              ? (isSplit ? V2_STACK_ORDER_SPLIT : V2_STACK_ORDER)
+              : (isSplit ? MONITOR_STACK_ORDER_SPLIT : MONITOR_STACK_ORDER)).map((item) => (
               <div
                 key={item.i}
                 className="mtp-scroll mtp-monitor-cell"
@@ -929,7 +964,7 @@ export function MonitorPanel({
                 {cells[item.i]}
               </div>
             ))
-          : renderMonitorNode(isSplit ? monitorTreeSplit : monitorTree, cells)}
+          : renderMonitorNode(v2 ? (isSplit ? v2TreeSplit : v2Tree) : (isSplit ? monitorTreeSplit : monitorTree), cells)}
       </div>
       </div>
 

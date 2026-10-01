@@ -6,6 +6,8 @@ import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkl
 import { fetchAirportHourlyPax, type AirportPaxBucket } from "../../../data/airportPaxLoader";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 const AIRPORTS: Array<{ code: string; label: string }> = [
   { code: "TPE", label: "桃園 TPE" },
@@ -18,6 +20,7 @@ const EMPTY_PAX: AirportPaxBucket[] = [];
 interface Props { open: boolean }
 
 export function AirportPaxCard({ open }: Props) {
+  const v2 = useMonitorV2();
   const [activeCode, setActiveCode] = useState("TPE");
   const load = useCallback(() => fetchAirportHourlyPax(activeCode, 24), [activeCode]);
   const query = useMonitorResource({
@@ -36,12 +39,15 @@ export function AirportPaxCard({ open }: Props) {
   const sumIn = inSeries.reduce((s, p) => s + p.v, 0);
   const sumOut = outSeries.reduce((s, p) => s + p.v, 0);
   const hasReadableData = query.status === "ready" || query.lastSuccessAt !== null;
+  // 標題列時間＝最新一筆快照小時（沒資料時退回最後成功更新）
+  const latestBucket = query.data.reduce((m, r) => Math.max(m, Date.parse(r.hour_bucket) || 0), 0);
+  useMonitorCardHeader({ time: latestBucket > 0 ? latestBucket : query.lastSuccessAt });
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color={COLORS.accent}>機場入出境 · BORDER PAX 24H</SectionLabel>
+      {!v2 && <SectionLabel color={COLORS.accent}>機場入出境 · BORDER PAX 24H</SectionLabel>}
       <div
-        style={{
+        style={v2 ? { display: "flex", flexDirection: "column", gap: 8, minWidth: 0 } : {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: "linear-gradient(160deg, rgba(14,165,233,0.06), rgba(255,255,255,0.012))",
@@ -82,7 +88,7 @@ export function AirportPaxCard({ open }: Props) {
           </div>
         ) : inSeries.length === 0 ? (
           <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-            無資料（border_airport_snapshot 未涵蓋此機場）
+            {v2 ? "無資料（此機場未涵蓋）" : "無資料（border_airport_snapshot 未涵蓋此機場）"}
           </div>
         ) : (
           <>
@@ -92,7 +98,7 @@ export function AirportPaxCard({ open }: Props) {
           </>
         )}
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-          來源：移民署 APIS（每小時 / get_airport_hourly_pax）
+          {v2 ? "來源：移民署 APIS（每小時）" : "來源：移民署 APIS（每小時 / get_airport_hourly_pax）"}
         </div>
       </div>
     </div>

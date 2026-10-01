@@ -716,7 +716,13 @@
 
 ### 5.35 監看模式卡片
 
-2026-10-01 拍板（比較頁 `docs/features/monitor-restyle/picks.html`，代號 A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1），**尚未實作**；實作分階段見 `docs/features/monitor-restyle/README.md`「實作順序」。盤點與證據同目錄（2026-09-30）。
+2026-10-01 拍板（比較頁 `docs/features/monitor-restyle/picks.html`，代號 A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；實作分階段見 `docs/features/monitor-restyle/README.md`「實作順序」。盤點與證據同目錄（2026-09-30）。
+
+**實作狀態**：P1 完成（卡片殼、標題列、面板標頭中文化、窄格不溢出、新舊版切換）；P2–P6 未開始。活的元件頁 §13。
+
+- **新舊版切換**：面板標頭「新版／舊版」，預設新版，存 localStorage `mtp-monitor-style`；舊版是改版前畫面原樣，供對照或退回。各卡以 `useMonitorV2()` 分支，**舊版樣式值不改**。
+- **資料時間來源**：卡片用 `useMonitorCardHeader({ time, timeText, state })` 送到標題列；由 MonitorPanel 組裝的格子用 `<MonitorCardTime>`。一律送**資料本身的時間**（觀測、發布、報表日），**不送瀏覽器收到回應的時間**。新聞四格＝未篩選資料中最新一則發布時間；環境輻射＝有回報站的最新觀測時間（停報站不算）。拿不到資料時間的格子不顯示時間：警訊整合（警報 RPC 只回計數）、災防觀測（寫死的 YouTube 影片，無資料時間）。
+- **固定高格補償**：多了標題列後，警訊整合、信號分級（dock 另含新聞事件）各加 1 列、其下格子順移，左右兩欄仍同止（`MonitorPanel.tsx` `V2_ADJUST_*`）。
 
 - **用途**：監看模式（Monitor）split／dock／wall 裡的每一格看板。改版前 `MonitorPanel` 只排位置不畫框，24 格各自手刻（3 種框、5 種標題、9 種主數字字級、5 套時間序列、約 20 處缺值畫成 0）。
 - **不新造通用 Card**（§11 KEEP OUT）：把既有 `HazardShell`（＋`Metric`／`MetricRow`／`Note`／`MetaRow`）升格成監看卡標準殼，`Widget`／`SectionLabel` 收斂進去。

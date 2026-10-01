@@ -18,6 +18,7 @@ import { memo, useRef } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useInView } from "../../../hooks/useInView";
+import { useMonitorV2 } from "./monitorStyle";
 
 interface HazardCh {
   videoId: string;
@@ -49,6 +50,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
   // IntersectionObserver gate：iframe 只在首次進入視窗才掛
   const slotRef = useRef<HTMLDivElement>(null);
   const visible = useInView(slotRef);
+  const v2 = useMonitorV2();
   return (
     <div
       ref={slotRef}
@@ -81,7 +83,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
               color: COLORS.textFaint, background: "#000",
             }}
           >
-            STANDBY
+            {v2 ? "待播" : "STANDBY"}
           </div>
         )}
 
@@ -108,11 +110,11 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             />
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, fontWeight: 700,
+                fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 8.5, fontWeight: 700,
                 color: "#04121f", letterSpacing: "0.5px",
               }}
             >
-              LIVE
+              {v2 ? "直播" : "LIVE"}
             </span>
           </span>
           <span
@@ -123,15 +125,17 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           >
             {ch.name}
           </span>
-          <span
-            style={{
-              fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDefault,
-              letterSpacing: "0.5px",
-              textShadow: "0 1px 3px rgba(0,0,0,0.9)",
-            }}
-          >
-            {ch.en}
-          </span>
+          {!v2 && (
+            <span
+              style={{
+                fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDefault,
+                letterSpacing: "0.5px",
+                textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+              }}
+            >
+              {ch.en}
+            </span>
+          )}
         </div>
       </div>
 
@@ -170,16 +174,21 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
 }
 
 export const HazardWatchStrip = memo(function HazardWatchStrip() {
+  const v2 = useMonitorV2();
   return (
     <div
       style={{
-        gridColumn: "1 / -1", borderRadius: RADIUS.xl,
-        border: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(255,152,0,0.04)",
-        padding: 13, display: "flex", flexDirection: "column",
+        gridColumn: "1 / -1",
+        ...(v2 ? {} : {
+          borderRadius: RADIUS.xl,
+          border: `1px solid ${COLORS.panelBorder}`,
+          background: "rgba(255,152,0,0.04)",
+          padding: 13,
+        }),
+        display: "flex", flexDirection: "column",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
+      {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
         <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.statusWarn }} />
         <span
           style={{
@@ -193,11 +202,11 @@ export const HazardWatchStrip = memo(function HazardWatchStrip() {
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
           地震 + 天氣 · 24h 監測
         </span>
-      </div>
+      </div>}
 
       <div
         style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10,
+          display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(200px, 1fr))" : "1fr 1fr", gap: 10,
         }}
       >
         {HAZARD_CHANNELS.map((ch) => (

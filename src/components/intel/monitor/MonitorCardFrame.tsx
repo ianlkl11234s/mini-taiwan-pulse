@@ -46,6 +46,12 @@ export function useMonitorCardHeader(slot: MonitorCardHeaderSlot): void {
   }, [set, time, timeText, kind, label]);
 }
 
+/** 給沒有自己元件可放 hook 的格子（由 MonitorPanel 組裝的新聞三格）送資料時間 */
+export function MonitorCardTime(props: MonitorCardHeaderSlot): null {
+  useMonitorCardHeader(props);
+  return null;
+}
+
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
 /** 當日 HH:MM、跨日 MM/DD（台灣時間，與站上其他時間顯示一致用瀏覽器時區） */

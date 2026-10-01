@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { RADIUS, FONT_SIZE, BORDER } from "../../../styles/designTokens";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import {
@@ -42,7 +44,20 @@ function fmtMW(v: number | null | undefined): string {
   return v.toLocaleString("zh-TW", { maximumFractionDigits: 0 });
 }
 
+/**
+ * v2 區塊樣式：不畫框／底／內距，只用頂部淡分隔切段（first＝第一段不畫線）。
+ * legacy 原樣回傳舊樣式。
+ */
+function sectionBox(v2: boolean, legacy: React.CSSProperties, gap: number, first = false): React.CSSProperties {
+  if (!v2) return legacy;
+  return {
+    display: "flex", flexDirection: "column", gap, minWidth: 0,
+    ...(first ? {} : { borderTop: `1px solid ${BORDER.soft}`, paddingTop: 10 }),
+  };
+}
+
 export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Props) {
+  const v2 = useMonitorV2();
   const model = useMemo(() => buildPowerCardModel(dashboard, day), [dashboard, day]);
   const kpis = useMemo(() => summarisePowerKpis(day), [day]);
   const status = dashboard?.status ?? null;
@@ -61,20 +76,23 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
     [day],
   );
   const totalRegionMw = regions.reduce((sum, r) => sum + (r.mw ?? 0), 0) || 1;
+  // v2：觀測時間送標題列
+  const observedMs = status?.observed_at ? Date.parse(status.observed_at) : NaN;
+  useMonitorCardHeader({ time: Number.isNaN(observedMs) ? null : observedMs });
 
   return (
-    <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color={COLORS.accent}>能源 · POWER GRID</SectionLabel>
+    <div style={{ ...(v2 ? { minWidth: 0 } : { gridColumn: "1 / -1" }), display: "flex", flexDirection: "column", gap: 10 }}>
+      {!v2 && <SectionLabel color={COLORS.accent}>能源 · POWER GRID</SectionLabel>}
 
       {/* Header card: 燈號 + 負載 + 備轉 + 預測尖峰 */}
       <div
-        style={{
+        style={sectionBox(v2, {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: "linear-gradient(160deg, rgba(34,197,94,0.06), rgba(255,255,255,0.012))",
           padding: "12px 14px",
           display: "flex", flexDirection: "column", gap: 11,
-        }}
+        }, 11, true)}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <span
@@ -88,15 +106,17 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
             {indLabel}
           </span>
           <div style={{ flex: 1 }} />
-          <span
-            style={{
-              fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint,
-              padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {model.observedHHMM}
-          </span>
+          {!v2 && (
+            <span
+              style={{
+                fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint,
+                padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {model.observedHHMM}
+            </span>
+          )}
         </div>
 
         <div style={{ display: "flex", alignItems: "baseline", gap: 16, flexWrap: "wrap" }}>
@@ -127,7 +147,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
                   rows: [{ dot: COLORS.accent, value: v != null ? fmtChartValue(v, "MW") : "—" }],
                   note: v != null ? `占四區合計 ${((v / totalRegionMw) * 100).toFixed(1)}%` : undefined,
                 }))}
-                style={{
+                style={v2 ? { display: "flex", flexDirection: "column", gap: 3, minWidth: 0 } : {
                   display: "flex", flexDirection: "column", gap: 3,
                   padding: "6px 8px", borderRadius: RADIUS.md,
                   background: "rgba(255,255,255,0.03)",
@@ -164,7 +184,10 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
       {kpis.peakMW > 0 && (
         <div
           data-testid="power-kpi-strip"
-          style={{
+          style={v2 ? {
+            display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", minWidth: 0,
+            borderTop: `1px solid ${BORDER.soft}`, paddingTop: 10,
+          } : {
             display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
             padding: "8px 12px", borderRadius: RADIUS.lg,
             background: "rgba(255,255,255,0.02)",
@@ -232,18 +255,22 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
 
       {/* 14 廠 sparkline grid */}
       <div
-        style={{
+        style={sectionBox(v2, {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: "rgba(255,255,255,0.02)",
           padding: "11px 14px",
           display: "flex", flexDirection: "column", gap: 9,
-        }}
+        }, 9)}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
-            UNIT OUTPUT · {day == null && dayStatus !== "ready" ? "—" : plants.length} 廠 24h
-          </span>
+          {v2 ? (
+            <SectionLabel>機組出力 · {day == null && dayStatus !== "ready" ? "—" : plants.length} 廠 24h</SectionLabel>
+          ) : (
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
+              UNIT OUTPUT · {day == null && dayStatus !== "ready" ? "—" : plants.length} 廠 24h
+            </span>
+          )}
         </div>
         {plants.length === 0 ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
@@ -283,6 +310,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
 }
 
 function PowerTrend30d({ trend }: { trend: PowerDailyTrendRow[] }) {
+  const v2 = useMonitorV2();
   const spark = useMemo<SparklinePoint[]>(
     () =>
       trend
@@ -295,13 +323,13 @@ function PowerTrend30d({ trend }: { trend: PowerDailyTrendRow[] }) {
   return (
     <div
       data-testid="power-trend-30d"
-      style={{
+      style={sectionBox(v2, {
         borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "rgba(255,255,255,0.02)",
         padding: "11px 14px",
         display: "flex", flexDirection: "column", gap: 9,
-      }}
+      }, 9)}
     >
       <SectionLabel color={COLORS.accent}>
         30 天趨勢 · 備轉容量率{minRate != null ? ` · 區間最低 ${minRate.toFixed(1)}%` : ""}
@@ -328,6 +356,7 @@ function PowerTrend30d({ trend }: { trend: PowerDailyTrendRow[] }) {
 
 /** 30 天供電能力 vs 尖峰負載：疊圖共用 MW Y 軸，兩線間距一眼看出哪幾天備轉吃緊 */
 function PowerCapacityVsLoad30d({ trend }: { trend: PowerDailyTrendRow[] }) {
+  const v2 = useMonitorV2();
   const supplySpark = useMemo<SparklinePoint[]>(
     () => trend.map((r) => ({ t: r.day_ts, v: r.max_supply_mw })),
     [trend],
@@ -340,13 +369,13 @@ function PowerCapacityVsLoad30d({ trend }: { trend: PowerDailyTrendRow[] }) {
   return (
     <div
       data-testid="power-capacity-load-30d"
-      style={{
+      style={sectionBox(v2, {
         borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "rgba(255,255,255,0.02)",
         padding: "11px 14px",
         display: "flex", flexDirection: "column", gap: 9,
-      }}
+      }, 9)}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <SectionLabel color={COLORS.accent}>30 天趨勢 · 供電能力 vs 尖峰負載</SectionLabel>
@@ -420,10 +449,11 @@ function PlantSparkRow({
   /** 對應 `spark` 每一點的原始 [ts_unix, mw]，供 sparkline hover 標時間用（`spark` 本身已被 buildPowerCardModel 剝掉 ts） */
   points: [number, number][];
 }) {
+  const v2 = useMonitorV2();
   const rateColor = loadRateColor(rate);
   return (
     <div
-      style={{
+      style={v2 ? { display: "flex", alignItems: "center", gap: 6, minWidth: 0 } : {
         display: "flex", alignItems: "center", gap: 6,
         padding: "5px 7px", borderRadius: RADIUS.md,
         background: "rgba(255,255,255,0.025)",

@@ -8,6 +8,7 @@ import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { AlertsTrack } from "../alerts/AlertsTrack";
+import { useMonitorV2 } from "./monitorStyle";
 import { useWallClock } from "../../../hooks/useWallClock";
 
 interface Props {
@@ -64,6 +65,7 @@ export function TimelineDock({
   events, dayStartTs, nowTs, playbackTs, isLive, playing,
   onScrub, onLive, onTogglePlay, alertSeries,
 }: Props) {
+  const v2 = useMonitorV2();
   const [hoverH, setHoverH] = useState<number | null>(null);
   const areaRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
@@ -114,21 +116,26 @@ export function TimelineDock({
     <div
       style={{
         display: "flex", flexDirection: "column", height: "100%",
-        flexShrink: 0, padding: "10px 16px 8px",
-        borderBottom: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(0,0,0,0.28)",
+        flexShrink: 0,
+        ...(v2 ? { padding: "2px 2px 2px" } : {
+          padding: "10px 16px 8px",
+          borderBottom: `1px solid ${COLORS.panelBorder}`,
+          background: "rgba(0,0,0,0.28)",
+        }),
       }}
     >
       {/* top row */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexShrink: 0 }}>
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
-            color: COLORS.textMuted, whiteSpace: "nowrap",
-          }}
-        >
-          時間軸 TIMELINE DOCK
-        </span>
+      <div style={{ display: "flex", alignItems: "center", flexWrap: v2 ? "wrap" : "nowrap", gap: 10, marginBottom: 8, flexShrink: 0 }}>
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
+              color: COLORS.textMuted, whiteSpace: "nowrap",
+            }}
+          >
+            時間軸 TIMELINE DOCK
+          </span>
+        )}
         <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textFaint, whiteSpace: "nowrap" }}>
           新聞密度 · 每小時
         </span>
@@ -147,7 +154,7 @@ export function TimelineDock({
         <span style={{ width: 1, height: 16, background: COLORS.borderMid, margin: "0 2px" }} />
         <button
           onClick={onTogglePlay}
-          title="play/pause"
+          title={v2 ? "播放／暫停" : "play/pause"}
           style={{
             width: 26, height: 26, borderRadius: RADIUS.lg,
             border: `1px solid ${COLORS.borderMid}`,
@@ -169,7 +176,7 @@ export function TimelineDock({
             color: isLive ? COLORS.statusLive : COLORS.statusWarn,
           }}
         >
-          {isLive ? "即時 NOW" : clockTime(playbackTs)}
+          {isLive ? (v2 ? "即時" : "即時 NOW") : clockTime(playbackTs)}
         </span>
         <button
           onClick={onLive}
@@ -189,7 +196,7 @@ export function TimelineDock({
               boxShadow: isLive ? `0 0 6px ${COLORS.statusLive}` : "none",
             }}
           />
-          LIVE
+          {v2 ? "回到即時" : "LIVE"}
         </button>
       </div>
 

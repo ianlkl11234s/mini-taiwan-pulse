@@ -234,6 +234,8 @@ export interface NuclearSummary {
   alarm_count: number;
   /** 異常站列名（觀察 + 警戒，劑量降序，最多 3 站） */
   anomalies: { name: string; dose: number; level: "warning" | "alarm" }[];
+  /** 有回報站（非停報）中最新的觀測時間（unix 秒）；全部停報時 null。停報站不算，否則會落回停報那天 */
+  latest_observed_ts: number | null;
 }
 
 /** 站列表 → 卡片摘要（純函式，給測試用） */
@@ -242,11 +244,13 @@ export function summariseNuclear(rows: NuclearStation[]): NuclearSummary {
   let sum = 0;
   let max = -Infinity;
   let maxStation: string | null = null;
+  let latestObs: number | null = null;
   const anomalies: { name: string; dose: number; level: "warning" | "alarm" }[] = [];
   for (const r of valid) {
     const d = Number(r.dose_usvh);
     sum += d;
     if (d > max) { max = d; maxStation = r.station_name; }
+    if (Number.isFinite(r.observed_ts) && (latestObs === null || r.observed_ts > latestObs)) latestObs = r.observed_ts;
     const level = classifyNuclearDose(d, false);
     if (level === "warning" || level === "alarm") {
       anomalies.push({ name: r.station_name, dose: d, level });
@@ -262,6 +266,7 @@ export function summariseNuclear(rows: NuclearStation[]): NuclearSummary {
     warning_count: anomalies.filter((a) => a.level === "warning").length,
     alarm_count: anomalies.filter((a) => a.level === "alarm").length,
     anomalies: anomalies.slice(0, 3),
+    latest_observed_ts: latestObs,
   };
 }
 
