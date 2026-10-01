@@ -4,6 +4,7 @@ import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * 民航局 dronegis 歷史空域參考面 — 5,741 Polygon + 2 MultiPolygon 共用 PMTiles，filter 拆兩 layer
@@ -106,7 +107,7 @@ export function useDroneZonesLayer(
         } as any);
       }
 
-      const ensureFill = (id: string, filter: FilterSpecification, color: string, opacity: number) => {
+      const ensureFill = (key: string, id: string, filter: FilterSpecification, color: string, opacity: number) => {
         if (!map?.getLayer(id)) {
           map?.addLayer({
             id,
@@ -115,17 +116,17 @@ export function useDroneZonesLayer(
             "source-layer": SOURCE_LAYER,
             minzoom: 7,
             filter,
-            paint: {
+            paint: hookFillPaint(key, id, {
               "fill-color": color,
               "fill-opacity": opacity,
               "fill-antialias": false,
-            },
+            }, { "fill-color": color, "fill-opacity": 0.45, "fill-antialias": false }),
           });
         } else {
-          map.setPaintProperty(id, "fill-opacity", opacity);
+          map.setPaintProperty(id, "fill-opacity", hookFillOpacity(key, id, opacity, 0.45));
         }
       };
-      const ensureLine = (id: string, filter: FilterSpecification, color: string, opacity: number) => {
+      const ensureLine = (key: string, id: string, filter: FilterSpecification, color: string, opacity: number) => {
         if (!map?.getLayer(id)) {
           map?.addLayer({
             id,
@@ -134,21 +135,22 @@ export function useDroneZonesLayer(
             "source-layer": SOURCE_LAYER,
             minzoom: 8,
             filter,
-            paint: {
+            layout: hookLineLayout(key, id),
+            paint: hookLinePaint(key, id, {
               "line-color": color,
               "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 12, 1.2, 14, 2],
               "line-opacity": Math.min(1, opacity + 0.3),
-            },
+            }, { "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 12, 1.2, 14, 2], "line-opacity": 0.75 }),
           });
         } else {
-          map.setPaintProperty(id, "line-opacity", Math.min(1, opacity + 0.3));
+          map.setPaintProperty(id, "line-opacity", hookLineOpacity(key, id, Math.min(1, opacity + 0.3), 0.75));
         }
       };
 
-      ensureFill(NFZ_FILL, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
-      ensureLine(NFZ_LINE, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
-      ensureFill(RESTRICTED_FILL, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
-      ensureLine(RESTRICTED_LINE, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
+      ensureFill("droneNoFlyZone", NFZ_FILL, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
+      ensureLine("droneNoFlyZone", NFZ_LINE, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
+      ensureFill("droneRestrictedZone", RESTRICTED_FILL, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
+      ensureLine("droneRestrictedZone", RESTRICTED_LINE, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
 
       setVis(map, NFZ_FILL, nfzVisible);
       setVis(map, NFZ_LINE, nfzVisible);

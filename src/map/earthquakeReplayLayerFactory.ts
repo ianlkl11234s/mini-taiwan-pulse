@@ -245,7 +245,6 @@ export function ensureEarthquakeReplayLayers(map: MapboxMap, opacity: number, is
         paint: {
           "fill-color": TOWN_COLOR_EXPR,
           "fill-opacity": townOpacityExpr(0),
-          "fill-outline-color": "rgba(0,0,0,0.25)",
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,

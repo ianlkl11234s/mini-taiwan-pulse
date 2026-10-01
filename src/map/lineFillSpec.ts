@@ -14,12 +14,13 @@
  * ⚠️ 因此 overlayRegistry.ts 裡這些圖層的 line-width／line-opacity／fill-opacity 字面值只剩「比例」作用，
  *    改大小請改 lineFillTiers.ts。
  */
+import type { ExpressionSpecification } from "mapbox-gl";
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { getParamsSpec, specOutKey } from "../data/layerParamsSpec";
 import {
   BOUNDARY_GRAY, FILL_OPACITY, FILL_OUTLINE, GRADED_SEAM, LINE_DASH, LINE_OPACITY, lineWidthExpr, mapSeamColor,
 } from "./mapStyleScale";
-import { FILL_TIERS, LINE_TIERS, type FillTier, type LineTierSpec } from "./lineFillTiers";
+import { FILL_TIERS, LINE_TIERS, HOOK_LINE_TIERS, HOOK_FILL_TIERS, type FillTier, type LineTierSpec } from "./lineFillTiers";
 import { DECORATION_SUFFIX_RE, isDataDriven } from "./pointSpec";
 
 type Paint = Record<string, unknown>;
@@ -192,4 +193,44 @@ export function withLineFillSpec(config: OverlayConfig): OverlayConfig {
     return layer;
   });
   return { ...config, layers };
+}
+
+
+/** R3b hook 與 registry 共用上方 wrap 計算。defaults 必須是同主題、原 paint 的滑桿預設值。 */
+export function hookLinePaint(key: string, id: string, base: Paint, defaults: Paint, isDark = true): Paint {
+  const tier = HOOK_LINE_TIERS[`${key}/${id}`];
+  if (!tier) return base;
+  const out = tier.outline
+    ? outlineWrap(tier.outline)(base, defaults, isDark, 1)
+    : lineWrap(tier)(base, defaults, isDark, 1);
+  // 外框也可能用資料編碼寬度、透明度或虛線；不可被 F-2 的固定值抹除。
+  for (const property of ["line-width", "line-opacity", "line-color", "line-dasharray"]) {
+    if (isDataDriven(base[property])) out[property] = base[property];
+  }
+  return out;
+}
+
+export function hookFillPaint(key: string, id: string, base: Paint, defaults: Paint, isDark = true): Paint {
+  const tier = HOOK_FILL_TIERS[`${key}/${id}`];
+  if (!tier || tier === "keep") return base;
+  return fillWrap(tier)(base, defaults, isDark, 1);
+}
+
+/** 只改 layout，不改 layer id、filter、source 或資料。 */
+export function hookLineLayout(key: string, id: string) {
+  const tier = HOOK_LINE_TIERS[`${key}/${id}`];
+  if (!tier) return {};
+  return tier.outline || /(?:Admin|Boundary|Boundaries|Basins|Airspace|aviationControl|aviationRestricted)/.test(key)
+    ? LINE_SHARP : LINE_ROUND;
+}
+
+/** setPaintProperty 的單屬性更新同樣走完整 paint 計算，不能覆蓋已套用的階。 */
+export function hookLineWidth(key: string, id: string, now: unknown, def: unknown): number | ExpressionSpecification {
+  return hookLinePaint(key, id, { "line-width": now }, { "line-width": def })["line-width"] as number | ExpressionSpecification;
+}
+export function hookLineOpacity(key: string, id: string, now: unknown, def: unknown, isDark = true): number | ExpressionSpecification {
+  return hookLinePaint(key, id, { "line-opacity": now }, { "line-opacity": def }, isDark)["line-opacity"] as number | ExpressionSpecification;
+}
+export function hookFillOpacity(key: string, id: string, now: unknown, def: unknown): number | ExpressionSpecification {
+  return hookFillPaint(key, id, { "fill-opacity": now }, { "fill-opacity": def })["fill-opacity"] as number | ExpressionSpecification;
 }

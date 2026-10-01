@@ -181,7 +181,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 > 每條有代號（對應 §7）。數值以「現況中位值」為錨，並對齊 viz-library 與 `layer-onboarding` skill 的 UX baseline。以下是**拍板後的版本**；與原提案不同處標「拍板改」。
 >
-> **套用狀態（2026-09-30）**：P-1／P-2／P-5／P-6（R2）、F-2 統計／F-3（R1）、T-1（R1）、**L-1～L-5、F-1、F-2、K-4 的 registry 線面（R3a）**已上線。R3a 只涵蓋 OVERLAY_REGISTRY 畫的線與面（`src/map/lineFillTiers.ts` 分階、`src/map/lineFillSpec.ts` 的 `withLineFillSpec` 統一套用）；hook 自己畫的線面、G-3 網格空格、G-4 影像、T-2／T-3 文字、F-4 擠出留到 R3b。尚未引用的常數：`HEATMAP`、`LABEL`、`POINT_OPACITY`（R3b／R5）。部分 hook 有同名的區域常數（例 `useJpRailwaysLayer.ts` 的 `LINE_WIDTH`），不是這裡的 SSOT。
+> **套用狀態（2026-09-30）**：R1／R2／R3a／R4 已完成。R3b 已按使用者確認接線，待 Claude 驗收：hook 線面使用 `HOOK_LINE_TIERS`／`HOOK_FILL_TIERS` 與 registry 共用 `lineFillSpec` 計算；影像引用 `RASTER`，擠出引用 `EXTRUSION`，文字引用 `LABEL`。資料編碼與裝飾子層保留。G-3 本輪 14 層全部維持既有零值／缺值語意。驗收與例外見 `docs/features/map-layer-restyle/R3b-report.md`。
 
 ### 3.1 點
 
@@ -316,20 +316,20 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 **F-3 分級色階**：不自創。統計圖層照 `statistics-layer-guidelines.md` §4（各主題 ColorBrewer 序列色、正負用 PuOr、門檻不隨當次資料重算、至少 `breaks + 1` 色）；Agent 分析結果照 viz-library §1（viridis／magma、暗淡方向相反、5 級）。缺值（拍板 A）：統計圖層改成 viz-library N1「透明底＋45° 細斜線」，取代舊的灰色 `#64748b`＋遮蔽斜線，全站缺值只有一種畫法。已實作（R1）：**缺值＝透明底＋45° 單向細斜線；遮蔽（suppressed）＝交叉斜線**，與缺值區分（2026-09-28 使用者確認）。8px 圖磚、暗白／淡黑 alpha 0.35（`MISSING_HATCH`、`hatchImageData()`）；圖例 `SwatchHatch` 同一組顏色。
 
-**F-4 fill-extrusion**：高度與顏色用同一指標（viz-library M7），最高約畫面 1/4；開啟時不透明度 0.85、`fill-extrusion-vertical-gradient: true`；高度倍率由滑桿控制，預設 1。
+**F-4 fill-extrusion**：既有資料高度與配色語意保留（包括市值高度／人均配色雙通道），最高約畫面 1/4；開啟時不透明度 0.85、`fill-extrusion-vertical-gradient: true`；高度倍率由滑桿控制，預設 1。
 
 ### 3.4 3D／熱區／網格／影像
 
 - **G-1 Three.js／CustomLayer**：拍板加碼：每個 Three.js／CustomLayer 圖層都要有**「基本點線面」模式**，用 Mapbox 原生 circle／line／fill 畫同一份資料，並套用本檔 §3 的數值階；**預設是 Mapbox 模式**，Three.js 立體版保留為可切換的選項（圖層控制項加一個切換）。理由：點線面比較好理解，但不放棄立體效果。Three.js 模式本身的值在 shader／材質，不進數值階；透明度、圖例、popup 兩種模式都照四鐵則。13 層 `unresolved` 在 JSON 有檔案指標，實作時逐層讀值、補記到該層 `docs/features/<slug>/`。
 - **G-2 熱區**：magma（截）色階、密度 0 完全透明、`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoom` 目前 10。對齊 viz-library M5。（R5 待接線。）
-- **G-3 網格**：面 0.7、空格不畫、格縫同 F-2；H3 解析度與方格尺寸照 viz-library M6。
-- **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。（R3b 待做，未設常數。）
+- **G-3 網格**：建議面 0.7、格縫同 F-2；R3b 使用者確認 14 層全部維持現況。只有來源明確計數 0 才可視為空格，缺值／未涵蓋／遮蔽不可改成 0 或刪除；H3 解析度與方格尺寸照 viz-library M6。
+- **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。（R3b 已接線：`RASTER`；量測類含雷達、AQI、沙塵、降雨、淹水深度。）
 
 ### 3.5 文字標籤
 
 - **T-1 字型**：`text-font` 維持 `["DIN Pro Medium","Arial Unicode MS Regular"]`（英數），強調用 Bold。中文：明確設定 `localIdeographFontFamily: "PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif`（與 `--font-cjk` 同 stack）。mapbox-gl 預設已是 `'sans-serif'`（中文本來就在前端用系統字繪製），這次只是把字型名稱指定成與 UI 相同，**不增加下載或運算負擔**。已實作（R1）：`src/map/MapView.tsx`（主站）與 `src/bbox/BboxSelectorApp.tsx`（bbox 工具）以 `MAP_LOCAL_IDEOGRAPH_FONT`（= `FONT_CJK`）設定。embed（`src/embed/EmbedApp.tsx`，MapLibre）與分析卡片頁（`src/card/`，MapLibre）未設定——是否需要未驗證。
-- **T-2 字級與 halo**：POI 名稱 z10 10／z14 12；計數徽章 11／13 Bold；halo 1.25px、底圖色（暗 `rgba(15,23,42,0.92)`、淡 `rgba(255,255,255,0.94)`，現況已如此）。viz-library N2（分析標籤 10px 粗體＋3px halo）只用於分析結果。（常數 `LABEL`；R3b 待接線。分析卡片頁的地圖標籤另用 11／12px、halo 1.2／1.4，見 `spec.md` §5.34。）
-- **T-3 密度**：標籤 z ≥ 13 才出現、`text-allow-overlap: false`；計數徽章可 overlap。（`LABEL.minZoom`；R3b 待接線。）
+- **T-2 字級與 halo**：POI 名稱 z10 10／z14 12；計數徽章 11／13 Bold；halo 1.25px、底圖色（暗 `rgba(15,23,42,0.92)`、淡 `rgba(255,255,255,0.94)`，現況已如此）。viz-library N2（分析標籤 10px 粗體＋3px halo）只用於分析結果。（常數 `LABEL`；R3b 已接線，GFW 計數字級保留 vessel_count step。分析卡片頁的地圖標籤另用 11／12px、halo 1.2／1.4，見 `spec.md` §5.34。）
+- **T-3 密度**：POI 名稱 minzoom = max(現值, 13)、`text-allow-overlap: false`；計數徽章保留原出現縮放並可 overlap。廁所 16、垃圾桶 15、回收與遊戲場 14 維持；旅客中心 10 → 13。
 
 ### 3.6 暗／淡底圖差異規則（K-4）
 

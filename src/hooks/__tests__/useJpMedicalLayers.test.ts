@@ -14,13 +14,25 @@ const harness = vi.hoisted(() => {
       states[index] ??= typeof initial === "function" ? (initial as () => T)() : initial;
       return [states[index] as T, (value: T) => { states[index] = value; }] as const;
     },
-    useRef: <T,>(value: T) => { cursor++; return { current: value }; },
+    useRef: <T,>(value: T) => {
+      const index = cursor++;
+      states[index] ??= { current: value };
+      return states[index] as { current: T };
+    },
+    useMemo: <T,>(factory: () => T, deps: readonly unknown[]) => {
+      const index = cursor++;
+      const previous = states[index] as { deps: readonly unknown[]; value: T } | undefined;
+      if (previous && previous.deps.length === deps.length && previous.deps.every((value, i) => Object.is(value, deps[i]))) return previous.value;
+      const value = factory();
+      states[index] = { deps, value };
+      return value;
+    },
     useEffect: (effect: () => void | (() => void)) => { cursor++; const cleanup = effect(); if (cleanup) cleanups.push(cleanup); },
     useSyncExternalStore: () => { cursor++; return runtime; },
   };
 });
 let runtime = { status: "ready", revision: 1 };
-const aggregate = { type: "FeatureCollection", features: [
+let aggregate = { type: "FeatureCollection", features: [
   { type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0], [2, 0], [2, 2], [0, 0]]] }, properties: {
     grid_id: "J10000_0_0", grid_size_m: 10_000, grid_crs: "EPSG:6933", aggregate_schema: "category_columns_v1",
     mapped_point_count: 5, hospital_count: 2, clinic_count: 3, dental_count: 0, maternity_count: 0, pharmacy_count: 0,
@@ -100,6 +112,41 @@ describe("useJpMedicalLayers lifecycle", () => {
     expect(view.sources.has("jp-medical-facilities")).toBe(true);
     expect(view.layers.get("jp-medical-facilities-hospital")?.minzoom).toBe(8);
     expect((view.map.setLayerZoomRange as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith("jp-medical-facilities-hospital", 8, 24);
+    harness.cleanup();
+  });
+
+  it("updates aggregate theme and opacity paint without rewriting the grid source", async () => {
+    const view = mapAt(4); const ref = { current: view.map } as RefObject<MapboxMap | null>;
+    runtime = { ...runtime, revision: 5 };
+    const visible = { ...off, jpMedicalHospitals: true };
+    harness.begin(); useJpMedicalLayers(ref, visible, params, true);
+    await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, visible, params, true);
+    const source = view.sources.get("jp-medical-facilities-aggregate")!;
+    source.setData.mockClear();
+    (view.map.setPaintProperty as ReturnType<typeof vi.fn>).mockClear();
+    harness.begin(); useJpMedicalLayers(ref, visible, { jpMedicalHospitalsOpacity: 0.5 }, false);
+    expect(source.setData).not.toHaveBeenCalled();
+    expect(view.map.setPaintProperty).toHaveBeenCalledWith("jp-medical-facilities-aggregate-outline", "line-color", "#ffffff");
+    harness.cleanup();
+  });
+
+  it("does not rebuild aggregate cells when only theme or opacity changes", async () => {
+    const view = mapAt(4); const ref = { current: view.map } as RefObject<MapboxMap | null>;
+    let propertyReads = 0;
+    const original = aggregate.features[0]!;
+    const properties = original.properties;
+    aggregate = {
+      ...aggregate,
+      features: [{ ...original, get properties() { propertyReads++; return properties; } }],
+    } as unknown as GeoJSON.FeatureCollection;
+    runtime = { ...runtime, revision: 6 };
+    const visible = { ...off, jpMedicalHospitals: true };
+    harness.begin(); useJpMedicalLayers(ref, visible, params, true);
+    await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, visible, params, true);
+    expect(propertyReads).toBeGreaterThan(0);
+    propertyReads = 0;
+    harness.begin(); useJpMedicalLayers(ref, visible, { jpMedicalHospitalsOpacity: 0.5 }, false);
+    expect(propertyReads).toBe(0);
     harness.cleanup();
   });
 });

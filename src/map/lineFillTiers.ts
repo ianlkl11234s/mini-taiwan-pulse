@@ -1,4 +1,5 @@
 /**
+ * 2026-09-30 使用者確認照建議＋D 區修正（R3b）。
  * 線與面分階（design-system map-layers §3.2 L-1／L-4、§3.3 F-1／F-2；R3a）。
  *
  * 2026-09-30 使用者確認「照建議」，只改 osmPowerLines/cable 透明度 0.6 → 0.85。
@@ -133,4 +134,180 @@ export const LINE_TIERS: Readonly<Record<string, LineTierSpec>> = {
   "waterCanals/core": { width: "thin", opacity: "reference" }, // 灌排渠道 Canal
   "waterLevees/core": { width: "thin", opacity: "keep" }, // 堤防 Levee
   "waterRivers/core": { width: "thin", opacity: "standard" }, // 河川 River
+};
+
+/** R3b：key/實際子圖層 id；共用實體層只套一次。資料與時序編碼 keep。 */
+export type HookLineTierSpec = LineTierSpec & { outline?: FillTier };
+export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
+  "agriculture/agri-ftw-fields-outline": {"width": "thin", "opacity": "reference"}, // src/map/agricultureLayerFactory.ts
+  "animalShelterPressure/animal-shelter-pressure-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useAnimalShelterPressureLayer.ts
+  "aviationControl/aviation-control-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useAviationAirspaceLayer.ts
+  "aviationRestricted/aviation-restricted-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useAviationAirspaceLayer.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-multi-near-carrier-waterway-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-near-curved-carrier-local-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-no-crossing-nearest-route-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-no-waterway-carrier-consensus-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-offset-direction-line": {"width": "standard", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts（方向線原本比情境線細，保留粗細區分，Claude 驗收修正）
+  "bssNationalBridgePreview/bss-national-bridge-preview-ordinary-route-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-original-direction-line": {"width": "standard", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts（方向線原本比情境線細，保留粗細區分，Claude 驗收修正）
+  "bssNationalBridgePreview/bss-national-bridge-preview-stage1-local-direction-candidate": {"width": "standard", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts（方向線原本比情境線細，保留粗細區分，Claude 驗收修正）
+  "bssNationalBridgePreview/bss-national-bridge-preview-tied-route-consensus-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "bssNationalBridgePreview/bss-national-bridge-preview-waterway-crossing-context": {"width": "emphasis", "opacity": "keep"}, // src/hooks/useBssBridgeLayers.ts
+  "coralReefDistribution/coral-reef-distribution-line": {"width": "thin", "opacity": "reference"}, // src/hooks/useCoralReefDistributionLayer.ts
+  "droneNoFlyZone/drone-nfz-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDroneRestrictedZonesLayer.ts
+  "droneRestrictedZone/drone-restricted-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDroneRestrictedZonesLayer.ts
+  "flights/static-trails-line": {"width": "thin", "opacity": "reference"}, // src/map/staticTrails.ts
+  "floodAlerts/floodAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
+  "floodSensorIsochrone/flood-sensor-isochrone-line": {"width": "thin", "opacity": "reference"}, // src/hooks/useFloodSensorIsochroneLayer.ts
+  "freewayCongestion/freewayCongestion-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useFreewayLayer.ts
+  "funeralOperatorDensity/funeral-density-line": {"width": "thin", "opacity": "reference"}, // src/hooks/useFuneralDensityLayer.ts
+  "gfwFishingEffort/gfw-fishing-effort-outline": {"width": "thin", "opacity": "reference"}, // src/hooks/useGfwFishingEffortLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-next-outline": {"width": "keep", "opacity": "keep"}, // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-outline": {"width": "keep", "opacity": "keep"}, // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-pmtiles-next-outline": {"width": "keep", "opacity": "keep"}, // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-pmtiles-outline": {"width": "keep", "opacity": "keep"}, // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-pmtiles-preload-outline": {"width": "keep", "opacity": "keep"}, // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyTracks/gfw-hourly-tracks-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useGfwHourlyTracksLayer.ts
+  "globalEvents/global-events-relations-line": {"width": "thin", "opacity": "keep"}, // src/hooks/useGlobalEventsLayer.ts
+  "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
+  "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
+  "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
+  "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpCareEquipment/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpCareHomeVisit/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpCarePlanning/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpCareResidential/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpMedicalAreasPrimary/jp-medical-areas-1-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalAreasSecondary/jp-medical-areas-2-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalAreasTertiary/jp-medical-areas-3-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalClinics/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalDental/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalHospitals/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalMaternity/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalPharmacies/jp-medical-facilities-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
+  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpRailwaysLayer.ts
+  "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/hooks/useJpWaterLayers.ts
+  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
+  "lifelineAlerts/lifelineAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
+  "plaActivity/pla-activity-line": {"width": "keep", "opacity": "keep"}, // src/hooks/usePlaActivityLayer.ts
+  "propertyValueAdmin/property-value-admin-county-line": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/usePropertyValueAdminLayer.ts
+  "propertyValueAdmin/property-value-admin-township-line": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/usePropertyValueAdminLayer.ts
+  "rail/rail-tracks-line": {"width": "emphasis", "opacity": "standard"}, // src/map/railTracks.ts
+  "roadCongestion/road-congestion-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useRoadCongestionLayer.ts
+  "roadEvents/roadEvents-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useRoadEventsLayer.ts
+  "safetyAlerts/safetyAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
+  "satellitesYaogan/sat-footprint-outer": {"width": "thin", "opacity": "reference"}, // src/hooks/useSatellitesLayer.ts
+  "satellitesYaogan/sat-track": {"width": "standard", "opacity": "reference"}, // src/hooks/useSatellitesLayer.ts
+  "soilLiquefactionPotential/soil-liquefaction-potential-outline": {"width": "thin", "opacity": "reference"}, // src/hooks/useSoilLiquefactionLayers.ts
+  "transitAlerts/transitAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
+  "typhoonTracks/typhoon-tracks-line-forecast": {"width": "standard", "opacity": "reference"}, // src/hooks/useTyphoonTracksLayer.ts
+  "typhoonTracks/typhoon-tracks-line-observed": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useTyphoonTracksLayer.ts
+  "vesselWatch/vessel-watch-trail-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useVesselWatchLayer.ts
+  "weatherAlerts/weatherAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
+};
+
+export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
+  "agriCropSuitability/agri-crop-suitability-fill": "graded", // src/map/agricultureLayerFactory.ts
+  "agriLeisureFarmZones/agri-leisure-farm-zones-fill": "coverage", // src/map/agricultureLayerFactory.ts
+  "agriRuralRegen/agri-rural-regen-fill": "coverage", // src/map/agricultureLayerFactory.ts
+  "agriSoil/agri-soil-fill": "coverage", // src/map/agricultureLayerFactory.ts
+  "agriSoilFertility/agri-soil-fertility-fill": "graded", // src/map/agricultureLayerFactory.ts
+  "agriculture/agri-ftw-fields-fill": "keep", // src/map/agricultureLayerFactory.ts
+  "allenCoralAtlas/allen-coral-atlas-benthic-fill": "coverage", // src/hooks/useAllenCoralAtlasLayer.ts
+  "allenCoralAtlas/allen-coral-atlas-geomorphic-fill": "coverage", // src/hooks/useAllenCoralAtlasLayer.ts
+  "animalShelterPressure/animal-shelter-pressure-fill": "coverage", // src/hooks/useAnimalShelterPressureLayer.ts
+  "aspectVector/aspect-vector-fill": "coverage", // src/hooks/useAspectVectorLayer.ts
+  "aviationControl/aviation-control-fill": "coverage", // src/hooks/useAviationAirspaceLayer.ts
+  "aviationRestricted/aviation-restricted-fill": "coverage", // src/hooks/useAviationAirspaceLayer.ts
+  "bridgeResilienceTwinCity/bridge-resilience-village-fill": "coverage", // src/hooks/useBridgeResilienceLayers.ts
+  "coralReefDistribution/coral-reef-distribution-fill": "coverage", // src/hooks/useCoralReefDistributionLayer.ts
+  "droneNoFlyZone/drone-nfz-fill": "coverage", // src/hooks/useDroneRestrictedZonesLayer.ts
+  "droneRestrictedZone/drone-restricted-fill": "coverage", // src/hooks/useDroneRestrictedZonesLayer.ts
+  "earthquakeReplay/eq-replay-grid-fill": "keep", // src/map/earthquakeReplayLayerFactory.ts
+  "earthquakeReplay/eq-replay-town-fill": "keep", // src/map/earthquakeReplayLayerFactory.ts
+  "fireIsochrone/fire-isochrone-coverage-fill": "graded", // src/map/fireIsochroneLayerFactory.ts
+  "floodAlerts/floodAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
+  "floodSensorIsochrone/flood-sensor-isochrone-fill": "coverage", // src/hooks/useFloodSensorIsochroneLayer.ts
+  "funeralOperatorDensity/funeral-density-fill": "graded", // src/hooks/useFuneralDensityLayer.ts
+  "gfwFishingEffort/gfw-fishing-effort-fill": "coverage", // src/hooks/useGfwFishingEffortLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-fill": "keep", // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-next-fill": "keep", // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-pmtiles-fill": "keep", // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-pmtiles-next-fill": "keep", // src/hooks/useGfwHourlyGridLayer.ts
+  "gfwHourlyGrid/gfw-hourly-grid-pmtiles-preload-fill": "keep", // src/hooks/useGfwHourlyGridLayer.ts
+  "h3Population/h3-population-fill": "graded", // src/map/h3LayerFactory.ts
+  "indicators/h3-indicators-fill": "graded", // src/map/demographicsLayerFactory.ts
+  "jpAdminBoundaries/jp-admin-municipality-fill": "background", // src/hooks/useJpAdminLayers.ts
+  "jpAdminPrefecture/jp-admin-prefecture-fill": "background", // src/hooks/useJpAdminLayers.ts
+  "jpAirports/jp-airports-fill": "coverage", // src/hooks/useJpAirportsLayer.ts
+  "jpCareCombined/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpCareDayServices/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpCareEquipment/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpCareHomeVisit/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpMedicalAreasPrimary/jp-medical-areas-1-fill": "background", // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalAreasSecondary/jp-medical-areas-2-fill": "background", // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalAreasTertiary/jp-medical-areas-3-fill": "background", // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalClinics/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalDental/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalHospitals/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalMaternity/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpMedicalPharmacies/jp-medical-facilities-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpNaturalParksNational/jp-tourism-jp-natural-parks-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpNaturalParksPrefectural/jp-tourism-jp-natural-parks-prefectural-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpNaturalParksQuasiNational/jp-tourism-jp-natural-parks-quasi-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpNatureConservationArea/jp-tourism-jp-nature-conservation-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpPopulationMesh1km/jp-population-mesh-fill": "coverage", // src/hooks/useJpPopulationMeshLayer.ts
+  "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpWaterLakes/jp-water-jpWaterLakes": "coverage", // src/hooks/useJpWaterLayers.ts
+  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas": "background", // src/hooks/useJpWaterLayers.ts
+  "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpWildlifeSpecialProtectionDistrict/jp-tourism-jp-wildlife-special-protection-district-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpWorldNaturalHeritageHistorical/jp-tourism-jp-world-natural-heritage-historical-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "lifelineAlerts/lifelineAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
+  "medDesert/medical-isochrone-fill": "graded", // src/map/medicalIsochroneLayerFactory.ts
+  "medIsochrone/medical-isochrone-fill": "graded", // src/map/medicalIsochroneLayerFactory.ts
+  "plaActivity/pla-activity-fill": "keep", // src/hooks/usePlaActivityLayer.ts
+  "popCount/h3-pop-count-fill": "graded", // src/map/demographicsLayerFactory.ts
+  "propertyValueAdmin/property-value-admin-county-fill": "graded", // src/hooks/usePropertyValueAdminLayer.ts
+  "propertyValueAdmin/property-value-admin-township-fill": "graded", // src/hooks/usePropertyValueAdminLayer.ts
+  "roadEvents/roadEvents-fill": "graded", // src/hooks/useRoadEventsLayer.ts
+  "safetyAlerts/safetyAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
+  "satellitesYaogan/sat-footprint-inner": "coverage", // src/hooks/useSatellitesLayer.ts
+  "slopeVector/slope-vector-fill": "coverage", // src/hooks/useSlopeVectorLayer.ts
+  "socioeconomic/h3-socio-fill": "graded", // src/map/demographicsLayerFactory.ts
+  "soilLiquefactionPotential/soil-liquefaction-potential-fill": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "soilLiquefactionPotential/soil-liquefaction-potential-not-investigated": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "spatialEconomy/h3-spatial-fill": "graded", // src/map/demographicsLayerFactory.ts
+  "temperatureGrid/temperature-grid-fill": "keep", // src/map/temperatureGridLayerFactory.ts
+  "transitAlerts/transitAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
+  "weakSoilClay0To5/soil-liquefaction-weakSoilClay0To5-fill": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilClay0To5/soil-liquefaction-weakSoilClay0To5-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilClay10To20/soil-liquefaction-weakSoilClay10To20-fill": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilClay10To20/soil-liquefaction-weakSoilClay10To20-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilClay5To10/soil-liquefaction-weakSoilClay5To10-fill": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilClay5To10/soil-liquefaction-weakSoilClay5To10-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilSand0To5/soil-liquefaction-weakSoilSand0To5-fill": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilSand0To5/soil-liquefaction-weakSoilSand0To5-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilSand10To20/soil-liquefaction-weakSoilSand10To20-fill": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilSand10To20/soil-liquefaction-weakSoilSand10To20-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilSand5To10/soil-liquefaction-weakSoilSand5To10-fill": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weakSoilSand5To10/soil-liquefaction-weakSoilSand5To10-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
+  "weatherAlerts/weatherAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
+  "youbikeFullness/h3-youbike-fill": "graded", // src/map/youbikeLayerFactory.ts
 };

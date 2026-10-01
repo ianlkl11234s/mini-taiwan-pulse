@@ -17,6 +17,7 @@ import { useIotWraRiverLayer } from "../../hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "../../hooks/useIotWraStructureLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
+import { RASTER } from "../../map/mapStyleScale";
 
 /** 水庫 3D 水位計（Three.js cylinder：外殼 = 容量、內水位 = 蓄水率） */
 export const ReservoirStatusHost: LayerHostComponent = ({ deps }) => {
@@ -135,7 +136,7 @@ export const PrecipRasterHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.precipRaster,
     (p.precipRasterHours as 1 | 3 | 6 | 24) ?? 24,
-    p.precipRasterOpacity ?? 0.6,
+    p.precipRasterOpacity ?? RASTER.opacity,
   );
   return null;
 };

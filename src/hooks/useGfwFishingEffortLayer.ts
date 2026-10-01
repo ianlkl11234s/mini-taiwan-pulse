@@ -9,6 +9,7 @@ import { showTransientNotice } from "../components/TransientNotice";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 export const GFW_FISHING_EFFORT_SOURCE_ID = "gfw-fishing-effort-source";
 export const GFW_FISHING_EFFORT_FILL_LAYER_ID = "gfw-fishing-effort-fill";
@@ -37,7 +38,7 @@ function utcDateForSeconds(timeSeconds: number): string | null {
   return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : null;
 }
 
-function ensureLayers(map: MapboxMap): void {
+function ensureLayers(map: MapboxMap, opacity: number): void {
   if (!map.getSource(GFW_FISHING_EFFORT_SOURCE_ID)) {
     map.addSource(GFW_FISHING_EFFORT_SOURCE_ID, {
       type: "geojson",
@@ -51,10 +52,10 @@ function ensureLayers(map: MapboxMap): void {
       type: "fill",
       source: GFW_FISHING_EFFORT_SOURCE_ID,
       layout: { visibility: "none" },
-      paint: {
+      paint: hookFillPaint("gfwFishingEffort", GFW_FISHING_EFFORT_FILL_LAYER_ID, {
         "fill-color": GFW_FISHING_EFFORT_COLOR_EXPRESSION as unknown as NonNullable<FillLayer["paint"]>["fill-color"],
-        "fill-opacity": 0.55,
-      },
+        "fill-opacity": opacity,
+      }, { "fill-color": GFW_FISHING_EFFORT_COLOR_EXPRESSION as unknown as NonNullable<FillLayer["paint"]>["fill-color"], "fill-opacity": 0.58 }),
     } as FillLayer);
   }
   if (!map.getLayer(GFW_FISHING_EFFORT_OUTLINE_LAYER_ID)) {
@@ -62,12 +63,12 @@ function ensureLayers(map: MapboxMap): void {
       id: GFW_FISHING_EFFORT_OUTLINE_LAYER_ID,
       type: "line",
       source: GFW_FISHING_EFFORT_SOURCE_ID,
-      layout: { visibility: "none" },
-      paint: {
+      layout: { visibility: "none", ...hookLineLayout("gfwFishingEffort", GFW_FISHING_EFFORT_OUTLINE_LAYER_ID) },
+      paint: hookLinePaint("gfwFishingEffort", GFW_FISHING_EFFORT_OUTLINE_LAYER_ID, {
         "line-color": "#a5f3fc",
         "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.25, 10, 0.8],
-        "line-opacity": 0.72,
-      },
+        "line-opacity": opacity,
+      }, { "line-color": "#a5f3fc", "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.25, 10, 0.8], "line-opacity": 0.58 }),
     } as LineLayer);
   }
 }
@@ -184,11 +185,11 @@ export function useGfwFishingEffortLayer(
           setVisibility(map, false);
           return;
         }
-        ensureLayers(map);
-        source()?.setData(dataRef.current ?? EMPTY);
         const clampedOpacity = Math.max(0, Math.min(1, opacity));
-        map.setPaintProperty(GFW_FISHING_EFFORT_FILL_LAYER_ID, "fill-opacity", clampedOpacity);
-        map.setPaintProperty(GFW_FISHING_EFFORT_OUTLINE_LAYER_ID, "line-opacity", clampedOpacity);
+        ensureLayers(map, clampedOpacity);
+        source()?.setData(dataRef.current ?? EMPTY);
+        map.setPaintProperty(GFW_FISHING_EFFORT_FILL_LAYER_ID, "fill-opacity", hookFillOpacity("gfwFishingEffort", GFW_FISHING_EFFORT_FILL_LAYER_ID, clampedOpacity, 0.58));
+        map.setPaintProperty(GFW_FISHING_EFFORT_OUTLINE_LAYER_ID, "line-opacity", hookLineOpacity("gfwFishingEffort", GFW_FISHING_EFFORT_OUTLINE_LAYER_ID, clampedOpacity, 0.58));
         const selectedDate = utcDateForSeconds(timeStore.getTime());
         setVisibility(map, Boolean(dataRef.current && selectedDate === manifestRef.current?.selectedUtcDate));
         if (!manifestRef.current && !manifestRefreshStarted) void refreshManifest();

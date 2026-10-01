@@ -56,7 +56,7 @@ describe("spec ⇄ manifest 焊接", () => {
     // 預設 propertyValueGridExtruded=false → 兩個控件收合，但手寫版無條件把值
     // 寫進 overlayParams 字面 —— 少了它們 overlays section 的 paint 求值會缺欄位
     expect(out["propertyValueGridContrast"]).toBe(1.8);
-    expect(out["propertyValueGridElevationScale"]).toBe(40);
+    expect(out["propertyValueGridElevationScale"]).toBe(1);
     // 預設 buildingsGbaModeIdx="0"（非夜景）→ Bloom 門檻收合，值仍在
     expect(out["buildingsGbaBloomMinHeight"]).toBe(100);
   });

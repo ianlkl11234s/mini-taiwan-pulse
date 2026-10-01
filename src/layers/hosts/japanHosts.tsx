@@ -16,6 +16,7 @@ import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
 import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
+import { RASTER } from "../../map/mapStyleScale";
 
 /** 日本行政區：都道府県界 + 市区町村界（各自獨立的 PMTiles polygon 子層）。 */
 export const JpAdminHost: LayerHostComponent = ({ deps }) => {
@@ -32,6 +33,7 @@ export const JpAdminHost: LayerHostComponent = ({ deps }) => {
       jpAdminPrefecture: prefecture.jpAdminPrefectureOpacity ?? 0.2,
       jpAdminBoundaries: municipality.jpAdminBoundariesOpacity ?? 0.15,
     },
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -154,7 +156,7 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
     jpWaterGroundwaterSites: groundwater.jpWaterGroundwaterSitesOpacity ?? 0.82,
     jpWaterNilimDams: nilim.jpWaterNilimDamsOpacity ?? 0.82,
     jpWaterAgriculturalPonds: agri.jpWaterAgriculturalPondsOpacity ?? 0.55,
-    jpWaterFloodHazard: flood.jpWaterFloodHazardOpacity ?? 0.7,
+    jpWaterFloodHazard: flood.jpWaterFloodHazardOpacity ?? RASTER.opacity,
     jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
     jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.75,
     jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,

@@ -260,6 +260,11 @@ describe("useGfwHourlyGridLayer timeline", () => {
 
     expect(state.layers.has("gfw-hourly-grid-circle")).toBe(true);
     expect(state.layers.has("gfw-hourly-grid-count")).toBe(true);
+    expect(state.layers.get("gfw-hourly-grid-count")).toMatchObject({ type: "symbol", layout: {
+      "text-size": ["step", ["get", "vessel_count"], 10, 10, 11, 50, 12],
+      "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+      "text-allow-overlap": true, "text-ignore-placement": true,
+    }, paint: { "text-halo-width": 1.25 } });
     expect(loader.loadHour).toHaveBeenCalledTimes(2);
     expect(loader.loadHour.mock.calls[0]?.[1]).toBe("2026-08-15T00:00:00Z");
     expect(loader.loadHour.mock.calls[1]?.[1]).toBe("2026-08-15T01:00:00Z");

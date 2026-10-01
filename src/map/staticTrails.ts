@@ -1,9 +1,11 @@
+import { hookLineWidth, hookLineOpacity, hookLineLayout } from "./lineFillSpec";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import type { Flight } from "../types";
 
 const SOURCE_ID = "static-trails";
 const LAYER_ID = "static-trails-line";
 const GLOW_LAYER_ID = "static-trails-glow";
+const sourceFlights = new WeakMap<GeoJSONSource, Flight[]>();
 
 /**
  * 將 fr24_id hash 成 0~1 的穩定值
@@ -37,8 +39,7 @@ function lerpColorLight(t: number): string {
 /**
  * 將航班路徑轉為 GeoJSON FeatureCollection
  */
-function flightsToGeoJSON(flights: Flight[], isDark = true): GeoJSON.FeatureCollection {
-  const lerpColor = isDark ? lerpColorDark : lerpColorLight;
+function flightsToGeoJSON(flights: Flight[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
     features: flights
@@ -49,7 +50,8 @@ function flightsToGeoJSON(flights: Flight[], isDark = true): GeoJSON.FeatureColl
           callsign: f.callsign,
           origin: f.origin_iata,
           dest: f.dest_iata,
-          color: lerpColor(hashToUnit(f.fr24_id)),
+          colorDark: lerpColorDark(hashToUnit(f.fr24_id)),
+          colorLight: lerpColorLight(hashToUnit(f.fr24_id)),
         },
         geometry: {
           type: "LineString" as const,
@@ -65,27 +67,33 @@ function flightsToGeoJSON(flights: Flight[], isDark = true): GeoJSON.FeatureColl
  * @param background - 3D 模式下作為背景路線，降低透明度
  */
 export function updateStaticTrails(map: MapboxMap, flights: Flight[], isDark = true, background = false) {
-  const geojson = flightsToGeoJSON(flights, isDark);
-
   const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
 
   const scale = background ? 0 : 1.0;
-  const lineOpacity = (isDark ? 0.25 : 0.5) * scale;
+  const originalOpacity = isDark ? 0.25 : 0.5;
+  const lineOpacity = hookLineOpacity("flights", LAYER_ID, originalOpacity * scale, originalOpacity);
   const glowOpacity = (isDark ? 0.08 : 0.15) * scale;
 
   if (source) {
-    source.setData(geojson);
+    if (sourceFlights.get(source) !== flights) {
+      source.setData(flightsToGeoJSON(flights));
+      sourceFlights.set(source, flights);
+    }
     if (map.getLayer(LAYER_ID)) {
       map.setPaintProperty(LAYER_ID, "line-opacity", lineOpacity);
+      map.setPaintProperty(LAYER_ID, "line-color", ["get", isDark ? "colorDark" : "colorLight"]);
     }
     if (map.getLayer(GLOW_LAYER_ID)) {
       map.setPaintProperty(GLOW_LAYER_ID, "line-opacity", glowOpacity);
+      map.setPaintProperty(GLOW_LAYER_ID, "line-color", ["get", isDark ? "colorDark" : "colorLight"]);
     }
   } else {
     map.addSource(SOURCE_ID, {
       type: "geojson",
-      data: geojson,
+      data: flightsToGeoJSON(flights),
     });
+
+    sourceFlights.set(map.getSource(SOURCE_ID) as GeoJSONSource, flights);
 
     // 外層 glow（較寬、較透明）
     map.addLayer({
@@ -93,7 +101,7 @@ export function updateStaticTrails(map: MapboxMap, flights: Flight[], isDark = t
       type: "line",
       source: SOURCE_ID,
       paint: {
-        "line-color": ["get", "color"],
+        "line-color": ["get", isDark ? "colorDark" : "colorLight"],
         "line-width": 3,
         "line-opacity": glowOpacity,
         "line-blur": 4,
@@ -104,10 +112,11 @@ export function updateStaticTrails(map: MapboxMap, flights: Flight[], isDark = t
     map.addLayer({
       id: LAYER_ID,
       type: "line",
+      layout: hookLineLayout("flights", LAYER_ID),
       source: SOURCE_ID,
       paint: {
-        "line-color": ["get", "color"],
-        "line-width": 1,
+        "line-color": ["get", isDark ? "colorDark" : "colorLight"],
+        "line-width": hookLineWidth("flights", LAYER_ID, 1, 1),
         "line-opacity": lineOpacity,
         "line-blur": 1,
       },
@@ -140,9 +149,9 @@ export function setStaticTrailsVisible(map: MapboxMap, visible: boolean) {
 /**
  * 直接設定靜態軌跡透明度（用於 zoom-based crossfade）
  */
-export function setStaticTrailsOpacity(map: MapboxMap, lineOpacity: number, glowOpacity: number) {
+export function setStaticTrailsOpacity(map: MapboxMap, lineOpacity: number, glowOpacity: number, isDark = true) {
   if (map.getLayer(LAYER_ID)) {
-    map.setPaintProperty(LAYER_ID, "line-opacity", lineOpacity);
+    map.setPaintProperty(LAYER_ID, "line-opacity", hookLineOpacity("flights", LAYER_ID, lineOpacity, isDark ? 0.25 : 0.5));
   }
   if (map.getLayer(GLOW_LAYER_ID)) {
     map.setPaintProperty(GLOW_LAYER_ID, "line-opacity", glowOpacity);
