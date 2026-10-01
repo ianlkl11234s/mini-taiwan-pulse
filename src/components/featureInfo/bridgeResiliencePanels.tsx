@@ -4,7 +4,7 @@ import {
   BRIDGE_JOINT_KEY, BRIDGE_MODES, BRIDGE_MODE_LABELS, BRIDGE_WEIGHTINGS, BRIDGE_WEIGHTING_LABELS, BRIDGE_RESILIENCE_KEY, BRIDGE_RESILIENCE_LIMITS_TEXT,
   BRIDGE_RESILIENCE_COLORS, decodeDestinationView, effectiveScenarioUid, geometryConfidenceText, isJointMember, lossPercentText,
   millionPersonSecondsText, minutesText, populationText, rankText, scenarioKey, secondsText, sharePermilleText,
-  type BridgeAltCandidate, type BridgeMode, type BridgeModeSummary, type BridgeSummaryEntry, type BridgeWeighting, type DecayModeSummary,
+  type BridgeAltCandidate, type BridgeMode, type BridgeSummaryEntry, type BridgeWeighting, type DecayModeSummary,
   type DecaySummary, type DestinationView,
 } from "../../data/bridgeResilienceTypes";
 import {
@@ -19,20 +19,13 @@ import { useFeatureTheme } from "./featureTheme";
 const KEY = BRIDGE_RESILIENCE_KEY;
 const TOP_N = 3;
 const DEST_TOP_LIST = 5;
+const SCROLL_MAX_HEIGHT = 320;
 const setParam = (name: string, value: string | boolean) => layerParamsStore.setParam(KEY, name, value);
 
 /** 「名稱（占比%）」前 3 名；空陣列回「無」。占比是前 50 組受影響起訖對的權重占比，非流量預測。 */
-export function altBridgesText(items: BridgeAltCandidate[] | undefined): string {
+export function altBridgesText(items: BridgeAltCandidate[] | undefined, n: number = TOP_N): string {
   if (!items?.length) return "無";
-  return items.slice(0, TOP_N).map((item) => `${item.label}（${(item.weight_share * 100).toFixed(1)}%）`).join("、");
-}
-
-/** 汽車／機車並列：每個指標一列，值是「汽車 …；機車 …」。 */
-function perMode(entry: BridgeSummaryEntry, pick: (m: BridgeModeSummary) => string): string {
-  return BRIDGE_MODES.map((mode) => {
-    const modeSummary = entry.modes[mode];
-    return `${BRIDGE_MODE_LABELS[mode]} ${modeSummary ? pick(modeSummary) : "未提供"}`;
-  }).join("；");
+  return items.slice(0, n).map((item) => `${item.label}（${(item.weight_share * 100).toFixed(1)}%）`).join("、");
 }
 
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: readonly { value: T; label: string }[]; onChange: (v: T) => void }) {
@@ -48,13 +41,6 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
   return <button type="button" className="fi-btn" aria-pressed={on} onClick={() => onChange(!on)}>{label}</button>;
 }
 
-/** 距離遞減：汽車／機車並列；沒有該模式的資料回「未提供」。 */
-function perDecayMode(decay: DecaySummary["bridges"][string], pick: (m: DecayModeSummary) => string): string {
-  return BRIDGE_MODES.map((mode) => {
-    const m = decay.modes[mode];
-    return `${BRIDGE_MODE_LABELS[mode]} ${m ? pick(m) : "未提供"}`;
-  }).join("；");
-}
 /** 名次「第 N 名（不分遠近 第 M 名）」；聯合情境沒有名次（null）→「不列名次」。 */
 export function decayRankText(m: DecayModeSummary): string {
   return m.decay_impact_rank === null || m.decay_impact_rank === undefined
@@ -72,18 +58,26 @@ export function decayTopVillagesText(m: DecayModeSummary | undefined): string {
   return m.top5_villages.slice(0, TOP_N).map((v) => `${v.village}（${v.town}）${v.decay_mean_dT_s === null ? "" : ` +${secondsText(v.decay_mean_dT_s, 0)}`}・${populationText(v.pop_hh)}`).join("；");
 }
 
-/** 距離遞減版橋層級指標（取代不分遠近的 p90／平均／損失／暴露／孤立）。 */
+/** 距離遞減版橋層級指標：主畫面只列目前交通模式的 3 項；其餘放「說明與限制」。 */
 export function DecayRows({ decay, mode }: { decay: DecaySummary["bridges"][string] | undefined; mode: BridgeMode }) {
   const t = useFeatureTheme();
-  if (!decay) return <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>此橋沒有距離遞減版指標；可把「權重」切到「不分遠近」。</div>;
+  const m = decay?.modes[mode];
+  if (!m) return <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>此橋沒有距離遞減版指標（{BRIDGE_MODE_LABELS[mode]}）；可把「權重」切到「不分遠近」。</div>;
   return <>
-    <Row label="影響" value={perDecayMode(decay, (m) => millionPersonSecondsText(m.decay_impact))} />
-    <Row label="每人每次多花" value={perDecayMode(decay, (m) => secondsText(m.decay_mean_dT_per_trip))} />
-    <Row label="多花 >30 秒人口" value={perDecayMode(decay, (m) => populationText(m.pop_gt30s))} />
-    <Row label="多花 >60 秒人口" value={perDecayMode(decay, (m) => populationText(m.pop_gt60s))} />
-    <Row label="影響排名" value={perDecayMode(decay, decayRankText)} />
-    <Row label="排名敏感度（τ 10／20／30 分）" value={perDecayMode(decay, decayTauRankText)} />
-    <Row label={`影響最大的 3 個村里（${BRIDGE_MODE_LABELS[mode]}）`} value={decayTopVillagesText(decay.modes[mode])} />
+    <Row label="每人每次多花" value={secondsText(m.decay_mean_dT_per_trip)} />
+    <Row label="多花 >1 分鐘的人口" value={populationText(m.pop_gt60s)} />
+    <Row label="影響排名" value={decayRankText(m)} />
+  </>;
+}
+/** 距離遞減版的補充列（收在「說明與限制」）。 */
+export function DecayDetailRows({ decay, mode }: { decay: DecaySummary["bridges"][string] | undefined; mode: BridgeMode }) {
+  const m = decay?.modes[mode];
+  if (!m) return null;
+  return <>
+    <Row label="影響總量" value={millionPersonSecondsText(m.decay_impact)} />
+    <Row label="多花 >30 秒的人口" value={populationText(m.pop_gt30s)} />
+    <Row label="影響最大的 3 個村里" value={decayTopVillagesText(m)} />
+    <Row label="排名敏感度（τ 10／20／30 分）" value={decayTauRankText(m)} />
     <Row label="權重說明" value="距離遞減：目的地權重＝人口×exp(−基準行車時間／20 分)，τ=20 分鐘是假設值；影響＝村里人口×平均多花秒數加總；排名在同一交通模式的單橋之間" />
   </>;
 }
@@ -175,14 +169,15 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
   const dayNight = modeSummary?.alt_population_weights;
   const ban = modeSummary?.sensitivity_scooter_expressway_ban;
 
+  const decay = data?.decaySummary.bridges[joint ? BRIDGE_JOINT_KEY : uid];
+  const sameRiver = modeSummary?.replacement_bridges?.same_river_within_5km;
+  const otherOnRoute = modeSummary?.replacement_bridges?.other_bridges_on_route;
+  const stranded = modeSummary?.stranded_population;
+  const grade = entry ? geometryConfidenceText(review?.geometry_confidence) : "";
+
   return <>
     <Title color={BRIDGE_RESILIENCE_COLORS[mode]}>{title}</Title>
-    <Row label="研究狀態" value="研究中；站主限定（BSS 授權 HOLD）。是單橋失效後果，不是風險" />
-    <Row label="河川" value={river} />
-    {entry && <>
-      <Row label="人工評級" value={geometryConfidenceText(review?.geometry_confidence)} />
-      <Row label="複核日期" value={review?.latest_review_date ?? ""} mono />
-    </>}
+    <Row label="河川・評級" value={grade ? `${river}・${grade}` : river} />
     <div className="fi-actions">
       <Segmented label="權重" value={weighting} options={BRIDGE_WEIGHTINGS.map((w) => ({ value: w, label: BRIDGE_WEIGHTING_LABELS[w] }))} onChange={(v) => setParam("bridgeResilienceWeighting", v)} />
       <Segmented label="交通模式" value={mode} options={BRIDGE_MODES.map((m) => ({ value: m, label: BRIDGE_MODE_LABELS[m] }))} onChange={(v) => setParam("bridgeResilienceMode", v)} />
@@ -190,29 +185,35 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
       <Toggle label="顯示替代路線" on={showRoutes} onChange={(v) => setParam("bridgeResilienceShowRoutes", v)} />
       {canJoint && <Toggle label="與另一座同時中斷" on={joint} onChange={(v) => setParam("bridgeResilienceJoint", v)} />}
     </div>
-    {showVillages && !origin && <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, padding: "2px 0" }}>
-      提示：點地圖上的村里，切到「目的地視角」（看這個村里去哪些地方變慢；目的地明細只有不分遠近版）；點空白處或按「回到起點視角」返回，橋維持選取。
-    </div>}
-    {showVillages && origin && <DestinationSection view={view} status={destStatus} originCode={origin} modeLabel={BRIDGE_MODE_LABELS[mode]} uniformNote={weighting === "decay"} />}
-    {!entry && <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>{data ? "此橋沒有模擬指標。" : "指標載入中…"}</div>}
-    {entry && weighting === "decay" && <DecayRows decay={data?.decaySummary.bridges[joint ? BRIDGE_JOINT_KEY : uid]} mode={mode} />}
-    {entry && <>
-      {weighting === "uniform" && <>
-      <Row label="額外時間 p90" value={perMode(entry, (m) => minutesText(m.p90_dT_s))} />
-      <Row label="平均多花時間" value={perMode(entry, (m) => minutesText(m.mean_dT_s, "未提供"))} />
-      <Row label="可及性損失" value={perMode(entry, (m) => lossPercentText(m.accessibility_loss))} />
-      <Row label="暴露人口" value={perMode(entry, (m) => populationText(m.exposed_population_gt60s))} />
-      <Row label="孤立人口" value={perMode(entry, (m) => populationText(m.stranded_population))} />
+    {showVillages && !origin && <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, padding: "2px 0" }}>點地圖上的村里，可看它去哪些地方變慢。</div>}
+    {/* 內容區有高度上限、可捲動；展開「說明與限制」後也在這裡捲動，不撐高整個 popup。 */}
+    <div className="fi-scroll" style={{ maxHeight: SCROLL_MAX_HEIGHT, overflowY: "auto", overscrollBehavior: "contain" }}>
+      {showVillages && origin && <DestinationSection view={view} status={destStatus} originCode={origin} modeLabel={BRIDGE_MODE_LABELS[mode]} uniformNote={weighting === "decay"} />}
+      {!entry && <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>{data ? "此橋沒有模擬指標。" : "指標載入中…"}</div>}
+      {entry && weighting === "decay" && <DecayRows decay={decay} mode={mode} />}
+      {entry && weighting === "uniform" && modeSummary && <>
+        <Row label="額外時間 p90" value={minutesText(modeSummary.p90_dT_s)} />
+        <Row label="可及性損失" value={lossPercentText(modeSummary.accessibility_loss)} />
+        <Row label="暴露人口" value={populationText(modeSummary.exposed_population_gt60s)} />
+        {typeof stranded === "number" && stranded > 0 && <Row label="孤立人口" value={populationText(stranded)} />}
       </>}
-      <Row label={`替代橋（同河 5 km・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(modeSummary?.replacement_bridges?.same_river_within_5km)} />
-      <Row label={`替代橋（路徑上其他橋・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(modeSummary?.replacement_bridges?.other_bridges_on_route)} />
-      {modeSummary?.replacement_bridges?.basis && <Row label="替代橋依據" value={modeSummary.replacement_bridges.basis} />}
-      {weighting === "uniform" && dayNight?.day && <Row label="敏感度・日間人口" value={`${BRIDGE_MODE_LABELS[mode]} p90 ${minutesText(dayNight.day.p90_dT_s)}；損失 ${lossPercentText(dayNight.day.accessibility_loss)}`} />}
-      {weighting === "uniform" && dayNight?.night && <Row label="敏感度・夜間人口" value={`${BRIDGE_MODE_LABELS[mode]} p90 ${minutesText(dayNight.night.p90_dT_s)}；損失 ${lossPercentText(dayNight.night.accessibility_loss)}`} />}
-      {weighting === "uniform" && mode === "scooter" && ban && <Row label="敏感度・機車不走快速公路" value={`p90 ${minutesText(ban.p90_dT_s)}；損失 ${lossPercentText(ban.accessibility_loss)}（對照值，非主結果）`} />}
-      <Row label="替代路線" value="只畫戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的" />
-      {review?.notes?.map((note) => <Row key={note} label="複核備註" value={note} />)}
-    </>}
-    {BRIDGE_RESILIENCE_LIMITS_TEXT.map((text, i) => <Row key={text} label={i === 0 ? "限制" : ""} value={text} />)}
+      {entry && <Row label="替代橋" value={sameRiver?.length ? altBridgesText(sameRiver, 2) : `路徑上其他橋：${altBridgesText(otherOnRoute, 2)}`} />}
+      <details className="fi-details" style={{ marginTop: 6 }}>
+        <summary style={{ cursor: "pointer", fontSize: FONT_SIZE.sm, color: t.textMuted, padding: "4px 0" }}>說明與限制</summary>
+        <Row label="研究狀態" value="研究中；站主限定（BSS 授權 HOLD）。是單橋失效後果，不是風險" />
+        {entry && <Row label="複核日期" value={review?.latest_review_date ?? ""} mono />}
+        {weighting === "decay" && <DecayDetailRows decay={decay} mode={mode} />}
+        {weighting === "uniform" && modeSummary && <Row label="平均多花時間" value={minutesText(modeSummary.mean_dT_s, "未提供")} />}
+        {entry && <Row label={`替代橋（同河 5 km・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(sameRiver)} />}
+        {entry && <Row label={`替代橋（路徑上其他橋・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(otherOnRoute)} />}
+        {modeSummary?.replacement_bridges?.basis && <Row label="替代橋依據" value={modeSummary.replacement_bridges.basis} />}
+        {weighting === "uniform" && dayNight?.day && <Row label="敏感度・日間人口" value={`p90 ${minutesText(dayNight.day.p90_dT_s)}；損失 ${lossPercentText(dayNight.day.accessibility_loss)}`} />}
+        {weighting === "uniform" && dayNight?.night && <Row label="敏感度・夜間人口" value={`p90 ${minutesText(dayNight.night.p90_dT_s)}；損失 ${lossPercentText(dayNight.night.accessibility_loss)}`} />}
+        {weighting === "uniform" && mode === "scooter" && ban && <Row label="敏感度・機車不走快速公路" value={`p90 ${minutesText(ban.p90_dT_s)}；損失 ${lossPercentText(ban.accessibility_loss)}（對照值，非主結果）`} />}
+        {entry && <Row label="替代路線" value="只畫戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的" />}
+        {review?.notes?.map((note) => <Row key={note} label="複核備註" value={note} />)}
+        {BRIDGE_RESILIENCE_LIMITS_TEXT.map((text, i) => <Row key={text} label={i === 0 ? "限制" : ""} value={text} />)}
+      </details>
+    </div>
   </>;
 }
