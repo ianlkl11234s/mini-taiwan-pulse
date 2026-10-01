@@ -24,7 +24,6 @@
 | 地圖 R5 熱區＋密度透明度 | ⏳ 未開始 | — | 超過 10 萬點改熱區（日本宗教設施低縮放糊塊）、P-3 密度透明度、聚合泡泡描邊、泡泡 M3 |
 | 地圖 R6 Three.js／Mapbox 切換 | ⏳ 未開始 | — | **先要使用者決定**範圍與開關位置 |
 | 監看模式 split 統一（卡片殼、標題、數值、走勢、狀態、資料品質） | ✅ 已拍板、⏳ 未實作 | 盤點＋提案＋拍板 #473 | spec §5.35 定案；依 `docs/features/monitor-restyle/README.md`「實作順序」P1–P6 分 PR |
-| 開站加速 | 🔶 部分 | 地形延後載入 #395 | 關閉的圖層不建資料來源、Three.js 圖層打開才建 |
 | 開站加速 | 🔶 部分 | 地形延後載入 #395；Three.js 圖層打開才建 #464、#476 | 關閉的圖層不建資料來源（registry 開站全建）→ 交 Codex（`docs/features/perf-lifecycle/handoff-theme-refetch-lazy-overlays.md` P2） |
 
 ### 等使用者決定
