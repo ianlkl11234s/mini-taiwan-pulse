@@ -1,5 +1,6 @@
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
+import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
 
@@ -170,6 +171,7 @@ export type ExpandableLayerKey =
   | "aqiMicroSensors"
   | "officialNoiseMonitoring" | "noiseCaptureGrid" | "noiseControlZones"
   | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
+  | "riverRpiStations" | "waterQualityStations" | "sewageTreatmentPlants" | "drinkingWaterProtectionZones"
   | "earthquakes"
   | "earthquakeReplay"
   | "earthquakesGlobal"
@@ -851,6 +853,8 @@ export interface FeatureInfo {
     // 噪音／聲響（觀測、公民科學、法定區、裁處、設備清單六種獨立語意）
     | "officialNoiseMonitoring" | "noiseCaptureGrid" | "noiseControlZones"
     | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
+    // 水質與污水（環境部 RPI 測站／水質測站／污水處理廠／飲用水水源水質保護區）
+    | "riverRpiStations" | "waterQualityStations" | "sewageTreatmentPlants" | "drinkingWaterProtectionZones"
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
     | "coralReefDistribution"
@@ -896,7 +900,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1170,6 +1174,10 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   aviationNoiseZones: boolean;
   noiseEnforcementEvents: boolean;
   soundCameraLocations: boolean;
+  riverRpiStations: boolean;
+  waterQualityStations: boolean;
+  sewageTreatmentPlants: boolean;
+  drinkingWaterProtectionZones: boolean;
   busLive: boolean;
   busIntercityLive: boolean;
   touristShuttleLive: boolean;

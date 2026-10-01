@@ -179,6 +179,9 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   ripeAtlasProbes: "M", // RIPE Atlas 連線量測節點 Connected Probes
   riversideTreesTaipei: "M", // 河濱喬木 Riverside Trees
   soundCameraLocations: "M", // 聲音照相設備 Sound Camera
+  riverRpiStations: "M", // 河川污染指數測站 River RPI
+  waterQualityStations: "M", // 水質監測站 Water Quality
+  sewageTreatmentPlants: "M", // 公共污水處理廠 Sewage Plants
   stationsMetro: "M", // 捷運站 Metro Station
   stationsTHSR: "M", // 高鐵站 THSR Station
   stationsTRA: "M", // 台鐵站 TRA Station

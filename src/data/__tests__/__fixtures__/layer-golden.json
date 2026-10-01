@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 814,
+    "keyCount": 855,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2672,6 +2672,43 @@
         "statsLaborCountyParticipationRate-fill",
         "statsLaborCountyUnemploymentRate-fill",
         "statsLaborCountyEmploymentByIndustry-fill",
+        "statsComplaintsCounty-fill",
+        "statsComplaintTargetCounty-fill",
+        "statsComplaintCasesPndCounty-fill",
+        "statsComplaintPopulationCounty-fill",
+        "statsComplaintsPer10kCounty-fill",
+        "statsEnvInspectionsCounty-fill",
+        "statsEnvFineCasesCounty-fill",
+        "statsEnvFineAmountCounty-fill",
+        "statsEnvFineCollectedCounty-fill",
+        "statsAqiPoorRatioCounty-fill",
+        "statsSoilControlAreaCounty-fill",
+        "statsSoilRemediationAreaCounty-fill",
+        "statsWasteGeneratedCounty-fill",
+        "statsWastePerCapitaCounty-fill",
+        "statsGeneralGarbageCounty-fill",
+        "statsFoodWasteCounty-fill",
+        "statsRecyclingAmountCounty-fill",
+        "statsResponsibleEnterprisesCounty-fill",
+        "statsTapWaterTestsCounty-fill",
+        "statsTapWaterFailuresCounty-fill",
+        "statsTapWaterFailureRateCounty-fill",
+        "statsBodGeneratedCounty-fill",
+        "statsBodDischargedCounty-fill",
+        "statsSewerConnectionCounty-fill",
+        "statsSewageTreatmentCounty-fill",
+        "statsMotorArrivalRateCounty-fill",
+        "statsMotorNotifiedCounty-fill",
+        "statsMotorTestedCounty-fill",
+        "statsBurningComplaintsCounty-fill",
+        "statsComplaintsPer10kDerivedCounty-fill",
+        "statsBurningComplaintsPer10kCounty-fill",
+        "statsEnvInspectionsPerFacilityCounty-fill",
+        "statsEnvFineRateCounty-fill",
+        "statsWasteGeneratedPer10kCounty-fill",
+        "statsGeneralGarbagePer10kCounty-fill",
+        "statsRecyclingPer10kCounty-fill",
+        "statsBodDischargedPerKm2County-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -2755,6 +2792,24 @@
         "sound-camera-locations-circle"
       ],
       "type": "soundCameraLocations"
+    },
+    {
+      "layers": [
+        "river-rpi-stations-circle"
+      ],
+      "type": "riverRpiStations"
+    },
+    {
+      "layers": [
+        "sewage-treatment-plants-circle"
+      ],
+      "type": "sewageTreatmentPlants"
+    },
+    {
+      "layers": [
+        "water-quality-stations-circle"
+      ],
+      "type": "waterQualityStations"
     },
     {
       "layers": [
@@ -2873,6 +2928,14 @@
         "noise-control-zones-outline"
       ],
       "type": "noiseControlZones"
+    },
+    {
+      "layers": [
+        "drinking-water-protection-zones-fill",
+        "drinking-water-protection-zones-outline",
+        "drinking-water-protection-zones-distance-outline"
+      ],
+      "type": "drinkingWaterProtectionZones"
     },
     {
       "layers": [
@@ -47163,6 +47226,637 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "riverRpiStations",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 19,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                "rgba(148,163,184,0)",
+                [
+                  "match",
+                  [
+                    "get",
+                    "latest_class"
+                  ],
+                  "未(稍)受污染",
+                  "#38bdf8",
+                  "輕度污染",
+                  "#facc15",
+                  "中度污染",
+                  "#f97316",
+                  "嚴重污染",
+                  "#dc2626",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                "#0f172a"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                "rgba(148,163,184,0)",
+                [
+                  "match",
+                  [
+                    "get",
+                    "latest_class"
+                  ],
+                  "未(稍)受污染",
+                  "#38bdf8",
+                  "輕度污染",
+                  "#facc15",
+                  "中度污染",
+                  "#f97316",
+                  "嚴重污染",
+                  "#dc2626",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_rpi"
+                  ],
+                  null
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "river-rpi-stations",
+      "sourceUrl": "./environment/river_rpi_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "waterQualityStations",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 19,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "river",
+                "#0ea5e9",
+                "groundwater",
+                "#b45309",
+                "reservoir",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                0,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "station_type"
+                  ],
+                  "river",
+                  "#0ea5e9",
+                  "groundwater",
+                  "#b45309",
+                  "reservoir",
+                  "#7c3aed",
+                  "#94a3b8"
+                ],
+                "#0f172a"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                1.6,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "river",
+                "#0ea5e9",
+                "groundwater",
+                "#b45309",
+                "reservoir",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                0,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "station_type"
+                  ],
+                  "river",
+                  "#0ea5e9",
+                  "groundwater",
+                  "#b45309",
+                  "reservoir",
+                  "#7c3aed",
+                  "#94a3b8"
+                ],
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                1.6,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "water-quality-stations",
+      "sourceUrl": "./environment/water_quality_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "sewageTreatmentPlants",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 19,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": "#14b8a6",
+              "circle-opacity": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "geocode_quality"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "APPROXIMATE",
+                      "GEOMETRIC_CENTER"
+                    ]
+                  ]
+                ],
+                0.225,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "geocode_quality"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "APPROXIMATE",
+                      "GEOMETRIC_CENTER"
+                    ]
+                  ]
+                ],
+                "#14b8a6",
+                "#0f172a"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "geocode_quality"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "APPROXIMATE",
+                      "GEOMETRIC_CENTER"
+                    ]
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": "#14b8a6",
+              "circle-opacity": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "geocode_quality"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "APPROXIMATE",
+                      "GEOMETRIC_CENTER"
+                    ]
+                  ]
+                ],
+                0.225,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "geocode_quality"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "APPROXIMATE",
+                      "GEOMETRIC_CENTER"
+                    ]
+                  ]
+                ],
+                "#14b8a6",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "geocode_quality"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "APPROXIMATE",
+                      "GEOMETRIC_CENTER"
+                    ]
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "sewage-treatment-plants",
+      "sourceUrl": "./environment/sewage_treatment_plants.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "drinkingWaterProtectionZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "保護區",
+                "#2563eb",
+                "一定距離",
+                "#06b6d4",
+                "#64748b"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "保護區",
+                "#2563eb",
+                "一定距離",
+                "#06b6d4",
+                "#64748b"
+              ],
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "get",
+              "zone_type"
+            ],
+            "一定距離"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "保護區",
+                "#2563eb",
+                "一定距離",
+                "#06b6d4",
+                "#64748b"
+              ],
+              "line-opacity": 1,
+              "line-width": 1.2
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "保護區",
+                "#2563eb",
+                "一定距離",
+                "#06b6d4",
+                "#64748b"
+              ],
+              "line-opacity": 1,
+              "line-width": 1.2
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "zone_type"
+            ],
+            "一定距離"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "保護區",
+                "#2563eb",
+                "一定距離",
+                "#06b6d4",
+                "#64748b"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 1,
+              "line-width": 1.2
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "保護區",
+                "#2563eb",
+                "一定距離",
+                "#06b6d4",
+                "#64748b"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 1,
+              "line-width": 1.2
+            }
+          },
+          "suffix": "distance-outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "drinking-water-protection-zones",
+      "sourceUrl": "./environment/drinking_water_protection_zones.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "pollutionFacility",
       "layers": [
         {
@@ -59769,6 +60463,17 @@
         "valueText": "1.0"
       }
     ],
+    "drinkingWaterProtectionZones": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.65,
+        "valueText": "0.65"
+      }
+    ],
     "droneNoFlyZone": [
       {
         "label": "透明度 0.45",
@@ -66962,6 +67667,53 @@
         "valueText": "1.00"
       }
     ],
+    "riverRpiStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "污染等級",
+        "options": [
+          {
+            "label": "全部測站",
+            "value": "all"
+          },
+          {
+            "label": "未（稍）受污染",
+            "value": "未(稍)受污染"
+          },
+          {
+            "label": "輕度污染",
+            "value": "輕度污染"
+          },
+          {
+            "label": "中度污染",
+            "value": "中度污染"
+          },
+          {
+            "label": "嚴重污染",
+            "value": "嚴重污染"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      }
+    ],
     "riversideTreesTaipei": [
       {
         "label": "河濱公園",
@@ -67430,6 +68182,26 @@
         "step": 0.5,
         "value": 1.5,
         "valueText": "1.5"
+      }
+    ],
+    "sewageTreatmentPlants": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ships": [
@@ -68019,6 +68791,17 @@
         "valueText": "0.55"
       }
     ],
+    "statsAqiPoorRatioCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsAquacultureAreaCounty": [
       {
         "label": "透明度 0.55",
@@ -68085,7 +68868,62 @@
         "valueText": "0.55"
       }
     ],
+    "statsBodDischargedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBodDischargedPerKm2County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBodGeneratedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsBroadleafForestAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBurningComplaintsCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsBurningComplaintsPer10kCounty": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -70252,6 +71090,72 @@
         "valueText": "0.55"
       }
     ],
+    "statsComplaintCasesPndCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComplaintPopulationCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComplaintTargetCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComplaintsCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComplaintsPer10kCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsComplaintsPer10kDerivedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsConiferForestAreaTownship": [
       {
         "label": "透明度 0.55",
@@ -70571,6 +71475,72 @@
         "valueText": "0.55"
       }
     ],
+    "statsEnvFineAmountCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsEnvFineCasesCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsEnvFineCollectedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsEnvFineRateCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsEnvInspectionsCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsEnvInspectionsPerFacilityCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsFisheryProductionCounty": [
       {
         "label": "透明度 0.55",
@@ -70583,6 +71553,39 @@
       }
     ],
     "statsFisheryProductionValueCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFoodWasteCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGeneralGarbageCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGeneralGarbagePer10kCounty": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -71121,6 +72124,39 @@
         "valueText": "0.55"
       }
     ],
+    "statsMotorArrivalRateCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMotorNotifiedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMotorTestedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsMotorcycleLicenseHoldersCount": [
       {
         "label": "透明度 0.55",
@@ -71231,6 +72267,17 @@
         "valueText": "0.55"
       }
     ],
+    "statsRecyclingAmountCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsRecyclingCounty": [
       {
         "label": "透明度 0.55",
@@ -71242,7 +72289,29 @@
         "valueText": "0.55"
       }
     ],
+    "statsRecyclingPer10kCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsResidentialElectricity": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsResponsibleEnterprisesCounty": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -71265,6 +72334,50 @@
       }
     ],
     "statsRoadLandAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSewageTreatmentCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSewerConnectionCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSoilControlAreaCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSoilRemediationAreaCounty": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -71396,6 +72509,39 @@
         "valueText": "0.55"
       }
     ],
+    "statsTapWaterFailureRateCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTapWaterFailuresCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTapWaterTestsCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsTmrtStationOutboundCounty": [
       {
         "label": "透明度 0.55",
@@ -71419,6 +72565,39 @@
       }
     ],
     "statsWasteCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsWasteGeneratedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsWasteGeneratedPer10kCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsWastePerCapitaCounty": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -73077,6 +74256,49 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "waterQualityStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "測站類型",
+        "options": [
+          {
+            "label": "全部類型",
+            "value": "all"
+          },
+          {
+            "label": "河川",
+            "value": "river"
+          },
+          {
+            "label": "地下水",
+            "value": "groundwater"
+          },
+          {
+            "label": "水庫",
+            "value": "reservoir"
+          }
+        ],
+        "type": "select",
+        "value": "all"
       }
     ],
     "waterReservoirs": [

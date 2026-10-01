@@ -38,6 +38,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.missing_reason != null && <Row label="缺值原因" value={String(props.missing_reason)} />}
     <Row label="資料期別" value={String(props.period_label ?? props.release_id ?? '—')} />
     {props.location_semantics != null && <Row label="位置口徑" value={String(props.location_semantics)} />}
+    {props.disclosure != null && <Row label="資料限制" value={String(props.disclosure)} />}
     {props.comparison_formula != null && <Row label="計算方式" value={String(props.comparison_formula)} />}
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={INPUT_LABELS[key]!} value={inputValue(value)} />)}
     {props.interpretation != null && <Row label="如何理解" value={String(props.interpretation)} />}

@@ -155,6 +155,10 @@ import {
   officialNoisePeriodFilter,
   soundCameraFilter,
 } from "../data/noiseTypes";
+import {
+  DRINKING_WATER_ZONE_COLOR_EXPR, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_COLOR_EXPR, RIVER_RPI_NO_DATA_COLOR, SEWAGE_UNCERTAIN_EXPR, WATER_QUALITY_STATION_COLOR_EXPR,
+  riverRpiClassFilter, waterQualityStationTypeFilter,
+} from "../data/environmentLayerTypes";
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 import {
   JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
@@ -9255,6 +9259,111 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         };
       },
     }],
+  },
+
+  // ── 水質與污水（環境部／內政部，public/environment 靜態 GeoJSON）──
+  // RPI：官方四級語意色；latest_rpi 為 null（無資料）→ 中空灰點，不畫成乾淨。
+  {
+    id: "riverRpiStations",
+    sourceUrl: "./environment/river_rpi_stations.geojson",
+    sourceId: "river-rpi-stations",
+    rebuildOnParamChange: ["circle"],
+    rebuildOnParamKeys: ["riverRpiStationsClassIdx"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 6, maxzoom: 19,
+      filter: (p) => riverRpiClassFilter(p?.riverRpiStationsClassIdx ?? 0),
+      paint: (isDark, p) => {
+        const op = p?.riverRpiStationsOpacity ?? 0.9;
+        const noData: unknown[] = ["==", ["get", "latest_rpi"], null];
+        return {
+          "circle-color": ["case", noData, "rgba(148,163,184,0)", RIVER_RPI_COLOR_EXPR] as unknown as string,
+          "circle-opacity": ["case", noData, 0, op] as unknown as number,
+          "circle-stroke-color": ["case", noData, RIVER_RPI_NO_DATA_COLOR, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
+          "circle-stroke-width": ["case", noData, 1.8, 1] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // 水質測站：三類型分色；latest_sample_date 為 null（無讀值）→ 同色中空點。
+  {
+    id: "waterQualityStations",
+    sourceUrl: "./environment/water_quality_stations.geojson",
+    sourceId: "water-quality-stations",
+    rebuildOnParamChange: ["circle"],
+    rebuildOnParamKeys: ["waterQualityStationsTypeIdx"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 7, maxzoom: 19,
+      filter: (p) => waterQualityStationTypeFilter(p?.waterQualityStationsTypeIdx ?? 0),
+      paint: (isDark, p) => {
+        const op = p?.waterQualityStationsOpacity ?? 0.85;
+        const noReading: unknown[] = ["==", ["get", "latest_sample_date"], null];
+        return {
+          "circle-color": WATER_QUALITY_STATION_COLOR_EXPR as unknown as string,
+          "circle-opacity": ["case", noReading, 0, op] as unknown as number,
+          "circle-stroke-color": ["case", noReading, WATER_QUALITY_STATION_COLOR_EXPR, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
+          "circle-stroke-width": ["case", noReading, 1.6, 1] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // 污水處理廠：Google geocode 只到幾何中心／約略位置的 14 處 → 淡色中空，popup 另標示。
+  {
+    id: "sewageTreatmentPlants",
+    sourceUrl: "./environment/sewage_treatment_plants.geojson",
+    sourceId: "sewage-treatment-plants",
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 6, maxzoom: 19,
+      paint: (isDark, p) => {
+        const op = p?.sewageTreatmentPlantsOpacity ?? 0.9;
+        return {
+          "circle-color": ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants,
+          "circle-opacity": ["case", SEWAGE_UNCERTAIN_EXPR, op * 0.25, op] as unknown as number,
+          "circle-stroke-color": ["case", SEWAGE_UNCERTAIN_EXPR, ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
+          "circle-stroke-width": ["case", SEWAGE_UNCERTAIN_EXPR, 1.8, 1] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // 飲用水水源水質保護區（環境部）：藍色系，刻意與 waterProtectionZones（水利署，emerald）區隔；一定距離用虛線。
+  {
+    id: "drinkingWaterProtectionZones",
+    sourceUrl: "./environment/drinking_water_protection_zones.geojson",
+    sourceId: "drinking-water-protection-zones",
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": DRINKING_WATER_ZONE_COLOR_EXPR as unknown as string,
+          "fill-opacity": 0.3 * (p?.drinkingWaterProtectionZonesOpacity ?? 0.65) / 0.65,
+        }),
+      },
+      {
+        suffix: "outline", type: "line",
+        filter: ["!=", ["get", "zone_type"], "一定距離"],
+        paint: (_isDark, p) => ({
+          "line-color": DRINKING_WATER_ZONE_COLOR_EXPR as unknown as string,
+          "line-width": 1.2,
+          "line-opacity": Math.min(1, (p?.drinkingWaterProtectionZonesOpacity ?? 0.65) / 0.65),
+        }),
+      },
+      {
+        // line-dasharray 不支援 data-driven，取水口一定距離另起一層虛線。
+        suffix: "distance-outline", type: "line",
+        filter: ["==", ["get", "zone_type"], "一定距離"],
+        paint: (_isDark, p) => ({
+          "line-color": DRINKING_WATER_ZONE_COLOR_EXPR as unknown as string,
+          "line-width": 1.2,
+          "line-opacity": Math.min(1, (p?.drinkingWaterProtectionZonesOpacity ?? 0.65) / 0.65),
+          "line-dasharray": [2, 2],
+        }),
+      },
+    ],
   },
 
   // ══════════════════════════════════════════════════════════════════

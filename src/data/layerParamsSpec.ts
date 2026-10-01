@@ -1,4 +1,5 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
+import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -106,6 +107,7 @@ import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
+import { RIVER_RPI_FILTER_OPTIONS, WATER_QUALITY_STATION_FILTER_OPTIONS } from "./environmentLayerTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
@@ -889,6 +891,8 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
  */
 export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(COMPARISON_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<ComparisonStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 環境統計 37 層同 comparison：dynamic renderer 只吃共通透明度；期別／細項由 recipe exact whitelist 提供。
+  ...Object.fromEntries(ENVIRONMENT_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<EnvironmentStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
   statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
   statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],
@@ -3126,6 +3130,33 @@ export const LAYER_PARAMS_SPEC = {
       encode: SOUND_CAMERA_PRECISIONS.map((precision) => precision.value),
     },
   ],
+
+  // ── 水質與污水：等級／類型 select 轉 index，供 registry filter 重建 ──
+  riverRpiStations: [
+    opacitySlider("riverRpiStationsOpacity", 0.9),
+    scaleSlider("riverRpiStationsScale", 1),
+    {
+      kind: "select", name: "riverRpiStationsClass", label: "污染等級",
+      default: "all", options: [...RIVER_RPI_FILTER_OPTIONS],
+      out: "riverRpiStationsClassIdx",
+      encode: RIVER_RPI_FILTER_OPTIONS.map((option) => option.value),
+    },
+  ],
+  waterQualityStations: [
+    opacitySlider("waterQualityStationsOpacity", 0.85),
+    scaleSlider("waterQualityStationsScale", 1),
+    {
+      kind: "select", name: "waterQualityStationsType", label: "測站類型",
+      default: "all", options: [...WATER_QUALITY_STATION_FILTER_OPTIONS],
+      out: "waterQualityStationsTypeIdx",
+      encode: WATER_QUALITY_STATION_FILTER_OPTIONS.map((option) => option.value),
+    },
+  ],
+  sewageTreatmentPlants: [
+    opacitySlider("sewageTreatmentPlantsOpacity", 0.9),
+    scaleSlider("sewageTreatmentPlantsScale", 1),
+  ],
+  drinkingWaterProtectionZones: [opacitySlider("drinkingWaterProtectionZonesOpacity", 0.65)],
 
   // ── 底圖 Base map：opacity 同時進 overlayParams（paint）與 hook return ──
   hillshade: [opacitySlider("hillshadeOpacity", 0.5)],

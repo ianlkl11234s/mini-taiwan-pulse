@@ -8,6 +8,7 @@ import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
+import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -57,7 +58,7 @@ import {
   Church, Landmark, HeartHandshake, Sparkles, Camera,
   Cross, Briefcase, Flower, Grid3x3,
   Building2, CalendarDays, Theater, Library,
-  Truck, Droplet, Flame, Timer,
+  Truck, Droplet, Flame, Timer, FlaskConical,
   LayoutGrid, ShieldCheck, Trash2, PlaneTakeoff,
   Cable, Store, Mail, PackageCheck, Users, BookOpen, ShoppingBasket, Toilet,
   GraduationCap, Activity, Trees,
@@ -132,6 +133,7 @@ import {
 } from "./businessRegistryTypes";
 import { COMPANY_DEMOGRAPHICS_SCALES } from "./businessDemographicsTypes";
 import { NOISE_LAYER_COLORS } from "./noiseTypes";
+import { ENVIRONMENT_LAYER_COLORS } from "./environmentLayerTypes";
 import { PUBLIC_LIFE_COLORS } from "./publicLifePalette";
 
 /**
@@ -381,6 +383,21 @@ const LABOR_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LABOR_ENABLED_STATI
   topics: ["統計", "工作", "所得", "勞動", recipe.level === "village" ? "村里" : "縣市"],
 }])) as Record<LaborStatisticsLayerKey, LayerManifestEntry>;
 
+/** Environment recipes (環境部／國土管理署 18 dataset) share the dynamic Statistics renderer. */
+const ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ENVIRONMENT_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: ENVIRONMENT_STATISTICS_THEME_TITLES[recipe.group] ?? recipe.group, group: recipe.subgroup },
+    label: recipe.label, expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: recipe.disclosure,
+    topics: ["統計", "環境", recipe.group.replace("統計", ""), recipe.subgroup, "縣市"],
+  }];
+})) as Record<EnvironmentStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -474,6 +491,7 @@ export const LAYER_MANIFEST = {
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
   ...LABOR_STATISTICS_MANIFEST_ENTRIES,
+  ...ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
@@ -7348,6 +7366,93 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "臺南／彰化官方設備或執法路段清單；定位精度混合，不代表即時啟用、違規事件位置或 dB",
     topics: ["環境", "噪音", "聲音照相", "定位精度", "設備清單"],
+  },
+
+  // 水質與污水 4 層（taipei-gis-analytics output/environment-layers，2026-10-02 快照，隨 dist 打包）。
+  riverRpiStations: {
+    key: "riverRpiStations",
+    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    label: "河川污染指數測站 River RPI",
+    labelMobile: "河川污染指數 RPI 測站 River RPI Stations",
+    expandable: true,
+    color: ENVIRONMENT_LAYER_COLORS.riverRpiStations,
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "wqx_p_01", confidence: "HIGH" }],
+      processing: "311 站；每站最新一筆有 RPI 的採樣與近 12 個月平均；低於偵測極限保留「<」",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "river-rpi-stations", url: "./environment/river_rpi_stations.geojson" },
+    legend: "riverRpiStations",
+    popup: "riverRpiStations",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "環境部河川水質監測站最新河川污染指數（RPI）官方四級；月更、約延遲 2 個月，無 RPI 不代表乾淨",
+    topics: ["環境", "水質", "河川", "RPI", "監測站"],
+  },
+  waterQualityStations: {
+    key: "waterQualityStations",
+    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    label: "水質監測站 Water Quality",
+    labelMobile: "水質監測站（河川／地下水／水庫） Water Quality Stations",
+    expandable: true,
+    color: ENVIRONMENT_LAYER_COLORS.waterQualityStations,
+    icon: FlaskConical,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "water_quality_stations", confidence: "HIGH" }],
+      processing: "2,449 站排除無座標／(0,0)／台灣外 607 站後 1,842 站；最新採樣日來自讀值表",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "water-quality-stations", url: "./environment/water_quality_stations.geojson" },
+    legend: "waterQualityStations",
+    popup: "waterQualityStations",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "環境部、水利署與臺北翡翠水庫的河川／地下水／水庫水質監測站點位；無讀值的站以中空點保留",
+    topics: ["環境", "水質", "地下水", "水庫", "監測站"],
+  },
+  sewageTreatmentPlants: {
+    key: "sewageTreatmentPlants",
+    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    label: "公共污水處理廠 Sewage Plants",
+    labelMobile: "公共污水處理廠 Sewage Treatment Plants",
+    expandable: true,
+    color: ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants,
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "sewage_treatment_plants", confidence: "MED" }],
+      processing: "內政部 82 廠地址經 Google geocode；14 處為幾何中心／約略位置",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "sewage-treatment-plants", url: "./environment/sewage_treatment_plants.geojson" },
+    legend: "sewageTreatmentPlants",
+    popup: "sewageTreatmentPlants",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "內政部公共污水處理廠位置（地址定位）；位置不確定者以淡色中空點標示",
+    topics: ["環境", "污水", "下水道", "處理廠"],
+  },
+  // ≠ waterProtectionZones（水利署依自來水法劃設的自來水水質水量保護區）：法源、主管機關、範圍皆不同，不合併、不同色。
+  drinkingWaterProtectionZones: {
+    key: "drinkingWaterProtectionZones",
+    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    label: "飲用水水源保護區（環境部） Drinking Water",
+    labelMobile: "飲用水水源水質保護區（環境部） Drinking Water Source Zones",
+    expandable: true,
+    color: ENVIRONMENT_LAYER_COLORS.drinkingWaterProtectionZones,
+    icon: Droplet,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gisepa_p_13", confidence: "HIGH" }],
+      processing: "134 面（保護區 87／取水口一定距離 47）；2026-07-20 上傳版，20 m 簡化",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "drinking-water-protection-zones", url: "./environment/drinking_water_protection_zones.geojson" },
+    legend: "drinkingWaterProtectionZones",
+    popup: "drinkingWaterProtectionZones",
+    params: { count: 1, kinds: ["slider"] },
+    description: "環境部依飲用水管理條例公告的飲用水水源水質保護區與取水口一定距離；不同於水利署自來水水質水量保護區",
+    topics: ["環境", "水質", "飲用水", "保護區"],
   },
 
   // 裁處 3 層共用同一份 PMTiles **同一個 sourceId**（pollution-penalty），

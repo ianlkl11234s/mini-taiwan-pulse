@@ -7,13 +7,14 @@ import { MOBILE_LAYER_THEMES, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../Layer
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
+import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentStatisticsRecipes";
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
   { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "不動產總市值", "犯罪與治安"] },
   { title: "交通與運輸 Transport", groups: ["建置量", "使用與營運", "車輛登記存量", "自行車（臺北市，民國 110 年）", "道路安全與監測", "駕照與停車", "航空運輸", "運輸補助", "交通用地"] },
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地"] },
-  { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收"] },
+  { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收", "水質與污水", "空氣品質", "污染與公害", "環境治理"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
 const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !key.startsWith('statsComparisonEducation'));
@@ -41,6 +42,7 @@ const EXPECTED_LAYER_KEYS = [
   "statsConiferForestAreaTownship", "statsBroadleafForestAreaTownship", "statsBambooForestAreaTownship", "statsMixedForestAreaTownship",
   "statsPigWaterCounty", "statsWaterSupplyHistorical", "statsResidentialElectricity",
   "statsWasteCounty", "statsRecyclingCounty", "statsWasteRecyclingRate",
+  ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
   "countyBoundary", "townshipBoundary",
 ];
 
@@ -78,6 +80,11 @@ describe("STATISTICS_TAB_THEMES", () => {
     ]));
     expect(group("交通與運輸 Transport", "車輛登記存量")).toContain("statsComparisonAutomobileRegisteredCountPer10000Residents");
     expect(group("交通與運輸 Transport", "駕照與停車")).toContain("statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents");
+    // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
+    const pollution = group("環境與資源 Environment & Resources", "污染與公害");
+    expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));
+    expect(group("環境與資源 Environment & Resources", "環境治理")).toEqual(expect.arrayContaining(["statsEnvInspectionsCounty", "statsEnvFineRateCounty"]));
+    expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining(["statsWasteGeneratedCounty", "statsRecyclingPer10kCounty", "statsResponsibleEnterprisesCounty"]));
     expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining([
       "statsComparisonWasteTotalVehiclesPerKm2", "statsComparisonWasteRecyclingVehiclesPer10000Residents",
     ]));

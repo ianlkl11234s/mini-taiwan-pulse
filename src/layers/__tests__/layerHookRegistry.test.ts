@@ -55,6 +55,7 @@ import { MANIFEST_KEYS } from "../../data/layerManifest";
 import { LAYER_HOOK_REGISTRY } from "../layerHookRegistry";
 import { AGRI_ENABLED_STATISTICS_KEYS } from "../../data/agriStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_KEYS } from "../../data/laborStatisticsRecipes";
+import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../data/environmentStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 
@@ -115,6 +116,8 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   // Labor-statistics recipes use the same MapView lifecycle adapter. They are
   // dataset-scoped in the loader, but do not require one React hook per key.
   ...LABOR_ENABLED_STATISTICS_KEYS,
+  // Environment-statistics recipes share the same MapView dynamic runtime.
+  ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
 ]);
 
 // ══════════════════════════════════════════════════════════════════
@@ -160,6 +163,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "weatherStations", "welfareCenters", "windPlan", "womenChildWarning",
   // 🔊 噪音／聲響：三個 GeoJSON 點／面層；純 registry overlay，無 loader / hook。
   "officialNoiseMonitoring", "aviationNoiseZones", "soundCameraLocations",
+  // 💧 水質與污水：四個 public/environment GeoJSON；純 registry overlay，無 loader / hook。
+  "riverRpiStations", "waterQualityStations", "sewageTreatmentPlants", "drinkingWaterProtectionZones",
   // 🤝 社福長照 9 層（第 40 主題）：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 loader / hook。
   // ⚠️ `welfareCenters`（上一行）是**基礎建設**主題的社福中心，不是本批成員 ——
   //    兩者零重疊（本批 welfareGovOffices 已在上游排除 T0103），只是名字像。

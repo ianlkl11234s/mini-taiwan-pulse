@@ -43,6 +43,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。
   "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
+  // 水質與污水 4 層：上游 source 欄位含內部表名，panel 改掛人類可讀來源的 SourceFooter。
+  "riverRpiStations", "waterQualityStations", "sewageTreatmentPlants", "drinkingWaterProtectionZones",
 ]);
 
 // layerKey → 主題中文名對照（供 header eyebrow「圖層群組 · 圖層名」使用）。

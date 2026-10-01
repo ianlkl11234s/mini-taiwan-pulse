@@ -3,6 +3,7 @@ import { getSocialRecipe, getSocialRecipeDetails } from '../data/socialStatistic
 import { getAgriRecipe, getAgriRecipeDetails } from '../data/agriStatisticsRecipes';
 import { ensureStatisticsRecipeDetails, statisticsRecipeDetailsLoaded, type StatisticsRecipeFamily } from '../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
+import { getEnvironmentRecipe } from '../data/environmentStatisticsRecipes';
 import { STATISTICS_RECIPES } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
 import type { StatisticsRecipe, StatisticsRelease } from '../data/regionalStatisticsLoader';
@@ -28,7 +29,7 @@ function recipeDetailsFamilies(...keys: string[]): StatisticsRecipeFamily[] {
 }
 
 function recipe(key: string): Recipe {
-  return getSocialRecipeDetails(key) ?? getAgriRecipeDetails(key) ?? getComparisonRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
+  return getSocialRecipeDetails(key) ?? getAgriRecipeDetails(key) ?? getComparisonRecipe(key) ?? getEnvironmentRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
 }
 
 function releaseOptions(key: string, source: NonNullable<Recipe>): ReleaseOption[] {
