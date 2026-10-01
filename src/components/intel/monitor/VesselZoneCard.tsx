@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS } from "../../../styles/designTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { MONITOR_DENSE_CARD_ZOOM } from "./monitorLayout";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import {
@@ -10,6 +10,8 @@ import {
 } from "../../../data/intelLoaders";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 /**
  * 特殊船舶接近帶 —— 中國公務船距 24 浬鄰接區外界線的每日態勢。
@@ -211,21 +213,28 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
   }, [windowed]);
   const enterDays = useMemo(() => windowed.filter((a) => a.level >= 2).length, [windowed]);
 
+  const v2 = useMonitorV2();
+  // 資料期別＝RPC 最新一日（含 0 艘日不在列內，取有列的最後一天）
+  const lastAggDay = aggs.length ? aggs[aggs.length - 1]!.day : null;
+  useMonitorCardHeader({ timeText: lastAggDay ? fmtDay(lastAggDay) : null });
+
   return (
     // zoom：同 PlaBoard —— 本卡內文是 9~12px 字面值（含 HazardTrendBars 的 8~8.5px 軸標），
     // 疊在 MonitorPanel 的全域縮放之上補齊（見 MONITOR_DENSE_CARD_ZOOM 註解）
-    <div style={{ zoom: MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
+    <div style={{ zoom: v2 ? undefined : MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
       <MonitorDataStatus label="特殊船舶接近帶" query={rowsQuery} />
       {/* 頭 */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textStrong }}>
-          特殊船舶接近帶
-        </span>
+        {!v2 && (
+          <span style={{ fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong }}>
+            特殊船舶接近帶
+          </span>
+        )}
         {latest ? (
           <>
             <span
               style={{
-                fontSize: 10,
+                fontSize: FONT_SIZE.sm,
                 padding: "1px 6px",
                 borderRadius: RADIUS.pill,
                 background: `${ZONE_COLORS[latest.level]}22`,
@@ -235,12 +244,12 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             >
               {ZONE_LABEL[latest.deepestZone]}
             </span>
-            <span style={{ fontSize: 11, color: COLORS.textMuted, fontFamily: FONT_DATA }}>
+            <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, fontFamily: FONT_DATA }}>
               {fmtDay(latest.day)} · {latest.ships} 艘 · 最近 {fmtDist(latest.minDistNm)}
             </span>
           </>
         ) : (
-          <span style={{ fontSize: 11, color: COLORS.textDim }}>
+          <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textDim }}>
             {rowsQuery.status === "unknown" ? "資料載入中…" : rowsQuery.status === "ready" ? `${windowDays} 天內無觀測紀錄` : "資料暫不可用"}
           </span>
         )}
@@ -254,7 +263,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             key={w}
             onClick={() => setWindowDays(w)}
             style={{
-              fontSize: 9,
+              fontSize: FONT_SIZE.xs,
               padding: "2px 7px",
               borderRadius: RADIUS.sm,
               cursor: "pointer",
@@ -331,7 +340,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
           const days = windowed.filter((a) => (a.byClass.get(cls) ?? 0) > 0).length;
           const pct = windowed.length ? (days / windowed.length) * 100 : 0;
           return (
-            <div key={cls} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10 }}>
+            <div key={cls} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: FONT_SIZE.sm }}>
               <span style={{ width: 52, color: COLORS.textMuted, flexShrink: 0 }}>
                 {CLASS_SHORT[cls]}
               </span>
@@ -354,14 +363,14 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
         })}
       </div>
       </> : (
-        <div style={{ fontSize: 10, color: COLORS.textDim }}>不以空資料推斷未出現特殊船舶。</div>
+        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>不以空資料推斷未出現特殊船舶。</div>
       )}
 
       {/*
         誠實限制。與共機卡的關鍵差異：那邊是國防部官方全量通報，這邊是船自願廣播的 AIS。
         不寫清楚會讓讀者把「AIS 看到的」當成「實際發生的」。
       */}
-      <div style={{ fontSize: 9, color: COLORS.textFaint, lineHeight: 1.5 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, lineHeight: 1.5 }}>
         AIS 自願廣播 · 觀測下限非全量 · 僅臺灣本島（含澎湖）· 金馬烏坵東引無公告基線不可判定
       </div>
     </div>

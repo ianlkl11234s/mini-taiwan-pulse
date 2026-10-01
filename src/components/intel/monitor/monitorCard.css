@@ -1,0 +1,99 @@
+/* 監看卡標準殼（spec §5.35 A1／C3）。顏色走語意變數，P5 淡色版只要在 .mtp-mon--light 改指向。 */
+.mtp-mon {
+  --mon-card-bg: var(--white-a4);
+  --mon-card-border: var(--border-panel);
+  --mon-text-strong: var(--text-strong);
+  --mon-text-muted: var(--text-muted);
+  --mon-text-dim: var(--text-dim);
+  --mon-warn: var(--status-warn);
+  --mon-err: var(--status-err);
+}
+
+.mtp-mcard {
+  container-type: inline-size;
+  flex: 1 0 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 10px 12px;
+  background: var(--mon-card-bg);
+  border: 1px solid var(--mon-card-border);
+  border-radius: var(--radius-lg);
+  /* 窄格規則：內容不得畫出格子 */
+  overflow: hidden;
+  font-family: var(--font-cjk);
+}
+
+.mtp-mcard__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-sm);
+  min-width: 0;
+}
+
+.mtp-mcard__title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.mtp-mcard__zh {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--mon-text-strong);
+  white-space: nowrap;
+}
+
+.mtp-mcard__en {
+  font-size: var(--font-xs);
+  color: var(--mon-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  min-width: 0;
+}
+
+.mtp-mcard__meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.mtp-mcard__time {
+  font-family: var(--font-data);
+  font-size: var(--font-sm);
+  color: var(--mon-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.mtp-mcard__time.is-warn { color: var(--mon-warn); }
+
+.mtp-mcard__pill {
+  font-size: var(--font-sm);
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: var(--radius-md);
+  border: 1px solid currentColor;
+  color: var(--mon-text-muted);
+}
+.mtp-mcard__pill--stale { color: var(--mon-warn); }
+.mtp-mcard__pill--stopped { color: var(--mon-err); }
+
+.mtp-mcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+  flex: 1 0 auto;
+}
+
+/* 窄格：英文附註先讓位 */
+@container (max-width: 260px) {
+  .mtp-mcard__en { display: none; }
+}

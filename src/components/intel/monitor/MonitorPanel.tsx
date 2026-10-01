@@ -5,7 +5,7 @@ import {
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
-import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { ELEVATION, RADIUS, FONT_SIZE, CONTROL } from "../../../styles/designTokens";
 import { type IntelCardEvent } from "../IntelCard";
 import { type TimeRange } from "../IntelFilters";
 import { fetchPressureIndex, fetchMarketIndex, trendingKeys as buildTrendingKeys,
@@ -58,6 +58,11 @@ import {
   MONITOR_SPLIT_DOCK, MONITOR_SPLIT_VISIBLE_LAYOUT, type MonitorMode,
 } from "./monitorSplitLayout";
 import { useNewsFilter } from "../../../hooks/useNewsFilter";
+import {
+  MonitorStyleContext, loadMonitorStyle, saveMonitorStyle, type MonitorStyle,
+} from "./monitorStyle";
+import { MonitorCardFrame, MonitorCardTime } from "./MonitorCardFrame";
+import { MONITOR_CARD_META } from "./monitorCardMeta";
 
 const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
@@ -93,6 +98,34 @@ const MONITOR_STACK_ORDER_SPLIT: MonitorGridItem[] = [...MONITOR_SPLIT_VISIBLE_L
 );
 /** split 座標 → 欄/列樹 */
 const monitorTreeSplit: MonitorNode = buildMonitorTree(MONITOR_SPLIT_VISIBLE_LAYOUT);
+
+// ── v2 卡片殼的高度補償 ──
+// v2 每格多一條標題列（約 1 列高），固定高的格子（非 fit:content）內容會被裁掉
+// （實測警訊整合六宮格、信號分級第三欄）。只加高這幾格並順移其下的格子，
+// 維持左右兩欄同止（split：左 14+4＝右 6+7+5＝18；dock：左 13＝中 8+5＝右 9+4）。
+const V2_ADJUST_SPLIT: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>> = {
+  alertBoard: { h: 7 }, hotZones: { y: 13 }, triage: { h: 4 },
+};
+const V2_ADJUST_DOCK: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>> = {
+  newsFeed: { h: 13 }, alertBoard: { h: 8 }, hotZones: { y: 8 }, triage: { h: 4 },
+};
+const adjustLayout = (
+  layout: MonitorGridItem[], adj: Partial<Record<MonitorWidgetId, Partial<MonitorGridItem>>>,
+): MonitorGridItem[] => layout.map((it) => ({ ...it, ...adj[it.i] }));
+const V2_LAYOUT = adjustLayout(MONITOR_VISIBLE_LAYOUT, V2_ADJUST_DOCK);
+const V2_LAYOUT_SPLIT = adjustLayout(MONITOR_SPLIT_VISIBLE_LAYOUT, V2_ADJUST_SPLIT);
+const byYX = (a: MonitorGridItem, b: MonitorGridItem) => a.y - b.y || a.x - b.x;
+const V2_STACK_ORDER = [...V2_LAYOUT].sort(byYX);
+const V2_STACK_ORDER_SPLIT = [...V2_LAYOUT_SPLIT].sort(byYX);
+const v2Tree: MonitorNode = buildMonitorTree(V2_LAYOUT);
+const v2TreeSplit: MonitorNode = buildMonitorTree(V2_LAYOUT_SPLIT);
+
+/** v2 標頭的中文模式名（舊版維持 Dock／Split／Wall） */
+const MODE_LABEL_V2: Record<MonitorMode, string> = { dock: "停靠", split: "分割", wall: "全屏" };
+const STYLE_OPTIONS: { key: MonitorStyle; label: string }[] = [
+  { key: "v2", label: "新版" },
+  { key: "legacy", label: "舊版" },
+];
 
 /** header 的三段模式切換選項 */
 const MODE_OPTIONS: { key: MonitorMode; label: string; icon: string[] }[] = [
@@ -278,6 +311,13 @@ export function MonitorPanel({
 
   // ── 面板尺寸 + 呈現模式 ──
   const [height, setHeight] = useState(0.62);
+  // 卡片樣式版本（spec §5.35）：新版統一卡片殼；舊版保留給使用者切回對照
+  const [monitorStyle, setMonitorStyleState] = useState<MonitorStyle>(loadMonitorStyle);
+  const setMonitorStyle = (s: MonitorStyle) => {
+    setMonitorStyleState(s);
+    saveMonitorStyle(s);
+  };
+  const v2 = monitorStyle === "v2";
   const [modeState, setModeState] = useState<MonitorMode>("dock");
   const mode = modeProp ?? modeState;
   const setMode = onModeChangeProp ?? setModeState;
@@ -557,15 +597,25 @@ export function MonitorPanel({
 
   const severeCount = allEventsToday.filter((e) => (e.severity ?? 0) >= 3).length;
 
+  // 新聞三格（時間軸、熱區、信號分級）的資料時間＝已上圖的最新一則發布時間。
+  // 取未經縣市／類別篩選的整份資料，否則切到冷門縣市時間會倒退、看起來像停更。
+  let latestNewsTs: number | null = null;
+  for (const c of clusters) for (const e of c.events) {
+    if (latestNewsTs === null || e.published_ts > latestNewsTs) latestNewsTs = e.published_ts;
+  }
+  const newsTime = <MonitorCardTime time={latestNewsTs != null ? latestNewsTs * 1000 : null} />;
+
   // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
   const newsDerived = (children: ReactNode) => <>
+    {newsTime}
     <MonitorDataStatus label="新聞資料" query={clustersQuery} />
     {clustersQuery.lastSuccessAt !== null ? children : null}
   </>;
 
   const widgets: Record<MonitorWidgetId, ReactNode> = {
+    // 警訊整合不送資料時間：警報 RPC 只回計數、不帶警報時間（瀏覽器收到的時間不是資料時間）
     newsFeed: (
-      <><MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
+      <>{newsTime}<MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
         events={flatEvents}
         cats={cats}
         onToggleCat={toggleCat}
@@ -662,11 +712,25 @@ export function MonitorPanel({
     lightning: <LightningCard open={open} nowTs={now} />,
   };
 
+  // v2：每格包進標準卡片殼（框＋標題列），各卡只畫內容
+  const cells = (v2
+    ? Object.fromEntries(
+        (Object.keys(widgets) as MonitorWidgetId[]).map((id) => [
+          id,
+          <MonitorCardFrame key={id} widgetId={id} title={MONITOR_CARD_META[id].title} en={MONITOR_CARD_META[id].en}>
+            {widgets[id]}
+          </MonitorCardFrame>,
+        ]),
+      )
+    : widgets) as Record<MonitorWidgetId, ReactNode>;
+
   const isWall = mode === "wall";
   const isSplit = mode === "split";
 
   return (
+    <MonitorStyleContext.Provider value={monitorStyle}>
     <div
+      className="mtp-mon"
       style={{
         position: "fixed",
         left: isSplit ? `${(1 - MONITOR_SPLIT_DOCK.widthPct) * 100}%` : (isWall ? 0 : 64),
@@ -694,7 +758,9 @@ export function MonitorPanel({
         style={{
           flexShrink: 0, position: "relative",
           display: "flex", alignItems: "center", gap: 10,
-          padding: "8px 14px",
+          // v2：窄面板（1440 以下的 split）時整排換行，切換鈕與「退出」不會被裁掉
+          flexWrap: v2 ? "wrap" : undefined, rowGap: v2 ? 6 : undefined,
+          padding: v2 ? "10px 14px" : "8px 14px",
           borderBottom: `1px solid ${COLORS.panelBorder}`,
           cursor: mode === "dock" ? "ns-resize" : "default",
         }}
@@ -723,9 +789,21 @@ export function MonitorPanel({
           }}
         >
           <IntelIcon d={MICON.grid!} size={15} color={COLORS.accent} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff" }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: v2 ? COLORS.textStrong : "#fff" }}>
             監看模式
           </span>
+          {v2 ? (
+            <span
+              style={{
+                padding: "1px 6px", borderRadius: RADIUS.md,
+                border: `1px solid ${COLORS.statusWarn}`,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.statusWarn, whiteSpace: "nowrap",
+              }}
+              title="本模式仍在打磨中，數據與互動可能還會調整"
+            >
+              測試中
+            </span>
+          ) : <>
           <span
             style={{
               fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim,
@@ -746,6 +824,7 @@ export function MonitorPanel({
           >
             BETA
           </span>
+          </>}
         </div>
         {/* ⚠️ 這行必須是 header 裡唯一可壓縮的東西：flex row 沒有 wrap，其餘項目
             （標題群、三顆模式鈕、退出）都是 nowrap 且 min-width:auto，誰都縮不了。
@@ -759,9 +838,39 @@ export function MonitorPanel({
             minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
-          今日 {allEventsToday.length} 則 · SITUATIONAL AWARENESS
+          {v2 ? <>今日 <span style={{ fontFamily: FONT_DATA }}>{allEventsToday.length}</span> 則新聞</> : <>今日 {allEventsToday.length} 則 · SITUATIONAL AWARENESS</>}
         </span>
         <div style={{ flex: 1 }} />
+        <div
+          role="group"
+          aria-label="卡片樣式"
+          style={{
+            display: "inline-flex", flexShrink: 0, padding: 2, gap: 2,
+            borderRadius: RADIUS.md, border: `1px solid ${CONTROL.border}`, marginTop: isWall ? 0 : 4,
+          }}
+        >
+          {STYLE_OPTIONS.map(({ key, label }) => {
+            const active = monitorStyle === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={active}
+                title={key === "v2" ? "統一卡片樣式（2026-10 改版）" : "改版前的樣式"}
+                onClick={(e) => { e.stopPropagation(); setMonitorStyle(key); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  padding: "3px 8px", borderRadius: 3, border: "none", cursor: "pointer",
+                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, whiteSpace: "nowrap",
+                  background: active ? COLORS.accentFaint : "transparent",
+                  color: active ? COLORS.accent : COLORS.textMuted,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: isWall ? 0 : 4 }}>
           {MODE_OPTIONS.map(({ key, label, icon }) => {
             const active = mode === key;
@@ -788,7 +897,7 @@ export function MonitorPanel({
                   size={13}
                   color={active ? COLORS.accent : "currentColor"}
                 />
-                {label}
+                {v2 ? MODE_LABEL_V2[key] : label}
               </button>
             );
           })}
@@ -835,7 +944,9 @@ export function MonitorPanel({
         }}
       >
         {isStacked
-          ? (isSplit ? MONITOR_STACK_ORDER_SPLIT : MONITOR_STACK_ORDER).map((item) => (
+          ? (v2
+              ? (isSplit ? V2_STACK_ORDER_SPLIT : V2_STACK_ORDER)
+              : (isSplit ? MONITOR_STACK_ORDER_SPLIT : MONITOR_STACK_ORDER)).map((item) => (
               <div
                 key={item.i}
                 className="mtp-scroll mtp-monitor-cell"
@@ -850,10 +961,10 @@ export function MonitorPanel({
                   overflow: item.fit === "content" ? "visible" : "auto",
                 }}
               >
-                {widgets[item.i]}
+                {cells[item.i]}
               </div>
             ))
-          : renderMonitorNode(isSplit ? monitorTreeSplit : monitorTree, widgets)}
+          : renderMonitorNode(v2 ? (isSplit ? v2TreeSplit : v2Tree) : (isSplit ? monitorTreeSplit : monitorTree), cells)}
       </div>
       </div>
 
@@ -896,5 +1007,6 @@ export function MonitorPanel({
         }
       `}</style>
     </div>
+    </MonitorStyleContext.Provider>
   );
 }

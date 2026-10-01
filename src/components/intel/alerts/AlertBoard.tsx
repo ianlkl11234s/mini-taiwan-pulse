@@ -12,6 +12,7 @@ import {
 } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import { useMonitorV2 } from "../monitor/monitorStyle";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 /** 24 桶（hour-of-day 0-23，見 get_alert_series_24h）→ hover 標題用時:分 */
@@ -39,6 +40,7 @@ function AlertTrend({
   const W = 100;
   const H = 28;
   const tip = useChartTooltip();
+  const v2 = useMonitorV2();
 
   const points = totals
     .map((v, i) => {
@@ -62,7 +64,7 @@ function AlertTrend({
 
   return (
     <div
-      style={{
+      style={v2 ? { padding: "2px 0", marginBottom: 10 } : {
         padding: "8px 10px",
         borderRadius: RADIUS.lg,
         background: "rgba(255,255,255,0.025)",
@@ -81,7 +83,7 @@ function AlertTrend({
             color: COLORS.textFaint,
           }}
         >
-          24H TREND
+          {v2 ? "近 24 小時" : "24H TREND"}
         </span>
         <span style={{ flex: 1 }} />
         <span
@@ -90,7 +92,7 @@ function AlertTrend({
             color: COLORS.textMuted,
           }}
         >
-          Peak {peak}
+          {v2 ? "高峰" : "Peak"} {peak}
         </span>
       </div>
       <svg
@@ -178,6 +180,7 @@ function GroupCard({
   onClick: () => void;
 }) {
   const def = ALERT_GROUPS_DEF[group];
+  const v2 = useMonitorV2();
   const dim = count === 0;
   return (
     <button
@@ -213,16 +216,18 @@ function GroupCard({
           {def.label}
         </span>
         <div style={{ flex: 1 }} />
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: def.color,
-            letterSpacing: "0.5px", whiteSpace: "nowrap",
-          }}
-        >
-          {def.en}
-        </span>
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: def.color,
+              letterSpacing: "0.5px", whiteSpace: "nowrap",
+            }}
+          >
+            {def.en}
+          </span>
+        )}
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: v2 ? "wrap" : undefined, rowGap: v2 ? 2 : undefined }}>
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700,
@@ -235,8 +240,9 @@ function GroupCard({
         {severe > 0 && (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
-              color: "#ef4444",
+              fontFamily: FONT_DATA, fontSize: v2 ? FONT_SIZE.xs : 9.5, fontWeight: 700,
+              color: v2 ? COLORS.statusErr : "#ef4444",
+              whiteSpace: v2 ? "nowrap" : undefined,
             }}
           >
             ⚠ {severe} 嚴重
@@ -348,12 +354,13 @@ function AlertDrawer({
 // ─── AlertBoard 主元件 ───────────────────────
 export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs }: Props) {
   const [openGroup, setOpenGroup] = useState<AlertGroupShort | null>(null);
+  const v2 = useMonitorV2();
 
   if (status !== "ready") {
     const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
     const at = lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "";
     return (
-      <div style={{ padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}`, color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>
+      <div style={{ ...(v2 ? {} : { padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}` }), color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>
         {label}{at}
       </div>
     );
@@ -378,7 +385,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               fontFamily: FONT_CJK, fontSize: 11.5, color: COLORS.statusLive, fontWeight: 600,
             }}
           >
-            目前全國無 active 警報
+            {v2 ? "目前全國無生效中警報" : "目前全國無 active 警報"}
           </span>
           <div style={{ flex: 1 }} />
           <span
@@ -387,7 +394,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               color: COLORS.textFaint,
             }}
           >
-            ALL CLEAR
+            {v2 ? "全部解除" : "ALL CLEAR"}
           </span>
         </div>
       </div>
@@ -396,7 +403,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* section label */}
+      {/* section label（v2：標題與來源已由外框畫，只留總數與嚴重數） */}
       <div
         style={{
           display: "flex", alignItems: "center", gap: 8,
@@ -404,22 +411,24 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           flexShrink: 0,
         }}
       >
-        <IntelIcon d={MICON.warn!} size={12} color="#ef4444" />
+        {!v2 && <IntelIcon d={MICON.warn!} size={12} color="#ef4444" />}
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700,
+              color: COLORS.textStrong, letterSpacing: "0.5px",
+            }}
+          >
+            警訊整合
+          </span>
+        )}
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700,
-            color: COLORS.textStrong, letterSpacing: "0.5px",
-          }}
-        >
-          警訊整合
-        </span>
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
+            fontFamily: v2 ? FONT_CJK : FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: v2 ? "0.5px" : "1.5px",
             color: COLORS.textDim,
           }}
         >
-          NCDR + CWA
+          {v2 ? "災防科技中心＋氣象署" : "NCDR + CWA"}
         </span>
         <div style={{ flex: 1 }} />
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>

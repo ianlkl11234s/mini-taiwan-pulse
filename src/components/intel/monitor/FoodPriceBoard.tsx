@@ -1,6 +1,8 @@
 import { useCallback, useMemo, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { RADIUS, FONT_SIZE, BORDER } from "../../../styles/designTokens";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { SectionLabel } from "./PressureRing";
 import {
   fetchFoodPriceDaily, fetchFoodPriceSummary,
@@ -33,6 +35,7 @@ const EMPTY_FOOD_SUMMARY: FoodPriceSummary[] = [];
 interface Props { open: boolean }
 
 export function FoodPriceBoard({ open }: Props) {
+  const v2 = useMonitorV2();
   const loadDays = useCallback(() => fetchFoodPriceDaily(WINDOW), []);
   const loadSummary = useCallback(() => fetchFoodPriceSummary(WINDOW), []);
   const daysQuery = useMonitorResource({ open, queryKey: "food-price-daily", intervalMs: 60 * 60_000, emptyData: EMPTY_FOOD_DAYS, load: loadDays });
@@ -75,11 +78,19 @@ export function FoodPriceBoard({ open }: Props) {
   // T+1 來源、連假可能連休數日 → 3 天內不算異常
   const isStale = staleDays != null && staleDays > 3;
 
+  // v2：資料截止日（MM/DD）與過期狀態送標題列（沿用上方 >3 天判斷）
+  useMonitorCardHeader({
+    timeText: latestDate ? latestDate.slice(5).replace("-", "/") : null,
+    state: isStale ? { kind: "stale", label: `過期 ${staleDays} 天` } : null,
+  });
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color="#5fbf6d">食品價格 · FOOD PRICE MONITOR</SectionLabel>
+      {!v2 && <SectionLabel color="#5fbf6d">食品價格 · FOOD PRICE MONITOR</SectionLabel>}
       <div
-        style={{
+        style={v2 ? {
+          display: "flex", flexDirection: "column", gap: 11, flex: 1, minHeight: 0, minWidth: 0,
+        } : {
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
           background: "linear-gradient(160deg, rgba(95,191,109,0.06), rgba(255,255,255,0.012))",
@@ -106,7 +117,7 @@ export function FoodPriceBoard({ open }: Props) {
             </div>
             <Legend />
             <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.5 }}>
-              {latestDate && (
+              {latestDate && !(v2 && isStale) && (
                 <span style={{ color: isStale ? "#fbbf24" : COLORS.textMuted, fontWeight: isStale ? 700 : 400 }}>
                   {isStale ? `⚠ 資料截至 ${latestDate}（已 ${staleDays} 天未更新）` : `資料截至 ${latestDate}`}
                   {" · "}
@@ -126,6 +137,7 @@ export function FoodPriceBoard({ open }: Props) {
 /* ── 單一指數格 ─────────────────────────────────────────── */
 
 function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] }) {
+  const v2 = useMonitorV2();
   const color = FOOD_COLORS[s.indicator];
   const dev = s.latestDev;
   // 主指標是「偏離常態」而非價位 —— 價位高低本身不是訊號
@@ -135,7 +147,10 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
 
   return (
     <div
-      style={{
+      style={v2 ? {
+        borderTop: `1px solid ${BORDER.soft}`, paddingTop: 8,
+        display: "flex", flexDirection: "column", gap: 5, minWidth: 0, minHeight: 0,
+      } : {
         borderRadius: RADIUS.lg,
         border: `1px solid ${color}33`,
         background: `${color}0d`,
