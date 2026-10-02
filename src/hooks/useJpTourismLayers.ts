@@ -11,7 +11,7 @@ import {
 } from "../data/jpTourismTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -23,13 +23,21 @@ interface LayerConfig {
   dataset: JpTourismDataset;
   kind: GeometryKind;
   layerBase: string;
+  /** 密集點（R5 P-4／G-2）：出點縮放以下改畫熱區（`${layerBase}-heatmap`，不可點擊）。 */
+  heatmap?: { pointsFromZoom: number; intensity: number };
 }
 
+// 待瀏覽器目視校正
+const ACCOMMODATION_CANONICAL_HEATMAP_INTENSITY = 1;
+// 待瀏覽器目視校正
+const ACCOMMODATION_OSM_HEATMAP_INTENSITY = 1;
+
 const CONFIGS: readonly LayerConfig[] = [
-  { key: "jpAccommodationCanonical", dataset: "accommodation-canonical", kind: "point", layerBase: "jp-tourism-jp-accommodation-canonical" },
+  // 25,459 點、20,502 點（10k–100k）：z < 10 熱區、z ≥ 10 畫點（PMTiles z0–14）。
+  { key: "jpAccommodationCanonical", dataset: "accommodation-canonical", kind: "point", layerBase: "jp-tourism-jp-accommodation-canonical", heatmap: { pointsFromZoom: densePointsFromZoom(25_459), intensity: ACCOMMODATION_CANONICAL_HEATMAP_INTENSITY } },
   { key: "jpAccommodationJta", dataset: "accommodation-jta", kind: "point", layerBase: "jp-tourism-jp-accommodation-jta" },
   { key: "jpAccommodationLocal", dataset: "accommodation-local", kind: "point", layerBase: "jp-tourism-jp-accommodation-local" },
-  { key: "jpAccommodationOsm", dataset: "accommodation-osm", kind: "point", layerBase: "jp-tourism-jp-accommodation-osm" },
+  { key: "jpAccommodationOsm", dataset: "accommodation-osm", kind: "point", layerBase: "jp-tourism-jp-accommodation-osm", heatmap: { pointsFromZoom: densePointsFromZoom(20_502), intensity: ACCOMMODATION_OSM_HEATMAP_INTENSITY } },
   { key: "jpNaturalParksNational", dataset: "natural-parks", kind: "polygon", layerBase: "jp-tourism-jp-natural-parks-national" },
   { key: "jpNaturalParksQuasiNational", dataset: "natural-parks", kind: "polygon", layerBase: "jp-tourism-jp-natural-parks-quasi-national" },
   { key: "jpNaturalParksPrefectural", dataset: "natural-parks", kind: "polygon", layerBase: "jp-tourism-jp-natural-parks-prefectural" },
@@ -155,6 +163,8 @@ export function useJpTourismLayers(
         const circleId = config.kind === "point" ? CLICK_LAYER_IDS[config.key] : `${config.layerBase}-circle`;
         const fillId = config.kind === "polygon" ? CLICK_LAYER_IDS[config.key] : `${config.layerBase}-fill`;
         const lineId = `${config.layerBase}-line`;
+        const heatmapId = `${config.layerBase}-heatmap`;
+        const heatScale = clampOpacity(opacity[config.key]) / Number(paramDefault(config.key, `${config.key}Opacity`) ?? 1);
 
         if (visible && !map.getSource(sid)) {
           if (datasetConfig.kind === "pmtiles") {
@@ -172,10 +182,21 @@ export function useJpTourismLayers(
         }
 
         const sourceReady = Boolean(map.getSource(sid));
+        if (visible && sourceReady && config.kind === "point" && config.heatmap && !map.getLayer(heatmapId)) {
+          map.addLayer({
+            id: heatmapId, type: "heatmap", source: sid,
+            ...sourceLayerRef,
+            maxzoom: heatmapMaxzoom(config.heatmap.pointsFromZoom),
+            ...(filter ? { filter } : {}),
+            layout: { visibility: "none" },
+            paint: heatmapPaint(heatScale, config.heatmap.intensity),
+          } as Parameters<MapboxMap["addLayer"]>[0], map.getLayer(circleId) ? circleId : undefined);
+        }
         if (visible && sourceReady && config.kind === "point" && !map.getLayer(circleId)) {
           map.addLayer({
             id: circleId, type: "circle", source: sid,
             ...sourceLayerRef,
+            ...(config.heatmap ? { minzoom: config.heatmap.pointsFromZoom } : {}),
             ...(filter ? { filter } : {}),
             layout: { visibility: "none" },
             paint: {
@@ -207,6 +228,12 @@ export function useJpTourismLayers(
               paint: hookLinePaint(config.key, lineId, { "line-color": JP_TOURISM_COLORS[config.key], "line-opacity": Math.min(1, clampOpacity(opacity[config.key]) + 0.25), "line-width": 0.8 }, { "line-color": JP_TOURISM_COLORS[config.key], "line-opacity": Math.min(1, defaultOpacity + 0.25), "line-width": 0.8 }, isDark),
             });
           }
+        }
+
+        if (config.heatmap && map.getLayer(heatmapId)) {
+          map.setLayoutProperty(heatmapId, "visibility", visible ? "visible" : "none");
+          map.setPaintProperty(heatmapId, "heatmap-opacity", heatmapOpacity(heatScale));
+          if (filter) map.setFilter(heatmapId, filter);
         }
 
         const ids = config.kind === "point" ? [circleId] : [fillId, lineId];

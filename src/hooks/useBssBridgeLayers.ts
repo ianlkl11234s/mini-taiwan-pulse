@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { CircleLayer, LineLayer, Map as MapboxMap } from "mapbox-gl";
+import type { CircleLayer, HeatmapLayer, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_ATTRIBUTION, BSS_BRIDGE_LINE_ROLES, BSS_BRIDGE_MAX_ZOOM, BSS_BRIDGE_MIN_ZOOM,
   BSS_BRIDGE_POINT_LAYER_ID, BSS_BRIDGE_POINT_MIN_ZOOM, BSS_BRIDGE_PRIVATE_ENDPOINT, BSS_BRIDGE_SELECTION_CLEAR_EVENT,
@@ -9,7 +9,7 @@ import {
 import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
-import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { bssBridgePrivateAccessToken, useBssBridgePrivateAccess } from "./useBssBridgePrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -27,11 +27,20 @@ type Snapshot = { visibility: BssBridgeVisibility; opacity: BssBridgeOpacity; co
 const lineWidth = (wide: boolean) => (wide
   ? ["interpolate", ["linear"], ["zoom"], 6, 1, 11, 2.2, 15, 4]
   : ["interpolate", ["linear"], ["zoom"], 6, 0.8, 11, 2, 15, 3.4]);
+const POINT_OPACITY_DEFAULT = Number(paramDefault("bssNationalBridgePointsPreview", "bssNationalBridgePointsPreviewOpacity") ?? 1);
 const pointStroke = (opacity: number, isDark: boolean) =>
-  pointStrokePaint(isDark, clamp(opacity) / Number(paramDefault("bssNationalBridgePointsPreview", "bssNationalBridgePointsPreviewOpacity") ?? 1));
+  pointStrokePaint(isDark, clamp(opacity) / POINT_OPACITY_DEFAULT);
+
+// R5（P-4／G-2）：49,960 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點；點原本就是 minzoom 10，保留。
+// v5 PMTiles z6 起每級都有 geometry_role=point（2026-10-02 解磚確認），熱區從 source minzoom 6 起畫。
+export const BSS_BRIDGE_POINT_HEATMAP_LAYER_ID = "bss-national-bridge-preview-point-heatmap";
+const POINTS_FROM_ZOOM = densePointsFromZoom(49_960, BSS_BRIDGE_POINT_MIN_ZOOM);
+// 待瀏覽器目視校正
+const HEATMAP_INTENSITY = 1;
+const heatScale = (opacity: number) => clamp(opacity) / POINT_OPACITY_DEFAULT;
 
 /** 全部 style layer（初始 visibility none）；匯出供測試做 style-spec 驗證。 */
-export function buildBssBridgeLayers(state: Snapshot): (LineLayer | CircleLayer)[] {
+export function buildBssBridgeLayers(state: Snapshot): (LineLayer | CircleLayer | HeatmapLayer)[] {
   const { opacity, controls, isDark } = state;
   const hidden = { visibility: "none" as const };
   const lines = BSS_BRIDGE_LINE_ROLES.map((spec) => ({
@@ -52,7 +61,7 @@ export function buildBssBridgeLayers(state: Snapshot): (LineLayer | CircleLayer)
   }) as unknown as LineLayer);
   const point = {
     id: BSS_BRIDGE_POINT_LAYER_ID, type: "circle", source: BSS_BRIDGE_SOURCE_ID, "source-layer": BSS_BRIDGE_SOURCE_LAYER,
-    minzoom: BSS_BRIDGE_POINT_MIN_ZOOM, filter: bssBridgePointFilter(controls.pointQuality), layout: hidden,
+    minzoom: POINTS_FROM_ZOOM, filter: bssBridgePointFilter(controls.pointQuality), layout: hidden,
     paint: {
       "circle-color": bssBridgeAccessColorExpression,
       "circle-opacity": clamp(opacity.bssNationalBridgePointsPreview),
@@ -60,11 +69,17 @@ export function buildBssBridgeLayers(state: Snapshot): (LineLayer | CircleLayer)
       ...pointStroke(opacity.bssNationalBridgePointsPreview, isDark),
     },
   } as unknown as CircleLayer;
-  return [...lines, point];
+  // 熱區與點同一個 filter（點角色＋品質篩選），排在點之前（點畫在上面），不可點擊。
+  const heat = {
+    id: BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, type: "heatmap", source: BSS_BRIDGE_SOURCE_ID, "source-layer": BSS_BRIDGE_SOURCE_LAYER,
+    maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM), filter: bssBridgePointFilter(controls.pointQuality), layout: hidden,
+    paint: heatmapPaint(heatScale(opacity.bssNationalBridgePointsPreview), HEATMAP_INTENSITY),
+  } as unknown as HeatmapLayer;
+  return [...lines, heat, point];
 }
 
 const LINE_IDS: string[] = BSS_BRIDGE_LINE_ROLES.map((spec) => spec.id);
-const ALL_LAYER_IDS: string[] = [...LINE_IDS, BSS_BRIDGE_POINT_LAYER_ID];
+const ALL_LAYER_IDS: string[] = [...LINE_IDS, BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, BSS_BRIDGE_POINT_LAYER_ID];
 
 /** 只 setLayoutProperty／setPaintProperty／setFilter：開關、透明度、篩選都不重建 source（R2 教訓）。 */
 function syncLayers(map: MapboxMap, state: Snapshot) {
@@ -74,6 +89,11 @@ function syncLayers(map: MapboxMap, state: Snapshot) {
     map.setLayoutProperty(spec.id, "visibility", visibility.bssNationalBridgePreview ? "visible" : "none");
     map.setFilter(spec.id, bssBridgeLineFilter(spec.role, controls.lineClass, controls.lineQuality) as never);
     map.setPaintProperty(spec.id, "line-opacity", hookLineOpacity("bssNationalBridgePreview", spec.id, clamp(opacity.bssNationalBridgePreview), Number(paramDefault("bssNationalBridgePreview", "bssNationalBridgePreviewOpacity") ?? 1), isDark));
+  }
+  if (map.getLayer(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID)) {
+    map.setLayoutProperty(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, "visibility", visibility.bssNationalBridgePointsPreview ? "visible" : "none");
+    map.setFilter(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, bssBridgePointFilter(controls.pointQuality) as never);
+    map.setPaintProperty(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(heatScale(opacity.bssNationalBridgePointsPreview)));
   }
   if (map.getLayer(BSS_BRIDGE_POINT_LAYER_ID)) {
     map.setLayoutProperty(BSS_BRIDGE_POINT_LAYER_ID, "visibility", visibility.bssNationalBridgePointsPreview ? "visible" : "none");

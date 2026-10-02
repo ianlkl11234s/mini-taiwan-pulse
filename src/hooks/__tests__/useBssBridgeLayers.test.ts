@@ -10,8 +10,9 @@ import {
 } from "../../data/bssBridgeTypes";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
-import { pointRadius } from "../../map/mapStyleScale";
-import { buildBssBridgeLayers } from "../useBssBridgeLayers";
+import { heatmapOpacity, pointRadius } from "../../map/mapStyleScale";
+import { paramDefault } from "../../data/layerParamsSpec";
+import { BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, buildBssBridgeLayers } from "../useBssBridgeLayers";
 
 const HOOK_FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../useBssBridgeLayers.ts");
 const passes = (filter: unknown, properties: Record<string, unknown>) =>
@@ -33,13 +34,31 @@ describe("BSS 橋梁研究 owner-only PMTiles 契約", () => {
     expect(source).not.toContain("import.meta.env");
   });
 
-  it("11 個 style layer 通過 style-spec 驗證，且點擊接線涵蓋每個 layer id", () => {
+  it("線＋熱區＋點通過 style-spec 驗證，點擊接線涵蓋線與點、熱區不可點擊", () => {
     const layers = buildBssBridgeLayers(STATE);
-    expect(layers).toHaveLength(BSS_BRIDGE_LINE_ROLES.length + 1);
+    expect(layers).toHaveLength(BSS_BRIDGE_LINE_ROLES.length + 2);
     const errors = validate({ version: 8, sources: { [BSS_BRIDGE_SOURCE_ID]: { type: "vector", url: "mapbox://bss.test" } }, layers });
     expect(errors).toEqual([]);
     const clickable = new Set(GIS_LAYERS.flatMap((entry) => entry.layers));
-    for (const layer of layers) expect(clickable.has(layer.id), layer.id).toBe(true);
+    for (const layer of layers) expect(clickable.has(layer.id), layer.id).toBe(layer.type !== "heatmap");
+  });
+
+  it("R5：點 z≥10、z<10 熱區排在點之前，與點共用 filter，透明度跟點滑桿", () => {
+    const layers = buildBssBridgeLayers({ ...STATE, controls: { ...STATE.controls, pointQuality: 1 } });
+    const heatIndex = layers.findIndex((layer) => layer.id === BSS_BRIDGE_POINT_HEATMAP_LAYER_ID);
+    const pointIndex = layers.findIndex((layer) => layer.id === BSS_BRIDGE_POINT_LAYER_ID);
+    expect(heatIndex).toBeGreaterThanOrEqual(0);
+    expect(heatIndex).toBeLessThan(pointIndex);
+    const heat = layers[heatIndex] as unknown as { type: string; maxzoom: number; filter: unknown; paint: Record<string, unknown> };
+    const point = layers[pointIndex] as unknown as { minzoom: number; filter: unknown };
+    expect(heat.type).toBe("heatmap");
+    expect(heat.maxzoom).toBeCloseTo(10.01);
+    expect(point.minzoom).toBe(10);
+    expect(heat.filter).toEqual(point.filter);
+    const def = Number(paramDefault("bssNationalBridgePointsPreview", "bssNationalBridgePointsPreviewOpacity"));
+    const scaled = buildBssBridgeLayers({ ...STATE, opacity: { ...STATE.opacity, bssNationalBridgePointsPreview: def / 2 } })
+      .find((layer) => layer.id === BSS_BRIDGE_POINT_HEATMAP_LAYER_ID)!;
+    expect((scaled.paint as Record<string, unknown>)["heatmap-opacity"]).toBeCloseTo(heatmapOpacity(0.5));
   });
 
   it("v5：線依 v5_class 著色（與圖例共用色票），點仍依交通類別", () => {

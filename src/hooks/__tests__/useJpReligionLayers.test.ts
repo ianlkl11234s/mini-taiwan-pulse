@@ -145,13 +145,44 @@ describe("useJpReligionLayers scale", () => {
     expect(heat?.maxzoom).toBeCloseTo(12.01);
     expect(heat?.paint["heatmap-opacity"]).toBeCloseTo(0.8);
     expect(layers.get("jp-religion-gsi-circle")?.minzoom).toBe(12);
-    expect(layers.get("jp-religion-osm-circle")?.minzoom).toBeUndefined();
-    expect(layers.has("jp-religion-osm-heatmap")).toBe(false);
 
     setPaintProperty.mockClear();
     reactHarness.resetRender();
     useJpReligionLayers(mapRef, visibility, { ...opacity, jpReligionGsi: 0.3 }, scale);
     const heatCall = setPaintProperty.mock.calls.find(([id, prop]) => id === "jp-religion-gsi-heatmap" && prop === "heatmap-opacity");
     expect(heatCall?.[2]).toBeCloseTo(0.4);
+    // GSI 透明度變化不影響 OSM 熱區
+    expect(setPaintProperty).toHaveBeenCalledWith("jp-religion-osm-heatmap", "heatmap-opacity", expect.closeTo(0.8));
+  });
+
+  it("OSM（PMTiles）與 Wikidata（GeoJSON）10k–100k：z<10 熱區、點 z≥10，熱區排在點之前且透明度跟滑桿", async () => {
+    const { map, layers, setPaintProperty } = createMap();
+    const order: string[] = [];
+    const addLayer = map.addLayer as unknown as (layer: CircleLayer) => void;
+    (map as unknown as { addLayer: (layer: CircleLayer) => void }).addLayer = (layer) => { order.push(layer.id); addLayer(layer); };
+    const mapRef = { current: map } as RefObject<MapboxMap | null>;
+    const scale = { jpReligionGsi: 1, jpReligionOsm: 1, jpReligionWikidata: 1 };
+    const render = (o = opacity) => { reactHarness.resetRender(); useJpReligionLayers(mapRef, visibility, o, scale); };
+    render();
+    await Promise.resolve();
+    await Promise.resolve();
+    render();
+
+    for (const base of ["jp-religion-osm", "jp-religion-wikidata"]) {
+      const heat = layers.get(`${base}-heatmap`);
+      expect(heat?.type, base).toBe("heatmap");
+      expect(heat?.maxzoom, base).toBeCloseTo(10.01);
+      expect(heat?.paint["heatmap-opacity"], base).toBeCloseTo(0.8);
+      expect(layers.get(`${base}-circle`)?.minzoom, base).toBe(10);
+      expect(order.indexOf(`${base}-heatmap`), base).toBeLessThan(order.indexOf(`${base}-circle`));
+    }
+    expect((layers.get("jp-religion-wikidata-heatmap") as Record<string, unknown> | undefined)?.["source-layer"]).toBeUndefined();
+
+    setPaintProperty.mockClear();
+    render({ ...opacity, jpReligionOsm: 0.375, jpReligionWikidata: 0.375 });
+    for (const id of ["jp-religion-osm-heatmap", "jp-religion-wikidata-heatmap"]) {
+      const call = setPaintProperty.mock.calls.find(([layerId, prop]) => layerId === id && prop === "heatmap-opacity");
+      expect(call?.[2], id).toBeCloseTo(0.4);
+    }
   });
 });

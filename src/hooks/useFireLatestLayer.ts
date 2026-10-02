@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
+import type { Map as MapboxMap, GeoJSONSource, HeatmapLayer } from "mapbox-gl";
 import { loadFireEventsByYear, loadFireEventYears, type FireEvent } from "../data/fireLoader";
-import { pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -15,9 +15,15 @@ import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "fire-latest-src";
 const LAYER_ID = "fire-latest-layer";
+const HEATMAP_LAYER_ID = "fire-latest-heatmap";
 
 const CASUALTY_STROKE = { dark: "#ffffff", light: "#111827" } as const;
 const OPACITY_DEFAULT = Number(paramDefault("fireLatest", "fireLatestOpacity"));
+// R5（P-4／G-2）：全年 15,398 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點。熱區共用同一個 GeoJSON source，
+// setData 換子集時自動跟上；不可點擊。
+const POINTS_FROM_ZOOM = densePointsFromZoom(15_398);
+// 待瀏覽器目視校正
+const HEATMAP_INTENSITY = 1;
 
 /**
  * 描邊：有傷亡（casualty）的事件用外框標示（依屬性變化＝資料編碼）：暗色白、淡色 #111827
@@ -35,11 +41,21 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   }
+  if (!map.getLayer(HEATMAP_LAYER_ID)) {
+    map.addLayer({
+      id: HEATMAP_LAYER_ID,
+      type: "heatmap",
+      source: SOURCE_ID,
+      maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
+      paint: heatmapPaint(1, HEATMAP_INTENSITY),
+    } as HeatmapLayer, map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
+  }
   if (!map.getLayer(LAYER_ID)) {
     map.addLayer({
       id: LAYER_ID,
       type: "circle",
       source: SOURCE_ID,
+      minzoom: POINTS_FROM_ZOOM,
       paint: {
         "circle-radius": ["case", ["get", "casualty"], 6, 3],
         "circle-color": ["case", ["get", "casualty"], "#ff1744", "#ff7043"],
@@ -75,11 +91,13 @@ function setData(map: MapboxMap, events: FireEvent[]) {
 }
 
 function setVisible(map: MapboxMap, visible: boolean) {
+  if (map.getLayer(HEATMAP_LAYER_ID)) map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", visible ? "visible" : "none");
   if (!map.getLayer(LAYER_ID)) return;
   map.setLayoutProperty(LAYER_ID, "visibility", visible ? "visible" : "none");
 }
 
 function updatePaint(map: MapboxMap, isDark: boolean, opacity: number, scale: number) {
+  if (map.getLayer(HEATMAP_LAYER_ID)) map.setPaintProperty(HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(opacity / OPACITY_DEFAULT));
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-radius", ["case", ["get", "casualty"], 6 * scale, 3 * scale]);
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.8 : 0.65) * opacity);

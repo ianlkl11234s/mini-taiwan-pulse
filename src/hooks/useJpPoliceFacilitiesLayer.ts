@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { CircleLayer, ExpressionSpecification, FilterSpecification, Map as MapboxMap } from "mapbox-gl";
+import type { CircleLayer, ExpressionSpecification, FilterSpecification, HeatmapLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   JP_POLICE_ATTRIBUTION,
   JP_POLICE_DEGRADED_COLOR,
@@ -9,17 +9,22 @@ import {
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-police-facilities";
 const SOURCE_LAYER = "jp_police_facilities";
 const LAYER_ID = "jp-police-facilities-circle";
+const HEATMAP_LAYER_ID = "jp-police-facilities-heatmap";
 // Content revision prevents mixing cached byte ranges from the previous sparse archive.
 const FILE = "jp_police_facilities.pmtiles?v=3b6236fbf0a9";
 const MINZOOM = 5;
 const MAXZOOM = 14;
+// R5（P-4／G-2）：13,195 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點（source z5 起有磚）。
+const POINTS_FROM_ZOOM = densePointsFromZoom(13_195);
+// 待瀏覽器目視校正
+const HEATMAP_INTENSITY = 1;
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -67,6 +72,7 @@ function policeCircleLayer(opacity: number, scale: number, typeIndex: number, is
     type: "circle",
     source: SOURCE_ID,
     "source-layer": SOURCE_LAYER,
+    minzoom: POINTS_FROM_ZOOM,
     ...(initialFilter === undefined
       ? {}
       : { filter: initialFilter }),
@@ -78,6 +84,21 @@ function policeCircleLayer(opacity: number, scale: number, typeIndex: number, is
       ...policeStrokePaint(isDark, opacity),
     },
   } as CircleLayer;
+}
+
+/** G-2 熱區：與點同一個設施類別 filter，畫在出點縮放以下，不可點擊。 */
+function policeHeatmapLayer(opacity: number, typeIndex: number): HeatmapLayer {
+  const initialFilter = jpPoliceFacilityInitialFilter(typeIndex);
+  return {
+    id: HEATMAP_LAYER_ID,
+    type: "heatmap",
+    source: SOURCE_ID,
+    "source-layer": SOURCE_LAYER,
+    maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
+    ...(initialFilter === undefined ? {} : { filter: initialFilter }),
+    layout: { visibility: "none" },
+    paint: heatmapPaint(clampOpacity(opacity) / OPACITY_DEFAULT, HEATMAP_INTENSITY),
+  } as HeatmapLayer;
 }
 
 /** 日本警察設施：靜態 PMTiles 點層，z15+ overzoom z14；typeIndex 0=全部、1–4=設施類別。 */
@@ -96,6 +117,7 @@ export function useJpPoliceFacilitiesLayer(
     if (!map) return;
     if (!visible) {
       if (map.getLayer(LAYER_ID)) map.setLayoutProperty(LAYER_ID, "visibility", "none");
+      if (map.getLayer(HEATMAP_LAYER_ID)) map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "none");
       return;
     }
 
@@ -113,6 +135,14 @@ export function useJpPoliceFacilitiesLayer(
           maxzoom: MAXZOOM,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
+      }
+      if (!map.getLayer(HEATMAP_LAYER_ID)) {
+        map.addLayer(policeHeatmapLayer(opacity, typeIndex), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
+      }
+      if (map.getLayer(HEATMAP_LAYER_ID)) {
+        map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
+        map.setPaintProperty(HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(clampOpacity(opacity) / OPACITY_DEFAULT));
+        map.setFilter(HEATMAP_LAYER_ID, jpPoliceFacilityTypeFilter(typeIndex));
       }
       if (!map.getLayer(LAYER_ID)) map.addLayer(policeCircleLayer(opacity, scale, typeIndex, isDark));
       if (map.getLayer(LAYER_ID)) {
