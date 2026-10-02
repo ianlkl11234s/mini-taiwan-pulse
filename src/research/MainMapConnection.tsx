@@ -20,7 +20,7 @@ import { layerParamsStore } from "../state/layerParamsStore";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
-import { applyMainMapLayers, captureLayerOverrides } from "./mainMapLayers";
+import { applyMainMapLayers, captureLayerOverrides, planMainMapLayers } from "./mainMapLayers";
 import { QueryResponder } from "./QueryResponder";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { describeLayers } from "./layerExploration";
@@ -267,6 +267,14 @@ export function MainMapConnection(props: Props) {
     const availableResults = describeAnalysisResults(allAnalysisResults, theme);
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
+    // Unknown/locked keys are dropped from the applied scene; only this command's own keys fail it.
+    const layerPlan = planMainMapLayers(scene.layers, patch?.layers, new Set(Object.keys(labels)), locked);
+    if (layerPlan.ignored.length) scene = { ...scene, layers: layerPlan.usable };
+    // A layerControl inherited from the stored scene that no longer validates (e.g. it was the
+    // failing part of an earlier command) is skipped instead of failing every later command.
+    if (!patch?.layerControl && scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) {
+      try { validateLayerControl(scene.layerControl, locked); } catch { scene = { ...scene, layerControl: previous.current?.layerControl }; }
+    }
     let movement: Promise<boolean> = Promise.resolve(true);
     setActivity({ phase: "presenting", title: "正在同步地圖" });
     applying.current = true;
@@ -340,9 +348,9 @@ export function MainMapConnection(props: Props) {
       await new Promise(resolve => setTimeout(resolve, 50));
       resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
     }
-    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
+    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && layerPlan.rejected.length === 0 && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
     const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
-    setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : "圖層或分析結果狀態有衝突，請重新確認。");
+    setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : layerPlan.rejected.length ? `找不到或無法開啟的圖層已略過：${layerPlan.rejected.join("、")}；其餘設定已套用。` : "圖層或分析結果狀態有衝突，請重新確認。");
     setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? "分析結果已呈現" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
     return matches ? "ready" : "error";
   }, []);
