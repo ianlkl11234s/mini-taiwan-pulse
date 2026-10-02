@@ -59,6 +59,7 @@ export const SUBSTATION_EHV_GLOW_LAYER_ID = "substation-ehv-glow-3d";
 export const POWER_PLANT_GLOW_LAYER_ID = "power-plant-glow-3d";
 export const OSM_POWER_LINES_GLOW_LAYER_ID = "osm-power-lines-three-glow";
 export const POWER_GENERATION_BEAM_LAYER_ID = "power-generation-beam-3d";
+export const EARTHQUAKE_RIPPLE_LAYER_ID = "earthquakes-global-ripple-3d";
 
 // ── 各圖層的 lazy 模組 ──
 export const reservoirLayerModule = lazyModule("three:reservoir", "水庫 3D 工具", () =>
@@ -74,12 +75,13 @@ export const substationEhvGlowModule = lazyModule("three:substation-glow", "變�
 export const powerPlantGlowModule = lazyModule("three:power-plant-glow", "發電廠 3D 工具", () => import("./powerPlantGlowCustomLayer"));
 export const osmPowerLinesGlowModule = lazyModule("three:power-lines-glow", "輸電線 3D 工具", () => import("./osmPowerLinesGlowCustomLayer"));
 export const powerGenerationBeamModule = lazyModule("three:power-beam", "機組出力 3D 工具", () => import("./powerGenerationBeamCustomLayer"));
+export const earthquakeRippleModule = lazyModule("three:quake-ripple", "地震漣漪 3D 工具", () => import("./earthquakeRippleCustomLayer"));
 
 /** 背景預載清單（prewarmLayerChunks 用）。 */
 export const LAZY_THREE_LAYER_LOADERS: Array<() => Promise<unknown>> = [
   reservoirLayerModule, realEstatePointsModule, gfwV4TrackLayerModule, historicalFlightTrailsModule,
   buildingsNightBloomModule, powerRegionBarsModule, substationEhvGlowModule, powerPlantGlowModule,
-  osmPowerLinesGlowModule, powerGenerationBeamModule,
+  osmPowerLinesGlowModule, powerGenerationBeamModule, earthquakeRippleModule,
 ].map((m) => () => m.load());
 
 export function lazyAnchorId(layerId: string): string {

@@ -11,16 +11,29 @@ import {
   type EarthquakeGlobalEvent,
 } from "../data/earthquakesGlobalLoader";
 import { startThrottledRaf } from "../utils/throttledRaf";
+import {
+  EARTHQUAKE_RIPPLE_LAYER_ID,
+  earthquakeRippleModule,
+  mountLazyCustomLayer,
+  removeLazyCustomLayer,
+} from "../map/lazyThreeLayers";
+// 只取型別：值走 lazy import，three 不進首屏 bundle（見 lazyThreeLayers 檔頭）
+import type { EarthquakeRippleSnapshot } from "../map/earthquakeRippleCustomLayer";
+import type { QuakeRippleItem } from "../three/QuakeRippleScene";
 
 /**
  * USGS 全球地震 — timeline 連動 + 擴散圈動畫。
  *
- * 三窗共用同一份 geojson source（結構照抄 `useEarthquakeLayer`（CWA 國內），
- * 欄位對應 `occurred_ts → observed_ts`、`magnitude → mag`；配色沿用全球版原色）：
+ * 兩個 Mapbox circle 層共用同一份 geojson source（結構照抄 `useEarthquakeLayer`（CWA 國內），
+ * 欄位對應 `occurred_ts → observed_ts`、`magnitude → mag`；配色沿用全球版原色），
+ * 外加一個 Three.js custom layer 畫漣漪：
  *
  * - post   : 已發生（observed <= current）→ 淡標記持續顯示，**popup 掛在這層**
  * - pre    : 即將發生（current < observed <= current + PRE_WINDOW）→ 空心預示
- * - ripple : 剛發生（current - FRESH_WINDOW < observed <= current）→ 擴散圈動畫
+ * - ripple : 剛發生（current - FRESH_WINDOW < observed <= current）→ 擴散圈動畫，
+ *            由 `QuakeRippleScene`（Three.js）自繪。**不可**改回 Mapbox circle 層逐幀
+ *            setPaintProperty：data-driven paint 每改一次 Mapbox 就把整份 source 標成 reload，
+ *            漣漪播放期間 `map.loaded()` 恆為 false、idle 不觸發（2026-10-02 修掉）。
  *
  * 「回溯天數」（lookbackDays）同時決定 loader 查詢窗與顯示窗下界：
  *   - 1  → 僅顯示當日（台北日界；timeline 日期選擇器也是台北日，兩者對齊）
@@ -31,20 +44,26 @@ import { startThrottledRaf } from "../utils/throttledRaf";
  *
  * ⚠️ currentTime **不在** deps（專案鐵則 §6）—— filter 走 timeStore 訂閱，
  * 擴散圈走 RAF；React 只負責 visible / opacity / lookbackDays 這類真依賴。
+ *
+ * 漣漪 RAF 只在「圖層可見 ∧ 窗口內有新地震 ∧ 時間軸時鐘在走」時跑。時鐘在走 =
+ * 最近 CLOCK_STALE_MS 內 timeStore 時間有變（replay 播放每幀變、live 每秒變、拖曳／跳時間也算）；
+ * 時間軸暫停超過 CLOCK_STALE_MS → RAF 停、漣漪收起，只留靜態震央點。
  */
 
 const SOURCE_ID = "earthquakes-global";
 /** ⚠️ 主層 id 不可改名：`gisClickRegistry` 的 popup 綁在這個字串上 */
 const LAYER_POST = "earthquakes-global-circle";
 const LAYER_PRE = "earthquakes-global-pre";
-const RIPPLE_COUNT = 2;
-const RIPPLE_IDS = Array.from({ length: RIPPLE_COUNT }, (_, i) => `earthquakes-global-ripple-${i}`);
 
 /** 預示視窗：發生前多久就出現淡標記（秒） */
 const PRE_WINDOW = 1800; // 30 分鐘
 /** 剛發生視窗：擴散動畫持續多久（秒，timeline 時間） */
 const FRESH_WINDOW = 1200; // 20 分鐘
-const RIPPLE_CYCLE_MS = 2400;
+/**
+ * 時間軸多久沒動就視為暫停（ms，掛鐘）。需大於 live 模式的 1Hz tick 與 filter 訂閱的 500ms 節流，
+ * 且至少涵蓋一個漣漪週期（2400ms）——跳到某個時間點時至少完整播一輪。
+ */
+const CLOCK_STALE_MS = 3000;
 
 const SEC_PER_DAY = 86400;
 const POST_OPACITY = 0.55;
@@ -68,14 +87,41 @@ const RADIUS_EXPR = [
   8, 30,
 ] as unknown as ExpressionSpecification;
 
+/** 深度色階 SSOT：Mapbox 圓點的 COLOR_EXPR 與 Three 漣漪的 depthRgb 都由這份推導 */
+const DEPTH_COLOR_STOPS: ReadonlyArray<readonly [number, string]> = [
+  [0, "#dc2626"],
+  [30, "#f97316"],
+  [70, "#facc15"],
+  [150, "#38bdf8"],
+  [300, "#3949ab"],
+];
+
 const COLOR_EXPR = [
   "interpolate", ["linear"], ["get", "depth_km"],
-  0, "#dc2626",
-  30, "#f97316",
-  70, "#facc15",
-  150, "#38bdf8",
-  300, "#3949ab",
+  ...DEPTH_COLOR_STOPS.flat(),
 ] as unknown as ExpressionSpecification;
+
+function hexRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+}
+const DEPTH_RGB_STOPS = DEPTH_COLOR_STOPS.map(([d, hex]) => [d, hexRgb(hex)] as const);
+
+/** 與 COLOR_EXPR 同一份色階、同樣的 rgb 線性插值（Mapbox interpolate 預設空間）；範圍外夾到端點 */
+export function depthRgb(depthKm: number): [number, number, number] {
+  const stops = DEPTH_RGB_STOPS;
+  const d = Number.isFinite(depthKm) ? depthKm : stops[0]![0];
+  if (d <= stops[0]![0]) return [...stops[0]![1]];
+  for (let i = 1; i < stops.length; i++) {
+    const [d1, c1] = stops[i]!;
+    if (d <= d1) {
+      const [d0, c0] = stops[i - 1]!;
+      const t = (d - d0) / (d1 - d0);
+      return [c0[0] + (c1[0] - c0[0]) * t, c0[1] + (c1[1] - c0[1]) * t, c0[2] + (c1[2] - c0[2]) * t];
+    }
+  }
+  return [...stops[stops.length - 1]![1]];
+}
 
 function buildLayers(map: MapboxMap) {
   if (!map.getSource(SOURCE_ID)) return false;
@@ -115,31 +161,6 @@ function buildLayers(map: MapboxMap) {
     } as CircleLayer);
   }
 
-  // ripple：半徑／透明度由 RAF 每幀改寫（見下方動畫 effect）
-  for (const id of RIPPLE_IDS) {
-    if (map.getLayer(id)) continue;
-    map.addLayer({
-      id,
-      type: "circle",
-      source: SOURCE_ID,
-      filter: ["literal", false] as unknown as FilterSpecification,
-      paint: {
-        "circle-radius": 8,
-        "circle-color": "transparent",
-        "circle-stroke-color": COLOR_EXPR,
-        "circle-stroke-width": 2,
-        "circle-stroke-opacity": 0,
-        // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
-        // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
-        "circle-radius-transition": { duration: 0, delay: 0 },
-        "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
-        "circle-stroke-width-transition": { duration: 0, delay: 0 },
-        "circle-color-transition": { duration: 0, delay: 0 },
-        "circle-stroke-color-transition": { duration: 0, delay: 0 },
-      },
-    } as CircleLayer);
-  }
-
   return true;
 }
 
@@ -155,6 +176,14 @@ export function useEarthquakesGlobalLayer(
   const eventsRef = useRef<EarthquakeGlobalEvent[]>([]);
   const dataReadyRef = useRef(false);
   const layersReadyRef = useRef(false);
+  // Three 漣漪圖層每幀讀這些 ref（不走 React deps）
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
+  const opacityRef = useRef(Math.max(0, Math.min(1, opacity)));
+  opacityRef.current = Math.max(0, Math.min(1, opacity));
+  const ripplesRef = useRef<EarthquakeRippleSnapshot>({ version: 0, items: [] });
+  /** hook 的漣漪 RAF 正在跑（custom layer 據此決定畫不畫） */
+  const animatingRef = useRef(false);
   /**
    * 資料到位／換天數重抓後 +1。filter effect 必須靠它重跑 ——
    * mapTick 只在「map 從 null 變 ready」時跳，抓到資料本身不會通知 React。
@@ -188,9 +217,9 @@ export function useEarthquakesGlobalLayer(
     // 當下沒套上就靜默放棄的話，source 資料會卡在舊的一份不再更新。改成有界重試：
     // 每 150ms 檢查一次，直到 style 就緒、或本次載入已過期／effect 被清理才停止
     // （照抄 useClimateParticleLineLayer.ts applyRaster 的重試精神）。
-    // 主因是本圖層自己的漣漪：每幀對 data-driven circle-radius setPaintProperty，
-    // 會讓 earthquakes-global source 每幀被標成 reload，isStyleLoaded() 在漣漪播放期間恆為 false。
-    // 所以這裡只等「style 已解析」（getStyle() 解析前／換底圖中會 throw），不等 tile。
+    // 當初主因是本圖層自己的漣漪（每幀 data-driven setPaintProperty → source 每幀 reload）；
+    // 漣漪已改 Three.js 自繪，但其他圖層的 tile 載入一樣會讓 isStyleLoaded() 長時間 false，
+    // 所以這裡仍只等「style 已解析」（getStyle() 解析前／換底圖中會 throw），不等 tile。
     const styleParsed = (m: MapboxMap) => { try { return !!m.getStyle(); } catch { return false; } };
     const applyData = (evs: EarthquakeGlobalEvent[], dateKey: string) => {
       if (cancelled || inflightKey !== dateKey) return; // 期間又換日／換天數 → 這批已過期
@@ -240,55 +269,85 @@ export function useEarthquakesGlobalLayer(
     // dataTick 則**不**在此（它由本 effect 自己遞增，放進來會無限迴圈）。
   }, [visible, lookbackDays, ensureSource, mapRef, mapTick]);
 
-  // 更新 filter（訂閱 timeStore 節流 500ms，不走 React re-render）
+  // 卸載時移除 Three 圖層（onRemove 釋放 GPU 資源）。mapTick 只會從「map 未就緒」跳一次，
+  // 那時上一輪沒有 map、不會誤刪；放在 filter effect 之前，確保不會刪掉它剛掛上的圖層。
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    return () => {
+      try {
+        removeLazyCustomLayer(map, EARTHQUAKE_RIPPLE_LAYER_ID);
+      } catch {
+        // map 已銷毀
+      }
+    };
+  }, [mapRef, mapTick]);
+
+  // 更新 filter + 漣漪（訂閱 timeStore 節流 500ms，不走 React re-render）
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (!ensureSource(map)) return;
 
-    const allIds = [LAYER_POST, LAYER_PRE, ...RIPPLE_IDS];
     const v = visible ? "visible" : "none";
-    for (const id of allIds) {
+    for (const id of [LAYER_POST, LAYER_PRE]) {
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", v);
     }
-    if (!visible) return;
+    if (!visible) {
+      // 關閉 → 移除 Three 圖層（onRemove 釋放 geometry / material / renderer）
+      animatingRef.current = false;
+      removeLazyCustomLayer(map, EARTHQUAKE_RIPPLE_LAYER_ID);
+      return;
+    }
 
-    // ripple RAF 只在「有正在播放的漣漪」時跑：時間窗內有新地震 → 啟動；沒有 → 停止
+    const mountRipple = (m: MapboxMap) => {
+      try {
+        mountLazyCustomLayer(m, EARTHQUAKE_RIPPLE_LAYER_ID, earthquakeRippleModule, (mod) =>
+          mod.createEarthquakeRippleLayer({
+            getIsVisible: () => visibleRef.current,
+            getIsAnimating: () => animatingRef.current,
+            getOpacity: () => opacityRef.current,
+            getRipples: () => ripplesRef.current,
+          }), () => visibleRef.current);
+      } catch (err) {
+        console.warn("[EarthquakesGlobal] ripple layer mount failed:", err);
+      }
+    };
+
+    // 漣漪 RAF：只負責「叫 Mapbox 重畫」，畫面由 Three custom layer 依掛鐘相位自繪。
+    // 不碰任何 Mapbox paint / filter / source —— 這是本次重寫的重點（見檔頭）。
     let cancelRaf: (() => void) | null = null;
-    const setRippleActive = (on: boolean) => {
-      if (on && !cancelRaf) cancelRaf = startThrottledRaf(rippleTick);
-      else if (!on && cancelRaf) {
+    let lastClockMove = -Infinity;
+    const stopRipple = () => {
+      if (cancelRaf) {
         cancelRaf();
         cancelRaf = null;
       }
+      if (animatingRef.current) {
+        animatingRef.current = false;
+        mapRef.current?.triggerRepaint(); // 再畫一次把最後一幀的圈清掉
+      }
     };
-    // 半徑用 data-driven expression，一次 setPaintProperty 服務全部震央
     const rippleTick = (now: number) => {
       const m = mapRef.current;
       if (!m) return;
-      // style 切換後 layers 可能消失 → 自癒重建
-      if (layersReadyRef.current && !m.getLayer(RIPPLE_IDS[0]!)) layersReadyRef.current = false;
-      if (!layersReadyRef.current) ensureSource(m);
-      if (!layersReadyRef.current) return;
-      for (let i = 0; i < RIPPLE_COUNT; i++) {
-        const id = RIPPLE_IDS[i]!;
-        if (!m.getLayer(id)) continue;
-        const phase =
-          ((now + i * (RIPPLE_CYCLE_MS / RIPPLE_COUNT)) % RIPPLE_CYCLE_MS) / RIPPLE_CYCLE_MS;
-        const eased = 1 - Math.pow(1 - phase, 2);
-        // 規模越大，擴散範圍越大
-        const baseR = 6;
-        const maxAdd = 60;
-        m.setPaintProperty(id, "circle-radius", [
-          "+",
-          ["*", ["get", "mag"], 2],
-          baseR + maxAdd * eased,
-        ] as unknown as ExpressionSpecification);
-        m.setPaintProperty(id, "circle-stroke-opacity", 0.7 * (1 - eased));
-        m.setPaintProperty(id, "circle-stroke-width", 2.5 * (1 - eased * 0.5));
+      if (now - lastClockMove > CLOCK_STALE_MS) {
+        // 時間軸暫停 → 停 RAF、收起漣漪（cancelRaf 先清，避免 stopRipple 取消已在結束的迴圈）
+        cancelRaf = null;
+        animatingRef.current = false;
+        m.triggerRepaint();
+        return false;
       }
+      animatingRef.current = true;
+      m.triggerRepaint();
+    };
+    const startRipple = () => {
+      if (!cancelRaf) cancelRaf = startThrottledRaf(rippleTick);
     };
 
+    let lastTime: number | null = null;
+    let lastSig: string | null = null;
+    let lastFilterSig: string | null = null;
     const applyFilter = (currentTime: number) => {
       // 顯示窗下界：僅當日 → 台北日界 00:00；其餘 → 游標往前 N 天
       const onlyToday = lookbackDays <= 1;
@@ -299,50 +358,78 @@ export function useEarthquakesGlobalLayer(
         ? Math.min(currentTime + PRE_WINDOW, dayEnd)
         : currentTime + PRE_WINDOW;
 
-      const postFilter = [
-        "all",
-        [">=", ["get", "observed_ts"], lowerBound],
-        ["<=", ["get", "observed_ts"], currentTime],
-      ];
-      const preFilter = [
-        "all",
-        [">", ["get", "observed_ts"], currentTime],
-        ["<=", ["get", "observed_ts"], preUpper],
-      ];
-      const rippleFilter = [
-        "all",
-        [">=", ["get", "observed_ts"], lowerBound],
-        [">", ["get", "observed_ts"], currentTime - FRESH_WINDOW],
-        ["<=", ["get", "observed_ts"], currentTime],
-      ];
-
-      if (map.getLayer(LAYER_POST))
-        map.setFilter(LAYER_POST, postFilter as unknown as FilterSpecification);
-      if (map.getLayer(LAYER_PRE))
-        map.setFilter(LAYER_PRE, preFilter as unknown as FilterSpecification);
-      for (const id of RIPPLE_IDS) {
-        if (map.getLayer(id))
-          map.setFilter(id, rippleFilter as unknown as FilterSpecification);
+      // setFilter 也會讓 Mapbox 把 source 標成 reload：只在「篩到的集合」真的變了才呼叫。
+      // 三個邊界各自數一次落在左側的事件數，數字一樣 = 兩層篩到的集合完全一樣。
+      let nLow = 0, nCur = 0, nPre = 0;
+      const fresh: QuakeRippleItem[] = [];
+      const freshIds: string[] = [];
+      const freshLo = currentTime - FRESH_WINDOW;
+      for (const e of eventsRef.current) {
+        const ts = e.observed_ts;
+        if (ts < lowerBound) nLow++;
+        if (ts <= currentTime) nCur++;
+        if (ts <= preUpper) nPre++;
+        // 漣漪條件與舊 rippleFilter 相同
+        if (ts > freshLo && ts <= currentTime && ts >= lowerBound) {
+          fresh.push({ lng: e.lng, lat: e.lat, mag: e.mag, rgb: depthRgb(e.depth_km) });
+          freshIds.push(e.event_id);
+        }
+      }
+      const filterSig = `${nLow}:${nCur}:${nPre}`;
+      if (filterSig !== lastFilterSig || !map.getLayer(LAYER_POST)) {
+        lastFilterSig = filterSig;
+        const postFilter = [
+          "all",
+          [">=", ["get", "observed_ts"], lowerBound],
+          ["<=", ["get", "observed_ts"], currentTime],
+        ];
+        const preFilter = [
+          "all",
+          [">", ["get", "observed_ts"], currentTime],
+          ["<=", ["get", "observed_ts"], preUpper],
+        ];
+        if (map.getLayer(LAYER_POST))
+          map.setFilter(LAYER_POST, postFilter as unknown as FilterSpecification);
+        if (map.getLayer(LAYER_PRE))
+          map.setFilter(LAYER_PRE, preFilter as unknown as FilterSpecification);
       }
 
-      // 與 rippleFilter 同條件：有符合的地震才需要 RAF
-      const lo = currentTime - FRESH_WINDOW;
-      setRippleActive(
-        eventsRef.current.some(
-          (e) => e.observed_ts > lo && e.observed_ts <= currentTime && e.observed_ts >= lowerBound,
-        ),
-      );
+      const sig = freshIds.join("|");
+      if (sig !== lastSig) {
+        lastSig = sig;
+        ripplesRef.current = { version: ripplesRef.current.version + 1, items: fresh };
+      }
+      if (currentTime !== lastTime) {
+        lastTime = currentTime;
+        lastClockMove = performance.now();
+      }
+      if (fresh.length > 0 && performance.now() - lastClockMove <= CLOCK_STALE_MS) startRipple();
+      else stopRipple();
     };
 
+    // 換底圖（setStyle）會清掉自建 source／layer：重建並立刻套回目前的 filter 與漣漪圖層
+    const onStyleLoad = () => {
+      const m = mapRef.current;
+      if (!m || !visibleRef.current) return;
+      layersReadyRef.current = false;
+      if (!ensureSource(m)) return;
+      lastFilterSig = null;
+      applyFilter(timeStore.getTime());
+      mountRipple(m);
+    };
+
+    mountRipple(map);
     applyFilter(timeStore.getTime()); // 初始化
     const unsub = timeStore.subscribeThrottled(500, applyFilter);
+    map.on("style.load", onStyleLoad);
     return () => {
       unsub();
-      setRippleActive(false);
+      map.off("style.load", onStyleLoad);
+      stopRipple();
     };
   }, [visible, lookbackDays, ensureSource, mapRef, mapTick, dataTick]);
 
-  // 套用 opacity（乘以各 layer 的 base opacity；ripple 由 RAF 全權改寫，不在此列）
+  // 套用 opacity（乘以各 layer 的 base opacity）。漣漪在 Three 端每幀讀 opacityRef。
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
