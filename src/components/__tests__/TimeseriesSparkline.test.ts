@@ -127,6 +127,14 @@ describe("TimeseriesSparkline monitor v2 (spec §5.35 E3)", () => {
     expect(html.match(/data-testid="sparkline-gap"/g)).toHaveLength(1);
   });
 
+  it("moreSeries 畫第三條線並納入值域；不傳時不出現", () => {
+    const more = [{ data: [{ t: 12_000, v: 100 }, { t: 12_600, v: 120 }], color: "#ef4444", label: "超過 15 分" }];
+    const html = legacy({ ...props, moreSeries: more });
+    expect(html).toContain('data-testid="sparkline-more-line"');
+    expect(html).toContain("120"); // Y 軸頂端刻度涵蓋第三條線
+    expect(legacy(props)).not.toContain("sparkline-more-line");
+  });
+
   it("v2 在最後一個有值點畫實心最新點（r=2.5）", () => {
     const html = v2(props);
     // 最後一點在右緣（SSR 寬 256 − 右留白 8）

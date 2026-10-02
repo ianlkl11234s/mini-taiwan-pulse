@@ -52,6 +52,11 @@ export interface TimeseriesSparklineProps {
    * gapSec 斷線邏輯同樣套用在這條線上。不傳 = 行為與現在完全相同。
    */
   extraSeries?: { data: SparklinePoint[]; color: string; label?: string };
+  /**
+   * 第三條以後的線（opt-in，同一個 Y 軸，同單位才可疊；spec §5.35 同單位最多 3 條）。
+   * 只畫線＋最後一點，Y 值域與 tooltip 會納入；要 useMemo。不傳＝行為完全不變。
+   */
+  moreSeries?: { data: SparklinePoint[]; color: string; label?: string }[];
   /** 主線在 tooltip 中的標籤（搭配 extraSeries 使用時用來區分兩條線）；不傳則 tooltip 只顯示色點 + 數值 */
   seriesLabel?: string;
   /**
@@ -239,6 +244,7 @@ export function TimeseriesSparkline({
   fillArea = true,
   gapSec,
   extraSeries,
+  moreSeries,
   seriesLabel,
   showTooltip = false,
   tooltipDateFormat = "datetime",
@@ -285,7 +291,11 @@ export function TimeseriesSparkline({
     if (data.length === 0) return null;
     const { tMin, tMax } = computeTimeRange(data, timeDomain)!;
     // Y 值域把 extraSeries（如有）與警戒線一起納入，否則第二條線／警戒線可能跑出畫面
-    const { vMin, vMax } = computeCombinedYRange(data, extraSeries?.data, warningValue, band)!;
+    // moreSeries 併進第二條線的資料一起算值域（不傳時與舊算法逐位元相同）
+    const extraForRange = moreSeries?.length
+      ? [...(extraSeries?.data ?? []), ...moreSeries.flatMap((s) => s.data)]
+      : extraSeries?.data;
+    const { vMin, vMax } = computeCombinedYRange(data, extraForRange, warningValue, band)!;
     // 給 vMax 留 10% 空間，避免最高點貼頂
     const pad = (vMax - vMin) * 0.1 || Math.max(Math.abs(vMax), 1) * 0.1;
     // 資料全非負（人數/雨量/水深…）→ y 下界 clamp 到 0，不長出負值刻度
@@ -305,6 +315,10 @@ export function TimeseriesSparkline({
       ? buildSegments(extraSeries.data, gapSec).map((seg) => buildSegView(seg, xScale, yScale))
       : [];
     const extraByT = extraSeries ? new Map(extraSeries.data.map((d) => [d.t, d.v])) : undefined;
+    const moreViews = (moreSeries ?? []).map((s) => ({
+      segs: buildSegments(s.data, gapSec).map((seg) => buildSegView(seg, xScale, yScale)),
+      byT: new Map(s.data.map((d) => [d.t, d.v])),
+    }));
     // v2 缺口斜線帶（只看主線）：每個斷線缺口＝前段最後一點到下段第一點
     const mainSegs = v2 && gapSec != null ? buildSegments(data, gapSec) : [];
     const gapBands: { x0: number; x1: number }[] = [];
@@ -371,8 +385,8 @@ export function TimeseriesSparkline({
       }
     }
 
-    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, gapBands, timeTicks: shownTimeTicks };
-  }, [data, timeDomain, warningValue, band, height, w, gapSec, extraSeries, v2, PAD_L, PAD_R, PAD_B, padT]);
+    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, moreViews, gapBands, timeTicks: shownTimeTicks };
+  }, [data, timeDomain, warningValue, band, height, w, gapSec, extraSeries, moreSeries, v2, PAD_L, PAD_R, PAD_B, padT]);
 
   function handleMouseMove(e: ReactMouseEvent<SVGSVGElement>) {
     if (!showTooltip || !view || data.length === 0) return;
@@ -617,6 +631,23 @@ export function TimeseriesSparkline({
           />
         )}
 
+        {/* 第三條以後的線（moreSeries） */}
+        {moreSeries?.map((s, si) => (
+          <g key={`ms-${si}`}>
+            {view.moreViews[si]!.segs.map((sv, i) =>
+              sv.single ? (
+                <circle key={i} cx={view.xScale(sv.first.t)} cy={view.yScale(sv.first.v)} r={1.6} fill={s.color} />
+              ) : (
+                <polyline key={i} data-testid="sparkline-more-line" points={sv.pts} fill="none" stroke={s.color}
+                  strokeWidth={1.4} strokeLinejoin="round" strokeLinecap="round" />
+              ),
+            )}
+            {s.data.length > 0 && (
+              <circle cx={view.xScale(s.data[s.data.length - 1]!.t)} cy={view.yScale(s.data[s.data.length - 1]!.v)} r={2.2} fill={s.color} />
+            )}
+          </g>
+        ))}
+
         {/* X 軸時間 tick（貼邊者換錨點避免裁切） */}
         {!bare && view.timeTicks.map((tk, i) => (
           <text
@@ -670,6 +701,10 @@ export function TimeseriesSparkline({
                 dot: extraSeries.color,
               });
             }
+            moreSeries?.forEach((s, si) => {
+              const mv = view.moreViews[si]!.byT.get(hp.t);
+              if (mv != null) lines.push({ text: `${s.label ? s.label + " " : ""}${fmtTooltipValue(mv, unit)}`, dot: s.color });
+            });
             if (band?.label && Number.isFinite(band.lo) && Number.isFinite(band.hi)) {
               lines.push({ text: `${band.label} ${fmtValue(band.lo)}–${fmtValue(band.hi)}` });
             }

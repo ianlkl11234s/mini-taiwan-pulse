@@ -19,6 +19,12 @@ const bars: HazardBar[] = [
 const base: Props = { bars, levelColors: ["#64aaff"], caption: "近 14 天", footer: "最高 20", partColor: PART, partLabel: "越中線" };
 
 describe("HazardTrendBars part／bare (spec §5.35 F3)", () => {
+  it("maxValue 讓多張圖用同一把尺", () => {
+    const html = v2({ ...base, maxValue: 40 });
+    const parts = [...html.matchAll(/data-testid="hazard-bar-part" style="height:([\d.]+)%/g)].map((m) => Number(m[1]));
+    expect(parts).toEqual([12.5, 25]); // 5/40、10/40
+  });
+
   it("子段高度＝part / max，其餘段補足到總柱高", () => {
     const html = v2(base);
     const parts = [...html.matchAll(/data-testid="hazard-bar-part" style="height:([\d.]+)%/g)].map((m) => Number(m[1]));

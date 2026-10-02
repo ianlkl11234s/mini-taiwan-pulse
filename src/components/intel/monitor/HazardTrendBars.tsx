@@ -63,6 +63,8 @@ interface Props {
   selectedKey?: string | null;
   /** 小倍數列用（spec §5.35 F3，只在監看新版生效）：不畫 caption、footer 與首尾日期 */
   bare?: boolean;
+  /** 比例尺上限（同一把尺用）；不傳＝本區間最大值 */
+  maxValue?: number | null;
   /** 子量（`HazardBar.part`）的顏色，傳 token 值 */
   partColor?: string;
   /** 子量在 tooltip 的名稱，例如「越中線」 */
@@ -82,7 +84,7 @@ const NOWRAP = { whiteSpace: "nowrap" } as const;
 
 export function HazardTrendBars({
   bars, levelColors, height: heightProp = 44, heightTier, caption, footer, unit = "",
-  onSelectBar, selectedKey = null, bare: bareProp = false, partColor = COLORS.accent, partLabel = "",
+  onSelectBar, selectedKey = null, bare: bareProp = false, maxValue = null, partColor = COLORS.accent, partLabel = "",
 }: Props) {
   const v2 = useMonitorV2();
   // bare 只在監看新版生效（舊版畫面不可變）
@@ -90,7 +92,7 @@ export function HazardTrendBars({
   // 只在監看新版生效（舊版維持原 height）
   const height = v2 && heightTier ? MON_CHART_H[heightTier] : heightProp;
   const tip = useChartTooltip();
-  const max = useMemo(() => {
+  const autoMax = useMemo(() => {
     const vals = bars.map((b) => b.value).filter((v): v is number => v !== null);
     // 比例尺用「本區間最大值」：跨主題共用元件，沒有全域基準可依。
     // 代價是換資料就換 y 軸尺度 → 所以 footer 一定要印出實際最大值。
@@ -103,6 +105,8 @@ export function HazardTrendBars({
     const m = Math.max(...vals);
     return m > 0 ? m : 1;
   }, [bars]);
+  // maxValue：小倍數列要「同一把尺」時由呼叫端傳共同上限（各列取所有列的最大值）
+  const max = maxValue != null && maxValue > 0 ? maxValue : autoMax;
 
   if (!bars.length) return null;
 
