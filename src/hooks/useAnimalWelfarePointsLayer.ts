@@ -92,7 +92,7 @@ function setData(map: MapboxMap, rows: AnimalWelfarePointRow[]) {
 
 /** ~7k point POI layer: deliberately no clustering so type color and click selection remain exact. */
 export function useAnimalWelfarePointsLayer(
-  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity = 0.85, scale = 1, isDark = true, pointTypeMask?: number,
+  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity = OPACITY_DEFAULT, scale = 1, isDark = true, pointTypeMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const loaded = useRef(false);

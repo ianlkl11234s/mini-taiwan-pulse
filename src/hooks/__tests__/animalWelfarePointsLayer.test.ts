@@ -8,7 +8,7 @@ import {
 describe("animal welfare point Mapbox properties", () => {
   it("uses the fixed M tier and theme-aware seam stroke", () => {
     expect(animalWelfarePointRadius(2)).toBe(9);
-    expect(animalWelfarePointStroke(true, 0.85)).toEqual({
+    expect(animalWelfarePointStroke(true, 0.8)).toEqual({
       "circle-stroke-color": "#0a0a14",
       "circle-stroke-width": 1,
       "circle-stroke-opacity": 0.8,
