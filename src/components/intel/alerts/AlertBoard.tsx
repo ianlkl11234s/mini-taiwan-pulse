@@ -13,7 +13,9 @@ import {
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { useMonitorV2 } from "../monitor/monitorStyle";
-import { fs } from "../monitor/monitorFont";
+import { fs, MF } from "../monitor/monitorFont";
+import { MonitorSub } from "../monitor/MonitorMetric";
+import { MON_CHART_H } from "../monitor/monitorChart";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 /** 24 桶（hour-of-day 0-23，見 get_alert_series_24h）→ hover 標題用時:分 */
@@ -39,9 +41,10 @@ function AlertTrend({
   );
   const peak = Math.max(1, ...totals);
   const W = 100;
-  const H = 28;
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
+  // v2：圖區高照 mini 階（24），固定高格子內容只能等高或更矮
+  const H = v2 ? MON_CHART_H.mini : 28;
 
   const points = totals
     .map((v, i) => {
@@ -242,7 +245,7 @@ function GroupCard({
       <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: v2 ? "wrap" : undefined, rowGap: v2 ? 2 : undefined }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700,
+            fontFamily: FONT_DATA, fontSize: v2 ? MF.main : FONT_SIZE.xxl, fontWeight: 700,
             color: hot ? def.color : COLORS.textStrong,
             lineHeight: 1,
           }}
@@ -418,7 +421,20 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* section label（v2：標題與來源已由外框畫，只留總數與嚴重數） */}
+      {/* section label（v2：標題與來源已由外框畫，只留總數與嚴重數，用 MonitorSub 小字） */}
+      {v2 ? (
+        <div style={{ padding: "0 2px 6px", flexShrink: 0 }}>
+          <MonitorSub
+            items={[
+              "災防科技中心＋氣象署",
+              `${tally.total} 則`,
+              tally.severe > 0 ? (
+                <span style={{ color: COLORS.statusErr, fontWeight: 700 }}>{tally.severe} 嚴重</span>
+              ) : null,
+            ]}
+          />
+        </div>
+      ) : (
       <div
         style={{
           display: "flex", alignItems: "center", gap: 8,
@@ -464,6 +480,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           </span>
         )}
       </div>
+      )}
 
       <div
         style={{

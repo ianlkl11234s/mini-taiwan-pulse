@@ -1,8 +1,10 @@
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
-import { Sparkline } from "./PressureRing";
+import { Sparkline, FluidSparkline } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
+import { MON_CHART_H } from "./monitorChart";
+import { MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import type { PublicHealthWeek, CdcDisease } from "../../../data/intelLoaders";
 
@@ -11,6 +13,47 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
   // 疾病：升 = 警示 → 紅；降 = 改善 → 綠
   const worse = d.yoy >= 0;
   const yc = worse ? COLORS.statusWarn : COLORS.statusLive;
+  if (v2) {
+    // 新版：兩種疾病是並列的同等指標，各一個主數字＋年增；走勢用列內迷你高度（mini）。
+    // spark 只有序列沒有時間戳，所以保留 Sparkline（FluidSparkline 寬 100%），首尾標週次。
+    const n = d.spark.length;
+    const wk = (i: number) => {
+      const w = week - (n - 1 - i);
+      return `W${w > 0 ? w : w + 52}`;
+    };
+    return (
+      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: d.color, flexShrink: 0 }} />
+          <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: COLORS.textStrong }}>{d.label}</span>
+        </div>
+        <MonitorMetric
+          value={d.value}
+          unit={d.unit}
+          delta={`${worse ? "↑ +" : "↓ "}${d.yoy}% 年增`}
+          tone={worse ? "up" : "down"}
+        />
+        {n > 1 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <FluidSparkline
+              fallbackW={140}
+              data={d.spark}
+              color={d.color}
+              h={MON_CHART_H.mini}
+              showTooltip
+              labelAt={wk}
+              unit={d.unit}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA, fontSize: MF.cap, color: COLORS.textFaint }}>
+              <span>{wk(0)}</span>
+              <span>{wk(n - 1)}</span>
+            </div>
+          </div>
+        )}
+        {d.note && <MonitorNote>{d.note}</MonitorNote>}
+      </div>
+    );
+  }
   return (
     <div
       style={{

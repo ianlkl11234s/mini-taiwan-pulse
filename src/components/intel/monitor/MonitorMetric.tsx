@@ -1,0 +1,132 @@
+/**
+ * 監看卡數值列（spec §5.35 D3）——只給新版（v2）監看卡用。
+ *
+ * 由 `HazardCards.tsx` 私有的 `Metric`／`MetaRow`／`Note` 升格；**不是**通用 Card（§11 KEEP OUT）。
+ * 一格一個主數字（`MonitorMetric`）＋其餘指標 KPI 列（`MonitorKpis`）＋副資訊（`MonitorSub`），
+ * 卡底一行原因用 `MonitorNote`。字級只用 `MF.*`，顏色只用 token。
+ */
+import type { ReactNode } from "react";
+import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { MF } from "./monitorFont";
+
+/**
+ * 漲跌／狀態語氣。元件只給顏色，紅綠語意由呼叫端依領域決定
+ * （股市紅漲綠跌 → 漲傳 "up"；其他依好壞，例如急診壅塞變多傳 "up"＝紅）。
+ */
+export type MonitorTone = "up" | "down" | "neutral" | "warn" | "err";
+
+export const toneColor: Record<MonitorTone, string> = {
+  up: COLORS.statusErr,
+  down: COLORS.statusLive,
+  neutral: COLORS.textMuted,
+  warn: COLORS.statusWarn,
+  err: COLORS.statusErr,
+};
+
+const NOWRAP = { whiteSpace: "nowrap" } as const;
+
+/** §6.2：符號單位（% × ‰ °）緊貼數字，字母或中文開頭的單位前留一個半形空白 */
+function unitGap(unit: string): number | string {
+  return /^[%×‰°]/.test(unit) ? 0 : "0.25em";
+}
+
+/**
+ * 主數字（`MF.main` 24）＋單位＋漲跌。
+ * - `tone`：只決定漲跌（delta）顏色。
+ * - `color`：主數字的領域色（例如地震規模、供電吃緊），呼叫端傳 token 值；不給＝textStrong。
+ * - `muted`：過期／停更（G2），主數字改 textMuted，優先於 `color`。
+ */
+export function MonitorMetric({
+  value, unit, delta, tone = "neutral", color, muted = false,
+}: {
+  value: ReactNode;
+  unit?: string;
+  delta?: ReactNode;
+  tone?: MonitorTone;
+  color?: string;
+  muted?: boolean;
+}) {
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: 8, rowGap: 2, minWidth: 0 }}>
+      <span style={NOWRAP}>
+        <span
+          style={{
+            fontFamily: FONT_DATA, fontSize: MF.main, fontWeight: 700, lineHeight: 1.15,
+            fontVariantNumeric: "tabular-nums",
+            color: muted ? COLORS.textMuted : color ?? COLORS.textStrong,
+          }}
+        >
+          {value}
+        </span>
+        {unit && (
+          <span style={{ fontSize: MF.body, color: COLORS.textMuted, marginLeft: unitGap(unit) }}>{unit}</span>
+        )}
+      </span>
+      {delta != null && (
+        <span
+          style={{
+            ...NOWRAP, fontFamily: FONT_DATA, fontSize: MF.body,
+            fontVariantNumeric: "tabular-nums", color: toneColor[tone],
+          }}
+        >
+          {delta}
+        </span>
+      )}
+    </div>
+  );
+}
+
+export interface MonitorKpiItem {
+  label: ReactNode;
+  value: ReactNode;
+  unit?: string;
+}
+
+/** 其餘指標：標籤（`MF.label`）在上、數值（`MF.kpi` 19）在下；每格最小 110px 自動折行 */
+export function MonitorKpis({ items }: { items: MonitorKpiItem[] }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: "6px 10px" }}>
+      {items.map((it, i) => (
+        <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+          <span style={{ fontSize: MF.label, color: COLORS.textMuted }}>{it.label}</span>
+          <span style={NOWRAP}>
+            <span
+              style={{
+                fontFamily: FONT_DATA, fontSize: MF.kpi, fontWeight: 700,
+                fontVariantNumeric: "tabular-nums", color: COLORS.textStrong,
+              }}
+            >
+              {it.value}
+            </span>
+            {it.unit && (
+              <span style={{ fontSize: MF.body, color: COLORS.textMuted, marginLeft: unitGap(it.unit) }}>{it.unit}</span>
+            )}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** 副資訊列（`MF.label`）：每一項不可拆，項與項之間才換行 */
+export function MonitorSub({ items }: { items: ReactNode[] }) {
+  const shown = items.filter((it) => it != null && it !== false && it !== "");
+  if (!shown.length) return null;
+  return (
+    <div
+      style={{
+        display: "flex", flexWrap: "wrap", justifyContent: "space-between", columnGap: 10, rowGap: 2,
+        fontSize: MF.label, color: COLORS.textDim,
+      }}
+    >
+      {shown.map((it, i) => (
+        <span key={i} style={NOWRAP}>{it}</span>
+      ))}
+    </div>
+  );
+}
+
+/** 卡底一行原因（`MF.label`），例如「查詢失敗」「停更 139 天：上游未更新」 */
+export function MonitorNote({ tone = "neutral", children }: { tone?: MonitorTone; children: ReactNode }) {
+  return <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: toneColor[tone] }}>{children}</div>;
+}

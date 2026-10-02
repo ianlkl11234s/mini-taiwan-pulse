@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { computeCombinedYRange, computeTimeRange, type SparklinePoint } from "../TimeseriesSparkline";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
+import { computeCombinedYRange, computeTimeRange, TimeseriesSparkline, type SparklinePoint, type TimeseriesSparklineProps } from "../TimeseriesSparkline";
+import { MonitorStyleContext } from "../intel/monitor/monitorStyle";
 
 /**
  * TimeseriesSparkline 的 Y 值域計算是 view useMemo 內唯一被抽成純函式的部分
@@ -102,5 +105,51 @@ describe("computeTimeRange", () => {
 
   it("空資料維持 null，即使有明示 domain 也不渲染空圖", () => {
     expect(computeTimeRange([], { from, to: from + 30 * day })).toBeNull();
+  });
+});
+
+describe("TimeseriesSparkline monitor v2 (spec §5.35 E3)", () => {
+  // 第 3 → 4 點間隔 3 小時 > gapSec 1 小時 → 一個缺口
+  const pts: SparklinePoint[] = [
+    { t: 0, v: 1 }, { t: 600, v: 2 }, { t: 1200, v: 3 },
+    { t: 12_000, v: 2 }, { t: 12_600, v: 4 },
+  ];
+  const props: TimeseriesSparklineProps = { data: pts, gapSec: 3600 };
+  const legacy = (p: TimeseriesSparklineProps) => renderToStaticMarkup(createElement(TimeseriesSparkline, p));
+  const v2 = (p: TimeseriesSparklineProps) =>
+    renderToStaticMarkup(
+      createElement(MonitorStyleContext.Provider, { value: "v2" }, createElement(TimeseriesSparkline, p)),
+    );
+
+  it("v2 在斷線缺口畫一條斜線帶（pattern + rect）", () => {
+    const html = v2(props);
+    expect(html).toContain("<pattern");
+    expect(html.match(/data-testid="sparkline-gap"/g)).toHaveLength(1);
+  });
+
+  it("v2 在最後一個有值點畫實心最新點（r=2.5）", () => {
+    const html = v2(props);
+    // 最後一點在右緣（SSR 寬 256 − 右留白 8）
+    expect(html).toMatch(/<circle data-testid="sparkline-latest" cx="248" cy="[\d.]+" r="2.5"/);
+    expect(html.match(/data-testid="sparkline-latest"/g)).toHaveLength(1);
+  });
+
+  it("舊版輸出不含斜線帶與新最新點，維持 r=2.2 末點", () => {
+    const html = legacy(props);
+    expect(html).not.toContain("<pattern");
+    expect(html).not.toContain("sparkline-gap");
+    expect(html).not.toContain("sparkline-latest");
+    expect(html).toContain('r="2.2"');
+    // heightTier 只在有給時生效；不給維持 height 預設 120
+    expect(html).toContain('height="120"');
+  });
+
+  it("heightTier 讓圖區等於 MON_CHART_H（總高＝圖區＋軸留白）", () => {
+    // v2 上留白 10（無單位）／18（有單位，單位字放在留白裡）
+    expect(v2({ data: pts, heightTier: "std" })).toContain('height="80"'); // 10 + 48 + 22
+    expect(v2({ data: pts, heightTier: "lg" })).toContain('height="128"'); // 10 + 96 + 22
+    expect(v2({ data: pts, heightTier: "std", unit: "點" })).toContain('height="88"'); // 18 + 48 + 22
+    // 舊版忽略 heightTier，維持預設 height 120（舊版畫面不可變）
+    expect(legacy({ data: pts, heightTier: "mini" })).toContain('height="120"');
   });
 });

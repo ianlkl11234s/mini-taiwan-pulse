@@ -1,6 +1,8 @@
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
+import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { fs } from "./monitorFont";
 import { useMonitorCardHeader, type MonitorCardState } from "./MonitorCardFrame";
 import { useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
@@ -109,7 +111,7 @@ export function CompareLine({ delta, label, muted = false }: { delta: number; la
 const EMPTY_MARKET_HISTORY: MarketIndexDailyPoint[] = [];
 
 /** v2：走勢圖寬度隨容器縮放（ResizeObserver 量容器寬後傳給 Sparkline 的 w） */
-function FluidSparkline({
+export function FluidSparkline({
   fallbackW, ...rest
 }: { fallbackW: number } & Omit<React.ComponentProps<typeof Sparkline>, "w">) {
   const ref = useRef<HTMLDivElement>(null);
@@ -172,6 +174,48 @@ export function TwseTicker({
     time: status === "ready" ? todayTimeMs(data.time) : lastSuccessAt,
     state: headerState,
   });
+  if (v2) {
+    // 新版：主數字＝指數＋漲跌；高低量走副資訊；30 日走勢用有時間軸的 TimeseriesSparkline（std）
+    const tone = stale ? "neutral" : up ? "up" : "down"; // 台股慣例：漲紅跌綠
+    const points: SparklinePoint[] = history
+      .map((p) => ({ t: Date.parse(`${p.trade_date}T00:00:00+08:00`) / 1000, v: p.close }))
+      .filter((p) => Number.isFinite(p.t));
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
+        <MonitorDataStatus label="行情歷史" query={historyQuery} />
+        <MonitorMetric
+          value={has ? data.index.toLocaleString() : "—"}
+          muted={stale}
+          delta={has ? `${up ? "▲ +" : "▼ "}${data.change.toLocaleString()}（${up ? "+" : ""}${data.change_pct}%）` : undefined}
+          tone={tone}
+        />
+        <MonitorSub items={[
+          `高 ${has ? data.high.toLocaleString() : "—"}`,
+          `低 ${has ? data.low.toLocaleString() : "—"}`,
+          `量 ${has ? data.turnover ?? "—" : "—"}`,
+        ]} />
+        {status !== "ready" && (
+          <MonitorNote>
+            {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
+          </MonitorNote>
+        )}
+        {points.length >= 2 && (
+          // 交易日序列有週末／連假空檔：gapSec 10 天只在超長假（春節）才斷線
+          <TimeseriesSparkline
+            data={points}
+            unit="點"
+            lineColor={histUp ? COLORS.statusErr : COLORS.statusLive}
+            heightTier="std"
+            gapSec={10 * 86400}
+            showTooltip
+            tooltipDateFormat="date"
+            seriesLabel="加權指數"
+            compactYAxis
+          />
+        )}
+      </div>
+    );
+  }
   return (
     <div
       style={v2 ? { display: "flex", flexDirection: "column", gap: 6, minWidth: 0 } : {
@@ -252,17 +296,6 @@ export function TwseTicker({
               上限抓 360 是因為 Sparkline 固定寬 + flexShrink:0：grid 模式最窄（容器 1100px）
               時 w5 格內可用寬約 380px，再大就會溢出讓格子橫向捲動。
               逐點 hover 取代原本整段區間的 HTML title。 */}
-          {v2 ? (
-            <FluidSparkline
-              fallbackW={200}
-              data={closes}
-              color={histUp ? "#ff4d4f" : "#16c784"}
-              h={48}
-              showTooltip
-              labelAt={(i) => history[i]?.trade_date ?? ""}
-              unit="點"
-            />
-          ) : (
             <Sparkline
               data={closes}
               color={histUp ? "#ff4d4f" : "#16c784"}
@@ -272,7 +305,6 @@ export function TwseTicker({
               labelAt={(i) => history[i]?.trade_date ?? ""}
               unit="點"
             />
-          )}
         </div>
       )}
     </div>
