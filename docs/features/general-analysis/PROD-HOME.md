@@ -20,7 +20,7 @@ mini-taiwan-pulse/.worktrees/analysis-prod/
 - **本機免授權**（只在 127.0.0.1＋vite dev）：三處都要開——
   1. gateway：`runtime/start-v03-gateway.mjs` 的 env 加 `PULSE_RESEARCH_DEV_AUTOPAIR: '1'`（旗標開啟時若 host／origin 不是 loopback 會拒絕啟動）；
   2. MCP：Claude `.claude.json` 與 Codex `config.toml` 的 pulse-research env 加 `PULSE_RESEARCH_DEV_AUTOPAIR=1`；
-  3. 前端：主 repo `.env.local` 加 `VITE_RESEARCH_DEV_AUTOPAIR=1`。
+  3. 前端：`analysis-prod/mini/.env.local` 寫 `VITE_RESEARCH_DEV_AUTOPAIR=1`（vite 讀的是 `analysis-prod/mini` 這層；`.env` 是指向主 repo 的 symlink，`.env.local` 則是獨立檔，已 gitignore）。
 - 工具組：MCP 預設 `PULSE_TOOLSET=core`（22 個）；要舊的全部工具設 `PULSE_TOOLSET=full`。
 
 ## 更新（任何一個 repo 合併後）
