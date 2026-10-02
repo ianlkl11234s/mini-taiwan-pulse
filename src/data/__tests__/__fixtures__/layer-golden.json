@@ -5234,7 +5234,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 1,
@@ -5287,11 +5413,11 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#66bb6a",
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -5299,7 +5425,7 @@
             },
             "light": {
               "circle-color": "#388e3c",
-              "circle-opacity": 0.6,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -5330,7 +5456,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 1,
@@ -5383,11 +5635,11 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#ab47bc",
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -5395,7 +5647,7 @@
             },
             "light": {
               "circle-color": "#7b1fa2",
-              "circle-opacity": 0.6,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -6012,7 +6264,7 @@
                 "#26c6da",
                 "#26c6da"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -6038,7 +6290,7 @@
                 "#26c6da",
                 "#26c6da"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -9326,7 +9578,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 1,
@@ -9379,11 +9757,11 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#26c6da",
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -9391,7 +9769,7 @@
             },
             "light": {
               "circle-color": "#00838f",
-              "circle-opacity": 0.6,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -9467,7 +9845,7 @@
           "paint": {
             "dark": {
               "circle-color": "#d32f2f",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -9475,7 +9853,7 @@
             },
             "light": {
               "circle-color": "#d32f2f",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -9551,7 +9929,7 @@
           "paint": {
             "dark": {
               "circle-color": "#ef6c00",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -9559,7 +9937,7 @@
             },
             "light": {
               "circle-color": "#ef6c00",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -9635,7 +10013,7 @@
           "paint": {
             "dark": {
               "circle-color": "#26a69a",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -9643,7 +10021,7 @@
             },
             "light": {
               "circle-color": "#26a69a",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -10061,6 +10439,135 @@
             "type2"
           ],
           "layout": null,
+          "maxzoom": 11.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "type2"
+          ],
+          "layout": null,
           "minzoom": 11,
           "paint": {
             "dark": {
@@ -10265,6 +10772,7 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
+        "heatmap",
         "glow",
         "circle",
         "label"
@@ -10372,7 +10880,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 1,
@@ -10425,11 +11059,11 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#42a5f5",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -10437,7 +11071,7 @@
             },
             "light": {
               "circle-color": "#1565c0",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -10525,7 +11159,7 @@
           "paint": {
             "dark": {
               "circle-color": "#66bb6a",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -10533,7 +11167,7 @@
             },
             "light": {
               "circle-color": "#2e7d32",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -10564,7 +11198,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 1,
@@ -10617,11 +11377,11 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#fdd835",
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -10629,7 +11389,7 @@
             },
             "light": {
               "circle-color": "#f9a825",
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -10660,7 +11420,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 1,
@@ -10713,11 +11599,11 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#ab47bc",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -10725,7 +11611,7 @@
             },
             "light": {
               "circle-color": "#7b1fa2",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -13017,7 +13903,133 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 6,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "waste-stops-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 0.6,
@@ -13084,11 +14096,11 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 6,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#fbbf24",
-              "circle-opacity": 0.6,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -13134,11 +14146,137 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 8,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#e91e63",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -13146,7 +14284,7 @@
             },
             "light": {
               "circle-color": "#e91e63",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -13174,11 +14312,137 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 8,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#3f51b5",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -13186,7 +14450,7 @@
             },
             "light": {
               "circle-color": "#3f51b5",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -22310,7 +23574,133 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 0,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "manufacturing-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 12,
           "paint": {
             "dark": {
               "circle-color": [
@@ -22337,7 +23727,7 @@
                 "#7c3aed",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.82,
+              "circle-opacity": 0.6,
               "circle-radius": [
                 "interpolate",
                 [
@@ -22396,7 +23786,7 @@
                 "#7c3aed",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.82,
+              "circle-opacity": 0.6,
               "circle-radius": [
                 "interpolate",
                 [
@@ -23672,11 +25062,137 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 0,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#0d9488",
-              "circle-opacity": 0.76,
+              "circle-opacity": 0.75,
               "circle-radius": [
                 "interpolate",
                 [
@@ -23712,7 +25228,7 @@
             },
             "light": {
               "circle-color": "#0d9488",
-              "circle-opacity": 0.76,
+              "circle-opacity": 0.75,
               "circle-radius": [
                 "interpolate",
                 [
@@ -23768,11 +25284,137 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 0,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#d97706",
-              "circle-opacity": 0.72,
+              "circle-opacity": 0.75,
               "circle-radius": [
                 "interpolate",
                 [
@@ -23808,7 +25450,7 @@
             },
             "light": {
               "circle-color": "#d97706",
-              "circle-opacity": 0.72,
+              "circle-opacity": 0.75,
               "circle-radius": [
                 "interpolate",
                 [
@@ -24050,6 +25692,143 @@
             ],
             5
           ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            ">=",
+            [
+              "to-number",
+              [
+                "get",
+                "n_companies"
+              ],
+              0
+            ],
+            5
+          ],
           "layout": {
             "circle-sort-key": [
               "to-number",
@@ -24060,7 +25839,7 @@
               0
             ]
           },
-          "minzoom": 6,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -24459,6 +26238,7 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
+        "heatmap",
         "circle"
       ],
       "sourceId": "business-registry-common-registration-addresses",
@@ -24516,8 +26296,8 @@
                   ],
                   "低"
                 ],
-                0.2975,
-                0.85
+                0.27999999999999997,
+                0.8
               ],
               "circle-radius": [
                 "interpolate",
@@ -24582,8 +26362,8 @@
                   ],
                   "低"
                 ],
-                0.2975,
-                0.85
+                0.27999999999999997,
+                0.8
               ],
               "circle-radius": [
                 "interpolate",
@@ -24675,8 +26455,8 @@
                   ],
                   "低"
                 ],
-                0.2975,
-                0.85
+                0.27999999999999997,
+                0.8
               ],
               "circle-radius": [
                 "interpolate",
@@ -24741,8 +26521,8 @@
                   ],
                   "低"
                 ],
-                0.2975,
-                0.85
+                0.27999999999999997,
+                0.8
               ],
               "circle-radius": [
                 "interpolate",
@@ -24993,8 +26773,8 @@
                   ],
                   "低"
                 ],
-                0.2975,
-                0.85
+                0.27999999999999997,
+                0.8
               ],
               "circle-radius": [
                 "interpolate",
@@ -25059,8 +26839,8 @@
                   ],
                   "低"
                 ],
-                0.2975,
-                0.85
+                0.27999999999999997,
+                0.8
               ],
               "circle-radius": [
                 "interpolate",
@@ -27119,7 +28899,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -27151,10 +29057,10 @@
                     "status"
                   ],
                   "disappeared",
-                  0.24499999999999997,
+                  0.26249999999999996,
                   "appeared",
-                  0.24499999999999997,
-                  0.24499999999999997
+                  0.26249999999999996,
+                  0.26249999999999996
                 ],
                 [
                   "match",
@@ -27163,10 +29069,10 @@
                     "status"
                   ],
                   "disappeared",
-                  0.7,
+                  0.75,
                   "appeared",
-                  0.7,
-                  0.7
+                  0.75,
+                  0.75
                 ]
               ],
               "circle-radius": 3,
@@ -27204,10 +29110,10 @@
                     "status"
                   ],
                   "disappeared",
-                  0.24499999999999997,
+                  0.26249999999999996,
                   "appeared",
-                  0.24499999999999997,
-                  0.24499999999999997
+                  0.26249999999999996,
+                  0.26249999999999996
                 ],
                 [
                   "match",
@@ -27216,10 +29122,10 @@
                     "status"
                   ],
                   "disappeared",
-                  0.7,
+                  0.75,
                   "appeared",
-                  0.7,
-                  0.7
+                  0.75,
+                  0.75
                 ]
               ],
               "circle-radius": 3,
@@ -27293,7 +29199,7 @@
                   "#d7191c"
                 ]
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -27398,7 +29304,7 @@
                   "#d7191c"
                 ]
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -27489,7 +29395,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -27520,7 +29552,7 @@
                 "#f58ebc",
                 "#8c929b"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -27555,7 +29587,7 @@
                 "#f58ebc",
                 "#8c929b"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -27608,7 +29640,7 @@
                 "#8c929b",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -27729,7 +29761,7 @@
                 "#8c929b",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -27849,7 +29881,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 12.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 12,
           "paint": {
             "dark": {
               "circle-color": [
@@ -27874,7 +30032,7 @@
                 "#00acc1",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.6,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -27903,7 +30061,7 @@
                 "#00acc1",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.6,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -27936,7 +30094,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 12.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 12,
           "paint": {
             "dark": {
               "circle-color": [
@@ -27988,7 +30272,7 @@
                 "#c69c6d",
                 "#8c929b"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.6,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -28044,7 +30328,7 @@
                 "#c69c6d",
                 "#8c929b"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.6,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -30242,7 +32526,133 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 7,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "school-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -30317,8 +32727,8 @@
                   ],
                   "不對外"
                 ],
-                0.27999999999999997,
-                0.8
+                0.26249999999999996,
+                0.75
               ],
               "circle-radius": [
                 "case",
@@ -30372,8 +32782,8 @@
                   ],
                   "不對外"
                 ],
-                0.22399999999999998,
-                0.5599999999999999
+                0.20999999999999996,
+                0.5249999999999999
               ],
               "circle-stroke-width": 1
             },
@@ -30450,8 +32860,8 @@
                   ],
                   "不對外"
                 ],
-                0.27999999999999997,
-                0.8
+                0.26249999999999996,
+                0.75
               ],
               "circle-radius": [
                 "case",
@@ -30505,8 +32915,8 @@
                   ],
                   "不對外"
                 ],
-                0.22399999999999998,
-                0.5599999999999999
+                0.20999999999999996,
+                0.5249999999999999
               ],
               "circle-stroke-width": 1
             }
@@ -31873,7 +34283,7 @@
                 "#ff8c42",
                 "#4d9de0"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -31893,7 +34303,7 @@
                 "#ff8c42",
                 "#4d9de0"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -32601,7 +35011,7 @@
           "paint": {
             "dark": {
               "circle-color": "#F59E0B",
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -32609,7 +35019,7 @@
             },
             "light": {
               "circle-color": "#F59E0B",
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -32906,7 +35316,7 @@
                 5000,
                 "#a50026"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -32933,7 +35343,7 @@
                 5000,
                 "#a50026"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -33102,7 +35512,7 @@
           "paint": {
             "dark": {
               "circle-color": "#84CC16",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -33110,7 +35520,7 @@
             },
             "light": {
               "circle-color": "#84CC16",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -33140,7 +35550,7 @@
           "paint": {
             "dark": {
               "circle-color": "#22C55E",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -33148,7 +35558,7 @@
             },
             "light": {
               "circle-color": "#22C55E",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -33284,7 +35694,7 @@
           "paint": {
             "dark": {
               "circle-color": "#A855F7",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -33292,7 +35702,7 @@
             },
             "light": {
               "circle-color": "#A855F7",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -34329,7 +36739,133 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 8,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#468BA6",
@@ -36012,7 +38548,7 @@
                 "#8a8a8a",
                 "#8a8a8a"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -36274,7 +38810,7 @@
                 "#8a8a8a",
                 "#8a8a8a"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -37092,7 +39628,7 @@
                   "#1a9850"
                 ]
               ],
-              "circle-opacity": 0.6,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -37139,7 +39675,7 @@
                   "#1a9850"
                 ]
               ],
-              "circle-opacity": 0.6,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -37206,7 +39742,7 @@
                   "#1a9850"
                 ]
               ],
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -37324,7 +39860,7 @@
                   "#1a9850"
                 ]
               ],
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -38776,7 +41312,7 @@
                 ],
                 "#9ca3af"
               ],
-              "circle-opacity": 0.5249999999999999,
+              "circle-opacity": 0.6000000000000001,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -38791,7 +41327,7 @@
                 ],
                 "#9ca3af"
               ],
-              "circle-opacity": 0.5249999999999999,
+              "circle-opacity": 0.6000000000000001,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -38822,7 +41358,7 @@
           "paint": {
             "dark": {
               "circle-color": "#00875A",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -38830,7 +41366,7 @@
             },
             "light": {
               "circle-color": "#00875A",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -38978,7 +41514,7 @@
           "paint": {
             "dark": {
               "circle-color": "#0FBFBF",
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 6.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -38986,7 +41522,7 @@
             },
             "light": {
               "circle-color": "#0FBFBF",
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 6.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -39056,7 +41592,7 @@
           "paint": {
             "dark": {
               "circle-color": "#D9863D",
-              "circle-opacity": 0.75,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -39064,7 +41600,7 @@
             },
             "light": {
               "circle-color": "#D9863D",
-              "circle-opacity": 0.75,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -41942,7 +44478,7 @@
                 "#64748b",
                 "#1e40af"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -42085,7 +44621,7 @@
                 "#64748b",
                 "#1e40af"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -42282,7 +44818,7 @@
                 "#facc15",
                 "#dc2626"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -42425,7 +44961,7 @@
                 "#facc15",
                 "#dc2626"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
                 [
@@ -43668,7 +46204,7 @@
           "paint": {
             "dark": {
               "circle-color": "#fb7185",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -43676,7 +46212,7 @@
             },
             "light": {
               "circle-color": "#fb7185",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -43703,6 +46239,132 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
           "minzoom": 10,
           "paint": {
             "dark": {
@@ -43718,7 +46380,7 @@
                 "#fda4af",
                 "#fda4af"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -43737,7 +46399,7 @@
                 "#fda4af",
                 "#fda4af"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -45948,7 +48610,7 @@
                 "#7c3aed",
                 "#64748b"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -45969,7 +48631,7 @@
                 "#7c3aed",
                 "#64748b"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -46632,8 +49294,134 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "noise-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
           "maxzoom": 15,
-          "minzoom": 5,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -46652,7 +49440,7 @@
                 "#94a3b8",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.576,
+              "circle-opacity": 0.54,
               "circle-radius": [
                 "interpolate",
                 [
@@ -46826,7 +49614,7 @@
                 "#94a3b8",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.576,
+              "circle-opacity": 0.54,
               "circle-radius": [
                 "interpolate",
                 [
@@ -50149,7 +52937,133 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 0,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 12,
           "paint": {
             "dark": {
               "circle-blur": 0.15,
@@ -50176,7 +53090,7 @@
                 4,
                 "#111827"
               ],
-              "circle-opacity": 0.8,
+              "circle-opacity": 0.6,
               "circle-radius": [
                 "interpolate",
                 [
@@ -50330,7 +53244,7 @@
                 4,
                 "#111827"
               ],
-              "circle-opacity": 0.8,
+              "circle-opacity": 0.6,
               "circle-radius": [
                 "interpolate",
                 [
@@ -50488,7 +53402,140 @@
             "critical"
           ],
           "layout": null,
-          "minzoom": 5,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "critical-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "severity_event"
+            ],
+            "critical"
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 0.08,
@@ -50512,7 +53559,7 @@
                 "#f97316",
                 "#64748b"
               ],
-              "circle-opacity": 0.75,
+              "circle-opacity": 0.6,
               "circle-radius": [
                 "interpolate",
                 [
@@ -50711,7 +53758,7 @@
                 "#f97316",
                 "#64748b"
               ],
-              "circle-opacity": 0.75,
+              "circle-opacity": 0.6,
               "circle-radius": [
                 "interpolate",
                 [
@@ -50928,7 +53975,151 @@
             ]
           ],
           "layout": null,
-          "minzoom": 5,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "general-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "any",
+            [
+              "==",
+              [
+                "get",
+                "severity_event"
+              ],
+              "high"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "severity_event"
+              ],
+              "normal"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 12,
           "paint": {
             "dark": {
               "circle-blur": 0.25,
@@ -50962,8 +54153,8 @@
                   ],
                   "high"
                 ],
-                0.3375,
-                0.21000000000000002
+                0.27,
+                0.168
               ],
               "circle-radius": [
                 "interpolate",
@@ -51064,8 +54255,8 @@
                   ],
                   "high"
                 ],
-                0.3375,
-                0.21000000000000002
+                0.27,
+                0.168
               ],
               "circle-radius": [
                 "interpolate",
@@ -51163,12 +54354,145 @@
             "mobile"
           ],
           "layout": null,
-          "minzoom": 5,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "mobile-heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "severity_event"
+            ],
+            "mobile"
+          ],
+          "layout": null,
+          "minzoom": 12,
           "paint": {
             "dark": {
               "circle-blur": 0.18,
               "circle-color": "#22c55e",
-              "circle-opacity": 0.41250000000000003,
+              "circle-opacity": 0.33,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -51177,7 +54501,7 @@
             "light": {
               "circle-blur": 0.18,
               "circle-color": "#22c55e",
-              "circle-opacity": 0.41250000000000003,
+              "circle-opacity": 0.33,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -51229,7 +54553,7 @@
                 "#dc2626",
                 "#6b7280"
               ],
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": [
                 "case",
@@ -51276,7 +54600,7 @@
                 "#dc2626",
                 "#6b7280"
               ],
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": [
                 "case",
@@ -51417,7 +54741,7 @@
                 "#0288d1",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -51440,7 +54764,7 @@
                 "#0288d1",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -51775,7 +55099,7 @@
                 "#a1887f",
                 "#6d4c41"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -51796,7 +55120,7 @@
                 "#a1887f",
                 "#6d4c41"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -51833,7 +55157,143 @@
             ]
           ],
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "entity_id"
+            ],
+            [
+              "has",
+              "entity_id"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -51866,7 +55326,7 @@
                 "#8a8a8a",
                 "#8a8a8a"
               ],
-              "circle-opacity": 0.8,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -51903,7 +55363,7 @@
                 "#8a8a8a",
                 "#8a8a8a"
               ],
-              "circle-opacity": 0.8,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -51920,6 +55380,7 @@
         "sourceLayer": "temples"
       },
       "rebuildOnParamChange": [
+        "heatmap",
         "circle"
       ],
       "sourceId": "religion-temples",
@@ -51940,7 +55401,7 @@
           "paint": {
             "dark": {
               "circle-color": "#7986cb",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -51948,7 +55409,7 @@
             },
             "light": {
               "circle-color": "#7986cb",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -52083,7 +55544,7 @@
           "paint": {
             "dark": {
               "circle-color": "#9575cd",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -52091,7 +55552,7 @@
             },
             "light": {
               "circle-color": "#9575cd",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -52238,7 +55699,7 @@
                 "#c2185b",
                 "#8a8a8a"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -52269,7 +55730,7 @@
                 "#c2185b",
                 "#8a8a8a"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -52619,7 +56080,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -52635,8 +56096,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": 4.5,
@@ -52704,7 +56165,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -52720,8 +56181,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": 4.5,
@@ -52815,7 +56276,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -52831,8 +56292,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": [
@@ -53010,7 +56471,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -53026,8 +56487,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": [
@@ -53216,7 +56677,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -53232,8 +56693,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": 4.5,
@@ -53282,7 +56743,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -53298,8 +56759,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": 4.5,
@@ -53393,7 +56854,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -53409,8 +56870,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": 4.5,
@@ -53476,7 +56937,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -53492,8 +56953,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": 4.5,
@@ -53595,7 +57056,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -53611,8 +57072,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": [
@@ -53748,7 +57209,7 @@
                   "zoom"
                 ],
                 14,
-                0.85,
+                0.8,
                 15,
                 [
                   "case",
@@ -53764,8 +57225,8 @@
                     ],
                     "approximate"
                   ],
-                  0.255,
-                  0.85
+                  0.24,
+                  0.8
                 ]
               ],
               "circle-radius": [
@@ -55943,7 +59404,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -56623,7 +60210,7 @@
           "paint": {
             "dark": {
               "circle-color": "#7cb342",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -56631,7 +60218,7 @@
             },
             "light": {
               "circle-color": "#7cb342",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -56661,7 +60248,136 @@
             "hotel_classes"
           ],
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "hotel_classes"
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 1,
@@ -56739,7 +60455,7 @@
             "hotel_classes"
           ],
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -56758,7 +60474,7 @@
                 "#43a047",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -56781,7 +60497,7 @@
                 "#43a047",
                 "#9e9e9e"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -56794,6 +60510,7 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
+        "heatmap",
         "glow",
         "circle"
       ],
@@ -56812,7 +60529,7 @@
           "paint": {
             "dark": {
               "circle-color": "#c62828",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -56820,7 +60537,7 @@
             },
             "light": {
               "circle-color": "#c62828",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -57062,7 +60779,7 @@
           "paint": {
             "dark": {
               "circle-color": "#38bdf8",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -57070,7 +60787,7 @@
             },
             "light": {
               "circle-color": "#38bdf8",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -57225,7 +60942,7 @@
                 "#94a3b8",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -57252,7 +60969,7 @@
                 "#94a3b8",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -57287,7 +61004,7 @@
           "paint": {
             "dark": {
               "circle-color": "#a855f7",
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -57295,7 +61012,7 @@
             },
             "light": {
               "circle-color": "#a855f7",
-              "circle-opacity": 0.9,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -57503,7 +61220,7 @@
           "paint": {
             "dark": {
               "circle-color": "#84cc16",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -57511,7 +61228,7 @@
             },
             "light": {
               "circle-color": "#84cc16",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -57592,7 +61309,7 @@
           "paint": {
             "dark": {
               "circle-color": "#06b6d4",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -57600,7 +61317,7 @@
             },
             "light": {
               "circle-color": "#06b6d4",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -58012,7 +61729,7 @@
           "paint": {
             "dark": {
               "circle-color": "#f97316",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -58020,7 +61737,7 @@
             },
             "light": {
               "circle-color": "#f97316",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -58104,7 +61821,7 @@
           "paint": {
             "dark": {
               "circle-color": "#ec4899",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -58112,7 +61829,7 @@
             },
             "light": {
               "circle-color": "#ec4899",
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.8,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -58177,13 +61894,13 @@
               "text-color": "#f8fafc",
               "text-halo-color": "rgba(15,23,42,0.92)",
               "text-halo-width": 1.25,
-              "text-opacity": 0.85
+              "text-opacity": 0.8
             },
             "light": {
               "text-color": "#0f172a",
               "text-halo-color": "rgba(255,255,255,0.94)",
               "text-halo-width": 1.25,
-              "text-opacity": 0.85
+              "text-opacity": 0.8
             }
           },
           "suffix": "label",
@@ -58217,7 +61934,143 @@
             ]
           ],
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "accessibility_status"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 0.8,
@@ -58302,7 +62155,7 @@
             ]
           ],
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -58319,7 +62172,7 @@
                 "#ef4444",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.8,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -58340,7 +62193,7 @@
                 "#ef4444",
                 "#94a3b8"
               ],
-              "circle-opacity": 0.8,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -58357,6 +62210,7 @@
         "sourceLayer": "accessible_park_facilities"
       },
       "rebuildOnParamChange": [
+        "heatmap",
         "glow",
         "circle"
       ],
@@ -58374,7 +62228,136 @@
             "feature_type"
           ],
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "feature_type"
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 0.8,
@@ -58522,7 +62505,7 @@
             "feature_type"
           ],
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -58574,7 +62557,7 @@
                 "#8b5cf6",
                 "#84cc16"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -58630,7 +62613,7 @@
                 "#8b5cf6",
                 "#84cc16"
               ],
-              "circle-opacity": 0.85,
+              "circle-opacity": 0.75,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -58647,6 +62630,7 @@
         "sourceLayer": "bicycle_support"
       },
       "rebuildOnParamChange": [
+        "heatmap",
         "glow",
         "circle"
       ],
@@ -59047,13 +63031,13 @@
         ]
       },
       {
-        "label": "透明度 0.80",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -59076,13 +63060,13 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "activeFaults": [],
@@ -59665,13 +63649,13 @@
     ],
     "agriProduceWholesale": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.00",
@@ -59685,13 +63669,13 @@
     ],
     "agriRetail": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.00",
@@ -60035,13 +64019,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -60243,11 +64227,6 @@
         "value": "0"
       },
       {
-        "label": "聚合",
-        "type": "toggle",
-        "value": true
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -60405,13 +64384,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "點位大小 1.00",
@@ -60513,13 +64492,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -60553,13 +64532,13 @@
     ],
     "bridgeComparisonNewTaipei": [
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -60690,13 +64669,13 @@
     ],
     "bssNationalBridgePointsPreview": [
       {
-        "label": "透明度 0.82",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.82,
-        "valueText": "0.82"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -61010,13 +64989,13 @@
     ],
     "canopyGiants": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.3,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -61050,13 +65029,13 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "漂浮高度 0px",
@@ -61112,13 +65091,13 @@
     ],
     "changhuaTrafficSignals": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -61141,13 +65120,13 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "coalTerminal": [
@@ -61221,13 +65200,13 @@
     ],
     "communityCenters": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -62772,13 +66751,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -62792,13 +66771,13 @@
     ],
     "drinkingWaterPoints": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -62920,13 +66899,13 @@
         "value": "14"
       },
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "ecoNetworkZones": [
@@ -63346,13 +67325,13 @@
         "valueText": "0.5"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "facPlanned": [
@@ -63446,13 +67425,13 @@
     ],
     "factoryLocations": [
       {
-        "label": "透明度 0.76",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.76,
-        "valueText": "0.76"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -63946,13 +67925,13 @@
     ],
     "forestSignalPoints": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.00",
@@ -63966,13 +67945,13 @@
     ],
     "forestTrailSigns": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.00",
@@ -63986,13 +67965,13 @@
     ],
     "forestTreatmentWorks": [
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -64006,13 +67985,13 @@
     ],
     "forestWildlife": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.00",
@@ -64120,13 +68099,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -64298,13 +68277,13 @@
         "valueText": "1.7"
       },
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "gasStationCpc": [
@@ -64318,13 +68297,13 @@
         "valueText": "1.7"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "gasStationFpcc": [
@@ -64879,13 +68858,13 @@
     ],
     "iPostBoxes": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -65306,13 +69285,13 @@
     ],
     "jpAccommodationCanonical": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -65352,13 +69331,13 @@
     ],
     "jpAccommodationJta": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -65372,13 +69351,13 @@
     ],
     "jpAccommodationLocal": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -65392,13 +69371,13 @@
     ],
     "jpAccommodationOsm": [
       {
-        "label": "透明度 0.72",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.72,
-        "valueText": "0.72"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -65497,13 +69476,13 @@
     ],
     "jpCareCombined": [
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "jpCareDayServices": [
@@ -66034,13 +70013,13 @@
     ],
     "jpStations": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -66069,24 +70048,24 @@
     ],
     "jpWaterAgriculturalPonds": [
       {
-        "label": "透明度 0.55",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.55,
-        "valueText": "0.55"
+        "value": 0.6,
+        "valueText": "0.60"
       }
     ],
     "jpWaterDams": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "jpWaterFloodHazard": [
@@ -66102,13 +70081,13 @@
     ],
     "jpWaterGroundwaterSites": [
       {
-        "label": "透明度 0.82",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.82,
-        "valueText": "0.82"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "jpWaterLakes": [
@@ -66157,13 +70136,13 @@
     ],
     "jpWaterQualityStations": [
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "jpWaterRivers": [
@@ -66179,13 +70158,13 @@
     ],
     "jpWaterSewerFacilities": [
       {
-        "label": "透明度 0.82",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.82,
-        "valueText": "0.82"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "jpWaterSupplyAreas": [
@@ -66201,13 +70180,13 @@
     ],
     "jpWaterSupplyFacilities": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "jpWildlifeProtectionNational": [
@@ -66504,13 +70483,13 @@
     ],
     "livestockFarmChicken": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 0.30",
@@ -66559,13 +70538,13 @@
     ],
     "livestockFarmDuck": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 0.30",
@@ -66692,13 +70671,13 @@
     ],
     "livestockFarmPig": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 0.30",
@@ -66863,13 +70842,13 @@
         "valueText": "1.3"
       },
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "lpgSubpackaging": [
@@ -66905,13 +70884,13 @@
     ],
     "manufacturingCompanyPoints": [
       {
-        "label": "透明度 0.82",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.82,
-        "valueText": "0.82"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",
@@ -67030,13 +71009,13 @@
     ],
     "medAED": [
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -67050,13 +71029,13 @@
     ],
     "medClinic": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -67113,13 +71092,13 @@
     ],
     "medLTC": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -67133,13 +71112,13 @@
     ],
     "medPharmacy": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -67208,13 +71187,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.00",
@@ -67334,13 +71313,13 @@
     ],
     "noiseEnforcementEvents": [
       {
-        "label": "透明度 0.80",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "nonUrbanZoning": [
@@ -67517,13 +71496,13 @@
     ],
     "officialBridgesNewTaipei": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -67990,13 +71969,13 @@
     ],
     "parkingOffstreet": [
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -68010,13 +71989,13 @@
     ],
     "parkingOnstreet": [
       {
-        "label": "透明度 0.60",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.6,
-        "valueText": "0.60"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -68073,13 +72052,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "點位大小 1.00",
@@ -68201,13 +72180,13 @@
     ],
     "playgrounds": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -68373,17 +72352,6 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
-      }
-    ],
-    "pollutionFacility": [
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -68391,6 +72359,17 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      }
+    ],
+    "pollutionFacility": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.00",
@@ -68452,13 +72431,13 @@
     ],
     "pollutionPenaltyCritical": [
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.00",
@@ -68610,13 +72589,13 @@
     ],
     "pollutionPenaltyGeneral": [
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.00",
@@ -68768,13 +72747,13 @@
     ],
     "pollutionPenaltyMobile": [
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.00",
@@ -68926,13 +72905,13 @@
     ],
     "pollutionSite": [
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.00",
@@ -69043,13 +73022,13 @@
     ],
     "postOffices": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -69387,13 +73366,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "點位大小 1.00",
@@ -69735,13 +73714,13 @@
     ],
     "regulatedFacilities": [
       {
-        "label": "透明度 0.72",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.72,
-        "valueText": "0.72"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -69824,13 +73803,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -69864,13 +73843,13 @@
     ],
     "religionOtherWorship": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -69956,13 +73935,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.80",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -70307,13 +74286,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "點位大小 1.00",
@@ -70880,13 +74859,13 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "speedZoneSegment": [
@@ -70991,13 +74970,13 @@
     ],
     "sportsSchool": [
       {
-        "label": "透明度 0.80",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 0.50",
@@ -75126,13 +79105,13 @@
         ]
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "點位大小 0.50",
@@ -75196,13 +79175,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "點位大小 0.50",
@@ -75258,13 +79237,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "點位大小 0.50",
@@ -75299,13 +79278,13 @@
     ],
     "tainanBridgeInspections": [
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -75553,13 +79532,13 @@
         "value": "category"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -75573,13 +79552,13 @@
     ],
     "tourCamping": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -75652,13 +79631,13 @@
     ],
     "tourHeritage": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -75731,13 +79710,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -75751,13 +79730,13 @@
     ],
     "tourRestaurants": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -75859,13 +79838,13 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "transitAlerts": [
@@ -76863,13 +80842,13 @@
         "valueText": "1.00"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "高度 0m",
@@ -76892,13 +80871,13 @@
         "valueText": "1.00"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "高度 0m",
@@ -77100,13 +81079,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -77139,13 +81118,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -77217,13 +81196,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -77322,13 +81301,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -77423,13 +81402,13 @@
         "value": "all"
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -77645,13 +81624,13 @@
         "valueText": "1.00"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "高度 0m",
@@ -77811,13 +81790,13 @@
     ],
     "worldTrashDebris": [
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "youbikeFullness": [
