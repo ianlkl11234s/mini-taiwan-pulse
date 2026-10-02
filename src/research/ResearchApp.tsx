@@ -6,7 +6,7 @@ import { withLoading } from "../lib/loadingRegistry";
 import { useLoadingTasks } from "../hooks/useLoadingTasks";
 import { coordinateCanvas } from "./basemap";
 import { installResult, removeResult, RESULT_HOST, RESULT_LAYER_IDS } from "./resultOverlay";
-import { awaitSceneIdle, type ScenePhase } from "./sceneReadiness";
+import { awaitSceneIdle, isStyleReady, type ScenePhase } from "./sceneReadiness";
 import { MAX_RESULT_BYTES, parseResult } from "./resultValidator";
 import type { ResearchResult } from "./contracts/result-validator.mjs";
 import { ResearchConnection } from "./ResearchConnection";
@@ -49,7 +49,7 @@ export function ResearchApp() {
     if (scene.nearby || scene.results) throw new Error("MAIN_MAP_REQUIRED");
     if (scene.layers && Object.keys(scene.layers).length) throw new Error("MAIN_MAP_REQUIRED");
     const instance = map.current;
-    if (!instance || !instance.isStyleLoaded()) throw new Error("MAP_NOT_READY");
+    if (!instance || !isStyleReady(instance)) throw new Error("MAP_NOT_READY");
     renderCancel.current?.();
     const nextResult = scene.resultMode === "synthetic" ? parseResult(JSON.stringify(fixture)) : null;
     sceneRef.current = scene; resultRef.current = nextResult;

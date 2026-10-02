@@ -90,27 +90,43 @@ export function waitForSceneRender(
   };
 }
 
+/**
+ * Style parsed (sources/layers can be read and added), independent of tile or
+ * source loading. Mapbox `isStyleLoaded()`/`loaded()` also require every source
+ * cache to be loaded, and stay false indefinitely while any layer keeps reloading
+ * its source — e.g. a data-driven paint property animated per frame marks its
+ * GeoJSON source "reload" on every setPaintProperty. Background animation must not
+ * block research commands, so readiness gates use this instead.
+ * `getStyle()` throws "Style is not done loading" before parse / mid setStyle.
+ */
+export function isStyleReady(map: { isStyleLoaded(): boolean | void; getStyle?(): unknown }): boolean {
+  try { if (map.isStyleLoaded() === true) return true; } catch { /* fall through to the parse check */ }
+  try { return !!map.getStyle?.(); } catch { return false; }
+}
+
 /** Wait through a style replacement without retrying analysis or accepting stale work. */
 export function waitForMapStyle(map: {
   isStyleLoaded(): boolean;
+  getStyle?(): unknown;
   on(type: "style.load" | "render" | "remove", callback: () => void): unknown;
   off(type: "style.load" | "render" | "remove", callback: () => void): unknown;
 }, isCurrent: () => boolean, timeoutMs = 5_000): Promise<boolean> {
   if (!isCurrent()) return Promise.resolve(false);
-  if (map.isStyleLoaded()) return Promise.resolve(true);
+  if (isStyleReady(map)) return Promise.resolve(true);
   return new Promise(resolve => {
     let settled = false;
     const finish = (ready: boolean) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      map.off("style.load", loaded); map.off("render", loaded); map.off("remove", removed);
+      map.off("style.load", parsed); map.off("render", rendered); map.off("remove", removed);
       resolve(ready && isCurrent());
     };
-    const loaded = () => { if (map.isStyleLoaded()) finish(true); };
+    // style.load marks the parse; render only uses the cheap check (getStyle() serializes the whole style).
+    const parsed = () => { if (isStyleReady(map)) finish(true); };
+    const rendered = () => { if (map.isStyleLoaded()) finish(true); };
     const removed = () => finish(false);
     const timer = setTimeout(() => finish(false), timeoutMs);
-    map.on("style.load", loaded); map.on("render", loaded); map.on("remove", removed);
-    loaded();
+    map.on("style.load", parsed); map.on("render", rendered); map.on("remove", removed);
   });
 }
