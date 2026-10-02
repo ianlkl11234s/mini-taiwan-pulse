@@ -182,12 +182,14 @@ const HEAT_DENSITY_STOPS = [0, 0.05, 0.15, 0.3, 0.45, 0.6, 0.8, 1] as const;
  * radius：z10 12／z14 20（G-2），z4 外插 6。
  * intensity：z12 為 `intensity`，每拉遠一級減半（exponential 2），抵銷拉遠時單位像素點數暴增；
  * `intensity` 依各層資料密度校正（瀏覽器目視：密度 0.5 左右落在城市核心而非整片飽和）。
+ * `weight`：點圖層用 opacity 歸零做篩選（multiSelect 遮罩）時，熱區吃不到 circle-opacity，
+ * 改傳同一個判斷式轉成的 `["case", <條件>, 1, 0]`，讓熱區與點顯示同一批資料；預設 1。
  */
 export const heatmapOpacity = (opacityScale = 1) => Math.max(0, Math.min(1, HEATMAP.opacity * opacityScale));
-export function heatmapPaint(opacityScale = 1, intensity = 1): Record<string, unknown> {
+export function heatmapPaint(opacityScale = 1, intensity = 1, weight: unknown = 1): Record<string, unknown> {
   const [r10, r14] = HEATMAP.radius;
   return {
-    "heatmap-weight": 1,
+    "heatmap-weight": weight,
     "heatmap-intensity": ["interpolate", ["exponential", 2], ["zoom"], 4, intensity / 256, 12, intensity],
     "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 4, 6, 10, r10, 14, r14],
     "heatmap-color": [
