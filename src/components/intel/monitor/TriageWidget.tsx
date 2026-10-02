@@ -4,7 +4,7 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 function DistBar({
@@ -72,7 +72,7 @@ function DistBar({
             {lv.label}{" "}
             <b
               style={{
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_DATA, ...(v2 ? { fontSize: MF.body } : {}),
                 color: counts[i] ? "#fff" : COLORS.textFaint,
               }}
             >

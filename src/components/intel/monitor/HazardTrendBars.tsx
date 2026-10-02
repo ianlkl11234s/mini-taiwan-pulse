@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { fs } from "./monitorFont";
 import { useMonitorV2 } from "./monitorStyle";
+import { MON_CHART_H, type MonChartTier } from "./monitorChart";
 import { COLORS, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
@@ -40,6 +41,8 @@ interface Props {
   levelColors: string[];
   /** 圖區高度 px。四卡在 split 只有約 200px 寬，44 是不搶版面又看得出形狀的值 */
   height?: number;
+  /** 監看圖高三階（spec §5.35 B1）：有給時圖區高度＝`MON_CHART_H[tier]`，`height` 被忽略 */
+  heightTier?: MonChartTier;
   /** 標題列，例如「14D · 次數（柱）／規模（色）」 */
   caption: string;
   /** 中央補充，例如「最高 12 次」。省略則只顯示兩端日期 */
@@ -64,11 +67,15 @@ const SELECTED_OUTLINE = (picked: boolean) =>
     ? { outline: "1px solid rgba(255,255,255,0.65)", outlineOffset: -1, borderRadius: 2 }
     : null;
 
+const NOWRAP = { whiteSpace: "nowrap" } as const;
+
 export function HazardTrendBars({
-  bars, levelColors, height = 44, caption, footer, unit = "",
+  bars, levelColors, height: heightProp = 44, heightTier, caption, footer, unit = "",
   onSelectBar, selectedKey = null,
 }: Props) {
   const v2 = useMonitorV2();
+  // 只在監看新版生效（舊版維持原 height）
+  const height = v2 && heightTier ? MON_CHART_H[heightTier] : heightProp;
   const tip = useChartTooltip();
   const max = useMemo(() => {
     const vals = bars.map((b) => b.value).filter((v): v is number => v !== null);
@@ -163,11 +170,13 @@ export function HazardTrendBars({
         style={{
           display: "flex", justifyContent: "space-between", gap: 4,
           fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: COLORS.textFaint,
+          // v2：窄格放不下時整項換行，日期與 footer 本身不斷行
+          ...(v2 ? { flexWrap: "wrap" as const, rowGap: 2 } : null),
         }}
       >
-        <span>{bars[0]?.label}</span>
-        {footer && <span style={{ textAlign: "center" }}>{footer}</span>}
-        <span>{bars[bars.length - 1]?.label}</span>
+        <span style={v2 ? NOWRAP : undefined}>{bars[0]?.label}</span>
+        {footer && <span style={v2 ? { ...NOWRAP, textAlign: "center" } : { textAlign: "center" }}>{footer}</span>}
+        <span style={v2 ? NOWRAP : undefined}>{bars[bars.length - 1]?.label}</span>
       </div>
       {tip.node}
     </div>

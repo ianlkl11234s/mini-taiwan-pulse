@@ -2,7 +2,9 @@ import { useCallback, useMemo, type MouseEvent as ReactMouseEvent } from "react"
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE, BORDER } from "../../../styles/designTokens";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
+import { MonitorMetric } from "./MonitorMetric";
+import { MON_CHART_H } from "./monitorChart";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { SectionLabel } from "./PressureRing";
 import {
@@ -182,6 +184,19 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
       </div>
 
       {/* 主數值：指數 + 偏離 */}
+      {v2 ? (
+        <MonitorMetric
+          value={s.latestVal.toFixed(1)}
+          delta={
+            <>
+              <span style={{ color: devColor, fontWeight: 600 }}>
+                {dev === null ? "—" : `${dev > 0 ? "+" : ""}${dev.toFixed(1)}%`}
+              </span>
+              <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textFaint, marginLeft: 5 }}>vs 常態</span>
+            </>
+          }
+        />
+      ) : (
       <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 21), fontWeight: 600, color: COLORS.textStrong, lineHeight: 1 }}>
           {s.latestVal.toFixed(1)}
@@ -191,6 +206,7 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
         </span>
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>vs 常態</span>
       </div>
+      )}
 
       <Sparkline series={series} color={color} />
 
@@ -316,11 +332,14 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     if (run) bands.push({ x0: x((run as { i0: number }).i0), x1: 100, up: (run as { up: boolean }).up });
 
     const last = pts[pts.length - 1]!;
-    return { d, bands, lastX: x(pts.length - 1), lastY: y(last.indexVal), mn, mx, pts };
+    return {
+      d, bands, lastX: x(pts.length - 1), lastY: y(last.indexVal), mn, mx, pts,
+      firstDate: pts[0]!.tradeDate, lastDate: last.tradeDate,
+    };
   }, [series]);
 
   if (!geom) {
-    return <div style={{ flex: 1, minHeight: SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textGhost }}>資料不足</div>;
+    return <div style={{ flex: v2 ? "none" : 1, minHeight: v2 ? MON_CHART_H.lg : SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textGhost }}>資料不足</div>;
   }
 
   function handleMove(e: ReactMouseEvent<SVGSVGElement>) {
@@ -344,7 +363,12 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     // ⚠️ svg 必須絕對定位：帶 viewBox 的 svg 有「內建長寬比」，在 flex 裡會用
     //    寬度×比例算出自己的高度（實測 253px）把整格撐爆。absolute 讓它退出高度計算，
     //    只吃 wrapper 由 flex 分到的高度。
-    <div style={{ flex: 1, minHeight: SPARK_MIN_H, position: "relative" }}>
+    <>
+    <div
+      style={v2
+        ? { flex: "none", height: MON_CHART_H.lg, position: "relative" }
+        : { flex: 1, minHeight: SPARK_MIN_H, position: "relative" }}
+    >
     <svg
       viewBox={`0 0 100 ${SPARK_H}`}
       preserveAspectRatio="none"
@@ -367,10 +391,32 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
       {/* 基期 100 參考線 */}
       <line x1={0} x2={100} y1={SPARK_H - 2} y2={SPARK_H - 2} stroke="rgba(255,255,255,0.10)" strokeWidth={0.5} vectorEffect="non-scaling-stroke" />
       <path d={geom.d} fill="none" stroke={color} strokeWidth={1.4} vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={geom.lastX} cy={geom.lastY} r={1.6} fill={color} vectorEffect="non-scaling-stroke" />
+      {!v2 && <circle cx={geom.lastX} cy={geom.lastY} r={1.6} fill={color} vectorEffect="non-scaling-stroke" />}
     </svg>
+    {/* v2 最新點：viewBox 為 none 拉伸，圓點改用 HTML 才不會變橢圓 */}
+    {v2 && (
+      <span
+        style={{
+          position: "absolute", width: 7, height: 7, borderRadius: "50%", background: color,
+          left: `${geom.lastX}%`, top: `${(geom.lastY / SPARK_H) * 100}%`,
+          transform: "translate(-50%, -50%)", pointerEvents: "none",
+        }}
+      />
+    )}
     {tip.node}
     </div>
+    {v2 && (
+      <div
+        style={{
+          display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA,
+          fontSize: MF.cap, color: COLORS.textFaint,
+        }}
+      >
+        <span>{fmtTradeDate(geom.firstDate)}</span>
+        <span>{fmtTradeDate(geom.lastDate)}</span>
+      </div>
+    )}
+    </>
   );
 }
 

@@ -3,7 +3,8 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
+import { MonitorKpis, MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
@@ -89,6 +90,69 @@ export function PrisonCard({ latest, series = [] }: Props) {
     return allPoints.filter((p) => p.t >= cutoff);
   }, [allPoints, windowDays]);
 
+  if (v2) {
+    // 新版：外框已有標題「在監人數」，卡內不重複；停更狀態由標題列＋底部說明表達
+    const emptyHint = allPoints.length > 1
+      ? `此視窗內無資料（最新 ${latest?.observed_date ?? "—"}）`
+      : series.length === 0 ? "尚無可用趨勢資料" : `趨勢待回補：資料庫目前只有 ${allPoints.length || series.length} 天`;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
+        {latest ? (
+          <>
+            <MonitorMetric value={fmt(total)} unit="人" muted={isStale} />
+            <MonitorKpis items={[
+              { label: "核定容額", value: fmt(cap) },
+              { label: "超收率", value: overPct == null ? "—" : `${Number(overPct).toFixed(2)}%` },
+            ]} />
+            <MonitorSub items={[
+              `男 ${fmt(latest.male_inmates)} / 女 ${fmt(latest.female_inmates)}`,
+              `當日入 ${fmt(latest.new_in_count)} / 出 ${fmt(latest.new_out_count)}`,
+            ]} />
+          </>
+        ) : (
+          <MonitorNote>資料載入中</MonitorNote>
+        )}
+        {trend.length > 1 ? (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ fontSize: MF.label, color: COLORS.textDim, marginRight: "auto" }}>在監總數趨勢</span>
+              {WINDOWS.map((w) => (
+                <button
+                  key={w}
+                  onClick={() => setWindowDays(w)}
+                  style={{
+                    fontFamily: FONT_DATA, fontSize: MF.label,
+                    padding: "2px 7px", borderRadius: RADIUS.sm, cursor: "pointer",
+                    background: w === windowDays ? COLORS.accentFaint : "transparent",
+                    color: w === windowDays ? COLORS.textStrong : COLORS.textDim,
+                    border: `1px solid ${w === windowDays ? COLORS.borderStrong : COLORS.borderSoft}`,
+                  }}
+                >
+                  {WINDOW_LABEL[w]}
+                </button>
+              ))}
+            </div>
+            <TimeseriesSparkline
+              data={trend}
+              unit="人"
+              lineColor={COLORS.accent}
+              heightTier="std"
+              gapSec={3 * 86400}
+              showTooltip
+              tooltipDateFormat="date"
+              seriesLabel="在監人數"
+              compactYAxis
+            />
+          </>
+        ) : (
+          <MonitorNote>{emptyHint}</MonitorNote>
+        )}
+        <MonitorNote tone={isStale ? "warn" : "neutral"}>
+          {isStale ? "法務部矯正署上游已停止更新" : "來源：法務部矯正署每日資料"}
+        </MonitorNote>
+      </div>
+    );
+  }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {!v2 && <SectionLabel color={COLORS.accent}>司法矯正 · INMATES</SectionLabel>}

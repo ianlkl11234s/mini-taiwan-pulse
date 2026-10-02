@@ -8,7 +8,7 @@ import type { NewsFilter } from "../../../data/newsEventsLoader";
 import type { NewsCategory } from "../../../data/newsEventTypes";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
 
 interface Props {
   /** 已套完 timeRange / 分類 / 縣市 篩選的事件（原 MonitorPanel flatEvents） */
@@ -118,7 +118,7 @@ function NewsFeedPanelInner({
           </span>
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 10.5), color: palette.textMuted }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: v2 ? MF.body : 10.5, color: palette.textMuted }}>
           {events.length} 則
         </span>
       </div>
