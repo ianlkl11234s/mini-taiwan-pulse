@@ -39,7 +39,7 @@ vi.mock("../../data/jpReligionLoader", () => ({
 
 import { useJpReligionLayers } from "../useJpReligionLayers";
 
-type CircleLayer = { id: string; paint: Record<string, unknown> };
+type CircleLayer = { id: string; type?: string; minzoom?: number; maxzoom?: number; paint: Record<string, unknown> };
 
 function createMap() {
   const sources = new Set<string>();
@@ -131,5 +131,27 @@ describe("useJpReligionLayers scale", () => {
       ([layerId, property]) => layerId === "jp-religion-wikidata-circle" && property === "circle-radius",
     );
     expect(wikidataRadiusCall?.[2]).toBeCloseTo(5.4);
+  });
+
+  it("GSI 拉遠改畫熱區（z<12）、點 z≥12；透明度滑桿同時改熱區，OSM 不受影響", () => {
+    const { map, layers, setPaintProperty } = createMap();
+    const mapRef = { current: map } as RefObject<MapboxMap | null>;
+    const scale = { jpReligionGsi: 1, jpReligionOsm: 1, jpReligionWikidata: 1 };
+    reactHarness.resetRender();
+    useJpReligionLayers(mapRef, visibility, opacity, scale);
+
+    const heat = layers.get("jp-religion-gsi-heatmap");
+    expect(heat?.type).toBe("heatmap");
+    expect(heat?.maxzoom).toBe(12);
+    expect(heat?.paint["heatmap-opacity"]).toBeCloseTo(0.8);
+    expect(layers.get("jp-religion-gsi-circle")?.minzoom).toBe(12);
+    expect(layers.get("jp-religion-osm-circle")?.minzoom).toBeUndefined();
+    expect(layers.has("jp-religion-osm-heatmap")).toBe(false);
+
+    setPaintProperty.mockClear();
+    reactHarness.resetRender();
+    useJpReligionLayers(mapRef, visibility, { ...opacity, jpReligionGsi: 0.3 }, scale);
+    const heatCall = setPaintProperty.mock.calls.find(([id, prop]) => id === "jp-religion-gsi-heatmap" && prop === "heatmap-opacity");
+    expect(heatCall?.[2]).toBeCloseTo(0.4);
   });
 });

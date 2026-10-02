@@ -71,7 +71,7 @@ import {
   CHILD_SERVICE_CLASSES, LTC_SERVICE_TYPES, NURSING_HOME_TYPES, WELFARE_PRECISION_MODES,
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
-import { RASTER, EXTRUSION } from "../map/mapStyleScale";
+import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
@@ -2700,7 +2700,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   fireHydrants: [
     scaleSlider("fireHydrantsScale", 1),
-    opacitySlider("fireHydrantsOpacity", 0.7),
+    opacitySlider("fireHydrantsOpacity", densePointOpacity(69_839)),
     zFloatSlider("fireHydrantsZ"),
   ],
   etcGantry: [

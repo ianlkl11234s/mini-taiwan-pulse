@@ -6468,6 +6468,134 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 12,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.3,
+                8,
+                0.6,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(44,11,85,0.00)",
+                0.05,
+                "rgba(57,14,108,0.11)",
+                0.15,
+                "rgba(90,25,119,0.33)",
+                0.3,
+                "rgba(142,42,128,0.66)",
+                0.45,
+                "rgba(194,62,112,0.99)",
+                0.6,
+                "rgba(232,99,106,1.00)",
+                0.8,
+                "rgba(254,173,121,1.00)",
+                1,
+                "rgba(252,253,191,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.3,
+                8,
+                0.6,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
           "minzoom": 12,
           "paint": {
             "dark": {
@@ -6564,7 +6692,7 @@
                 "#00acc1",
                 "#90a4ae"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -6588,7 +6716,7 @@
                 "#00acc1",
                 "#90a4ae"
               ],
-              "circle-opacity": 0.7,
+              "circle-opacity": 0.75,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -63380,13 +63508,13 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.70",
+        "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "漂浮高度 0px",

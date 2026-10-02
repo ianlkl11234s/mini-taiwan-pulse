@@ -7,7 +7,10 @@ import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensit
 import type { OverlayConfig } from "../types";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, densePointsFromZoom, heatmapPaint } from "./mapStyleScale";
+
+/** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
+const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
 
 /** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
 const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
@@ -1954,7 +1957,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 消防栓 (僅臺北市 + 高雄市，69,839 點) ──
-  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → minzoom 12 控密度
+  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → 原本 minzoom 12 控密度。
+  // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
     id: "fireHydrants",
     sourceUrl: "./geo/fire_hydrants.pmtiles",
@@ -1962,12 +1966,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "fire_hydrants", minzoom: 0, maxzoom: 12 },
     layers: [
       {
+        // 熱區不可點擊（gisClickRegistry 只登記 circle/glow）；透明度滑桿按比例同時控制熱區。
+        suffix: "heatmap",
+        type: "heatmap",
+        maxzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
+        paint: (_isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75),
+      },
+      {
         suffix: "glow",
         type: "circle",
-        minzoom: 12,
+        minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const opacity = p?.fireHydrantsOpacity ?? 0.75;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -1990,10 +2001,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 12,
+        minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const opacity = p?.fireHydrantsOpacity ?? 0.75;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [

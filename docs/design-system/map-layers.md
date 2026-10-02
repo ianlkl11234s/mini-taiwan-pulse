@@ -321,7 +321,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 ### 3.4 3D／熱區／網格／影像
 
 - **G-1 Three.js／CustomLayer**：拍板加碼：每個 Three.js／CustomLayer 圖層都要有**「基本點線面」模式**，用 Mapbox 原生 circle／line／fill 畫同一份資料，並套用本檔 §3 的數值階；**預設是 Mapbox 模式**，Three.js 立體版保留為可切換的選項（圖層控制項加一個切換）。理由：點線面比較好理解，但不放棄立體效果。Three.js 模式本身的值在 shader／材質，不進數值階；透明度、圖例、popup 兩種模式都照四鐵則。13 層 `unresolved` 在 JSON 有檔案指標，實作時逐層讀值、補記到該層 `docs/features/<slug>/`。
-- **G-2 熱區**：magma（截）色階、密度 0 完全透明、`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoom` 目前 10。對齊 viz-library M5。（R5 待接線。）
+- **G-2 熱區**：magma（截）色階、密度 0 完全透明、`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoomOver10k`／`pointsFromZoomOver100k`（10／12），helper `densePointsFromZoom`／`heatmapPaint`。對齊 viz-library M5。（R5 示範：`fireHydrants`、`jpReligionGsi`；其他圖層待接線。）
 - **G-3 網格**：建議面 0.7、格縫同 F-2；R3b 使用者確認 14 層全部維持現況。只有來源明確計數 0 才可視為空格，缺值／未涵蓋／遮蔽不可改成 0 或刪除；H3 解析度與方格尺寸照 viz-library M6。
 - **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。（R3b 已接線：`RASTER`；量測類含雷達、AQI、沙塵、降雨、淹水深度。）
 

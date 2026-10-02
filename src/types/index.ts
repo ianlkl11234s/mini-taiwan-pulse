@@ -660,7 +660,7 @@ export interface BusTrail {
 
 export interface OverlayLayerSpec {
   suffix: string;
-  type: "line" | "fill" | "circle" | "fill-extrusion" | "symbol" | "raster";
+  type: "line" | "fill" | "circle" | "heatmap" | "fill-extrusion" | "symbol" | "raster";
   layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;

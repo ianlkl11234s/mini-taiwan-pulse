@@ -1,5 +1,5 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "../map/layerPaintColors";
-import { BOUNDARY_GRAY, mapSeamColor } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
+import { BOUNDARY_GRAY, heatmapLegendGradient, mapSeamColor } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
 import { FACILITY_STATUS_PAINT_COLORS } from "../map/layerPaintColors";
 import { THEMED_PAINT_COLORS } from "../map/layerPaintColors";
 import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "../map/layerPaintColors";
@@ -2256,11 +2256,22 @@ function TourEventsLegend() {
   );
 }
 
+/** LG-8：密集點拉遠改畫熱區（R5 P-4／G-2），與地圖同一段 magma。 */
+function DenseHeatmapLegendRow() {
+  return (
+    <div style={{ marginTop: 6 }}>
+      <SwatchGradient gradient={heatmapLegendGradient()} labels={["低", "高"]} />
+      <LegendNote style={{ marginTop: 2 }}>拉遠時顯示密度</LegendNote>
+    </div>
+  );
+}
+
 function FireHydrantLegend() {
   return (
     <div>
       <LegendTitle zh="消防栓" en="Hydrants" />
       <FireCatRows cats={FIRE_HYDRANT_CATS} />
+      <DenseHeatmapLegendRow />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {FIRE_HYDRANT_COVERAGE_NOTE}
       </LegendNote>
@@ -4901,6 +4912,7 @@ function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
         ))}
       </div>
+      {visibility.jpReligionGsi && <DenseHeatmapLegendRow />}
       <LegendNote style={{ marginTop: 5, lineHeight: 1.35 }}>
         日本無官方全國宗教設施圖層。任何單一圖層都不是全量，三者數字也不應相加；
         大阪府清冊實測 GSI 僅對上 62%，三源聯集仍漏 25.9%。建議一次只開一個來源。
