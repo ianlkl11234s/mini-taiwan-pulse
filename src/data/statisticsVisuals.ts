@@ -69,6 +69,9 @@ const THEMES = {
   fallback: { theme: '統計', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'] },
 } as const satisfies Record<string, StatisticsTheme>;
 
+/** 五階序列色（低 → 高）供點圖層漸層共用；與 Statistics 同一組 ColorBrewer 色，不另造色號。 */
+export const STATISTICS_SEQUENTIAL_SCHEMES = THEMES;
+
 const textFor = (key: string, label?: string, group?: string) => `${key} ${label ?? ''} ${group ?? ''}`.toLocaleLowerCase();
 const has = (text: string, terms: readonly string[]) => terms.some(term => text.includes(term.toLocaleLowerCase()));
 

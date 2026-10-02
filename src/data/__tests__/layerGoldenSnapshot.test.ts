@@ -163,7 +163,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-30: +1 雙北跨河橋梁韌性（研究中，站主限定私人 PMTiles＋JSON）。
     // 2026-10-02: +37 環境統計 Statistics 圖層（環境部／國土管理署 18 dataset）。
     // 2026-10-02: +4 水質與污水靜態圖層（RPI 測站、水質測站、污水處理廠、飲用水水源水質保護區）。
-    expect(keys.length).toBe(855);
+    // 2026-10-02: +9 環境第二波（海域水質、RPI 河段試作、PM2.5 手動站、戴奧辛、焚化廠＋即時輻射／放流水／CEMS／紫外線）。
+    expect(keys.length).toBe(864);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

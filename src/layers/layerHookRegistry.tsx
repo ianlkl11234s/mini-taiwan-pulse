@@ -53,6 +53,9 @@ import {
 } from "./hosts/hazardHosts";
 import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import {
+  NuscGammaRadiationHost, WaterEffluentLiveHost, CemsStackLiveHost, CwaUvDailyHost,
+} from "./hosts/environmentHosts";
+import {
   EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
   GlobalEventsHost,
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
@@ -218,6 +221,11 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useLightningLayer:cwa", keys: ["lightningCwa"], Host: LightningCwaHost },
   { id: "useNuclearLayer", keys: ["nuclearRadiation"], Host: NuclearHost },
   { id: "useErHospitalLayer", keys: ["erHospital"], Host: ErHospitalHost },
+  // 環境即時 4 層（migration 419–422）：當下快照，共用 useEnvironmentLiveLayer
+  { id: "useEnvironmentLiveLayer:nuscGammaRadiation", keys: ["nuscGammaRadiation"], Host: NuscGammaRadiationHost },
+  { id: "useEnvironmentLiveLayer:waterEffluentLive", keys: ["waterEffluentLive"], Host: WaterEffluentLiveHost },
+  { id: "useEnvironmentLiveLayer:cemsStackLive", keys: ["cemsStackLive"], Host: CemsStackLiveHost },
+  { id: "useEnvironmentLiveLayer:cwaUvDaily", keys: ["cwaUvDaily"], Host: CwaUvDailyHost },
   { id: "useLibrarySeatsLayer", keys: ["librarySeats"], Host: LibrarySeatsHost },
   { id: "useParkingLayer", keys: ["parkingOnstreet", "parkingOffstreet"], Host: ParkingHost },
 

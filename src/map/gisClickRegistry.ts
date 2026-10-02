@@ -556,6 +556,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["river-rpi-stations-circle"], type: "riverRpiStations" },
   { layers: ["sewage-treatment-plants-circle"], type: "sewageTreatmentPlants" },
   { layers: ["water-quality-stations-circle"], type: "waterQualityStations" },
+  // 環境第二波點層（即時 4 層＋靜態 4 層）；RPI 河段線排在 RPI 測站點之後、面之前。
+  { layers: ["water-effluent-live-circle"], type: "waterEffluentLive" },
+  { layers: ["cems-stack-live-circle"], type: "cemsStackLive" },
+  { layers: ["nusc-gamma-radiation-circle"], type: "nuscGammaRadiation" },
+  { layers: ["cwa-uv-daily-circle"], type: "cwaUvDaily" },
+  { layers: ["incinerator-emissions-circle"], type: "incineratorEmissions" },
+  { layers: ["dioxin-stations-circle"], type: "dioxinStations" },
+  { layers: ["pm25-manual-stations-circle"], type: "pm25ManualStations" },
+  { layers: ["sea-water-quality-stations-circle"], type: "seaWaterQualityStations" },
+  { layers: ["river-rpi-segments-tamsui-line", "river-rpi-segments-tamsui-tidal"], type: "riverRpiSegmentsTamsui" },
   { layers: ["official-noise-monitoring-circle"], type: "officialNoiseMonitoring" },
   { layers: ["pollution-penalty-noise-circle"], type: "noiseEnforcementEvents" },
   // 環境污染（點層優先於大面積；三層皆 PMTiles circle）

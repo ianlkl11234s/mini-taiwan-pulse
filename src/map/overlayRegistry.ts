@@ -158,6 +158,9 @@ import {
 import {
   DRINKING_WATER_ZONE_COLOR_EXPR, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_COLOR_EXPR, RIVER_RPI_NO_DATA_COLOR, SEWAGE_UNCERTAIN_EXPR, WATER_QUALITY_STATION_COLOR_EXPR,
   riverRpiClassFilter, waterQualityStationTypeFilter,
+  CEMS_STATUSES, CWA_UV_LEVELS, DIOXIN_STATION_STOPS, ENV_ALERT_COLOR, ENV_STALE_COLOR, INCINERATOR_NOX_STOPS, NUSC_GAMMA_STOPS,
+  OSM_ODBL_ATTRIBUTION, PM25_MANUAL_INACTIVE_EXPR, PM25_MANUAL_STOPS, RIVER_RPI_TIDAL_VALUES, SEA_WATER_CLASS_COLOR_EXPR,
+  SEA_WATER_STALE_EXPR, WATER_EFFLUENT_STATUSES, envInterpolate, envStatusColorExpr, riverRpiSegmentColorExpr,
 } from "../data/environmentLayerTypes";
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 import {
@@ -863,6 +866,46 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
         }),
       },
     ],
+  };
+}
+
+/**
+ * 環境第二波點層共用 overlay：填色依資料；hollowExpr 成立（過期／停測／缺值）→ 填色透明＋灰描邊。
+ * alertExpr 成立 → 紅描邊（核安會輻射 ≥0.2 μSv/h）。半徑與一般描邊由 pointSpec（POINT_TIERS）套用；
+ * 這裡的描邊依資料變化（資料編碼），pointSpec 會保留。
+ */
+function envPointOverlay(
+  id: keyof import("../types").LayerVisibility,
+  sourceUrl: string,
+  sourceId: string,
+  colorExpr: unknown[],
+  hollowExpr: unknown[],
+  opts: { dynamicData?: boolean; alertExpr?: unknown[] } = {},
+): OverlayConfig {
+  const opacityKey = `${String(id)}Opacity`;
+  return {
+    id, sourceUrl, sourceId,
+    ...(opts.dynamicData ? { dynamicData: true } : {}),
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 5, maxzoom: 22,
+      paint: (isDark, p) => {
+        const op = p?.[opacityKey] ?? 0.9;
+        const seam = mapSeamColor(isDark);
+        const strokeColor: unknown[] = opts.alertExpr
+          ? ["case", hollowExpr, ENV_STALE_COLOR, opts.alertExpr, ENV_ALERT_COLOR, seam]
+          : ["case", hollowExpr, ENV_STALE_COLOR, seam];
+        const strokeWidth: unknown[] = opts.alertExpr
+          ? ["case", hollowExpr, 1.8, opts.alertExpr, 2, 1]
+          : ["case", hollowExpr, 1.8, 1];
+        return {
+          "circle-color": ["case", hollowExpr, ENV_STALE_COLOR, colorExpr] as unknown as string,
+          "circle-opacity": ["case", hollowExpr, 0, op] as unknown as number,
+          "circle-stroke-color": strokeColor as unknown as string,
+          "circle-stroke-width": strokeWidth as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
   };
 }
 
@@ -9262,30 +9305,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 水質與污水（環境部／內政部，public/environment 靜態 GeoJSON）──
-  // RPI：官方四級語意色；latest_rpi 為 null（無資料）→ 中空灰點，不畫成乾淨。
-  {
-    id: "riverRpiStations",
-    sourceUrl: "./environment/river_rpi_stations.geojson",
-    sourceId: "river-rpi-stations",
-    rebuildOnParamChange: ["circle"],
-    rebuildOnParamKeys: ["riverRpiStationsClassIdx"],
-    layers: [{
-      suffix: "circle", type: "circle", minzoom: 6, maxzoom: 19,
-      filter: (p) => riverRpiClassFilter(p?.riverRpiStationsClassIdx ?? 0),
-      paint: (isDark, p) => {
-        const op = p?.riverRpiStationsOpacity ?? 0.9;
-        const noData: unknown[] = ["==", ["get", "latest_rpi"], null];
-        return {
-          "circle-color": ["case", noData, "rgba(148,163,184,0)", RIVER_RPI_COLOR_EXPR] as unknown as string,
-          "circle-opacity": ["case", noData, 0, op] as unknown as number,
-          "circle-stroke-color": ["case", noData, RIVER_RPI_NO_DATA_COLOR, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
-          "circle-stroke-width": ["case", noData, 1.8, 1] as unknown as number,
-          "circle-stroke-opacity": op,
-        };
-      },
-    }],
-  },
-
   // 水質測站：三類型分色；latest_sample_date 為 null（無讀值）→ 同色中空點。
   {
     id: "waterQualityStations",
@@ -9304,6 +9323,33 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "circle-opacity": ["case", noReading, 0, op] as unknown as number,
           "circle-stroke-color": ["case", noReading, WATER_QUALITY_STATION_COLOR_EXPR, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
           "circle-stroke-width": ["case", noReading, 1.6, 1] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // RPI：官方四級語意色；latest_rpi 為 null（無資料）→ 中空灰點，不畫成乾淨。
+  // 疊放：刻意排在 waterQualityStations 之後（registry 順序＝z 序，後者在上），兩層同開時
+  // RPI 等級色不被水質測站蓋住；水質測站切類型會 remove/addLayer 跑到最上層，故 RPI 也監聽
+  // waterQualityStationsTypeIdx，跟著重建回到上方。
+  {
+    id: "riverRpiStations",
+    sourceUrl: "./environment/river_rpi_stations.geojson",
+    sourceId: "river-rpi-stations",
+    rebuildOnParamChange: ["circle"],
+    rebuildOnParamKeys: ["riverRpiStationsClassIdx", "waterQualityStationsTypeIdx"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 6, maxzoom: 19,
+      filter: (p) => riverRpiClassFilter(p?.riverRpiStationsClassIdx ?? 0),
+      paint: (isDark, p) => {
+        const op = p?.riverRpiStationsOpacity ?? 0.9;
+        const noData: unknown[] = ["==", ["get", "latest_rpi"], null];
+        return {
+          "circle-color": ["case", noData, "rgba(148,163,184,0)", RIVER_RPI_COLOR_EXPR] as unknown as string,
+          "circle-opacity": ["case", noData, 0, op] as unknown as number,
+          "circle-stroke-color": ["case", noData, RIVER_RPI_NO_DATA_COLOR, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
+          "circle-stroke-width": ["case", noData, 1.8, 1] as unknown as number,
           "circle-stroke-opacity": op,
         };
       },
@@ -9360,6 +9406,61 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "line-color": DRINKING_WATER_ZONE_COLOR_EXPR as unknown as string,
           "line-width": 1.2,
           "line-opacity": Math.min(1, (p?.drinkingWaterProtectionZonesOpacity ?? 0.65) / 0.65),
+          "line-dasharray": [2, 2],
+        }),
+      },
+    ],
+  },
+
+  // ── 環境第二波（2026-10-02）：靜態 5 層 + 即時 4 層 ──
+  // 共通語意：過期／停測／缺值＝中空灰點（envHollowPoint），保留位置但不用顏色暗示數值。
+  ...[
+    envPointOverlay("seaWaterQualityStations", "./environment/sea_water_quality_stations.geojson", "sea-water-quality-stations",
+      SEA_WATER_CLASS_COLOR_EXPR, SEA_WATER_STALE_EXPR),
+    envPointOverlay("pm25ManualStations", "./environment/pm25_manual_stations.geojson", "pm25-manual-stations",
+      envInterpolate("mean_12m_ugm3", PM25_MANUAL_STOPS), PM25_MANUAL_INACTIVE_EXPR),
+    envPointOverlay("dioxinStations", "./environment/dioxin_stations.geojson", "dioxin-stations",
+      envInterpolate("latest_teq_pg_m3", DIOXIN_STATION_STOPS), ["==", ["get", "is_stale"], true]),
+    envPointOverlay("incineratorEmissions", "./environment/incinerator_emissions.geojson", "incinerator-emissions",
+      envInterpolate("nox_ppm", INCINERATOR_NOX_STOPS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "nox_ppm"], null]]),
+    // 即時 4 層：dynamicData，資料由 useEnvironmentLiveLayer setData；RPC 失敗時 source 清空。
+    envPointOverlay("nuscGammaRadiation", "./geo/_empty.geojson", "nusc-gamma-radiation",
+      envInterpolate("dose_usvh", NUSC_GAMMA_STOPS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "dose_usvh"], null]],
+      { dynamicData: true, alertExpr: ["==", ["get", "is_high"], true] }),
+    envPointOverlay("waterEffluentLive", "./geo/_empty.geojson", "water-effluent-live",
+      envStatusColorExpr("status", WATER_EFFLUENT_STATUSES), ["==", ["get", "status"], "stale"], { dynamicData: true }),
+    envPointOverlay("cemsStackLive", "./geo/_empty.geojson", "cems-stack-live",
+      envStatusColorExpr("status", CEMS_STATUSES), ["any", ["==", ["get", "status"], "stale"], ["==", ["get", "status"], "unknown"]], { dynamicData: true }),
+    envPointOverlay("cwaUvDaily", "./geo/_empty.geojson", "cwa-uv-daily",
+      envStatusColorExpr("uv_level", CWA_UV_LEVELS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "uv_level"], null]], { dynamicData: true }),
+  ],
+
+  // RPI 河段試作（淡水河水系 38 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線
+  //（line-dasharray 不支援 data-driven）。中心線來自 OSM → source attribution 必帶 ODbL。
+  {
+    id: "riverRpiSegmentsTamsui",
+    sourceUrl: "./environment/river_rpi_segments_tamsui_trial.geojson",
+    sourceId: "river-rpi-segments-tamsui",
+    attribution: OSM_ODBL_ATTRIBUTION,
+    layers: [
+      {
+        suffix: "line", type: "line",
+        filter: ["!", ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]]],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, p) => ({
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsTamsuiModeIdx ?? 0) as unknown as string,
+          "line-width": 3,
+          "line-opacity": p?.riverRpiSegmentsTamsuiOpacity ?? 0.85,
+        }),
+      },
+      {
+        suffix: "tidal", type: "line",
+        filter: ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]],
+        layout: { "line-join": "round" },
+        paint: (_isDark, p) => ({
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsTamsuiModeIdx ?? 0) as unknown as string,
+          "line-width": 3,
+          "line-opacity": p?.riverRpiSegmentsTamsuiOpacity ?? 0.85,
           "line-dasharray": [2, 2],
         }),
       },
