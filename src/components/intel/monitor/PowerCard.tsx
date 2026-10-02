@@ -5,7 +5,7 @@ import { RADIUS, FONT_SIZE, BORDER, WHITE_ALPHA } from "../../../styles/designTo
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
-import { MonitorMetric, MonitorNote, MonitorRows, MonitorSub } from "./MonitorMetric";
+import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import {
@@ -16,7 +16,7 @@ import {
   type PowerDailyTrendRow,
 } from "../../../data/energyLoader";
 import { fuelColorOf } from "../../../data/energyLoader";
-import { buildPowerCardModel, loadRateColor, summarisePowerKpis } from "./powerCardData";
+import { buildPowerCardModel, fuelLabelZh, groupPlantsByFuel, loadRateColor, summarisePowerKpis, type PowerPlantRow as PowerPlantModelRow } from "./powerCardData";
 
 /**
  * UNIT OUTPUT（機組 24h 出力）資料狀態，與 `day` 分開傳遞。
@@ -83,7 +83,11 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
   useMonitorCardHeader({ time: Number.isNaN(observedMs) ? null : observedMs });
 
   if (v2) {
-    const fuelTop = kpis.fuelMix.slice(0, 5);
+    // 抽蓄抽水時 mw 為負：長條只畫發電（正值）並以正值合計為分母；負值（|占比|≥0.5%）改寫「用電中」
+    const posMix = kpis.fuelMix.filter((sl) => sl.mw > 0);
+    const posTotal = posMix.reduce((sum, sl) => sum + sl.mw, 0) || 1;
+    const fuelTop = posMix.slice(0, 5).map((sl) => ({ ...sl, label: fuelLabelZh(sl.fuel), pct: sl.mw / posTotal }));
+    const fuelPumping = kpis.fuelMix.filter((sl) => sl.mw < 0 && Math.abs(sl.mw) / posTotal >= 0.005);
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
         {/* 狀態燈號：標題列是共用殼，改成卡內第一行小字（色點＋狀態字） */}
@@ -125,14 +129,14 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
               data-testid="power-fuel-mix"
               style={{ display: "flex", height: 6, borderRadius: RADIUS.sm, overflow: "hidden", background: WHITE_ALPHA[8] }}
             >
-              {kpis.fuelMix.map((sl) => (
+              {posMix.map((sl) => (
                 <span
                   key={sl.fuel}
                   {...tip.bind(() => ({
-                    title: sl.fuel,
-                    rows: [{ dot: fuelColorOf(sl.fuel), value: `${fmtChartValue(sl.mw, "MW")} · ${(sl.pct * 100).toFixed(1)}%` }],
+                    title: fuelLabelZh(sl.fuel),
+                    rows: [{ dot: fuelColorOf(sl.fuel), value: `${fmtChartValue(sl.mw, "MW")} · ${((sl.mw / posTotal) * 100).toFixed(1)}%` }],
                   }))}
-                  style={{ width: `${sl.pct * 100}%`, background: fuelColorOf(sl.fuel) }}
+                  style={{ width: `${(sl.mw / posTotal) * 100}%`, background: fuelColorOf(sl.fuel) }}
                 />
               ))}
             </div>
@@ -140,7 +144,13 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
               {fuelTop.map((sl) => (
                 <span key={sl.fuel} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
                   <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: fuelColorOf(sl.fuel) }} />
-                  {sl.fuel} {(sl.pct * 100).toFixed(0)}%
+                  {sl.label} {(sl.pct * 100).toFixed(0)}%
+                </span>
+              ))}
+              {fuelPumping.map((sl) => (
+                <span key={sl.fuel} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: fuelColorOf(sl.fuel) }} />
+                  {fuelLabelZh(sl.fuel)} 用電中
                 </span>
               ))}
             </div>
@@ -159,7 +169,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
         ) : (
           <div data-testid="power-plant-grid" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <div style={{ fontSize: MF.label, color: COLORS.textDim }}>機組出力 · {plants.length} 廠 24 小時</div>
-            <PowerPlantRows plants={plants} pointsByName={plantPointsByName} />
+            <PowerPlantGroups plants={plants} pointsByName={plantPointsByName} />
           </div>
         )}
         {tip.node}
@@ -468,11 +478,11 @@ function PowerTrendPair({
   );
 }
 
-/** v2 機組出力小倍數列：每廠一列「名稱｜24h 走勢｜出力 MW＋容量因數」，各列共用同一 24h 時間軸 */
-function PowerPlantRows({
+/** v2 機組出力小格網格（比照急診醫院小格）：依發電方式分組，組內依出力由大到小；各格共用同一 24h 時間軸 */
+function PowerPlantGroups({
   plants, pointsByName,
 }: {
-  plants: { name: string; mw: number | null; rate: number | null }[];
+  plants: PowerPlantModelRow[];
   pointsByName: Map<string, [number, number][]>;
 }) {
   const timeDomain = useMemo(() => {
@@ -486,34 +496,76 @@ function PowerPlantRows({
     }
     return Number.isFinite(lo) && lo < hi ? { from: lo, to: hi } : undefined;
   }, [pointsByName]);
-  const rows = useMemo(
-    () =>
-      plants.map((p) => {
-        const color = loadRateColor(p.rate);
-        const data: SparklinePoint[] = (pointsByName.get(p.name) ?? []).map(([t, v]) => ({ t, v }));
-        return {
-          label: p.name,
-          title: p.name,
-          chart: data.length >= 2 ? (
-            <TimeseriesSparkline
-              data={data} timeDomain={timeDomain} unit="MW" lineColor={color}
-              heightTier="mini" bare fillArea={false} gapSec={3600} showTooltip
-            />
-          ) : null,
-          value: (
-            <>
-              {p.mw != null ? Math.round(p.mw).toLocaleString("zh-TW") : "—"}
-              <span style={{ fontSize: MF.label, fontWeight: 400, color: COLORS.textMuted }}> MW</span>
-              {p.rate != null && (
-                <span style={{ marginLeft: 6, color }}>{Math.round(p.rate * 100)}%</span>
-              )}
-            </>
-          ),
-        };
-      }),
-    [plants, pointsByName, timeDomain],
+  const groups = useMemo(() => groupPlantsByFuel(plants), [plants]);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {groups.map((g) => (
+        <div key={g.label} data-testid={`power-fuel-group-${g.label}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: COLORS.textDefault, whiteSpace: "nowrap" }}>
+              {g.label}
+            </span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap" }}>
+              {g.plants.length} 廠 · {g.totalMw < 0 ? "用電中" : "共"} {Math.round(Math.abs(g.totalMw)).toLocaleString("zh-TW")} MW
+            </span>
+            <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 6 }}>
+            {g.plants.map((p) => (
+              <PowerPlantCell key={p.name} plant={p} points={pointsByName.get(p.name) ?? []} timeDomain={timeDomain} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
-  return <MonitorRows rows={rows} />;
+}
+
+function PowerPlantCell({
+  plant, points, timeDomain,
+}: {
+  plant: PowerPlantModelRow;
+  points: [number, number][];
+  timeDomain?: { from: number; to: number };
+}) {
+  const color = loadRateColor(plant.rate);
+  const data = useMemo<SparklinePoint[]>(() => points.map(([t, v]) => ({ t, v })), [points]);
+  return (
+    <div
+      style={{
+        display: "flex", alignItems: "center", gap: 6, minWidth: 0,
+        padding: "4px 6px", borderRadius: RADIUS.md, background: WHITE_ALPHA[4],
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+        <span
+          title={plant.name}
+          style={{
+            fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDefault,
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+          }}
+        >
+          {plant.name}
+        </span>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 4, whiteSpace: "nowrap" }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, fontWeight: 700, color, lineHeight: 1.1 }}>
+            {plant.mw != null ? Math.round(plant.mw).toLocaleString("zh-TW") : "—"}
+          </span>
+          <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>
+            MW{plant.rate != null ? ` · ${Math.round(plant.rate * 100)}%` : ""}
+          </span>
+        </div>
+      </div>
+      <div style={{ flex: "0 1 72px", minWidth: 40 }}>
+        {data.length >= 2 && (
+          <TimeseriesSparkline
+            data={data} timeDomain={timeDomain} unit="MW" lineColor={color}
+            heightTier="mini" bare fillArea={false} gapSec={3600} showTooltip
+          />
+        )}
+      </div>
+    </div>
+  );
 }
 
 function PowerTrend30d({ trend }: { trend: PowerDailyTrendRow[] }) {

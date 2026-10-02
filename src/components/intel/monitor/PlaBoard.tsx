@@ -445,8 +445,8 @@ function RowLabel({ children, right }: { children: React.ReactNode; right?: Reac
 
 /** 柱色盤：index = level - 1（level 1~5 → 平靜…顯著） */
 const PLA_BAR_COLORS = ([1, 2, 3, 4, 5] as const).map((l) => PLA_LEVEL_COLORS[l]);
-/** 越中線疊段色：與五級分級色（綠灰黃橙紅）都不同，疊在任何一級柱上都看得出來 */
-const PLA_CROSSED_COLOR = COLORS.accent;
+/** 越中線小柱列單色（獨立一列，不疊在分級柱上） */
+const PLA_CROSSED_BAR_COLORS = [COLORS.accent];
 const PLA_BAR_TRACK = { height: 8, borderRadius: RADIUS.sm, background: COLORS.borderSoft, overflow: "hidden" } as const;
 
 function PlaV2Body({ days, summary, kinds }: { days: PlaSeverityDay[]; summary: PlaSituationSummary; kinds: PlaKindStat[] }) {
@@ -506,11 +506,21 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
       // null = 解析失敗 → 灰樁；0 = 真的零架次
       value: d.sorties,
       level: (d.level ?? 1) - 1,
-      part: d.sorties === null ? null : d.crossedMedian,
       note: d.level === null ? undefined : `${PLA_LEVEL_LABELS[d.level]}｜架次 p${d.pctSorties ?? "—"}｜越中線 p${d.pctCrossed ?? "—"}`,
     })),
     [shown],
   );
+  // 越中線小柱列：與主圖同一組日期（同柱數＝同一時間軸）；null 灰樁、0 底線；單色
+  const crossedBars: HazardBar[] = useMemo(
+    () => shown.map((d) => ({
+      label: d.reportDate.slice(5).replace("-", "/"),
+      key: d.reportDate,
+      value: d.crossedMedian,
+      level: 0,
+    })),
+    [shown],
+  );
+  const crossedDays = useMemo(() => shown.filter((d) => (d.crossedMedian ?? 0) > 0).length, [shown]);
   const stats = useMemo(() => {
     const vals = shown.map((d) => d.sorties).filter((v): v is number => v !== null).sort((a, b) => a - b);
     return { max: vals.length ? vals[vals.length - 1]! : 0, p50: vals.length ? vals[Math.floor((vals.length - 1) / 2)]! : 0 };
@@ -547,16 +557,27 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
         levelColors={PLA_BAR_COLORS}
         heightTier="lg"
         unit="架次"
-        partColor={PLA_CROSSED_COLOR}
-        partLabel="越中線"
         footer={`本區間 中位 ${stats.p50} · 最高 ${stats.max} 架次`}
+      />
+      {/* 越中線：與主圖同容器寬、同柱數、同一把尺（maxValue＝主圖最高架次） */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>越中線</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap" }}>
+          近 {shown.length} 天 {crossedDays} 天有越線
+        </span>
+      </div>
+      <HazardTrendBars
+        bars={crossedBars}
+        levelColors={PLA_CROSSED_BAR_COLORS}
+        heightTier="mini"
+        bare
+        unit="架次"
+        maxValue={stats.max}
       />
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "2px 10px", fontSize: MF.label, color: COLORS.textDim }}>
         <span>柱高＝架次（以本區間最高為尺）</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 8, height: 8, borderRadius: 2, background: PLA_CROSSED_COLOR }} />越中線架次
-        </span>
         <span>柱色＝近 {summary.windowDays} 天分級 · 灰樁＝解析失敗</span>
+        <span>下方一列為每日越中線架次（同一把尺）</span>
       </div>
     </div>
   );
