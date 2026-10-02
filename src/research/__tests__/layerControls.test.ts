@@ -8,7 +8,7 @@ describe("research layer controls", () => {
   it("describes stable controls and applies a slider through its existing onChange", () => {
     const details = describeLayerControls("religionTemples", new Set());
     const opacity = details.controls.find(control => control.controlId === "religionTemplesOpacity")!;
-    expect(opacity).toMatchObject({ kind: "slider", value: 0.8, slider: { min: 0.1, max: 1, step: 0.05 } });
+    expect(opacity).toMatchObject({ kind: "slider", value: 0.75, slider: { min: 0.1, max: 1, step: 0.05 } });
     expect(applyLayerControl({ layerKey: "religionTemples", controlId: opacity.controlId, expectedValue: opacity.value, value: 0.5 }, new Set())).toBe(0.5);
     expect(layerParamsStore.getParam("religionTemples", opacity.controlId)).toBe(0.5);
   });
@@ -20,7 +20,7 @@ describe("research layer controls", () => {
     expect(applyLayerControl({ layerKey: "religionTemples", controlId: multi.controlId, expectedValue: multi.value, value: [option.value] }, new Set())).toEqual([option.value]);
     expect(() => applyLayerControl({ layerKey: "religionTemples", controlId: multi.controlId, expectedValue: [], value: [option.value] }, new Set())).toThrow("LAYER_CONTROL_EXPECTED_VALUE_MISMATCH");
     expect(() => describeLayerControls("religionTemples", new Set(["religionTemples"]))).toThrow("LAYER_DENIED");
-    expect(() => applyLayerControl({ layerKey: "religionTemples", controlId: "religionTemplesOpacity", expectedValue: 0.8, value: 0.51 }, new Set())).toThrow("LAYER_CONTROL_VALUE_INVALID");
+    expect(() => applyLayerControl({ layerKey: "religionTemples", controlId: "religionTemplesOpacity", expectedValue: 0.75, value: 0.51 }, new Set())).toThrow("LAYER_CONTROL_VALUE_INVALID");
     const hidden = describeLayerControls("propertyValueGrid", new Set()).controls.find(control => control.hidden)!;
     expect(hidden.showWhen).toEqual({ param: "propertyValueGridExtruded", equals: true });
     expect(() => applyLayerControl({ layerKey: "propertyValueGrid", controlId: hidden.controlId, expectedValue: hidden.value, value: hidden.value }, new Set())).toThrow("LAYER_CONTROL_HIDDEN_OR_UNKNOWN");
