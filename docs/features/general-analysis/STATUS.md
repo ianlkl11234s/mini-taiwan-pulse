@@ -1,13 +1,13 @@
 # Pulse Agent 分析：總進度（唯一的最新進度頁）
 
-> **最後更新：2026-09-29。** 進度以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
+> **最後更新：2026-10-03。** 進度以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
 > 每次合併重要 PR 後，更新本頁的「能做什麼」「指標」「待辦」三節。
 
 ## 從這裡開始
 
 **想用（讓 Agent 幫你分析）**
 1. 啟動本機環境：照 [PROD-HOME.md](./PROD-HOME.md)「啟動與停止」開 8794 gateway 與 3734 前端（已在跑就跳過；檢查：`lsof -iTCP:3734 -sTCP:LISTEN`）。
-2. 瀏覽器開 `http://127.0.0.1:3734`，登入後在「與 Agent 協作」面板取得配對碼，貼給 Claude Code 或 Codex（它們會呼叫 `pulse_pair_session`），比對短語一致就按確認。
+2. 瀏覽器開 `http://127.0.0.1:3734`。本機免授權模式（三處旗標見 PROD-HOME）不用登入、不用配對碼：面板亮綠燈「本機免授權・已連線」，Agent 第一次動地圖時自動接上；開多個分頁時 Agent 會請你選分頁。未開旗標時照舊：登入 → 取得配對碼 → 貼給 Agent → 比對短語按確認。
 3. 直接用白話問，例如「台北車站 800 公尺內有什麼」「各縣市 A1 事故率排名」「把這個做成卡片」。
 
 **想改（開發）**
@@ -30,6 +30,10 @@
 | 面板小圖表 | 排名長條、比較表迷你長條、趨勢折線 | 09-28（mini #388） |
 | 分析卡連結 | Agent 產草稿 → 授權閘門 → 使用者按發布 → `https://mini-taiwan-pulse.itsmigu.com/card/<slug>`（30 天、可撤銷） | 09-29（gis-platform #120、#121；mcp #21、#22；mini #394、#399） |
 | 回答品質 | 第一句給答案、數字帶口徑、不露內部代號、結尾一句提議 | 09-29（mini #400、#403；mcp #23、#24） |
+| Agent v2：四個 skill | 主指揮 `pulse-conductor`＋圖層／一般分析／深入分析三組，放在 mcp repo `plugins/pulse-analyst/skills/`（唯一一份；舊 pulse-gis-analyst、geo-reasoning、pulse-map-story 已移除）。三鐵則：每題上圖、計算前地圖先動、回答白話 | 10-03 |
+| 精簡工具組 | 預設 `PULSE_TOOLSET=core` 22 個工具（`full` 保留全部）；`pulse_show_result`／`pulse_show_nearby` 一步上圖；圖層代號驗證；大結果自動簡化 | 10-03 |
+| 周邊一問就畫好 | 中心點、白色虛線圈、依類別上色、最近幾個標名稱、分段浮現（NEARBY-MAP-PLAN 第 1–6 項） | 10-03 |
+| 本機免授權配對 | 只在 127.0.0.1＋DEV＋三處旗標；仍綁定特定分頁 | 10-03 |
 
 ## 指標
 
@@ -38,7 +42,8 @@
 | 可分析圖層 | 605／794 | [layer-status-summary.md](./layer-status-summary.md) |
 | 問題庫 | 29 題 | mcp `src/warehouse/questionBank.ts` |
 | 倉庫版本 | store `20260926T200634Z`（正本在 R2 `pulse-warehouse`） | `pulse_wh_status` |
-| Agent 回歸測試（20 題，sonnet） | **全過 14/20**（排除已知問題 13/19）；語氣 19、數字 15、找對資料 19；歷次 3 → 10 → 14 | mcp `eval/agent-regression/README.md` |
+| Agent 回歸測試（舊 20 題，sonnet，接真地圖） | **18/20**（10-03；歷次 3 → 10 → 14 → 15 → 16 → 18）；剩 A10（綜合指標算法分歧）、A18（已修路由，待複驗） | mcp `eval/agent-regression/README.md` |
+| 分層題庫（13 題，每題要上圖） | **12/13**；repeat 2 曾 26/26；上圖、動靜、語氣 100% | mcp `eval/agent-regression/questions-tiers.json` |
 | 分析卡白名單 | 141 個資料集可公開 | mcp `src/warehouse/publishAllowlist.json` |
 
 回歸測試：`cd mini-taiwan-pulse/.worktrees/analysis-prod/mcp && npm run eval:agent -- --model sonnet`（約 11 分鐘，走訂閱額度）。
@@ -80,7 +85,7 @@
 
 ## 下一步建議（依優先）
 
-0. **周邊問題「一問就畫好」**（使用者 2026-09-29 實測回饋，已調查、待拍板）：中心點＋白色虛線圈＋具名的分類點、一步到位工具 `pulse_show_nearby`、引導改寫。計劃見 [viz-library/NEARBY-MAP-PLAN.md](../viz-library/NEARBY-MAP-PLAN.md)。
+0. ~~周邊問題「一問就畫好」~~（10-03 完成，見上表）。下一個：圖層組只能說「已打開」，讀不到圖層數值（core 工具沒有圖層統計），要能講出看得到的現象。
 1. **資料新鮮度自動化**：倉庫每月重建與 Valhalla 月更自動化，並更新過舊資料（事故點）。現在功能已齊，資料過期是最大風險。
 2. **Agent 品質第二輪**：回歸測試加 `--repeat`，看出穩定分數後再修 A12、A09。
 3. **上雲第一步**：研究 gateway 部署到 Zeabur，讓 Agent 分析不依賴本機開機（照 PROD-HOME 清單）。
