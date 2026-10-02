@@ -269,7 +269,7 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   // BSS 橋梁（HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED）：授權 HOLD，只走 owner-authenticated Range sidecar。
   "PRIVATE_OWNER_ONLY: bss_bridge_location_direction_preview_20261002_v5.pmtiles",
   // 橋梁韌性（同 HOLD 授權）：僅站主 sidecar。
-  "PRIVATE_OWNER_ONLY: bridge-resilience-20261001-v3.pmtiles",
+  "PRIVATE_OWNER_ONLY: bridge-resilience-20261002-v4.pmtiles",
   "PRIVATE_OWNER_ONLY: bridge_summary.json",
   "PRIVATE_OWNER_ONLY: village_impacts.json",
   "PRIVATE_OWNER_ONLY: village_destinations.json",

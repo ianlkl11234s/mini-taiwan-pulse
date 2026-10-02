@@ -21,8 +21,18 @@ const decayMode = (over: Partial<DecayModeSummary> = {}): DecayModeSummary => ({
 const JOINT_NULL = decayMode({ decay_impact_rank: null, uniform_impact_rank: null, rank_tau10: null, rank_tau30: null });
 const FINGERPRINT: BridgeResilienceData["fingerprint"] = { version: "bridge-fingerprint-20261002-v1", no_composite_score: true, bridges: {
   三鶯大橋: { river: "大漢溪", is_joint: false, modes: {
-    car: { percentiles: { barrier: 51, network: 68, population: 76, lack_of_redundancy: 68 } },
+    car: { percentiles: { barrier: 51, network: 68, population: 76, lack_of_redundancy: 68 },
+      percentiles_within_original_26: { barrier: 50, network: 60, population: 72, lack_of_redundancy: 64 },
+      substitute_rule_variant_any_distance: { same_river_any_share_top50: 0.55, pct_no_same_river_substitute_any: 40, lack_of_redundancy_any_pct: 52.4 } },
     scooter: { percentiles: { barrier: 51, network: 24.4, population: null, lack_of_redundancy: 40 }, null_reasons: { population: "測試用缺值" } },
+  } },
+  華翠大橋: { river: "新店溪", is_joint: false, validated: false, modes: {
+    car: { percentiles: { barrier: 55.8, network: null, population: null, lack_of_redundancy: null }, null_reasons: { decay_impact_person_s: "該模式路網沒有此橋（not_in_mode_graph），不是 0" },
+      percentiles_within_original_26: { barrier: null, network: null, population: null, lack_of_redundancy: null } },
+    scooter: { percentiles: { barrier: 55.8, network: 90.3, population: 31.9, lack_of_redundancy: 23.4 } },
+  } },
+  平陽橋: { river: "基隆河", is_joint: false, validated: false, modes: {
+    car: { percentiles: { barrier: null, network: 4.9, population: 28.9, lack_of_redundancy: null } },
   } },
   "關渡大橋+淡江大橋": { river: "淡水河", is_joint: true, modes: {
     car: { percentiles: { barrier: null, network: null, population: null, lack_of_redundancy: null }, null_reasons: { percentiles: "聯合情境另列、不參與 26 座排名" } },
@@ -36,6 +46,11 @@ const DATA: BridgeResilienceData = {
     三鶯大橋: { modes: { car: decayMode(), scooter: decayMode({ decay_impact: null, decay_mean_dT_per_trip: null, decay_impact_rank: 4, uniform_impact_rank: 4 }) } },
     淡江大橋: { modes: { car: decayMode(), scooter: decayMode() } },
     "關渡大橋+淡江大橋": { is_joint: true, modes: { car: JOINT_NULL, scooter: JOINT_NULL } },
+    華翠大橋: { modes: {
+      car: decayMode({ status: "not_in_mode_graph", decay_impact: null, decay_mean_dT_per_trip: null, pop_gt30s: null, pop_gt60s: null, decay_impact_rank: null, uniform_impact_rank: null, top5_villages: [] }),
+      scooter: decayMode({ status: "ok" }),
+    } },
+    平陽橋: { modes: { car: decayMode({ status: "no_affected_od", decay_impact: 0, decay_mean_dT_per_trip: 0, pop_gt30s: 0, pop_gt60s: 0, decay_impact_rank: null, uniform_impact_rank: null, top5_villages: [] }) } },
   } },
   summary: { bridges: {
     三鶯大橋: { bridge_uid: "三鶯大橋", is_joint_scenario: false, members: ["三鶯大橋"], river: "大漢溪",
@@ -44,6 +59,12 @@ const DATA: BridgeResilienceData = {
     淡江大橋: { bridge_uid: "淡江大橋", is_joint_scenario: false, members: ["淡江大橋"], river: "淡水河",
       human_review: { latest_review_date: "2026-09-29", geometry_confidence: "A", notes: ["淡江大橋: 交流道匝道算不算橋體，使用者標『不確定』；模擬一併移除（上界）"] },
       modes: { car: mode(), scooter: mode() } },
+    華翠大橋: { bridge_uid: "華翠大橋", is_joint_scenario: false, members: ["華翠大橋"], river: "新店溪", validated: false, review_status: "auto",
+      human_review: { status: "auto_pending_human", latest_review_date: null, geometry_confidence: "auto", notes: [] },
+      modes: { car: mode({ p90_dT_s: null, mean_dT_s: null, accessibility_loss: null, exposed_population_gt60s: null, stranded_population: null, n_removed_edges: 0 }), scooter: mode() } },
+    平陽橋: { bridge_uid: "平陽橋", is_joint_scenario: false, members: ["平陽橋"], river: "基隆河", validated: false, review_status: "auto",
+      human_review: { status: "auto_pending_human", latest_review_date: null, geometry_confidence: "auto", notes: [] },
+      modes: { car: mode({ p90_dT_s: null, mean_dT_s: null, accessibility_loss: 0, exposed_population_gt60s: 0, stranded_population: 0, n_removed_edges: 2 }) } },
   } },
 };
 const render = (uid: string) => renderToStaticMarkup(createElement(BridgeResiliencePanel, { props: { bridge_uid: uid } }));
@@ -149,7 +170,7 @@ describe("為什麼重要（四維 fingerprint）", () => {
   it("汽車：四條長條依目前模式，標籤＋數字；說明收在「四維怎麼算」", () => {
     bridgeResilienceDataStore.set(DATA);
     const html = render("三鶯大橋");
-    expect(html).toContain("為什麼重要（26 座內百分位）");
+    expect(html).toContain("為什麼重要（73 座內百分位）");
     expect(bars(html)).toEqual(["阻隔 51／100", "路網 68／100", "人口 76／100", "缺乏替代 68／100"]);
     expect(html).toContain("width:68%");
     expect(html).toContain("四維怎麼算");
@@ -172,7 +193,7 @@ describe("為什麼重要（四維 fingerprint）", () => {
     expect(bars(html)).toEqual([]);
   });
   it("資料載入中顯示載入中；橋不在 fingerprint 時寫「未提供」", () => {
-    expect(render("三鶯大橋")).toContain("為什麼重要（26 座內百分位）");
+    expect(render("三鶯大橋")).toContain("為什麼重要（73 座內百分位）");
     expect(render("三鶯大橋").slice(render("三鶯大橋").indexOf("fi-fingerprint"))).toContain("載入中…");
     bridgeResilienceDataStore.set(DATA);
     const html = render("淡江大橋");
@@ -186,6 +207,47 @@ describe("為什麼重要（四維 fingerprint）", () => {
     expect(fingerprintValue(null)).toBeNull();
     expect(fingerprintValue(undefined)).toBeNull();
     expect(fingerprintValue(Number.NaN)).toBeNull();
+  });
+});
+
+describe("73 座：自動選入橋與無結果情境", () => {
+  beforeEach(() => { bridgeResilienceDataStore.set(null); bridgeResilienceSelection.clear(); layerParamsStore.reset(); });
+  const bars = (html: string) => [...html.matchAll(/role="img" aria-label="([^"]+)"/g)].map((m) => m[1]);
+  it("validated=false 顯示「自動選入・尚未人工複核」；原 26 座不顯示", () => {
+    bridgeResilienceDataStore.set(DATA);
+    expect(render("華翠大橋")).toContain("自動選入・尚未人工複核");
+    expect(render("三鶯大橋")).not.toContain("自動選入・尚未人工複核");
+  });
+  it("汽車路網未收此橋：寫「汽車路網未收此橋」，不列 0 或未提供的指標、百分位不畫長條", () => {
+    bridgeResilienceDataStore.set(DATA);
+    for (const weighting of ["decay", "uniform"]) {
+      layerParamsStore.setParam(BRIDGE_RESILIENCE_KEY, "bridgeResilienceWeighting", weighting);
+      const html = render("華翠大橋");
+      expect(html).toContain("汽車路網未收此橋");
+      expect(html).not.toContain("每人每次多花");
+      expect(html).not.toContain("額外時間 p90");
+      expect(html).not.toContain("0 人");
+      expect(bars(html)).toEqual(["阻隔 56／100"]);
+    }
+    layerParamsStore.setParam(BRIDGE_RESILIENCE_KEY, "bridgeResilienceMode", "scooter");
+    expect(render("華翠大橋")).not.toContain("路網未收此橋");
+  });
+  it("沒有受影響起訖對：寫「模型算出無受影響起訖對」（真的 0，不是缺值）", () => {
+    bridgeResilienceDataStore.set(DATA);
+    const html = render("平陽橋");
+    expect(html).toContain("模型算出無受影響起訖對");
+    expect(html).not.toContain("影響排名");
+    expect(html).toContain("無受影響起訖對</span>");      // 缺乏替代百分位的說明
+  });
+  it("四維怎麼算：原 26 座內百分位與不限距離變體（有值才列）", () => {
+    bridgeResilienceDataStore.set(DATA);
+    const html = render("三鶯大橋");
+    expect(html).toContain("原 26 座內百分位");
+    expect(html).toContain("阻隔 50・路網 60・人口 72・缺乏替代 64");
+    expect(html).toContain("缺乏替代 52（預設 5 km：68）；同河替代占比 55%");
+    const auto = render("華翠大橋");
+    expect(auto).not.toContain("原 26 座內百分位");
+    expect(auto).not.toContain("同河替代不限距離（變體）");
   });
 });
 

@@ -28,7 +28,7 @@ const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作�
 const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
 const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
-const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-fingerprint-popup-20261002/bridge-resilience.local/bridge-display-bundle-20261002-v3-fp";
+const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-resilience-73-20261002/bridge-resilience.local/bridge-display-bundle-20261002-v4";
 const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
 const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
@@ -78,43 +78,54 @@ export const BSS_BRIDGE_ASSETS = Object.freeze({
 });
 
 // 橋梁韌性 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
+// v4（bridge-display-bundle-20261002-v4）：73 座＝26 座人工複核＋47 座自動選入（validated=false，待複核）。
+// 回滾到 v3（26 座；S3 物件保留在 private-research/bridge-resilience/<sha256>/<filename>，未刪除）：
+//   tiles bridge-resilience-20261001-v3.pmtiles 2091890 61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc
+//   summary bridge_summary.json 63004 4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574
+//   impacts village_impacts.json 1333831 4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764
+//   destinations village_destinations.json 6425352 d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5
+//   decay-impacts decay_village_impacts.json 864533 a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873
+//   decay-summary decay_summary.json 55424 29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0
+//   fingerprint bridge_fingerprint.json 54886 263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4
+// 回滾時前端 src/data/bridgeResilienceTypes.ts 的 BRIDGE_RESILIENCE_ASSETS 要同步改回（以 git revert 本次 PR 最簡單）。
 export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
   tiles: Object.freeze({
-    filename: "bridge-resilience-20261001-v3.pmtiles",
-    size: 2091890,
-    sha256: "61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc",
+    filename: "bridge-resilience-20261002-v4.pmtiles",
+    size: 2676761,
+    sha256: "417bb96b171b215afb6441c9a96bb2407a94f090f20eabc6357e6876311efeeb",
   }),
   summary: Object.freeze({
     filename: "bridge_summary.json",
-    size: 63004,
-    sha256: "4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574",
+    size: 361546,
+    sha256: "1df50ae635f90e9c7e5ce4e9ae54314e5303ed8a3a041a3d595a168331b8628f",
   }),
   impacts: Object.freeze({
     filename: "village_impacts.json",
-    size: 1333831,
-    sha256: "4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764",
+    size: 3338743,
+    sha256: "fea835ee1fa905c1dfdb5800e1b725b05ec3e6ea1b662fe5aed0f7ef54558697",
   }),
+  // 10.0 MB > MAX_RANGE_BYTES（8 MiB）：前端分段 Range 讀取（fetchPrivateJson），sidecar 上限不變。
   destinations: Object.freeze({
     filename: "village_destinations.json",
-    size: 6425352,
-    sha256: "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5",
+    size: 10034240,
+    sha256: "532266b41a992586ba9f8b71116764d1b97e08ded732fbdff00a5d6dd04230a8",
   }),
-  // 距離遞減版（v3）：村里 decay_mean_dT_s（原檔）與橋層級精簡摘要（τ=20＋τ=10／30 名次）。
+  // 距離遞減版：村里 decay_mean_dT_s（原檔）與橋層級精簡摘要（τ=20＋τ=10／30 名次；每 mode 帶 status）。
   "decay-impacts": Object.freeze({
     filename: "decay_village_impacts.json",
-    size: 864533,
-    sha256: "a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873",
+    size: 2106225,
+    sha256: "f230ac1ab2666678a614050509dc9d0300e4b043be37df821d2277a33155bf2d",
   }),
   "decay-summary": Object.freeze({
     filename: "decay_summary.json",
-    size: 55424,
-    sha256: "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0",
+    size: 137261,
+    sha256: "713ade9e59cf19767c97ba3e033c820c1fcb00e8a38fb3b8ff32956ca40819f3",
   }),
-  // 四維 fingerprint（analytics bridge-fingerprint-20261002-v1/fingerprint.json 原檔）：26 座內百分位，不合成總分。
+  // 四維 fingerprint v2（analytics bridge-fingerprint-20261002-v2/fingerprint.json 原檔）：73 座內百分位＋原 26 座內百分位，不合成總分。
   fingerprint: Object.freeze({
     filename: "bridge_fingerprint.json",
-    size: 54886,
-    sha256: "263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4",
+    size: 229172,
+    sha256: "a0791406d0b44763f8bb85321bb90bd6d2a8371c8f6fe65fe9b18779d7f54280",
   }),
 });
 

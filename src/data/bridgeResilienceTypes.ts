@@ -3,8 +3,8 @@ import type { ExpressionSpecification } from "mapbox-gl";
 /**
  * 雙北跨河橋梁韌性（研究中）站主限定私人資產契約。
  *
- * 來源：taipei-gis-analytics `bridge-display-bundle-20261001-v3`（專題 README §8／§8b）。
- * 一個私人 PMTiles（三個 source-layer）＋五份私人 JSON，全部只經同源 Range API
+ * 來源：taipei-gis-analytics `bridge-display-bundle-20261002-v4`（專題 README §8／§8b；73 座＝26 座人工複核＋47 座自動選入）。
+ * 一個私人 PMTiles（三個 source-layer）＋六份私人 JSON，全部只經同源 Range API
  * `/api/private-research/bridge-resilience/{tiles,summary,impacts,destinations,decay-impacts,decay-summary,fingerprint}` 讀取（每個請求帶 Bearer，sidecar 驗站主）。
  * 授權為 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：不得進公開 CDN／static／release allowlist。
  *
@@ -12,6 +12,8 @@ import type { ExpressionSpecification } from "mapbox-gl";
  * - 自由車流模型時間、不含壅塞；是「單橋（或聯合）失效的後果」，不是風險（不含災害機率）；人口不等於實際旅次。
  * - 淡江大橋交流道匝道一併移除（使用者標「不確定」算不算橋體），指標屬上界。
  * - `village_impacts.villages[VILLCODE][field][i]` 對應 `scenarios[i]`；p90 為 null＝沒有受影響目的地，不是 0。
+ * - `validated=false`（47 座自動選入）：路段群組是機器比對、尚未人工複核，名次只供參考。
+ * - 單橋 × 模式有三種狀態：ok／模型算出無受影響起訖對（損失真的是 0）／該模式路網未收此橋（全 null，不是 0）。
  * - 替代路線只是人口權重最大的 3 組起訖對（代表性起訖對），不一定是繞最遠的。
  * - 目的地視角（village_destinations）：只有「各目的地行政區彙整」與「前 20 名受影響目的地村里」，
  *   沒有逐村里的 ΔT。地圖顏色因此是「該村里所在行政區」的平均額外時間（只算受影響目的地），不是該村里自己的 ΔT。
@@ -28,13 +30,13 @@ export const BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT = "bridge-resilience-select
 
 /** 資產契約；與 sidecar `BRIDGE_RESILIENCE_ASSETS`、上傳腳本共用同一組數字（測試逐一比對）。 */
 export const BRIDGE_RESILIENCE_ASSETS = {
-  tiles: { filename: "bridge-resilience-20261001-v3.pmtiles", size: 2091890, sha256: "61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc" },
-  summary: { filename: "bridge_summary.json", size: 63004, sha256: "4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574" },
-  impacts: { filename: "village_impacts.json", size: 1333831, sha256: "4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764" },
-  destinations: { filename: "village_destinations.json", size: 6425352, sha256: "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5" },
-  "decay-impacts": { filename: "decay_village_impacts.json", size: 864533, sha256: "a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873" },
-  "decay-summary": { filename: "decay_summary.json", size: 55424, sha256: "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0" },
-  fingerprint: { filename: "bridge_fingerprint.json", size: 54886, sha256: "263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4" },
+  tiles: { filename: "bridge-resilience-20261002-v4.pmtiles", size: 2676761, sha256: "417bb96b171b215afb6441c9a96bb2407a94f090f20eabc6357e6876311efeeb" },
+  summary: { filename: "bridge_summary.json", size: 361546, sha256: "1df50ae635f90e9c7e5ce4e9ae54314e5303ed8a3a041a3d595a168331b8628f" },
+  impacts: { filename: "village_impacts.json", size: 3338743, sha256: "fea835ee1fa905c1dfdb5800e1b725b05ec3e6ea1b662fe5aed0f7ef54558697" },
+  destinations: { filename: "village_destinations.json", size: 10034240, sha256: "532266b41a992586ba9f8b71116764d1b97e08ded732fbdff00a5d6dd04230a8" },
+  "decay-impacts": { filename: "decay_village_impacts.json", size: 2106225, sha256: "f230ac1ab2666678a614050509dc9d0300e4b043be37df821d2277a33155bf2d" },
+  "decay-summary": { filename: "decay_summary.json", size: 137261, sha256: "713ade9e59cf19767c97ba3e033c820c1fcb00e8a38fb3b8ff32956ca40819f3" },
+  fingerprint: { filename: "bridge_fingerprint.json", size: 229172, sha256: "a0791406d0b44763f8bb85321bb90bd6d2a8371c8f6fe65fe9b18779d7f54280" },
 } as const;
 export type BridgeResilienceAssetName = keyof typeof BRIDGE_RESILIENCE_ASSETS;
 export const bridgeResilienceAssetUrl = (name: BridgeResilienceAssetName) => `${BRIDGE_RESILIENCE_PRIVATE_ENDPOINT}/${name}`;
@@ -100,6 +102,13 @@ export const DECAY_RAMP = ["#fef3c7", "#fde68a", "#fcd34d", "#fb923c", "#ef4444"
 export const DECAY_MEAN_BREAKS: readonly number[] = [1, 5, 15, 30, 60, 120];
 export const DECAY_MEAN_LABELS: readonly string[] = ["<1 秒", "1–5 秒", "5–15 秒", "15–30 秒", "30–60 秒", "60–120 秒", "≥120 秒"];
 export const BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR = 0.45;
+/** 自動選入、尚未人工複核（validated=false）的橋線再乘上這個係數（較淡），與 26 座人工複核橋區隔。 */
+export const BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR = 0.45;
+export const BRIDGE_RESILIENCE_UNVALIDATED_TEXT = "自動選入・尚未人工複核";
+/** 線層 opacity：validated=false 乘上淡化係數；缺欄位（舊資料）視為已複核。 */
+export function validatedOpacityExpression(opacity: number): ExpressionSpecification {
+  return ["case", ["==", ["get", "validated"], false], opacity * BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR, opacity] as unknown as ExpressionSpecification;
+}
 
 /** 村里色階（資料色）。p90 單位為秒；share 為 0–1 比例。 */
 export const BRIDGE_RESILIENCE_RAMP = ["#fef3c7", "#fcd34d", "#fb923c", "#ef4444", "#991b1b", "#4c0519"] as const;
@@ -147,6 +156,9 @@ export interface BridgeSummaryEntry {
   is_joint_scenario: boolean;
   members: string[];
   river: string;
+  /** true＝原 26 座人工複核；false＝選橋 v7 自動選入、待複核。缺欄位視為已複核（v3 以前）。 */
+  validated?: boolean;
+  review_status?: string;
   human_review: {
     status?: string;
     latest_review_date?: string | null;
@@ -182,7 +194,10 @@ export interface DecayTopVillage {
   VILLCODE: string; county: string; town: string; village: string;
   pop_hh: number; decay_mean_dT_s: number | null; contribution_person_s: number | null;
 }
+/** 單橋 × 模式的模擬狀態（decay_summary v4 起提供）。 */
+export type BridgeModeStatus = "ok" | "no_affected_od" | "not_in_mode_graph";
 export interface DecayModeSummary {
+  status?: BridgeModeStatus;
   decay_impact: number | null; decay_mean_dT_per_trip: number | null; pop_gt30s: number | null; pop_gt60s: number | null;
   /** 單橋才有名次；聯合情境為 null（不列名次）。 */
   decay_impact_rank: number | null; uniform_impact_rank: number | null;
@@ -196,7 +211,7 @@ export interface DecaySummary {
 
 // ── 四維 fingerprint（bridge_fingerprint.json）──────────────────────
 
-/** 四個維度：26 座單橋內的百分位（0–100，越高越關鍵）；不加總、不合成分數。 */
+/** 四個維度：73 座單橋內的百分位（0–100，越高越關鍵）；不加總、不合成分數。 */
 export type FingerprintDimension = "barrier" | "network" | "population" | "lack_of_redundancy";
 export const FINGERPRINT_DIMENSIONS: readonly FingerprintDimension[] = ["barrier", "network", "population", "lack_of_redundancy"];
 export const FINGERPRINT_LABELS: Record<FingerprintDimension, string> = {
@@ -206,9 +221,15 @@ export interface FingerprintModeEntry {
   /** null＝未提供（例如聯合情境不參與排名），不是 0。 */
   percentiles: Partial<Record<FingerprintDimension, number | null>>;
   null_reasons?: Record<string, string>;
+  /** 原 26 座（人工複核）之內的百分位；新橋為 null。 */
+  percentiles_within_original_26?: Partial<Record<FingerprintDimension, number | null>>;
+  /** 同河替代「不限距離」變體（預設仍是同河 5 km）。 */
+  substitute_rule_variant_any_distance?: {
+    same_river_any_share_top50?: number | null; pct_no_same_river_substitute_any?: number | null; lack_of_redundancy_any_pct?: number | null;
+  };
 }
 export interface FingerprintBridgeEntry {
-  river?: string; is_joint?: boolean;
+  river?: string; is_joint?: boolean; validated?: boolean; in_original_26?: boolean;
   modes: Partial<Record<BridgeMode, FingerprintModeEntry>>;
 }
 export interface BridgeFingerprint {
@@ -217,6 +238,25 @@ export interface BridgeFingerprint {
 }
 
 // ── 純函式（測試涵蓋）──────────────────────────────────────────────
+
+/** 是否為自動選入、尚未人工複核的橋（只有明確 false 才算；缺欄位＝已複核）。 */
+export const isUnvalidated = (entry: { validated?: boolean } | undefined | null) => entry?.validated === false;
+
+/**
+ * 單橋 × 模式狀態：優先用 decay_summary 的 status；沒有時由 bridge_summary 推：
+ * 損失 null 且沒有移除邊＝路網未收此橋；損失 0 且 p90 null＝沒有受影響起訖對。
+ */
+export function bridgeModeStatus(summary: BridgeModeSummary | undefined, decay?: DecayModeSummary): BridgeModeStatus | null {
+  if (decay?.status) return decay.status;
+  if (!summary) return null;
+  if (summary.accessibility_loss === null && !summary.n_removed_edges) return "not_in_mode_graph";
+  if (summary.accessibility_loss === 0 && summary.p90_dT_s === null) return "no_affected_od";
+  return "ok";
+}
+export const BRIDGE_MODE_STATUS_TEXT: Record<Exclude<BridgeModeStatus, "ok">, (mode: BridgeMode) => string> = {
+  not_in_mode_graph: (mode) => `${BRIDGE_MODE_LABELS[mode]}路網未收此橋`,
+  no_affected_od: () => "模型算出無受影響起訖對",
+};
 
 export const scenarioKey = (bridgeUid: string, mode: BridgeMode) => `${bridgeUid}|${mode}`;
 

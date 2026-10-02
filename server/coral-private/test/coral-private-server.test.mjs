@@ -703,7 +703,7 @@ test("bridge resilience assets enforce owner, probe, range and unknown asset bou
 
 test("bridge resilience S3 gateway uses immutable private keys", async () => {
   for (const [name, filename] of [
-    ["tiles", "bridge-resilience-20261001-v3.pmtiles"],
+    ["tiles", "bridge-resilience-20261002-v4.pmtiles"],
     ["summary", "bridge_summary.json"],
     ["impacts", "village_impacts.json"],
     ["destinations", "village_destinations.json"],
@@ -802,14 +802,15 @@ test("bridge resilience failed warmup fails closed without affecting other famil
 
 test("bridge resilience assets pin filename, size and sha256", () => {
   const expected = {
-    tiles: ["bridge-resilience-20261001-v3.pmtiles", 2091890, "61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc"],
-    summary: ["bridge_summary.json", 63004, "4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574"],
-    impacts: ["village_impacts.json", 1333831, "4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764"],
-    destinations: ["village_destinations.json", 6425352, "d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5"],
-    "decay-impacts": ["decay_village_impacts.json", 864533, "a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873"],
-    "decay-summary": ["decay_summary.json", 55424, "29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0"],
-    fingerprint: ["bridge_fingerprint.json", 54886, "263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4"],
+    tiles: ["bridge-resilience-20261002-v4.pmtiles", 2676761, "417bb96b171b215afb6441c9a96bb2407a94f090f20eabc6357e6876311efeeb"],
+    summary: ["bridge_summary.json", 361546, "1df50ae635f90e9c7e5ce4e9ae54314e5303ed8a3a041a3d595a168331b8628f"],
+    impacts: ["village_impacts.json", 3338743, "fea835ee1fa905c1dfdb5800e1b725b05ec3e6ea1b662fe5aed0f7ef54558697"],
+    destinations: ["village_destinations.json", 10034240, "532266b41a992586ba9f8b71116764d1b97e08ded732fbdff00a5d6dd04230a8"],
+    "decay-impacts": ["decay_village_impacts.json", 2106225, "f230ac1ab2666678a614050509dc9d0300e4b043be37df821d2277a33155bf2d"],
+    "decay-summary": ["decay_summary.json", 137261, "713ade9e59cf19767c97ba3e033c820c1fcb00e8a38fb3b8ff32956ca40819f3"],
+    fingerprint: ["bridge_fingerprint.json", 229172, "a0791406d0b44763f8bb85321bb90bd6d2a8371c8f6fe65fe9b18779d7f54280"],
   };
+
   assert.deepEqual(Object.keys(BRIDGE_RESILIENCE_ASSETS).sort(), Object.keys(expected).sort());
   for (const [name, [filename, size, sha256]] of Object.entries(expected)) {
     assert.deepEqual({ ...BRIDGE_RESILIENCE_ASSETS[name] }, { filename, size, sha256 });

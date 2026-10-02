@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only evaluator.
 import { expression } from "mapbox-gl/dist/style-spec/index.cjs";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
-import { fetchPrivateJson, loadBridgeResilienceData, validateBridgeResilienceData } from "../bridgeResilienceLoader";
+import { BRIDGE_RESILIENCE_MAX_RANGE_BYTES, fetchPrivateJson, loadBridgeResilienceData, validateBridgeResilienceData } from "../bridgeResilienceLoader";
 import {
   BRIDGE_JOINT_KEY, BRIDGE_RESILIENCE_ASSETS, BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_KEY,
   BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS, BRIDGE_RESILIENCE_RAMP, DECAY_MEAN_BREAKS, DECAY_RAMP, decayFillColorExpression, decodeDecayVillageScenario, decodeVillageScenario, effectiveScenarioUid,
@@ -143,11 +143,23 @@ describe("popup 數值格式", () => {
   });
 });
 
+
+/** 模擬 sidecar 206：body 以空白補到 Range 結尾（JSON 容許尾端空白），回該段位元組。 */
+function rangeResponse(body: string, init: RequestInit | undefined, status = 206): Response {
+  const m = /^bytes=(\d+)-(\d+)$/.exec((init?.headers as Record<string, string>)?.Range ?? "");
+  if (!m) return new Response(body, { status });
+  const start = Number(m[1]); const end = Number(m[2]);
+  const encoded = new TextEncoder().encode(body);
+  const padded = new Uint8Array(Math.max(encoded.length, end + 1)).fill(0x20);
+  padded.set(encoded);
+  return new Response(padded.slice(start, end + 1), { status });
+}
+
 describe("私人 JSON 載入", () => {
   const json = (body: unknown, status = 206) => async () => new Response(JSON.stringify(body), { status });
   it("以資產已知大小要整段 Range 並帶 Bearer", async () => {
     let seen: RequestInit | undefined; let url = "";
-    await fetchPrivateJson("summary", "tok", async (u, i) => { url = u; seen = i; return new Response("{}", { status: 206 }); });
+    await fetchPrivateJson("summary", "tok", async (u, i) => { url = u; seen = i; return rangeResponse("{}", i); });
     expect(url).toBe("/api/private-research/bridge-resilience/summary");
     expect((seen!.headers as Record<string, string>).Range).toBe(`bytes=0-${BRIDGE_RESILIENCE_ASSETS.summary.size - 1}`);
     expect((seen!.headers as Record<string, string>).Authorization).toBe("Bearer tok");
@@ -157,6 +169,21 @@ describe("私人 JSON 載入", () => {
     await expect(fetchPrivateJson("impacts", "t", json({}, 403))).rejects.toMatchObject({ status: 403 });
     await expect(fetchPrivateJson("impacts", "t", json({}, 200))).rejects.toThrow("尚未就緒");
   });
+  it("超過 8 MiB 的資產分段 Range，位元組拼接後才解碼（多位元組字元跨段也正確）", async () => {
+    const size = BRIDGE_RESILIENCE_ASSETS.destinations.size;
+    expect(size).toBeGreaterThan(BRIDGE_RESILIENCE_MAX_RANGE_BYTES);
+    // 讓「橋」（3 位元組）剛好跨在第一段結尾。
+    const prefix = '{"k":"';
+    const fill = "a".repeat(BRIDGE_RESILIENCE_MAX_RANGE_BYTES - prefix.length - 1);
+    const body = `${prefix}${fill}橋"}`;
+    const ranges: string[] = [];
+    const out = await fetchPrivateJson<{ k: string }>("destinations", "t", async (_u, i) => { ranges.push((i!.headers as Record<string, string>).Range ?? ""); return rangeResponse(body, i); });
+    expect(ranges).toEqual([`bytes=0-${BRIDGE_RESILIENCE_MAX_RANGE_BYTES - 1}`, `bytes=${BRIDGE_RESILIENCE_MAX_RANGE_BYTES}-${size - 1}`]);
+    expect(out.k.endsWith("a橋")).toBe(true);
+  });
+  it("回傳長度與 Range 不符時中止", async () => {
+    await expect(fetchPrivateJson("summary", "t", async () => new Response("{}", { status: 206 }))).rejects.toThrow("長度不符");
+  });
   it("格式不符時中止，不合成空資料", async () => {
     const FP = { bridges: {} };
     expect(() => validateBridgeResilienceData({} as never, IMPACTS, DECAY, DECAY_SUMMARY, FP)).toThrow();
@@ -165,7 +192,7 @@ describe("私人 JSON 載入", () => {
     expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, DECAY, {} as never, FP)).toThrow("decay_summary");
     expect(() => validateBridgeResilienceData({ bridges: {} }, IMPACTS, DECAY, DECAY_SUMMARY, {} as never)).toThrow("bridge_fingerprint");
     const fp = { version: "v1", bridges: { 三鶯大橋: { modes: { car: { percentiles: { barrier: 51 } } } } } };
-    const both = await loadBridgeResilienceData("t", async (u) => new Response(JSON.stringify(u.endsWith("/fingerprint") ? fp : u.endsWith("/decay-summary") ? DECAY_SUMMARY : u.endsWith("/decay-impacts") ? DECAY : u.endsWith("/summary") ? { bridges: {} } : IMPACTS), { status: 206 }));
+    const both = await loadBridgeResilienceData("t", async (u, i) => rangeResponse(JSON.stringify(u.endsWith("/fingerprint") ? fp : u.endsWith("/decay-summary") ? DECAY_SUMMARY : u.endsWith("/decay-impacts") ? DECAY : u.endsWith("/summary") ? { bridges: {} } : IMPACTS), i));
     expect(both.impacts.scenarios).toHaveLength(3);
     expect(both.fingerprint.bridges["三鶯大橋"]?.modes.car?.percentiles.barrier).toBe(51);
     expect(both.decayImpacts.scenarios).toHaveLength(3);
