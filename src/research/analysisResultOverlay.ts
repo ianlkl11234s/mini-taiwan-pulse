@@ -4,9 +4,9 @@ import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnal
 import { prefersReducedMotion } from "./researchMotion";
 import type { ResultCollection } from "./bridgeClient";
 import type { AnalysisStackKind } from "./analysisResultStack";
-import { VIZ_SPEC, bivariateSizeStrokeFor, type Theme } from "./vizSpec";
+import { VIZ_SPEC, bivariateSizeStrokeFor, categoricalFor, type Theme } from "./vizSpec";
 import { ensureNullHatchImage } from "./vizNullPattern";
-import { SELECTION_RING } from "../styles/designTokens";
+import { LIGHT, SELECTION_RING } from "../styles/designTokens";
 import { TITLE_KEYS, researchResultPopupTitle } from "./researchResultPopup";
 import { classifyVizNumberKind, type VizNumberKind } from "./vizFormat";
 import type { RankBarItem } from "./charts/RankBars";
@@ -71,7 +71,24 @@ const flowEndpointLayerId = (index: number) => `research-analysis-result-flow-en
 const scopeRingLayerId = (index: number) => `research-analysis-result-scope-${index}`;
 const SCOPE_ROLE_FILTER = ["==", ["get", "_role"], "scope"] as unknown as ExpressionSpecification;
 const SCOPE_ROLE_EXCLUDE_FILTER = ["!=", ["get", "_role"], "scope"] as unknown as ExpressionSpecification;
-const SCOPE_RING_COLOR = "#e2e8f0";
+/** M2: 純白虛線、不填色、線寬 2.5。淺色底圖上白線會消失，改用設計系統最深的中性字色
+ *  （LIGHT.textStrong）；深色底圖維持純白。 */
+const scopeRingColor = (theme: Theme): string => theme === "dark" ? "#ffffff" : LIGHT.textStrong;
+const SCOPE_RING_WIDTH = 2.5;
+const SCOPE_RING_DASH = [2, 2];
+/** Nearby result's center point (`_role: "center"`, properties.name) and its decorative layers. */
+const CENTER_ROLE_FILTER = ["==", ["get", "_role"], "center"] as unknown as ExpressionSpecification;
+const CENTER_ROLE_EXCLUDE_FILTER = ["!=", ["get", "_role"], "center"] as unknown as ExpressionSpecification;
+const nearbyCenterLayerId = (index: number) => `research-analysis-result-nearby-center-${index}`;
+const nearbyCenterLabelLayerId = (index: number) => `research-analysis-result-nearby-center-label-${index}`;
+const nearbyPoiLabelLayerId = (index: number) => `research-analysis-result-nearby-poi-label-${index}`;
+const nearbyDecorLayerIds = (index: number) => [nearbyCenterLayerId(index), nearbyPoiLabelLayerId(index), nearbyCenterLabelLayerId(index)];
+/** Only the closest few POIs per category carry a name on the map. */
+const NEARBY_LABEL_MAX_RANK = 3;
+const NEARBY_TICK_MS = 40;
+const nearbyTimers = new WeakMap<Map, globalThis.Map<number, ReturnType<typeof setInterval>>>();
+/** Result ids already revealed on a map: hiding then re-showing (or a basemap switch) never replays. */
+const revealedResults = new WeakMap<Map, Set<string>>();
 const HEAT_POINTS_MINZOOM = 13;
 const reveals = new WeakMap<Map, globalThis.Map<number, () => void>>();
 /** Numeric per-row id promoted to the Mapbox feature id (`promoteId`), so feature-state (hover /
@@ -164,14 +181,51 @@ function isAnalysisScopeArea(result: PresentableResult): boolean { return result
 function isAnalysisScopeCenter(result: PresentableResult): boolean { return result.datasetId === "derived:analysis-scope-center"; }
 /** A row tagged by the MCP nearby_profile scope-circle contract; never a real analysis match. */
 function isScopeRow(row: Record<string, unknown>): boolean { return row._role === "scope"; }
+function isCenterRow(row: Record<string, unknown>): boolean { return row._role === "center"; }
+function hasCenterRows(result: PresentableResult): boolean { return result.geometry.type === "Point" && result.rows.some(isCenterRow); }
 function hasScopeRows(result: PresentableResult): boolean {
   return (result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon") && result.rows.some(isScopeRow);
 }
 function scopeRadiusM(result: PresentableResult): number | null {
   const row = result.rows.find(isScopeRow);
-  const value = row?.radiusM;
+  const value = row?.radiusM ?? row?.radius_m;
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
+
+export type NearbyCategory = { dataset: string; label: string; color: string };
+
+/** Categories of a nearby-style point result (POIs tagged `_wh_dataset`), in first-appearance
+ *  order, coloured by the fixed C2 categorical palette (beyond 7 → "其他" colour). Empty when the
+ *  fields are absent, so an older MCP simply keeps the previous single-colour rendering. */
+export function nearbyCategories(result: PresentableResult, theme: Theme): NearbyCategory[] {
+  if (result.geometry.type !== "Point" || result.resultStyle || result.presentation) return [];
+  const found = new globalThis.Map<string, string | null>();
+  for (const row of result.rows) {
+    if (isCenterRow(row) || typeof row._wh_dataset !== "string" || !row._wh_dataset) continue;
+    const label = nonEmptyString(row._wh_category_label);
+    if (!found.has(row._wh_dataset) || (found.get(row._wh_dataset) === null && label)) found.set(row._wh_dataset, label);
+  }
+  const palette = categoricalFor(theme);
+  const base = result.displayLabel ?? "附近據點";
+  return [...found.entries()].map(([dataset, label], index) => ({
+    dataset,
+    label: label ?? (found.size > 1 ? `${base}（${index + 1}）` : base),
+    color: palette.colors[index] ?? palette.other,
+  }));
+}
+
+/** Staged reveal timeline (ms from the first render) for a nearby point result. Total ≤ 1500. */
+export function nearbyRevealSchedule(categoryCount: number) {
+  const centerDelay = 400, centerMs = 200, categoryStart = 600, categoryFadeMs = 300, labelMs = 300;
+  const categoryStep = categoryCount > 1 ? Math.min(150, 300 / (categoryCount - 1)) : 0;
+  const labelDelay = categoryStart + categoryStep * Math.max(0, categoryCount - 1) + categoryFadeMs;
+  return { ringMs: 400, centerDelay, centerMs, categoryStart, categoryStep, categoryFadeMs, labelDelay, labelMs, totalMs: labelDelay + labelMs };
+}
+
+const fadeAt = (elapsed: number, delay: number, duration: number): number => {
+  const t = Math.max(0, Math.min(1, (elapsed - delay) / duration));
+  return t * t * (3 - 2 * t);
+};
 
 export type AnalysisResultPresentation = {
   resultId: string;
@@ -195,6 +249,8 @@ export type AnalysisResultPresentation = {
   /** A nearby_profile search-radius circle is mixed into this result's own rows (_role "scope");
    *  it renders as a dashed unfilled outline and is excluded from featureCount/popup stats. */
   scopeRing?: { radiusM: number | null };
+  /** POI categories (nearby-style point result) with the exact colours drawn on the map. */
+  categoryLegend?: { entries: readonly { label: string; color: string }[] };
   /** Only emitted for the existing neighborhood count presentation. */
   countLegend?: { label: string; radiusM: number; entries: readonly { label: string; color: string }[] };
   /** Administrative comparison values and the exact colors used by the map. */
@@ -248,7 +304,13 @@ export type AnalysisResultReadback = {
   ready: boolean;
 };
 
+function stopNearbyReveal(map: Map, index: number): void {
+  const timer = nearbyTimers.get(map)?.get(index);
+  if (timer !== undefined) { clearInterval(timer); nearbyTimers.get(map)!.delete(index); }
+}
+
 function cancelReveal(map: Map, index: number): void {
+  stopNearbyReveal(map, index);
   const listener = reveals.get(map)?.get(index);
   if (listener) map.off("render", listener);
   reveals.get(map)?.delete(index);
@@ -474,6 +536,7 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
     ],
   } : undefined;
   const numericLegend = numericResultLegend(result);
+  const nearbyCats = nearbyCategories(result, theme);
   const style = result.resultStyle;
   const styleSwatch = style && style.kind !== "compare" && style.kind !== "series" ? styleSwatchColor(style, theme) : undefined;
   const rankBarKind = style && (style.kind === "choropleth" || style.kind === "bivariate" || style.kind === "grid" || style.kind === "extrusion");
@@ -493,6 +556,7 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
     ...(style?.kind === "isochrone" ? { fillOpacityRatio: style.fillOpacity } : {}),
     ...(style?.kind === "flow" ? { flowDotOpacityRatio: style.dotOpacity } : {}),
     ...(hasScopeRows(result) ? { scopeRing: { radiusM: scopeRadiusM(result) } } : {}),
+    ...(nearbyCats.length ? { categoryLegend: { entries: nearbyCats.map(({ label, color }) => ({ label, color })) } } : {}),
     ...(countLegend ? { countLegend } : {}),
     ...(numericLegend ? { numericLegend } : {}),
   };
@@ -500,7 +564,7 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
 
 /** A scope-circle row is a supplementary visualization aid, never a counted analysis match. */
 function nonScopeRowCount(result: PresentableResult): number {
-  return hasScopeRows(result) ? result.rows.filter(row => !isScopeRow(row)).length : result.rows.length;
+  return hasScopeRows(result) || hasCenterRows(result) ? result.rows.filter(row => !isScopeRow(row) && !isCenterRow(row)).length : result.rows.length;
 }
 
 /** Metadata for the whole authorized collection, including effectively hidden items. `theme` picks
@@ -511,6 +575,50 @@ export function describeAnalysisResults(results: readonly PresentableResult[], t
     if (data.features.length !== result.rows.length) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
     return presentation(result, nonScopeRowCount(result), theme);
   });
+}
+
+type NearbyRevealPlan = {
+  schedule: ReturnType<typeof nearbyRevealSchedule>; datasets: string[]; opacity: number;
+  primaryId: string; primaryProperty: "circle-opacity"; strokeProperty: "circle-stroke-opacity";
+  centerIds: string[]; labelIds: string[];
+};
+
+/** Drives the staged nearby reveal with ONE setInterval that exists only for the ≤1.5s animation:
+ *  Mapbox cannot transition a data-driven (per-category `match`) opacity, so each tick rewrites it.
+ *  When the timeline ends — or a slider move / reinstall calls cancelReveal — the interval is cleared
+ *  and `finish` writes the final constant opacities. Nothing runs afterwards. */
+function startNearbyReveal(map: Map, index: number, plan: NearbyRevealPlan, finish: () => void): void {
+  stopNearbyReveal(map, index);
+  const { schedule } = plan;
+  const clock = () => typeof performance !== "undefined" ? performance.now() : Date.now();
+  const startedAt = clock();
+  const tick = () => {
+    if (!map.getLayer(plan.primaryId)) { stopNearbyReveal(map, index); return; }
+    const elapsed = clock() - startedAt;
+    if (elapsed >= schedule.totalMs) { finish(); stopNearbyReveal(map, index); return; }
+    if (plan.datasets.length) {
+      const perCategory = plan.datasets.flatMap((dataset, order) => [dataset, plan.opacity * fadeAt(elapsed, schedule.categoryStart + order * schedule.categoryStep, schedule.categoryFadeMs)]);
+      const expression = ["match", ["get", "_wh_dataset"], ...perCategory, 0] as unknown as ExpressionSpecification;
+      map.setPaintProperty(plan.primaryId, plan.primaryProperty, expression);
+      map.setPaintProperty(plan.primaryId, plan.strokeProperty, expression);
+    } else {
+      const value = plan.opacity * fadeAt(elapsed, schedule.categoryStart, schedule.categoryFadeMs);
+      map.setPaintProperty(plan.primaryId, plan.primaryProperty, value);
+      map.setPaintProperty(plan.primaryId, plan.strokeProperty, value);
+    }
+    const centerValue = plan.opacity * fadeAt(elapsed, schedule.centerDelay, schedule.centerMs);
+    for (const id of plan.centerIds) {
+      if (!map.getLayer(id)) continue;
+      if (map.getLayer(id)!.type === "circle") { map.setPaintProperty(id, "circle-opacity", centerValue); map.setPaintProperty(id, "circle-stroke-opacity", centerValue); }
+      else map.setPaintProperty(id, "text-opacity", centerValue);
+    }
+    const labelValue = plan.opacity * fadeAt(elapsed, schedule.labelDelay, schedule.labelMs);
+    for (const id of plan.labelIds) if (map.getLayer(id)) map.setPaintProperty(id, "text-opacity", labelValue);
+  };
+  tick();
+  const timer = setInterval(tick, NEARBY_TICK_MS);
+  if (!nearbyTimers.has(map)) nearbyTimers.set(map, new globalThis.Map());
+  nearbyTimers.get(map)!.set(index, timer);
 }
 
 /** Transient result layers are independent of the permanent layer catalogue. `theme` follows the
@@ -543,6 +651,11 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const scopeArea = isAnalysisScopeArea(result);
     const scopeCenter = isAnalysisScopeCenter(result);
     const scopeRingRows = hasScopeRows(result);
+    const nearbyCats = nearbyCategories(result, theme);
+    const nearbyCenter = hasCenterRows(result) && !result.resultStyle;
+    const nearbyLabels = result.geometry.type === "Point" && !result.resultStyle && result.rows.some(row => !isCenterRow(row) && nonEmptyString(row._wh_name) !== null && typeof row._wh_rank === "number" && row._wh_rank <= NEARBY_LABEL_MAX_RANK);
+    const nearbyStaged = nearbyCenter || nearbyCats.length > 0;
+    const nearbyCategoryColor = nearbyCats.length ? ["match", ["get", "_wh_dataset"], ...nearbyCats.flatMap(category => [category.dataset, category.color]), categoricalFor(theme).other] as unknown as ExpressionSpecification : null;
     const numericLegend = numericResultLegend(result);
     const style = result.resultStyle;
     const heatmap = style?.kind === "heatmap" && result.geometry.type === "Point" ? style : null;
@@ -574,14 +687,15 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const outlineColor = outlineOnly ? TRANSPARENT : isochrone ? TRANSPARENT : styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
     const lineColor: string | ExpressionSpecification = styleColor ?? COLORS[index]!;
     const heatmapPalette = heatmap ? (heatmap.palette ? heatmap.palette[theme] : heatmap.colors) : null;
-    const circleColor: string | ExpressionSpecification = styleColor ? styleColor : proportionalColor ? proportionalColor : heatmapPalette ? heatmapPalette[heatmapPalette.length - 1]! : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
+    const circleColor: string | ExpressionSpecification = styleColor ? styleColor : proportionalColor ? proportionalColor : heatmapPalette ? heatmapPalette[heatmapPalette.length - 1]! : nearbyCategoryColor ? nearbyCategoryColor : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
     const circleRadius: ExpressionSpecification = (proportional ? ["get", proportional.sizeRadiusProperty] : scopeCenter ? ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12] : ["interpolate", ["linear"], ["zoom"], 5, 3, 12, 6, 16, 9]) as unknown as ExpressionSpecification;
-    const baseCircleStrokeColor = proportional ? VIZ_SPEC.ring[theme] : scopeCenter ? "#0f172a" : "#ffffff";
-    const baseCircleStrokeWidth = proportional ? proportional.ringPx : scopeCenter ? 3 : 2;
+    const baseCircleStrokeColor = proportional || nearbyCategoryColor ? VIZ_SPEC.ring[theme] : scopeCenter ? "#0f172a" : "#ffffff";
+    const baseCircleStrokeWidth = proportional ? proportional.ringPx : nearbyCategoryColor ? 1.2 : scopeCenter ? 3 : 2;
     // I1/I2: a hovered (or selected) point / bubble swaps its own 1-2px ring for the 2px accent.
     const circleStrokeColor = ["case", EMPHASIZED, accent, baseCircleStrokeColor] as unknown as ExpressionSpecification;
     const circleStrokeWidth = ["case", EMPHASIZED, ANALYSIS_EMPHASIS_WIDTH_PX, baseCircleStrokeWidth] as unknown as ExpressionSpecification;
     const proportionalSizeFilter = proportional ? warehouseProportionalSizeFilter(proportional) : null;
+    const pointFilter = nearbyCenter ? (proportionalSizeFilter ? ["all", proportionalSizeFilter, CENTER_ROLE_EXCLUDE_FILTER] as unknown as ExpressionSpecification : CENTER_ROLE_EXCLUDE_FILTER) : proportionalSizeFilter;
     const proportionalSortKey = proportional ? warehouseProportionalSortKey(proportional) : null;
     // The user's opacity slider composes with the style's own base ratio for polygon fill
     // (scope-area vs. authoritative), extrusion (M7 0.85) / isochrone (its own fillOpacity), and
@@ -591,13 +705,18 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       : proportional ? resultOpacity * proportional.fillOpacity : resultOpacity;
     const existing = map.getLayer(layerId(index));
     const targetType = polygon ? (extrusion ? "fill-extrusion" : "fill") : line ? "line" : heatmap ? "heatmap" : "circle";
-    const reveal = !existing && !prefersReducedMotion();
+    const revealedSet = revealedResults.get(map) ?? (revealedResults.set(map, new Set()), revealedResults.get(map)!);
+    const reveal = !existing && !prefersReducedMotion() && !revealedSet.has(result.resultId);
+    revealedSet.add(result.resultId);
     const duration = prefersReducedMotion() ? 0 : 380;
     if (existing && existing.type !== targetType) map.removeLayer(layerId(index));
     if (!heatmap && map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
     if (!compare && map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
     if (!fillHatch && map.getLayer(nullHatchLayerId(index))) map.removeLayer(nullHatchLayerId(index));
     if (!proportional && map.getLayer(proportionalLabelLayerId(index))) map.removeLayer(proportionalLabelLayerId(index));
+    if (!nearbyCenter && map.getLayer(nearbyCenterLayerId(index))) map.removeLayer(nearbyCenterLayerId(index));
+    if (!nearbyCenter && map.getLayer(nearbyCenterLabelLayerId(index))) map.removeLayer(nearbyCenterLabelLayerId(index));
+    if (!nearbyLabels && map.getLayer(nearbyPoiLabelLayerId(index))) map.removeLayer(nearbyPoiLabelLayerId(index));
     if (!bivariate) {
       if (map.getLayer(bivariateSizeLayerId(index))) map.removeLayer(bivariateSizeLayerId(index));
       if (map.getSource(bivariateSizeSourceId(index))) map.removeSource(bivariateSizeSourceId(index));
@@ -636,7 +755,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       } });
     } else if (!map.getLayer(layerId(index))) map.addLayer({
       id: layerId(index), type: "circle", source: sourceId(index),
-      ...(proportionalSizeFilter ? { filter: proportionalSizeFilter } : {}),
+      ...(pointFilter ? { filter: pointFilter } : {}),
       ...(proportionalSortKey ? { layout: { "circle-sort-key": proportionalSortKey } } : {}),
       paint: {
         "circle-color": circleColor, "circle-radius": circleRadius,
@@ -671,7 +790,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       map.setPaintProperty(layerId(index), "circle-radius", circleRadius);
       map.setPaintProperty(layerId(index), "circle-stroke-color", circleStrokeColor);
       map.setPaintProperty(layerId(index), "circle-stroke-width", circleStrokeWidth);
-      map.setFilter(layerId(index), proportionalSizeFilter);
+      map.setFilter(layerId(index), pointFilter);
       // Always resets `circle-sort-key`, not just when this result is itself proportional: a slot
       // switching *out* of proportional into another circle-drawn kind (compare/plain point) must
       // clear the previous occupant's sort key (`undefined` reverts it to the unsorted default),
@@ -812,11 +931,43 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       }, paint: { "text-color": "#ffffff", "text-halo-color": "#0f172a", "text-halo-width": 1.4, "text-opacity": resultOpacity } });
       else map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
     }
-    if (scopeRingRows) {
-      if (!map.getLayer(scopeRingLayerId(index))) map.addLayer({ id: scopeRingLayerId(index), type: "line", source: sourceId(index), filter: SCOPE_ROLE_FILTER, paint: {
-        "line-color": SCOPE_RING_COLOR, "line-width": 2, "line-dasharray": [2, 2], "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration },
+    // Nearby decoration: the center point (white dot + accent ring + name) and the closest POIs' names.
+    // Opacity of these is driven by the staged reveal (below) or set outright by applyOpacity.
+    const decorText = theme === "dark" ? "#ffffff" : LIGHT.textStrong;
+    const decorFont = ["DIN Pro Bold", "Arial Unicode MS Bold"];
+    if (nearbyCenter) {
+      const centerDot = ["interpolate", ["linear"], ["zoom"], 5, 5, 12, 8, 16, 10] as unknown as ExpressionSpecification;
+      if (!map.getLayer(nearbyCenterLayerId(index))) map.addLayer({ id: nearbyCenterLayerId(index), type: "circle", source: sourceId(index), filter: CENTER_ROLE_FILTER, paint: {
+        "circle-color": "#ffffff", "circle-radius": centerDot, "circle-stroke-color": accent, "circle-stroke-width": 3.5,
+        "circle-opacity": reveal ? 0 : resultOpacity, "circle-stroke-opacity": reveal ? 0 : resultOpacity, "circle-opacity-transition": { duration: 0 }, "circle-stroke-opacity-transition": { duration: 0 },
       } });
-      else { map.setPaintProperty(scopeRingLayerId(index), "line-color", SCOPE_RING_COLOR); map.setFilter(scopeRingLayerId(index), SCOPE_ROLE_FILTER); }
+      else { map.setPaintProperty(nearbyCenterLayerId(index), "circle-stroke-color", accent); map.setFilter(nearbyCenterLayerId(index), CENTER_ROLE_FILTER); }
+      const centerText = ["coalesce", ["get", "name"], ["get", "label"]] as unknown as ExpressionSpecification;
+      if (!map.getLayer(nearbyCenterLabelLayerId(index))) map.addLayer({ id: nearbyCenterLabelLayerId(index), type: "symbol", source: sourceId(index), filter: CENTER_ROLE_FILTER,
+        layout: { "text-field": centerText, "text-font": decorFont, "text-size": 13, "text-allow-overlap": true, "text-ignore-placement": true, "text-anchor": "top", "text-offset": [0, 1.3] },
+        paint: { "text-color": decorText, "text-halo-color": VIZ_SPEC.ring[theme], "text-halo-width": 2.2, "text-opacity": reveal ? 0 : resultOpacity, "text-opacity-transition": { duration: 0 } },
+      });
+      else { map.setPaintProperty(nearbyCenterLabelLayerId(index), "text-color", decorText); map.setPaintProperty(nearbyCenterLabelLayerId(index), "text-halo-color", VIZ_SPEC.ring[theme]); }
+    }
+    if (nearbyLabels) {
+      const poiLabelFilter = ["all", ["has", "_wh_name"], ["has", "_wh_rank"], ["<=", ["to-number", ["get", "_wh_rank"], 99], NEARBY_LABEL_MAX_RANK], CENTER_ROLE_EXCLUDE_FILTER] as unknown as ExpressionSpecification;
+      if (!map.getLayer(nearbyPoiLabelLayerId(index))) map.addLayer({ id: nearbyPoiLabelLayerId(index), type: "symbol", source: sourceId(index), filter: poiLabelFilter,
+        layout: {
+          "text-field": ["get", "_wh_name"], "text-font": decorFont, "text-size": 11, "text-allow-overlap": false, "text-padding": 3,
+          "symbol-sort-key": ["get", "_wh_rank"], "text-variable-anchor": ["top", "bottom", "right", "left"], "text-radial-offset": 0.9, "text-justify": "auto",
+        },
+        paint: { "text-color": decorText, "text-halo-color": VIZ_SPEC.ring[theme], "text-halo-width": 2.2, "text-opacity": reveal ? 0 : resultOpacity, "text-opacity-transition": { duration: 0 } },
+      });
+      else { map.setPaintProperty(nearbyPoiLabelLayerId(index), "text-color", decorText); map.setPaintProperty(nearbyPoiLabelLayerId(index), "text-halo-color", VIZ_SPEC.ring[theme]); map.setFilter(nearbyPoiLabelLayerId(index), poiLabelFilter); }
+    }
+    if (scopeRingRows) {
+      // Reveal: fades in while the stroke thickens over the first 400ms (native paint transition).
+      const ringMs = reveal ? nearbyRevealSchedule(0).ringMs : duration;
+      if (!map.getLayer(scopeRingLayerId(index))) map.addLayer({ id: scopeRingLayerId(index), type: "line", source: sourceId(index), filter: SCOPE_ROLE_FILTER, paint: {
+        "line-color": scopeRingColor(theme), "line-width": reveal ? 0.5 : SCOPE_RING_WIDTH, "line-dasharray": SCOPE_RING_DASH, "line-opacity": reveal ? 0 : resultOpacity,
+        "line-opacity-transition": { duration: ringMs }, "line-width-transition": { duration: ringMs },
+      } });
+      else { map.setPaintProperty(scopeRingLayerId(index), "line-color", scopeRingColor(theme)); map.setFilter(scopeRingLayerId(index), SCOPE_ROLE_FILTER); }
     } else if (map.getLayer(scopeRingLayerId(index))) map.removeLayer(scopeRingLayerId(index));
     if (polygon) {
       // Width 0 unless the row is emphasized: the layer costs nothing visible until hover/select.
@@ -835,6 +986,11 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     } else if (map.getLayer(edgeLayerId(index))) map.removeLayer(edgeLayerId(index));
     const applyOpacity = () => {
       cancelReveal(map, index);
+      for (const decorId of nearbyDecorLayerIds(index)) {
+        if (!map.getLayer(decorId)) continue;
+        map.setPaintProperty(decorId, decorId === nearbyCenterLayerId(index) ? "circle-opacity" : "text-opacity", resultOpacity);
+        if (decorId === nearbyCenterLayerId(index)) map.setPaintProperty(decorId, "circle-stroke-opacity", resultOpacity);
+      }
       if (!map.getLayer(layerId(index))) return;
       const primary = polygon || proportional ? primaryOpacity : resultOpacity;
       const primaryOpacityProperty = extrusion ? "fill-extrusion-opacity" : polygon ? "fill-opacity" : line ? "line-opacity" : heatmap ? "heatmap-opacity" : "circle-opacity";
@@ -845,7 +1001,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       if (compare && map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
       if (proportional && map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", resultOpacity);
       if (bivariate && map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", dimmable(map, index, resultOpacity));
-      if (scopeRingRows && map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", resultOpacity);
+      if (scopeRingRows && map.getLayer(scopeRingLayerId(index))) { map.setPaintProperty(scopeRingLayerId(index), "line-opacity", resultOpacity); map.setPaintProperty(scopeRingLayerId(index), "line-width", SCOPE_RING_WIDTH); }
       if (polygon && map.getLayer(edgeLayerId(index))) map.setPaintProperty(edgeLayerId(index), "line-opacity", dimmable(map, index, resultOpacity));
       if (grid && map.getLayer(gridGapLayerId(index))) map.setPaintProperty(gridGapLayerId(index), "line-opacity", dimmable(map, index, resultOpacity));
       if (isochrone && map.getLayer(isochroneOutlineLayerId(index))) map.setPaintProperty(isochroneOutlineLayerId(index), "line-opacity", resultOpacity);
@@ -855,7 +1011,22 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
         if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", flow.dotOpacity * resultOpacity);
       }
     };
-    if (reveal) {
+    if (reveal && nearbyStaged) {
+      // Staged reveal (centre → categories one after another → names), one short-lived interval that
+      // clears itself — see startNearbyReveal. First tick waits for a real render, like the plain reveal.
+      const startStaged = () => {
+        cancelReveal(map, index);
+        startNearbyReveal(map, index, {
+          schedule: nearbyRevealSchedule(nearbyCats.length), datasets: nearbyCats.map(category => category.dataset), opacity: resultOpacity,
+          primaryId: layerId(index), primaryProperty: "circle-opacity", strokeProperty: "circle-stroke-opacity",
+          centerIds: nearbyCenter ? [nearbyCenterLayerId(index), nearbyCenterLabelLayerId(index)] : [],
+          labelIds: nearbyLabels ? [nearbyPoiLabelLayerId(index)] : [],
+        }, applyOpacity);
+      };
+      if (!reveals.has(map)) reveals.set(map, new globalThis.Map());
+      reveals.get(map)!.set(index, startStaged);
+      map.on("render", startStaged);
+    } else if (reveal) {
       if (!reveals.has(map)) reveals.set(map, new globalThis.Map());
       reveals.get(map)!.set(index, applyOpacity);
       map.on("render", applyOpacity);
@@ -914,6 +1085,9 @@ export function analysisLayerStack(results: readonly PresentableResult[]): { id:
     entries.push({ id: flowDotLayerId(index), band: "line", index, sub: 1 });
     entries.push({ id: flowEndpointLayerId(index), band: "bubble", index, sub: 0 });
     entries.push({ id: scopeRingLayerId(index), band: "range", index, sub: 0 });
+    entries.push({ id: nearbyCenterLayerId(index), band: "point", index, sub: 1 });
+    entries.push({ id: nearbyPoiLabelLayerId(index), band: "label", index, sub: 2 });
+    entries.push({ id: nearbyCenterLabelLayerId(index), band: "label", index, sub: 3 });
     entries.push({ id: compareLabelLayerId(index), band: "label", index, sub: 0 });
     entries.push({ id: proportionalLabelLayerId(index), band: "label", index, sub: 1 });
   });
@@ -939,6 +1113,7 @@ function removeIndex(map: Map, index: number): void {
   if (map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
   if (map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
   if (map.getLayer(scopeRingLayerId(index))) map.removeLayer(scopeRingLayerId(index));
+  for (const decorId of nearbyDecorLayerIds(index)) if (map.getLayer(decorId)) map.removeLayer(decorId);
   if (map.getLayer(nullHatchLayerId(index))) map.removeLayer(nullHatchLayerId(index));
   if (map.getLayer(gridGapLayerId(index))) map.removeLayer(gridGapLayerId(index));
   if (map.getLayer(isochroneOutlineLayerId(index))) map.removeLayer(isochroneOutlineLayerId(index));
@@ -1035,7 +1210,12 @@ function applyResultOpacity(map: Map, index: number, result: AnalysisResultPrese
   if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", opacity * (result.flowDotOpacityRatio ?? 1));
   if (map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", opacity);
   if (map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", dimmable(map, index, opacity));
-  if (map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity);
+  if (map.getLayer(scopeRingLayerId(index))) { map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity); map.setPaintProperty(scopeRingLayerId(index), "line-width", SCOPE_RING_WIDTH); }
+  for (const decorId of nearbyDecorLayerIds(index)) {
+    if (!map.getLayer(decorId)) continue;
+    map.setPaintProperty(decorId, decorId === nearbyCenterLayerId(index) ? "circle-opacity" : "text-opacity", opacity);
+    if (decorId === nearbyCenterLayerId(index)) map.setPaintProperty(decorId, "circle-stroke-opacity", opacity);
+  }
   if (map.getLayer(edgeLayerId(index))) map.setPaintProperty(edgeLayerId(index), "line-opacity", dimmable(map, index, opacity));
 }
 
@@ -1085,7 +1265,7 @@ export function analysisFeatureTarget(feature: { source?: unknown; properties?: 
   const id = feature.properties?.[FEATURE_ID_PROPERTY];
   if (typeof feature.source !== "string" || !SOURCE_INDEX_PATTERN.test(feature.source)) return null;
   if (typeof id !== "number" || !Number.isInteger(id) || id < 0) return null;
-  if (feature.properties?._role === "scope") return null;
+  if (feature.properties?._role === "scope" || feature.properties?._role === "center") return null;
   return { source: feature.source, id };
 }
 

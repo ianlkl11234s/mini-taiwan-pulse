@@ -12,7 +12,7 @@ export type AnalysisLegendPlayback = {
   onToggle: () => void; onScrub: (index: number) => void;
 };
 
-export type AnalysisLegendEntry = Pick<AnalysisResultPresentation, "resultId" | "styleLegend" | "numericLegend" | "countLegend" | "scopeRing"> & {
+export type AnalysisLegendEntry = Pick<AnalysisResultPresentation, "resultId" | "styleLegend" | "numericLegend" | "countLegend" | "scopeRing" | "categoryLegend"> & {
   title: string;
   /** Human-readable dataset name (never an internal id); null when unknown. */
   source: string | null;
@@ -32,7 +32,7 @@ export function analysisLegendEntries(
   source: (datasetId: string, displayLabel: string) => string | null,
   playbackFor?: (resultId: string) => AnalysisLegendPlayback | undefined,
 ): AnalysisLegendEntry[] {
-  return presented.filter(result => result.styleLegend || result.numericLegend || result.countLegend || result.scopeRing).map(result => {
+  return presented.filter(result => result.styleLegend || result.numericLegend || result.countLegend || result.scopeRing || result.categoryLegend).map(result => {
     const playback = playbackFor && result.resultStyle && isTimedChoropleth(result.resultStyle) ? playbackFor(result.resultId) : undefined;
     return {
       resultId: result.resultId,
@@ -42,6 +42,7 @@ export function analysisLegendEntries(
       ...(result.numericLegend ? { numericLegend: result.numericLegend } : {}),
       ...(result.countLegend ? { countLegend: result.countLegend } : {}),
       ...(result.scopeRing ? { scopeRing: result.scopeRing } : {}),
+      ...(result.categoryLegend ? { categoryLegend: result.categoryLegend } : {}),
       ...(playback ? { playback } : {}),
     };
   });
