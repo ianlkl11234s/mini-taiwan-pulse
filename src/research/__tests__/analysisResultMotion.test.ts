@@ -409,9 +409,17 @@ describe("nearby result: category colours, centre point, names and staged reveal
     expect(installed[0]).toMatchObject({ featureCount: 3, categoryLegend: { entries: [{ label: "公車站", color: "#2e81d5" }, { label: "學校", color: "#b38c15" }] } });
     const main = layers.get("research-analysis-result-points-0")!;
     expect(main.filter).toEqual(["!=", ["get", "_role"], "center"]);
-    expect(main.paint["circle-color"]).toEqual(["match", ["get", "_wh_dataset"], "bus", "#2e81d5", "school", "#b38c15", "#6b7280"]);
+    expect(main.paint["circle-color"]).toEqual(["match", ["coalesce", ["get", "_wh_category_label"], ["get", "_wh_dataset"]], "公車站", "#2e81d5", "學校", "#b38c15", "#6b7280"]);
     expect(layers.get("research-analysis-result-nearby-center-0")!.filter).toEqual(["==", ["get", "_role"], "center"]);
     expect(layers.get("research-analysis-result-nearby-poi-label-0")!.layout!["text-field"]).toEqual(["get", "_wh_name"]);
+  });
+
+  it("groups by category label across datasets, falling back to the dataset", () => {
+    const { map } = stubMap();
+    const multi = { ...nearby, rows: [point(121.5, { _wh_dataset: "bus", _wh_category_label: "交通" }), point(121.6, { _wh_dataset: "mrt", _wh_category_label: "交通" }), point(121.7, { _wh_dataset: "park" })] } satisfies PresentableResult;
+    const entries = installAnalysisResults(map, [multi], 0.55, "dark")[0]!.categoryLegend!.entries;
+    expect(entries.map(entry => entry.color)).toEqual(["#2e81d5", "#b38c15"]);
+    expect(entries[0]!.label).toBe("交通");
   });
 
   it("degrades to the plain single-colour point layer when the new fields are absent", () => {

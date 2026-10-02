@@ -199,11 +199,13 @@ export type NearbyCategory = { dataset: string; label: string; color: string };
  *  fields are absent, so an older MCP simply keeps the previous single-colour rendering. */
 export function nearbyCategories(result: PresentableResult, theme: Theme): NearbyCategory[] {
   if (result.geometry.type !== "Point" || result.resultStyle || result.presentation) return [];
+  // Group key: `_wh_category_label` (one category may span several datasets), else `_wh_dataset`.
   const found = new globalThis.Map<string, string | null>();
   for (const row of result.rows) {
-    if (isCenterRow(row) || typeof row._wh_dataset !== "string" || !row._wh_dataset) continue;
+    if (isCenterRow(row)) continue;
     const label = nonEmptyString(row._wh_category_label);
-    if (!found.has(row._wh_dataset) || (found.get(row._wh_dataset) === null && label)) found.set(row._wh_dataset, label);
+    const key = label ?? nonEmptyString(row._wh_dataset);
+    if (key && !found.has(key)) found.set(key, label);
   }
   const palette = categoricalFor(theme);
   const base = result.displayLabel ?? "附近據點";
@@ -213,6 +215,9 @@ export function nearbyCategories(result: PresentableResult, theme: Theme): Nearb
     color: palette.colors[index] ?? palette.other,
   }));
 }
+
+/** Same grouping key as nearbyCategories, as a Mapbox expression. */
+const NEARBY_CATEGORY_KEY = ["coalesce", ["get", "_wh_category_label"], ["get", "_wh_dataset"]] as unknown as ExpressionSpecification;
 
 /** Staged reveal timeline (ms from the first render) for a nearby point result. Total ≤ 1500. */
 export function nearbyRevealSchedule(categoryCount: number) {
@@ -598,7 +603,7 @@ function startNearbyReveal(map: Map, index: number, plan: NearbyRevealPlan, fini
     if (elapsed >= schedule.totalMs) { finish(); stopNearbyReveal(map, index); return; }
     if (plan.datasets.length) {
       const perCategory = plan.datasets.flatMap((dataset, order) => [dataset, plan.opacity * fadeAt(elapsed, schedule.categoryStart + order * schedule.categoryStep, schedule.categoryFadeMs)]);
-      const expression = ["match", ["get", "_wh_dataset"], ...perCategory, 0] as unknown as ExpressionSpecification;
+      const expression = ["match", NEARBY_CATEGORY_KEY, ...perCategory, 0] as unknown as ExpressionSpecification;
       map.setPaintProperty(plan.primaryId, plan.primaryProperty, expression);
       map.setPaintProperty(plan.primaryId, plan.strokeProperty, expression);
     } else {
@@ -655,7 +660,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const nearbyCenter = hasCenterRows(result) && !result.resultStyle;
     const nearbyLabels = result.geometry.type === "Point" && !result.resultStyle && result.rows.some(row => !isCenterRow(row) && nonEmptyString(row._wh_name) !== null && typeof row._wh_rank === "number" && row._wh_rank <= NEARBY_LABEL_MAX_RANK);
     const nearbyStaged = nearbyCenter || nearbyCats.length > 0;
-    const nearbyCategoryColor = nearbyCats.length ? ["match", ["get", "_wh_dataset"], ...nearbyCats.flatMap(category => [category.dataset, category.color]), categoricalFor(theme).other] as unknown as ExpressionSpecification : null;
+    const nearbyCategoryColor = nearbyCats.length ? ["match", NEARBY_CATEGORY_KEY, ...nearbyCats.flatMap(category => [category.dataset, category.color]), categoricalFor(theme).other] as unknown as ExpressionSpecification : null;
     const numericLegend = numericResultLegend(result);
     const style = result.resultStyle;
     const heatmap = style?.kind === "heatmap" && result.geometry.type === "Point" ? style : null;
