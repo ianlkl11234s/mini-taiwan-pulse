@@ -177,3 +177,12 @@
 .main-map-agent .agent-card-draft__error { color: var(--status-err); font-size: var(--font-sm); }
 .main-map-agent .agent-analysis-make-card { margin-top: 4px; padding: 2px 8px; font-size: var(--font-sm); color: var(--agent-muted); background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
 .main-map-agent .agent-analysis-make-card-hint { display: block; margin-top: 2px; font-size: var(--font-sm); color: var(--agent-muted); }
+/* Dev autopair 綠燈（僅本機 VITE_RESEARCH_DEV_AUTOPAIR=1）：狀態色用 --status-live／--light-status-live token。 */
+.research-dev-status { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: var(--font-weight-semibold); }
+.research-dev-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); flex: none; }
+.research-dev-status--live { color: var(--status-live); }
+.research-dev-status--live .research-dev-dot { background: var(--status-live); }
+.main-map-agent--light .research-dev-status--live { color: var(--light-status-live); }
+.main-map-agent--light .research-dev-status--live .research-dev-dot { background: var(--light-status-live); }
+.research-dev-tab { color: var(--text-default); font-weight: var(--font-weight-regular); font-size: var(--font-sm); }
+.main-map-agent .research-pairing--dev > p.research-dev-status { display: flex; max-width: none; }

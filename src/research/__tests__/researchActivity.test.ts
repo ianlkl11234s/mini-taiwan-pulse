@@ -14,6 +14,13 @@ describe("activityForOperation", () => {
     expect(activityForOperation("aggregate_records", {})).toMatchObject({ title: "Agent 正在彙整資料" });
   });
 
+  it("describes what is happening in plain words, without technical guard phrases", () => {
+    const ops = ["aggregate_records", "aggregate_by_area", "walking_isochrone", "import_warehouse_result", "create_analysis_scope", "summarize_layer", "nearby", "show_nearby"];
+    for (const op of ops) expect(`${activityForOperation(op, {})?.title}${activityForOperation(op, {})?.detail}`).not.toMatch(/缺漏值|零值|pedestrian|雜湊|未匹配|已登記版本|冒充/);
+    expect(activityForOperation("show_nearby", {})).toMatchObject({ title: "正在找附近的設施" });
+    expect(activityForOperation("import_warehouse_result", {})).toMatchObject({ title: "正在把結果畫到地圖" });
+  });
+
   it("marks presentation and explicit terminal signals without invented percentages", () => {
     expect(activityForOperation("present_result", {})).toMatchObject({ phase: "presenting" });
     expect(activityForOperation("research_complete", {})).toMatchObject({ phase: "complete" });

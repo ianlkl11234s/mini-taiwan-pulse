@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { awaitSceneIdle, waitForMapStyle, waitForLayoutFrame, waitForSceneRender, type IdleMap } from "../sceneReadiness";
+import { awaitSceneIdle, isStyleReady, waitForMapStyle, waitForLayoutFrame, waitForSceneRender, type IdleMap } from "../sceneReadiness";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 class MapEvents implements IdleMap {
@@ -100,5 +100,28 @@ describe("style replacement", () => {
       await expect(wait).resolves.toBe(false);
       expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
     }
+  });
+  // Regression (2026-10-02 live eval): earthquakesGlobal ripples setPaintProperty a data-driven
+  // circle-radius every frame, so Mapbox marks the source "reload" every frame and
+  // isStyleLoaded()/loaded() never turn true. A parsed style must still count as ready.
+  it("treats a parsed style as ready while tiles or an animated source keep loading", async () => {
+    expect(isStyleReady({ isStyleLoaded: () => false, getStyle: () => ({ version: 8 }) })).toBe(true);
+    expect(isStyleReady({ isStyleLoaded: () => false, getStyle: () => { throw new Error("Style is not done loading"); } })).toBe(false);
+    expect(isStyleReady({ isStyleLoaded: () => false })).toBe(false);
+    expect(isStyleReady({ isStyleLoaded: () => true, getStyle: () => { throw new Error("unused"); } })).toBe(true);
+    const events = new MapEvents();
+    const busy = Object.assign(events, { isStyleLoaded: () => false, getStyle: () => ({ version: 8 }) });
+    await expect(waitForMapStyle(busy, () => true, 100)).resolves.toBe(true);
+    expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+  });
+  it("resolves on style.load during a style swap even if tiles never settle", async () => {
+    vi.useFakeTimers();
+    const events = new MapEvents(); let parsed = false;
+    const map = Object.assign(events, { isStyleLoaded: () => false, getStyle: () => { if (!parsed) throw new Error("Style is not done loading"); return { version: 8 }; } });
+    const wait = waitForMapStyle(map, () => true, 5_000);
+    events.emit("render");
+    parsed = true; events.emit("style.load");
+    await expect(wait).resolves.toBe(true);
+    expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
   });
 });
