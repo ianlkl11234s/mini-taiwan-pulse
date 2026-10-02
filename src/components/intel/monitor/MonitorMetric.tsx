@@ -3,10 +3,11 @@
  *
  * 由 `HazardCards.tsx` 私有的 `Metric`／`MetaRow`／`Note` 升格；**不是**通用 Card（§11 KEEP OUT）。
  * 一格一個主數字（`MonitorMetric`）＋其餘指標 KPI 列（`MonitorKpis`）＋副資訊（`MonitorSub`），
- * 卡底一行原因用 `MonitorNote`。字級只用 `MF.*`，顏色只用 token。
+ * 卡底一行原因用 `MonitorNote`；多指標卡的小倍數列用 `MonitorRows`（§5.35 F3）。字級只用 `MF.*`，顏色只用 token。
  */
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { BORDER } from "../../../styles/designTokens";
 import { MF } from "./monitorFont";
 
 /**
@@ -129,4 +130,67 @@ export function MonitorSub({ items }: { items: ReactNode[] }) {
 /** 卡底一行原因（`MF.label`），例如「查詢失敗」「停更 139 天：上游未更新」 */
 export function MonitorNote({ tone = "neutral", children }: { tone?: MonitorTone; children: ReactNode }) {
   return <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: toneColor[tone] }}>{children}</div>;
+}
+
+export interface MonitorRowItem {
+  /** 指標名稱（`MF.label` textMuted） */
+  label: ReactNode;
+  /** 走勢圖：建議 `TimeseriesSparkline bare heightTier="mini"` 或 `HazardTrendBars bare`；同卡各列由呼叫端給同一時間軸 */
+  chart: ReactNode;
+  /** 最新值（`MF.body` FONT_DATA 700，不斷行） */
+  value: ReactNode;
+  unit?: string;
+  /** 滑鼠提示（例如完整名稱、資料時間） */
+  title?: string;
+}
+
+/**
+ * 多指標卡小倍數列（§5.35 F3）：每列「名稱｜走勢（1fr）｜最新值」，列間 1px `BORDER.soft` 細線。
+ * 三欄共用一個 grid，所以每列的圖欄同寬；比例尺各自、不另放圖例。
+ * 欄距用 padding 而非 column-gap，細線才會整列連續。
+ */
+export function MonitorRows({ rows }: { rows: MonitorRowItem[] }) {
+  if (!rows.length) return null;
+  return (
+    <div
+      data-testid="monitor-rows"
+      style={{ display: "grid", gridTemplateColumns: "minmax(64px, auto) minmax(0,1fr) auto", alignItems: "center" }}
+    >
+      {rows.map((r, i) => {
+        const cell = {
+          padding: "4px 0",
+          borderTop: i > 0 ? `1px solid ${BORDER.soft}` : undefined,
+          minWidth: 0,
+          alignSelf: "stretch",
+          display: "flex",
+          alignItems: "center",
+        } as const;
+        return (
+          <Fragment key={i}>
+            <div title={r.title} style={{ ...cell, paddingRight: 8, fontSize: MF.label, color: COLORS.textMuted }}>
+              {r.label}
+            </div>
+            <div title={r.title} style={cell}>
+              <div style={{ width: "100%", minWidth: 0 }}>{r.chart}</div>
+            </div>
+            <div title={r.title} style={{ ...cell, paddingLeft: 8, justifyContent: "flex-end" }}>
+              <span data-testid="monitor-row-value" style={NOWRAP}>
+                <span
+                  style={{
+                    fontFamily: FONT_DATA, fontSize: MF.body, fontWeight: 700,
+                    fontVariantNumeric: "tabular-nums", color: COLORS.textStrong,
+                  }}
+                >
+                  {r.value}
+                </span>
+                {r.unit && (
+                  <span style={{ fontSize: MF.label, color: COLORS.textMuted, marginLeft: unitGap(r.unit) }}>{r.unit}</span>
+                )}
+              </span>
+            </div>
+          </Fragment>
+        );
+      })}
+    </div>
+  );
 }

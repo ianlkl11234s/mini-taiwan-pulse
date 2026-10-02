@@ -52,6 +52,11 @@ export interface TimeseriesSparklineProps {
    * gapSec 斷線邏輯同樣套用在這條線上。不傳 = 行為與現在完全相同。
    */
   extraSeries?: { data: SparklinePoint[]; color: string; label?: string };
+  /**
+   * 第三條以後的線（opt-in，同一個 Y 軸，同單位才可疊；spec §5.35 同單位最多 3 條）。
+   * 只畫線＋最後一點，Y 值域與 tooltip 會納入；要 useMemo。不傳＝行為完全不變。
+   */
+  moreSeries?: { data: SparklinePoint[]; color: string; label?: string }[];
   /** 主線在 tooltip 中的標籤（搭配 extraSeries 使用時用來區分兩條線）；不傳則 tooltip 只顯示色點 + 數值 */
   seriesLabel?: string;
   /**
@@ -63,6 +68,16 @@ export interface TimeseriesSparklineProps {
   tooltipDateFormat?: "date" | "datetime";
   /** Y 軸刻度是否強制縮寫成 50k 這種格式（五位數以上數值避免擠爆）；預設 false = 沿用原本依 step 判斷的縮寫規則 */
   compactYAxis?: boolean;
+  /**
+   * 小倍數列用（spec §5.35 F3，只在監看新版生效）：不畫 Y／X 軸字、格線與單位字，
+   * 四邊留白縮到 2px。搭配 `heightTier="mini"`。舊版忽略此參數。
+   */
+  bare?: boolean;
+  /**
+   * 正常範圍色帶（例如近 7 天 p10–p90）：在圖區畫一條水平淡色帶，Y 值域會把 lo／hi 納入。
+   * `label` 進 tooltip（showTooltip 時）與色帶的原生提示。不傳＝不畫、值域不變。
+   */
+  band?: { lo: number; hi: number; label?: string };
 }
 
 /**
@@ -73,6 +88,7 @@ export function computeCombinedYRange(
   data: SparklinePoint[],
   extraData?: SparklinePoint[],
   warningValue?: number | null,
+  band?: { lo: number; hi: number },
 ): { vMin: number; vMax: number } | null {
   if (data.length === 0) return null;
   const vals = data.map((d) => d.v);
@@ -82,6 +98,11 @@ export function computeCombinedYRange(
   if (warningValue != null) {
     vMin = Math.min(vMin, warningValue);
     vMax = Math.max(vMax, warningValue);
+  }
+  // 正常範圍色帶整條要看得見；非有限值的 band 不納入（避免 NaN 污染值域）
+  if (band && Number.isFinite(band.lo) && Number.isFinite(band.hi)) {
+    vMin = Math.min(vMin, band.lo, band.hi);
+    vMax = Math.max(vMax, band.lo, band.hi);
   }
   return { vMin, vMax };
 }
@@ -148,7 +169,7 @@ function fmtTooltipDate(t: number, format: "date" | "datetime"): string {
 
 const DEFAULT_W = 256;  // fallback 寬（量到容器實際寬度前使用），原配 popup 280 寬扣 padding
 const BASE_PAD_L = 30;  // 左邊讓出空間給 Y 軸數字
-const PAD_R = 8;
+const BASE_PAD_R = 8;
 const PAD_T = 6;
 const BASE_PAD_B = 14;
 // 監看新版（v2）軸字 13px：左右下邊界要放寬，X 軸 tick 另依間距疏化
@@ -157,6 +178,8 @@ const V2_PAD_B = 22;
 const V2_TICK_MIN_GAP = 52;
 /** 迷你圖矮於此值時，v2 軸字只留首尾（Y 軸上下刻度、X 軸頭尾日期） */
 const V2_MIN_FULL_AXIS_H = 80;
+/** v2 bare（小倍數列）四邊留白 */
+const BARE_PAD = 2;
 
 function niceTicks(min: number, max: number, count = 3): number[] {
   if (!isFinite(min) || !isFinite(max) || min === max) {
@@ -221,16 +244,22 @@ export function TimeseriesSparkline({
   fillArea = true,
   gapSec,
   extraSeries,
+  moreSeries,
   seriesLabel,
   showTooltip = false,
   tooltipDateFormat = "datetime",
   compactYAxis = false,
+  bare: bareProp = false,
+  band,
 }: TimeseriesSparklineProps) {
   const v2 = useMonitorV2();
-  const PAD_L = v2 ? V2_PAD_L : BASE_PAD_L;
-  const PAD_B = v2 ? V2_PAD_B : BASE_PAD_B;
+  // bare 只在監看新版生效（舊版畫面不可變）
+  const bare = v2 && bareProp;
+  const PAD_L = bare ? BARE_PAD : v2 ? V2_PAD_L : BASE_PAD_L;
+  const PAD_R = bare ? BARE_PAD : BASE_PAD_R;
+  const PAD_B = bare ? BARE_PAD : v2 ? V2_PAD_B : BASE_PAD_B;
   // v2 字級較大：上留白加大，最上方刻度字不被切；有單位時單位字放在留白裡，不壓到線與最新點
-  const padT = v2 ? (unit ? 18 : 10) : PAD_T;
+  const padT = bare ? BARE_PAD : v2 ? (unit ? 18 : 10) : PAD_T;
   // heightTier：圖區高度固定，總高 = 上留白 + 圖區 + 下留白（軸字）
   // 只在監看新版生效：舊版即使呼叫端傳了 heightTier 也維持原 height（舊版畫面不可變）
   const height = v2 && heightTier ? padT + MON_CHART_H[heightTier] + PAD_B : heightProp;
@@ -262,7 +291,11 @@ export function TimeseriesSparkline({
     if (data.length === 0) return null;
     const { tMin, tMax } = computeTimeRange(data, timeDomain)!;
     // Y 值域把 extraSeries（如有）與警戒線一起納入，否則第二條線／警戒線可能跑出畫面
-    const { vMin, vMax } = computeCombinedYRange(data, extraSeries?.data, warningValue)!;
+    // moreSeries 併進第二條線的資料一起算值域（不傳時與舊算法逐位元相同）
+    const extraForRange = moreSeries?.length
+      ? [...(extraSeries?.data ?? []), ...moreSeries.flatMap((s) => s.data)]
+      : extraSeries?.data;
+    const { vMin, vMax } = computeCombinedYRange(data, extraForRange, warningValue, band)!;
     // 給 vMax 留 10% 空間，避免最高點貼頂
     const pad = (vMax - vMin) * 0.1 || Math.max(Math.abs(vMax), 1) * 0.1;
     // 資料全非負（人數/雨量/水深…）→ y 下界 clamp 到 0，不長出負值刻度
@@ -282,6 +315,10 @@ export function TimeseriesSparkline({
       ? buildSegments(extraSeries.data, gapSec).map((seg) => buildSegView(seg, xScale, yScale))
       : [];
     const extraByT = extraSeries ? new Map(extraSeries.data.map((d) => [d.t, d.v])) : undefined;
+    const moreViews = (moreSeries ?? []).map((s) => ({
+      segs: buildSegments(s.data, gapSec).map((seg) => buildSegView(seg, xScale, yScale)),
+      byT: new Map(s.data.map((d) => [d.t, d.v])),
+    }));
     // v2 缺口斜線帶（只看主線）：每個斷線缺口＝前段最後一點到下段第一點
     const mainSegs = v2 && gapSec != null ? buildSegments(data, gapSec) : [];
     const gapBands: { x0: number; x1: number }[] = [];
@@ -348,8 +385,8 @@ export function TimeseriesSparkline({
       }
     }
 
-    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, gapBands, timeTicks: shownTimeTicks };
-  }, [data, timeDomain, warningValue, height, w, gapSec, extraSeries, v2, PAD_L, PAD_B, padT]);
+    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, moreViews, gapBands, timeTicks: shownTimeTicks };
+  }, [data, timeDomain, warningValue, band, height, w, gapSec, extraSeries, moreSeries, v2, PAD_L, PAD_R, PAD_B, padT]);
 
   function handleMouseMove(e: ReactMouseEvent<SVGSVGElement>) {
     if (!showTooltip || !view || data.length === 0) return;
@@ -373,6 +410,10 @@ export function TimeseriesSparkline({
   }
 
   if (data.length === 0 || !view) {
+    // 小倍數列：一列高度只有約 28px，放不下置中提示句，只留「—」
+    if (bare) {
+      return <div style={{ fontSize: MF.label, color: COLORS.textDim }}>—</div>;
+    }
     return (
       <div
         style={{
@@ -414,7 +455,7 @@ export function TimeseriesSparkline({
         width="100%"
         height={height}
         viewBox={`0 0 ${w} ${height}`}
-        style={{ display: "block", marginTop: 4 }}
+        style={{ display: "block", marginTop: bare ? 0 : 4 }}
         onMouseMove={showTooltip ? handleMouseMove : undefined}
         onMouseLeave={showTooltip ? handleMouseLeave : undefined}
       >
@@ -429,8 +470,25 @@ export function TimeseriesSparkline({
             {view.gapBands.map((b, i) => gapBand(b.x0, b.x1, `gap-${i}`))}
           </>
         )}
-        {/* Y 軸 grid + tick label */}
-        {view.ticks.map((tv, ti) => {
+        {/* 正常範圍色帶（淡色水平帶），畫在格線與線之下 */}
+        {band && Number.isFinite(band.lo) && Number.isFinite(band.hi) && (() => {
+          const yTop = view.yScale(Math.max(band.lo, band.hi));
+          const yBot = view.yScale(Math.min(band.lo, band.hi));
+          return (
+            <rect
+              data-testid="sparkline-band"
+              x={PAD_L}
+              y={yTop}
+              width={Math.max(0, w - PAD_L - PAD_R)}
+              height={Math.max(0, yBot - yTop)}
+              fill={WHITE_ALPHA[8]}
+            >
+              {band.label && <title>{`${band.label} ${fmtValue(band.lo)}–${fmtValue(band.hi)}`}</title>}
+            </rect>
+          );
+        })()}
+        {/* Y 軸 grid + tick label（bare 不畫） */}
+        {!bare && view.ticks.map((tv, ti) => {
           const y = view.yScale(tv);
           // v2 矮圖：Y 軸字只留首尾，格線照畫
           // v2：Y 軸字最多三個（底、中、頂），圖區矮於 60 只留底與頂，避免 13px 字疊在一起
@@ -475,7 +533,7 @@ export function TimeseriesSparkline({
               strokeWidth={0.8}
               strokeDasharray="3 2"
             />
-            <text
+            {!bare && <text
               x={w - PAD_R - 2}
               y={view.yScale(warningValue) - 2}
               fontSize={8}
@@ -485,7 +543,7 @@ export function TimeseriesSparkline({
               fontFamily="monospace"
             >
               {warningLabel} {fmtValue(warningValue)}
-            </text>
+            </text>}
           </g>
         )}
 
@@ -573,8 +631,25 @@ export function TimeseriesSparkline({
           />
         )}
 
+        {/* 第三條以後的線（moreSeries） */}
+        {moreSeries?.map((s, si) => (
+          <g key={`ms-${si}`}>
+            {view.moreViews[si]!.segs.map((sv, i) =>
+              sv.single ? (
+                <circle key={i} cx={view.xScale(sv.first.t)} cy={view.yScale(sv.first.v)} r={1.6} fill={s.color} />
+              ) : (
+                <polyline key={i} data-testid="sparkline-more-line" points={sv.pts} fill="none" stroke={s.color}
+                  strokeWidth={1.4} strokeLinejoin="round" strokeLinecap="round" />
+              ),
+            )}
+            {s.data.length > 0 && (
+              <circle cx={view.xScale(s.data[s.data.length - 1]!.t)} cy={view.yScale(s.data[s.data.length - 1]!.v)} r={2.2} fill={s.color} />
+            )}
+          </g>
+        ))}
+
         {/* X 軸時間 tick（貼邊者換錨點避免裁切） */}
-        {view.timeTicks.map((tk, i) => (
+        {!bare && view.timeTicks.map((tk, i) => (
           <text
             key={`x-${i}`}
             x={tk.x}
@@ -589,8 +664,8 @@ export function TimeseriesSparkline({
           </text>
         ))}
 
-        {/* 單位（右上角） */}
-        {unit && (
+        {/* 單位（右上角；bare 不畫，單位由列尾數值帶） */}
+        {unit && !bare && (
           <text
             x={w - PAD_R}
             y={v2 ? 12 : padT + 8}
@@ -625,6 +700,13 @@ export function TimeseriesSparkline({
                 text: `${extraSeries.label ? extraSeries.label + " " : ""}${fmtTooltipValue(extraV, unit)}`,
                 dot: extraSeries.color,
               });
+            }
+            moreSeries?.forEach((s, si) => {
+              const mv = view.moreViews[si]!.byT.get(hp.t);
+              if (mv != null) lines.push({ text: `${s.label ? s.label + " " : ""}${fmtTooltipValue(mv, unit)}`, dot: s.color });
+            });
+            if (band?.label && Number.isFinite(band.lo) && Number.isFinite(band.hi)) {
+              lines.push({ text: `${band.label} ${fmtValue(band.lo)}–${fmtValue(band.hi)}` });
             }
 
             const charW = v2 ? 7.5 : 5;

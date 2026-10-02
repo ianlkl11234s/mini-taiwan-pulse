@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement, type ReactElement } from "react";
-import { MonitorKpis, MonitorMetric, MonitorNote, MonitorSub, toneColor } from "../MonitorMetric";
+import { MonitorKpis, MonitorMetric, MonitorNote, MonitorRows, MonitorSub, toneColor } from "../MonitorMetric";
 import { MonitorStyleContext } from "../monitorStyle";
 import { COLORS } from "../../intelTokens";
 
@@ -53,5 +53,38 @@ describe("monitor v2 metric row (spec §5.35 D3)", () => {
     const html = v2(createElement(MonitorNote, { tone: "err", children: "停更 139 天" }));
     expect(html).toContain("var(--mon-f-label)");
     expect(html).toContain(COLORS.statusErr);
+  });
+});
+
+describe("MonitorRows small multiples (spec §5.35 F3)", () => {
+  const rows = [
+    { label: "急診", chart: createElement("svg"), value: "132", unit: "人" },
+    { label: "供電", chart: createElement("svg"), value: "41,230", unit: "MW" },
+    { label: "共機", chart: createElement("svg"), value: "15" },
+  ];
+
+  it("renders one name/chart/value triple per row on a shared 3-column grid", () => {
+    const html = v2(createElement(MonitorRows, { rows }));
+    expect(html).toContain("grid-template-columns:minmax(64px, auto) minmax(0,1fr) auto");
+    expect(html.match(/data-testid="monitor-row-value"/g)).toHaveLength(3);
+    expect(html.match(/<svg/g)).toHaveLength(3);
+  });
+
+  it("keeps values unbroken in the data font at body size, units at label size", () => {
+    const html = v2(createElement(MonitorRows, { rows }));
+    expect(html.match(/data-testid="monitor-row-value" style="white-space:nowrap"/g)).toHaveLength(3);
+    expect(html).toContain("var(--mon-f-body)");
+    expect(html).toContain("font-weight:700");
+    expect(html).toContain("margin-left:0.25em");
+  });
+
+  it("draws a soft hairline between rows only (not above the first)", () => {
+    const html = v2(createElement(MonitorRows, { rows }));
+    // 3 欄 × 第 2、3 列 = 6 格有上框線
+    expect(html.match(/border-top:1px solid rgba\(255,255,255,0.06\)/g)).toHaveLength(6);
+  });
+
+  it("renders nothing for no rows", () => {
+    expect(v2(createElement(MonitorRows, { rows: [] }))).toBe("");
   });
 });
