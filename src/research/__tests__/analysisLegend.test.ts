@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { AnalysisResultPresentation } from "../analysisResultOverlay";
+import { warehouseSourceLabel, type AnalysisResultPresentation } from "../analysisResultOverlay";
 import { analysisLegendEntries, getAnalysisLegendSnapshot, publishAnalysisLegend, subscribeAnalysisLegend, type AnalysisLegendEntry, type AnalysisLegendPlayback } from "../analysisLegendStore";
 import { AnalysisLegendSection } from "../AnalysisLegendSection";
 import { WarehouseStyleLegendView } from "../WarehouseStyleLegend";
@@ -28,6 +28,23 @@ describe("G1 analysis legend store", () => {
     ], datasetId => datasetId === "fixture:ds" ? "內政部人口統計" : null);
     expect(entries.map(entry => [entry.resultId, entry.title, entry.source])).toEqual([["r1", "各區人口密度", "內政部人口統計"], ["ring", "各區人口密度", "內政部人口統計"]]);
     expect(entries[0]!.styleLegend).toBe(choroplethLegend);
+  });
+
+  it("uses a warehouse result's own dataset titles, shared with its radius-ring sibling", () => {
+    const entries = analysisLegendEntries([
+      presented({ resultId: "wh-7:point", datasetId: "warehouse:wh-7", geometryType: "Point", categoryLegend: { entries: [{ label: "醫療", color: "#f00" }] }, sourceLabel: "醫療院所、捷運站" }),
+      presented({ resultId: "wh-7:polygon", datasetId: "warehouse:wh-7", scopeRing: { radiusM: 500 } }),
+    ], () => null);
+    expect(entries.map(entry => entry.source)).toEqual(["醫療院所、捷運站", "醫療院所、捷運站"]);
+    const html = renderToStaticMarkup(h(AnalysisLegendSection, { entries, compact: false, isDark: true }));
+    expect(html).not.toContain("來源資訊待補");
+    expect(html).not.toContain("warehouse:");
+  });
+
+  it("formats the source line from row titles: unique, in order, first three + 等 N 份", () => {
+    expect(warehouseSourceLabel([{ _role: "center" }, { _wh_source: "甲" }, { _wh_source: "乙" }, { _wh_source: "甲" }])).toBe("甲、乙");
+    expect(warehouseSourceLabel([{ _wh_source: "甲" }, { _wh_source: "乙" }, { _wh_source: "丙" }, { _wh_source: "丁" }, { _wh_source: "戊" }])).toBe("甲、乙、丙 等 5 份");
+    expect(warehouseSourceLabel([{ name: "x" }, { _wh_source: " " }])).toBeUndefined();
   });
 
   it("attaches playback (T2 A2) only for a timed choropleth entry when playbackFor is given", () => {

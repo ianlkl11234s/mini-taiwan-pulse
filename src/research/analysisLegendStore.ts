@@ -32,12 +32,16 @@ export function analysisLegendEntries(
   source: (datasetId: string, displayLabel: string) => string | null,
   playbackFor?: (resultId: string) => AnalysisLegendPlayback | undefined,
 ): AnalysisLegendEntry[] {
+  // A mixed warehouse result is split per geometry type (wh-N:point / wh-N:polygon) sharing one
+  // datasetId; the radius-ring part carries no `_wh_source` rows, so it borrows its sibling's line.
+  const sourceByDataset = new Map<string, string>();
+  for (const result of presented) if (result.sourceLabel && !sourceByDataset.has(result.datasetId)) sourceByDataset.set(result.datasetId, result.sourceLabel);
   return presented.filter(result => result.styleLegend || result.numericLegend || result.countLegend || result.scopeRing || result.categoryLegend).map(result => {
     const playback = playbackFor && result.resultStyle && isTimedChoropleth(result.resultStyle) ? playbackFor(result.resultId) : undefined;
     return {
       resultId: result.resultId,
       title: result.displayLabel,
-      source: source(result.datasetId, result.displayLabel),
+      source: result.sourceLabel ?? sourceByDataset.get(result.datasetId) ?? source(result.datasetId, result.displayLabel),
       ...(result.styleLegend ? { styleLegend: result.styleLegend } : {}),
       ...(result.numericLegend ? { numericLegend: result.numericLegend } : {}),
       ...(result.countLegend ? { countLegend: result.countLegend } : {}),
