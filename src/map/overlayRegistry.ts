@@ -1667,7 +1667,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 2 }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
@@ -9351,7 +9351,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
     filter: NOISE_ENFORCEMENT_FILTER,
     layers: [
-      denseHeatmapLayer({ suffix: "noise-heatmap", pointsFromZoom: DENSE_FROM.noiseEnforcementEvents, intensity: 0.1, opacity: { layer: "noiseEnforcementEvents", param: "noiseEnforcementEventsOpacity" } }), {
+      denseHeatmapLayer({ suffix: "noise-heatmap", pointsFromZoom: DENSE_FROM.noiseEnforcementEvents, intensity: 0.3, opacity: { layer: "noiseEnforcementEvents", param: "noiseEnforcementEventsOpacity" } }), {
       suffix: "noise-circle", type: "circle", minzoom: DENSE_FROM.noiseEnforcementEvents, maxzoom: 15,
       paint: (_isDark, p) => {
         const op = p?.noiseEnforcementEventsOpacity ?? 0.75;
