@@ -17,8 +17,8 @@ const FILL_COLOR = "#f59e0b";
 const OPACITY_DEFAULT = Number(paramDefault("worldTrashDebris", "worldTrashDebrisOpacity"));
 // R5（P-4／G-2）：25,000 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點；熱區共用 GeoJSON source，不可點擊。
 const POINTS_FROM_ZOOM = densePointsFromZoom(25_000);
-// 2026-10-02 校正（世界 z1.6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
-const HEATMAP_INTENSITY = 1;
+// 2026-10-03 瀏覽器校正（世界 z1.6 地球儀視角：1 幾乎看不見、20 歐洲整片飽和，取 5）
+const HEATMAP_INTENSITY = 5;
 
 export function useWorldTrashDebrisLayer(
   mapRef: React.RefObject<MapboxMap | null>,
