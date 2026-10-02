@@ -4,7 +4,10 @@ import {
   loadRateColor,
   summarisePowerKpis,
   POWER_REGION_ORDER,
+  groupPlantsByRegion,
+  type PowerPlantRow,
 } from "../powerCardData";
+import { parseTaipowerRegion } from "../../../../data/energyLoader";
 import type { PowerDashboard, PowerGenerationDay } from "../../../../data/energyLoader";
 
 const EMPTY_DASHBOARD: PowerDashboard = { status: null, regions: [] };
@@ -212,5 +215,39 @@ describe("loadRateColor", () => {
     expect(loadRateColor(0.5)).toBe("#64aaff");
     expect(loadRateColor(0.85)).toBe("#22c55e");
     expect(loadRateColor(1.0)).toBe("#f97316");
+  });
+});
+
+describe("groupPlantsByRegion", () => {
+  const plant = (name: string, mw: number | null, region: PowerPlantRow["region"]): PowerPlantRow => ({
+    name, mw, rate: null, spark: [], fuel: "coal", region,
+  });
+
+  it("固定順序、組內出力由大到小，東部空組仍在、未分區無電廠不出現", () => {
+    const g = groupPlantsByRegion([
+      plant("中A", 100, "central"), plant("北A", 50, "north"), plant("中B", 300, "central"),
+      plant("南A", 10, "south"), plant("島A", 5, "offshore_island"),
+    ]);
+    expect(g.map((x) => x.label)).toEqual(["北部", "中部", "南部", "東部", "離島"]);
+    expect(g[1]!.plants.map((p) => p.name)).toEqual(["中B", "中A"]);
+    expect(g[1]!.totalMw).toBe(400);
+    expect(g[3]!.plants).toEqual([]);
+    expect(g[4]!.note).toBe("不屬台電本島四區");
+  });
+
+  it("region 為 null 的電廠進未分區（排在最後）", () => {
+    const g = groupPlantsByRegion([plant("北A", 50, "north"), plant("不明", 7, null)]);
+    expect(g.map((x) => x.label)).toEqual(["北部", "中部", "南部", "東部", "離島", "未分區"]);
+    expect(g[5]!.plants.map((p) => p.name)).toEqual(["不明"]);
+  });
+});
+
+describe("parseTaipowerRegion", () => {
+  it("認得的值原樣回傳，不認得或缺值一律 null", () => {
+    expect(parseTaipowerRegion("east")).toBe("east");
+    expect(parseTaipowerRegion("offshore_island")).toBe("offshore_island");
+    expect(parseTaipowerRegion("mars")).toBeNull();
+    expect(parseTaipowerRegion(undefined)).toBeNull();
+    expect(parseTaipowerRegion(3)).toBeNull();
   });
 });

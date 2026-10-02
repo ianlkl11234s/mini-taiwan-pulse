@@ -80,4 +80,4 @@ split 的 24 格沒有共用卡片框：MonitorPanel 只排位置，框、標題
 
 資料時間追查（使用者要求追到源頭）：[`data-time-trace.md`](./data-time-trace.md)。可選的資料庫改動（要使用者拍板）：新聞 RPC 回傳彙整時間、警報 RPC 回傳最新警報時間、災防觀測兩個頻道加進 YouTube 收集清單。
 
-資料面另案（需要人處理，不在前端 PR）：機場 collector（HiCloud VM）、在監上游、登革熱換源、落雷 CWA collector、急診 09-25～28 斷段、公衛 yoy RPC `COALESCE`。
+資料面另案（需要人處理，不在前端 PR；網路觀察 collector 覆寫已修，data-collectors #124）：機場 collector（HiCloud VM）、在監上游、登革熱換源、落雷 CWA collector、急診 09-25～28 斷段、公衛 yoy RPC `COALESCE`。

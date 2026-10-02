@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE, BORDER, WHITE_ALPHA } from "../../../styles/designTokens";
@@ -16,7 +16,7 @@ import {
   type PowerDailyTrendRow,
 } from "../../../data/energyLoader";
 import { fuelColorOf } from "../../../data/energyLoader";
-import { buildPowerCardModel, fuelLabelZh, groupPlantsByFuel, loadRateColor, summarisePowerKpis, type PowerPlantRow as PowerPlantModelRow } from "./powerCardData";
+import { buildPowerCardModel, fuelLabelZh, groupPlantsByFuel, groupPlantsByRegion, loadRateColor, type PowerRegionGroup, regionLabelZh, summarisePowerKpis, type PowerPlantRow as PowerPlantModelRow } from "./powerCardData";
 
 /**
  * UNIT OUTPUT（機組 24h 出力）資料狀態，與 `day` 分開傳遞。
@@ -478,7 +478,7 @@ function PowerTrendPair({
   );
 }
 
-/** v2 機組出力小格網格（比照急診醫院小格）：依發電方式分組，組內依出力由大到小；各格共用同一 24h 時間軸 */
+/** v2 機組出力小格網格（比照急診醫院小格）：可切依區域（預設）／依發電方式分組，組內依出力由大到小；各格共用同一 24h 時間軸 */
 function PowerPlantGroups({
   plants, pointsByName,
 }: {
@@ -496,25 +496,63 @@ function PowerPlantGroups({
     }
     return Number.isFinite(lo) && lo < hi ? { from: lo, to: hi } : undefined;
   }, [pointsByName]);
-  const groups = useMemo(() => groupPlantsByFuel(plants), [plants]);
+  const [mode, setMode] = useState<"region" | "fuel">("region");
+  const groups = useMemo<PowerRegionGroup[]>(
+    () => (mode === "region" ? groupPlantsByRegion(plants) : groupPlantsByFuel(plants)),
+    [mode, plants],
+  );
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div data-testid="power-group-mode" style={{ display: "flex", gap: 4 }}>
+        {([["region", "依區域"], ["fuel", "依發電方式"]] as const).map(([k, label]) => (
+          <button
+            key={k}
+            onClick={() => setMode(k)}
+            aria-pressed={mode === k}
+            style={{
+              fontFamily: FONT_DATA, fontSize: MF.label,
+              padding: "2px 7px", borderRadius: RADIUS.sm, cursor: "pointer",
+              background: mode === k ? COLORS.accentFaint : "transparent",
+              color: mode === k ? COLORS.textStrong : COLORS.textDim,
+              border: `1px solid ${mode === k ? COLORS.borderStrong : COLORS.borderSoft}`,
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       {groups.map((g) => (
-        <div key={g.label} data-testid={`power-fuel-group-${g.label}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div key={g.label} data-testid={`power-${mode}-group-${g.label}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
             <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: COLORS.textDefault, whiteSpace: "nowrap" }}>
               {g.label}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap" }}>
-              {g.plants.length} 廠 · {g.totalMw < 0 ? "用電中" : "共"} {Math.round(Math.abs(g.totalMw)).toLocaleString("zh-TW")} MW
-            </span>
+            {g.plants.length > 0 && (
+              <span style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap" }}>
+                {g.plants.length} 廠 · {g.totalMw < 0 ? "用電中" : "共"} {Math.round(Math.abs(g.totalMw)).toLocaleString("zh-TW")} MW
+              </span>
+            )}
+            {g.note && (
+              <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted, whiteSpace: "nowrap" }}>
+                {g.note}
+              </span>
+            )}
             <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 6 }}>
-            {g.plants.map((p) => (
-              <PowerPlantCell key={p.name} plant={p} points={pointsByName.get(p.name) ?? []} timeDomain={timeDomain} />
-            ))}
-          </div>
+          {g.plants.length === 0 ? (
+            <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textFaint }}>
+              目前沒有{g.label}電廠的即時出力資料
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 6 }}>
+              {g.plants.map((p) => (
+                <PowerPlantCell
+                  key={p.name} plant={p} points={pointsByName.get(p.name) ?? []} timeDomain={timeDomain}
+                  sub={mode === "region" ? fuelLabelZh(p.fuel) : regionLabelZh(p.region)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -522,8 +560,9 @@ function PowerPlantGroups({
 }
 
 function PowerPlantCell({
-  plant, points, timeDomain,
+  plant, points, timeDomain, sub,
 }: {
+  sub?: string;
   plant: PowerPlantModelRow;
   points: [number, number][];
   timeDomain?: { from: number; to: number };
@@ -555,6 +594,11 @@ function PowerPlantCell({
             MW{plant.rate != null ? ` · ${Math.round(plant.rate * 100)}%` : ""}
           </span>
         </div>
+        {sub && (
+          <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {sub}
+          </span>
+        )}
       </div>
       <div style={{ flex: "0 1 72px", minWidth: 40 }}>
         {data.length >= 2 && (

@@ -1,4 +1,4 @@
-import type { PowerDashboard, PowerGenerationDay } from "../../../data/energyLoader";
+import type { PowerDashboard, PowerGenerationDay, TaipowerRegion } from "../../../data/energyLoader";
 
 export const POWER_REGION_ORDER = ["北部", "中部", "南部", "東部"] as const;
 
@@ -14,6 +14,7 @@ export interface PowerPlantRow {
   rate: number | null;
   spark: number[];
   fuel: string | null;
+  region: TaipowerRegion | null;
 }
 
 export interface PowerCardModel {
@@ -57,6 +58,7 @@ export function buildPowerCardModel(
         rate,
         spark: pts.map((pt) => pt[1]),
         fuel: p.fuel_type,
+        region: p.taipower_region ?? null,
       };
     })
     .sort((a, b) => (b.mw ?? 0) - (a.mw ?? 0));
@@ -197,4 +199,42 @@ export function groupPlantsByFuel(plants: PowerPlantRow[]): PowerFuelGroup[] {
       totalMw: ps.reduce((sum, p) => sum + (p.mw ?? 0), 0),
     }))
     .sort((a, b) => b.totalMw - a.totalMw);
+}
+
+const REGION_GROUP_DEFS: { key: TaipowerRegion | null; label: string; note?: string; always?: boolean }[] = [
+  { key: "north", label: "北部", always: true },
+  { key: "central", label: "中部", always: true },
+  { key: "south", label: "南部", always: true },
+  { key: "east", label: "東部", always: true },
+  { key: "offshore_island", label: "離島", note: "不屬台電本島四區", always: true },
+  { key: null, label: "未分區" },
+];
+
+/** 區域中文標籤；null＝未分區 */
+export function regionLabelZh(region: TaipowerRegion | null | undefined): string {
+  return REGION_GROUP_DEFS.find((d) => d.key === (region ?? null))?.label ?? "未分區";
+}
+
+export interface PowerRegionGroup {
+  label: string;
+  note?: string;
+  plants: PowerPlantRow[];
+  totalMw: number;
+}
+
+/**
+ * 依台電區域分組：固定順序 北部、中部、南部、東部、離島、未分區；
+ * 前五組永遠存在（東部沒電廠時 plants 為空，由 UI 顯示「沒有資料」而非 0 MW），未分區有電廠才出現。
+ * 組內依出力由大到小。
+ */
+export function groupPlantsByRegion(plants: PowerPlantRow[]): PowerRegionGroup[] {
+  return REGION_GROUP_DEFS
+    .map((d) => {
+      const ps = plants
+        .filter((p) => (p.region ?? null) === d.key)
+        .sort((a, b) => (b.mw ?? -Infinity) - (a.mw ?? -Infinity));
+      return { label: d.label, note: d.note, plants: ps, totalMw: ps.reduce((s, p) => s + (p.mw ?? 0), 0), always: d.always };
+    })
+    .filter((g) => g.always || g.plants.length > 0)
+    .map(({ always: _a, ...g }) => g);
 }
