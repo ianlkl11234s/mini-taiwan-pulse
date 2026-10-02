@@ -60,7 +60,6 @@ const REGISTRY_DENSE: readonly (readonly [string, number, number, string | null]
   ["agriProduceWholesale", 22_843, 8, "agriProduceWholesaleOpacity"],
   ["accessibleParkFacilities", 20_870, 0, "accessibleParkFacilitiesOpacity"],
   ["religionTemples", 19_201, 0, "religionTemplesOpacity"],
-  ["eduCramSchool", 17_137, 0, "eduCramSchoolOpacity"],
   ["tourHotels", 15_654, 0, "tourHotelsOpacity"],
   ["medAED", 15_490, 0, "medAEDOpacity"],
   ["busStationsIntercity", 15_383, 0, null],
@@ -129,6 +128,14 @@ describe("R5 registry 密集點全面套用", () => {
     const config = OVERLAY_REGISTRY.find((c) => c.id === "civilDefenseShelter")!;
     expect(config.pmtiles?.minzoom).toBe(10);
     expect(config.layers.some((l) => l.type === "heatmap")).toBe(false);
+  });
+
+  it("eduCramSchool 不套熱區：切片 minzoom 8 且低縮放大量抽稀，點維持 z8 起畫", () => {
+    const config = OVERLAY_REGISTRY.find((c) => c.id === "eduCramSchool")!;
+    expect(config.pmtiles?.minzoom).toBe(8);
+    expect(config.layers.some((l) => l.type === "heatmap")).toBe(false);
+    for (const l of config.layers.filter((l) => l.type === "circle")) expect(l.minzoom).toBeUndefined();
+    expect(Number(paramDefault("eduCramSchool", "eduCramSchoolOpacity"))).toBe(densePointOpacity(17_137));
   });
 });
 

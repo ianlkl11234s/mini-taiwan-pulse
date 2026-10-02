@@ -39,7 +39,6 @@ const DENSE_FROM = {
   agriProduceWholesale: densePointsFromZoom(22_843, 8),
   accessibleParkFacilities: densePointsFromZoom(20_870),
   religionTemples: densePointsFromZoom(19_201),
-  eduCramSchool: densePointsFromZoom(17_137),
   tourHotels: densePointsFromZoom(15_654),
   medAED: densePointsFromZoom(15_490),
   busStationsIntercity: densePointsFromZoom(15_383),
@@ -10855,10 +10854,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       minzoom: CRAM_PMTILES_MINZOOM,
       maxzoom: CRAM_PMTILES_MAXZOOM,
     },
+    // R5 不套熱區：切片 minzoom 8 且建置時大量抽稀（全台 z8 僅 35 點、z12 1,372 點／17,137），
+    // 熱區密度趨近 0 看不見，維持原本 z8 起畫點（2026-10-02 量測）。
     rebuildOnParamChange: ["circle"],
-    layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.eduCramSchool, intensity: 1, opacity: { layer: "eduCramSchool", param: "eduCramSchoolOpacity" } }), {
-      suffix: "circle", type: "circle", minzoom: DENSE_FROM.eduCramSchool,
+    layers: [{
+      suffix: "circle", type: "circle",
       paint: (isDark, p) => {
         const scale = p?.eduCramSchoolScale ?? 1;
         return {

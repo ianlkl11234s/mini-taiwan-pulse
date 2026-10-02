@@ -2939,7 +2939,6 @@ function EducationLegend({ isDark = true, visibility, schoolLevelColor = 0 }: { 
           學校點位為 113 學年度
         </LegendNote>
       )}
-      {visibility.eduCramSchool && <DenseHeatmapLegendRow />}
     </div>
   );
 }
