@@ -5,6 +5,10 @@
 
 ## 2026-10-02
 
+### 監看卡 P3 多指標卡拍板 — spec §5.35
+
+比較頁 `docs/features/monitor-restyle/p3-picks.html`：P-A、E-A、L-A、V-A、I-A、T-B、N-A、A-A。使用者補充兩點：共機要把越中線放進主圖（柱底疊色＋數字列）；網路觀察要說明怎麼判斷正常（近 7 天正常範圍色帶、判斷規則、可交叉比對的來源，調查見 `internet-health-reading.md`）。
+
 ### 監看卡 P2b：共用數值列與走勢 — spec §5.35
 
 | 項目 | 內容 |
