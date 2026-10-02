@@ -518,6 +518,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "realEstateRentalGrid", render: ({ visibility, overlayParams, isDark }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} isDark={isDark} /> },
   { id: "fireStations", render: () => <FireStationLegend /> },
   { id: "fireHydrants", render: () => <FireHydrantLegend /> },
+  // R5：單色密集點拉遠改熱區，補圖例說明熱區色階（點色與 overlayRegistry 同）
+  { id: "busStationsCity", render: ({ isDark }) => <DenseSingleColorLegend label="市區公車站" color={isDark ? "#66bb6a" : "#388e3c"} /> },
+  { id: "busStationsIntercity", render: ({ isDark }) => <DenseSingleColorLegend label="公路客運站" color={isDark ? "#ab47bc" : "#7b1fa2"} /> },
+  { id: "convenienceStores", render: ({ isDark }) => <DenseSingleColorLegend label="超商" color={isDark ? "#26c6da" : "#00838f"} /> },
+  { id: "wasteStopsStatic", render: ({ isDark }) => <DenseSingleColorLegend label="全台清運點位" color={isDark ? "#fbbf24" : "#d97706"} /> },
   { id: "fireIsochrone", render: () => <FireIsochroneLegend /> },
   { id: "livestockFarmPig", render: () => <LivestockFarmLegend /> },
   { id: "livestockSlaughter", render: () => <LivestockFacilityLegend /> },
@@ -545,7 +550,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "canopyHeight", render: () => <CanopyHeightLegend /> },
   { id: "jpCanopyHeight", render: () => <JpCanopyHeightLegend /> },
   { id: "canopyGiants", render: () => <CanopyGiantsLegend /> },
-  { id: "sportsSchool", render: () => <SportsVenueLegend /> },
+  { id: "sportsSchool", render: ({ visibility }) => <SportsVenueLegend visibility={visibility} /> },
   { id: "culturalFacilities", render: () => <CulturalFacilitiesLegend /> },
   { id: "culturalMuseums", render: () => <CulturalMuseumsLegend /> },
   { id: "artsEvents", render: () => <ArtsEventsLegend /> },
@@ -617,7 +622,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "floodSensor", render: () => <FloodSensorLegend /> },
   { id: "powerPlants", render: () => <EnergyFuelLegend /> },
   { id: "powerRegionDemand", render: () => <EnergyReserveLegend /> },
-  { id: "osmPowerLines", render: () => <PowerGridLegend /> },
+  { id: "osmPowerLines", render: ({ visibility }) => <PowerGridLegend visibility={visibility} /> },
   { id: "powerPoles", render: () => <PowerPolesLegend /> },
   { id: "aviationControl", render: ({ visibility }) => <AviationAirspaceLegend visibility={visibility} /> },
   { id: "droneNoFlyZone", render: ({ visibility }) => <DroneZonesLegend visibility={visibility} /> },
@@ -794,6 +799,7 @@ function PollutionSeverityLegend({ visibility }: { visibility: LayerVisibility }
     <div>
       <LegendTitle zh="污染嚴重度" en="Severity" />
       <FireCatRows cats={bands.map((b) => ({ color: b.color, label: b.label }))} />
+      {visibility.pollutionFacility && <DenseHeatmapLegendRow />}
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         列管 ≠ 污染｜設施色 = 最高嚴重度
       </LegendNote>
@@ -822,6 +828,7 @@ function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility })
       {severityCats.map((c, i) => <LegendRow key={c.label} swatch={severityKeys[i] === "mobile" ? <SwatchDot color={c.color} /> : null}>{c.label}</LegendRow>)}
       <LegendTitle zh="介質" en="Medium" style={{ marginTop: 8 }} />
       <FireCatRows cats={mediumCats} />
+      <DenseHeatmapLegendRow />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         重大點大小 ∝ 罰鍰｜白框 = 連續 / 停工等｜可年份播放
       </LegendNote>
@@ -1137,6 +1144,7 @@ function FireEventLegend() {
     <div>
       <LegendTitle zh="火災歷史" en="Fire" />
       <FireCatRows cats={FIRE_EVENT_CATS} />
+      <DenseHeatmapLegendRow />
       <LegendNote>有死傷＝較大的紅點＋醒目外框（其餘點只有淡色描邊）</LegendNote>
     </div>
   );
@@ -1241,6 +1249,7 @@ function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CON
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{contract.historical ? "歷史快照；不是現況觀測。" : "以來源 metadata 為準；未知不補值。"}</div>
     {facilityGroup && <LegendNote style={{ marginTop: 4 }}>{facilityGroup === "supply" ? "P21 未提供一致細類；依 2010 年設施名稱保守推定，未命中者保留未分類。" : "P22 泵場／處理場依來源子型 P22a／P22b 區分。"}</LegendNote>}
     {["jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds"].includes(layerKey) && <LegendNote style={{ marginTop: 4 }}>{layerKey === "jpWaterGroundwaterSites" ? "已驗證 source 1,293 筆；實際24縣，當前視窗空白不代表全國無資料。" : layerKey === "jpWaterNilimDams" ? "已驗證 source 583 筆；實際46縣、年份未提供，不與KSJ水壩相加。" : "已驗證 source 161,778 筆；datum未知的位置候選，4,284同座標列保留。"}</LegendNote>}
+    {layerKey === "jpWaterAgriculturalPonds" && <DenseHeatmapLegendRow />}
   </div>;
 }
 
@@ -1291,6 +1300,7 @@ function BssBridgePointLegend() {
     {BSS_BRIDGE_CLASS_LEGEND.map((item) => (
       <LegendRow key={item.key} swatch={<SwatchDot color={BSS_BRIDGE_ACCESS_COLORS[item.key]} />}>{item.point}</LegendRow>
     ))}
+    <DenseHeatmapLegendRow />
     <LegendNote>位置是清冊參考點，不是橋頭尾或路網節點；z10 以上才顯示。</LegendNote>
     <BssBridgeSharedNotes />
   </div>;
@@ -1363,6 +1373,7 @@ function JpSchoolsLegend() {
           </div>
         ))}
       </div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -1420,6 +1431,7 @@ function JpAccommodationTypesLegend({ source }: { source: "canonical" | "osm" })
           社群繪製 coverage，不是完整或官方名冊。© OpenStreetMap contributors, ODbL 1.0。
         </LegendNote>
       )}
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -1511,6 +1523,7 @@ function PublicToiletLegend() {
           </div>
         ))}
       </div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -1651,6 +1664,7 @@ function StreetTreesTaipeiDiffLegend({ colorModeIdx = 0 }: { colorModeIdx?: numb
           半透明點 = 疑似重編號（非真消失/新增）
         </LegendNote>
       </div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -1696,6 +1710,7 @@ function RiversideTreesTaipeiLegend() {
         {RIVERSIDE_TREE_SPECIES.map((s) => <UrbanDotRow key={s.name} color={s.color} label={s.name} />)}
         <UrbanDotRow color={RIVERSIDE_TREE_OTHER_COLOR} label="其他 Other" />
       </div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -1728,6 +1743,7 @@ function StreetTrees3epochLegend({ colorModeIdx = 0 }: { colorModeIdx?: number }
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
       </div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -1760,6 +1776,7 @@ function StreetTreesNationalLegend({ colorModeIdx = 0 }: { colorModeIdx?: number
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
       </div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -2082,11 +2099,12 @@ function ParksTaipeiLegend() {
   );
 }
 
-function SportsVenueLegend() {
+function SportsVenueLegend({ visibility }: { visibility?: LayerVisibility }) {
   return (
     <div>
       <LegendTitle zh="運動場館分類" en="Category" />
       <FireCatRows cats={SPORTS_CATEGORIES} />
+      {visibility?.sportsSchool && <DenseHeatmapLegendRow />}
       <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
         大小 = 面積（area_sqm log；缺值退化固定大小）
       </LegendNote>
@@ -2225,6 +2243,7 @@ function TourHotelsLegend() {
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {TOUR_HOTEL_CATS.map((c) => <UrbanDotRow key={c.label} color={c.color} label={c.label} />)}
       </div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -2262,6 +2281,17 @@ function DenseHeatmapLegendRow() {
     <div style={{ marginTop: 6 }}>
       <SwatchGradient gradient={heatmapLegendGradient()} labels={["低", "高"]} />
       <LegendNote style={{ marginTop: 2 }}>拉遠時顯示密度</LegendNote>
+    </div>
+  );
+}
+
+/** 單色密集點（原本無圖例）：R5 拉遠改畫熱區後需要說明熱區色階，點本身仍單色。 */
+function DenseSingleColorLegend({ label, color }: { label: string; color: string }) {
+  const t = useLegendTheme();
+  return (
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}><SwatchDot color={color} />{label}</div>
+      <DenseHeatmapLegendRow />
     </div>
   );
 }
@@ -2411,6 +2441,7 @@ function ReligionLegend({ visibility }: { visibility: LayerVisibility }) {
           含 OSM 來源 © OpenStreetMap contributors（ODbL）
         </LegendNote>
       )}
+      {visibility.religionTemples && <DenseHeatmapLegendRow />}
     </div>
   );
 }
@@ -2908,6 +2939,7 @@ function EducationLegend({ isDark = true, visibility, schoolLevelColor = 0 }: { 
           學校點位為 113 學年度
         </LegendNote>
       )}
+      {visibility.eduCramSchool && <DenseHeatmapLegendRow />}
     </div>
   );
 }
@@ -3125,6 +3157,7 @@ function MedicalLegend({ visibility, isDark = true }: { visibility: LayerVisibil
           </div>
         ))}
       </div>
+      {(visibility.medClinic || visibility.medAED || visibility.medLTC) && <DenseHeatmapLegendRow />}
     </div>
   );
 }
@@ -3155,6 +3188,7 @@ function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: 
           </div>
         ))}
       </div>
+      {manufacturing && <DenseHeatmapLegendRow />}
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         {manufacturing
           ? "202608 登記快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。184,944 筆有座標；點位是公司登記地址，不是工廠實際營運地址。"
@@ -3175,6 +3209,7 @@ function FactoryLocationsLegend() {
         <Swatch color={FACTORY_LOCATION_COLOR} round />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
       </div>
+      <DenseHeatmapLegendRow />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         202606 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。90,652 / 100,624 筆可定位。
       </LegendNote>
@@ -3191,6 +3226,7 @@ function RegulatedFacilitiesLegend() {
         <Swatch color={REGULATED_FACILITY_COLOR} round />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>環境部 active 列管設施</span>
       </div>
+      <DenseHeatmapLegendRow />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         20260818 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
       </LegendNote>
@@ -3380,6 +3416,7 @@ function CommonRegistrationAddressesLegend({ minCompanies }: { minCompanies: num
           );
         })}
       </div>
+      <DenseHeatmapLegendRow />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         目前顯示共同登記 ≥ {Math.round(minCompanies).toLocaleString("zh-TW")} 家的門牌；點擊可查資本額總和與中位數。
       </LegendNote>
@@ -3404,6 +3441,7 @@ function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
         ))}
       </div>
+      {(visibility.agriRetail || visibility.agriProduceWholesale) && <DenseHeatmapLegendRow />}
     </div>
   );
 }
@@ -4809,6 +4847,7 @@ function WorldTrashDebrisLegend() {
         <SwatchDot color={"#f59e0b"} opacity={0.9} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>偵測到的垃圾 / 殘骸點位</span>
       </div>
+      <DenseHeatmapLegendRow />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         點位密度反映 Mapillary 街景覆蓋，非真實垃圾分佈
       </LegendNote>
@@ -4912,7 +4951,7 @@ function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
         ))}
       </div>
-      {visibility.jpReligionGsi && <DenseHeatmapLegendRow />}
+      {(visibility.jpReligionGsi || visibility.jpReligionOsm || visibility.jpReligionWikidata) && <DenseHeatmapLegendRow />}
       <LegendNote style={{ marginTop: 5, lineHeight: 1.35 }}>
         日本無官方全國宗教設施圖層。任何單一圖層都不是全量，三者數字也不應相加；
         大阪府清冊實測 GSI 僅對上 62%，三源聯集仍漏 25.9%。建議一次只開一個來源。
@@ -5304,7 +5343,7 @@ function PowerPolesLegend() {
   );
 }
 
-function PowerGridLegend() {
+function PowerGridLegend({ visibility }: { visibility?: LayerVisibility }) {
   const t = useLegendTheme();
   const voltageRows = [
     { kv: "345 kV", color: "#1AB6D9" },
@@ -5347,6 +5386,7 @@ function PowerGridLegend() {
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>地下電纜（虛線）</span>
         </div>
       </div>
+      {visibility?.osmPowerTowers && <DenseHeatmapLegendRow />}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
         ● 鐵塔需 zoom ≥ 13<br />
         ● 來源：OSM（同 openinframap），約 60% 線未標電壓
@@ -6127,6 +6167,7 @@ function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibility }) {
           ))}
         </div>
       )}
+      {visibility.accidentTaipei && <DenseHeatmapLegendRow />}
     </div>
   );
 }
@@ -6242,6 +6283,7 @@ function NoiseEnforcementEventsLegend() {
     <div>
       <NoiseLegendTitle>噪音裁處事件／罰鍰</NoiseLegendTitle>
       <NoiseLegendRows rows={rows} dot />
+      <DenseHeatmapLegendRow />
       <NoiseLegendNote source="環境部 EMS_P_46 污染裁處資料">
         顏色表示裁處嚴重度，點大小可反映罰鍰；不是 dB 觀測或聲音強度。定位精度混合，資料沿用既有 pollution_penalties PMTiles，不是即時告發流。
       </NoiseLegendNote>
@@ -6325,6 +6367,7 @@ function JpPoliceFacilitiesLegend() {
     <div>地圖可顯示：13,195 點；無座標：1 筆（原始地址缺漏）</div>
     <div>資料時點：2025-04-01</div>
     <div style={{ marginTop: 5 }}>{JP_POLICE_ATTRIBUTION}</div>
+    <DenseHeatmapLegendRow />
   </div>;
 }
 
@@ -6383,6 +6426,7 @@ function BicycleSupportLegend() {
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
     {items.map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><SwatchDot color={c!} />{l}</div>)}
     <div style={{ marginTop: 5 }}>OSM snapshot exploration；同點多類時依維修、打氣、停車、飲水、公廁順序著色，非完整官方清冊。</div>
+    <DenseHeatmapLegendRow />
   </div>;
 }
 
@@ -6391,6 +6435,7 @@ function AccessibleParkLegend() {
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
     {[[ACCESSIBILITY_STATUS_COLORS.yes, 'yes'], [ACCESSIBILITY_STATUS_COLORS.limited, 'limited'], [ACCESSIBILITY_STATUS_COLORS.no, 'no'], [ACCESSIBILITY_STATUS_COLORS.unknown, 'unknown']].map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><SwatchDot color={c!} />{l}</div>)}
     <div style={{ marginTop: 5 }}>OSM snapshot exploration；unknown 不等於 false，非完整官方清冊。</div>
+    <DenseHeatmapLegendRow />
   </div>;
 }
 

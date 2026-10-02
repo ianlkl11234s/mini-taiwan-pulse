@@ -131,13 +131,13 @@ const NO_LEGEND_LEDGER = new Set([
   "stationsTHSR", "stationsTRA", "stationsMetro",
   "lighthouses", "airports", "highways", "provincialRoads",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
-  "busStationsCity", "busStationsIntercity", "bikeStations", "cyclingRoutes",
+  // busStationsCity／busStationsIntercity：R5 拉遠改熱區，補單色＋熱區色階圖例（已移出）
+  "bikeStations", "cyclingRoutes",
   "weatherStations",
   // h3Population：同屬預烤 properties.color 的連續色階（h3LayerFactory 的 DAY/NIGHT
   // 兩套色階），但「現在顯示哪一套」存在 params、沒進 overlayParams，圖例拿不到
   // → 硬畫會有一半機率跟地圖對不上。待把 metric 併進 overlayParams 再補。
   "h3Population",
-  "convenienceStores",
   // 公共設施：郵局 / i郵箱 / 活動中心 皆單色 POI（govServiceOffices 3 類分色 → 已接 legend）
   "postOffices", "iPostBoxes", "communityCenters",
   // 公共設施 Batch 2：圖書館 / 社福 / 市場 皆單色 POI（publicToilets 4 級分色 → 已接 legend）
@@ -156,7 +156,7 @@ const NO_LEGEND_LEDGER = new Set([
   "groundwaterWells", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
   "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
-  "wasteScheduleNote", "wasteStopsStatic", "wasteCleaningSquads", "wasteRoute", "wasteStop",
+  "wasteScheduleNote", "wasteCleaningSquads", "wasteRoute", "wasteStop",
   "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
