@@ -93,12 +93,13 @@
       }
     ]
   },
-  "knownUiIssue": "UI prediction horizon 1.5s versus core cap 0.8s; stale threshold separately 1.5s",
+  "knownUiIssue": null,
   "backup": {
     "path": "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/recovery/cctv-poc-20260929/xinyi-cctv-poc.tar.gz",
     "sha256": "9812980740b58bad553f9689a34e27a18a184b3acde04fb0546bddc04db84ece",
     "bytes": 49271406,
     "verifiedFileCount": 4994,
     "scope": "Pre-report recovery snapshot; new Git source/report take precedence"
-  }
+  },
+  "resolvedUiIssue": "UI prediction horizon aligned to core cap 0.8s via MAX_PREDICTION_HORIZON; stale threshold separately 1.5s; covered by test (40 tests)"
 }

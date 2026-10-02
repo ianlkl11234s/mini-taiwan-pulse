@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>修正辨識框｜T000354</title>
+  <style>
+    :root{font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif;color:#eee9db;background:#0b1417}
+    *{box-sizing:border-box}body{margin:0;background:#0b1417}
+    button{font:inherit;cursor:pointer;border:1px solid #355055;background:#16282b;color:#d4e7e1;border-radius:8px;padding:8px 12px;font-weight:700}
+    button.primary{background:#67c7b9;border-color:#78c6bb;color:#082020}
+    button.danger{color:#f3b6a0;border-color:#7a4a3e}
+    button:disabled{opacity:.4;cursor:not-allowed}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;padding:16px;max-width:1700px;margin:auto}
+    .stage{position:relative;background:#050d0f;border:1px solid #31484b;border-radius:10px;overflow:hidden;aspect-ratio:16/9}
+    .stage img,.stage svg{position:absolute;inset:0;width:100%;height:100%}
+    .stage img{object-fit:contain;user-select:none;-webkit-user-drag:none}
+    .stage svg{touch-action:none;cursor:crosshair}
+    .panel{display:flex;flex-direction:column;gap:14px;font-size:13px}
+    .panel h1{font-size:18px;margin:0}
+    .muted{color:#9fb5b2;font-size:12px;line-height:1.6;margin:0}
+    .box-card{border:1px solid #31484b;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+    .classes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .classes button[aria-pressed=true]{outline:2px solid #fff}
+    .nav{display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .dots{display:flex;gap:4px;flex-wrap:wrap}
+    .dots span{width:18px;height:18px;border-radius:50%;border:1px solid #4d6a6c;font-size:10px;display:grid;place-items:center}
+    .dots span.done{background:#2f7f73;border-color:#67c7b9}
+    .dots span.now{outline:2px solid #f4cf91}
+    kbd{background:#1c3335;border-radius:4px;padding:1px 5px;font-size:11px}
+    #message{min-height:18px;color:#f4cf91;font-size:12px;margin:0}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <div>
+      <div class="stage" id="stage"><img id="frame" alt="T000354 影格" /><svg id="overlay"></svg></div>
+      <p id="message" role="status">載入中…</p>
+    </div>
+    <aside class="panel">
+      <div>
+        <h1>修正辨識框</h1>
+        <p class="muted">框是電腦的判斷。錯的改掉、多的刪掉、漏的補上。</p>
+      </div>
+      <div class="nav"><button id="prev" type="button">← 上一張</button><strong id="progress">— / —</strong><button id="next" type="button" class="primary">完成，下一張 →</button></div>
+      <div class="dots" id="dots"></div>
+      <p class="muted" id="frame-info">—</p>
+      <div class="box-card">
+        <strong id="selected-label">沒有選取框</strong>
+        <div class="classes" id="classes"></div>
+        <button id="delete" type="button" class="danger" disabled>刪除這個框 <kbd>Delete</kbd></button>
+      </div>
+      <div class="box-card muted">
+        <span>・點框：選取；拖曳框：移動</span>
+        <span>・拖曳框的四個角：調整大小</span>
+        <span>・在空白處拖曳：新增漏掉的車（用上方選的車種）</span>
+        <span>・鍵盤 <kbd>1</kbd>–<kbd>4</kbd> 改車種，<kbd>←</kbd><kbd>→</kbd> 換張</span>
+      </div>
+      <button id="reset" type="button">這張還原成電腦原本的框</button>
+      <p class="muted" id="summary">—</p>
+      <button id="download" type="button" class="primary">下載結果 JSON</button>
+      <p class="muted">進度自動存在這個瀏覽器；換瀏覽器前請先下載。</p>
+    </aside>
+  </main>
+  <script type="module" src="./annotate.js"></script>
+</body>
+</html>

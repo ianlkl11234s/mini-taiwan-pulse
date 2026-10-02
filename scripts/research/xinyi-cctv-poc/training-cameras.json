@@ -1,0 +1,139 @@
+{
+  "note": "Taipei surface-street cameras for detector fine-tuning; expressway/bridge/tunnel excluded (scooters banned). Selected by 0.025-degree grid spread.",
+  "source": "public/geo/cctv.geojson (TDX city CCTV, hls.bote.gov.taipei)",
+  "stopAfter": "2026-10-01T23:59:00+08:00",
+  "sampling": {
+    "framesPerCamera": 5,
+    "spacingSeconds": 10,
+    "width": 960,
+    "height": 540,
+    "jpegQuality": 90
+  },
+  "cameras": [
+    {
+      "id": "T000283",
+      "number": "283",
+      "road": "信義路四段",
+      "lon": 121.55724,
+      "lat": 25.03316
+    },
+    {
+      "id": "T000330",
+      "number": "330",
+      "road": "信義路四段",
+      "lon": 121.55281,
+      "lat": 25.03316
+    },
+    {
+      "id": "T000354",
+      "number": "354",
+      "road": "信義路四段",
+      "lon": 121.54833,
+      "lat": 25.03318
+    },
+    {
+      "id": "T000319",
+      "number": "319",
+      "road": "復興南路一段",
+      "lon": 121.5435,
+      "lat": 25.03772
+    },
+    {
+      "id": "T000156",
+      "number": "156",
+      "road": "舊宗路一段",
+      "lon": 121.57825,
+      "lat": 25.06175
+    },
+    {
+      "id": "T000347",
+      "number": "347",
+      "road": "羅斯福路一段",
+      "lon": 121.51666,
+      "lat": 25.0351
+    },
+    {
+      "id": "T000149",
+      "number": "149",
+      "road": "瑞光路478巷",
+      "lon": 121.56944,
+      "lat": 25.07869
+    },
+    {
+      "id": "T000222",
+      "number": "222",
+      "road": "向陽路",
+      "lon": 121.59465,
+      "lat": 25.05471
+    },
+    {
+      "id": "T000215",
+      "number": "215",
+      "road": "經貿二路",
+      "lon": 121.61662,
+      "lat": 25.05806
+    },
+    {
+      "id": "T000259",
+      "number": "259",
+      "road": "民權西路",
+      "lon": 121.5139,
+      "lat": 25.06313
+    },
+    {
+      "id": "T000296",
+      "number": "296",
+      "road": "仁愛路二段",
+      "lon": 121.52845,
+      "lat": 25.03818
+    },
+    {
+      "id": "T000386",
+      "number": "386",
+      "road": "中正路",
+      "lon": 121.5201,
+      "lat": 25.0933
+    },
+    {
+      "id": "T000039",
+      "number": "039",
+      "road": "民生西路",
+      "lon": 121.50835,
+      "lat": 25.05674
+    },
+    {
+      "id": "T000040",
+      "number": "040",
+      "road": "民權西路",
+      "lon": 121.50873,
+      "lat": 25.06353
+    },
+    {
+      "id": "T000419",
+      "number": "419",
+      "road": "西藏路",
+      "lon": 121.49515,
+      "lat": 25.02878
+    }
+  ],
+  "excludedNoLongTermStream": [
+    "T000078",
+    "T000101",
+    "T000141",
+    "T000212",
+    "T000238",
+    "T000240",
+    "T000241",
+    "T000243",
+    "T000244",
+    "T000248",
+    "T000258",
+    "T000293",
+    "T000299",
+    "T000327",
+    "T000412"
+  ],
+  "replaced": {
+    "T000331": "stream stalled in 2 of 2 runs (2026-09-29/30)"
+  }
+}

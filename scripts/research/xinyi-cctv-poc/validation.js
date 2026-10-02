@@ -1,4 +1,5 @@
 import { fitCalibration, projectCalibrated } from './calibration.js';
+import { addVehicle, createAnnotation, positionAt, removeKeyframe, removeVehicle, setKeyframe, validateAnnotation, ENTRY_STATES, EXIT_STATES } from './annotation.js';
 
 const CAMERA_ID = 'T000354';
 const $ = id => document.getElementById(id);
@@ -23,6 +24,7 @@ const state = {
   storageKey: '', events: [], points: [], coverage: { start: '', end: '' },
   groundSource: '', scaleConfirmed: false, pickedImage: null, calibration: null,
   reference: null, referencePointIndex: -1, fallback: false,
+  annotation: null, annotationKey: '', activeVehicle: null, clickMode: 'control',
 };
 
 function formatTime(seconds) {
@@ -141,6 +143,7 @@ async function showFrame(index) {
   els.capture.textContent = frame ? `擷取接收 ${displayDate(frame.receivedAt)}（非拍攝時間）` : '擷取接收時間 —';
   els.detectorCount.textContent = Array.isArray(frame?.detectorDetections) ? `${frame.detectorDetections.length} 候選框` : '候選框：未知';
   els.trackCount.textContent = Array.isArray(frame?.detections) ? `${frame.detections.length} 追蹤框` : '追蹤框：未知';
+  $('frame-dup-flag').textContent = frame ? (frame.duplicateOfPrevious === true ? '重複畫面（評分略過）' : '新內容畫面') : '—';
   els.back.disabled = index <= 0; els.forward.disabled = index >= state.frames.length - 1;
   const token = ++state.imageToken;
   clearImagePanels(frame?.imageUrl ? '影格載入中…' : '此影格沒有可用影像');
@@ -152,6 +155,7 @@ async function showFrame(index) {
     els.detectorImage.src = url; els.trackImage.src = url;
     renderBoxes(els.detectorOverlay, frame.detectorDetections, 'detector');
     renderBoxes(els.trackOverlay, frame.detections, 'track');
+    renderAnnotationOverlay();
     els.detectorStage.classList.add('loaded'); els.trackStage.classList.add('loaded');
     state.loadedFrame = index;
     renderProjectedTracks();
@@ -197,6 +201,7 @@ async function fetchData() {
   els.slider.max = String(state.duration); els.slider.step = String(1 / (Number(data.sampleFps) || 5));
   els.slider.disabled = false; els.play.disabled = false;
   restoreReview();
+  restoreAnnotation(runId);
   const requested = Number(new URLSearchParams(location.search).get('t'));
   setTime(Number.isFinite(requested) ? requested : 0); els.eventTime.value = state.t.toFixed(1);
 }
@@ -433,6 +438,7 @@ els.trackStage.addEventListener('click', event => {
   if (state.loadedFrame !== state.frameIndex) return;
   const point = normalizedImageClick(event, els.trackImage);
   if (!point) return;
+  if (state.clickMode === 'annotate') { annotateAt(point); return; }
   state.pickedImage = point; addPoint(point.x.toFixed(5), point.y.toFixed(5)); projectPicked();
   els.referenceStatus.textContent = '影像點已加入；請點對應正射位置';
 });
@@ -453,6 +459,131 @@ els.referencePick.addEventListener('click', event => {
   els.referenceMark.hidden = false; els.referenceMark.style.left = `${point.x * 100}%`; els.referenceMark.style.top = `${point.y * 100}%`;
   els.referenceStatus.textContent = `已填第 ${rowIndex + 1} 點・圖資估計`;
 });
+
+function annotationTime() { return Number(state.frames[state.frameIndex]?.t); }
+function saveAnnotation() {
+  if (!state.annotationKey || !state.annotation) return;
+  try { localStorage.setItem(state.annotationKey, JSON.stringify(state.annotation)); }
+  catch { setMessage('瀏覽器無法儲存標註；請立即匯出 JSON。', true); }
+}
+function restoreAnnotation(runId) {
+  state.annotationKey = `xinyi-annotation:v1:${CAMERA_ID}:${runId}`;
+  const fresh = createAnnotation({ cameraId: CAMERA_ID, captureRunId: state.data.captureRunId || null,
+    sourceData: state.fallback ? 'data/observations.json' : 'data/validation-observations.json' });
+  try {
+    const saved = JSON.parse(localStorage.getItem(state.annotationKey) || 'null');
+    state.annotation = saved && Array.isArray(saved.vehicles) ? { ...fresh, ...saved } : fresh;
+  } catch { state.annotation = fresh; setMessage('既有標註無法讀取；本次從空白開始。', true); }
+  $('ann-start').value = state.annotation.window.start; $('ann-end').value = state.annotation.window.end;
+  $('ann-pass').value = state.annotation.pass; $('ann-annotator').value = state.annotation.annotator;
+  $('ann-complete').checked = state.annotation.allVisibleVehiclesAnnotated === true;
+  state.activeVehicle = state.annotation.vehicles.at(-1)?.id ?? null;
+  renderAnnotation();
+}
+function activeVehicle() { return state.annotation?.vehicles.find(v => v.id === state.activeVehicle) ?? null; }
+function annotateAt(point) {
+  const vehicle = activeVehicle();
+  if (!vehicle) { setMessage('請先在「逐車標註」新增或選取一台車。', true); return; }
+  const frame = state.frames[state.frameIndex];
+  setKeyframe(vehicle, { t: annotationTime(), x: point.x, y: point.y, visibility: $('ann-visibility').value,
+    duplicateFrame: frame?.duplicateOfPrevious === true });
+  saveAnnotation(); renderAnnotation(); redrawTrackOverlay();
+  setMessage(`${vehicle.id} 已記錄 ${formatTime(annotationTime())} 的位置${frame?.duplicateOfPrevious ? '（重複畫面，評分略過）' : ''}。`);
+}
+function redrawTrackOverlay() {
+  if (state.loadedFrame !== state.frameIndex) return;
+  renderBoxes(els.trackOverlay, state.frames[state.frameIndex]?.detections, 'track');
+  renderAnnotationOverlay();
+}
+function renderAnnotationOverlay() {
+  if (!state.annotation || state.loadedFrame !== state.frameIndex) return;
+  const width = Number(state.camera.width) || 960, height = Number(state.camera.height) || 540, t = annotationTime();
+  for (const vehicle of state.annotation.vehicles) {
+    const p = positionAt(vehicle, t);
+    if (!p) continue;
+    const active = vehicle.id === state.activeVehicle;
+    const color = active ? '#ffd27a' : '#f59bd0';
+    els.trackOverlay.appendChild(makeSvg('circle', { cx: p.x * width, cy: p.y * height, r: active ? 7 : 5,
+      fill: p.interpolated ? 'none' : color, stroke: color, 'stroke-width': 2, 'stroke-dasharray': p.interpolated ? '3 2' : 'none' }));
+    const label = makeSvg('text', { x: p.x * width + 9, y: p.y * height + 4, fill: color, 'font-size': 13, 'font-weight': 800, 'font-family': 'system-ui,sans-serif' });
+    label.textContent = vehicle.id; els.trackOverlay.appendChild(label);
+  }
+}
+function optionSelect(values, current, onChange) {
+  const select = document.createElement('select');
+  for (const value of values) { const option = document.createElement('option'); option.value = value; option.textContent = value; select.appendChild(option); }
+  select.value = current; select.addEventListener('change', () => onChange(select.value));
+  return select;
+}
+function renderAnnotation() {
+  const ann = state.annotation, rows = $('ann-rows');
+  rows.replaceChildren();
+  if (!ann?.vehicles.length) { const cell = rows.insertRow().insertCell(); cell.colSpan = 9; cell.className = 'empty'; cell.textContent = '尚未新增車輛'; }
+  for (const vehicle of ann?.vehicles ?? []) {
+    const row = rows.insertRow(); if (vehicle.id === state.activeVehicle) row.className = 'active';
+    const pick = document.createElement('input'); pick.type = 'radio'; pick.name = 'ann-active'; pick.checked = vehicle.id === state.activeVehicle;
+    pick.setAttribute('aria-label', `選取 ${vehicle.id}`);
+    pick.addEventListener('change', () => { state.activeVehicle = vehicle.id; renderAnnotation(); redrawTrackOverlay(); });
+    row.insertCell().appendChild(pick); addCell(row, vehicle.id);
+    const change = field => value => { vehicle[field] = value; saveAnnotation(); };
+    row.insertCell().appendChild(optionSelect(['car', 'motorcycle', 'bus', 'truck', 'unknown'], vehicle.className, change('className')));
+    addCell(row, String(vehicle.keyframes.length));
+    addCell(row, vehicle.keyframes.length ? `${formatTime(vehicle.keyframes[0].t)}–${formatTime(vehicle.keyframes.at(-1).t)}` : '—');
+    row.insertCell().appendChild(optionSelect(ENTRY_STATES, vehicle.entry, change('entry')));
+    row.insertCell().appendChild(optionSelect(EXIT_STATES, vehicle.exit, change('exit')));
+    const notes = document.createElement('input'); notes.value = vehicle.notes; notes.maxLength = 200; notes.addEventListener('input', () => change('notes')(notes.value));
+    row.insertCell().appendChild(notes);
+    const del = document.createElement('button'); del.type = 'button'; del.className = 'table-action'; del.textContent = '刪除';
+    del.addEventListener('click', () => { if (!confirm(`刪除 ${vehicle.id} 及其所有關鍵幀？`)) return; removeVehicle(ann, vehicle.id); if (state.activeVehicle === vehicle.id) state.activeVehicle = ann.vehicles.at(-1)?.id ?? null; saveAnnotation(); renderAnnotation(); redrawTrackOverlay(); });
+    row.insertCell().appendChild(del);
+  }
+  const vehicle = activeVehicle(), list = $('ann-keyframes');
+  list.replaceChildren();
+  $('ann-active').textContent = vehicle ? `目前選取 ${vehicle.id}（${vehicle.className}）；點關鍵幀可跳到該時間，右鍵刪除。` : '尚未選取車輛。';
+  for (const k of vehicle?.keyframes ?? []) {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'quiet';
+    button.textContent = `${formatTime(k.t)}${k.visibility === 'visible' ? '' : k.visibility === 'occluded' ? ' 遮擋' : ' ?'}${k.duplicateFrame ? ' 重複' : ''}`;
+    button.addEventListener('click', () => { pause(); setTime(k.t); });
+    button.addEventListener('contextmenu', event => { event.preventDefault(); removeKeyframe(vehicle, k.t); saveAnnotation(); renderAnnotation(); redrawTrackOverlay(); });
+    list.appendChild(button);
+  }
+  const keyframes = (ann?.vehicles ?? []).reduce((n, v) => n + v.keyframes.length, 0);
+  $('ann-summary').textContent = `${ann?.vehicles.length ?? 0} 台車 · ${keyframes} 個關鍵幀`;
+  $('ann-status').textContent = ann?.allVisibleVehiclesAnnotated ? '已宣告完整' : ann?.vehicles.length ? '標註中' : '未開始';
+}
+function exportAnnotation() {
+  if (!state.annotation) return;
+  const errors = validateAnnotation(state.annotation);
+  const payload = { ...state.annotation, exportedAt: new Date().toISOString(), validationErrors: errors,
+    note: '人工關鍵幀標註；位置為影像歸一化座標（車輛底部中心），不是地面座標。' };
+  const text = JSON.stringify(payload, null, 2);
+  $('ann-export-preview').hidden = false; $('ann-export-preview').open = true; $('ann-export-json').value = text;
+  const link = $('ann-export-download');
+  if (link.dataset.objectUrl) URL.revokeObjectURL(link.dataset.objectUrl);
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  link.href = url; link.dataset.objectUrl = url; link.hidden = false;
+  link.download = `annotation-${CAMERA_ID}-${String(state.annotation.captureRunId || 'legacy').replace(/[^\w-]/g, '')}-${state.annotation.pass}.json`;
+  setMessage(errors.length ? `已匯出，但有 ${errors.length} 個問題：${errors.slice(0, 3).join('；')}` : '標註 JSON 已產生，請下載保存。', errors.length > 0);
+}
+for (const radio of document.querySelectorAll('input[name="click-mode"]')) radio.addEventListener('change', () => {
+  state.clickMode = radio.value;
+  els.trackStage.querySelector('.image-placeholder').textContent = state.clickMode === 'annotate' ? '點車輛底部中心以標註' : '點影像以新增校正影像點';
+});
+$('ann-add').addEventListener('click', () => {
+  if (!state.annotation) return;
+  const vehicle = addVehicle(state.annotation, $('ann-class').value);
+  state.activeVehicle = vehicle.id; saveAnnotation(); renderAnnotation();
+  const annotateRadio = document.querySelector('input[name="click-mode"][value="annotate"]');
+  if (!annotateRadio.checked) { annotateRadio.checked = true; annotateRadio.dispatchEvent(new Event('change')); }
+  setMessage(`已新增 ${vehicle.id}；請在右圖點它的底部中心。`);
+});
+for (const [id, field, parse] of [['ann-start', 'start', Number], ['ann-end', 'end', Number]]) $(id).addEventListener('input', () => {
+  if (!state.annotation) return; state.annotation.window[field] = parse($(id).value); saveAnnotation();
+});
+$('ann-pass').addEventListener('change', () => { state.annotation.pass = $('ann-pass').value; saveAnnotation(); });
+$('ann-annotator').addEventListener('input', () => { state.annotation.annotator = $('ann-annotator').value.trim(); saveAnnotation(); });
+$('ann-complete').addEventListener('change', () => { state.annotation.allVisibleVehiclesAnnotated = $('ann-complete').checked; saveAnnotation(); renderAnnotation(); });
+$('ann-export').addEventListener('click', exportAnnotation);
 
 requestAnimationFrame(tick);
 fetchData();

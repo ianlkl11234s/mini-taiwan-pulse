@@ -9,7 +9,8 @@
 在此目錄執行 `./start.sh`，開啟 http://127.0.0.1:3747/index.html 。重啟後需重新啟動伺服器；程式與資料應仍存在持久目錄。
 
 - `index.html`：三鏡頭回放、局部 3D 示意、平滑與短缺口推估。
-- `validation.html`：T000354 同影格 NMS 偵測／ByteTrack 比較、人工核對與控制點工具。
+- `validation.html`：T000354 同影格 NMS 偵測／ByteTrack 比較、人工核對、控制點工具，以及逐車關鍵幀標註（第04區，預設160–220秒）。
+- `score_annotations.py`：以匯出的逐車標註評分串流即時追蹤與離線 A／D／E 設定；`test_score_annotations.py` 為合成測試。`track_variants.py`：無真值的離線追蹤設定比較。
 - 必要前端相依套件見 package.json；乾淨環境執行 `npm ci`。
 - Python 環境位於工作樹根 `.venv-cctv`，版本鎖定見 `requirements-lock.txt`。權重在 `models/yolo26n.pt`。
 
@@ -46,4 +47,13 @@ npm run build
 
 5fps是FFmpeg輸出節奏，不代表來源原生幀率。上方擷取命令成功時會覆蓋預設JSON，固定驗證集請先備份或用新的 `--output`。三鏡批次未記錄cpuThreads，單354驗證批次記錄1。
 
-已知UI限制：缺口滑桿顯示1.5秒，但核心最多推估0.8秒（1.5秒為軌跡／stale邊界），下一輪需對齊。39項單元測試通過不涵蓋此UI契約不一致。
+缺口延續上限：UI與核心已對齊為0.8秒（`MAX_PREDICTION_HORIZON`）；1.5秒是軌跡分段／stale邊界。40項測試含此UI契約檢查。
+
+## 不模糊標註批次（本機暫存，標完就刪）
+
+2026-09-29 使用者同意：為了看清楚車種，另擷取 T000354 60秒**不模糊**批次 `20260929T145753471381Z`（`--blur-kernel 0`），晚間、鏡頭視角與下午批次不同（可能轉動過，ROI／投影設定不適用）。
+
+- 影格在 `data/unblurred-20260929T145753471381Z/`，觀測在 `data/annotation-unblurred-observations.json`；兩者都被 `.gitignore` 排除，**不得**進Git、備份壓縮檔、截圖或分享頁。
+- 標註頁：`annotate.html?data=annotation-unblurred-observations.json`（自動取最長連續不卡段的15張）。
+- 評分：`../../../.venv-cctv/bin/python3 score_boxes.py <下載的JSON> --observations data/annotation-unblurred-observations.json`
+- **評分完成後刪除影格**，只保留觀測JSON（框座標）、標註JSON與分數：`rm -r data/unblurred-20260929T145753471381Z`，並清除瀏覽器快取頁面。

@@ -115,7 +115,7 @@ def normalized_bbox(xyxy, width, height):
             for coordinate, dimension in zip((x1, y1, x2, y2), (width, height, width, height))]
 
 
-def capture_frames(sample, model_path, max_frames, frame_dir, run_id, fps, width, height, imgsz):
+def capture_frames(sample, model_path, max_frames, frame_dir, run_id, fps, width, height, imgsz, blur_kernel):
     """Infer as each frame arrives; no raw-frame collection or unbounded queue."""
     camera = sample.camera
     seen_hashes = set()
@@ -129,7 +129,6 @@ def capture_frames(sample, model_path, max_frames, frame_dir, run_id, fps, width
         detector = YOLO(str(model_path))
         model = YOLO(str(model_path))  # independent camera-local ByteTrack state
         frame_bytes = width * height * 3
-        blur_kernel = max(3, 2 * round((21 * width / DEFAULT_WIDTH) / 2) + 1)
         first_arrival = None
         for index in range(max_frames):
             raw = read_exact(sample.process.stdout, frame_bytes)
@@ -151,10 +150,11 @@ def capture_frames(sample, model_path, max_frames, frame_dir, run_id, fps, width
             previous_hash = content_hash
             image_name = f"{sample.id}-{index:04d}.jpg"
             image_path = frame_dir / image_name
-            blurred = cv2.GaussianBlur(image, (blur_kernel, blur_kernel), 0)
+            # blur_kernel 0 = unblurred local-temporary annotation batch (see --blur-kernel).
+            blurred = cv2.GaussianBlur(image, (blur_kernel, blur_kernel), 0) if blur_kernel else image
             if not cv2.imwrite(str(image_path), blurred, [cv2.IMWRITE_JPEG_QUALITY, 65]):
                 raise RuntimeError(f"cannot save blurred frame: {image_path}")
-            image_url = f"data/{run_id}/{image_name}"
+            image_url = f"data/{frame_dir.name}/{image_name}"
             if index == 0:
                 camera["firstFrameImageUrl"] = image_url
             detector_start = time.monotonic()
@@ -271,7 +271,7 @@ def capture_frames(sample, model_path, max_frames, frame_dir, run_id, fps, width
             )
 
 
-def start_sample(sample, seconds, fps, max_frames, model_path, frame_dir, run_id, width, height, imgsz):
+def start_sample(sample, seconds, fps, max_frames, model_path, frame_dir, run_id, width, height, imgsz, blur_kernel):
     headers = f"Referer: {ORIGIN}/live/index.html?id={sample.number}\r\nOrigin: {ORIGIN}\r\n"
     command = [
         "ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin",
@@ -285,7 +285,7 @@ def start_sample(sample, seconds, fps, max_frames, model_path, frame_dir, run_id
     sample.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     sample.thread = threading.Thread(
         target=capture_frames,
-        args=(sample, model_path, max_frames, frame_dir, run_id, fps, width, height, imgsz), daemon=True,
+        args=(sample, model_path, max_frames, frame_dir, run_id, fps, width, height, imgsz, blur_kernel), daemon=True,
     )
     sample.thread.start()
 
@@ -324,6 +324,9 @@ def main():
     parser.add_argument("--height", type=int, default=DEFAULT_HEIGHT)
     parser.add_argument("--imgsz", type=int, default=640)
     parser.add_argument("--model", type=Path, default=ROOT / "models" / "yolo26n.pt")
+    parser.add_argument("--blur-kernel", type=int, default=None,
+                        help="odd Gaussian kernel for saved JPEGs; default scales 21px@640; 0 saves UNBLURRED frames "
+                             "(local temporary annotation only; requires --output; delete frames after scoring)")
     args = parser.parse_args()
     if not 1 <= args.seconds <= 600 or not 1 <= args.fps <= 5:
         parser.error("seconds must be 1..600 and fps 1..5")
@@ -331,7 +334,13 @@ def main():
         parser.error("width/height must fit 1..1920/1080 and imgsz 32..1920")
     if not args.model.is_file():
         parser.error("model file missing")
+    blur_kernel = (max(3, 2 * round((21 * args.width / DEFAULT_WIDTH) / 2) + 1)
+                   if args.blur_kernel is None else args.blur_kernel)
+    if blur_kernel < 0 or (blur_kernel and blur_kernel % 2 == 0):
+        parser.error("--blur-kernel must be 0 or a positive odd number")
     destination = (ROOT / args.output).resolve()
+    if blur_kernel == 0 and destination.name in ("observations.json", "validation-observations.json"):
+        parser.error("unblurred capture must use its own --output; fixed batches stay blurred")
     if destination == (ROOT / "data/observations.json").resolve() and args.camera != "all":
         parser.error("single-camera capture requires --output; preserving data/observations.json")
     if destination == (ROOT / "data/observations.json").resolve() and args.seconds > 180:
@@ -342,7 +351,7 @@ def main():
     evidence_dir = ROOT / "evidence"
     data_dir.mkdir(exist_ok=True)
     evidence_dir.mkdir(exist_ok=True)
-    frame_dir = data_dir / run_id
+    frame_dir = data_dir / (f"unblurred-{run_id}" if blur_kernel == 0 else run_id)
     frame_dir.mkdir(exist_ok=False)
     model_sha = hashlib.sha256(args.model.read_bytes()).hexdigest()
     output = {
@@ -355,7 +364,8 @@ def main():
             "imgsz": args.imgsz, "confidence": CONFIDENCE,
             "classes": list(VEHICLE_CLASSES), "detectorStage": "predict-post-NMS",
             "trackerStage": "track-post-NMS-ByteTrack",
-            "blurKernel": max(3, 2 * round((21 * args.width / DEFAULT_WIDTH) / 2) + 1),
+            "blurKernel": blur_kernel, "framesBlurred": blur_kernel > 0,
+            "frameRetention": "blurred local frames" if blur_kernel else "UNBLURRED local-temporary frames for annotation; not for Git, backups or sharing; delete after scoring",
         },
         "model": {"name": args.model.name, "sha256": model_sha,
                   "ultralyticsVersion": ultralytics_version,
@@ -387,7 +397,7 @@ def main():
     for sample in samples:
         try:
             start_sample(sample, args.seconds, args.fps, max_frames, args.model,
-                         frame_dir, run_id, args.width, args.height, args.imgsz)
+                         frame_dir, run_id, args.width, args.height, args.imgsz, blur_kernel)
         except Exception as exc:
             sample.error = f"decoder start failed: {type(exc).__name__}: {exc}"
     deadline = time.monotonic() + min(900, max(args.seconds + 120, args.seconds * 2))

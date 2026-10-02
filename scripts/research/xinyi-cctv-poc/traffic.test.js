@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildTrafficState, cameraPosition } from './traffic.js';
+import { readFileSync } from 'node:fs';
+import { buildTrafficState, cameraPosition, MAX_PREDICTION_HORIZON } from './traffic.js';
 
 const box = (bottom, id = 'a', x = .45) => ({
   id, className: 'car', confidence: .8, bbox: [x, bottom - .12, x + .1, bottom],
@@ -10,7 +11,7 @@ const camera = (id = 'T000330', bottoms = [.5, .55, .6], status = 'ok', lon = 12
   frames: bottoms.map((b, t) => ({ t, detections: b == null ? [] : [box(b)] })),
 });
 const data = (...cameras) => ({ cameras });
-const state = (source, t, options = {}) => buildTrafficState(source, t, { horizonSeconds: 1.5, ...options });
+const state = (source, t, options = {}) => buildTrafficState(source, t, { horizonSeconds: MAX_PREDICTION_HORIZON, ...options });
 const near = (a, b, e = 1e-8) => assert.ok(Math.abs(a - b) < e, `${a} != ${b}`);
 
 test('continuous replay interpolation, finite velocity, stable key and raw comparison', () => {
@@ -255,4 +256,15 @@ test('north-facing corridor seeds only east/west-dominant entrance motion', () =
   const eastbound = structuredClone(source);
   eastbound.cameras[0].frames[1].detections[0] = box(.5, 'north', .58);
   assert.equal(state(eastbound, .5, opts).counts.scenario, 1);
+});
+
+test('prediction horizon is capped by core and UI slider exposes the same cap', () => {
+  const source = data(camera('T000330', [.5, .56, null, null]));
+  // Last observation t=1; at t=1.9 the gap age 0.9s exceeds the 0.8s cap.
+  assert.equal(state(source, 1.7, { horizonSeconds: 5 }).vehicles[0].kind, 'predicted');
+  assert.equal(state(source, 1.9, { horizonSeconds: 5 }).vehicles.length, 0);
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const slider = html.match(/<input id="horizon"[^>]*>/)[0];
+  assert.equal(Number(slider.match(/max="([^"]+)"/)[1]), MAX_PREDICTION_HORIZON);
+  assert.ok(Number(slider.match(/value="([^"]+)"/)[1]) <= MAX_PREDICTION_HORIZON);
 });

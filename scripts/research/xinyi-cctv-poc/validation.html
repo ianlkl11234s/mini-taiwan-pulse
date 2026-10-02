@@ -58,6 +58,11 @@
           </div>
         </article>
       </div>
+      <fieldset class="click-mode" aria-label="右圖點選用途"><legend>右圖點選用途</legend>
+        <label><input type="radio" name="click-mode" value="control" checked /> 地面控制點</label>
+        <label><input type="radio" name="click-mode" value="annotate" /> 逐車標註（點車輛底部中心）</label>
+        <span id="frame-dup-flag" class="badge muted">—</span>
+      </fieldset>
       <p class="caveat">兩側使用同一張媒體影格。右圖點選影像可記錄歸一化影像座標；地面座標可由正射圖估計或實測提供，來源與精度須核對。</p>
     </section>
 
@@ -102,6 +107,27 @@
         <p id="projection-result" class="result subtle">影像試點：尚未選取。</p>
       </section>
     </div>
+    <section class="card work-card annotation-card" aria-labelledby="annotation-heading">
+      <div class="section-top"><div><p class="eyebrow">04 / VEHICLE ANNOTATION</p><h2 id="annotation-heading">逐車標註（人工真值）</h2></div><span id="ann-status" class="badge amber">未開始</span></div>
+      <p class="section-note">每台車一個編號。選取車輛後，把上方點選用途切到「逐車標註」，在右圖點車輛<strong>底部中心</strong>。建議：進入畫面、約每 1 秒、轉向或停止時、離開前各點一次；模糊到看不清標「不確定」。重複畫面（串流卡住）上的點會保留，但評分時略過。</p>
+      <fieldset class="coverage-box annotation-meta"><legend>標註範圍</legend>
+        <label>起點（秒）<input id="ann-start" type="number" min="0" step="0.1" /></label>
+        <label>終點（秒）<input id="ann-end" type="number" min="0" step="0.1" /></label>
+        <label>輪次<select id="ann-pass"><option value="first">第一次標註</option><option value="second">第二次獨立覆核</option></select></label>
+        <label>標註者<input id="ann-annotator" type="text" maxlength="60" placeholder="代號即可" /></label>
+        <label class="checkline span-all"><input id="ann-complete" type="checkbox" /> 此範圍內所有看得見的車都已標註（勾選後才計算「多出來的追蹤」）</label>
+      </fieldset>
+      <div class="annotation-actions">
+        <label>新車車種<select id="ann-class"><option value="car">car</option><option value="motorcycle">motorcycle</option><option value="bus">bus</option><option value="truck">truck</option><option value="unknown">unknown</option></select></label>
+        <button id="ann-add" type="button">＋ 新增車輛</button>
+        <label>下一點可見度<select id="ann-visibility"><option value="visible">清楚可見</option><option value="occluded">被遮擋（位置推估）</option><option value="uncertain">不確定</option></select></label>
+      </div>
+      <div class="table-scroll"><table><thead><tr><th>選取</th><th>編號</th><th>車種</th><th>關鍵幀</th><th>時間範圍</th><th>進入</th><th>離開</th><th>備註</th><th></th></tr></thead><tbody id="ann-rows"><tr><td colspan="9" class="empty">尚未新增車輛</td></tr></tbody></table></div>
+      <p id="ann-active" class="result subtle">尚未選取車輛。</p>
+      <div id="ann-keyframes" class="keyframe-list"></div>
+      <details id="ann-export-preview" hidden><summary>標註匯出內容</summary><a id="ann-export-download" hidden>下載標註 JSON</a><textarea id="ann-export-json" readonly rows="10" style="width:100%" aria-label="逐車標註 JSON"></textarea></details>
+      <div class="card-footer"><span id="ann-summary">0 台車 · 0 個關鍵幀</span><button id="ann-export" type="button" class="quiet">匯出標註 JSON</button></div>
+    </section>
     <footer>資料僅保存在此瀏覽器 localStorage；JSON 匯出不含影像。來源時間未知，校正結果需人工審查。</footer>
   </main>
   <script type="module" src="./validation.js"></script>

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildTrafficState, cameraPosition } from './traffic.js';
+import { buildTrafficState, cameraPosition, MAX_PREDICTION_HORIZON } from './traffic.js';
 import { CAMERA_CONFIGS } from './camera-configs.js';
 import { analyzeCamera } from './analytics.js';
 
@@ -644,6 +644,9 @@ dom.selected.addEventListener('click', () => focus(false));
 dom.play.addEventListener('click', () => { if (state.t >= state.maxT) { state.t = 0; updateReadout(true); } setPlaying(!state.playing); });
 dom.timeline.addEventListener('input', () => { state.t = Number(dom.timeline.value); updateReadout(true); });
 dom.speed.addEventListener('input', () => { dom.speedValue.textContent = `${dom.speed.value} km/h`; updateReadout(true); });
+dom.horizon.max = String(MAX_PREDICTION_HORIZON);
+if (Number(dom.horizon.value) > MAX_PREDICTION_HORIZON) dom.horizon.value = String(MAX_PREDICTION_HORIZON);
+dom.horizonValue.textContent = `${dom.horizon.value} 秒`;
 dom.horizon.addEventListener('input', () => { dom.horizonValue.textContent = `${dom.horizon.value} 秒`; updateReadout(true); });
 dom.modeSelect.addEventListener('change', () => { updateModeUi(); updateReadout(true); });
 dom.classFilter.addEventListener('change', () => updateReadout(true));

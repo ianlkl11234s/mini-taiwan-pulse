@@ -6,6 +6,8 @@ export const ORIGIN = { lon: 121.55281, lat: 25.03316 };
 export const CAMERA_IDS = ['T000354', 'T000330', 'T000283'];
 export const DEFAULT_VIEW_DIRECTIONS = { T000354: 'N', T000330: 'N', T000283: 'N' };
 const GAP = 1.5;
+/** Upper bound for short-gap continuation; UI slider max must equal this. */
+export const MAX_PREDICTION_HORIZON = .8;
 const cache = new WeakMap();
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export function cameraPosition(camera) {
@@ -164,7 +166,7 @@ function projected(camera, s, smooth, view, config) {
 function localVehicles(camera, indexed, source, t, options, diagnostics) {
   if (camera.status !== 'ok' || !source.latest || source.status === 'stale') return [];
   const smooth = options.smooth !== false, view = viewDirection(camera, options), vehicles = [];
-  const horizon = clamp(Number.isFinite(options.horizonSeconds) ? options.horizonSeconds : .8, 0, .8);
+  const horizon = clamp(Number.isFinite(options.horizonSeconds) ? options.horizonSeconds : MAX_PREDICTION_HORIZON, 0, MAX_PREDICTION_HORIZON);
   const latestById = new Map();
   for (const segment of indexed.segments) {
     const at = lastAt(segment.samples, source.permittedTime);
