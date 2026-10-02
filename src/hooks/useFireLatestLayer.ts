@@ -22,7 +22,7 @@ const OPACITY_DEFAULT = Number(paramDefault("fireLatest", "fireLatestOpacity"));
 // R5（P-4／G-2）：全年 15,398 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點。熱區共用同一個 GeoJSON source，
 // setData 換子集時自動跟上；不可點擊。
 const POINTS_FROM_ZOOM = densePointsFromZoom(15_398);
-// 待瀏覽器目視校正
+// 未校正：資料走 RPC 無離線副本；同量級（1.3–1.6 萬點）全台層校正落在 1–1.5
 const HEATMAP_INTENSITY = 1;
 
 /**

@@ -76,7 +76,9 @@ function streetTrees3epochTrajWeight(filtIdx: number): unknown {
  * - `opacity` 省略＝該層用 `opacityParam` 乘數型滑桿，由 applyLayerOpacity 統一乘上，這裡傳 1。
  * - `filter` 與點的子圖層相同（函式形式時 suffix 也要列進 rebuildOnParamChange 才會跟著更新）。
  * - `weight`：點用 opacity 歸零做篩選時，熱區改吃同條件的 `["case", 條件, 1, 0]`。
- * - `intensity`：依資料密度目視校正（z7.5 全台／z6 本州截圖，城市核心接近頂色、其餘不整片飽和）。
+ * - `intensity`：依資料密度校正（2026-10-02：全台 z7.3／本州 z6 視角，以 heatmap kernel 離線模擬＋瀏覽器截圖對照，
+ *   全台層取「頂色像素約佔熱區 11%」、單一城市層約 30%、日本層約 2%；以 fireHydrants 0.1、medClinic 1、jpReligionGsi 1 為目視定錨）。
+ *   低縮放切片有抽稀的層（busStationsCity、medLTC、medAED、agri* 等）值較高是在補抽稀，不代表資料較稀。
  */
 function denseHeatmapLayer(o: {
   suffix?: string;
@@ -531,8 +533,8 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("materialRecyclingPoints", "./public_life/material_recycling_points.geojson", "material-recycling-points", PUBLIC_LIFE_COLORS.materialRecyclingPoints, undefined, undefined, undefined, { labelMinzoom: 14, filter: (p) => recyclingMaterialFilter(p?.materialRecyclingPointsMaterialMask) }),
   publicLifePointOverlay("disasterShelters", "./public_life/disaster_shelters.pmtiles", "disaster-shelters", PUBLIC_LIFE_COLORS.disasterShelters, { sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, "內政部消防署 data.gov.tw 73242 · 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterShelterTypeFilter(p?.disasterSheltersTypeMask) }),
   publicLifePointOverlay("playgrounds", "./public_life/playgrounds.geojson", "playgrounds", PUBLIC_LIFE_COLORS.playgrounds, undefined, undefined, undefined, { labelMinzoom: 14 }),
-  publicLifePointOverlay("accessibleParkFacilities", "./public_life/accessible_park_facilities.pmtiles", "accessible-park-facilities", ["match", ["get", "accessibility_status"], "yes", ACCESSIBILITY_STATUS_COLORS.yes, "limited", ACCESSIBILITY_STATUS_COLORS.limited, "no", ACCESSIBILITY_STATUS_COLORS.no, ACCESSIBILITY_STATUS_COLORS.unknown], { sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 16, filter: (p) => accessibleFacilityFilter(p?.accessibleParkFacilitiesTypeMask, p?.accessibleParkFacilitiesStatusMask), dense: { pointsFromZoom: DENSE_FROM.accessibleParkFacilities, intensity: 1 } }),
-  publicLifePointOverlay("bicycleSupport", "./public_life/bicycle_support.pmtiles", "bicycle-support", ["case", ["==", ["get", "has_repair"], true], BICYCLE_SUPPORT_COLORS.repair, ["==", ["get", "has_air"], true], BICYCLE_SUPPORT_COLORS.air, ["==", ["get", "has_parking"], true], BICYCLE_SUPPORT_COLORS.parking, ["==", ["get", "has_water"], true], BICYCLE_SUPPORT_COLORS.water, ["==", ["get", "has_toilet"], true], BICYCLE_SUPPORT_COLORS.toilet, BICYCLE_SUPPORT_COLORS.other], { sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 14, filter: (p) => bicycleSupportServiceFilter(p?.bicycleSupportServiceMask), dense: { pointsFromZoom: DENSE_FROM.bicycleSupport, intensity: 1 } }),
+  publicLifePointOverlay("accessibleParkFacilities", "./public_life/accessible_park_facilities.pmtiles", "accessible-park-facilities", ["match", ["get", "accessibility_status"], "yes", ACCESSIBILITY_STATUS_COLORS.yes, "limited", ACCESSIBILITY_STATUS_COLORS.limited, "no", ACCESSIBILITY_STATUS_COLORS.no, ACCESSIBILITY_STATUS_COLORS.unknown], { sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 16, filter: (p) => accessibleFacilityFilter(p?.accessibleParkFacilitiesTypeMask, p?.accessibleParkFacilitiesStatusMask), dense: { pointsFromZoom: DENSE_FROM.accessibleParkFacilities, intensity: 0.3 } }),
+  publicLifePointOverlay("bicycleSupport", "./public_life/bicycle_support.pmtiles", "bicycle-support", ["case", ["==", ["get", "has_repair"], true], BICYCLE_SUPPORT_COLORS.repair, ["==", ["get", "has_air"], true], BICYCLE_SUPPORT_COLORS.air, ["==", ["get", "has_parking"], true], BICYCLE_SUPPORT_COLORS.parking, ["==", ["get", "has_water"], true], BICYCLE_SUPPORT_COLORS.water, ["==", ["get", "has_toilet"], true], BICYCLE_SUPPORT_COLORS.toilet, BICYCLE_SUPPORT_COLORS.other], { sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 14, filter: (p) => bicycleSupportServiceFilter(p?.bicycleSupportServiceMask), dense: { pointsFromZoom: DENSE_FROM.bicycleSupport, intensity: 3 } }),
   { id: "nationalParks", sourceUrl: "./public_life/national_parks.pmtiles", sourceId: "national-parks", pmtiles: { sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, attribution: "國家公園署 / 海洋國家公園管理處 / TGOS · 政府資料開放授權條款第1版", rebuildOnParamChange: ["fill", "outline"], layers: [
     { suffix: "fill", type: "fill", paint: (_dark, p) => ({ "fill-color": "#15803d", "fill-opacity": (p?.nationalParksOpacity ?? .5) * .55 }) },
     { suffix: "outline", type: "line", paint: (_dark, p) => ({ "line-color": "#22c55e", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .8, 12, 2.2], "line-opacity": p?.nationalParksOpacity ?? .5 }) },
@@ -757,7 +759,7 @@ function sportsVenueOverlay(meta: SportsLayerMeta): OverlayConfig {
     filter: ["==", ["get", "layer"], layerValue],
     layers: [
       ...(id === "sportsSchool"
-        ? [denseHeatmapLayer({ suffix: `${suffix}-heatmap`, pointsFromZoom, intensity: 1, opacity: { layer: id, param: `${id}Opacity` } })]
+        ? [denseHeatmapLayer({ suffix: `${suffix}-heatmap`, pointsFromZoom, intensity: 3, opacity: { layer: id, param: `${id}Opacity` } })]
         : []),
       {
         suffix,
@@ -1615,7 +1617,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1 }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1.5 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.busStationsCity,
@@ -1664,7 +1666,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 2 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
@@ -3064,7 +3066,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "public-toilets",
     rebuildOnParamChange: ["heatmap", "glow", "circle", "label"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.publicToilets, intensity: 1, opacity: { layer: "publicToilets", param: "publicToiletsOpacity" }, filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.publicToilets, intensity: 3, opacity: { layer: "publicToilets", param: "publicToiletsOpacity" }, filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask) }),
       {
         suffix: "glow",
         type: "circle",
@@ -3299,7 +3301,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_aed", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medAED, intensity: 1, opacity: { layer: "medAED", param: "medAEDOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medAED, intensity: 5, opacity: { layer: "medAED", param: "medAEDOpacity" } }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.medAED,
@@ -3348,7 +3350,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_ltc", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medLTC, intensity: 1, opacity: { layer: "medLTC", param: "medLTCOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medLTC, intensity: 3, opacity: { layer: "medLTC", param: "medLTCOpacity" } }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.medLTC,
@@ -4139,7 +4141,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "waste-stops-static",
     pmtiles: { sourceLayer: "waste_stops", minzoom: 6, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 1 }),
+      denseHeatmapLayer({ suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 0.3 }),
       {
         suffix: "waste-stops-glow",
         type: "circle",
@@ -4201,7 +4203,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "agri-retail",
     pmtiles: { sourceLayer: "agri_retail", minzoom: 0, maxzoom: 12 },
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriRetail, intensity: 1, opacity: { layer: "agriRetail", param: "agriRetailOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriRetail, intensity: 3, opacity: { layer: "agriRetail", param: "agriRetailOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
@@ -4230,7 +4232,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "agri-produce-wholesale",
     pmtiles: { sourceLayer: "produce_wholesale", minzoom: 0, maxzoom: 12 },
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriProduceWholesale, intensity: 1, opacity: { layer: "agriProduceWholesale", param: "agriProduceWholesaleOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriProduceWholesale, intensity: 2, opacity: { layer: "agriProduceWholesale", param: "agriProduceWholesaleOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
@@ -4318,7 +4320,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "business-registry-manufacturing-company-points",
     pmtiles: { sourceLayer: "manufacturing_company_points", minzoom: 0, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ suffix: "manufacturing-heatmap", pointsFromZoom: DENSE_FROM.manufacturingCompanyPoints, intensity: 1, opacity: { layer: "manufacturingCompanyPoints", param: "manufacturingCompanyPointsOpacity" } }),
+      denseHeatmapLayer({ suffix: "manufacturing-heatmap", pointsFromZoom: DENSE_FROM.manufacturingCompanyPoints, intensity: 0.07, opacity: { layer: "manufacturingCompanyPoints", param: "manufacturingCompanyPointsOpacity" } }),
       {
         suffix: "manufacturing-circle", type: "circle", minzoom: DENSE_FROM.manufacturingCompanyPoints,
         paint: (isDark, p) => {
@@ -4345,7 +4347,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "business-registry-factory-locations",
     pmtiles: { sourceLayer: "factory_locations", minzoom: 0, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.factoryLocations, intensity: 1, opacity: { layer: "factoryLocations", param: "factoryLocationsOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.factoryLocations, intensity: 0.15, opacity: { layer: "factoryLocations", param: "factoryLocationsOpacity" } }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.factoryLocations,
         paint: (isDark, p) => {
@@ -4369,7 +4371,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "business-registry-regulated-facilities",
     pmtiles: { sourceLayer: "regulated_facilities", minzoom: 0, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.regulatedFacilities, intensity: 1, opacity: { layer: "regulatedFacilities", param: "regulatedFacilitiesOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.regulatedFacilities, intensity: 0.3, opacity: { layer: "regulatedFacilities", param: "regulatedFacilitiesOpacity" } }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.regulatedFacilities,
         paint: (isDark, p) => {
@@ -4441,7 +4443,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "business-registry-common-registration-addresses",
     rebuildOnParamChange: ["heatmap", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.commonRegistrationAddresses, intensity: 1, opacity: { layer: "commonRegistrationAddresses", param: "commonRegistrationAddressesOpacity" }, filter: commonRegistrationFilter }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.commonRegistrationAddresses, intensity: 0.3, opacity: { layer: "commonRegistrationAddresses", param: "commonRegistrationAddressesOpacity" }, filter: commonRegistrationFilter }),
       {
         suffix: "circle",
         type: "circle",
@@ -4777,7 +4779,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_diff", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipeiDiffOpacity", "streetTreesTaipeiDiffStatusIdx", "streetTreesTaipeiDiffRadius", "streetTreesTaipeiDiffColorModeIdx"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipeiDiff, intensity: 1, opacity: { layer: "streetTreesTaipeiDiff", param: "streetTreesTaipeiDiffOpacity" }, weight: (p) => streetTreesDiffStatusWeight(p?.streetTreesTaipeiDiffStatusIdx ?? 0) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipeiDiff, intensity: 0.03, opacity: { layer: "streetTreesTaipeiDiff", param: "streetTreesTaipeiDiffOpacity" }, weight: (p) => streetTreesDiffStatusWeight(p?.streetTreesTaipeiDiffStatusIdx ?? 0) }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipeiDiff,
         paint: (_isDark, p) => {
@@ -4877,7 +4879,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "riverside-trees-taipei",
     rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkMask"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.riversideTreesTaipei, intensity: 1, opacity: { layer: "riversideTreesTaipei", param: "riversideTreesTaipeiOpacity" }, weight: (p) => multiSelectOpacityExpression("park_name", p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS), RIVERSIDE_PARKS, 1) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.riversideTreesTaipei, intensity: 0.1, opacity: { layer: "riversideTreesTaipei", param: "riversideTreesTaipeiOpacity" }, weight: (p) => multiSelectOpacityExpression("park_name", p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS), RIVERSIDE_PARKS, 1) }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.riversideTreesTaipei,
         paint: (isDark, p) => {
@@ -4951,7 +4953,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_3epoch", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipei3epochOpacity", "streetTreesTaipei3epochRadius", "streetTreesTaipei3epochColorModeIdx", "streetTreesTaipei3epochTrajFilterIdx"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipei3epoch, intensity: 1, opacity: { layer: "streetTreesTaipei3epoch", param: "streetTreesTaipei3epochOpacity" }, weight: (p) => streetTrees3epochTrajWeight(p?.streetTreesTaipei3epochTrajFilterIdx ?? 0) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipei3epoch, intensity: 0.03, opacity: { layer: "streetTreesTaipei3epoch", param: "streetTreesTaipei3epochOpacity" }, weight: (p) => streetTrees3epochTrajWeight(p?.streetTreesTaipei3epochTrajFilterIdx ?? 0) }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipei3epoch,
         paint: (_isDark, p) => {
@@ -5000,7 +5002,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_national", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityMask"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesNational, intensity: 1, opacity: { layer: "streetTreesNational", param: "streetTreesNationalOpacity" }, weight: (p) => multiSelectOpacityExpression("city", p?.streetTreesNationalCityMask ?? allMultiSelectBitmask(STREET_TREE_NATIONAL_CITIES.map((c) => c.value)), STREET_TREE_NATIONAL_CITIES.map((c) => c.value), 1) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesNational, intensity: 0.03, opacity: { layer: "streetTreesNational", param: "streetTreesNationalOpacity" }, weight: (p) => multiSelectOpacityExpression("city", p?.streetTreesNationalCityMask ?? allMultiSelectBitmask(STREET_TREE_NATIONAL_CITIES.map((c) => c.value)), STREET_TREE_NATIONAL_CITIES.map((c) => c.value), 1) }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesNational,
         paint: (_isDark, p) => {
@@ -8816,7 +8818,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "accident-taipei",
     rebuildOnParamChange: ["accidentTaipeiOpacity", "accidentTaipeiScale"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.accidentTaipei, intensity: 1, opacity: { layer: "accidentTaipei", param: "accidentTaipeiOpacity" } }), {
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.accidentTaipei, intensity: 0.05, opacity: { layer: "accidentTaipei", param: "accidentTaipeiOpacity" } }), {
       suffix: "circle", type: "circle", minzoom: DENSE_FROM.accidentTaipei,
       paint: (_isDark, p) => {
         const s = p?.accidentTaipeiScale ?? 1;
@@ -9348,7 +9350,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
     filter: NOISE_ENFORCEMENT_FILTER,
     layers: [
-      denseHeatmapLayer({ suffix: "noise-heatmap", pointsFromZoom: DENSE_FROM.noiseEnforcementEvents, intensity: 1, opacity: { layer: "noiseEnforcementEvents", param: "noiseEnforcementEventsOpacity" } }), {
+      denseHeatmapLayer({ suffix: "noise-heatmap", pointsFromZoom: DENSE_FROM.noiseEnforcementEvents, intensity: 0.1, opacity: { layer: "noiseEnforcementEvents", param: "noiseEnforcementEventsOpacity" } }), {
       suffix: "noise-circle", type: "circle", minzoom: DENSE_FROM.noiseEnforcementEvents, maxzoom: 15,
       paint: (_isDark, p) => {
         const op = p?.noiseEnforcementEventsOpacity ?? 0.75;
@@ -9617,7 +9619,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "pollution-facility",
     pmtiles: { sourceLayer: "pollution_facilities", minzoom: 0, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.pollutionFacility, intensity: 1, opacity: { layer: "pollutionFacility", param: "pollutionFacilityOpacity" } }), {
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.pollutionFacility, intensity: 0.1, opacity: { layer: "pollutionFacility", param: "pollutionFacilityOpacity" } }), {
       suffix: "circle",
       type: "circle",
       minzoom: DENSE_FROM.pollutionFacility,
@@ -9649,7 +9651,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ suffix: "critical-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyCritical, intensity: 1, opacity: { layer: "pollutionPenaltyCritical", param: "pollutionPenaltyOpacity" }, filter: PENALTY_CRITICAL_FILTER }), {
+      denseHeatmapLayer({ suffix: "critical-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyCritical, intensity: 0.3, opacity: { layer: "pollutionPenaltyCritical", param: "pollutionPenaltyOpacity" }, filter: PENALTY_CRITICAL_FILTER }), {
       suffix: "critical-circle",
       type: "circle",
       minzoom: DENSE_FROM.pollutionPenaltyCritical,
@@ -9706,7 +9708,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ suffix: "general-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyGeneral, intensity: 1, opacity: { layer: "pollutionPenaltyGeneral", param: "pollutionPenaltyOpacity" }, filter: PENALTY_GENERAL_FILTER }), {
+      denseHeatmapLayer({ suffix: "general-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyGeneral, intensity: 0.1, opacity: { layer: "pollutionPenaltyGeneral", param: "pollutionPenaltyOpacity" }, filter: PENALTY_GENERAL_FILTER }), {
       suffix: "general-circle",
       type: "circle",
       minzoom: DENSE_FROM.pollutionPenaltyGeneral,
@@ -9741,7 +9743,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ suffix: "mobile-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyMobile, intensity: 1, opacity: { layer: "pollutionPenaltyMobile", param: "pollutionPenaltyOpacity" }, filter: PENALTY_MOBILE_FILTER }), {
+      denseHeatmapLayer({ suffix: "mobile-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyMobile, intensity: 0.15, opacity: { layer: "pollutionPenaltyMobile", param: "pollutionPenaltyOpacity" }, filter: PENALTY_MOBILE_FILTER }), {
       suffix: "mobile-circle",
       type: "circle",
       minzoom: DENSE_FROM.pollutionPenaltyMobile,
@@ -9995,7 +9997,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["heatmap", "circle"],
     attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局 | © OpenStreetMap contributors (ODbL)",
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.religionTemples, intensity: 1, opacity: { layer: "religionTemples", param: "religionTemplesOpacity" }, filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.religionTemples, intensity: 2, opacity: { layer: "religionTemples", param: "religionTemplesOpacity" }, filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511) }),
       {
         suffix: "circle",
         type: "circle", minzoom: DENSE_FROM.religionTemples,
@@ -11098,7 +11100,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "tour-hotels",
     rebuildOnParamChange: ["heatmap", "glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.tourHotels, intensity: 1, opacity: { layer: "tourHotels", param: "tourHotelsOpacity" }, filter: (p) => tourHotelsClassFilter(p) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.tourHotels, intensity: 1.5, opacity: { layer: "tourHotels", param: "tourHotelsOpacity" }, filter: (p) => tourHotelsClassFilter(p) }),
       {
         suffix: "glow", type: "circle", minzoom: DENSE_FROM.tourHotels,
         filter: (p) => tourHotelsClassFilter(p),

@@ -39,8 +39,8 @@ const LOCAL: Record<typeof LOCAL_KEYS[number], { archive: JpWaterLocalArchive; s
   jpWaterAgriculturalPonds: { archive: "extra-water", sourceLayer: "agri", kind: "circle", color: "#65a30d" },
 };
 // R5（P-4／G-2）：農業用ため池 agri 161,778 點（> 100k）z < 12 畫熱區、z ≥ 12 畫點（source maxzoom 11，z12+ overzoom）。
-// 待瀏覽器目視校正
-const AGRI_HEATMAP_INTENSITY = 1;
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
+const AGRI_HEATMAP_INTENSITY = 0.3;
 const LOCAL_HEATMAP: Partial<Record<typeof LOCAL_KEYS[number], { pointsFromZoom: number; intensity: number }>> = {
   jpWaterAgriculturalPonds: { pointsFromZoom: densePointsFromZoom(161_778), intensity: AGRI_HEATMAP_INTENSITY },
 };

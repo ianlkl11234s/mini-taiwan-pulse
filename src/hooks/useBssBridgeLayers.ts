@@ -35,8 +35,8 @@ const pointStroke = (opacity: number, isDark: boolean) =>
 // v5 PMTiles z6 起每級都有 geometry_role=point（2026-10-02 解磚確認），熱區從 source minzoom 6 起畫。
 export const BSS_BRIDGE_POINT_HEATMAP_LAYER_ID = "bss-national-bridge-preview-point-heatmap";
 const POINTS_FROM_ZOOM = densePointsFromZoom(49_960, BSS_BRIDGE_POINT_MIN_ZOOM);
-// 待瀏覽器目視校正
-const HEATMAP_INTENSITY = 1;
+// 2026-10-02 校正（全台 z7.3 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
+const HEATMAP_INTENSITY = 2;
 const heatScale = (opacity: number) => clamp(opacity) / POINT_OPACITY_DEFAULT;
 
 /** 全部 style layer（初始 visibility none）；匯出供測試做 style-spec 驗證。 */

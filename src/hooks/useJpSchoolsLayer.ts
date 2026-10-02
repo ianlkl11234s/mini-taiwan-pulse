@@ -20,7 +20,7 @@ const MINZOOM = 4;
 const MAXZOOM = 11;
 // R5（P-4／G-2）：56,807 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點（source z4 起有磚）。
 const POINTS_FROM_ZOOM = densePointsFromZoom(56_807);
-// 待瀏覽器目視校正
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
 const HEATMAP_INTENSITY = 1;
 
 function clampOpacity(opacity: number): number {

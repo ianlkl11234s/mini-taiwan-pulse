@@ -32,10 +32,10 @@ const GSI_HEATMAP_INTENSITY = 1;
 // OSM 71,040 點、Wikidata 37,154 點（10k–100k）：z < 10 熱區、z ≥ 10 畫點。
 const OSM_POINTS_FROM_ZOOM = densePointsFromZoom(71_040);
 const WIKIDATA_POINTS_FROM_ZOOM = densePointsFromZoom(37_154);
-// 待瀏覽器目視校正
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
 const OSM_HEATMAP_INTENSITY = 1;
-// 待瀏覽器目視校正
-const WIKIDATA_HEATMAP_INTENSITY = 1;
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
+const WIKIDATA_HEATMAP_INTENSITY = 1.5;
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));

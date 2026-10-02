@@ -27,9 +27,9 @@ interface LayerConfig {
   heatmap?: { pointsFromZoom: number; intensity: number };
 }
 
-// 待瀏覽器目視校正
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
 const ACCOMMODATION_CANONICAL_HEATMAP_INTENSITY = 1;
-// 待瀏覽器目視校正
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
 const ACCOMMODATION_OSM_HEATMAP_INTENSITY = 1;
 
 const CONFIGS: readonly LayerConfig[] = [
