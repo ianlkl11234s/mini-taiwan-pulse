@@ -5724,7 +5724,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "hook 自建 source + 四層（earthquakes-global-circle 主層 / -pre 預示 / -ripple-0..1 擴散圈），資料走 earthquakesGlobalLoader 打 Supabase public.earthquakes_global（USGS feed 由上游 collector 抓，前端不直接打）—— 非 OVERLAY_REGISTRY。ripple/pre 為裝飾層，刻意不進 gisClickRegistry 免搶點擊",
+      note: "hook 自建 source + 兩個 circle 層（earthquakes-global-circle 主層 / -pre 預示）＋ Three.js custom layer earthquakes-global-ripple-3d 畫擴散圈（不經 Mapbox 資料管線），資料走 earthquakesGlobalLoader 打 Supabase public.earthquakes_global（USGS feed 由上游 collector 抓，前端不直接打）—— 非 OVERLAY_REGISTRY。ripple/pre 為裝飾層，刻意不進 gisClickRegistry 免搶點擊",
     },
     legend: "earthquakesGlobal",
     popup: "earthquakeGlobal",
