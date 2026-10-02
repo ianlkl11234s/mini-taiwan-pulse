@@ -104,7 +104,7 @@
 - 已知上游問題（未在本次處理）：`介壽橋` 與 `介壽橋（瑞芳區）` 兩座 town 都是瑞芳區，後綴會誤導；analytics 工作紀錄建議改名（需從選橋 v7 重跑約 50 分）。華翠大橋汽車是否實際禁行、松江大橋等 trunk 橋機車是否可騎，均待查。
 
 
-狀態（2026-10-01）：`bridgeResilienceTwinCity` 顯示 analytics 專題 §8／§8b／§9 的前端顯示成品（**v3**：v2 全部＋**距離遞減版**＋村里邊界扣水面；預設權重＝距離遞減）；v3 資產**尚未上傳**（分支 `feat/bridge-decay-view`，未 push／未開 PR）。授權
+（**2026-10-02 起已換 v4，見上節**；以下是 v3 時的紀錄。）狀態（2026-10-01）：`bridgeResilienceTwinCity` 顯示 analytics 專題 §8／§8b／§9 的前端顯示成品（**v3**：v2 全部＋**距離遞減版**＋村里邊界扣水面；預設權重＝距離遞減）；v3 資產**尚未上傳**（分支 `feat/bridge-decay-view`，未 push／未開 PR）。授權
 `HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED`（橋的身份判定鏈用到 BSS），解除前不得公開。分析專題（反向連結）：
 `taipei-gis-analytics/pipelines/analysis/bridge_resilience/README.md` §8／§8b（v2 在 analytics 工作樹 `.worktrees/bridge-destination-20260930`、分支 `feat/bridge-destination-view`，未 push）。
 
