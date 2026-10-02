@@ -6,7 +6,7 @@ import {
   BRIDGE_RESILIENCE_MIN_ZOOM, BRIDGE_RESILIENCE_PRIVATE_ENDPOINT, BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT,
   BRIDGE_RESILIENCE_SOURCE_ID, BRIDGE_RESILIENCE_SOURCE_LAYERS, bridgeModeColorExpression,
   decayFillColorExpression, decodeDecayVillageScenario, decodeDestinationView, decodeVillageScenario, destinationFillColorExpression, destinationTopIds, destinationVillageStates,
-  effectiveScenarioUid, highlightUids, scenarioKey, villageFillColorExpression,
+  effectiveScenarioUid, highlightUids, scenarioKey, validatedOpacityExpression, villageFillColorExpression,
   type BridgeMode, type BridgeResilienceData, type BridgeWeighting, type DestinationView, type VillageDestinations, type VillageMetric,
 } from "../data/bridgeResilienceTypes";
 import {
@@ -92,11 +92,12 @@ export function buildBridgeResilienceLayers(state: Snapshot): (FillLayer | LineL
       layout: { ...hidden, "line-cap": "round", "line-join": "round" },
       paint: { "line-color": BRIDGE_RESILIENCE_COLORS.routeAfter, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 15, 5], "line-opacity": Math.max(0.7, o) } },
     // 地面引道（is_removed_structure=false，未被移除）：同色淡化＋虛線。dasharray 不能資料驅動，所以獨立一層。
+    // validated=false（47 座自動選入、尚未人工複核）：opacity 再乘淡化係數（虛線已被地面引道用掉）。
     { ...base(IDS.ground, "line", LAYERS.bridges), filter: ["==", ["get", "is_removed_structure"], false],
-      paint: { "line-color": bridgeModeColorExpression, "line-width": lineWidth(2.4, 1.6), "line-opacity": o * BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR, "line-dasharray": [1.5, 1.5] } },
+      paint: { "line-color": bridgeModeColorExpression, "line-width": lineWidth(2.4, 1.6), "line-opacity": validatedOpacityExpression(o * BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR), "line-dasharray": [1.5, 1.5] } },
     { ...base(IDS.structure, "line", LAYERS.bridges), filter: ["==", ["get", "is_removed_structure"], true],
       layout: { ...hidden, "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": bridgeModeColorExpression, "line-width": lineWidth(3.2, 2), "line-opacity": o } },
+      paint: { "line-color": bridgeModeColorExpression, "line-width": lineWidth(3.2, 2), "line-opacity": validatedOpacityExpression(o) } },
     // 透明加寬命中層（四鐵則③：細線點擊命中率差），同 road-congestion-hit 作法。
     { ...base(IDS.hit, "line", LAYERS.bridges), paint: { "line-color": "#000000", "line-width": 16, "line-opacity": 0 } },
   ] as unknown as (FillLayer | LineLayer)[];
@@ -123,8 +124,8 @@ function syncLayers(map: MapboxMap, state: Snapshot) {
   filter(IDS.origin, originFilter(focus.originId));
   paint(IDS.villageFill, "fill-opacity", hookFillOpacity("bridgeResilienceTwinCity", IDS.villageFill, o * 0.62, Number(paramDefault("bridgeResilienceTwinCity", "bridgeResilienceTwinCityOpacity") ?? 1) * 0.62));
   paint(IDS.villageOutline, "line-opacity", o * 0.22);
-  paint(IDS.structure, "line-opacity", o);
-  paint(IDS.ground, "line-opacity", o * BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR);
+  paint(IDS.structure, "line-opacity", validatedOpacityExpression(o));
+  paint(IDS.ground, "line-opacity", validatedOpacityExpression(o * BRIDGE_RESILIENCE_GROUND_OPACITY_FACTOR));
   paint(IDS.highlight, "line-opacity", Math.max(0.5, o) * 0.55);
   filter(IDS.highlight, highlightFilter(selected, controls.joint));
   filter(IDS.routeBefore, routeFilter(selected, controls, "before"));

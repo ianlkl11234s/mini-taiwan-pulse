@@ -15,7 +15,7 @@ import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
 import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
-import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_WEIGHTINGS, DECAY_RAMP, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
+import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR, BRIDGE_RESILIENCE_UNVALIDATED_TEXT, BRIDGE_WEIGHTINGS, DECAY_RAMP, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
 import { useBridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_V5_LINE_COLORS } from "../data/bssBridgeTypes";
 import { LIQUEFACTION_SITE_COLOR, SOIL_POTENTIAL_CLASSES, WEAK_SOIL_CLASS_UPPER_M, WEAK_SOIL_COLORS, WEAK_SOIL_MIN_ZOOM, WEAK_SOIL_SPT_THRESHOLD } from "../data/soilLiquefactionTypes";
@@ -1295,6 +1295,8 @@ function BridgeResilienceLegend({ weightingIdx, metricIdx, showVillages, showRou
     <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.car} width={3} />}>汽車：被移除的橋段</LegendRow>
     <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.scooter} width={2} />}>機車：被移除的橋段</LegendRow>
     <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.car} width={2} dash={[1.5, 1.5]} />}>地面引道（未移除，淡色虛線）</LegendRow>
+    <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.car} width={3} opacity={BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR} />}>{BRIDGE_RESILIENCE_UNVALIDATED_TEXT}（47 座，較淡）</LegendRow>
+    <LegendNote>73 座＝26 座人工複核＋47 座自動選入；自動選入的路段群組是機器比對，名次只供參考。</LegendNote>
     {showRoutes && <>
       <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.routeBefore} width={2} dash={[1.5, 1.5]} />}>替代路線：移除前</LegendRow>
       <LegendRow swatch={<SwatchLine color={BRIDGE_RESILIENCE_COLORS.routeAfter} width={2.5} />}>替代路線：移除後</LegendRow>

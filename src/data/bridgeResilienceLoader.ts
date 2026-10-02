@@ -5,26 +5,35 @@ import {
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
+/** 與 sidecar `MAX_RANGE_BYTES`（8 MiB）同值：單一 Range 不得超過；較大的資產分段讀。 */
+export const BRIDGE_RESILIENCE_MAX_RANGE_BYTES = 8 * 1024 * 1024;
+
 /**
- * 站主限定 JSON：sidecar 只回 206 Range，所以以資產已知大小一次要整段（< 8 MB 上限）。
+ * 站主限定 JSON：sidecar 只回 206 Range，所以以資產已知大小要整段；超過 8 MiB（v4 village_destinations 10 MB）
+ * 就依序分段，位元組拼好後才一次 UTF-8 解碼（多位元組字元可能跨段）。
  * 每次呼叫都重新帶 Bearer，不快取；401／403 丟出帶 status 的錯誤，由呼叫端鎖回。
  */
 export async function fetchPrivateJson<T>(
   name: Exclude<BridgeResilienceAssetName, "tiles">, token: string, fetchFn: FetchLike = (u, i) => fetch(u, i), signal?: AbortSignal,
 ): Promise<T> {
   const { size } = BRIDGE_RESILIENCE_ASSETS[name];
-  const response = await fetchFn(bridgeResilienceAssetUrl(name), {
-    signal, cache: "no-store", headers: { Authorization: `Bearer ${token}`, Range: `bytes=0-${size - 1}` },
-  });
-  if (response.status === 401 || response.status === 403) {
-    const error = new Error(`bridge resilience access denied (${response.status})`) as Error & { status?: number };
-    error.status = response.status;
-    throw error;
+  const bytes = new Uint8Array(size);
+  for (let start = 0; start < size; start += BRIDGE_RESILIENCE_MAX_RANGE_BYTES) {
+    const end = Math.min(size, start + BRIDGE_RESILIENCE_MAX_RANGE_BYTES) - 1;
+    const response = await fetchFn(bridgeResilienceAssetUrl(name), {
+      signal, cache: "no-store", headers: { Authorization: `Bearer ${token}`, Range: `bytes=${start}-${end}` },
+    });
+    if (response.status === 401 || response.status === 403) {
+      const error = new Error(`bridge resilience access denied (${response.status})`) as Error & { status?: number };
+      error.status = response.status;
+      throw error;
+    }
+    if (response.status !== 206) throw new Error(`橋梁韌性私人資料尚未就緒（HTTP ${response.status}）`);
+    const chunk = new Uint8Array(await response.arrayBuffer());
+    if (chunk.length !== end - start + 1) throw new Error("橋梁韌性私人資料長度不符");
+    bytes.set(chunk, start);
   }
-  if (response.status !== 206) throw new Error(`橋梁韌性私人資料尚未就緒（HTTP ${response.status}）`);
-  const text = await response.text();
-  if (text.length === 0) throw new Error("橋梁韌性私人資料為空");
-  return JSON.parse(text) as T;
+  return JSON.parse(new TextDecoder("utf-8").decode(bytes)) as T;
 }
 
 export function validateBridgeResilienceData(
@@ -59,7 +68,7 @@ export function validateVillageDestinations(dest: VillageDestinations): VillageD
   return dest;
 }
 
-/** 懶載入：第一次點村里才抓（6.4 MB，單一 Range）。 */
+/** 懶載入：第一次點村里才抓（v4 10 MB，分兩段 Range）。 */
 export async function loadVillageDestinations(token: string, fetchFn?: FetchLike, signal?: AbortSignal): Promise<VillageDestinations> {
   return validateVillageDestinations(await fetchPrivateJson<VillageDestinations>("destinations", token, fetchFn, signal));
 }

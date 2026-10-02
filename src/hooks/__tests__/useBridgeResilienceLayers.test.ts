@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only validator.
-import { featureFilter, validate } from "mapbox-gl/dist/style-spec/index.cjs";
+import { expression, featureFilter, validate } from "mapbox-gl/dist/style-spec/index.cjs";
 import {
-  BRIDGE_RESILIENCE_CLICK_LAYERS, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_SOURCE_ID, decodeDestinationView, type DecayVillageImpacts, type VillageDestinations, type VillageImpacts,
+  BRIDGE_RESILIENCE_CLICK_LAYERS, BRIDGE_RESILIENCE_LAYER_IDS, BRIDGE_RESILIENCE_SOURCE_ID, BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR, decodeDestinationView, type DecayVillageImpacts, type VillageDestinations, type VillageImpacts,
 } from "../../data/bridgeResilienceTypes";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { applyDestinationState, applyVillageState, buildBridgeResilienceLayers, destTopFilter, fillColor, highlightFilter, originFilter, routeFilter, type BridgeResilienceControls } from "../useBridgeResilienceLayers";
@@ -23,8 +23,23 @@ describe("橋梁韌性 style layers", () => {
   it("初始 hidden；透明度套到線與村里面", () => {
     for (const layer of buildBridgeResilienceLayers(STATE)) expect((layer.layout as { visibility?: string }).visibility).toBe("none");
     const at = (id: string, opacity: number) => (buildBridgeResilienceLayers({ ...STATE, opacity }).find((l) => l.id === id)!.paint as Record<string, unknown>);
-    expect(at(BRIDGE_RESILIENCE_LAYER_IDS.structure, 0.4)["line-opacity"]).toBe(0.4);
-    expect(at(BRIDGE_RESILIENCE_LAYER_IDS.ground, 0.4)["line-opacity"] as number).toBeLessThan(0.4);
+    const opacityOf = (id: string, opacity: number, validated?: boolean) => {
+      const parsed = expression.createExpression(at(id, opacity)["line-opacity"]);
+      expect(parsed.result).toBe("success");
+      return parsed.value.evaluate({ zoom: 10 }, { properties: validated === undefined ? {} : { validated } }) as number;
+    };
+    expect(opacityOf(BRIDGE_RESILIENCE_LAYER_IDS.structure, 0.4, true)).toBeCloseTo(0.4);
+    expect(opacityOf(BRIDGE_RESILIENCE_LAYER_IDS.structure, 0.4)).toBeCloseTo(0.4);       // 缺欄位＝已複核
+    expect(opacityOf(BRIDGE_RESILIENCE_LAYER_IDS.ground, 0.4, true)).toBeLessThan(0.4);
+  });
+  it("自動選入、尚未人工複核（validated=false）的橋線較淡（被移除橋段與地面引道都是）", () => {
+    const at = (id: string) => (buildBridgeResilienceLayers({ ...STATE, opacity: 1 }).find((l) => l.id === id)!.paint as Record<string, unknown>)["line-opacity"];
+    for (const id of [BRIDGE_RESILIENCE_LAYER_IDS.structure, BRIDGE_RESILIENCE_LAYER_IDS.ground]) {
+      const parsed = expression.createExpression(at(id)).value;
+      const v = (validated: boolean) => parsed.evaluate({ zoom: 10 }, { properties: { validated } }) as number;
+      expect(v(false)).toBeCloseTo(v(true) * BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR);
+      expect(v(false)).toBeLessThan(v(true));
+    }
   });
   it("地面引道與被移除橋段分層；引道是虛線", () => {
     const layers = buildBridgeResilienceLayers(STATE);

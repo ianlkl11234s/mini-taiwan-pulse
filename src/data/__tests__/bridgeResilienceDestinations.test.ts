@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only evaluator.
 import { expression } from "mapbox-gl/dist/style-spec/index.cjs";
 import { bridgeResilienceOrigin, bridgeResilienceSelection } from "../bridgeResilienceStore";
-import { loadVillageDestinations, validateVillageDestinations } from "../bridgeResilienceLoader";
+import { BRIDGE_RESILIENCE_MAX_RANGE_BYTES, loadVillageDestinations, validateVillageDestinations } from "../bridgeResilienceLoader";
 import {
   BRIDGE_RESILIENCE_ASSETS, BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_RAMP, DEST_STATE, decodeDestinationView,
   destinationFillColorExpression, destinationTopIds, destinationVillageStates, sharePermilleText, type VillageDestinations,
@@ -93,15 +93,28 @@ describe("目的地視角著色", () => {
   });
 });
 
+/** 模擬 sidecar 206：body 以空白補到 Range 結尾（JSON 容許尾端空白），回該段位元組。 */
+function rangeResponse(body: string, init: RequestInit | undefined, status = 206): Response {
+  const m = /^bytes=(\d+)-(\d+)$/.exec((init?.headers as Record<string, string>)?.Range ?? "");
+  if (!m) return new Response(body, { status });
+  const start = Number(m[1]); const end = Number(m[2]);
+  const encoded = new TextEncoder().encode(body);
+  const padded = new Uint8Array(Math.max(encoded.length, end + 1)).fill(0x20);
+  padded.set(encoded);
+  return new Response(padded.slice(start, end + 1), { status });
+}
+
 describe("目的地資料載入與選取 store", () => {
-  it("以資產已知大小要整段 Range；格式不符中止", async () => {
-    let url = ""; let range = "";
+  it("以資產已知大小分段 Range（每段 ≤8 MiB）；格式不符中止", async () => {
+    let url = ""; const ranges: string[] = [];
     const loaded = await loadVillageDestinations("tok", async (u, init) => {
-      url = u; range = (init!.headers as Record<string, string>).Range ?? "";
-      return new Response(JSON.stringify(DEST), { status: 206 });
+      url = u; ranges.push((init!.headers as Record<string, string>).Range ?? "");
+      return rangeResponse(JSON.stringify(DEST), init);
     });
     expect(url).toBe("/api/private-research/bridge-resilience/destinations");
-    expect(range).toBe(`bytes=0-${BRIDGE_RESILIENCE_ASSETS.destinations.size - 1}`);
+    const size = BRIDGE_RESILIENCE_ASSETS.destinations.size;
+    const step = BRIDGE_RESILIENCE_MAX_RANGE_BYTES;
+    expect(ranges).toEqual(Array.from({ length: Math.ceil(size / step) }, (_, k) => `bytes=${k * step}-${Math.min(size, (k + 1) * step) - 1}`));
     expect(loaded.villages).toHaveLength(4);
     expect(() => validateVillageDestinations({ ...DEST, village_names: [] })).toThrow();
     expect(() => validateVillageDestinations({} as never)).toThrow();

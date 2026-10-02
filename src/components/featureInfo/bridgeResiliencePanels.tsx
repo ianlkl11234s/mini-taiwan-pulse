@@ -2,10 +2,11 @@ import { useEffect, useMemo } from "react";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT, RADIUS } from "../../styles/designTokens";
 import {
   BRIDGE_JOINT_KEY, BRIDGE_MODES, BRIDGE_MODE_LABELS, BRIDGE_WEIGHTINGS, BRIDGE_WEIGHTING_LABELS, BRIDGE_RESILIENCE_KEY, BRIDGE_RESILIENCE_LIMITS_TEXT,
-  BRIDGE_RESILIENCE_COLORS, FINGERPRINT_DIMENSIONS, FINGERPRINT_LABELS, decodeDestinationView, effectiveScenarioUid, geometryConfidenceText, isJointMember, lossPercentText,
+  BRIDGE_RESILIENCE_COLORS, BRIDGE_MODE_STATUS_TEXT, BRIDGE_RESILIENCE_UNVALIDATED_TEXT, FINGERPRINT_DIMENSIONS, FINGERPRINT_LABELS, bridgeModeStatus, decodeDestinationView,
+  effectiveScenarioUid, geometryConfidenceText, isJointMember, isUnvalidated, lossPercentText,
   millionPersonSecondsText, minutesText, populationText, rankText, scenarioKey, secondsText, sharePermilleText,
-  type BridgeAltCandidate, type BridgeFingerprint, type BridgeMode, type BridgeSummaryEntry, type BridgeWeighting, type DecayModeSummary,
-  type DecaySummary, type DestinationView,
+  type BridgeAltCandidate, type BridgeFingerprint, type BridgeMode, type BridgeModeStatus, type BridgeSummaryEntry, type BridgeWeighting, type DecayModeSummary,
+  type DecaySummary, type DestinationView, type FingerprintBridgeEntry, type FingerprintDimension,
 } from "../../data/bridgeResilienceTypes";
 import {
   bridgeResilienceOrigin, bridgeResilienceSelection, useBridgeResilienceData, useBridgeResilienceDestinations,
@@ -89,18 +90,27 @@ export function fingerprintValue(value: unknown): number | null {
 const FP_COLS = "56px 1fr 28px";
 
 /**
- * 「為什麼重要」：四維 fingerprint（26 座單橋內百分位，越高越關鍵），只畫目前交通模式。
- * 不加總、不合成分數；聯合情境不參與排名；null 寫「未提供」不畫長條。
+ * 百分位缺值的說明：該模式路網未收此橋／沒有受影響起訖對（缺乏替代無從算）各有自己的話，其餘「未提供」；從不當 0。
  */
-export function FingerprintBlock({ fingerprint, uid, joint, mode }: {
-  fingerprint: BridgeFingerprint | undefined; uid: string; joint: boolean; mode: BridgeMode;
+export function fingerprintNullText(status: BridgeModeStatus | null | undefined, dim: FingerprintDimension, mode: BridgeMode): string {
+  if (status === "not_in_mode_graph" && dim !== "barrier") return BRIDGE_MODE_STATUS_TEXT.not_in_mode_graph(mode);
+  if (status === "no_affected_od" && dim === "lack_of_redundancy") return "無受影響起訖對";
+  return "未提供";
+}
+
+/**
+ * 「為什麼重要」：四維 fingerprint（73 座單橋內百分位，越高越關鍵），只畫目前交通模式。
+ * 不加總、不合成分數；聯合情境不參與排名；null 依狀態寫說明、不畫長條。
+ */
+export function FingerprintBlock({ fingerprint, uid, joint, mode, status }: {
+  fingerprint: BridgeFingerprint | undefined; uid: string; joint: boolean; mode: BridgeMode; status?: BridgeModeStatus | null;
 }) {
   const t = useFeatureTheme();
   const entry = fingerprint?.bridges[joint ? BRIDGE_JOINT_KEY : uid];
   const percentiles = entry?.modes[mode]?.percentiles;
   const note = (text: string) => <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, padding: "2px 0" }}>{text}</div>;
   return <div className="fi-fingerprint" style={{ borderTop: `1px solid ${t.borderSoft}`, marginTop: 4, paddingTop: 4 }}>
-    <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.semibold, padding: "2px 0" }}>為什麼重要（26 座內百分位）</div>
+    <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.semibold, padding: "2px 0" }}>為什麼重要（73 座內百分位）</div>
     {!fingerprint ? note("載入中…")
       : !entry ? note("未提供")
       : entry.is_joint ? note("聯合情境不排名")
@@ -109,7 +119,7 @@ export function FingerprintBlock({ fingerprint, uid, joint, mode }: {
         return <div key={dim} style={{ display: "grid", gridTemplateColumns: FP_COLS, alignItems: "center", columnGap: 6, padding: "2px 0", fontSize: FONT_SIZE.sm }}>
           <span style={{ color: t.textMuted }}>{FINGERPRINT_LABELS[dim]}</span>
           {v === null
-            ? <span style={{ gridColumn: "2 / 4", color: t.textDim }}>未提供</span>
+            ? <span style={{ gridColumn: "2 / 4", color: t.textDim }}>{fingerprintNullText(status, dim, mode)}</span>
             : <>
               <span role="img" aria-label={`${FINGERPRINT_LABELS[dim]} ${v}／100`} style={{ height: 6, borderRadius: RADIUS.pill, background: t.bgStrong, overflow: "hidden" }}>
                 <span style={{ display: "block", height: "100%", width: `${v}%`, background: BRIDGE_RESILIENCE_COLORS[mode], borderRadius: RADIUS.pill }} />
@@ -121,16 +131,38 @@ export function FingerprintBlock({ fingerprint, uid, joint, mode }: {
   </div>;
 }
 
-/** 「四維怎麼算」：每維一句定義＋主要限制（收合）。 */
-export function FingerprintDetailRows() {
+const pctList = (values: Partial<Record<FingerprintDimension, number | null>> | undefined) =>
+  FINGERPRINT_DIMENSIONS.map((dim) => `${FINGERPRINT_LABELS[dim]} ${fingerprintValue(values?.[dim]) ?? "—"}`).join("・");
+
+/** 原 26 座內百分位（只有原 26 座有值）；全部缺值回 null（不顯示該列）。 */
+export function within26Text(entry: FingerprintBridgeEntry | undefined, mode: BridgeMode): string | null {
+  const values = entry?.modes[mode]?.percentiles_within_original_26;
+  return values && FINGERPRINT_DIMENSIONS.some((dim) => fingerprintValue(values[dim]) !== null) ? pctList(values) : null;
+}
+/** 同河替代「不限距離」變體：缺乏替代百分位＋同河替代占比；沒有值回 null。 */
+export function anyDistanceVariantText(entry: FingerprintBridgeEntry | undefined, mode: BridgeMode): string | null {
+  const v = entry?.modes[mode]?.substitute_rule_variant_any_distance;
+  const pct = fingerprintValue(v?.lack_of_redundancy_any_pct);
+  if (pct === null) return null;
+  const share = v?.same_river_any_share_top50;
+  return `缺乏替代 ${pct}（預設 5 km：${fingerprintValue(entry?.modes[mode]?.percentiles.lack_of_redundancy) ?? "—"}）${typeof share === "number" ? `；同河替代占比 ${Math.round(share * 100)}%` : ""}`;
+}
+
+/** 「四維怎麼算」：每維一句定義＋主要限制（收合）；有值時附原 26 座內百分位與不限距離變體。 */
+export function FingerprintDetailRows({ entry, mode }: { entry?: FingerprintBridgeEntry; mode?: BridgeMode } = {}) {
+  const w26 = mode && !entry?.is_joint ? within26Text(entry, mode) : null;
+  const anyDist = mode && !entry?.is_joint ? anyDistanceVariantText(entry, mode) : null;
   return <>
+    {w26 && <Row label="原 26 座內百分位" value={w26} />}
+    {anyDist && <Row label="同河替代不限距離（變體）" value={anyDist} />}
     <Row label="阻隔" value="水面跨距越長、上下游 ±3 km 內同河跨河道路越少越高；與交通模式無關，汽車／機車同值" />
     <Row label="路網" value="距離遞減（τ=20 分，假設值）下的總影響（人·秒）" />
     <Row label="人口" value="平均每次出行多花超過 30 秒的人口；多數橋是 0，同分取平均名次" />
     <Row label="缺乏替代" value="受影響起訖對沒改走同河 5 km 內替代橋的占比，加上平均繞行比；越高＝替代越差" />
     <Row label="注意" value="關渡與淡江相距約 7 km，超出「同河 5 km」規則，互為替代卻都算 0%，兩者缺乏替代偏高有一半來自這條規則" />
     <Row label="注意" value="新北大橋的水面跨距取自斜交的機車道，屬上界" />
-    <Row label="讀法" value="四維各自在 26 座單橋內排名，不加總、不合成總分；是失效後果，不是風險" />
+    <Row label="變體" value="同河替代不限距離時，上游幾十公里外的橋也算替代，所以預設仍用同河 5 km；變體只作對照" />
+    <Row label="讀法" value="四維各自在 73 座單橋內排名（26 座人工複核＋47 座自動選入），不加總、不合成總分；是失效後果，不是風險" />
   </>;
 }
 
@@ -226,9 +258,16 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
   const otherOnRoute = modeSummary?.replacement_bridges?.other_bridges_on_route;
   const stranded = modeSummary?.stranded_population;
   const grade = entry ? geometryConfidenceText(review?.geometry_confidence) : "";
+  const status = bridgeModeStatus(modeSummary, decay?.modes[mode]);
+  const statusText = status && status !== "ok" ? BRIDGE_MODE_STATUS_TEXT[status](mode) : null;
+  const unvalidated = !joint && isUnvalidated(entry);
+  const fpEntry = data?.fingerprint.bridges[joint ? BRIDGE_JOINT_KEY : uid];
 
   return <>
     <Title color={BRIDGE_RESILIENCE_COLORS[mode]}>{title}</Title>
+    {unvalidated && <div className="fi-badge" style={{ display: "inline-block", margin: "2px 0", padding: "1px 6px", borderRadius: RADIUS.pill, border: `1px dashed ${t.warn}`, color: t.warn, fontSize: FONT_SIZE.sm }}>
+      {BRIDGE_RESILIENCE_UNVALIDATED_TEXT}（名次只供參考）
+    </div>}
     <Row label="河川・評級" value={grade ? `${river}・${grade}` : river} />
     <div className="fi-actions">
       <Segmented label="權重" value={weighting} options={BRIDGE_WEIGHTINGS.map((w) => ({ value: w, label: BRIDGE_WEIGHTING_LABELS[w] }))} onChange={(v) => setParam("bridgeResilienceWeighting", v)} />
@@ -242,20 +281,22 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
     <PopupScroll>
       {showVillages && origin && <DestinationSection view={view} status={destStatus} originCode={origin} modeLabel={BRIDGE_MODE_LABELS[mode]} uniformNote={weighting === "decay"} />}
       {!entry && <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>{data ? "此橋沒有模擬指標。" : "指標載入中…"}</div>}
-      {entry && weighting === "decay" && <DecayRows decay={decay} mode={mode} />}
-      {entry && weighting === "uniform" && modeSummary && <>
+      {entry && statusText && <Row label="模擬結果" value={statusText} />}
+      {entry && !statusText && weighting === "decay" && <DecayRows decay={decay} mode={mode} />}
+      {entry && !statusText && weighting === "uniform" && modeSummary && <>
         <Row label="額外時間 p90" value={minutesText(modeSummary.p90_dT_s)} />
         <Row label="可及性損失" value={lossPercentText(modeSummary.accessibility_loss)} />
         <Row label="暴露人口" value={populationText(modeSummary.exposed_population_gt60s)} />
         {typeof stranded === "number" && stranded > 0 && <Row label="孤立人口" value={populationText(stranded)} />}
       </>}
-      {entry && <Row label="替代橋" value={sameRiver?.length ? altBridgesText(sameRiver, 2) : `路徑上其他橋：${altBridgesText(otherOnRoute, 2)}`} />}
-      <FingerprintBlock fingerprint={data?.fingerprint} uid={uid} joint={joint} mode={mode} />
-      <PopupDetails summary="四維怎麼算"><FingerprintDetailRows /></PopupDetails>
+      {entry && !statusText && <Row label="替代橋" value={sameRiver?.length ? altBridgesText(sameRiver, 2) : `路徑上其他橋：${altBridgesText(otherOnRoute, 2)}`} />}
+      <FingerprintBlock fingerprint={data?.fingerprint} uid={uid} joint={joint} mode={mode} status={status} />
+      <PopupDetails summary="四維怎麼算"><FingerprintDetailRows entry={fpEntry} mode={mode} /></PopupDetails>
       <PopupDetails summary="說明與限制">
         <Row label="研究狀態" value="研究中；站主限定（BSS 授權 HOLD）。是單橋失效後果，不是風險" />
+        <Row label="橋梁範圍" value="73 座：26 座人工複核＋47 座選橋 v7 自動選入（路段群組機器比對，尚未人工複核）" />
         {entry && <Row label="複核日期" value={review?.latest_review_date ?? ""} mono />}
-        {weighting === "decay" && <DecayDetailRows decay={decay} mode={mode} />}
+        {weighting === "decay" && !statusText && <DecayDetailRows decay={decay} mode={mode} />}
         {weighting === "uniform" && modeSummary && <Row label="平均多花時間" value={minutesText(modeSummary.mean_dT_s, "未提供")} />}
         {entry && <Row label={`替代橋（同河 5 km・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(sameRiver)} />}
         {entry && <Row label={`替代橋（路徑上其他橋・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(otherOnRoute)} />}
