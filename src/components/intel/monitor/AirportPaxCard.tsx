@@ -7,7 +7,8 @@ import { fetchAirportHourlyPax, type AirportPaxBucket } from "../../../data/airp
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
+import { MonitorKpis, MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 const AIRPORTS: Array<{ code: string; label: string }> = [
@@ -17,6 +18,17 @@ const AIRPORTS: Array<{ code: string; label: string }> = [
   { code: "RMQ", label: "台中 RMQ" },
 ];
 const EMPTY_PAX: AirportPaxBucket[] = [];
+const IN_COLOR = COLORS.accent;
+const OUT_COLOR = COLORS.statusWarn;
+
+function LegendDot({ color, label }: { color: string; label: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+      <span style={{ width: 8, height: 2, background: color, display: "inline-block" }} />
+      {label}
+    </span>
+  );
+}
 
 interface Props { open: boolean }
 
@@ -43,6 +55,56 @@ export function AirportPaxCard({ open }: Props) {
   // 標題列時間＝最新一筆快照小時（沒資料時退回最後成功更新）
   const latestBucket = query.data.reduce((m, r) => Math.max(m, Date.parse(r.hour_bucket) || 0), 0);
   useMonitorCardHeader({ time: latestBucket > 0 ? latestBucket : query.lastSuccessAt });
+
+  // 圖與主數字共用：入境主線＋出境疊線（同單位人）
+  const outExtra = useMemo(() => ({ data: outSeries, color: OUT_COLOR, label: "出境" }), [outSeries]);
+
+  if (v2) {
+    const fmt = (n: number) => (hasReadableData ? n.toLocaleString("zh-TW") : "—");
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {AIRPORTS.map((a) => (
+            <button
+              key={a.code}
+              onClick={() => setActiveCode(a.code)}
+              style={{
+                fontFamily: FONT_CJK, fontSize: MF.label,
+                padding: "3px 8px", borderRadius: RADIUS.sm,
+                border: `1px solid ${activeCode === a.code ? COLORS.accent : COLORS.panelBorder}`,
+                background: activeCode === a.code ? COLORS.accentFaint : "transparent",
+                color: activeCode === a.code ? COLORS.textStrong : COLORS.textMuted,
+                cursor: "pointer",
+              }}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+        <MonitorDataStatus label="機場旅客資料" query={query} />
+        <MonitorMetric value={fmt(sumIn)} unit="人" color={IN_COLOR} />
+        <MonitorKpis items={[{ label: "24 小時出境", value: fmt(sumOut), unit: "人" }]} />
+        {query.status === "unknown" ? (
+          <MonitorNote>載入中…</MonitorNote>
+        ) : inSeries.length === 0 ? (
+          <MonitorNote>無資料（此機場未涵蓋）</MonitorNote>
+        ) : (
+          <>
+            {/* gapSec 2h：相鄰快照缺 2 小時以上 → 斷線呈現（缺格 ≠ 低谷） */}
+            <TimeseriesSparkline
+              data={inSeries} unit="人" lineColor={IN_COLOR} heightTier="std"
+              gapSec={2 * 3600} showTooltip seriesLabel="入境" extraSeries={outExtra}
+            />
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
+              <LegendDot color={IN_COLOR} label="入境" />
+              <LegendDot color={OUT_COLOR} label="出境" />
+            </div>
+          </>
+        )}
+        <MonitorNote>來源：移民署 APIS（每小時）</MonitorNote>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

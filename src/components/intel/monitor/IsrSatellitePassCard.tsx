@@ -18,6 +18,8 @@ import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { MonitorMetric, MonitorSub, MonitorNote } from "./MonitorMetric";
+import { MF } from "./monitorFont";
 
 export type LoadState = "loading" | "ready" | "error";
 
@@ -326,6 +328,114 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
     timeText: latestDayText,
     state: report?.freshness === "stale" ? { kind: "stale", label: "過期" } : null,
   });
+
+  if (v2) {
+    const coverageWarn = report?.scopeCoverageComplete === false || report?.coverageComplete === false || report?.chinaIsrCensusComplete === false;
+    const levelThresholdText = (level: IsrPassLevel): string => {
+      if (!thresholds) return "";
+      const t = thresholds;
+      return level === 0 ? `≤${formatMetric(t.p25)}`
+        : level === 1 ? `>${formatMetric(t.p25)}–${formatMetric(t.p50)}`
+        : level === 2 ? `>${formatMetric(t.p50)}–${formatMetric(t.p75)}`
+        : level === 3 ? `>${formatMetric(t.p75)}–${formatMetric(t.p90)}`
+        : `>${formatMetric(t.p90)}`;
+    };
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, fontFamily: FONT_CJK }}>
+        <MonitorDataStatus label="ISR 過境資料" query={query} />
+        {latestLevel !== null && (
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+            <span
+              title="依所選期間 p25／p50／p75／p90 分布判定；不是威脅或實際蒐情分級"
+              style={{
+                fontSize: MF.label, padding: "1px 8px", borderRadius: RADIUS.pill, whiteSpace: "nowrap",
+                color: latestLevelColor, background: `${latestLevelColor}18`, border: `1px solid ${latestLevelColor}66`,
+              }}
+            >
+              {latestLevel === 4 ? "⚠ " : ""}最新相對{ISR_PASS_LEVEL_LABELS[latestLevel]}
+            </span>
+          </div>
+        )}
+        {latest.kind === "ready" ? (
+          <MonitorMetric
+            value={latest.passCount}
+            unit="次過境"
+            color={latestLevel === null ? undefined : latestLevelColor}
+            delta={`${latest.uniqueSatelliteCount} 顆衛星`}
+          />
+        ) : (
+          <MonitorNote tone={latest.kind === "error" || latest.kind === "stale" ? "warn" : "neutral"}>
+            {latest.kind === "stale" ? "最新計數暫不呈現 · 不以 0 代替" : DISPLAY_LABEL[latest.kind]}
+          </MonitorNote>
+        )}
+        <div role="group" aria-label="過境統計期間" style={{ display: "flex", gap: 4 }}>
+          {ISR_PASSES_WINDOW_OPTIONS.map((option) => {
+            const selected = option === windowDays;
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => setWindowDays(option)}
+                aria-pressed={selected}
+                title={`顯示最新有效日往前 ${option} 個日曆日`}
+                style={{
+                  fontSize: MF.label, padding: "2px 8px", borderRadius: RADIUS.sm, cursor: "pointer", fontFamily: FONT_DATA,
+                  background: selected ? COLORS.accentFaint : "transparent",
+                  color: selected ? COLORS.textStrong : COLORS.textDim,
+                  border: `1px solid ${selected ? COLORS.borderStrong : COLORS.borderSoft}`,
+                }}
+              >
+                {option}D
+              </button>
+            );
+          })}
+        </div>
+        <MonitorSub
+          items={[
+            `${windowDays}D 中位 ${formatMetric(medianPassCount)} 次／日`,
+            medianComparison.direction === "unknown"
+              ? "最新日比較 —"
+              : `${MEDIAN_DIRECTION_LABEL[medianComparison.direction]} · 差 ${formatMetric(medianComparison.difference)} 次`,
+            `可呈現日 ${countedBars.length}/${windowDays}`,
+            !thresholds && countedBars.length > 0 ? `樣本不足（至少 ${ISR_PASS_MIN_DISTRIBUTION_DAYS} 日）暫不分級` : null,
+          ]}
+        />
+        {latest.kind === "ready" && latestLevel === 4 && thresholds && (
+          <MonitorNote tone="warn">
+            高於所選 {windowDays}D 的 p90（{formatMetric(thresholds.p90)}）門檻；僅為公開軌道推算的過境量比較，不代表威脅或實際蒐情。
+          </MonitorNote>
+        )}
+        {bars.length > 0 && (
+          <HazardTrendBars
+            bars={bars}
+            levelColors={[...ISR_PASS_LEVEL_COLORS]}
+            heightTier="std"
+            unit="次"
+            caption={`${windowDays} 天 · 過境次數（柱）／本區間相對位階（色）`}
+            footer={peak === null ? undefined : `單日最高 ${peak} 次`}
+          />
+        )}
+        {thresholds && (
+          <div
+            aria-label="ISR 相對過境量色階"
+            style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontSize: MF.label, color: COLORS.textDim }}
+          >
+            {ISR_PASS_LEVELS.map((level) => (
+              <span key={level} title={levelThresholdText(level)} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: ISR_PASS_LEVEL_COLORS[level] }} />
+                {ISR_PASS_LEVEL_LABELS[level]}
+              </span>
+            ))}
+          </div>
+        )}
+        <MonitorNote>
+          資料至 {report?.latestValidDay ?? "—"} · 更新 {formatTimestamp(report?.computedAt ?? null)} · v1 YAOGAN／GAOFEN／JILIN 範圍，非全中國 ISR census
+          {coverageWarn ? "；涵蓋範圍未完整，數字僅供參考" : ""}
+        </MonitorNote>
+        <MonitorNote>地面投影穿越不等於實際蒐情；缺日與 null 不補 0；色階隨所選期間重算，非威脅判定。</MonitorNote>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>

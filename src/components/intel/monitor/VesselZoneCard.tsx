@@ -13,6 +13,8 @@ import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { MonitorMetric, MonitorSub, MonitorNote, MonitorRows } from "./MonitorMetric";
+import { MF } from "./monitorFont";
 
 /**
  * 特殊船舶接近帶 —— 中國公務船距 24 浬鄰接區外界線的每日態勢。
@@ -50,6 +52,14 @@ const ZONE_LABEL: Record<VesselZoneName, string> = {
   approach_6: "貼線（24 浬線外 0–6 浬）",
   contiguous: "進入鄰接區（12–24 浬）",
   territorial: "進入領海（12 浬內）",
+};
+
+/** v2 小倍數列的分帶名（四列並排，用短名） */
+const ZONE_SHORT: Record<VesselZoneName, string> = {
+  approach_12: "接近 6–12 浬",
+  approach_6: "貼線 0–6 浬",
+  contiguous: "鄰接區",
+  territorial: "領海",
 };
 
 /** 分帶時間軸的排序：由深到淺（越危險的帶排越前面） */
@@ -218,6 +228,107 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
   // 資料期別＝RPC 最新一日（含 0 艘日不在列內，取有列的最後一天）
   const lastAggDay = aggs.length ? aggs[aggs.length - 1]!.day : null;
   useMonitorCardHeader({ timeText: lastAggDay ? fmtDay(lastAggDay) : null });
+
+  if (v2) {
+    const statusText = rowsQuery.status === "unknown" ? "資料載入中…" : rowsQuery.status === "ready" ? `${windowDays} 天內無觀測紀錄` : "資料暫不可用";
+    const deepestShips = latest ? latest.byZone.get(latest.deepestZone) ?? 0 : 0;
+    const latestColor = latest ? ZONE_COLORS[latest.level] : undefined;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, fontFamily: FONT_CJK }}>
+        <MonitorDataStatus label="特殊船舶接近帶" query={rowsQuery} />
+        {latest && latestColor && (
+          <>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+              <span
+                style={{
+                  fontSize: MF.label, padding: "1px 8px", borderRadius: RADIUS.pill, whiteSpace: "nowrap",
+                  background: `${latestColor}22`, color: latestColor, border: `1px solid ${latestColor}55`,
+                }}
+              >
+                {ZONE_LABEL[latest.deepestZone]}
+              </span>
+            </div>
+            <MonitorMetric
+              value={deepestShips}
+              unit="艘"
+              color={latestColor}
+              delta={`${fmtDay(latest.day)} · 最近 ${fmtDist(latest.minDistNm)}`}
+            />
+          </>
+        )}
+        {!latest && <MonitorNote>{statusText}</MonitorNote>}
+
+        {hasReadableData ? (
+          <>
+            <div style={{ display: "flex", gap: 4 }}>
+              {WINDOWS.map((w) => (
+                <button
+                  key={w}
+                  onClick={() => setWindowDays(w)}
+                  style={{
+                    fontSize: MF.label, padding: "2px 8px", borderRadius: RADIUS.sm, cursor: "pointer", fontFamily: FONT_DATA,
+                    background: w === windowDays ? COLORS.accentFaint : "transparent",
+                    color: w === windowDays ? COLORS.textStrong : COLORS.textDim,
+                    border: `1px solid ${w === windowDays ? COLORS.borderStrong : COLORS.borderSoft}`,
+                  }}
+                >
+                  {w}D
+                </button>
+              ))}
+            </div>
+            <HazardTrendBars
+              bars={bars}
+              levelColors={ZONE_COLORS}
+              heightTier="lg"
+              unit="艘"
+              caption={`${windowDays} 天 · 接近帶艘數（柱）／最深分帶（色）`}
+              footer={
+                peak
+                  ? `單日最高 ${peak} 艘${closest !== null ? ` · 最近 ${fmtDist(closest)}` : ""}${enterDays ? ` · 進入鄰接區 ${enterDays} 天` : ""}`
+                  : undefined
+              }
+            />
+            <MonitorRows
+              rows={ZONE_ORDER.map((zone) => {
+                // 四列同一把尺：取所有分帶在視窗內的單日最高
+                const sharedMax = Math.max(1, ...windowed.flatMap((a) => ZONE_ORDER.map((z) => a.byZone.get(z) ?? 0)));
+                const zBars: HazardBar[] = windowed.map((a) => {
+                  const n = a.byZone.get(zone) ?? 0;
+                  return {
+                    label: fmtDay(a.day),
+                    key: a.day,
+                    // fillDays 補的是「當天該帶真的沒有船」→ 0（底線），不是缺值（灰樁）
+                    value: n,
+                    level: 0,
+                    note: n ? `${ZONE_LABEL[zone]}｜${n} 艘` : "該帶當日無船",
+                  };
+                });
+                const zDays = windowed.filter((a) => (a.byZone.get(zone) ?? 0) > 0).length;
+                return {
+                  label: ZONE_SHORT[zone],
+                  title: ZONE_LABEL[zone],
+                  chart: <HazardTrendBars bars={zBars} levelColors={[ZONE_COLORS[ZONE_LEVEL[zone]]!]} heightTier="mini" unit="艘" bare maxValue={sharedMax} />,
+                  value: zDays,
+                  unit: "天有船",
+                };
+              })}
+            />
+            <MonitorSub
+              items={WATCH_CLASSES.map((cls) => {
+                const days = windowed.filter((a) => (a.byClass.get(cls) ?? 0) > 0).length;
+                return `${CLASS_SHORT[cls]} ${days} 天`;
+              })}
+            />
+          </>
+        ) : (
+          <MonitorNote>不以空資料推斷未出現特殊船舶。</MonitorNote>
+        )}
+        <MonitorNote>
+          AIS 自願廣播 · 觀測下限非全量 · 僅臺灣本島（含澎湖）· 金馬烏坵東引無公告基線不可判定
+        </MonitorNote>
+      </div>
+    );
+  }
 
   return (
     // zoom：同 PlaBoard —— 本卡內文是 9~12px 字面值（含 HazardTrendBars 的 8~8.5px 軸標），

@@ -5,7 +5,15 @@ import {
   aggregateInternetHealthRows,
   type InternetHealthTimelineSummary,
 } from "../../../../data/internetHealthLoader";
-import { RipeTimelineView, TelecomStatusCardView } from "../TelecomStatusCard";
+import {
+  RipeTimelineView,
+  TelecomStatusCardView,
+  completeMaskFrom,
+  hourlyCompleteSeries,
+  toSparkline,
+  type AtlasDaySummaries,
+} from "../TelecomStatusCard";
+import { MonitorStyleContext } from "../monitorStyle";
 
 const freshRow = (source: string) => ({
   row_type: "status",
@@ -259,5 +267,153 @@ describe("RipeTimelineView", () => {
     expect(html).toContain("歷史量測暫時無法更新");
     expect(html).toContain("IPv4 coverage 67%");
     expect(html).toContain("<svg");
+  });
+});
+
+// ── v2（N-A）：殘缺桶、即時值取完整桶、怎麼看 ──
+const T0 = 1_788_055_200; // 2026-08-30 10:00 Asia/Taipei
+const atlasDaySummary = (
+  metric: InternetHealthTimelineSummary["metric"],
+  unit: InternetHealthTimelineSummary["unit"],
+  v4: [number, number][],
+  v6: [number, number][],
+): InternetHealthTimelineSummary => {
+  const pts = (rows: [number, number][]) => rows.map(([value, sampleCount], i) => ({
+    at: T0 + i * 300, value, state: "ready" as const, sampleCount,
+  }));
+  return {
+    ...timelineSummary,
+    metric,
+    unit,
+    from: T0 - 86_100,
+    to: T0 + 900,
+    ipv4: { ...timelineSummary.ipv4, signal: `${metric}_ipv4` as never, points: pts(v4) },
+    ipv6: { ...timelineSummary.ipv6, signal: `${metric}_ipv6` as never, points: pts(v6) },
+  };
+};
+// 第 2 桶（12:05）探針數 10／12，低於 80% × 預期（79／39）→ 殘缺
+const pingDay = atlasDaySummary(
+  "ping_success_ratio", "ratio",
+  [[0.99, 83], [0.5, 10], [0.98, 82]],
+  [[0.88, 39], [1, 12], [0.87, 38]],
+);
+const atlasDay: AtlasDaySummaries = {
+  ping_success_ratio: pingDay,
+  median_rtt_ms: atlasDaySummary("median_rtt_ms", "milliseconds", [[4.4, 80], [28, 9], [4.6, 80]], [[5.5, 35], [23, 10], [5.7, 34]]),
+  probe_connectivity_ratio: atlasDaySummary("probe_connectivity_ratio", "ratio", [[0.95, 83], [0.12, 10], [0.94, 82]], [[0.95, 39], [0.24, 12], [0.93, 38]]),
+  reachable_asn_ratio: atlasDaySummary("reachable_asn_ratio", "ratio", [[0.97, 33], [0.3, 10], [0.96, 33]], [[0.8, 18], [0.4, 6], [0.78, 18]]),
+};
+
+const renderV2 = (node: ReturnType<typeof createElement>) => renderToStaticMarkup(
+  createElement(MonitorStyleContext.Provider, { value: "v2" }, node),
+);
+
+describe("TelecomStatusCardView v2 (N-A)", () => {
+  it("drops buckets whose reporting probe count is below 80% of expected", () => {
+    const mask = completeMaskFrom(pingDay)!;
+    expect([...mask[4]]).toEqual([T0, T0 + 600]);
+    expect([...mask[6]]).toEqual([T0, T0 + 600]);
+    // RTT／ASN 的殘缺桶沿用 ping 的探針數判定，不看自己的 sample_count
+    const rtt = toSparkline(atlasDay.median_rtt_ms!, 4, mask);
+    expect(rtt.map((p) => p.v)).toEqual([4.4, 4.6]);
+    expect(toSparkline(pingDay, 6, mask).map((p) => p.v)).toEqual([88, 87]);
+    // 7D／30D（非 5 分鐘桶）不逐桶篩
+    expect(completeMaskFrom({ ...pingDay, bucketSeconds: 1800 })).toBeNull();
+  });
+
+  it("aggregates 24H into hourly points from complete buckets only", () => {
+    const mask = completeMaskFrom(pingDay)!;
+    // at＝桶結束：10:00 結束的桶屬 09–10 時；10:05（殘缺）、10:10 屬 10–11 時，殘缺的不參與
+    const v4 = hourlyCompleteSeries(pingDay, 4, mask);
+    expect(v4.map((p) => p.t)).toEqual([T0, T0 + 900]); // 進行中的小時不超過圖右界（to）
+    expect(v4.map((p) => p.v)).toEqual([99, 98]);
+    // 同一小時多個完整桶：樣本數加權
+    const twoComplete = atlasDaySummary("ping_success_ratio", "ratio", [[0.5, 83], [0.99, 83], [0.5, 10], [0.98, 82]], [[0.9, 39], [0.9, 39], [0.9, 39], [0.9, 39]]);
+    const twoMask = completeMaskFrom(twoComplete)!;
+    const hour = hourlyCompleteSeries(twoComplete, 4, twoMask)[1]!;
+    expect(hour.v).toBeCloseTo((99 * 83 + 98 * 82) / (83 + 82), 6);
+    // RTT 對齊 7D／30D 取中位數
+    const rttDay = atlasDaySummary("median_rtt_ms", "milliseconds", [[9, 80], [4.4, 80], [28, 9], [4.6, 80], [4.5, 80]], [[5, 35], [5, 35], [5, 35], [5, 35], [5, 35]]);
+    expect(hourlyCompleteSeries(rttDay, 4, completeMaskFrom(twoComplete)!)[1]!.v).toBeCloseTo(4.5, 6);
+    // 整小時都沒有完整桶 → 沒有點（缺值，不補）
+    const allPartial = atlasDaySummary("ping_success_ratio", "ratio", [[0.97, 40], [0.98, 35]], [[0.9, 20], [0.85, 22]]);
+    const none = completeMaskFrom(allPartial)!;
+    expect(hourlyCompleteSeries(allPartial, 4, none)).toEqual([]);
+    expect(hourlyCompleteSeries(allPartial, 6, none)).toEqual([]);
+  });
+
+  it("uses the latest complete bucket when the live bucket is incomplete", () => {
+    const summary = aggregateInternetHealthRows([
+      {
+        ...freshRow("ripe_atlas"), evidence_family: "ripe_atlas",
+        signal: "ping_success_ratio_ipv4", value: 0.5, unit: "ratio", sample_count: 11,
+      },
+      {
+        ...freshRow("ripe_atlas"), evidence_family: "ripe_atlas",
+        signal: "probe_connectivity_ratio_ipv4", value: 0.126, unit: "ratio", sample_count: 11,
+      },
+    ]);
+    const html = renderV2(createElement(TelecomStatusCardView, {
+      summary, phase: "ready", nowTs: 1_788_060_000, atlasDay,
+    }));
+    expect(html).toContain("2/14");
+    expect(html).toContain("項即時");
+    // 即時值 50%／12.6% 是殘缺桶，改用 12:10 的完整桶
+    expect(html).toContain("98.0／87.0");
+    expect(html).toContain("94.0／93.0");
+    expect(html).not.toContain("50.0／");
+    expect(html).not.toContain("12.6");
+    expect(html).toContain("以最近完整量測（10:10）計");
+    expect(html).toContain("建議正常 IPv4 97–100%；IPv6 83–92%");
+    expect(html).toContain('data-testid="monitor-rows"');
+    // 狀態小字搬進提示，不再是值底下的三行
+    expect(html).not.toContain("probes=");
+    expect(html).not.toContain("OBSERVATION ONLY");
+  });
+
+  it("keeps a complete live bucket and shows RIS as one line plus how-to-read", () => {
+    const summary = aggregateInternetHealthRows([
+      {
+        ...freshRow("ripe_atlas"), evidence_family: "ripe_atlas",
+        signal: "ping_success_ratio_ipv4", value: 0.979, unit: "ratio", sample_count: 83,
+      },
+      {
+        ...freshRow("ripe_ris_live"), evidence_family: "ripe_ris",
+        signal: "origin_change_count_ipv4", value: 0, unit: "count", sample_count: 875,
+      },
+      {
+        ...freshRow("ripe_ris_live"), evidence_family: "ripe_ris",
+        signal: "prefix_visibility_ratio_ipv4", value: null, unit: "ratio", sample_count: 875,
+      },
+    ]);
+    const html = renderV2(createElement(TelecomStatusCardView, {
+      summary, phase: "ready", nowTs: 1_788_060_000, atlasDay,
+    }));
+    expect(html).toContain("97.9／87.0");
+    expect(html).toContain("量測可用");
+    expect(html).toContain("RIS 路由觀測：即時");
+    expect(html).toContain("BGP 訊息 875");
+    expect(html).not.toContain("RIB 基準建立中");
+    expect(html).toContain("目前未設定，故不列出");
+    expect(html).toContain("<details");
+    expect(html).toContain("怎麼看");
+    expect(html).toContain("IPv6 正常約 85–90%");
+    expect(html).toContain("每小時只取探針數足夠的完整量測平均");
+    expect(html).toContain("整小時都沒有完整量測才畫斜線");
+    expect(html).toContain("連續 15 分鐘以上");
+    expect(html).toContain("IODA 或 Cloudflare Radar");
+    expect(html).not.toContain("http");
+  });
+
+  it("shows a dash instead of an incomplete value when no complete bucket exists", () => {
+    const summary = aggregateInternetHealthRows([{
+      ...freshRow("ripe_atlas"), evidence_family: "ripe_atlas",
+      signal: "ping_success_ratio_ipv4", value: 0.5, unit: "ratio", sample_count: 11,
+    }]);
+    const html = renderV2(createElement(TelecomStatusCardView, {
+      summary, phase: "ready", nowTs: 1_788_060_000, atlasDay: null,
+    }));
+    expect(html).toContain("—／—");
+    expect(html).not.toContain("50.0");
   });
 });

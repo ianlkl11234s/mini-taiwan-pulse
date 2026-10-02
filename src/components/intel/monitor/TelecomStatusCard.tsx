@@ -23,7 +23,8 @@ import {
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
+import { MonitorMetric, MonitorNote, MonitorRows, MonitorSub } from "./MonitorMetric";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 export type InternetHealthPhase = "loading" | "ready" | "error";
@@ -237,14 +238,117 @@ function chartUnit(summary: InternetHealthTimelineSummary): string {
   return "次";
 }
 
-function toSparkline(summary: InternetHealthTimelineSummary, family: 4 | 6): SparklinePoint[] {
+export function toSparkline(summary: InternetHealthTimelineSummary, family: 4 | 6, mask?: CompleteMask | null): SparklinePoint[] {
   const series = family === 4 ? summary.ipv4 : summary.ipv6;
   const ratio = summary.unit === "ratio";
   return series.points.flatMap((point) => (
-    point.state === "ready" && point.value != null
+    point.state === "ready" && point.value != null && (!mask || mask[family].has(point.at))
       ? [{ t: point.at, v: ratio ? point.value * 100 : point.value }]
       : []
   ));
+}
+
+/*
+ * 殘缺桶（v2，docs/features/monitor-restyle/internet-health-reading.md §2）：
+ * collector 回看窗切在桶中間＋無條件覆寫，多數 5 分鐘桶只剩桶尾約 1.6 分鐘的探針。
+ * 判定只看「回報探針數」（ping_success／probe_connectivity 的 sample_count）；
+ * RTT 樣本數與成功 ASN 數在真實斷線時也會下降，不能拿來判斷，否則會把真的異常藏掉。
+ * 預期探針數綁 roster 2026-08-31.1（IPv4 約 79、IPv6 約 39 支有回報），低於 80% 視為殘缺。
+ * 只套在 5 分鐘原值（24H）；7D／30D 是多桶加權，無法逐桶篩。
+ */
+const ATLAS_EXPECTED_PROBES: Record<4 | 6, number> = { 4: 79, 6: 39 };
+const COMPLETE_PROBE_RATIO = 0.8;
+const RAW_BUCKET_SECONDS = 300;
+
+export function isCompleteProbeCount(family: 4 | 6, count: number | null | undefined): boolean {
+  return count != null && count >= COMPLETE_PROBE_RATIO * ATLAS_EXPECTED_PROBES[family];
+}
+
+type AtlasMetric = "ping_success_ratio" | "median_rtt_ms" | "probe_connectivity_ratio" | "reachable_asn_ratio";
+const ATLAS_METRICS: AtlasMetric[] = ["ping_success_ratio", "median_rtt_ms", "probe_connectivity_ratio", "reachable_asn_ratio"];
+const PROBE_COUNT_METRICS: InternetHealthTimelineMetric[] = ["ping_success_ratio", "probe_connectivity_ratio"];
+export type AtlasDaySummaries = Partial<Record<AtlasMetric, InternetHealthTimelineSummary | null>>;
+/** 每個 AF 的完整桶時間（point.at＝桶結束時間） */
+export type CompleteMask = Record<4 | 6, Set<number>>;
+
+export function completeMaskFrom(summary: InternetHealthTimelineSummary | null | undefined): CompleteMask | null {
+  if (!summary || summary.bucketSeconds !== RAW_BUCKET_SECONDS || !PROBE_COUNT_METRICS.includes(summary.metric)) return null;
+  const mask: CompleteMask = { 4: new Set(), 6: new Set() };
+  for (const family of [4, 6] as const) {
+    for (const point of (family === 4 ? summary.ipv4 : summary.ipv6).points) {
+      if (point.state === "ready" && isCompleteProbeCount(family, point.sampleCount)) mask[family].add(point.at);
+    }
+  }
+  return mask;
+}
+
+const HOUR_SECONDS = 3600;
+/** 每小時一點：相鄰小時都有值就連線，整小時缺才斷（1.5 小時，與 bucketSeconds × 1.5 同理） */
+const HOURLY_GAP_SEC = HOUR_SECONDS * 1.5;
+
+/**
+ * v2 24H：每個整點小時只取該小時內的完整 5 分鐘桶聚合成一點（t＝該小時結束，不超過圖的右界）。
+ * 聚合方式對齊 loader 7D／30D：中位 RTT 取中位數，其餘以樣本數加權平均
+ * （完整桶的探針數都接近預期值，加權與簡單平均差異很小，加權只是與 7D／30D 口徑一致）。
+ * 該小時沒有任何完整桶＝缺值（共用元件斷線＋斜線），不補值。
+ */
+export function hourlyCompleteSeries(
+  summary: InternetHealthTimelineSummary,
+  family: 4 | 6,
+  mask: CompleteMask,
+): SparklinePoint[] {
+  const ratio = summary.unit === "ratio";
+  const groups = new Map<number, { v: number; w: number }[]>();
+  for (const point of (family === 4 ? summary.ipv4 : summary.ipv6).points) {
+    if (point.state !== "ready" || point.value == null || !mask[family].has(point.at)) continue;
+    const hourEnd = Math.ceil(point.at / HOUR_SECONDS) * HOUR_SECONDS; // at＝桶結束，HH:00 結束的桶屬前一小時
+    const group = groups.get(hourEnd) ?? [];
+    group.push({ v: ratio ? point.value * 100 : point.value, w: point.sampleCount ?? 0 });
+    groups.set(hourEnd, group);
+  }
+  const out: SparklinePoint[] = [];
+  for (const [hourEnd, group] of [...groups.entries()].sort((a, b) => a[0] - b[0])) {
+    let v: number;
+    if (summary.metric === "median_rtt_ms") {
+      const sorted = group.map((g) => g.v).sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      v = sorted.length % 2 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
+    } else {
+      const w = group.reduce((sum, g) => sum + g.w, 0);
+      v = w > 0 ? group.reduce((sum, g) => sum + g.v * g.w, 0) / w : group.reduce((sum, g) => sum + g.v, 0) / group.length;
+    }
+    out.push({ t: Math.min(hourEnd, summary.to), v });
+  }
+  return out;
+}
+
+function atlasDayMask(day: AtlasDaySummaries | null | undefined): CompleteMask | null {
+  return completeMaskFrom(day?.ping_success_ratio) ?? completeMaskFrom(day?.probe_connectivity_ratio);
+}
+
+/**
+ * 建議正常色帶（顯示單位：% 或 ms；同上調查文件 §3，30 天完整桶 p10–p90）。
+ * 色帶畫 IPv4；IPv6 不同時寫進列的提示。roster 換版後基準會變。
+ */
+const ATLAS_BANDS: Record<AtlasMetric, { unit: string; 4: { lo: number; hi: number; label: string }; 6: { lo: number; hi: number } }> = {
+  ping_success_ratio: { unit: "%", 4: { lo: 97, hi: 100, label: "IPv4 建議正常範圍" }, 6: { lo: 83, hi: 92 } },
+  median_rtt_ms: { unit: "ms", 4: { lo: 4, hi: 5.5, label: "IPv4 建議正常範圍" }, 6: { lo: 4, hi: 12 } },
+  probe_connectivity_ratio: { unit: "%", 4: { lo: 90, hi: 100, label: "IPv4 建議正常範圍" }, 6: { lo: 90, hi: 100 } },
+  reachable_asn_ratio: { unit: "%", 4: { lo: 85, hi: 100, label: "IPv4 建議正常範圍" }, 6: { lo: 70, hi: 85 } },
+};
+
+function isAtlasMetric(metric: InternetHealthTimelineMetric): metric is AtlasMetric {
+  return (ATLAS_METRICS as InternetHealthTimelineMetric[]).includes(metric);
+}
+
+function bandRangeText(metric: AtlasMetric): string {
+  const b = ATLAS_BANDS[metric];
+  const sp = b.unit === "%" ? "" : " ";
+  return `建議正常 IPv4 ${b[4].lo}–${b[4].hi}${sp}${b.unit}；IPv6 ${b[6].lo}–${b[6].hi}${sp}${b.unit}`;
+}
+
+function hhmm(ts: number): string {
+  return new Date(ts * 1000).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Asia/Taipei" });
 }
 
 function coverageLabel(value: number): string {
@@ -253,7 +357,7 @@ function coverageLabel(value: number): string {
 
 export function RipeTimelineView({
   summary, phase, range, source, metric, nowTs,
-  onRangeChange, onSourceChange, onMetricChange,
+  onRangeChange, onSourceChange, onMetricChange, completeMask,
 }: {
   summary: InternetHealthTimelineSummary | null;
   phase: TimelinePhase;
@@ -264,20 +368,29 @@ export function RipeTimelineView({
   onRangeChange?: (range: InternetHealthTimelineRange) => void;
   onSourceChange?: (source: InternetHealthTimelineSource) => void;
   onMetricChange?: (metric: InternetHealthTimelineMetric) => void;
+  /** v2：24H Atlas 的完整桶（由探針數判定）；RTT／ASN 指標沿用 ping 的判定 */
+  completeMask?: CompleteMask | null;
 }) {
+  const v2 = useMonitorV2();
   const displayedSummary = summary?.range === range && summary.source === source && summary.metric === metric
     ? summary
     : null;
-  const ipv4 = displayedSummary ? toSparkline(displayedSummary, 4) : [];
-  const ipv6 = displayedSummary ? toSparkline(displayedSummary, 6) : [];
+  // 殘缺桶只在 v2、Atlas、5 分鐘原值時略過；ping／probe 用自己的探針數，其餘用傳入的判定
+  const mask = v2 && displayedSummary && displayedSummary.source === "ripe_atlas" && displayedSummary.bucketSeconds === RAW_BUCKET_SECONDS
+    ? completeMaskFrom(displayedSummary) ?? completeMask ?? null
+    : null;
+  const atlasBand = v2 && source === "ripe_atlas" && isAtlasMetric(metric) ? ATLAS_BANDS[metric][4] : undefined;
+  const aggregatedProbeMetric = v2 && source === "ripe_atlas" && range !== "24h"
+    && (metric === "probe_connectivity_ratio" || metric === "reachable_asn_ratio");
+  const ipv4 = displayedSummary ? (mask ? hourlyCompleteSeries(displayedSummary, 4, mask) : toSparkline(displayedSummary, 4)) : [];
+  const ipv6 = displayedSummary ? (mask ? hourlyCompleteSeries(displayedSummary, 6, mask) : toSparkline(displayedSummary, 6)) : [];
   const hasIPv4 = ipv4.length > 0;
   const primary = hasIPv4 ? ipv4 : ipv6;
   const secondary = hasIPv4 ? ipv6 : [];
   const primaryFamily = hasIPv4 ? 4 : 6;
   const metricLabel = METRIC_OPTIONS[source].find((item) => item.value === metric)?.label ?? metric;
   // 兩個 ready 點中間只缺一格時相距 2 buckets；門檻必須 < 2 才會誠實斷線。
-  const v2 = useMonitorV2();
-  const gapSec = displayedSummary ? displayedSummary.bucketSeconds * 1.5 : undefined;
+  const gapSec = mask ? HOURLY_GAP_SEC : displayedSummary ? displayedSummary.bucketSeconds * 1.5 : undefined;
 
   return (
     <div data-testid="ripe-internet-health-timeline" style={{ gridColumn: "1 / -1", padding: "12px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}`, background: "rgba(2,8,23,0.42)", minWidth: 0 }}>
@@ -327,6 +440,8 @@ export function RipeTimelineView({
             timeDomain={{ from: displayedSummary.from, to: displayedSummary.to }}
             unit={chartUnit(displayedSummary)}
             height={142}
+            heightTier={v2 ? "std" : undefined}
+            band={atlasBand}
             gapSec={gapSec}
             fillArea
             lineColor={primaryFamily === 4 ? RIPE_CYAN : IPV6_VIOLET}
@@ -345,6 +460,8 @@ export function RipeTimelineView({
         <span>最後回報 {displayedSummary ? unixTimeLabel(displayedSummary.latestAt, nowTs) : "—"}</span>
         {displayedSummary?.partial && <span style={{ color: COLORS.statusWarn }}>含缺口／部分資料</span>}
         {displayedSummary?.truncated && <span style={{ color: COLORS.statusErr }}>回傳達上限，圖表不完整</span>}
+        {mask && <span style={{ fontFamily: FONT_CJK }}>每小時只取完整量測平均；整小時沒有完整量測才畫斜線</span>}
+        {aggregatedProbeMetric && <span style={{ fontFamily: FONT_CJK, color: COLORS.statusWarn }}>7D／30D 此指標受殘缺量測桶拉低，僅供參考</span>}
       </div>
     </div>
   );
@@ -354,7 +471,7 @@ function queryPhase(status: "unknown" | "ready" | "error" | "denied"): InternetH
   return status === "ready" ? "ready" : status === "error" || status === "denied" ? "error" : "loading";
 }
 
-function RipeTimelinePanel({ open, nowTs }: { open: boolean; nowTs: number }) {
+function RipeTimelinePanel({ open, nowTs, completeMask }: { open: boolean; nowTs: number; completeMask?: CompleteMask | null }) {
   const [range, setRange] = useState<InternetHealthTimelineRange>("24h");
   const [source, setSource] = useState<InternetHealthTimelineSource>("ripe_atlas");
   const [metric, setMetric] = useState<InternetHealthTimelineMetric>("ping_success_ratio");
@@ -377,17 +494,203 @@ function RipeTimelinePanel({ open, nowTs }: { open: boolean; nowTs: number }) {
 
   return <>
     <MonitorDataStatus label="RIPE 歷史量測" query={query} />
-    <RipeTimelineView summary={query.data} phase={queryPhase(query.status)} range={range} source={source} metric={metric} nowTs={nowTs} onRangeChange={setRange} onSourceChange={handleSourceChange} onMetricChange={setMetric} />
+    <RipeTimelineView summary={query.data} phase={queryPhase(query.status)} range={range} source={source} metric={metric} nowTs={nowTs} onRangeChange={setRange} onSourceChange={handleSourceChange} onMetricChange={setMetric} completeMask={completeMask} />
   </>;
 }
 
+type ResolvedAtlasValue = {
+  value: number | null;
+  /** 改用最近完整桶時的桶結束時間；用即時值時為 null */
+  completeAt: number | null;
+  measurement: InternetHealthMeasurement | undefined;
+};
+
+/**
+ * 即時值：`internet_health_current` 指向的常是還沒收完的桶。即時那一桶的回報探針數
+ * 達門檻才用即時值，否則改用 24H 歷史裡最近一個完整桶；都沒有就留空，不拿殘缺值充數。
+ */
+function resolveAtlasValue(
+  metric: AtlasMetric,
+  family: 4 | 6,
+  atlas: InternetHealthMeasurement[],
+  day: AtlasDaySummaries | null | undefined,
+  mask: CompleteMask | null,
+): ResolvedAtlasValue {
+  const measurement = atlas.find((item) => item.signal === `${metric}_ipv${family}`);
+  const probeRow = atlas.find((item) => item.signal === `ping_success_ratio_ipv${family}`)
+    ?? atlas.find((item) => item.signal === `probe_connectivity_ratio_ipv${family}`);
+  if (measurement?.value != null && probeRow && isCompleteProbeCount(family, probeRow.sample_count)) {
+    return { value: measurement.unit === "ratio" ? measurement.value * 100 : measurement.value, completeAt: null, measurement };
+  }
+  const summary = day?.[metric];
+  if (summary && mask) {
+    const points = (family === 4 ? summary.ipv4 : summary.ipv6).points;
+    for (let i = points.length - 1; i >= 0; i--) {
+      const point = points[i]!;
+      if (point.state === "ready" && point.value != null && mask[family].has(point.at)) {
+        return { value: summary.unit === "ratio" ? point.value * 100 : point.value, completeAt: point.at, measurement };
+      }
+    }
+  }
+  return { value: null, completeAt: null, measurement };
+}
+
+function measurementTooltip(family: 4 | 6, resolved: ResolvedAtlasValue, nowTs: number): string {
+  const m = resolved.measurement;
+  const live = m
+    ? [
+      FRESHNESS_ZH[m.freshness] ?? m.freshness,
+      measurementSampleLabelZh(m),
+      timeLabel(m.source_updated_at, nowTs),
+      CONFIDENCE_ZH[m.confidence] ? `信心${CONFIDENCE_ZH[m.confidence]}` : null,
+    ].filter(Boolean).join(" · ")
+    : "無即時量測";
+  const used = resolved.completeAt != null
+    ? `；顯示值取最近完整量測 ${hhmm(resolved.completeAt)}`
+    : resolved.value == null ? "；近 24 小時無完整量測" : "";
+  return `IPv${family}：${live}${used}`;
+}
+
+function fmtAtlas(value: number | null): string {
+  return value == null ? "—" : value.toFixed(1);
+}
+
+const legendSwatch = (color: string) => (
+  <i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: color }} />
+);
+
+function TelecomStatusV2Body({
+  measurements, phase, nowTs, timeline, atlasDay,
+}: {
+  measurements: InternetHealthMeasurement[];
+  phase: InternetHealthPhase;
+  nowTs: number;
+  timeline?: ReactNode;
+  atlasDay?: AtlasDaySummaries | null;
+}) {
+  const atlas = useMemo(() => measurements.filter((item) => item.source_key === "ripe_atlas"), [measurements]);
+  const ris = measurements.filter((item) => item.source_key === "ripe_ris");
+  const freshMetricCount = measurements.filter((item) => item.freshness === "fresh").length;
+  const reportingFeeds = Number(atlas.some((item) => item.freshness === "fresh")) + Number(ris.some((item) => item.freshness === "fresh"));
+  const latestAt = newestMeasurementAt(measurements);
+  const hasPartial = measurements.some((item) => item.state === "partial");
+  const [statusText, statusColor] = phase === "loading" ? ["讀取中", COLORS.textDim]
+    : phase === "error" ? ["更新中斷", COLORS.statusWarn]
+      : freshMetricCount === 0 ? [measurements.length > 0 ? "無法取得" : "等待量測", COLORS.textDim]
+        : hasPartial || reportingFeeds < 2 ? ["部分", COLORS.statusWarn]
+          : ["量測可用", COLORS.statusLive];
+
+  const mask = useMemo(() => atlasDayMask(atlasDay), [atlasDay]);
+  const domainSummary = atlasDay?.ping_success_ratio ?? ATLAS_METRICS.map((m) => atlasDay?.[m]).find((x) => x) ?? null;
+  const rowsData = useMemo(() => ATLAS_METRICS.map((metric) => {
+    const summary = atlasDay?.[metric] ?? null;
+    const ipv4 = summary && mask ? hourlyCompleteSeries(summary, 4, mask) : [];
+    const ipv6 = summary && mask ? hourlyCompleteSeries(summary, 6, mask) : [];
+    const extra = ipv6.length > 0 ? { data: ipv6, color: IPV6_VIOLET, label: "IPv6" } : undefined;
+    return {
+      metric, ipv4, ipv6, extra,
+      v4: resolveAtlasValue(metric, 4, atlas, atlasDay, mask),
+      v6: resolveAtlasValue(metric, 6, atlas, atlasDay, mask),
+    };
+  }), [atlas, atlasDay, mask]);
+  const fallbackTimes = rowsData.flatMap((r) => [r.v4.completeAt, r.v6.completeAt]).filter((t): t is number => t != null);
+  const fallbackAt = fallbackTimes.length ? Math.min(...fallbackTimes) : null;
+  const timeDomain = domainSummary ? { from: domainSummary.from, to: domainSummary.to } : undefined;
+
+  const risFresh = ris.some((item) => item.freshness === "fresh");
+  const risStatus = risFresh ? "即時"
+    : ris.some((item) => item.state === "partial") ? "部分"
+      : ris.some((item) => item.freshness === "stale") ? "過期"
+        : ris.length > 0 ? "無法取得" : "無資料";
+  const origin = ris.find((item) => item.signal === "origin_change_count_ipv4");
+  const bgpMessages = ris.reduce<number | null>((max, item) => (
+    item.sample_count != null && (max == null || item.sample_count > max) ? item.sample_count : max
+  ), null);
+
+  return (
+    <div data-testid="internet-health-card" style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: FONT_CJK, fontSize: MF.label, color: statusColor }}>
+        <span data-testid="internet-health-status-dot" style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: statusColor }} />
+        <span data-testid="internet-health-status-label">{statusText}</span>
+      </div>
+      <div>
+        <MonitorMetric value={`${freshMetricCount}/14`} unit="項即時" muted={freshMetricCount === 0} />
+        <MonitorSub items={[
+          `回報來源 ${reportingFeeds}/2`,
+          `RIPE 最後更新 ${timeLabel(latestAt, nowTs)}`,
+          fallbackAt != null ? `以最近完整量測（${hhmm(fallbackAt)}）計` : null,
+        ]} />
+      </div>
+
+      <div data-testid="internet-health-atlas-rows">
+        <MonitorRows rows={rowsData.map((r) => ({
+          label: METRIC_OPTIONS.ripe_atlas.find((o) => o.value === r.metric)!.label,
+          chart: r.ipv4.length > 0 || r.ipv6.length > 0
+            ? (
+              <TimeseriesSparkline
+                data={r.ipv4.length > 0 ? r.ipv4 : r.ipv6}
+                extraSeries={r.ipv4.length > 0 ? r.extra : undefined}
+                lineColor={r.ipv4.length > 0 ? RIPE_CYAN : IPV6_VIOLET}
+                timeDomain={timeDomain}
+                gapSec={HOURLY_GAP_SEC}
+                heightTier="mini"
+                bare
+                fillArea={false}
+                band={ATLAS_BANDS[r.metric][4]}
+              />
+            )
+            : <div style={{ height: 28 }} />,
+          value: `${fmtAtlas(r.v4.value)}／${fmtAtlas(r.v6.value)}`,
+          unit: ATLAS_BANDS[r.metric].unit,
+          title: [
+            bandRangeText(r.metric),
+            measurementTooltip(4, r.v4, nowTs),
+            measurementTooltip(6, r.v6, nowTs),
+          ].join("\n"),
+        }))} />
+        <div style={{ display: "flex", gap: 14, marginTop: 4, fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim }}>
+          <span>{legendSwatch(RIPE_CYAN)}IPv4</span>
+          <span>{legendSwatch(IPV6_VIOLET)}IPv6</span>
+          <span style={{ fontFamily: FONT_CJK }}>淡帶＝IPv4 建議正常範圍</span>
+        </div>
+      </div>
+
+      <div>
+        <MonitorSub items={[
+          `RIS 路由觀測：${risStatus}`,
+          `BGP 訊息 ${bgpMessages?.toLocaleString("zh-TW") ?? "—"}`,
+          origin?.value != null ? `Origin 變更 ${origin.value.toLocaleString("zh-TW")}` : null,
+        ]} />
+        <MonitorNote>Prefix 可見度與撤回比率需先設定追蹤的 prefix，目前未設定，故不列出。</MonitorNote>
+      </div>
+
+      {timeline}
+
+      <MonitorNote>Atlas 與 RIS 同屬 RIPE NCC，只算一個來源群組；100% Ping、0 Origin 變更不能單獨推論為正常。</MonitorNote>
+
+      <details data-testid="internet-health-howto" style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>
+        <summary style={{ cursor: "pointer", color: COLORS.textDim }}>怎麼看</summary>
+        <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.5 }}>
+          <li>IPv6 正常約 85–90%，不是 100%：有幾支臺灣探針本身沒有 IPv6。</li>
+          <li>24 小時線每小時只取探針數足夠的完整量測平均成一點；整小時都沒有完整量測才畫斜線。資料收集端修好前，大段斜線代表量測殘缺，不代表網路異常。</li>
+          <li>單點下跌不算異常；連續 15 分鐘以上，而且 IPv4／IPv6 或成功率／回報率一起掉，才值得注意。</li>
+          <li>本卡只 ping 一個目標（K-root），屬 RIPE 單一來源；判斷臺灣是否斷網，要對照 IODA 或 Cloudflare Radar。</li>
+        </ul>
+        <div style={{ marginTop: 4, color: COLORS.textDim }}>參考：RIPE Atlas 文件、RIPE RIS 文件、IODA、Cloudflare Radar 開發文件</div>
+      </details>
+    </div>
+  );
+}
+
 export function TelecomStatusCardView({
-  summary, phase, nowTs, timeline,
+  summary, phase, nowTs, timeline, atlasDay,
 }: {
   summary: InternetHealthSummary | null;
   phase: InternetHealthPhase;
   nowTs: number;
   timeline?: ReactNode;
+  /** v2：Atlas 四指標 24H 原值（小倍數＋殘缺桶判定）；舊版不用 */
+  atlasDay?: AtlasDaySummaries | null;
 }) {
   const measurements = summary?.measurements ?? [];
   const atlasMeasurements = measurements.filter((item) => item.source_key === "ripe_atlas");
@@ -405,7 +708,8 @@ export function TelecomStatusCardView({
     time: Number.isFinite(latestMs) ? latestMs : null,
     state: freshMetricCount === 0 && hasStaleMeasurement ? { kind: "stale", label: "過期" } : null,
   });
-  const current = v2 ? "「即時」" : "CURRENT";
+  if (v2) return <TelecomStatusV2Body measurements={measurements} phase={phase} nowTs={nowTs} timeline={timeline} atlasDay={atlasDay} />;
+  const current = "CURRENT";
   const description = phase === "error" ? `本次更新失敗；保留最後成功量測，但傳輸成功或舊資料都不等於 ${current}。` : "持續觀察 RIPE Atlas 端到端量測與 RIPE RIS BGP 路由更新。數值先如實呈現，異常判讀待基準累積後再加入。";
 
   return (
@@ -453,9 +757,25 @@ export function TelecomStatusCard({ open, nowTs }: { open: boolean; nowTs: numbe
     load,
   });
 
-  const timeline = useMemo(() => <RipeTimelinePanel open={open} nowTs={nowTs} />, [nowTs, open]);
+  const v2 = useMonitorV2();
+  // v2 小倍數：Atlas 四指標 24H 原值（loader 有快取；舊版不抓）
+  const loadDay = useCallback(async (): Promise<AtlasDaySummaries> => {
+    const list = await Promise.all(ATLAS_METRICS.map((metric) => fetchInternetHealthTimeline({ range: "24h", source: "ripe_atlas", metric })));
+    return Object.fromEntries(ATLAS_METRICS.map((metric, i) => [metric, list[i] ?? null])) as AtlasDaySummaries;
+  }, []);
+  const dayQuery = useMonitorResource({
+    open: open && v2,
+    queryKey: "internet-health-atlas-24h",
+    intervalMs: 5 * 60_000,
+    emptyData: null as AtlasDaySummaries | null,
+    load: loadDay,
+  });
+  const dayMask = useMemo(() => (v2 ? atlasDayMask(dayQuery.data) : null), [dayQuery.data, v2]);
+
+  const timeline = useMemo(() => <RipeTimelinePanel open={open} nowTs={nowTs} completeMask={dayMask} />, [dayMask, nowTs, open]);
   return <>
     <MonitorDataStatus label="RIPE 現況量測" query={query} />
-    <TelecomStatusCardView summary={query.data} phase={queryPhase(query.status)} nowTs={nowTs} timeline={timeline} />
+    {v2 && <MonitorDataStatus label="RIPE 24 小時量測" query={dayQuery} />}
+    <TelecomStatusCardView summary={query.data} phase={queryPhase(query.status)} nowTs={nowTs} timeline={timeline} atlasDay={v2 ? dayQuery.data : undefined} />
   </>;
 }

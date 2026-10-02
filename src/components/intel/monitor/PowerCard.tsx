@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS, FONT_SIZE, BORDER } from "../../../styles/designTokens";
+import { RADIUS, FONT_SIZE, BORDER, WHITE_ALPHA } from "../../../styles/designTokens";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { MonitorMetric, MonitorNote, MonitorRows, MonitorSub } from "./MonitorMetric";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import {
@@ -80,6 +81,91 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
   // v2：觀測時間送標題列
   const observedMs = status?.observed_at ? Date.parse(status.observed_at) : NaN;
   useMonitorCardHeader({ time: Number.isNaN(observedMs) ? null : observedMs });
+
+  if (v2) {
+    const fuelTop = kpis.fuelMix.slice(0, 5);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+        {/* 狀態燈號：標題列是共用殼，改成卡內第一行小字（色點＋狀態字） */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
+          <span
+            data-testid="power-indicator-dot"
+            style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: dotColor, flexShrink: 0 }}
+          />
+          <span style={{ fontFamily: FONT_CJK, whiteSpace: "nowrap" }}>{indLabel}</span>
+          {status?.peak_hour_range && (
+            <span style={{ whiteSpace: "nowrap" }}>· 預測尖峰 {status.peak_hour_range}</span>
+          )}
+        </div>
+
+        <PowerTrendPair trend={trend} status={status} />
+
+        {/* 四區用電收成一行 */}
+        <MonitorSub
+          items={[
+            "四區用電 MW",
+            ...regions.map((r) => (
+              <span key={r.region} data-testid={`power-region-${r.region}`}>
+                {r.region} <span style={{ fontFamily: FONT_DATA, color: COLORS.textDefault }}>{fmtMW(r.mw)}</span>
+              </span>
+            )),
+          ]}
+        />
+
+        {/* 24h 尖峰／燃料結構（機組出力登入後才有資料） */}
+        {kpis.peakMW > 0 && (
+          <div data-testid="power-kpi-strip" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <MonitorSub
+              items={[
+                <span key="p">24 小時尖峰 <span style={{ fontFamily: FONT_DATA, color: COLORS.textDefault }}>{Math.round(kpis.peakMW).toLocaleString("zh-TW")}</span> MW</span>,
+                <span key="l">當前合計 <span style={{ fontFamily: FONT_DATA, color: COLORS.textDefault }}>{Math.round(kpis.latestMW).toLocaleString("zh-TW")}</span> MW</span>,
+              ]}
+            />
+            <div
+              data-testid="power-fuel-mix"
+              style={{ display: "flex", height: 6, borderRadius: RADIUS.sm, overflow: "hidden", background: WHITE_ALPHA[8] }}
+            >
+              {kpis.fuelMix.map((sl) => (
+                <span
+                  key={sl.fuel}
+                  {...tip.bind(() => ({
+                    title: sl.fuel,
+                    rows: [{ dot: fuelColorOf(sl.fuel), value: `${fmtChartValue(sl.mw, "MW")} · ${(sl.pct * 100).toFixed(1)}%` }],
+                  }))}
+                  style={{ width: `${sl.pct * 100}%`, background: fuelColorOf(sl.fuel) }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textMuted }}>
+              {fuelTop.map((sl) => (
+                <span key={sl.fuel} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: fuelColorOf(sl.fuel) }} />
+                  {sl.fuel} {(sl.pct * 100).toFixed(0)}%
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 機組出力：小倍數列（登入後才有資料；未登入保留一行說明） */}
+        {plants.length === 0 ? (
+          <MonitorNote>
+            {dayStatus === "denied"
+              ? "機組出力需登入後檢視"
+              : dayStatus === "error"
+                ? "機組出力資料暫時無法取得 · 下次輪詢會再試"
+                : "等待機組出力資料…"}
+          </MonitorNote>
+        ) : (
+          <div data-testid="power-plant-grid" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ fontSize: MF.label, color: COLORS.textDim }}>機組出力 · {plants.length} 廠 24 小時</div>
+            <PowerPlantRows plants={plants} pointsByName={plantPointsByName} />
+          </div>
+        )}
+        {tip.node}
+      </div>
+    );
+  }
 
   return (
     <div style={{ ...(v2 ? { minWidth: 0 } : { gridColumn: "1 / -1" }), display: "flex", flexDirection: "column", gap: 10 }}>
@@ -308,6 +394,126 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
       {tip.node}
     </div>
   );
+}
+
+/** v2：兩個主數字並排各配大圖——備轉容量率 30 天｜供電能力 vs 尖峰負載（同單位 MW 疊線） */
+function PowerTrendPair({
+  trend, status,
+}: {
+  trend: PowerDailyTrendRow[];
+  status: PowerDashboard["status"] | null;
+}) {
+  // resv_rate 為 null 的日子濾除；超過 1.5 天沒點就斷線（09/25 前後缺快照不連成假趨勢）
+  const reserveSpark = useMemo<SparklinePoint[]>(
+    () =>
+      trend
+        .filter((r): r is PowerDailyTrendRow & { resv_rate: number } => r.resv_rate != null)
+        .map((r) => ({ t: r.day_ts, v: r.resv_rate })),
+    [trend],
+  );
+  const supplySpark = useMemo<SparklinePoint[]>(
+    () => trend.map((r) => ({ t: r.day_ts, v: r.max_supply_mw })),
+    [trend],
+  );
+  const loadExtra = useMemo(
+    () => ({
+      data: trend.map((r) => ({ t: r.day_ts, v: r.peak_load_mw })),
+      color: COLORS.statusWarn,
+      label: "尖峰負載",
+    }),
+    [trend],
+  );
+  const empty = (
+    <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textFaint, padding: "8px 0" }}>等待每日趨勢資料…</div>
+  );
+  const labelStyle = { fontSize: MF.label, color: COLORS.textMuted } as const;
+  return (
+    <div
+      data-testid="power-trend-pair"
+      style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px 16px" }}
+    >
+      <div data-testid="power-trend-30d" style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+        <span style={labelStyle}>備轉容量率 · 近 30 天</span>
+        <MonitorMetric
+          value={status?.reserve_rate_pct != null ? status.reserve_rate_pct.toFixed(1) : "—"}
+          unit={status?.reserve_rate_pct != null ? "%" : undefined}
+        />
+        {reserveSpark.length === 0 ? empty : (
+          <TimeseriesSparkline
+            data={reserveSpark} unit="%" heightTier="lg" fillArea lineColor={COLORS.accent}
+            gapSec={TREND_GAP_SEC} showTooltip tooltipDateFormat="date"
+          />
+        )}
+      </div>
+      <div data-testid="power-capacity-load-30d" style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+        <span style={labelStyle}>供電能力 vs 尖峰負載 · 近 30 天</span>
+        <MonitorMetric
+          value={fmtMW(status?.supply_capacity_mw)}
+          unit={status?.supply_capacity_mw != null ? "MW" : undefined}
+          delta={status?.curr_load_mw != null ? `負載 ${fmtMW(status.curr_load_mw)}` : undefined}
+        />
+        {supplySpark.length === 0 ? empty : (
+          <TimeseriesSparkline
+            data={supplySpark} extraSeries={loadExtra} seriesLabel="供電能力" unit="MW"
+            heightTier="lg" fillArea={false} lineColor={COLORS.statusLive}
+            gapSec={TREND_GAP_SEC} compactYAxis showTooltip tooltipDateFormat="date"
+          />
+        )}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
+          <TrendLegendDot color={COLORS.statusLive} label="供電能力" />
+          <TrendLegendDot color={COLORS.statusWarn} label="尖峰負載" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** v2 機組出力小倍數列：每廠一列「名稱｜24h 走勢｜出力 MW＋容量因數」，各列共用同一 24h 時間軸 */
+function PowerPlantRows({
+  plants, pointsByName,
+}: {
+  plants: { name: string; mw: number | null; rate: number | null }[];
+  pointsByName: Map<string, [number, number][]>;
+}) {
+  const timeDomain = useMemo(() => {
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const pts of pointsByName.values()) {
+      for (const [t] of pts) {
+        if (t < lo) lo = t;
+        if (t > hi) hi = t;
+      }
+    }
+    return Number.isFinite(lo) && lo < hi ? { from: lo, to: hi } : undefined;
+  }, [pointsByName]);
+  const rows = useMemo(
+    () =>
+      plants.map((p) => {
+        const color = loadRateColor(p.rate);
+        const data: SparklinePoint[] = (pointsByName.get(p.name) ?? []).map(([t, v]) => ({ t, v }));
+        return {
+          label: p.name,
+          title: p.name,
+          chart: data.length >= 2 ? (
+            <TimeseriesSparkline
+              data={data} timeDomain={timeDomain} unit="MW" lineColor={color}
+              heightTier="mini" bare fillArea={false} gapSec={3600} showTooltip
+            />
+          ) : null,
+          value: (
+            <>
+              {p.mw != null ? Math.round(p.mw).toLocaleString("zh-TW") : "—"}
+              <span style={{ fontSize: MF.label, fontWeight: 400, color: COLORS.textMuted }}> MW</span>
+              {p.rate != null && (
+                <span style={{ marginLeft: 6, color }}>{Math.round(p.rate * 100)}%</span>
+              )}
+            </>
+          ),
+        };
+      }),
+    [plants, pointsByName, timeDomain],
+  );
+  return <MonitorRows rows={rows} />;
 }
 
 function PowerTrend30d({ trend }: { trend: PowerDailyTrendRow[] }) {
