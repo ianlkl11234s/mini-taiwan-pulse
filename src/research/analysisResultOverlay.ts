@@ -272,7 +272,17 @@ export type AnalysisResultPresentation = {
    *  grid/extrusion-styled result: each row's own classified value and its exact map fill colour.
    *  Absent when the style is not one of those four kinds, or no row has a usable numeric value. */
   rankBars?: { title: string; unit: string | null; valueKind: VizNumberKind; items: RankBarItem[] };
+  /** Legend source line from the rows' own `_wh_source` dataset titles (warehouse nearby results);
+   *  absent when no row carries one. Never a dataset id. */
+  sourceLabel?: string;
 };
+
+/** Unique `_wh_source` titles in row order -> 「A、B、C」, or 「A、B、C 等 N 份」 when more than three. */
+export function warehouseSourceLabel(rows: readonly Record<string, unknown>[]): string | undefined {
+  const titles = [...new Set(rows.map(row => typeof row._wh_source === "string" ? row._wh_source.trim() : "").filter(Boolean))];
+  if (!titles.length) return undefined;
+  return titles.length > 3 ? `${titles.slice(0, 3).join("、")} 等 ${titles.length} 份` : titles.join("、");
+}
 
 /** User-selected opacity is owned by resultId so hidden or reordered results retain it. */
 export type AnalysisResultOpacity = { defaultOpacity: number; byResult: Readonly<Record<string, number>> };
@@ -546,6 +556,7 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
   const styleSwatch = style && style.kind !== "compare" && style.kind !== "series" ? styleSwatchColor(style, theme) : undefined;
   const rankBarKind = style && (style.kind === "choropleth" || style.kind === "bivariate" || style.kind === "grid" || style.kind === "extrusion");
   const rankBars = rankBarKind ? warehouseRankBars(style as WarehouseRankBarStyle, result.rows, theme) : undefined;
+  const sourceLabel = warehouseSourceLabel(result.rows);
   return {
     resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
     geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: styleSwatch ?? (numericLegend ? numericLegend.entries[0]!.color : isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]!) }),
@@ -564,6 +575,7 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
     ...(nearbyCats.length ? { categoryLegend: { entries: nearbyCats.map(({ label, color }) => ({ label, color })) } } : {}),
     ...(countLegend ? { countLegend } : {}),
     ...(numericLegend ? { numericLegend } : {}),
+    ...(sourceLabel ? { sourceLabel } : {}),
   };
 }
 
