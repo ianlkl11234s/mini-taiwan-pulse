@@ -182,6 +182,14 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   riverRpiStations: "M", // 河川污染指數測站 River RPI
   waterQualityStations: "M", // 水質監測站 Water Quality
   sewageTreatmentPlants: "M", // 公共污水處理廠 Sewage Plants
+  seaWaterQualityStations: "M", // 海域水質測站 Sea Water
+  pm25ManualStations: "M", // PM2.5 手動採樣站 PM2.5 Manual
+  dioxinStations: "M", // 環境空氣戴奧辛測站 Dioxin
+  incineratorEmissions: "M", // 焚化廠空污監測 Incinerators
+  nuscGammaRadiation: "M", // 環境輻射（核安會） Gamma
+  waterEffluentLive: "M", // 放流水連線監測 Effluent
+  cemsStackLive: "M", // 煙道 CEMS 連線監測 CEMS
+  cwaUvDaily: "M", // 紫外線（前一天最大值） UV
   stationsMetro: "M", // 捷運站 Metro Station
   stationsTHSR: "M", // 高鐵站 THSR Station
   stationsTRA: "M", // 台鐵站 TRA Station

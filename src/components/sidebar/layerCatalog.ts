@@ -1382,6 +1382,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("temperatureWave"),
           fromManifest("temperatureGrid"),
           fromManifest("urbanHeat"),
+          fromManifest("cwaUvDaily"),
         ],
       },
       {
@@ -1390,6 +1391,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("aqiImagery"),
           fromManifest("aqiStations"),
           fromManifest("aqiMicroSensors"),
+          fromManifest("pm25ManualStations"),
+          fromManifest("dioxinStations"),
         ],
       },
       {
@@ -1410,6 +1413,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("waterQualityStations"),
           fromManifest("sewageTreatmentPlants"),
           fromManifest("drinkingWaterProtectionZones"),
+          fromManifest("seaWaterQualityStations"),
+          fromManifest("riverRpiSegmentsTamsui"),
+          fromManifest("waterEffluentLive"),
         ],
       },
       {
@@ -1420,6 +1426,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
           fromManifest("pollutionSite"),
+          fromManifest("incineratorEmissions"),
+          fromManifest("cemsStackLive"),
+          fromManifest("nuscGammaRadiation"),
         ],
       },
       {

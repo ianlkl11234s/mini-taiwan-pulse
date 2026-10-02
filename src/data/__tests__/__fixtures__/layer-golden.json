@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 855,
+    "keyCount": 864,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2810,6 +2810,61 @@
         "water-quality-stations-circle"
       ],
       "type": "waterQualityStations"
+    },
+    {
+      "layers": [
+        "water-effluent-live-circle"
+      ],
+      "type": "waterEffluentLive"
+    },
+    {
+      "layers": [
+        "cems-stack-live-circle"
+      ],
+      "type": "cemsStackLive"
+    },
+    {
+      "layers": [
+        "nusc-gamma-radiation-circle"
+      ],
+      "type": "nuscGammaRadiation"
+    },
+    {
+      "layers": [
+        "cwa-uv-daily-circle"
+      ],
+      "type": "cwaUvDaily"
+    },
+    {
+      "layers": [
+        "incinerator-emissions-circle"
+      ],
+      "type": "incineratorEmissions"
+    },
+    {
+      "layers": [
+        "dioxin-stations-circle"
+      ],
+      "type": "dioxinStations"
+    },
+    {
+      "layers": [
+        "pm25-manual-stations-circle"
+      ],
+      "type": "pm25ManualStations"
+    },
+    {
+      "layers": [
+        "sea-water-quality-stations-circle"
+      ],
+      "type": "seaWaterQualityStations"
+    },
+    {
+      "layers": [
+        "river-rpi-segments-tamsui-line",
+        "river-rpi-segments-tamsui-tidal"
+      ],
+      "type": "riverRpiSegmentsTamsui"
     },
     {
       "layers": [
@@ -47226,6 +47281,171 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "waterQualityStations",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 19,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "river",
+                "#0ea5e9",
+                "groundwater",
+                "#b45309",
+                "reservoir",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                0,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "station_type"
+                  ],
+                  "river",
+                  "#0ea5e9",
+                  "groundwater",
+                  "#b45309",
+                  "reservoir",
+                  "#7c3aed",
+                  "#94a3b8"
+                ],
+                "#0f172a"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                1.6,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "river",
+                "#0ea5e9",
+                "groundwater",
+                "#b45309",
+                "reservoir",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                0,
+                0.85
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "station_type"
+                  ],
+                  "river",
+                  "#0ea5e9",
+                  "groundwater",
+                  "#b45309",
+                  "reservoir",
+                  "#7c3aed",
+                  "#94a3b8"
+                ],
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "latest_sample_date"
+                  ],
+                  null
+                ],
+                1.6,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "water-quality-stations",
+      "sourceUrl": "./environment/water_quality_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "riverRpiStations",
       "layers": [
         {
@@ -47389,171 +47609,6 @@
       ],
       "sourceId": "river-rpi-stations",
       "sourceUrl": "./environment/river_rpi_stations.geojson"
-    },
-    {
-      "dynamicData": null,
-      "filter": null,
-      "id": "waterQualityStations",
-      "layers": [
-        {
-          "filter": [
-            "all"
-          ],
-          "layout": null,
-          "maxzoom": 19,
-          "minzoom": 7,
-          "paint": {
-            "dark": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "river",
-                "#0ea5e9",
-                "groundwater",
-                "#b45309",
-                "reservoir",
-                "#7c3aed",
-                "#94a3b8"
-              ],
-              "circle-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "latest_sample_date"
-                  ],
-                  null
-                ],
-                0,
-                0.85
-              ],
-              "circle-radius": 4.5,
-              "circle-stroke-color": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "latest_sample_date"
-                  ],
-                  null
-                ],
-                [
-                  "match",
-                  [
-                    "get",
-                    "station_type"
-                  ],
-                  "river",
-                  "#0ea5e9",
-                  "groundwater",
-                  "#b45309",
-                  "reservoir",
-                  "#7c3aed",
-                  "#94a3b8"
-                ],
-                "#0f172a"
-              ],
-              "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "latest_sample_date"
-                  ],
-                  null
-                ],
-                1.6,
-                1
-              ]
-            },
-            "light": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "river",
-                "#0ea5e9",
-                "groundwater",
-                "#b45309",
-                "reservoir",
-                "#7c3aed",
-                "#94a3b8"
-              ],
-              "circle-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "latest_sample_date"
-                  ],
-                  null
-                ],
-                0,
-                0.85
-              ],
-              "circle-radius": 4.5,
-              "circle-stroke-color": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "latest_sample_date"
-                  ],
-                  null
-                ],
-                [
-                  "match",
-                  [
-                    "get",
-                    "station_type"
-                  ],
-                  "river",
-                  "#0ea5e9",
-                  "groundwater",
-                  "#b45309",
-                  "reservoir",
-                  "#7c3aed",
-                  "#94a3b8"
-                ],
-                "#ffffff"
-              ],
-              "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "latest_sample_date"
-                  ],
-                  null
-                ],
-                1.6,
-                1
-              ]
-            }
-          },
-          "suffix": "circle",
-          "type": "circle"
-        }
-      ],
-      "pmtiles": null,
-      "rebuildOnParamChange": [
-        "circle"
-      ],
-      "sourceId": "water-quality-stations",
-      "sourceUrl": "./environment/water_quality_stations.geojson"
     },
     {
       "dynamicData": null,
@@ -47853,6 +47908,2112 @@
       "rebuildOnParamChange": null,
       "sourceId": "drinking-water-protection-zones",
       "sourceUrl": "./environment/drinking_water_protection_zones.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "seaWaterQualityStations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "water_quality_class"
+                  ],
+                  "甲",
+                  "#0868ac",
+                  "乙",
+                  "#43a2ca",
+                  "丙",
+                  "#7bccc4",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "water_quality_class"
+                  ],
+                  "甲",
+                  "#0868ac",
+                  "乙",
+                  "#43a2ca",
+                  "丙",
+                  "#7bccc4",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "latest_sample_date"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "sea-water-quality-stations",
+      "sourceUrl": "./environment/sea_water_quality_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "pm25ManualStations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ]
+                  ],
+                  0,
+                  "#009966",
+                  15,
+                  "#FFDE33",
+                  35,
+                  "#FF9933",
+                  54,
+                  "#CC0033"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ]
+                  ],
+                  0,
+                  "#009966",
+                  15,
+                  "#FFDE33",
+                  35,
+                  "#FF9933",
+                  54,
+                  "#CC0033"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "is_active"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "mean_12m_ugm3"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "pm25-manual-stations",
+      "sourceUrl": "./environment/pm25_manual_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "dioxinStations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "latest_teq_pg_m3"
+                    ]
+                  ],
+                  0.003,
+                  "#b3cde3",
+                  0.01,
+                  "#8c96c6",
+                  0.025,
+                  "#8856a7",
+                  0.05,
+                  "#810f7c"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "latest_teq_pg_m3"
+                    ]
+                  ],
+                  0.003,
+                  "#b3cde3",
+                  0.01,
+                  "#8c96c6",
+                  0.025,
+                  "#8856a7",
+                  0.05,
+                  "#810f7c"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_stale"
+                  ],
+                  true
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "dioxin-stations",
+      "sourceUrl": "./environment/dioxin_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "incineratorEmissions",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ]
+                  ],
+                  30,
+                  "#fed98e",
+                  45,
+                  "#fe9929",
+                  60,
+                  "#d95f0e",
+                  80,
+                  "#993404"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ]
+                  ],
+                  30,
+                  "#fed98e",
+                  45,
+                  "#fe9929",
+                  60,
+                  "#d95f0e",
+                  80,
+                  "#993404"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nox_ppm"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "incinerator-emissions",
+      "sourceUrl": "./environment/incinerator_emissions.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "nuscGammaRadiation",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ]
+                  ],
+                  0.03,
+                  "#cbc9e2",
+                  0.06,
+                  "#9e9ac8",
+                  0.09,
+                  "#756bb1",
+                  0.14,
+                  "#54278f"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_high"
+                  ],
+                  true
+                ],
+                "#dc2626",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_high"
+                  ],
+                  true
+                ],
+                2,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ]
+                  ],
+                  0.03,
+                  "#cbc9e2",
+                  0.06,
+                  "#9e9ac8",
+                  0.09,
+                  "#756bb1",
+                  0.14,
+                  "#54278f"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_high"
+                  ],
+                  true
+                ],
+                "#dc2626",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "dose_usvh"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_high"
+                  ],
+                  true
+                ],
+                2,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "nusc-gamma-radiation",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "waterEffluentLive",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "exceed",
+                  "#dc2626",
+                  "abnormal",
+                  "#facc15",
+                  "normal",
+                  "#14b8a6",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "exceed",
+                  "#dc2626",
+                  "abnormal",
+                  "#facc15",
+                  "normal",
+                  "#14b8a6",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "stale"
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "water-effluent-live",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "cemsStackLive",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "exceed",
+                  "#dc2626",
+                  "running",
+                  "#8856a7",
+                  "startStop",
+                  "#8c96c6",
+                  "maintenance",
+                  "#b45309",
+                  "halted",
+                  "#64748b",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status"
+                  ],
+                  "exceed",
+                  "#dc2626",
+                  "running",
+                  "#8856a7",
+                  "startStop",
+                  "#8c96c6",
+                  "maintenance",
+                  "#b45309",
+                  "halted",
+                  "#64748b",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "stale"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "status"
+                    ],
+                    "unknown"
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "cems-stack-live",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "cwaUvDaily",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "uv_level"
+                  ],
+                  "低量級",
+                  "#009966",
+                  "中量級",
+                  "#FFDE33",
+                  "高量級",
+                  "#FF9933",
+                  "過量級",
+                  "#CC0033",
+                  "危險級",
+                  "#660099",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "uv_level"
+                  ],
+                  "低量級",
+                  "#009966",
+                  "中量級",
+                  "#FFDE33",
+                  "高量級",
+                  "#FF9933",
+                  "過量級",
+                  "#CC0033",
+                  "危險級",
+                  "#660099",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "is_stale"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "uv_level"
+                    ],
+                    null
+                  ]
+                ],
+                1.8,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "cwa-uv-daily",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "riverRpiSegmentsTamsui",
+      "layers": [
+        {
+          "filter": [
+            "!",
+            [
+              "in",
+              [
+                "get",
+                "tidal"
+              ],
+              [
+                "literal",
+                [
+                  "yes"
+                ]
+              ]
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "class_latest"
+                ],
+                "未(稍)受污染",
+                "#38bdf8",
+                "輕度污染",
+                "#facc15",
+                "中度污染",
+                "#f97316",
+                "嚴重污染",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "class_latest"
+                ],
+                "未(稍)受污染",
+                "#38bdf8",
+                "輕度污染",
+                "#facc15",
+                "中度污染",
+                "#f97316",
+                "嚴重污染",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "tidal"
+            ],
+            [
+              "literal",
+              [
+                "yes"
+              ]
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "class_latest"
+                ],
+                "未(稍)受污染",
+                "#38bdf8",
+                "輕度污染",
+                "#facc15",
+                "中度污染",
+                "#f97316",
+                "嚴重污染",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "class_latest"
+                ],
+                "未(稍)受污染",
+                "#38bdf8",
+                "輕度污染",
+                "#facc15",
+                "中度污染",
+                "#f97316",
+                "嚴重污染",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            }
+          },
+          "suffix": "tidal",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "river-rpi-segments-tamsui",
+      "sourceUrl": "./environment/river_rpi_segments_tamsui_trial.geojson"
     },
     {
       "dynamicData": null,
@@ -58803,6 +60964,26 @@
         "valueText": "0.55"
       }
     ],
+    "cemsStackLive": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "changhuaTrafficSignals": [
       {
         "label": "透明度 0.85",
@@ -60360,6 +62541,26 @@
         "valueText": "0.70"
       }
     ],
+    "cwaUvDaily": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "cyclingRoutes": [
       {
         "label": "線寬 1.0",
@@ -60378,6 +62579,26 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "dioxinStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "disasterShelters": [
@@ -62568,6 +64789,26 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      }
+    ],
+    "incineratorEmissions": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "indicators": [
@@ -65070,6 +67311,26 @@
         "valueText": "0.90"
       }
     ],
+    "nuscGammaRadiation": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "oceanCurrents": [
       {
         "label": "透明度 0.65",
@@ -65821,6 +68082,26 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "pm25ManualStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",
@@ -67667,6 +69948,32 @@
         "valueText": "1.00"
       }
     ],
+    "riverRpiSegmentsTamsui": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "著色依據",
+        "options": [
+          {
+            "label": "最新一次",
+            "value": "latest"
+          },
+          {
+            "label": "近 12 月平均",
+            "value": "mean12m"
+          }
+        ],
+        "type": "select",
+        "value": "latest"
+      }
+    ],
     "riverRpiStations": [
       {
         "label": "透明度 0.90",
@@ -68133,6 +70440,26 @@
         "label": "分級配色",
         "type": "toggle",
         "value": false
+      }
+    ],
+    "seaWaterQualityStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "serviceArea": [
@@ -74147,6 +76474,26 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "waterEffluentLive": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "waterFacilities": [

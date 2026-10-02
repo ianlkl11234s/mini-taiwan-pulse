@@ -151,6 +151,8 @@ import {
 } from "./noisePanels";
 import {
   RiverRpiStationsPanel, WaterQualityStationsPanel, SewageTreatmentPlantsPanel, DrinkingWaterProtectionZonesPanel,
+  SeaWaterQualityStationsPanel, RiverRpiSegmentsTamsuiPanel, Pm25ManualStationsPanel, DioxinStationsPanel, IncineratorEmissionsPanel,
+  NuscGammaRadiationPanel, WaterEffluentLivePanel, CemsStackLivePanel, CwaUvDailyPanel,
 } from "./environmentLayerPanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
@@ -501,6 +503,15 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   waterQualityStations: WaterQualityStationsPanel,
   sewageTreatmentPlants: SewageTreatmentPlantsPanel,
   drinkingWaterProtectionZones: DrinkingWaterProtectionZonesPanel,
+  seaWaterQualityStations: SeaWaterQualityStationsPanel,
+  riverRpiSegmentsTamsui: RiverRpiSegmentsTamsuiPanel,
+  pm25ManualStations: Pm25ManualStationsPanel,
+  dioxinStations: DioxinStationsPanel,
+  incineratorEmissions: IncineratorEmissionsPanel,
+  nuscGammaRadiation: NuscGammaRadiationPanel,
+  waterEffluentLive: WaterEffluentLivePanel,
+  cemsStackLive: CemsStackLivePanel,
+  cwaUvDaily: CwaUvDailyPanel,
   // AI 助手標記點
   chatHighlight: ChatHighlightPanel,
   // 與 Agent 協作：暫時分析結果
@@ -978,6 +989,15 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterQualityStations: "水質監測站",
   sewageTreatmentPlants: "公共污水處理廠",
   drinkingWaterProtectionZones: "飲用水水源水質保護區（環境部）",
+  seaWaterQualityStations: "海域水質測站",
+  riverRpiSegmentsTamsui: "RPI 河段（試作・推估）",
+  pm25ManualStations: "PM2.5 手動採樣站",
+  dioxinStations: "環境空氣戴奧辛測站",
+  incineratorEmissions: "焚化廠空污監測",
+  nuscGammaRadiation: "環境輻射（核安會）",
+  waterEffluentLive: "放流水連線監測",
+  cemsStackLive: "煙道 CEMS 連線監測",
+  cwaUvDaily: "紫外線（前一天最大值）",
   // AI 助手標記點
   chatHighlight: "地圖標記",
   // 與 Agent 協作：暫時分析結果

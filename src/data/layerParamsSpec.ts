@@ -107,7 +107,7 @@ import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
-import { RIVER_RPI_FILTER_OPTIONS, WATER_QUALITY_STATION_FILTER_OPTIONS } from "./environmentLayerTypes";
+import { RIVER_RPI_FILTER_OPTIONS, RIVER_RPI_SEGMENT_MODES, WATER_QUALITY_STATION_FILTER_OPTIONS } from "./environmentLayerTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
@@ -3157,6 +3157,25 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("sewageTreatmentPlantsScale", 1),
   ],
   drinkingWaterProtectionZones: [opacitySlider("drinkingWaterProtectionZonesOpacity", 0.65)],
+
+  // ── 環境第二波：點層一律透明度＋大小；RPI 河段可切「最新一次／近 12 月平均」著色（paint diff，不重建）──
+  seaWaterQualityStations: [opacitySlider("seaWaterQualityStationsOpacity", 0.9), scaleSlider("seaWaterQualityStationsScale", 1)],
+  pm25ManualStations: [opacitySlider("pm25ManualStationsOpacity", 0.9), scaleSlider("pm25ManualStationsScale", 1)],
+  dioxinStations: [opacitySlider("dioxinStationsOpacity", 0.9), scaleSlider("dioxinStationsScale", 1)],
+  incineratorEmissions: [opacitySlider("incineratorEmissionsOpacity", 0.9), scaleSlider("incineratorEmissionsScale", 1)],
+  nuscGammaRadiation: [opacitySlider("nuscGammaRadiationOpacity", 0.9), scaleSlider("nuscGammaRadiationScale", 1)],
+  waterEffluentLive: [opacitySlider("waterEffluentLiveOpacity", 0.9), scaleSlider("waterEffluentLiveScale", 1)],
+  cemsStackLive: [opacitySlider("cemsStackLiveOpacity", 0.9), scaleSlider("cemsStackLiveScale", 1)],
+  cwaUvDaily: [opacitySlider("cwaUvDailyOpacity", 0.9), scaleSlider("cwaUvDailyScale", 1)],
+  riverRpiSegmentsTamsui: [
+    opacitySlider("riverRpiSegmentsTamsuiOpacity", 0.85),
+    {
+      kind: "select", name: "riverRpiSegmentsTamsuiMode", label: "著色依據",
+      default: "latest", options: RIVER_RPI_SEGMENT_MODES.map(({ label, value }) => ({ label, value })),
+      out: "riverRpiSegmentsTamsuiModeIdx",
+      encode: RIVER_RPI_SEGMENT_MODES.map((mode) => mode.value),
+    },
+  ],
 
   // ── 底圖 Base map：opacity 同時進 overlayParams（paint）與 hook return ──
   hillshade: [opacitySlider("hillshadeOpacity", 0.5)],

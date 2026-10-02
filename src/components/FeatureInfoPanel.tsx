@@ -45,6 +45,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
   // 水質與污水 4 層：上游 source 欄位含內部表名，panel 改掛人類可讀來源的 SourceFooter。
   "riverRpiStations", "waterQualityStations", "sewageTreatmentPlants", "drinkingWaterProtectionZones",
+  // 環境第二波 9 層：同上，panel 自掛人類可讀來源（即時層 feature 只有 RPC 欄位）。
+  "seaWaterQualityStations", "riverRpiSegmentsTamsui", "pm25ManualStations", "dioxinStations", "incineratorEmissions",
+  "nuscGammaRadiation", "waterEffluentLive", "cemsStackLive", "cwaUvDaily",
 ]);
 
 // layerKey → 主題中文名對照（供 header eyebrow「圖層群組 · 圖層名」使用）。
