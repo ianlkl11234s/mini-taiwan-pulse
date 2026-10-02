@@ -153,3 +153,48 @@ describe("TimeseriesSparkline monitor v2 (spec §5.35 E3)", () => {
     expect(legacy({ data: pts, heightTier: "mini" })).toContain('height="120"');
   });
 });
+
+describe("TimeseriesSparkline bare／band（spec §5.35 F3）", () => {
+  const pts: SparklinePoint[] = [
+    { t: 0, v: 10 }, { t: 3600, v: 20 }, { t: 7200, v: 15 },
+  ];
+  const legacy = (p: TimeseriesSparklineProps) => renderToStaticMarkup(createElement(TimeseriesSparkline, p));
+  const v2 = (p: TimeseriesSparklineProps) =>
+    renderToStaticMarkup(
+      createElement(MonitorStyleContext.Provider, { value: "v2" }, createElement(TimeseriesSparkline, p)),
+    );
+
+  it("v2 bare：無軸字、無格線、無單位字，四邊留白 2（mini 總高 28）", () => {
+    const html = v2({ data: pts, heightTier: "mini", bare: true, unit: "MW" });
+    expect(html).not.toContain("<text");
+    expect(html).not.toContain("stroke-width=\"0.5\""); // 格線
+    expect(html).toContain('height="28"'); // 2 + 24 + 2
+    // 最後一點貼右緣：256 − 2
+    expect(html).toMatch(/data-testid="sparkline-latest" cx="254"/);
+  });
+
+  it("v2 非 bare 仍有軸字（對照組）", () => {
+    expect(v2({ data: pts, heightTier: "mini" })).toContain("<text");
+  });
+
+  it("舊版忽略 bare：輸出與不傳 bare 逐字相同", () => {
+    expect(legacy({ data: pts, bare: true })).toBe(legacy({ data: pts }));
+  });
+
+  it("band 畫一條色帶 rect，Y 值域把 band 納入", () => {
+    expect(computeCombinedYRange(pts, undefined, null, { lo: 5, hi: 40 })).toEqual({ vMin: 5, vMax: 40 });
+    // band 落在資料範圍內：值域不變
+    expect(computeCombinedYRange(pts, undefined, null, { lo: 12, hi: 18 })).toEqual({ vMin: 10, vMax: 20 });
+    const html = v2({ data: pts, heightTier: "std", band: { lo: 5, hi: 40, label: "近 7 天 p10–p90" } });
+    expect(html.match(/data-testid="sparkline-band"/g)).toHaveLength(1);
+    expect(html).toContain("<title>近 7 天 p10–p90 5.00–40.0</title>");
+    // band 擴大值域 → Y 軸頂刻度至少到 40
+    const ticks = [...html.matchAll(/<text[^>]*text-anchor="end"[^>]*>(\d+)<\/text>/g)].map((m) => Number(m[1]));
+    expect(Math.max(...ticks)).toBeGreaterThanOrEqual(40);
+  });
+
+  it("不傳 band：無色帶（舊版與 v2 皆然）", () => {
+    expect(legacy({ data: pts })).not.toContain("sparkline-band");
+    expect(v2({ data: pts })).not.toContain("sparkline-band");
+  });
+});
