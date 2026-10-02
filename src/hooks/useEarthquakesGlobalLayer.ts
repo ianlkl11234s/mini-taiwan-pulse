@@ -188,10 +188,14 @@ export function useEarthquakesGlobalLayer(
     // 當下沒套上就靜默放棄的話，source 資料會卡在舊的一份不再更新。改成有界重試：
     // 每 150ms 檢查一次，直到 style 就緒、或本次載入已過期／effect 被清理才停止
     // （照抄 useClimateParticleLineLayer.ts applyRaster 的重試精神）。
+    // 主因是本圖層自己的漣漪：每幀對 data-driven circle-radius setPaintProperty，
+    // 會讓 earthquakes-global source 每幀被標成 reload，isStyleLoaded() 在漣漪播放期間恆為 false。
+    // 所以這裡只等「style 已解析」（getStyle() 解析前／換底圖中會 throw），不等 tile。
+    const styleParsed = (m: MapboxMap) => { try { return !!m.getStyle(); } catch { return false; } };
     const applyData = (evs: EarthquakeGlobalEvent[], dateKey: string) => {
       if (cancelled || inflightKey !== dateKey) return; // 期間又換日／換天數 → 這批已過期
       const map = mapRef.current;
-      if (!map || !map.isStyleLoaded()) {
+      if (!map || !styleParsed(map)) {
         if (applyTimer === null) {
           applyTimer = window.setTimeout(() => {
             applyTimer = null;
