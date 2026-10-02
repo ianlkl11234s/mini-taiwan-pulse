@@ -77,7 +77,8 @@ function streetTrees3epochTrajWeight(filtIdx: number): unknown {
  * - `filter` 與點的子圖層相同（函式形式時 suffix 也要列進 rebuildOnParamChange 才會跟著更新）。
  * - `weight`：點用 opacity 歸零做篩選時，熱區改吃同條件的 `["case", 條件, 1, 0]`。
  * - `intensity`：依資料密度校正（2026-10-02：全台 z7.3／本州 z6 視角，以 heatmap kernel 離線模擬＋瀏覽器截圖對照，
- *   全台層取「頂色像素約佔熱區 11%」、單一城市層約 30%、日本層約 2%；以 fireHydrants 0.1、medClinic 1、jpReligionGsi 1 為目視定錨）。
+ *   全台層取「頂色像素約佔熱區 11%」、日本層約 2%；只有臺北的層改在臺北 z9.3 視角取約 11%（行道樹全市均勻密集，
+ *   0.03 會整片飽和）；以 fireHydrants 0.1、medClinic 1、jpReligionGsi 1 為目視定錨）。
  *   低縮放切片有抽稀的層（busStationsCity、medLTC、medAED、agri* 等）值較高是在補抽稀，不代表資料較稀。
  */
 function denseHeatmapLayer(o: {
@@ -4779,7 +4780,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_diff", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipeiDiffOpacity", "streetTreesTaipeiDiffStatusIdx", "streetTreesTaipeiDiffRadius", "streetTreesTaipeiDiffColorModeIdx"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipeiDiff, intensity: 0.03, opacity: { layer: "streetTreesTaipeiDiff", param: "streetTreesTaipeiDiffOpacity" }, weight: (p) => streetTreesDiffStatusWeight(p?.streetTreesTaipeiDiffStatusIdx ?? 0) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipeiDiff, intensity: 0.01, opacity: { layer: "streetTreesTaipeiDiff", param: "streetTreesTaipeiDiffOpacity" }, weight: (p) => streetTreesDiffStatusWeight(p?.streetTreesTaipeiDiffStatusIdx ?? 0) }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipeiDiff,
         paint: (_isDark, p) => {
@@ -4879,7 +4880,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "riverside-trees-taipei",
     rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkMask"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.riversideTreesTaipei, intensity: 0.1, opacity: { layer: "riversideTreesTaipei", param: "riversideTreesTaipeiOpacity" }, weight: (p) => multiSelectOpacityExpression("park_name", p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS), RIVERSIDE_PARKS, 1) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.riversideTreesTaipei, intensity: 0.05, opacity: { layer: "riversideTreesTaipei", param: "riversideTreesTaipeiOpacity" }, weight: (p) => multiSelectOpacityExpression("park_name", p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS), RIVERSIDE_PARKS, 1) }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.riversideTreesTaipei,
         paint: (isDark, p) => {
@@ -4953,7 +4954,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_3epoch", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipei3epochOpacity", "streetTreesTaipei3epochRadius", "streetTreesTaipei3epochColorModeIdx", "streetTreesTaipei3epochTrajFilterIdx"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipei3epoch, intensity: 0.03, opacity: { layer: "streetTreesTaipei3epoch", param: "streetTreesTaipei3epochOpacity" }, weight: (p) => streetTrees3epochTrajWeight(p?.streetTreesTaipei3epochTrajFilterIdx ?? 0) }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipei3epoch, intensity: 0.01, opacity: { layer: "streetTreesTaipei3epoch", param: "streetTreesTaipei3epochOpacity" }, weight: (p) => streetTrees3epochTrajWeight(p?.streetTreesTaipei3epochTrajFilterIdx ?? 0) }),
       {
         suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipei3epoch,
         paint: (_isDark, p) => {
