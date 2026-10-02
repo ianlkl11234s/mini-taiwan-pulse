@@ -3,16 +3,16 @@
 > 由 `scripts/research/build-layer-status.mjs` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
-- 圖層總數：**794**；L1 可操作：**794/794**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**605/794**（76.2%）
-- 只有舊瀏覽器 reader：6；尚不可分析：178
+- 圖層總數：**864**；L1 可操作：**864/864**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**660/864**（76.4%）
+- 只有舊瀏覽器 reader：6；尚不可分析：193
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 595 | 286 | 199 | 1 | 5 | 100 | 4 |
-| 統計 | 114 | 1 | 105 | 0 | 0 | 8 | 0 |
+| 臺灣圖層 | 619 | 295 | 199 | 1 | 5 | 115 | 4 |
+| 統計 | 160 | 1 | 151 | 0 | 0 | 8 | 0 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 | 0 |
 | 日本 | 60 | 4 | 0 | 2 | 0 | 53 | 1 |
 
@@ -20,11 +20,12 @@
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 81 |
+| dataset_not_in_warehouse | 89 |
 | warehouse_SKIPPED_FORMAT | 30 |
 | warehouse_SKIPPED_DISPLAY_ONLY | 10 |
 | derived_layer | 9 |
 | warehouse_FAILED | 7 |
+| upstream_catalog_missing | 3 |
 | override: snapshot_candidate: 同一 2025-04 PMTiles artifact 換 filter；LICENSE_UNVERIFIED。 | 2 |
 | override: snapshot_candidate: 本地 research PMTiles 靜態界線（A10 2010 historical outer polygon），非現行法定界線／zoning；可入倉做面積、與其他保護區重疊分析；NON_COMMERCIAL_ONLY 限制需保留於 metadata。 | 1 |
 | override: snapshot_candidate: 同 jpNaturalParksNational，共用同一份 A10 2010 PMTiles artifact 換 filter_layer_id；outer polygon、非商用限制。 | 1 |
@@ -57,6 +58,10 @@
 | override: display_only: Meta/WRI CHMv2 樹冠高度為連續 raster 瓦片（source.kind=pmtiles 但走 rasterProbe popup，逐像素查詢無屬性表），非向量/表格資料，不適合入倉做空間統計分析。 | 1 |
 | override: live_only: 即時急診壅塞狀態（等待推床／滯留人數，realtime.er_hospital_status，RPC get_er_hospital_latest），核心分析價值是隨時間變動的壅塞指標，需時間窗匯出；座標是 join 自另一份醫療 GeoJSON（非本層自有的設施表），故不比照『快照站點』處理。 | 1 |
 | override: snapshot_candidate: PLATEAU 建物高度（遠距 building_grid 網格＋近距 buildings 輪廓兩組 PMTiles，含高度屬性），為向量設施/建物資料，可做都市紋理與天際線分析；部分區域覆蓋、非全日本完成。 | 1 |
+| override: live_only: 核安會環境輻射 63 站 15 分鐘即時劑量率（RPC get_nusc_gamma_latest，migration 419），價值在劑量率隨時間變化；解鎖條件：Zeabur collector 啟用並累積 live.nusc_gamma_measurements 後，以時間窗匯出（測站位置可另做 snapshot）。與台電周界 nuclearRadiation 為不同測站網。 | 1 |
+| override: live_only: 放流水連線自動監測每設施最新值（RPC get_water_effluent_latest，migration 420），超限／異常為逐時狀態；解鎖條件：collector 啟用後以時間窗匯出 live.water_effluent_readings；座標 NULL 的設施不畫、不合成。 | 1 |
+| override: live_only: CEMS 煙道每設施最新 1 小時值（RPC get_cems_stack_latest，migration 421，上游延遲 4–5 小時），逾限與運轉狀態為逐時狀態；解鎖條件：collector 啟用後以時間窗匯出 live.cems_stack_readings；設施座標借 EMS 列管表（91.4% 對得上）。 | 1 |
+| override: live_only: 氣象署紫外線指數「前一天最大值」（RPC get_cwa_uv_latest，migration 422），每日一值、只回最近 30 天；解鎖條件：collector 啟用並累積 live.cwa_uv_daily 後以日期範圍匯出；測站位置可另做 snapshot。 | 1 |
 | override: snapshot_candidate: 中央氣象署固定式海洋觀測站，本質是即時觀測值（freshness 隨資料更新），但測站位置（station_uid／經緯度／depth／vertical datum）是穩定設施，可只快照站點中繼資料、不含即時觀測值。 | 1 |
 | override: snapshot_candidate: 港灣環境資訊網 ISOHE 港區海氣象固定站，同 CWA：測站位置穩定，可只快照站點中繼資料。 | 1 |
 | override: snapshot_candidate: 台灣機場歷史航班樣本軌跡，已是靜態 manifest+GeoJSON 資產（同 jpHistoricalFlightTrails 模式），可入倉做航線廊道分析；coverage 以 manifest 為準、非完整航班或即時軌跡。 | 1 |
@@ -86,10 +91,10 @@
 
 | precision_class | 圖層數 |
 |---|---|
-| official | 127 |
-| address_geocode | 71 |
+| official | 134 |
+| address_geocode | 72 |
 | unknown | 68 |
-| google_geocode | 20 |
+| google_geocode | 21 |
 | address_geocode+official | 6 |
 | unknown+official | 3 |
 | village_centroid | 2 |
@@ -99,10 +104,10 @@
 
 | 涵蓋 | 圖層數 |
 |---|---|
-| national | 174 |
-| 19 counties | 30 |
+| national | 177 |
+| 19 counties | 32 |
 | 2 counties | 14 |
-| 18 counties | 10 |
+| 18 counties | 11 |
 | 17 counties | 9 |
 | unknown | 8 |
 | 13 counties | 8 |

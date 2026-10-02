@@ -9,6 +9,16 @@
     "class": "display_only",
     "note": "display_only: 純 Mapbox line-blur 霓虹邊框視覺實驗層，source.note 明載『純視覺實驗，無自己的資料來源』，共用 aviationRestricted 既有 PMTiles 做疊層，無 legend/popup。"
   },
+  "cemsStackLive": {
+    "l2": "none",
+    "class": "live_only",
+    "note": "live_only: CEMS 煙道每設施最新 1 小時值（RPC get_cems_stack_latest，migration 421，上游延遲 4–5 小時），逾限與運轉狀態為逐時狀態；解鎖條件：collector 啟用後以時間窗匯出 live.cems_stack_readings；設施座標借 EMS 列管表（91.4% 對得上）。"
+  },
+  "cwaUvDaily": {
+    "l2": "none",
+    "class": "live_only",
+    "note": "live_only: 氣象署紫外線指數「前一天最大值」（RPC get_cwa_uv_latest，migration 422），每日一值、只回最近 30 天；解鎖條件：collector 啟用並累積 live.cwa_uv_daily 後以日期範圍匯出；測站位置可另做 snapshot。"
+  },
   "erHospital": {
     "l2": "none",
     "class": "live_only",
@@ -199,6 +209,11 @@
     "class": "unclear",
     "note": "unclear: 全 repo 僅有 type 宣告與三張全量表的值，layerConsistency 僅記載 baseline，無任何 loader/hook/RPC 實作（幽靈 toggle 已於 2026-06-10 自 sidebar 移除）；沒有可查的資料來源，無法判斷屬於哪一類。"
   },
+  "nuscGammaRadiation": {
+    "l2": "none",
+    "class": "live_only",
+    "note": "live_only: 核安會環境輻射 63 站 15 分鐘即時劑量率（RPC get_nusc_gamma_latest，migration 419），價值在劑量率隨時間變化；解鎖條件：Zeabur collector 啟用並累積 live.nusc_gamma_measurements 後，以時間窗匯出（測站位置可另做 snapshot）。與台電周界 nuclearRadiation 為不同測站網。"
+  },
   "osmPowerPlantsStatic": {
     "l2": "none",
     "class": "snapshot_candidate",
@@ -258,5 +273,10 @@
     "l2": "none",
     "class": "unclear",
     "note": "unclear: 同 wasteRoute，無任何 consumer（僅 type 宣告＋三張全量表），無法判斷資料形態；注意與已上線、有 OVERLAY_REGISTRY entry 的 `wasteStopsStatic`（不同 key，不在此清單）不可混淆。"
+  },
+  "waterEffluentLive": {
+    "l2": "none",
+    "class": "live_only",
+    "note": "live_only: 放流水連線自動監測每設施最新值（RPC get_water_effluent_latest，migration 420），超限／異常為逐時狀態；解鎖條件：collector 啟用後以時間窗匯出 live.water_effluent_readings；座標 NULL 的設施不畫、不合成。"
   }
 }
