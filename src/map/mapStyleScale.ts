@@ -140,6 +140,13 @@ export function densePointsFromZoom(pointCount: number, existingMinzoom = 0): nu
   return existingMinzoom;
 }
 
+/**
+ * 熱區子圖層的 maxzoom＝出點縮放 + 0.01。Mapbox 在 z ≥ x.5 起改載下一級 tile，
+ * 而 tile zoom（例 12）≥ 圖層 maxzoom（12）時整張 tile 不建該圖層的 bucket，
+ * 熱區會在 z11.5–12 提早消失（2026-10-02 瀏覽器實測）；多 0.01 讓 z12 tile 仍建 bucket。
+ */
+export const heatmapMaxzoom = (pointsFromZoom: number) => pointsFromZoom + 0.01;
+
 /** P-3：主體點預設不透明度，依全台點數（作為該層透明度滑桿的預設值）。 */
 export function densePointOpacity(pointCount: number): number {
   if (pointCount > 100_000) return POINT_OPACITY.over100k;
@@ -172,14 +179,16 @@ const HEAT_DENSITY_STOPS = [0, 0.05, 0.15, 0.3, 0.45, 0.6, 0.8, 1] as const;
 /**
  * G-2 熱區 paint（全站共用）。`opacityScale` = 滑桿值 ÷ 該層透明度預設值，
  * 讓同一個透明度滑桿同時控制點與熱區；結果上限 1。
- * radius：z10 12／z14 20（G-2），z4 外插 6；intensity 隨縮放增加，避免低縮放整片飽和。
+ * radius：z10 12／z14 20（G-2），z4 外插 6。
+ * intensity：z12 為 `intensity`，每拉遠一級減半（exponential 2），抵銷拉遠時單位像素點數暴增；
+ * `intensity` 依各層資料密度校正（瀏覽器目視：密度 0.5 左右落在城市核心而非整片飽和）。
  */
 export const heatmapOpacity = (opacityScale = 1) => Math.max(0, Math.min(1, HEATMAP.opacity * opacityScale));
-export function heatmapPaint(opacityScale = 1): Record<string, unknown> {
+export function heatmapPaint(opacityScale = 1, intensity = 1): Record<string, unknown> {
   const [r10, r14] = HEATMAP.radius;
   return {
     "heatmap-weight": 1,
-    "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 4, 0.3, 8, 0.6, 12, 1],
+    "heatmap-intensity": ["interpolate", ["exponential", 2], ["zoom"], 4, intensity / 256, 12, intensity],
     "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 4, 6, 10, r10, 14, r14],
     "heatmap-color": [
       "interpolate", ["linear"], ["heatmap-density"],

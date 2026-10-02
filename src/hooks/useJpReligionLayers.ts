@@ -4,7 +4,7 @@ import { fetchJpReligionWikidata } from "../data/jpReligionLoader";
 import { JP_RELIGION_COLOR_EXPRESSION } from "../data/jpReligionTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { densePointsFromZoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -56,14 +56,14 @@ function circleLayer(
   } as CircleLayer;
 }
 
-/** G-2 熱區：畫在出點縮放以下（maxzoom 為 exclusive，與點的 minzoom 無縫交接），不可點擊。 */
-function heatmapLayer(id: string, source: string, sourceLayer: string, maxzoom: number, opacityScale: number): HeatmapLayer {
+/** G-2 熱區：畫在出點縮放以下（maxzoom 見 heatmapMaxzoom），不可點擊。 */
+function heatmapLayer(id: string, source: string, sourceLayer: string, pointsFromZoom: number, opacityScale: number): HeatmapLayer {
   return {
     id,
     type: "heatmap",
     source,
     "source-layer": sourceLayer,
-    maxzoom,
+    maxzoom: heatmapMaxzoom(pointsFromZoom),
     layout: { visibility: "none" },
     paint: heatmapPaint(opacityScale),
   } as HeatmapLayer;

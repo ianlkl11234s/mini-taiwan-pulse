@@ -142,7 +142,7 @@ describe("useJpReligionLayers scale", () => {
 
     const heat = layers.get("jp-religion-gsi-heatmap");
     expect(heat?.type).toBe("heatmap");
-    expect(heat?.maxzoom).toBe(12);
+    expect(heat?.maxzoom).toBeCloseTo(12.01);
     expect(heat?.paint["heatmap-opacity"]).toBeCloseTo(0.8);
     expect(layers.get("jp-religion-gsi-circle")?.minzoom).toBe(12);
     expect(layers.get("jp-religion-osm-circle")?.minzoom).toBeUndefined();

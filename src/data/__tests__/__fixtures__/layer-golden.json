@@ -6468,7 +6468,7 @@
         {
           "filter": null,
           "layout": null,
-          "maxzoom": 12,
+          "maxzoom": 12.01,
           "minzoom": null,
           "paint": {
             "dark": {
@@ -6500,17 +6500,16 @@
               "heatmap-intensity": [
                 "interpolate",
                 [
-                  "linear"
+                  "exponential",
+                  2
                 ],
                 [
                   "zoom"
                 ],
                 4,
-                0.3,
-                8,
-                0.6,
+                0.000390625,
                 12,
-                1
+                0.1
               ],
               "heatmap-opacity": 0.8,
               "heatmap-radius": [
@@ -6559,17 +6558,16 @@
               "heatmap-intensity": [
                 "interpolate",
                 [
-                  "linear"
+                  "exponential",
+                  2
                 ],
                 [
                   "zoom"
                 ],
                 4,
-                0.3,
-                8,
-                0.6,
+                0.000390625,
                 12,
-                1
+                0.1
               ],
               "heatmap-opacity": 0.8,
               "heatmap-radius": [

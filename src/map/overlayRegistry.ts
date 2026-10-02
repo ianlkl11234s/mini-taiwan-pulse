@@ -7,7 +7,7 @@ import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensit
 import type { OverlayConfig } from "../types";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, densePointsFromZoom, heatmapPaint } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, densePointsFromZoom, heatmapMaxzoom, heatmapPaint } from "./mapStyleScale";
 
 /** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
@@ -1969,8 +1969,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         // 熱區不可點擊（gisClickRegistry 只登記 circle/glow）；透明度滑桿按比例同時控制熱區。
         suffix: "heatmap",
         type: "heatmap",
-        maxzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
-        paint: (_isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75),
+        maxzoom: heatmapMaxzoom(FIRE_HYDRANTS_POINTS_FROM_ZOOM),
+        // intensity 0.1：臺北／高雄市區點極密（約為日本宗教設施的 10 倍），目視校正。
+        paint: (_isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1),
       },
       {
         suffix: "glow",
