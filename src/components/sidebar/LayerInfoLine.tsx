@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { ChevronRight, Info } from "lucide-react";
 import { FONT_CJK, FONT_SIZE } from "../../styles/designTokens";
 import { LAYER_MANIFEST, type ManifestKey } from "../../data/layerManifest";
+import { humanizeStatisticsText } from "../../data/statisticsLabels";
 import type { LayerVisibility } from "../../types";
 import { DataSourceCard, dataSourcePalette } from "./DataSourcePanel";
 import { useRailTheme } from "./railTheme";
@@ -15,7 +16,8 @@ import { useRailTheme } from "./railTheme";
 export function LayerInfoLine({ layerKey, children }: { layerKey: keyof LayerVisibility; children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { DIM, INACTIVE_TEXT, COLOR_SCHEME } = useRailTheme();
-  const description = (LAYER_MANIFEST as Record<string, { description?: string }>)[layerKey as ManifestKey]?.description;
+  // 說明文字夾帶的參考邊界代碼換成中文（spec §6.3；統計 recipe 的說明會帶 COUNTY_MOI_… 這類代碼）
+  const description = humanizeStatisticsText((LAYER_MANIFEST as Record<string, { description?: string }>)[layerKey as ManifestKey]?.description);
   return (
     <div style={{ fontFamily: FONT_CJK }}>
       <button

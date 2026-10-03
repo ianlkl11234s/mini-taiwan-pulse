@@ -226,3 +226,31 @@ describe('releaseSelector 宣告的維度順序', () => {
     expect(Object.keys(bus.dimensions)).toEqual([...busOperationReleaseSelector.dimensionKeys]);
   });
 });
+
+describe('教育固定入口：換指標維持同一學年', () => {
+  it('目前學年沒有的指標停用並標示，設定它會被拒絕；同學年有的指標切換後學年不變', async () => {
+    const { ensureStatisticsRecipeDetails } = await import('../../data/statisticsRecipeDetails');
+    const { getSocialRecipeDetails } = await import('../../data/socialStatisticsRecipes');
+    await ensureStatisticsRecipeDetails('social');
+    const VIEW = 'statsEducationElementarySchool';
+    const base = 'statsEducationCountyInstitutionCount';
+    const recipe = getSocialRecipeDetails(base)!;
+    const options = recipe.release_options.filter((o) => o.dimensions.education_stage === 'elementary');
+    const releases = options.map((o) => ({ release_id: o.release_id, dataset_id: recipe.dataset_id, indicator_id: recipe.indicator_id, boundary_version: recipe.boundary_version, period_start: o.period_start, period_end: o.period_end, levels: [recipe.level] }));
+    const y110 = options.find((o) => o.dimensions.academic_year_roc === '110')!;
+    regionalStatisticsStore.setSelection(VIEW, { ...statisticsRecipe(VIEW, recipe.indicator_id), releaseId: y110.release_id, dimensions: y110.dimensions, allowReleaseFallback: false });
+    Object.assign(regionalStatisticsStore.getSnapshot(VIEW), { releases, loading: false, error: null });
+    const metric = linkedSelectSpecs(VIEW).find((s) => s.field === 'metric')!;
+    const snap = linkedSelectSnapshot(VIEW, metric);
+    const per10k = snap.options.find((o) => o.value === 'statsComparisonEducationInstitutionCountPer10000Residents');
+    expect(per10k).toMatchObject({ disabled: true });
+    expect(per10k!.label).toContain('（此學年未提供）');
+    expect(() => setLinkedSelect(VIEW, metric, per10k!.value)).toThrow('LINKED_SELECT_VALUE_INVALID');
+    const sameYear = snap.options.find((o) => !o.disabled && o.value !== base);
+    if (sameYear) {
+      void setLinkedSelect(VIEW, metric, sameYear.value);
+      expect(regionalStatisticsStore.getSnapshot(VIEW).selection?.dimensions?.academic_year_roc).toBe('110');
+    }
+    regionalStatisticsStore.setSelection(VIEW, null);
+  });
+});

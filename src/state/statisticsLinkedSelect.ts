@@ -43,6 +43,8 @@ import {
 interface StatisticsTuple extends LinkedSelectTuple {
   /** 寫回 store；回 false＝這個組合無法完整解析（不寫） */
   apply: () => boolean;
+  /** 資料期間（`start|end`）；教育固定入口換指標時用來判斷「同一學年有沒有這個指標」 */
+  period?: string;
 }
 
 interface StatisticsModel {
@@ -51,6 +53,11 @@ interface StatisticsModel {
   tuples: StatisticsTuple[];
   current: Record<string, string>;
   label: (spec: LinkedSelectParamSpec, value: string) => string;
+  /**
+   * 教育固定入口的「指標」：目前學年沒有該指標就停用（統計規則 §3：換口徑要維持同一期別，
+   * 沒有就說明不可用，不靜默跳到別的年份）。其他列沒有這條限制。
+   */
+  metricUnavailable?: (value: string) => boolean;
 }
 
 function detailsFamily(layerKey: StatisticsRenderKey, baseKey: StatisticsLayerKey): StatisticsRecipeFamily | null {
@@ -115,6 +122,10 @@ function buildModel(key: string): StatisticsModel {
     return true;
   };
 
+  const periodOf = (releaseId: string) => {
+    const release = state.releases.find((candidate) => candidate.release_id === releaseId);
+    return release ? `${release.period_start}|${release.period_end}` : undefined;
+  };
   let tuples: StatisticsTuple[] = [];
   let configured: StatisticsReleaseOption | undefined;
   let currentMetric: string | undefined;
@@ -142,7 +153,7 @@ function buildModel(key: string): StatisticsModel {
       currentMetric = getLaborStatisticsPresentationMetric(layerKey, indicator)?.sourceLayerKey;
       for (const metric of laborView.metrics) metricLabels.set(metric.sourceLayerKey, metric.optionLabel);
     }
-    tuples = selectable.map((option) => ({ values: tupleValues(specs, option, currentMetric), apply: () => writeOption(option) }));
+    tuples = selectable.map((option) => ({ values: tupleValues(specs, option, currentMetric), apply: () => writeOption(option), period: periodOf(option.releaseId) }));
     // 其他指標：只有目前指標已有組合時才列（否則資料未載入時就會冒出半套選單）。
     if (tuples.length && view) {
       for (const metric of view.metrics) {
@@ -153,6 +164,7 @@ function buildModel(key: string): StatisticsModel {
           const target = { releaseId: option.release_id, dimensions: option.dimensions };
           tuples.push({
             values: tupleValues(specs, target, metric.layerKey),
+            period: `${option.period_start}|${option.period_end}`,
             apply: () => {
               regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, STATISTICS_RECIPES[metric.layerKey].indicator_id), releaseId: target.releaseId, dimensions: target.dimensions, allowReleaseFallback: false });
               void regionalStatisticsStore.load(layerKey);
@@ -180,11 +192,16 @@ function buildModel(key: string): StatisticsModel {
   }
 
   const current = configured ? tupleValues(specs, configured, currentMetric) : {};
+  const currentPeriod = view && configured ? periodOf(configured.releaseId) : undefined;
   return {
     status,
     error: state.error ?? undefined,
     tuples,
     current,
+    ...(currentPeriod ? {
+      metricUnavailable: (value: string) => value !== currentMetric
+        && !tuples.some((tuple) => tuple.period === currentPeriod && Object.entries(tuple.values).some(([name, v]) => v === value && specs.find((spec) => spec.name === name)?.field === 'metric')),
+    } : {}),
     label: (spec, value) => {
       if (spec.field === 'metric') return metricLabels.get(value) ?? value;
       if (spec.field === 'release') {
@@ -206,7 +223,10 @@ function statisticsSnapshot(layerKey: string, spec: LinkedSelectParamSpec): Link
   return {
     status: model.status,
     ...(model.error ? { error: model.error } : {}),
-    options: values.map((value) => ({ label: model.label(spec, value), value })),
+    options: values.map((value) => {
+      const unavailable = spec.field === 'metric' && model.metricUnavailable?.(value);
+      return unavailable ? { label: `${model.label(spec, value)}（此學年未提供）`, value, disabled: true } : { label: model.label(spec, value), value };
+    }),
     value: model.current[spec.name] ?? '',
   };
 }
@@ -226,6 +246,7 @@ registerLinkedSelectProvider(STATISTICS_LINKED_PROVIDER, {
     const model = buildModel(layerKey);
     if (!model.tuples.length) throw new Error(LINKED_SELECT_NOT_READY);
     if (model.current[spec.name] === value) return;
+    if (spec.field === 'metric' && model.metricUnavailable?.(value)) throw new Error(LINKED_SELECT_VALUE_INVALID);
     const tuple = resolveLinkedSelectChange(fieldsOf(statisticsSpecs(layerKey)), model.tuples, model.current, spec.name, value);
     if (!tuple || !tuple.apply()) throw new Error(LINKED_SELECT_VALUE_INVALID);
     // 等新組合的資料載入完再回：換指標會清空期別清單，載入後選項與讀回值才完整（Agent 讀回、場景還原靠這個）。
