@@ -314,7 +314,7 @@
 - **淡色**：底 `LIGHT.surfacePanel`、框 `LIGHT.border`、字 `LIGHT.textStrong`／`textDim`。
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。
 - **實作**：`src/components/sidebar/PanelHeader.tsx`（傳 `eyebrow` 即走 H2；不傳 eyebrow 的舊分支第二輪已改 `FONT_CJK`，視覺仍是舊版標頭）。
-- **圖層面板（2026-10-03 面板統一 A 段）**：桌機 rail 四個入口（台灣 Taiwan／統計 Statistics／世界 World／日本 Japan）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：「全部關閉」→ 搜尋 →（統計）單一／可重疊。桌機有 PanelHeader；手機改用四個分頁（順序同 rail：台灣／統計／世界／日本），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。
+- **圖層面板（2026-10-03 面板統一 A 段）**：桌機 rail 四個入口（台灣 Taiwan／統計 Statistics／世界 World／日本 Japan）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：「全部關閉」→ 搜尋 →（統計）單一／可重疊。桌機有 PanelHeader；手機改用四個分頁（順序同 rail：台灣／統計／世界／日本），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。手機面板與外殼 `MobileBottomSheet` 跟隨底圖主題（2026-10-03 收尾修正；暗色底 `rgba(0,0,0,0.7)` 維持，淡色 `LIGHT.surfaceStrong`＋上緣 `LIGHT.border`），抽屜內的底圖選單、地名開關、地點跳轉同樣吃 `isDarkTheme`，不得寫死 `isDarkTheme={true}`。
 - **搜尋（P9）**：各入口只搜自己的主題；結果列就是一般圖層列（可直接開關、收藏星號、可展開），名稱下一行小字「主題・群組」；結果末尾列出其他入口的相符筆數（例「日本還有 3 筆相符」），點了切到該入口並帶入關鍵字。
 
 ### 5.2 停靠 popup（B 版「細線緊湊」）
@@ -361,6 +361,7 @@
 - **副標**：台灣、統計、世界用英文；**日本 14 個主題用日文漢字**（P3 B），與中文同字也照樣顯示（例「宗教 宗教」「長照服務 介護サービス」），不去重。沒有 `sub` 時只顯示中文。
 - **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 副標小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
 - **字**：中文 13px（`FONT_SIZE.lg`）semibold `--text-strong`、`FONT_CJK`；英文 10px（`FONT_SIZE.sm`）`--text-dim`、`FONT_CJK`、letterSpacing 0.3、**不轉大寫**；中英 baseline 對齊、gap 6。
+- **空間不足**（2026-10-03 收尾修正）：中文主名與計數 `white-space: nowrap`、不縮；**只省略副標**（`text-overflow: ellipsis`），同圖層列 `LayerNameLine`。中文字可在任意字間斷行，不設 nowrap 會先被擠成兩行（例「人口與教 / 育」）。
 - **計數**：固定 `FONT_DATA` 10px `--text-dim`，**不再依開啟狀態變色**（舊版有開啟時變亮已拿掉）。
 - **容器**：sticky 置頂（滾動時黏住直到下一個主題列推走）、上下 `1px` 分隔線、`backdrop-filter: blur(8px)`；padding `8px 4px 8px 12px`。
 - **禁止**：整列 `FONT_DATA`；`uppercase`；英文與中文同字級；渲染時自己拆 `theme.title`。

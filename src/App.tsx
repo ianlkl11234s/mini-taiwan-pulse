@@ -2636,6 +2636,7 @@ export default function App() {
           {/* Bottom Sheet */}
           <MobileBottomSheet
             isLandscape={isLandscape}
+            isDarkTheme={isDarkTheme}
             forceCollapsed={agentOpen}
             onExpandedChange={(expanded) => { if (expanded) setAgentOpen(false); }}
           >
@@ -2653,7 +2654,7 @@ export default function App() {
                       expandedLayer={expandedLayer}
                       viewMode={viewMode}
                       displayMode={displayMode}
-                      isDarkTheme={true}
+                      isDarkTheme={isDarkTheme}
                       isMobile={true}
                       counts={{
                         wasteTrucks: wasteCount,
@@ -2672,21 +2673,21 @@ export default function App() {
                 {level === "full" && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA }}>Style</span>
+                      <span style={{ color: isDarkTheme ? COLORS.textMuted : LIGHT.textMuted, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA }}>Style</span>
                       <StyleSelector
                         selected={mapStyleId}
-                        isDarkTheme={true}
+                        isDarkTheme={isDarkTheme}
                         onChange={setMapStyleId}
                       />
                       <BasemapLabelToggle
-                        isDarkTheme={true}
+                        isDarkTheme={isDarkTheme}
                         visible={showBasemapLabels}
                         onToggle={() => setShowBasemapLabels((visible) => !visible)}
                         showPointerCursor={false}
                       />
                     </div>
                     <LocationJump
-                      isDarkTheme={true}
+                      isDarkTheme={isDarkTheme}
                       currentId={selectedAirport}
                       onJump={(id) => {
                         const p = getPresetById(id);

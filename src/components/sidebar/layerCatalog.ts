@@ -1960,10 +1960,10 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "自然保護",
     defaultCollapsed: true,
     groups: [
-      ...localResearchGroup("自然公園 A10 historical", [
+      ...localResearchGroup("自然公園（歷史資料）", [
         "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
       ]),
-      ...localResearchGroup("自然保全 A11 historical", [
+      ...localResearchGroup("自然保育（歷史資料）", [
         "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
       ]),
       ...localResearchGroup("鳥獸保護 2025-04", [
@@ -1980,7 +1980,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "UNESCO 現行名錄", layers: [fromManifest("jpWorldHeritageCultural"), fromManifest("jpWorldHeritageNatural")] },
-      ...localResearchGroup("Historical", ["jpWorldNaturalHeritageHistorical"]),
+      ...localResearchGroup("歷史範圍", ["jpWorldNaturalHeritageHistorical"]),
     ],
   },
   {

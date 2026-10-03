@@ -590,4 +590,17 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(LAYER_MANIFEST.jpStations.name).toEqual({ zh: "車站", alt: "駅" });
     expect(LAYER_MANIFEST.jpReligionGsi.name).toEqual({ zh: "宗教設施", alt: "宗教施設", qualifier: "国土地理院" });
   });
+
+  it("小分組與主題標題不露內部代碼：要有中文、不含国土数値情報代碼（A10 這類）或 historical", () => {
+    const titles = new Set<string>();
+    for (const panel of LAYER_PANELS) {
+      for (const theme of panel.themes) {
+        titles.add(themeName(theme.title).zh);
+        for (const group of theme.groups) titles.add(group.title);
+      }
+    }
+    for (const [, entry] of entries) if (entry.section) titles.add(entry.section.group);
+    const leaks = [...titles].filter((title) => !/[\u4e00-\u9fff]/.test(title) || /\b[A-Z]\d{2}\b/.test(title) || /historical/i.test(title));
+    expect(leaks).toEqual([]);
+  });
 });
