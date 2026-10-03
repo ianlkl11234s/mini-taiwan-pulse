@@ -163,6 +163,15 @@
 | PF-3 | P3 | conditional | Optional RDP simplification of bus route geometry (~3 m). | Deferred by owner 2026-09-30. Measured on the `cumDist`-free intercity file: gzip 14.5 → 3.0 MB at ~3 m. Must recompute progress/`totalDist` and re-validate replay; regenerate `*_v2` (or `_v3`) names for the 4 S3 files. | Owner decides to proceed. |
 | PF-5 | P3 | conditional | Cap Mapbox render resolution on Retina. | mapbox-gl 3.18 has no `pixelRatio` option; only a global `window.devicePixelRatio` override works, which also softens Three.js and other canvases. | Owner decision recorded. |
 
+## Map design-system follow-ups (2026-10-03)
+
+> Found while shipping R5 dense-point heatmaps (#498); both pre-date R5 and were left unchanged. Write-up: [`docs/design-system/CHANGELOG.md`](../../docs/design-system/CHANGELOG.md) 2026-10-03.
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| R5-1 | P2 | ready | 微型感測器（`aqiMicroSensors`）圖層偶爾永遠不出現。 | `src/hooks/useMicroSensorsLayer.ts:157`：style 未載完時改 `map.once("load")`，但 `load` 可能早已觸發，callback 永不執行。改等 `style.load`／`idle` 或先判斷 `map.loaded()`。 | 冷開站、換底圖途中打開該層各 10 次皆出現；補 hook 測試。 |
+| R5-2 | P2 | ready | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | 找出初次加圖層時沒帶入參數預設 filter 的路徑（registry filter 初值 vs 參數變更才 setFilter）。 | 打開即只顯示預設年份；點數與改參數後一致；補測試。 |
+
 ## Weekly audit findings
 
 > Appended by the `weekly-audit` skill. One `WA-*` ID per finding that needs cross-week tracking;
