@@ -1,7 +1,7 @@
 # Handoff — environment-layers（第二波）
 
 上游：
-- 靜態 5 層：taipei-gis-analytics worktree `env-wave2-20261002` 的 `data/processed/environment/{sea_water_quality_stations,pm25_manual_stations,dioxin_stations,incinerator_emissions}/*_20261002.geojson` 與 `data/processed/water_resources/river_rpi_segments_tamsui_trial/*_20261002.geojson`；欄位與旗標說明在各 `docs/data-catalog/<theme>/<id>.md`。本 repo 只做 minify 複製到 `public/environment/`（檔名去日期戳；URL 為契約）。
+- 靜態 5 層：taipei-gis-analytics worktree `env-wave2-20261002` 的 `data/processed/environment/{sea_water_quality_stations,pm25_manual_stations,dioxin_stations,incinerator_emissions}/*_20261002.geojson` ；RPI 河段 2026-10-03 起改用 worktree `rpi-kaoping` 的 `data/processed/water_resources/river_rpi_segments/river_rpi_segments_20261003.geojson`（全台 301 段，analytics PR #135）；欄位與旗標說明在各 `docs/data-catalog/<theme>/<id>.md`。本 repo 只做 minify 複製到 `public/environment/`（檔名去日期戳；URL 為契約）。
 - 即時 4 層：gis-platform migration 419–422（public RPC，anon 可呼叫）；collector 待 Zeabur 啟用（2026-10-02 只有一次寫入）。analytics registry id：`environment.radiation_realtime_nusc`、`environment.effluent_auto_monitoring`、`environment.cems_realtime`、`environment.uv_index_daily_max`（catalog .md 待補 → manifest 暫標 `catalog_missing`）。
 
 前端硬依賴欄位：
@@ -9,7 +9,7 @@
 - PM2.5：`mean_12m_ugm3`、`n_valid_12m`、`mean_12m_window`、`is_active`、`location_note`、`sampling_note`。
 - 戴奧辛：`latest_teq_pg_m3`、`is_stale`、`sample_address`、`latest_sample_date`、`n_samples`、`location_note`。
 - 焚化廠：`nox_ppm`、`sox_ppm`、`hcl_ppm`、`cox_ppm`、`dust_mg_nm3`（null＝未申報）、`opacity_pct`、`dioxin_f1..f4_*`、`dioxin_max_ng_teq_nm3`、`unusual_output`。
-- RPI 河段：`class_latest`、`class_12m_mean`、`rpi_latest`、`rpi_12m_mean`、`from_station_name`、`to_station_name`、`to_node`、`length_km`、`tidal`（只有 `yes` 畫虛線）、`caveats`。
+- RPI 河段：`class_latest`、`class_12m_mean`（可 null＝無樣本）、`rpi_latest`、`rpi_12m_mean`、`n_samples_12m`、`from_station_name`、`to_station_name`、`to_node`（station／confluence:X／mouth／unknown）、`length_km`、`tidal`（只有 `yes` 畫虛線）、`basin`、`river_name`、`river_raw`、`river_assigned`、`assign_method`、`assign_distance_m`、`direction`、`review_flags`（分號分隔）。新增代碼值須同步補 `environmentLayerTypes.ts` 白話對照，否則契約測試紅；`caveats` 不再顯示。
 - RPC 回傳欄位見 migration；放流水看 `exceed_count`／`abnormal_count`／`is_stale`／`coord_source`，CEMS 看 `items[].code2` 首碼與 `is_exceed`，UV 看 `uv_level` 字面（低量級…危險級）。
 
 MCP／倉庫：
