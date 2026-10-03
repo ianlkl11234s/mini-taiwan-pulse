@@ -198,3 +198,28 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
   }
   return { basis: "rendered_viewport", note: NOTE, truncated: visibleLayerKeys.length > VISIBLE_SUMMARY_MAX_LAYERS, layers };
 }
+
+export const SUMMARY_LOADED_WAIT_MS = 6_000;
+export const SUMMARY_LOADED_POLL_MS = 250;
+
+/**
+ * Agents have no sleep tool, so two back-to-back map_context reads land in the same instant.
+ * Recompute until no layer reports data_not_loaded, or the budget runs out (then the last summary is returned as-is).
+ */
+export async function summarizeWhenLoaded(
+  compute: () => VisibleSummary,
+  budgetMs: number = SUMMARY_LOADED_WAIT_MS,
+  pollMs: number = SUMMARY_LOADED_POLL_MS,
+  isCurrent: () => boolean = () => true,
+): Promise<VisibleSummary> {
+  const pending = (v: VisibleSummary) => v.layers.some(layer => layer.status === "data_not_loaded");
+  let summary = compute();
+  const deadline = Date.now() + budgetMs;
+  while (pending(summary) && isCurrent()) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) break;
+    await new Promise<void>(resolve => setTimeout(resolve, Math.min(pollMs, remaining)));
+    summary = compute();
+  }
+  return summary;
+}
