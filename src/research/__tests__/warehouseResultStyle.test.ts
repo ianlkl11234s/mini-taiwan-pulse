@@ -547,7 +547,7 @@ describe("warehouse style on the map overlay", () => {
 describe("warehouse import with style", () => {
   const collection = JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.51, 25], [121.51, 25.01], [121.5, 25]]] }, properties: { _style_value: null } }] });
   const sha = createHash("sha256").update(collection).digest("hex");
-  const fetchImpl = (async () => new Response(collection)) as unknown as typeof fetch;
+  const fetchImpl = async () => collection;
 
   it("carries a validated style onto each imported result; unstyled imports are unchanged", async () => {
     const [styled] = await loadWarehouseResult(validateWarehouseImportArgs({ resultId: "wh-9", sha256: sha, label: "x", featureCount: 1, style: clone(choropleth) }), fetchImpl);
@@ -565,7 +565,7 @@ describe("warehouse import with style", () => {
     await expect(loadWarehouseResult(validateWarehouseImportArgs({ resultId: "wh-9", sha256: sha, label: "x", featureCount: 1, style: clone(compare) }), fetchImpl)).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
     const threePoints = JSON.stringify({ type: "FeatureCollection", features: [1, 2].map(index => ({ type: "Feature", geometry: { type: "Point", coordinates: [121.5 + index * 0.01, 25] }, properties: { _compare_index: index } })) });
     const shaTwo = createHash("sha256").update(threePoints).digest("hex");
-    const fetchTwo = (async () => new Response(threePoints)) as unknown as typeof fetch;
+    const fetchTwo = async () => threePoints;
     await expect(loadWarehouseResult(validateWarehouseImportArgs({ resultId: "wh-9", sha256: shaTwo, label: "x", featureCount: 2, style: clone(compare) }), fetchTwo)).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
   });
 });

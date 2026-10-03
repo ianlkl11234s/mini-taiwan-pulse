@@ -299,6 +299,38 @@ function isEmptyShell(path: string): boolean {
 // ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
+  it("research gateway 結果通道（P1）有獨立上傳／下載 location，且 vite 不再有本機結果中介層", () => {
+    const block = (prefix: string) => nginxConf.match(new RegExp(`location \\^~ ${prefix.replace(/\//g, "\\/")} \\{([\\s\\S]*?)\\n    \\}`))?.[1] ?? "";
+    const general = block("/api/research/v1/");
+    const upload = block("/api/research/v1/agent/results/");
+    const download = block("/api/research/v1/browser/results/");
+    // prefix location 不繼承 proxy_pass：每個都要自帶 resolver／gateway／header，否則落到 SPA fallback。
+    for (const location of [general, upload, download]) {
+      expect(location).toContain("include /etc/nginx/research-resolver.conf;");
+      expect(location).toContain('set $research_gateway "research-gateway.zeabur.internal:8080";');
+      expect(location).toContain("proxy_pass http://$research_gateway;");
+      expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+      expect(location).toContain("proxy_set_header X-Real-IP $remote_addr;");
+      expect(location).toContain('proxy_set_header X-Forwarded-For "";');
+      expect(location).toContain('proxy_set_header Cookie "";');
+      expect(location).toContain('add_header Cache-Control "private, no-store" always;');
+      expect(location).toContain('add_header X-Content-Type-Options "nosniff" always;');
+      expect(location).toContain("access_log off;");
+      expect(location).not.toMatch(/root |alias |try_files/);
+    }
+    // timeout 鏈（SPEC §2.8）：一般 30 s（> bridge wait 27 s）、上傳 24m／不緩衝／90 s、下載 60 s。
+    expect(general).toContain("client_max_body_size 32k;");
+    expect(general).toContain("proxy_read_timeout 30s;");
+    expect(upload).toContain("client_max_body_size 24m;");
+    expect(upload).toContain("proxy_request_buffering off;");
+    expect(upload).toContain("proxy_read_timeout 90s;");
+    expect(upload).toContain("proxy_send_timeout 90s;");
+    expect(download).toContain("proxy_read_timeout 60s;");
+    expect(download).toContain("client_max_body_size 32k;");
+    expect(viteConfig).not.toContain("__warehouse-results");
+    expect(viteConfig).not.toContain("serveWarehouseResults");
+  });
+
   it("Japan water 只走 owner-authenticated Range sidecar，不落入公開 static/CDN", () => {
     const location = nginxConf.match(/location ~ \^\/api\/private-research\/jp-water\/\(water\|extra-water\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
     expect(location).toContain("proxy_pass http://127.0.0.1:8796;");

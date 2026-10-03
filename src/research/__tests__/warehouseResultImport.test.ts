@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { EXPLORATION_OPERATIONS } from "../MainMapConnection";
 import { ResearchAnalysisSession } from "../researchAnalysisSession";
-import { loadWarehouseResult, validateWarehouseImportArgs, warehouseGeometryFor, warehouseResultFileName } from "../warehouseResultImport";
+import { loadWarehouseResult, validateWarehouseImportArgs, warehouseGeometryFor } from "../warehouseResultImport";
 import type { WarehouseResultStyle } from "../warehouseResultStyle";
 
 const collection = {
@@ -15,20 +15,21 @@ const collection = {
 };
 const body = JSON.stringify(collection);
 const sha = createHash("sha256").update(body).digest("hex");
-const okFetch = (text = body, status = 200) => (async () => new Response(text, { status })) as unknown as typeof fetch;
+/** Injected gateway reader: resolves the raw text, or rejects like BridgeClient.fetchResult on 404. */
+const okFetch = (text = body, status = 200) => vi.fn(async (_resultId: string) => { if (status !== 200) throw new Error("RESULT_NOT_FOUND"); return text; });
 
 describe("warehouse result import", () => {
-  it("validates relay args and file names", () => {
+  it("validates relay args", () => {
     expect(validateWarehouseImportArgs({ resultId: "wh-8", sha256: sha, label: " 671 ", featureCount: 3 }).label).toBe("671");
     for (const bad of [{ resultId: "x-8", sha256: sha, label: "a", featureCount: 1 }, { resultId: "wh-8", sha256: "ABC", label: "a", featureCount: 1 }, { resultId: "wh-8", sha256: sha, label: "", featureCount: 1 }, { resultId: "wh-8", sha256: sha, label: "a", featureCount: 5001 }, { resultId: "wh-8", sha256: sha, label: "a", featureCount: 1, extra: 1 }]) {
       expect(() => validateWarehouseImportArgs(bad)).toThrow("WAREHOUSE_RESULT_INVALID");
     }
-    expect(warehouseResultFileName("wh-12")).toBe("wh-12.geojson");
-    expect(warehouseResultFileName("../etc/passwd")).toBeNull();
   });
 
   it("splits a verified mixed result into one session result per geometry type", async () => {
-    const results = await loadWarehouseResult({ resultId: "wh-8", sha256: sha, label: "671 環域", featureCount: 3 }, okFetch());
+    const fetchText = okFetch();
+    const results = await loadWarehouseResult({ resultId: "wh-8", sha256: sha, label: "671 環域", featureCount: 3 }, fetchText);
+    expect(fetchText).toHaveBeenCalledWith("wh-8");
     expect(results.map(r => r.resultId).sort()).toEqual(["wh-8:point", "wh-8:polygon"]);
     const points = results.find(r => r.geometry.type === "Point")!;
     expect(points.rows).toHaveLength(3); // MultiPoint split into two Points
@@ -64,7 +65,7 @@ describe("warehouse result import", () => {
   it("rejects unavailable, tampered, miscounted or invalid files", async () => {
     const args = { resultId: "wh-8", sha256: sha, label: "x", featureCount: 3 };
     await expect(loadWarehouseResult(args, okFetch(body, 404))).rejects.toThrow("WAREHOUSE_RESULT_UNAVAILABLE");
-    await expect(loadWarehouseResult(args, (async () => { throw new Error("net"); }) as unknown as typeof fetch)).rejects.toThrow("WAREHOUSE_RESULT_UNAVAILABLE");
+    await expect(loadWarehouseResult(args, async () => { throw new Error("net"); })).rejects.toThrow("WAREHOUSE_RESULT_UNAVAILABLE");
     await expect(loadWarehouseResult(args, okFetch(body.replace("樣品", "樣本")))).rejects.toThrow("WAREHOUSE_RESULT_SHA_MISMATCH");
     await expect(loadWarehouseResult({ ...args, featureCount: 2 }, okFetch())).rejects.toThrow("WAREHOUSE_RESULT_INVALID");
     const projected = JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [302166, 2771171] }, properties: {} }] });
@@ -104,7 +105,7 @@ const seriesStyle = {
 } as const satisfies WarehouseResultStyle;
 const emptyCollection = JSON.stringify({ type: "FeatureCollection", features: [] });
 const emptySha = createHash("sha256").update(emptyCollection).digest("hex");
-const emptyFetch = (async () => new Response(emptyCollection)) as unknown as typeof fetch;
+const emptyFetch = async () => emptyCollection;
 
 describe("warehouse series import (T1=L1, no map geometry)", () => {
   it("registers one non-spatial, series-shaped result instead of zero results", async () => {

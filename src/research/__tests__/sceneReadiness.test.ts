@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { awaitSceneIdle, isStyleReady, waitForMapStyle, waitForLayoutFrame, waitForSceneRender, type IdleMap } from "../sceneReadiness";
+import { awaitSceneIdle, isStyleReady, waitForMapStyle, waitForLayoutFrame, waitForSceneRender, waitForValue, type IdleMap } from "../sceneReadiness";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 class MapEvents implements IdleMap {
@@ -123,5 +123,30 @@ describe("style replacement", () => {
     parsed = true; events.emit("style.load");
     await expect(wait).resolves.toBe(true);
     expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+  });
+
+  describe("waitForValue (P3: commands can arrive before the map is prepared)", () => {
+    it("resolves as soon as the value appears", async () => {
+      vi.useFakeTimers();
+      let map: string | null = null;
+      const wait = waitForValue(() => map, () => true, 5_000);
+      await vi.advanceTimersByTimeAsync(300);
+      map = "map";
+      await vi.advanceTimersByTimeAsync(100);
+      await expect(wait).resolves.toBe("map");
+    });
+    it("returns an existing value without waiting", async () => {
+      await expect(waitForValue(() => "map", () => true, 0)).resolves.toBe("map");
+    });
+    it("gives up with null after the bound or when superseded", async () => {
+      vi.useFakeTimers();
+      const timedOut = waitForValue<string>(() => null, () => true, 1_000);
+      let current = true;
+      const superseded = waitForValue<string>(() => null, () => current, 10_000);
+      current = false;
+      await vi.advanceTimersByTimeAsync(1_100);
+      await expect(timedOut).resolves.toBeNull();
+      await expect(superseded).resolves.toBeNull();
+    });
   });
 });

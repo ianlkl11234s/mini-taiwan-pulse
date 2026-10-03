@@ -2,10 +2,12 @@ import type { AnalysisResult } from "./analysisOperations";
 import { validateWarehouseResultStyle, type WarehouseResultStyle } from "./warehouseResultStyle";
 
 /**
- * Server-side warehouse results (ADR-0014) arrive as a local GeoJSON file plus a small
- * relay message {resultId, sha256, label, featureCount}. The browser fetches the file
- * over the DEV loopback middleware, verifies its SHA-256, and registers one session
- * result per geometry type so the existing result-collection presentation can draw it.
+ * Server-side warehouse results (ADR-0014) arrive as a GeoJSON file uploaded to the
+ * research gateway plus a small relay message {resultId, sha256, label, featureCount}.
+ * The browser fetches the bytes through the authenticated gateway channel
+ * (SPEC-prod-connect §2.3), verifies its SHA-256 against the relay message (never the
+ * response header), and registers one session result per geometry type so the existing
+ * result-collection presentation can draw it.
  */
 export type WarehouseImportArgs = { resultId: string; sha256: string; label: string; featureCount: number; style?: WarehouseResultStyle };
 export type WarehouseImportGeometry = "Point" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon";
@@ -14,9 +16,8 @@ const RESULT_ID = /^wh-[0-9]{1,6}$/;
 const SHA256 = /^[a-f0-9]{64}$/;
 export const WAREHOUSE_RESULT_MAX_FEATURES = 5000;
 
-export function warehouseResultFileName(resultId: string): string | null {
-  return RESULT_ID.test(resultId) ? `${resultId}.geojson` : null;
-}
+/** Fetches the raw GeoJSON text for a base warehouse result id (e.g. `wh-12`). */
+export type WarehouseResultFetcher = (resultId: string) => Promise<string>;
 
 export function validateWarehouseImportArgs(args: Record<string, unknown>): WarehouseImportArgs {
   const keys = Object.keys(args);
@@ -94,15 +95,13 @@ export function warehouseResultIdFor(resultId: string, type: WarehouseImportGeom
 }
 
 /** Fetch, verify and convert a warehouse result into one AnalysisResult per geometry type. */
-export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: typeof fetch = fetch): Promise<AnalysisResult[]> {
-  let response: Response;
+export async function loadWarehouseResult(args: WarehouseImportArgs, fetchText: WarehouseResultFetcher): Promise<AnalysisResult[]> {
+  let text: string;
   try {
-    response = await fetchImpl(`/__warehouse-results/${warehouseResultFileName(args.resultId)}`, { cache: "no-store" });
+    text = await fetchText(args.resultId);
   } catch {
     throw new Error("WAREHOUSE_RESULT_UNAVAILABLE");
   }
-  if (!response.ok) throw new Error("WAREHOUSE_RESULT_UNAVAILABLE");
-  const text = await response.text();
   if (await sha256Hex(text) !== args.sha256) throw new Error("WAREHOUSE_RESULT_SHA_MISMATCH");
   let parsed: unknown;
   try { parsed = JSON.parse(text); } catch { throw new Error("WAREHOUSE_RESULT_INVALID"); }

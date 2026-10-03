@@ -23,7 +23,7 @@ import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
 import { applyMainMapLayers, captureLayerOverrides, planMainMapLayers } from "./mainMapLayers";
-import { QueryResponder } from "./QueryResponder";
+import { QueryResponder, type QueryHandler } from "./QueryResponder";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { describeLayers } from "./layerExploration";
 import { describeLayer, discoverLayers, findPlaces } from "./discovery";
@@ -33,7 +33,7 @@ import { describeDataset, ensureDataset, ensureStatisticsResearchDatasets, searc
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
-import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
+import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender, waitForValue } from "./sceneReadiness";
 import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
@@ -53,6 +53,8 @@ import { isTimedChoropleth, warehouseChoroplethPeriodFact } from "./warehouseRes
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
+import { summarizeVisibleLayers, viewportBounds, type VisibleSummaryMap } from "./visibleSummary";
+import { restoreWarehouseResults } from "./warehouseResultRestore";
 import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
@@ -62,6 +64,9 @@ type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | n
    *  Drives I2 selection dimming and the G2 compact legend; kept apart from `selection` coords, which are reported to the Agent. */
   analysisResultSelected?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
+/** P3: commands and map_context arriving before App marks the map prepared wait this long (headless first load takes several seconds). */
+const MAP_PREPARE_WAIT_MS = 20_000;
+const MAP_CONTEXT_WAIT_MS = 10_000;
 export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", ...ANALYSIS_OPERATIONS]);
 
 export function completedActivityForOperation(operation: string, data: Record<string, unknown>): Activity {
@@ -193,10 +198,19 @@ export function MainMapConnection(props: Props) {
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
+  /** P2: stable handler for ResearchConnection's long poll; delegates to the current connection's responder. */
+  const [queryHandler] = useState<QueryHandler>(() => ({
+    handle: request => responder.current?.handle(request),
+    inFlightRequestId: () => responder.current?.inFlightRequestId() ?? null,
+  }));
   const analysis = useRef<ResearchAnalysisSession | null>(null);
   const networkProvider = useRef<ValhallaNetworkProvider | null>(null);
   const locationLookup = useRef<AbortController | null>(null);
   const connectionEpoch = useRef(0);
+  /** Gateway channel for P1 result bytes; render() needs it to restore results after a reload. */
+  const connectionRef = useRef<BridgeConnectionContext | null>(null);
+  /** Warehouse base ids whose upload is gone for this connection; not re-queried on every render. */
+  const expiredWarehouseIds = useRef<Set<string>>(new Set());
   const applying = useRef(false);
   const previous = useRef<Scene | null>(null);
   const generation = useRef(0);
@@ -238,9 +252,12 @@ export function MainMapConnection(props: Props) {
   }, [capture, planAnalysisResults]);
   const render = useCallback(async (requestedScene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
     let scene = requestedScene;
-    const { bridge, map, labels, locked } = latest.current;
-    if (!map) throw new Error("MAP_NOT_READY");
     const run = ++generation.current;
+    // P3: the tab attaches at load, so a command or the first snapshot can arrive before App
+    // marks the map prepared; wait for it (bounded) instead of failing at once.
+    const map = await waitForValue(() => latest.current.map, () => run === generation.current, MAP_PREPARE_WAIT_MS);
+    if (!map) { if (run !== generation.current) return "error"; throw new Error("MAP_NOT_READY"); }
+    const { bridge, labels, locked } = latest.current;
     if (!await waitForMapStyle(map, () => run === generation.current && latest.current.map === map)) {
       if (run !== generation.current) return "error";
       throw new Error("MAP_NOT_READY");
@@ -252,6 +269,21 @@ export function MainMapConnection(props: Props) {
       previous.current = scene; return "ready";
     }
     if (scene.results && !analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+    // P1: a reloaded tab keeps the scene's warehouse ids but not their rows. Re-import them from
+    // the gateway before validation; the 1 s expiry watchdog only starts after setResultCollection.
+    let expiredResults = 0;
+    const connection = connectionRef.current;
+    if (scene.results && connection) {
+      const session = analysis.current!;
+      const restore = await restoreWarehouseResults(scene.results, {
+        has: resultId => session.hasResult(resultId),
+        meta: baseIds => connection.client.resultsMeta(connection.studyId, connection.tabId, baseIds),
+        importResult: args => session.importWarehouseResult(args, id => connection.client.fetchResult(connection.studyId, connection.tabId, id)),
+        expired: expiredWarehouseIds.current,
+      });
+      if (run !== generation.current || analysis.current !== session) return "error";
+      if (restore.dropped.length) { expiredResults = restore.dropped.length; scene = { ...scene, results: restore.collection }; }
+    }
     // Validate every declared ID, including hidden collection entries, before
     // acknowledging the scene. Hidden must not become a way to retain an
     // expired or unauthorized result beyond the normal session boundary.
@@ -356,10 +388,15 @@ export function MainMapConnection(props: Props) {
     const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
     setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : layerPlan.rejected.length ? `找不到或無法開啟的圖層已略過：${layerPlan.rejected.join("、")}；其餘設定已套用。` : "圖層或分析結果狀態有衝突，請重新確認。");
     setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? "分析結果已呈現" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
+    if (expiredResults) {
+      setMessage("上次的分析結果已過期，已從地圖移除；其餘結果照常呈現。");
+      setActivity({ phase: "complete", title: "上次的分析結果已過期", detail: `${expiredResults} 項無法還原，已移除；可重新執行分析取得目前版本。` });
+    }
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
     setEvidence([]);
+    connectionRef.current = context; expiredWarehouseIds.current = new Set();
     controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; networkProvider.current = context ? new ValhallaNetworkProvider({ requester: (operation, args) => context.client.networkProvider(context.studyId, context.tabId, operation, args) }) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
@@ -397,11 +434,18 @@ export function MainMapConnection(props: Props) {
         case "time_context":
           if (!current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
           result = current.timeline.getContext(); break;
-        case "map_context":
-          if (!current.map || !isStyleReady(current.map)) throw new Error("MAP_NOT_READY");
+        case "map_context": {
+          // Same P3 window as render(): a query right after load or reload waits for the map (bounded, under the 25 s query deadline).
+          const liveMap = await waitForValue(() => latest.current.map && isStyleReady(latest.current.map) ? latest.current.map : null, () => epoch === connectionEpoch.current, MAP_CONTEXT_WAIT_MS);
+          if (!liveMap) throw new Error("MAP_NOT_READY");
+          const live = latest.current;
+          const liveVisible = live.bridge.getVisibleLayerKeys();
           // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
-          result = { observedAt: new Date().toISOString(), tilesSettled: current.map.isStyleLoaded(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current) };
+          result = { observedAt: new Date().toISOString(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
+            // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
+            bounds: viewportBounds(liveMap), visibleSummary: summarizeVisibleLayers(liveMap as unknown as VisibleSummaryMap, liveVisible, { labelFor: key => live.labels[key] ?? key }) };
           break;
+        }
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
         case "describe_dataset": {
@@ -428,7 +472,7 @@ export function MainMapConnection(props: Props) {
         }
         case "import_warehouse_result": {
           if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
-          result = await analysis.current.importWarehouseResult(request.args);
+          result = await analysis.current.importWarehouseResult(request.args, id => context.client.fetchResult(context.studyId, context.tabId, id));
           break;
         }
         case "analysis_card_draft": {
@@ -501,7 +545,6 @@ export function MainMapConnection(props: Props) {
       setMessage(health.state === "recovered" ? "同步已恢復。" : `${messages[health.state].title}（${health.code}）`);
       setActivity(messages[health.state]);
     }) : null;
-    responder.current?.start();
   }, [clearAnalysisPresentation, render]);
   const disconnect = useCallback(() => { setEvidence([]); setCardDraft(null); connect(null); }, [connect]);
   const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "操作已暫停", detail: "目前地圖會保留。" }); controller.current?.receive(state); }, []);
@@ -537,6 +580,8 @@ export function MainMapConnection(props: Props) {
     map?.on("movestart", started); map?.on("moveend", moved);
     return () => { unsubscribe(); unsubscribeParams(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
   }, [props.map]);
+  // P3: a scene whose render gave up before the map was prepared is rendered again once it is.
+  useEffect(() => { if (props.map) controller.current?.represent(); }, [props.map]);
   useEffect(() => {
     const map = props.map;
     if (!map) return;
@@ -729,7 +774,7 @@ export function MainMapConnection(props: Props) {
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
       {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow="研究" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
-      <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
+      <ResearchConnection surface="map" queryHandler={queryHandler} onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
       <div className="agent-panel-body">
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />
