@@ -19,9 +19,10 @@ export function industrialDensitySources(key: IndustrialDensityKey) {
   }));
 }
 
-export function industrialDensityColorExpr(): unknown[] {
+/** 產業密度 7 階（R7：`colors` 由 state/layerPalette 的解析器依圖層色盤＋底圖給；省略＝本檔常數） */
+export function industrialDensityColorExpr(colors: readonly string[] = COMPANY_DENSITY_COLORS): unknown[] {
   const value = ["get", "density_per_km2"];
-  const step: unknown[] = ["step", value, COMPANY_DENSITY_COLORS[0]];
-  for (let i = 1; i < COMPANY_DENSITY_STOPS.length; i++) step.push(COMPANY_DENSITY_STOPS[i], COMPANY_DENSITY_COLORS[i]);
+  const step: unknown[] = ["step", value, colors[0]];
+  for (let i = 1; i < COMPANY_DENSITY_STOPS.length; i++) step.push(COMPANY_DENSITY_STOPS[i], colors[i]);
   return ["case", ["all", ["==", ["typeof", value], "number"], [">=", value, 0]], step, COMPANY_GRID_NULL_COLOR];
 }

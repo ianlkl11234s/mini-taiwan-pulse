@@ -1,7 +1,7 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "../map/layerPaintColors";
 import { BOUNDARY_GRAY, mapSeamColor, rampLegendGradient } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
 import { paletteById, paletteRamp } from "../map/palettes";
-import { useHeatmapLegendPalettes } from "../state/layerPalette";
+import { useHeatmapLegendPalettes, usePaletteLabel, usePaletteRamp } from "../state/layerPalette";
 import { LAYER_MANIFEST } from "../data/layerManifest";
 import { FACILITY_STATUS_PAINT_COLORS } from "../map/layerPaintColors";
 import { THEMED_PAINT_COLORS } from "../map/layerPaintColors";
@@ -102,7 +102,7 @@ import { JP_WATER_FACILITY_CATEGORIES, JP_WATER_LAYER_CONTRACT } from "../data/j
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
 import {
-  jpPopulationMeshMode, jpPopulationMeshBuckets, JP_POPULATION_MESH_MASK,
+  jpPopulationMeshMode, jpPopulationMeshBuckets, JP_POPULATION_MESH_MASK, JP_POPULATION_MESH_RATIO65_DEFAULT_PALETTE,
 } from "../data/jpPopulationMeshModes";
 import {
   JP_ACCOMMODATION_CATEGORIES,
@@ -130,7 +130,7 @@ import {
   COMMON_REGISTRATION_CAPITAL_BANDS,
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
-  COMPANY_CAPITAL_Q_BANDS, COMPANY_DENSITY_COLORS, COMPANY_GRID_COLORS, COMPANY_GRID_MODES,
+  COMPANY_CAPITAL_Q_BANDS, COMPANY_GRID_MODES,
   COMPANY_DENSITY_STOPS, COMPANY_GRID_NULL_COLOR, COMPANY_GRID_SCALES, COMPANY_INDUSTRY_MID_OPTIONS, companyGridStops,
   companyPointFiltersActive,
   FACTORY_LOCATION_COLOR, INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
@@ -138,7 +138,7 @@ import {
   INDUSTRIAL_PARK_COMPARISON_STOPS, INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR,
 } from "../data/businessRegistryTypes";
 import {
-  COMPANY_AGE_COLORS, COMPANY_AGE_MEDIAN_STOPS, COMPANY_AGE_RECENT_STOPS,
+  COMPANY_AGE_MEDIAN_STOPS, COMPANY_AGE_RECENT_STOPS,
   COMPANY_INDUSTRY_GROUPS, COMPANY_INDUSTRY_TIE_COLOR,
   COMPANY_INDUSTRY_MISSING_COLOR, COMPANY_INDUSTRY_ZERO_COLOR,
 } from "../data/businessDemographicsTypes";
@@ -509,12 +509,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "companyCapitalGrid", render: ({ overlayParams, isDark }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} scaleIdx={overlayParams.companyGridScaleIdx ?? 0} isDark={isDark} /> },
   { id: "companyIndustryDistribution", render: ({ overlayParams }) => <CompanyIndustryDistributionLegend modeIdx={overlayParams.companyIndustryDisplayIdx ?? 0} mask={overlayParams.companyIndustryGroupsMask ?? 2047} midIdx={overlayParams.companyIndustryDistributionMidIdx ?? 0} /> },
   { id: "companyAgeStructure", render: ({ overlayParams }) => <CompanyAgeStructureLegend modeIdx={overlayParams.companyAgeStructureModeIdx ?? 0} /> },
-  { id: "factoryDensityGrid", render: () => <IndustrialDensityGridLegend title="生產中工廠密度" titleEn="Factory Density" unit="家" note="202606 生產中工廠登記；僅含有座標的工廠。" /> },
-  { id: "manufacturingCompanyDensityGrid", render: () => <IndustrialDensityGridLegend title="製造業公司登記地址密度" unit="家" note="202608 製造業公司登記地址；不是工廠實際營運地址。" /> },
+  { id: "factoryDensityGrid", render: () => <IndustrialDensityGridLegend layer="factoryDensityGrid" title="生產中工廠密度" titleEn="Factory Density" unit="家" note="202606 生產中工廠登記；僅含有座標的工廠。" /> },
+  { id: "manufacturingCompanyDensityGrid", render: () => <IndustrialDensityGridLegend layer="manufacturingCompanyDensityGrid" title="製造業公司登記地址密度" unit="家" note="202608 製造業公司登記地址；不是工廠實際營運地址。" /> },
   { id: "factoryLocations", render: () => <FactoryLocationsLegend /> },
   { id: "industrialParkBoundaries", render: ({ isDark }) => <IndustrialParkBoundariesLegend isDark={isDark} /> },
   { id: "regulatedFacilities", render: () => <RegulatedFacilitiesLegend /> },
-  { id: "regulatedFacilityDensityGrid", render: () => <IndustrialDensityGridLegend title="列管設施密度" titleEn="Regulated Facility Density" unit="筆" note="20260818 active 列管設施；列管身分不是污染風險。" /> },
+  { id: "regulatedFacilityDensityGrid", render: () => <IndustrialDensityGridLegend layer="regulatedFacilityDensityGrid" title="列管設施密度" titleEn="Regulated Facility Density" unit="筆" note="20260818 active 列管設施；列管身分不是污染風險。" /> },
   { id: "industrialParkComparison", render: ({ overlayParams, isDark }) => <IndustrialParkComparisonLegend modeIdx={overlayParams.industrialParkComparisonModeIdx ?? 0} isDark={isDark} /> },
   { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { id: "fireEvents", render: () => <FireEventLegend /> },
@@ -1392,6 +1392,7 @@ function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
   const idx = modeIdx ?? 0;
   const mode = jpPopulationMeshMode(idx);
   const isRatio = mode.metric === "ratio65";
+  const meshColors = usePaletteRamp("jpPopulationMesh1km", t.isDark, jpPopulationMeshBuckets(idx).length, undefined, isRatio ? JP_POPULATION_MESH_RATIO65_DEFAULT_PALETTE : undefined);
   return (
     <div>
       <LegendTitle zh={`人口網格 · ${mode.label}`} en="人口メッシュ" />
@@ -1401,7 +1402,7 @@ function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
       <FireCatRows
         square
         cats={[
-          ...jpPopulationMeshBuckets(idx).map((b) => ({ color: b.color, label: b.label })),
+          ...jpPopulationMeshBuckets(idx, meshColors).map((b) => ({ color: b.color, label: b.label })),
           ...(isRatio
             ? [{ color: JP_POPULATION_MESH_MASK.color, label: JP_POPULATION_MESH_MASK.label }]
             : []),
@@ -1872,6 +1873,8 @@ function PropertyValueGridLegend({ scaleIdx = 0, modeIdx = 0, extruded = false }
   const t = useLegendTheme();
   const scale = resolvePropertyValueScale(scaleIdx);
   const perCapita = resolvePropertyValueGridMode(scaleIdx, modeIdx) === 1;
+  const perCapitaColors = usePaletteRamp("propertyValueGrid", t.isDark, 8, "propertyValueGridPerCapitaPalette");
+  const totalColors = usePaletteRamp("propertyValueGrid", t.isDark, 9, "propertyValueGridPalette");
   if (perCapita) {
     return (
       <div>
@@ -1881,15 +1884,15 @@ function PropertyValueGridLegend({ scaleIdx = 0, modeIdx = 0, extruded = false }
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <UrbanDotRow color={PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR} label={`人口 < ${PROPERTY_VALUE_PER_CAPITA_MIN_POP}（統計不可靠，半透明）`} square />
-          {PROPERTY_VALUE_PER_CAPITA_BANDS.map((b) => <UrbanDotRow key={b.label} color={b.color} label={b.label} square />)}
+          {PROPERTY_VALUE_PER_CAPITA_BANDS.map((b, i) => <UrbanDotRow key={b.label} color={perCapitaColors[i]!} label={b.label} square />)}
         </div>
         <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
-          越黃 = 平均每人名下壓的房產越多（人少錢多）；越紫 = 人多攤薄。
+          越往高階 = 平均每人名下壓的房產越多（人少錢多）；越往低階 = 人多攤薄。
           人口為最小統計區面積加權估計。
         </LegendNote>
         {extruded && (
           <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
-            3D 高度仍是「總市值」（量體）、顏色才是人均（強度）—— 高黃 = 人少錢多、高紫 = 人多攤薄。
+            3D 高度仍是「總市值」（量體）、顏色才是人均（強度）—— 高而高階色 = 人少錢多、高而低階色 = 人多攤薄。
           </LegendNote>
         )}
         <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
@@ -1904,14 +1907,13 @@ function PropertyValueGridLegend({ scaleIdx = 0, modeIdx = 0, extruded = false }
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         每 {scale.shortLabel} 格總市值（不是單價）{extruded ? " · 3D 高度同步" : ""}
       </div>
-      {/* 9 級 inferno：UrbanDotRow 的 swatch 自帶 1px 白 60% 細邊框，
-          前兩級深紫（#1b0c41 / #4a0c6b）在深色 panel 上才不會糊掉 */}
+      {/* 9 級（R7 色盤選單，預設 YlOrBr）：UrbanDotRow 的 swatch 自帶 1px 白 60% 細邊框 */}
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <LegendRow swatch={<SwatchSquare color={scale.bands[0]!.color} opacity={0.04} />}>0（格內僅非市場建物，淡出顯示）</LegendRow>
-        {scale.bands.map((b) => <UrbanDotRow key={b.label} color={b.color} label={b.label} square />)}
+        <LegendRow swatch={<SwatchSquare color={totalColors[0]!} opacity={0.04} />}>0（格內僅非市場建物，淡出顯示）</LegendRow>
+        {scale.bands.map((b, i) => <UrbanDotRow key={b.label} color={totalColors[i]!} label={b.label} square />)}
       </div>
       <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
-        越亮 = 這 {scale.shortLabel} 內壓了越多錢（量體 × 單價）；深紫沉底、亮黃發光。
+        越往高階 = 這 {scale.shortLabel} 內壓了越多錢（量體 × 單價）。
         想看「每 m² 多貴」請開房地產買賣熱力圖。
       </LegendNote>
       {extruded && (
@@ -2374,6 +2376,7 @@ const RE_LEGEND_ROWS: { keys: (keyof LayerVisibility)[]; label: string; palette:
 function RealEstateLegend({ isDark = true, visibility, overlayParams }: { isDark?: boolean; visibility: LayerVisibility; overlayParams: Record<string, number> }) {
   const t = useLegendTheme();
   const excl = !!overlayParams.realEstateExcludeTaipei;
+  const presaleGridColors = usePaletteRamp("realEstatePresaleGrid", isDark, RE_PALETTES.presale.colors.length);
   const active = RE_LEGEND_ROWS.filter((r) => r.keys.some((k) => visibility[k]));
   if (active.length === 0) return null;
   return (
@@ -2383,10 +2386,12 @@ function RealEstateLegend({ isDark = true, visibility, overlayParams }: { isDark
         {active.map((r) => {
           const p = RE_PALETTES[r.palette];
           const [lo, hi] = excl ? p.domainExcl : p.domain;
+          // R7：預售「網格」改讀色盤選單；只開預售點（3D）時仍是原色票
+          const colors = r.palette === "presale" && visibility.realEstatePresaleGrid ? presaleGridColors : p.colors;
           return (
             <div key={r.label}>
               <div style={{ fontSize: FONT_SIZE.xs, color: t.textDefault, marginBottom: 2 }}>{r.label}</div>
-              <SwatchGradient gradient={`linear-gradient(to right, ${p.colors.join(", ")})`} stroke={mapSeamColor(isDark)} />
+              <SwatchGradient gradient={`linear-gradient(to right, ${colors.join(", ")})`} stroke={mapSeamColor(isDark)} />
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 1 }}>
                 <span>{lo.toLocaleString()}</span>
                 <span>{hi.toLocaleString()}{excl ? "+" : ""}</span>
@@ -3186,15 +3191,17 @@ function MedicalLegend({ visibility, isDark = true }: { visibility: LayerVisibil
 function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: boolean; overlayParams?: Record<string, number> }) {
   const t = useLegendTheme();
   const filtersActive = !manufacturing && companyPointFiltersActive(overlayParams);
+  const gridColors = usePaletteRamp("companyPoints", t.isDark, 7);
+  const gridPaletteName = usePaletteLabel("companyPoints");
   return (
     <div>
       <LegendTitle zh={manufacturing ? "製造業公司登記" : "公司登記分布"} en={manufacturing ? "Manufacturing" : "Company Registry"} style={{ marginBottom: 5 }} />
       {!manufacturing && !filtersActive && <>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）· Viridis</div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）· {gridPaletteName}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px", marginBottom: 6 }}>
           {COMPANY_DENSITY_STOPS.map((stop, i) => (
             <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <Swatch color={COMPANY_DENSITY_COLORS[i]!} round={false} />
+              <Swatch color={gridColors[i]!} round={false} />
               <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
             </div>
           ))}
@@ -3255,14 +3262,16 @@ function RegulatedFacilitiesLegend() {
   );
 }
 
-function IndustrialDensityGridLegend({ title, titleEn, unit, note }: { title: string; titleEn?: string; unit: string; note: string }) {
+function IndustrialDensityGridLegend({ layer, title, titleEn, unit, note }: { layer: string; title: string; titleEn?: string; unit: string; note: string }) {
   const t = useLegendTheme();
+  const colors = usePaletteRamp(layer, t.isDark, 7);
+  const paletteName = usePaletteLabel(layer);
   return <div>
     <LegendTitle zh={title} en={titleEn} style={{ marginBottom: 5 }} />
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>密度（{unit}／km²）· Viridis</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>密度（{unit}／km²）· {paletteName}</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {COMPANY_DENSITY_STOPS.map((stop, i) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <Swatch color={COMPANY_DENSITY_COLORS[i]!} round={false} />
+        <Swatch color={colors[i]!} round={false} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
       </div>)}
     </div>
@@ -3332,13 +3341,14 @@ function CompanyCapitalGridLegend({ isDark = true, modeIdx, scaleIdx }: { isDark
   const mode = COMPANY_GRID_MODES[safeMode]!;
   const scale = COMPANY_GRID_SCALES[safeScale]!;
   const stops = companyGridStops(safeMode, safeScale);
+  const colors = usePaletteRamp("companyCapitalGrid", t.isDark, 7);
   return (
     <div>
       <LegendTitle zh={`公司網格 · ${scale.shortLabel} · ${mode.label}`} en="Company Grid" style={{ marginBottom: 5 }} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <Swatch color={COMPANY_GRID_COLORS[i]!} round={false} stroke={mapSeamColor(isDark)} />
+            <Swatch color={colors[i]!} round={false} stroke={mapSeamColor(isDark)} />
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{formatGridStop(stop, safeMode === 1)}{i < stops.length - 1 ? `–<${formatGridStop(stops[i + 1]!, safeMode === 1)}` : " 以上"}</span>
           </div>
         ))}
@@ -3361,10 +3371,11 @@ function CompanyIndustryDistributionLegend({ mask, midIdx, modeIdx }: { mask: nu
   const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
   const midGroup = midCode === undefined ? undefined : COMPANY_INDUSTRY_GROUPS.find((group) => (group.codes as readonly string[]).includes(midCode));
   const selected = COMPANY_INDUSTRY_GROUPS.filter((_, index) => (mask & (1 << index)) !== 0);
+  const densityColors = usePaletteRamp("companyIndustryDistribution", t.isDark, 7);
   if (modeIdx === 1) return <div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>登記產業合計密度（家／km²）</div>
     {COMPANY_DENSITY_STOPS.map((stop, index) => <div key={stop} style={{ display: "flex", gap: 5, fontSize: FONT_SIZE.xs }}>
-      <Swatch color={COMPANY_DENSITY_COLORS[index]!} round={false} /><span>≥ {stop.toLocaleString("zh-TW")}</span>
+      <Swatch color={densityColors[index]!} round={false} /><span>≥ {stop.toLocaleString("zh-TW")}</span>
     </div>)}
     <div style={{ display: "flex", gap: 5, fontSize: FONT_SIZE.xs }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} />必要欄位缺失</div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>202608；所選產業合計，每家公司計一次。{midIdx > 0 ? "聚焦中類優先於群組。" : mask === 0 ? "未選分類，圖層已隱藏。" : ""}</div>
@@ -3390,12 +3401,14 @@ function CompanyAgeStructureLegend({ modeIdx }: { modeIdx: number }) {
   const t = useLegendTheme();
   const median = modeIdx === 1;
   const stops = median ? COMPANY_AGE_MEDIAN_STOPS : COMPANY_AGE_RECENT_STOPS;
+  const colors = usePaletteRamp("companyAgeStructure", t.isDark, 7);
+  const paletteName = usePaletteLabel("companyAgeStructure");
   return <div>
     <LegendTitle zh={`公司年齡結構 · ${median ? "年齡中位數（年）" : "近 5 年設立占比（%）"}`} style={{ marginBottom: 5 }} />
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>Cividis 藍黃系 · 越亮＝{median ? "年齡越高" : "近期設立占比越高"}</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>{paletteName} · 越往高階＝{median ? "年齡越高" : "近期設立占比越高"}</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {stops.map((stop, index) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <Swatch color={COMPANY_AGE_COLORS[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{median ? `${stop}` : `${(stop * 100).toFixed(0)}`}{index < stops.length - 1 ? `–<${median ? stops[index + 1] : (stops[index + 1]! * 100).toFixed(0)}` : " 以上"}{median ? " 年" : "%"}</span>
+        <Swatch color={colors[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{median ? `${stop}` : `${(stop * 100).toFixed(0)}`}{index < stops.length - 1 ? `–<${median ? stops[index + 1] : (stops[index + 1]! * 100).toFixed(0)}` : " 以上"}{median ? " 年" : "%"}</span>
       </div>)}
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值／無已知設立年</span></div>
     </div>
@@ -6398,6 +6411,8 @@ function JpMedicalLegend({ layerKey }: { layerKey: string }) {
   const facility = JP_MEDICAL_CATEGORIES.find(item => item.key === layerKey);
   const care = JP_MEDICAL_CARE_GROUPS.find(item => item.key === layerKey);
   const area = JP_MEDICAL_AREA_LEVELS.find(item => item.key === layerKey);
+  // R7：醫療／照護低縮放格讀共用的網格色盤選單（醫療圈層沒有色盤，結果不使用）
+  const gridColors = usePaletteRamp(layerKey, t.isDark, JP_MEDICAL_GRID_BANDS.length);
   const kind = facility ? "facilities" : care ? "care" : "areas";
   const row = facility ?? care ?? area;
   if (!row) return null;
@@ -6410,8 +6425,8 @@ function JpMedicalLegend({ layerKey }: { layerKey: string }) {
     {kind !== "areas" && <>
       <div style={{ color: t.textDim, marginTop: 5 }}>zoom &lt; 8：10 km 等面積格內筆數</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 8px", marginTop: 3 }}>
-        {JP_MEDICAL_GRID_BANDS.map((band) => <span key={band.min} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-          <SwatchSquare color={band.color} stroke={mapSeamColor(t.isDark)} />{band.label}
+        {JP_MEDICAL_GRID_BANDS.map((band, i) => <span key={band.min} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+          <SwatchSquare color={gridColors[i]!} stroke={mapSeamColor(t.isDark)} />{band.label}
         </span>)}
       </div>
     </>}

@@ -12,7 +12,7 @@
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { LAYER_PARAMS_SPEC, getParamsSpec, type LayerParamSpec, type PaletteParamSpec } from "../data/layerParamsSpec";
 import { HEATMAP, heatmapColorExpr, heatmapOpacity, heatmapPaint } from "../map/mapStyleScale";
-import { paletteRamp, resampleRamp } from "../map/palettes";
+import { paletteById, paletteRamp, resampleRamp } from "../map/palettes";
 import type { LayerVisibility } from "../types";
 import { layerParamsStore, useLayerParams } from "./layerParamsStore";
 import { layerVisibilityStore } from "./layerVisibilityStore";
@@ -47,23 +47,37 @@ export function heatmapRampFor(key: string, isDark: boolean): readonly string[] 
 /**
  * 網格色階：該層色盤重新取樣成 `steps` 階（低 → 高）。`name` 給同一層有多個色盤選單時
  * （例：不動產總市值的總值／人均兩種模式）指定哪一個。
+ * `whenDefault`：選單停在預設值時改用這組（同一個選單管兩種指標、兩者預設刻意不同色時用，
+ * 目前只有日本人口網格的高齡比 BuPu）。
  */
-export function gridRampFor(key: string, isDark: boolean, steps: number, name?: string): string[] {
-  const id = layerPaletteId(key, name);
-  if (!id) throw new Error(`${key} 沒有色盤選單${name ? `（${name}）` : ""}`);
+export function gridRampFor(key: string, isDark: boolean, steps: number, name?: string, whenDefault?: string): string[] {
+  const id = resolveGridPaletteId(key, name, whenDefault, layerPaletteId(key, name));
   return resampleRamp(paletteRamp(id, isDark)!, steps);
 }
 
+function resolveGridPaletteId(key: string, name: string | undefined, whenDefault: string | undefined, current: string | undefined): string {
+  const spec = paletteSpecOf(key, name);
+  if (!spec || !current) throw new Error(`${key} 沒有色盤選單${name ? `（${name}）` : ""}`);
+  return whenDefault && current === spec.default ? whenDefault : current;
+}
+
+/** hook 的 effect deps 用：網格色盤 id（同值不 re-render） */
+export function useGridPaletteSignature(key: string, name?: string): string {
+  const get = useCallback(() => layerPaletteId(key, name) ?? "", [key, name]);
+  return useSyncExternalStore(layerParamsStore.subscribe, get, get);
+}
+
 /** React：訂閱單一 key 的色盤，回傳當下底圖的色階（圖例、hook 用） */
-export function usePaletteRamp(key: string, isDark: boolean, steps = 7, name?: string): string[] {
+export function usePaletteRamp(key: string, isDark: boolean, steps = 7, name?: string, whenDefault?: string): string[] {
   const values = useLayerParams(key);
   const spec = paletteSpecOf(key, name);
   const raw = spec ? values[spec.name] : undefined;
   return useMemo(() => {
     if (!spec) return resampleRamp(paletteRamp(DEFAULT_HEATMAP_PALETTE, isDark)!, steps);
-    const id = typeof raw === "string" && spec.options.includes(raw) ? raw : spec.default;
+    const current = typeof raw === "string" && spec.options.includes(raw) ? raw : spec.default;
+    const id = whenDefault && current === spec.default ? whenDefault : current;
     return resampleRamp(paletteRamp(id, isDark)!, steps);
-  }, [spec, raw, isDark, steps]);
+  }, [spec, raw, isDark, steps, whenDefault]);
 }
 
 // ── Q6 B 多層熱區 ───────────────────────────────────────────────────
@@ -150,4 +164,14 @@ export function useHeatmapLegendPalettes(keys: readonly string[]): { key: string
     const [key, paletteId] = pair.split("=") as [string, string];
     return { key, paletteId };
   }), [sig]);
+}
+
+/** React：該層色盤的中文名（圖例副標用；沒有色盤選單回空字串） */
+export function usePaletteLabel(key: string, name?: string, whenDefault?: string): string {
+  const values = useLayerParams(key);
+  const spec = paletteSpecOf(key, name);
+  if (!spec) return "";
+  const raw = values[spec.name];
+  const current = typeof raw === "string" && spec.options.includes(raw) ? raw : spec.default;
+  return paletteById(whenDefault && current === spec.default ? whenDefault : current)?.zh ?? "";
 }
