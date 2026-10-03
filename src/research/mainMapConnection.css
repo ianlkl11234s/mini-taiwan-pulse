@@ -55,7 +55,7 @@
 .main-map-agent .agent-analysis-toggle input { flex: 0 0 auto; width: 14px; min-height: 0; height: 14px; margin: 3px 0 0; padding: 0; accent-color: var(--accent); }
 .main-map-agent .agent-analysis-toggle span { min-width: 0; overflow-wrap: anywhere; }
 .main-map-agent .agent-analysis-toggle small { margin: 1px 0 0; color: var(--agent-muted); }
-.main-map-agent .agent-analysis-result-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.main-map-agent .agent-analysis-result-item { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
 .main-map-agent .agent-analysis-order { display: flex; gap: 3px; }
 .main-map-agent .agent-analysis-order button { min-width: 26px; padding: 3px 6px; }
 /* The connection shell is App-root mounted. Breakpoint and capture changes hide the panel
@@ -120,7 +120,10 @@
 .main-map-agent .agent-section-count { color: var(--agent-muted); font-family: var(--font-data); font-size: var(--font-sm); font-variant-numeric: tabular-nums; }
 .main-map-agent .agent-analysis-results > p { font-size: var(--font-sm); margin: 0 0 10px; }
 .main-map-agent .agent-analysis-opacity { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; margin-top: 4px; color: var(--agent-muted); font-size: var(--font-sm); }
-.main-map-agent .agent-analysis-result-item { padding: 10px 0; }
+.main-map-agent .agent-analysis-result-item { padding: 4px 0; }
+/* 共用圖層列下方的結果本體（layer-panel-unify P8） */
+.main-map-agent .agent-analysis-row-body { padding: 0 12px 6px 22px; display: flex; flex-direction: column; gap: 6px; }
+.main-map-agent .agent-analysis-row-body .agent-analysis-order { align-self: flex-end; }
 .main-map-agent .agent-analysis-row-main { display: flex; align-items: center; gap: 8px; }
 .main-map-agent .agent-analysis-row-main .agent-analysis-swatch { flex: 0 0 10px; width: 10px; height: 10px; border-width: 1px; box-shadow: none; margin: 0; }
 .main-map-agent .agent-analysis-row-label { flex: 1; min-width: 0; }

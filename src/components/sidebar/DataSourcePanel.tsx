@@ -11,6 +11,10 @@
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Search, Lock } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
+import { ListRow } from "./LayerRow";
+import { SubGroupLabel } from "./ThemeBanner";
+import { LAYER_ICONS } from "./layerIcons";
+import { railPalette, RailThemeContext } from "./railTheme";
 import { THEMES, LAYER_COLORS } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
@@ -117,9 +121,16 @@ function c2Style(p: DsPalette, primary: boolean, disabled?: boolean): React.CSSP
 
 interface SourceBlock { title: string | null; desc?: string | null; facts: { k: string; v: ReactNode; mono?: boolean }[]; docPath?: string | null }
 
-function DataSourceCard({
-  p, layerKey, locked, onActivateLayer,
-}: { p: DsPalette; layerKey: keyof LayerVisibility; locked: boolean; onActivateLayer?: (key: keyof LayerVisibility) => void }) {
+/** 資料來源暗／淡色票；圖層展開區的「說明・來源」也用這一份。 */
+export const dataSourcePalette = (isDarkTheme: boolean): DsPalette => (isDarkTheme ? DARK_DS : LIGHT_DS);
+
+/**
+ * 上游資料卡。資料來源面板列內展開，也嵌在圖層展開區最後一行「說明・來源」裡
+ * （layer-panel-unify P1；那裡圖層已開著，`hideActivate` 藏掉「開啟圖層」鈕）。
+ */
+export function DataSourceCard({
+  p, layerKey, locked, onActivateLayer, hideActivate = false,
+}: { p: DsPalette; layerKey: keyof LayerVisibility; locked: boolean; onActivateLayer?: (key: keyof LayerVisibility) => void; hideActivate?: boolean }) {
   const { data: entries, loading, error } = useDataCatalogForLayer(layerKey);
   const ref = UPSTREAM_REGISTRY[layerKey];
   const status: UpstreamStatus = ref?.status ?? "catalog_missing";
@@ -272,8 +283,8 @@ function DataSourceCard({
           {block.facts.map((f) => <FactRow key={f.k} p={p} k={f.k} mono={f.mono}>{f.v}</FactRow>)}
         </div>
       ))}
-      <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
-        <button
+      {(!hideActivate || docPath) && <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
+        {!hideActivate && <button
           type="button"
           disabled={locked}
           onClick={() => { if (!locked) onActivateLayer?.(layerKey); }}
@@ -281,7 +292,7 @@ function DataSourceCard({
           style={c2Style(p, true, locked)}
         >
           {locked && <Lock size={11} />}開啟圖層
-        </button>
+        </button>}
         {docPath && (
           <button
             type="button"
@@ -292,7 +303,7 @@ function DataSourceCard({
             {docPath}
           </button>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
@@ -309,43 +320,29 @@ function ThemeHeader({ p, title }: { p: DsPalette; title: string }) {
   );
 }
 
-function GroupHeader({ p, title }: { p: DsPalette; title: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: FONT_SIZE.sm, fontWeight: 600, color: p.muted, padding: "5px 10px 2px", fontFamily: FONT_CJK }}>
-      <span>{title}</span>
-      <span aria-hidden style={{ flex: 1, height: 1, background: p.borderMid }} />
-    </div>
-  );
-}
-
-// ── 圖層列 ──
+// ── 圖層列（layer-panel-unify P8：共用 ListRow；沒有開關，狀態圖示放在開關那一格）──
 
 function Row({
   p, layerKeyLabel, layerKey, locked, expanded, onToggle,
 }: { p: DsPalette; layerKeyLabel: string; layerKey: keyof LayerVisibility; locked: boolean; expanded: boolean; onToggle: () => void }) {
   const { zh, en } = splitLabel(layerKeyLabel);
-  const color = LAYER_COLORS[layerKey] ?? "#666";
+  const color = LAYER_COLORS[layerKey] ?? p.dim;
   const status = statusOf(layerKey);
+  const Icon = LAYER_ICONS[layerKey];
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      aria-expanded={expanded}
+    <ListRow
+      ariaLabel={layerKeyLabel}
+      label={zh}
+      meta={en ? <span style={{ marginLeft: 6, color: p.dim, fontSize: FONT_SIZE.sm }}>{en}</span> : null}
+      icon={Icon ? <Icon size={14} color={color} style={{ flexShrink: 0 }} /> : null}
+      expandable
+      expanded={expanded}
       onClick={onToggle}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
-      style={{
-        display: "flex", alignItems: "center", gap: 7, fontSize: FONT_SIZE.base,
-        color: p.textDefault, padding: "3px 10px", borderRadius: RADIUS.md, cursor: "pointer",
-        background: expanded ? p.controlBgHover : "transparent", fontFamily: FONT_CJK,
-      }}
-    >
-      <span style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
-      <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{zh}</span>
-      {en && <span style={{ color: p.dim, fontSize: FONT_SIZE.sm, whiteSpace: "nowrap" }}>{en}</span>}
-      <span style={{ flex: 1 }} />
-      {locked && <Lock size={11} color={p.dim} />}
-      <span style={{ fontSize: FONT_SIZE.sm, fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]}</span>
-    </div>
+      trailing={<>
+        {locked && <Lock size={11} color={p.dim} style={{ flexShrink: 0, marginRight: 4 }} aria-label="受限" />}
+        <span title={STATUS_TITLE[status]} aria-label={STATUS_TITLE[status]} style={{ width: 16, paddingRight: 12, textAlign: "center", fontSize: FONT_SIZE.sm, fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]}</span>
+      </>}
+    />
   );
 }
 
@@ -360,6 +357,7 @@ interface DataSourcePanelProps {
 
 export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onActivateLayer }: DataSourcePanelProps) {
   const p = isDarkTheme ? DARK_DS : LIGHT_DS;
+  const rail = railPalette(isDarkTheme);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [expandedKey, setExpandedKey] = useState<keyof LayerVisibility | null>(null);
@@ -410,7 +408,7 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
   ];
 
   return (
-    <>
+    <RailThemeContext.Provider value={rail}>
       <PanelHeader title="資料來源" eyebrow="資料" onClose={onClose} borderColor={p.border} mutedColor={p.dim} textColor={p.text} />
 
       {/* 搜尋框：高 26、--control-* */}
@@ -478,7 +476,7 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
               <ThemeHeader p={p} title={t.theme} />
               {t.groups.map((g) => (
                 <div key={g.title}>
-                  <GroupHeader p={p} title={g.title} />
+                  <SubGroupLabel>{g.title}</SubGroupLabel>
                   {g.layers.map((l) => (
                     <Fragment key={l.key}>
                       <Row p={p} layerKeyLabel={l.label} layerKey={l.key} locked={!!lockedKeys?.has(l.key)} expanded={expandedKey === l.key} onToggle={() => toggleExpand(l.key)} />
@@ -491,6 +489,6 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
           ))
         )}
       </div>
-    </>
+    </RailThemeContext.Provider>
   );
 }

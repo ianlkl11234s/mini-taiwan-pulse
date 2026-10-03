@@ -1,23 +1,12 @@
-import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
-import { LAYER_TOGGLE_PALETTE, LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
-import { PanelHeader as SharedPanelHeader } from "./sidebar/PanelHeader";
-import { StatisticsDetails } from "./sidebar/StatisticsDetails";
-import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
-import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
-import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
-import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type ComponentType } from "react";
-import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, FONT_WEIGHT, SURFACE, BORDER as BORDER_TOKEN, ELEVATION, LIGHT, LAYOUT } from "../styles/designTokens";
+import { useState, useEffect, useMemo, useRef, type ComponentType } from "react";
+import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, ELEVATION, LAYOUT } from "../styles/designTokens";
 import {
-  // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
-  //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
-  //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
-  //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, User, Star, Bot,
+  // 以下 import 沒有一顆是餵圖層的 —— 全是本元件自己的 UI（rail 按鈕 / 展開箭頭 / 搜尋框…）。
+  // 圖層 icon 由 layerManifest 派生（sidebar/LayersPanel.tsx 的 LAYER_ICONS），新增圖層請改 manifest 的 `icon` 欄。
+  Activity, Layers, ChartColumn, MapPin, User, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
-  Lock,        // gated 圖層鎖頭
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   Database,    // 資料來源 rail 按鈕
   type LucideIcon,
@@ -25,54 +14,20 @@ import {
 import type {
   LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode,
 } from "../types";
-// AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
-// 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
-import { buildParamControls } from "../state/layerParamsControls";
-import { useLayerParams } from "../state/layerParamsStore";
-import { useLayerLiveCount } from "../state/liveCountStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
-// 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, splitThemeTitle, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
-import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
-import { searchLayers } from "../lib/layerSearch";
 import { searchLocationPresets } from "../lib/locationSearch";
-import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
 import { DataSourcePanel } from "./sidebar/DataSourcePanel";
-import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
+// 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
+import { LayersPanel, RailPanelHeader } from "./sidebar/LayersPanel";
+import { LAYER_PANELS, type LayerPanelId } from "./sidebar/layerPanels";
+import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
 
-// 「世界」rail tab 與桌機主 Layers panel 的主題分流：
-// - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
-// - 世界 tab 只渲染 WORLD_TAB_THEME_TITLES 的主題，順序照該陣列
-const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
-const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
-const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
-export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title)));
-
-// ── Color Config ──
-
-/**
- * 手寫 icon 殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
- * `Omit<…, ManifestKey>` 退化成 `{}` 的護欄語意說明見 layerCatalog 的
- * HANDWRITTEN_LAYER_COLORS（含「spread 不觸發 excess property check」那條）。
- */
-const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, ManifestKey> = {
-  // （空 —— Phase 2 全數搬完）
-};
-
-/**
- * icon 全集 —— 手寫殘量 + manifest 派生。型別維持
- * `Record<keyof LayerVisibility, LucideIcon>`（tsc 護欄不弱化）。
- * export：AR-22 黃金快照（layerGoldenSnapshot.test.ts）要逐 key 讀 icon 名稱比對。
- */
-export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
-  ...HANDWRITTEN_LAYER_ICONS,
-  ...manifestIcons(),
-};
+// 既有 export 維持原路徑（測試與其他模組從這裡 import）
+export { LAYER_ICONS } from "./sidebar/LayersPanel";
+export { MAIN_THEMES, getThemeLayerKeys } from "./sidebar/layerPanels";
 
 // ── Props ──
 
@@ -126,51 +81,13 @@ interface IconRailSidebarProps {
   onAgentToggle?: () => void;
 }
 
-// ── Shared Styles ──
 
-interface RailPalette {
-  ACCENT: string; ACCENT_TOGGLE: string; BG_RAIL: string; BG_PANEL: string; PANEL_BORDER: string;
-  BORDER: string; DIM: string; INACTIVE_TEXT: string;
-  TEXT_STRONG: string; BANNER_BG: string; SEARCH_BG: string;
-  TOGGLE_OFF: string; TOGGLE_KNOB_ON: string; TOGGLE_KNOB_OFF: string;
-  ROW_HOVER: string; ROW_ACTIVE: string; RAIL_ICON_ACTIVE: string;
-  ALLOFF_BG: string; ALLOFF_BORDER: string;
-  COLOR_SCHEME: 'light' | 'dark';
-}
-
-const DARK_PALETTE: RailPalette = {
-  ACCENT: "#E5E7EB", ACCENT_TOGGLE: LAYER_TOGGLE_PALETTE.dark.on, BG_RAIL: SURFACE.app, BG_PANEL: SURFACE.strong, PANEL_BORDER: BORDER_TOKEN.panel,
-  BORDER: "#2A2D32", DIM: "#6B7280", INACTIVE_TEXT: "#9CA3AF",
-  TEXT_STRONG: "#fff", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
-  TOGGLE_OFF: LAYER_TOGGLE_PALETTE.dark.off, TOGGLE_KNOB_ON: LAYER_TOGGLE_PALETTE.dark.knobOn, TOGGLE_KNOB_OFF: LAYER_TOGGLE_PALETTE.dark.knobOff,
-  ROW_HOVER: "rgba(255,255,255,0.03)", ROW_ACTIVE: "rgba(255,255,255,0.06)", RAIL_ICON_ACTIVE: "rgba(255,255,255,0.08)",
-  ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
-  COLOR_SCHEME: 'dark',
-};
-
-const LIGHT_PALETTE: RailPalette = {
-  ACCENT: "#374151", ACCENT_TOGGLE: LAYER_TOGGLE_PALETTE.light.on, BG_RAIL: "#FFFFFF", BG_PANEL: LIGHT.surfacePanel, PANEL_BORDER: LIGHT.border,
-  BORDER: "rgba(0,0,0,0.10)", DIM: "#9CA3AF", INACTIVE_TEXT: "#6B7280",
-  TEXT_STRONG: "#111827", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
-  TOGGLE_OFF: LAYER_TOGGLE_PALETTE.light.off, TOGGLE_KNOB_ON: LAYER_TOGGLE_PALETTE.light.knobOn, TOGGLE_KNOB_OFF: LAYER_TOGGLE_PALETTE.light.knobOff,
-  ROW_HOVER: "rgba(0,0,0,0.04)", ROW_ACTIVE: "rgba(0,0,0,0.05)", RAIL_ICON_ACTIVE: "rgba(0,0,0,0.07)",
-  ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
-  COLOR_SCHEME: 'light',
-};
-
-const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
-const useRailTheme = () => useContext(RailThemeContext);
-
-type PanelId = "layers" | "locations" | "statistics" | "world" | "japan" | "datasource";
+type PanelId = LayerPanelId | "locations" | "datasource";
 
 // ── Main Component ──
 
 const RAIL_WIDTH = 56;
 const PANEL_WIDTH = 288;
-
-export function getThemeLayerKeys(themes: ThemeDef[]): (keyof LayerVisibility)[] {
-  return themes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)));
-}
 
 export function IconRailSidebar({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode,
@@ -189,15 +106,13 @@ export function IconRailSidebar({
   agentAvailable, agentActive, onAgentToggle,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
-  const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
+  const palette = railPalette(isDarkTheme);
   const { BG_RAIL, BORDER, BG_PANEL, PANEL_BORDER } = palette;
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
-  const [layerSearch, setLayerSearch] = useState("");
-  const [statisticsSearch, setStatisticsSearch] = useState("");
-  const [worldSearch, setWorldSearch] = useState("");
-  const [japanSearch, setJapanSearch] = useState("");
+  // 四個入口各自保留搜尋字（P9：各面板搜自己）
+  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "" });
 
   // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
   const firstEpochRunRef = useRef(true);
@@ -307,7 +222,7 @@ export function IconRailSidebar({
           icon={Layers}
           active={activePanel === "layers"}
           onClick={() => togglePanel("layers")}
-          tooltip="Layers"
+          tooltip="台灣 Taiwan"
           badge={!layersBadgeSeen}
         />
 
@@ -437,12 +352,21 @@ export function IconRailSidebar({
               animation: "panelFadeIn 0.25s ease-out",
             }}
           >
-            {activePanel === "layers" && (
+            {LAYER_PANELS.map((panel) => activePanel === panel.id && (
               <LayersPanel
-                search={layerSearch}
-                onSearchChange={setLayerSearch}
-                themes={MAIN_THEMES}
-                showMacroGroups
+                key={panel.id}
+                panelId={panel.id}
+                onSearchInPanel={(target, query) => {
+                  setPanelSearch((prev) => ({ ...prev, [target]: query }));
+                  togglePanel(target);
+                }}
+                search={panelSearch[panel.id]}
+                onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
+                themes={panel.themes}
+                title={panel.title}
+                showMacroGroups={panel.showMacroGroups}
+                allOffKeys={panel.allOffKeys}
+                statisticsModeControl={panel.statisticsModeControl}
                 visibility={visibility}
                 lockedKeys={lockedKeys}
                 expandedLayer={expandedLayer}
@@ -459,78 +383,7 @@ export function IconRailSidebar({
                 onToggleFavorite={onToggleFavorite}
                 onClose={closePanel}
               />
-            )}
-            {activePanel === "world" && (
-              <LayersPanel
-                search={worldSearch}
-                onSearchChange={setWorldSearch}
-                themes={WORLD_THEMES}
-                title="世界 World"
-                visibility={visibility}
-                lockedKeys={lockedKeys}
-                expandedLayer={expandedLayer}
-                viewMode={viewMode}
-                displayMode={displayMode}
-                getCount={getCount}
-                onLayerClick={onLayerClick}
-                onToggleVisibility={onToggleVisibility}
-                onViewModeChange={onViewModeChange}
-                onDisplayModeChange={onDisplayModeChange}
-                onAllOff={onAllOff}
-                onBulkSetVisibility={onBulkSetVisibility}
-                favoriteKeys={favoriteKeys}
-                onToggleFavorite={onToggleFavorite}
-                onClose={closePanel}
-              />
-            )}
-            {activePanel === "statistics" && (
-              <LayersPanel
-                search={statisticsSearch}
-                onSearchChange={setStatisticsSearch}
-                themes={STATISTICS_TAB_THEMES}
-                allOffKeys={[...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])]}
-                title="統計 Statistics"
-                statisticsModeControl
-                visibility={visibility}
-                lockedKeys={lockedKeys}
-                expandedLayer={expandedLayer}
-                viewMode={viewMode}
-                displayMode={displayMode}
-                getCount={getCount}
-                onLayerClick={onLayerClick}
-                onToggleVisibility={onToggleVisibility}
-                onViewModeChange={onViewModeChange}
-                onDisplayModeChange={onDisplayModeChange}
-                onAllOff={onAllOff}
-                onBulkSetVisibility={onBulkSetVisibility}
-                favoriteKeys={favoriteKeys}
-                onToggleFavorite={onToggleFavorite}
-                onClose={closePanel}
-              />
-            )}
-            {activePanel === "japan" && (
-              <LayersPanel
-                search={japanSearch}
-                onSearchChange={setJapanSearch}
-                themes={JAPAN_THEMES}
-                title="日本 Japan"
-                visibility={visibility}
-                lockedKeys={lockedKeys}
-                expandedLayer={expandedLayer}
-                viewMode={viewMode}
-                displayMode={displayMode}
-                getCount={getCount}
-                onLayerClick={onLayerClick}
-                onToggleVisibility={onToggleVisibility}
-                onViewModeChange={onViewModeChange}
-                onDisplayModeChange={onDisplayModeChange}
-                onAllOff={onAllOff}
-                onBulkSetVisibility={onBulkSetVisibility}
-                favoriteKeys={favoriteKeys}
-                onToggleFavorite={onToggleFavorite}
-                onClose={closePanel}
-              />
-            )}
+            ))}
             {activePanel === "locations" && (
               <LocationsPanel
                 search={locationSearch}
@@ -675,537 +528,6 @@ function RailIcon({
   );
 }
 
-// ── Panel Header ──
-
-function PanelHeader({
-  title, onClose,
-}: {
-  title: string; onClose: () => void;
-}) {
-  const { BORDER, DIM, TEXT_STRONG } = useRailTheme();
-  return <SharedPanelHeader title={title} onClose={onClose} borderColor={BORDER} mutedColor={DIM} textColor={TEXT_STRONG} titleSize={FONT_SIZE.lg} />;
-}
-
-
-// ── Toggle Switch ──
-
-function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: () => void; label?: string }) {
-  const { ACCENT_TOGGLE, TOGGLE_OFF, TOGGLE_KNOB_ON, TOGGLE_KNOB_OFF } = useRailTheme();
-  return <LayerToggleSwitch on={on} onChange={onChange} label={label} ACCENT_TOGGLE={ACCENT_TOGGLE} TOGGLE_OFF={TOGGLE_OFF} TOGGLE_KNOB_ON={TOGGLE_KNOB_ON} TOGGLE_KNOB_OFF={TOGGLE_KNOB_OFF} />;
-}
-
-// ══════════════════════════════════
-//  LAYERS PANEL
-// ══════════════════════════════════
-
-interface LayersPanelProps {
-  search: string;
-  onSearchChange: (v: string) => void;
-  /** 只渲染這批主題（預設全部 THEMES）。世界 tab 傳世界主題、主 Layers panel 傳非世界主題。 */
-  themes?: ThemeDef[];
-  /** PanelHeader 標題（預設 "Layers"）。 */
-  title?: string;
-  /** 是否顯示 Layers 的第一層大分類；World rail 本身就是獨立分類，故不顯示。 */
-  showMacroGroups?: boolean;
-  visibility: LayerVisibility;
-  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
-  expandedLayer: ExpandableLayerKey | null;
-  viewMode: ViewMode;
-  displayMode: DisplayMode;
-  getCount: (key: keyof LayerVisibility) => number | undefined;
-  onLayerClick: (layer: keyof LayerVisibility) => void;
-  onToggleVisibility: (layer: keyof LayerVisibility) => void;
-  onViewModeChange: (mode: ViewMode) => void;
-  onDisplayModeChange: (mode: DisplayMode) => void;
-  onAllOff: () => void;
-  allOffKeys?: (keyof LayerVisibility)[];
-  /** 僅 Statistics rail panel 顯示單一／重疊模式。 */
-  statisticsModeControl?: boolean;
-  onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
-  favoriteKeys?: ReadonlySet<string>;
-  onToggleFavorite?: (key: string) => void;
-  onClose: () => void;
-}
-
-// 單一 layer row — memo 後只在該 row 的 props 真變動時才 re-render。
-// 這讓 LayersPanel 每次被動 re-render（例如 count 變動）時，
-// 大多數 row 跳過、只有 count 變化的少數 row 重繪。
-interface LayerRowProps {
-  layerKey: keyof LayerVisibility;
-  label: string;
-  expandable: boolean;
-  active: boolean;
-  /** owner-only 私人圖層且當前 viewer 非 owner → 顯示鎖頭、禁 toggle */
-  locked: boolean;
-  color: string;
-  count: number | undefined;
-  isExpanded: boolean;
-  Icon: LucideIcon;
-  onLayerClick: (layer: keyof LayerVisibility) => void;
-  onToggleVisibility: (layer: keyof LayerVisibility) => void;
-}
-
-const LayerRow = memo(function LayerRow({
-  layerKey, label, expandable, active, locked, color, count: staticCount, isExpanded, Icon,
-  onLayerClick, onToggleVisibility,
-}: LayerRowProps) {
-  // 列車／公車／客運：只有該 row 訂閱 liveCountStore（播放中 2Hz），其他 row 不重渲
-  const count = useLayerLiveCount(layerKey) ?? staticCount;
-  const { DIM, INACTIVE_TEXT, TEXT_STRONG, ROW_HOVER } = useRailTheme();
-  // locked：點整列一律走 onToggleVisibility → App 端 gate（未登入導登入 / 已登入顯示提示）
-  const handleClick = () =>
-    locked ? onToggleVisibility(layerKey)
-      : expandable ? onLayerClick(layerKey) : onToggleVisibility(layerKey);
-  const handleToggle = () => onToggleVisibility(layerKey);
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        borderLeft: active ? `2px solid ${color}` : "2px solid transparent",
-        opacity: locked ? 0.5 : 1,
-        transition: "background 0.1s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.background = ROW_HOVER;
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.background = "transparent";
-      }}
-    >
-      <button
-        type="button"
-        aria-label={label}
-        aria-expanded={expandable ? isExpanded : undefined}
-        aria-pressed={!expandable ? active : undefined}
-        onClick={handleClick}
-        title={locked ? "此圖層目前不可用" : undefined}
-        style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, padding: "5px 8px 5px 10px", border: 0, background: "transparent", cursor: "pointer", color: "inherit", textAlign: "left" }}
-      >
-        <Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />
-        <span
-          style={{
-            flex: 1,
-            fontSize: FONT_SIZE.md,
-            fontFamily: FONT_CJK,
-            color: TEXT_STRONG,
-            transition: "color 0.15s",
-          }}
-        >
-          {label}
-        </span>
-        {count != null && count > 0 && !locked && (
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: active ? color : INACTIVE_TEXT, marginRight: 4 }}>
-            {count.toLocaleString()}
-          </span>
-        )}
-        {expandable && !locked && (
-          <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
-            {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-          </span>
-        )}
-        {locked && <Lock size={13} color={DIM} style={{ flexShrink: 0 }} />}
-      </button>
-      {locked
-        ? null
-        : <span style={{ paddingRight: 12, display: "flex" }}><ToggleSwitch on={active} onChange={handleToggle} /></span>}
-    </div>
-  );
-});
-
-function ThemeBanner({
-  title, isCollapsed, onCount, totalCount, onToggleCollapse, onBulkToggle,
-}: {
-  title: string;
-  isCollapsed: boolean;
-  onCount: number;
-  totalCount: number;
-  onToggleCollapse: () => void;
-  onBulkToggle: () => void;
-}) {
-  const { DIM, BORDER, TEXT_STRONG, BANNER_BG } = useRailTheme();
-  const someOn = onCount > 0;
-  // LT1（design-system §5.5）：theme.title 資料格式是「中文 English」，渲染時拆開分別給字級／字型。
-  const { zh, en } = splitThemeTitle(title);
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        // sticky：滾到該 theme 內容時 banner 黏在頂部，直到下一個 theme banner 把它推出
-        position: "sticky",
-        top: 0,
-        zIndex: 2,
-        background: BANNER_BG,
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-        borderTop: `1px solid ${BORDER}`,
-        borderBottom: `1px solid ${BORDER}`,
-        userSelect: "none",
-      }}
-    >
-      <button
-        type="button"
-        aria-expanded={!isCollapsed}
-        onClick={onToggleCollapse}
-        style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0, padding: "8px 4px 8px 12px", border: 0, background: "transparent", cursor: "pointer", color: "inherit", textAlign: "left" }}
-      >
-        <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
-          {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-        </span>
-        <span style={{ flex: 1, display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
-          {en && (
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{en}</span>
-          )}
-        </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: DIM, marginRight: 4 }}>
-          {onCount}/{totalCount}
-        </span>
-      </button>
-      <span style={{ paddingRight: 12, display: "flex" }}><ToggleSwitch on={someOn} onChange={onBulkToggle} /></span>
-    </div>
-  );
-}
-
-/** L2 群組標題：CJK 標題＋右側 1px 細線拉到底（淘汰「└」字元縮排）。 */
-function SubGroupLabel({ children }: { children: string }) {
-  const { COLOR_SCHEME } = useRailTheme();
-  const dark = COLOR_SCHEME === "dark";
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        color: dark ? "#9CA3AF" : "#4B5563",
-        fontFamily: FONT_CJK,
-        fontSize: FONT_SIZE.sm,
-        fontWeight: 600,
-        letterSpacing: 0.6,
-        padding: "10px 12px 3px 12px",
-      }}
-    >
-      <span>{children}</span>
-      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
-    </div>
-  );
-}
-
-/** 大分類標題：只顯示中文（LT1），右側細線同 L2 群組線色（design-system §5.5）。 */
-function MacroGroupLabel({ title }: { title: string }) {
-  const { DIM, COLOR_SCHEME } = useRailTheme();
-  const dark = COLOR_SCHEME === "dark";
-  const { zh } = splitThemeTitle(title);
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "10px 12px 4px",
-        color: DIM,
-        fontFamily: FONT_CJK,
-        fontSize: 9.5,
-        letterSpacing: 1.2,
-      }}
-    >
-      <span>{zh}</span>
-      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
-    </div>
-  );
-}
-
-function LayersPanel({
-  search, onSearchChange, themes, title = "Layers",
-  showMacroGroups = false,
-  visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
-  getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange: _onViewModeChange, onDisplayModeChange,
-  onAllOff, onBulkSetVisibility, onClose,
-  favoriteKeys, onToggleFavorite, allOffKeys,
-  statisticsModeControl = false,
-}: LayersPanelProps) {
-  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
-  const q = search.trim().toLowerCase();
-  const themesToRender = themes ?? THEMES;
-  const searchContext = useMemo(() => {
-    const context = new Map<string, string>();
-    for (const theme of themesToRender) {
-      for (const group of theme.groups) {
-        for (const layer of group.layers) context.set(layer.key, `${theme.title} ${group.title}`);
-      }
-    }
-    return context;
-  }, [themesToRender]);
-  const searchResults = searchLayers(search, {
-    favoriteKeys,
-    scopeKeys: new Set(searchContext.keys()),
-    contextByKey: searchContext,
-    lockedKeys,
-  });
-  const visibleSearchResults = searchResults.slice(0, 50);
-  // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
-  const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
-    () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map((t) => t.title)),
-  );
-
-  const toggleTheme = (title: string) => {
-    setCollapsedThemes((prev) => {
-      const next = new Set(prev);
-      if (next.has(title)) next.delete(title); else next.add(title);
-      return next;
-    });
-  };
-
-  return (
-    <>
-      <PanelHeader title={title} onClose={onClose} />
-      <div style={{ padding: "4px 12px 4px" }}>
-        <button
-          onClick={() => {
-            if (allOffKeys && onBulkSetVisibility) onBulkSetVisibility(allOffKeys, false);
-            else onAllOff();
-          }}
-          style={{
-            width: "100%",
-            padding: "5px 0",
-            background: ALLOFF_BG,
-            border: `1px solid ${ALLOFF_BORDER}`,
-            borderRadius: RADIUS.lg,
-            color: INACTIVE_TEXT,
-            fontSize: FONT_SIZE.base,
-            cursor: "pointer",
-            fontFamily: FONT_CJK,
-          }}
-        >
-          All Off
-        </button>
-      </div>
-      {/* Search Bar（仿 Locations，主題感知）*/}
-      <div style={{ padding: "0 12px 4px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            background: SEARCH_BG,
-            borderRadius: RADIUS.lg,
-            padding: "6px 8px",
-          }}
-        >
-          <Search size={13} color={DIM} style={{ flexShrink: 0 }} />
-          <input
-            type="text"
-            aria-label="搜尋圖層"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="搜尋圖層… Search layers…"
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              outline: "none",
-              color: TEXT_STRONG,
-              fontSize: FONT_SIZE.md,
-              fontFamily: FONT_CJK,
-            }}
-          />
-        </div>
-      </div>
-      {statisticsModeControl && <StatisticsModeControl isDarkTheme={COLOR_SCHEME === "dark"} />}
-      <div
-        className="layer-sidebar-scroll"
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "0 0 8px",
-        }}
-      >
-        {q ? (
-          searchResults.length === 0 ? (
-            <div style={{ padding: "12px", color: DIM, fontSize: FONT_SIZE.md }}>找不到相符圖層</div>
-          ) : <>
-            <div aria-live="polite" style={{ padding: "6px 12px", color: DIM, fontSize: FONT_SIZE.xs }}>
-              找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
-            </div>
-            {visibleSearchResults.map((result) => {
-            const locked = !!lockedKeys?.has(result.key);
-            const active = visibility[result.key];
-            const favorite = favoriteKeys?.has(result.key) ?? false;
-            return (
-              <div key={result.key} style={{ display: "flex", gap: 4, padding: "7px 10px", borderBottom: `1px solid ${ALLOFF_BORDER}` }}>
-                <button
-                  onClick={() => locked ? onToggleVisibility(result.key) : (active ? onLayerClick(result.key) : onToggleVisibility(result.key))}
-                  title={locked ? "此圖層受權限限制" : result.description}
-                  style={{ flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", color: TEXT_STRONG, textAlign: "left", cursor: "pointer" }}
-                >
-                  <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: FONT_SIZE.md, fontWeight: 600 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: LAYER_COLORS[result.key], flexShrink: 0 }} />
-                    {result.label}{locked && <Lock size={12} color={DIM} />}
-                  </div>
-                  <div style={{ marginTop: 2, color: INACTIVE_TEXT, fontSize: FONT_SIZE.base, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{result.description}</div>
-                  <div style={{ marginTop: 2, color: DIM, fontSize: FONT_SIZE.xs, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>主題：{result.topics.join("、")} · {result.source}</div>
-                </button>
-                {onToggleFavorite && (
-                  <button aria-label={`${favorite ? "取消收藏" : "收藏圖層"} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? "取消收藏" : "收藏圖層"} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : DIM, cursor: "pointer", padding: 2 }}>
-                    <Star size={15} fill={favorite ? "currentColor" : "none"} />
-                  </button>
-                )}
-              </div>
-            );
-            })}
-          </>
-        ) : themesToRender.map((theme, themeIndex) => {
-          const isCollapsed = q ? false : collapsedThemes.has(theme.title);
-          const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
-          const onCount = allKeys.filter((k) => visibility[k]).length;
-          const someOn = onCount > 0;
-
-          const groups = theme.groups;
-
-          const handleBulkToggle = () => {
-            // 有任何一個 on → 全部 off；全部 off → 全部 on
-            if (onBulkSetVisibility) {
-              onBulkSetVisibility(allKeys, !someOn);
-            } else {
-              // fallback: 逐一 toggle 還沒對齊的 key
-              for (const k of allKeys) {
-                if (visibility[k] === someOn) continue;
-                if ((!someOn && !visibility[k]) || (someOn && visibility[k])) {
-                  onToggleVisibility(k);
-                }
-              }
-            }
-          };
-
-          const macroGroup = showMacroGroups ? themeMacroGroup(theme.title) : null;
-          const previousMacroGroup = showMacroGroups && themeIndex > 0
-            ? themeMacroGroup(themesToRender[themeIndex - 1]!.title)
-            : null;
-          const macroTitle = macroGroup
-            ? LAYER_MACRO_GROUPS.find((group) => group.key === macroGroup)?.title
-            : null;
-
-          return (
-            <div key={theme.title}>
-              {macroTitle && macroGroup !== previousMacroGroup && <MacroGroupLabel title={macroTitle} />}
-              <ThemeBanner
-                title={theme.title}
-                isCollapsed={isCollapsed}
-                onCount={onCount}
-                totalCount={allKeys.length}
-                onToggleCollapse={() => toggleTheme(theme.title)}
-                onBulkToggle={handleBulkToggle}
-              />
-              {!isCollapsed && groups.map((group) => (
-                <div key={group.title}>
-                  <SubGroupLabel>{group.title}</SubGroupLabel>
-                    {group.layers.map(({ key, label, expandable }) => {
-                      const medicalGroup = getMedicalStatisticsGroup(key);
-                      if (medicalGroup) {
-                        if (medicalGroup.options[0]?.key !== key) return null;
-                        return (
-                          <MedicalStatisticsGroupControls
-                            key={medicalGroup.key}
-                            groupKey={key}
-                            visibility={visibility}
-                            expandedLayer={expandedLayer}
-                            onLayerClick={onLayerClick}
-                            textColor={TEXT_STRONG}
-                            dimColor={DIM}
-                            colorScheme={COLOR_SCHEME}
-                            renderToggle={(on, onChange, label) => <ToggleSwitch on={on} onChange={onChange} label={label} />}
-                            renderControls={(selectedKey) => (
-                              <ExpandedControls
-                                layerKey={selectedKey as ExpandableLayerKey}
-                                isTransport={false}
-                                displayMode={displayMode}
-                                onDisplayModeChange={onDisplayModeChange}
-                              />
-                            )}
-                          />
-                        );
-                      }
-                      const active = visibility[key];
-                    const isExpanded = expandedLayer === key;
-                    const isTransport = key in TRANSPORT_LABELS;
-                    return (
-                      <div key={key}>
-                        <LayerRow
-                          layerKey={key}
-                          label={label}
-                          expandable={!!expandable}
-                          active={active}
-                          locked={!!lockedKeys?.has(key)}
-                          color={LAYER_COLORS[key]}
-                          count={getCount(key)}
-                          isExpanded={isExpanded}
-                          Icon={LAYER_ICONS[key]}
-                          onLayerClick={onLayerClick}
-                          onToggleVisibility={onToggleVisibility}
-                        />
-                        {isExpanded && expandable && (
-                          <ExpandedControls
-                            layerKey={key as ExpandableLayerKey}
-                            isTransport={isTransport}
-                            displayMode={displayMode}
-                            onDisplayModeChange={onDisplayModeChange}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-// ── Expanded Controls (param sliders / toggles / selects) ──
-
-interface ExpandedControlsProps {
-  layerKey: ExpandableLayerKey;
-  isTransport: boolean;
-  displayMode: DisplayMode;
-  onDisplayModeChange: (mode: DisplayMode) => void;
-}
-
-function ExpandedControls({
-  layerKey, isTransport, displayMode,
-  onDisplayModeChange,
-}: ExpandedControlsProps) {
-  // per-key 訂閱：只有這一層的參數變動才重繪本元件
-  const paramValues = useLayerParams(layerKey);
-  const controls = buildParamControls(layerKey, paramValues) ?? [];
-  const { TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
-  const isDarkTheme = COLOR_SCHEME === "dark";
-
-  return (
-    <LayerControlArea isDarkTheme={isDarkTheme} style={{ margin: "2px 12px 8px 22px" }}>
-      {isTransport && layerKey === "flights" && (
-        <div className="lpc-head">
-            <button type="button" className="lpc-btn" aria-pressed={displayMode === "status"} onClick={() => onDisplayModeChange("status")}>
-              即時狀態
-            </button>
-            <button type="button" className="lpc-btn" aria-pressed={displayMode === "trails"} onClick={() => onDisplayModeChange("trails")}>
-              航跡
-            </button>
-        </div>
-      )}
-      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />}
-      {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
-      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={isDarkTheme} />}
-      <ParamControlList controls={controls} />
-    </LayerControlArea>
-  );
-}
-
 // ══════════════════════════════════
 //  LOCATIONS PANEL
 // ══════════════════════════════════
@@ -1272,7 +594,7 @@ function LocationsPanel({
   const { DIM, SEARCH_BG, TEXT_STRONG, BORDER } = useRailTheme();
   return (
     <>
-      <PanelHeader title="Locations" onClose={onClose} />
+      <RailPanelHeader title="Locations" onClose={onClose} />
 
       {/* Search Bar */}
       <div style={{ padding: "8px 12px" }}>

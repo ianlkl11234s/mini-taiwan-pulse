@@ -3,7 +3,7 @@
  *
  * Yaogan/Jilin/Gaofen (S) + TJS (A) + Beidou (B) + Shiyan/餘 (C)
  *
- * 每組標題：群色點 + label + tier chip + N 顆 + ⚡近 24h 變軌 X 顆 + toggle + chevron
+ * 每組標題：共用 ListRow —— icon + label + tier chip + ⚡近 24h 變軌 X 顆 + N 顆 + chevron + 列開關
  * 展開：該組衛星列表，每列 name / alt / ⚡ if maneuver
  *
  * Toggle 與 LayerVisibility 雙向同步（左 sidebar 同步可見）
@@ -16,6 +16,9 @@ import type { SatelliteRecord, SatelliteCategory } from "../../data/satelliteTyp
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
 import type { LayerVisibility } from "../../types";
 import * as satellite from "satellite.js";
+import { Satellite as SatelliteIcon } from "lucide-react";
+import { ListRow } from "../sidebar/LayerRow";
+import { DARK_PALETTE, RailThemeContext } from "../sidebar/railTheme";
 
 interface Props {
   maneuvers: ManeuverRow[];
@@ -99,58 +102,35 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
     const layerOn = !!layerVisibility[layerKey];
     return (
       <div key={g.key} style={{ borderTop: `1px solid ${COLORS.borderSoft}` }}>
-        <div
+        {/* 共用圖層列（layer-panel-unify P8）：icon・名稱＋等級徽章・顆數・chevron・黑白列開關（開關移到 chevron 後） */}
+        <ListRow
+          ariaLabel={g.label}
+          label={g.label}
+          icon={<SatelliteIcon size={14} color={layerOn ? g.color : COLORS.textDim} style={{ flexShrink: 0 }} />}
+          meta={<>
+            <span style={{
+              marginLeft: 6, padding: "0 5px", borderRadius: RADIUS.md,
+              border: `1px solid ${COLORS.borderMid}`,
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, lineHeight: "14px",
+            }}>{g.tier}</span>
+            {manCount > 0 && (
+              <span title="近 24h 變軌" style={{
+                marginLeft: 4, padding: "1px 6px", borderRadius: RADIUS.md,
+                background: "rgba(239,68,68,0.16)", border: "1px solid rgba(239,68,68,0.45)",
+                fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700, color: COLORS.statusErr,
+                animation: "satManeuverPulse 1.1s ease-in-out infinite",
+              }}>⚡{manCount}</span>
+            )}
+          </>}
+          count={list.length}
+          countUnit="顆"
+          accent={g.color}
+          active={layerOn}
+          expandable
+          expanded={isOpen}
           onClick={() => toggle(g.key)}
-          style={{
-            display: "flex", alignItems: "center", gap: 8,
-            padding: "8px 14px", cursor: "pointer", userSelect: "none",
-          }}
-        >
-          <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: g.color, flexShrink: 0 }} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong }}>
-            {g.label}
-          </span>
-          <span style={{
-            padding: "0 5px", borderRadius: RADIUS.md,
-            border: `1px solid ${COLORS.borderMid}`,
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, lineHeight: "14px",
-          }}>{g.tier}</span>
-          <span style={{ marginLeft: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-            {list.length} 顆
-          </span>
-          {manCount > 0 && (
-            <span style={{
-              marginLeft: 4, padding: "1px 6px", borderRadius: RADIUS.md,
-              background: "rgba(239,68,68,0.16)", border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700, color: COLORS.statusErr,
-              animation: "satManeuverPulse 1.1s ease-in-out infinite",
-            }}>⚡{manCount}</span>
-          )}
-          <div style={{ flex: 1 }} />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLayerVisibility({ [layerKey]: !layerOn } as Partial<LayerVisibility>);
-            }}
-            aria-label="toggle layer"
-            style={{
-              width: 28, height: 16, borderRadius: RADIUS.xl,
-              border: `1px solid ${layerOn ? COLORS.borderAccent : COLORS.borderMid}`,
-              background: layerOn ? COLORS.accentFaint : "transparent",
-              cursor: "pointer", position: "relative", padding: 0,
-            }}
-          >
-            <span style={{
-              position: "absolute", top: 1, left: layerOn ? 13 : 1,
-              width: 12, height: 12, borderRadius: RADIUS.full,
-              background: layerOn ? COLORS.accent : COLORS.textDim,
-              transition: "left 0.15s ease",
-            }} />
-          </button>
-          <span style={{ color: COLORS.textDim, fontSize: FONT_SIZE.sm, marginLeft: 4 }}>
-            {isOpen ? "▾" : "▸"}
-          </span>
-        </div>
+          toggle={{ on: layerOn, onChange: () => setLayerVisibility({ [layerKey]: !layerOn } as Partial<LayerVisibility>), label: `${g.label} 顯示` }}
+        />
         {isOpen && (
           <div style={{ padding: "0 14px 8px" }}>
             {list.length === 0 ? (
@@ -200,6 +180,8 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
   };
 
   return (
+    // 衛星情報 Console 只有暗色
+    <RailThemeContext.Provider value={DARK_PALETTE}>
     <div style={{ borderBottom: `1px solid ${COLORS.borderSoft}` }}>
       <div style={{
         padding: "9px 14px 6px",
@@ -223,6 +205,7 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
       </div>
       {INTL_GROUPS_META.map(renderGroup)}
     </div>
+    </RailThemeContext.Provider>
   );
 }
 
