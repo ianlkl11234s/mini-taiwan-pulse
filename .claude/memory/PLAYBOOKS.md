@@ -1907,3 +1907,12 @@ pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
    把保留的 local-only WIP、stash、未做的 production HTTP/browser/data-quality 項目列給下一棒。
 9. **最後才寫 STATUS**：release matrix 分列 build／contract-wire／DB／collector／CI／HTTP／browser，
    local browser + production data 不得寫成 production frontend 驗收。
+
+## PB-42 UI 分階段改版（比較頁代號選 → 共用底層 → 三組平行 → 接線驗收）（2026-10-03 定型：監看 P1–P5 五輪）
+
+1. **定位**：唯讀 agent 盤點檔:行（資料時間、寫死值、缺值、共用元件），存 scratchpad 給後續 agent 讀。
+2. **選**：有視覺取捨時先做暗／淡並排、用代號選的比較頁（Artifact，repo 也留一份 html），使用者貼代號回來才動手；沒取捨照 spec 直接做。
+3. **共用底層主 agent 先做並 commit**：共用元件／hook／token 加能力，暗色或舊版值逐字不變，補單元測試與設計系統頁示範。
+4. **三組平行（sonnet）**：依「檔案擁有權」分組（同一個 loader 檔只給一組），brief 寫明換法表、禁改共用檔清單、「看到別人的髒檔不要碰、不要 commit」。agent 不 commit，主 agent 依組 path-scoped commit。
+5. **接線與驗收**：主 agent 接共用檔（Panel、固定高補償），tsc＋相關 vitest；瀏覽器 1920／1496／1280 量每格 `scrollHeight-clientHeight`／水平溢出，逐格截圖看，舊版截一張比對。
+6. **文件**：spec 實作狀態、CHANGELOG、design-system README 進度、feature README 實作順序；PR 開好等使用者說 merge（一般 merge）。
