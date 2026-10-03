@@ -3,7 +3,7 @@
 # Mini Taiwan Pulse — Design System
 
 > **UI 規範 SSOT**。新增或修改任何 UI（面板、popup、控制項、工具列、樣式表）前必讀；PR 前照 §8 checklist 逐項勾。資料夾入口：[`README.md`](./README.md)（檔案地圖、維護流程）；每輪決定：[`CHANGELOG.md`](./CHANGELOG.md)。
-> 自動檢查：`src/styles/__tests__/designSystemGuard.test.ts`（§9）。視覺參考：**活的元件頁** `design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/design-system.html`，直接 import 真正的元件與 token，暗／淡並排，數值與程式同步）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot` 產生，會落後程式，以活頁為準）。
+> 自動檢查：`src/styles/__tests__/designSystemGuard.test.ts`（§9）。視覺參考：**活的元件頁** `tools/design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/tools/design-system.html`，直接 import 真正的元件與 token，暗／淡並排，數值與程式同步）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot` 產生，會落後程式，以活頁為準）。
 > 決策來源：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a 五輪拍板、`proposal.md`、三份設計稿）。本檔寫的是**拍板後的最終規格與實際實作值**；兩者不一致時以本檔 §10「遷移狀態」誠實標示。
 
 ## 目錄
@@ -71,7 +71,7 @@
 | `src/lib/loadingStatusController.ts` | 載入狀態條節奏 `LOADING_STATUS_TIMING`（§5.30） |
 | `src/components/boot/bootSequence.ts` | 開站畫面規格與時間 `BOOT_TIMING`／`BOOT_LAYOUT`（§5.33） |
 | `card.html`＋`src/card/main.tsx` | 分析卡片頁 `/card/<slug>` 入口（§5.34） |
-| `design-system.html`＋`src/design-system/` | 活的元件頁：直接畫真正的元件與 token（只展示，不是數值來源） |
+| `tools/design-system.html`＋`src/design-system/` | 活的元件頁：直接畫真正的元件與 token（只展示，不是數值來源） |
 
 **TS ↔ CSS 對應規則**：`SURFACE.x ↔ --surface-x`；`COLORS.textX ↔ --text-x`；`BORDER.x ↔ --border-x`；`CONTROL.camel ↔ --control-kebab`；`SLIDER.x ↔ --slider-x`；`LIGHT.camelCase ↔ --light-kebab-case`；`COLORS.link ↔ --link`；`COLORS.statusDerived ↔ --status-derived`；`Z_INDEX.camelCase ↔ --z-kebab-case`（`zIndex.test.ts` 強制同值與順序）。`LAYOUT` 只有 TS；CSS 端需要時寫同值並註明來源（目前 `research/mainMapConnection.css` 的 Agent 面板 `top: 60px; left: 64px`，改 `LAYOUT.leftDockTop` 要一起改）。`LIGHT`／`SLIDER`／`CONTROL`／`link`／`statusDerived`／`accent` 的兩邊同值由 guard 測試強制。
 
@@ -1088,7 +1088,7 @@ PR 前逐項勾（貼進 PR 描述）：
 ## 12. 相關文件
 
 - 資料夾入口：[`README.md`](./README.md)（檔案地圖、程式裡的唯一來源、維護流程）；每輪決定：[`CHANGELOG.md`](./CHANGELOG.md)
-- 活的元件頁：`design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/design-system.html`）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot`）
+- 活的元件頁：`tools/design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/tools/design-system.html`）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot`）
 - 地圖圖層視覺規格：[`map-layers.md`](./map-layers.md)（盤點資料 [`layer-style-inventory.json`](./layer-style-inventory.json)，`npm run design:audit-layers` 重產；拍板比較頁 [`map-layer-picks.html`](./map-layer-picks.html)）
 - 拍板與設計稿：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a、`proposal.md`、`ui-unification-sheet.html`、`popup-density-variants.html`、`ui-controls-sheet.html`、`timeline-sheet.html`、第二輪 `round2-sheet.html`、時間軸 `timeline-compact-sheet.html`、載入提示 `loading-status-sheet.html`、開站 `boot-screen-sheet.html`→`boot-motion-sheet.html`→`boot-wait-sheet.html`→`boot-w2-tuner.html`）
 - 地圖圖層套用計畫：`docs/features/map-layer-restyle/`（`PLAN.md`、`handoff-r2-hooks.md`、`handoff-r2-hooks-fix.md`、分階比較頁 `r2-tiers.html`）
@@ -1103,5 +1103,5 @@ PR 前逐項勾（貼進 PR 描述）：
 - **拍板（2026-09-28）**：點 S 3／M 4.5／L 6.5 固定半徑（不隨縮放）、描邊暗 `#0a0a14`／淡 `#ffffff` 1px；線 細／標準／強調 三階（隨縮放）、不加外框；面 分級 0.55／覆蓋 0.35／背景 0.15／網格 0.7；密集點低縮放用熱區；暗淡只換色不換尺寸；缺值統一透明底＋細斜線；Three.js 圖層加「基本點線面」模式、預設 Mapbox；圖例 8 型規格、標題中文在前英文小字在後；2026-09-28／29 追加：hook 依資料半徑的 11 層改泡泡、依屬性變化的描邊保留、車站光柱預設關。完整清單見專檔 §7。
 - **數值來源**：`src/map/mapStyleScale.ts`（拍板數值）；點分階 `src/map/pointTiers.ts`（改點大小只改這裡，不改 `overlayRegistry.ts` 字面值）；registry 點圖層集中套用 `src/map/pointSpec.ts`。
 - **資料與工具**：`docs/design-system/layer-style-inventory.json`（逐層數值、檔案行號、四鐵則、圖例問題）；`npm run design:audit-layers` 重產；逐層調整照專檔 §6 工作流。
-- **參考頁**：活的元件頁 `design-system.html` 地圖圖層區塊；靜態快照 [`reference.html#map-layers`](./reference.html#map-layers)；拍板比較頁 [`map-layer-picks.html`](./map-layer-picks.html)（真實底圖 1:1）。
+- **參考頁**：活的元件頁 `tools/design-system.html` 地圖圖層區塊；靜態快照 [`reference.html#map-layers`](./reference.html#map-layers)；拍板比較頁 [`map-layer-picks.html`](./map-layer-picks.html)（真實底圖 1:1）。
 - 分析結果圖層的規格已定案於 `docs/features/viz-library/DECISIONS.md`，專檔引用不重寫。

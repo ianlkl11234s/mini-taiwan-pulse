@@ -4,9 +4,9 @@
 > **狀態**：✅ shipped **且已部署**（2026-08-05 端到端驗證通過）
 > **Owner**：migu
 > **上線時分支**：`feat/embeddable-map`（PR #105）+ `feat/embed-popup-share`
-> **規劃文件**：[`../../proposal/embeddable-map.md`](../../proposal/embeddable-map.md)（目標／費用／風險）·
-> [`embeddable-map-impl.md`](../../proposal/embeddable-map-impl.md)（逐檔工作項）·
-> [`embed-basemap-osm.md`](../../proposal/embed-basemap-osm.md)（免費底圖路線）·
+> **規劃文件**：[`../../proposal/embeddable-map.md`](../../archive/2026-10-04/proposal/embeddable-map.md)（目標／費用／風險）·
+> [`embeddable-map-impl.md`](../../archive/2026-10-04/proposal/embeddable-map-impl.md)（逐檔工作項）·
+> [`embed-basemap-osm.md`](../../archive/2026-10-04/proposal/embed-basemap-osm.md)（免費底圖路線）·
 > [`embed-dynamic-layers.md`](../../proposal/embed-dynamic-layers.md)（動態／歷史圖層）
 
 ## 一句話說明
@@ -266,10 +266,10 @@ aws s3 sync public/embed-snapshots/ "s3://$S3_BUCKET/deploy-assets/embed-snapsho
   - gated 圖層零下載
   - 嵌入版三種資料源（PMTiles / CDN 快照 / 歷史快照）皆正常渲染
   - popup 點擊、hover 游標、明暗主題
-  - 文章嵌入排版（`docs/proposal/embed-prototype/demo-religion.html`）
+  - 文章嵌入排版（`docs/archive/2026-10-04/proposal/embed-prototype/demo-religion.html`）
 
 ## 相關
 
-- 原型與重建步驟：[`../../proposal/embed-prototype/README.md`](../../proposal/embed-prototype/README.md)
+- 原型與重建步驟：[`../../proposal/embed-prototype/README.md`](../../archive/2026-10-04/proposal/embed-prototype/README.md)
 - 剩餘待辦：[`backlog.md`](./backlog.md)
 - 接手入口：[`handoff.md`](./handoff.md)

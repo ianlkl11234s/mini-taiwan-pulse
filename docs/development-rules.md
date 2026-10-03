@@ -211,7 +211,7 @@ myNewLayer: [
 
 ## 4a. 圖層 UX 標配（四大鐵則）
 
-> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system.md)；guard 測試 `src/styles/__tests__/designSystemGuard.test.ts`。
+> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system/spec.md)；guard 測試 `src/styles/__tests__/designSystemGuard.test.ts`。
 
 新 layer 必須同時通過下列四條，缺一不可。違反時 reviewer 應退件。
 

@@ -42,7 +42,7 @@
 
 | 檔案 | 是什麼 | 什麼時候看 |
 |---|---|---|
-| **活的元件頁** `design-system.html`（`src/design-system/`） | 直接 import 真正的 React 元件與 token 畫出來，暗／淡並排，旁邊印出精確數值與規格章節。**數值永遠跟程式同步** | 要看「現在長怎樣、數值多少」時；本機 `npm run dev` 後開 `http://127.0.0.1:3721/design-system.html` |
+| **活的元件頁** `tools/design-system.html`（`src/design-system/`） | 直接 import 真正的 React 元件與 token 畫出來，暗／淡並排，旁邊印出精確數值與規格章節。**數值永遠跟程式同步** | 要看「現在長怎樣、數值多少」時；本機 `npm run dev` 後開 `http://127.0.0.1:3721/tools/design-system.html` |
 | [`reference.html`](./reference.html) | 活的元件頁的**靜態快照**（單一 HTML，不需要 dev server，可發布分享） | 要分享給別人、或沒有開 dev server 時；會落後程式，以活頁為準 |
 | [`spec.md`](./spec.md) | UI 元件規格（token、字型、元件、文案、禁止事項、PR checklist、guard、遷移狀態） | 新增或修改 UI 前必讀；PR 前照 §8 checklist |
 | [`map-layers.md`](./map-layers.md) | 地圖圖層視覺規格（點線面、光暈、熱區、標籤、圖例） | 改地圖圖層的畫法或圖例時 |

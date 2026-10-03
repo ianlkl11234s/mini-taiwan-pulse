@@ -2,7 +2,7 @@
 
 台灣周邊海域的海警／海巡／科研船／軍艦 AIS 位置與軌跡，**永久保留**。
 
-- **完整設計與決策紀錄**：[`docs/proposal/vessel-watch-layer.md`](../../proposal/vessel-watch-layer.md)（SSOT）
+- **完整設計與決策紀錄**：[`docs/archive/2026-10-04/proposal/vessel-watch-layer.md`](../../archive/2026-10-04/proposal/vessel-watch-layer.md)（SSOT）
 - **上線日**：2026-08-12（資料層與前端圖層同日完成）
 - **圖層位置**：情勢 Situation → 軍事（`plaActivity` 隔壁）
 

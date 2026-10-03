@@ -5,7 +5,7 @@
  * 兩條路徑都共用下列安全規則：
  *
  * 1. `dynamicData !== true` → 只收純靜態檔（GeoJSON / PMTiles）。動態圖層走 Supabase RPC，
- *    嵌在別人文章裡等於把 DB egress 交給別人的流量決定（見 embeddable-map.md §6-2）。
+ *    嵌在別人文章裡等於把 DB egress 交給別人的流量決定（見 docs/archive/2026-10-04/proposal/embeddable-map.md §6-2）。
  * 2. 排除 `GATED_LAYERS` → owner-only 私人圖層不得經由嵌入洩漏。
  * 3. custom factory 例外只能描述 CDN 靜態資產，仍由 MapLibre adapter 載入。
  *

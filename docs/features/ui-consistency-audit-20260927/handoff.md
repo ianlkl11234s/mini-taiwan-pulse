@@ -16,7 +16,7 @@
 
 **核心發現：專案已經有成熟、文件化的 token 系統，問題不是「沒有」而是「三個具體缺口」。**
 
-- SSOT：`src/styles/designTokens.ts` + `docs/design-system.md`（Phase 0–6 已完成，108 個檔案採用），涵蓋 App 主體、全部 41 個 `featureInfo/*Panels.tsx`、AI 助手、Intel/Monitor、衛星面板、Layers/Locations/統計/世界/日本（同一 `IconRailSidebar.tsx`）、Settings、Info、Share、圖例。**這條主線內部一致。**
+- SSOT：`src/styles/designTokens.ts` + `docs/design-system/spec.md`（Phase 0–6 已完成，108 個檔案採用），涵蓋 App 主體、全部 41 個 `featureInfo/*Panels.tsx`、AI 助手、Intel/Monitor、衛星面板、Layers/Locations/統計/世界/日本（同一 `IconRailSidebar.tsx`）、Settings、Info、Share、圖例。**這條主線內部一致。**
 - 缺口 1：`src/research/*`（與 Agent 協作面板、活動時間軸、Agent 分析結果 popup）是獨立子系統，用 4 支自己的 CSS 檔（`research.css`／`mainMapConnection.css`／`researchActivity.css`）硬寫顏色字體，完全沒 import designTokens。
 - 缺口 2：`src/components/member/memberPanel.css`（會員專區）同樣獨立 CSS，`var(--font-cjk, sans-serif)` 全站無人定義，恆常 fallback。
 - 缺口 3：就算在已採用 token 的檔案裡，字體角色也用反了——`FeatureInfoPanel.tsx:97` 把整個 popup 容器設成 `FONT_DATA`（等寬），違反 `design-system.md §9.2`「中文 → FONT_CJK」；`LayerSidebar.tsx:487`／`IconRailSidebar.tsx:912` 的 `└ {title}` 群組標題同樣整段套等寬字。
@@ -86,7 +86,7 @@
 | 1c 底圖 | **B3 純圖示** | 地圖圖示＋右下色點；展開靠右的 7 格縮圖（中文名）＋「顯示地名」開關 |
 | 2 即時情報 | ✔ | H2 標頭、中文不用等寬字、徽章兩種公式（分類淡底／程度外框）、分段分頁、左線時間軸；計數口徑不在本輪 |
 | 3 圖層控制 | **V2＋S1** | 標籤＋數值一行、滑桿全寬在下；2px 軌道＋10px 圓點；標籤中文；開關迷你切換；Hide→眼睛圖示；chevron 統一 |
-| — | design system | repo 文件（`docs/design-system.md`）＋參考頁＋自動檢查（測試） |
+| — | design system | repo 文件（`docs/design-system/spec.md`）＋參考頁＋自動檢查（測試） |
 | 4 資料來源 | **D1 列內展開** | 左側 rail 新增「資料來源」（資料庫圖示，Locations 之後）；拿掉右下浮動 ⓘ 與置中詳細視窗；面板外殼同 Layers（H2、搜尋、主題／L2 群組）；統計改篩選分段；點列在清單內展開上游資料卡（同時只展開一筆）；「LEGEND」改「圖例」 |
 | — | PR 切法 | G（工具列）、H（即時情報）、I（圖層控制）、K（資料來源）、J（design system）各自 commit、各自 PR |
 
@@ -110,11 +110,11 @@
 
 表中 commit 編號為整合前的暫定值（之後有 rebase），實際以 PR 與 master 上的 merge commit 為準。
 
-Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少），並把以上規格寫進 `docs/design-system.md` §5.5、§5.25–§5.29 與參考頁。已知未處理：手機時間軸條淡色時仍是暗色底；`Z_INDEX.toast` 暫無使用者（提示訊息需高於 1000 遮罩）；ChatPanel／手機會員面板暫放 modal 層（表上缺側欄槽位）——見 design-system §10.3。
+Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少），並把以上規格寫進 `docs/design-system/spec.md` §5.5、§5.25–§5.29 與參考頁。已知未處理：手機時間軸條淡色時仍是暗色底；`Z_INDEX.toast` 暫無使用者（提示訊息需高於 1000 遮罩）；ChatPanel／手機會員面板暫放 modal 層（表上缺側欄槽位）——見 design-system §10.3。
 
 ## 5. 建議施工順序與驗收方式
 
-沿用 `docs/design-system.md` 既有的「每 Phase 一個獨立 PR」慣例，不一次大改：
+沿用 `docs/design-system/spec.md` 既有的「每 Phase 一個獨立 PR」慣例，不一次大改：
 
 1. **Phase A（低風險，先做）**：`tokens-draft.css` 補完 `--font-cjk`／`--font-data` 定義 → `memberPanel.css` 的 `var(--font-cjk)` 立刻生效，不用動其他邏輯。驗收：`npx tsc -b` 綠燈（純 CSS 變數不影響 TS）+ 肉眼比對會員面板字體有變化。
 2. **Phase B**：修正字體角色誤用——`FeatureInfoPanel.tsx:97` 容器字體改 `--font-cjk`（或移除，讓子節點各自宣告）；`LayerSidebar.tsx`／`IconRailSidebar.tsx` 的 `└ {title}` 拆成符號（mono）+ 文字（CJK）兩段。驗收：跑 `npm test`（含 `layerConsistency`）+ 手動點開 3–5 個不同圖層 popup 比對中文是否還在等寬字下顯示。
@@ -123,7 +123,7 @@ Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少�
 5. **Phase E（需先拍板待決問題 1、2）**：popup 錨定方式統一 + 分隔線／時間軸語彙統一——這兩項牽動互動邏輯與既有測試（`researchActivity.test.ts`、`resultOverlay.test.ts`、`layerConsistency.test.ts` 等），建議放最後、且獨立 PR。
 6. **Phase F**：`research/` 與 `member/` 兩支 CSS 接上 `tokens-draft.css` 的完整變數集（面板 chrome／按鈕／light theme），逐步淘汰各自硬寫的 rgba/hex 字面。
 
-每個 Phase 完成後跑 `npx tsc -b` + `npm test`（含 `layerConsistency`），並比照 `docs/design-system.md §6` 的遷移狀態表格式登記進度。
+每個 Phase 完成後跑 `npx tsc -b` + `npm test`（含 `layerConsistency`），並比照 `docs/design-system/spec.md §6` 的遷移狀態表格式登記進度。
 
 ## 5a. Q3 補充：var 命名本身就是保險
 
@@ -133,7 +133,7 @@ Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少�
 
 ## 5b. 下一題：地圖圖層數值（2026-09-28 盤點完成，**已拍板**：見 `docs/design-system/map-layers.md` §7 與 `map-layer-picks.html`）
 
-UI chrome 統一完成後，下一步是逐一調整**地圖上**每個圖層的點／線／面數值與圖例樣式。依據在 [`docs/design-system-map-layers.md`](../../design-system-map-layers.md)（`design-system.md` §13）：
+UI chrome 統一完成後，下一步是逐一調整**地圖上**每個圖層的點／線／面數值與圖例樣式。依據在 [`docs/design-system/map-layers.md`](../../design-system/map-layers.md)（`design-system.md` §13）：
 
 - 803 層現況盤點：`docs/design-system/layer-style-inventory.json`（`npm run design:audit-layers` 重產；每層有檔案行號、z10／z14 數值、暗淡差異、四鐵則、圖例問題）。
 - 40 個提案代號（P／L／F／G／T／K／LG）待使用者逐項拍板，拍板前不改 `src/`。
@@ -141,7 +141,7 @@ UI chrome 統一完成後，下一步是逐一調整**地圖上**每個圖層的
 
 ## 6. 相關檔案路徑
 
-- Token SSOT：`src/styles/designTokens.ts`、`src/components/intel/intelTokens.ts`、`docs/design-system.md`
+- Token SSOT：`src/styles/designTokens.ts`、`src/components/intel/intelTokens.ts`、`docs/design-system/spec.md`
 - Feature popup：`src/components/FeatureInfoPanel.tsx`、`src/components/featureInfo/{shared,featureTheme,registry,culturePanels,religionPanels}.tsx`
 - Agent 分析結果 popup：`src/research/MainMapConnection.tsx`（DOM 建構於 ~L440-478）、`src/research/mainMapConnection.css`、`src/research/researchResultPopup.ts`
 - 活動時間軸：`src/research/ResearchActivityCard.tsx`、`src/research/researchActivity.css`
