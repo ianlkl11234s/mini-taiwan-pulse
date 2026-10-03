@@ -216,6 +216,8 @@ export default function App() {
   // owner-only 私人圖層閘門（見 docs/features/owner-gated-layers）：
   // tier 載入完成前 isOwner=false（顯示鎖）。非 owner 點鎖層 → 未登入導 Google 登入 / 已登入顯示提示。
   const { user: memberUser, tier: memberTier, isOwner, loading: memberAuthLoading } = useMemberGate();
+  // Agent 面板：開發版全開；正式站只給站主（gateway 另有 email 白名單與研究登入）。
+  const agentEnabled = import.meta.env.DEV || isOwner;
   const [memberOpen, setMemberOpen] = useState(false);
   const memberLibrary = useMemberLibrary();
   const privateViewRef = useRef(false);
@@ -2038,7 +2040,7 @@ export default function App() {
         showBasemapLabels={showBasemapLabels}
         onMapReady={handleMapReady}
       />
-      {import.meta.env.DEV && <MainMapConnection
+      {agentEnabled && <MainMapConnection
         bridge={chatBridge}
         map={mapPrepared ? mapRef.current : null}
         labels={memberLabels}
@@ -2298,7 +2300,7 @@ export default function App() {
               memberActive={memberOpen}
               favoriteKeys={favoriteKeys}
               onToggleFavorite={handleToggleFavorite}
-              agentAvailable={import.meta.env.DEV}
+              agentAvailable={agentEnabled}
               agentActive={agentOpen}
               onAgentToggle={() => setAgentOpen(value => !value)}
               lockedKeys={lockedKeys}
@@ -2410,6 +2412,7 @@ export default function App() {
             onClose={() => setMonitorOpen(false)}
             mode={monitorMode}
             onModeChange={setMonitorMode}
+            isDarkTheme={isDarkTheme}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 11, speed: 1.2 });
             }}
@@ -2552,7 +2555,7 @@ export default function App() {
                   onSelect: () => setRenderMode((m) => (m === "3d" ? "2d" : "3d")),
                   trailing: <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: toolbarPalette.textDim }}>{renderMode === "3d" ? "3D" : "2D"}</span>,
                 },
-                ...(import.meta.env.DEV
+                ...(agentEnabled
                   ? [{ key: "agent", label: "本地 Agent", icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
                   : []),
                 { key: "member", label: "會員專區", icon: <UserRound size={15} />, active: memberOpen, onSelect: handleMemberToggle },

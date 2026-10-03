@@ -4,8 +4,8 @@ import {
 } from "react";
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
-import { ELEVATION, RADIUS, FONT_SIZE, CONTROL } from "../../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
+import { ELEVATION, RADIUS, FONT_SIZE, LIGHT } from "../../../styles/designTokens";
 import { type IntelCardEvent } from "../IntelCard";
 import { type TimeRange } from "../IntelFilters";
 import { fetchPressureIndex, fetchMarketIndex, trendingKeys as buildTrendingKeys,
@@ -65,6 +65,7 @@ import { MonitorCardFrame } from "./MonitorCardFrame";
 import { MonitorFreshTime } from "./monitorFreshness";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { MF } from "./monitorFont";
+import { IntelThemeProvider, getIntelPalette } from "../intelTheme";
 
 const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: null, vs_1h_ago: null, per_signal: [], asof: null,
@@ -74,6 +75,9 @@ const EMPTY_MARKET: MarketIndex = {
   turnover: null, time: null, status: null,
 };
 const EMPTY_CLUSTERS: Cluster[] = [];
+/** P5 淡色面板（S1／W1）：淡灰 gray-100，白卡疊在上面才分得出層次；全屏用不透明 */
+const MON_LIGHT_PANEL = "rgba(243,244,246,0.95)";
+const MON_LIGHT_PANEL_SOLID = "#f3f4f6";
 /** 最新一則新聞超過這麼久，就不信彙整時間（彙整照跑不代表收集器活著） */
 const NEWS_QUIET_MAX_MS = 12 * 3600_000;
 const EMPTY_ALERT_SUMMARY: [] = [];
@@ -288,12 +292,14 @@ interface Props {
   /** 呈現模式。主站傳入受控；不傳則用內部 state（預設 "dock"，維持舊行為） */
   mode?: MonitorMode;
   onModeChange?: (next: MonitorMode) => void;
+  /** 底圖主題（spec §5.35 H2）：新版跟著切暗／淡；舊版一律暗。不傳＝暗 */
+  isDarkTheme?: boolean;
 }
 
 export function MonitorPanel({
   open, onClose, privateDataScope = null, filter: filterProp, onFilterChange: onFilterChangeProp,
   onSelectLocation, externalSelectedId,
-  mode: modeProp, onModeChange: onModeChangeProp,
+  mode: modeProp, onModeChange: onModeChangeProp, isDarkTheme = true,
 }: Props) {
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
@@ -325,6 +331,9 @@ export function MonitorPanel({
     saveMonitorStyle(s);
   };
   const v2 = monitorStyle === "v2";
+  // P5：新版跟底圖主題；舊版一律暗（舊版樣式值不改）。暗色 palette 與 COLORS 同值
+  const light = v2 && !isDarkTheme;
+  const themePalette = getIntelPalette(!light);
   const [modeState, setModeState] = useState<MonitorMode>("dock");
   const mode = modeProp ?? modeState;
   const setMode = onModeChangeProp ?? setModeState;
@@ -672,7 +681,7 @@ export function MonitorPanel({
         status={alertSummaryQuery.status}
         lastSuccessAt={alertSummaryQuery.lastSuccessAt}
         series={alertSeries}
-        accent={COLORS.accent}
+        accent={themePalette.accent}
         nowTs={now}
       /></>
     ),
@@ -756,8 +765,9 @@ export function MonitorPanel({
 
   return (
     <MonitorStyleContext.Provider value={monitorStyle}>
+    <IntelThemeProvider palette={themePalette}>
     <div
-      className="mtp-mon"
+      className={light ? "mtp-mon mtp-mon--light" : "mtp-mon"}
       style={{
         position: "fixed",
         left: isSplit ? `${(1 - MONITOR_SPLIT_DOCK.widthPct) * 100}%` : (isWall ? 0 : 64),
@@ -765,11 +775,12 @@ export function MonitorPanel({
         bottom: isSplit ? MONITOR_SPLIT_DOCK.bottom : (isWall ? 0 : 14),
         top: isSplit ? MONITOR_SPLIT_DOCK.top : (isWall ? 0 : "auto"),
         height: isSplit ? "auto" : (isWall ? "auto" : `${height * 100}vh`),
-        background: isWall ? "rgba(6,7,11,0.97)" : "rgba(8,9,13,0.86)",
+        // W1：淡色 95% 淡灰（S1 白卡疊在上面）、全屏不透明
+        background: light ? (isWall ? MON_LIGHT_PANEL_SOLID : MON_LIGHT_PANEL) : isWall ? "rgba(6,7,11,0.97)" : "rgba(8,9,13,0.86)",
         backdropFilter: "blur(18px)",
         WebkitBackdropFilter: "blur(18px)",
-        borderTop: isWall ? "none" : `1px solid ${COLORS.borderMid}`,
-        border: isWall ? "none" : `1px solid ${COLORS.panelBorder}`,
+        borderTop: isWall ? "none" : `1px solid ${light ? themePalette.borderMid : themePalette.borderMid}`,
+        border: isWall ? "none" : `1px solid ${light ? themePalette.panelBorder : themePalette.panelBorder}`,
         borderRadius: isWall ? 0 : RADIUS.xl,
         zIndex: 40,
         display: "flex", flexDirection: "column",
@@ -788,7 +799,7 @@ export function MonitorPanel({
           // v2：窄面板（1440 以下的 split）時整排換行，切換鈕與「退出」不會被裁掉
           flexWrap: v2 ? "wrap" : undefined, rowGap: v2 ? 6 : undefined,
           padding: v2 ? "10px 14px" : "8px 14px",
-          borderBottom: `1px solid ${COLORS.panelBorder}`,
+          borderBottom: `1px solid ${themePalette.panelBorder}`,
           cursor: mode === "dock" ? "ns-resize" : "default",
         }}
         onMouseDown={(e) => {
@@ -805,7 +816,7 @@ export function MonitorPanel({
               position: "absolute", left: "50%", top: 5,
               transform: "translateX(-50%)",
               width: 44, height: 4, borderRadius: RADIUS.md,
-              background: COLORS.borderStrong,
+              background: themePalette.borderStrong,
             }}
           />
         )}
@@ -815,16 +826,16 @@ export function MonitorPanel({
             marginTop: isWall ? 0 : 4,
           }}
         >
-          <IntelIcon d={MICON.grid!} size={15} color={COLORS.accent} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: v2 ? MF.title : FONT_SIZE.lg, fontWeight: 700, color: v2 ? COLORS.textStrong : "#fff" }}>
+          <IntelIcon d={MICON.grid!} size={15} color={themePalette.accent} />
+          <span style={{ fontFamily: FONT_CJK, fontSize: v2 ? MF.title : FONT_SIZE.lg, fontWeight: 700, color: v2 ? themePalette.textStrong : "#fff" }}>
             監看模式
           </span>
           {v2 ? (
             <span
               style={{
                 padding: "1px 6px", borderRadius: RADIUS.md,
-                border: `1px solid ${COLORS.statusWarn}`,
-                fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.statusWarn, whiteSpace: "nowrap",
+                border: `1px solid ${themePalette.statusWarn}`,
+                fontFamily: FONT_CJK, fontSize: MF.label, color: themePalette.statusWarn, whiteSpace: "nowrap",
               }}
               title="本模式仍在打磨中，數據與互動可能還會調整"
             >
@@ -833,7 +844,7 @@ export function MonitorPanel({
           ) : <>
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim,
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: themePalette.textDim,
             }}
           >
             MONITOR
@@ -841,10 +852,10 @@ export function MonitorPanel({
           <span
             style={{
               padding: "1px 7px", borderRadius: RADIUS.md,
-              background: "rgba(255,152,0,0.16)",
-              border: "1px solid rgba(255,152,0,0.45)",
+              background: themePalette.statusWarnSoft,
+              border: `1px solid ${themePalette.statusWarnBorder}`,
               fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700, letterSpacing: "1px",
-              color: COLORS.statusWarn,
+              color: themePalette.statusWarn,
               animation: "presBreathe 3s ease-in-out infinite",
             }}
             title="本模式仍在打磨中，數據與互動可能還會調整"
@@ -860,7 +871,7 @@ export function MonitorPanel({
             overflow:hidden 裁掉且點不到（1440 實測超出 30px）。 */}
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: v2 ? MF.label : FONT_SIZE.sm, color: COLORS.textFaint,
+            fontFamily: FONT_DATA, fontSize: v2 ? MF.label : FONT_SIZE.sm, color: themePalette.textFaint,
             marginTop: isWall ? 0 : 4, whiteSpace: "nowrap",
             minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
           }}
@@ -873,7 +884,7 @@ export function MonitorPanel({
           aria-label="卡片樣式"
           style={{
             display: "inline-flex", flexShrink: 0, padding: 2, gap: 2,
-            borderRadius: RADIUS.md, border: `1px solid ${CONTROL.border}`, marginTop: isWall ? 0 : 4,
+            borderRadius: RADIUS.md, border: `1px solid ${themePalette.controlBorder}`, marginTop: isWall ? 0 : 4,
           }}
         >
           {STYLE_OPTIONS.map(({ key, label }) => {
@@ -889,8 +900,8 @@ export function MonitorPanel({
                 style={{
                   padding: "3px 8px", borderRadius: 3, border: "none", cursor: "pointer",
                   fontFamily: FONT_CJK, fontSize: MF.label, whiteSpace: "nowrap",
-                  background: active ? COLORS.accentFaint : "transparent",
-                  color: active ? COLORS.accent : COLORS.textMuted,
+                  background: active ? themePalette.accentFaint : "transparent",
+                  color: active ? themePalette.accent : themePalette.textMuted,
                 }}
               >
                 {label}
@@ -914,15 +925,15 @@ export function MonitorPanel({
                   padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
                   fontFamily: FONT_CJK, fontSize: v2 ? MF.label : FONT_SIZE.base,
                   whiteSpace: "nowrap",
-                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.05)",
-                  border: active ? `1px solid ${COLORS.accentSoft}` : `1px solid ${COLORS.borderMid}`,
-                  color: active ? COLORS.accent : COLORS.textDefault,
+                  background: active ? themePalette.accentFaint : themePalette.isDark ? "rgba(255,255,255,0.05)" : LIGHT.controlBg,
+                  border: active ? `1px solid ${themePalette.accentSoft}` : `1px solid ${themePalette.borderMid}`,
+                  color: active ? themePalette.accent : themePalette.textDefault,
                 }}
               >
                 <IntelIcon
                   d={icon}
                   size={13}
-                  color={active ? COLORS.accent : "currentColor"}
+                  color={active ? themePalette.accent : "currentColor"}
                 />
                 {v2 ? MODE_LABEL_V2[key] : label}
               </button>
@@ -940,9 +951,9 @@ export function MonitorPanel({
             padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
             marginTop: isWall ? 0 : 4,
             fontFamily: FONT_CJK, fontSize: v2 ? MF.label : FONT_SIZE.base, whiteSpace: "nowrap",
-            background: "rgba(255,255,255,0.05)",
-            border: `1px solid ${COLORS.borderMid}`,
-            color: COLORS.textDefault,
+            background: themePalette.isDark ? "rgba(255,255,255,0.05)" : LIGHT.controlBg,
+            border: `1px solid ${themePalette.borderMid}`,
+            color: themePalette.textDefault,
           }}
         >
           <IntelIcon d={ICON.x} size={12} /> 退出
@@ -1035,6 +1046,7 @@ export function MonitorPanel({
         }
       `}</style>
     </div>
+    </IntelThemeProvider>
     </MonitorStyleContext.Provider>
   );
 }

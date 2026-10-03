@@ -1,12 +1,13 @@
 import { useMemo, useRef, useState } from "react";
 import {
-  COLORS, FONT_DATA,
+  FONT_DATA,
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER,
   type AlertGroupShort,
 } from "../intelTokens";
 import type { AlertSeriesMap } from "../../../data/alertsLoader";
 import { useMonitorV2 } from "../monitor/monitorStyle";
 import { fs } from "../monitor/monitorFont";
+import { useMonitorTheme } from "../monitor/monitorTheme";
 import { useChartTooltip, fmtChartValue, type ChartTooltipContent } from "../../ChartHoverTooltip";
 
 interface Props {
@@ -31,6 +32,7 @@ export function AlertsTrack({
   const draggingRef = useRef(false);
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
 
   const fracFromClientX = (clientX: number): number => {
     const el = areaRef.current;
@@ -64,7 +66,7 @@ export function AlertsTrack({
     return {
       title,
       rows: ALERT_GROUP_ORDER.filter((g) => b.parts[g]).map((g) => ({
-        dot: ALERT_GROUPS_DEF[g].color,
+        dot: theme.fill(ALERT_GROUPS_DEF[g].color),
         label: ALERT_GROUPS_DEF[g].label,
         value: fmtChartValue(b.parts[g], "則"),
       })),
@@ -76,7 +78,7 @@ export function AlertsTrack({
     <div
       style={{
         padding: "4px 14px 6px",
-        borderTop: `1px solid ${COLORS.borderSoft}`,
+        borderTop: `1px solid ${theme.p.borderSoft}`,
       }}
     >
       <div
@@ -87,7 +89,7 @@ export function AlertsTrack({
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: v2 ? "0.5px" : "1.8px",
-            color: COLORS.textFaint,
+            color: theme.p.textFaint,
           }}
         >
           {v2 ? "警報 · 近 24 小時" : "ALERTS 24H"}
@@ -130,8 +132,8 @@ export function AlertsTrack({
           style={{
             position: "absolute", top: 0, bottom: 0,
             left: `${nowFrac * 100}%`, right: 0,
-            background: "rgba(0,0,0,0.32)",
-            borderLeft: "1px dashed rgba(255,255,255,0.12)",
+            background: theme.isDark ? "rgba(0,0,0,0.32)" : theme.neutral(0.05),
+            borderLeft: `1px dashed ${theme.neutral(0.12)}`,
           }}
         />
 
@@ -154,7 +156,7 @@ export function AlertsTrack({
                     display: "flex", flexDirection: "column-reverse",
                     height: `${hPct}%`, minHeight: b.total ? 2 : 0,
                     borderRadius: 1.5, overflow: "hidden",
-                    outline: isHover ? "1px solid rgba(255,255,255,0.35)" : "none",
+                    outline: isHover ? `1px solid ${theme.neutral(0.35)}` : "none",
                   }}
                 >
                   {ALERT_GROUP_ORDER.map((g) => {
@@ -165,7 +167,7 @@ export function AlertsTrack({
                         key={g}
                         style={{
                           height: `${(v / b.total) * 100}%`,
-                          background: ALERT_GROUPS_DEF[g].color,
+                          background: theme.fill(ALERT_GROUPS_DEF[g].color),
                           opacity: isHover ? 1 : 0.82,
                         }}
                       />
@@ -182,8 +184,8 @@ export function AlertsTrack({
           style={{
             position: "absolute", top: -2, bottom: -2,
             left: `${playbackFrac * 100}%`, width: 2, marginLeft: -1,
-            background: isLive ? COLORS.statusLive : COLORS.accent,
-            boxShadow: `0 0 6px ${isLive ? COLORS.statusLive : COLORS.accent}`,
+            background: isLive ? theme.p.statusLive : theme.p.accent,
+            boxShadow: `0 0 6px ${isLive ? theme.p.statusLive : theme.p.accent}`,
             pointerEvents: "none", zIndex: 3,
           }}
         />

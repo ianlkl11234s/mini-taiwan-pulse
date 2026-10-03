@@ -94,6 +94,24 @@
 .mtp-mcard__pill--stale { color: var(--mon-warn); }
 .mtp-mcard__pill--stopped { color: var(--mon-err); }
 
+/* P5 淡色（spec §5.35 H2；S1 白卡疊淡灰面板、P2 pill 淡底實心）。值只取 --light-*。 */
+.mtp-mon--light {
+  --mon-card-bg: var(--light-surface-solid);
+  --mon-card-border: var(--light-border);
+  --mon-text-strong: var(--light-text-strong);
+  --mon-text-muted: var(--light-text-muted);
+  --mon-text-dim: var(--light-text-dim);
+  --mon-warn: var(--light-status-warn);
+  --mon-err: var(--light-status-err);
+  color: var(--light-text-default);
+}
+.mtp-mon--light .mtp-mcard__pill {
+  border-color: transparent;
+  background: var(--light-fill-strong);
+}
+.mtp-mon--light .mtp-mcard__pill--stale { background: color-mix(in srgb, var(--light-status-warn) 12%, var(--light-surface-solid)); }
+.mtp-mon--light .mtp-mcard__pill--stopped { background: color-mix(in srgb, var(--light-status-err) 12%, var(--light-surface-solid)); }
+
 .mtp-mcard__body {
   display: flex;
   flex-direction: column;

@@ -12,6 +12,13 @@ vi.mock("../../../../hooks/useMonitorResource", () => ({
   useMonitorResource: () => ({ status: "ready", data: [], lastSuccessAt: 1 }),
 }));
 
+// 測試把 useContext 換成 undefined → 沒有 Provider 的 palette；直接給暗色主題
+vi.mock("../monitorTheme", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("../monitorTheme")>();
+  const { DARK_INTEL } = await import("../../intelTheme");
+  return { ...mod, useMonitorTheme: () => mod.monitorThemeFor(DARK_INTEL) };
+});
+
 import { TwseTicker, marketDataMs } from "../PressureRing";
 
 function textOf(node: unknown): string {

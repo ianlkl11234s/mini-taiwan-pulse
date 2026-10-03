@@ -17,6 +17,17 @@
 | 不改 | manifest 名稱結構（B 段）、控制項順序（B 段）、統計設定區與醫療群組「指標」在列外（C 段） |
 | 對照 | `docs/features/layer-panel-unify/phase-a-compare.html` |
 
+### 監看卡 P5 淡色版 — spec §5.35 H2
+
+| 項目 | 內容 |
+|---|---|
+| 拍板 | 比較頁 `docs/features/monitor-restyle/p5-picks.html`：S1 白卡疊淡灰面板、W1 外殼 95%（全屏不透明）、D2 淺色相填色加深、P2 pill 淡底實心、X1 斜線同 alpha 換極性、R2 壓力環保留光暈＋數字用等級色 |
+| 機制 | `MonitorPanel` 收 `isDarkTheme`（App 傳入），新版依底圖包 `IntelThemeProvider`＋`.mtp-mon--light`；舊版一律暗。`monitorTheme.ts`：`useMonitorTheme()` 給 palette、圖表中性色、`fill`（淡色對白至少 3:1）、`text`、`neutral`；暗色值＝改版前字面值 |
+| 共用元件 | 折線、計數柱、數值列、圖表提示框都吃主題（沒有 Provider 時為暗，一般彈窗不變）；設計系統 §13 改暗／淡並排 |
+| 卡片 | 24 格全部換；直播牆影片與影片上的字幕條維持暗；只在舊版跑的分支不動 |
+| 驗收 | 淡色底圖 1920 新版 24 格無截斷、無溢出；暗色新版、淡色底圖下的舊版維持全暗；tsc、1325 個測試 |
+
+
 ### 監看卡 P4 來源新鮮度與缺值修正 — spec §5.35 G2／K1
 
 | 項目 | 內容 |
