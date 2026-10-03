@@ -165,3 +165,9 @@ export function useMonitorFreshness(widgetId: MonitorWidgetId, input: MonitorFre
   useMonitorCardHeader({ time, timeText, state: f.header });
   return f;
 }
+
+/** 給沒有自己元件可放 hook 的格子（MonitorPanel 組裝的新聞四格）送時間＋新鮮度 */
+export function MonitorFreshTime({ widgetId, ...input }: MonitorFreshnessInput & { widgetId: MonitorWidgetId }): null {
+  useMonitorFreshness(widgetId, input);
+  return null;
+}
