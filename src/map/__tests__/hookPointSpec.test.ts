@@ -141,7 +141,7 @@ describe("hook point spec R2 ratchet", () => {
 
   it("uses fixed tiers and theme seam strokes in extracted paint helpers", () => {
     expect(animalWelfarePointRadius(1)).toBe(4.5);
-    expect(animalWelfarePointStroke(true, 0.85)).toMatchObject({
+    expect(animalWelfarePointStroke(true, 0.8)).toMatchObject({
       "circle-stroke-color": "#0a0a14", "circle-stroke-width": 1, "circle-stroke-opacity": 0.8,
     });
     expect(powerPolePointPaint(false, 0.7, 1)).toMatchObject({

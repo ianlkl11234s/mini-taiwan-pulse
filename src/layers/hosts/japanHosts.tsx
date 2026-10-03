@@ -47,7 +47,7 @@ export const JpStationsHost: LayerHostComponent = ({ deps }) => {
   useJpStationsLayer(
     deps.mapRef,
     deps.layerVisibility.jpStations,
-    p.jpStationsOpacity ?? 0.85,
+    p.jpStationsOpacity ?? 0.8,
     p.jpStationsScale ?? 1,
     colorMode,
     deps.isDarkTheme,
@@ -148,18 +148,18 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
     jpWaterQualityStations: deps.layerVisibility.jpWaterQualityStations,
     jpWaterLevelStations: deps.layerVisibility.jpWaterLevelStations,
   }, {
-    jpWaterDams: dams.jpWaterDamsOpacity ?? 0.85,
+    jpWaterDams: dams.jpWaterDamsOpacity ?? 0.8,
     jpWaterLakes: lakes.jpWaterLakesOpacity ?? 0.35,
     jpWaterRivers: rivers.jpWaterRiversOpacity ?? 0.75,
-    jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesOpacity ?? 0.85,
+    jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesOpacity ?? 0.8,
     jpWaterSupplyAreas: supplyAreas.jpWaterSupplyAreasOpacity ?? 0.18,
-    jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesOpacity ?? 0.82,
-    jpWaterGroundwaterSites: groundwater.jpWaterGroundwaterSitesOpacity ?? 0.82,
+    jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesOpacity ?? 0.8,
+    jpWaterGroundwaterSites: groundwater.jpWaterGroundwaterSitesOpacity ?? 0.8,
     jpWaterNilimDams: nilim.jpWaterNilimDamsOpacity ?? 0.82,
-    jpWaterAgriculturalPonds: agri.jpWaterAgriculturalPondsOpacity ?? 0.55,
+    jpWaterAgriculturalPonds: agri.jpWaterAgriculturalPondsOpacity ?? 0.6,
     jpWaterFloodHazard: flood.jpWaterFloodHazardOpacity ?? RASTER.opacity,
     jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
-    jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.75,
+    jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.8,
     jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
   }, deps.isDarkTheme);
   // 登入時的權限探測失敗不該對沒開日本水資源圖層的人跳全域錯誤框
@@ -193,10 +193,10 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
     JP_TOURISM_LAYER_KEYS.map((key) => [key, deps.layerVisibility[key]]),
   ) as Record<JpTourismLayerKey, boolean>, [deps.layerVisibility]);
   const opacity = useMemo(() => ({
-    jpAccommodationCanonical: canonical.jpAccommodationCanonicalOpacity ?? 0.85,
-    jpAccommodationJta: jta.jpAccommodationJtaOpacity ?? 0.85,
-    jpAccommodationLocal: local.jpAccommodationLocalOpacity ?? 0.85,
-    jpAccommodationOsm: osm.jpAccommodationOsmOpacity ?? 0.72,
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalOpacity ?? 0.75,
+    jpAccommodationJta: jta.jpAccommodationJtaOpacity ?? 0.8,
+    jpAccommodationLocal: local.jpAccommodationLocalOpacity ?? 0.8,
+    jpAccommodationOsm: osm.jpAccommodationOsmOpacity ?? 0.75,
     jpNaturalParksNational: parksNational.jpNaturalParksNationalOpacity ?? 0.28,
     jpNaturalParksQuasiNational: parksQuasi.jpNaturalParksQuasiNationalOpacity ?? 0.25,
     jpNaturalParksPrefectural: parksPrefectural.jpNaturalParksPrefecturalOpacity ?? 0.22,

@@ -26,6 +26,11 @@ const PENALTY_CRITICAL_LAYER = "pollution-penalty-critical-circle";
 const PENALTY_GENERAL_LAYER = "pollution-penalty-general-circle";
 const PENALTY_MOBILE_LAYER = "pollution-penalty-mobile-circle";
 const SITE_LAYER = "pollution-site-circle";
+// R5（P-4／G-2）：拉遠的熱區子圖層（overlayRegistry）與點套同一個 filter，兩者顯示同一批資料。
+const FACILITY_HEATMAP = "pollution-facility-heatmap";
+const PENALTY_CRITICAL_HEATMAP = "pollution-penalty-critical-heatmap";
+const PENALTY_GENERAL_HEATMAP = "pollution-penalty-general-heatmap";
+const PENALTY_MOBILE_HEATMAP = "pollution-penalty-mobile-heatmap";
 
 export interface PollutionFilterState {
   facilityMedia: Record<PollutionMedium, boolean>;
@@ -101,22 +106,17 @@ export function usePollutionLayers(
     if (!map) return;
 
     const apply = () => {
-      if (map.getLayer(FACILITY_LAYER)) {
-        map.setFilter(FACILITY_LAYER, facilityFilter(facilityMedia, facilityMinSev) as unknown as FilterSpecification);
-      }
+      const setFilter = (ids: string[], filter: unknown[] | null) => {
+        for (const id of ids) {
+          if (map.getLayer(id)) map.setFilter(id, filter as unknown as FilterSpecification);
+        }
+      };
+      setFilter([FACILITY_LAYER, FACILITY_HEATMAP], facilityFilter(facilityMedia, facilityMinSev));
       const penaltyDynamicFilter = penaltyFilter(penaltyMediumIdx, penaltyYear, penaltyMode);
-      if (map.getLayer(PENALTY_CRITICAL_LAYER)) {
-        map.setFilter(PENALTY_CRITICAL_LAYER, combineFilters(PENALTY_CRITICAL_FILTER, penaltyDynamicFilter) as unknown as FilterSpecification);
-      }
-      if (map.getLayer(PENALTY_GENERAL_LAYER)) {
-        map.setFilter(PENALTY_GENERAL_LAYER, combineFilters(PENALTY_GENERAL_FILTER, penaltyDynamicFilter) as unknown as FilterSpecification);
-      }
-      if (map.getLayer(PENALTY_MOBILE_LAYER)) {
-        map.setFilter(PENALTY_MOBILE_LAYER, combineFilters(PENALTY_MOBILE_FILTER, penaltyDynamicFilter) as unknown as FilterSpecification);
-      }
-      if (map.getLayer(SITE_LAYER)) {
-        map.setFilter(SITE_LAYER, siteFilter(siteActiveOnly) as unknown as FilterSpecification);
-      }
+      setFilter([PENALTY_CRITICAL_LAYER, PENALTY_CRITICAL_HEATMAP], combineFilters(PENALTY_CRITICAL_FILTER, penaltyDynamicFilter));
+      setFilter([PENALTY_GENERAL_LAYER, PENALTY_GENERAL_HEATMAP], combineFilters(PENALTY_GENERAL_FILTER, penaltyDynamicFilter));
+      setFilter([PENALTY_MOBILE_LAYER, PENALTY_MOBILE_HEATMAP], combineFilters(PENALTY_MOBILE_FILTER, penaltyDynamicFilter));
+      setFilter([SITE_LAYER], siteFilter(siteActiveOnly));
     };
 
     apply();

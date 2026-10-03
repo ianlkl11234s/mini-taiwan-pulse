@@ -9,7 +9,7 @@ import { useAqiImageryLayer } from "../../hooks/useAqiImageryLayer";
 import { useAqiStationsLayer } from "../../hooks/useAqiStationsLayer";
 import { useMicroSensorsLayer } from "../../hooks/useMicroSensorsLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { paramBool, paramNum, useLayerParams } from "../layerParamsAccess";
+import { paramNum, useLayerParams } from "../layerParamsAccess";
 
 // 全臺 raster bbox（WGS84，繼承自 dtm_20m 上游 EPSG:3826 → 3857）
 const TERRAIN_BBOX = {
@@ -96,7 +96,7 @@ export const AqiStationsHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** LASS 微型感測器（cluster 開關 + 模式 select） */
+/** LASS 微型感測器（模式 select + 透明度；已取消聚合） */
 export const MicroSensorsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useMicroSensorsLayer");
   const values = useLayerParams("aqiMicroSensors");
@@ -104,7 +104,6 @@ export const MicroSensorsHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.aqiMicroSensors,
     deps.isDarkTheme,
-    paramBool(values, "aqiMicroSensors", "aqiMicroCluster"),
     paramNum(values, "aqiMicroSensors", "aqiMicroModeIdx"),
     paramNum(values, "aqiMicroSensors", "aqiMicroOpacity"),
   );

@@ -2636,7 +2636,7 @@ export const LAYER_MANIFEST = {
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "convenience-stores", url: "./geo/convenience_stores.geojson" },
-    legend: null,
+    legend: "convenienceStores",
     popup: "convenienceStore",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "全台便利商店點位（單色 POI，無圖例）",
@@ -7191,11 +7191,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useMicroSensorsLayer：Supabase RPC get_micro_sensors_latest（5 分鐘 refetch，對齊 LASS collector）→ 自建 source aqi-micro-src + 3 layer（cluster / cluster-count / aqi-micro-circle），cluster 開關會重建 source —— 非 OVERLAY_REGISTRY",
+      note: "useMicroSensorsLayer：Supabase RPC get_micro_sensors_latest（5 分鐘 refetch，對齊 LASS collector）→ 自建 source aqi-micro-src + 1 layer（aqi-micro-circle；2026-10-02 R5 取消聚合，456 點直接顯示）—— 非 OVERLAY_REGISTRY",
     },
     legend: "aqiMicroSensors",
     popup: "microSensor",
-    params: { count: 3, kinds: ["select", "toggle", "slider"] },
+    params: { count: 2, kinds: ["select", "slider"] },
     description: "LASS 民間微型感測器即時 PM2.5 / 溫度 / 濕度（約 500 點，可聚合）",
     topics: ["環境", "空品", "公民科學"],
   },
@@ -8770,7 +8770,7 @@ export const LAYER_MANIFEST = {
       minzoom: 6,
       maxzoom: 14,
     },
-    legend: null,
+    legend: "wasteStopsStatic",
     // W2 popup 補強：同主題的 wasteDisposalPoint（wd*）與 wasteCleaningSquad 早有 panel，
     // 唯獨密度最高、最貼近民生的清運點位不可點。route_name + routes_count 正好回答
     // 「我家這個點屬哪條路線 / 有幾條路線經過」。
@@ -10170,7 +10170,7 @@ export const LAYER_MANIFEST = {
       minzoom: 0,
       maxzoom: 12,
     },
-    legend: null,
+    legend: "busStationsCity",
     popup: "busStation",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "市區公車站牌點位（PMTiles 切片，雙圓 glow）",
@@ -10194,7 +10194,7 @@ export const LAYER_MANIFEST = {
       sourceId: "bus-stations-intercity",
       url: "./geo/bus_stations_intercity.geojson",
     },
-    legend: null,
+    legend: "busStationsIntercity",
     // 與 busStationsCity 共用同一個 layerType（兩組 layer id → 同一個 busStation panel）
     popup: "busStation",
     params: { count: 2, kinds: ["slider", "slider"] },

@@ -1,30 +1,41 @@
 import { useEffect, useRef, useState } from "react";
-import type { CircleLayer, ExpressionSpecification, Map as MapboxMap } from "mapbox-gl";
+import type { CircleLayer, ExpressionSpecification, HeatmapLayer, Map as MapboxMap } from "mapbox-gl";
 import { fetchJpReligionWikidata } from "../data/jpReligionLoader";
 import { JP_RELIGION_COLOR_EXPRESSION } from "../data/jpReligionTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { POINT_STROKE, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const GSI_SOURCE_ID = "jp-religion-gsi";
 const GSI_SOURCE_LAYER = "jp_religion_gsi";
 const GSI_LAYER_ID = "jp-religion-gsi-circle";
+const GSI_HEATMAP_LAYER_ID = "jp-religion-gsi-heatmap";
 const OSM_SOURCE_ID = "jp-religion-osm";
 const OSM_SOURCE_LAYER = "jp_religion_osm";
 const OSM_LAYER_ID = "jp-religion-osm-circle";
+const OSM_HEATMAP_LAYER_ID = "jp-religion-osm-heatmap";
 const WIKIDATA_SOURCE_ID = "jp-religion-wikidata";
 const WIKIDATA_LAYER_ID = "jp-religion-wikidata-circle";
+const WIKIDATA_HEATMAP_LAYER_ID = "jp-religion-wikidata-heatmap";
 
 const GSI_OPACITY_DEFAULT = Number(paramDefault("jpReligionGsi", "jpReligionGsiOpacity"));
 const OSM_OPACITY_DEFAULT = Number(paramDefault("jpReligionOsm", "jpReligionOsmOpacity"));
 const WIKIDATA_OPACITY_DEFAULT = Number(paramDefault("jpReligionWikidata", "jpReligionWikidataOpacity"));
 
-// GSI 的 PMTiles 從 z4 起就是全量 167,037 點；瀏覽器實看（2026-09-29）暗色底圖 z4–z6 描邊連成黑塊，
-// 沿用原本「z8 以下不畫描邊」的例外（a9034643 為 z4–z8 寬 0），z9 起回到 1px。
-const GSI_STROKE_WIDTH: number | ExpressionSpecification =
-  ["interpolate", ["linear"], ["zoom"], 8, 0, 9, POINT_STROKE.width] as unknown as ExpressionSpecification;
+// GSI 的 PMTiles 從 z4 起就是全量 167,037 點，拉遠糊成一片。R5（P-4／G-2）：> 100k 點
+// z < 12 畫 magma 熱區、z ≥ 12 才畫點（原本 z8 以下不畫描邊的例外因此不再需要）。
+const GSI_POINTS_FROM_ZOOM = densePointsFromZoom(167_037);
+// 4e0d3ac5 瀏覽器目視定為 1（原為 heatmapPaint 預設值）。
+const GSI_HEATMAP_INTENSITY = 1;
+// OSM 71,040 點、Wikidata 37,154 點（10k–100k）：z < 10 熱區、z ≥ 10 畫點。
+const OSM_POINTS_FROM_ZOOM = densePointsFromZoom(71_040);
+const WIKIDATA_POINTS_FROM_ZOOM = densePointsFromZoom(37_154);
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
+const OSM_HEATMAP_INTENSITY = 1;
+// 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
+const WIKIDATA_HEATMAP_INTENSITY = 1.5;
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -38,23 +49,46 @@ function circleLayer(
   strokeOpacityFactor: number,
   isDark: boolean,
   sourceLayer?: string,
-  strokeWidth: number | ExpressionSpecification = POINT_STROKE.width,
+  minzoom?: number,
 ): CircleLayer {
   return {
     id,
     type: "circle",
     source,
     ...(sourceLayer ? { "source-layer": sourceLayer } : {}),
+    ...(minzoom !== undefined ? { minzoom } : {}),
     layout: { visibility: "none" },
     paint: {
       "circle-radius": radius,
       "circle-color": JP_RELIGION_COLOR_EXPRESSION as unknown as ExpressionSpecification,
       "circle-opacity": clampOpacity(opacity),
       ...pointStrokePaint(isDark, strokeOpacityFactor),
-      "circle-stroke-width": strokeWidth,
     },
   } as CircleLayer;
 }
+
+/** G-2 熱區：畫在出點縮放以下（maxzoom 見 heatmapMaxzoom），不可點擊。 */
+function heatmapLayer(
+  id: string,
+  source: string,
+  sourceLayer: string | undefined,
+  pointsFromZoom: number,
+  opacityScale: number,
+  intensity: number,
+): HeatmapLayer {
+  return {
+    id,
+    type: "heatmap",
+    source,
+    ...(sourceLayer ? { "source-layer": sourceLayer } : {}),
+    maxzoom: heatmapMaxzoom(pointsFromZoom),
+    layout: { visibility: "none" },
+    paint: heatmapPaint(opacityScale, intensity),
+  } as HeatmapLayer;
+}
+
+/** 密集點（P-4）：出點縮放以下改畫熱區；intensity 為該層 heatmap-intensity 倍率。 */
+interface HeatmapConfig { layerId: string; pointsFromZoom: number; intensity: number }
 
 const strokeFactor = (opacity: number, defaultOpacity: number) => clampOpacity(opacity) / defaultOpacity;
 
@@ -70,8 +104,8 @@ interface PmtilesLayerConfig {
   /** public/world/ 下的檔名 */
   file: string;
   opacityDefault: number;
-  /** 指定時在一般描邊之後覆寫 circle-stroke-width（GSI 低 zoom 不畫描邊） */
-  strokeWidth?: number | ExpressionSpecification;
+  /** 密集點（P-4）：出點縮放以下改畫熱區；不指定則照舊全縮放畫點。 */
+  heatmap?: HeatmapConfig;
 }
 
 function usePmtilesLayer(
@@ -83,13 +117,14 @@ function usePmtilesLayer(
   config: PmtilesLayerConfig,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
-  const { sourceId, sourceLayer, layerId, file, opacityDefault, strokeWidth } = config;
+  const { sourceId, sourceLayer, layerId, file, opacityDefault, heatmap } = config;
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (!visible) {
       if (map.getLayer(layerId)) map.setLayoutProperty(layerId, "visibility", "none");
+      if (heatmap && map.getLayer(heatmap.layerId)) map.setLayoutProperty(heatmap.layerId, "visibility", "none");
       return;
     }
 
@@ -105,6 +140,17 @@ function usePmtilesLayer(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
+      // 透明度滑桿按比例同時控制熱區（0.8 × 滑桿 ÷ 預設）。
+      const heatScale = clampOpacity(opacity) / opacityDefault;
+      if (heatmap) {
+        if (!map.getLayer(heatmap.layerId)) {
+          map.addLayer(heatmapLayer(heatmap.layerId, sourceId, sourceLayer, heatmap.pointsFromZoom, heatScale, heatmap.intensity));
+        }
+        if (map.getLayer(heatmap.layerId)) {
+          map.setLayoutProperty(heatmap.layerId, "visibility", "visible");
+          map.setPaintProperty(heatmap.layerId, "heatmap-opacity", heatmapOpacity(heatScale));
+        }
+      }
       if (!map.getLayer(layerId)) {
         // 圖層不設 maxzoom；z15+ 必須 overzoom z14 tiles，不能變空白。
         map.addLayer(circleLayer(
@@ -115,7 +161,7 @@ function usePmtilesLayer(
           strokeFactor(opacity, opacityDefault),
           isDark,
           sourceLayer,
-          strokeWidth,
+          heatmap?.pointsFromZoom,
         ));
       }
       if (map.getLayer(layerId)) {
@@ -128,14 +174,13 @@ function usePmtilesLayer(
           map.setPaintProperty(layerId, "circle-stroke-width", stroke["circle-stroke-width"]);
           map.setPaintProperty(layerId, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
         }
-        if (strokeWidth !== undefined) map.setPaintProperty(layerId, "circle-stroke-width", strokeWidth);
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sourceId, sourceLayer, layerId, file, opacityDefault, strokeWidth]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sourceId, sourceLayer, layerId, file, opacityDefault, heatmap]);
 }
 
 const GSI_CONFIG: PmtilesLayerConfig = {
@@ -144,7 +189,7 @@ const GSI_CONFIG: PmtilesLayerConfig = {
   layerId: GSI_LAYER_ID,
   file: "jp_religion_gsi.pmtiles",
   opacityDefault: GSI_OPACITY_DEFAULT,
-  strokeWidth: GSI_STROKE_WIDTH,
+  heatmap: { layerId: GSI_HEATMAP_LAYER_ID, pointsFromZoom: GSI_POINTS_FROM_ZOOM, intensity: GSI_HEATMAP_INTENSITY },
 };
 
 // 2026-09-30 PF-4：原 10.9 MB 整包 GeoJSON → PMTiles（-r1 全量 71,040 點，Z4–z14 比照 GSI；
@@ -155,6 +200,7 @@ const OSM_CONFIG: PmtilesLayerConfig = {
   layerId: OSM_LAYER_ID,
   file: "jp_religion_osm_20260930.pmtiles",
   opacityDefault: OSM_OPACITY_DEFAULT,
+  heatmap: { layerId: OSM_HEATMAP_LAYER_ID, pointsFromZoom: OSM_POINTS_FROM_ZOOM, intensity: OSM_HEATMAP_INTENSITY },
 };
 
 interface GeoJsonLayerConfig {
@@ -163,6 +209,8 @@ interface GeoJsonLayerConfig {
   fetcher: () => Promise<GeoJSON.FeatureCollection>;
   logName: string;
   opacityDefault: number;
+  /** 密集點（P-4）：同 PmtilesLayerConfig.heatmap，共用同一個 GeoJSON source。 */
+  heatmap?: HeatmapConfig;
 }
 
 function useGeoJsonLayer(
@@ -197,6 +245,9 @@ function useGeoJsonLayer(
       if (map.getLayer(config.layerId)) {
         map.setLayoutProperty(config.layerId, "visibility", "none");
       }
+      if (config.heatmap && map.getLayer(config.heatmap.layerId)) {
+        map.setLayoutProperty(config.heatmap.layerId, "visibility", "none");
+      }
       return;
     }
     if (!dataRef.current) return;
@@ -207,6 +258,17 @@ function useGeoJsonLayer(
       if (!map.getSource(config.sourceId)) {
         map.addSource(config.sourceId, { type: "geojson", data: dataRef.current });
       }
+      const { heatmap } = config;
+      if (heatmap) {
+        const heatScale = clampOpacity(opacity) / config.opacityDefault;
+        if (!map.getLayer(heatmap.layerId)) {
+          map.addLayer(heatmapLayer(heatmap.layerId, config.sourceId, undefined, heatmap.pointsFromZoom, heatScale, heatmap.intensity));
+        }
+        if (map.getLayer(heatmap.layerId)) {
+          map.setLayoutProperty(heatmap.layerId, "visibility", "visible");
+          map.setPaintProperty(heatmap.layerId, "heatmap-opacity", heatmapOpacity(heatScale));
+        }
+      }
       if (!map.getLayer(config.layerId)) {
         map.addLayer(circleLayer(
           config.layerId,
@@ -216,6 +278,7 @@ function useGeoJsonLayer(
           strokeFactor(opacity, config.opacityDefault),
           isDark,
           undefined,
+          heatmap?.pointsFromZoom,
         ));
       }
       if (map.getLayer(config.layerId)) {
@@ -243,6 +306,8 @@ function useGeoJsonLayer(
     dataTick,
     config.sourceId,
     config.layerId,
+    config.opacityDefault,
+    config.heatmap,
     isDarkTheme,
   ]);
 }
@@ -253,6 +318,7 @@ const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
   fetcher: fetchJpReligionWikidata,
   logName: "Wikidata",
   opacityDefault: WIKIDATA_OPACITY_DEFAULT,
+  heatmap: { layerId: WIKIDATA_HEATMAP_LAYER_ID, pointsFromZoom: WIKIDATA_POINTS_FROM_ZOOM, intensity: WIKIDATA_HEATMAP_INTENSITY },
 };
 
 export interface JpReligionLayerVisibility {

@@ -1,16 +1,11 @@
 /**
  * useMicroSensorsLayer — LASS 微型感測器
  *
- * 模式：
- *  - cluster=true（預設）：低縮放聚合圓 + 高縮放個別點
- *  - cluster=false：永遠全部 ~500 點直出（Mapbox 原生，仍輕量）
- *
- * 切換 cluster 時 Mapbox source 必須重建，故 effect 的 deps 帶 cluster。
+ * 不聚合：~456 點全部直出，樣式照 R2 點樣式（pointRadius M × sizeScale + pointStrokePaint）。
  *
  * 顯示模式（modeIdx：0=PM2.5 / 1=溫度 / 2=濕度）：
  *  三種顏色 loader 已預烤進 properties，切模式只 setPaintProperty 換欄位，
  *  **不重建 GeoJSON、不進 layer 生命週期 deps**（否則會整層重繪閃爍）。
- *  聚合圓（cluster 模式的 point_count 圓）維持紫色不受模式影響。
  *
  * 即時行為：
  *  - 圖層開啟時首次載入，之後每 5 分鐘（對齊 collector 頻率）自動 refetch 最新快照
@@ -20,7 +15,7 @@
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 分鐘，對齊 LASS collector 頻率
 
 import { useEffect, useRef } from "react";
-import type { Map as MapboxMap, CircleLayer, SymbolLayer, GeoJSONSource } from "mapbox-gl";
+import type { Map as MapboxMap, CircleLayer, GeoJSONSource } from "mapbox-gl";
 import {
   fetchMicroSensorsLatest,
   buildMicroSensorsGeoJSON,
@@ -29,63 +24,20 @@ import { microSensorColorExpr } from "../data/microSensorTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { MicroSensor } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { badgeLabelLayout, labelHaloPaint, pointStrokePaint } from "../map/mapStyleScale";
+import { POINT_OPACITY, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 
 const OPACITY_DEFAULT = Number(paramDefault("aqiMicroSensors", "aqiMicroOpacity"));
 
 const SOURCE_ID = "aqi-micro-src";
-const LAYER_CLUSTER = "aqi-micro-cluster";
-const LAYER_CLUSTER_COUNT = "aqi-micro-cluster-count";
 const LAYER_POINT = "aqi-micro-circle";
 
-function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx: number, opacity: number) {
+function ensureLayers(map: MapboxMap, isDark: boolean, modeIdx: number, opacity: number, sizeScale: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
       type: "geojson",
       data: { type: "FeatureCollection", features: [] },
-      cluster,
-      clusterRadius: 45,
-      clusterMaxZoom: 11,
     });
-  }
-
-  if (cluster) {
-    if (!map.getLayer(LAYER_CLUSTER)) {
-      map.addLayer({
-        id: LAYER_CLUSTER,
-        type: "circle",
-        source: SOURCE_ID,
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": isDark ? "rgba(126, 87, 194, 0.85)" : "rgba(126, 87, 194, 0.75)",
-          "circle-radius": [
-            "step", ["get", "point_count"],
-            10, 10, 14, 50, 18, 200, 24,
-          ],
-          "circle-stroke-width": 1,
-          "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.3)",
-          "circle-opacity": opacity,
-          "circle-stroke-opacity": opacity,
-        },
-      } as CircleLayer);
-    }
-    if (!map.getLayer(LAYER_CLUSTER_COUNT)) {
-      map.addLayer({
-        id: LAYER_CLUSTER_COUNT,
-        type: "symbol",
-        source: SOURCE_ID,
-        filter: ["has", "point_count"],
-        layout: {
-          "text-field": ["get", "point_count_abbreviated"],
-          ...badgeLabelLayout(),
-          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-          "text-allow-overlap": true,
-          "text-ignore-placement": true,
-        },
-        paint: { "text-color": "#ffffff", "text-opacity": opacity, ...labelHaloPaint(isDark) },
-      } as SymbolLayer);
-    }
   }
 
   if (!map.getLayer(LAYER_POINT)) {
@@ -93,24 +45,19 @@ function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx
       id: LAYER_POINT,
       type: "circle",
       source: SOURCE_ID,
-      // cluster 模式下只顯示非聚合的點；全顯模式不套 filter
-      filter: cluster ? ["!", ["has", "point_count"]] : (["has", "deviceId"] as unknown as mapboxgl.FilterSpecification),
       paint: {
-        "circle-radius": cluster
-          ? ["interpolate", ["linear"], ["zoom"], 9, 2, 12, 4, 15, 6, 18, 10]
-          : ["interpolate", ["linear"], ["zoom"], 5, 1.5, 8, 2.5, 11, 4, 15, 7, 18, 11],
+        "circle-radius": pointRadius("M", sizeScale),
         "circle-color": microSensorColorExpr(modeIdx) as unknown as mapboxgl.ExpressionSpecification,
         ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
-        "circle-opacity": (cluster ? 0.9 : 0.85) * opacity,
+        // P-3：< 1k 點主體 0.85；滑桿（預設 1）為乘數
+        "circle-opacity": POINT_OPACITY.base * opacity,
       },
     } as CircleLayer);
   }
 }
 
 function removeLayers(map: MapboxMap) {
-  for (const id of [LAYER_POINT, LAYER_CLUSTER_COUNT, LAYER_CLUSTER]) {
-    if (map.getLayer(id)) map.removeLayer(id);
-  }
+  if (map.getLayer(LAYER_POINT)) map.removeLayer(LAYER_POINT);
   if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID);
 }
 
@@ -118,9 +65,10 @@ export function useMicroSensorsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   isDark: boolean,
-  cluster: boolean,
   modeIdx: number,
   opacity: number,
+  /** 點大小比例（pointRadius M × sizeScale）；目前無大小滑桿，預設 1 */
+  sizeScale = 1,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -132,6 +80,8 @@ export function useMicroSensorsLayer(
   const modeIdxRef = useRef(modeIdx);
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
+  const sizeScaleRef = useRef(sizeScale);
+  sizeScaleRef.current = sizeScale;
   const themeRef = useRef(isDark);
   themeRef.current = isDark;
 
@@ -176,7 +126,7 @@ export function useMicroSensorsLayer(
     };
   }, [visible, mapRef, mapTick]);
 
-  // ── Layer 生命週期（visible / cluster 模式變動都會重建 source） ──
+  // ── Layer 生命週期（visible / 換底圖 style.load 重建） ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -184,10 +134,10 @@ export function useMicroSensorsLayer(
     const apply = () => {
       const m = mapRef.current;
       if (!m) return;
-      // 不管是關閉或切 cluster 模式都先移除乾淨再重建（Mapbox cluster 設定不能動態改）
+      // 先移除乾淨再重建
       removeLayers(m);
       if (!visible) return;
-      ensureLayers(m, themeRef.current, cluster, modeIdxRef.current, opacityRef.current);
+      ensureLayers(m, themeRef.current, modeIdxRef.current, opacityRef.current, sizeScaleRef.current);
       if (loadedRef.current && dataRef.current.length > 0) {
         const src = m.getSource(SOURCE_ID) as GeoJSONSource | undefined;
         if (src) {
@@ -210,7 +160,7 @@ export function useMicroSensorsLayer(
       };
     }
     apply();
-  }, [mapRef, visible, cluster, mapTick]);
+  }, [mapRef, visible, mapTick]);
 
   // ── 顯示模式切換：只換 circle-color 欄位，不動 source / 不重建 layer ──
   useEffect(() => {
@@ -226,32 +176,19 @@ export function useMicroSensorsLayer(
     );
   }, [mapRef, visible, modeIdx, mapTick]);
 
-  // ── 透明度：只更新 paint，不重建 source / cluster ──
+  // ── 透明度／主題／大小：只更新 paint，不重建 source ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible || !map.isStyleLoaded()) return;
-    if (map.getLayer(LAYER_CLUSTER)) {
-      map.setPaintProperty(LAYER_CLUSTER, "circle-color", isDark ? "rgba(126, 87, 194, 0.85)" : "rgba(126, 87, 194, 0.75)");
-      map.setPaintProperty(LAYER_CLUSTER, "circle-stroke-color", isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.3)");
-      map.setPaintProperty(LAYER_CLUSTER, "circle-opacity", opacity);
-      map.setPaintProperty(LAYER_CLUSTER, "circle-stroke-opacity", opacity);
-    }
-    if (map.getLayer(LAYER_CLUSTER_COUNT)) {
-      map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-opacity", opacity);
-      const halo = labelHaloPaint(isDark);
-      map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-halo-color", halo["text-halo-color"]);
-      map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-halo-width", halo["text-halo-width"]);
-    }
     if (map.getLayer(LAYER_POINT)) {
-      map.setPaintProperty(LAYER_POINT, "circle-opacity", (cluster ? 0.9 : 0.85) * opacity);
-      {
-        const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
-        map.setPaintProperty(LAYER_POINT, "circle-stroke-color", stroke["circle-stroke-color"]);
-        map.setPaintProperty(LAYER_POINT, "circle-stroke-width", stroke["circle-stroke-width"]);
-        map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
-      }
+      map.setPaintProperty(LAYER_POINT, "circle-opacity", POINT_OPACITY.base * opacity);
+      map.setPaintProperty(LAYER_POINT, "circle-radius", pointRadius("M", sizeScale));
+      const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+      map.setPaintProperty(LAYER_POINT, "circle-stroke-color", stroke["circle-stroke-color"]);
+      map.setPaintProperty(LAYER_POINT, "circle-stroke-width", stroke["circle-stroke-width"]);
+      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
     }
-  }, [mapRef, visible, isDark, cluster, opacity, mapTick]);
+  }, [mapRef, visible, isDark, opacity, sizeScale, mapTick]);
 
   // ── Unmount 清理 ──
   useEffect(() => {
