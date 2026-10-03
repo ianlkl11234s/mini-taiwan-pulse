@@ -105,7 +105,7 @@
 | 涵蓋 | 圖層數 |
 |---|---|
 | national | 177 |
-| 19 counties | 32 |
+| 19 counties | 33 |
 | 2 counties | 14 |
 | 18 counties | 11 |
 | 17 counties | 9 |

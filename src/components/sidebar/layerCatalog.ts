@@ -1414,7 +1414,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("sewageTreatmentPlants"),
           fromManifest("drinkingWaterProtectionZones"),
           fromManifest("seaWaterQualityStations"),
-          fromManifest("riverRpiSegmentsTamsui"),
+          fromManifest("riverRpiSegments"),
           fromManifest("waterEffluentLive"),
         ],
       },

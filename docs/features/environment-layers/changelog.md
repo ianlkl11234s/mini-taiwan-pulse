@@ -1,5 +1,12 @@
 # Changelog — environment-layers
 
+## 2026-10-03 — RPI 河段改全台版（取代淡水河試作）
+
+- 新 key `riverRpiSegments`「河川污染指數河段（推估）」取代 `riverRpiSegmentsTamsui`；資料改為 analytics `water_resources/river_rpi_segments`（PR #135，301 段、54 流域）；`public/environment/river_rpi_segments_tamsui_trial.geojson` 移除。
+- popup 新增：改派河名（環境部登記為 X，依位置對應至 Y）、流域、流向（推斷／未驗證）、待複核白話、河名對應方式與距離、下游無測站說明；不再顯示 caveats 原文與內部代碼。`to_node=unknown` 顯示「下游終點未定」（原本會誤寫「下一站」）。圖例加「無樣本（不代表乾淨）」灰線（近 12 月平均有 14 段無樣本）。
+- MCP 倉庫：`ds_water_resources_river_rpi_segments`（301 列，precision_class=official）增量入庫，版本 `20261003T031158Z`（上傳 4、server-side copy 354，只增不減；試作表保留）；layer-status 重產（19 counties，L2 spatial）。
+- 瀏覽器（agent-browser headless＋SwiftShader，1440×900／390×844）：全台河段渲染、昌農橋→牛稠溪 popup 顯示改派與「河道代碼與流域不一致，待複核」、六龜大橋→荖濃溪 popup、最新一次／近 12 月平均切換與圖例同步、All Off（含 ODbL attribution 一併移除）、console 0 error、390 寬無橫向溢出。截圖：`/private/tmp/claude-501/rpi-river-segments-qa/`。
+
 ## 2026-10-02 — 第二波 9 層＋兩個小修
 
 - 小修：自來水不合格二元圖例拿掉「淺 → 深」通用說明；RPI 測站疊在水質測站之上（registry 順序＋跟著水質測站重建）。

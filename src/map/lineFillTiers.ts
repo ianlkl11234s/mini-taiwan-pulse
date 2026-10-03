@@ -126,8 +126,8 @@ export const LINE_TIERS: Readonly<Record<string, LineTierSpec>> = {
   "pipelineGas/line": { width: "standard", opacity: "standard" }, // 天然氣主幹線 Gas Pipeline
   "pipelineOilGas/line": { width: "standard", opacity: "reference" }, // 油氣管線 OSM Oil/Gas Pipeline
   "provincialRoads/line": { width: "standard", opacity: "reference" }, // 省道 Provincial Road
-  "riverRpiSegmentsTamsui/line": { width: "emphasis", opacity: "standard" }, // RPI 河段（試作・推估）
-  "riverRpiSegmentsTamsui/tidal": { width: "emphasis", opacity: "standard" }, // RPI 河段 感潮段（虛線）
+  "riverRpiSegments/line": { width: "emphasis", opacity: "standard" }, // 河川污染指數河段（推估）
+  "riverRpiSegments/tidal": { width: "emphasis", opacity: "standard" }, // RPI 河段 感潮段（虛線）
   "speedZoneSegment/line": { width: "emphasis", opacity: "standard" }, // 區間測速 Speed Zone
   "submarineCables/line": { width: "standard", opacity: "reference" }, // OSM 通訊海纜 Submarine Cable
   "townshipBoundary": { width: "standard", opacity: "standard" }, // 鄉鎮市區界 Township

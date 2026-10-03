@@ -172,7 +172,7 @@ export type ExpandableLayerKey =
   | "officialNoiseMonitoring" | "noiseCaptureGrid" | "noiseControlZones"
   | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
   | "riverRpiStations" | "waterQualityStations" | "sewageTreatmentPlants" | "drinkingWaterProtectionZones"
-  | "seaWaterQualityStations" | "riverRpiSegmentsTamsui" | "pm25ManualStations" | "dioxinStations" | "incineratorEmissions"
+  | "seaWaterQualityStations" | "riverRpiSegments" | "pm25ManualStations" | "dioxinStations" | "incineratorEmissions"
   | "nuscGammaRadiation" | "waterEffluentLive" | "cemsStackLive" | "cwaUvDaily"
   | "earthquakes"
   | "earthquakeReplay"
@@ -857,8 +857,8 @@ export interface FeatureInfo {
     | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
     // 水質與污水（環境部 RPI 測站／水質測站／污水處理廠／飲用水水源水質保護區）
     | "riverRpiStations" | "waterQualityStations" | "sewageTreatmentPlants" | "drinkingWaterProtectionZones"
-    // 環境第二波：海域水質／RPI 河段試作／PM2.5 手動站／戴奧辛／焚化廠＋即時 4 層（核安會輻射、放流水、CEMS、紫外線）
-    | "seaWaterQualityStations" | "riverRpiSegmentsTamsui" | "pm25ManualStations" | "dioxinStations" | "incineratorEmissions"
+    // 環境第二波：海域水質／RPI 河段推估／PM2.5 手動站／戴奧辛／焚化廠＋即時 4 層（核安會輻射、放流水、CEMS、紫外線）
+    | "seaWaterQualityStations" | "riverRpiSegments" | "pm25ManualStations" | "dioxinStations" | "incineratorEmissions"
     | "nuscGammaRadiation" | "waterEffluentLive" | "cemsStackLive" | "cwaUvDaily"
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
@@ -1184,7 +1184,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   sewageTreatmentPlants: boolean;
   drinkingWaterProtectionZones: boolean;
   seaWaterQualityStations: boolean;
-  riverRpiSegmentsTamsui: boolean;
+  riverRpiSegments: boolean;
   pm25ManualStations: boolean;
   dioxinStations: boolean;
   incineratorEmissions: boolean;
