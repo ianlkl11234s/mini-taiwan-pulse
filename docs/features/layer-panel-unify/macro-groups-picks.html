@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>統計與世界大分類選擇</title>
+<style>
+/* 外框與 token 沿用同目錄 picks.html；面板示意照 docs/design-system/reference.html token 與 spec §5.5（大分類只顯示中文）。 */
+:root{color-scheme:dark;--page:#07070f;--panel:#0e0e19;--line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);--text:#d1d5db;--strong:#f3f4f6;--muted:#9ca3af;--dim:#6b7280;--pick:#64aaff;--pick-faint:rgba(100,170,255,.14);--ok:#22c55e;--warn:#ff9800;--err:#ef4444;
+--font-cjk:"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif;--font-data:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+--surface-strong:rgba(10,10,20,.88);--border-panel:rgba(255,255,255,.10);--border-mid:rgba(255,255,255,.14);--border-soft:rgba(255,255,255,.06);
+--text-strong:#f3f4f6;--text-default:#d8dce3;--text-muted:#9ca3af;--text-dim:#6b7280;
+--accent:#64aaff;--accent-faint:rgba(100,170,255,.16);--control-bg:rgba(255,255,255,.06);--control-border:rgba(255,255,255,.12);
+--sw-on-track:#ffffff;--sw-on-dot:#111827;--sw-off-track:#4b5563;--elevation-lg:0 12px 40px rgba(0,0,0,.45)}
+body.lt{--page:#f4f5f7;--panel:#ffffff;--line:rgba(0,0,0,.09);--line-2:rgba(0,0,0,.16);--text:#374151;--strong:#111827;--muted:#4b5563;--dim:#6b7280;--pick:#0b6fd6;--pick-faint:rgba(11,111,214,.10);
+--surface-strong:rgba(255,255,255,.97);--border-panel:rgba(0,0,0,.10);--border-mid:rgba(0,0,0,.16);--border-soft:rgba(0,0,0,.06);
+--text-strong:#111827;--text-default:#1f2937;--text-muted:#4b5563;--text-dim:#6b7280;--accent:#0b6fd6;--accent-faint:rgba(11,111,214,.10);
+--control-bg:rgba(0,0,0,.035);--control-border:rgba(0,0,0,.14);--sw-on-track:#1f2937;--sw-on-dot:#ffffff;--sw-off-track:#d1d5db;--elevation-lg:0 12px 40px rgba(0,0,0,.18)}
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{background:var(--page);color:var(--text);font:13px/1.6 var(--font-cjk);margin:0;padding-inline:16px;padding-block:0 80px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+h1{margin:18px 0 6px;font-size:22px;font-weight:600;color:var(--strong)}
+h2{margin:0;font-size:17px;font-weight:600;color:var(--strong)}
+h3{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--strong)}
+p{margin:0}
+.lead{max-width:92ch;color:var(--muted)}
+.lead b{color:var(--strong);font-weight:600}
+code{font-family:var(--font-data);font-size:12px;color:var(--strong);word-break:break-all}
+.bar{position:sticky;top:0;z-index:5;background:var(--page);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.bar .brand{font-weight:600;color:var(--strong)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:3px 12px;font:12px var(--font-cjk);color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--pick-faint);color:var(--pick)}
+.seg button:focus-visible{outline:2px solid var(--pick);outline-offset:-2px}
+.nav{display:flex;flex-wrap:wrap;gap:4px}
+.nav a{font:11px var(--font-data);color:var(--muted);text-decoration:none;padding:2px 7px;border-radius:4px;border:1px solid var(--line)}
+.nav a.done{color:var(--ok);border-color:rgba(34,197,94,.4)}
+.count{margin-left:auto;font:12px var(--font-data);color:var(--muted)}
+.count b{color:var(--pick)}
+.audit{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card ul{margin:0;padding-left:18px;color:var(--muted);font-size:12.5px}
+.card li b{color:var(--strong);font-weight:600}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.tbl th,.tbl td{border-top:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top;word-break:break-word;overflow-wrap:anywhere}
+.tbl th{color:var(--muted);font-weight:400}
+.tbl td b{color:var(--strong);font-weight:600}
+.tbl td.n{font-family:var(--font-data);text-align:right;width:44px}
+.tbl th.n{text-align:right;width:44px}
+.tbl tr.mg td{color:var(--pick);font-weight:600;border-top:1px solid var(--line-2);padding-top:8px}
+.tbl .src{color:var(--dim);font-size:11.5px}
+.fn{font-size:12px;color:var(--dim);max-width:110ch}
+section.q{display:flex;flex-direction:column;gap:12px;scroll-margin-top:64px;border-top:1px solid var(--line-2);padding-top:22px}
+.q-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.tag{font:700 12px var(--font-data);padding:1px 8px;border-radius:4px;background:var(--pick);color:#07070f}
+body.lt .tag{color:#fff}
+.q-now,.q-rec{color:var(--muted);font-size:12.5px;max-width:110ch}
+.q-now b,.q-rec b{color:var(--strong);font-weight:600}
+.q-rec{border-left:2px solid var(--pick);padding-left:10px}
+.opts{display:flex;flex-direction:column;gap:26px}
+.opt{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ol{font:700 12px var(--font-data);color:var(--pick)}
+.ot{font-weight:600;color:var(--strong)}
+.os{font-size:12.5px;color:var(--muted);max-width:110ch}
+.pc{display:flex;flex-direction:column;gap:2px;font-size:12px;max-width:110ch}
+.pc .p{color:var(--ok)}.pc .c{color:var(--warn)}
+.rb{font-size:11px;color:var(--pick);border:1px solid var(--pick);border-radius:4px;padding:0 6px;margin-left:6px}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;align-items:start;min-width:0}
+.qcell{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cap{font-size:12px;color:var(--dim)}
+.pick-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pl{font-size:12px;color:var(--dim)}
+.pbtn{all:unset;cursor:pointer;font:12px var(--font-cjk);padding:4px 12px;border-radius:5px;border:1px solid var(--line-2);color:var(--text)}
+.pbtn[aria-pressed="true"]{background:var(--pick);border-color:var(--pick);color:#07070f;font-weight:600}
+body.lt .pbtn[aria-pressed="true"]{color:#fff}
+.pbtn:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+.note-in{flex:1 1 220px;min-width:0;background:transparent;border:1px solid var(--line-2);border-radius:5px;color:var(--strong);font:12px var(--font-cjk);padding:5px 9px}
+#outText{width:100%;min-height:150px;background:var(--panel);border:1px solid var(--line-2);border-radius:8px;color:var(--strong);font:12.5px/1.7 var(--font-data);padding:12px 14px}
+.hint{font-size:12px;color:var(--dim)}
+.copy{all:unset;cursor:pointer;font:600 12px var(--font-cjk);padding:5px 14px;border-radius:5px;background:var(--pick);color:#07070f}
+body.lt .copy{color:#fff}
+.copy:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+/* 面板示意（LayersPanel 縮小版） */
+.mp{position:relative;width:100%;max-width:300px;background:var(--surface-strong);border:1px solid var(--border-panel);border-radius:8px;box-shadow:var(--elevation-lg);font-family:var(--font-cjk);color:var(--text-default);padding-bottom:6px}
+.mp-hd{display:flex;align-items:baseline;gap:6px;padding:9px 12px 8px;border-bottom:1px solid var(--border-panel)}
+.mp-hd b{font-size:13px;font-weight:700;color:var(--text-strong)}
+.mp-hd .en{font-size:10px;color:var(--text-dim)}
+.mp-hd .x{margin-left:auto;color:var(--text-muted)}
+.mp-hd .x svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.mp-tools{display:flex;flex-direction:column;gap:5px;padding:6px 10px}
+.mp-off{text-align:center;font-size:10.5px;color:var(--text-muted);border:1px solid var(--border-mid);border-radius:6px;padding:3px 0;background:var(--control-bg)}
+.mp-search{display:flex;gap:6px;align-items:center;background:var(--control-bg);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text-dim)}
+.mp-search svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+.mp-mode{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)}
+.sg{display:inline-flex;border:1px solid var(--control-border);border-radius:4px;padding:1px;gap:1px}
+.sg span{padding:2px 6px;font-size:10px;color:var(--text-muted);border-radius:3px}
+.sg span.on{background:var(--accent-faint);color:var(--accent);font-weight:600}
+.mp-macro{padding:10px 12px 3px;font-size:9.5px;letter-spacing:1.2px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
+.mp-macro::after{content:"";flex:1;height:1px;background:var(--border-mid)}
+.mp-th{display:flex;align-items:center;gap:6px;padding:7px 10px;border-top:1px solid var(--border-panel)}
+.mp-th b{font-size:12.5px;font-weight:700;color:var(--text-strong);flex-shrink:0}
+.mp-th .en{font-size:10px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mp-th .ct{margin-left:auto;font:10px var(--font-data);color:var(--text-muted);flex-shrink:0}
+.mp-g{display:flex;align-items:center;gap:6px;padding:4px 10px 2px 28px;font-size:10px;font-weight:600;color:var(--text-muted)}
+.mp-g .d{margin-left:auto;font-family:var(--font-data);font-weight:400;color:var(--text-dim)}
+.chev{width:12px;height:12px;flex-shrink:0;stroke:var(--text-dim);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chev.dn{transform:rotate(90deg)}
+.sw{width:28px;height:16px;border-radius:9999px;background:var(--sw-off-track);position:relative;flex-shrink:0}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="brand">大分類：統計・世界</span>
+  <span class="seg" role="group" aria-label="主題"><button type="button" data-th="dk" aria-pressed="true">暗色</button><button type="button" data-th="lt" aria-pressed="false">淡色</button></span>
+  <nav class="nav" id="nav"></nav>
+  <span class="count" id="count"></span>
+</div>
+<div class="wrap">
+<header>
+  <h1>統計與世界面板的大分類怎麼分</h1>
+  <p class="lead">P4 已選 A（每個面板都有大分類）。台灣已有，日本已定（行政與人口、交通與旅宿、醫療與照護、社會、自然與環境）。這頁只決定<b>統計</b>和<b>世界</b>。<b>命名規則</b>：統計與世界的主題本來就有英文副標，大分類的資料照台灣寫成「中文 English」，面板上<b>只顯示中文</b>（跟台灣一樣）；日本用純中文，是因為日本主題本來就沒有英文。每個選項附「大分類 → 主題」表，旁邊是套用後的面板示意（站內 token 重建，不是截圖；主題預設收合，第一個主題展開看裡面的小分組）。點每題下方字母選答案，頁尾可一鍵複製。</p>
+</header>
+
+<section class="q" id="q-now" style="border-top:0;padding-top:0">
+  <div class="q-head"><span class="tag">現況</span><h2>兩個面板現在有哪些主題</h2></div>
+  <div class="audit">
+    <div class="card"><h3>台灣的大分類（參考）</h3><ul id="twList"></ul>
+      <p class="fn">程式裡另有一張對照表，已把世界五個主題排進台灣的大分類（手機版用）：情勢、海事 → 情報；氣候、環境 → 環境與資源；通訊 → 公共生活。</p></div>
+    <div class="card"><h3>統計面板：6 個主題、340 層</h3><table class="tbl" id="stNow"></table>
+      <p class="fn">交通用地、農地與設施、森林用地各 32 層，大多是自動加進來的「比較指標」（同一指標的人均、密度等版本），面板計數也算它們。</p></div>
+    <div class="card"><h3>世界面板：5 個主題、25 層</h3><table class="tbl" id="wdNow"></table>
+      <p class="fn">五個主題預設都收合，目前沒有大分類。</p></div>
+  </div>
+</section>
+
+<div id="qs"></div>
+
+<section class="q" id="q-impl">
+  <div class="q-head"><span class="tag">實作</span><h2>選完之後要動哪裡（一句話版）</h2></div>
+  <ul class="fn" style="margin:0;padding-left:18px">
+    <li>現在大分類對照只有一張全站表（<code>THEME_MACRO_GROUPS</code>），遇到沒登記的主題名會直接報錯；統計面板的「人口與社會」「交通與運輸」「農林漁牧」「地圖參考」都不在表裡，所以要改成每個面板各自一份對照，再打開 <code>showMacroGroups</code>。</li>
+    <li>只加標籤的選項：不動主題名稱、圖層 key、資料。會拆或合併主題的選項：要改 <code>STATISTICS_TAB_THEMES</code>／世界主題清單、各主題的預設收合，以及面板搜尋與「全部關閉」範圍的測試；圖層 key 不變。</li>
+  </ul>
+</section>
+
+<section class="q" id="out">
+  <div class="q-head"><span class="tag">彙整</span><h2>我的選擇</h2></div>
+  <textarea id="outText" readonly aria-label="我的選擇"></textarea>
+  <div class="pick-row"><button type="button" class="copy" id="copy">複製</button><span class="hint" id="copyHint">複製後貼回對話即可。</span></div>
+</section>
+</div>
+
+<script>
+const CHEV = '<svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>';
+const CHEVD = '<svg class="chev dn" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>';
+const XI = '<svg viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+const SI = '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+
+const TW = [
+  ["基準", "底圖（15 層）——放最前面"],
+  ["移動與城市", "交通、人口社經、都市分析、房地產、工商登記"],
+  ["公共生活", "基礎建設、教育、社福長照、運動休閒、文化、宗教、殯葬、觀光"],
+  ["安全與治理", "醫療、消防、災害、民防避難、執法治安"],
+  ["環境與資源", "能源、廢棄物、環境氣候、水資源、農業、動物福利、林業"],
+  ["情報", "太空、情勢"],
+];
+
+// 現況（數字取自 origin/master 795f2b5e 的 LAYER_PANELS 實際輸出）
+const ST_NOW = [
+  ["工作與所得 Work & Income", 9, "戶籍村里申報戶 1・實際工作所在地 1・人力資源調查 7"],
+  ["人口與社會 People & Society", 76, "人口動態 1・教育與少子化 12・醫療與長照 36・住宅存量與使用 25・不動產總市值 1・犯罪與治安 1"],
+  ["交通與運輸 Transport", 105, "建置量 6・使用與營運 10・車輛登記存量 15・自行車（臺北）5・道路安全與監測 20・駕照與停車 8・航空運輸 7・運輸補助 2・交通用地 32"],
+  ["農林漁牧 Agriculture, Forestry & Fisheries", 101, "農地與設施 32・作物生產 5・畜牧用地 16・畜牧飼養 3・漁業生產 4・水產養殖 9・森林用地 32"],
+  ["環境與資源 Environment & Resources", 47, "用水與供水 2・住宅用電 1・廢棄物與回收 16・水質與污水 8・空氣品質 4・污染與公害 10・環境治理 6"],
+  ["地圖參考 Map Reference", 2, "行政邊界 2"],
+];
+const WD_NOW = [
+  ["全球情勢 Global Situation", 1, "重大事件 1"],
+  ["全球海事 Global Maritime", 6, "船舶 6（AIS、GFW 等）"],
+  ["全球氣候 Global Climate", 5, "事件 2（地震、颱風）・預報場 3（風、海流、沙塵）"],
+  ["全球環境 Global Environment", 3, "廢棄物觀測 1・海洋生態 2（珊瑚礁）"],
+  ["全球通訊 Global Communications", 10, "全球骨幹 2・網路互連 1・官方無線站點 1・群眾無線站點 1・量測節點 1・網路效能格網 4"],
+];
+
+// 主題：[中文, English, 層數, 小分組 [[名, 數]], 來源說明]
+const T = (zh, en, n, groups, src) => ({ zh, en, n, groups: groups || [], src: src || "" });
+const st = {
+  work: T("工作與所得", "Work & Income", 9, [["戶籍村里／申報戶", 1], ["實際工作所在地", 1], ["居住地人力資源調查", 7]], "現有主題"),
+  people: T("人口與社會", "People & Society", 76, [["人口動態", 1], ["教育與少子化", 12], ["醫療與長照", 36], ["住宅存量與使用", 25], ["不動產總市值", 1], ["犯罪與治安", 1]], "現有主題"),
+  trans: T("交通與運輸", "Transport", 105, [], "現有主題"),
+  agri: T("農林漁牧", "Agriculture, Forestry & Fisheries", 101, [["農地與設施", 32], ["作物生產", 5], ["畜牧用地", 16], ["畜牧飼養", 3], ["漁業生產", 4], ["水產養殖", 9], ["森林用地", 32]], "現有主題"),
+  env: T("環境與資源", "Environment & Resources", 47, [["用水與供水", 2], ["住宅用電", 1], ["廢棄物與回收", 16], ["水質與污水", 8], ["空氣品質", 4], ["污染與公害", 10], ["環境治理", 6]], "現有主題"),
+  ref: T("地圖參考", "Map Reference", 2, [["行政邊界", 2]], "現有主題"),
+  popEdu: T("人口與教育", "Population & Education", 13, [["人口動態", 1], ["教育與少子化", 12]], "從「人口與社會」拆出"),
+  health: T("醫療與長照", "Health & Care", 36, [["醫療與長照", 36]], "從「人口與社會」拆出"),
+  crime: T("犯罪與治安", "Crime & Safety", 1, [["犯罪與治安", 1]], "從「人口與社會」拆出"),
+  housing: T("住宅與不動產", "Housing & Property", 26, [["住宅存量與使用", 25], ["不動產總市值", 1]], "從「人口與社會」拆出"),
+  pubT: T("公共運輸", "Public Transport", 30, [["建置量", 6], ["使用與營運", 10], ["自行車（臺北）", 5], ["航空運輸", 7], ["運輸補助", 2]], "從「交通與運輸」拆出"),
+  road: T("道路與車輛", "Roads & Vehicles", 43, [["車輛登記存量", 15], ["道路安全與監測", 20], ["駕照與停車", 8]], "從「交通與運輸」拆出"),
+  tLand: T("交通用地", "Transport Land", 32, [["交通用地", 32]], "從「交通與運輸」拆出"),
+  move: T("交通與運輸", "Transport", 73, [["建置量", 6], ["使用與營運", 10], ["車輛登記存量", 15], ["自行車（臺北）", 5], ["道路安全與監測", 20], ["駕照與停車", 8], ["航空運輸", 7], ["運輸補助", 2]], "現有主題扣掉交通用地"),
+  farmLand: T("農牧林用地", "Farm & Forest Land", 80, [["農地與設施", 32], ["畜牧用地", 16], ["森林用地", 32]], "從「農林漁牧」拆出"),
+  output: T("農林漁牧生產", "Farm & Fishery Output", 21, [["作物生產", 5], ["畜牧飼養", 3], ["漁業生產", 4], ["水產養殖", 9]], "從「農林漁牧」拆出"),
+};
+st.trans.groups = st.move.groups.concat([["交通用地", 32]]);
+const wd = {
+  sit: T("全球情勢", "Global Situation", 1, [["重大事件", 1]], "現有主題"),
+  mar: T("全球海事", "Global Maritime", 6, [["船舶", 6]], "現有主題"),
+  cli: T("全球氣候", "Global Climate", 5, [["事件（地震、颱風）", 2], ["預報場（風、海流、沙塵）", 3]], "現有主題"),
+  env: T("全球環境", "Global Environment", 3, [["廢棄物觀測", 1], ["海洋生態", 2]], "現有主題"),
+  com: T("全球通訊", "Global Communications", 10, [["全球骨幹", 2], ["網路互連", 1], ["官方無線站點", 1], ["群眾無線站點", 1], ["量測節點", 1], ["網路效能格網", 4]], "現有主題"),
+  ev: T("重大事件", "Major Events", 1, [["重大事件", 1]], "原「全球情勢」"),
+  quake: T("地震與颱風", "Earthquakes & Typhoons", 2, [["事件", 2]], "從「全球氣候」拆出"),
+  fc: T("天氣預報場", "Forecast Fields", 3, [["風場・海流・沙塵", 3]], "從「全球氣候」拆出"),
+  ship: T("船舶", "Vessels", 6, [["船舶", 6]], "原「全球海事」"),
+  sea: T("海洋生態與廢棄物", "Marine Life & Debris", 3, [["廢棄物觀測", 1], ["海洋生態", 2]], "原「全球環境」"),
+  bb: T("骨幹與互連", "Backbone & Exchange", 3, [["全球骨幹", 2], ["網路互連", 1]], "從「全球通訊」拆出"),
+  wl: T("無線站點", "Wireless Sites", 2, [["官方無線站點", 1], ["群眾無線站點", 1]], "從「全球通訊」拆出"),
+  perf: T("量測與效能", "Measurement & Performance", 5, [["量測節點", 1], ["網路效能格網", 4]], "從「全球通訊」拆出"),
+};
+
+const Q = [
+  { id: "S", key: "統計大分類", panel: { zh: "統計", en: "Statistics", mode: true },
+    title: "統計面板：大分類怎麼分",
+    now: `6 個主題、340 層。問題在於主題大小很不平均：「人口與社會」一個主題塞了教育、醫療、住宅、治安（76 層），「交通與運輸」105 層、「農林漁牧」101 層；「地圖參考」只有 2 層。只有 6 個主題時，直接在上面加大分類，每類只會剩一兩個主題。`,
+    rec: `建議 <b>B</b>：把兩個塞太多的主題拆開，再照政府統計常見的領域分成 5 類，每類 2–3 個主題，打開大分類才有意義。A 改動最小，但「人口與社會」照樣是 76 層的大雜燴，大分類標籤幫不了忙。`,
+    opts: [
+      { c: "A", t: "不動主題，只加 3 個大分類標籤", s: "6 個主題原封不動，只在上面加標籤。", p: "跟台灣當初一樣，只是加標籤：不改主題、圖層、資料，最快能上", n: "「人口與社會」76 層照樣混在一起；「基準」底下只有一個主題",
+        groups: [["人與經濟 People & Economy", ["work", "people"]], ["土地、產業與環境 Land, Industry & Environment", ["trans", "agri", "env"]], ["基準 Baseline", ["ref"]]] },
+      { c: "B", t: "依政府統計領域：拆兩個大主題，分 5 類", s: "「人口與社會」拆成人口與教育、醫療與長照、犯罪與治安、住宅與不動產；「交通與運輸」拆成公共運輸、道路與車輛、交通用地。農林漁牧、環境與資源不動。", p: "每類 2–3 個主題、大小比較平均；名稱是讀統計的人熟悉的領域", n: "要改統計面板的主題清單（11 個主題）和預設收合；圖層 key 不變。「犯罪與治安」目前只有 1 層",
+        groups: [["人口與社會 Population & Society", ["popEdu", "health", "crime"]], ["經濟與住宅 Economy & Housing", ["work", "housing"]], ["交通 Transport", ["pubT", "road", "tLand"]], ["土地與環境 Land & Environment", ["agri", "env"]], ["基準 Baseline", ["ref"]]] },
+      { c: "C", t: "依讀者想問的問題：6 類", s: "住這裡生活如何、公共服務夠不夠、怎麼移動、土地怎麼用、生產與環境。「土地使用」把交通、農地、畜牧、森林用地收在一起。", p: "用途導向；鄉鎮土地使用的圖層集中在同一處，方便互相比較", n: "改動最大：農林漁牧、交通都要拆，主題跨原分類搬；跟政府統計的分法對不起來，熟悉官方分類的人要重新找",
+        groups: [["生活與家計 Living & Households", ["work", "housing"]], ["公共服務 Public Services", ["popEdu", "health", "crime"]], ["移動 Mobility", ["move"]], ["土地使用 Land Use", ["tLand", "farmLand"]], ["生產與環境 Production & Environment", ["output", "env"]], ["基準 Baseline", ["ref"]]] },
+    ], set: st },
+  { id: "W", key: "世界大分類", panel: { zh: "世界", en: "World" },
+    title: "世界面板：大分類怎麼分",
+    now: `5 個主題、25 層，預設都收合。主題本身就不多，所以不管怎麼分，只要不拆主題，總會有一類只有一個主題（標籤和主題名幾乎一樣）。程式裡已有一張把世界主題排進台灣大分類的對照（手機用），其中「通訊 → 公共生活」本來就有點怪。`,
+    rec: `建議 <b>B</b>：主題不動，用貼近內容的名稱分 3 類；「通訊網路」只有一個主題，這點直接接受，25 層不值得為此拆主題。之後世界圖層多了，再考慮 C 的重切法。`,
+    opts: [
+      { c: "A", t: "沿用台灣大分類名與現有對照", s: "照程式現有對照，用台灣的大分類名稱；順序照台灣（公共生活→環境與資源→情報），所以主題順序會變。", p: "跟台灣用同一組名稱；手機版的對照已存在", n: "「全球通訊」放在「公共生活」底下很怪；主題順序從「情勢在最前」變成「通訊在最前」",
+        groups: [["公共生活 Public Life", ["com"]], ["環境與資源 Environment & Resources", ["cli", "env"]], ["情報 Intelligence", ["sit", "mar"]]] },
+      { c: "B", t: "主題不動，換成貼近內容的 3 類", s: "情勢與海事、氣候與環境、通訊網路；主題順序維持現在（情勢、海事、氣候、環境、通訊）。", p: "只加標籤；名稱一看就知道裡面是什麼；順序不變", n: "「通訊網路」底下只有「全球通訊」一個主題，標籤有點重複",
+        groups: [["情勢與海事 Situation & Maritime", ["sit", "mar"]], ["氣候與環境 Climate & Environment", ["cli", "env"]], ["通訊網路 Communications", ["com"]]] },
+      { c: "C", t: "依現象重切主題：3 類各 2–3 個主題", s: "把小分組升格成主題：事件與天氣（重大事件、地震與颱風、天氣預報場）、海洋（船舶、海洋生態與廢棄物）、通訊網路（骨幹與互連、無線站點、量測與效能）。", p: "每類都有 2–3 個主題，沒有重複的標籤；「海洋」把船和珊瑚礁放一起", n: "五個主題名稱全部改掉，要改世界主題清單與相關測試；主題變 8 個但每個只有 1–6 層，展開次數變多",
+        groups: [["事件與天氣 Events & Weather", ["ev", "quake", "fc"]], ["海洋 Ocean", ["ship", "sea"]], ["通訊網路 Communications", ["bb", "wl", "perf"]]] },
+    ], set: wd },
+];
+
+const zhOf = s => s.split(" ")[0];
+const nowTable = rows => `<tr><th>主題</th><th class="n">層數</th></tr>` + rows.map(([t, n, g]) => `<tr><td><b>${t}</b><div class="src">${g}</div></td><td class="n">${n}</td></tr>`).join("");
+function optTable(o, set) {
+  return `<table class="tbl"><tr><th>大分類 → 主題</th><th class="n">層數</th></tr>` + o.groups.map(([m, ks]) =>
+    `<tr class="mg"><td colspan="2">${m}</td></tr>` + ks.map(k => { const t = set[k]; return `<tr><td>　<b>${t.zh}</b> <span class="src">${t.en}・${t.src}</span></td><td class="n">${t.n}</td></tr>`; }).join("")).join("") + `</table>`;
+}
+function mock(q, o) {
+  const set = q.set; let first = true;
+  const tools = `<div class="mp-tools"><div class="mp-off">全部關閉</div><div class="mp-search">${SI}搜尋圖層…</div>${q.panel.mode ? `<div class="mp-mode">統計圖層顯示 <span class="sg"><span class="on">單一</span><span>可重疊</span></span></div>` : ""}</div>`;
+  const body = o.groups.map(([m, ks]) => `<div class="mp-macro">${zhOf(m)}</div>` + ks.map(k => {
+    const t = set[k]; const open = first; first = false;
+    return `<div class="mp-th">${open ? CHEVD : CHEV}<b>${t.zh}</b><span class="en">${t.en}</span><span class="ct">0/${t.n}</span><span class="sw"></span></div>` + (open ? t.groups.map(([g, n]) => `<div class="mp-g">${g}<span class="d">${n}</span></div>`).join("") : "");
+  }).join("")).join("");
+  return `<div class="mp"><div class="mp-hd"><b>${q.panel.zh}</b><span class="en">${q.panel.en}</span><span class="x">${XI}</span></div>${tools}${body}</div>`;
+}
+
+const KEY = "mtp-macro-groups-picks-v1"; let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { state = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+
+function render() {
+  document.getElementById("twList").innerHTML = TW.map(([m, t]) => `<li><b>${m}</b>：${t}</li>`).join("");
+  document.getElementById("stNow").innerHTML = nowTable(ST_NOW);
+  document.getElementById("wdNow").innerHTML = nowTable(WD_NOW);
+  document.getElementById("qs").innerHTML = Q.map(q => {
+    const opts = q.opts.map(o => `<div class="opt"><div><span class="ol">${o.c}</span> <span class="ot">${o.t}</span>${q.rec.includes("<b>" + o.c) ? '<span class="rb">建議</span>' : ""}</div><p class="os">${o.s}</p><div class="pc"><span class="p">＋ ${o.p}</span><span class="c">－ ${o.n}</span></div><div class="duo"><div class="qcell">${optTable(o, q.set)}</div><div class="qcell">${mock(q, o)}<span class="cap">面板示意：大分類只顯示中文；計數為「已開／總層數」</span></div></div></div>`).join("");
+    const btns = q.opts.map(o => `<button type="button" class="pbtn" data-q="${q.id}" data-c="${o.c}" aria-pressed="false">${o.c}</button>`).join("");
+    return `<section class="q" id="q-${q.id}"><div class="q-head"><span class="tag">${q.id}</span><h2>${q.title}</h2></div><p class="q-now">現況：${q.now}</p><p class="q-rec">${q.rec}</p><div class="opts">${opts}</div><div class="pick-row"><span class="pl">選</span>${btns}<input class="note-in" id="note-${q.id}" data-q="${q.id}" placeholder="補充（選填，例如改名）" aria-label="${q.id} 補充"></div></section>`;
+  }).join("");
+  sync();
+}
+function sync() {
+  let n = 0;
+  Q.forEach(q => {
+    const s = state[q.id] || {}; if (s.c) n++;
+    document.querySelectorAll(`.pbtn[data-q="${q.id}"]`).forEach(b => b.setAttribute("aria-pressed", String(b.dataset.c === s.c)));
+    const ni = document.getElementById("note-" + q.id); if (ni && document.activeElement !== ni) ni.value = s.note || "";
+    const a = document.getElementById("nav-" + q.id); if (a) a.classList.toggle("done", !!s.c);
+  });
+  document.getElementById("count").innerHTML = `已選 <b>${n}</b> / ${Q.length}`;
+  document.getElementById("outText").value = "統計與世界大分類選擇\n" + Q.map(q => {
+    const s = state[q.id] || {}; const o = q.opts.find(x => x.c === s.c);
+    const detail = o ? "\n　" + o.groups.map(([m, ks]) => `${zhOf(m)}：${ks.map(k => q.set[k].zh).join("、")}`).join("／") : "";
+    return `${q.id} ${q.key}：${o ? s.c + "（" + o.t + "）" : "（未選）"}${s.note ? "　補充：" + s.note : ""}${detail}`;
+  }).join("\n");
+}
+document.getElementById("nav").innerHTML = '<a href="#q-now">現況</a>' + Q.map(q => `<a href="#q-${q.id}" id="nav-${q.id}">${q.id}</a>`).join("") + '<a href="#out">彙整</a>';
+document.getElementById("qs").addEventListener("click", e => { const b = e.target.closest(".pbtn"); if (!b) return; const s = state[b.dataset.q] || (state[b.dataset.q] = {}); s.c = s.c === b.dataset.c ? "" : b.dataset.c; save(); sync(); });
+document.getElementById("qs").addEventListener("input", e => { const i = e.target.closest(".note-in"); if (!i) return; const s = state[i.dataset.q] || (state[i.dataset.q] = {}); s.note = i.value; save(); sync(); });
+document.querySelectorAll("[data-th]").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("[data-th]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); document.body.classList.toggle("lt", b.dataset.th === "lt"); }));
+document.getElementById("copy").addEventListener("click", () => { const ta = document.getElementById("outText"), h = document.getElementById("copyHint"); navigator.clipboard.writeText(ta.value).then(() => { h.textContent = "已複製。"; }).catch(() => { ta.select(); h.textContent = "請按 ⌘C 複製。"; }); });
+render();
+</script>
+</body>
+</html>
