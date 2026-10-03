@@ -4,7 +4,7 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE, BORDER, WHITE_ALPHA } from "../../../styles/designTokens";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness, type MonitorFreshness } from "./monitorFreshness";
 import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
@@ -80,7 +80,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
   const totalRegionMw = regions.reduce((sum, r) => sum + (r.mw ?? 0), 0) || 1;
   // v2：觀測時間送標題列
   const observedMs = status?.observed_at ? Date.parse(status.observed_at) : NaN;
-  useMonitorCardHeader({ time: Number.isNaN(observedMs) ? null : observedMs });
+  const fresh = useMonitorFreshness("powerCard", { time: Number.isNaN(observedMs) ? null : observedMs });
 
   if (v2) {
     // 抽蓄抽水時 mw 為負：長條只畫發電（正值）並以正值合計為分母；負值（|占比|≥0.5%）改寫「用電中」
@@ -102,7 +102,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
           )}
         </div>
 
-        <PowerTrendPair trend={trend} status={status} />
+        <PowerTrendPair trend={trend} status={status} fresh={fresh} />
 
         {/* 四區用電收成一行 */}
         <MonitorSub
@@ -172,6 +172,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
             <PowerPlantGroups plants={plants} pointsByName={plantPointsByName} />
           </div>
         )}
+        {fresh.reason && <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>}
         {tip.node}
       </div>
     );
@@ -266,7 +267,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
                 >
                   <div
                     style={{
-                      width: `${pct * 100}%`, height: "100%",
+                      width: `${(pct ?? 0) * 100}%`, height: "100%",
                       background: COLORS.accent, transition: "width 0.4s ease",
                     }}
                   />
@@ -408,10 +409,11 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
 
 /** v2：兩個主數字並排各配大圖——備轉容量率 30 天｜供電能力 vs 尖峰負載（同單位 MW 疊線） */
 function PowerTrendPair({
-  trend, status,
+  trend, status, fresh,
 }: {
   trend: PowerDailyTrendRow[];
   status: PowerDashboard["status"] | null;
+  fresh: MonitorFreshness;
 }) {
   // resv_rate 為 null 的日子濾除；超過 1.5 天沒點就斷線（09/25 前後缺快照不連成假趨勢）
   const reserveSpark = useMemo<SparklinePoint[]>(
@@ -447,11 +449,12 @@ function PowerTrendPair({
         <MonitorMetric
           value={status?.reserve_rate_pct != null ? status.reserve_rate_pct.toFixed(1) : "—"}
           unit={status?.reserve_rate_pct != null ? "%" : undefined}
+          muted={fresh.muted}
         />
         {reserveSpark.length === 0 ? empty : (
           <TimeseriesSparkline
             data={reserveSpark} unit="%" heightTier="lg" fillArea lineColor={COLORS.accent}
-            gapSec={TREND_GAP_SEC} showTooltip tooltipDateFormat="date"
+            gapSec={TREND_GAP_SEC} showTooltip tooltipDateFormat="date" staleUntil={fresh.staleUntil}
           />
         )}
       </div>
@@ -461,12 +464,13 @@ function PowerTrendPair({
           value={fmtMW(status?.supply_capacity_mw)}
           unit={status?.supply_capacity_mw != null ? "MW" : undefined}
           delta={status?.curr_load_mw != null ? `負載 ${fmtMW(status.curr_load_mw)}` : undefined}
+          muted={fresh.muted}
         />
         {supplySpark.length === 0 ? empty : (
           <TimeseriesSparkline
             data={supplySpark} extraSeries={loadExtra} seriesLabel="供電能力" unit="MW"
             heightTier="lg" fillArea={false} lineColor={COLORS.statusLive}
-            gapSec={TREND_GAP_SEC} compactYAxis showTooltip tooltipDateFormat="date"
+            gapSec={TREND_GAP_SEC} compactYAxis showTooltip tooltipDateFormat="date" staleUntil={fresh.staleUntil}
           />
         )}
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>

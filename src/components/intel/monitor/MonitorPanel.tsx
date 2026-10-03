@@ -19,7 +19,7 @@ import {
 } from "../../../data/newsEventsLoader";
 import {
   fetchAlertSummary,
-  tallySummary, indexSeries, EMPTY_TALLY, emptySeries,
+  tallySummary, indexSeries, EMPTY_TALLY, emptySeries, nullSeries,
 } from "../../../data/alertsLoader";
 import { useIntelPollingQuery } from "../../../hooks/useIntelPollingQuery";
 import type { NewsCategory } from "../../../data/newsEventTypes";
@@ -61,7 +61,8 @@ import { useNewsFilter } from "../../../hooks/useNewsFilter";
 import {
   MonitorStyleContext, loadMonitorStyle, saveMonitorStyle, type MonitorStyle,
 } from "./monitorStyle";
-import { MonitorCardFrame, MonitorCardTime } from "./MonitorCardFrame";
+import { MonitorCardFrame } from "./MonitorCardFrame";
+import { MonitorFreshTime } from "./monitorFreshness";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { MF } from "./monitorFont";
 
@@ -497,8 +498,10 @@ export function MonitorPanel({
     [alertSummaryQuery],
   );
   const alertSeries = useMemo(
-    () => (alertSeriesRows.length ? indexSeries(alertSeriesRows) : emptySeries()),
-    [alertSeriesRows],
+    // 新版：查詢失敗＝缺值（不畫成 24 格 0）；舊版維持原畫面
+    () => (alertSeriesRows.length ? indexSeries(alertSeriesRows)
+      : v2 && dashboard.alertSeries.status === "error" ? nullSeries() : emptySeries()),
+    [alertSeriesRows, v2, dashboard.alertSeries.status],
   );
 
   const trendingKeySet = useMemo(() => buildTrendingKeys(trending), [trending]);
@@ -605,11 +608,13 @@ export function MonitorPanel({
   for (const c of clusters) for (const e of c.events) {
     if (latestNewsTs === null || e.published_ts > latestNewsTs) latestNewsTs = e.published_ts;
   }
-  const newsTime = <MonitorCardTime time={latestNewsTs != null ? latestNewsTs * 1000 : null} />;
+  const newsTime = (id: MonitorWidgetId) => (
+    <MonitorFreshTime widgetId={id} time={latestNewsTs != null ? latestNewsTs * 1000 : null} />
+  );
 
   // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
-  const newsDerived = (children: ReactNode) => <>
-    {newsTime}
+  const newsDerived = (id: MonitorWidgetId, children: ReactNode) => <>
+    {newsTime(id)}
     <MonitorDataStatus label="新聞資料" query={clustersQuery} />
     {clustersQuery.lastSuccessAt !== null ? children : null}
   </>;
@@ -617,7 +622,7 @@ export function MonitorPanel({
   const widgets: Record<MonitorWidgetId, ReactNode> = {
     // 警訊整合不送資料時間：警報 RPC 只回計數、不帶警報時間（瀏覽器收到的時間不是資料時間）
     newsFeed: (
-      <>{newsTime}<MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
+      <>{newsTime("newsFeed")}<MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
         events={flatEvents}
         cats={cats}
         onToggleCat={toggleCat}
@@ -653,8 +658,8 @@ export function MonitorPanel({
       /></>
     ),
     internetHealth: <TelecomStatusCard open={open} nowTs={now} />,
-    histogram: newsDerived(<HourlyHistogramWidget events={allEventsToday} />),
-    timeline: newsDerived(
+    histogram: newsDerived("histogram", <HourlyHistogramWidget events={allEventsToday} />),
+    timeline: newsDerived("timeline",
       <TimelineDock
         events={allEventsToday}
         dayStartTs={dayStartTs}
@@ -668,10 +673,11 @@ export function MonitorPanel({
         alertSeries={alertSeries}
       />
     ),
-    triage: newsDerived(<TriageWidget events={allEventsToday} />),
-    hotZones: newsDerived(
+    triage: newsDerived("triage", <TriageWidget events={allEventsToday} />),
+    hotZones: newsDerived("hotZones",
       <HotspotsWidget
         events={allEventsToday}
+        trending={trending}
         countyByEventId={countyByEventId}
         onPickHotspot={onPickHotspot}
       />

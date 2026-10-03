@@ -4,6 +4,7 @@ import { COLORS, FONT_CJK, FONT_DATA, MICON } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { getNewsCategoryDef, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
+import type { TrendingRow } from "../../../data/intelLoaders";
 import { SectionLabel, Widget } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
@@ -13,11 +14,51 @@ interface Hotspot {
   county: string;
   n: number;
   topCat: NewsCategory;
-  surge: number;
+  /** 近 1 小時升溫倍數；基準為 0／缺值＝null（不除出 Infinity） */
+  surge: number | null;
+  /** 近 1 小時有則數、但過去 7 天同時段基準為 0（顯示「新」） */
+  surgeIsNew: boolean;
   cats: Record<string, number>;
 }
 
-function rankHotspots(events: ClusterEvent[], countyById: Map<number, string>): Hotspot[] {
+export interface CountySurge {
+  /** Σcnt ÷ Σbaseline_avg；基準為 0／缺值或不是有限數時為 null */
+  ratio: number | null;
+  /** 近 1 小時有則數但基準為 0 → 「新」 */
+  isNew: boolean;
+}
+
+/**
+ * 近 1 小時升溫：把 `get_news_trending`（縣市×類別，近 1 小時 cnt 對過去 7 天每小時平均 baseline_avg）
+ * 按縣市加總，倍數 ＝ Σcnt ÷ Σbaseline_avg。基準為 0 或 null 時倍數為 null，不除出 Infinity。
+ */
+export function aggregateCountySurge(rows: readonly TrendingRow[] | null | undefined): Map<string, CountySurge> {
+  const sums = new Map<string, { cnt: number; base: number; baseMissing: boolean }>();
+  for (const r of rows ?? []) {
+    if (!r.county) continue;
+    const cnt = Number(r.cnt);
+    const slot = sums.get(r.county) ?? { cnt: 0, base: 0, baseMissing: false };
+    if (Number.isFinite(cnt)) slot.cnt += cnt;
+    const base = r.baseline_avg == null ? NaN : Number(r.baseline_avg);
+    if (Number.isFinite(base)) slot.base += base;
+    else slot.baseMissing = true;
+    sums.set(r.county, slot);
+  }
+  const out = new Map<string, CountySurge>();
+  for (const [county, v] of sums) {
+    const ratio = !v.baseMissing && v.base > 0 && Number.isFinite(v.cnt / v.base) ? +(v.cnt / v.base).toFixed(1) : null;
+    out.set(county, { ratio, isNew: ratio == null && !v.baseMissing && v.base === 0 && v.cnt > 0 });
+  }
+  return out;
+}
+
+const SURGE_TIP = "近 1 小時升溫：該縣市近 1 小時新聞則數 ÷ 過去 7 天每小時平均（依縣市加總各類別）；過去無基準時顯示「新」或「—」";
+
+export function rankHotspots(
+  events: ClusterEvent[],
+  countyById: Map<number, string>,
+  surgeByCounty: Map<string, CountySurge> = new Map(),
+): Hotspot[] {
   const byCounty: Record<string, { n: number; cats: Record<string, number> }> = {};
   for (const e of events) {
     const county = countyById.get(e.id);
@@ -34,7 +75,8 @@ function rankHotspots(events: ClusterEvent[], countyById: Map<number, string>): 
     const topCat = (top?.[0] ?? "other") as NewsCategory;
     out.push({
       county, n: v.n, topCat,
-      surge: +(1 + v.n * 0.28).toFixed(1),
+      surge: surgeByCounty.get(county)?.ratio ?? null,
+      surgeIsNew: surgeByCounty.get(county)?.isNew ?? false,
       cats: v.cats,
     });
   }
@@ -46,10 +88,13 @@ interface Props {
   events: ClusterEvent[];
   countyByEventId: Map<number, string>;
   onPickHotspot: (county: string) => void;
+  /** `get_news_trending` 的列（近 1 小時、縣市×類別）；來源 `dashboard.trending.data`。沒給時倍數顯示「—」 */
+  trending?: readonly TrendingRow[];
 }
 
-export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props) {
-  const ranked = useMemo(() => rankHotspots(events, countyByEventId), [events, countyByEventId]);
+export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trending }: Props) {
+  const surgeByCounty = useMemo(() => aggregateCountySurge(trending), [trending]);
+  const ranked = useMemo(() => rankHotspots(events, countyByEventId, surgeByCounty), [events, countyByEventId, surgeByCounty]);
   const maxHot = ranked.length ? ranked[0]!.n : 1;
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
@@ -63,7 +108,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
           const tipHandlers = tip.bind(() => ({
             title: r.county,
             rows: [{ dot: cat.color, label: cat.label, value: fmtChartValue(r.n, "則") }],
-            note: `熱度倍數 ×${r.surge}`,
+            note: r.surge != null ? `近 1h 升溫 ×${r.surge}` : r.surgeIsNew ? "近 1h 升溫：新（過去無基準）" : "近 1h 升溫：—（無基準）",
           }));
           return (
             <button
@@ -140,17 +185,18 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
                 {r.n}
               </span>
               <span
+                title={SURGE_TIP}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 2,
                   fontFamily: FONT_DATA, fontSize: v2 ? MF.body : 9.5,
-                  color: r.surge >= 2 ? COLORS.statusWarn : COLORS.textDim,
-                  ...(v2 ? { minWidth: 50 } : { width: 40 }),
+                  color: r.surge != null && r.surge >= 2 ? COLORS.statusWarn : COLORS.textDim,
+                  ...(v2 ? { minWidth: 42 } : { width: 40 }),
                 }}
               >
-                {r.surge >= 2 && (
+                {r.surge != null && r.surge >= 2 && (
                   <IntelIcon d={MICON.flame!} size={10} color={COLORS.statusWarn} />
                 )}
-                ×{r.surge}
+                {r.surge != null ? `×${r.surge}` : r.surgeIsNew ? "新" : "—"}
               </span>
             </button>
           );
@@ -163,6 +209,11 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
             }}
           >
             ⚠ 尚無資料
+          </div>
+        )}
+        {v2 && ranked.length > 0 && (
+          <div title={SURGE_TIP} style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDim }}>
+            右欄為近 1h 升溫（近 1 小時則數 ÷ 過去 7 天每小時平均）
           </div>
         )}
       </div>

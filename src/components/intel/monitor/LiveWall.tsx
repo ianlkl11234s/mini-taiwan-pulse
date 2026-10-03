@@ -7,7 +7,6 @@ import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
 
 export interface LiveChannel {
   id: string;
@@ -461,15 +460,7 @@ export const LiveWall = memo(function LiveWall() {
   // 抓 realtime.yt_live_current → handle→video_id 對照（10 min refresh）
   const resolverQuery = useMonitorResource({ open: true, queryKey: "live-resolver:all", intervalMs: 10 * 60_000, emptyData: EMPTY_RESOLVER_ROWS, load: loadResolverRows });
   const resolvedRows = resolverQuery.data;
-  const latestResolvedMs = useMemo(() => {
-    let max = 0;
-    for (const r of resolvedRows) {
-      const t = Date.parse(r.updated_at);
-      if (Number.isFinite(t) && t > max) max = t;
-    }
-    return max > 0 ? max : null;
-  }, [resolvedRows]);
-  useMonitorCardHeader({ time: latestResolvedMs });
+  // 標題列不送時間：resolver 的 updated_at 是「解析時間」不是影像／資料本身的時間（P4 G2：本格沒有 fresh 登記）
   const resolvedMap = useMemo(() => {
     const m = new Map<string, YtLiveVideo>();
     for (const r of resolvedRows) m.set(r.handle, r);

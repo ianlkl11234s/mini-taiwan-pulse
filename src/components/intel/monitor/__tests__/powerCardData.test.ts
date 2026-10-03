@@ -17,7 +17,7 @@ describe("buildPowerCardModel", () => {
   it("returns 4 region slots even when data missing", () => {
     const m = buildPowerCardModel(null, null);
     expect(m.regions.map((r) => r.region)).toEqual([...POWER_REGION_ORDER]);
-    expect(m.regions.every((r) => r.mw === null && r.pct === 0)).toBe(true);
+    expect(m.regions.every((r) => r.mw === null && r.pct === null)).toBe(true);
     expect(m.plants).toEqual([]);
     expect(m.indicator).toBeNull();
     expect(m.observedHHMM).toBe("—");

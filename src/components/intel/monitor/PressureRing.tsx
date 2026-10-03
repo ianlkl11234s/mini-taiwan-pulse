@@ -4,7 +4,7 @@ import { useMonitorV2 } from "./monitorStyle";
 import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { fs } from "./monitorFont";
-import { useMonitorCardHeader, type MonitorCardState } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
 import { useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
@@ -41,7 +41,8 @@ export function PressureRing({
   const animStyle = animName ? { animation: `${animName} ${level.period}s ease-in-out infinite` } : {};
   const hasGlow = level.glow !== "rgba(255,59,48,0)" && level.glow !== "rgba(255,152,0,0)" && level.glow !== "rgba(76,175,80,0)" && level.glow !== "rgba(234,179,8,0)";
   return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+    // v2：旋轉後的 SVG 外接框比環大 27px，會撐出卡片 body 的捲動高度 → 裁在環的方框內
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0, overflow: v2 ? "hidden" : undefined }}>
       <svg
         width={size}
         height={size}
@@ -78,28 +79,31 @@ export function PressureRing({
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
           {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
         </span>
-        <span
-          style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: COLORS.textFaint }}
-        >
-          {status === "ready" ? level.en : "DATA"}
-        </span>
+        {/* 英文等級字只在舊版（v2 字級放大後會和中文疊在一起；§6.1 標籤一律中文） */}
+        {!v2 && (
+          <span
+            style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: COLORS.textFaint }}
+          >
+            {status === "ready" ? level.en : "DATA"}
+          </span>
+        )}
       </div>
     </div>
   );
 }
 
-export function CompareLine({ delta, label, muted = false }: { delta: number; label: string; muted?: boolean }) {
+export function CompareLine({ delta, label, muted = false }: { delta: number | null; label: string; muted?: boolean }) {
   const v2 = useMonitorV2();
-  const up = delta >= 0;
+  const up = delta !== null && delta >= 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span
         style={{
           fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, ...(v2 ? { minWidth: 40 } : { width: 40 }),
-          color: muted ? COLORS.textMuted : up ? COLORS.statusWarn : COLORS.statusLive,
+          color: muted || delta === null ? COLORS.textMuted : up ? COLORS.statusWarn : COLORS.statusLive,
         }}
       >
-        {up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}
+        {delta === null ? "—" : <>{up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}</>}
       </span>
       <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: COLORS.textMuted, whiteSpace: "nowrap" }}>
         {label}
@@ -136,13 +140,16 @@ export function FluidSparkline({
   );
 }
 
-/** 開盤時間字串 "HH:MM" → 今天該時刻的 epoch 毫秒；格式不符回 null */
-function todayTimeMs(hhmm: string | null | undefined): number | null {
+/**
+ * 加權指數的資料時間：RPC 只回 "HH:MM"、沒有日期 → 日期取歷史序列最後一筆的 trade_date
+ * （日線盤中最後一點為當日即時值，所以它就是這個 HH:MM 所屬的交易日）。
+ * 歷史尚未載入或沒有日期、或 HH:MM 格式不符 → null（不拿今天日期硬套）。
+ */
+export function marketDataMs(tradeDate: string | null | undefined, hhmm: string | null | undefined): number | null {
   const m = /^(\d{1,2}):(\d{2})/.exec(hhmm ?? "");
-  if (!m) return null;
-  const d = new Date();
-  d.setHours(Number(m[1]), Number(m[2]), 0, 0);
-  return d.getTime();
+  if (!m || !tradeDate || !/^\d{4}-\d{2}-\d{2}$/.test(tradeDate)) return null;
+  const t = Date.parse(`${tradeDate}T${m[1]!.padStart(2, "0")}:${m[2]}:00+08:00`);
+  return Number.isNaN(t) ? null : t;
 }
 
 export function TwseTicker({
@@ -164,15 +171,14 @@ export function TwseTicker({
   const histLast = history[history.length - 1];
   const histUp = (histLast?.close ?? 0) >= (histFirst?.close ?? 0);
 
-  // v2：收盤時間與狀態送標題列（收盤＝paused；中斷／受限沿用原本的狀態判斷）
+  // v2：資料時間＝歷史序列最後一筆日期＋RPC 的 HH:MM；收盤／休市只出中性 pill（paused，資料超過 4 天會改成過期）
   const v2 = useMonitorV2();
-  let headerState: MonitorCardState | null = null;
-  if (status === "denied") headerState = { kind: "stopped", label: "受限" };
-  else if (status === "error") headerState = { kind: "stale", label: "更新中斷" };
-  else if (status === "ready" && closed && data.status) headerState = { kind: "paused", label: data.status };
-  useMonitorCardHeader({
-    time: status === "ready" ? todayTimeMs(data.time) : lastSuccessAt,
-    state: headerState,
+  const dataMs = available && data.time ? marketDataMs(histLast?.trade_date, data.time) : null;
+  const fresh = useMonitorFreshness("taiex", {
+    time: dataMs,
+    paused: closed && !!data.status,
+    pausedLabel: data.status ?? undefined,
+    reason: status === "denied" ? "無權限讀取行情" : undefined,
   });
   if (v2) {
     // 新版：主數字＝指數＋漲跌；高低量走副資訊；30 日走勢用有時間軸的 TimeseriesSparkline（std）
@@ -185,19 +191,22 @@ export function TwseTicker({
         <MonitorDataStatus label="行情歷史" query={historyQuery} />
         <MonitorMetric
           value={has ? data.index.toLocaleString() : "—"}
-          muted={stale}
+          muted={stale || fresh.muted}
           delta={has ? `${up ? "▲ +" : "▼ "}${data.change.toLocaleString()}（${up ? "+" : ""}${data.change_pct}%）` : undefined}
           tone={tone}
         />
         <MonitorSub items={[
-          `高 ${has ? data.high.toLocaleString() : "—"}`,
-          `低 ${has ? data.low.toLocaleString() : "—"}`,
+          `高 ${has && data.high !== null ? data.high.toLocaleString() : "—"}`,
+          `低 ${has && data.low !== null ? data.low.toLocaleString() : "—"}`,
           `量 ${has ? data.turnover ?? "—" : "—"}`,
         ]} />
         {status !== "ready" && (
           <MonitorNote>
             {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
           </MonitorNote>
+        )}
+        {fresh.reason && (status === "ready" || status === "error") && (
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
         )}
         {points.length >= 2 && (
           // 交易日序列有週末／連假空檔：gapSec 10 天只在超長假（春節）才斷線
@@ -273,8 +282,8 @@ export function TwseTicker({
           color: COLORS.textDim, ...(v2 ? { flexWrap: "wrap" as const } : { whiteSpace: "nowrap" as const }),
         }}
       >
-        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "高" : "H"} <b style={{ color: COLORS.textDefault }}>{has ? data.high.toLocaleString() : "—"}</b></span>
-        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "低" : "L"} <b style={{ color: COLORS.textDefault }}>{has ? data.low.toLocaleString() : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "高" : "H"} <b style={{ color: COLORS.textDefault }}>{has ? (data.high ?? 0).toLocaleString() : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "低" : "L"} <b style={{ color: COLORS.textDefault }}>{has ? (data.low ?? 0).toLocaleString() : "—"}</b></span>
         <span style={{ whiteSpace: "nowrap" }}>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
       </div>
       {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted }}>

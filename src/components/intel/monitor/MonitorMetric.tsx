@@ -84,7 +84,8 @@ export interface MonitorKpiItem {
 }
 
 /** 其餘指標：標籤（`MF.label`）在上、數值（`MF.kpi` 19）在下；每格最小 110px 自動折行 */
-export function MonitorKpis({ items }: { items: MonitorKpiItem[] }) {
+/** muted：來源過期／停更時數值降灰（G2） */
+export function MonitorKpis({ items, muted = false }: { items: MonitorKpiItem[]; muted?: boolean }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: "6px 10px" }}>
       {items.map((it, i) => (
@@ -94,7 +95,7 @@ export function MonitorKpis({ items }: { items: MonitorKpiItem[] }) {
             <span
               style={{
                 fontFamily: FONT_DATA, fontSize: MF.kpi, fontWeight: 700,
-                fontVariantNumeric: "tabular-nums", color: COLORS.textStrong,
+                fontVariantNumeric: "tabular-nums", color: muted ? COLORS.textMuted : COLORS.textStrong,
               }}
             >
               {it.value}

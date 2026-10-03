@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { IntelIcon, ICON } from "../IntelIcon";
 import {
   COLORS, FONT_CJK, FONT_DATA, clockTime,
-  type AlertGroupShort,
 } from "../intelTokens";
+import type { AlertSeriesMap } from "../../../data/alertsLoader";
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
@@ -27,7 +27,7 @@ interface Props {
   onLive: () => void;
   onTogglePlay: () => void;
   /** 警報軌資料（24h × 6 group），無資料時傳空 series */
-  alertSeries: Record<AlertGroupShort, number[]>;
+  alertSeries: AlertSeriesMap;
 }
 
 interface HourlyBucket {

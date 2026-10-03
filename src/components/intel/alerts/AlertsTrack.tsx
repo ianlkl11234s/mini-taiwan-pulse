@@ -4,12 +4,14 @@ import {
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER,
   type AlertGroupShort,
 } from "../intelTokens";
+import type { AlertSeriesMap } from "../../../data/alertsLoader";
 import { useMonitorV2 } from "../monitor/monitorStyle";
 import { fs } from "../monitor/monitorFont";
 import { useChartTooltip, fmtChartValue, type ChartTooltipContent } from "../../ChartHoverTooltip";
 
 interface Props {
-  series: Record<AlertGroupShort, number[]>;
+  /** null＝該小時無資料（來源失敗），tooltip 說「無資料」不是「無警報」 */
+  series: AlertSeriesMap;
   /** 0-1 — 當下時間在 24h 中的相對位置 */
   nowFrac: number;
   /** 0-1 — 播放指針位置 */
@@ -52,12 +54,13 @@ export function AlertsTrack({
     return out;
   }, [series]);
 
+  const noData = ALERT_GROUP_ORDER.every((g) => series[g]?.every((v) => v == null));
   const peak = Math.max(1, ...buckets.map((b) => b.total));
 
   const bucketTooltip = (h: number): ChartTooltipContent => {
     const b = buckets[h];
     const title = `${String(h).padStart(2, "0")}:00`;
-    if (!b || !b.total) return { title, rows: [], note: "無警報" };
+    if (!b || !b.total) return { title, rows: [], note: noData ? "無資料" : "無警報" };
     return {
       title,
       rows: ALERT_GROUP_ORDER.filter((g) => b.parts[g]).map((g) => ({

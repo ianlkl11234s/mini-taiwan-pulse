@@ -12,7 +12,7 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
 import { MonitorMetric, MonitorSub, MonitorNote, MonitorRows } from "./MonitorMetric";
 import { MF } from "./monitorFont";
 
@@ -78,6 +78,11 @@ interface DayAgg {
   day: string;
   /** 該日接近帶總艘數（見下方 mergeDay 的計算與其保守性說明） */
   ships: number;
+  /**
+   * 該日艘數缺值：RPC 有列但 ships 全是 NULL（09-26~29 實際發生），或停更後補的尾段。
+   * `ships` 仍是 0（舊版沿用），v2 畫成灰樁（缺值）而不是 0 底線。
+   */
+  unknown: boolean;
   /** 該日最深分帶 */
   level: number;
   deepestZone: VesselZoneName;
@@ -111,12 +116,19 @@ interface DayAgg {
 function aggregateByDay(rows: VesselZoneDay[]): DayAgg[] {
   const perDay = new Map<string, Map<string, Map<VesselZoneName, number>>>();
   const minDist = new Map<string, number>();
+  // 每日 ships 缺值統計：有列但全部 ships 為 NULL → 該日缺值
+  const rowCount = new Map<string, number>();
+  const knownCount = new Map<string, number>();
 
   for (const r of rows) {
     if (!WATCH_CLASSES.includes(r.vesselClass as (typeof WATCH_CLASSES)[number])) continue;
     const classes = perDay.get(r.day) ?? new Map();
     const zones = classes.get(r.vesselClass) ?? new Map<VesselZoneName, number>();
-    zones.set(r.zone, Math.max(zones.get(r.zone) ?? 0, r.ships ?? 0));
+    rowCount.set(r.day, (rowCount.get(r.day) ?? 0) + 1);
+    if (r.ships !== null) {
+      knownCount.set(r.day, (knownCount.get(r.day) ?? 0) + 1);
+      zones.set(r.zone, Math.max(zones.get(r.zone) ?? 0, r.ships));
+    }
     classes.set(r.vesselClass, zones);
     perDay.set(r.day, classes);
 
@@ -148,18 +160,23 @@ function aggregateByDay(rows: VesselZoneDay[]): DayAgg[] {
       byClass.set(cls, clsShips);
       ships += clsShips; // 跨分類相加是安全的
     }
-    out.push({ day, ships, level, deepestZone: deepest, minDistNm: minDist.get(day) ?? null, byClass, byZone });
+    out.push({
+      day, ships, unknown: (rowCount.get(day) ?? 0) > 0 && (knownCount.get(day) ?? 0) === 0,
+      level, deepestZone: deepest, minDistNm: minDist.get(day) ?? null, byClass, byZone,
+    });
   }
   out.sort((a, b) => a.day.localeCompare(b.day));
   return out;
 }
 
 /** 把日期補齊成連續序列 —— 沒有列的日子代表當天沒有船進入接近帶（真的 0，不是缺資料） */
-function fillDays(aggs: DayAgg[], windowDays: number): DayAgg[] {
+function fillDays(aggs: DayAgg[], windowDays: number, tail?: { toDay: string }): DayAgg[] {
   const lastAgg = aggs[aggs.length - 1];
   if (!lastAgg) return [];
   const byDay = new Map(aggs.map((a) => [a.day, a]));
-  const last = new Date(`${lastAgg.day}T00:00:00Z`);
+  // v2 來源過期／停更時，視窗錨在今天：最後一列之後的日子是「不知道」（缺值），不是「真的沒船」
+  const anchorDay = tail && tail.toDay > lastAgg.day ? tail.toDay : lastAgg.day;
+  const last = new Date(`${anchorDay}T00:00:00Z`);
   const out: DayAgg[] = [];
   for (let i = windowDays - 1; i >= 0; i--) {
     const d = new Date(last);
@@ -169,6 +186,7 @@ function fillDays(aggs: DayAgg[], windowDays: number): DayAgg[] {
       byDay.get(key) ?? {
         day: key,
         ships: 0,
+        unknown: key > lastAgg.day,
         level: 0,
         deepestZone: "approach_12",
         minDistNm: null,
@@ -191,15 +209,29 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
   const rows = rowsQuery.data;
   const hasReadableData = rowsQuery.status === "ready" || rowsQuery.lastSuccessAt !== null;
 
+  const v2 = useMonitorV2();
   const aggs = useMemo(() => aggregateByDay(rows), [rows]);
-  const windowed = useMemo(() => fillDays(aggs, windowDays), [aggs, windowDays]);
+
+  // 資料期別＝RPC 最新一日（含 0 艘日不在列內，取有列的最後一天）；資料日期＝該日台灣 00:00
+  const lastAggDay = aggs.length ? aggs[aggs.length - 1]!.day : null;
+  const lastAggMs = lastAggDay ? Date.parse(`${lastAggDay}T00:00:00+08:00`) : NaN;
+  const fresh = useMonitorFreshness("vesselZone", {
+    timeText: lastAggDay ? fmtDay(lastAggDay) : null,
+    dataMs: Number.isNaN(lastAggMs) ? null : lastAggMs,
+  });
+  const freshStale = fresh.state === "stale" || fresh.state === "stopped";
+  const windowed = useMemo(
+    () => fillDays(aggs, windowDays, v2 && freshStale ? { toDay: new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10) } : undefined),
+    [aggs, windowDays, v2, freshStale],
+  );
 
   const bars: HazardBar[] = useMemo(
     () =>
       windowed.map((a) => ({
         label: fmtDay(a.day),
         key: a.day,
-        value: a.ships || null, // 0 艘畫成灰樁底線，與有量的日子拉開
+        // v2：0 艘＝底線（真的沒船），缺值（unknown）才是灰樁；舊版維持 0 艘畫成灰樁
+        value: v2 ? (a.unknown ? null : a.ships) : a.ships || null,
         level: a.level,
         note: a.ships
           ? [
@@ -207,9 +239,9 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
               `最近 ${fmtDist(a.minDistNm)}`,
               [...a.byClass].map(([c, n]) => `${CLASS_SHORT[c] ?? c} ${n}`).join(" · "),
             ].join("｜")
-          : "無船進入接近帶",
+          : v2 && a.unknown ? "當日艘數缺值" : "無船進入接近帶",
       })),
-    [windowed],
+    [windowed, v2],
   );
 
   // 頭部：最新「有量」的一日
@@ -223,11 +255,6 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
     return vals.length ? Math.min(...vals) : null;
   }, [windowed]);
   const enterDays = useMemo(() => windowed.filter((a) => a.level >= 2).length, [windowed]);
-
-  const v2 = useMonitorV2();
-  // 資料期別＝RPC 最新一日（含 0 艘日不在列內，取有列的最後一天）
-  const lastAggDay = aggs.length ? aggs[aggs.length - 1]!.day : null;
-  useMonitorCardHeader({ timeText: lastAggDay ? fmtDay(lastAggDay) : null });
 
   if (v2) {
     const statusText = rowsQuery.status === "unknown" ? "資料載入中…" : rowsQuery.status === "ready" ? `${windowDays} 天內無觀測紀錄` : "資料暫不可用";
@@ -252,6 +279,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
               value={deepestShips}
               unit="艘"
               color={latestColor}
+              muted={fresh.muted}
               delta={`${fmtDay(latest.day)} · 最近 ${fmtDist(latest.minDistNm)}`}
             />
           </>
@@ -297,8 +325,8 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
                   return {
                     label: fmtDay(a.day),
                     key: a.day,
-                    // fillDays 補的是「當天該帶真的沒有船」→ 0（底線），不是缺值（灰樁）
-                    value: n,
+                    // fillDays 補的是「當天該帶真的沒有船」→ 0（底線）；當日艘數缺值／停更尾段才是缺值（灰樁）
+                    value: a.unknown ? null : n,
                     level: 0,
                     note: n ? `${ZONE_LABEL[zone]}｜${n} 艘` : "該帶當日無船",
                   };
@@ -322,6 +350,9 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
           </>
         ) : (
           <MonitorNote>不以空資料推斷未出現特殊船舶。</MonitorNote>
+        )}
+        {fresh.reason && fresh.state !== "none" && (
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
         )}
         <MonitorNote>
           AIS 自願廣播 · 觀測下限非全量 · 僅臺灣本島（含澎湖）· 金馬烏坵東引無公告基線不可判定

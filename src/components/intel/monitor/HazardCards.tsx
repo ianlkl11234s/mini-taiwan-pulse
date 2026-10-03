@@ -22,7 +22,7 @@ import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { MonitorMetric, MonitorNote, MonitorSub, type MonitorTone } from "./MonitorMetric";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import type { IntelQueryState } from "../../../hooks/useIntelPollingQuery";
 import {
@@ -36,6 +36,7 @@ import {
 import {
   fetchNuclearDaily, fetchNuclearSummary, type NuclearDoseDay, type NuclearSummary,
 } from "../../../data/nuclearLoader";
+import { MS_PER_DAY, taipeiDateKeyFromMs } from "../../../lib/taipeiDay";
 import {
   fetchLightningDaily, fetchLightningSummary,
   LIGHTNING_TYPE_LABELS, type LightningDay, type LightningSummary,
@@ -140,9 +141,9 @@ function HazardShell({
 }
 
 /** 大數字 + 單位 */
-function Metric({ value, unit, color }: { value: string; unit: string; color?: string }) {
+function Metric({ value, unit, color, muted }: { value: string; unit: string; color?: string; muted?: boolean }) {
   const v2 = useMonitorV2();
-  if (v2) return <MonitorMetric value={value} unit={unit} color={color} />;
+  if (v2) return <MonitorMetric value={value} unit={unit} color={color} muted={muted} />;
   return (
     <div>
       <span
@@ -279,13 +280,17 @@ function TyphoonTrendSection({
       : `${d.name ?? d.stormId ?? "—"} ${Math.round(d.nearestKm).toLocaleString("zh-TW")} km`
         + (d.windKt != null ? ` · ${d.windKt} kt` : ""),
   }));
-  const nearbyBars: HazardBar[] = days.map((d) => ({
-    key: d.dateKey,
-    label: d.dateKey.slice(5).replace("-", "/"),
-    value: d.stormsNearby,
-    level: Math.min(d.stormsNearby, 2),
-    note: `${d.stormsNearby} 顆在 1000km 內`,
-  }));
+  // v2：沒有觀測的天 stormsNearby=null → 灰樁（與上排 nearestKm=null 同步）；舊版維持補 0
+  const nearbyBars: HazardBar[] = days.map((d) => {
+    const n = v2 ? d.stormsNearby : (d.stormsNearby ?? 0);
+    return {
+      key: d.dateKey,
+      label: d.dateKey.slice(5).replace("-", "/"),
+      value: n,
+      level: Math.min(n ?? 0, 2),
+      note: n == null ? "無觀測" : `${n} 顆在 1000km 內`,
+    };
+  });
   const picked = pickedDate != null ? days.find((d) => d.dateKey === pickedDate) ?? null : null;
   const closestKm = days.reduce<number | null>(
     (m, d) => (d.nearestKm != null && (m == null || d.nearestKm < m) ? d.nearestKm : m), null,
@@ -321,7 +326,7 @@ function TyphoonTrendSection({
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Note color={COLORS.textDefault}>
             {picked.dateKey.slice(5).replace("-", "/")} ·{" "}
-            {picked.stormsNearby > 0
+            {(picked.stormsNearby ?? 0) > 0
               ? `${picked.stormsNearby} 顆在 1000km 內`
               : picked.nearestKm == null
                 ? "當天無颱風觀測"
@@ -348,8 +353,9 @@ export function TyphoonCard({ open, nowTs }: Props) {
     open, queryKey: "typhoon-summary", intervalMs: 30 * 60_000, emptyData: null,
     load: fetchTyphoonSummary,
   });
-  // 標題列資料時間＝最新颱風觀測時刻；無活躍颱風時沒有觀測時間，不送
-  useMonitorCardHeader({ time: summaryQuery.data ? summaryQuery.data.valid_ts * 1000 : null });
+  // 標題列資料時間＝最新颱風觀測時刻（valid_ts）；event 型不判過期。
+  // 無活躍颱風不是「無資料」：time 為 null 時 fresh 會是 none，但本卡不畫 G2，維持「目前無活躍颱風」文案
+  useMonitorFreshness("typhoon", { time: summaryQuery.data ? summaryQuery.data.valid_ts * 1000 : null });
   // 逐日接近程度（RPC 349）。與快照分開輪詢：這份跨日才變，且 RPC 實測 45 天約 900ms
   const dailyQuery = useMonitorResource<TyphoonProximityDay[]>({
     open, queryKey: "typhoon-proximity-45d", intervalMs: 30 * 60_000, emptyData: EMPTY_TYHOON_PROXIMITY,
@@ -452,8 +458,8 @@ export function EarthquakeCard({ open, nowTs }: Props) {
     open, queryKey: "earthquake-summary", intervalMs: 15 * 60_000, emptyData: null,
     load: fetchEarthquakeSummary,
   });
-  // 標題列資料時間＝最新有感地震發生時刻
-  useMonitorCardHeader({ time: summaryQuery.data?.latest ? summaryQuery.data.latest.occurred_ts * 1000 : null });
+  // 標題列資料時間＝最新有感地震發生時刻（event 型不判過期；無地震紀錄走自己的文案，不畫 G2）
+  useMonitorFreshness("earthquake", { time: summaryQuery.data?.latest ? summaryQuery.data.latest.occurred_ts * 1000 : null });
   // 逐日趨勢與當下快照分開輪詢：兩者資料來源同一張表但聚合方式不同，
   // 且趨勢只有跨日才會變，沒必要跟快照綁在同一次請求裡。
   const dailyQuery = useMonitorResource({
@@ -487,7 +493,12 @@ export function EarthquakeCard({ open, nowTs }: Props) {
     );
   }
 
-  const color = magColor(latest.magnitude);
+  // 來源沒給規模／深度（null）：v2 顯示「M—」「—」不是 M0.0；舊版維持原本補 0 的畫面
+  const mag = latest.magnitude;
+  const depth = latest.depth_km;
+  const color = mag == null && v2 ? COLORS.textMuted : magColor(mag ?? 0);
+  const magText = mag == null ? "—" : mag.toFixed(1);
+  const depthText = depth == null ? "—" : depth.toFixed(1);
   const eqBars: HazardBar[] = dailyQuery.data.map((d) => ({
     label: d.dateKey.slice(5).replace("-", "/"),
     value: d.count,
@@ -502,17 +513,17 @@ export function EarthquakeCard({ open, nowTs }: Props) {
     >
       {v2 ? (
         // 「M」前綴放進 value：unit 欄位是尾綴，要保持「M5.9」慣用寫法只能放前面；規模色走 color
-        <MonitorMetric value={`M${latest.magnitude.toFixed(1)}`} color={color} />
+        <MonitorMetric value={`M${magText}`} color={color} />
       ) : (
       <MetricRow>
         <div>
           <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), color: COLORS.textMuted, marginRight: 3 }}>M</span>
           <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700, color }}>
-            {latest.magnitude.toFixed(1)}
+            {(mag ?? 0).toFixed(1)}
           </span>
         </div>
         <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
-          深度 {latest.depth_km.toFixed(1)} km
+          深度 {(depth ?? 0).toFixed(1)} km
         </div>
       </MetricRow>
       )}
@@ -526,7 +537,7 @@ export function EarthquakeCard({ open, nowTs }: Props) {
         unit=" 次"
       />
       {v2 ? (
-        <MonitorSub items={[`深度 ${latest.depth_km.toFixed(1)} km`, `24h 內 ${data.count24h} 次`, relTime(latest.occurred_ts, nowTs)]} />
+        <MonitorSub items={[`深度 ${depthText} km`, `24h 內 ${data.count24h} 次`, relTime(latest.occurred_ts, nowTs)]} />
       ) : (
       <MetaRow
         left={`24h 內 ${data.count24h} 次`}
@@ -555,6 +566,8 @@ function doseLevel(v: number | null): number {
 }
 const DOSE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr];
 const fetchNuclearTrend = () => fetchNuclearDaily(TREND_DAYS);
+/** v2：日序列錨在今天，停更時尾段出現灰樁 */
+const fetchNuclearTrendToday = () => fetchNuclearDaily(TREND_DAYS, { anchorToday: true });
 
 export function RadiationCard({ open }: Props) {
   const v2 = useMonitorV2();
@@ -562,13 +575,16 @@ export function RadiationCard({ open }: Props) {
     open, queryKey: "nuclear-summary", intervalMs: 5 * 60_000, emptyData: null,
     load: fetchNuclearSummary,
   });
-  const dailyQuery = useMonitorResource({
-    open, queryKey: "nuclear-daily-14d", intervalMs: 30 * 60_000, emptyData: EMPTY_NUCLEAR_DAILY,
-    load: fetchNuclearTrend,
-  });
-  // 標題列資料時間＝有回報站的最新觀測時間（台電 CSV「日期時間」）
-  useMonitorCardHeader({
+  // 標題列資料時間＝有回報站的最新觀測時間（台電 CSV「日期時間」，15 分週期）；過期／停更畫 G2
+  const fresh = useMonitorFreshness("radiation", {
     time: summaryQuery.data?.latest_observed_ts != null ? summaryQuery.data.latest_observed_ts * 1000 : null,
+  });
+  // v2 只有 stale／stopped 才把日序列補到今天（灰樁尾段）；平常錨最後一列，避免「今天」常態灰樁
+  const staleNow = v2 && fresh.muted && fresh.state !== "none";
+  const dailyQuery = useMonitorResource({
+    open, queryKey: staleNow ? "nuclear-daily-14d-today" : "nuclear-daily-14d", intervalMs: 30 * 60_000,
+    emptyData: EMPTY_NUCLEAR_DAILY,
+    load: staleNow ? fetchNuclearTrendToday : fetchNuclearTrend,
   });
   const label = "輻射 · RADIATION";
   const tint = "rgba(34,197,94,0.05)";
@@ -604,7 +620,8 @@ export function RadiationCard({ open }: Props) {
     // 沒有量測的日子是 null（畫灰樁）；不是 0 —— 0 µSv/h 在物理上不會發生，畫成 0 會誤導
     value: d.meanUsvh == null ? null : Number(d.meanUsvh.toFixed(3)),
     level: doseLevel(d.meanUsvh),
-    note: `最高 ${fmtDose(d.maxUsvh)} · ${d.stationCount} 站`,
+    // 沒有資料的天（日序列補到今天後的尾段）不寫「0 站」；舊版維持原本寫法
+    note: d.stationCount == null && v2 ? "無資料" : `最高 ${fmtDose(d.maxUsvh)} · ${d.stationCount ?? 0} 站`,
   }));
   return (
     <HazardShell
@@ -614,11 +631,17 @@ export function RadiationCard({ open }: Props) {
     >
       {v2 ? (
         <>
-          <Metric value={fmtDose(data.avg_usvh)} unit="µSv/h 平均" />
+          <Metric
+            value={fresh.state === "none" ? "—" : fmtDose(data.avg_usvh)}
+            unit="µSv/h 平均" muted={fresh.muted}
+          />
           <MonitorSub items={[
             `最高 ${fmtDose(data.max_usvh)}${data.max_station ? ` · ${data.max_station}` : ""}`,
             `${data.reporting}/${data.total} 站回報`,
           ]} />
+          {fresh.reason && (
+            <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+          )}
         </>
       ) : (
       <MetricRow>
@@ -670,6 +693,8 @@ function strikeThresholds(values: number[]): { p50: number; p90: number } {
 }
 const STRIKE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr];
 const fetchLightningTrend = () => fetchLightningDaily(TREND_DAYS);
+/** v2：日序列錨在今天；最後收集日之後的天＝null（灰樁），也用來判斷來源是否停更 */
+const fetchLightningTrendToday = () => fetchLightningDaily(TREND_DAYS, { anchorToday: true });
 
 export function LightningCard({ open, nowTs }: Props) {
   const v2 = useMonitorV2();
@@ -677,11 +702,13 @@ export function LightningCard({ open, nowTs }: Props) {
     open, queryKey: "lightning-summary", intervalMs: 5 * 60_000, emptyData: null,
     load: fetchLightningSummary,
   });
-  // 標題列資料時間＝最新一筆落雷時刻；今日無落雷時不送
-  useMonitorCardHeader({ time: summaryQuery.data?.latest ? summaryQuery.data.latest.ts * 1000 : null });
+  // 標題列資料時間＝最新一筆落雷時刻（event 型不判過期）；今日無落雷時不送。
+  // 來源是否停更改由下方「逐日彙整最後收集日」判斷（見 sourceUnconfirmed）
+  useMonitorFreshness("lightning", { time: summaryQuery.data?.latest ? summaryQuery.data.latest.ts * 1000 : null });
   const dailyQuery = useMonitorResource({
-    open, queryKey: "lightning-daily-14d", intervalMs: 30 * 60_000, emptyData: EMPTY_LIGHTNING_DAILY,
-    load: fetchLightningTrend,
+    open, queryKey: v2 ? "lightning-daily-14d-today" : "lightning-daily-14d", intervalMs: 30 * 60_000,
+    emptyData: EMPTY_LIGHTNING_DAILY,
+    load: v2 ? fetchLightningTrendToday : fetchLightningTrend,
   });
   const label = "落雷 · LIGHTNING";
   const tint = "rgba(251,146,60,0.05)";
@@ -699,39 +726,71 @@ export function LightningCard({ open, nowTs }: Props) {
   }
   const data = summaryQuery.data;
 
-  const active = data.count1h > 0;
-  const quiet = data.countDay === 0;
+  // 計數沒給（null）≠ 0：v2 顯示「—」＋原因。舊版維持原本補 0 的畫面
+  const countUnknown = data.countDay == null || data.count1h == null;
+  const count1h = data.count1h ?? 0;
+  const countDay = data.countDay ?? 0;
+  // 今日 0 筆時，要有「來源還活著」的證據才能說「今日尚無落雷」：
+  // 逐日彙整（cron 補昨天）最後一個有資料的台灣日，落後超過 1 個整天（< 前天）就是來源停更的徵兆
+  const lastDataKey = dailyQuery.data.reduce<string | null>((m, d) => (d.count != null ? d.dateKey : m), null);
+  const aliveCutoff = taipeiDateKeyFromMs(nowTs * 1000 - 2 * MS_PER_DAY);
+  // 逐日彙整落後 > 2 天：最後一筆之後的天才是 null（灰樁）；否則到今天都是真 0（乾季無雷正常）
+  const dailyBehind = v2 && dailyQuery.lastSuccessAt !== null && (lastDataKey == null || lastDataKey < aliveCutoff);
+  const sourceUnconfirmed = dailyBehind && !countUnknown && countDay === 0;
+  const uncertain = v2 && (countUnknown || sourceUnconfirmed);
+  const active = count1h > 0;
+  const quiet = countDay === 0;
   const dot = active ? COLORS.statusWarn : COLORS.statusLive;
   // 台電源 2026-07-10 起端點活著但永遠回空 → 明說斷供，不混進主數字
-  const fallbackNote = data.fallbackCountDay > 0
-    ? `台電源 今日 ${data.fallbackCountDay.toLocaleString("zh-TW")} 筆`
-    : "台電源 上游斷供中（端點回空）";
-  const { p50: strikeMedian, p90: strikeP90 } = strikeThresholds(dailyQuery.data.map((d) => d.count));
-  const strikeBars: HazardBar[] = dailyQuery.data.map((d) => ({
+  const fb = data.fallbackCountDay;
+  const fallbackNote = fb == null && v2
+    ? "台電源 今日計數無法取得"
+    : (fb ?? 0) > 0
+      ? `台電源 今日 ${(fb ?? 0).toLocaleString("zh-TW")} 筆`
+      : "台電源 上游斷供中（端點回空）";
+  const dayCounts = dailyQuery.data.map((d) => d.count ?? (dailyBehind ? null : 0));
+  const { p50: strikeMedian, p90: strikeP90 } = strikeThresholds(
+    dayCounts.flatMap((c) => (c != null ? [c] : [])),
+  );
+  const strikeBars: HazardBar[] = dailyQuery.data.map((d, i) => ({
     label: d.dateKey.slice(5).replace("-", "/"),
-    value: d.count,
-    level: d.count > strikeP90 ? 2 : d.count > strikeMedian ? 1 : 0,
+    value: dayCounts[i] ?? null,
+    level: dayCounts[i] == null ? 0 : dayCounts[i]! > strikeP90 ? 2 : dayCounts[i]! > strikeMedian ? 1 : 0,
     note: d.cloudToGround != null ? `雲地 ${d.cloudToGround.toLocaleString("zh-TW")}` : undefined,
   }));
 
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
-      dot={dot} title={quiet ? "今日尚無落雷" : "全國落雷"} status={quiet ? "今日尚無落雷" : undefined} badges={["CWA"]} footer={footer}
+      dot={uncertain ? COLORS.textDim : dot}
+      title={uncertain ? "今日落雷數無法確認" : quiet ? "今日尚無落雷" : "全國落雷"}
+      status={uncertain ? "今日落雷數無法確認" : quiet ? "今日尚無落雷" : undefined}
+      badges={["CWA"]} footer={footer}
       query={summaryQuery} dailyQuery={dailyQuery}
     >
-      {quiet ? (
+      {uncertain ? (
+        <>
+          <Metric value="—" unit="次 / 近 1h" muted />
+          <Note color={COLORS.statusWarn}>
+            {countUnknown
+              ? "落雷計數查詢沒有回應，無法判斷今日是否有落雷。"
+              : lastDataKey == null
+                ? "今日尚無落雷紀錄，但逐日彙整沒有任何資料，無法確認來源是否正常。"
+                : `今日尚無落雷紀錄，但逐日彙整停在 ${lastDataKey.slice(5).replace("-", "/")}，無法確認來源是否正常。`}
+          </Note>
+        </>
+      ) : quiet ? (
         <Note>氣象署源今日（{data.dateKey}）尚無落雷紀錄。</Note>
       ) : (
         v2 ? (
           <>
             <Metric
-              value={data.count1h.toLocaleString("zh-TW")}
+              value={count1h.toLocaleString("zh-TW")}
               unit="次 / 近 1h"
               color={active ? COLORS.statusWarn : COLORS.textStrong}
             />
             <MonitorSub items={[
-              `今日累計 ${data.countDay.toLocaleString("zh-TW")} 次`,
+              `今日累計 ${countDay.toLocaleString("zh-TW")} 次`,
               data.latest
                 ? `最新 ${relTime(data.latest.ts, nowTs)} · ${LIGHTNING_TYPE_LABELS[data.latest.strikeType] ?? "未知型別"}`
                 : "最新 —",
@@ -741,12 +800,12 @@ export function LightningCard({ open, nowTs }: Props) {
         <>
           <MetricRow>
             <Metric
-              value={data.count1h.toLocaleString("zh-TW")}
+              value={count1h.toLocaleString("zh-TW")}
               unit="次 / 近 1h"
               color={active ? COLORS.statusWarn : COLORS.textStrong}
             />
             <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
-              今日累計 {data.countDay.toLocaleString("zh-TW")} 次
+              今日累計 {countDay.toLocaleString("zh-TW")} 次
             </div>
           </MetricRow>
           <MetaRow

@@ -499,8 +499,8 @@ export interface TyphoonProximityDay {
   name: string | null;
   /** 該颱風的最大風速 kt（RPC 已跨來源撈值，JMA 常缺） */
   windKt: number | null;
-  /** 當天在 1000km 內、去重後的颱風數 */
-  stormsNearby: number;
+  /** 當天在 1000km 內、去重後的颱風數；沒有觀測的天 null（與 nearestKm=null 同步，不是 0） */
+  stormsNearby: number | null;
   /** 那幾顆的明細（長度 = stormsNearby）。只給「最近那顆」的話，畫面會出現
    *  「2 顆在 1000km 內」卻只列得出一顆 */
   nearby: TyphoonNearby[];
@@ -527,23 +527,30 @@ function clampProximityDays(daysKey: string): number {
   return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
 }
 
+/** cache key：`45`（預設錨最後一列）或 `45:today`（監看 v2 錨今天） */
+function parseProximityKey(key: string): { days: number; anchorToday: boolean } {
+  const [d, mode] = key.split(":");
+  return { days: clampProximityDays(d ?? ""), anchorToday: mode === "today" };
+}
+
 async function fetchTyphoonProximityUncached(daysKey: string): Promise<TyphoonProximityDay[]> {
+  const { days: dayCount, anchorToday } = parseProximityKey(daysKey);
   const { data, error } = await supabase.rpc("get_typhoon_proximity_daily", {
-    p_days: clampProximityDays(daysKey),
+    p_days: dayCount,
   });
   if (error) throw error;
   const rows = (data ?? []) as ProximityRpcRow[];
-  return padTaipeiDaily(rows, clampProximityDays(daysKey), (r) => r.obs_date, (dateKey, r) => ({
+  return padTaipeiDaily(rows, dayCount, (r) => r.obs_date, (dateKey, r) => ({
     dateKey,
     nearestKm: r?.nearest_km ?? null,
     stormId: r?.nearest_storm_id ?? null,
     name: r?.nearest_name ?? null,
     windKt: r?.nearest_wind_kt ?? null,
-    stormsNearby: r?.storms_nearby ?? 0,
+    stormsNearby: r?.storms_nearby ?? null,
     nearby: (r?.nearby ?? []).map((n) => ({
       stormId: n.storm_id, name: n.name, km: n.km, kt: n.kt,
     })),
-  }));
+  }), anchorToday ? { anchor: "today" } : undefined);
 }
 
 const fetchTyphoonProximityCached = cachedByKey(
@@ -555,4 +562,5 @@ const fetchTyphoonProximityCached = cachedByKey(
 /** 近 N 天逐日接近程度，由舊到新。成功但無觀測才補 null / 0。 */
 export const fetchTyphoonProximityDaily = (
   days: number = DEFAULT_PROXIMITY_DAYS,
-): Promise<TyphoonProximityDay[]> => fetchTyphoonProximityCached(String(days));
+  opts: { anchorToday?: boolean } = {},
+): Promise<TyphoonProximityDay[]> => fetchTyphoonProximityCached(opts.anchorToday ? `${days}:today` : String(days));

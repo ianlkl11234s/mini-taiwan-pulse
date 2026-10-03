@@ -5,7 +5,7 @@ export const POWER_REGION_ORDER = ["北部", "中部", "南部", "東部"] as co
 export interface PowerRegionRow {
   region: string;
   mw: number | null;
-  pct: number; // 0~1 normalized against current max
+  pct: number | null; // 0~1 normalized against current max；缺區＝null（v2 顯示「—」）
 }
 
 export interface PowerPlantRow {
@@ -40,7 +40,7 @@ export function buildPowerCardModel(
   );
   const regions: PowerRegionRow[] = POWER_REGION_ORDER.map((r) => {
     const mw = regionMap[r] ?? null;
-    return { region: r, mw, pct: mw != null ? Math.min(1, mw / max) : 0 };
+    return { region: r, mw, pct: mw != null ? Math.min(1, mw / max) : null };
   });
 
   const plantList = day?.plants ?? [];
