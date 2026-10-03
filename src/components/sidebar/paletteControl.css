@@ -1,0 +1,167 @@
+/*
+ * 色盤選單（R7，spec.md §5「色盤選單」）。
+ * chrome 全部取自 tokens.css（--control-*、--accent、--surface-solid／--light-surface-solid、--elevation-*）；
+ * 色條的顏色是資料色（src/map/palettes.ts），由元件 inline 給。
+ * 清單用 portal 浮在 body 上，主題 class（.lpc-theme／.lpc-theme--light）由元件在開啟時套上。
+ */
+
+/* ── 色條：暗／淡兩版，依主題只顯示一版 ── */
+.pal-ramp {
+  display: inline-flex;
+  flex: none;
+  width: 72px;
+  height: 10px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.pal-ramp > span {
+  flex: 1;
+}
+
+.pal-ramp-light,
+.lpc-theme--light .pal-ramp-dark {
+  display: none;
+}
+
+.lpc-theme--light .pal-ramp-light {
+  display: block;
+}
+
+/* ── 收合的按鈕：高 20（同 §5.9 選單），色條＋中文名＋箭頭 ── */
+button.pal-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 20px;
+  margin: 0;
+  padding: 0 6px 0 7px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-md);
+  background: var(--control-bg);
+  color: var(--lpc-text);
+  font: 10px/1 var(--font-cjk);
+  cursor: pointer;
+}
+
+button.pal-btn:hover {
+  background: var(--control-bg-hover);
+}
+
+.pal-btn-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pal-btn-chev {
+  flex: none;
+  color: var(--lpc-muted);
+  transition: transform 0.15s;
+}
+
+.pal-btn-chev[data-open="true"] {
+  transform: rotate(180deg);
+}
+
+/* ── 浮出清單 ── */
+.pal-pop {
+  position: fixed;
+  z-index: var(--z-popover);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-solid);
+  box-shadow: var(--elevation-md);
+  color: var(--lpc-text);
+  font-family: var(--font-cjk);
+  overflow: hidden;
+}
+
+.lpc-theme--light.pal-pop {
+  background: var(--light-surface-solid);
+  box-shadow: var(--light-elevation-lg);
+}
+
+.pal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  min-height: 0;
+  padding: var(--space-xs);
+  overflow-y: auto;
+}
+
+button.pal-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 26px;
+  margin: 0;
+  padding: 0 var(--space-sm);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--lpc-text);
+  font: 11px/1.3 var(--font-cjk);
+  text-align: left;
+  cursor: pointer;
+}
+
+button.pal-opt:hover {
+  background: var(--control-bg-hover);
+}
+
+button.pal-opt[aria-selected="true"] {
+  background: var(--accent-faint);
+  color: var(--lpc-strong);
+  font-weight: var(--font-weight-semibold);
+}
+
+button.pal-opt:focus-visible,
+button.pal-btn:focus-visible,
+.pal-foot button.lpc-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.pal-opt-name {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.pal-opt-note {
+  color: var(--lpc-muted);
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.pal-opt-mark {
+  display: inline-flex;
+  flex: none;
+  width: 12px;
+  color: var(--accent);
+}
+
+.pal-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
+  border-top: 1px solid var(--lpc-line);
+}
+
+.pal-foot button.lpc-btn:disabled {
+  opacity: var(--control-disabled-opacity);
+  cursor: not-allowed;
+}

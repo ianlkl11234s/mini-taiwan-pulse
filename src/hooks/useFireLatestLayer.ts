@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, HeatmapLayer } from "mapbox-gl";
 import { loadFireEventsByYear, loadFireEventYears, type FireEvent } from "../data/fireLoader";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -24,6 +25,7 @@ const OPACITY_DEFAULT = Number(paramDefault("fireLatest", "fireLatestOpacity"));
 const POINTS_FROM_ZOOM = densePointsFromZoom(15_398);
 // 未校正：資料走 RPC 無離線副本；同量級（1.3–1.6 萬點）全台層校正落在 1–1.5
 const HEATMAP_INTENSITY = 1;
+const HEAT_KEYS = ["fireLatest"] as const;
 
 /**
  * 描邊：有傷亡（casualty）的事件用外框標示（依屬性變化＝資料編碼）：暗色白、淡色 #111827
@@ -47,7 +49,7 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       type: "heatmap",
       source: SOURCE_ID,
       maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
-      paint: heatmapPaint(1, HEATMAP_INTENSITY),
+      paint: heatmapLayerPaint("fireLatest", isDark, 1, HEATMAP_INTENSITY),
     } as HeatmapLayer, map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
   }
   if (!map.getLayer(LAYER_ID)) {
@@ -97,7 +99,7 @@ function setVisible(map: MapboxMap, visible: boolean) {
 }
 
 function updatePaint(map: MapboxMap, isDark: boolean, opacity: number, scale: number) {
-  if (map.getLayer(HEATMAP_LAYER_ID)) map.setPaintProperty(HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(opacity / OPACITY_DEFAULT));
+  applyHeatmapStyle(map, HEATMAP_LAYER_ID, "fireLatest", isDark, opacity / OPACITY_DEFAULT);
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-radius", ["case", ["get", "casualty"], 6 * scale, 3 * scale]);
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.8 : 0.65) * opacity);
@@ -117,6 +119,7 @@ export function useFireLatestLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
+  const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
 
   const loadedRef = useRef(false);
   // 最近一次成功載入的事件：換底圖（style.load）後用它重畫，不重抓
@@ -181,5 +184,5 @@ export function useFireLatestLayer(
     const map = mapRef.current;
     if (!map || !visible) return;
     try { updatePaint(map, isDarkTheme, opacity, scale); } catch { /* style 尚未就緒 */ }
-  }, [mapRef, visible, isDarkTheme, opacity, scale, mapTick]);
+  }, [mapRef, visible, isDarkTheme, opacity, scale, mapTick, heatStyle]);
 }

@@ -1,5 +1,8 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "../map/layerPaintColors";
-import { BOUNDARY_GRAY, heatmapLegendGradient, mapSeamColor } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
+import { BOUNDARY_GRAY, mapSeamColor, rampLegendGradient } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
+import { paletteById, paletteRamp } from "../map/palettes";
+import { useHeatmapLegendPalettes } from "../state/layerPalette";
+import { LAYER_MANIFEST } from "../data/layerManifest";
 import { FACILITY_STATUS_PAINT_COLORS } from "../map/layerPaintColors";
 import { THEMED_PAINT_COLORS } from "../map/layerPaintColors";
 import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "../map/layerPaintColors";
@@ -519,10 +522,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "fireStations", render: () => <FireStationLegend /> },
   { id: "fireHydrants", render: () => <FireHydrantLegend /> },
   // R5：單色密集點拉遠改熱區，補圖例說明熱區色階（點色與 overlayRegistry 同）
-  { id: "busStationsCity", render: ({ isDark }) => <DenseSingleColorLegend label="市區公車站" color={isDark ? "#66bb6a" : "#388e3c"} /> },
-  { id: "busStationsIntercity", render: ({ isDark }) => <DenseSingleColorLegend label="公路客運站" color={isDark ? "#ab47bc" : "#7b1fa2"} /> },
-  { id: "convenienceStores", render: ({ isDark }) => <DenseSingleColorLegend label="超商" color={isDark ? "#26c6da" : "#00838f"} /> },
-  { id: "wasteStopsStatic", render: ({ isDark }) => <DenseSingleColorLegend label="全台清運點位" color={isDark ? "#fbbf24" : "#d97706"} /> },
+  { id: "busStationsCity", render: ({ isDark }) => <DenseSingleColorLegend layer="busStationsCity" label="市區公車站" color={isDark ? "#66bb6a" : "#388e3c"} /> },
+  { id: "busStationsIntercity", render: ({ isDark }) => <DenseSingleColorLegend layer="busStationsIntercity" label="公路客運站" color={isDark ? "#ab47bc" : "#7b1fa2"} /> },
+  { id: "convenienceStores", render: ({ isDark }) => <DenseSingleColorLegend layer="convenienceStores" label="超商" color={isDark ? "#26c6da" : "#00838f"} /> },
+  { id: "wasteStopsStatic", render: ({ isDark }) => <DenseSingleColorLegend layer="wasteStopsStatic" label="全台清運點位" color={isDark ? "#fbbf24" : "#d97706"} /> },
   { id: "fireIsochrone", render: () => <FireIsochroneLegend /> },
   { id: "livestockFarmPig", render: () => <LivestockFarmLegend /> },
   { id: "livestockSlaughter", render: () => <LivestockFacilityLegend /> },
@@ -799,7 +802,7 @@ function PollutionSeverityLegend({ visibility }: { visibility: LayerVisibility }
     <div>
       <LegendTitle zh="污染嚴重度" en="Severity" />
       <FireCatRows cats={bands.map((b) => ({ color: b.color, label: b.label }))} />
-      {visibility.pollutionFacility && <DenseHeatmapLegendRow />}
+      {visibility.pollutionFacility && <DenseHeatmapLegendRow layers={["pollutionFacility"]} />}
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         列管 ≠ 污染｜設施色 = 最高嚴重度
       </LegendNote>
@@ -828,7 +831,7 @@ function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility })
       {severityCats.map((c, i) => <LegendRow key={c.label} swatch={severityKeys[i] === "mobile" ? <SwatchDot color={c.color} /> : null}>{c.label}</LegendRow>)}
       <LegendTitle zh="介質" en="Medium" style={{ marginTop: 8 }} />
       <FireCatRows cats={mediumCats} />
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"]} />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         重大點大小 ∝ 罰鍰｜白框 = 連續 / 停工等｜可年份播放
       </LegendNote>
@@ -1144,7 +1147,7 @@ function FireEventLegend() {
     <div>
       <LegendTitle zh="火災歷史" en="Fire" />
       <FireCatRows cats={FIRE_EVENT_CATS} />
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["fireEvents", "fireLatest"]} />
       <LegendNote>有死傷＝較大的紅點＋醒目外框（其餘點只有淡色描邊）</LegendNote>
     </div>
   );
@@ -1249,7 +1252,7 @@ function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CON
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{contract.historical ? "歷史快照；不是現況觀測。" : "以來源 metadata 為準；未知不補值。"}</div>
     {facilityGroup && <LegendNote style={{ marginTop: 4 }}>{facilityGroup === "supply" ? "P21 未提供一致細類；依 2010 年設施名稱保守推定，未命中者保留未分類。" : "P22 泵場／處理場依來源子型 P22a／P22b 區分。"}</LegendNote>}
     {["jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds"].includes(layerKey) && <LegendNote style={{ marginTop: 4 }}>{layerKey === "jpWaterGroundwaterSites" ? "已驗證 source 1,293 筆；實際24縣，當前視窗空白不代表全國無資料。" : layerKey === "jpWaterNilimDams" ? "已驗證 source 583 筆；實際46縣、年份未提供，不與KSJ水壩相加。" : "已驗證 source 161,778 筆；datum未知的位置候選，4,284同座標列保留。"}</LegendNote>}
-    {layerKey === "jpWaterAgriculturalPonds" && <DenseHeatmapLegendRow />}
+    {layerKey === "jpWaterAgriculturalPonds" && <DenseHeatmapLegendRow layers={["jpWaterAgriculturalPonds"]} />}
   </div>;
 }
 
@@ -1300,7 +1303,7 @@ function BssBridgePointLegend() {
     {BSS_BRIDGE_CLASS_LEGEND.map((item) => (
       <LegendRow key={item.key} swatch={<SwatchDot color={BSS_BRIDGE_ACCESS_COLORS[item.key]} />}>{item.point}</LegendRow>
     ))}
-    <DenseHeatmapLegendRow />
+    <DenseHeatmapLegendRow layers={["bssNationalBridgePointsPreview"]} />
     <LegendNote>位置是清冊參考點，不是橋頭尾或路網節點；z10 以上才顯示。</LegendNote>
     <BssBridgeSharedNotes />
   </div>;
@@ -1373,7 +1376,7 @@ function JpSchoolsLegend() {
           </div>
         ))}
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["jpSchools"]} />
     </div>
   );
 }
@@ -1431,7 +1434,7 @@ function JpAccommodationTypesLegend({ source }: { source: "canonical" | "osm" })
           社群繪製 coverage，不是完整或官方名冊。© OpenStreetMap contributors, ODbL 1.0。
         </LegendNote>
       )}
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={[source === "canonical" ? "jpAccommodationCanonical" : "jpAccommodationOsm"]} />
     </div>
   );
 }
@@ -1523,7 +1526,7 @@ function PublicToiletLegend() {
           </div>
         ))}
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["publicToilets"]} />
     </div>
   );
 }
@@ -1664,7 +1667,7 @@ function StreetTreesTaipeiDiffLegend({ colorModeIdx = 0 }: { colorModeIdx?: numb
           半透明點 = 疑似重編號（非真消失/新增）
         </LegendNote>
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["streetTreesTaipeiDiff"]} />
     </div>
   );
 }
@@ -1710,7 +1713,7 @@ function RiversideTreesTaipeiLegend() {
         {RIVERSIDE_TREE_SPECIES.map((s) => <UrbanDotRow key={s.name} color={s.color} label={s.name} />)}
         <UrbanDotRow color={RIVERSIDE_TREE_OTHER_COLOR} label="其他 Other" />
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["riversideTreesTaipei"]} />
     </div>
   );
 }
@@ -1743,7 +1746,7 @@ function StreetTrees3epochLegend({ colorModeIdx = 0 }: { colorModeIdx?: number }
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["streetTreesTaipei3epoch"]} />
     </div>
   );
 }
@@ -1776,7 +1779,7 @@ function StreetTreesNationalLegend({ colorModeIdx = 0 }: { colorModeIdx?: number
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["streetTreesNational"]} />
     </div>
   );
 }
@@ -2104,7 +2107,7 @@ function SportsVenueLegend({ visibility }: { visibility?: LayerVisibility }) {
     <div>
       <LegendTitle zh="運動場館分類" en="Category" />
       <FireCatRows cats={SPORTS_CATEGORIES} />
-      {visibility?.sportsSchool && <DenseHeatmapLegendRow />}
+      {visibility?.sportsSchool && <DenseHeatmapLegendRow layers={["sportsSchool"]} />}
       <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
         大小 = 面積（area_sqm log；缺值退化固定大小）
       </LegendNote>
@@ -2243,7 +2246,7 @@ function TourHotelsLegend() {
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {TOUR_HOTEL_CATS.map((c) => <UrbanDotRow key={c.label} color={c.color} label={c.label} />)}
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["tourHotels"]} />
     </div>
   );
 }
@@ -2275,23 +2278,42 @@ function TourEventsLegend() {
   );
 }
 
-/** LG-8：密集點拉遠改畫熱區（R5 P-4／G-2），與地圖同一段 magma。 */
-function DenseHeatmapLegendRow() {
+/**
+ * LG-8：密集點拉遠改畫熱區（R5 P-4／G-2）。顏色跟地圖讀同一個解析器（R7 色盤選單＋底圖）；
+ * 一個圖例管多層時，只列開著的層，各層色盤不同就各畫一條並標層名。
+ */
+function DenseHeatmapLegendRow({ layers }: { layers: readonly string[] }) {
+  const t = useLegendTheme();
+  const entries = useHeatmapLegendPalettes(layers);
+  const distinct = [...new Set(entries.map((e) => e.paletteId))];
   return (
     <div style={{ marginTop: 6 }}>
-      <SwatchGradient gradient={heatmapLegendGradient()} labels={["低", "高"]} />
+      {distinct.length === 1
+        ? <SwatchGradient gradient={rampLegendGradient(paletteRamp(distinct[0]!, t.isDark)!)} labels={["低", "高"]} />
+        : entries.map((e) => (
+          <div key={e.key} style={{ marginBottom: 2 }}>
+            <LegendNote>{legendLayerName(e.key)}・{paletteById(e.paletteId)?.zh}</LegendNote>
+            <SwatchGradient gradient={rampLegendGradient(paletteRamp(e.paletteId, t.isDark)!)} labels={["低", "高"]} />
+          </div>
+        ))}
       <LegendNote style={{ marginTop: 2 }}>拉遠時顯示密度</LegendNote>
     </div>
   );
 }
 
+/** 圖例裡標層名用：manifest 名稱去掉英文副名 */
+function legendLayerName(key: string): string {
+  const label = (LAYER_MANIFEST as Record<string, { label?: string }>)[key]?.label ?? key;
+  return label.replace(/\s+[A-Za-z(（].*$/u, "");
+}
+
 /** 單色密集點（原本無圖例）：R5 拉遠改畫熱區後需要說明熱區色階，點本身仍單色。 */
-function DenseSingleColorLegend({ label, color }: { label: string; color: string }) {
+function DenseSingleColorLegend({ layer, label, color }: { layer: string; label: string; color: string }) {
   const t = useLegendTheme();
   return (
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}><SwatchDot color={color} />{label}</div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={[layer]} />
     </div>
   );
 }
@@ -2301,7 +2323,7 @@ function FireHydrantLegend() {
     <div>
       <LegendTitle zh="消防栓" en="Hydrants" />
       <FireCatRows cats={FIRE_HYDRANT_CATS} />
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["fireHydrants"]} />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {FIRE_HYDRANT_COVERAGE_NOTE}
       </LegendNote>
@@ -2441,7 +2463,7 @@ function ReligionLegend({ visibility }: { visibility: LayerVisibility }) {
           含 OSM 來源 © OpenStreetMap contributors（ODbL）
         </LegendNote>
       )}
-      {visibility.religionTemples && <DenseHeatmapLegendRow />}
+      {visibility.religionTemples && <DenseHeatmapLegendRow layers={["religionTemples"]} />}
     </div>
   );
 }
@@ -3156,7 +3178,7 @@ function MedicalLegend({ visibility, isDark = true }: { visibility: LayerVisibil
           </div>
         ))}
       </div>
-      {(visibility.medClinic || visibility.medAED || visibility.medLTC) && <DenseHeatmapLegendRow />}
+      {(visibility.medClinic || visibility.medAED || visibility.medLTC) && <DenseHeatmapLegendRow layers={["medClinic", "medAED", "medLTC"]} />}
     </div>
   );
 }
@@ -3187,7 +3209,7 @@ function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: 
           </div>
         ))}
       </div>
-      {manufacturing && <DenseHeatmapLegendRow />}
+      {manufacturing && <DenseHeatmapLegendRow layers={["manufacturingCompanyPoints"]} />}
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         {manufacturing
           ? "202608 登記快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。184,944 筆有座標；點位是公司登記地址，不是工廠實際營運地址。"
@@ -3208,7 +3230,7 @@ function FactoryLocationsLegend() {
         <Swatch color={FACTORY_LOCATION_COLOR} round />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["factoryLocations"]} />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         202606 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。90,652 / 100,624 筆可定位。
       </LegendNote>
@@ -3225,7 +3247,7 @@ function RegulatedFacilitiesLegend() {
         <Swatch color={REGULATED_FACILITY_COLOR} round />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>環境部 active 列管設施</span>
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["regulatedFacilities"]} />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         20260818 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
       </LegendNote>
@@ -3415,7 +3437,7 @@ function CommonRegistrationAddressesLegend({ minCompanies }: { minCompanies: num
           );
         })}
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["commonRegistrationAddresses"]} />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         目前顯示共同登記 ≥ {Math.round(minCompanies).toLocaleString("zh-TW")} 家的門牌；點擊可查資本額總和與中位數。
       </LegendNote>
@@ -3440,7 +3462,7 @@ function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
         ))}
       </div>
-      {(visibility.agriRetail || visibility.agriProduceWholesale) && <DenseHeatmapLegendRow />}
+      {(visibility.agriRetail || visibility.agriProduceWholesale) && <DenseHeatmapLegendRow layers={["agriRetail", "agriProduceWholesale"]} />}
     </div>
   );
 }
@@ -4846,7 +4868,7 @@ function WorldTrashDebrisLegend() {
         <SwatchDot color={"#f59e0b"} opacity={0.9} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>偵測到的垃圾 / 殘骸點位</span>
       </div>
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["worldTrashDebris"]} />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         點位密度反映 Mapillary 街景覆蓋，非真實垃圾分佈
       </LegendNote>
@@ -4950,7 +4972,7 @@ function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
         ))}
       </div>
-      {(visibility.jpReligionGsi || visibility.jpReligionOsm || visibility.jpReligionWikidata) && <DenseHeatmapLegendRow />}
+      {(visibility.jpReligionGsi || visibility.jpReligionOsm || visibility.jpReligionWikidata) && <DenseHeatmapLegendRow layers={["jpReligionGsi", "jpReligionOsm", "jpReligionWikidata"]} />}
       <LegendNote style={{ marginTop: 5, lineHeight: 1.35 }}>
         日本無官方全國宗教設施圖層。任何單一圖層都不是全量，三者數字也不應相加；
         大阪府清冊實測 GSI 僅對上 62%，三源聯集仍漏 25.9%。建議一次只開一個來源。
@@ -5385,7 +5407,7 @@ function PowerGridLegend({ visibility }: { visibility?: LayerVisibility }) {
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>地下電纜（虛線）</span>
         </div>
       </div>
-      {visibility?.osmPowerTowers && <DenseHeatmapLegendRow />}
+      {visibility?.osmPowerTowers && <DenseHeatmapLegendRow layers={["osmPowerTowers"]} />}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
         ● 鐵塔需 zoom ≥ 13<br />
         ● 來源：OSM（同 openinframap），約 60% 線未標電壓
@@ -6166,7 +6188,7 @@ function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibility }) {
           ))}
         </div>
       )}
-      {visibility.accidentTaipei && <DenseHeatmapLegendRow />}
+      {visibility.accidentTaipei && <DenseHeatmapLegendRow layers={["accidentTaipei"]} />}
     </div>
   );
 }
@@ -6282,7 +6304,7 @@ function NoiseEnforcementEventsLegend() {
     <div>
       <NoiseLegendTitle>噪音裁處事件／罰鍰</NoiseLegendTitle>
       <NoiseLegendRows rows={rows} dot />
-      <DenseHeatmapLegendRow />
+      <DenseHeatmapLegendRow layers={["noiseEnforcementEvents"]} />
       <NoiseLegendNote source="環境部 EMS_P_46 污染裁處資料">
         顏色表示裁處嚴重度，點大小可反映罰鍰；不是 dB 觀測或聲音強度。定位精度混合，資料沿用既有 pollution_penalties PMTiles，不是即時告發流。
       </NoiseLegendNote>
@@ -6366,7 +6388,7 @@ function JpPoliceFacilitiesLegend() {
     <div>地圖可顯示：13,195 點；無座標：1 筆（原始地址缺漏）</div>
     <div>資料時點：2025-04-01</div>
     <div style={{ marginTop: 5 }}>{JP_POLICE_ATTRIBUTION}</div>
-    <DenseHeatmapLegendRow />
+    <DenseHeatmapLegendRow layers={["jpPoliceFacilities"]} />
   </div>;
 }
 
@@ -6425,7 +6447,7 @@ function BicycleSupportLegend() {
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
     {items.map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><SwatchDot color={c!} />{l}</div>)}
     <div style={{ marginTop: 5 }}>OSM snapshot exploration；同點多類時依維修、打氣、停車、飲水、公廁順序著色，非完整官方清冊。</div>
-    <DenseHeatmapLegendRow />
+    <DenseHeatmapLegendRow layers={["bicycleSupport"]} />
   </div>;
 }
 
@@ -6434,7 +6456,7 @@ function AccessibleParkLegend() {
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
     {[[ACCESSIBILITY_STATUS_COLORS.yes, 'yes'], [ACCESSIBILITY_STATUS_COLORS.limited, 'limited'], [ACCESSIBILITY_STATUS_COLORS.no, 'no'], [ACCESSIBILITY_STATUS_COLORS.unknown, 'unknown']].map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><SwatchDot color={c!} />{l}</div>)}
     <div style={{ marginTop: 5 }}>OSM snapshot exploration；unknown 不等於 false，非完整官方清冊。</div>
-    <DenseHeatmapLegendRow />
+    <DenseHeatmapLegendRow layers={["accessibleParkFacilities"]} />
   </div>;
 }
 

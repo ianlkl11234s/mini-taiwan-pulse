@@ -2,7 +2,8 @@ import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, CircleLayer, HeatmapLayer } from "mapbox-gl";
 import { fetchWorldTrashDebris } from "../data/worldTrashDebrisLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 
 // 全球垃圾殘骸（Outerview，CC-BY-4.0）— 靜態載一次，Mapbox 原生 circle。
@@ -18,6 +19,7 @@ const OPACITY_DEFAULT = Number(paramDefault("worldTrashDebris", "worldTrashDebri
 // R5（P-4／G-2）：25,000 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點；熱區共用 GeoJSON source，不可點擊。
 const POINTS_FROM_ZOOM = densePointsFromZoom(25_000);
 // 2026-10-03 瀏覽器校正（世界 z1.6 地球儀視角：1 幾乎看不見、20 歐洲整片飽和，取 5）
+const HEAT_KEYS = ["worldTrashDebris"] as const;
 const HEATMAP_INTENSITY = 5;
 
 export function useWorldTrashDebrisLayer(
@@ -28,6 +30,7 @@ export function useWorldTrashDebrisLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
+  const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
 
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   // ensureSource 是穩定 callback（[] deps），主題走 ref，首次建立（常在 fetch 回來時）才不會用到初始主題
@@ -63,7 +66,7 @@ export function useWorldTrashDebrisLayer(
         type: "heatmap",
         source: SOURCE_ID,
         maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
-        paint: heatmapPaint(1, HEATMAP_INTENSITY),
+        paint: heatmapLayerPaint("worldTrashDebris", isDarkRef.current, 1, HEATMAP_INTENSITY),
       } as HeatmapLayer, map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
     }
     if (!map.getLayer(LAYER_ID)) {
@@ -90,7 +93,7 @@ export function useWorldTrashDebrisLayer(
     if (!ensureSource(map)) return;
     if (map.getLayer(HEATMAP_LAYER_ID)) {
       map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", visible ? "visible" : "none");
-      map.setPaintProperty(HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(Math.max(0, Math.min(1, opacity)) / OPACITY_DEFAULT));
+      applyHeatmapStyle(map, HEATMAP_LAYER_ID, "worldTrashDebris", isDarkTheme, Math.max(0, Math.min(1, opacity)) / OPACITY_DEFAULT);
     }
     if (map.getLayer(LAYER_ID)) {
       map.setLayoutProperty(LAYER_ID, "visibility", visible ? "visible" : "none");
@@ -103,5 +106,5 @@ export function useWorldTrashDebrisLayer(
         map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
       }
     }
-  }, [visible, opacity, isDarkTheme, ensureSource, mapRef, mapTick]);
+  }, [visible, opacity, isDarkTheme, ensureSource, mapRef, mapTick, heatStyle]);
 }

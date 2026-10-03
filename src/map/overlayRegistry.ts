@@ -1,4 +1,5 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
+import { heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
 import { THEMED_PAINT_COLORS } from "./layerPaintColors";
 import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "./layerPaintColors";
@@ -85,22 +86,27 @@ function denseHeatmapLayer(o: {
   suffix?: string;
   pointsFromZoom: number;
   intensity: number;
+  /** 熱區顏色讀哪一層的色盤選單（R7）；省略＝`opacity.layer` */
+  layer?: string;
   opacity?: { layer: string; param: string };
   filter?: OverlayLayerSpec["filter"];
   weight?: (params?: Record<string, number>) => unknown;
 }): OverlayLayerSpec {
+  const layer = o.layer ?? o.opacity?.layer;
+  if (!layer) throw new Error("denseHeatmapLayer 需要 layer（色盤選單的 layer key）");
   return {
     suffix: o.suffix ?? "heatmap",
     type: "heatmap",
     maxzoom: heatmapMaxzoom(o.pointsFromZoom),
     ...(o.filter ? { filter: o.filter } : {}),
-    paint: (_isDark, p) => {
+    // R7：顏色由解析器依該層色盤＋底圖給；Q6 B：同時開 ≥2 層熱區時透明度再乘疊放倍率。
+    paint: (isDark, p) => {
       let scale = 1;
       if (o.opacity) {
         const def = Number(paramDefault(o.opacity.layer, o.opacity.param));
         scale = def > 0 ? (p?.[o.opacity.param] ?? def) / def : 1;
       }
-      return heatmapPaint(scale, o.intensity, o.weight ? o.weight(p) : 1);
+      return heatmapPaint(scale, o.intensity, o.weight ? o.weight(p) : 1, heatmapRampFor(layer, isDark), heatmapStackFactor());
     },
   };
 }
@@ -1618,7 +1624,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1.5 }),
+      denseHeatmapLayer({ layer: "busStationsCity", pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1.5 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.busStationsCity,
@@ -1667,7 +1673,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
+      denseHeatmapLayer({ layer: "busStationsIntercity", pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
@@ -2081,7 +2087,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "heatmap",
         maxzoom: heatmapMaxzoom(FIRE_HYDRANTS_POINTS_FROM_ZOOM),
         // intensity 0.1：臺北／高雄市區點極密（約為日本宗教設施的 10 倍），目視校正。
-        paint: (_isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1),
+        paint: (isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1, 1, heatmapRampFor("fireHydrants", isDark), heatmapStackFactor()),
       },
       {
         suffix: "glow",
@@ -2677,7 +2683,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "convenience-stores",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.convenienceStores, intensity: 1 }),
+      denseHeatmapLayer({ layer: "convenienceStores", pointsFromZoom: DENSE_FROM.convenienceStores, intensity: 1 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.convenienceStores,
@@ -4142,7 +4148,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "waste-stops-static",
     pmtiles: { sourceLayer: "waste_stops", minzoom: 6, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 0.3 }),
+      denseHeatmapLayer({ layer: "wasteStopsStatic", suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 0.3 }),
       {
         suffix: "waste-stops-glow",
         type: "circle",

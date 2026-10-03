@@ -5,6 +5,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { useOverlayParams } from "../layers/layerParamsAccess";
+import { useHeatmapStackFactor } from "../state/layerPalette";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay } from "./overlayManager";
@@ -234,6 +235,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   // hook 無條件呼叫；embed 情境下這份訂閱是惰性的（embed 從不寫 store）。
   const storeOverlayParams = useOverlayParams();
   const overlayParams = overlayParamsProp ?? storeOverlayParams;
+  // R7 Q6 B：熱區疊放倍率來自可見性（不經 overlayParams），變動時要重套 paint。
+  // 色盤選單是字串參數、也不進 overlayParams，但改值會換掉 storeOverlayParams 的 identity，同一個 effect 會重跑。
+  const heatmapStack = useHeatmapStackFactor();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -523,7 +527,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     //    visibility 改由下方 store 訂閱驅動後那些 dep 是多餘的 —— 訂閱路徑
     //    (applyOverlayVisibility) 會呼叫同樣這三個 update 函式，故 agriculture
     //    的開/關依舊會即時反映；此處只保留主題 / params 這兩個觸發源。
-  }, [isDarkTheme, overlayParams]);
+  }, [isDarkTheme, overlayParams, heatmapStack]);
 
   // Overlay 可見性（一個 useEffect 取代原本 7 個）
   // AR-21：visibility 不再是 prop，改訂閱 layerVisibilityStore —— toggle 直接跑

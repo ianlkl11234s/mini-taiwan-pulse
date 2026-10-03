@@ -4,7 +4,8 @@ import { fetchJpWaterGeoJsonAsset, getJpWaterRuntime, jpWaterPrivatePmtilesAsset
 import { JP_WATER_FACILITY_CATEGORIES, JP_WATER_LOCAL_PMTILES_LAYER_KEYS, JP_WATER_RELEASED_LAYER_KEYS, type JpWaterLocalArchive } from "../data/jpWaterTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { JP_WATER_ACCESS_DENIED_EVENT, jpWaterPrivateAccessToken, useJpWaterPrivateAccess } from "./useJpWaterPrivateAccess";
@@ -45,12 +46,13 @@ const LOCAL_HEATMAP: Partial<Record<typeof LOCAL_KEYS[number], { pointsFromZoom:
   jpWaterAgriculturalPonds: { pointsFromZoom: densePointsFromZoom(161_778), intensity: AGRI_HEATMAP_INTENSITY },
 };
 const heatmapLayerId = (key: JpWaterVisibleKey) => `jp-water-${key}-heatmap`;
+const HEAT_KEYS: readonly string[] = Object.keys(LOCAL_HEATMAP);
 const heatScale = (key: JpWaterVisibleKey, opacity: number) => clamp(opacity) / Number(paramDefault(key, `${key}Opacity`) ?? 1);
 /** G-2 熱區：與點同 source-layer，畫在出點縮放以下，不可點擊。 */
-function localHeatmapLayer(key: typeof LOCAL_KEYS[number], opacity: number): HeatmapLayer | null {
+function localHeatmapLayer(key: typeof LOCAL_KEYS[number], opacity: number, isDark: boolean): HeatmapLayer | null {
   const heat = LOCAL_HEATMAP[key]; if (!heat) return null;
   const item = LOCAL[key];
-  return { id: heatmapLayerId(key), type: "heatmap", source: sourceId(item.archive), "source-layer": item.sourceLayer, maxzoom: heatmapMaxzoom(heat.pointsFromZoom), layout: { visibility: "none" }, paint: heatmapPaint(heatScale(key, opacity), heat.intensity) } as HeatmapLayer;
+  return { id: heatmapLayerId(key), type: "heatmap", source: sourceId(item.archive), "source-layer": item.sourceLayer, maxzoom: heatmapMaxzoom(heat.pointsFromZoom), layout: { visibility: "none" }, paint: heatmapLayerPaint(key, isDark, heatScale(key, opacity), heat.intensity) } as HeatmapLayer;
 }
 
 function releasedLayer(key: typeof RELEASED_KEYS[number], opacity: number, isDark: boolean): CircleLayer | FillLayer {
@@ -83,6 +85,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
   const opacity = useMemo(() => opacityProp, [opacityKey]);
   const active = (Object.keys(visibility) as JpWaterVisibleKey[]).some((key) => visibility[key]);
   const tick = useMapReadyTick(mapRef, active);
+  const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
   const runtime = useSyncExternalStore(subscribeJpWaterRuntime, getJpWaterRuntime, getJpWaterRuntime);
   const access = useJpWaterPrivateAccess();
   const geoData = useRef<Partial<Record<typeof RELEASED_KEYS[number], GeoJSON.FeatureCollection>>>({});
@@ -135,11 +138,11 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
         }
         archiveKeys.forEach((key) => {
           // 熱區緊接在點之前建立（點畫在上面）；開關與透明度跟該層點一致。
-          const heat = localHeatmapLayer(key, opacity[key]);
+          const heat = localHeatmapLayer(key, opacity[key], isDark);
           if (heat) {
             if (!map.getLayer(heat.id)) map.addLayer(heat, map.getLayer(layerId(key)) ? layerId(key) : undefined);
             map.setLayoutProperty(heat.id, "visibility", visibility[key] ? "visible" : "none");
-            map.setPaintProperty(heat.id, "heatmap-opacity", heatmapOpacity(heatScale(key, opacity[key])));
+            applyHeatmapStyle(map, heat.id, key, isDark, heatScale(key, opacity[key]));
           }
           if (!map.getLayer(layerId(key))) map.addLayer(localLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", visibility[key] ? "visible" : "none"); const paint = LOCAL[key].kind === "line" ? "line-opacity" : LOCAL[key].kind === "fill" ? "fill-opacity" : "circle-opacity"; const def = Number(paramDefault(key, `${key}Opacity`) ?? 1); const value = LOCAL[key].kind === "line" ? hookLineOpacity(key, layerId(key), clamp(opacity[key]), def, isDark) : LOCAL[key].kind === "fill" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), def) : clamp(opacity[key]); map.setPaintProperty(layerId(key), paint, value); if (LOCAL[key].kind === "circle") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
       });
@@ -158,7 +161,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
     const onError = (event: { sourceId?: string; error?: Error }) => { if (event.sourceId?.startsWith("jp-water-")) reportJpWaterError(event.error ?? new Error("日本水資源地圖 source 載入失敗")); };
     mount(); map.on("style.load", mount); map.on("sourcedata", onData); map.on("error", onError);
     return () => { map.off("style.load", mount); map.off("sourcedata", onData); map.off("error", onError); };
-  }, [access.allowed, access.userId, geoRevision, isDarkTheme, mapRef, opacity, runtime.revision, tick, visibility]);
+  }, [access.allowed, access.userId, geoRevision, isDarkTheme, mapRef, opacity, runtime.revision, tick, visibility, heatStyle]);
 }
 
 export const JP_WATER_RUNTIME_LAYER_IDS = [

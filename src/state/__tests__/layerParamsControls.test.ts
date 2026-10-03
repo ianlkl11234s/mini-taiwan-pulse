@@ -83,7 +83,7 @@ describe("buildParamControls", () => {
 
   // ── Phase I：標籤與數值拆欄（name / valueText），label 維持整串給 research 端 ──
   it("slider name／valueText：前綴結尾運算符號移到數值欄，字母／中文單位前補空白", () => {
-    const opacity = (buildParamControls("religionTemples") ?? [])[2] as SliderConfig;
+    const opacity = (buildParamControls("religionTemples") ?? [])[3] as SliderConfig;
     expect(opacity).toMatchObject({ name: "透明度", valueText: "0.75" });
 
     const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
@@ -99,12 +99,12 @@ describe("buildParamControls", () => {
   });
 
   it("slider onChange 寫回 store，label 隨新值重算（toFixed 位數不變）", () => {
-    const before = (buildParamControls("religionTemples") ?? [])[2] as SliderConfig;
+    const before = (buildParamControls("religionTemples") ?? [])[3] as SliderConfig;
     expect(before.label).toBe("透明度 0.75");
     before.onChange(0.5);
     expect(layerParamsStore.getParam("religionTemples", "religionTemplesOpacity")).toBe(0.5);
 
-    const after = (buildParamControls("religionTemples") ?? [])[2] as SliderConfig;
+    const after = (buildParamControls("religionTemples") ?? [])[3] as SliderConfig;
     expect(after.label).toBe("透明度 0.50");
     expect(after.value).toBe(0.5);
   });
@@ -252,17 +252,18 @@ describe("buildParamControls", () => {
   // 黃金快照只跑預設值 → 條件式控件在快照裡**永遠是收合的**。
   // 少了這幾條，`showWhen` 寫錯條件（永遠展不開）不會有任何閘紅。
   it("showWhen：條件成立時控件才出現，且順序不變", () => {
+    // [網格大小, 上色模式, 網格顏色（R7，總市值模式）, 透明度, 3D]
     const before = buildParamControls("propertyValueGrid") ?? [];
-    expect(before).toHaveLength(4);
+    expect(before).toHaveLength(5);
 
-    (before[3] as ToggleConfig).onChange(true);
+    (before[4] as ToggleConfig).onChange(true);
     const after = buildParamControls("propertyValueGrid") ?? [];
-    expect(after, "3D 打開後對比／高度兩個控件要出現").toHaveLength(6);
-    expect(after[4]).toMatchObject({ label: "對比 1.8" });
-    expect(after[5]).toMatchObject({ label: "高度倍率 1.00" });
+    expect(after, "3D 打開後對比／高度兩個控件要出現").toHaveLength(7);
+    expect(after[5]).toMatchObject({ label: "對比 1.8" });
+    expect(after[6]).toMatchObject({ label: "高度倍率 1.00" });
 
-    (after[3] as ToggleConfig).onChange(false);
-    expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(4);
+    (after[4] as ToggleConfig).onChange(false);
+    expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(5);
   });
 
   it("showWhen：select 值觸發的條件（buildingsGba 夜景模式才有 Bloom 門檻）", () => {
@@ -278,7 +279,7 @@ describe("buildParamControls", () => {
 
   it("showWhen：收合中的控件其值照樣進 overlayParams", () => {
     // 預設 3D 關閉 → 對比／高度收合，但 paint 端仍讀得到（手寫版是無條件寫入字面）
-    expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(4);
+    expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(5);
     const out = encodeParamsToOverlay(layerParamsStore.getAll());
     expect(out["propertyValueGridContrast"]).toBe(1.8);
     expect(out["propertyValueGridElevationScale"]).toBe(1);
