@@ -55,7 +55,7 @@
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
 | AG-1 | P1 | done | 圖層組能講出畫面上看得到的現象。 | 2026-10-03 完成：mini #512（map_context bounds＋visibleSummary）、#517（自繪圖層用圖層資料做摘要）、#519（網頁先等資料、aqi 改 isStyleReady）；MCP #37／#38（skill 讀摘要）。 | 分層題庫 13/13；L01–L04 第二句皆為具體現象（run 2026-10-03T14-50、15-09）。 |
-| AG-5 | P1 | blocked | 正式站端到端量測（token 接上、set_camera／set_layers／map_context、show_nearby 上圖、重整還原）。 | **等使用者**在正式站面板產生 token 並 `pbpaste \| npm run token:save`（analysis-prod/mcp）；Claude Code 需 `/mcp` 重連。 | `e2e-prod-connect.mjs prod` 各項通過，數字與 PLAN P0 表（map_context 0.96 s、set_layers 4.8 s）對照寫回 PLAN。 |
+| AG-5 | P1 | done | 正式站端到端量測。 | 2026-10-04 完成（使用者產生 token）：bind 0.93 s、set_camera 1.8 s（6/6 ready）、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s。**未實測**：重整還原（需使用者手動重整，本次自動通過不算）、撤銷 token（正式模式跳過）。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
 | AG-6 | P2 | ready | 其他自繪圖層補摘要：riverLevel、groundwater、iotWraRiver（與 rainGauge 同工廠）。 | 照 #517 rainGauge 做法在 visibleSummary 補上。 | 開這幾層時 visibleSummary 不再是 custom_renderer，附單元測試。 |
 | AG-7 | P3 | ready | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | eval `--reset-cmd` 改為重整前先全部關閉（或 gateway scene 清空）。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
 | AG-2 | P2 | conditional | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | **等下次倉庫重建**（analytics #134 已修上游標題，build_warehouse 已加修形狀）。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
