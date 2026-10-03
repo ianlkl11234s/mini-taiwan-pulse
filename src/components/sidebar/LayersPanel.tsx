@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Lock, Search, Star, type LucideIcon } from "lucide-react";
-import { FONT_CJK, FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import { ChevronRight, Search, Star, type LucideIcon } from "lucide-react";
+import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import type { DisplayMode, ExpandableLayerKey, LayerVisibility, ViewMode } from "../../types";
 import { manifestIcons, type ManifestKey } from "../../data/layerManifest";
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { searchLayers } from "../../lib/layerSearch";
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, THEMES, TRANSPORT_LABELS, themeMacroGroup, type ThemeDef } from "./layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, THEMES, TRANSPORT_LABELS, splitThemeTitle, themeMacroGroup, type ThemeDef } from "./layerCatalog";
+import { LAYER_PANELS, panelLayerKeys, type LayerPanelId } from "./layerPanels";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
 import { StatisticsModeControl } from "./StatisticsModeControl";
 import { MedicalStatisticsGroupControls } from "./MedicalStatisticsGroupControls";
@@ -66,6 +67,10 @@ export interface LayersPanelProps {
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
   onClose?: () => void;
+  /** 本面板是哪個入口；給了且有 `onSearchInPanel` 才會顯示「其他面板還有 N 筆」 */
+  panelId?: LayerPanelId;
+  /** 切到另一個入口並帶入關鍵字（P9） */
+  onSearchInPanel?: (panelId: LayerPanelId, query: string) => void;
 }
 
 /**
@@ -81,6 +86,7 @@ export function LayersPanel({
   onAllOff, onBulkSetVisibility, onClose,
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
+  panelId, onSearchInPanel,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const q = search.trim().toLowerCase();
@@ -89,7 +95,7 @@ export function LayersPanel({
     const context = new Map<string, string>();
     for (const theme of themesToRender) {
       for (const group of theme.groups) {
-        for (const layer of group.layers) context.set(layer.key, `${theme.title} ${group.title}`);
+        for (const layer of group.layers) context.set(layer.key, `${splitThemeTitle(theme.title).zh}・${group.title}`);
       }
     }
     return context;
@@ -101,6 +107,13 @@ export function LayersPanel({
     lockedKeys,
   });
   const visibleSearchResults = searchResults.slice(0, 50);
+  const otherPanelHits = q && panelId
+    ? LAYER_PANELS.filter((panel) => panel.id !== panelId).map((panel) => ({
+      id: panel.id,
+      shortTitle: panel.shortTitle,
+      count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id), lockedKeys }).length,
+    })).filter((hit) => hit.count > 0)
+    : [];
   // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
     () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map((t) => t.title)),
@@ -138,7 +151,7 @@ export function LayersPanel({
               fontFamily: FONT_CJK,
             }}
           >
-            All Off
+            全部關閉
           </button>
         </div>
       )}
@@ -184,38 +197,61 @@ export function LayersPanel({
         }}
       >
         {q ? (
-          searchResults.length === 0 ? (
-            <div style={{ padding: "12px", color: DIM, fontSize: FONT_SIZE.md }}>找不到相符圖層</div>
-          ) : <>
-            <div aria-live="polite" style={{ padding: "6px 12px", color: DIM, fontSize: FONT_SIZE.xs }}>
-              找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
-            </div>
-            {visibleSearchResults.map((result) => {
-            const locked = !!lockedKeys?.has(result.key);
-            const active = visibility[result.key];
-            const favorite = favoriteKeys?.has(result.key) ?? false;
-            return (
-              <div key={result.key} style={{ display: "flex", gap: 4, padding: "7px 10px", borderBottom: `1px solid ${ALLOFF_BORDER}` }}>
-                <button
-                  onClick={() => locked ? onToggleVisibility(result.key) : (active ? onLayerClick(result.key) : onToggleVisibility(result.key))}
-                  title={locked ? "此圖層受權限限制" : result.description}
-                  style={{ flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", color: TEXT_STRONG, textAlign: "left", cursor: "pointer" }}
-                >
-                  <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: FONT_SIZE.md, fontWeight: 600 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: LAYER_COLORS[result.key], flexShrink: 0 }} />
-                    {result.label}{locked && <Lock size={12} color={DIM} />}
-                  </div>
-                  <div style={{ marginTop: 2, color: INACTIVE_TEXT, fontSize: FONT_SIZE.base, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{result.description}</div>
-                  <div style={{ marginTop: 2, color: DIM, fontSize: FONT_SIZE.xs, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>主題：{result.topics.join("、")} · {result.source}</div>
-                </button>
-                {onToggleFavorite && (
-                  <button aria-label={`${favorite ? "取消收藏" : "收藏圖層"} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? "取消收藏" : "收藏圖層"} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : DIM, cursor: "pointer", padding: 2 }}>
-                    <Star size={15} fill={favorite ? "currentColor" : "none"} />
-                  </button>
-                )}
+          <>
+            {searchResults.length === 0 ? (
+              <div style={{ padding: "12px", color: DIM, fontSize: FONT_SIZE.md }}>找不到相符圖層</div>
+            ) : <>
+              <div aria-live="polite" style={{ padding: "6px 12px", color: DIM, fontSize: FONT_SIZE.xs }}>
+                找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
               </div>
-            );
-            })}
+              {visibleSearchResults.map((result) => {
+                const favorite = favoriteKeys?.has(result.key) ?? false;
+                const isExpanded = expandedLayer === result.key;
+                return (
+                  <div key={result.key}>
+                    <LayerRow
+                      layerKey={result.key}
+                      label={result.label}
+                      sub={searchContext.get(result.key)}
+                      expandable
+                      active={visibility[result.key]}
+                      locked={!!lockedKeys?.has(result.key)}
+                      color={LAYER_COLORS[result.key]}
+                      count={getCount(result.key)}
+                      isExpanded={isExpanded}
+                      Icon={LAYER_ICONS[result.key]}
+                      onLayerClick={onLayerClick}
+                      onToggleVisibility={onToggleVisibility}
+                      trailing={onToggleFavorite && (
+                        <button type="button" aria-label={`${favorite ? "取消收藏" : "收藏圖層"} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? "取消收藏" : "收藏圖層"} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : DIM, cursor: "pointer", padding: "2px 6px 2px 0", display: "flex" }}>
+                          <Star size={14} fill={favorite ? "currentColor" : "none"} />
+                        </button>
+                      )}
+                    />
+                    {isExpanded && (
+                      <ExpandedControls
+                        layerKey={result.key as ExpandableLayerKey}
+                        isTransport={result.key in TRANSPORT_LABELS}
+                        displayMode={displayMode}
+                        onDisplayModeChange={onDisplayModeChange}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </>}
+            {/* P9：各面板搜自己，結果末尾提示其他入口的相符筆數，點了切過去並帶入關鍵字 */}
+            {onSearchInPanel && otherPanelHits.map((hit) => (
+              <button
+                key={hit.id}
+                type="button"
+                onClick={() => onSearchInPanel(hit.id, search)}
+                style={{ display: "flex", alignItems: "center", gap: 6, width: "calc(100% - 24px)", margin: "6px 12px 0", padding: "6px 8px", border: `1px dashed ${ALLOFF_BORDER}`, borderRadius: RADIUS.lg, background: "transparent", color: INACTIVE_TEXT, cursor: "pointer", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, textAlign: "left" }}
+              >
+                <span style={{ flex: 1 }}>{hit.shortTitle}還有 <span style={{ fontFamily: FONT_DATA }}>{hit.count}</span> 筆相符</span>
+                <ChevronRight size={12} aria-hidden="true" />
+              </button>
+            ))}
           </>
         ) : themesToRender.map((theme, themeIndex) => {
           const isCollapsed = collapsedThemes.has(theme.title);
@@ -259,7 +295,7 @@ export function LayersPanel({
               {!isCollapsed && theme.groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, label, expandable }) => {
+                  {group.layers.map(({ key, label }) => {
                     const medicalGroup = getMedicalStatisticsGroup(key);
                     if (medicalGroup) {
                       if (medicalGroup.options[0]?.key !== key) return null;
@@ -293,7 +329,7 @@ export function LayersPanel({
                         <LayerRow
                           layerKey={key}
                           label={label}
-                          expandable={!!expandable}
+                          expandable
                           active={active}
                           locked={!!lockedKeys?.has(key)}
                           color={LAYER_COLORS[key]}
@@ -303,7 +339,8 @@ export function LayersPanel({
                           onLayerClick={onLayerClick}
                           onToggleVisibility={onToggleVisibility}
                         />
-                        {isExpanded && expandable && (
+                        {/* 每一列都有展開區：至少有最後一行「說明・來源」（P1） */}
+                        {isExpanded && (
                           <ExpandedControls
                             layerKey={key as ExpandableLayerKey}
                             isTransport={isTransport}

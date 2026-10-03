@@ -355,6 +355,11 @@ export function IconRailSidebar({
             {LAYER_PANELS.map((panel) => activePanel === panel.id && (
               <LayersPanel
                 key={panel.id}
+                panelId={panel.id}
+                onSearchInPanel={(target, query) => {
+                  setPanelSearch((prev) => ({ ...prev, [target]: query }));
+                  togglePanel(target);
+                }}
                 search={panelSearch[panel.id]}
                 onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
                 themes={panel.themes}

@@ -47,3 +47,14 @@ export const LAYER_PANELS: readonly LayerPanelDef[] = [
 ];
 
 export const layerPanelDef = (id: LayerPanelId): LayerPanelDef => LAYER_PANELS.find((panel) => panel.id === id)!;
+
+const panelKeyCache = new Map<LayerPanelId, Set<string>>();
+/** 某入口的全部圖層 key（搜尋「其他面板還有 N 筆」用）。 */
+export function panelLayerKeys(id: LayerPanelId): Set<string> {
+  let keys = panelKeyCache.get(id);
+  if (!keys) {
+    keys = new Set(getThemeLayerKeys(layerPanelDef(id).themes));
+    panelKeyCache.set(id, keys);
+  }
+  return keys;
+}

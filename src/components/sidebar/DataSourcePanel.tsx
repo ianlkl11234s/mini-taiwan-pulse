@@ -117,9 +117,16 @@ function c2Style(p: DsPalette, primary: boolean, disabled?: boolean): React.CSSP
 
 interface SourceBlock { title: string | null; desc?: string | null; facts: { k: string; v: ReactNode; mono?: boolean }[]; docPath?: string | null }
 
-function DataSourceCard({
-  p, layerKey, locked, onActivateLayer,
-}: { p: DsPalette; layerKey: keyof LayerVisibility; locked: boolean; onActivateLayer?: (key: keyof LayerVisibility) => void }) {
+/** 資料來源暗／淡色票；圖層展開區的「說明・來源」也用這一份。 */
+export const dataSourcePalette = (isDarkTheme: boolean): DsPalette => (isDarkTheme ? DARK_DS : LIGHT_DS);
+
+/**
+ * 上游資料卡。資料來源面板列內展開，也嵌在圖層展開區最後一行「說明・來源」裡
+ * （layer-panel-unify P1；那裡圖層已開著，`hideActivate` 藏掉「開啟圖層」鈕）。
+ */
+export function DataSourceCard({
+  p, layerKey, locked, onActivateLayer, hideActivate = false,
+}: { p: DsPalette; layerKey: keyof LayerVisibility; locked: boolean; onActivateLayer?: (key: keyof LayerVisibility) => void; hideActivate?: boolean }) {
   const { data: entries, loading, error } = useDataCatalogForLayer(layerKey);
   const ref = UPSTREAM_REGISTRY[layerKey];
   const status: UpstreamStatus = ref?.status ?? "catalog_missing";
@@ -272,8 +279,8 @@ function DataSourceCard({
           {block.facts.map((f) => <FactRow key={f.k} p={p} k={f.k} mono={f.mono}>{f.v}</FactRow>)}
         </div>
       ))}
-      <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
-        <button
+      {(!hideActivate || docPath) && <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
+        {!hideActivate && <button
           type="button"
           disabled={locked}
           onClick={() => { if (!locked) onActivateLayer?.(layerKey); }}
@@ -281,7 +288,7 @@ function DataSourceCard({
           style={c2Style(p, true, locked)}
         >
           {locked && <Lock size={11} />}開啟圖層
-        </button>
+        </button>}
         {docPath && (
           <button
             type="button"
@@ -292,7 +299,7 @@ function DataSourceCard({
             {docPath}
           </button>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

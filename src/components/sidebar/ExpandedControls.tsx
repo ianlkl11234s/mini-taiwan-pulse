@@ -9,6 +9,7 @@ import { StatisticsDetails } from "./StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./PropertyValueStatisticsDetails";
 import { LayerControlArea, ParamControlList } from "./LayerParamControls";
 import { useRailTheme } from "./railTheme";
+import { LayerInfoLine } from "./LayerInfoLine";
 
 export interface ExpandedControlsProps {
   layerKey: ExpandableLayerKey;
@@ -19,7 +20,8 @@ export interface ExpandedControlsProps {
 
 /**
  * 圖層展開區（spec §5.11 V2）：桌機四入口與手機共用同一份。
- * 順序：航班模式鈕 → 統計詳情 → 實價統計 → 歷史航跡 → 共用控制項（`ParamControlList`）。
+ * 順序：航班模式鈕 → 統計詳情 → 實價統計 → 歷史航跡 → 共用控制項（`ParamControlList`）→ 說明・來源。
+ * 統計圖層的來源說明已在 `StatisticsDetails` 內（C 段再併入「說明・來源」），這裡不重複。
  */
 export function ExpandedControls({
   layerKey, isTransport, displayMode,
@@ -47,6 +49,7 @@ export function ExpandedControls({
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={isDarkTheme} />}
       <ParamControlList controls={controls} />
+      {!isStatisticsRenderLayer(layerKey) && <LayerInfoLine layerKey={layerKey} />}
     </LayerControlArea>
   );
 }

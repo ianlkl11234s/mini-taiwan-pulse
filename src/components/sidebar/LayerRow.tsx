@@ -2,7 +2,6 @@ import { memo, type ReactNode } from "react";
 import { ChevronRight, Lock, type LucideIcon } from "lucide-react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
 import type { LayerVisibility } from "../../types";
-import { isStatisticsRenderLayer } from "../../data/regionalStatisticsRecipes";
 import { useLayerLiveCount } from "../../state/liveCountStore";
 import { useLayerLoading } from "../../lib/layerLoading";
 import { LayerToggleSwitch } from "./LayerToggleSwitch";
@@ -128,11 +127,13 @@ export interface LayerRowProps {
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   /** 搜尋結果等需要在開關前加按鈕（收藏星號）時用 */
   trailing?: ReactNode;
+  /** 名稱下的第二行小字（搜尋結果的「主題・群組」） */
+  sub?: ReactNode;
 }
 
 export const LayerRow = memo(function LayerRow({
   layerKey, label, expandable, active, locked, color, count: staticCount, isExpanded, Icon,
-  onLayerClick, onToggleVisibility, trailing,
+  onLayerClick, onToggleVisibility, trailing, sub,
 }: LayerRowProps) {
   // 列車／公車／客運：只有該 row 訂閱 liveCountStore（播放中 2Hz），其他 row 不重渲
   const count = useLayerLiveCount(layerKey) ?? staticCount;
@@ -146,7 +147,8 @@ export const LayerRow = memo(function LayerRow({
     <ListRow
       ariaLabel={label}
       label={label}
-      icon={<Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />}
+      sub={sub}
+      icon={<Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />}
       count={count}
       loading={loading}
       accent={color}
