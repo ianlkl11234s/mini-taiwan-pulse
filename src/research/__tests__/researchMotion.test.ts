@@ -7,7 +7,7 @@ function mapStub() {
   const listeners = new Map<string, Set<() => void>>(); const sources = new Map<string, { data: unknown; setData: (data: unknown) => void }>(); const layers = new Map<string, LayerSpecification>();
   const api = {
     getCenter: () => center, getZoom: () => zoom,
-    flyTo: vi.fn(), stop: vi.fn(),
+    flyTo: vi.fn(), stop: vi.fn(), isMoving: vi.fn(() => false),
     on: vi.fn((event: string, handler: () => void) => { (listeners.get(event) ?? listeners.set(event, new Set()).get(event)!).add(handler); }),
     off: vi.fn((event: string, handler: () => void) => listeners.get(event)?.delete(handler)),
     getSource: vi.fn((id: string) => sources.get(id)), addSource: vi.fn((id: string, data: { data: unknown }) => { const source = { data: data.data, setData(next: unknown) { source.data = next; } }; sources.set(id, source); }),
@@ -53,6 +53,26 @@ describe("research motion", () => {
     state.updateCamera([121.6, 25.1], 12);
     await vi.advanceTimersByTimeAsync(2_500);
     await expect(pending).resolves.toBe(true);
+  });
+
+  it("waits past the fuse while the flight is still moving (late moveend under main-thread load)", async () => {
+    vi.useFakeTimers();
+    const state = mapStub(); let moving = true; state.api.isMoving.mockImplementation(() => moving);
+    const pending = moveResearchCamera(state.map, { center: [125, 20], zoom: 4 });
+    state.updateCamera([124.9, 20.1], 4.07); // nearly there when the 1.5 s fuse fires
+    await vi.advanceTimersByTimeAsync(1_600);
+    let settled = false; void pending.then(() => { settled = true; });
+    await Promise.resolve(); expect(settled).toBe(false);
+    moving = false; state.arrive([125, 20], 4);
+    await expect(pending).resolves.toBe(true);
+  });
+
+  it("still fails closed when the extended wait also passes without arriving", async () => {
+    vi.useFakeTimers();
+    const state = mapStub(); state.api.isMoving.mockReturnValue(true);
+    const pending = moveResearchCamera(state.map, { center: [125, 20], zoom: 4 });
+    await vi.advanceTimersByTimeAsync(5_000);
+    await expect(pending).resolves.toBe(false);
   });
 
   it("accepts Mapbox's small zoom normalization after camera movement", async () => {

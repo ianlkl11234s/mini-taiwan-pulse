@@ -19,6 +19,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { AqiStation } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { registerLayerDataProvider, summarizeAqiStations } from "../research/layerDataSummary";
 
 const SOURCE_ID = "aqi-stations-src";
 const LAYER_GLOW = "aqi-stations-glow";
@@ -182,6 +183,12 @@ export function useAqiStationsLayer(
       if (unsub) unsub();
     };
   }, [mapRef, visible, mapTick]);
+
+  // ── Agent 畫面摘要（AG-1）：自繪 source 讀不到 rendered features，改讀已抓的測站資料 ──
+  useEffect(() => {
+    if (!visible) return;
+    return registerLayerDataProvider("aqiStations", (bounds) => summarizeAqiStations(stationsRef.current, bounds));
+  }, [visible]);
 
   // ── 主題變更時刷新 paint ──
   useEffect(() => {

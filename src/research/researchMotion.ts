@@ -11,6 +11,8 @@ const FOCUS_LINE = "research-motion-focus-line";
 const FOCUS_DOT = "research-motion-focus-dot";
 export const researchFocusLayerIds = [FOCUS_FILL, FOCUS_LINE, FOCUS_DOT] as const;
 const EARTH_RADIUS_M = 6_371_008.8;
+const MOTION_FUSE_MS = 1_500;
+const MOTION_FUSE_EXTENSION_MS = 3_000;
 
 function safely(action: () => void): void { try { action(); } catch { /* a style reload may remove sources or layers mid-cleanup */ } }
 
@@ -59,7 +61,22 @@ export function moveResearchCamera(map: MapboxMap, camera: Camera): Promise<bool
     // Mapbox can complete a zero-duration or throttled/background transition
     // without delivering the moveend callback in time. The browser camera is
     // still the source of truth, so perform one final readback before failing.
-    const timer = setTimeout(() => finish(closeEnough(map, camera)), 1_500);
+    // A long main-thread task near the end of the flight (world-scale tiles, a big layer
+    // parse) can push moveend past the 1.5 s fuse while this flight is still moving and
+    // nearly there; reading back then reported a false failure (SCENE_ERROR). While the
+    // map is still moving, wait once more for moveend (bounded) instead of concluding.
+    // A user gesture or a newer motion still cancels through cancelResearchMotion.
+    let timer: ReturnType<typeof setTimeout>;
+    const fuse = (extended: boolean) => {
+      let moving = false;
+      try { moving = map.isMoving(); } catch { moving = false; }
+      if (!extended && moving && !closeEnough(map, camera)) {
+        timer = setTimeout(() => fuse(true), MOTION_FUSE_EXTENSION_MS); // finish() clears the latest timer
+        return;
+      }
+      finish(closeEnough(map, camera));
+    };
+    timer = setTimeout(() => fuse(false), MOTION_FUSE_MS);
     motions.set(map, { finish, listener, timer });
     safely(() => map.on("moveend", listener));
     safely(() => map.on("remove", removed));
