@@ -36,7 +36,7 @@ export type VisibleSummaryLayer =
   | { layerKey: string; label: string; status: "ok"; featureCount: number; capped: boolean; topAreas: VisibleSummaryArea | null; max: VisibleSummaryMax | null }
   /** Custom-rendered layer digested from the hook's in-memory rows (see layerDataSummary.ts). */
   | { layerKey: string; label: string; basis: "layer_data"; status: "ok"; featureCount: number; capped: boolean; topAreas: VisibleSummaryArea | null; max: (VisibleSummaryMax & { at?: string }) | null; ranked?: DataRanked; asOf?: string | null; note?: string }
-  | { layerKey: string; label: string; basis: "layer_data"; status: "data_not_loaded" }
+  | { layerKey: string; label: string; basis: "layer_data"; status: "data_not_loaded"; note: string }
   | { layerKey: string; label: string; basis: "layer_data"; status: "not_applicable"; reason: "raster"; seeLayerKey: string; note: string }
   | { layerKey: string; status: "not_applicable"; reason: "custom_renderer" | "raster" | "no_style_layer" }
   | { layerKey: string; label: string; status: "no_rendered_features" | "skipped_budget" };
@@ -52,6 +52,7 @@ const NAME_FIELDS = ["name", "名稱", "title", "NAME", "station_name"];
 const PAINT_ORDER = ["circle-radius", "circle-color", "fill-color", "fill-extrusion-height", "heatmap-weight", "line-width", "line-color", "icon-size"];
 const SUMMARIZABLE_KINDS = new Set(["geojson", "pmtiles", "supabase"]);
 const MAX_TEXT = 60;
+const DATA_NOT_LOADED_NOTE = "圖層資料還在載入（或此時段沒有資料），幾秒後再讀一次";
 /**
  * Manifest-`custom` layers whose hook still draws plain Mapbox GeoJSON style layers
  * (no Three.js), so the rendered-feature path can read them by their self-built source id.
@@ -170,7 +171,9 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
       const provider = bounds ? dataProviderFor(layerKey) : null;
       let digest: ReturnType<LayerDataProvider> | null = null;
       try { digest = provider ? provider(bounds!) : null; } catch { digest = null; }
-      layers.push(digest ? { layerKey, label, basis: "layer_data", ...digest } : { layerKey, status: "not_applicable", reason: "custom_renderer" });
+      if (!digest) layers.push({ layerKey, status: "not_applicable", reason: "custom_renderer" });
+      else if (digest.status === "data_not_loaded") layers.push({ layerKey, label, basis: "layer_data", status: "data_not_loaded", note: DATA_NOT_LOADED_NOTE });
+      else layers.push({ layerKey, label, basis: "layer_data", ...digest });
       continue;
     }
     const candidates = styleLayers.filter(layer => {

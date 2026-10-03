@@ -160,6 +160,11 @@ describe("visibleSummary × layer data providers", () => {
     expect(wireSafe({ visibleSummary: summary })).toBe(true);
   });
 
+  it("tells the agent to re-read when the layer data is not loaded yet", () => {
+    const summary = summarizeVisibleLayers(map, ["aqiStations"], { ...custom, dataProviderFor: () => bounds => summarizeAqiStations([], bounds) });
+    expect(summary.layers[0]).toMatchObject({ basis: "layer_data", status: "data_not_loaded", note: expect.stringContaining("再讀一次") });
+  });
+
   it("falls back to custom_renderer when a provider throws", () => {
     const summary = summarizeVisibleLayers(map, ["boom"], { ...custom, dataProviderFor: () => () => { throw new Error("x"); } });
     expect(summary.layers[0]).toEqual({ layerKey: "boom", status: "not_applicable", reason: "custom_renderer" });
