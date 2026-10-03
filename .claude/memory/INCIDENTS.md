@@ -2151,3 +2151,23 @@ Statistics snapshot 已上 R2，`current.json` 的 R2 object metadata 明確是
 1. 「ready」只代表傳輸成功；每個監看格都要用資料本身的時間判斷新鮮度。
 2. 新 loader／RPC 不准用 0 兜底缺值；COUNT 類「沒有列＝真 0」才保留 0。
 3. 新卡上線時，至少在瀏覽器看一次「來源停更」時的畫面，而不只看有資料時。
+
+## 2026-10-02 R5 校正子代理兩度停滯 600 秒：同名 agent-browser daemon 互卡
+
+### 症狀
+
+R5 熱區強度校正的子代理連續兩個在截圖階段無回應，被 stream watchdog 停掉；第二個完全沒有新 commit。
+
+### 根因
+
+前一個 worker 的 agent-browser 呼叫逾時後重試，開出第二個**同名 session（`r5`）**的 daemon。兩個 daemon 搶同一個 session socket，之後所有 `agent-browser` 呼叫都卡住；接手的 worker 沿用同名 session，一開瀏覽器就停住。
+
+### 修正
+
+只 kill 本 session 自己開的兩個 `r5` daemon（用 `ps eww` 看 `AGENT_BROWSER_SESSION` 與 cwd 確認歸屬，其他 session 的 `pulse-int` 不動）；第三個 worker 改用新 session 名、每個呼叫包 `perl -e 'alarm 60; exec @ARGV' --`、分小批、每階段 commit，順利完成。
+
+### 下次守門
+
+1. 派 worker 用 agent-browser 時，prompt 指定**唯一 session 名**、每個呼叫 60 秒上限（macOS 無 `timeout`，用 perl alarm）、連續兩次逾時就關自己的 daemon 換名重開。
+2. 長批次分小批、背景跑、每階段 commit；worker 停滯時先查有無同名 daemon。
+3. 截到空白圖（平均亮度等於底圖）多半是瀏覽器卡住，不要當成「圖層沒畫出來」的 bug 去修。
