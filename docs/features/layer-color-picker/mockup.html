@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>圖層配色樣稿</title>
+<meta name="robots" content="noindex">
+<!-- R7 圖層配色可選：可點樣稿。色盤值由 palette-validation.md 的驗證腳本產生後注入（PALETTES），不要手改。 -->
+<style>
+/* ── token：抄 src/styles/tokens.css（暗色）＋ --light-*（淡色） ── */
+:root {
+  --font-cjk: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
+  --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-xs: 9px; --font-sm: 10px; --font-base: 11px; --font-md: 12px; --font-lg: 13px; --font-xl: 18px;
+  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px; --radius-xl: 8px; --radius-pill: 9999px;
+  --space-xs: 4px; --space-sm: 6px; --space-md: 8px; --space-lg: 12px; --space-xl: 16px;
+
+  /* 暗（預設） */
+  --surface-app: #0a0a14;
+  --surface-panel: rgba(0, 0, 0, 0.52);
+  --surface-strong: rgba(10, 10, 20, 0.88);
+  --surface-solid: rgba(10, 10, 20, 0.94);
+  --text-strong: #f3f4f6; --text-default: #d8dce3; --text-muted: #9ca3af; --text-dim: #6b7280;
+  --accent: #64aaff; --accent-faint: rgba(100, 170, 255, 0.16);
+  --status-warn: #ff9800; --status-warn-soft: rgba(255, 152, 0, 0.16);
+  --border-soft: rgba(255, 255, 255, 0.06); --border-panel: rgba(255, 255, 255, 0.10); --border-mid: rgba(255, 255, 255, 0.14);
+  --control-bg: rgba(255, 255, 255, 0.06); --control-bg-hover: rgba(255, 255, 255, 0.10); --control-border: rgba(255, 255, 255, 0.12);
+  --control-option-bg: #10101b;
+  --slider-track: rgba(255, 255, 255, 0.14); --slider-fill: rgba(255, 255, 255, 0.55); --slider-thumb: #f3f4f6;
+  --elevation-md: 0 8px 32px rgba(0, 0, 0, 0.55);
+  /* 假底圖（Mapbox Dark 陸地／水） */
+  --map-land: #232323; --map-water: #121314; --map-border: rgba(255, 255, 255, 0.10); --map-seam: #0a0a14;
+  color-scheme: dark;
+}
+/* 淡色：同 tokens.css 的觸發 class 作法，把語意變數指到 --light-* 的值 */
+:root[data-theme="light"] {
+  --surface-app: #eef0f3;
+  --surface-panel: rgba(255, 255, 255, 0.95);
+  --surface-strong: rgba(255, 255, 255, 0.97);
+  --surface-solid: #ffffff;
+  --text-strong: #111827; --text-default: #1f2937; --text-muted: #4b5563; --text-dim: #6b7280;
+  --accent: #0b6fd6; --accent-faint: rgba(11, 111, 214, 0.10);
+  --status-warn: #c2410c; --status-warn-soft: rgba(194, 65, 12, 0.10);
+  --border-soft: rgba(0, 0, 0, 0.06); --border-panel: rgba(0, 0, 0, 0.10); --border-mid: rgba(0, 0, 0, 0.16);
+  --control-bg: rgba(0, 0, 0, 0.035); --control-bg-hover: rgba(0, 0, 0, 0.08); --control-border: rgba(0, 0, 0, 0.14);
+  --control-option-bg: #ffffff;
+  --slider-track: rgba(0, 0, 0, 0.12); --slider-fill: rgba(0, 0, 0, 0.45); --slider-thumb: #111827;
+  --elevation-md: 0 12px 40px rgba(0, 0, 0, 0.18);
+  --map-land: #f5f5f3; --map-water: #d3dade; --map-border: rgba(0, 0, 0, 0.12); --map-seam: #ffffff;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { display: flex; flex-direction: column; height: 100vh; background: var(--surface-app); color: var(--text-default); font: var(--font-lg)/1.6 var(--font-cjk); }
+button { font-family: inherit; }
+.mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+/* ── 頂部說明 ── */
+.top { display: flex; gap: var(--space-lg); align-items: flex-start; justify-content: space-between; padding: 14px 16px 12px; border-bottom: 1px solid var(--border-panel); background: var(--surface-strong); }
+.top h1 { margin: 0 0 4px; font-size: var(--font-xl); color: var(--text-strong); line-height: 1.3; }
+.top p { margin: 0; max-width: 80ch; font-size: var(--font-md); color: var(--text-muted); line-height: 1.6; }
+.top p b { color: var(--text-strong); font-weight: 600; }
+
+/* 分段控制（lpc-seg） */
+.seg { display: inline-flex; gap: 2px; padding: 1px; border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--control-bg); flex-shrink: 0; }
+.seg button { border: 0; background: transparent; color: var(--text-muted); font-size: var(--font-base); padding: 3px 10px; border-radius: 3px; cursor: pointer; white-space: nowrap; }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--control-bg-hover); color: var(--text-strong); }
+.seg button[aria-pressed="true"] { background: var(--accent-faint); color: var(--text-strong); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* ── 版面 ── */
+.app { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+.side { overflow-y: auto; }
+.side { border-right: 1px solid var(--border-panel); background: var(--surface-strong); padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.sec-h { display: flex; align-items: baseline; gap: 4px; margin: 0 0 6px; }
+.sec-h span:first-child { font-size: var(--font-sm); font-weight: 600; color: var(--text-strong); }
+.sec-h span + span { font-size: var(--font-xs); color: var(--text-dim); letter-spacing: 0.3px; }
+
+/* 圖層列 */
+.layers { display: flex; flex-direction: column; gap: 2px; }
+.lyr { border-radius: var(--radius-md); }
+.lyr-row { display: grid; grid-template-columns: auto 10px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 5px 6px; border-radius: var(--radius-md); cursor: pointer; }
+.lyr-row:hover { background: var(--control-bg-hover); }
+.lyr.sel > .lyr-row { background: var(--control-bg); }
+.lyr-row input { margin: 0; accent-color: var(--accent); width: 13px; height: 13px; }
+.lyr-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 1px var(--map-seam); }
+.lyr-name { font-size: var(--font-md); color: var(--text-default); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lyr-kind { font-size: var(--font-xs); color: var(--text-dim); white-space: nowrap; }
+
+/* 控制區（lpc-area） */
+.lpc { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 8px 12px; padding: 2px 0 2px 10px; border-left: 1px solid var(--border-mid); }
+.lpc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "k v" "c c"; align-items: center; column-gap: 8px; row-gap: 3px; }
+.lpc-k { grid-area: k; font: 10px/1.35 var(--font-cjk); color: var(--text-muted); }
+.lpc-v { grid-area: v; font: 10px/1.35 var(--font-data); color: var(--text-default); text-align: right; }
+.lpc-c { grid-area: c; min-width: 0; position: relative; }
+
+/* S1 細滑桿 */
+input[type="range"].ctl-range { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 14px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+input[type="range"].ctl-range::-webkit-slider-runnable-track { height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--slider-fill) 0 var(--p), var(--slider-track) var(--p) 100%); }
+input[type="range"].ctl-range::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; margin-top: -4px; border: 0; border-radius: 50%; background: var(--slider-thumb); }
+input[type="range"].ctl-range::-moz-range-track { height: 2px; background: var(--slider-track); }
+input[type="range"].ctl-range::-moz-range-progress { height: 2px; background: var(--slider-fill); }
+input[type="range"].ctl-range::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--slider-thumb); }
+input[type="range"].ctl-range:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+
+/* 顏色列：目前色條按鈕 */
+.pal-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 26px 4px 6px; border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--control-bg); color: var(--text-strong); cursor: pointer; position: relative; min-height: 26px; text-align: left; }
+.pal-btn:hover { background: var(--control-bg-hover); }
+.pal-btn[aria-expanded="true"] { box-shadow: inset 0 0 0 1px var(--accent); }
+.pal-btn::after { content: ""; position: absolute; right: 9px; top: 50%; width: 5px; height: 5px; border-right: 1.3px solid var(--text-muted); border-bottom: 1.3px solid var(--text-muted); transform: translateY(-70%) rotate(45deg); }
+.pal-btn .pal-name { font-size: var(--font-base); white-space: nowrap; flex-shrink: 0; }
+.pal-btn .preview { flex: 1; min-width: 0; }
+
+/* 色條預覽（列與按鈕共用） */
+.preview { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.bar { height: 10px; flex: 1; min-width: 40px; border-radius: var(--radius-sm); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 1px; overflow: hidden; }
+.bar > span { display: block; }
+.grad { height: 10px; flex: 1; min-width: 40px; border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--border-soft); background-color: var(--map-land); }
+.sw { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 1px var(--map-seam); }
+.cats { display: flex; gap: 3px; flex: 1; min-width: 0; }
+.cats > span { width: 10px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0; }
+
+/* kepler 式清單 */
+.pal-pop { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 30; background: var(--control-option-bg); border: 1px solid var(--border-mid); border-radius: var(--radius-lg); box-shadow: var(--elevation-md); padding: 4px; }
+.pal-pop-h { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 6px 6px; font-size: var(--font-sm); color: var(--text-muted); border-bottom: 1px solid var(--border-panel); margin-bottom: 4px; gap: 8px; }
+.pal-pop-h b { color: var(--text-strong); font-weight: 600; }
+.pal-list { max-height: 264px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; overscroll-behavior: contain; }
+.pal-opt { display: grid; grid-template-columns: 54px minmax(0, 1fr) 12px; align-items: center; gap: 8px; padding: 5px 6px; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--text-default); cursor: pointer; text-align: left; }
+.pal-opt:hover, .pal-opt:focus-visible { background: var(--control-bg-hover); outline: none; }
+.pal-opt[aria-selected="true"] { background: var(--accent-faint); }
+.pal-opt .nm { font-size: var(--font-base); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pal-opt .nm small { display: block; font-size: var(--font-xs); color: var(--text-dim); font-family: var(--font-data); }
+.pal-opt .ck { color: var(--accent); font-size: var(--font-md); line-height: 1; }
+.pal-sep { font-size: var(--font-xs); color: var(--text-dim); padding: 6px 6px 2px; }
+.pal-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 6px 2px; border-top: 1px solid var(--border-panel); margin-top: 4px; flex-wrap: wrap; }
+.pal-foot .note { font-size: var(--font-xs); color: var(--text-dim); }
+
+.toggle { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: var(--text-muted); font-size: var(--font-sm); cursor: pointer; padding: 2px 0; }
+.toggle .t { width: 22px; height: 12px; border-radius: 6px; background: var(--control-bg-hover); position: relative; box-shadow: inset 0 0 0 1px var(--control-border); }
+.toggle .t::after { content: ""; position: absolute; left: 2px; top: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: left .12s; }
+.toggle[aria-checked="true"] { color: var(--text-default); }
+.toggle[aria-checked="true"] .t { background: var(--accent-faint); box-shadow: inset 0 0 0 1px var(--accent); }
+.toggle[aria-checked="true"] .t::after { left: 12px; background: var(--accent); }
+.toggle:disabled { opacity: 0.55; cursor: default; }
+.link { border: 0; background: transparent; color: var(--accent); font-size: var(--font-sm); cursor: pointer; padding: 2px 0; }
+.link:disabled { color: var(--text-dim); cursor: default; }
+
+/* 已開圖層／提示 */
+.open-list { display: flex; flex-direction: column; gap: 4px; }
+.open-item { display: flex; align-items: center; gap: 6px; font-size: var(--font-base); color: var(--text-default); }
+.open-item .mono { margin-left: auto; font-size: var(--font-xs); color: var(--text-dim); }
+.hint { margin-top: 6px; padding: 8px 10px; border-radius: var(--radius-md); background: var(--status-warn-soft); border: 1px solid color-mix(in srgb, var(--status-warn) 40%, transparent); font-size: var(--font-base); color: var(--text-default); display: flex; flex-direction: column; gap: 6px; }
+.hint b { color: var(--text-strong); font-weight: 600; }
+.hint .pairs { display: flex; flex-direction: column; gap: 2px; }
+.hint .pair-d { font-size: var(--font-sm); color: var(--text-muted); margin: 0 0 4px 15px; }
+.hint .pair { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.btn { align-self: flex-start; border: 1px solid var(--control-border); background: var(--control-bg); color: var(--text-strong); font-size: var(--font-base); padding: 3px 10px; border-radius: var(--radius-md); cursor: pointer; }
+.btn:hover { background: var(--control-bg-hover); }
+.ok { font-size: var(--font-sm); color: var(--text-dim); margin-top: 4px; }
+
+/* ── 地圖區 ── */
+.map-wrap { position: relative; min-width: 0; background: var(--map-water); overflow: hidden; }
+#map { display: block; width: 100%; height: 100%; min-height: 420px; }
+.map-ctl { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.map-ctl .seg { background: var(--surface-strong); }
+.map-cap { font-size: var(--font-xs); color: var(--text-muted); background: var(--surface-strong); padding: 2px 6px; border-radius: var(--radius-md); }
+.legend { position: absolute; right: 12px; bottom: 12px; width: 220px; max-height: calc(100% - 24px); overflow-y: auto; background: var(--surface-strong); border: 1px solid var(--border-panel); border-radius: var(--radius-lg); padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--elevation-md); }
+.lg-title { display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; margin-bottom: 4px; }
+.lg-title span:first-child { font-size: var(--font-sm); font-weight: 600; color: var(--text-strong); }
+.lg-title span + span { font-size: var(--font-xs); color: var(--text-dim); letter-spacing: 0.3px; }
+.lg-row { display: flex; align-items: center; gap: 6px; font-size: var(--font-xs); color: var(--text-muted); line-height: 1.35; }
+.lg-rows { display: flex; flex-direction: column; gap: 3px; }
+.lg-grad { height: 8px; border-radius: var(--radius-sm); background-color: var(--map-land); }
+.lg-steps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 1px; }
+.lg-steps span { height: 8px; }
+.lg-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: var(--font-xs); color: var(--text-dim); font-family: var(--font-data); }
+.lg-note { margin-top: 4px; font-size: var(--font-xs); color: var(--text-dim); line-height: 1.4; }
+.legend-empty { font-size: var(--font-xs); color: var(--text-dim); }
+
+@media (max-width: 760px) {
+  body { height: auto; display: block; }
+  .side { overflow: visible; }
+  .top { flex-direction: column; }
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { border-right: 0; border-bottom: 1px solid var(--border-panel); }
+  #map { min-height: 420px; height: 420px; }
+  .legend { position: static; width: auto; max-height: none; margin: 0; border-radius: 0; border-width: 1px 0 0; box-shadow: none; }
+  .map-wrap { display: flex; flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>圖層配色可選・樣稿</h1>
+    <p>這是 <b>R7 提案的可點樣稿</b>，地圖、點位和數字<b>都是假的</b>（程式隨機產生），只用來體驗操作。請看三件事：①點左側圖層的<b>「顏色」色條</b>，清單只會列出這種圖層合用的色盤；②換色後，<b>地圖的點、熱區和右下圖例</b>會一起變；③同時開的圖層顏色太像時，「已開圖層」會提示並可<b>一鍵自動錯開</b>（試著勾「診所」或「日本宗教設施」）。右上可切暗／淡。</p>
+  </div>
+  <div class="seg" role="group" aria-label="主題">
+    <button type="button" data-theme-btn="dark" aria-pressed="true">暗色</button>
+    <button type="button" data-theme-btn="light" aria-pressed="false">淡色</button>
+  </div>
+</header>
+<main class="app">
+  <aside class="side">
+    <section>
+      <div class="sec-h"><span>圖層設定</span><span>Layers</span></div>
+      <div class="layers" id="layers"></div>
+    </section>
+    <section>
+      <div class="sec-h"><span>已開圖層</span><span>Visible</span></div>
+      <div id="open"></div>
+    </section>
+  </aside>
+  <section class="map-wrap">
+    <canvas id="map" aria-label="假地圖"></canvas>
+    <div class="map-ctl">
+      <div class="seg" role="group" aria-label="縮放">
+        <button type="button" data-zoom="far" aria-pressed="true">拉遠（熱區）</button>
+        <button type="button" data-zoom="near" aria-pressed="false">拉近（點）</button>
+      </div>
+      <span class="map-cap" id="cap"></span>
+    </div>
+    <div class="legend" id="legend"></div>
+  </section>
+</main>
+<script>
+const PALETTES = {"single":[{"id":"hue:teal","name":"青綠","en":"teal","dark":"#009c89","light":"#009280","heat":{"dark":["#009c89","#c1f1e6"],"light":["#009280","#005247"]}},{"id":"hue:orange","name":"橘","en":"orange","dark":"#ce6400","light":"#b45600","heat":{"dark":["#ce6400","#ffddc9"],"light":["#b45600","#622b00"]}},{"id":"hue:blue","name":"藍","en":"blue","dark":"#4a81eb","light":"#396ed6","heat":{"dark":["#4a81eb","#d7e5ff"],"light":["#396ed6","#07338b"]}},{"id":"hue:pink","name":"粉紅","en":"pink","dark":"#d4517e","light":"#b53364","heat":{"dark":["#d4517e","#ffd9e2"],"light":["#b53364","#660030"]}},{"id":"hue:sky","name":"天藍","en":"sky","dark":"#0092c5","light":"#007fac","heat":{"dark":["#0092c5","#c7ebff"],"light":["#007fac","#00435d"]}},{"id":"hue:amber","name":"琥珀","en":"amber","dark":"#b07b00","light":"#9a6a00","heat":{"dark":["#b07b00","#fae1ba"],"light":["#9a6a00","#533700"]}},{"id":"hue:magenta","name":"洋紅","en":"magenta","dark":"#c457a9","light":"#b04496","heat":{"dark":["#c457a9","#ffd7f2"],"light":["#b04496","#6b0658"]}},{"id":"hue:lime","name":"萊姆","en":"lime","dark":"#779300","light":"#688000","heat":{"dark":["#779300","#dcecba"],"light":["#688000","#364400"]}},{"id":"hue:violet","name":"紫","en":"violet","dark":"#9e66d7","light":"#8c54c3","heat":{"dark":["#9e66d7","#ebddff"],"light":["#8c54c3","#501b7c"]}},{"id":"hue:green","name":"綠","en":"green","dark":"#1ca045","light":"#008d36","heat":{"dark":["#1ca045","#c2f3c8"],"light":["#008d36","#004b19"]}},{"id":"hue:indigo","name":"靛","en":"indigo","dark":"#7e72e7","light":"#6e60d2","heat":{"dark":["#7e72e7","#e1e1ff"],"light":["#6e60d2","#3a2788"]}},{"id":"hue:red","name":"紅","en":"red","dark":"#d9544b","light":"#c44039","heat":{"dark":["#d9544b","#ffdbd6"],"light":["#c44039","#780007"]}}],"sequential":[{"id":"seq:blues","name":"藍","en":"Blues","family":"single","dark":["#325d9c","#447bcd","#5b9bf9","#92beff","#cae0ff"],"light":["#85ade8","#5d8ed8","#3470c7","#1953a5","#0d3a79"]},{"id":"seq:greens","name":"綠","en":"Greens","family":"single","dark":["#286e3c","#369150","#4db469","#81d293","#b1f0bd"],"light":["#81bb8d","#55a167","#1c8742","#00692d","#004b1e"]},{"id":"seq:oranges","name":"橘","en":"Oranges","family":"single","dark":["#8c490d","#b96111","#e27d29","#fba568","#ffd4b8"],"light":["#da9a6f","#c6773d","#ac5700","#854200","#602e00"]},{"id":"seq:purples","name":"紫","en":"Purples","family":"single","dark":["#674e90","#8868bd","#aa84e7","#c8aafe","#e3d6ff"],"light":["#b39edc","#997dc9","#7f5bb6","#634095","#472c6d"]},{"id":"seq:reds","name":"紅","en":"Reds","family":"single","dark":["#953d3a","#c4524d","#f06c66","#ff9d96","#ffd1cd"],"light":["#e4918a","#d16b64","#bd423f","#9a2527","#711518"]},{"id":"seq:viridis","name":"viridis","en":"viridis","family":"multi","dark":["#39598c","#25868d","#30b17d","#8bd44c","#fde725"],"light":["#440154","#433d83","#2f6e8e","#209a8a","#53c26b"]},{"id":"seq:magma","name":"magma","en":"magma","family":"multi","dark":["#972e7f","#d04b6f","#f57b62","#feba82","#fcfdbf"],"light":["#1a0f41","#5a187c","#992e7e","#d8516b","#fb8761"]},{"id":"seq:cividis","name":"cividis","en":"cividis","family":"multi","dark":["#4e576d","#777775","#a29a76","#d1c066","#ffea46"],"light":["#00204d","#27416d","#5d626f","#868478","#b4a871"]}],"diverging":[{"id":"div:puor","name":"紫↔橘","en":"PuOr","dark":["#c4a3ff","#7c61a9","#34342f","#a06022","#f8a052"],"light":["#654199","#af94e0","#e7e6e2","#d89359","#824700"]},{"id":"div:rdbu","name":"紅↔藍","en":"RdBu","dark":["#ff958d","#ad524d","#34342f","#3275b4","#7cbdff"],"light":["#9a2929","#e6857e","#e7e6e2","#67aaed","#005a9d"]},{"id":"div:brbg","name":"褐↔藍綠","en":"BrBG","dark":["#eaa857","#966626","#34342f","#008479","#39d1c2"],"light":["#7b4c00","#cd995c","#e7e6e2","#4eb9ad","#00665e"]}],"categorical":[{"id":"cat:pulse12","name":"Pulse 12 色","en":"pulse12","dark":["#009c89","#ce6400","#4a81eb","#d4517e","#0092c5","#b07b00","#c457a9","#779300","#9e66d7","#1ca045","#7e72e7","#d9544b"],"light":["#009280","#b45600","#396ed6","#b53364","#007fac","#9a6a00","#b04496","#688000","#8c54c3","#008d36","#6e60d2","#c44039"]},{"id":"cat:pulse8","name":"Pulse 8 色","en":"pulse8","dark":["#009c89","#ce6400","#4a81eb","#d4517e","#0092c5","#b07b00","#c457a9","#779300"],"light":["#009280","#b45600","#396ed6","#b53364","#007fac","#9a6a00","#b04496","#688000"]},{"id":"cat:pulse6","name":"Pulse 6 色","en":"pulse6","dark":["#009c89","#ce6400","#4a81eb","#d4517e","#0092c5","#b07b00"],"light":["#009280","#b45600","#396ed6","#b53364","#007fac","#9a6a00"]},{"id":"cat:pulse3","name":"Pulse 3 色","en":"pulse3","dark":["#009c89","#ce6400","#4a81eb"],"light":["#009280","#b45600","#396ed6"]},{"id":"cat:pulse2","name":"Pulse 2 色","en":"pulse2","dark":["#009c89","#ce6400"],"light":["#009280","#b45600"]}]};
+
+// ── OKLab ────────────────────────────────────────────────
+const s2lin = (c) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+const lin2s = (c) => { c = Math.max(0, Math.min(1, c)); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
+const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+function oklab(h) {
+  const [r, g, b] = hexRgb(h).map((v) => s2lin(v / 255));
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
+}
+const deltaE = (a, b) => { const A = oklab(a), B = oklab(b); return 100 * Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2]); };
+function oklchHex(L, C, H) {
+  const f = (c) => { const a = c * Math.cos(H * Math.PI / 180), b = c * Math.sin(H * Math.PI / 180);
+    const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+    return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s]; };
+  const ok = (v) => v.every((x) => x >= -1e-4 && x <= 1 + 1e-4);
+  let lo = 0, hi = C; if (!ok(f(C))) { for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (ok(f(m))) lo = m; else hi = m; } C = lo; }
+  return "#" + f(C).map((v) => Math.round(lin2s(v) * 255).toString(16).padStart(2, "0")).join("");
+}
+const lch = (h) => { const [L, a, b] = oklab(h); return [L, Math.hypot(a, b), (Math.atan2(b, a) * 180 / Math.PI + 360) % 360]; };
+/** 熱區色階由主色衍生：暗＝提亮、淡＝加深（同 build.mjs）。 */
+function heatEnd(hex, dark) { const [L, C, H] = lch(hex); return dark ? oklchHex(Math.min(0.93, L + 0.3), C * 0.45, H) : oklchHex(Math.max(0.3, L - 0.2), C * 0.9, H); }
+const rgba = (hex, a) => { const [r, g, b] = hexRgb(hex); return `rgba(${r},${g},${b},${a})`; };
+/** 熱區 stops：透明 → 色相 → 提亮（淡色為加深）。地圖 LUT 與圖例 LG-8 用同一份。 */
+const heatStops = (c, end) => [[0, rgba(c, 0)], [0.3, rgba(c, 0.45)], [0.6, rgba(c, 0.9)], [1, rgba(end, 1)]];
+const heatCss = (stops) => `linear-gradient(90deg, ${stops.map(([t, c]) => `${c} ${t * 100}%`).join(", ")})`;
+
+// ── 狀態 ─────────────────────────────────────────────────
+const isDark = () => document.documentElement.dataset.theme !== "light";
+const mode = () => (isDark() ? "dark" : "light");
+const LAYERS = [
+  { key: "hydrant", zh: "消防栓", en: "Hydrant", role: "single", def: "#2196f3", count: "69,839", draw: 3000, on: true, cities: ["taipei", "kaohsiung"] },
+  { key: "aed", zh: "AED 點位", en: "AED", role: "single", def: "#fdd835", count: "12,408", draw: 1200, on: true, cities: ["all"] },
+  { key: "clinic", zh: "診所 / 其他醫療", en: "Clinic", role: "single", def: "#42a5f5", count: "23,710", draw: 1800, on: false, cities: ["all"] },
+  { key: "religion", zh: "日本宗教設施", en: "Religion (JP)", role: "categorical", count: "8,512", draw: 1400, on: false, cities: ["spread"],
+    cats: [{ k: "buddhist", zh: "佛教", w: 0.5 }, { k: "shinto", zh: "神道", w: 0.35 }, { k: "christian", zh: "基督教", w: 0.15 }],
+    defCats: ["#f59e0b", "#ef4444", "#3b82f6"] },
+  { key: "popden", zh: "人口密度", en: "Population density", role: "sequential", def: "seq:blues", on: false, unit: "人/km²", breaks: ["0", "300", "1,200", "4,000", "12,000", "40,000"] },
+  { key: "trees", zh: "行道樹增減", en: "Street trees Δ", role: "diverging", def: "div:rdbu", on: false, unit: "棵", breaks: ["−120", "−30", "−5", "+5", "+30", "+120"] },
+];
+for (const l of LAYERS) { l.choice = null; l.reversed = false; l.opacity = l.role === "sequential" || l.role === "diverging" ? 55 : 85; }
+let selected = "hydrant", openPop = null, zoom = "far", lastStagger = null;
+
+const lib = () => PALETTES;
+const byId = (id) => [...lib().single, ...lib().sequential, ...lib().diverging, ...lib().categorical].find((p) => p.id === id);
+
+/** 解析器：resolveLayerColors(layer, isDark) → { primary, cats, heat, ramp } */
+function resolve(l) {
+  const m = mode();
+  if (l.role === "single") {
+    const p = l.choice ? byId(l.choice) : null;
+    const c = p ? p[m] : l.def;
+    const end = p ? p.heat[m][1] : heatEnd(l.def, isDark());
+    return { primary: c, heat: heatStops(c, end), label: p ? p.name : "預設" };
+  }
+  if (l.role === "categorical") {
+    const p = l.choice ? byId(l.choice) : null;
+    const cols = p ? p[m].slice(0, l.cats.length) : l.defCats;
+    const top = 0; // 筆數最多的類別（佛教，cats 已依筆數排序）
+    return { primary: cols[top], cats: cols, heat: heatStops(cols[top], heatEnd(cols[top], isDark())), topName: l.cats[top].zh, label: p ? p.name : "預設" };
+  }
+  const p = byId(l.choice || l.def);
+  let ramp = p[m].slice();
+  if (l.reversed && l.role === "sequential") ramp.reverse();
+  return { ramp, primary: ramp[ramp.length - 1], label: (l.choice ? "" : "預設・") + p.name + (p.en && p.en !== p.name ? ` ${p.en}` : "") };
+}
+
+/** 清單只列合用的色盤 */
+function optionsFor(l) {
+  if (l.role === "single") return { groups: [["色相（每列：點色＋衍生熱區）", lib().single]], hidden: 0 };
+  if (l.role === "sequential") { const s = lib().sequential; return { groups: [["單一色相", s.filter((p) => p.family === "single")], ["感知均勻（viridis 家族）", s.filter((p) => p.family === "multi")]], hidden: 0 }; }
+  if (l.role === "diverging") return { groups: [["兩色＋中性中點", lib().diverging]], hidden: 0 };
+  const ok = lib().categorical.filter((p) => p.dark.length >= l.cats.length);
+  return { groups: [["類別色組（色數 ≥ " + l.cats.length + "）", ok]], hidden: lib().categorical.length - ok.length };
+}
+
+// ── 預覽 DOM ─────────────────────────────────────────────
+function previewHTML(l, p) {
+  const m = mode();
+  if (l.role === "single") {
+    const c = p ? p[m] : l.def, end = p ? p.heat[m][1] : heatEnd(l.def, isDark());
+    return `<span class="preview"><span class="sw" style="background:${c}"></span><span class="grad" style="background-image:${heatCss(heatStops(c, end))}"></span></span>`;
+  }
+  if (l.role === "categorical") {
+    const cols = p ? p[m] : l.defCats;
+    return `<span class="preview"><span class="cats">${cols.map((c) => `<span style="background:${c}"></span>`).join("")}</span></span>`;
+  }
+  let ramp = (p || byId(l.def))[m].slice();
+  if (l.reversed && l.role === "sequential") ramp.reverse();
+  return `<span class="preview"><span class="bar">${ramp.map((c) => `<span style="background:${c}"></span>`).join("")}</span></span>`;
+}
+
+const KIND = { single: "單色", categorical: "類別", sequential: "序列", diverging: "發散" };
+function renderLayers() {
+  const el = document.getElementById("layers");
+  el.innerHTML = LAYERS.map((l) => {
+    const r = resolve(l), sel = l.key === selected;
+    const dot = l.role === "sequential" || l.role === "diverging" ? r.ramp[Math.floor(r.ramp.length * 0.75)] : r.primary;
+    let ctl = "";
+    if (sel) {
+      const curP = l.choice ? byId(l.choice) : (l.role === "sequential" || l.role === "diverging" ? byId(l.def) : null);
+      const opts = optionsFor(l);
+      const pop = openPop === l.key ? `
+        <div class="pal-pop" role="dialog" aria-label="選擇配色">
+          <div class="pal-pop-h"><span><b>選擇配色</b>・${KIND[l.role]}</span><span>${opts.groups.reduce((n, g) => n + g[1].length, 0) + (l.role === "single" || l.role === "categorical" ? 1 : 0)} 組</span></div>
+          <div class="pal-list" role="listbox">
+            ${l.role === "single" || l.role === "categorical" ? `<button type="button" class="pal-opt" role="option" data-pick="" aria-selected="${!l.choice}"><span class="nm">預設<small>識別色</small></span>${previewHTML(l, null)}<span class="ck">${!l.choice ? "✓" : ""}</span></button>` : ""}
+            ${opts.groups.map(([g, ps]) => `<div class="pal-sep">${g}</div>` + ps.map((p) => {
+              const on = (l.choice || (l.role === "sequential" || l.role === "diverging" ? l.def : null)) === p.id;
+              return `<button type="button" class="pal-opt" role="option" data-pick="${p.id}" aria-selected="${on}"><span class="nm">${p.name}<small>${p.en}</small></span>${previewHTML(l, p)}<span class="ck">${on ? "✓" : ""}</span></button>`;
+            }).join("")).join("")}
+          </div>
+          <div class="pal-foot">
+            ${l.role === "sequential" ? `<button type="button" class="toggle" role="switch" data-rev aria-checked="${l.reversed}"><span class="t"></span>反轉</button>`
+              : `<span class="note">${l.role === "diverging" ? "發散色不提供反轉（會改變正負語意）" : opts.hidden ? `已隱藏 ${opts.hidden} 組（色數少於 ${l.cats.length} 類）` : "只列驗證過暗／淡兩版的色盤"}</span>`}
+            <button type="button" class="link" data-reset ${!l.choice && !l.reversed ? "disabled" : ""}>還原預設</button>
+          </div>
+        </div>` : "";
+      ctl = `<div class="lpc">
+        <div class="lpc-row"><span class="lpc-k">顏色</span><span class="lpc-v">${r.label}${l.reversed ? "・反轉" : ""}</span>
+          <div class="lpc-c"><button type="button" class="pal-btn" data-open aria-haspopup="listbox" aria-expanded="${openPop === l.key}">${previewHTML(l, curP)}</button>${pop}</div></div>
+        <div class="lpc-row"><span class="lpc-k">透明度</span><span class="lpc-v">${l.opacity}%</span>
+          <div class="lpc-c"><input type="range" class="ctl-range" min="0" max="100" value="${l.opacity}" style="--p:${l.opacity}%" data-op aria-label="透明度"></div></div>
+      </div>`;
+    }
+    return `<div class="lyr ${sel ? "sel" : ""}" data-key="${l.key}">
+      <div class="lyr-row" data-sel><input type="checkbox" ${l.on ? "checked" : ""} data-on aria-label="開關 ${l.zh}"><span class="lyr-dot" style="background:${dot}"></span><span class="lyr-name">${l.zh}</span><span class="lyr-kind">${KIND[l.role]}</span></div>
+      ${ctl}</div>`;
+  }).join("");
+  const list = el.querySelector(".pal-list .pal-opt[aria-selected='true']");
+  if (list) list.scrollIntoView({ block: "nearest" });
+}
+
+// ── 顏色相近／自動錯開 ───────────────────────────────────
+const NEAR = 15;
+const pointLayers = () => LAYERS.filter((l) => l.on && (l.role === "single" || l.role === "categorical"));
+/** 比對色：單色層＝主色；類別層＝每個類別色（拉近時每類都看得到）。回傳最接近的一對。 */
+const colorsOf = (l) => { const r = resolve(l); return r.cats ? r.cats.map((c, i) => [c, l.cats[i].zh]) : [[r.primary, null]]; };
+function conflicts() {
+  const vis = pointLayers(), out = [];
+  for (let i = 0; i < vis.length; i++) for (let j = i + 1; j < vis.length; j++) {
+    let best = null;
+    for (const [a, an] of colorsOf(vis[i])) for (const [b, bn] of colorsOf(vis[j])) { const d = deltaE(a, b); if (!best || d < best.d) best = { d, a, an, b, bn }; }
+    if (best.d < NEAR) out.push([vis[i], vis[j], best]);
+  }
+  return out;
+}
+/** 類別層與清單較前的單色層不動；只替單色層換色；照 12 色相固定順序取第一個與所有已開層都 ≥ 15 的色相。 */
+function autoStagger() {
+  // 類別層不自動換色（換了會改類別對應），當作固定錨點先排；單色層依已開清單順序處理。
+  const all = pointLayers(), vis = [...all.filter((l) => l.role !== "single"), ...all.filter((l) => l.role === "single")], m = mode();
+  const kept = [];
+  let changed = [], exhausted = false;
+  vis.forEach((l, i) => {
+    const c = resolve(l).primary;
+    // 類別層的每個類別色都算進「已占用」（拉近時每類都看得到），不只代表色。
+    if (l.role !== "single") { kept.push(...resolve(l).cats); return; }
+    if (kept.every((k) => deltaE(k, c) >= NEAR)) { kept.push(c); return; }
+    const later = vis.slice(i + 1).flatMap((o) => resolve(o).cats || [resolve(o).primary]);
+    const hue = lib().single.find((h) => [...kept, ...later].every((k) => deltaE(k, h[m]) >= NEAR));
+    if (!hue) { exhausted = true; kept.push(c); return; }
+    l.choice = hue.id; kept.push(hue[m]); changed.push(`${l.zh} → ${hue.name}`);
+  });
+  lastStagger = exhausted ? "exhausted" : changed.join("、");
+  renderAll();
+}
+function renderOpen() {
+  const el = document.getElementById("open");
+  const vis = LAYERS.filter((l) => l.on);
+  if (!vis.length) { el.innerHTML = `<div class="ok">尚未開啟圖層</div>`; return; }
+  const cs = conflicts();
+  el.innerHTML = `<div class="open-list">${vis.map((l) => { const r = resolve(l); const c = r.ramp ? r.ramp[Math.floor(r.ramp.length * 0.75)] : r.primary;
+    return `<div class="open-item"><span class="sw" style="background:${c}"></span>${l.zh}<span class="mono">${r.ramp ? "面" : c}</span></div>`; }).join("")}</div>`
+    + (cs.length ? `<div class="hint" role="status"><div class="pairs">${cs.map(([a, b, x]) => `<span class="pair"><span class="sw" style="background:${x.a}"></span><b>${a.zh}${x.an ? `（${x.an}）` : ""}</b> 與 <span class="sw" style="background:${x.b}"></span><b>${b.zh}${x.bn ? `（${x.bn}）` : ""}</b></span><span class="pair-d">顏色相近・<span class="mono">ΔE ${x.d.toFixed(1)}</span></span>`).join("")}</div>
+        ${lastStagger === "exhausted" ? `<span>色相用完了，建議減少同時開的圖層。</span>` : ""}
+        <button type="button" class="btn" data-stagger>自動錯開</button></div>`
+      : `<div class="ok">${lastStagger && lastStagger !== "exhausted" ? `已自動錯開：${lastStagger}。` : ""}${vis.length > 1 ? "點圖層顏色彼此分得開（ΔE ≥ 15）。面圖層不參與比對。" : ""}</div>`);
+}
+
+// ── 假地圖 ───────────────────────────────────────────────
+const TW = [[121.51,25.3],[121.75,25.15],[121.93,25.02],[121.85,24.85],[121.8,24.6],[121.87,24.35],[121.65,24],[121.55,23.5],[121.45,23.1],[121.3,22.8],[121.05,22.6],[120.9,22.3],[120.85,21.92],[120.7,22],[120.62,22.3],[120.43,22.5],[120.28,22.62],[120.17,22.95],[120.08,23.2],[120.12,23.6],[120.25,24],[120.5,24.35],[120.7,24.62],[120.92,24.85],[121.05,25.03],[121.3,25.15]];
+const CITY = { taipei: [121.53, 25.04, 0.07], newtaipei: [121.45, 25.0, 0.1], taoyuan: [121.3, 24.97, 0.08], taichung: [120.68, 24.15, 0.09], tainan: [120.21, 23.0, 0.08], kaohsiung: [120.31, 22.64, 0.07], hsinchu: [120.97, 24.8, 0.05], hualien: [121.6, 23.98, 0.04] };
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const gauss = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+function inTW(x, y) { let c = false; for (let i = 0, j = TW.length - 1; i < TW.length; j = i++) { const [xi, yi] = TW[i], [xj, yj] = TW[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
+function genPoints(l) {
+  const cities = l.cities[0] === "all" ? Object.keys(CITY) : l.cities[0] === "spread" ? null : l.cities;
+  const pts = [];
+  while (pts.length < l.draw) {
+    let x, y;
+    if (!cities) { x = 120.1 + rnd() * 1.85; y = 21.9 + rnd() * 3.4; if (rnd() < 0.5) { const k = Object.keys(CITY)[Math.floor(rnd() * 8)]; x = CITY[k][0] + gauss() * 0.18; y = CITY[k][1] + gauss() * 0.18; } }
+    else { const k = cities[Math.floor(rnd() * cities.length)], c = CITY[k]; x = c[0] + gauss() * c[2]; y = c[1] + gauss() * c[2]; }
+    if (!inTW(x, y)) continue;
+    let cat = 0;
+    if (l.cats) { const r = rnd(); let a = 0; cat = l.cats.findIndex((c) => (a += c.w) >= r); }
+    pts.push([x, y, cat]);
+  }
+  return pts;
+}
+for (const l of LAYERS) if (l.draw) l.pts = genPoints(l);
+// 統計格網：人口密度（城市高斯和）、行道樹增減（平滑正負場）
+const CELLS = [];
+for (let x = 120.0; x < 122.0; x += 0.07) for (let y = 21.85; y < 25.35; y += 0.07) if (inTW(x + 0.035, y + 0.035)) {
+  let pop = 0; for (const k in CITY) { const c = CITY[k]; pop += Math.exp(-((x - c[0]) ** 2 + (y - c[1]) ** 2) / (2 * (c[2] * 3) ** 2)); }
+  const tr = Math.sin(x * 7.1) * Math.cos(y * 5.3) + 0.4 * Math.sin((x + y) * 13);
+  CELLS.push([x, y, pop, tr]);
+}
+const popCls = (v) => (v > 1.2 ? 4 : v > 0.6 ? 3 : v > 0.25 ? 2 : v > 0.08 ? 1 : 0);
+const treeCls = (v) => (v < -0.8 ? 0 : v < -0.25 ? 1 : v < 0.25 ? 2 : v < 0.8 ? 3 : 4);
+
+const cv = document.getElementById("map"), ctx = cv.getContext("2d");
+let VIEW = null;
+function fit() {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  const W = r.width, H = r.height;
+  const near = zoom === "near";
+  const cx = near ? 121.4 : 121.0, cy = near ? 24.98 : 23.65, spanY = near ? 1.0 : 3.7;
+  const k = Math.min(H / spanY, W / (spanY * 0.6)) * (near ? 1.0 : 0.95);
+  VIEW = { dpr, W, H, k, cx, cy, near };
+}
+const proj = (x, y) => [VIEW.W / 2 + (x - VIEW.cx) * VIEW.k * 0.915, VIEW.H / 2 - (y - VIEW.cy) * VIEW.k];
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function drawHeat(l, r) {
+  const off = document.createElement("canvas"); off.width = cv.width; off.height = cv.height;
+  const o = off.getContext("2d"); o.setTransform(VIEW.dpr, 0, 0, VIEW.dpr, 0, 0);
+  const rad = 16, a = Math.min(0.1, 90 / l.pts.length);
+  for (const [x, y] of l.pts) { const [px, py] = proj(x, y); const g = o.createRadialGradient(px, py, 0, px, py, rad); g.addColorStop(0, `rgba(0,0,0,${a})`); g.addColorStop(1, "rgba(0,0,0,0)"); o.fillStyle = g; o.fillRect(px - rad, py - rad, rad * 2, rad * 2); }
+  // LUT：用同一份 stops 在 1×256 漸層上取樣
+  const lc = document.createElement("canvas"); lc.width = 256; lc.height = 1; const lx = lc.getContext("2d");
+  const lg = lx.createLinearGradient(0, 0, 256, 0); r.heat.forEach(([t, c]) => lg.addColorStop(t, c)); lx.fillStyle = lg; lx.fillRect(0, 0, 256, 1);
+  const lut = lx.getImageData(0, 0, 256, 1).data;
+  const img = o.getImageData(0, 0, off.width, off.height), d = img.data;
+  for (let i = 0; i < d.length; i += 4) { const a = d[i + 3]; if (!a) continue; const j = Math.min(255, a) * 4; d[i] = lut[j]; d[i + 1] = lut[j + 1]; d[i + 2] = lut[j + 2]; d[i + 3] = lut[j + 3] * (l.opacity / 100); }
+  o.putImageData(img, 0, 0);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(off, 0, 0); ctx.setTransform(VIEW.dpr, 0, 0, VIEW.dpr, 0, 0);
+}
+function drawMap() {
+  fit();
+  ctx.setTransform(VIEW.dpr, 0, 0, VIEW.dpr, 0, 0);
+  ctx.fillStyle = css("--map-water"); ctx.fillRect(0, 0, VIEW.W, VIEW.H);
+  ctx.beginPath(); TW.forEach(([x, y], i) => { const [px, py] = proj(x, y); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }); ctx.closePath();
+  ctx.fillStyle = css("--map-land"); ctx.fill(); ctx.strokeStyle = css("--map-border"); ctx.lineWidth = 1; ctx.stroke();
+  // 面
+  for (const l of LAYERS.filter((l) => l.on && (l.role === "sequential" || l.role === "diverging"))) {
+    const r = resolve(l); ctx.globalAlpha = l.opacity / 100;
+    for (const c of CELLS) { const cls = l.key === "popden" ? popCls(c[2]) : treeCls(c[3]); const [px, py] = proj(c[0], c[1] + 0.07), [qx, qy] = proj(c[0] + 0.07, c[1]); ctx.fillStyle = r.ramp[cls]; ctx.fillRect(px, py, qx - px, qy - py); }
+    ctx.globalAlpha = 1; ctx.strokeStyle = css("--map-seam"); ctx.globalAlpha = isDark() ? 0.6 : 0.8; ctx.lineWidth = 1;
+    for (const c of CELLS) { const [px, py] = proj(c[0], c[1] + 0.07), [qx, qy] = proj(c[0] + 0.07, c[1]); ctx.strokeRect(px, py, qx - px, qy - py); }
+    ctx.globalAlpha = 1;
+  }
+  // 點／熱區
+  for (const l of LAYERS.filter((l) => l.on && l.pts)) {
+    const r = resolve(l);
+    if (!VIEW.near) { drawHeat(l, r); continue; }
+    ctx.globalAlpha = l.opacity / 100; ctx.lineWidth = 1; ctx.strokeStyle = css("--map-seam");
+    for (const [x, y, cat] of l.pts) { const [px, py] = proj(x, y); if (px < -5 || py < -5 || px > VIEW.W + 5 || py > VIEW.H + 5) continue; ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2); ctx.fillStyle = r.cats ? r.cats[cat] : r.primary; ctx.fill(); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  }
+  const pts = LAYERS.filter((l) => l.on && l.pts);
+  document.getElementById("cap").textContent = VIEW.near ? "拉近・北部・點" : `全台・z<10 熱區${pts.length ? "（樣稿每層只畫 1–3 千點）" : ""}`;
+}
+
+// ── 圖例（legendKit：LegendTitle／SwatchDot／SwatchGradient／SwatchSteps） ──
+function renderLegend() {
+  const el = document.getElementById("legend");
+  const vis = LAYERS.filter((l) => l.on);
+  if (!vis.length) { el.innerHTML = `<div class="legend-empty">沒有開啟的圖層</div>`; return; }
+  el.innerHTML = vis.map((l) => {
+    const r = resolve(l);
+    const title = `<div class="lg-title"><span>${l.zh}</span><span>${l.en}</span></div>`;
+    if (r.ramp) return `<div>${title}<div class="lg-steps">${r.ramp.map((c) => `<span style="background:${c}"></span>`).join("")}</div><div class="lg-ends"><span>${l.breaks[0]}</span><span>${l.breaks[5]} ${l.unit}</span></div>${l.role === "diverging" ? `<div class="lg-note">中間灰＝幾乎沒變</div>` : ""}</div>`;
+    if (zoom === "far") return `<div>${title}<div class="lg-grad" style="background-image:${heatCss(r.heat)}"></div><div class="lg-ends"><span>少</span><span>多</span></div><div class="lg-note">熱區・${l.count} 點${r.cats ? `・以「${r.topName}」顏色表示` : ""}</div></div>`;
+    if (r.cats) return `<div>${title}<div class="lg-rows">${l.cats.map((c, i) => `<div class="lg-row"><span class="sw" style="background:${r.cats[i]}"></span>${c.zh}</div>`).join("")}</div></div>`;
+    return `<div>${title}<div class="lg-row"><span class="sw" style="background:${r.primary}"></span>${l.zh}・<span class="mono">${l.count}</span></div></div>`;
+  }).join("");
+}
+
+function renderAll() { renderLayers(); renderOpen(); renderLegend(); drawMap(); }
+
+// ── 事件 ─────────────────────────────────────────────────
+document.addEventListener("click", (e) => {
+  const t = e.target;
+  const tb = t.closest("[data-theme-btn]");
+  if (tb) { document.documentElement.dataset.theme = tb.dataset.themeBtn; document.querySelectorAll("[data-theme-btn]").forEach((b) => b.setAttribute("aria-pressed", b === tb)); lastStagger = null; renderAll(); return; }
+  const zb = t.closest("[data-zoom]");
+  if (zb) { zoom = zb.dataset.zoom; document.querySelectorAll("[data-zoom]").forEach((b) => b.setAttribute("aria-pressed", b === zb)); renderLegend(); drawMap(); return; }
+  if (t.closest("[data-stagger]")) { autoStagger(); return; }
+  const lyr = t.closest(".lyr");
+  if (!lyr) { if (openPop && !t.closest(".pal-pop")) { openPop = null; renderLayers(); } return; }
+  const l = LAYERS.find((x) => x.key === lyr.dataset.key);
+  if (t.matches("[data-on]")) { l.on = t.checked; lastStagger = null; renderOpen(); renderLegend(); drawMap(); renderLayers(); return; }
+  if (t.closest("[data-sel]")) { if (selected !== l.key) { selected = l.key; openPop = null; renderLayers(); } return; }
+  if (t.closest("[data-open]")) { openPop = openPop === l.key ? null : l.key; renderLayers(); return; }
+  const pk = t.closest("[data-pick]");
+  if (pk) { l.choice = pk.dataset.pick || null; if (l.role === "sequential" || l.role === "diverging") { if (l.choice === l.def) l.choice = null; } openPop = null; lastStagger = null; renderAll(); return; }
+  if (t.closest("[data-rev]")) { l.reversed = !l.reversed; renderAll(); openPop = l.key; renderLayers(); return; }
+  if (t.closest("[data-reset]")) { l.choice = null; l.reversed = false; lastStagger = null; renderAll(); return; }
+});
+document.addEventListener("input", (e) => {
+  if (!e.target.matches("[data-op]")) return;
+  const l = LAYERS.find((x) => x.key === e.target.closest(".lyr").dataset.key);
+  l.opacity = +e.target.value; e.target.style.setProperty("--p", l.opacity + "%");
+  e.target.closest(".lpc-row").querySelector(".lpc-v").textContent = l.opacity + "%";
+  drawMap();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && openPop) { openPop = null; renderLayers(); } });
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawMap, 80); });
+renderAll();
+</script>
+</body>
+</html>
