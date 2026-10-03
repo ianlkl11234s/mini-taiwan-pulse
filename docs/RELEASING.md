@@ -55,4 +55,4 @@
 
 ## 歷史版號
 
-`v0.1.0`–`v4.0.0` 是 2026-10-04 依 commit 與 PR 歷史回溯補打的 tag，打在當時 `master` 的 merge commit 上；切點依據記在 CHANGELOG 開頭。之前的非 SemVer tag（`v0-original-sidebar`、`v0.9-pre-api`、`backup/pre-launch-*-20260529-*`、`backup/pre-merge-master-localhead`）保留不動。
+`v0.1.0`–`v3.0.0` 是 2026-10-04 依 commit 與 PR 歷史回溯補打的 tag，打在當時 `master` 的 merge commit 上；切點依據記在 CHANGELOG 開頭。之前的非 SemVer tag（`v0-original-sidebar`、`v0.9-pre-api`、`backup/pre-launch-*-20260529-*`、`backup/pre-merge-master-localhead`）保留不動。
