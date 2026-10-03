@@ -12,7 +12,7 @@ describe("summarizeWhenLoaded", () => {
     const compute = vi.fn(() => summary(++calls >= 4 ? "ok" : "data_not_loaded"));
     const p = summarizeWhenLoaded(compute, 6000, 250);
     await vi.advanceTimersByTimeAsync(750);
-    expect((await p).layers[0].status).toBe("ok");
+    expect((await p).layers[0]?.status).toBe("ok");
     expect(compute).toHaveBeenCalledTimes(4);
   });
 
@@ -20,7 +20,7 @@ describe("summarizeWhenLoaded", () => {
     const compute = vi.fn(() => summary("data_not_loaded"));
     const p = summarizeWhenLoaded(compute, 6000, 250);
     await vi.advanceTimersByTimeAsync(6000);
-    expect((await p).layers[0].status).toBe("data_not_loaded");
+    expect((await p).layers[0]?.status).toBe("data_not_loaded");
     expect(compute).toHaveBeenCalledTimes(25);
   });
 

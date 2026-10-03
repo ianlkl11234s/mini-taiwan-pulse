@@ -49,7 +49,7 @@ function createMap() {
 }
 
 describe("useAqiStationsLayer style readiness", () => {
-  beforeEach(() => { vi.useFakeTimers(); mocks.fetch.mockResolvedValue([]); mocks.start.mockClear(); mocks.end.mockClear(); });
+  beforeEach(() => { vi.useFakeTimers(); mocks.fetch.mockReset(); mocks.fetch.mockResolvedValue([]); mocks.start.mockClear(); mocks.end.mockClear(); });
   afterEach(() => { reactHarness.cleanup(); vi.useRealTimers(); });
 
   it("loads when isStyleReady is true even though isStyleLoaded stays false, and registers loading", async () => {
