@@ -177,6 +177,7 @@
 |---|---|---|---|---|---|
 | R5-1 | P2 | ready | 微型感測器（`aqiMicroSensors`）圖層偶爾永遠不出現。 | `src/hooks/useMicroSensorsLayer.ts:157`：style 未載完時改 `map.once("load")`，但 `load` 可能早已觸發，callback 永不執行。改等 `style.load`／`idle` 或先判斷 `map.loaded()`。 | 冷開站、換底圖途中打開該層各 10 次皆出現；補 hook 測試。 |
 | R5-2 | P2 | ready | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | 找出初次加圖層時沒帶入參數預設 filter 的路徑（registry filter 初值 vs 參數變更才 setFilter）。 | 打開即只顯示預設年份；點數與改參數後一致；補測試。 |
+| R8-2 | P3 | ready | 手機頂部時間軸條在淡色底圖下仍是暗色（#516 修了手機圖層抽屜，時間軸條不在範圍）。 | 找出手機時間軸條寫死暗色的元件，改傳實際主題、淡色用 LIGHT token，照 #516 做法。 | 手機 390 淡色底圖下時間軸條跟隨主題；暗色數值不變。 |
 
 ## Weekly audit findings
 
