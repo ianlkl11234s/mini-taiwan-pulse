@@ -308,6 +308,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
 export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   {
     title: "人口與教育 Population & Education",
+    defaultCollapsed: true,
     groups: [
       { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
       { title: "教育與少子化", layers: [
@@ -317,6 +318,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   },
   {
     title: "醫療與長照 Health & Care",
+    defaultCollapsed: true,
     groups: [
       { title: "醫療與長照", layers: [
         fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
@@ -325,12 +327,14 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   },
   {
     title: "犯罪與治安 Crime & Safety",
+    defaultCollapsed: true,
     groups: [
       { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
     ],
   },
   {
     title: "工作與所得 Work & Income",
+    defaultCollapsed: true,
     groups: [
       { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
       { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
@@ -344,6 +348,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   },
   {
     title: "住宅與不動產 Housing & Property",
+    defaultCollapsed: true,
     groups: [
       { title: "住宅存量與使用", layers: [
         fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship"),
