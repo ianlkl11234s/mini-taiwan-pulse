@@ -1,7 +1,7 @@
 import { getStatisticsVisual } from "../../data/statisticsVisuals";
-import { LayerToggleSwitch } from "./LayerToggleSwitch";
+import { ListRow } from "./LayerRow";
+import { useRailTheme } from "./railTheme";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { ChevronRight } from 'lucide-react';
 import { layerControlThemeClass } from './LayerParamControls';
 import type { LayerVisibility } from '../../types';
 import { getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey } from '../../data/medicalStatisticsGroups';
@@ -19,7 +19,6 @@ interface Props {
   expandedLayer: string | null;
   onLayerClick: (key: keyof LayerVisibility, intent?: LayerClickIntent) => void;
   renderControls: (key: keyof LayerVisibility) => ReactNode;
-  renderToggle?: (on: boolean, onChange: () => void, label: string) => ReactNode;
   textColor?: string;
   dimColor?: string;
   colorScheme: 'light' | 'dark';
@@ -33,8 +32,9 @@ export function medicalStatisticsSelectStyle(colorScheme: 'light' | 'dark') {
   return { colorScheme };
 }
 
-export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, renderToggle, textColor = '#e5e7eb', dimColor = '#9ca3af', colorScheme }: Props) {
+export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, textColor = '#e5e7eb', dimColor = '#9ca3af', colorScheme }: Props) {
   const group = getMedicalStatisticsGroup(groupKey);
+  const { DIM } = useRailTheme();
   const [preferred, setPreferred] = useState<keyof LayerVisibility | undefined>();
   const [error, setError] = useState('');
   const [switching, setSwitching] = useState(false);
@@ -79,13 +79,18 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     setPreferred(selected);
   };
   return <div style={{ color: textColor }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderLeft: active.length ? `2px solid ${visual.accent}` : '2px solid transparent' }}>
-      <Icon size={14} color={visual.accent} style={{ flexShrink: 0 }} />
-      <button type="button" aria-expanded={expanded} onClick={() => onLayerClick(selected)} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', color: textColor, border: 0, background: 'transparent', padding: 0, cursor: 'pointer', fontSize: FONT_SIZE.md }}>
-        {group.label}<ChevronRight size={12} aria-hidden="true" style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }} />
-      </button>
-      {renderToggle ? renderToggle(active.length > 0, toggle, `${group.label} 顯示`) : <LayerToggleSwitch on={active.length > 0} onChange={toggle} label={`${group.label} 顯示`} />}
-    </div>
+    {/* 列外觀走共用 ListRow（layer-panel-unify P8）；「指標」在列外的結構屬 C 段，這裡不動 */}
+    <ListRow
+      ariaLabel={group.label}
+      label={group.label}
+      icon={<Icon size={14} color={active.length ? visual.accent : DIM} style={{ flexShrink: 0 }} />}
+      accent={visual.accent}
+      active={active.length > 0}
+      expandable
+      expanded={expanded}
+      onClick={() => onLayerClick(selected)}
+      toggle={{ on: active.length > 0, onChange: toggle, label: `${group.label} 顯示` }}
+    />
     {expanded && <>
       <div className={layerControlThemeClass(colorScheme === 'dark')} style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>
         <label className="lpc-k" style={{ display: 'block', marginBottom: 4 }}>{group.optionLabel ?? '指標'}</label>

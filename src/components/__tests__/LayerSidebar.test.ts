@@ -26,8 +26,8 @@ describe("LayerSidebar light statistics toggles", () => {
     const source = readFileSync("src/components/LayerSidebar.tsx", "utf8");
     expect(source).toContain("const palette = railPalette(isDarkTheme);");
     expect(source).toContain("<RailThemeContext.Provider value={palette}>");
-    const panel = readFileSync("src/components/sidebar/LayersPanel.tsx", "utf8");
-    expect(panel).toContain("renderToggle={(on, onChange, label) => <RailToggle on={on} onChange={onChange} label={label} />}");
+    // 醫療統計群組列也是共用 ListRow（開關同一個 RailToggle）
+    expect(readFileSync("src/components/sidebar/MedicalStatisticsGroupControls.tsx", "utf8")).toContain("<ListRow");
     expect(readFileSync("src/components/sidebar/LayerRow.tsx", "utf8")).toContain("<RailToggle on={toggle.on} onChange={toggle.onChange} label={toggle.label} />");
   });
 });
