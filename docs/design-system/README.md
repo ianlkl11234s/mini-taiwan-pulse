@@ -4,7 +4,7 @@
 
 ## 目前進度
 
-> 最後更新：2026-10-03（master 至 #510；監看模式改版 P1–P5 完成，P6 擱置在 backlog）。**每一輪結束時更新這一節**；細節與理由寫在 [`CHANGELOG.md`](./CHANGELOG.md)。
+> 最後更新：2026-10-04（master 至 #518；監看模式改版 P1–P5 完成，P6 擱置在 backlog）。**每一輪結束時更新這一節**；細節與理由寫在 [`CHANGELOG.md`](./CHANGELOG.md)。
 
 ### 各條工作線
 
@@ -23,8 +23,8 @@
 | 地圖 R4 圖例對齊 | ✅ 完成 | #465、加油站品牌色 #468 | 28 個不一致圖例已對齊（盤點剩 3 個屬性色、程式同源）；K-1 13 層識別色改地圖現色；手寫色票 90 → 6。新圖例色票一律引用 paint 同一常數（`src/map/layerPaintColors.ts`） |
 | 地圖 R5 熱區＋密度透明度 | ✅ 完成 | #498 | 1 萬點以上 44 層拉遠改熱區（強度逐層校正）、P-3 透明度預設依點數、微型感測器取消聚合；泡泡 M3 使用者決定不統一。下一步：熱區／圖層配色改各層色＋可選科學色盤（另提案） |
 | 地圖 R6 Three.js／Mapbox 切換 | ⏳ 未開始 | — | **先要使用者決定**範圍與開關位置 |
-| 地圖 R7 熱區／網格配色 | ✅ 完成 | 本 PR | 色盤庫 17 組（暗淡各 7 階）、熱區預設新版 magma＋可換色 43 層、網格可換色 21 個 key、多層熱區 ×0.7、色盤選單（spec §5.36）；[對照](../features/layer-color-picker/phase-d-compare.html)。下一步：MCP 圖層控制工具說明補 `palette` 型別；未做的網格等 C 段連動選單 |
-| R8 圖層面板統一（台灣／日本／統計／世界／手機／其他清單） | ✅ 完成 | 共用外殼 #509、資料結構 #511、統計連動選單 本 PR | P1–P9 全數落地；C 段：統計期別／指標／細項與群組「指標」改成共用連動選單（spec §5.37）、說明・來源併入統計來源紀錄、參考邊界代碼改中文；[B 段對照](../features/layer-panel-unify/phase-b-compare.html)、[C 段對照](../features/layer-panel-unify/phase-c-compare.html)。待決：統計與世界的大分類、names-review 4 項；MCP 圖層控制工具說明補 `linkedSelect`（另一 repo） |
+| 地圖 R7 熱區／網格配色 | ✅ 完成 | #510；Agent 控制項說明 MCP #34 | 色盤庫 17 組（暗淡各 7 階）、熱區預設新版 magma＋可換色 43 層、網格可換色 23 個 key、多層熱區 ×0.7、色盤選單（spec §5.36）；[對照](../features/layer-color-picker/phase-d-compare.html)。不做：都市紋理（發散模式）、人流 H3（色寫在資料） |
+| R8 圖層面板統一（台灣／日本／統計／世界／手機／其他清單） | ✅ 完成 | 共用外殼 #509、資料結構 #511、統計連動選單 #513、統計與世界大分類 #514、收尾修正 #516；Agent 控制項說明 MCP #36 | P1–P9 全數落地：所有面板同一套列與主題列（spec §5.5）、雙語結構化名稱、日本日文副標、四個面板都有大分類且主題預設收合、設定區順序測試鎖住（§5.11）、統計連動選單（§5.37）；[A](../features/layer-panel-unify/phase-a-compare.html)／[B](../features/layer-panel-unify/phase-b-compare.html)／[C](../features/layer-panel-unify/phase-c-compare.html)／[收尾](../features/layer-panel-unify/followups-compare.html) 對照。剩 backlog R8-2（手機時間軸條淡色） |
 | 監看模式 split 統一（卡片殼、標題、數值、走勢、狀態、資料品質） | ✅ P1–P5 完成 | 盤點＋拍板 #473；P1 卡片殼 #482；P2a 字級 S13 #486；P2b 數值列與走勢 #487；P3 多指標卡 #493；供電機組出力依台電分區（gis-platform 424，預設依區域、可切依發電方式）#494；P4 來源新鮮度與缺值修正 #500／#503（gis-platform 425）；P5 淡色版 #505 | P6 四領域子指數擱置，見 `.claude/memory/BACKLOG.md` MON-P6 |
 | 開站加速 | ✅ 完成 | 地形延後載入 #395；Three.js 圖層打開才建 #464、#476；隱藏圖層不算樣式 #480 | 量測後改做法：開站本來就不抓隱藏圖層的資料（GeoJSON 空起手、PMTiles 0 請求），成本在換主題／拖滑桿時替約 300 組隱藏圖層算樣式；改成跳過、打開時補套（`docs/perf-audit-2026-09-30.md` §6） |
 

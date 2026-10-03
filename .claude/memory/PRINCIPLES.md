@@ -375,19 +375,15 @@ tsc -b 一張一張抓，補完再跑會冒下一張。
 實例：iot_wra groundwater 95% 配對 → 完全重複（停 iot 子端點）；iot_wra river 16% → 互補。
 詳見 `docs/research/iot-wra-integration-study.md` § 3 + PB-09。
 
-## 一前端兩 Sidebar 同步改（2026-04-26 教訓）
+## 圖層面板只用共用元件（2026-10-03 取代「一前端兩 Sidebar 同步改」）
 
-本專案前端有 `LayerSidebar.tsx`（舊版）+ `IconRailSidebar.tsx`（實際渲染）。新增 layer 時必須**兩個都改**：
+R8 面板統一（#509／#511／#513／#514）後，桌機四個入口（台灣／統計／世界／日本）、手機、資料來源、Agent 分析結果、衛星、我的、醫療統計群組，全部改用 `src/components/sidebar/` 的共用元件（圖層列、主題列、大分類、展開區；面板定義在 `layerPanels.ts`）。
 
-- `LAYER_COLORS`（兩檔都要）
-- `LAYER_ICONS`（IconRailSidebar 才有）
-- `SECTIONS` 列表（兩檔都要）
-
-漏改 IconRailSidebar = `tsc -b` 過但前端看不到 toggle。
-
-`FeatureInfoPanel.tsx` 的 `HEADER_LABELS` 也要補（type narrowing 要過）。
-
-PB-01「新增 Layer 強制順序」第 5 步已點明，但這次仍漏改 → 列為 P0 提醒。
+- 新增圖層只寫 `layerManifest.ts`（名稱用 `layerName({ zh, alt, qualifier })`）＋`layerParamsSpec.ts`；不再到兩個 sidebar 各補 `LAYER_COLORS`／`SECTIONS`。
+- 不准在任何面板另畫一份圖層列或控制項：`layerConsistency.test.ts` 會擋；設定區順序（資料篩選→顏色→透明度→大小→其他外觀→說明・來源）由 `layerParamsOrder.test` 鎖住。
+- 新控制項型別照 `palette`（R7）／`linkedSelect`（R8 C 段）接 6 個點：spec 聯集型別、`layerParamsControls.ts`、`LayerParamControls.tsx`、manifest `params.kinds`、`research/layerControls.ts`、`memberSceneAdapter.ts`，並同步 MCP 工具說明。
+- 主題與小分組標題要有中文、不得露內部代碼（`layerConsistency` 擋）。
+- 演進：2026-04-26 版本要求兩個 sidebar 同步改（漏改 IconRailSidebar 就看不到 toggle），已由共用元件取代。
 
 ## boolean 透過 overlayParams 一律 0/1 中介（2026-04-26 教訓）
 
@@ -454,7 +450,8 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 - overview 必須涵蓋全部 **resolved** records，並記錄 source denominator、resolved count、miss count；overview feature count 是 occupied cells，不可冒充原始資料筆數。
 - overview 只帶渲染與稽核必要的聚合欄位，不帶公司名稱、地址、識別碼或 member list；detail 才依 publication whitelist 帶可公開欄位。
 - 未選圖層時 overview 與 detail 都必須 `visibility: none`；切換層、opacity、z-order、scale 與 legend 需對兩個 source 一起驗收。
-- 目前基準：公司 z4–11 overview / z12+ detail；工廠 z4–10 overview / z11+ detail。工廠 overview 只聚合 90,652 筆 resolved factories，不納入 9,972 geocode misses，也不得用公司座標補位。
+- 目前基準：公司 z4–11 overview / z12+ detail。工廠原為 z4–10 overview / z11+ detail，2026-10-03 起改為單一 allzoom PMTiles＋R5 熱區（z<10 熱區、z≥10 點）；工廠只用 90,652 筆 resolved factories，不納入 9,972 geocode misses，也不得用公司座標補位。
+- **R5 通則（2026-10-03，#498）**：全台點數 ≥1 萬的點圖層低縮放一律改熱區（10k–100k：z<10；>100k：z<12；原本點 minzoom 較高者保留原值，熱區補在其下），熱區與點共用 filter 與同一支透明度滑桿、不可點擊；強度逐層目視校正。已有 overview／密度格網的層（`powerPoles`、`companyPoints`、`jpMedical*`／`jpCare*`）保留原做法。熱區配色預設新版 magma，可從 17 組色盤換（R7，#510）。規格：`docs/design-system/map-layers.md` §3.1 P-3／P-4、§3.4 G-2。
 
 ## Business Registry publication whitelist（2026-08-19）
 

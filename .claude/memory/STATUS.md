@@ -37,6 +37,20 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 
 重整還原與撤銷尚未在正式站實測（需使用者手動）。
 
+## 設計系統／圖層面板（平行工作線，2026-10-02～04）
+
+| repo | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | 已合併：效能 #480／#481、R5 密集點熱區 #498、提案 #504、R8 面板統一 A #509／B #511／C #513、R7 熱區與網格配色 #510、統計與世界大分類 #514、收尾修正 #516、backlog #518；收尾文件與活的元件頁見本次 wrap-up PR。 |
+| **mini-pulse-gis-mcp** | #34（palette 控制項說明）、#36（linkedSelect 說明）已合併。 |
+| **本機** | analysis-prod mini／mcp 已切最新並 build；pulse-research 需使用者 `/mcp` 重連才吃到新控制項說明。 |
+
+| 上線項目 | build | contract/wire | stage | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|
+| R5／R7／R8 前端 | done：每支 PR 全套測試＋CI 綠 | done：palette／linkedSelect 6 接點＋MCP 說明 | done：merged | unknown：本 session 未查正式站部署 | not run | done：本機 dev（各段對照頁在 `docs/features/layer-color-picker/`、`docs/features/layer-panel-unify/`） |
+
+設計系統進度以 `docs/design-system/README.md`「目前進度」為準：R1–R5、R7、R8 完成，只剩 R6（Three.js／Mapbox 切換，待使用者決定範圍）。
+
 ## 卡點與下一步
 
 **下一個 session 的入口**：BACKLOG AG-6（其他自繪圖層摘要）。
@@ -44,3 +58,5 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 - 使用者有空時手動驗：正式站重整一次看結果還原、面板撤銷 token 一次看 15 s 內斷線（AG-5 剩餘）。
 
 其餘待辦：AG-2～AG-4、AG-7（回歸測試重置殘留圖層）。
+
+設計系統線：下一步是 R6（先請使用者決定範圍與開關位置），或 backlog R5-1、R5-2、R8-2；驗收照各項 backlog。
