@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { IntelIcon } from "../IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA, MICON } from "../intelTokens";
+import { FONT_CJK, FONT_DATA, MICON } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { getNewsCategoryDef, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
@@ -8,6 +8,7 @@ import type { TrendingRow } from "../../../data/intelLoaders";
 import { SectionLabel, Widget } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 interface Hotspot {
@@ -98,6 +99,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
   const maxHot = ranked.length ? ranked[0]!.n : 1;
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
 
   return (
     <Widget>
@@ -107,7 +109,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
           const cat = getNewsCategoryDef(r.topCat);
           const tipHandlers = tip.bind(() => ({
             title: r.county,
-            rows: [{ dot: cat.color, label: cat.label, value: fmtChartValue(r.n, "則") }],
+            rows: [{ dot: theme.fill(cat.color), label: cat.label, value: fmtChartValue(r.n, "則") }],
             note: r.surge != null ? `近 1h 升溫 ×${r.surge}` : r.surgeIsNew ? "近 1h 升溫：新（過去無基準）" : "近 1h 升溫：—（無基準）",
           }));
           return (
@@ -118,22 +120,22 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
               style={{
                 display: "flex", alignItems: "center", gap: 9,
                 padding: "6px 8px", borderRadius: RADIUS.lg, cursor: "pointer",
-                background: "rgba(255,255,255,0.02)",
-                border: `1px solid ${COLORS.borderSoft}`,
+                background: theme.neutral(0.02),
+                border: `1px solid ${theme.p.borderSoft}`,
                 textAlign: "left", transition: "background .12s",
               }}
               onMouseEnter={(ev) =>
-                (ev.currentTarget.style.background = "rgba(255,255,255,0.06)")
+                (ev.currentTarget.style.background = theme.neutral(0.06))
               }
               onMouseLeave={(ev) => {
-                ev.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                ev.currentTarget.style.background = theme.neutral(0.02);
                 tipHandlers.onMouseLeave();
               }}
             >
               <span
                 style={{
                   fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700,
-                  color: COLORS.textDim, ...(v2 ? { minWidth: 18 } : { width: 14 }),
+                  color: theme.p.textDim, ...(v2 ? { minWidth: 18 } : { width: 14 }),
                 }}
               >
                 {i + 1}
@@ -141,22 +143,22 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
               <span
                 style={{
                   width: 8, height: 8, borderRadius: RADIUS.full,
-                  background: cat.color, flexShrink: 0,
+                  background: theme.fill(cat.color), flexShrink: 0,
                 }}
               />
               <span
                 style={{
                   fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md),
-                  color: COLORS.textStrong, whiteSpace: "nowrap",
+                  color: theme.p.textStrong, whiteSpace: "nowrap",
                 }}
               >
                 {r.county}
               </span>
               <span
                 style={{
-                  fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: cat.color,
+                  fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: theme.text(cat.color),
                   padding: "1px 6px", borderRadius: RADIUS.md,
-                  background: `${cat.color}1f`, whiteSpace: "nowrap",
+                  background: `${theme.fill(cat.color)}1f`, whiteSpace: "nowrap",
                 }}
               >
                 {cat.label}
@@ -164,7 +166,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
               <div
                 style={{
                   flex: 1, height: 5, borderRadius: RADIUS.md,
-                  background: "rgba(255,255,255,0.05)",
+                  background: theme.neutral(0.05),
                   overflow: "hidden", minWidth: 20,
                 }}
               >
@@ -172,14 +174,14 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
                   style={{
                     display: "block", height: "100%",
                     width: `${(r.n / maxHot) * 100}%`,
-                    background: cat.color, opacity: 0.7,
+                    background: theme.fill(cat.color), opacity: 0.7,
                   }}
                 />
               </div>
               <span
                 style={{
                   fontFamily: FONT_DATA, fontSize: v2 ? MF.body : FONT_SIZE.lg, fontWeight: 700,
-                  color: "#fff", ...(v2 ? { minWidth: 26 } : { width: 18 }), textAlign: "right",
+                  color: theme.isDark ? "#fff" : theme.p.textStrong, ...(v2 ? { minWidth: 26 } : { width: 18 }), textAlign: "right",
                 }}
               >
                 {r.n}
@@ -189,12 +191,12 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 2,
                   fontFamily: FONT_DATA, fontSize: v2 ? MF.body : 9.5,
-                  color: r.surge != null && r.surge >= 2 ? COLORS.statusWarn : COLORS.textDim,
+                  color: r.surge != null && r.surge >= 2 ? theme.p.statusWarn : theme.p.textDim,
                   ...(v2 ? { minWidth: 42 } : { width: 40 }),
                 }}
               >
                 {r.surge != null && r.surge >= 2 && (
-                  <IntelIcon d={MICON.flame!} size={10} color={COLORS.statusWarn} />
+                  <IntelIcon d={MICON.flame!} size={10} color={theme.p.statusWarn} />
                 )}
                 {r.surge != null ? `×${r.surge}` : r.surgeIsNew ? "新" : "—"}
               </span>
@@ -204,7 +206,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
         {ranked.length === 0 && (
           <div
             style={{
-              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textFaint,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textFaint,
               padding: "10px 2px",
             }}
           >
@@ -212,7 +214,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
           </div>
         )}
         {v2 && ranked.length > 0 && (
-          <div title={SURGE_TIP} style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDim }}>
+          <div title={SURGE_TIP} style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textDim }}>
             右欄為近 1h 升溫（近 1 小時則數 ÷ 過去 7 天有新聞的小時平均）
           </div>
         )}

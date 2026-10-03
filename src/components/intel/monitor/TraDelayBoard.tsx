@@ -11,6 +11,7 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
+import { useMonitorTheme, type MonitorTheme } from "./monitorTheme";
 import { useMonitorFreshness } from "./monitorFreshness";
 import { MonitorKpis, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
@@ -41,15 +42,16 @@ const TRA_GAP_SEC = 86400 * 1.5;
 
 interface Props { open: boolean }
 
-function delayColor(min: number | null): string {
-  if (min === null) return COLORS.textDim;
-  if (min >= 30) return COLORS.statusErr;
-  if (min >= 10) return COLORS.statusWarn;
-  if (min >= 5) return "#eab308";
-  return COLORS.statusLive;
+function delayColor(theme: MonitorTheme, min: number | null): string {
+  if (min === null) return theme.p.textDim;
+  if (min >= 30) return theme.p.statusErr;
+  if (min >= 10) return theme.p.statusWarn;
+  if (min >= 5) return theme.text("#eab308");
+  return theme.p.statusLive;
 }
 
 export function TraDelayBoard({ open }: Props) {
+  const theme = useMonitorTheme();
   const loadDays = useCallback(() => fetchTraDelaySummary(WINDOW), []);
   const loadTrains = useCallback(() => fetchTraDelayTrains("", 5, TOP_N), []);
   const daysQuery = useMonitorResource({ open, queryKey: "tra-delay-summary", intervalMs: 60 * 60_000, emptyData: EMPTY_TRA_DAYS, load: loadDays });
@@ -110,7 +112,7 @@ export function TraDelayBoard({ open }: Props) {
         {!v2 && <SectionLabel>TRA DELAY</SectionLabel>}
         <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
         <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
-        <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim }}>
+        <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textDim }}>
           {daysQuery.status === "unknown" ? "資料載入中…" : "尚無台鐵誤點資料"}
         </div>
       </div>
@@ -149,7 +151,7 @@ export function TraDelayBoard({ open }: Props) {
         />
         {v2Lines.n >= 2 && (
           <div data-testid="tra-delay-trend" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ fontSize: MF.label, color: COLORS.textDim }}>
+            <div style={{ fontSize: MF.label, color: theme.p.textDim }}>
               到站誤點比例 近 {v2Lines.n} 天{v2Lines.gaps > 0 && ` · ${v2Lines.gaps} 天缺班表`}
             </div>
             <TimeseriesSparkline
@@ -159,10 +161,10 @@ export function TraDelayBoard({ open }: Props) {
               gapSec={TRA_GAP_SEC} showTooltip tooltipDateFormat="date"
               staleUntil={fresh.staleUntil}
             />
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: theme.p.textMuted }}>
               {TREND_LINES.map((l) => (
                 <span key={l.label} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-                  <span style={{ width: 8, height: 2, background: l.color, display: "inline-block" }} />
+                  <span style={{ width: 8, height: 2, background: theme.fill(l.color), display: "inline-block" }} />
                   {l.label}
                 </span>
               ))}
@@ -171,27 +173,27 @@ export function TraDelayBoard({ open }: Props) {
         )}
         {trains.length > 0 && (
           <details data-testid="tra-worst-trains">
-            <summary style={{ cursor: "pointer", fontSize: MF.label, color: COLORS.textMuted }}>
+            <summary style={{ cursor: "pointer", fontSize: MF.label, color: theme.p.textMuted }}>
               最誤點車次 {trains.length} 班
             </summary>
             {trains.map((t) => (
               <div
                 key={t.trainNo}
-                style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 0", borderBottom: `1px solid ${COLORS.borderSoft}` }}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 0", borderBottom: `1px solid ${theme.p.borderSoft}` }}
               >
-                <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, color: COLORS.textStrong, minWidth: 48 }}>{t.trainNo}</span>
-                <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted, minWidth: 64, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, color: theme.p.textStrong, minWidth: 48 }}>{t.trainNo}</span>
+                <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textMuted, minWidth: 64, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {t.trainType}
                 </span>
-                <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDim, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textDim, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {t.originStation && t.destinationStation ? `${t.originStation}→${t.destinationStation}` : "班表外加班車"}
                 </span>
-                <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, color: delayColor(t.maxDelayMin), minWidth: 40, textAlign: "right", whiteSpace: "nowrap" }}>
+                <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, color: delayColor(theme, t.maxDelayMin), minWidth: 40, textAlign: "right", whiteSpace: "nowrap" }}>
                   {t.maxDelayMin ?? "—"}′
                 </span>
                 {/* max 與 p90 落差大 = 上游尖刺，不是真的誤點這麼久 */}
                 {t.maxDelayMin !== null && t.p90DelayMin !== null && t.maxDelayMin - t.p90DelayMin >= 20 && (
-                  <span title={`多數時間僅 ${t.p90DelayMin} 分，此峰值疑為上游資料尖刺`} style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textFaint }}>
+                  <span title={`多數時間僅 ${t.p90DelayMin} 分，此峰值疑為上游資料尖刺`} style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textFaint }}>
                     ⚠
                   </span>
                 )}
@@ -202,7 +204,7 @@ export function TraDelayBoard({ open }: Props) {
         {fresh.reason && (
           <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
         )}
-        <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textFaint }}>
+        <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textFaint }}>
           {latest.serviceDate}
           {latest.coveragePct !== null && latest.scheduledTrains !== null && latest.observedTrains !== null && (
             <> · 覆蓋 {latest.coveragePct.toFixed(0)}%（{latest.observedTrains}/{latest.scheduledTrains} 班）</>
@@ -227,20 +229,20 @@ export function TraDelayBoard({ open }: Props) {
           label="到站誤點"
           value={`${delayedPct.toFixed(0)}%`}
           sub={`逾 15 分 ${delayedPct15.toFixed(0)}%`}
-          color={delayedPct >= 15 ? COLORS.statusWarn : COLORS.textStrong}
+          color={delayedPct >= 15 ? theme.p.statusWarn : theme.p.textStrong}
         />
         <Stat
           label="平均誤點"
           value={latestS.nearDestAvgDelay === null ? "—" : `${latestS.nearDestAvgDelay.toFixed(1)}′`}
           sub={`可判定 ${latestS.nearDestTrains} 班`}
-          color={delayColor(latestS.nearDestAvgDelay)}
+          color={delayColor(theme, latestS.nearDestAvgDelay)}
         />
         {/* 這格刻意維持口徑 A：問的是「當日最糟到什麼程度」，本來就該看途中峰值 */}
         <Stat
           label="途中最大"
           value={latestS.maxDelayMin === null ? "—" : `${latestS.maxDelayMin}′`}
           sub={`${latestS.observedTrains} 班在跑`}
-          color={delayColor(latestS.maxDelayMin)}
+          color={delayColor(theme, latestS.maxDelayMin)}
         />
       </div>
 
@@ -251,7 +253,7 @@ export function TraDelayBoard({ open }: Props) {
       {trains.length > 0 && (
         <div style={{ marginBottom: 8 }}>
           <div style={{
-            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginBottom: 4,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, marginBottom: 4,
           }}>
             最誤點車次
           </div>
@@ -260,23 +262,23 @@ export function TraDelayBoard({ open }: Props) {
               key={t.trainNo}
               style={{
                 display: "flex", alignItems: "center", gap: 6, padding: "3px 0",
-                borderBottom: `1px solid ${COLORS.borderSoft}`,
+                borderBottom: `1px solid ${theme.p.borderSoft}`,
               }}
             >
               <span style={{
-                fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textStrong,
+                fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textStrong,
                 minWidth: v2 ? 48 : 38,
               }}>
                 {t.trainNo}
               </span>
               <span style={{
-                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textMuted,
                 minWidth: v2 ? 64 : 52, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>
                 {t.trainType}
               </span>
               <span style={{
-                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim,
                 flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>
                 {t.originStation && t.destinationStation
@@ -284,7 +286,7 @@ export function TraDelayBoard({ open }: Props) {
                   : "班表外加班車"}
               </span>
               <span style={{
-                fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: delayColor(t.maxDelayMin),
+                fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: delayColor(theme, t.maxDelayMin),
                 minWidth: v2 ? 40 : 32, textAlign: "right",
               }}>
                 {t.maxDelayMin ?? "—"}′
@@ -294,7 +296,7 @@ export function TraDelayBoard({ open }: Props) {
                 && t.maxDelayMin - t.p90DelayMin >= 20 && (
                 <span
                   title={`多數時間僅 ${t.p90DelayMin} 分，此峰值疑為上游資料尖刺`}
-                  style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}
+                  style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}
                 >
                   ⚠
                 </span>
@@ -305,7 +307,7 @@ export function TraDelayBoard({ open }: Props) {
       )}
 
       <div style={{
-        fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, lineHeight: 1.5,
+        fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint, lineHeight: 1.5,
       }}>
         {latestS.serviceDate}
         {latestS.coveragePct !== null && latestS.scheduledTrains !== null && (
@@ -339,6 +341,7 @@ const TREND_LINES = [
 const CHART_H = 46;
 
 function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
+  const theme = useMonitorTheme();
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
 
@@ -387,7 +390,7 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
     tip.show(e.clientX, e.clientY, {
       title: d.serviceDate,
       rows: TREND_LINES.map((l) => ({
-        dot: l.color,
+        dot: theme.fill(l.color),
         label: l.label,
         value: `${((100 * l.pick(d)) / d.nearDestTrains).toFixed(1)}%（${l.pick(d)} 班）`,
       })),
@@ -399,7 +402,7 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
     <div style={{ marginBottom: 10 }}>
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: v2 ? "wrap" : undefined,
-        fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginBottom: 3,
+        fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, marginBottom: 3,
       }}>
         <span>到站誤點比例 近 {geom.pts.length} 天</span>
         <span>{geom.gaps > 0 && `${geom.gaps} 天缺班表・`}上緣 {(geom.max * 100).toFixed(0)}%</span>
@@ -422,7 +425,7 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
               key={TREND_LINES[i]!.label}
               d={d}
               fill="none"
-              stroke={TREND_LINES[i]!.color}
+              stroke={theme.fill(TREND_LINES[i]!.color)}
               strokeWidth={1.2}
               vectorEffect="non-scaling-stroke"
               strokeLinejoin="round"
@@ -437,9 +440,9 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
         {TREND_LINES.map((l) => (
           <span key={l.label} style={{
             display: "flex", alignItems: "center", gap: 4,
-            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim,
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim,
           }}>
-            <span style={{ width: 8, height: 2, background: l.color, display: "inline-block" }} />
+            <span style={{ width: 8, height: 2, background: theme.fill(l.color), display: "inline-block" }} />
             {l.label}
           </span>
         ))}
@@ -453,15 +456,16 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
 function Stat({ label, value, sub, color }: {
   label: string; value: string; sub: string; color: string;
 }) {
+  const theme = useMonitorTheme();
   const v2 = useMonitorV2();
   return (
     <div style={{
       flex: 1, padding: "6px 8px", borderRadius: RADIUS.sm,
-      border: `1px solid ${COLORS.borderSoft}`, background: "rgba(255,255,255,0.02)",
+      border: `1px solid ${theme.p.borderSoft}`, background: theme.neutral(0.02),
       minWidth: 0,
     }}>
       <div style={{
-        fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginBottom: 2,
+        fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, marginBottom: 2,
       }}>
         {label}
       </div>
@@ -470,7 +474,7 @@ function Stat({ label, value, sub, color }: {
       </div>
       {sub && (
         <div style={{
-          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, marginTop: 2,
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint, marginTop: 2,
           whiteSpace: v2 ? "normal" : "nowrap", overflow: "hidden", textOverflow: v2 ? "clip" : "ellipsis",
         }}>
           {sub}

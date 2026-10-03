@@ -6,7 +6,7 @@
  */
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
-import { COLORS, FONT_CJK, FONT_DATA, relTime } from "../intelTokens";
+import { FONT_CJK, FONT_DATA, relTime, withAlpha } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import {
@@ -24,6 +24,7 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
 import { MonitorMetric, MonitorNote, MonitorRows, MonitorSub } from "./MonitorMetric";
 import { useMonitorFreshness, type MonitorFreshness } from "./monitorFreshness";
 
@@ -129,6 +130,7 @@ function MeasurementCard({
   signals: InternetHealthMeasurementSignal[];
   nowTs: number;
 }) {
+  const theme = useMonitorTheme();
   const current = measurements.filter((item) => item.freshness === "fresh").length;
   const hasPartial = measurements.some((item) => item.state === "partial");
   const hasBaseline = measurements.some((item) => item.state === "baseline_building");
@@ -156,38 +158,38 @@ function MeasurementCard({
       data-testid={`internet-health-measurements-${sourceKey}`}
       style={{
         minWidth: 0, padding: "11px 12px", borderRadius: RADIUS.xl,
-        border: `1px solid ${COLORS.borderMid}`, background: "rgba(2,8,23,0.32)",
+        border: `1px solid ${theme.p.borderMid}`, background: theme.isDark ? "rgba(2,8,23,0.32)" : theme.neutral(0.03),
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
         <span>
-          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textDefault }}>{title}</b>
-          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>{subtitle}</span>
+          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDefault }}>{title}</b>
+          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{subtitle}</span>
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: current > 0 ? RIPE_CYAN : COLORS.textDim, letterSpacing: "0.8px" }}>{v2 ? freshnessZh : freshness}</span>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: current > 0 ? theme.text(RIPE_CYAN) : theme.p.textDim, letterSpacing: "0.8px" }}>{v2 ? freshnessZh : freshness}</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: v2 ? "minmax(112px, 1.2fr) repeat(2, minmax(86px, 1fr))" : "minmax(94px, 1.2fr) repeat(2, minmax(70px, 1fr))", gap: "5px 8px", marginTop: 10 }}>
         <span />
         {([4, 6] as const).map((family) => (
-          <span key={family} style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>IPv{family}</span>
+          <span key={family} style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim }}>IPv{family}</span>
         ))}
         {pairs.map((signal) => {
           const base = signal.replace(/_ipv4$/, "");
           const ipv4 = measurements.find((item) => item.signal === `${base}_ipv4`);
           const ipv6 = measurements.find((item) => item.signal === `${base}_ipv6`);
           return [
-            <span key={`${base}-label`} style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted }}>{MEASUREMENT_LABELS[signal]}</span>,
+            <span key={`${base}-label`} style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textMuted }}>{MEASUREMENT_LABELS[signal]}</span>,
             ...([ipv4, ipv6] as const).map((measurement, index) => (
               <span key={`${base}-${index}`} style={{ minWidth: 0 }}>
-                <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: measurement?.freshness === "stale" ? COLORS.textFaint : COLORS.textDefault }}>
+                <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: measurement?.freshness === "stale" ? theme.p.textFaint : theme.p.textDefault }}>
                   {measurementValue(measurement)}
                 </b>
                 {stateLabel(measurement) && (
-                  <span style={{ display: "block", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.statusWarn }}>
+                  <span style={{ display: "block", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.statusWarn }}>
                     {stateLabel(measurement)}
                   </span>
                 )}
-                <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
+                <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
                   {measurement
                     ? v2
                       ? `${FRESHNESS_ZH[measurement.freshness] ?? measurement.freshness} · ${measurementSampleLabelZh(measurement)}`
@@ -195,7 +197,7 @@ function MeasurementCard({
                     : "—"}
                 </span>
                 {measurement && (
-                  <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
+                  <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
                     {timeLabel(measurement.source_updated_at, nowTs)}
                     {v2
                       ? (CONFIDENCE_ZH[measurement.confidence] ? ` · 信心${CONFIDENCE_ZH[measurement.confidence]}` : "")
@@ -377,6 +379,7 @@ export function RipeTimelineView({
   /** v2：24H Atlas 的完整桶（由探針數判定）；RTT／ASN 指標沿用 ping 的判定 */
   completeMask?: CompleteMask | null;
 }) {
+  const theme = useMonitorTheme();
   const v2 = useMonitorV2();
   const displayedSummary = summary?.range === range && summary.source === source && summary.metric === metric
     ? summary
@@ -399,17 +402,17 @@ export function RipeTimelineView({
   const gapSec = mask ? HOURLY_GAP_SEC : displayedSummary ? displayedSummary.bucketSeconds * 1.5 : undefined;
 
   return (
-    <div data-testid="ripe-internet-health-timeline" style={{ gridColumn: "1 / -1", padding: "12px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}`, background: "rgba(2,8,23,0.42)", minWidth: 0 }}>
+    <div data-testid="ripe-internet-health-timeline" style={{ gridColumn: "1 / -1", padding: "12px", borderRadius: RADIUS.xl, border: `1px solid ${theme.p.borderMid}`, background: theme.isDark ? "rgba(2,8,23,0.42)" : theme.neutral(0.03), minWidth: 0 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
         <span>
-          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textDefault }}>RIPE 歷史量測</b>
-          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>觀察趨勢與資料缺口 · 不單獨判定全臺正常或斷網</span>
+          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDefault }}>RIPE 歷史量測</b>
+          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>觀察趨勢與資料缺口 · 不單獨判定全臺正常或斷網</span>
         </span>
         <span style={{ display: "flex", gap: 4 }}>
           {(Object.keys(RANGE_LABELS) as InternetHealthTimelineRange[]).map((item) => {
             const selected = item === range;
             return (
-              <button key={item} type="button" aria-pressed={selected} onClick={() => onRangeChange?.(item)} style={{ border: `1px solid ${selected ? RIPE_CYAN : COLORS.borderMid}`, borderRadius: RADIUS.md, padding: "4px 8px", cursor: "pointer", background: selected ? "rgba(34,211,238,0.12)" : "rgba(255,255,255,0.02)", color: selected ? RIPE_CYAN : COLORS.textDim, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs) }}>
+              <button key={item} type="button" aria-pressed={selected} onClick={() => onRangeChange?.(item)} style={{ border: `1px solid ${selected ? theme.fill(RIPE_CYAN) : theme.p.borderMid}`, borderRadius: RADIUS.md, padding: "4px 8px", cursor: "pointer", background: selected ? withAlpha(theme.fill(RIPE_CYAN), 0.12) : theme.neutral(0.02), color: selected ? theme.text(RIPE_CYAN) : theme.p.textDim, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs) }}>
                 {RANGE_LABELS[item]}
               </button>
             );
@@ -422,24 +425,24 @@ export function RipeTimelineView({
           {(Object.keys(SOURCE_LABELS) as InternetHealthTimelineSource[]).map((item) => {
             const selected = item === source;
             return (
-              <button key={item} type="button" aria-pressed={selected} onClick={() => onSourceChange?.(item)} style={{ border: 0, borderBottom: `1px solid ${selected ? RIPE_CYAN : "transparent"}`, padding: "4px 5px", cursor: "pointer", background: "transparent", color: selected ? COLORS.textDefault : COLORS.textDim, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs) }}>
+              <button key={item} type="button" aria-pressed={selected} onClick={() => onSourceChange?.(item)} style={{ border: 0, borderBottom: `1px solid ${selected ? theme.fill(RIPE_CYAN) : "transparent"}`, padding: "4px 5px", cursor: "pointer", background: "transparent", color: selected ? theme.p.textDefault : theme.p.textDim, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs) }}>
                 {SOURCE_LABELS[item]}
               </button>
             );
           })}
         </span>
-        <label style={{ marginLeft: "auto", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
+        <label style={{ marginLeft: "auto", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
           指標{" "}
-          <select aria-label="RIPE 時間軸指標" value={metric} onChange={(event) => onMetricChange?.(event.target.value as InternetHealthTimelineMetric)} style={{ marginLeft: 4, minHeight: 27, padding: "3px 24px 3px 7px", borderRadius: RADIUS.md, border: `1px solid ${COLORS.borderMid}`, background: "#09101d", color: COLORS.textDefault, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs) }}>
+          <select aria-label="RIPE 時間軸指標" value={metric} onChange={(event) => onMetricChange?.(event.target.value as InternetHealthTimelineMetric)} style={{ marginLeft: 4, minHeight: 27, padding: "3px 24px 3px 7px", borderRadius: RADIUS.md, border: `1px solid ${theme.p.borderMid}`, background: theme.isDark ? "#09101d" : theme.p.optionBg, color: theme.p.textDefault, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs) }}>
             {METRIC_OPTIONS[source].map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
           </select>
         </label>
       </div>
 
       <div style={{ minHeight: 148, marginTop: 8 }}>
-        {phase === "loading" && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>正在載入 {SOURCE_LABELS[source]} {RANGE_LABELS[range]} 歷史量測…</div>}
-        {phase === "error" && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.statusWarn, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>歷史量測暫時無法更新；目前數值仍可繼續查看</div>}
-        {displayedSummary && (displayedSummary.empty || primary.length === 0) && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), textAlign: "center" }}>這段期間尚無可畫的 {metricLabel}；空白不是 0，也不代表異常</div>}
+        {phase === "loading" && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>正在載入 {SOURCE_LABELS[source]} {RANGE_LABELS[range]} 歷史量測…</div>}
+        {phase === "error" && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.statusWarn, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>歷史量測暫時無法更新；目前數值仍可繼續查看</div>}
+        {displayedSummary && (displayedSummary.empty || primary.length === 0) && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), textAlign: "center" }}>這段期間尚無可畫的 {metricLabel}；空白不是 0，也不代表異常</div>}
         {displayedSummary && primary.length > 0 && (
           <TimeseriesSparkline
             data={primary}
@@ -458,16 +461,16 @@ export function RipeTimelineView({
         )}
       </div>
 
-      <div style={{ display: "flex", gap: "6px 14px", flexWrap: "wrap", alignItems: "center", marginTop: 4, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
-        <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: RIPE_CYAN }} />IPv4</span>
-        <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: IPV6_VIOLET }} />IPv6</span>
+      <div style={{ display: "flex", gap: "6px 14px", flexWrap: "wrap", alignItems: "center", marginTop: 4, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
+        <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: theme.fill(RIPE_CYAN) }} />IPv4</span>
+        <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: theme.fill(IPV6_VIOLET) }} />IPv6</span>
         <span>IPv4 {v2 ? <Zh>涵蓋率</Zh> : "coverage"} {displayedSummary ? coverageLabel(displayedSummary.ipv4.coverage) : "—"}</span>
         <span>IPv6 {v2 ? <Zh>涵蓋率</Zh> : "coverage"} {displayedSummary ? coverageLabel(displayedSummary.ipv6.coverage) : "—"}</span>
         <span>最後回報 {displayedSummary ? unixTimeLabel(displayedSummary.latestAt, nowTs) : "—"}</span>
-        {displayedSummary?.partial && <span style={{ color: COLORS.statusWarn }}>含缺口／部分資料</span>}
-        {displayedSummary?.truncated && <span style={{ color: COLORS.statusErr }}>回傳達上限，圖表不完整</span>}
+        {displayedSummary?.partial && <span style={{ color: theme.p.statusWarn }}>含缺口／部分資料</span>}
+        {displayedSummary?.truncated && <span style={{ color: theme.p.statusErr }}>回傳達上限，圖表不完整</span>}
         {mask && <span style={{ fontFamily: FONT_CJK }}>每小時只取完整量測平均；整小時沒有完整量測才畫斜線</span>}
-        {aggregatedProbeMetric && <span style={{ fontFamily: FONT_CJK, color: COLORS.statusWarn }}>7D／30D 此指標受殘缺量測桶拉低，僅供參考</span>}
+        {aggregatedProbeMetric && <span style={{ fontFamily: FONT_CJK, color: theme.p.statusWarn }}>7D／30D 此指標受殘缺量測桶拉低，僅供參考</span>}
       </div>
     </div>
   );
@@ -575,17 +578,18 @@ function TelecomStatusV2Body({
   atlasDay?: AtlasDaySummaries | null;
   fresh: MonitorFreshness;
 }) {
+  const theme = useMonitorTheme();
   const atlas = useMemo(() => measurements.filter((item) => item.source_key === "ripe_atlas"), [measurements]);
   const ris = measurements.filter((item) => item.source_key === "ripe_ris");
   const freshMetricCount = measurements.filter((item) => item.freshness === "fresh").length;
   const reportingFeeds = Number(atlas.some((item) => item.freshness === "fresh")) + Number(ris.some((item) => item.freshness === "fresh"));
   const latestAt = newestMeasurementAt(measurements);
   const hasPartial = measurements.some((item) => item.state === "partial");
-  const [statusText, statusColor] = phase === "loading" ? ["讀取中", COLORS.textDim]
-    : phase === "error" ? ["更新中斷", COLORS.statusWarn]
-      : freshMetricCount === 0 ? [measurements.length > 0 ? "無法取得" : "等待量測", COLORS.textDim]
-        : hasPartial || reportingFeeds < 2 ? ["部分", COLORS.statusWarn]
-          : ["量測可用", COLORS.statusLive];
+  const [statusText, statusColor] = phase === "loading" ? ["讀取中", theme.p.textDim]
+    : phase === "error" ? ["更新中斷", theme.p.statusWarn]
+      : freshMetricCount === 0 ? [measurements.length > 0 ? "無法取得" : "等待量測", theme.p.textDim]
+        : hasPartial || reportingFeeds < 2 ? ["部分", theme.p.statusWarn]
+          : ["量測可用", theme.p.statusLive];
 
   const mask = useMemo(() => atlasDayMask(atlasDay), [atlasDay]);
   const domainSummary = atlasDay?.ping_success_ratio ?? ATLAS_METRICS.map((m) => atlasDay?.[m]).find((x) => x) ?? null;
@@ -657,9 +661,9 @@ function TelecomStatusV2Body({
             measurementTooltip(6, r.v6, nowTs),
           ].join("\n"),
         }))} />
-        <div style={{ display: "flex", gap: 14, marginTop: 4, fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim }}>
-          <span>{legendSwatch(RIPE_CYAN)}IPv4</span>
-          <span>{legendSwatch(IPV6_VIOLET)}IPv6</span>
+        <div style={{ display: "flex", gap: 14, marginTop: 4, fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textDim }}>
+          <span>{legendSwatch(theme.fill(RIPE_CYAN))}IPv4</span>
+          <span>{legendSwatch(theme.fill(IPV6_VIOLET))}IPv6</span>
           <span style={{ fontFamily: FONT_CJK }}>淡帶＝IPv4 建議正常範圍</span>
         </div>
       </div>
@@ -677,15 +681,15 @@ function TelecomStatusV2Body({
 
       <MonitorNote>Atlas 與 RIS 同屬 RIPE NCC，只算一個來源群組；100% Ping、0 Origin 變更不能單獨推論為正常。</MonitorNote>
 
-      <details data-testid="internet-health-howto" style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>
-        <summary style={{ cursor: "pointer", color: COLORS.textDim }}>怎麼看</summary>
+      <details data-testid="internet-health-howto" style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textMuted }}>
+        <summary style={{ cursor: "pointer", color: theme.p.textDim }}>怎麼看</summary>
         <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.5 }}>
           <li>IPv6 正常約 85–90%，不是 100%：有幾支臺灣探針本身沒有 IPv6。</li>
           <li>24 小時線每小時只取探針數足夠的完整量測平均成一點；整小時都沒有完整量測才畫斜線。資料收集端修好前，大段斜線代表量測殘缺，不代表網路異常。</li>
           <li>單點下跌不算異常；連續 15 分鐘以上，而且 IPv4／IPv6 或成功率／回報率一起掉，才值得注意。</li>
           <li>本卡只 ping 一個目標（K-root），屬 RIPE 單一來源；判斷臺灣是否斷網，要對照 IODA 或 Cloudflare Radar。</li>
         </ul>
-        <div style={{ marginTop: 4, color: COLORS.textDim }}>參考：RIPE Atlas 文件、RIPE RIS 文件、IODA、Cloudflare Radar 開發文件</div>
+        <div style={{ marginTop: 4, color: theme.p.textDim }}>參考：RIPE Atlas 文件、RIPE RIS 文件、IODA、Cloudflare Radar 開發文件</div>
       </details>
     </div>
   );
@@ -701,6 +705,7 @@ export function TelecomStatusCardView({
   /** v2：Atlas 四指標 24H 原值（小倍數＋殘缺桶判定）；舊版不用 */
   atlasDay?: AtlasDaySummaries | null;
 }) {
+  const theme = useMonitorTheme();
   const measurements = summary?.measurements ?? [];
   const atlasMeasurements = measurements.filter((item) => item.source_key === "ripe_atlas");
   const risMeasurements = measurements.filter((item) => item.source_key === "ripe_ris");
@@ -708,7 +713,7 @@ export function TelecomStatusCardView({
   const reportingFeeds = Number(atlasMeasurements.some((item) => item.freshness === "fresh")) + Number(risMeasurements.some((item) => item.freshness === "fresh"));
   const latestAt = newestMeasurementAt(measurements);
   const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測更新中斷" : freshMetricCount > 0 ? "RIPE 量測可用" : "等待 RIPE 量測";
-  const statusColor = freshMetricCount > 0 && phase === "ready" ? RIPE_CYAN : COLORS.textDim;
+  const statusColor = freshMetricCount > 0 && phase === "ready" ? RIPE_CYAN : theme.p.textDim;
   const v2 = useMonitorV2();
   // 資料時間＝最後 RIPE 更新（5 分週期，由 fresh 判斷標題列狀態）；DB 的逐項 freshness 細項標示保留在卡內
   const latestMs = latestAt ? Date.parse(latestAt) : NaN;
@@ -727,13 +732,13 @@ export function TelecomStatusCardView({
               <span data-testid="internet-health-status-dot" style={{ width: 12, height: 12, borderRadius: RADIUS.full, background: statusColor }} />
               <span data-testid="internet-health-status-label" style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: statusColor }}>{statusLabel}</span>
             </div>
-            <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.6px", color: COLORS.textFaint }}>{v2 ? <Zh>僅觀察 · 基準建立中</Zh> : "OBSERVATION ONLY · BASELINE BUILDING"}</div>
+            <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.6px", color: theme.p.textFaint }}>{v2 ? <Zh>僅觀察 · 基準建立中</Zh> : "OBSERVATION ONLY · BASELINE BUILDING"}</div>
           </div>
-          <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), lineHeight: 1.45, color: COLORS.textMuted }}>{description}</div>
+          <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), lineHeight: 1.45, color: theme.p.textMuted }}>{description}</div>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>{v2 ? <Zh>即時指標</Zh> : "FRESH METRICS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: COLORS.textDefault }}>{freshMetricCount}/14</b></span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>{v2 ? <Zh>回報來源</Zh> : "REPORTING FEEDS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: COLORS.textDefault }}>{reportingFeeds}/2</b></span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>{v2 ? <Zh>RIPE 最後更新</Zh> : "LAST RIPE UPDATE"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDefault }}>{timeLabel(latestAt, nowTs)}</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>即時指標</Zh> : "FRESH METRICS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: theme.p.textDefault }}>{freshMetricCount}/14</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>回報來源</Zh> : "REPORTING FEEDS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: theme.p.textDefault }}>{reportingFeeds}/2</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>RIPE 最後更新</Zh> : "LAST RIPE UPDATE"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textDefault }}>{timeLabel(latestAt, nowTs)}</b></span>
           </div>
         </div>
 
@@ -744,7 +749,7 @@ export function TelecomStatusCardView({
 
         {timeline}
 
-        <div style={{ gridColumn: "1 / -1", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), lineHeight: 1.5, color: COLORS.textFaint }}>
+        <div style={{ gridColumn: "1 / -1", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), lineHeight: 1.5, color: theme.p.textFaint }}>
           Atlas 與 RIS 同屬 RIPE NCC，只算一個來源群組。{current} 只表示至少一項量測新鮮；100% Ping、0 Origin 變更或 0 Withdrawal 都不能單獨推導為正常。圖表缺口維持空白，不補成 0。
         </div>
       </div>

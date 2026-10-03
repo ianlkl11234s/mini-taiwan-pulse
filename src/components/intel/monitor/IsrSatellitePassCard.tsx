@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { FONT_CJK, FONT_DATA } from "../intelTokens";
 import { FONT_SIZE, RADIUS } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
@@ -17,6 +17,7 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
 import { useMonitorFreshness } from "./monitorFreshness";
 import { taipeiDateKeyFromMs } from "../../../lib/taipeiDay";
 import { MonitorMetric, MonitorSub, MonitorNote } from "./MonitorMetric";
@@ -285,6 +286,7 @@ const MEDIAN_DIRECTION_LABEL: Record<Exclude<IsrMedianDirection, "unknown">, str
 };
 
 export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
+  const theme = useMonitorTheme();
   const [windowDays, setWindowDays] = useState<IsrPassWindowDays>(
     ISR_PASSES_DEFAULT_WINDOW_DAYS,
   );
@@ -348,8 +350,10 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
     thresholds,
   );
   const latestLevelColor = latestLevel === null
-    ? COLORS.textFaint
+    ? theme.p.textFaint
     : ISR_PASS_LEVEL_COLORS[latestLevel];
+  const lvFill = theme.fill(latestLevelColor);
+  const lvText = theme.text(latestLevelColor);
 
   // 資料時間＝最新有效日（只有日期）；沒有就是「無資料」，不退回計算時間。新鮮度（日批次，>2 天過期、>7 天停更）由 fresh 判斷
   const latestDayText = report?.latestValidDay ? `${report.latestValidDay.slice(5, 7)}/${report.latestValidDay.slice(8, 10)}` : null;
@@ -385,7 +389,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
               title="依所選期間 p25／p50／p75／p90 分布判定；不是威脅或實際蒐情分級"
               style={{
                 fontSize: MF.label, padding: "1px 8px", borderRadius: RADIUS.pill, whiteSpace: "nowrap",
-                color: latestLevelColor, background: `${latestLevelColor}18`, border: `1px solid ${latestLevelColor}66`,
+                color: lvText, background: `${lvFill}18`, border: `1px solid ${lvFill}66`,
               }}
             >
               {latestLevel === 4 ? "⚠ " : ""}最新相對{ISR_PASS_LEVEL_LABELS[latestLevel]}
@@ -418,9 +422,9 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
                 title={`顯示最新有效日往前 ${option} 個日曆日`}
                 style={{
                   fontSize: MF.label, padding: "2px 8px", borderRadius: RADIUS.sm, cursor: "pointer", fontFamily: FONT_DATA,
-                  background: selected ? COLORS.accentFaint : "transparent",
-                  color: selected ? COLORS.textStrong : COLORS.textDim,
-                  border: `1px solid ${selected ? COLORS.borderStrong : COLORS.borderSoft}`,
+                  background: selected ? theme.p.accentFaint : "transparent",
+                  color: selected ? theme.p.textStrong : theme.p.textDim,
+                  border: `1px solid ${selected ? theme.p.borderStrong : theme.p.borderSoft}`,
                 }}
               >
                 {option}D
@@ -456,11 +460,11 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         {thresholds && (
           <div
             aria-label="ISR 相對過境量色階"
-            style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontSize: MF.label, color: COLORS.textDim }}
+            style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontSize: MF.label, color: theme.p.textDim }}
           >
             {ISR_PASS_LEVELS.map((level) => (
               <span key={level} title={levelThresholdText(level)} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: ISR_PASS_LEVEL_COLORS[level] }} />
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: theme.fill(ISR_PASS_LEVEL_COLORS[level]) }} />
                 {ISR_PASS_LEVEL_LABELS[level]}
               </span>
             ))}
@@ -483,8 +487,8 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         style={{
           ...(v2 ? {} : {
             borderRadius: RADIUS.xl,
-            border: `1px solid ${COLORS.panelBorder}`,
-            background: "rgba(255,255,255,0.02)",
+            border: `1px solid ${theme.p.panelBorder}`,
+            background: theme.neutral(0.02),
             padding: "11px 13px",
           }),
           display: "flex", flexDirection: "column", gap: 9,
@@ -493,16 +497,16 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         <div style={{ display: "flex", alignItems: "baseline", gap: 9, flexWrap: "wrap" }}>
           {latest.kind === "ready" ? (
             <>
-              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 28), fontWeight: 700, lineHeight: 1, color: "#fff" }}>
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 28), fontWeight: 700, lineHeight: 1, color: theme.isDark ? "#fff" : theme.p.textStrong }}>
                 {latest.passCount}
               </span>
-              <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textMuted }}>次過境</span>
-              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim }}>
+              <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textMuted }}>次過境</span>
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textDim }}>
                 {latest.day} · {latest.uniqueSatelliteCount} 顆不重複衛星
               </span>
             </>
           ) : (
-            <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: latest.kind === "error" || latest.kind === "stale" ? COLORS.statusWarn : COLORS.textDim }}>
+            <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: latest.kind === "error" || latest.kind === "stale" ? theme.p.statusWarn : theme.p.textDim }}>
               {v2 && latest.kind === "stale" ? "最新計數暫不呈現 · 不以 0 代替" : DISPLAY_LABEL[latest.kind]}
             </span>
           )}
@@ -528,9 +532,9 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
                   borderRadius: RADIUS.sm,
                   cursor: "pointer",
                   fontFamily: FONT_DATA,
-                  background: selected ? COLORS.accentFaint : "transparent",
-                  color: selected ? COLORS.textStrong : COLORS.textDim,
-                  border: `1px solid ${selected ? COLORS.borderStrong : COLORS.borderSoft}`,
+                  background: selected ? theme.p.accentFaint : "transparent",
+                  color: selected ? theme.p.textStrong : theme.p.textDim,
+                  border: `1px solid ${selected ? theme.p.borderStrong : theme.p.borderSoft}`,
                 }}
               >
                 {option}D
@@ -542,12 +546,12 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         <div
           style={{
             display: "flex", alignItems: "center", gap: "4px 10px", flexWrap: "wrap",
-            fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textDim,
+            fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: theme.p.textDim,
           }}
         >
           <span>{windowDays}D 中位數 {formatMetric(medianPassCount)} 次／日</span>
           <span>可呈現日 {countedBars.length}/{windowDays} · 缺日不補 0</span>
-          <span style={{ color: latestLevelColor }}>
+          <span style={{ color: lvText }}>
             {medianComparison.direction === "unknown"
               ? "最新日比較 —"
               : `最新 ${MEDIAN_DIRECTION_LABEL[medianComparison.direction]} · 差 ${formatMetric(medianComparison.difference)} 次`}
@@ -557,15 +561,15 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
               title="依所選期間 p25／p50／p75／p90 分布判定；不是威脅或實際蒐情分級"
               style={{
                 padding: "1px 6px", borderRadius: RADIUS.pill,
-                color: latestLevelColor, background: `${latestLevelColor}18`,
-                border: `1px solid ${latestLevelColor}66`,
+                color: lvText, background: `${lvFill}18`,
+                border: `1px solid ${lvFill}66`,
               }}
             >
               {latestLevel === 4 ? "⚠ " : ""}最新相對{ISR_PASS_LEVEL_LABELS[latestLevel]}
             </span>
           )}
           {!thresholds && countedBars.length > 0 && (
-            <span style={{ color: COLORS.textFaint }}>
+            <span style={{ color: theme.p.textFaint }}>
               樣本不足（至少 {ISR_PASS_MIN_DISTRIBUTION_DAYS} 個可呈現日），暫不分級
             </span>
           )}
@@ -576,8 +580,8 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
             role="status"
             style={{
               padding: "5px 7px", borderRadius: RADIUS.md,
-              color: latestLevelColor, background: `${latestLevelColor}12`,
-              border: `1px solid ${latestLevelColor}55`,
+              color: lvText, background: `${lvFill}12`,
+              border: `1px solid ${lvFill}55`,
               fontSize: fs(v2, 9), lineHeight: 1.5,
             }}
           >
@@ -604,12 +608,12 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
               aria-label="ISR 相對過境量色階"
               style={{
                 display: "flex", flexWrap: "wrap", gap: "3px 9px",
-                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textDim,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: theme.p.textDim,
               }}
             >
               {ISR_PASS_LEVELS.map((level) => (
                 <span key={level} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: ISR_PASS_LEVEL_COLORS[level] }} />
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: theme.fill(ISR_PASS_LEVEL_COLORS[level]) }} />
                   {ISR_PASS_LEVEL_LABELS[level]}
                   {level === 0 && ` ≤${formatMetric(thresholds.p25)}`}
                   {level === 1 && ` >${formatMetric(thresholds.p25)}–${formatMetric(thresholds.p50)}`}
@@ -619,14 +623,14 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
                 </span>
               ))}
             </div>
-            <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
+            <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
               門檻隨所選期間重算；色階非威脅或實際蒐情判定
             </div>
           </div>
         )}
 
         {v2 ? (
-          <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, lineHeight: 1.5 }}>
+          <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint, lineHeight: 1.5 }}>
             資料至 {report?.latestValidDay ?? "—"} · 更新 {formatTimestamp(report?.computedAt ?? null)}
             {(report?.scopeCoverageComplete === false || report?.coverageComplete === false || report?.chinaIsrCensusComplete === false)
               ? "；涵蓋範圍未完整，數字僅供參考" : ""}
@@ -636,7 +640,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
           style={{
             display: "grid", gridTemplateColumns: v2 ? "minmax(0, 1fr)" : "repeat(2, minmax(0, 1fr))",
             overflowWrap: v2 ? "anywhere" : undefined,
-            gap: "3px 10px", fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint,
+            gap: "3px 10px", fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: theme.p.textFaint,
           }}
         >
           <span>latest_valid_day: {report?.latestValidDay ?? "—"}</span>
@@ -649,10 +653,10 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         </div>
         )}
 
-        <div style={{ fontSize: fs(v2, 9), color: COLORS.statusWarn, lineHeight: 1.5 }}>
+        <div style={{ fontSize: fs(v2, 9), color: theme.p.statusWarn, lineHeight: 1.5 }}>
           v1 YAOGAN／GAOFEN／JILIN 範圍，非全中國 ISR census
         </div>
-        <div style={{ fontSize: fs(v2, 9), color: COLORS.textFaint, lineHeight: 1.5 }}>
+        <div style={{ fontSize: fs(v2, 9), color: theme.p.textFaint, lineHeight: 1.5 }}>
           {v2 ? "" : `${ISR_PASSES_DEFAULT_REGION} · ${ISR_PASSES_DEFAULT_TIER_MODE} · `}地面投影穿越不等於實際蒐情；
           缺日與 null 不補 0
         </div>

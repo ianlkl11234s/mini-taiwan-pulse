@@ -1,8 +1,9 @@
 import { useCallback, useMemo, type MouseEvent as ReactMouseEvent } from "react";
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS, FONT_SIZE, BORDER } from "../../../styles/designTokens";
+import { FONT_CJK, FONT_DATA } from "../intelTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
 import { MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { MON_CHART_H } from "./monitorChart";
 import { useMonitorFreshness } from "./monitorFreshness";
@@ -38,6 +39,7 @@ const EMPTY_FOOD_SUMMARY: FoodPriceSummary[] = [];
 interface Props { open: boolean }
 
 export function FoodPriceBoard({ open }: Props) {
+  const theme = useMonitorTheme();
   const v2 = useMonitorV2();
   const loadDays = useCallback(() => fetchFoodPriceDaily(WINDOW), []);
   const loadSummary = useCallback(() => fetchFoodPriceSummary(WINDOW), []);
@@ -102,7 +104,7 @@ export function FoodPriceBoard({ open }: Props) {
           display: "flex", flexDirection: "column", gap: 11, flex: 1, minHeight: 0, minWidth: 0,
         } : {
           borderRadius: RADIUS.xl,
-          border: `1px solid ${COLORS.panelBorder}`,
+          border: `1px solid ${theme.p.panelBorder}`,
           background: "linear-gradient(160deg, rgba(95,191,109,0.06), rgba(255,255,255,0.012))",
           padding: "12px 14px",
           display: "flex", flexDirection: "column", gap: 11,
@@ -113,7 +115,7 @@ export function FoodPriceBoard({ open }: Props) {
         <MonitorDataStatus label="食品價格日序列" query={daysQuery} />
         <MonitorDataStatus label="食品價格摘要" query={summaryQuery} />
         {!summary.length ? (
-          <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint, padding: "10px 0" }}>
+          <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textFaint, padding: "10px 0" }}>
             {summaryQuery.status === "unknown" ? "資料載入中…" : "尚無食品價格摘要"}
           </div>
         ) : (
@@ -129,9 +131,9 @@ export function FoodPriceBoard({ open }: Props) {
             {v2 && fresh.reason && (
               <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
             )}
-            <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, lineHeight: 1.5 }}>
+            <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, lineHeight: 1.5 }}>
               {latestDate && !(v2 && isStale) && (
-                <span style={{ color: isStale ? "#fbbf24" : COLORS.textMuted, fontWeight: isStale ? 700 : 400 }}>
+                <span style={{ color: isStale ? theme.text("#fbbf24") : theme.p.textMuted, fontWeight: isStale ? 700 : 400 }}>
                   {isStale ? `⚠ 資料截至 ${latestDate}（已 ${staleDays} 天未更新）` : `資料截至 ${latestDate}`}
                   {" · "}
                 </span>
@@ -150,12 +152,13 @@ export function FoodPriceBoard({ open }: Props) {
 /* ── 單一指數格 ─────────────────────────────────────────── */
 
 function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPriceDay[]; muted: boolean }) {
+  const theme = useMonitorTheme();
   const v2 = useMonitorV2();
   const color = FOOD_COLORS[s.indicator];
   const dev = s.latestDev;
   // 主指標是「偏離常態」而非價位 —— 價位高低本身不是訊號
-  const devColor = dev === null ? COLORS.textFaint
-    : dev >= 10 ? FOOD_ALERT_HIGH : dev <= -10 ? FOOD_ALERT_LOW : COLORS.textDefault;
+  const devColor = dev === null ? theme.p.textFaint
+    : dev >= 10 ? theme.text(FOOD_ALERT_HIGH) : dev <= -10 ? theme.text(FOOD_ALERT_LOW) : theme.p.textDefault;
   const stale = s.latestLight === "low_coverage";
   // 缺值（null）：v2 顯示「—」；舊版維持原本補 0 的畫面
   const latestVal = v2 ? s.latestVal : s.latestVal ?? 0;
@@ -167,22 +170,22 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
   return (
     <div
       style={v2 ? {
-        borderTop: `1px solid ${BORDER.soft}`, paddingTop: 8,
+        borderTop: `1px solid ${theme.p.borderSoft}`, paddingTop: 8,
         display: "flex", flexDirection: "column", gap: 5, minWidth: 0, minHeight: 0,
       } : {
         borderRadius: RADIUS.lg,
-        border: `1px solid ${color}33`,
-        background: `${color}0d`,
+        border: `1px solid ${theme.fill(color)}33`,
+        background: `${theme.fill(color)}0d`,
         padding: "8px 9px 7px",
         display: "flex", flexDirection: "column", gap: 5, minWidth: 0, minHeight: 0,
       }}
     >
       {/* 標題列 */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, minWidth: 0 }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 12.5), fontWeight: 700, color: COLORS.textStrong }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 12.5), fontWeight: 700, color: theme.p.textStrong }}>
           {FOOD_LABELS[s.indicator]}
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "0.8px", color, opacity: 0.85 }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "0.8px", color: theme.text(color), opacity: 0.85 }}>
           {s.indicator}
         </span>
         <StatusDot light={s.latestLight} dev={dev} />
@@ -191,7 +194,7 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
       {/* 涵蓋範圍 —— 只給代碼看不出這條線是誰算出來的 */}
       <div
         style={{
-          fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint,
+          fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint,
           marginTop: -3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
         }}
         title={FOOD_SCOPE[s.indicator]}
@@ -209,19 +212,19 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
               <span style={{ color: devColor, fontWeight: 600 }}>
                 {dev === null ? "—" : `${dev > 0 ? "+" : ""}${dev.toFixed(1)}%`}
               </span>
-              <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textFaint, marginLeft: 5 }}>vs 常態</span>
+              <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textFaint, marginLeft: 5 }}>vs 常態</span>
             </>
           }
         />
       ) : (
       <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 21), fontWeight: 600, color: COLORS.textStrong, lineHeight: 1 }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 21), fontWeight: 600, color: theme.p.textStrong, lineHeight: 1 }}>
           {latestText}
         </span>
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 11), fontWeight: 600, color: devColor }}>
           {dev === null ? "—" : `${dev > 0 ? "+" : ""}${dev.toFixed(1)}%`}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>vs 常態</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>vs 常態</span>
       </div>
       )}
 
@@ -231,29 +234,29 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
         <div style={{ display: "flex", gap: 5, fontFamily: FONT_DATA, fontSize: fs(v2, 8.5) }}>
           {hiDays != null && hiDays > 0 && (
-            <span style={{ color: FOOD_ALERT_HIGH }} title="價格異常偏高的天數（民生壓力）">
+            <span style={{ color: theme.text(FOOD_ALERT_HIGH) }} title="價格異常偏高的天數（民生壓力）">
               ▲{hiDays}
             </span>
           )}
           {loDays != null && loDays > 0 && (
-            <span style={{ color: FOOD_ALERT_LOW }} title="價格異常偏低的天數（供給過剩／產地崩盤）">
+            <span style={{ color: theme.text(FOOD_ALERT_LOW) }} title="價格異常偏低的天數（供給過剩／產地崩盤）">
               ▼{loDays}
             </span>
           )}
           {hiDays === 0 && loDays === 0 && (
-            <span style={{ color: COLORS.textFaint }}>無異常日</span>
+            <span style={{ color: theme.p.textFaint }}>無異常日</span>
           )}
           {hiDays == null && loDays == null && (
-            <span style={{ color: COLORS.textFaint }}>異常日 —</span>
+            <span style={{ color: theme.p.textFaint }}>異常日 —</span>
           )}
           {warnDays != null && warnDays > 0 && (
-            <span style={{ color: COLORS.textDim }} title="黃燈（注意）天數">
+            <span style={{ color: theme.p.textDim }} title="黃燈（注意）天數">
               ·{warnDays} 注意
             </span>
           )}
         </div>
         <span
-          style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textDim }}
+          style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: theme.p.textDim }}
           title={`最新 ${s.latestDate}${stale ? "（當日資料未齊，已取前一交易日）" : ""}`}
         >
           {s.yoyPct === null ? "" : `年增 ${s.yoyPct > 0 ? "+" : ""}${s.yoyPct.toFixed(1)}%`}
@@ -266,15 +269,17 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
 /* ── 燈號圓點 ───────────────────────────────────────────── */
 
 function StatusDot({ light, dev }: { light: FoodPriceSummary["latestLight"]; dev: number | null }) {
+  const theme = useMonitorTheme();
   // 紅燈要再看方向：偏高與偏低是相反的事
-  const { c, t } =
+  const { c: c0, t } =
     light === "red"
       ? (dev !== null && dev < 0
           ? { c: FOOD_ALERT_LOW, t: "異常偏低（供給過剩）" }
           : { c: FOOD_ALERT_HIGH, t: "異常偏高（民生壓力）" })
       : light === "amber" ? { c: "#e0a63c", t: "注意" }
-      : light === "low_coverage" ? { c: COLORS.textFaint, t: "當日資料未齊" }
+      : light === "low_coverage" ? { c: theme.p.textFaint, t: "當日資料未齊" }
       : { c: "#63b26a", t: "常態" };
+  const c = theme.fill(c0);
   return (
     <span
       title={t}
@@ -315,6 +320,7 @@ function anomalyNote(light: FoodPriceDay["light"], devPct: number | null): strin
 }
 
 function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string }) {
+  const theme = useMonitorTheme();
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const geom = useMemo(() => {
@@ -359,8 +365,9 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     };
   }, [series]);
 
+  const lineC = theme.fill(color);
   if (!geom) {
-    return <div style={{ flex: v2 ? "none" : 1, minHeight: v2 ? MON_CHART_H.lg : SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textGhost }}>資料不足</div>;
+    return <div style={{ flex: v2 ? "none" : 1, minHeight: v2 ? MON_CHART_H.lg : SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: theme.p.textGhost }}>資料不足</div>;
   }
 
   function handleMove(e: ReactMouseEvent<SVGSVGElement>) {
@@ -373,7 +380,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     tip.show(e.clientX, e.clientY, {
       title: fmtTradeDate(p.tradeDate),
       rows: [
-        { dot: color, label: "指數", value: p.indexVal.toFixed(1) },
+        { dot: lineC, label: "指數", value: p.indexVal.toFixed(1) },
         { label: "偏離常態", value: p.devPct === null ? "—" : `${p.devPct > 0 ? "+" : ""}${p.devPct.toFixed(1)}%` },
       ],
       note: anomalyNote(p.light, p.devPct),
@@ -405,20 +412,20 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
           key={i}
           x={b.x0} y={0}
           width={Math.max(b.x1 - b.x0, 0.6)} height={SPARK_H}
-          fill={b.up ? FOOD_ALERT_HIGH : FOOD_ALERT_LOW}
+          fill={theme.fill(b.up ? FOOD_ALERT_HIGH : FOOD_ALERT_LOW)}
           opacity={0.22}
         />
       ))}
       {/* 基期 100 參考線 */}
-      <line x1={0} x2={100} y1={SPARK_H - 2} y2={SPARK_H - 2} stroke="rgba(255,255,255,0.10)" strokeWidth={0.5} vectorEffect="non-scaling-stroke" />
-      <path d={geom.d} fill="none" stroke={color} strokeWidth={1.4} vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
-      {!v2 && <circle cx={geom.lastX} cy={geom.lastY} r={1.6} fill={color} vectorEffect="non-scaling-stroke" />}
+      <line x1={0} x2={100} y1={SPARK_H - 2} y2={SPARK_H - 2} stroke={theme.neutral(0.1)} strokeWidth={0.5} vectorEffect="non-scaling-stroke" />
+      <path d={geom.d} fill="none" stroke={lineC} strokeWidth={1.4} vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
+      {!v2 && <circle cx={geom.lastX} cy={geom.lastY} r={1.6} fill={lineC} vectorEffect="non-scaling-stroke" />}
     </svg>
     {/* v2 最新點：viewBox 為 none 拉伸，圓點改用 HTML 才不會變橢圓 */}
     {v2 && (
       <span
         style={{
-          position: "absolute", width: 7, height: 7, borderRadius: "50%", background: color,
+          position: "absolute", width: 7, height: 7, borderRadius: "50%", background: lineC,
           left: `${geom.lastX}%`, top: `${(geom.lastY / SPARK_H) * 100}%`,
           transform: "translate(-50%, -50%)", pointerEvents: "none",
         }}
@@ -430,7 +437,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
       <div
         style={{
           display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA,
-          fontSize: MF.cap, color: COLORS.textFaint,
+          fontSize: MF.cap, color: theme.p.textFaint,
         }}
       >
         <span>{fmtTradeDate(geom.firstDate)}</span>
@@ -444,6 +451,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
 /* ── 圖例 ───────────────────────────────────────────────── */
 
 function Legend() {
+  const theme = useMonitorTheme();
   const v2 = useMonitorV2();
   const items = [
     { c: FOOD_ALERT_HIGH, label: "異常偏高（民生壓力）" },
@@ -455,11 +463,11 @@ function Legend() {
     <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 11px", alignItems: "center" }}>
       {items.map((it) => (
         <span key={it.label} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 8, height: 5, borderRadius: 1.5, background: it.c, flex: "none" }} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textDim }}>{it.label}</span>
+          <span style={{ width: 8, height: 5, borderRadius: 1.5, background: theme.fill(it.c), flex: "none" }} />
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textDim }}>{it.label}</span>
         </span>
       ))}
-      <span style={{ marginLeft: "auto", fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
+      <span style={{ marginLeft: "auto", fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
         看的是偏離季節常態，不是價位高低
       </span>
     </div>

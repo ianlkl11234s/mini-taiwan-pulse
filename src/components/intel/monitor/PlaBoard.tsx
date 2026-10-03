@@ -15,6 +15,7 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
+import { useMonitorTheme, type MonitorTheme } from "./monitorTheme";
 import { useMonitorFreshness, type MonitorFreshness } from "./monitorFreshness";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import { MonitorMetric, MonitorSub, MonitorNote, MonitorRows } from "./MonitorMetric";
@@ -455,16 +456,14 @@ function RowLabel({ children, right }: { children: React.ReactNode; right?: Reac
 /** 柱色盤：index = level - 1（level 1~5 → 平靜…顯著） */
 const PLA_BAR_COLORS = ([1, 2, 3, 4, 5] as const).map((l) => PLA_LEVEL_COLORS[l]);
 /** v2 柱色盤多一格中性色：level 為 null（解析失敗）時用，不可退回第 1 級色 */
-const PLA_V2_BAR_COLORS = [...PLA_BAR_COLORS, COLORS.textMuted];
-/** 越中線小柱列單色（獨立一列，不疊在分級柱上） */
-const PLA_CROSSED_BAR_COLORS = [COLORS.accent];
-const PLA_BAR_TRACK = { height: 8, borderRadius: RADIUS.sm, background: COLORS.borderSoft, overflow: "hidden" } as const;
+const plaBarTrack = (theme: MonitorTheme) => ({ height: 8, borderRadius: RADIUS.sm, background: theme.p.borderSoft, overflow: "hidden" }) as const;
 
 function PlaV2Body({ days, summary, kinds, fresh }: { days: PlaSeverityDay[]; summary: PlaSituationSummary; kinds: PlaKindStat[]; fresh: MonitorFreshness }) {
+  const theme = useMonitorTheme();
   const day = days[days.length - 1]!;
   // level 為 null＝該日解析失敗：不上任何級距色、不印級距門檻（不可退回第 1 級「< p50 架次」）
   const lv = day.level;
-  const color = lv === null ? COLORS.textFaint : PLA_LEVEL_COLORS[lv];
+  const color = lv === null ? theme.p.textFaint : PLA_LEVEL_COLORS[lv];
   const label = lv === null ? "資料未解析" : PLA_LEVEL_LABELS[lv];
   const q = (n: number | null) => n ?? "—";
   const sp = summary.sorties, cr = summary.crossed;
@@ -474,16 +473,19 @@ function PlaV2Body({ days, summary, kinds, fresh }: { days: PlaSeverityDay[]; su
     : lv === 4 ? `≥ ${q(sp.p90)} 架次 / ${q(cr.p90)} 越線`
     : lv === 3 ? `≥ ${q(sp.p75)} 架次 / ${q(cr.p75)} 越線`
     : lv === 2 ? `≥ ${q(sp.p50)} 架次` : `< ${q(sp.p50)} 架次`;
-  const pillStyle = (c: string) => ({
-    fontFamily: FONT_CJK, fontSize: MF.label, padding: "1px 8px", borderRadius: RADIUS.pill,
-    background: `${c}22`, border: `1px solid ${c}66`, color: c, whiteSpace: "nowrap" as const,
-  });
+  const pillStyle = (c: string) => {
+    const f = theme.fill(c);
+    return {
+      fontFamily: FONT_CJK, fontSize: MF.label, padding: "1px 8px", borderRadius: RADIUS.pill,
+      background: `${f}22`, border: `1px solid ${f}66`, color: theme.text(c), whiteSpace: "nowrap" as const,
+    };
+  };
   return (
     <>
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px" }}>
         <span style={pillStyle(color)}>{label}</span>
-        {band && <span style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim }}>{band}</span>}
-        {day.resonance && <span style={pillStyle(COLORS.statusErr)}>雙軸共振 ↑</span>}
+        {band && <span style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textDim }}>{band}</span>}
+        {day.resonance && <span style={pillStyle(theme.p.statusErr)}>雙軸共振 ↑</span>}
       </div>
       <MonitorMetric
         value={day.sorties ?? "—"}
@@ -516,7 +518,11 @@ function PlaV2Body({ days, summary, kinds, fresh }: { days: PlaSeverityDay[]; su
 }
 
 function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+  const theme = useMonitorTheme();
   const [win, setWin] = useState<TrendWindow>(120);
+  // 柱色盤：HazardTrendBars 內部已做 theme.fill，這裡傳原色；level 為 null 的灰樁用主題中性色
+  const barColors = [...PLA_BAR_COLORS, theme.p.textMuted];
+  const crossedColors = [theme.p.accent];
   const shown = useMemo(() => (win >= days.length ? days : days.slice(-win)), [days, win]);
   const bars: HazardBar[] = useMemo(
     () => shown.map((d) => ({
@@ -547,7 +553,7 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>近 {win} 天 · 每日架次</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textMuted }}>近 {win} 天 · 每日架次</span>
         <div style={{ display: "flex", gap: 3 }}>
           {TREND_WINDOWS.map((w) => {
             const on = w === win;
@@ -560,9 +566,9 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
                 title={`趨勢圖看近 ${w} 天（分級仍以近 ${summary.windowDays} 天為基準）`}
                 style={{
                   fontFamily: FONT_DATA, fontSize: MF.label, padding: "1px 7px", borderRadius: RADIUS.md, cursor: "pointer",
-                  background: on ? COLORS.accentFaint : "transparent",
-                  border: `1px solid ${on ? COLORS.borderStrong : COLORS.borderSoft}`,
-                  color: on ? COLORS.textStrong : COLORS.textDim,
+                  background: on ? theme.p.accentFaint : "transparent",
+                  border: `1px solid ${on ? theme.p.borderStrong : theme.p.borderSoft}`,
+                  color: on ? theme.p.textStrong : theme.p.textDim,
                 }}
               >
                 {w}D
@@ -573,27 +579,27 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
       </div>
       <HazardTrendBars
         bars={bars}
-        levelColors={PLA_V2_BAR_COLORS}
+        levelColors={barColors}
         heightTier="lg"
         unit="架次"
         footer={`本區間 中位 ${stats.p50} · 最高 ${stats.max} 架次`}
       />
       {/* 越中線：與主圖同容器寬、同柱數、同一把尺（maxValue＝主圖最高架次） */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>越中線</span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap" }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textMuted }}>越中線</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textDim, whiteSpace: "nowrap" }}>
           近 {shown.length} 天 {crossedDays} 天有越線
         </span>
       </div>
       <HazardTrendBars
         bars={crossedBars}
-        levelColors={PLA_CROSSED_BAR_COLORS}
+        levelColors={crossedColors}
         heightTier="mini"
         bare
         unit="架次"
         maxValue={stats.max}
       />
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "2px 10px", fontSize: MF.label, color: COLORS.textDim }}>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "2px 10px", fontSize: MF.label, color: theme.p.textDim }}>
         <span>柱高＝架次（以本區間最高為尺）</span>
         <span>柱色＝近 {summary.windowDays} 天分級 · 灰樁＝解析失敗</span>
         <span>下方一列為每日越中線架次（同一把尺）</span>
@@ -603,12 +609,13 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
 }
 
 function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+  const theme = useMonitorTheme();
   const tip = useChartTooltip();
   const latest = days[days.length - 1] ?? null;
   const maxDays = Math.max(...ZONES.map((z) => summary.zones[z.key] ?? 0), 1);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-      <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>
+      <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textMuted }}>
         空域方位 · 近 {summary.windowDays} 天進入天數（● 昨日進入）
       </span>
       <MonitorRows
@@ -617,9 +624,9 @@ function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
           const pct = n === null || summary.daysTotal === null || summary.daysTotal === 0 ? null : Math.round((n / summary.daysTotal) * 100);
           const on = latest?.adiz[z.key] ?? false;
           const rare = pct !== null && pct <= 20;
-          const color = rare ? COLORS.statusWarn : COLORS.accent;
+          const color = theme.fill(rare ? theme.p.statusWarn : theme.p.accent);
           return {
-            label: <span style={{ whiteSpace: "nowrap", color: on ? COLORS.textStrong : undefined, fontWeight: on ? 700 : 400 }}>{on ? "●" : "○"}{z.label}</span>,
+            label: <span style={{ whiteSpace: "nowrap", color: on ? theme.p.textStrong : undefined, fontWeight: on ? 700 : 400 }}>{on ? "●" : "○"}{z.label}</span>,
             chart: (
               <div
                 {...tip.bind(() => ({
@@ -627,7 +634,7 @@ function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
                   rows: [{ dot: color, value: n === null ? "—" : `${fmtChartValue(n, "天")}（${pct ?? "—"}%）` }],
                   note: `${on ? "昨日進入" : "昨日未進入"}${rare ? " · 少見（≤20%）" : ""}`,
                 }))}
-                style={PLA_BAR_TRACK}
+                style={plaBarTrack(theme)}
               >
                 <div style={{ width: `${((n ?? 0) / maxDays) * 100}%`, height: "100%", background: color }} />
               </div>
@@ -642,13 +649,14 @@ function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
 }
 
 function PlaV2Kinds({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituationSummary }) {
+  const theme = useMonitorTheme();
   const tip = useChartTooltip();
   const shown = useMemo(() => kinds.filter((k) => (k.days ?? 0) > 0).slice(0, 6), [kinds]);
   if (!shown.length) return null;
   const maxDays = Math.max(...shown.map((k) => k.days ?? 0), 1);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-      <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>
+      <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textMuted }}>
         侵擾方式 · 近 {summary.windowDays} 天出動天數
       </span>
       <MonitorRows
@@ -656,7 +664,7 @@ function PlaV2Kinds({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSitu
           const share = k.days === null || !summary.daysTotal ? null : k.days / summary.daysTotal;
           const rare = share !== null && share <= 0.15;
           const mixed = (k.itemsTotal ?? 0) > (k.itemsSingle ?? 0);
-          const color = rare ? COLORS.statusWarn : COLORS.accent;
+          const color = theme.fill(rare ? theme.p.statusWarn : theme.p.accent);
           const name = PLA_KIND_LABELS[k.kind] ?? k.kind;
           const itemsNote = k.itemsTotal === null || k.itemsSingle === null
             ? "項次統計缺值"
@@ -672,7 +680,7 @@ function PlaV2Kinds({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSitu
                   rows: [{ dot: color, value: k.days === null ? "—" : fmtChartValue(k.days, "天") }],
                   note: `${share === null ? "" : `占 ${Math.round(share * 100)}% 天數`}${rare ? " · 少見" : ""} · ${itemsNote}`,
                 }))}
-                style={PLA_BAR_TRACK}
+                style={plaBarTrack(theme)}
               >
                 <div style={{ width: `${((k.days ?? 0) / maxDays) * 100}%`, height: "100%", background: color }} />
               </div>
@@ -682,7 +690,7 @@ function PlaV2Kinds({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSitu
         })}
       />
       {shown.some((k) => (k.itemsTotal ?? 0) > (k.itemsSingle ?? 0)) && (
-        <span style={{ fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title="＊ 該機型有部分項次與其他機型合併計數，架次不可拆；出動天數為精確值">
+        <span style={{ fontSize: MF.label, color: theme.p.textDim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title="＊ 該機型有部分項次與其他機型合併計數，架次不可拆；出動天數為精確值">
           ＊ 部分項次與他機型合併計數，天數為精確值
         </span>
       )}

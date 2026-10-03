@@ -14,6 +14,7 @@ import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
 import { useMonitorFreshness } from "./monitorFreshness";
 import { MonitorNote, MonitorRows } from "./MonitorMetric";
+import { useMonitorTheme } from "./monitorTheme";
 
 /** 未就緒（讀取中／中斷／受限）時的中性等級：不可用預設分數去決定等級色 */
 const NEUTRAL_LEVEL: PressureLevelDef = {
@@ -25,13 +26,14 @@ function MiniStat({
   label, en, zh, value, color,
 }: { label: string; en: string; /** v2 中文小標（取代英文 eyebrow 與右側 label） */ zh: string; value: string | number; color?: string }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
       <span
         style={v2 ? {
-          fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, whiteSpace: "nowrap",
+          fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, whiteSpace: "nowrap",
         } : {
-          fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "1.2px", color: COLORS.textDim,
+          fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "1.2px", color: theme.p.textDim,
         }}
       >
         {v2 ? zh : en}
@@ -40,14 +42,14 @@ function MiniStat({
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700, lineHeight: 1,
-            color: color ?? "#fff",
+            color: color ?? (theme.isDark ? "#fff" : theme.p.textStrong),
           }}
         >
           {value}
         </span>
         {!v2 && (
           <span
-            style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted, whiteSpace: "nowrap" }}
+            style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted, whiteSpace: "nowrap" }}
           >
             {label}
           </span>
@@ -61,6 +63,7 @@ function MiniStat({
 function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] }) {
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   // 防禦：上游若給了非陣列髒資料（型別宣告蓋不住 runtime），這裡收斂成 []
   // 退化成「無資料」提示，不讓 [...signals] 對不可疊代物件炸掉整個 React root。
   const signals = Array.isArray(signalsProp) ? signalsProp : [];
@@ -68,8 +71,8 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
     return (
       <div
         style={{
-          marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${COLORS.borderMid}`,
-          fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textFaint,
+          marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${theme.p.borderMid}`,
+          fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textFaint,
           animation: "drawerOpen .32s cubic-bezier(.22,1,.36,1)",
         }}
       >
@@ -83,21 +86,21 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
   return (
     <div
       style={{
-        marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${COLORS.borderMid}`,
+        marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${theme.p.borderMid}`,
         animation: "drawerOpen .32s cubic-bezier(.22,1,.36,1)",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <span
           style={v2 ? {
-            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600, color: COLORS.textMuted,
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600, color: theme.p.textMuted,
           } : {
-            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px", color: COLORS.textDefault,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px", color: theme.p.textDefault,
           }}
         >
           {v2 ? "指數組成" : "指數組成 · SIGNAL BREAKDOWN"}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
           {v2 ? "各訊號子分數 0–100 · 總分 5 分鐘平滑" : "權重「災害重」· 5min EMA"}
         </span>
       </div>
@@ -109,8 +112,8 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
               label: s.label,
               title: `${s.label} 子分數 ${Math.round(s.score)}`,
               chart: (
-                <div style={{ height: 7, borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", overflow: "hidden" }}>
-                  <span style={{ display: "block", height: "100%", width: `${Math.max(0, Math.min(100, s.score))}%`, background: lvl.color, borderRadius: RADIUS.md, opacity: 0.9 }} />
+                <div style={{ height: 7, borderRadius: RADIUS.md, background: theme.neutral(0.05), overflow: "hidden" }}>
+                  <span style={{ display: "block", height: "100%", width: `${Math.max(0, Math.min(100, s.score))}%`, background: theme.fill(lvl.color), borderRadius: RADIUS.md, opacity: 0.9 }} />
                 </div>
               ),
               value: Math.round(s.score),
@@ -127,7 +130,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
               {...tip.bind(() => ({
                 title: s.label,
                 rows: [
-                  { dot: lvl.color, label: "子分數", value: fmtChartValue(Math.round(s.score)) },
+                  { dot: theme.fill(lvl.color), label: "子分數", value: fmtChartValue(Math.round(s.score)) },
                 ],
               }))}
               style={{ display: "flex", alignItems: "center", gap: 9 }}
@@ -135,7 +138,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
               <span style={{ ...(v2 ? { minWidth: 56 } : { width: 56 }), flexShrink: 0, display: "flex", alignItems: "baseline", gap: 4 }}>
                 <span
                   style={{
-                    fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.textDefault, whiteSpace: "nowrap",
+                    fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDefault, whiteSpace: "nowrap",
                   }}
                 >
                   {s.label}
@@ -143,7 +146,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
               </span>
               <span
                 style={{
-                  fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint,
+                  fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint,
                   ...(v2 ? { minWidth: 38 } : { width: 30 }), flexShrink: 0,
                 }}
               >
@@ -151,7 +154,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
               </span>
               <div
                 style={{
-                  flex: 1, height: 7, borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
+                  flex: 1, height: 7, borderRadius: RADIUS.md, background: theme.neutral(0.05),
                   overflow: "hidden", minWidth: 26,
                 }}
               >
@@ -159,7 +162,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
                   style={{
                     display: "block", height: "100%",
                     width: `${(s.score / maxC) * 100}%`,
-                    background: lvl.color, borderRadius: RADIUS.md, opacity: 0.9,
+                    background: theme.fill(lvl.color), borderRadius: RADIUS.md, opacity: 0.9,
                     transition: "width .5s cubic-bezier(.22,1,.36,1)",
                   }}
                 />
@@ -167,7 +170,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
               <span
                 style={{
                   fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700,
-                  color: lvl.color, ...(v2 ? { minWidth: 32 } : { width: 30 }), textAlign: "right", flexShrink: 0,
+                  color: theme.text(lvl.color), ...(v2 ? { minWidth: 32 } : { width: 30 }), textAlign: "right", flexShrink: 0,
                 }}
               >
                 {Math.round(s.score)}
@@ -182,7 +185,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
       <div
         style={{
           display: "flex", flexWrap: "wrap", gap: "5px 14px",
-          marginTop: 12, paddingTop: 10, borderTop: `1px solid ${COLORS.borderSoft}`,
+          marginTop: 12, paddingTop: 10, borderTop: `1px solid ${theme.p.borderSoft}`,
         }}
       >
         {PRESSURE_LEVELS.map((l) => (
@@ -190,12 +193,12 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
             key={l.key}
             style={{
               display: "inline-flex", alignItems: "center", gap: 5,
-              fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: COLORS.textMuted,
+              fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: theme.p.textMuted,
             }}
           >
-            <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: l.color }} />
+            <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: theme.fill(l.color) }} />
             {l.label}{" "}
-            <span style={{ fontFamily: FONT_DATA, color: COLORS.textFaint }}>
+            <span style={{ fontFamily: FONT_DATA, color: theme.p.textFaint }}>
               {l.min}–{l.max}
             </span>
           </span>
@@ -220,6 +223,7 @@ export function SituationOverview({
   pressure, smoothedScore, status, lastSuccessAt, sourceHealth, sourceHealthAvailable = true, totalEvents, severeCount,
 }: Props) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const [open, setOpen] = useState(false);
   const stale = status === "error" && lastSuccessAt !== null;
   // v2：壓力指數資料時間（RPC updated_at）與新鮮度送標題列（stream 60 分）
@@ -258,7 +262,7 @@ export function SituationOverview({
         {!v2 && (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px", color: COLORS.textDefault,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px", color: theme.p.textDefault,
             }}
           >
             戰情概覽 · PRESSURE INDEX
@@ -266,7 +270,7 @@ export function SituationOverview({
         )}
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, whiteSpace: "nowrap",
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint, whiteSpace: "nowrap",
           }}
         >
           10 訊號加權 0–100
@@ -287,9 +291,9 @@ export function SituationOverview({
             style={{
               position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
               display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 7px",
-              borderRadius: RADIUS.xl, background: "rgba(0,0,0,0.45)",
-              border: `1px solid ${COLORS.borderSoft}`,
-              fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textMuted, whiteSpace: "nowrap",
+              borderRadius: RADIUS.xl, background: theme.isDark ? "rgba(0,0,0,0.45)" : theme.neutral(0.06),
+              border: `1px solid ${theme.p.borderSoft}`,
+              fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textMuted, whiteSpace: "nowrap",
             }}
           >
             {open ? "收合" : "組成"}
@@ -300,7 +304,7 @@ export function SituationOverview({
                 transition: "transform .3s",
               }}
             >
-              <IntelIcon d={ICON.chevDown} size={9} color={COLORS.textMuted} />
+              <IntelIcon d={ICON.chevDown} size={9} color={theme.p.textMuted} />
             </span>
           </span>
         </button>
@@ -311,14 +315,14 @@ export function SituationOverview({
             <CompareLine delta={pressure.vs_baseline} muted={stale} label={stale ? "最後成功值 · vs 基準" : "vs 平常週日同時段"} />
             <CompareLine delta={pressure.vs_1h_ago} muted={stale} label={stale ? "最後成功值 · vs 1 小時前" : "vs 1 小時前"} />
           </> : (
-            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>{availability}</span>
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>{availability}</span>
           )}
-          <div style={{ height: 1, background: COLORS.borderSoft, margin: "1px 0" }} />
+          <div style={{ height: 1, background: theme.p.borderSoft, margin: "1px 0" }} />
           <div style={{ display: "flex", gap: 18, justifyContent: "space-between", maxWidth: 420 }}>
             <MiniStat en="EVENTS" label="事件" zh="事件數" value={totalEvents ?? "—"} />
             <MiniStat
               en="SEVERE ≥3" label="嚴重" zh="嚴重（3 級以上）" value={severeCount ?? "—"}
-              color={(severeCount ?? 0) > 0 ? COLORS.statusWarn : "#fff"}
+              color={(severeCount ?? 0) > 0 ? theme.p.statusWarn : theme.isDark ? "#fff" : theme.p.textStrong}
             />
             <MiniStat
               en="SOURCES" label="來源" zh="資料來源"
