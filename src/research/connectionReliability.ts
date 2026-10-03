@@ -46,5 +46,3 @@ export async function acquireConnectionLease(studyId: string, tabId: string): Pr
   })).catch(() => rejectAcquired(new BridgeError("CONNECTION_LOCK_UNAVAILABLE")));
   return acquired;
 }
-
-export function mustClearStoredConnection(session: { active: boolean }): boolean { return !session.active; }

@@ -32,7 +32,7 @@ function setup(overrides: Partial<Record<"ack" | "manual" | "pause" | "sync", Re
     sync: overrides.sync ?? vi.fn().mockResolvedValue(state(0)),
     report,
   };
-  const connection = { client, studyId: "study-1", tabId: "tab-1", pairingId: "pair-1" } as unknown as BridgeConnectionContext;
+  const connection = { client, studyId: "study-1", tabId: "tab-1" } as unknown as BridgeConnectionContext;
   const render = vi.fn<(scene: Scene, revision: number) => Promise<"ready" | "error">>().mockResolvedValue("ready");
   const onError = vi.fn();
   return { controller: new StudyController(connection, render, onError), client, render, onError };

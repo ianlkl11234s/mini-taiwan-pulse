@@ -96,3 +96,8 @@ code, pre, output { font-family: var(--font-data); font-variant-numeric: tabular
 .research-pairing button:hover:not(:disabled) { background: var(--control-bg-hover); }
 .research-pairing button:disabled { opacity: var(--control-disabled-opacity); cursor: not-allowed; }
 .research-pairing details summary { cursor: pointer; color: var(--text-muted); font-size: var(--font-sm); margin-top: 8px; }
+.research-pairing .research-agent-status { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: var(--font-weight-semibold); }
+.research-pairing .research-agent-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); flex: none; }
+.research-pairing .research-agent-status--live { color: var(--status-live); }
+.research-pairing .research-agent-status--live .research-agent-dot { background: var(--status-live); }
+.research-pairing .research-agent-tab { color: var(--text-default); font-weight: var(--font-weight-regular); font-size: var(--font-sm); }

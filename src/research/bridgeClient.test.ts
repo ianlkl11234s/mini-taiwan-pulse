@@ -62,9 +62,7 @@ describe("BridgeClient", () => {
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(unknown))).wait("study-1", "tab-1", null, null, true)).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
-  it("accepts unclaimed pairing null fields and rejects shallow or extra state", async () => {
-    const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ pairingId: "pairing-1", claimed: false, approved: false, deviceLabel: null, phrase: null })));
-    await expect(client.pairingStatus("pairing-1", "tab-1")).resolves.toMatchObject({ claimed: false, phrase: null });
+  it("rejects shallow or extra state", async () => {
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { resultMode: "empty" } }))).sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" } satisfies Partial<BridgeError>);
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, extra: true }))).sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" } satisfies Partial<BridgeError>);
   });
@@ -121,7 +119,7 @@ describe("BridgeClient", () => {
     }
   });
 
-  it.skipIf(!gatewayRoot)("parses real gateway pairing status and pending command state", async () => {
+  it.skipIf(!gatewayRoot)("parses real gateway agent tokens, token bind and pending command state", async () => {
     const { join } = await import("node:path");
     const { pathToFileURL } = await import("node:url");
     const { createGateway } = await import(pathToFileURL(join(gatewayRoot!, "server.mjs")).href);
@@ -130,23 +128,28 @@ describe("BridgeClient", () => {
     const fetcher: typeof fetch = async (url, init) => handle(new Request(new URL(String(url), "http://gateway.local").href, init), { callerIp: "127.0.0.1" });
     const client = new BridgeClient(async () => "browser-token", fetcher);
     const study = await client.createStudy("tab-1");
-    const pairing = await client.createPairing(study.studyId, study.tabId);
-    const beforeClaim = await client.pairingStatus(pairing.pairingId, study.tabId);
-    expect(beforeClaim).toMatchObject({ pairingId: pairing.pairingId, claimed: false, deviceLabel: null });
-    const publicPost = (path: string, body: object, credential?: string) => handle(new Request(`http://gateway.local${RESEARCH_API_PREFIX}${path}`, { method: "POST", headers: { "content-type": "application/json", ...(credential ? { authorization: `Research ${credential}` } : {}) }, body: JSON.stringify(body) }), { callerIp: "127.0.0.1" });
-    const claim = await (await publicPost("/pairings/claim", { pairingId: pairing.pairingId, code: pairing.code, deviceLabel: "codex-local" })).json() as { claimSecret: string; phrase: string };
-    const claimed = await client.pairingStatus(pairing.pairingId, study.tabId);
-    expect(claimed).toMatchObject({ pairingId: pairing.pairingId, claimed: true, phrase: claim.phrase });
-    await client.approve(pairing.pairingId, study.tabId, claim.phrase);
-    const exchanged = await (await publicPost("/pairings/exchange", { pairingId: pairing.pairingId, claimSecret: claim.claimSecret })).json() as { credential: string; sessionId: string };
+    const created = await client.createAgentToken("Claude Code");
+    expect(created).toMatchObject({ label: "Claude Code" });
+    const listed = await client.listAgentTokens();
+    expect(listed).toEqual([{ tokenId: created.tokenId, label: "Claude Code", createdAt: created.createdAt, expiresAt: created.expiresAt, lastUsedAt: null, activeSessions: 0 }]);
+    expect(JSON.stringify(listed)).not.toContain(created.token);
+    const publicPost = (path: string, body: object, authorization?: string) => handle(new Request(`http://gateway.local${RESEARCH_API_PREFIX}${path}`, { method: "POST", headers: { "content-type": "application/json", ...(authorization ? { authorization } : {}) }, body: JSON.stringify(body) }), { callerIp: "127.0.0.1" });
+    await client.sync(study.studyId, study.tabId); // tab seen → listed and bindable without any pairing code
+    const tabs = await (await publicPost("/agent/tabs", {}, `Agent ${created.token}`)).json() as { tabs: { studyId: string; tabLabel: string; agent: string }[] };
+    expect(tabs.tabs).toEqual([expect.objectContaining({ studyId: study.studyId, tabLabel: "TAB1", agent: "none" })]);
+    const exchanged = await (await publicPost("/agent/bind", { studyId: study.studyId, deviceLabel: "Claude-macbook" }, `Agent ${created.token}`)).json() as { credential: string; sessionId: string };
+    await expect(client.listAgentTokens()).resolves.toEqual([expect.objectContaining({ tokenId: created.tokenId, activeSessions: 1 })]);
     await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: null });
     const manuallyMoved = await client.manual(study.studyId, study.tabId, 0, { camera: { center: [120.63, 24.16], zoom: 11 }, resultMode: "empty", focus: null });
     expect(manuallyMoved).toMatchObject({ revision: 1, paused: false, scene: { focus: null } });
     await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ scene: { focus: null }, paused: false });
     const canonicalResults = { items: [{ resultId: "analysis-nearest-1", visible: true, groupId: null }], groups: [] };
-    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 1, expiresAt: Date.now() + 10_000, patch: { layers: { schools: true }, focus: null, results: canonicalResults } }, exchanged.credential);
+    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 1, expiresAt: Date.now() + 10_000, patch: { layers: { schools: true }, focus: null, results: canonicalResults } }, `Research ${exchanged.credential}`);
     expect(commandResponse.status).toBe(200);
     await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { layers: { schools: true }, focus: null, results: canonicalResults } } });
+    await client.revokeAgentToken(created.tokenId);
+    await expect(client.listAgentTokens()).resolves.toEqual([]);
+    await expect(client.revokeAgentToken(created.tokenId)).rejects.toMatchObject({ code: "TOKEN_NOT_FOUND" });
   }, 15_000);
 });
 
@@ -238,3 +241,63 @@ function nginxReadTimeout(prefix: string): number {
   const block = conf.slice(conf.indexOf(`location ^~ ${prefix} {`));
   return Number(/proxy_read_timeout (\d+)s;/.exec(block.slice(0, block.indexOf("\n    }")))?.[1]) * 1_000;
 }
+
+describe("BridgeClient P3 agent tokens", () => {
+  const tokenId = "0123456789abcdef0123456789abcdef";
+  const secret = `pat_${"A".repeat(43)}`;
+  const created = { tokenId, token: secret, label: "Claude Code", createdAt: 1_000, expiresAt: 1_000 + 30 * 86_400_000 };
+  const summary = { tokenId, label: "Claude Code", createdAt: 1_000, expiresAt: 1_000 + 30 * 86_400_000, lastUsedAt: null, activeSessions: 0 };
+
+  it("posts the three token endpoints with Bearer auth and exact bodies", async () => {
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(response(created))
+      .mockResolvedValueOnce(response({ tokens: [summary, { ...summary, tokenId: "f".repeat(32), lastUsedAt: 2_000, activeSessions: 1 }] }))
+      .mockResolvedValueOnce(response({ revoked: true }));
+    const client = new BridgeClient(async () => "owner", fetcher);
+    await expect(client.createAgentToken("Claude Code")).resolves.toEqual(created);
+    await expect(client.listAgentTokens()).resolves.toHaveLength(2);
+    await expect(client.revokeAgentToken(tokenId)).resolves.toBeUndefined();
+    const calls = fetcher.mock.calls.map(([url, init]) => [url, (init as RequestInit).body, ((init as RequestInit).headers as Record<string, string>).authorization]);
+    expect(calls).toEqual([
+      [`${RESEARCH_API_PREFIX}/agent-tokens/create`, JSON.stringify({ label: "Claude Code" }), "Bearer owner"],
+      [`${RESEARCH_API_PREFIX}/agent-tokens/list`, JSON.stringify({}), "Bearer owner"],
+      [`${RESEARCH_API_PREFIX}/agent-tokens/revoke`, JSON.stringify({ tokenId }), "Bearer owner"],
+    ]);
+  });
+
+  it("rejects malformed create responses", async () => {
+    for (const bad of [
+      { ...created, token: "not-a-token" },
+      { ...created, tokenId: "XYZ" },
+      { ...created, label: "" },
+      { ...created, expiresAt: "soon" },
+      { ...created, extra: true },
+      { tokenId, label: "Claude Code", createdAt: 1, expiresAt: 2 },
+    ]) await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(bad))).createAgentToken("Claude Code")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
+  it("rejects list items that leak a secret or carry malformed fields", async () => {
+    for (const bad of [
+      { ...summary, token: secret },
+      { ...summary, tokenId: "short" },
+      { ...summary, lastUsedAt: "never" },
+      { ...summary, activeSessions: -1 },
+      { ...summary, activeSessions: 1.5 },
+    ]) await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ tokens: [bad] }))).listAgentTokens()).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ tokens: Array.from({ length: 51 }, () => summary) }))).listAgentTokens()).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response([summary]))).listAgentTokens()).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
+  it("requires exactly { revoked: true } and keeps the gateway error code", async () => {
+    for (const bad of [{ revoked: false }, { revoked: true, studyIds: [] }, {}]) {
+      await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(bad))).revokeAgentToken(tokenId)).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    }
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ error: { code: "TOKEN_NOT_FOUND" } }, 404))).revokeAgentToken(tokenId)).rejects.toMatchObject({ code: "TOKEN_NOT_FOUND" });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ error: { code: "TOKEN_LIMIT" } }, 409))).createAgentToken("x")).rejects.toMatchObject({ code: "TOKEN_LIMIT" });
+  });
+
+  it("no longer exposes the pairing-code methods", () => {
+    const client = new BridgeClient(async () => "t", vi.fn()) as unknown as Record<string, unknown>;
+    for (const removed of ["createPairing", "pairingStatus", "approve"]) expect(client[removed]).toBeUndefined();
+  });
+});

@@ -7,8 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_WASTE_MATCHED_TRAILS?: string;
   readonly VITE_IMAGERY_CDN_BASE?: string;
   readonly VITE_STATISTICS_CDN_BASE?: string;
-  /** 本機免授權配對（僅 DEV 生效）；需搭配 gateway／MCP 的 PULSE_RESEARCH_DEV_AUTOPAIR=1 */
-  readonly VITE_RESEARCH_DEV_AUTOPAIR?: string;
+  /** 本機測試身分（僅 DEV 生效）；需搭配 loopback gateway 的 PULSE_RESEARCH_TEST_IDENTITY=1 */
+  readonly VITE_RESEARCH_TEST_IDENTITY?: string;
 }
 
 interface ImportMeta {
