@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 把活的元件頁（design-system.html）存成單一靜態 HTML：docs/design-system/reference.html。
+ * 把活的元件頁（tools/design-system.html）存成單一靜態 HTML：docs/design-system/reference.html。
  *
  * 用法：先開 dev server（npm run dev，或指定 port），再跑
  *   npm run design:snapshot                  # 預設 http://127.0.0.1:3721
@@ -16,7 +16,7 @@ import { resolve } from "node:path";
 
 const portArg = process.argv.indexOf("--port");
 const port = portArg > -1 ? process.argv[portArg + 1] : "3721";
-const url = `http://127.0.0.1:${port}/design-system.html`;
+const url = `http://127.0.0.1:${port}/tools/design-system.html`;
 const out = resolve(process.cwd(), "docs/design-system/reference.html");
 const session = ["--session-name", `ds-snapshot-${process.pid}`];
 
@@ -49,7 +49,7 @@ try {
     });
     doc.querySelectorAll("script, link[rel=modulepreload]").forEach((el) => el.remove());
     doc.querySelectorAll("[data-ds-live-only]").forEach((el) => el.remove());
-    const stamp = document.createComment(" 靜態快照：" + new Date().toISOString() + "，來源 design-system.html。以活的元件頁為準。 ");
+    const stamp = document.createComment(" 靜態快照：" + new Date().toISOString() + "，來源 tools/design-system.html。以活的元件頁為準。 ");
     doc.insertBefore(stamp, doc.firstChild);
     return "<!doctype html>\\n" + doc.outerHTML;
   })()`);

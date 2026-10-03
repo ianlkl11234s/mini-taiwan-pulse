@@ -1,5 +1,5 @@
 /**
- * 活的設計系統參考頁（design-system.html）。
+ * 活的設計系統參考頁（tools/design-system.html）。
  * 規則：元件從實作檔 import、數值從 token／規格常數 import，不手抄；每區附「規格 §x.y ／ 實作 path」。
  * 全部渲染完成後在 <html> 標 data-ds-ready="1"（給靜態快照腳本用）。
  */

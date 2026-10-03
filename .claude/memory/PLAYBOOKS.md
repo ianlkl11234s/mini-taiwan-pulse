@@ -1700,7 +1700,7 @@ side-effect 模組要確保求值早於 import graph；未注入即 throw（不 
 ⚠️ 色票放 `src/data/*.ts`，**不要向 Scene 檔取色** —— LegendPanel 是 static import，
 會把 three 拖進純靜態 bundle。做完把該層從 `layerConsistency` 的 `NO_LEGEND_LEDGER` 移出（並把 manifest 的 `legend` 從 null 改成圖例 id）。
 
-**6. demo 卡**（`demo-embed.html` 加一張）
+**6. demo 卡**（`tools/demo-embed.html` 加一張）
 挑一個「看得出東西在動」的時間窗。⚠️ **預設 960x 對密集班距太快**：
 北捷尖峰班距只剩 0.2 牆鐘秒、高雄輕軌 4.3 秒繞完一圈 → 糊成一團看不出疏密，
 這類卡片要帶 `p.speed=180`。

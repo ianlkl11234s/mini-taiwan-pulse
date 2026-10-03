@@ -1,5 +1,5 @@
 /*
- * 設計系統參考頁（design-system.html）本身的版面。
+ * 設計系統參考頁（tools/design-system.html）本身的版面。
  * 頁面 chrome 一律用 src/styles/tokens.css 的變數；元件樣式由各元件自己的樣式表負責。
  */
 html { color-scheme: dark; }
