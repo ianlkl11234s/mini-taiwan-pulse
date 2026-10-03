@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Bookmark, Layers, MapPin, RefreshCw, Star, X } from "lucide-react";
-import { ListRow } from "../sidebar/LayerRow";
+import { LayerNameLine, ListRow } from "../sidebar/LayerRow";
 import { LAYER_ICONS } from "../sidebar/layerIcons";
-import { LAYER_COLORS } from "../sidebar/layerCatalog";
+import { LAYER_COLORS, layerDisplayName } from "../sidebar/layerCatalog";
 import { railPalette, RailThemeContext } from "../sidebar/railTheme";
 import { signInWithGoogle, signOut } from "../../lib/auth";
 import { memberLibraryStore, useMemberLibrary } from "../../state/memberLibraryStore";
@@ -99,7 +99,7 @@ export function MemberPanel(props: Props) {
             return <ListRow
               key={key}
               ariaLabel={label}
-              label={label}
+              label={props.labels[key] ? <LayerNameLine name={layerDisplayName(key, label)} /> : label}
               icon={<Icon size={14} color={on && color ? color : "var(--text-dim)"} style={{ flexShrink: 0 }} />}
               accent={color}
               active={on}

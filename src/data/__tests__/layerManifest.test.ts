@@ -4,7 +4,7 @@
  *
  * manifest 有兩種欄位，各需要不同的保護：
  *
- *   已派生（color / icon / label / labelMobile / expandable / gated / upstream）
+ *   已派生（color / icon / name・label / expandable / gated / upstream）
  *     → 由**本檔下方「已派生欄位真的在驅動下游表」那組斷言**保護：
  *       manifest 的值與 LAYER_COLORS / LAYER_ICONS / THEMES / UPSTREAM_REGISTRY
  *       逐 key 相等，改壞任一邊立刻紅。
@@ -24,7 +24,7 @@
 import { describe, it, expect } from "vitest";
 
 import {
-  LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry, type LayerSource,
+  LAYER_MANIFEST, MANIFEST_KEYS, composeLayerLabel, type LayerManifestEntry, type LayerSource,
 } from "../layerManifest";
 import { LAYER_COLORS, THEMES, LAYER_LABELS } from "../../components/sidebar/layerCatalog";
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
@@ -94,7 +94,7 @@ describe("layerManifest 已派生欄位真的在驅動下游表", () => {
     for (const [k, m] of entries) expect(LAYER_ICONS[k]).toBe(m.icon);
   });
 
-  it("THEMES 的 LayerDef 來自 manifest（label / labelMobile / expandable / gated）", () => {
+  it("THEMES 的 LayerDef 來自 manifest（name / label / expandable / gated）", () => {
     for (const [k, m] of entries) {
       const def = THEMES.flatMap((t) => t.groups).flatMap((g) => g.layers).find((l) => l.key === k);
       if (m.section === null) {
@@ -106,7 +106,9 @@ describe("layerManifest 已派生欄位真的在驅動下游表", () => {
       }
       expect(def, `${k} 不在 THEMES 裡`).toBeTruthy();
       expect(def!.label).toBe(m.label);
-      expect(def!.labelMobile).toBe(m.labelMobile);
+      expect(def!.name).toEqual(m.name);
+      // label 一律由 name 組出（不可手寫、不可漂移）
+      expect(m.label).toBe(composeLayerLabel(m.name));
       expect(def!.expandable).toBe(m.expandable);
       expect(def!.gated).toBe(m.gated);
       // LAYER_LABELS 是 THEMES 的 derived 表 —— 一併確認派生鏈沒斷

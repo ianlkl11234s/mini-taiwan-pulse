@@ -11,11 +11,11 @@
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Search, Lock } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
-import { ListRow } from "./LayerRow";
+import { LayerNameLine, ListRow } from "./LayerRow";
 import { SubGroupLabel } from "./ThemeBanner";
 import { LAYER_ICONS } from "./layerIcons";
 import { railPalette, RailThemeContext } from "./railTheme";
-import { THEMES, LAYER_COLORS } from "./layerCatalog";
+import { THEMES, LAYER_COLORS, layerDisplayName } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
@@ -71,6 +71,8 @@ const LIFECYCLE_LABEL: Record<string, string> = {
   quarterly: "每季", yearly: "每年", static: "一次性 / 靜態", semi_annual: "每半年",
   planned: "規劃中", deprecated: "已停用",
 };
+
+const CONFIDENCE_LABEL: Record<string, string> = { HIGH: "高", MED: "中", LOW: "低" };
 
 function statusOf(key: string): UpstreamStatus {
   return UPSTREAM_REGISTRY[key as keyof LayerVisibility]?.status ?? "catalog_missing";
@@ -237,9 +239,10 @@ export function DataSourceCard({
     };
     if (entries.length > 0) {
       const entryBlocks: SourceBlock[] = entries.map((e) => ({
-        title: e.title ?? e.datasetId,
+        title: e.title ?? "上游資料集",
         desc: e.summary,
         facts: facts(
+          e.title ? null : { k: "資料集", v: e.datasetId, mono: true },
           e.providerAgency ? { k: "機關", v: e.providerAgency } : null,
           e.lifecycle ? { k: "頻率", v: `${LIFECYCLE_LABEL[e.lifecycle] ?? e.lifecycle}${e.updateFrequency ? ` · ${e.updateFrequency}` : ""}` } : null,
           e.license ? { k: "授權", v: e.license } : null,
@@ -252,7 +255,8 @@ export function DataSourceCard({
       return status === "pulse_only" && (ref?.derivedFromLayers || ref?.derivedFromDatasets) ? [lineageBlock, ...entryBlocks] : entryBlocks;
     }
     if (status === "verified") {
-      return ref.datasets.map((d) => ({ title: d.datasetId, desc: `比對信心：${d.confidence}`, facts: facts(), docPath: null }));
+      // 卡片標題不印資料集代號（spec §6.3）；代號改放「資料集」事實列，與統計來源卡同一寫法。
+      return ref.datasets.map((d) => ({ title: "已比對的上游資料集", desc: `比對信心：${CONFIDENCE_LABEL[d.confidence] ?? d.confidence}`, facts: facts({ k: "資料集", v: d.datasetId, mono: true }), docPath: null }));
     }
     if (status === "pulse_only") return [lineageBlock];
     if (statisticsSource) return [];
@@ -325,15 +329,13 @@ function ThemeHeader({ p, title }: { p: DsPalette; title: string }) {
 function Row({
   p, layerKeyLabel, layerKey, locked, expanded, onToggle,
 }: { p: DsPalette; layerKeyLabel: string; layerKey: keyof LayerVisibility; locked: boolean; expanded: boolean; onToggle: () => void }) {
-  const { zh, en } = splitLabel(layerKeyLabel);
   const color = LAYER_COLORS[layerKey] ?? p.dim;
   const status = statusOf(layerKey);
   const Icon = LAYER_ICONS[layerKey];
   return (
     <ListRow
       ariaLabel={layerKeyLabel}
-      label={zh}
-      meta={en ? <span style={{ marginLeft: 6, color: p.dim, fontSize: FONT_SIZE.sm }}>{en}</span> : null}
+      label={<LayerNameLine name={layerDisplayName(layerKey, layerKeyLabel)} />}
       icon={Icon ? <Icon size={14} color={color} style={{ flexShrink: 0 }} /> : null}
       expandable
       expanded={expanded}

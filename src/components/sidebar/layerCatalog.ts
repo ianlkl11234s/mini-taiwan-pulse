@@ -32,7 +32,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 
 import {
   LAYER_MANIFEST, manifestColors,
-  type ManifestKey, type LayerManifestEntry,
+  type ManifestKey, type LayerManifestEntry, type LayerName,
 } from "../../data/layerManifest";
 
 /**
@@ -103,10 +103,10 @@ export const TRANSPORT_LABELS: Record<TransportType, string> = {
 
 export interface LayerDef {
   key: keyof LayerVisibility;
-  /** 桌機 IconRailSidebar 顯示文字（預設） */
+  /** 結構化名稱（P2）：面板列讀這個，同一行顯示中文＋外文小字＋來源標籤 */
+  name: LayerName;
+  /** 由 `name` 組出的整串名稱：搜尋、無障礙名稱、Agent 等只要一個字串的地方用 */
   label: string;
-  /** 手機 LayerSidebar 顯示文字（多為較長全稱）；未填則沿用 label */
-  labelMobile?: string;
   expandable?: boolean;
   /**
    * owner-only 私人圖層：非 owner 帳號顯示鎖頭、禁 toggle。
@@ -143,7 +143,7 @@ export interface SectionDef {
  * 順序就是 UI 顯示順序 —— 若改成「派生的 append 在最後」，圖層會整批換位置，
  * 黃金快照的 themes/sidebarSections section 立刻紅。
  *
- * 選填欄位用條件展開而非 `labelMobile: m.labelMobile`：後者會產生一個值為
+ * 選填欄位用條件展開而非 `gated: m.gated`：後者會產生一個值為
  * undefined 的**存在的 key**，跟「這個 key 不存在」在序列化/比對上是兩回事。
  */
 function fromManifest(key: ManifestKey): LayerDef {
@@ -157,8 +157,7 @@ function fromManifest(key: ManifestKey): LayerDef {
   if (m.section === null) {
     throw new Error(`[layerManifest] ${key} 是 orphan（不在 THEMES），不該被 fromManifest 引用`);
   }
-  const def: LayerDef = { key: m.key, label: m.label };
-  if (m.labelMobile !== undefined) def.labelMobile = m.labelMobile;
+  const def: LayerDef = { key: m.key, name: m.name, label: m.label };
   if (m.expandable !== undefined) def.expandable = m.expandable;
   if (m.gated !== undefined) def.gated = m.gated;
   return def;
@@ -2116,6 +2115,20 @@ export const LAYER_LABELS: Partial<Record<keyof LayerVisibility, string>> = (() 
   }
   return out;
 })();
+
+/** 結構化名稱查表（P2）：搜尋結果、資料來源、我的等只拿到 key 的清單用它顯示雙語名稱。 */
+export const LAYER_NAMES: Partial<Record<keyof LayerVisibility, LayerName>> = (() => {
+  const out: Partial<Record<keyof LayerVisibility, LayerName>> = {};
+  for (const section of SECTIONS) {
+    for (const def of section.layers) out[def.key] = def.name;
+  }
+  return out;
+})();
+
+/** key → 結構化名稱；查不到（例 orphan、Agent 臨時圖層）就用傳入的整串名稱當中文主名。 */
+export function layerDisplayName(key: string, fallback?: string): LayerName {
+  return LAYER_NAMES[key as keyof LayerVisibility] ?? { zh: fallback ?? key };
+}
 
 // ── owner-only 私人圖層 SSOT（見 docs/features/owner-gated-layers）──
 // 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：sidebar 顯示鎖頭 + toggle no-op。

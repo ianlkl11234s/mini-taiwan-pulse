@@ -2,12 +2,12 @@ export type JpMedicalRecordKind = "hospital" | "clinic" | "dental" | "maternity"
 
 /** Navii `record_kind` 的固定分類、圖例與 popup 共同 SSOT。 */
 export const JP_MEDICAL_CATEGORIES = [
-  { value: "hospital", key: "jpMedicalHospitals", label: "醫院 病院", color: "#dc2626", aggregateField: "hospital_count" },
-  { value: "clinic", key: "jpMedicalClinics", label: "診所 診療所", color: "#2563eb", aggregateField: "clinic_count" },
-  { value: "dental", key: "jpMedicalDental", label: "牙科 歯科", color: "#8b5cf6", aggregateField: "dental_count" },
-  { value: "maternity", key: "jpMedicalMaternity", label: "助產所 助産所", color: "#ec4899", aggregateField: "maternity_count" },
-  { value: "pharmacy", key: "jpMedicalPharmacies", label: "藥局 薬局", color: "#16a34a", aggregateField: "pharmacy_count" },
-] as const satisfies readonly { value: JpMedicalRecordKind; key: string; label: string; color: string; aggregateField: string }[];
+  { value: "hospital", key: "jpMedicalHospitals", label: "醫院 病院", zh: "醫院", ja: "病院", color: "#dc2626", aggregateField: "hospital_count" },
+  { value: "clinic", key: "jpMedicalClinics", label: "診所 診療所", zh: "診所", ja: "診療所", color: "#2563eb", aggregateField: "clinic_count" },
+  { value: "dental", key: "jpMedicalDental", label: "牙科 歯科", zh: "牙科", ja: "歯科", color: "#8b5cf6", aggregateField: "dental_count" },
+  { value: "maternity", key: "jpMedicalMaternity", label: "助產所 助産所", zh: "助產所", ja: "助産所", color: "#ec4899", aggregateField: "maternity_count" },
+  { value: "pharmacy", key: "jpMedicalPharmacies", label: "藥局 薬局", zh: "藥局", ja: "薬局", color: "#16a34a", aggregateField: "pharmacy_count" },
+] as const satisfies readonly { value: JpMedicalRecordKind; key: string; label: string; zh: string; ja: string; color: string; aggregateField: string }[];
 
 /**
  * 低縮放醫療／長照格網共用固定級距。數值是目前開啟分類在同一 10 km 等面積格的
@@ -44,10 +44,10 @@ export const JP_MEDICAL_CARE_TYPES = [
 ].map((value) => ({ value, label: value })) as readonly { value: string; label: string }[];
 
 export const JP_MEDICAL_CARE_GROUPS = [
-  { key: "jpCarePlanning", label: "照護諮詢／計畫 介護の相談・ケアプラン", color: "#f59e0b", aggregateField: "planning_count", serviceTypes: ["居宅介護支援"] },
-  { key: "jpCareHomeVisit", label: "到宅服務 自宅に訪問", color: "#0ea5e9", aggregateField: "home_visit_count", serviceTypes: ["訪問介護", "訪問入浴介護", "訪問看護", "訪問リハビリテーション", "定期巡回・随時対応型訪問介護看護", "夜間対応型訪問介護"] },
-  { key: "jpCareDayServices", label: "日間服務 施設に通う", color: "#22c55e", aggregateField: "day_services_count", serviceTypes: ["通所介護", "地域密着型通所介護", "認知症対応型通所介護", "通所リハビリテーション", "指定療養通所介護"] },
-  { key: "jpCareResidential", label: "住宿／短期入住 施設で生活・宿泊", color: "#a855f7", aggregateField: "residential_count", serviceTypes: [
+  { key: "jpCarePlanning", label: "照護諮詢／計畫 介護の相談・ケアプラン", zh: "照護諮詢／計畫", ja: "介護の相談・ケアプラン", color: "#f59e0b", aggregateField: "planning_count", serviceTypes: ["居宅介護支援"] },
+  { key: "jpCareHomeVisit", label: "到宅服務 自宅に訪問", zh: "到宅服務", ja: "自宅に訪問", color: "#0ea5e9", aggregateField: "home_visit_count", serviceTypes: ["訪問介護", "訪問入浴介護", "訪問看護", "訪問リハビリテーション", "定期巡回・随時対応型訪問介護看護", "夜間対応型訪問介護"] },
+  { key: "jpCareDayServices", label: "日間服務 施設に通う", zh: "日間服務", ja: "施設に通う", color: "#22c55e", aggregateField: "day_services_count", serviceTypes: ["通所介護", "地域密着型通所介護", "認知症対応型通所介護", "通所リハビリテーション", "指定療養通所介護"] },
+  { key: "jpCareResidential", label: "住宿／短期入住 施設で生活・宿泊", zh: "住宿／短期入住", ja: "施設で生活・宿泊", color: "#a855f7", aggregateField: "residential_count", serviceTypes: [
     "介護医療院", "介護療養型医療施設", "介護老人保健施設", "介護老人福祉施設",
     "地域密着型介護老人福祉施設入所者生活介護", "地域密着型特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））",
     "地域密着型特定施設入居者生活介護（有料老人ホーム）", "地域密着型特定施設入居者生活介護（軽費老人ホーム）",
@@ -57,14 +57,14 @@ export const JP_MEDICAL_CARE_GROUPS = [
     "短期入所生活介護", "短期入所療養介護(療養病床を有する病院等）", "短期入所療養介護（介護医療院）", "短期入所療養介護（介護老人保健施設）",
     "認知症対応型共同生活介護",
   ] },
-  { key: "jpCareCombined", label: "複合服務 訪問・通い・宿泊の組合せ", color: "#f43f5e", aggregateField: "combined_count", serviceTypes: ["小規模多機能型居宅介護", "看護小規模多機能型居宅介護（複合型サービス）"] },
-  { key: "jpCareEquipment", label: "福祉用具 福祉用具", color: "#14b8a6", aggregateField: "equipment_count", serviceTypes: ["福祉用具貸与", "特定福祉用具販売"] },
+  { key: "jpCareCombined", label: "複合服務 訪問・通い・宿泊の組合せ", zh: "複合服務", ja: "訪問・通い・宿泊の組合せ", color: "#f43f5e", aggregateField: "combined_count", serviceTypes: ["小規模多機能型居宅介護", "看護小規模多機能型居宅介護（複合型サービス）"] },
+  { key: "jpCareEquipment", label: "福祉用具 福祉用具", zh: "福祉用具", ja: "福祉用具", color: "#14b8a6", aggregateField: "equipment_count", serviceTypes: ["福祉用具貸与", "特定福祉用具販売"] },
 ] as const;
 
 export const JP_MEDICAL_AREA_LEVELS = [
-  { value: "1", key: "jpMedicalAreasPrimary", label: "一次醫療圈 一次医療圏", color: "#38bdf8" },
-  { value: "2", key: "jpMedicalAreasSecondary", label: "二次醫療圈 二次医療圏", color: "#f59e0b" },
-  { value: "3", key: "jpMedicalAreasTertiary", label: "三次醫療圈 三次医療圏", color: "#ef4444" },
+  { value: "1", key: "jpMedicalAreasPrimary", label: "一次醫療圈 一次医療圏", zh: "一次醫療圈", ja: "一次医療圏", color: "#38bdf8" },
+  { value: "2", key: "jpMedicalAreasSecondary", label: "二次醫療圈 二次医療圏", zh: "二次醫療圈", ja: "二次医療圏", color: "#f59e0b" },
+  { value: "3", key: "jpMedicalAreasTertiary", label: "三次醫療圈 三次医療圏", zh: "三次醫療圈", ja: "三次医療圏", color: "#ef4444" },
 ] as const;
 
 export function jpMedicalCategory(value: unknown) {

@@ -4,7 +4,7 @@ import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designToken
 import type { DisplayMode, ExpandableLayerKey, LayerVisibility, ViewMode } from "../../types";
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { searchLayers } from "../../lib/layerSearch";
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, THEMES, TRANSPORT_LABELS, splitThemeTitle, themeMacroGroup, type ThemeDef } from "./layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, THEMES, TRANSPORT_LABELS, layerDisplayName, splitThemeTitle, themeMacroGroup, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, panelLayerKeys, type LayerPanelId } from "./layerPanels";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
 import { StatisticsModeControl } from "./StatisticsModeControl";
@@ -194,6 +194,7 @@ export function LayersPanel({
                   <div key={result.key}>
                     <LayerRow
                       layerKey={result.key}
+                      name={layerDisplayName(result.key, result.label)}
                       label={result.label}
                       sub={searchContext.get(result.key)}
                       expandable
@@ -278,7 +279,7 @@ export function LayersPanel({
               {!isCollapsed && theme.groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, label }) => {
+                  {group.layers.map(({ key, name, label }) => {
                     const medicalGroup = getMedicalStatisticsGroup(key);
                     if (medicalGroup) {
                       if (medicalGroup.options[0]?.key !== key) return null;
@@ -310,6 +311,7 @@ export function LayersPanel({
                       <div key={key}>
                         <LayerRow
                           layerKey={key}
+                          name={name}
                           label={label}
                           expandable
                           active={active}
