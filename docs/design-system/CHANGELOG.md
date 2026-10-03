@@ -5,6 +5,20 @@
 
 ## 2026-10-03
 
+### R7 熱區／網格配色 — map-layers §3.4 G-2／G-3、LG-8；spec §5.36
+
+| 項目 | 內容 |
+|---|---|
+| 決定 | 提案 `docs/features/layer-color-picker/PROPOSAL.md` §0（Q1 A 設定裡一列色條＋浮出清單、Q2 A 長清單、Q4 A 熱區預設新版 magma、Q6 B 多層熱區降透明度）；色盤庫 17 組（§0.1）；計畫 `layer-panel-unify/PLAN.md` D 段 |
+| 色盤庫 | `src/map/palettes.ts`：17 組序列色階，暗／淡各 7 階（淡版越密越深），色值沿用 `ramp-validation.md` §5；dataviz 驗證器 68 次（17 組 × 4 陸地色）除多色相「單一色相」N/A 外全過；`palettes.test.ts` 鎖階數與方向 |
+| 控制項 | `layerParamsSpec` 新型別 `palette`（字串、不進 overlayParams），接到 `buildParamControls`、`LayerParamControls`、`research/layerControls`（Agent 白名單）、`memberSceneAdapter`（場景存檔）、manifest `params.kinds` |
+| 解析器 | `src/state/layerPalette.ts`：registry paint、hook、圖例、popup 共用；`heatmapPaint` 改收 ramp＋疊放倍率 |
+| 熱區 | 43 層（台灣 34、日本 8、全球 1）「熱區顏色」，預設新版 magma；同時開 ≥2 層 ×0.7（`HEATMAP.stackedOpacity`）；雨量、電桿不開放 |
+| 網格 | 21 個 key「網格顏色」；預設沿用現行色系，YlOrRd／inferno → YlOrBr（不動產總市值、預售、日本人口）；日本人口高齡比在預設時維持 BuPu；醫療 5／照護 6 各共用一份 |
+| 不做 | 都市紋理、租賃、日本旅宿密度、人流 H3（原因見 G-3）；反轉（方向已由底圖決定）；分享連結（PLAN 第 4 段） |
+| UI | spec §5.36 色盤選單：portal 浮出（下方不夠往上開、手機抽屜裡改 modal 層）、lucide `Check`、2px 藍色焦點、中文不用等寬字、還原預設用 `.lpc-btn`；修原型稽核 §8 五項 |
+| 對照 | `docs/features/layer-color-picker/phase-d-compare.html` |
+
 ### 監看卡 P4 來源新鮮度與缺值修正 — spec §5.35 G2／K1
 
 | 項目 | 內容 |
