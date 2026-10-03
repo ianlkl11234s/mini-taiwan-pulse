@@ -23,7 +23,7 @@ import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
 import { applyMainMapLayers, captureLayerOverrides, planMainMapLayers } from "./mainMapLayers";
-import { QueryResponder } from "./QueryResponder";
+import { QueryResponder, type QueryHandler } from "./QueryResponder";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { describeLayers } from "./layerExploration";
 import { describeLayer, discoverLayers, findPlaces } from "./discovery";
@@ -195,6 +195,11 @@ export function MainMapConnection(props: Props) {
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
+  /** P2: stable handler for ResearchConnection's long poll; delegates to the current connection's responder. */
+  const [queryHandler] = useState<QueryHandler>(() => ({
+    handle: request => responder.current?.handle(request),
+    inFlightRequestId: () => responder.current?.inFlightRequestId() ?? null,
+  }));
   const analysis = useRef<ResearchAnalysisSession | null>(null);
   const networkProvider = useRef<ValhallaNetworkProvider | null>(null);
   const locationLookup = useRef<AbortController | null>(null);
@@ -529,7 +534,6 @@ export function MainMapConnection(props: Props) {
       setMessage(health.state === "recovered" ? "同步已恢復。" : `${messages[health.state].title}（${health.code}）`);
       setActivity(messages[health.state]);
     }) : null;
-    responder.current?.start();
   }, [clearAnalysisPresentation, render]);
   const disconnect = useCallback(() => { setEvidence([]); setCardDraft(null); connect(null); }, [connect]);
   const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "操作已暫停", detail: "目前地圖會保留。" }); controller.current?.receive(state); }, []);
@@ -757,7 +761,7 @@ export function MainMapConnection(props: Props) {
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
       {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow="研究" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
-      <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
+      <ResearchConnection surface="map" queryHandler={queryHandler} onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
       <div className="agent-panel-body">
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />

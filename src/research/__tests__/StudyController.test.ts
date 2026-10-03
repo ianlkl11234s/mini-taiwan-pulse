@@ -153,3 +153,38 @@ describe("StudyController", () => {
     expect(client.report).not.toHaveBeenCalled();
   });
 });
+
+describe("StudyController with the P2 long poll", () => {
+  it("replays a snapshot received while busy once idle, because the long poll will not resend it", async () => {
+    const ackGate = deferred<StudyState>();
+    const ack = vi.fn().mockImplementationOnce(() => ackGate.promise).mockResolvedValue(state(2));
+    const { controller, render } = setup({ ack });
+    controller.receive(state(0, { pendingCommand: pending("command-1", 0) }));
+    expect(render).toHaveBeenCalledTimes(1);
+    controller.receive(state(1, { pendingCommand: pending("command-2", 1) }));
+    expect(render).toHaveBeenCalledTimes(1);
+    ackGate.resolve(state(1));
+    await vi.waitFor(() => expect(ack).toHaveBeenCalledWith("study-1", "tab-1", "command-2", 1));
+    expect(render).toHaveBeenCalledTimes(2);
+  });
+
+  it("drops a deferred snapshot that is older than the acknowledged state", async () => {
+    const ackGate = deferred<StudyState>();
+    const { controller, render } = setup({ ack: vi.fn(() => ackGate.promise) });
+    controller.receive(state(0, { pendingCommand: pending() }));
+    controller.receive(state(0, { pendingCommand: pending() }));
+    ackGate.resolve(state(1)); await Promise.resolve(); await Promise.resolve();
+    expect(render).toHaveBeenCalledTimes(1);
+  });
+
+  it("replays a snapshot received during a map gesture after the manual scene is flushed", async () => {
+    const { controller, render, client } = setup({ manual: vi.fn().mockResolvedValue(state(1)) });
+    controller.receive(state(0));
+    controller.beginManual();
+    controller.receive(state(1, { pendingCommand: pending("command-9", 1) }));
+    expect(client.ack).not.toHaveBeenCalled();
+    controller.manual(baseScene);
+    await vi.waitFor(() => expect(client.ack).toHaveBeenCalledWith("study-1", "tab-1", "command-9", 1));
+    expect(render).toHaveBeenCalled();
+  });
+});

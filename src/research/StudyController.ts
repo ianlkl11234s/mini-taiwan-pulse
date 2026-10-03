@@ -9,12 +9,16 @@ export class StudyController {
   private interacting = false;
   private generation = 0;
   private queued: Scene | null = null;
+  /** Newest snapshot that arrived while busy/interacting; the long poll will not resend it. */
+  private deferred: StudyState | null = null;
   /** An ack may have committed after its response was lost; never replay it blindly. */
   private uncertainCommandId: string | null = null;
   constructor(private readonly connection: BridgeConnectionContext, private readonly render: Render, private readonly onError: () => void) {}
 
   receive(state: StudyState): void {
-    if (this.stopped || this.busy || this.interacting || state.studyId !== this.connection.studyId || state.tabId !== this.connection.tabId || (this.state && state.revision < this.state.revision)) return;
+    if (this.stopped || state.studyId !== this.connection.studyId || state.tabId !== this.connection.tabId) return;
+    if (this.busy || this.interacting) { if (!this.deferred || state.revision >= this.deferred.revision) this.deferred = state; return; }
+    if (this.state && state.revision < this.state.revision) return;
     const changed = !this.state || state.revision !== this.state.revision;
     this.state = state;
     if (this.uncertainCommandId && state.pendingCommand?.commandId !== this.uncertainCommandId) this.uncertainCommandId = null;
@@ -32,7 +36,14 @@ export class StudyController {
     if (!this.busy) void this.flushManual();
   }
 
-  stop(): void { this.stopped = true; ++this.generation; this.queued = null; }
+  stop(): void { this.stopped = true; ++this.generation; this.queued = null; this.deferred = null; }
+
+  /** Replays a snapshot deferred during busy/interacting once fully idle; stale revisions are still rejected by receive(). */
+  private replayDeferred(): void {
+    if (this.stopped || this.busy || this.interacting || this.queued || !this.deferred) return;
+    const state = this.deferred; this.deferred = null;
+    this.receive(state);
+  }
 
   private present(scene: Scene, revision: number, report: boolean): void {
     const generation = ++this.generation;
@@ -83,6 +94,7 @@ export class StudyController {
     } finally {
       this.busy = false;
       if (this.queued && !this.stopped) void this.flushManual();
+      else this.replayDeferred();
     }
   }
 
@@ -101,6 +113,7 @@ export class StudyController {
     } finally {
       this.busy = false;
       if (this.queued && !this.stopped) void this.flushManual();
+      else this.replayDeferred();
     }
   }
 

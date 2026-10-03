@@ -3,6 +3,8 @@ import type { Session } from "@supabase/supabase-js";
 import { researchAuth as supabase, researchAuthConfigured as supabaseConfigured } from "./authClient";
 import { BridgeClient, BridgeError, type BridgeConnectionContext, type PairingRequest, type PairingStatus, type StudyState } from "./bridgeClient";
 import { acquireConnectionLease, classifyConnectionFailure, isBackgroundDocument, mustClearStoredConnection, nextPollDelay, type ConnectionLease } from "./connectionReliability";
+import { BrowserChannel } from "./browserChannel";
+import type { QueryHandler } from "./QueryResponder";
 import { DEV_AUTOPAIR, DEV_BROWSER_TOKEN, DEV_PAIRING_PLACEHOLDER, DEV_USER_ID, devPanelState, standbyStep, type Standby } from "./devAutopair";
 
 export type ResearchConnectionProps = {
@@ -11,6 +13,8 @@ export type ResearchConnectionProps = {
   onState: (state: StudyState) => void;
   onDisconnect: () => void;
   onConnection: (context: BridgeConnectionContext | null) => void;
+  /** Main map only. Absent on /lab → the long poll sends acceptQueries:false. */
+  queryHandler?: QueryHandler;
 };
 
 type StoredResearchConnection = { studyId: string; tabId: string; pairingId: string; userId: string };
@@ -38,7 +42,7 @@ function errorMessage(error: unknown): string {
 }
 
 /** Pairing controls; the separate PKCE client owns tab-scoped auth. Relay secrets stay in the companion. */
-export function ResearchConnection({ onState, onDisconnect, onConnection, onReady, surface = "lab" }: ResearchConnectionProps) {
+export function ResearchConnection({ onState, onDisconnect, onConnection, onReady, queryHandler, surface = "lab" }: ResearchConnectionProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [pairing, setPairing] = useState<PairingRequest | null>(null);
   const [status, setStatus] = useState<PairingStatus | null>(null);
@@ -47,6 +51,8 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const [creating, setCreating] = useState(false);
   const [study, setStudy] = useState<{ studyId: string; tabId: string } | null>(null);
   const [resumeRevision, setResumeRevision] = useState(0);
+  /** True once onConnection delivered a context: the controller and query handler exist, so the long poll may start. */
+  const [connectionDelivered, setConnectionDelivered] = useState(false);
   const [message, setMessage] = useState(DEV_AUTOPAIR ? "本機免授權模式：正在準備這個分頁…" : supabaseConfigured ? "先登入以建立配對。" : "連線服務尚未啟用，可先試用研究畫布。");
   const [devRetry, setDevRetry] = useState(0);
   const devBeginStarted = useRef(false);
@@ -63,10 +69,8 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const resumeFailures = useRef(0);
   const connectionLease = useRef<ConnectionLease | null>(null);
   const activeSessionStudy = useRef<string | null>(null);
-  const callbacks = useRef({ onState, onDisconnect, onConnection, onReady });
-  const approved = useRef(false);
-  callbacks.current = { onState, onDisconnect, onConnection, onReady };
-  approved.current = status?.approved === true;
+  const callbacks = useRef({ onState, onDisconnect, onConnection, onReady, queryHandler });
+  callbacks.current = { onState, onDisconnect, onConnection, onReady, queryHandler };
   const releaseLease = (lease = connectionLease.current) => {
     if (!lease) return;
     if (connectionLease.current === lease) connectionLease.current = null;
@@ -95,7 +99,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
       if (disposed) return;
       accessToken.current = next?.access_token ?? null;
       setSession(next);
-      if (!next) { resumeForUser.current = null; releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); }
+      if (!next) { resumeForUser.current = null; releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); setConnectionDelivered(false); callbacks.current.onDisconnect(); }
     });
     return () => { disposed = true; active.current = false; accessToken.current = null; subscription.subscription.unsubscribe(); releaseLease(); };
   }, []);
@@ -126,7 +130,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         setPairing({ pairingId: stored.pairingId, code: "", expiresAt: result.session.expiresAt ?? Date.now() });
         setStatus({ pairingId: stored.pairingId, claimed: true, approved: true, deviceLabel: null, phrase: null });
         setOnline(result.snapshot.connected); setPaused(result.snapshot.paused); callbacks.current.onState(result.snapshot);
-        callbacks.current.onConnection({ client, studyId: result.studyId, tabId: result.tabId, pairingId: stored.pairingId });
+        callbacks.current.onConnection({ client, studyId: result.studyId, tabId: result.tabId, pairingId: stored.pairingId }); setConnectionDelivered(true);
         setMessage(result.snapshot.connected ? "已安全恢復本地 Agent 連線。" : "已恢復配對，等待本地 Agent 重新連線。");
       } catch (error) {
         releaseLease(lease);
@@ -185,7 +189,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         setStudy(ref);
         setPairing({ pairingId: DEV_PAIRING_PLACEHOLDER, code: "", expiresAt: Number.MAX_SAFE_INTEGER });
         setStatus({ pairingId: DEV_PAIRING_PLACEHOLDER, claimed: true, approved: true, deviceLabel: null, phrase: null });
-        callbacks.current.onConnection({ client, studyId: ref.studyId, tabId: ref.tabId, pairingId: DEV_PAIRING_PLACEHOLDER });
+        callbacks.current.onConnection({ client, studyId: ref.studyId, tabId: ref.tabId, pairingId: DEV_PAIRING_PLACEHOLDER }); setConnectionDelivered(true);
         setMessage("等待本地 Agent 連線；請保持此頁開啟。");
       } catch (error) {
         releaseLease(lease);
@@ -235,52 +239,73 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     return () => { cancelled = true; if (timer) window.clearTimeout(timer); };
   }, [client, study]);
 
+  const signedIn = Boolean(session);
+  const pairingApproved = status?.approved === true;
+  // Before approval: poll the pairing status (pairing codes are removed in P3).
   useEffect(() => {
-    if (!pairing || !study || (!session && !DEV_AUTOPAIR)) return;
+    if (!pairing || !study || pairingApproved || (!signedIn && !DEV_AUTOPAIR)) return;
     let cancelled = false;
     let timer: number | null = null;
     let failures = 0;
-    let busy = false;
     const poll = async () => {
-      if (busy) { if (!cancelled) timer = window.setTimeout(() => void poll(), nextPollDelay(null, failures, isBackgroundDocument())); return; }
-      busy = true;
       let failure: unknown = null;
       try {
-        if (approved.current) {
-          const synced = await client.sync(study.studyId, study.tabId);
-          failures = 0;
-          if (synced.connected) activeSessionStudy.current = study.studyId;
-          if (!synced.connected) {
-            const resume = await client.browserStatus(study.studyId, study.tabId);
-            if (cancelled) return;
-            if (resume.session.active) activeSessionStudy.current = study.studyId;
-            const awaitingExchange = activeSessionStudy.current !== study.studyId && Date.now() < expiryMs(pairing.expiresAt);
-            // Dev autopair 沒有 session 是常態（等待 Agent／接手中），不拆掉分頁綁定。
-            if (!DEV_AUTOPAIR && mustClearStoredConnection(resume.session) && !awaitingExchange) {
-              cancelled = true; activeSessionStudy.current = null; releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); setMessage("本地 Agent 工作階段已到期，請重新建立配對。"); return;
-            }
-          }
-          if (!cancelled) { setOnline(synced.connected); setPaused(synced.paused); callbacks.current.onState(synced); setMessage(synced.view.phase === "error" ? "地圖呈現尚未完成；連線仍會繼續同步。" : synced.connected ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。"); }
-        } else {
-          const next = await client.pairingStatus(pairing.pairingId, study.tabId);
-          failures = 0;
-          if (!cancelled) { setStatus(next); if (next.approved) { const synced = await client.sync(study.studyId, study.tabId); if (!cancelled) { setOnline(synced.connected); setPaused(synced.paused); callbacks.current.onState(synced); setMessage(synced.connected ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。"); } } }
-        }
+        const next = await client.pairingStatus(pairing.pairingId, study.tabId);
+        failures = 0;
+        if (!cancelled) setStatus(next);
       } catch (error) {
         failure = error; ++failures;
         if (!cancelled) {
           const classified = classifyConnectionFailure(error);
           setOnline(false); setMessage(errorMessage(error));
-          if (classified.kind === "auth" || classified.kind === "expired") { releaseLease(); clearStoredConnection(); standby.current = null; devBeginStarted.current = false; setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); }
+          if (classified.kind === "auth" || classified.kind === "expired") { cancelled = true; releaseLease(); clearStoredConnection(); standby.current = null; devBeginStarted.current = false; setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); setConnectionDelivered(false); callbacks.current.onDisconnect(); }
         }
       } finally {
-        busy = false;
         if (!cancelled) timer = window.setTimeout(() => void poll(), nextPollDelay(failure, failures, isBackgroundDocument()));
       }
     };
     void poll();
     return () => { cancelled = true; if (timer) window.clearTimeout(timer); };
-  }, [client, pairing, session, study]);
+  }, [client, pairing, pairingApproved, signedIn, study]);
+
+  // After approval (P2): one /browser/wait long poll replaces the 3 s sync loop and the query poll.
+  useEffect(() => {
+    if (!pairing || !study || !pairingApproved || !connectionDelivered || (!signedIn && !DEV_AUTOPAIR)) return;
+    let cancelled = false;
+    const teardown = (text: string | null) => {
+      cancelled = true; channel.stop(); activeSessionStudy.current = null; releaseLease(); clearStoredConnection(); standby.current = null; devBeginStarted.current = false;
+      setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); setConnectionDelivered(false); callbacks.current.onDisconnect();
+      if (text) setMessage(text);
+    };
+    // A disconnected snapshot may mean the Agent session is gone for good; confirm once per change.
+    const confirmSession = async () => {
+      try {
+        const resume = await client.browserStatus(study.studyId, study.tabId);
+        if (cancelled) return;
+        if (resume.session.active) activeSessionStudy.current = study.studyId;
+        const awaitingExchange = activeSessionStudy.current !== study.studyId && Date.now() < expiryMs(pairing.expiresAt);
+        if (mustClearStoredConnection(resume.session) && !awaitingExchange) teardown("本地 Agent 工作階段已到期，請重新建立配對。");
+      } catch { /* The long poll reports connection failures. */ }
+    };
+    const channel = new BrowserChannel({
+      client, studyId: study.studyId, tabId: study.tabId, queryHandler: callbacks.current.queryHandler ?? null,
+      onState: snapshot => {
+        if (cancelled) return;
+        if (snapshot.connected) activeSessionStudy.current = study.studyId;
+        setOnline(snapshot.connected); setPaused(snapshot.paused); callbacks.current.onState(snapshot);
+        setMessage(snapshot.view.phase === "error" ? "地圖呈現尚未完成；連線仍會繼續同步。" : snapshot.connected ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。");
+        // Dev autopair 沒有 session 是常態（等待 Agent／接手中），不拆掉分頁綁定。
+        if (!snapshot.connected && !DEV_AUTOPAIR) void confirmSession();
+      },
+      onFailure: (error, _failures, terminal) => {
+        if (cancelled) return;
+        setOnline(false); setMessage(errorMessage(error));
+        if (terminal) teardown(null);
+      },
+    });
+    channel.start();
+    return () => { cancelled = true; channel.stop(); };
+  }, [client, connectionDelivered, pairing, pairingApproved, signedIn, study]);
 
   useEffect(() => () => { releaseLease(); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); }, []);
 
@@ -310,7 +335,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
       const request = await client.createPairing(created.studyId, created.tabId);
       if (!active.current) return;
       activeSessionStudy.current = null; setStudy(created); setPairing(request); setStatus(null); storeConnection({ ...created, pairingId: request.pairingId, userId: session!.user.id }); setMessage("請在本地 Codex 輸入配對碼，並回到此處確認。 ");
-      callbacks.current.onConnection({ client, studyId: created.studyId, tabId: created.tabId, pairingId: request.pairingId });
+      callbacks.current.onConnection({ client, studyId: created.studyId, tabId: created.tabId, pairingId: request.pairingId }); setConnectionDelivered(true);
     } catch (error) { releaseLease(); setMessage(error instanceof BridgeError && error.code === "AUTH_REQUIRED" ? "目前登入帳號尚未獲准使用研究連線。" : error instanceof BridgeError && error.code === "AUTH_UPSTREAM_FAILED" ? "登入驗證服務暫時無法連線，請稍後重試。" : error instanceof BridgeError ? errorMessage(error) : "目前無法建立配對；預覽不受影響。"); } finally { if (active.current) setCreating(false); }
   };
   const copyPairing = async () => {
@@ -322,7 +347,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   };
   const approve = async () => { if (!pairing || !study || !status?.phrase) return; try { await client.approve(pairing.pairingId, study.tabId, status.phrase); setMessage("已確認申請，等待本地 Codex 完成連線。 "); } catch { setMessage("確認失敗，尚未建立連線。 "); } };
   const pause = async () => { if (!study) return; try { const current = await client.sync(study.studyId, study.tabId); const next = await client.pause(study.studyId, study.tabId, !current.paused); setPaused(next.paused); callbacks.current.onState(next); setMessage(next.paused ? "已暫停網站操作。 " : "已恢復網站操作。 "); } catch { setMessage("暫停狀態未確認。 "); } };
-  const revoke = async () => { if (!study) return; try { await client.revoke(study.studyId); } catch { setMessage("撤銷未確認，保留配對資訊以便重試。 "); return; } releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); setMessage("已撤銷研究連線。離頁時無法保證請求送達。 "); };
+  const revoke = async () => { if (!study) return; try { await client.revoke(study.studyId); } catch { setMessage("撤銷未確認，保留配對資訊以便重試。 "); return; } releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); setConnectionDelivered(false); callbacks.current.onDisconnect(); setMessage("已撤銷研究連線。離頁時無法保證請求送達。 "); };
 
   if (DEV_AUTOPAIR) {
     const panel = devPanelState(study?.tabId ?? null, online, paused);

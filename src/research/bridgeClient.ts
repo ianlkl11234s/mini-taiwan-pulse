@@ -7,6 +7,14 @@ export const MAX_NETWORK_PROVIDER_RESPONSE_BYTES = 2 * 1024 * 1024;
 export const RESULT_FETCH_TIMEOUT_MS = 30_000;
 export const MAX_RESULT_BYTES = 24 * 1024 * 1024;
 export const QUERY_TRANSPORT_LIMIT_BYTES = 288 * 1024;
+/**
+ * P2 long poll (SPEC-prod-connect §2.4, §2.8). Must hold:
+ * hold 20 s < gateway timer 25 s < bridge wait 27 s < nginx 30 s < Cloudflare ~100 s,
+ * and hold 20 s < the 45 s browser-activity window refreshed by every wait.
+ */
+export const BROWSER_WAIT_HOLD_MS = 20_000;
+export const BRIDGE_WAIT_TIMEOUT_MS = 27_000;
+export type BrowserWaitEnvelope = { version: string; snapshot: StudyState; request: BrowserQuery | null; agent: { deviceLabel: string | null } };
 export type WarehouseResultMeta = { resultId: string; sha256: string; bytes: number; label: string; featureCount: number; style: Record<string, unknown> | null };
 export type WarehouseResultsMeta = { results: WarehouseResultMeta[]; missing: string[] };
 const STUDY_ID = /^[a-f0-9]{32}$/;
@@ -55,10 +63,14 @@ export class BridgeClient {
   async ack(studyId: string, tabId: string, commandId: string, expectedRevision: number): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/ack", { studyId, tabId, commandId, expectedRevision }, isStudyState)); }
   async report(studyId: string, tabId: string, revision: number, phase: "ready" | "error"): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/report", { studyId, tabId, revision, phase }, isStudyState)); }
   async pause(studyId: string, tabId: string, paused: boolean): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/pause", { studyId, tabId, paused }, isStudyState)); }
-  async query(studyId: string, tabId: string): Promise<{ request: BrowserQuery | null }> { return this.post("/browser/query", { studyId, tabId }, isQueryEnvelope); }
   async queryResult(studyId: string, tabId: string, requestId: string, result: QueryResult): Promise<void> { await this.post("/browser/query-result", { studyId, tabId, requestId, result }, isAnyResponse); }
   async networkProvider(studyId: string, tabId: string, operation: "route_distance" | "walking_isochrone", args: Record<string, unknown>): Promise<{ graph: Record<string, unknown>; payload: Record<string, unknown> }> {
     return this.post("/browser/network-provider", { studyId, tabId, operation, args }, isNetworkProviderResponse, MAX_NETWORK_PROVIDER_RESPONSE_BYTES);
+  }
+  /** Single long poll replacing the 3 s sync loop and the /browser/query loop. */
+  async wait(studyId: string, tabId: string, knownVersion: string | null, inFlightRequestId: string | null, acceptQueries: boolean, waitMs = BROWSER_WAIT_HOLD_MS): Promise<BrowserWaitEnvelope> {
+    const envelope = await this.post("/browser/wait", { studyId, tabId, knownVersion, inFlightRequestId, acceptQueries, waitMs }, isWaitEnvelope, QUERY_TRANSPORT_LIMIT_BYTES, BRIDGE_WAIT_TIMEOUT_MS);
+    return { ...envelope, snapshot: normalizeStudyState(envelope.snapshot) };
   }
   async revoke(studyId: string): Promise<void> { await this.post("/studies/revoke", { studyId }, isAnyResponse); }
   /** Raw GeoJSON text of an uploaded warehouse result. Integrity is checked by the caller against the relay sha256, never the X-Result-Sha256 header. */
@@ -181,10 +193,11 @@ function normalizeScene(scene: Scene): Scene { return { ...scene, results: norma
 function normalizeCommand(command: Command): Command { return { ...command, patch: "results" in command.patch ? { ...command.patch, results: normalizeResultCollection(command.patch.results as ResultCollectionInput | undefined) } : command.patch }; }
 function normalizeStudyState(state: StudyState): StudyState { return { ...state, scene: normalizeScene(state.scene), pendingCommand: state.pendingCommand ? normalizeCommand(state.pendingCommand) : null }; }
 function normalizeBrowserSessionStatus(status: BrowserSessionStatus): BrowserSessionStatus { return { ...status, snapshot: normalizeStudyState(status.snapshot) }; }
-function isQueryEnvelope(value: unknown): value is { request: BrowserQuery | null } {
-  if (!exactObject(value, ["request"])) return false;
-  const request = value.request;
-  return request === null || exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["time_context", "layer_details", "layer_controls", "geocode_address", "explore_data", "compare_neighborhoods", "search_layers", "describe_layer", "describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "read_layer", "map_context", "find_places", "nearby", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", "create_analysis_scope", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
+function isWaitEnvelope(value: unknown): value is BrowserWaitEnvelope {
+  return exactObject(value, ["version", "snapshot", "request", "agent"]) && typeof value.version === "string" && /^[a-f0-9]{16}$/.test(value.version) && isStudyState(value.snapshot) && (value.request === null || isBrowserQuery(value.request)) && exactObject(value.agent, ["deviceLabel"]) && (value.agent.deviceLabel === null || typeof value.agent.deviceLabel === "string" && value.agent.deviceLabel.length <= 80);
+}
+function isBrowserQuery(request: unknown): request is BrowserQuery {
+  return exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["time_context", "layer_details", "layer_controls", "geocode_address", "explore_data", "compare_neighborhoods", "search_layers", "describe_layer", "describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "read_layer", "map_context", "find_places", "nearby", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", "create_analysis_scope", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
 }
 
 function isFocus(value: unknown): boolean { return value === null || exactObject(value, ["resultId", "recordId"]) && [value.resultId, value.recordId].every(item => typeof item === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(item)); }

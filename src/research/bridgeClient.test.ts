@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { BridgeClient, BridgeError, MAX_BRIDGE_RESPONSE_BYTES, MAX_RESULT_BYTES, RESEARCH_API_PREFIX, RESULT_FETCH_TIMEOUT_MS, visibleResultIds, warehouseBaseResultId } from "./bridgeClient";
+import { readFileSync } from "node:fs";
+import { BRIDGE_TIMEOUT_MS, BRIDGE_WAIT_TIMEOUT_MS, BROWSER_WAIT_HOLD_MS, BridgeClient, BridgeError, MAX_BRIDGE_RESPONSE_BYTES, MAX_RESULT_BYTES, RESEARCH_API_PREFIX, RESULT_FETCH_TIMEOUT_MS, visibleResultIds, warehouseBaseResultId } from "./bridgeClient";
 
 const gatewayRoot = process.env.PULSE_RESEARCH_GATEWAY_ROOT;
 
@@ -51,11 +52,14 @@ describe("BridgeClient", () => {
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...resume, snapshot: { ...state, tabId: "other" } }))).browserStatus("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
-  it("accepts bounded layer, spatial, and network query operations", async () => {
+  it("accepts bounded layer, spatial, and network query operations in the wait envelope", async () => {
     for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "create_analysis_scope", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone"]) {
-      const query = { request: { requestId: "query-1", operation, args: { layerKey: "schools" }, expiresAt: Date.now() + 30_000 } };
-      await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(query))).query("study-1", "tab-1")).resolves.toEqual(query);
+      const request = { requestId: "query-1", operation, args: { layerKey: "schools" }, expiresAt: Date.now() + 30_000 };
+      const envelope = { version: "0f1e2d3c4b5a6978", snapshot: state, request, agent: { deviceLabel: null } };
+      await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(envelope))).wait("study-1", "tab-1", null, null, true)).resolves.toMatchObject({ request });
     }
+    const unknown = { version: "0f1e2d3c4b5a6978", snapshot: state, request: { requestId: "q", operation: "run_sql", args: {}, expiresAt: 1 }, agent: { deviceLabel: null } };
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(unknown))).wait("study-1", "tab-1", null, null, true)).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
   it("accepts unclaimed pairing null fields and rejects shallow or extra state", async () => {
@@ -202,3 +206,35 @@ describe("BridgeClient P1 result channel", () => {
     }
   });
 });
+
+describe("BridgeClient P2 long poll", () => {
+  const envelope = { version: "0f1e2d3c4b5a6978", snapshot: state, request: null, agent: { deviceLabel: null } };
+  it("posts the wait body with a 20 s hold and validates the exact envelope", async () => {
+    const fetcher = vi.fn().mockResolvedValue(response(envelope));
+    await expect(new BridgeClient(async () => "t", fetcher).wait("study-1", "tab-1", "a1b2c3d4e5f60718", "query-9", false)).resolves.toMatchObject({ version: envelope.version, snapshot: { studyId: "study-1" }, request: null, agent: { deviceLabel: null } });
+    expect(JSON.parse(fetcher.mock.calls[0]?.[1].body)).toEqual({ studyId: "study-1", tabId: "tab-1", knownVersion: "a1b2c3d4e5f60718", inFlightRequestId: "query-9", acceptQueries: false, waitMs: BROWSER_WAIT_HOLD_MS });
+    expect(fetcher.mock.calls[0]?.[0]).toBe(`${RESEARCH_API_PREFIX}/browser/wait`);
+    for (const bad of [{ ...envelope, extra: 1 }, { ...envelope, version: "short" }, { ...envelope, agent: { deviceLabel: null, sessionExpiresAt: 1 } }, { ...envelope, snapshot: { ...state, extra: true } }]) {
+      await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(bad))).wait("study-1", "tab-1", null, null, true)).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    }
+  });
+
+  it("keeps the timeout chain ordered (hold < gateway 25 s < bridge wait < nginx 30 s < Cloudflare 100 s; hold < 45 s activity)", () => {
+    const GATEWAY_WAIT_TIMER_MS = 25_000, NGINX_READ_MS = 30_000, CLOUDFLARE_MS = 100_000, ACTIVE_WINDOW_MS = 45_000;
+    expect(BROWSER_WAIT_HOLD_MS).toBe(20_000);
+    expect(BRIDGE_WAIT_TIMEOUT_MS).toBe(27_000);
+    expect(BROWSER_WAIT_HOLD_MS).toBeLessThan(GATEWAY_WAIT_TIMER_MS);
+    expect(GATEWAY_WAIT_TIMER_MS).toBeLessThan(BRIDGE_WAIT_TIMEOUT_MS);
+    expect(BRIDGE_WAIT_TIMEOUT_MS).toBeLessThan(NGINX_READ_MS);
+    expect(NGINX_READ_MS).toBeLessThan(CLOUDFLARE_MS);
+    expect(BROWSER_WAIT_HOLD_MS).toBeLessThan(ACTIVE_WINDOW_MS);
+    expect(BRIDGE_TIMEOUT_MS).toBe(8_000);
+    expect(nginxReadTimeout("/api/research/v1/")).toBe(NGINX_READ_MS);
+  });
+});
+
+function nginxReadTimeout(prefix: string): number {
+  const conf = readFileSync("nginx.conf", "utf8");
+  const block = conf.slice(conf.indexOf(`location ^~ ${prefix} {`));
+  return Number(/proxy_read_timeout (\d+)s;/.exec(block.slice(0, block.indexOf("\n    }")))?.[1]) * 1_000;
+}

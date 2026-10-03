@@ -1,7 +1,7 @@
 import { beforeEach, afterEach, expect, it, vi } from "vitest";
 
 // Run the component's actual effects with controlled auth delivery and deferred I/O.
-const h = vi.hoisted(() => ({ slots: [] as any[], cursor: 0, pending: [] as (() => void)[], auth: null as any, resolveStatus: null as any, statusCalls: 0 }));
+const h = vi.hoisted(() => ({ slots: [] as any[], cursor: 0, pending: [] as (() => void)[], auth: null as any, resolveStatus: null as any, statusCalls: 0, order: [] as string[], waits: [] as unknown[][] }));
 vi.mock("react", () => ({
   useRef: (value: unknown) => { const i = h.cursor++; return h.slots[i] ??= { current: value }; },
   useState: (value: unknown) => { const i = h.cursor++; h.slots[i] ??= { value }; return [h.slots[i].value, (v: unknown) => { h.slots[i].value = v; }]; },
@@ -20,14 +20,15 @@ vi.mock("../bridgeClient", async importOriginal => {
   return { ...original, BridgeClient: class {
     browserStatus() { h.statusCalls++; return new Promise(resolve => { h.resolveStatus = resolve; }); }
     sync() { return new Promise(() => {}); }
+    wait(...args: unknown[]) { h.order.push("wait"); h.waits.push(args); return new Promise(() => {}); }
   } };
 });
 import { ResearchConnection } from "../ResearchConnection";
-const onConnection = vi.fn();
+const onConnection = vi.fn((context: unknown) => { if (context) h.order.push("connection"); });
 function render() { h.cursor = 0; ResearchConnection({ onState: vi.fn(), onDisconnect: vi.fn(), onConnection }); const pending = h.pending.splice(0); pending.forEach(run => run()); }
 async function flush() { for (let i = 0; i < 10; i++) await Promise.resolve(); }
 beforeEach(() => {
-  h.slots = []; h.pending = []; h.statusCalls = 0; h.resolveStatus = null; onConnection.mockClear();
+  h.slots = []; h.pending = []; h.statusCalls = 0; h.resolveStatus = null; h.order = []; h.waits = []; onConnection.mockClear();
   const storage = new Map([["pulse.research.connection.v1", JSON.stringify({ studyId: "study", tabId: "tab", pairingId: "pair", userId: "owner" })]]);
   vi.stubGlobal("window", { sessionStorage: { getItem: (k: string) => storage.get(k), removeItem: (k: string) => storage.delete(k) }, setTimeout, clearTimeout });
   vi.stubGlobal("navigator", { locks: { request: async (_n: string, _o: unknown, cb: any) => cb({ name: "lease" }) } });
@@ -47,4 +48,12 @@ it("does not restore a session revoked by the Gateway", async () => {
   h.resolveStatus({ session: { active: false } }); await flush(); render();
   expect(onConnection).not.toHaveBeenCalledWith(expect.objectContaining({ studyId: "study" }));
   expect(window.sessionStorage.getItem("pulse.research.connection.v1")).toBeUndefined();
+});
+it("starts the /browser/wait long poll only after the restored connection is delivered", async () => {
+  render(); await flush(); render(); await flush();
+  expect(h.waits).toHaveLength(0);
+  h.resolveStatus({ studyId: "study", tabId: "tab", session: { active: true, expiresAt: Date.now() + 60_000 }, snapshot: { connected: true, paused: false } });
+  await flush(); render(); await flush();
+  expect(h.order.slice(0, 2)).toEqual(["connection", "wait"]);
+  expect(h.waits[0]).toEqual(["study", "tab", null, null, false, 20_000]);
 });

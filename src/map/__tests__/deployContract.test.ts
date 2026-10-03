@@ -318,8 +318,9 @@ describe("deploy 契約（nginx + pull script）", () => {
       expect(location).toContain("access_log off;");
       expect(location).not.toMatch(/root |alias |try_files/);
     }
-    // timeout 鏈（SPEC §2.8）：上傳 24m／不緩衝／90 s、下載 60 s。
+    // timeout 鏈（SPEC §2.8）：一般 30 s（> bridge wait 27 s）、上傳 24m／不緩衝／90 s、下載 60 s。
     expect(general).toContain("client_max_body_size 32k;");
+    expect(general).toContain("proxy_read_timeout 30s;");
     expect(upload).toContain("client_max_body_size 24m;");
     expect(upload).toContain("proxy_request_buffering off;");
     expect(upload).toContain("proxy_read_timeout 90s;");
