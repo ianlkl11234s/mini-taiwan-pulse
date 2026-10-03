@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { RADIUS } from "../styles/designTokens";
+import { LIGHT, RADIUS } from "../styles/designTokens";
 
 type SheetLevel = "collapsed" | "half" | "full";
 
@@ -7,6 +7,8 @@ const LEVELS: SheetLevel[] = ["collapsed", "half", "full"];
 
 interface Props {
   isLandscape: boolean;
+  /** 跟隨底圖主題（spec §5.5：手機底部面板與桌機面板同一套色票）；暗色維持原樣。 */
+  isDarkTheme?: boolean;
   /** Another mobile surface opened; keep the map controls mutually exclusive. */
   forceCollapsed?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
@@ -28,7 +30,7 @@ function getHeight(level: SheetLevel, isLandscape: boolean): number {
   }
 }
 
-export function MobileBottomSheet({ isLandscape, forceCollapsed = false, onExpandedChange, children }: Props) {
+export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollapsed = false, onExpandedChange, children }: Props) {
   const [level, setLevel] = useState<SheetLevel>("collapsed");
 
   useEffect(() => {
@@ -54,10 +56,10 @@ export function MobileBottomSheet({ isLandscape, forceCollapsed = false, onExpan
         height,
         // 統計圖例與地圖控制也在右下角；sheet 必須在其上方，否則會攔截圖層詳情按鈕。
         zIndex: 40,
-        background: "rgba(0,0,0,0.7)",
+        background: isDarkTheme ? "rgba(0,0,0,0.7)" : LIGHT.surfaceStrong,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        borderTop: "1px solid rgba(255,255,255,0.12)",
+        borderTop: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.12)" : LIGHT.border}`,
         borderRadius: "16px 16px 0 0",
         transition: "height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
@@ -76,7 +78,7 @@ export function MobileBottomSheet({ isLandscape, forceCollapsed = false, onExpan
           display: "flex",
           border: 0,
           background: "transparent",
-          color: "#cbd5e1",
+          color: isDarkTheme ? "#cbd5e1" : LIGHT.textMuted,
           fontSize: 12,
           gap: 8,
           justifyContent: "center",
@@ -92,7 +94,7 @@ export function MobileBottomSheet({ isLandscape, forceCollapsed = false, onExpan
             width: 36,
             height: 4,
             borderRadius: RADIUS.sm,
-            background: "rgba(255,255,255,0.3)",
+            background: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.25)",
           }}
         />
       </button>
