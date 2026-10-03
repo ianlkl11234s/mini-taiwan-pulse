@@ -51,6 +51,23 @@ describe("StudyController", () => {
     ackGate.resolve(state(1)); await vi.waitFor(() => expect(client.report).toHaveBeenCalledWith("study-1", "tab-1", 1, "ready"));
   });
 
+  it("manual before the first successful render keeps the gateway results; afterwards local is authoritative", async () => {
+    const results = { items: [{ resultId: "wh-1" }] } as unknown as NonNullable<Scene["results"]>;
+    const stored = state(0, { scene: { ...baseScene, results } });
+    const { controller, client, render } = setup();
+    render.mockResolvedValueOnce("error");
+    controller.receive(stored);
+    await Promise.resolve(); await Promise.resolve();
+    controller.manual({ ...baseScene, results: null });
+    await vi.waitFor(() => expect(client.manual).toHaveBeenCalledTimes(1));
+    expect(client.manual.mock.calls[0]![3].results).toBe(results);
+    await vi.waitFor(() => expect(client.report).toHaveBeenCalled());
+    await vi.waitFor(() => expect(controller["everReady"]).toBe(true));
+    controller.manual({ ...baseScene, results: null });
+    await vi.waitFor(() => expect(client.manual).toHaveBeenCalledTimes(2));
+    expect(client.manual.mock.calls[1]![3].results).toBeNull();
+  });
+
   it("manual clear scene renders and reports ready", async () => {
     const { controller, client, render } = setup();
     controller.receive(state(0));

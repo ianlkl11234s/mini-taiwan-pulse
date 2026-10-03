@@ -15,6 +15,8 @@ export class StudyController {
   private uncertainCommandId: string | null = null;
   /** False after the newest render failed or did not settle (e.g. the map was not prepared yet); represent() retries it. */
   private settled = true;
+  /** True once any render settled "ready"; until then local scene.results (not yet restored after a reload) must not overwrite the gateway's. */
+  private everReady = false;
   constructor(private readonly connection: BridgeConnectionContext, private readonly render: Render, private readonly onError: () => void) {}
 
   receive(state: StudyState): void {
@@ -34,7 +36,8 @@ export class StudyController {
     this.interacting = false;
     if (this.stopped || !this.state) return;
     ++this.generation;
-    this.queued = scene;
+    // Before the first successful render (e.g. reload restore still pending) the local results are empty, not authoritative.
+    this.queued = this.everReady && this.settled || this.state.scene.results === undefined ? scene : { ...scene, results: this.state.scene.results };
     if (!this.busy) void this.flushManual();
   }
 
@@ -61,7 +64,7 @@ export class StudyController {
     const generation = ++this.generation;
     let rendered: Promise<"ready" | "error">;
     try { rendered = this.render(scene, revision); } catch { this.settled = false; this.onError(); return; }
-    void rendered.then(phase => { if (generation === this.generation) this.settled = phase === "ready"; }, () => { if (generation === this.generation) this.settled = false; });
+    void rendered.then(phase => { if (generation === this.generation) { this.settled = phase === "ready"; if (this.settled) this.everReady = true; } }, () => { if (generation === this.generation) this.settled = false; });
     void rendered.then(async phase => {
       if (!report || this.stopped || generation !== this.generation || this.state?.revision !== revision) return;
       const { client, studyId, tabId } = this.connection;
@@ -85,7 +88,7 @@ export class StudyController {
         renderFailureNotified = true;
         this.onError();
       };
-      void rendered.then(phase => { if (generation === this.generation) this.settled = phase === "ready"; }, () => { if (generation === this.generation) this.settled = false; });
+      void rendered.then(phase => { if (generation === this.generation) { this.settled = phase === "ready"; if (this.settled) this.everReady = true; } }, () => { if (generation === this.generation) this.settled = false; });
       void rendered.catch(() => {
         notifyRenderFailure();
       });
