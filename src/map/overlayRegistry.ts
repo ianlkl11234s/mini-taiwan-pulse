@@ -9435,12 +9435,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       envStatusColorExpr("uv_level", CWA_UV_LEVELS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "uv_level"], null]], { dynamicData: true }),
   ],
 
-  // RPI 河段試作（淡水河水系 38 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線
+  // RPI 河段推估（全台 301 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線
   //（line-dasharray 不支援 data-driven）。中心線來自 OSM → source attribution 必帶 ODbL。
   {
-    id: "riverRpiSegmentsTamsui",
-    sourceUrl: "./environment/river_rpi_segments_tamsui_trial.geojson",
-    sourceId: "river-rpi-segments-tamsui",
+    id: "riverRpiSegments",
+    sourceUrl: "./environment/river_rpi_segments.geojson",
+    sourceId: "river-rpi-segments",
     attribution: OSM_ODBL_ATTRIBUTION,
     layers: [
       {
@@ -9448,9 +9448,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["!", ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]]],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (_isDark, p) => ({
-          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsTamsuiModeIdx ?? 0) as unknown as string,
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsModeIdx ?? 0) as unknown as string,
           "line-width": 3,
-          "line-opacity": p?.riverRpiSegmentsTamsuiOpacity ?? 0.85,
+          "line-opacity": p?.riverRpiSegmentsOpacity ?? 0.85,
         }),
       },
       {
@@ -9458,9 +9458,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]],
         layout: { "line-join": "round" },
         paint: (_isDark, p) => ({
-          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsTamsuiModeIdx ?? 0) as unknown as string,
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsModeIdx ?? 0) as unknown as string,
           "line-width": 3,
-          "line-opacity": p?.riverRpiSegmentsTamsuiOpacity ?? 0.85,
+          "line-opacity": p?.riverRpiSegmentsOpacity ?? 0.85,
           "line-dasharray": [2, 2],
         }),
       },

@@ -2861,10 +2861,10 @@
     },
     {
       "layers": [
-        "river-rpi-segments-tamsui-line",
-        "river-rpi-segments-tamsui-tidal"
+        "river-rpi-segments-line",
+        "river-rpi-segments-tidal"
       ],
-      "type": "riverRpiSegmentsTamsui"
+      "type": "riverRpiSegments"
     },
     {
       "layers": [
@@ -49820,7 +49820,7 @@
     {
       "dynamicData": null,
       "filter": null,
-      "id": "riverRpiSegmentsTamsui",
+      "id": "riverRpiSegments",
       "layers": [
         {
           "filter": [
@@ -50012,8 +50012,8 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": null,
-      "sourceId": "river-rpi-segments-tamsui",
-      "sourceUrl": "./environment/river_rpi_segments_tamsui_trial.geojson"
+      "sourceId": "river-rpi-segments",
+      "sourceUrl": "./environment/river_rpi_segments.geojson"
     },
     {
       "dynamicData": null,
@@ -69948,7 +69948,7 @@
         "valueText": "1.00"
       }
     ],
-    "riverRpiSegmentsTamsui": [
+    "riverRpiSegments": [
       {
         "label": "透明度 0.85",
         "max": 1,

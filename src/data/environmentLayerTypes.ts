@@ -14,7 +14,7 @@ export const ENVIRONMENT_LAYER_COLORS = {
   drinkingWaterProtectionZones: "#2563eb",
   // 第二波（2026-10-02）
   seaWaterQualityStations: SEQ.utilities.colors[4],
-  riverRpiSegmentsTamsui: "#38bdf8",
+  riverRpiSegments: "#38bdf8",
   pm25ManualStations: MICRO_SENSOR_PM25_BANDS[0]!.color,
   dioxinStations: SEQ.environment.colors[4],
   incineratorEmissions: SEQ.livestock.colors[3],
@@ -175,7 +175,7 @@ export const INCINERATOR_NOX_STOPS: readonly EnvGradientStop[] = [
   { value: 80, color: SEQ.livestock.colors[4] },
 ];
 
-// ── RPI 河段試作（淡水河水系；與 riverRpiStations 同一組官方四級色）──
+// ── RPI 河段推估（全台；與 riverRpiStations 同一組官方四級色）──
 export const RIVER_RPI_SEGMENT_MODES = [
   { label: "最新一次", value: "latest", field: "class_latest" },
   { label: "近 12 月平均", value: "mean12m", field: "class_12m_mean" },
@@ -184,13 +184,48 @@ export function riverRpiSegmentColorExpr(modeIdx: number): unknown[] {
   const field = RIVER_RPI_SEGMENT_MODES[modeIdx]?.field ?? RIVER_RPI_SEGMENT_MODES[0].field;
   return ["match", ["get", field], ...RIVER_RPI_CLASSES.flatMap((row) => [row.value, row.color]), RIVER_RPI_NO_DATA_COLOR];
 }
-/** 已確認感潮段（tidal=yes，4 段）RPI 代表性較差 → 虛線；部分感潮未驗證（28 段）只在 popup 揭露，免得整個水系都變虛線。 */
+/** 已確認感潮段（tidal=yes，4 段）RPI 代表性較差 → 虛線；部分感潮未驗證（32 段）只在 popup 揭露，免得整個水系都變虛線。
+ *  感潮只在淡水河／高屏溪判定，其餘流域一律 unknown（不代表不感潮）。 */
 export const RIVER_RPI_TIDAL_VALUES = ["yes"] as const;
 export const RIVER_RPI_TIDAL_LABELS: Record<string, string> = {
   yes: "感潮段",
   partial_unverified: "部分感潮（未驗證）",
-  unknown: "未知",
+  unknown: "未判定",
 };
+/** 測站河名 → 河段的指派方式（popup 白話；不顯示內部代碼）。 */
+export const RIVER_RPI_ASSIGN_METHOD_LABELS: Record<string, string> = {
+  same_name: "測站登記河名與河道同名",
+  nearest_in_basin_200m: "依測站位置對應同流域 200 公尺內最近河道",
+};
+/** 改派：環境部測站河名常填流域主流名，實際在支流上 → 依位置對應（只有這種方式才顯示「登記為 X，對應至 Y」）。 */
+export const RIVER_RPI_REASSIGN_METHOD = "nearest_in_basin_200m";
+/** 流向判定（direction）。推斷／未驗證在 popup 主區顯示，不再於待複核重複。 */
+export const RIVER_RPI_DIRECTION_LABELS: Record<string, string> = {
+  verified: "已依水利署河系驗證",
+  inferred_osm_confluence: "推斷（依河川匯流形狀，無官方河系可驗）",
+  unverified: "未驗證",
+};
+/** review_flags（分號分隔）→ 白話。direction_* 由流向列表達，這裡略過；未列出的旗標顯示通用文字，絕不顯示原字串。 */
+export const RIVER_RPI_REVIEW_FLAG_LABELS: Record<string, string | null> = {
+  code_basin_conflict: "河道代碼與流域不一致，待複核",
+  direction_inferred: null,
+  direction_unverified: null,
+  low_coverage: "測站只涵蓋整條河的一小段（多為僅一站且位於下游）",
+  station_basin_label_mismatch: "測站登記的流域名稱與官方流域範圍不一致（命名差異，不代表配錯）",
+  station_offline_gt200m: "測站距河道中心線超過 200 公尺，依官方河道範圍採用",
+  short_segment_lt100m: "河段短於 100 公尺",
+  same_name_outside_basin: "同名河道位於其他流域，待複核",
+  shared_river_across_groups: "同一河道被兩個流域重複切段，待複核",
+  group_error: "流域分組處理異常，待複核",
+};
+export const RIVER_RPI_REVIEW_FLAG_FALLBACK = "其他待複核事項";
+export function riverRpiReviewNotes(raw: unknown): string[] {
+  if (typeof raw !== "string" || raw.trim() === "") return [];
+  const notes = raw.split(";").map((flag) => flag.trim()).filter(Boolean)
+    .map((flag) => (flag in RIVER_RPI_REVIEW_FLAG_LABELS ? RIVER_RPI_REVIEW_FLAG_LABELS[flag] : RIVER_RPI_REVIEW_FLAG_FALLBACK))
+    .filter((note): note is string => note != null);
+  return [...new Set(notes)];
+}
 export const OSM_ODBL_ATTRIBUTION = "© OpenStreetMap contributors (ODbL)";
 
 // ── 環境輻射（核安會 63 站；≠ nuclearRadiation 台電核設施周界，色系刻意用紫，不用綠）──
