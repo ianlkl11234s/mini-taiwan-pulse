@@ -591,7 +591,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
-  jpWaterLakes: "湖沼 湖沼（W09・2005）",
+  jpWaterLakes: "湖沼 湖沼（2005）",
   jpWaterDams: "水壩 ダム（2014）",
   jpWaterRivers: "河川流路 河川（2006–2009）",
   jpWaterSupplyFacilities: "上水道相關設施（2010）",

@@ -878,34 +878,34 @@ export const LAYER_MANIFEST = {
   },
 
   jpNaturalParksNational: {
-    key: "jpNaturalParksNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "A10 2010" }), expandable: true,
+    key: "jpNaturalParksNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國立公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksQuasiNational: {
-    key: "jpNaturalParksQuasiNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, ...layerName({ zh: "國定公園", alt: "国定公園", qualifier: "A10 2010" }), expandable: true,
+    key: "jpNaturalParksQuasiNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, ...layerName({ zh: "國定公園", alt: "国定公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksQuasiNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_quasi_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksQuasiNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國定公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksPrefectural: {
-    key: "jpNaturalParksPrefectural", section: { theme: "自然保護", group: "自然公園 A10 historical" }, ...layerName({ zh: "都道府縣立自然公園", alt: "都道府県立自然公園", qualifier: "A10 2010" }), expandable: true,
+    key: "jpNaturalParksPrefectural", section: { theme: "自然保護", group: "自然公園 A10 historical" }, ...layerName({ zh: "都道府縣立自然公園", alt: "都道府県立自然公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksPrefectural, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_prefectural。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksPrefectural", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
 
   jpNatureConservationArea: {
-    key: "jpNatureConservationArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, ...layerName({ zh: "自然保育地域", alt: "自然保全地域", qualifier: "A11 2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
+    key: "jpNatureConservationArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, ...layerName({ zh: "自然保育地域", alt: "自然保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_area。", note: "HOLD_LICENSE；全國發布待用途別 clearance，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全地域；HOLD_LICENSE。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpPrimitiveNatureEnvironmentArea: {
-    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, ...layerName({ zh: "原生自然環境地域", alt: "原生自然環境保全地域", qualifier: "A11 2015" }), expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
+    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, ...layerName({ zh: "原生自然環境地域", alt: "原生自然環境保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_primitive_nature_environment_area。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpPrimitiveNatureEnvironmentArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpNatureConservationSpecialDistrict: {
-    key: "jpNatureConservationSpecialDistrict", section: { theme: "自然保護", group: "自然保全 A11 historical" }, ...layerName({ zh: "自然保育特別地區", alt: "自然保全特別地区", qualifier: "A11 2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
+    key: "jpNatureConservationSpecialDistrict", section: { theme: "自然保護", group: "自然保全 A11 historical" }, ...layerName({ zh: "自然保育特別地區", alt: "自然保全特別地区", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_special_district。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationSpecialDistrict", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
 
@@ -931,7 +931,7 @@ export const LAYER_MANIFEST = {
     upstream: { status: "catalog_missing", datasets: [], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_natural。", note: "CC BY-SA 4.0；5 個代表點不是 property boundary。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageNatural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行自然遺產 5 個代表點；非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "自然"],
   },
   jpWorldNaturalHeritageHistorical: {
-    key: "jpWorldNaturalHeritageHistorical", section: { theme: "世界遺產", group: "Historical" }, ...layerName({ zh: "世界自然遺產歷史範圍", alt: "世界自然遺産の歴史的範囲", qualifier: "A28 2011" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
+    key: "jpWorldNaturalHeritageHistorical", section: { theme: "世界遺產", group: "Historical" }, ...layerName({ zh: "世界自然遺產歷史範圍", alt: "世界自然遺産の歴史的範囲", qualifier: "2011" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
     upstream: { status: "catalog_missing", datasets: [], processing: "KSJ A28-10 2011 snapshot；3 polygons。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；只含知床、白神山地、屋久島，缺現行 2 處。" }, dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load A28 historical GeoJSON polygon", staticAssets: ["./world/jp_world_natural_heritage_ksj_2011.geojson"] }, legend: null, popup: "jpWorldNaturalHeritageHistorical", params: { count: 1, kinds: ["slider"] }, description: "A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。", topics: ["日本", "世界遺產", "historical", "A28"],
   },
   jpRamsarSites: {
@@ -1784,7 +1784,7 @@ export const LAYER_MANIFEST = {
   jpMedicalAreasTertiary: jpMedicalAreaManifest("jpMedicalAreasTertiary", 2),
 
   jpWaterDams: { key: "jpWaterDams", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "水壩", alt: "ダム", qualifier: "2014" }), expandable: true, color: "#0369a1", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=dams; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterDams", popup: "jpWaterDams", params: { count: 1, kinds: ["slider"] }, description: "2014 歷史水壩點位；非即時蓄水量或全國現況。", topics: ["日本", "水資源", "水壩", "歷史", "OWNER_ONLY"] },
-  jpWaterLakes: { key: "jpWaterLakes", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "湖沼", alt: "湖沼", qualifier: "W09・2005" }), expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
+  jpWaterLakes: { key: "jpWaterLakes", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "湖沼", alt: "湖沼", qualifier: "2005" }), expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
   jpWaterRivers: { key: "jpWaterRivers", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "河川流路", alt: "河川", qualifier: "2006–2009" }), expandable: true, color: "#0284c7", icon: Route, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=rivers; segments are not river count", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterRivers", popup: "jpWaterRivers", params: { count: 1, kinds: ["slider"] }, description: "2006–2009 歷史河川流路線段；不是河川條數，端點已排除。", topics: ["日本", "水資源", "河川", "歷史", "OWNER_ONLY"] },
   jpWaterSupplyFacilities: { key: "jpWaterSupplyFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "上水道相關設施", qualifier: "2010" }), expandable: true, color: "#06b6d4", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply; subtypes are conservative name-pattern classifications", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyFacilities", popup: "jpWaterSupplyFacilities", params: { count: 1, kinds: ["slider"] }, description: "2010 上水道相關設施；依設施名稱保守分類，未命中者保留未分類。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
   jpWaterSupplyAreas: { key: "jpWaterSupplyAreas", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "給水區域", alt: "給水区域", qualifier: "2010" }), expandable: true, color: "#7dd3fc", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply_areas", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyAreas", popup: "jpWaterSupplyAreas", params: { count: 1, kinds: ["slider"] }, description: "2010 給水區域歷史面；不是事業者數，低透明度以保留其他點選。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
@@ -5704,7 +5704,7 @@ export const LAYER_MANIFEST = {
   windField: {
     key: "windField",
     section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
-    ...layerName({ zh: "風場", alt: "Wind Field 10m" }),
+    ...layerName({ zh: "風場", alt: "Wind Field", qualifier: "10m" }),
     expandable: true,
     color: "#94a3b8",
     icon: Wind,
@@ -8459,7 +8459,7 @@ export const LAYER_MANIFEST = {
   waterFloodExtreme: {
     key: "waterFloodExtreme",
     section: { theme: "水資源 Water", group: "分析" },
-    ...layerName({ zh: "淹水潛勢", alt: "Flood 650mm/24h" }),
+    ...layerName({ zh: "淹水潛勢", alt: "Flood", qualifier: "650mm/24h" }),
     expandable: true,
     color: "#fb7185",
     icon: AlertTriangle,
@@ -9582,7 +9582,7 @@ export const LAYER_MANIFEST = {
   agriculture: {
     key: "agriculture",
     section: { theme: "農業 Agriculture", group: "面 / 分區" },
-    ...layerName({ zh: "農田範圍", alt: "FTW Fields 2025" }),
+    ...layerName({ zh: "農田範圍", alt: "FTW Fields", qualifier: "2025" }),
     expandable: true,
     color: "#2e7d32",
     icon: Sprout,
@@ -10528,7 +10528,7 @@ export const LAYER_MANIFEST = {
   roadCongestion: {
     key: "roadCongestion",
     section: { theme: "交通 Move", group: "即時監控" },
-    ...layerName({ zh: "省道路況", alt: "Provincial v1" }),
+    ...layerName({ zh: "省道路況", alt: "Provincial", qualifier: "v1" }),
     expandable: true,
     color: "#fb923c",
     icon: AlertTriangle,
