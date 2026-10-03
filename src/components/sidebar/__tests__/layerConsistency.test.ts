@@ -474,9 +474,14 @@ describe("區域統計 sidebar 接線", () => {
   });
 
   it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情（共用 ExpandedControls），每一列都有可存取的展開按鈕", () => {
-    expect(readFileSync('src/components/sidebar/ExpandedControls.tsx', 'utf8')).toContain('isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />');
+    // C 段：統計的篩選走共用連動選單（ParamControlList），來源與處理紀錄在最後的「說明・來源」
+    const expanded = readFileSync('src/components/sidebar/ExpandedControls.tsx', 'utf8');
+    expect(expanded).toContain('<LayerInfoLine layerKey={layerKey}><StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} /></LayerInfoLine>');
+    expect(expanded.indexOf('<ParamControlList controls={controls} />')).toBeLessThan(expanded.indexOf('<StatisticsDetails'));
+    expect(expanded).toContain('useLinkedSelects(layerKey);');
     const panel = readFileSync('src/components/sidebar/LayersPanel.tsx', 'utf8');
-    expect(panel).toContain('textColor={TEXT_STRONG}\n                          dimColor={DIM}\n                          colorScheme={COLOR_SCHEME}');
+    // 群組變體由目錄資料（LayerDef.variant）決定，不在面板裡查群組表
+    expect(panel).toContain('if (!variant.lead) return null;');
     // 每一列都有展開區（至少「說明・來源」），列按鈕帶 aria-expanded
     expect(panel).toContain('{isExpanded && (');
     expect(readFileSync('src/components/sidebar/LayerRow.tsx', 'utf8')).toContain('aria-expanded={expandable ? expanded : undefined}');

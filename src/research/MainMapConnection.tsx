@@ -290,7 +290,7 @@ export function MainMapConnection(props: Props) {
       const newlyEnabled = explorationLayerKeys(scene.layers, previous.current?.layers, patch?.layers);
       applyMainMapLayers(scene.layers ?? {}, new Set(Object.keys(labels)), locked, bridge);
       if (newlyEnabled.length) requestLayerExploration(newlyEnabled);
-      if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) applyLayerControl(scene.layerControl, locked);
+      if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) await applyLayerControl(scene.layerControl, locked);
       if (scene.timeline && patch?.timeline) {
         if (!latest.current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
         await latest.current.timeline.apply(scene.timeline);

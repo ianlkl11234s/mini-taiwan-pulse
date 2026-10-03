@@ -6,9 +6,9 @@
  * 迷你開關、多選清單、眼睛隱藏鈕。樣式全在 `layerParamControls.css`。
  * 色盤選單（R7）是獨立元件 `PaletteControl`＋`paletteControl.css`。
  */
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
-import type { ParamControl, SliderConfig, ToggleConfig } from "../../state/layerParamsControls";
+import type { LinkedSelectConfig, ParamControl, SliderConfig, ToggleConfig } from "../../state/layerParamsControls";
 import { Slider } from "../controls/Slider";
 import { PaletteControl } from "./PaletteControl";
 import "./layerParamControls.css";
@@ -88,6 +88,46 @@ function ToggleControl({ ctrl }: { ctrl: ToggleConfig }) {
   );
 }
 
+/**
+ * 連動選單（C 段）：外觀與一般選單相同（標籤一行、全寬原生選單一行），一律用選單不轉分段
+ * （期別字串長、選項數會隨上游變）。值改變可能是非同步（群組切換要先預載）→ 期間顯示忙碌。
+ * 載入／錯誤文字只出現在 provider 第一個可見的那一列（`statusText`）。
+ */
+function LinkedSelectControl({ ctrl }: { ctrl: LinkedSelectConfig }) {
+  const [pending, setPending] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const busy = pending || ctrl.status === "loading";
+  const hasOptions = ctrl.options.length > 0;
+  const change = (value: string) => {
+    setFailed(false);
+    let result: void | Promise<void>;
+    try { result = ctrl.onChange(value); } catch { setFailed(true); return; }
+    if (result && typeof (result as Promise<void>).then === "function") {
+      setPending(true);
+      (result as Promise<void>).catch(() => setFailed(true)).finally(() => setPending(false));
+    }
+  };
+  const valueText = pending ? "切換中…" : ctrl.statusText;
+  return (
+    <ControlRow label={ctrl.label} value={valueText ? <span className="lpc-status" role="status">{valueText}</span> : undefined}>
+      <select
+        className="lpc-select"
+        aria-label={ctrl.label}
+        aria-busy={busy || undefined}
+        disabled={!hasOptions || pending}
+        value={hasOptions ? ctrl.value : ""}
+        onChange={(e) => change(e.target.value)}
+      >
+        {hasOptions
+          ? ctrl.options.map((opt) => <option key={opt.value} value={opt.value} disabled={opt.disabled}>{opt.label}</option>)
+          : <option value="">{ctrl.status === "error" ? "無法載入選項" : "載入中…"}</option>}
+      </select>
+      {ctrl.onRetry && <button type="button" className="lpc-link" onClick={ctrl.onRetry}>重試</button>}
+      {failed && !ctrl.onRetry && <span role="alert" className="lpc-note">這個選項目前無法套用，已保留原本的選擇。</span>}
+    </ControlRow>
+  );
+}
+
 function renderControl(ctrl: ParamControl, key: string): ReactNode {
   if (ctrl.type === "multiSelect") {
     const selected = new Set(ctrl.value);
@@ -138,6 +178,8 @@ function renderControl(ctrl: ParamControl, key: string): ReactNode {
       </ControlRow>
     );
   }
+
+  if (ctrl.type === "linkedSelect") return <LinkedSelectControl key={key} ctrl={ctrl} />;
 
   if (ctrl.type === "palette") {
     return (

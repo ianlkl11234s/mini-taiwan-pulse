@@ -1,5 +1,7 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
+import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
+import { statisticsLinkedSelects } from './statisticsParamsSpec';
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -533,7 +535,40 @@ export interface PaletteParamSpec extends SharedSlotField, ConditionalField, Cas
   out: null;
 }
 
-export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec;
+// ── 連動選單（圖層面板統一 C 段）──────────────────────────────────
+
+/**
+ * 連動選單：選項由**非同步 provider** 給（統計的期別、指標、細項），值是字串。
+ *
+ * - **值不在 layerParamsStore**：值的唯一來源是 provider（統計＝`regionalStatisticsStore` 的 selection），
+ *   規格只宣告「這一列存在、叫什麼、連到哪個 provider 的哪個欄位」。`default` 恆為 `""`、`out` 恆為 `null`。
+ * - **依賴**：`dependsOn` 列同一個 key 裡、宣告順序在本列之前的連動選單 `name`；
+ *   本列選項＝「與 dependsOn 各列目前值相符的合法組合」裡本欄位的相異值。
+ * - **上游改變時的規則（全部 provider 共用，`state/linkedSelect.ts`）**：改了某一列，宣告順序在它之前的列保持不動、
+ *   它設成新值；之後的每一列依序：目前值若仍在合法組合裡就保留，否則改成第一個合法值。最後一定落在一個真實存在的組合上。
+ * - **可見**：選項 ≥2 才顯示；provider 尚未就緒（載入中／錯誤）且同一 provider 沒有任何一列可見時，
+ *   `primary` 那一列照樣顯示，用來呈現載入狀態與錯誤＋重試。
+ * - `persist: false`：不寫進場景存檔（統計群組的「指標」由可見圖層本身表達，存了反而與可見性還原互相打架）。
+ */
+export interface LinkedSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
+  kind: "linkedSelect";
+  name: string;
+  label: string;
+  /** provider id（`state/linkedSelect.ts` 的註冊表） */
+  provider: string;
+  /** provider 內部的欄位 id（統計：`metric`／`release`／`dim:<維度>`；群組：群組 key） */
+  field: string;
+  /** 上游連動選單的 `name`（同一 key、宣告在前） */
+  dependsOn: readonly string[];
+  /** provider 未就緒時保底顯示、承載載入／錯誤狀態的那一列 */
+  primary?: boolean;
+  /** 省略＝true */
+  persist?: boolean;
+  default: "";
+  out: null;
+}
+
+export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec | LinkedSelectParamSpec;
 
 // ══════════════════════════════════════════════════════════════════
 //  設定區順序（layer-panel-unify P5，spec §5.11）
@@ -596,7 +631,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
 export function paramControlCategory(spec: LayerParamSpec): ParamControlCategory | null {
   if (spec.category) return spec.category;
   if (spec.kind === "palette") return "color";
-  if (spec.kind === "multiSelect") return "data";
+  if (spec.kind === "multiSelect" || spec.kind === "linkedSelect") return "data";
   // 開頭的播放符號等非文字字元不算進詞彙（播放鍵標籤 → 「歷史播放」）
   const label = (spec.kind === "slider" ? spec.labelPrefix : spec.label).replace(/^[^\p{L}\p{N}]+/u, "").trim();
   if (spec.kind === "slider" && label.includes("透明度")) return "opacity";
@@ -3753,6 +3788,13 @@ export const LAYER_PARAMS_SPEC = {
  * `keyof LayerVisibility` 全集，`MigratedParamsKey` 就退化成 348 key，
  * 雙軌判別式跟著失效（同 `LAYER_MANIFEST` 的 `ManifestKey` 那道護欄）。
  */
+// 統計（圖層面板統一 C 段）：每個統計 key 在透明度前補上連動選單（群組「指標」、指標、期別、各維度）。
+// 規格由 recipe catalog 派生（`statisticsParamsSpec.ts`），不逐層手寫；值在 `regionalStatisticsStore`。
+for (const key of STATISTICS_RENDER_KEYS) {
+  const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key];
+  if (specs) (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...statisticsLinkedSelects(key), ...specs];
+}
+
 export type MigratedParamsKey = keyof typeof LAYER_PARAMS_SPEC;
 
 export const MIGRATED_PARAMS_KEYS = Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[];
@@ -3777,7 +3819,7 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
  * 於是 `out: null` 靜默退化成「用參數名當 overlay key」——多一個 paint 輸入。
  */
 export function specOutKey(spec: LayerParamSpec): OverlayOutKey {
-  if (spec.kind === "select" || spec.kind === "multiSelect" || spec.kind === "palette") return spec.out;
+  if (spec.kind === "select" || spec.kind === "multiSelect" || spec.kind === "palette" || spec.kind === "linkedSelect") return spec.out;
   return spec.out === undefined ? spec.name : spec.out;
 }
 
@@ -3813,9 +3855,11 @@ export function resolveParamValues(
 export function visibleParamsSpec(
   spec: readonly LayerParamSpec[],
   values: LayerParamValues,
+  linkedHidden?: (spec: LinkedSelectParamSpec) => boolean,
 ): LayerParamSpec[] {
   const resolved = resolveParamValues(spec, values);
-  return spec.filter((s) => !s.showWhen || resolved[s.showWhen.param] === s.showWhen.equals);
+  return spec.filter((s) => (!s.showWhen || resolved[s.showWhen.param] === s.showWhen.equals)
+    && !(s.kind === "linkedSelect" && linkedHidden?.(s)));
 }
 
 /**
@@ -3826,8 +3870,9 @@ export function visibleParamsSpec(
 export function orderedVisibleParamsSpec(
   spec: readonly LayerParamSpec[],
   values: LayerParamValues,
+  linkedHidden?: (spec: LinkedSelectParamSpec) => boolean,
 ): LayerParamSpec[] {
-  return visibleParamsSpec(spec, values).sort((a, b) => paramControlRank(a) - paramControlRank(b));
+  return visibleParamsSpec(spec, values, linkedHidden).sort((a, b) => paramControlRank(a) - paramControlRank(b));
 }
 
 /**
@@ -3925,5 +3970,7 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
     case "palette":
       // 色盤不進 overlayParams（out 恆為 null，見 PaletteParamSpec）
       throw new Error(`palette "${spec.name}" 不進 overlayParams，不該被編碼`);
+    case "linkedSelect":
+      throw new Error(`linkedSelect "${spec.name}" 的值在 provider，不進 overlayParams`);
   }
 }

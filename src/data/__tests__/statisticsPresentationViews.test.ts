@@ -3,7 +3,7 @@ import { EDUCATION_PRESENTATION_VIEWS } from '../statisticsPresentationViews';
 import { getSocialRecipeDetails } from '../socialStatisticsRecipes';
 import { ensureStatisticsRecipeDetails } from '../statisticsRecipeDetails';
 import { STATISTICS_KEYS, STATISTICS_RENDER_KEYS, statisticsBaseKey, statisticsRenderRecipe } from '../regionalStatisticsRecipes';
-import { statisticsReleaseOptions, unparseableStatisticsReleaseCount } from '../../components/sidebar/StatisticsDetails';
+import { statisticsReleaseOptions, unparseableStatisticsReleaseCount } from '../statisticsSelection';
 import type { StatisticsRelease } from '../regionalStatisticsLoader';
 
 describe('education presentation views', () => {

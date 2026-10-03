@@ -17,6 +17,9 @@ import {
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { PENALTY_YEAR_MIN, PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
 import { layerParamsStore, encodeParamsToOverlay, buildDefaultParams } from "../layerParamsStore";
+// 連動選單的可見規則看 provider 狀態（這裡全部未載入：只剩保底那一列）；與 buildParamControls 同一支
+import { linkedSelectHiddenFor } from "../linkedSelect";
+import "../statisticsLinkedSelect";
 
 const specs = MIGRATED_PARAMS_KEYS.map(
   (k) => [k, LAYER_PARAMS_SPEC[k] as LayerParamSpec[]] as const,
@@ -34,7 +37,7 @@ describe("spec ⇄ manifest 焊接", () => {
     for (const [key, spec] of specs) {
       const declared = LAYER_MANIFEST[key].params;
       expect(declared, `${key} 在 manifest 的 params 是 null，但已遷移進 spec`).not.toBeNull();
-      const visible = visibleParamsSpec(spec, defaults[key] ?? {});
+      const visible = visibleParamsSpec(spec, defaults[key] ?? {}, linkedSelectHiddenFor(key));
       expect(visible.length, `${key} 控件數`).toBe(declared?.count);
       expect(visible.map((s) => s.kind), `${key} 控件型別序列`).toEqual(declared?.kinds);
     }
