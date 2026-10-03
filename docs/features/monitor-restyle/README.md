@@ -1,7 +1,7 @@
 # 監看模式 split 改版（monitor-restyle）
 
 > **Slug**：`monitor-restyle`
-> **狀態**：2026-10-01 拍板（A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；P1 完成（卡片殼）、P2a 完成（字級 S13）、P2b 完成（數值列與走勢）、P3 完成（多指標卡）、P4 完成（來源新鮮度、缺值修正）、P5 完成（淡色版，比較頁 `p5-picks.html`），P6 未開始
+> **狀態**：2026-10-01 拍板（A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；P1 完成（卡片殼）、P2a 完成（字級 S13）、P2b 完成（數值列與走勢）、P3 完成（多指標卡）、P4 完成（來源新鮮度、缺值修正）、P5 完成（淡色版，比較頁 `p5-picks.html`），P6 擱置（使用者 2026-10-03 決定，見 `.claude/memory/BACKLOG.md` MON-P6）
 > **比較頁**：[`picks.html`](./picks.html)（暗／淡並排，用代號選）
 > **細節**：外觀盤點 [`inventory-a.md`](./inventory-a.md)（上半 14 格）、[`inventory-b.md`](./inventory-b.md)（下半 10 格＋MonitorPanel 外殼）、資料品質 [`data-quality.md`](./data-quality.md)（含所用 SQL，查詢時間 2026-09-30 23:10 台灣時間）
 > **規格**：[`docs/design-system/spec.md` §5.35](../../design-system/spec.md)（定案）
@@ -66,7 +66,7 @@ split 的 24 格沒有共用卡片框：MonitorPanel 只排位置，框、標題
 | `MonitorDataStatus`＋`useMonitorResource` | 已是共用狀態列 | 只管傳輸狀態，要加來源新鮮度 |
 | ISR `deriveIsrLatestDisplay`＋`DISPLAY_LABEL` | 缺值／過期文案最完整 | 可當狀態文案範本 |
 
-> **接手 P4**：[`handoff-p4.md`](./handoff-p4.md)
+> P4 交接（已完成，留作紀錄）：[`handoff-p4.md`](./handoff-p4.md)
 
 ## 實作順序（每階段一個 PR）
 
@@ -76,10 +76,10 @@ split 的 24 格沒有共用卡片框：MonitorPanel 只排位置，框、標題
 | P2a ✅ | 監看字級 S13（`fonts.html` 選定）：最小 13、取消 1.15 放大、固定高格重新分配 | — |
 | P2b ✅ | 共用走勢元件（擴充 `TimeseriesSparkline`＋`HazardTrendBars`）、數值列、圖高三階；先套上半 14 格與災害四卡、加權指數、公衛 | B1、D3、E3 |
 | P3 ✅ | 多指標卡：供電、急診、共機、特殊船舶、ISR、台鐵、網路、機場（雙主圖規則） | F3 |
-| P4 | 來源新鮮度（每格登記週期、狀態字表）＋缺值修正＋壓力指數 loader bug＋熱度倍數 | G2、K1 |
-| P5 | 跟底圖主題的淡色版，逐格驗對比 | H2 |
-| P6 | 四領域子指數（analytics 規格 → gis-platform migration〔使用者拍板〕→ 前端），總指數改由子指數合成 | I2 |
+| P4 ✅ | 來源新鮮度（每格登記週期、狀態字表）＋缺值修正＋壓力指數 loader bug＋熱度倍數（#500）；RPC 根本解：新聞彙整時間、缺值回 NULL（#503，gis-platform 425） | G2、K1 |
+| P5 ✅ | 跟底圖主題的淡色版（`p5-picks.html` 選 S1／W1／D2／P2／X1／R2，#505） | H2 |
+| P6 ⏸ | 擱置（BACKLOG MON-P6）：四領域子指數（analytics 規格 → gis-platform migration〔使用者拍板〕→ 前端），總指數改由子指數合成 | I2 |
 
-資料時間追查（使用者要求追到源頭）：[`data-time-trace.md`](./data-time-trace.md)。可選的資料庫改動（要使用者拍板）：新聞 RPC 回傳彙整時間、警報 RPC 回傳最新警報時間、災防觀測兩個頻道加進 YouTube 收集清單。
+資料時間追查（使用者要求追到源頭）：[`data-time-trace.md`](./data-time-trace.md)。可選的資料庫改動（要使用者拍板）：~~新聞 RPC 回傳彙整時間~~（425 已做）、警報 RPC 回傳最新警報時間、災防觀測兩個頻道加進 YouTube 收集清單。
 
-資料面另案（需要人處理，不在前端 PR；網路觀察 collector 覆寫已修，data-collectors #124）：機場 collector（HiCloud VM）、在監上游、登革熱換源、落雷 CWA collector、急診 09-25～28 斷段、公衛 yoy RPC `COALESCE`。
+資料面另案（需要人處理，不在前端 PR；網路觀察 collector 覆寫已修，data-collectors #124）：機場 collector（HiCloud VM）、在監上游、登革熱換源、落雷 CWA collector、急診 09-25～28 斷段（公衛 yoy RPC `COALESCE` 已於 425 修正）。
