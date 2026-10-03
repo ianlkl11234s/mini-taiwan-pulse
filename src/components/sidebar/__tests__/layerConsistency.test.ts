@@ -524,8 +524,9 @@ describe("日本與世界 tab 命名規則", () => {
 });
 
 describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () => {
-  it("每個主題都登記了顯示名稱（新增主題要補 THEME_NAMES）", () => {
-    const missing = THEMES.map((theme) => theme.title).filter((title) => !THEME_NAME_TITLES.has(title));
+  it("每個主題（含各入口重組的主題）都登記了顯示名稱（新增主題要補 THEME_NAMES）", () => {
+    const titles = [...THEMES, ...LAYER_PANELS.flatMap((panel) => panel.themes)].map((theme) => theme.title);
+    const missing = [...new Set(titles)].filter((title) => !THEME_NAME_TITLES.has(title));
     expect(missing).toEqual([]);
   });
 

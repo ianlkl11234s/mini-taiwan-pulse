@@ -2084,6 +2084,12 @@ export interface ThemeName {
 }
 
 const THEME_NAMES: Record<string, ThemeName> = {
+  // 統計入口的重組主題（STATISTICS_TAB_THEMES）
+  "人口與社會 People & Society": { zh: "人口與社會", sub: "People & Society" },
+  "交通與運輸 Transport": { zh: "交通與運輸", sub: "Transport" },
+  "農林漁牧 Agriculture, Forestry & Fisheries": { zh: "農林漁牧", sub: "Agriculture, Forestry & Fisheries" },
+  "環境與資源 Environment & Resources": { zh: "環境與資源", sub: "Environment & Resources" },
+  "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
   "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
   "農業統計": { zh: "農業統計" },
   "畜牧統計": { zh: "畜牧統計" },
