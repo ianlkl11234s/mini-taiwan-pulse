@@ -11,9 +11,14 @@ import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresen
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentStatisticsRecipes";
 
 const EXPECTED_THEME_STRUCTURE = [
+  { title: "人口與教育 Population & Education", groups: ["人口動態", "教育與少子化"] },
+  { title: "醫療與長照 Health & Care", groups: ["醫療與長照"] },
+  { title: "犯罪與治安 Crime & Safety", groups: ["犯罪與治安"] },
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
-  { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "不動產總市值", "犯罪與治安"] },
-  { title: "交通與運輸 Transport", groups: ["建置量", "使用與營運", "車輛登記存量", "自行車（臺北市，民國 110 年）", "道路安全與監測", "駕照與停車", "航空運輸", "運輸補助", "交通用地"] },
+  { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值"] },
+  { title: "公共運輸 Public Transport", groups: ["建置量", "使用與營運", "自行車（臺北市，民國 110 年）", "航空運輸", "運輸補助"] },
+  { title: "道路與車輛 Roads & Vehicles", groups: ["車輛登記存量", "道路安全與監測", "駕照與停車"] },
+  { title: "交通用地 Transport Land", groups: ["交通用地"] },
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地"] },
   { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收", "水質與污水", "空氣品質", "污染與公害", "環境治理"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
@@ -48,7 +53,7 @@ const EXPECTED_LAYER_KEYS = [
 ];
 
 describe("STATISTICS_TAB_THEMES", () => {
-  it("以六個使用者主題與一致的小群組呈現", () => {
+  it("以十一個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
     expect(STATISTICS_TAB_THEMES.map((theme) => ({
       title: theme.title,
       groups: theme.groups.map((group) => group.title),
@@ -76,11 +81,15 @@ describe("STATISTICS_TAB_THEMES", () => {
   it("將衍生比較留在各原始主題與子群，而非另開比較清單", () => {
     const group = (themeTitle: string, groupTitle: string) => STATISTICS_TAB_THEMES
       .find(theme => theme.title === themeTitle)?.groups.find(candidate => candidate.title === groupTitle)?.layers.map(layer => layer.key) ?? [];
-    expect(group("交通與運輸 Transport", "道路安全與監測")).toEqual(expect.arrayContaining([
+    expect(group("道路與車輛 Roads & Vehicles", "道路安全與監測")).toEqual(expect.arrayContaining([
       "statsComparisonA1DeathCountPer10000Residents", "statsComparisonA2AccidentCountPerKm2",
     ]));
-    expect(group("交通與運輸 Transport", "車輛登記存量")).toContain("statsComparisonAutomobileRegisteredCountPer10000Residents");
-    expect(group("交通與運輸 Transport", "駕照與停車")).toContain("statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents");
+    expect(group("道路與車輛 Roads & Vehicles", "車輛登記存量")).toContain("statsComparisonAutomobileRegisteredCountPer10000Residents");
+    expect(group("道路與車輛 Roads & Vehicles", "駕照與停車")).toContain("statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents");
+    expect(group("公共運輸 Public Transport", "建置量").some(key => key.startsWith("statsComparison"))).toBe(true);
+    expect(group("交通用地 Transport Land", "交通用地").some(key => key.startsWith("statsComparison"))).toBe(true);
+    expect(group("醫療與長照 Health & Care", "醫療與長照").some(key => key.startsWith("statsComparison"))).toBe(true);
+    expect(group("住宅與不動產 Housing & Property", "住宅存量與使用").some(key => key.startsWith("statsComparison"))).toBe(true);
     // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
     const pollution = group("環境與資源 Environment & Resources", "污染與公害");
     expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));

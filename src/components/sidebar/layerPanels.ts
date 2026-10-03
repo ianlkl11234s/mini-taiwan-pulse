@@ -26,7 +26,7 @@ export interface LayerPanelDef {
   /** 手機分頁與「其他面板還有 N 筆」提示用的短名 */
   shortTitle: string;
   themes: ThemeDef[];
-  /** 大分類；沒給就不分（統計、世界的分法待使用者選定，先維持現狀） */
+  /** 大分類；沒給就不分（四個入口目前都有） */
   macroGroups?: readonly PanelMacroGroup[];
   /** 「全部關閉」只關這些 key；未給則關全站 */
   allOffKeys?: (keyof LayerVisibility)[];
@@ -38,20 +38,44 @@ export function getThemeLayerKeys(themes: readonly ThemeDef[]): (keyof LayerVisi
   return themes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)));
 }
 
-// 「世界」「日本」入口只渲染各自登記的主題，順序照登記陣列；台灣入口渲染其餘非統計主題。
+const macroGroupIndex = (title: string) => LAYER_MACRO_GROUPS.findIndex((group) => group.key === themeMacroGroup(title));
+
+/** 依全站大分類（`THEME_MACRO_GROUPS`）派生面板大分類；空的大分類不顯示。 */
+function sharedMacroGroups(themes: readonly ThemeDef[]): PanelMacroGroup[] {
+  return LAYER_MACRO_GROUPS.map((group) => ({
+    zh: group.zh,
+    en: group.en,
+    themes: themes.filter((theme) => themeMacroGroup(theme.title) === group.key).map((theme) => theme.title),
+  })).filter((group) => group.themes.length > 0);
+}
+
+// 「世界」入口：主題依全站大分類排（2026-10-03 使用者決定 W-A，公共生活→環境與資源→情報），同類內照登記陣列。
+// 「日本」入口順序照登記陣列；台灣入口渲染其餘非統計主題。
 export const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
+  .sort((a, b) => macroGroupIndex(a.title) - macroGroupIndex(b.title)
+    || WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
 export const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
 const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
 export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title)));
 
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
-const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = LAYER_MACRO_GROUPS.map((group) => ({
-  zh: group.zh,
-  en: group.en,
-  themes: MAIN_THEMES.filter((theme) => themeMacroGroup(theme.title) === group.key).map((theme) => theme.title),
-})).filter((group) => group.themes.length > 0);
+const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);
+
+/** 世界：沿用台灣大分類名與同一張對照（W-A，2026-10-03 使用者決定）。 */
+export const WORLD_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(WORLD_THEMES);
+
+/**
+ * 統計：依政府統計領域分 5 類（S-B，2026-10-03 使用者決定，PLAN.md §3）。
+ * `STATISTICS_TAB_THEMES` 已照這個順序排。
+ */
+export const STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
+  { zh: "人口與社會", en: "Population & Society", themes: ["人口與教育 Population & Education", "醫療與長照 Health & Care", "犯罪與治安 Crime & Safety"] },
+  { zh: "經濟與住宅", en: "Economy & Housing", themes: ["工作與所得 Work & Income", "住宅與不動產 Housing & Property"] },
+  { zh: "交通", en: "Transport", themes: ["公共運輸 Public Transport", "道路與車輛 Roads & Vehicles", "交通用地 Transport Land"] },
+  { zh: "土地與環境", en: "Land & Environment", themes: ["農林漁牧 Agriculture, Forestry & Fisheries", "環境與資源 Environment & Resources"] },
+  { zh: "基準", en: "Baseline", themes: ["地圖參考 Map Reference"] },
+];
 
 /** 日本：5 類（2026-10-03 使用者決定，PLAN.md §3）。`JAPAN_TAB_THEME_TITLES` 已照這個順序排。 */
 export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = [
@@ -68,8 +92,8 @@ export const STATISTICS_ALL_OFF_KEYS = [...new Set([...getThemeLayerKeys(STATIST
 /** 四個入口，順序＝桌機 rail 由上到下＝手機分頁由左到右。 */
 export const LAYER_PANELS: readonly LayerPanelDef[] = [
   { id: "layers", title: "台灣 Taiwan", shortTitle: "台灣", themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS },
-  { id: "statistics", title: "統計 Statistics", shortTitle: "統計", themes: STATISTICS_TAB_THEMES, allOffKeys: STATISTICS_ALL_OFF_KEYS, statisticsModeControl: true },
-  { id: "world", title: "世界 World", shortTitle: "世界", themes: WORLD_THEMES },
+  { id: "statistics", title: "統計 Statistics", shortTitle: "統計", themes: STATISTICS_TAB_THEMES, macroGroups: STATISTICS_MACRO_GROUPS, allOffKeys: STATISTICS_ALL_OFF_KEYS, statisticsModeControl: true },
+  { id: "world", title: "世界 World", shortTitle: "世界", themes: WORLD_THEMES, macroGroups: WORLD_MACRO_GROUPS },
   { id: "japan", title: "日本 Japan", shortTitle: "日本", themes: JAPAN_THEMES, macroGroups: JAPAN_MACRO_GROUPS },
 ];
 
