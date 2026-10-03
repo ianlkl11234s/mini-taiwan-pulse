@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import type { CircleLayer, HeatmapLayer, Map as MapboxMap } from "mapbox-gl";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { JP_SCHOOL_TYPE_COLOR_EXPRESSION } from "../data/jpSchoolTypes";
@@ -21,6 +22,7 @@ const MAXZOOM = 11;
 // R5（P-4／G-2）：56,807 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點（source z4 起有磚）。
 const POINTS_FROM_ZOOM = densePointsFromZoom(56_807);
 // 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
+const HEAT_KEYS = ["jpSchools"] as const;
 const HEATMAP_INTENSITY = 1;
 
 function clampOpacity(opacity: number): number {
@@ -50,7 +52,7 @@ function schoolsCircleLayer(opacity: number, scale: number, isDark: boolean): Ci
 }
 
 /** G-2 熱區：畫在出點縮放以下，不可點擊。 */
-function schoolsHeatmapLayer(opacity: number): HeatmapLayer {
+function schoolsHeatmapLayer(opacity: number, isDark: boolean): HeatmapLayer {
   return {
     id: HEATMAP_LAYER_ID,
     type: "heatmap",
@@ -58,7 +60,7 @@ function schoolsHeatmapLayer(opacity: number): HeatmapLayer {
     "source-layer": SOURCE_LAYER,
     maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
     layout: { visibility: "none" },
-    paint: heatmapPaint(clampOpacity(opacity) / DEFAULT_OPACITY, HEATMAP_INTENSITY),
+    paint: heatmapLayerPaint("jpSchools", isDark, clampOpacity(opacity) / DEFAULT_OPACITY, HEATMAP_INTENSITY),
   } as HeatmapLayer;
 }
 
@@ -71,6 +73,7 @@ export function useJpSchoolsLayer(
   isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -94,11 +97,11 @@ export function useJpSchoolsLayer(
         } as any);
       }
       if (!map.getLayer(HEATMAP_LAYER_ID)) {
-        map.addLayer(schoolsHeatmapLayer(opacity), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
+        map.addLayer(schoolsHeatmapLayer(opacity, isDark), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
       }
       if (map.getLayer(HEATMAP_LAYER_ID)) {
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(clampOpacity(opacity) / DEFAULT_OPACITY));
+        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpSchools", isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
       }
       if (!map.getLayer(LAYER_ID)) {
         // 圖層不設 maxzoom；z12+ 必須 overzoom z11 tiles，不能變空白。
@@ -116,5 +119,5 @@ export function useJpSchoolsLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, heatStyle]);
 }

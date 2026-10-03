@@ -236,11 +236,12 @@ export function companyGridDensityValueExpr(scale: CompanyGridScale): unknown[] 
   ];
 }
 
-export function companyGridDensityColorExpr(scale: CompanyGridScale): unknown[] {
+/** 密度格 7 階（R7：`colors` 由 state/layerPalette 的解析器依圖層色盤＋底圖給；省略＝本檔常數） */
+export function companyGridDensityColorExpr(scale: CompanyGridScale, colors: readonly string[] = COMPANY_DENSITY_COLORS): unknown[] {
   const density = companyGridDensityValueExpr(scale);
-  const step: unknown[] = ["step", density, COMPANY_DENSITY_COLORS[0]];
+  const step: unknown[] = ["step", density, colors[0]];
   for (let i = 1; i < COMPANY_DENSITY_STOPS.length; i++) {
-    step.push(COMPANY_DENSITY_STOPS[i], COMPANY_DENSITY_COLORS[i]);
+    step.push(COMPANY_DENSITY_STOPS[i], colors[i]);
   }
   return ["case", companyGridHasValidCountExpr(), step, COMPANY_GRID_NULL_COLOR];
 }
@@ -270,13 +271,14 @@ export function companyGridStops(modeIdx: number, scaleIdx = 0): readonly number
   return base.map((value) => value * factor);
 }
 
-export function companyGridColorExpr(modeIdx: number, scaleIdx = 0): unknown[] {
+/** 資本額網格 7 階（R7：`colors` 由 state/layerPalette 的解析器依圖層色盤＋底圖給；省略＝本檔常數） */
+export function companyGridColorExpr(modeIdx: number, scaleIdx = 0, colors: readonly string[] = COMPANY_GRID_COLORS): unknown[] {
   const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
   const field = COMPANY_GRID_MODES[safeMode]!.value;
   const value: unknown[] = ["to-number", ["get", field], -1];
   const stops = companyGridStops(safeMode, scaleIdx);
-  const step: unknown[] = ["step", value, COMPANY_GRID_COLORS[0]];
-  for (let i = 1; i < stops.length; i++) step.push(stops[i], COMPANY_GRID_COLORS[i]);
+  const step: unknown[] = ["step", value, colors[0]];
+  for (let i = 1; i < stops.length; i++) step.push(stops[i], colors[i]);
   if (field === "capital_median") {
     return ["case", ["==", ["typeof", ["get", field]], "number"], step, COMPANY_GRID_NULL_COLOR];
   }

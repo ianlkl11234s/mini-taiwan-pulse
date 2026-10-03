@@ -3,7 +3,8 @@ import type { FillLayer, Map as MapboxMap } from "mapbox-gl";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { jpPopulationMeshFillColor } from "../data/jpPopulationMeshModes";
+import { JP_POPULATION_MESH_RATIO65_DEFAULT_PALETTE, jpPopulationMeshBuckets, jpPopulationMeshFillColor, jpPopulationMeshMode } from "../data/jpPopulationMeshModes";
+import { gridRampFor, useGridPaletteSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 
@@ -28,8 +29,15 @@ function absoluteUrl(relativeFile: string): string {
 
 // outline 0：176,896 格 1km 網格，畫框線會糊成一片灰、也吃掉 choropleth 的顏色辨識度
 // （見 handoff 對本層的 UX 指定）→ 只加 fill 子層，不加 line 子層。
-function meshFillLayer(opacity: number, modeIdx: number): FillLayer {
-  const color = jpPopulationMeshFillColor(modeIdx);
+/** R7：色盤選單＋底圖 → 該指標的級數色（高齡比在選單維持預設時用 BuPu） */
+export function jpPopulationMeshColor(modeIdx: number, isDark: boolean) {
+  const ratio = jpPopulationMeshMode(modeIdx).metric === "ratio65";
+  const colors = gridRampFor("jpPopulationMesh1km", isDark, jpPopulationMeshBuckets(modeIdx).length, undefined, ratio ? JP_POPULATION_MESH_RATIO65_DEFAULT_PALETTE : undefined);
+  return jpPopulationMeshFillColor(modeIdx, colors);
+}
+
+function meshFillLayer(opacity: number, modeIdx: number, isDark: boolean): FillLayer {
+  const color = jpPopulationMeshColor(modeIdx, isDark);
   return {
     id: LAYER_ID,
     type: "fill",
@@ -50,8 +58,10 @@ export function useJpPopulationMeshLayer(
   visible: boolean,
   opacity: number,
   modeIdx: number,
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const palette = useGridPaletteSignature("jpPopulationMesh1km");
 
   useEffect(() => {
     const map = mapRef.current;
@@ -73,17 +83,17 @@ export function useJpPopulationMeshLayer(
         } as any);
       }
       if (!map.getLayer(LAYER_ID)) {
-        map.addLayer(meshFillLayer(opacity, modeIdx));
+        map.addLayer(meshFillLayer(opacity, modeIdx, isDarkTheme));
       }
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpPopulationMesh1km", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
-        map.setPaintProperty(LAYER_ID, "fill-color", jpPopulationMeshFillColor(modeIdx));
+        map.setPaintProperty(LAYER_ID, "fill-color", jpPopulationMeshColor(modeIdx, isDarkTheme));
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, modeIdx, mapTick]);
+  }, [mapRef, visible, opacity, modeIdx, mapTick, isDarkTheme, palette]);
 }

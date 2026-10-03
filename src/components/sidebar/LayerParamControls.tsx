@@ -4,11 +4,13 @@
  * `LayerSidebar`（手機）與 `IconRailSidebar`（桌機）展開區共用同一套：
  * 控制區左線、V2 滑桿（標籤／數值一行、全寬滑桿一行）、分段、原生選單、
  * 迷你開關、多選清單、眼睛隱藏鈕。樣式全在 `layerParamControls.css`。
+ * 色盤選單（R7）是獨立元件 `PaletteControl`＋`paletteControl.css`。
  */
 import type { CSSProperties, ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import type { ParamControl, SliderConfig, ToggleConfig } from "../../state/layerParamsControls";
 import { Slider } from "../controls/Slider";
+import { PaletteControl } from "./PaletteControl";
 import "./layerParamControls.css";
 
 /** 主題 class：暗色用 tokens.css 預設值，淡色改指 --light-*（與其他子系統同一套做法） */
@@ -133,6 +135,14 @@ function renderControl(ctrl: ParamControl, key: string): ReactNode {
         ) : (
           <ControlSegmented label={ctrl.label} value={ctrl.value} options={ctrl.options} onChange={ctrl.onChange} />
         )}
+      </ControlRow>
+    );
+  }
+
+  if (ctrl.type === "palette") {
+    return (
+      <ControlRow key={key} label={ctrl.label}>
+        <PaletteControl ctrl={ctrl} />
       </ControlRow>
     );
   }

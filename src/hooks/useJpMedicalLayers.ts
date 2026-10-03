@@ -1,10 +1,11 @@
+import { gridRampFor, useGridPaletteSignature } from "../state/layerPalette";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { CircleLayer, ExpressionSpecification, FillLayer, FilterSpecification, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   JP_MEDICAL_AREA_LEVELS,
   JP_MEDICAL_CARE_GROUPS,
   JP_MEDICAL_CATEGORIES,
-  jpMedicalGridColorExpression,
+  JP_MEDICAL_GRID_BANDS, jpMedicalGridColorExpression,
   type JpMedicalAreaKey,
   type JpMedicalCareKey,
   type JpMedicalCategoryKey,
@@ -224,6 +225,9 @@ function useAggregateFamily(
   const zoom = useMapZoom(mapRef, active);
   const enabled = active && zoom < LOW_ZOOM_CUTOFF;
   const tick = useMapReadyTick(mapRef, enabled);
+  // R7：醫療 5 層／照護 6 層各共用一個網格色盤選單（sharedGroup），讀任一成員即可
+  const paletteKey = definitions[0]!.key;
+  const palette = useGridPaletteSignature(paletteKey);
   const [data, setData] = useState<{ value: JpMedicalAggregate; revision: number } | null>(null);
   const mountedGridRef = useRef<GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null>(null);
   const countField = assetId === "navii_facilities" ? "mapped_point_count" : "mapped_service_registration_count";
@@ -260,6 +264,7 @@ function useAggregateFamily(
       const styleDefinition = aggregateStyleKey(definitions, visibility, params);
       const styleKey = styleDefinition.key;
       const defaultOpacity = pointOpacityDefault(styleKey);
+      const gridColor = jpMedicalGridColorExpression(gridRampFor(paletteKey, isDarkTheme, JP_MEDICAL_GRID_BANDS.length)) as ExpressionSpecification;
       const source = map.getSource(sourceId) as { setData?: (value: GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>) => void } | undefined;
       if (!source) {
         map.addSource(sourceId, { type: "geojson", data: grid });
@@ -270,7 +275,7 @@ function useAggregateFamily(
       }
       if (!map.getLayer(layerIds[0]!)) map.addLayer({
         id: layerIds[0]!, type: "fill", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
-        paint: hookFillPaint(styleKey, layerIds[0]!, { "fill-color": jpMedicalGridColorExpression() as ExpressionSpecification, "fill-opacity": opacity }, { "fill-color": jpMedicalGridColorExpression() as ExpressionSpecification, "fill-opacity": defaultOpacity }),
+        paint: hookFillPaint(styleKey, layerIds[0]!, { "fill-color": gridColor, "fill-opacity": opacity }, { "fill-color": gridColor, "fill-opacity": defaultOpacity }),
       } as FillLayer);
       if (!map.getLayer(layerIds[1]!)) map.addLayer({
         id: layerIds[1]!, type: "line", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
@@ -285,6 +290,7 @@ function useAggregateFamily(
           "line-opacity": clamp(defaultOpacity * 0.7),
         }, isDarkTheme),
       } as LineLayer);
+      map.setPaintProperty(layerIds[0]!, "fill-color", gridColor);
       map.setPaintProperty(layerIds[0]!, "fill-opacity", hookFillOpacity(styleKey, layerIds[0]!, opacity, defaultOpacity));
       map.setPaintProperty(layerIds[1]!, "line-opacity", hookLineOpacity(styleKey, layerIds[1]!, clamp(opacity * 0.7), clamp(defaultOpacity * 0.7), isDarkTheme));
       map.setPaintProperty(layerIds[1]!, "line-color", hookLinePaint(styleKey, layerIds[1]!, { "line-color": "rgba(15,23,42,.72)" }, { "line-color": "rgba(15,23,42,.72)" }, isDarkTheme)["line-color"] as string);
@@ -293,7 +299,7 @@ function useAggregateFamily(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [data, definitions, enabled, grid, layerIds, mapRef, params, revision, sourceId, tick, visibility, isDarkTheme]);
+  }, [data, definitions, enabled, grid, layerIds, mapRef, params, revision, sourceId, tick, visibility, isDarkTheme, palette, paletteKey]);
 }
 
 function useAreaLayer(

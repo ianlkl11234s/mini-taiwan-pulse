@@ -1,4 +1,5 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
+import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
 import { THEMED_PAINT_COLORS } from "./layerPaintColors";
 import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "./layerPaintColors";
@@ -85,22 +86,27 @@ function denseHeatmapLayer(o: {
   suffix?: string;
   pointsFromZoom: number;
   intensity: number;
+  /** 熱區顏色讀哪一層的色盤選單（R7）；省略＝`opacity.layer` */
+  layer?: string;
   opacity?: { layer: string; param: string };
   filter?: OverlayLayerSpec["filter"];
   weight?: (params?: Record<string, number>) => unknown;
 }): OverlayLayerSpec {
+  const layer = o.layer ?? o.opacity?.layer;
+  if (!layer) throw new Error("denseHeatmapLayer 需要 layer（色盤選單的 layer key）");
   return {
     suffix: o.suffix ?? "heatmap",
     type: "heatmap",
     maxzoom: heatmapMaxzoom(o.pointsFromZoom),
     ...(o.filter ? { filter: o.filter } : {}),
-    paint: (_isDark, p) => {
+    // R7：顏色由解析器依該層色盤＋底圖給；Q6 B：同時開 ≥2 層熱區時透明度再乘疊放倍率。
+    paint: (isDark, p) => {
       let scale = 1;
       if (o.opacity) {
         const def = Number(paramDefault(o.opacity.layer, o.opacity.param));
         scale = def > 0 ? (p?.[o.opacity.param] ?? def) / def : 1;
       }
-      return heatmapPaint(scale, o.intensity, o.weight ? o.weight(p) : 1);
+      return heatmapPaint(scale, o.intensity, o.weight ? o.weight(p) : 1, heatmapRampFor(layer, isDark), heatmapStackFactor());
     },
   };
 }
@@ -261,7 +267,8 @@ import {
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 import {
   JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
-  JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+  JP_ACCOMMODATION_DENSITY_STOPS,
+  jpAccommodationDensityColorExpr,
   JP_ACCOMMODATION_DENSITY_SCALES,
   type JpAccommodationDensityScale,
 } from "../data/jpTourismTypes";
@@ -277,8 +284,8 @@ function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): Over
     layers: [
       {
         suffix: "fill", type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+        paint: (isDark, params) => ({
+          "fill-color": jpAccommodationDensityColorExpr(gridRampFor("jpAccommodationDensity", isDark, JP_ACCOMMODATION_DENSITY_STOPS.length)),
           "fill-opacity": params?.jpAccommodationDensityOpacity ?? 0.72,
         }),
       },
@@ -300,10 +307,10 @@ function industrialDensityOverlay(id: IndustrialDensityKey, source: ReturnType<t
     id, sourceId: source.sourceId, sourceUrl: source.url,
     pmtiles: { sourceLayer: source.sourceLayer, minzoom: source.minzoom, maxzoom: source.maxzoom },
     layers: [{ suffix: "fill", type: "fill", minzoom: coarse ? 4 : 10, ...(coarse ? { maxzoom: 10.01 } : {}),
-      paint: (_isDark, params) => {
+      paint: (isDark, params) => {
         const opacity = params?.[`${id}Opacity`] ?? 0.85;
         return {
-          "fill-color": industrialDensityColorExpr(),
+          "fill-color": industrialDensityColorExpr(gridRampFor(id, isDark, 7)),
           // roundZoom bridge 保持 source 活躍，精確 z10 切換可見尺度。
           "fill-opacity": coarse ? ["interpolate", ["linear"], ["zoom"], 4, opacity, 9.999, opacity, 10, 0] : opacity,
         };
@@ -322,8 +329,8 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
     layers: [
       {
         suffix: "fill", type: "fill", minzoom: 4,
-        paint: (_isDark, p) => ({
-          "fill-color": companyGridColorExpr(p?.companyGridModeIdx ?? 0, scaleIdx),
+        paint: (isDark, p) => ({
+          "fill-color": companyGridColorExpr(p?.companyGridModeIdx ?? 0, scaleIdx, gridRampFor("companyCapitalGrid", isDark, 7)),
           "fill-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
       },
@@ -357,8 +364,8 @@ function companyPointsDensityGridOverlay(scale: CompanyGridScale): OverlayConfig
       maxzoom: overviewEndZoom,
       // 格網未套用 detail filter，filters active 時絕不可顯示為篩選後總量。
       layout: (_isDark, p) => ({ visibility: companyPointFiltersActive(p) ? "none" : "visible" }),
-      paint: (_isDark, p) => ({
-        "fill-color": companyGridDensityColorExpr(scale),
+      paint: (isDark, p) => ({
+        "fill-color": companyGridDensityColorExpr(scale, gridRampFor("companyPoints", isDark, 7)),
         // 依使用者 opacity 顯示；zoom gate 必須最外層，Mapbox 才會接受 zoom expression。
         "fill-opacity": ["interpolate", ["linear"], ["zoom"],
           overviewStartZoom, (p?.companyPointsOpacity ?? 0.82),
@@ -383,16 +390,16 @@ function companyDemographicsOverlay(id: "companyIndustryDistribution" | "company
         && (p?.companyIndustryDistributionMidIdx ?? 0) === 0
         && (p?.companyIndustryGroupsMask ?? ((1 << COMPANY_INDUSTRY_GROUPS.length) - 1)) === 0
         ? { visibility: "none" } : { visibility: "visible" },
-      paint: (_isDark, p) => {
+      paint: (isDark, p) => {
         const opacity = p?.[`${id}Opacity`] ?? (id === "companyAgeStructure" ? 0.85 : 0.68);
         const mask = p?.companyIndustryGroupsMask ?? 2047;
         const midIdx = p?.companyIndustryDistributionMidIdx ?? 0;
         const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
         const color = id === "companyIndustryDistribution"
           ? (p?.companyIndustryDisplayIdx ?? 0) === 1
-            ? companyDemographicsDensityColorExpr(companyDemographicsSumExpr(companyIndustryFields(mask, midCode)), scale)
+            ? companyDemographicsDensityColorExpr(companyDemographicsSumExpr(companyIndustryFields(mask, midCode)), scale, gridRampFor(id, isDark, 7))
             : companyIndustryDominantColorExpr(mask, midCode)
-          : companyAgeColorExpr(p?.companyAgeStructureModeIdx ?? 0);
+          : companyAgeColorExpr(p?.companyAgeStructureModeIdx ?? 0, gridRampFor(id, isDark, 7));
         const zoomOpacity: number | unknown[] = end === undefined
           ? opacity
           : ["interpolate", ["linear"], ["zoom"], start, opacity, end - 0.001, opacity, end, 0];
@@ -869,11 +876,12 @@ export const RE_PALETTES: Record<RePalette, { colors: string[]; domain: [number,
   sale:    { colors: ["#1a9850", "#f7f7f7", "#d73027"], domain: [28480, 227802], domainExcl: [28480, 147000] },
   presale: { colors: ["#ffffb2", "#fd8d3c", "#bd0026"], domain: [72845, 387844], domainExcl: [72845, 202000] },
 };
-function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean): unknown[] {
+/** `colors` 省略＝RE_PALETTES 色票（買賣網格、3D 點）；租賃（6 點）與預售（3 點）網格改由色盤選單給（R7） */
+function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean, colors: readonly string[] = RE_PALETTES[palette].colors): unknown[] {
   const p = RE_PALETTES[palette];
   const [lo, hi] = excludeTaipei ? p.domainExcl : p.domain;
-  const n = p.colors.length;
-  const stops = p.colors.flatMap((c, i) => [lo + ((hi - lo) * i) / (n - 1), c]);
+  const n = colors.length;
+  const stops = colors.flatMap((c, i) => [lo + ((hi - lo) * i) / (n - 1), c]);
   return ["interpolate", ["linear"], ["coalesce", ["get", field], 0], ...stops];
 }
 // ── 🏢 房地產總市值網格 factory（三尺度共用，見 OVERLAY_REGISTRY 內的接線註解）──
@@ -881,6 +889,13 @@ function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean):
 //   對比 / 高度都是 paint property，走 setPaintProperty diff，同 urbanFormGrid 機制。
 //   2D/3D 切換照 buildingsGba 慣例用「把非當前模式那層的 opacity 壓 0」而非 layout.visibility ——
 //   layout.visibility 已被「尺度選擇」佔用（setOverlayVisible 是整個 config 一起切）。
+/** R7：總市值 9 階／人均 8 階都由色盤選單決定（兩種模式各一個選單） */
+function propertyValueGridFill(scaleIdx: number, modeIdx: number, isDark: boolean): unknown[] {
+  return modeIdx === 1
+    ? propertyValueGridPerCapitaColorExpr(gridRampFor("propertyValueGrid", isDark, 8, "propertyValueGridPerCapitaPalette"))
+    : propertyValueGridColorExpr(scaleIdx, gridRampFor("propertyValueGrid", isDark, 9, "propertyValueGridPalette"));
+}
+
 function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
   return {
@@ -892,17 +907,14 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
       {
         suffix: "fill",
         type: "fill",
-        paint: (_isDark, p) => {
+        paint: (isDark, p) => {
           // 有效模式（0=總市值 / 1=人均）：150m 磚沒有 pop → helper 統一回退總市值，
           // 與 UI disabled / 圖例判斷同源（SSOT propertyValueTypes.ts）
           const modeIdx = resolvePropertyValueGridMode(scaleIdx, p?.propertyValueGridModeIdx ?? 0);
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           const op = p?.propertyValueGridOpacity ?? 0.7;
           return {
-            "fill-color": (modeIdx === 1
-              ? propertyValueGridPerCapitaColorExpr()
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              : propertyValueGridColorExpr(scaleIdx)) as any,
+            "fill-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
             // 3D 模式交棒給 extrusion（壓 0 隱藏，避免與立體塊 z-fighting）
             "fill-opacity": (extruded ? 0
               : modeIdx === 1 ? propertyValueGridPerCapitaOpacityExpr(op)
@@ -914,15 +926,12 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
       {
         suffix: "extrusion",
         type: "fill-extrusion",
-        paint: (_isDark, p) => {
+        paint: (isDark, p) => {
           const modeIdx = resolvePropertyValueGridMode(scaleIdx, p?.propertyValueGridModeIdx ?? 0);
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           return {
             // 人均模式只換「顏色」，extrusion 高度**維持 v_mkt**（見下方 height 註解）
-            "fill-extrusion-color": (modeIdx === 1
-              ? propertyValueGridPerCapitaColorExpr()
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              : propertyValueGridColorExpr(scaleIdx)) as any,
+            "fill-extrusion-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
             // 🔵 高度=量體、顏色=強度（刻意設計，兩模式共用）：3D 高度永遠是 v_mkt 總量 ——
             //    「這格壓了多少錢」的天際線不隨模式消失；人均模式下顏色改答「平均每人多有錢」，
             //    高黃=人少錢多、高紫=人多攤薄，兩通道疊出密度語意。pop<10 灰格照常用
@@ -960,9 +969,12 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
       {
         suffix: `${type}-fill`,
         type: "fill",
-        paint: (_isDark, params) => ({
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          "fill-color": reColorExpr(palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei)) as any,
+        paint: (isDark, params) => ({
+          "fill-color": reColorExpr(
+            palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei),
+            (id === "realEstateRentalGrid" || id === "realEstatePresaleGrid") ? gridRampFor(id, isDark, RE_PALETTES[palette].colors.length) : undefined,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) as any,
           "fill-opacity": params?.realEstateOpacity ?? 0.7,
         }),
       },
@@ -1618,7 +1630,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1.5 }),
+      denseHeatmapLayer({ layer: "busStationsCity", pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1.5 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.busStationsCity,
@@ -1667,7 +1679,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
+      denseHeatmapLayer({ layer: "busStationsIntercity", pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
@@ -2081,7 +2093,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "heatmap",
         maxzoom: heatmapMaxzoom(FIRE_HYDRANTS_POINTS_FROM_ZOOM),
         // intensity 0.1：臺北／高雄市區點極密（約為日本宗教設施的 10 倍），目視校正。
-        paint: (_isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1),
+        paint: (isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1, 1, heatmapRampFor("fireHydrants", isDark), heatmapStackFactor()),
       },
       {
         suffix: "glow",
@@ -2677,7 +2689,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "convenience-stores",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.convenienceStores, intensity: 1 }),
+      denseHeatmapLayer({ layer: "convenienceStores", pointsFromZoom: DENSE_FROM.convenienceStores, intensity: 1 }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.convenienceStores,
@@ -4142,7 +4154,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "waste-stops-static",
     pmtiles: { sourceLayer: "waste_stops", minzoom: 6, maxzoom: 14 },
     layers: [
-      denseHeatmapLayer({ suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 0.3 }),
+      denseHeatmapLayer({ layer: "wasteStopsStatic", suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 0.3 }),
       {
         suffix: "waste-stops-glow",
         type: "circle",

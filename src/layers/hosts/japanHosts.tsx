@@ -105,6 +105,7 @@ export const JpPopulationMeshHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.jpPopulationMesh1km,
     p.jpPopulationMeshOpacity ?? 0.55,
     p.jpPopulationMeshModeIdx ?? 0,
+    deps.isDarkTheme,
   );
   return null;
 };

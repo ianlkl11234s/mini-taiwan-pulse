@@ -125,6 +125,8 @@ export function hatchImageData(kind: HatchKind, isDark: boolean): { width: numbe
  */
 export const HEATMAP = {
   opacity: 0.8,
+  /** Q6 B：同時開 ≥2 層熱區時，每層熱區透明度再乘這個倍率（只有一層時恢復 1）。 */
+  stackedOpacity: 0.7,
   radius: [12, 20],
   pointsFromZoomOver10k: 10,
   pointsFromZoomOver100k: 12,
@@ -155,26 +157,26 @@ export function densePointOpacity(pointCount: number): number {
   return POINT_OPACITY.base;
 }
 
-/** magma 6 色節點（與 map-layer-picks.html G-2 示意同源），取 0.15–1 段（截掉近黑端）。 */
-const MAGMA_STOPS: readonly (readonly [number, number, number])[] = [
-  [0, 0, 4], [59, 15, 112], [140, 41, 129], [222, 73, 104], [254, 159, 109], [252, 253, 191],
-];
-const MAGMA_CUT = 0.15;
-function magmaRgb(t: number): [number, number, number] {
-  const s = Math.max(0, Math.min(1, t)) * (MAGMA_STOPS.length - 1);
-  const i = Math.min(MAGMA_STOPS.length - 2, Math.floor(s));
-  const f = s - i;
-  const [r0, g0, b0] = MAGMA_STOPS[i]!;
-  const [r1, g1, b1] = MAGMA_STOPS[i + 1]!;
-  const mix = (x: number, y: number) => Math.round(x + (y - x) * f);
-  return [mix(r0, r1), mix(g0, g1), mix(b0, b1)];
+/**
+ * G-2 熱區色：密度 0 透明，其後 7 個密度節點對到色盤的 7 階（`src/map/palettes.ts`，由
+ * `state/layerPalette.ts` 依圖層選色與底圖給）；alpha 在低密度淡入 min(1, d×2.2)。
+ */
+const HEAT_DENSITY_STOPS = [0.05, 0.15, 0.3, 0.45, 0.6, 0.8, 1] as const;
+
+function hexRgba(hex: string, alpha: number): string {
+  const n = Number.parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha.toFixed(2)})`;
 }
-/** 密度 d（0–1）→ 截取 magma 色；alpha 在低密度淡入（同 picks 示意 min(1, d×2.2)），密度 0 完全透明。 */
-const heatRgba = (d: number) => {
-  const [r, g, b] = magmaRgb(MAGMA_CUT + d * (1 - MAGMA_CUT));
-  return `rgba(${r},${g},${b},${Math.min(1, d * 2.2).toFixed(2)})`;
-};
-const HEAT_DENSITY_STOPS = [0, 0.05, 0.15, 0.3, 0.45, 0.6, 0.8, 1] as const;
+
+/** 7 階色盤 → `heatmap-color` 表達式。 */
+export function heatmapColorExpr(ramp: readonly string[]): unknown[] {
+  if (ramp.length !== HEAT_DENSITY_STOPS.length) throw new Error(`heatmap ramp needs ${HEAT_DENSITY_STOPS.length} steps, got ${ramp.length}`);
+  return [
+    "interpolate", ["linear"], ["heatmap-density"],
+    0, hexRgba(ramp[0]!, 0),
+    ...HEAT_DENSITY_STOPS.flatMap((d, i) => [d, hexRgba(ramp[i]!, Math.min(1, d * 2.2))]),
+  ];
+}
 
 /**
  * G-2 熱區 paint（全站共用）。`opacityScale` = 滑桿值 ÷ 該層透明度預設值，
@@ -184,26 +186,31 @@ const HEAT_DENSITY_STOPS = [0, 0.05, 0.15, 0.3, 0.45, 0.6, 0.8, 1] as const;
  * `intensity` 依各層資料密度校正（瀏覽器目視：密度 0.5 左右落在城市核心而非整片飽和）。
  * `weight`：點圖層用 opacity 歸零做篩選（multiSelect 遮罩）時，熱區吃不到 circle-opacity，
  * 改傳同一個判斷式轉成的 `["case", <條件>, 1, 0]`，讓熱區與點顯示同一批資料；預設 1。
+ * `ramp`：7 階色盤（R7，由 `state/layerPalette.ts` 的解析器給，預設 magma）。
+ * `stackFactor`：同時開 ≥2 層熱區時的透明度倍率（`HEATMAP.stackedOpacity`，由解析器給）。
  */
-export const heatmapOpacity = (opacityScale = 1) => Math.max(0, Math.min(1, HEATMAP.opacity * opacityScale));
-export function heatmapPaint(opacityScale = 1, intensity = 1, weight: unknown = 1): Record<string, unknown> {
+export const heatmapOpacity = (opacityScale = 1, stackFactor = 1) =>
+  Math.max(0, Math.min(1, HEATMAP.opacity * opacityScale)) * stackFactor;
+export function heatmapPaint(
+  opacityScale: number,
+  intensity: number,
+  weight: unknown,
+  ramp: readonly string[],
+  stackFactor = 1,
+): Record<string, unknown> {
   const [r10, r14] = HEATMAP.radius;
   return {
     "heatmap-weight": weight,
     "heatmap-intensity": ["interpolate", ["exponential", 2], ["zoom"], 4, intensity / 256, 12, intensity],
     "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 4, 6, 10, r10, 14, r14],
-    "heatmap-color": [
-      "interpolate", ["linear"], ["heatmap-density"],
-      ...HEAT_DENSITY_STOPS.flatMap((d) => [d, heatRgba(d)]),
-    ],
-    "heatmap-opacity": heatmapOpacity(opacityScale),
+    "heatmap-color": heatmapColorExpr(ramp),
+    "heatmap-opacity": heatmapOpacity(opacityScale, stackFactor),
   };
 }
 
-/** LG-8 圖例漸層（與 heatmapPaint 同一段 magma，不含 alpha 淡入）。 */
-export function heatmapLegendGradient(): string {
-  const stops = [0, 0.25, 0.5, 0.75, 1].map((t) => `rgb(${magmaRgb(MAGMA_CUT + t * (1 - MAGMA_CUT)).join(",")})`);
-  return `linear-gradient(90deg, ${stops.join(", ")})`;
+/** LG-8 圖例漸層（與 heatmapPaint 同一組 7 階，不含 alpha 淡入）。 */
+export function rampLegendGradient(ramp: readonly string[]): string {
+  return `linear-gradient(90deg, ${ramp.join(", ")})`;
 }
 
 // ── 文字（T-1／T-2／T-3）─────────────────────────────────

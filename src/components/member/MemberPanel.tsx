@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, Layers, MapPin, RefreshCw, X } from "lucide-react";
+import { Bookmark, Layers, MapPin, RefreshCw, Star, X } from "lucide-react";
+import { ListRow } from "../sidebar/LayerRow";
+import { LAYER_ICONS } from "../sidebar/layerIcons";
+import { LAYER_COLORS } from "../sidebar/layerCatalog";
+import { railPalette, RailThemeContext } from "../sidebar/railTheme";
 import { signInWithGoogle, signOut } from "../../lib/auth";
 import { memberLibraryStore, useMemberLibrary } from "../../state/memberLibraryStore";
 import type { SavedScene, SavedPlace, PlaceInput, MemberLibrary } from "../../data/memberLibraryLoader";
@@ -84,7 +88,29 @@ export function MemberPanel(props: Props) {
         {rows.unavailableItems.length > 0 && <div className="member-hint">有 {rows.unavailableItems.length} 筆保存內容的格式不相容，其他收藏仍可使用。{rows.unavailableItems.map((item) => <div className="member-actions" key={`${item.table}:${item.id}`}><span>{item.name}（無法重開）</span><button disabled={!ready} onClick={() => attempt(() => memberLibraryStore.removeUnavailable(item))}>刪除不相容項目</button></div>)}</div>}
         {(tab === "收藏" || tab === "已開啟") && <>
           <p className="member-hint">{tab === "收藏" ? "常用圖層放在這裡，下次不必重新找。" : "這份清單直接反映現在的地圖。"}</p>
-          {(tab === "收藏" ? rows.favorites : props.visibleKeys).map((key) => <article className="member-item" key={key}><div className="member-item-title"><Layers size={14} /><strong>{props.labels[key] ?? `${key}（已下架）`}</strong></div><div className="member-actions"><button disabled={!props.labels[key] || (!props.visibleKeys.includes(key) && props.lockedKeys.has(key))} onClick={() => props.onToggleLayer(key)}>{props.visibleKeys.includes(key) ? "關閉圖層" : props.lockedKeys.has(key) ? "需授權" : "開啟圖層"}</button><button disabled={!canFavorite} aria-label={`${rows.favorites.includes(key) ? "取消收藏" : "收藏"} ${props.labels[key] ?? key}`} onClick={() => attempt(() => memberLibraryStore.toggleFavorite(key))}>{rows.favorites.includes(key) ? "取消收藏" : "收藏"}</button></div></article>)}
+          {/* 收藏／已開啟：共用圖層列（layer-panel-unify P8）—— 列開關直接開關圖層，星號收藏 */}
+          <RailThemeContext.Provider value={railPalette(props.isDarkTheme)}>
+          {(tab === "收藏" ? rows.favorites : props.visibleKeys).map((key) => {
+            const label = props.labels[key] ?? `${key}（已下架）`;
+            const on = props.visibleKeys.includes(key);
+            const favorite = rows.favorites.includes(key);
+            const Icon = (LAYER_ICONS as Record<string, typeof Layers | undefined>)[key] ?? Layers;
+            const color = (LAYER_COLORS as Record<string, string | undefined>)[key];
+            return <ListRow
+              key={key}
+              ariaLabel={label}
+              label={label}
+              icon={<Icon size={14} color={on && color ? color : "var(--text-dim)"} style={{ flexShrink: 0 }} />}
+              accent={color}
+              active={on}
+              locked={!on && props.lockedKeys.has(key)}
+              lockedTitle="需授權"
+              onClick={props.labels[key] && (on || !props.lockedKeys.has(key)) ? () => props.onToggleLayer(key) : undefined}
+              trailing={<button type="button" className="member-star" disabled={!canFavorite} aria-label={`${favorite ? "取消收藏" : "收藏"} ${props.labels[key] ?? key}`} title={favorite ? "取消收藏" : "收藏"} aria-pressed={favorite} onClick={() => attempt(() => memberLibraryStore.toggleFavorite(key))}><Star size={14} fill={favorite ? "currentColor" : "none"} /></button>}
+              toggle={props.labels[key] ? { on, onChange: () => props.onToggleLayer(key), label: `${label} 顯示` } : null}
+            />;
+          })}
+          </RailThemeContext.Provider>
           {(tab === "收藏" ? rows.favorites : props.visibleKeys).length === 0 && <div className="member-empty"><Bookmark size={24} /><p>{tab === "收藏" ? "還沒有收藏。搜尋圖層後，按星號加入。" : "目前沒有開啟圖層。"}</p></div>}
         </>}
         {tab === "場景" && <>

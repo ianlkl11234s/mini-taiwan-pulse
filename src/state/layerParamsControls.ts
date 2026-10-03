@@ -17,6 +17,7 @@ import {
   type LayerParamValues,
 } from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
+import { paletteById } from "../map/palettes";
 
 // ══════════════════════════════════════════════════════════════════
 //  控件型別（AR-22 P3-3）
@@ -74,7 +75,25 @@ export interface MultiSelectConfig {
   onSelectNone: () => void;
 }
 
-export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig;
+/** 色盤選單的一個選項：色盤 id ＋ 中文名（色階本身由控件向 `map/palettes.ts` 查） */
+export interface PaletteOption {
+  label: string;
+  value: string;
+}
+
+/** 色盤選單（R7）：值是色盤 id；不進 overlayParams，由 `state/layerPalette.ts` 解析 */
+export interface PaletteConfig {
+  type: "palette";
+  label: string;
+  value: string;
+  /** 「還原預設」的目標 */
+  defaultValue: string;
+  role: "heatmap" | "grid";
+  options: PaletteOption[];
+  onChange: (v: string) => void;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig | PaletteConfig;
 
 /** 前綴結尾的運算符號（`高度 ×` → 名稱「高度」、數值「×1.0」） */
 const TRAILING_OPERATOR = /^(.*?)\s*([×+≥≤±-]+)$/u;
@@ -167,6 +186,22 @@ export function buildParamControls(
           ),
           onSelectAll: () => layerParamsStore.setParam(key, s.name, MULTI_SELECT_ALL),
           onSelectNone: () => layerParamsStore.setParam(key, s.name, MULTI_SELECT_NONE),
+        };
+      }
+      case "palette": {
+        const v = values[s.name];
+        const value = typeof v === "string" && s.options.includes(v) ? v : s.default;
+        return {
+          type: "palette" as const,
+          label: s.label,
+          value,
+          defaultValue: s.default,
+          role: s.role,
+          options: s.options.flatMap((id) => {
+            const p = paletteById(id);
+            return p ? [{ label: p.zh, value: p.id }] : [];
+          }),
+          onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };
       }
     }

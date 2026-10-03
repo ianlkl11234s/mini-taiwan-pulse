@@ -2651,6 +2651,8 @@ export default function App() {
                       onViewModeChange={setViewMode}
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
                       onBulkSetVisibility={handleBulkSetVisibility}
+                      onAllOff={handleAllOff}
+                      onJapanOpen={() => mapRef.current?.flyTo({ center: JAPAN_CAMERA.center, zoom: JAPAN_CAMERA.zoom, pitch: JAPAN_CAMERA.pitch, bearing: JAPAN_CAMERA.bearing, speed: 1.0 })}
                     />
                   </div>
                 )}

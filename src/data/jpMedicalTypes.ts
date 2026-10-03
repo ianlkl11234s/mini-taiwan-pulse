@@ -23,10 +23,11 @@ export const JP_MEDICAL_GRID_BANDS = [
   { min: 10_000, label: "10,000+", color: "#fde725" },
 ] as const;
 
-export function jpMedicalGridColorExpression(): unknown[] {
+/** 低縮放格 7 階（R7：`colors` 由 state/layerPalette 的解析器依圖層色盤＋底圖給；省略＝本檔常數） */
+export function jpMedicalGridColorExpression(colors: readonly string[] = JP_MEDICAL_GRID_BANDS.map((b) => b.color)): unknown[] {
   return [
     "step", ["to-number", ["get", "aggregate_count"], 0], "rgba(0,0,0,0)",
-    ...JP_MEDICAL_GRID_BANDS.flatMap(({ min, color }) => [min, color]),
+    ...JP_MEDICAL_GRID_BANDS.flatMap(({ min }, i) => [min, colors[i]]),
   ];
 }
 

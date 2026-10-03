@@ -83,11 +83,19 @@ export function jpPopulationMeshMode(modeIdx: number): JpPopulationMeshMode {
   );
 }
 
+/**
+ * R7 色盤：人口指標預設 YlOrBr（色盤選單預設）；高齡比在選單停在預設時用庫內 BuPu，
+ * 兩種指標預設維持可區分（使用者換色後兩種指標都用所選色盤）。
+ */
+export const JP_POPULATION_MESH_RATIO65_DEFAULT_PALETTE = "BuPu";
+
 /** 該模式的級距表（圖例與表達式共用同一份，不各寫一次）。 */
-export function jpPopulationMeshBuckets(modeIdx: number): JpMeshBucket[] {
-  return jpPopulationMeshMode(modeIdx).metric === "ratio65"
+export function jpPopulationMeshBuckets(modeIdx: number, colors?: readonly string[]): JpMeshBucket[] {
+  const buckets = jpPopulationMeshMode(modeIdx).metric === "ratio65"
     ? JP_POPULATION_MESH_RATIO65_BUCKETS
     : JP_POPULATION_MESH_POP_BUCKETS;
+  // R7：`colors`（與級數同長）由 state/layerPalette 依色盤選單＋底圖給；省略＝本檔色票
+  return colors ? buckets.map((b, i) => ({ ...b, color: colors[i] ?? b.color })) : buckets;
 }
 
 /** base 色 = 最低級（輸入不會小於 0，故第一級不設 stop 只當 base）。 */
@@ -107,9 +115,9 @@ function stepExpression(field: string, buckets: JpMeshBucket[]): unknown[] {
  * 塗成最低比例色 = 把「查無資料」畫成「最年輕」，語意反過來 → 先用 case 攔 0 塗遮罩灰。
  * pop 模式不需要這層 case（pop=0 是真的無人居住）。
  */
-export function jpPopulationMeshFillColor(modeIdx: number): ExpressionSpecification {
+export function jpPopulationMeshFillColor(modeIdx: number, colors?: readonly string[]): ExpressionSpecification {
   const mode = jpPopulationMeshMode(modeIdx);
-  const step = stepExpression(mode.field, jpPopulationMeshBuckets(modeIdx));
+  const step = stepExpression(mode.field, jpPopulationMeshBuckets(modeIdx, colors));
   if (mode.metric !== "ratio65") return step as unknown as ExpressionSpecification;
   return [
     "case",

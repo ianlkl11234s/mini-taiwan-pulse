@@ -5,6 +5,9 @@ import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { applyLayerOpacity } from "../overlayManager";
 import { densePointOpacity, densePointsFromZoom, HEATMAP, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "../mapStyleScale";
 import { paramDefault } from "../../data/layerParamsSpec";
+import { paletteRamp } from "../palettes";
+
+const MAGMA_DARK = paletteRamp("magma", true)!;
 
 describe("R5 密集點熱區（P-3／P-4／G-2）", () => {
   it("出點縮放依點數，且不讓點比原本更早出現", () => {
@@ -15,13 +18,13 @@ describe("R5 密集點熱區（P-3／P-4／G-2）", () => {
   });
 
   it("熱區 paint：密度 0 透明、透明度隨滑桿比例且上限 1", () => {
-    const paint = heatmapPaint();
+    const paint = heatmapPaint(1, 1, 1, MAGMA_DARK);
     const color = paint["heatmap-color"] as unknown[];
     expect(color[3]).toBe(0);
     expect(String(color[4])).toMatch(/,0\.00\)$/);
     expect(paint["heatmap-opacity"]).toBe(HEATMAP.opacity);
-    expect(heatmapPaint(0.5)["heatmap-opacity"]).toBeCloseTo(0.4);
-    expect(heatmapPaint(2)["heatmap-opacity"]).toBe(1);
+    expect(heatmapPaint(0.5, 1, 1, MAGMA_DARK)["heatmap-opacity"]).toBeCloseTo(0.4);
+    expect(heatmapPaint(2, 1, 1, MAGMA_DARK)["heatmap-opacity"]).toBe(1);
   });
 
   it("fireHydrants：熱區 z<12、點 z≥12，熱區透明度跟著透明度滑桿", () => {

@@ -11,7 +11,8 @@ import {
 } from "../data/jpTourismTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -53,6 +54,9 @@ const CONFIGS: readonly LayerConfig[] = [
   { key: "jpRamsarSites", dataset: "ramsar", kind: "point", layerBase: "jp-tourism-jp-ramsar-sites" },
   { key: "jpMarineEbsaCoastal", dataset: "marine-ebsa", kind: "polygon", layerBase: "jp-tourism-jp-marine-ebsa-coastal" },
 ] as const;
+
+/** 有熱區的層（R7 熱區顏色讀各自的色盤選單） */
+const HEAT_KEYS: readonly string[] = CONFIGS.filter((c) => c.heatmap).map((c) => c.key);
 
 /** 字面值同時供 runtime 與 mapInteractionLayers ratchet 驗證。 */
 const CLICK_LAYER_IDS: Record<JpTourismLayerKey, string> = {
@@ -121,6 +125,7 @@ export function useJpTourismLayers(
 ) {
   const anyVisible = JP_TOURISM_LAYER_KEYS.some((key) => visibility[key]);
   const mapTick = useMapReadyTick(mapRef, anyVisible);
+  const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
   const dataRef = useRef<Partial<Record<JpTourismDataset, GeoJSON.FeatureCollection>>>({});
   const loadingRef = useRef(new Set<JpTourismDataset>());
   const [dataTick, setDataTick] = useState(0);
@@ -189,7 +194,7 @@ export function useJpTourismLayers(
             maxzoom: heatmapMaxzoom(config.heatmap.pointsFromZoom),
             ...(filter ? { filter } : {}),
             layout: { visibility: "none" },
-            paint: heatmapPaint(heatScale, config.heatmap.intensity),
+            paint: heatmapLayerPaint(config.key, isDark, heatScale, config.heatmap.intensity),
           } as Parameters<MapboxMap["addLayer"]>[0], map.getLayer(circleId) ? circleId : undefined);
         }
         if (visible && sourceReady && config.kind === "point" && !map.getLayer(circleId)) {
@@ -232,7 +237,7 @@ export function useJpTourismLayers(
 
         if (config.heatmap && map.getLayer(heatmapId)) {
           map.setLayoutProperty(heatmapId, "visibility", visible ? "visible" : "none");
-          map.setPaintProperty(heatmapId, "heatmap-opacity", heatmapOpacity(heatScale));
+          applyHeatmapStyle(map, heatmapId, config.key, isDark, heatScale);
           if (filter) map.setFilter(heatmapId, filter);
         }
 
@@ -260,5 +265,5 @@ export function useJpTourismLayers(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visibility, opacity, scale, ramsarMode, isDarkTheme, mapTick, dataTick]);
+  }, [mapRef, visibility, opacity, scale, ramsarMode, isDarkTheme, mapTick, dataTick, heatStyle]);
 }

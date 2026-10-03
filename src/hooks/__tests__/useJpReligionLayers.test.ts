@@ -30,6 +30,10 @@ vi.mock("react", () => ({
   useEffect: reactHarness.useEffect,
   useRef: reactHarness.useRef,
   useState: reactHarness.useState,
+  // R7 色盤／熱區疊放的訂閱 hook（layerPalette.ts）：測試只要當下快照
+  useCallback: <T,>(fn: T) => fn,
+  useMemo: <T,>(fn: () => T) => fn(),
+  useSyncExternalStore: <T,>(_subscribe: unknown, get: () => T) => get(),
 }));
 
 vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));

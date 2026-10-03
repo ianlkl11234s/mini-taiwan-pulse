@@ -113,8 +113,8 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     expect(filter({ commonRegistrationAddressesMinCompanies: 20 }))
       .toEqual([">=", ["to-number", ["get", "n_companies"], 0], 20]);
     expect(LAYER_MANIFEST.commonRegistrationAddresses.params).toEqual({
-      count: 3,
-      kinds: ["slider", "slider", "slider"],
+      count: 4,
+      kinds: ["palette", "slider", "slider", "slider"],
     });
   });
 

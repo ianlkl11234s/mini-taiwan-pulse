@@ -5,6 +5,32 @@
 
 ## 2026-10-03
 
+### R7 熱區／網格配色 — map-layers §3.4 G-2／G-3、LG-8；spec §5.36
+
+| 項目 | 內容 |
+|---|---|
+| 決定 | 提案 `docs/features/layer-color-picker/PROPOSAL.md` §0（Q1 A 設定裡一列色條＋浮出清單、Q2 A 長清單、Q4 A 熱區預設新版 magma、Q6 B 多層熱區降透明度）；色盤庫 17 組（§0.1）；計畫 `layer-panel-unify/PLAN.md` D 段 |
+| 色盤庫 | `src/map/palettes.ts`：17 組序列色階，暗／淡各 7 階（淡版越密越深），色值沿用 `ramp-validation.md` §5；dataviz 驗證器 68 次（17 組 × 4 陸地色）除多色相「單一色相」N/A 外全過；`palettes.test.ts` 鎖階數與方向 |
+| 控制項 | `layerParamsSpec` 新型別 `palette`（字串、不進 overlayParams），接到 `buildParamControls`、`LayerParamControls`、`research/layerControls`（Agent 白名單）、`memberSceneAdapter`（場景存檔）、manifest `params.kinds` |
+| 解析器 | `src/state/layerPalette.ts`：registry paint、hook、圖例、popup 共用；`heatmapPaint` 改收 ramp＋疊放倍率 |
+| 熱區 | 43 層（台灣 34、日本 8、全球 1）「熱區顏色」，預設新版 magma；同時開 ≥2 層 ×0.7（`HEATMAP.stackedOpacity`）；雨量、電桿不開放 |
+| 網格 | 23 個 key「網格顏色」；預設沿用現行色系，YlOrRd／inferno／Oranges → YlOrBr（不動產總市值、預售、日本人口、日本旅宿密度）；租賃熱力圖青→橘 → batlow（只換網格，3D 點色表不動）；日本人口高齡比在預設時維持 BuPu；醫療 5／照護 6 各共用一份 |
+| 不做 | 都市紋理、人流 H3（原因見 G-3）；反轉（方向已由底圖決定）；分享連結（PLAN 第 4 段） |
+| UI | spec §5.36 色盤選單：portal 浮出（下方不夠往上開、手機抽屜裡改 modal 層）、lucide `Check`、2px 藍色焦點、中文不用等寬字、還原預設用 `.lpc-btn`；修原型稽核 §8 五項 |
+| 對照 | `docs/features/layer-color-picker/phase-d-compare.html` |
+
+### 圖層面板統一 A 段（共用外殼）— spec §5.1／§5.5／§5.10／§5.22
+
+| 項目 | 內容 |
+|---|---|
+| 共用元件 | `LayerRow`／`ListRow`、`ThemeBanner`、`SubGroupLabel`、`MacroGroupLabel`、`ExpandedControls`、`LayersPanel` 從 `IconRailSidebar.tsx` 搬到 `components/sidebar/`；四個入口只有一份定義 `layerPanels.ts` |
+| P1 圖層列 | 計數格兼載入轉圈（接 `loadingRegistry`，盡力比對）；每列可展開，最後一行「說明・來源」（manifest 說明＋資料來源卡）；icon 關閉一律灰（統計原本彩色）；「All Off」→「全部關閉」；台灣入口標題「台灣 Taiwan」 |
+| P7 手機 | 分頁改四個入口（台灣／統計／世界／日本），直接用桌機 `LayersPanel`；色點開關、手刻 28×14 總開關、`labelMobile`（名稱內筆數）退場；手機也有「全部關閉」，切到日本會飛過去 |
+| P8 其他清單 | 資料來源、Agent 分析結果、衛星群組、我的・收藏／已開啟、醫療統計群組列都改用 `ListRow`；原生 checkbox、強調色衛星開關改成黑白列開關（衛星開關移到 chevron 後） |
+| P9 搜尋 | 結果列改一般圖層列；末尾提示其他入口筆數，點了切換並帶入關鍵字 |
+| 不改 | manifest 名稱結構（B 段）、控制項順序（B 段）、統計設定區與醫療群組「指標」在列外（C 段） |
+| 對照 | `docs/features/layer-panel-unify/phase-a-compare.html` |
+
 ### 監看卡 P5 淡色版 — spec §5.35 H2
 
 | 項目 | 內容 |
