@@ -14,8 +14,8 @@
 | 控制項 | `layerParamsSpec` 新型別 `palette`（字串、不進 overlayParams），接到 `buildParamControls`、`LayerParamControls`、`research/layerControls`（Agent 白名單）、`memberSceneAdapter`（場景存檔）、manifest `params.kinds` |
 | 解析器 | `src/state/layerPalette.ts`：registry paint、hook、圖例、popup 共用；`heatmapPaint` 改收 ramp＋疊放倍率 |
 | 熱區 | 43 層（台灣 34、日本 8、全球 1）「熱區顏色」，預設新版 magma；同時開 ≥2 層 ×0.7（`HEATMAP.stackedOpacity`）；雨量、電桿不開放 |
-| 網格 | 21 個 key「網格顏色」；預設沿用現行色系，YlOrRd／inferno → YlOrBr（不動產總市值、預售、日本人口）；日本人口高齡比在預設時維持 BuPu；醫療 5／照護 6 各共用一份 |
-| 不做 | 都市紋理、租賃、日本旅宿密度、人流 H3（原因見 G-3）；反轉（方向已由底圖決定）；分享連結（PLAN 第 4 段） |
+| 網格 | 23 個 key「網格顏色」；預設沿用現行色系，YlOrRd／inferno／Oranges → YlOrBr（不動產總市值、預售、日本人口、日本旅宿密度）；租賃熱力圖青→橘 → batlow（只換網格，3D 點色表不動）；日本人口高齡比在預設時維持 BuPu；醫療 5／照護 6 各共用一份 |
+| 不做 | 都市紋理、人流 H3（原因見 G-3）；反轉（方向已由底圖決定）；分享連結（PLAN 第 4 段） |
 | UI | spec §5.36 色盤選單：portal 浮出（下方不夠往上開、手機抽屜裡改 modal 層）、lucide `Check`、2px 藍色焦點、中文不用等寬字、還原預設用 `.lpc-btn`；修原型稽核 §8 五項 |
 | 對照 | `docs/features/layer-color-picker/phase-d-compare.html` |
 

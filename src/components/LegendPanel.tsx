@@ -106,7 +106,6 @@ import {
 } from "../data/jpPopulationMeshModes";
 import {
   JP_ACCOMMODATION_CATEGORIES,
-  JP_ACCOMMODATION_DENSITY_COLORS,
   JP_ACCOMMODATION_DENSITY_SCALES,
   JP_ACCOMMODATION_DENSITY_STOPS,
   JP_ACCOMMODATION_UNKNOWN_CATEGORY,
@@ -1441,6 +1440,7 @@ function JpAccommodationTypesLegend({ source }: { source: "canonical" | "osm" })
 }
 
 function JpAccommodationDensityLegend({ isDark = true, scaleIdx }: { isDark?: boolean; scaleIdx: number }) {
+  const densityColors = usePaletteRamp("jpAccommodationDensity", isDark, JP_ACCOMMODATION_DENSITY_STOPS.length);
   const scale = JP_ACCOMMODATION_DENSITY_SCALES[scaleIdx]
     ?? JP_ACCOMMODATION_DENSITY_SCALES[0]!;
   return (
@@ -1450,7 +1450,7 @@ function JpAccommodationDensityLegend({ isDark = true, scaleIdx }: { isDark?: bo
         square
         stroke={mapSeamColor(isDark)}
         cats={JP_ACCOMMODATION_DENSITY_STOPS.map((stop, index) => ({
-          color: JP_ACCOMMODATION_DENSITY_COLORS[index] ?? JP_ACCOMMODATION_DENSITY_COLORS[0],
+          color: densityColors[index] ?? densityColors[0]!,
           label: index === 0 ? "1 間／格" : `≥ ${stop.toLocaleString("zh-TW")} 間／格`,
         }))}
       />
@@ -2376,6 +2376,7 @@ const RE_LEGEND_ROWS: { keys: (keyof LayerVisibility)[]; label: string; palette:
 function RealEstateLegend({ isDark = true, visibility, overlayParams }: { isDark?: boolean; visibility: LayerVisibility; overlayParams: Record<string, number> }) {
   const t = useLegendTheme();
   const excl = !!overlayParams.realEstateExcludeTaipei;
+  const rentalGridColors = usePaletteRamp("realEstateRentalGrid", isDark, RE_PALETTES.rental.colors.length);
   const presaleGridColors = usePaletteRamp("realEstatePresaleGrid", isDark, RE_PALETTES.presale.colors.length);
   const active = RE_LEGEND_ROWS.filter((r) => r.keys.some((k) => visibility[k]));
   if (active.length === 0) return null;
@@ -2386,12 +2387,22 @@ function RealEstateLegend({ isDark = true, visibility, overlayParams }: { isDark
         {active.map((r) => {
           const p = RE_PALETTES[r.palette];
           const [lo, hi] = excl ? p.domainExcl : p.domain;
-          // R7：預售「網格」改讀色盤選單；只開預售點（3D）時仍是原色票
-          const colors = r.palette === "presale" && visibility.realEstatePresaleGrid ? presaleGridColors : p.colors;
+          // R7：租賃／預售「網格」改讀色盤選單；3D 點仍是原色票。網格與點同時開 → 兩條色帶分開標
+          const gridColors = r.palette === "rental" ? rentalGridColors : r.palette === "presale" ? presaleGridColors : null;
+          const gridOn = !!gridColors && !!visibility[r.keys[0]!];
+          const pointOn = !!visibility[r.keys[1]!];
+          const bars: { tag: string; colors: readonly string[] }[] = [];
+          if (gridOn) bars.push({ tag: "網格", colors: gridColors! });
+          if (!gridColors || pointOn) bars.push({ tag: "3D 點", colors: p.colors });
           return (
             <div key={r.label}>
               <div style={{ fontSize: FONT_SIZE.xs, color: t.textDefault, marginBottom: 2 }}>{r.label}</div>
-              <SwatchGradient gradient={`linear-gradient(to right, ${colors.join(", ")})`} stroke={mapSeamColor(isDark)} />
+              {bars.map((b) => (
+                <div key={b.tag} style={{ marginBottom: bars.length > 1 ? 3 : 0 }}>
+                  {bars.length > 1 && <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{b.tag}</div>}
+                  <SwatchGradient gradient={`linear-gradient(to right, ${b.colors.join(", ")})`} stroke={mapSeamColor(isDark)} />
+                </div>
+              ))}
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 1 }}>
                 <span>{lo.toLocaleString()}</span>
                 <span>{hi.toLocaleString()}{excl ? "+" : ""}</span>

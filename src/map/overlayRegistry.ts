@@ -267,7 +267,8 @@ import {
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 import {
   JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
-  JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+  JP_ACCOMMODATION_DENSITY_STOPS,
+  jpAccommodationDensityColorExpr,
   JP_ACCOMMODATION_DENSITY_SCALES,
   type JpAccommodationDensityScale,
 } from "../data/jpTourismTypes";
@@ -283,8 +284,8 @@ function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): Over
     layers: [
       {
         suffix: "fill", type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+        paint: (isDark, params) => ({
+          "fill-color": jpAccommodationDensityColorExpr(gridRampFor("jpAccommodationDensity", isDark, JP_ACCOMMODATION_DENSITY_STOPS.length)),
           "fill-opacity": params?.jpAccommodationDensityOpacity ?? 0.72,
         }),
       },
@@ -875,7 +876,7 @@ export const RE_PALETTES: Record<RePalette, { colors: string[]; domain: [number,
   sale:    { colors: ["#1a9850", "#f7f7f7", "#d73027"], domain: [28480, 227802], domainExcl: [28480, 147000] },
   presale: { colors: ["#ffffb2", "#fd8d3c", "#bd0026"], domain: [72845, 387844], domainExcl: [72845, 202000] },
 };
-/** `colors` 省略＝RE_PALETTES 色票；預售網格改由色盤選單給（R7，3 點） */
+/** `colors` 省略＝RE_PALETTES 色票（買賣網格、3D 點）；租賃（6 點）與預售（3 點）網格改由色盤選單給（R7） */
 function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean, colors: readonly string[] = RE_PALETTES[palette].colors): unknown[] {
   const p = RE_PALETTES[palette];
   const [lo, hi] = excludeTaipei ? p.domainExcl : p.domain;
@@ -971,7 +972,7 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
         paint: (isDark, params) => ({
           "fill-color": reColorExpr(
             palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei),
-            id === "realEstatePresaleGrid" ? gridRampFor(id, isDark, RE_PALETTES.presale.colors.length) : undefined,
+            (id === "realEstateRentalGrid" || id === "realEstatePresaleGrid") ? gridRampFor(id, isDark, RE_PALETTES[palette].colors.length) : undefined,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ) as any,
           "fill-opacity": params?.realEstateOpacity ?? 0.7,

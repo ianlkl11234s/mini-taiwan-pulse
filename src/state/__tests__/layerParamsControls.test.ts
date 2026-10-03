@@ -155,12 +155,12 @@ describe("buildParamControls", () => {
 
   // ── P3-2B 補：toggle 的 0/1 中介第一次有真實使用者 ────────────────
   it("toggle onChange 寫回 store，overlayParams 編成 0/1", () => {
-    const tog = (buildParamControls("realEstateRentalGrid") ?? [])[1] as ToggleConfig;
+    const tog = (buildParamControls("realEstateSaleGrid") ?? [])[1] as ToggleConfig;
     expect(tog.value).toBe(false);
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["realEstateExcludeTaipei"]).toBe(0);
 
     tog.onChange(true);
-    expect((buildParamControls("realEstateRentalGrid") ?? [])[1]).toMatchObject({ value: true });
+    expect((buildParamControls("realEstateSaleGrid") ?? [])[1]).toMatchObject({ value: true });
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["realEstateExcludeTaipei"]).toBe(1);
   });
 

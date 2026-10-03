@@ -1678,6 +1678,7 @@ export const LAYER_PARAMS_SPEC = {
       encode: JP_ACCOMMODATION_DENSITY_SCALES.map((scale) => scale.value),
     },
     opacitySlider("jpAccommodationDensityOpacity", 0.72),
+    gridPalette("jpAccommodationDensityPalette", "YlOrBr"),
   ],
   jpAccommodationJta: [
     opacitySlider("jpAccommodationJtaOpacity", densePointOpacity(2_242)),
@@ -2553,6 +2554,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "mountainRescueIncidentsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   realEstateRentalGrid: [
+    gridPalette("realEstateRentalGridPalette", "batlow"),
     { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
     { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
   ],

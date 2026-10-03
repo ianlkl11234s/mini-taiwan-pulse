@@ -6,7 +6,7 @@ import {
 } from "../layerPalette";
 import { HEATMAP } from "../../map/mapStyleScale";
 import { paletteRamp, resampleRamp } from "../../map/palettes";
-import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { OVERLAY_REGISTRY, RE_PALETTES } from "../../map/overlayRegistry";
 import { getParamsSpec } from "../../data/layerParamsSpec";
 import type { LayerVisibility } from "../../types";
 import { applyLayerControl, describeLayerControls } from "../../research/layerControls";
@@ -41,6 +41,23 @@ describe("R7 顏色解析器", () => {
     expect(layerPaletteId("jpPopulationMesh1km")).toBe("YlOrBr");
     expect(layerPaletteId("propertyValueGrid", "propertyValueGridPalette")).toBe("YlOrBr");
     expect(gridRampFor("propertyValueGrid", true, 9, "propertyValueGridPalette")).toHaveLength(9);
+  });
+
+  it("租賃網格預設 batlow、日本旅宿密度預設 YlOrBr；換色只動網格，租賃 3D 點色表不變", () => {
+    expect(layerPaletteId("realEstateRentalGrid")).toBe("batlow");
+    expect(layerPaletteId("jpAccommodationDensity")).toBe("YlOrBr");
+    const pointColors = [...RE_PALETTES.rental.colors];
+    const fill = () => OVERLAY_REGISTRY.find((c) => c.id === "realEstateRentalGrid")!.layers.find((l) => l.suffix === "rental-fill")!;
+    const before = JSON.stringify(fill().paint(true, {})["fill-color"]);
+    expect(before).toContain(paletteRamp("batlow", true)![0]!);
+    layerParamsStore.setParam("realEstateRentalGrid", "realEstateRentalGridPalette", "viridis");
+    expect(JSON.stringify(fill().paint(true, {})["fill-color"])).not.toBe(before);
+    expect(RE_PALETTES.rental.colors).toEqual(pointColors);
+    expect(RE_PALETTES.rental.colors).toHaveLength(6);
+    const dens = OVERLAY_REGISTRY.find((c) => c.id === "jpAccommodationDensity")!.layers.find((l) => l.type === "fill")!;
+    expect(JSON.stringify(dens.paint(true, {})["fill-color"])).toContain(paletteRamp("YlOrBr", true)![0]!);
+    layerParamsStore.setParam("jpAccommodationDensity", "jpAccommodationDensityPalette", "viridis");
+    expect(JSON.stringify(dens.paint(true, {})["fill-color"])).toContain(paletteRamp("viridis", true)![0]!);
   });
 
   it("whenDefault：選單停在預設時用指定色盤，換色後用所選", () => {

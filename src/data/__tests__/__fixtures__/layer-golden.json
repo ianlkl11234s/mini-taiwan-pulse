@@ -24146,19 +24146,19 @@
                   ],
                   0
                 ],
-                "#fff7ed",
+                "#9a3504",
                 2,
-                "#fed7aa",
+                "#bd4503",
                 4,
-                "#fdba74",
+                "#db5d0b",
                 8,
-                "#fb923c",
+                "#f27d1b",
                 16,
-                "#f97316",
+                "#fea332",
                 32,
-                "#c2410c",
+                "#fecc61",
                 64,
-                "#7c2d12"
+                "#ffefac"
               ],
               "fill-opacity": 0.55
             },
@@ -24173,19 +24173,19 @@
                   ],
                   0
                 ],
-                "#fff7ed",
+                "#f5841e",
                 2,
-                "#fed7aa",
+                "#e66911",
                 4,
-                "#fdba74",
+                "#d25306",
                 8,
-                "#fb923c",
+                "#b94303",
                 16,
-                "#f97316",
+                "#9e3604",
                 32,
-                "#c2410c",
+                "#822d05",
                 64,
-                "#7c2d12"
+                "#662506"
               ],
               "fill-opacity": 0.55
             }
@@ -24243,19 +24243,19 @@
                   ],
                   0
                 ],
-                "#fff7ed",
+                "#9a3504",
                 2,
-                "#fed7aa",
+                "#bd4503",
                 4,
-                "#fdba74",
+                "#db5d0b",
                 8,
-                "#fb923c",
+                "#f27d1b",
                 16,
-                "#f97316",
+                "#fea332",
                 32,
-                "#c2410c",
+                "#fecc61",
                 64,
-                "#7c2d12"
+                "#ffefac"
               ],
               "fill-opacity": 0.55
             },
@@ -24270,19 +24270,19 @@
                   ],
                   0
                 ],
-                "#fff7ed",
+                "#f5841e",
                 2,
-                "#fed7aa",
+                "#e66911",
                 4,
-                "#fdba74",
+                "#d25306",
                 8,
-                "#fb923c",
+                "#b94303",
                 16,
-                "#f97316",
+                "#9e3604",
                 32,
-                "#c2410c",
+                "#822d05",
                 64,
-                "#7c2d12"
+                "#662506"
               ],
               "fill-opacity": 0.55
             }
@@ -42990,17 +42990,17 @@
                   0
                 ],
                 92,
-                "#41919A",
+                "#2c665d",
                 177.2,
-                "#7DB3B8",
+                "#6a7c3e",
                 262.4,
-                "#B3D6D8",
+                "#a48a31",
                 347.6,
-                "#EAB49C",
+                "#db964f",
                 432.8,
-                "#D17A57",
+                "#faac99",
                 518,
-                "#B33C1B"
+                "#faccfa"
               ],
               "fill-opacity": 0.7
             },
@@ -43019,17 +43019,17 @@
                   0
                 ],
                 92,
-                "#41919A",
+                "#d89448",
                 177.2,
-                "#7DB3B8",
+                "#a18a2e",
                 262.4,
-                "#B3D6D8",
+                "#677a3f",
                 347.6,
-                "#EAB49C",
+                "#2f655a",
                 432.8,
-                "#D17A57",
+                "#144a61",
                 518,
-                "#B33C1B"
+                "#0b2c5c"
               ],
               "fill-opacity": 0.7
             }
@@ -70664,6 +70664,83 @@
         "step": 0.05,
         "value": 0.72,
         "valueText": "0.72"
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "YlOrBr"
       }
     ],
     "jpAccommodationJta": [
@@ -77527,6 +77604,83 @@
       }
     ],
     "realEstateRentalGrid": [
+      {
+        "defaultValue": "batlow",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "batlow"
+      },
       {
         "label": "透明度 0.70",
         "max": 1,
