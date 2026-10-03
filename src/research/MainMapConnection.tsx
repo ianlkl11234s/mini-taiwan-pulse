@@ -53,6 +53,7 @@ import { isTimedChoropleth, warehouseChoroplethPeriodFact } from "./warehouseRes
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
+import { summarizeVisibleLayers, viewportBounds, type VisibleSummaryMap } from "./visibleSummary";
 import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
@@ -400,7 +401,9 @@ export function MainMapConnection(props: Props) {
         case "map_context":
           if (!current.map || !isStyleReady(current.map)) throw new Error("MAP_NOT_READY");
           // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
-          result = { observedAt: new Date().toISOString(), tilesSettled: current.map.isStyleLoaded(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current) };
+          result = { observedAt: new Date().toISOString(), tilesSettled: current.map.isStyleLoaded(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current),
+            // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
+            bounds: viewportBounds(current.map), visibleSummary: summarizeVisibleLayers(current.map as unknown as VisibleSummaryMap, visible, { labelFor: key => current.labels[key] ?? key }) };
           break;
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
