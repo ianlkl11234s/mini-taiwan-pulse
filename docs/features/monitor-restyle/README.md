@@ -1,7 +1,7 @@
 # 監看模式 split 改版（monitor-restyle）
 
 > **Slug**：`monitor-restyle`
-> **狀態**：2026-10-01 拍板（A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；P1 完成（卡片殼）、P2a 完成（字級 S13）、P2b 完成（數值列與走勢）、P3 完成（多指標卡）、P4 完成（來源新鮮度、缺值修正），P5–P6 未開始
+> **狀態**：2026-10-01 拍板（A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；P1 完成（卡片殼）、P2a 完成（字級 S13）、P2b 完成（數值列與走勢）、P3 完成（多指標卡）、P4 完成（來源新鮮度、缺值修正）、P5 完成（淡色版，比較頁 `p5-picks.html`），P6 未開始
 > **比較頁**：[`picks.html`](./picks.html)（暗／淡並排，用代號選）
 > **細節**：外觀盤點 [`inventory-a.md`](./inventory-a.md)（上半 14 格）、[`inventory-b.md`](./inventory-b.md)（下半 10 格＋MonitorPanel 外殼）、資料品質 [`data-quality.md`](./data-quality.md)（含所用 SQL，查詢時間 2026-09-30 23:10 台灣時間）
 > **規格**：[`docs/design-system/spec.md` §5.35](../../design-system/spec.md)（定案）

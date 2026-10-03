@@ -1,7 +1,7 @@
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { IntelIcon } from "../IntelIcon";
 import {
-  COLORS, FONT_CJK, FONT_DATA, MICON,
+  FONT_CJK, FONT_DATA, MICON,
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER, alertSeverity, relTime,
   type AlertGroupShort,
 } from "../intelTokens";
@@ -16,6 +16,7 @@ import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { useMonitorV2 } from "../monitor/monitorStyle";
 import { fs, MF } from "../monitor/monitorFont";
 import { MonitorSub } from "../monitor/MonitorMetric";
+import { useMonitorTheme } from "../monitor/monitorTheme";
 import { MON_CHART_H } from "../monitor/monitorChart";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
@@ -46,6 +47,7 @@ function AlertTrend({
   const W = 100;
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   // v2：圖區高照 mini 階（24），固定高格子內容只能等高或更矮
   const H = v2 ? MON_CHART_H.mini : 28;
 
@@ -65,7 +67,7 @@ function AlertTrend({
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: noData ? [] : [{ dot: accent, value: fmtChartValue(totals[h]!, "則") }],
+      rows: noData ? [] : [{ dot: theme.fill(accent), value: fmtChartValue(totals[h]!, "則") }],
       ...(noData ? { note: "無資料" } : null),
     });
   }
@@ -75,8 +77,8 @@ function AlertTrend({
       style={v2 ? { padding: "2px 0", marginBottom: 10 } : {
         padding: "8px 10px",
         borderRadius: RADIUS.lg,
-        background: "rgba(255,255,255,0.025)",
-        border: `1px solid ${COLORS.borderMid}`,
+        background: theme.neutral(0.025),
+        border: `1px solid ${theme.p.borderMid}`,
         marginBottom: 10,
       }}
     >
@@ -88,7 +90,7 @@ function AlertTrend({
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
-            color: COLORS.textFaint,
+            color: theme.p.textFaint,
           }}
         >
           {v2 ? "近 24 小時" : "24H TREND"}
@@ -97,7 +99,7 @@ function AlertTrend({
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm),
-            color: COLORS.textMuted,
+            color: theme.p.textMuted,
           }}
         >
           {v2 ? "高峰" : "Peak"} {noData ? "—" : peak}
@@ -112,12 +114,12 @@ function AlertTrend({
         onMouseMove={handleMove}
         onMouseLeave={tip.hide}
       >
-        {!noData && <polygon points={area} fill={`${accent}33`} />}
+        {!noData && <polygon points={area} fill={`${theme.fill(accent)}33`} />}
         {!noData && (
           <polyline
             points={points}
             fill="none"
-            stroke={accent}
+            stroke={theme.fill(accent)}
             strokeWidth={0.8}
             vectorEffect="non-scaling-stroke"
           />
@@ -136,6 +138,7 @@ function Sparkline({ data: raw, color }: { data: (number | null)[]; color: strin
   const W = 100;
   const H = 16;
   const tip = useChartTooltip();
+  const theme = useMonitorTheme();
   const pts = data
     .map((v, i) => {
       const x = (i / 23) * W;
@@ -151,7 +154,7 @@ function Sparkline({ data: raw, color }: { data: (number | null)[]; color: strin
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: noData ? [] : [{ dot: color, value: fmtChartValue(data[h] ?? 0, "則") }],
+      rows: noData ? [] : [{ dot: theme.fill(color), value: fmtChartValue(data[h] ?? 0, "則") }],
       ...(noData ? { note: "無資料" } : null),
     });
   }
@@ -171,7 +174,7 @@ function Sparkline({ data: raw, color }: { data: (number | null)[]; color: strin
           <polyline
             points={pts}
             fill="none"
-            stroke={color}
+            stroke={theme.fill(color)}
             strokeWidth={0.8}
             vectorEffect="non-scaling-stroke"
           />
@@ -196,6 +199,7 @@ function GroupCard({
 }) {
   const def = ALERT_GROUPS_DEF[group];
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const dim = count === 0;
   return (
     <button
@@ -206,11 +210,11 @@ function GroupCard({
         padding: "9px 10px",
         borderRadius: RADIUS.lg,
         background: dim
-          ? "rgba(255,255,255,0.015)"
+          ? theme.neutral(0.015)
           : hot
-            ? `${def.color}10`
-            : "rgba(255,255,255,0.04)",
-        border: `1px solid ${hot ? `${def.color}55` : COLORS.borderMid}`,
+            ? `${theme.fill(def.color)}10`
+            : theme.neutral(0.04),
+        border: `1px solid ${hot ? `${theme.fill(def.color)}55` : theme.p.borderMid}`,
         opacity: dim ? 0.38 : 1,
         cursor: dim ? "default" : "pointer",
         display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4,
@@ -218,14 +222,14 @@ function GroupCard({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <IntelIcon d={MICON[def.iconKey]!} size={11} color={def.color} />
+        <IntelIcon d={MICON[def.iconKey]!} size={11} color={theme.fill(def.color)} />
         {/* nowrap：六宮格是固定高（monitorSplitLayout.ts 註記 h5 就會讓數字溢出卡外），
             中文組名一旦折成兩行就會把數字推出格子。split 的窄欄 + 內容縮放後
             「民生」實測會折行，兩個標籤都鎖不折 */}
         <span
           style={{
             fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 600,
-            color: COLORS.textDefault, whiteSpace: "nowrap",
+            color: theme.p.textDefault, whiteSpace: "nowrap",
           }}
         >
           {def.label}
@@ -236,7 +240,7 @@ function GroupCard({
           <span
             title={topTerm ?? undefined}
             style={{
-              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted,
               minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}
           >
@@ -257,7 +261,7 @@ function GroupCard({
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: v2 ? MF.main : FONT_SIZE.xxl, fontWeight: 700,
-            color: hot ? def.color : COLORS.textStrong,
+            color: hot ? theme.text(def.color) : theme.p.textStrong,
             lineHeight: 1,
           }}
         >
@@ -267,7 +271,7 @@ function GroupCard({
           <span
             style={{
               fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), fontWeight: 700,
-              color: v2 ? COLORS.statusErr : "#ef4444",
+              color: v2 ? theme.p.statusErr : "#ef4444",
               whiteSpace: v2 ? "nowrap" : undefined,
             }}
           >
@@ -278,7 +282,7 @@ function GroupCard({
       {!v2 && (
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint,
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textFaint,
             height: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}
         >
@@ -295,6 +299,7 @@ function AlertDrawer({
   group, nowTs,
 }: { group: AlertGroupShort; nowTs: number }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const def = ALERT_GROUPS_DEF[group];
   const [rows, setRows] = useState<ActiveAlert[] | null>(null);
 
@@ -311,7 +316,7 @@ function AlertDrawer({
       <div
         style={{
           padding: "10px 12px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
-          color: COLORS.textFaint,
+          color: theme.p.textFaint,
         }}
       >
         載入中…
@@ -324,7 +329,7 @@ function AlertDrawer({
       <div
         style={{
           padding: "10px 12px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
-          color: COLORS.textFaint,
+          color: theme.p.textFaint,
         }}
       >
         無 {def.label} 警報
@@ -349,28 +354,28 @@ function AlertDrawer({
             style={{
               display: "flex", alignItems: "center", gap: 7,
               padding: "5px 0",
-              borderBottom: `1px solid ${COLORS.borderSoft}`,
+              borderBottom: `1px solid ${theme.p.borderSoft}`,
             }}
           >
             <span
               style={{
                 width: 6, height: 6, borderRadius: RADIUS.full,
-                background: sev.color, flexShrink: 0,
+                background: theme.fill(sev.color), flexShrink: 0,
                 boxShadow: r.severity >= 3 ? `0 0 5px ${sev.color}` : "none",
               }}
             />
             <span
               style={{
                 fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
-                color: COLORS.textDefault, flex: 1,
+                color: theme.p.textDefault, flex: 1,
                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
               title={r.headline}
             >
-              <span style={{ color: COLORS.textMuted, fontSize: fs(v2, FONT_SIZE.sm) }}>{r.county} · </span>
+              <span style={{ color: theme.p.textMuted, fontSize: fs(v2, FONT_SIZE.sm) }}>{r.county} · </span>
               {r.headline || r.term}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: COLORS.textFaint }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: theme.p.textFaint }}>
               {relTime(r.sent_ts, nowTs)}
             </span>
           </div>
@@ -384,12 +389,13 @@ function AlertDrawer({
 export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs }: Props) {
   const [openGroup, setOpenGroup] = useState<AlertGroupShort | null>(null);
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
 
   if (status !== "ready") {
     const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
     const at = lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "";
     return (
-      <div style={{ ...(v2 ? {} : { padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}` }), color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>
+      <div style={{ ...(v2 ? {} : { padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${theme.p.borderMid}` }), color: theme.p.textMuted, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>
         {label}{at}
       </div>
     );
@@ -403,15 +409,15 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           style={{
             padding: "9px 12px",
             borderRadius: RADIUS.lg,
-            background: "rgba(34,197,94,0.06)",
-            border: `1px solid ${COLORS.statusLiveBorder}`,
+            background: theme.isDark ? "rgba(34,197,94,0.06)" : theme.p.statusLiveSoft,
+            border: `1px solid ${theme.p.statusLiveBorder}`,
             display: "flex", alignItems: "center", gap: 7,
           }}
         >
-          <IntelIcon d={MICON.check!} size={12} color={COLORS.statusLive} />
+          <IntelIcon d={MICON.check!} size={12} color={theme.p.statusLive} />
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), color: COLORS.statusLive, fontWeight: 600,
+              fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), color: theme.p.statusLive, fontWeight: 600,
             }}
           >
             {v2 ? "目前全國無生效中警報" : "目前全國無 active 警報"}
@@ -420,7 +426,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           <span
             style={{
               fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
-              color: COLORS.textFaint,
+              color: theme.p.textFaint,
             }}
           >
             {v2 ? "全部解除" : "ALL CLEAR"}
@@ -440,7 +446,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               "災防科技中心＋氣象署",
               `${tally.total} 則`,
               tally.severe > 0 ? (
-                <span style={{ color: COLORS.statusErr, fontWeight: 700 }}>{tally.severe} 嚴重</span>
+                <span style={{ color: theme.p.statusErr, fontWeight: 700 }}>{tally.severe} 嚴重</span>
               ) : null,
             ]}
           />
@@ -458,7 +464,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           <span
             style={{
               fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700,
-              color: COLORS.textStrong, letterSpacing: "0.5px",
+              color: theme.p.textStrong, letterSpacing: "0.5px",
             }}
           >
             警訊整合
@@ -467,13 +473,13 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
         <span
           style={{
             fontFamily: v2 ? FONT_CJK : FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: v2 ? "0.5px" : "1.5px",
-            color: COLORS.textDim,
+            color: theme.p.textDim,
           }}
         >
           {v2 ? "災防科技中心＋氣象署" : "NCDR + CWA"}
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>
           {tally.total} 則
         </span>
         {tally.severe > 0 && (
@@ -535,8 +541,8 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           style={{
             marginTop: 8,
             borderRadius: RADIUS.lg,
-            background: "rgba(0,0,0,0.32)",
-            border: `1px solid ${COLORS.borderMid}`,
+            background: theme.isDark ? "rgba(0,0,0,0.32)" : theme.neutral(0.04),
+            border: `1px solid ${theme.p.borderMid}`,
             flexShrink: 0,
           }}
         >
@@ -544,18 +550,18 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
             style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "7px 10px",
-              borderBottom: `1px solid ${COLORS.borderSoft}`,
+              borderBottom: `1px solid ${theme.p.borderSoft}`,
             }}
           >
             <IntelIcon
               d={MICON[ALERT_GROUPS_DEF[openGroup].iconKey]!}
               size={11}
-              color={ALERT_GROUPS_DEF[openGroup].color}
+              color={theme.fill(ALERT_GROUPS_DEF[openGroup].color)}
             />
             <span
               style={{
                 fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), fontWeight: 700,
-                color: COLORS.textStrong,
+                color: theme.p.textStrong,
               }}
             >
               {ALERT_GROUPS_DEF[openGroup].label}明細
@@ -565,7 +571,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               onClick={() => setOpenGroup(null)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                color: COLORS.textMuted, padding: 2,
+                color: theme.p.textMuted, padding: 2,
               }}
             >
               <IntelIcon d={MICON.chevUp!} size={11} />

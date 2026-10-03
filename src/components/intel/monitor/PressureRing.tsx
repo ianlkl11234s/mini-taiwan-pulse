@@ -5,6 +5,7 @@ import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { fs } from "./monitorFont";
 import { useMonitorFreshness } from "./monitorFreshness";
+import { useMonitorTheme } from "./monitorTheme";
 import { useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
@@ -31,6 +32,7 @@ export function PressureRing({
   size?: number;
 }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const r = 52;
   const c = 2 * Math.PI * r;
   const sweep = 0.75; // 270°
@@ -50,11 +52,11 @@ export function PressureRing({
         style={{ transform: "rotate(135deg)", overflow: "visible", ...animStyle }}
       >
         <circle
-          cx="66" cy="66" r={r} fill="none" stroke="rgba(255,255,255,0.07)"
+          cx="66" cy="66" r={r} fill="none" stroke={theme.neutral(0.07)}
           strokeWidth="9" strokeDasharray={`${track} ${c}`} strokeLinecap="round"
         />
         <circle
-          cx="66" cy="66" r={r} fill="none" stroke={status === "ready" ? level.color : COLORS.textMuted}
+          cx="66" cy="66" r={r} fill="none" stroke={status === "ready" ? theme.fill(level.color) : theme.p.textMuted}
           strokeWidth="9" strokeDasharray={`${val} ${c}`} strokeLinecap="round"
           style={{
             transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1), stroke .4s",
@@ -71,18 +73,18 @@ export function PressureRing({
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: fs(v2, 40), fontWeight: 700, lineHeight: 1,
-            color: "#fff", letterSpacing: "-1px",
+            color: theme.isDark ? "#fff" : status === "ready" || stale ? theme.text(level.color) : theme.p.textMuted, letterSpacing: "-1px",
           }}
         >
           {status === "ready" || stale ? Math.round(score) : "—"}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: status === "ready" ? theme.text(level.color) : theme.p.textMuted }}>
           {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
         </span>
         {/* 英文等級字只在舊版（v2 字級放大後會和中文疊在一起；§6.1 標籤一律中文） */}
         {!v2 && (
           <span
-            style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: COLORS.textFaint }}
+            style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: theme.p.textFaint }}
           >
             {status === "ready" ? level.en : "DATA"}
           </span>
@@ -94,18 +96,19 @@ export function PressureRing({
 
 export function CompareLine({ delta, label, muted = false }: { delta: number | null; label: string; muted?: boolean }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const up = delta !== null && delta >= 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span
         style={{
           fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, ...(v2 ? { minWidth: 40 } : { width: 40 }),
-          color: muted || delta === null ? COLORS.textMuted : up ? COLORS.statusWarn : COLORS.statusLive,
+          color: muted || delta === null ? theme.p.textMuted : up ? theme.p.statusWarn : theme.p.statusLive,
         }}
       >
         {delta === null ? "—" : <>{up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}</>}
       </span>
-      <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: COLORS.textMuted, whiteSpace: "nowrap" }}>
+      <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: theme.p.textMuted, whiteSpace: "nowrap" }}>
         {label}
       </span>
     </div>
@@ -173,6 +176,7 @@ export function TwseTicker({
 
   // v2：資料時間＝歷史序列最後一筆日期＋RPC 的 HH:MM；收盤／休市只出中性 pill（paused，資料超過 4 天會改成過期）
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const dataMs = available && data.time ? marketDataMs(histLast?.trade_date, data.time) : null;
   const fresh = useMonitorFreshness("taiex", {
     time: dataMs,
@@ -213,7 +217,7 @@ export function TwseTicker({
           <TimeseriesSparkline
             data={points}
             unit="點"
-            lineColor={histUp ? COLORS.statusErr : COLORS.statusLive}
+            lineColor={histUp ? theme.p.statusErr : theme.p.statusLive}
             heightTier="std"
             gapSec={10 * 86400}
             showTooltip
@@ -432,10 +436,11 @@ export function Sparkline({
 
 export function SectionLabel({ children, color }: { children: React.ReactNode; color?: string }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   // v2：卡片標題由 MonitorCardFrame 畫；卡內的 SectionLabel 只當小節標（中文、不轉大寫、非等寬）
   if (v2) {
     return (
-      <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600, color: COLORS.textMuted }}>
+      <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600, color: theme.p.textMuted }}>
         {children}
       </div>
     );

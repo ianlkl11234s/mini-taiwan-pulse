@@ -71,5 +71,10 @@ if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
   ) &
 fi
 
+# nginx resolves the research gateway per request (see nginx.conf); use the
+# cluster DNS from resolv.conf so the site never fails to start on DNS.
+RESOLVER="$(awk '/^nameserver/{print $2; exit}' /etc/resolv.conf)"
+echo "resolver ${RESOLVER:-127.0.0.11} valid=30s ipv6=off;" > /etc/nginx/research-resolver.conf
+
 echo "[entrypoint] starting nginx (foreground)"
 exec nginx -g 'daemon off;'

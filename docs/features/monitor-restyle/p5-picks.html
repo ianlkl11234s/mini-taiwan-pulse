@@ -1,0 +1,179 @@
+<title>監看淡色版選項</title>
+<style>
+/* 版面：每題一列，左邊暗色參照、右邊淡色各選項並排；示意卡用 app 的實際 token 值（不跟頁面主題） */
+:root {
+  --bg: #f4f5f7; --fg: #1b1f27; --muted: #5b6472; --line: #d9dde3; --chip: #e8ebf0; --accent: #0b6fd6;
+  --f-ui: "Noto Sans TC", system-ui, sans-serif; --f-data: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121418; --fg: #e6e8ec; --muted: #9aa3b0; --line: #2a2f37; --chip: #1e2229; --accent: #64aaff; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #121418; --fg: #e6e8ec; --muted: #9aa3b0; --line: #2a2f37; --chip: #1e2229; --accent: #64aaff; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; display: grid; gap: 36px; }
+header h1 { font-size: 22px; margin: 0 0 6px; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 70ch; line-height: 1.6; }
+.q { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 18px; }
+.q h2 { font-size: 17px; margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.q h2 .k { font-family: var(--f-data); font-size: 13px; background: var(--chip); padding: 2px 8px; border-radius: 4px; }
+.q > p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; max-width: 80ch; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+.opt { display: grid; gap: 8px; min-width: 0; }
+.opt .lab { font-size: 13px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.opt .lab b { font-family: var(--f-data); color: var(--accent); }
+.opt .lab span { color: var(--muted); }
+.stage { border-radius: 10px; padding: 14px; min-width: 0; overflow: hidden; }
+.rec { font-size: 12px; color: var(--accent); }
+.summary { background: var(--chip); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; line-height: 1.7; }
+.summary code { font-family: var(--f-data); }
+/* 示意卡 */
+.card { border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; font-family: var(--f-ui); }
+.card .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.card .t { font-size: 16px; font-weight: 700; }
+.card .en { font-size: 12px; margin-left: 6px; font-weight: 400; }
+.card .meta { display: flex; gap: 6px; align-items: center; font-family: var(--f-data); font-size: 13px; }
+.pill { font-size: 12px; padding: 1px 7px; border-radius: 4px; font-family: var(--f-ui); white-space: nowrap; }
+.num { font-family: var(--f-data); font-size: 24px; font-weight: 700; white-space: nowrap; }
+.num small { font-size: 14px; font-weight: 400; margin-left: 3px; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 13px; }
+.kpis b { display: block; font-family: var(--f-data); font-size: 17px; }
+.note { font-size: 13px; }
+svg { display: block; width: 100%; height: auto; }
+@media (max-width: 480px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>監看模式淡色版：六題選項</h1>
+    <p>底圖切到淡色（light／streets）時，監看模式新版跟著切淡色（spec §5.35 H2，已拍板）。下面每題左邊是現在的暗色參照，右邊是淡色選項；示意卡用站上實際的 token 值。選好後把代號（例 S1／W1／D2／P1／X1／R1）貼回來即可。舊版維持全暗，不在選項裡。</p>
+  </header>
+  <div id="qs"></div>
+  <div class="summary">
+    <b>不需要選、會照規則做的：</b>淡色值只取 <code>LIGHT</code>；資料色當文字一律走 <code>chipText()</code>（和深色字 45/55 混色）並逐格量對比；直播牆影片與影片上的字幕條維持暗；共用折線在一般彈窗維持暗（只有監看模式跟主題）。設計系統頁 §13 改成暗／淡並排。
+  </div>
+</div>
+
+<script>
+const DARK = { app: "#1d2026", panel: "rgba(8,9,13,0.86)", card: "rgba(255,255,255,0.04)", border: "rgba(255,255,255,0.10)",
+  strong: "#f3f4f6", def: "#d8dce3", muted: "#9ca3af", dim: "#6b7280", warn: "#ff9800", err: "#ef4444", live: "#22c55e",
+  accent: "#64aaff", grid: "rgba(255,255,255,0.08)", hatch: "rgba(255,255,255,0.12)", stub: "rgba(255,255,255,0.06)", isDark: true };
+const LIGHT = { app: "#e9ecef", panel: "rgba(255,255,255,0.95)", card: "#ffffff", border: "rgba(0,0,0,0.10)",
+  strong: "#111827", def: "#1f2937", muted: "#4b5563", dim: "#6b7280", warn: "#c2410c", err: "#b42318", live: "#15803d",
+  accent: "#0b6fd6", grid: "rgba(0,0,0,0.08)", hatch: "rgba(0,0,0,0.12)", stub: "rgba(0,0,0,0.06)", isDark: false };
+// 淡底地圖示意：淺灰底＋幾條路
+const MAP_LIGHT = "background:#e9ecef linear-gradient(115deg,transparent 46%,#f8f9fa 46% 48%,transparent 48%),linear-gradient(20deg,transparent 60%,#f8f9fa 60% 61.5%,transparent 61.5%) #e5e8ec";
+const MAP_DARK = "background:#1d2026 linear-gradient(115deg,transparent 46%,#2a2e36 46% 48%,transparent 48%) #1b1e24";
+
+function mix(hex, to, t) { const a = parseInt(hex.slice(1), 16), b = parseInt(to.slice(1), 16);
+  const c = (s) => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
+  return "#" + ((c(16) << 16) | (c(8) << 8) | c(0)).toString(16).padStart(6, "0"); }
+const chip = (hex, p) => p.isDark ? hex : mix(hex, "#111827", 0.45);
+
+let uid = 0;
+function spark(p, o) {
+  const id = "h" + (uid++), w = 260, h = 64, padL = 30, top = 8, bot = 52;
+  const pts = [12, 14, 13, 16, 15, 18, 17, null, null, 19, 21, 20, 22];
+  const x = (i) => padL + i * ((w - padL - 60) / (pts.length - 1)), y = (v) => bot - ((v - 10) / 14) * (bot - top);
+  let path = "", seg = [];
+  pts.forEach((v, i) => { if (v == null) { if (seg.length) path += "M" + seg.join("L"); seg = []; } else seg.push(x(i).toFixed(1) + "," + y(v).toFixed(1)); });
+  if (seg.length) path += "M" + seg.join("L");
+  const hatch = o.hatch, line = o.line;
+  const gx0 = x(6), gx1 = x(9), tx0 = x(12), tx1 = w - 6;
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="示意折線：中段缺值、尾段停更">
+    <defs><pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="${hatch}" stroke-width="2"/></pattern></defs>
+    <line x1="${padL}" x2="${w - 6}" y1="${top}" y2="${top}" stroke="${p.grid}"/><line x1="${padL}" x2="${w - 6}" y1="${bot}" y2="${bot}" stroke="${p.grid}"/>
+    <text x="2" y="${top + 4}" font-size="11" fill="${p.dim}" font-family="ui-monospace">24</text><text x="2" y="${bot + 4}" font-size="11" fill="${p.dim}" font-family="ui-monospace">10</text>
+    <rect x="${gx0}" y="${top}" width="${gx1 - gx0}" height="${bot - top}" fill="url(#${id})"/>
+    ${o.stale ? `<rect x="${tx0}" y="${top}" width="${tx1 - tx0}" height="${bot - top}" fill="url(#${id})"/>` : ""}
+    <path d="${path}" fill="none" stroke="${line}" stroke-width="1.6"/>
+    <circle cx="${x(12)}" cy="${y(22)}" r="2.5" fill="${line}"/>
+    <text x="${padL}" y="${h - 1}" font-size="11" fill="${p.dim}" font-family="ui-monospace">09/20</text><text x="${w - 40}" y="${h - 1}" font-size="11" fill="${p.dim}" font-family="ui-monospace">10/03</text>
+  </svg>`;
+}
+function bars(p, o) {
+  const vals = [3, 5, 0, 2, null, null, 7, 4, 0, 1, 6, 9, 2, 3], w = 260, h = 56, bw = (w - 4) / vals.length;
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="示意柱：灰樁為缺值，底線為 0">` + vals.map((v, i) => {
+    const xx = 2 + i * bw + 1.5, ww = bw - 3;
+    if (v == null) return `<rect x="${xx}" y="${h - 46}" width="${ww}" height="46" fill="${o.stub}" rx="1"/>`;
+    const hh = Math.max(1.2, (v / 9) * 46), c = v >= 6 ? o.hi : o.lo;
+    return `<rect x="${xx}" y="${h - hh - 2}" width="${ww}" height="${hh}" fill="${c}" rx="1"/>`;
+  }).join("") + `<line x1="2" x2="${w - 2}" y1="${h - 1.5}" y2="${h - 1.5}" stroke="${p.grid}"/></svg>`;
+}
+function pill(p, kind, label, style) {
+  const c = kind === "err" ? p.err : kind === "warn" ? p.warn : p.muted;
+  if (style === "tint") {
+    const bg = p.isDark ? c + "29" : mix(c, "#ffffff", 0.88);
+    return `<span class="pill" style="background:${bg};color:${chip(c, p)};border:1px solid transparent">${label}</span>`;
+  }
+  return `<span class="pill" style="border:1px solid ${c};color:${p.isDark ? c : chip(c, p)}">${label}</span>`;
+}
+
+// 一張卡：o 控制各題的變體
+function card(p, o) {
+  const cardBg = o.cardBg ?? p.card, border = o.cardBorder ?? p.border;
+  const line = o.lineColor ?? (p.isDark ? "#60a5fa" : "#60a5fa");
+  const lo = o.lo ?? (p.isDark ? "#64aaff" : "#64aaff"), hi = o.hi ?? "#eab308";
+  const hatch = o.hatchColor ?? p.hatch, stub = o.stubColor ?? p.stub;
+  const muted = o.stale;
+  return `<div class="card" style="background:${cardBg};border:1px solid ${border};color:${p.def}">
+    <div class="hd"><span class="t" style="color:${p.strong}">${o.title ?? "供電"}<span class="en" style="color:${p.dim}">${o.en ?? "Power grid"}</span></span>
+      <span class="meta">${o.pill ? pill(p, o.pill[0], o.pill[1], o.pillStyle) : ""}<span style="color:${o.stale ? p.warn : p.dim}">${o.time ?? "13:10"}</span></span></div>
+    <div class="num" style="color:${muted ? p.muted : p.strong}">${o.value ?? "12.4"}<small style="color:${p.muted}">%</small>
+      ${o.delta ? `<span style="font-size:14px;margin-left:8px;color:${chip(o.deltaColor, p)}">${o.delta}</span>` : ""}</div>
+    ${o.kpis !== false ? `<div class="kpis" style="color:${p.muted}"><span>供電能力<b style="color:${muted ? p.muted : p.strong}">41,230</b></span><span>尖峰負載<b style="color:${muted ? p.muted : p.strong}">36,700</b></span><span>備轉容量<b style="color:${muted ? p.muted : p.strong}">4,530</b></span></div>` : ""}
+    ${o.chart === "bars" ? bars(p, { lo, hi, stub }) : spark(p, { line, hatch, stale: o.stale })}
+    ${o.stale ? `<div class="note" style="color:${p.warn}">資料停在 09/29，超過預期更新時間</div>` : ""}
+  </div>`;
+}
+function stage(p, panelBg, inner, map) {
+  return `<div class="stage" style="${map}"><div style="background:${panelBg};border-radius:10px;padding:10px;border:1px solid ${p.border}">${inner}</div></div>`;
+}
+const darkRef = (o = {}) => stage(DARK, DARK.panel, card(DARK, o), MAP_DARK);
+
+const Q = [
+  { k: "S", title: "淡色卡底", note: "暗色是半透明面板上疊 4% 白的卡。淡色要怎麼把卡跟面板分開？", opts: [
+    { c: "S1", d: "白卡疊淡灰面板", rec: true, html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, { cardBg: "#ffffff" }), MAP_LIGHT) },
+    { c: "S2", d: "白面板，卡底 4% 黑", html: stage(LIGHT, LIGHT.panel, card(LIGHT, { cardBg: "rgba(0,0,0,0.04)", cardBorder: "rgba(0,0,0,0.06)" }), MAP_LIGHT) },
+    { c: "S3", d: "白面板，卡只有框", html: stage(LIGHT, LIGHT.panel, card(LIGHT, { cardBg: "transparent" }), MAP_LIGHT) },
+  ]},
+  { k: "W", title: "面板外殼", note: "分割／停靠時面板蓋在地圖上；全屏時面板佔滿。", opts: [
+    { c: "W1", d: "95% 白（透出一點地圖），全屏改不透明白", rec: true, html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, {}), MAP_LIGHT) },
+    { c: "W2", d: "一律不透明（97%＋全屏 100%）", html: stage(LIGHT, "#f3f4f6", card(LIGHT, {}), MAP_LIGHT) },
+  ]},
+  { k: "D", title: "資料色（柱、線）", note: "暗底上的亮黃、淺藍放到白底對比不夠（黃柱對白底約 1.9:1，圖形建議 3:1）。文字一律加深，問題是填色要不要也加深。", opts: [
+    { c: "D1", d: "填色不變，只加深文字", html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, { chart: "bars", title: "地震", en: "Earthquake", value: "42", kpis: false }), MAP_LIGHT) },
+    { c: "D2", d: "淺色相填色也加深一階（黃→琥珀、淺藍→藍）", rec: true, html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, { chart: "bars", title: "地震", en: "Earthquake", value: "42", kpis: false, lo: "#2f80d8", hi: "#b7791f", lineColor: "#2f80d8" }), MAP_LIGHT) },
+  ]},
+  { k: "P", title: "狀態 pill 與漲跌", note: "過期、停更、收盤三種 pill。", opts: [
+    { c: "P1", d: "外框（與暗色同語彙）", rec: true, html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, { pill: ["err", "停更 141 天"], stale: true, title: "在監人數", en: "Inmates", value: "64,005", time: "05/15", kpis: false }) + "<div style='height:8px'></div>" + card(LIGHT, { pill: ["neutral", "收盤"], title: "加權指數", en: "TAIEX", value: "48,475", time: "10/02", kpis: false, delta: "▲ +122（+0.25%）", deltaColor: "#ef4444" }), MAP_LIGHT) },
+    { c: "P2", d: "淡底實心", html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, { pill: ["err", "停更 141 天"], pillStyle: "tint", stale: true, title: "在監人數", en: "Inmates", value: "64,005", time: "05/15", kpis: false }) + "<div style='height:8px'></div>" + card(LIGHT, { pill: ["neutral", "收盤"], pillStyle: "tint", title: "加權指數", en: "TAIEX", value: "48,475", time: "10/02", kpis: false, delta: "▲ +122（+0.25%）", deltaColor: "#ef4444" }), MAP_LIGHT) },
+  ]},
+  { k: "X", title: "缺值斜線與灰樁", note: "折線缺段、停更尾段斜線；柱的缺值灰樁。", opts: [
+    { c: "X1", d: "黑 12% 斜線、黑 6% 灰樁（暗色同 alpha 換極性）", rec: true, html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, { stale: true, pill: ["warn", "過期 4 天"], time: "09/29" }) + "<div style='height:8px'></div>" + card(LIGHT, { chart: "bars", title: "地震", en: "Earthquake", value: "42", kpis: false }), MAP_LIGHT) },
+    { c: "X2", d: "加重：黑 18% 斜線、黑 10% 灰樁", html: stage(LIGHT, "rgba(243,244,246,0.95)", card(LIGHT, { stale: true, pill: ["warn", "過期 4 天"], time: "09/29", hatchColor: "rgba(0,0,0,0.18)" }) + "<div style='height:8px'></div>" + card(LIGHT, { chart: "bars", title: "地震", en: "Earthquake", value: "42", kpis: false, stubColor: "rgba(0,0,0,0.10)" }), MAP_LIGHT) },
+  ]},
+  { k: "R", title: "戰情概覽壓力環", note: "暗色環有等級色光暈（平時綠、警戒橘…），淡底上光暈會糊成一圈色霧。", opts: [
+    { c: "R1", d: "淡色關光暈，中間數字深色", rec: true, html: stage(LIGHT, "rgba(243,244,246,0.95)", ring(LIGHT, false, false), MAP_LIGHT) },
+    { c: "R2", d: "保留光暈，數字用等級色", html: stage(LIGHT, "rgba(243,244,246,0.95)", ring(LIGHT, true, true), MAP_LIGHT) },
+  ]},
+];
+function ring(p, glow, colored) {
+  const c = p.isDark ? "#4caf50" : "#2e7d32", r = 52, C = 2 * Math.PI * r, track = C * 0.75, val = track * 0.26;
+  return `<div class="card" style="background:#fff;border:1px solid ${p.border}"><div class="hd"><span class="t" style="color:${p.strong}">戰情概覽<span class="en" style="color:${p.dim}">Pressure index</span></span><span class="meta" style="color:${p.dim}">13:23</span></div>
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div style="position:relative;width:120px;height:120px">
+  <svg viewBox="0 0 132 132" style="transform:rotate(135deg)${glow ? `;filter:drop-shadow(0 0 7px ${c}aa)` : ""}"><circle cx="66" cy="66" r="${r}" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="9" stroke-dasharray="${track} ${C}" stroke-linecap="round"/><circle cx="66" cy="66" r="${r}" fill="none" stroke="${c}" stroke-width="9" stroke-dasharray="${val} ${C}" stroke-linecap="round"/></svg>
+  <div style="position:absolute;inset:0;display:grid;place-content:center;text-align:center"><span class="num" style="font-size:34px;color:${colored ? c : p.strong}">26</span><span style="font-weight:700;color:${c}">平時</span></div></div>
+  <div style="display:grid;gap:4px;font-size:13px;color:${p.muted}"><span><b style="color:${p.live}">↘ −1</b> vs 平常週日同時段</span><span><b style="color:${p.warn}">↗ +1</b> vs 1 小時前</span></div></div></div>`;
+}
+
+document.getElementById("qs").innerHTML = Q.map((q) => `<section class="q" id="${q.k}">
+  <h2><span class="k">${q.k}</span>${q.title}</h2><p>${q.note}</p>
+  <div class="row">
+    <div class="opt"><div class="lab"><b>暗</b><span>現在（參照）</span></div>${q.k === "R" ? stage(DARK, DARK.panel, ringDark(), MAP_DARK) : darkRef(q.k === "D" || q.k === "X" ? { chart: "bars", title: "地震", en: "Earthquake", value: "42", kpis: false } : q.k === "P" ? { pill: ["err", "停更 141 天"], stale: true, title: "在監人數", en: "Inmates", value: "64,005", time: "05/15", kpis: false } : {})}</div>
+    ${q.opts.map((o) => `<div class="opt"><div class="lab"><b>${o.c}</b><span>${o.d}</span>${o.rec ? '<span class="rec">建議</span>' : ""}</div>${o.html}</div>`).join("")}
+  </div></section>`).join("");
+function ringDark() { const p = DARK; const c = "#4caf50", r = 52, C = 2 * Math.PI * r, track = C * 0.75, val = track * 0.26;
+  return `<div class="card" style="background:${p.card};border:1px solid ${p.border}"><div class="hd"><span class="t" style="color:${p.strong}">戰情概覽<span class="en" style="color:${p.dim}">Pressure index</span></span><span class="meta" style="color:${p.dim}">13:23</span></div>
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div style="position:relative;width:120px;height:120px"><svg viewBox="0 0 132 132" style="transform:rotate(135deg);filter:drop-shadow(0 0 6px rgba(76,175,80,.5))"><circle cx="66" cy="66" r="${r}" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="9" stroke-dasharray="${track} ${C}" stroke-linecap="round"/><circle cx="66" cy="66" r="${r}" fill="none" stroke="${c}" stroke-width="9" stroke-dasharray="${val} ${C}" stroke-linecap="round"/></svg>
+  <div style="position:absolute;inset:0;display:grid;place-content:center;text-align:center"><span class="num" style="font-size:34px;color:#fff">26</span><span style="font-weight:700;color:${c}">平時</span></div></div>
+  <div style="display:grid;gap:4px;font-size:13px;color:${p.muted}"><span><b style="color:${p.live}">↘ −1</b> vs 平常週日同時段</span><span><b style="color:${p.warn}">↗ +1</b> vs 1 小時前</span></div></div></div>`; }
+</script>

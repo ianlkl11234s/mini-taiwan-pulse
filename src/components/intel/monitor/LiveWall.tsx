@@ -2,10 +2,11 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { SURFACE, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { SURFACE, LIGHT, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
 import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorTheme } from "./monitorTheme";
 import { fs } from "./monitorFont";
 
 export interface LiveChannel {
@@ -114,6 +115,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   const cur = LIVE_CHANNELS.find((c) => c.id === value) ?? LIVE_CHANNELS[0]!;
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
 
   useEffect(() => {
     if (!open) return;
@@ -164,8 +166,8 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
           style={{
             position: "absolute", bottom: "calc(100% + 6px)", left: 0,
             width: v2 ? 264 : 232, maxWidth: v2 ? "80vw" : undefined, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
-            border: `1px solid ${COLORS.borderMid}`,
-            background: SURFACE.solid,
+            border: `1px solid ${theme.p.borderMid}`,
+            background: theme.isDark ? SURFACE.solid : LIGHT.surfaceSolid,
             backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
             boxShadow: ELEVATION.md,
             animation: "drawerOpen .18s cubic-bezier(.22,1,.36,1)",
@@ -174,19 +176,19 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
           <div
             style={{
               display: "flex", alignItems: "center", gap: 6, padding: "8px 11px 7px",
-              borderBottom: `1px solid ${COLORS.borderSoft}`,
+              borderBottom: `1px solid ${theme.p.borderSoft}`,
             }}
           >
             <span
               style={{
                 fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "1.4px",
-                color: COLORS.textDim,
+                color: theme.p.textDim,
               }}
             >
               {v2 ? "選擇頻道" : "SELECT CHANNEL"}
             </span>
             <div style={{ flex: 1 }} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
               {channels.length} 家可看
             </span>
           </div>
@@ -208,13 +210,13 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                       <span
                         style={{
                           fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), letterSpacing: "1px",
-                          color: COLORS.textDim,
+                          color: theme.p.textDim,
                         }}
                       >
                         {c.tag}
                       </span>
-                      <span style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
-                      <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: COLORS.textFaint }}>
+                      <span style={{ flex: 1, height: 1, background: theme.p.borderSoft }} />
+                      <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: theme.p.textFaint }}>
                         {channels.filter((x) => x.tag === c.tag).length}
                       </span>
                     </div>
@@ -228,9 +230,9 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     style={{
                       width: "100%", display: "flex", alignItems: "center", gap: 9,
                       padding: "8px 11px",
-                      background: active ? "rgba(100,170,255,0.12)" : "transparent",
+                      background: active ? (theme.isDark ? "rgba(100,170,255,0.12)" : theme.p.accentFaint) : "transparent",
                       border: "none",
-                      borderLeft: active ? `2px solid ${COLORS.accent}` : "2px solid transparent",
+                      borderLeft: active ? `2px solid ${theme.p.accent}` : "2px solid transparent",
                       cursor: inOther ? "not-allowed" : "pointer",
                       opacity: inOther ? 0.4 : 1, textAlign: "left",
                       transition: "background .12s",
@@ -239,8 +241,8 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     <span
                       style={{
                         width: 6, height: 6, borderRadius: RADIUS.full, flexShrink: 0,
-                        background: c.emergency ? COLORS.statusWarn : "#ff3b30",
-                        boxShadow: `0 0 5px ${c.emergency ? COLORS.statusWarn : "#ff3b30"}`,
+                        background: c.emergency ? theme.p.statusWarn : theme.fill("#ff3b30"),
+                        boxShadow: `0 0 5px ${c.emergency ? theme.p.statusWarn : theme.fill("#ff3b30")}`,
                         animation: "intelRing 1.6s ease-in-out infinite",
                       }}
                     />
@@ -254,7 +256,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                         <span
                           style={{
                             fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), fontWeight: 700,
-                            color: active ? "#fff" : COLORS.textDefault,
+                            color: active ? (theme.isDark ? "#fff" : theme.p.textStrong) : theme.p.textDefault,
                           }}
                         >
                           {c.name}
@@ -263,7 +265,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                           <span
                             style={{
                               fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
-                              color: COLORS.textFaint, letterSpacing: "0.5px",
+                              color: theme.p.textFaint, letterSpacing: "0.5px",
                             }}
                           >
                             {c.en}
@@ -274,7 +276,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                             style={{
                               fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: "#04121f", fontWeight: 700,
                               padding: "0px 5px", borderRadius: RADIUS.md,
-                              background: COLORS.statusWarn,
+                              background: theme.p.statusWarn,
                             }}
                           >
                             防災
@@ -285,7 +287,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                         <span
                           style={{
                             fontFamily: FONT_CJK, fontSize: fs(v2, 8.5),
-                            color: inOther ? COLORS.accent : COLORS.textFaint,
+                            color: inOther ? theme.p.accent : theme.p.textFaint,
                             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                           }}
                         >
@@ -296,7 +298,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     {active && (
                       <span
                         style={{
-                          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: COLORS.accent, flexShrink: 0,
+                          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.accent, flexShrink: 0,
                         }}
                       >
                         ✓
@@ -330,13 +332,14 @@ function LiveSlot({
   const slotRef = useRef<HTMLDivElement>(null);
   const visible = useInView(slotRef);
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   return (
     <div
       ref={slotRef}
       style={{
         position: "relative", borderRadius: RADIUS.xl, overflow: "visible",
         aspectRatio: "16 / 9", background: "#000",
-        border: emergency ? "1px solid rgba(255,152,0,0.55)" : `1px solid ${COLORS.borderSoft}`,
+        border: emergency ? "1px solid rgba(255,152,0,0.55)" : `1px solid ${theme.p.borderSoft}`,
       }}
     >
       <div style={{ position: "absolute", inset: 0, borderRadius: RADIUS.xl, overflow: "hidden" }}>
@@ -456,6 +459,7 @@ export const LiveWall = memo(function LiveWall() {
     setSlots((prev) => prev.map((v, k) => (k === i ? id : v)));
   const ctsLive = slots.includes("cts");
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
 
   // 抓 realtime.yt_live_current → handle→video_id 對照（10 min refresh）
   const resolverQuery = useMonitorResource({ open: true, queryKey: "live-resolver:all", intervalMs: 10 * 60_000, emptyData: EMPTY_RESOLVER_ROWS, load: loadResolverRows });
@@ -503,7 +507,7 @@ export const LiveWall = memo(function LiveWall() {
         gridColumn: "1 / -1",
         ...(v2 ? {} : {
           borderRadius: RADIUS.xl,
-          border: `1px solid ${COLORS.panelBorder}`,
+          border: `1px solid ${theme.p.panelBorder}`,
           background: "rgba(255,255,255,0.022)",
           padding: 13,
         }),
@@ -512,12 +516,12 @@ export const LiveWall = memo(function LiveWall() {
     >
       <MonitorDataStatus label="直播解析" query={resolverQuery} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
-        {!v2 && <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />}
+        {!v2 && <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: theme.p.accent }} />}
         {!v2 && (
           <span
             style={{
               fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px",
-              color: COLORS.textDefault,
+              color: theme.p.textDefault,
             }}
           >
             新聞直播 · LIVE WALL
@@ -527,16 +531,16 @@ export const LiveWall = memo(function LiveWall() {
         {ctsLive ? (
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.statusWarn,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.statusWarn,
               padding: "2px 8px", borderRadius: RADIUS.md,
-              background: COLORS.statusWarnSoft,
-              border: "1px solid rgba(255,152,0,0.3)",
+              background: theme.p.statusWarnSoft,
+              border: theme.isDark ? "1px solid rgba(255,152,0,0.3)" : `1px solid ${theme.p.statusWarnBorder}`,
             }}
           >
             ⚠ 華視已切換防災直播
           </span>
         ) : (
-          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
             4 格同步 · 可切換 {availableChannels.length} 家
           </span>
         )}
@@ -568,7 +572,7 @@ export const LiveWall = memo(function LiveWall() {
           textAlign: "center",
           fontFamily: FONT_CJK,
           fontSize: fs(v2, 9.5),
-          color: COLORS.textFaint,
+          color: theme.p.textFaint,
           lineHeight: 1.5,
         }}
       >

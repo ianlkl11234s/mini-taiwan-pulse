@@ -1,10 +1,11 @@
 import { useMemo } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS } from "../intelTokens";
+import { FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 function DistBar({
@@ -15,6 +16,7 @@ function DistBar({
   counts: number[];
 }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const total = counts.reduce((a, b) => a + b, 0) || 1;
   const tip = useChartTooltip();
   return (
@@ -22,7 +24,7 @@ function DistBar({
       <span
         style={{
           fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "0.5px",
-          color: COLORS.textDim,
+          color: theme.p.textDim,
         }}
       >
         {label}
@@ -32,13 +34,13 @@ function DistBar({
           title: label,
           rows: levels.flatMap((lv, i) =>
             counts[i]
-              ? [{ dot: lv.color, label: lv.label, value: fmtChartValue(counts[i] ?? 0) }]
+              ? [{ dot: theme.fill(lv.color), label: lv.label, value: fmtChartValue(counts[i] ?? 0) }]
               : [],
           ),
         }))}
         style={{
           display: "flex", height: 9, borderRadius: RADIUS.md, overflow: "hidden",
-          background: "rgba(255,255,255,0.04)",
+          background: theme.neutral(0.04),
         }}
       >
         {levels.map((lv, i) =>
@@ -46,7 +48,7 @@ function DistBar({
             <span
               key={i}
               style={{
-                width: `${((counts[i] ?? 0) / total) * 100}%`, background: lv.color,
+                width: `${((counts[i] ?? 0) / total) * 100}%`, background: theme.fill(lv.color),
               }}
             />
           ) : null,
@@ -59,13 +61,13 @@ function DistBar({
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
               fontFamily: FONT_CJK, fontSize: fs(v2, 9.5),
-              color: counts[i] ? COLORS.textDefault : COLORS.textGhost,
+              color: counts[i] ? theme.p.textDefault : theme.p.textGhost,
               whiteSpace: "nowrap",
             }}
           >
             <span
               style={{
-                width: 7, height: 7, borderRadius: RADIUS.sm, background: lv.color,
+                width: 7, height: 7, borderRadius: RADIUS.sm, background: theme.fill(lv.color),
                 opacity: counts[i] ? 1 : 0.4,
               }}
             />
@@ -73,7 +75,7 @@ function DistBar({
             <b
               style={{
                 fontFamily: FONT_DATA, ...(v2 ? { fontSize: MF.body } : {}),
-                color: counts[i] ? "#fff" : COLORS.textFaint,
+                color: counts[i] ? (theme.isDark ? "#fff" : theme.p.textStrong) : theme.p.textFaint,
               }}
             >
               {counts[i] ?? 0}
@@ -92,6 +94,7 @@ interface Props {
 
 export function TriageWidget({ events }: Props) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const tri = useMemo(() => {
     const gis = [0, 0, 0, 0];
     const sev = [0, 0, 0, 0];
@@ -117,12 +120,12 @@ export function TriageWidget({ events }: Props) {
   }, [events, v2]);
   const withNone = (levels: { label: string; color: string }[], counts: number[], none: number) =>
     v2 && none > 0
-      ? { levels: [...levels, { label: "未分級", color: COLORS.textGhost }], counts: [...counts, none] }
+      ? { levels: [...levels, { label: "未分級", color: theme.p.textGhost }], counts: [...counts, none] }
       : { levels, counts };
   const gisDist = withNone(GIS_LEVELS, tri.gis, tri.gisNone);
   const sevDist = withNone(SEV_LEVELS, tri.sev, tri.sevNone);
   const evDist = withNone(
-    [{ label: "事件", color: COLORS.accent }, { label: "聲明", color: COLORS.textDim }],
+    [{ label: "事件", color: theme.p.accent }, { label: "聲明", color: theme.p.textDim }],
     [tri.event, tri.statement],
     tri.evNone,
   );
