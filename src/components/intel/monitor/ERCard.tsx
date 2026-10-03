@@ -14,7 +14,8 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { judgeFreshness, useMonitorFreshness } from "./monitorFreshness";
+import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 
 interface Props { open: boolean }
@@ -45,7 +46,7 @@ export function ERCard({ open }: Props) {
     () => latest.reduce((m, r) => Math.max(m, r.observed_ts ?? 0), 0) * 1000,
     [latest],
   );
-  useMonitorCardHeader({ time: latestObservedMs > 0 ? latestObservedMs : null });
+  const fresh = useMonitorFreshness("erCongestion", { time: latestObservedMs > 0 ? latestObservedMs : null });
 
   const groups = useMemo(() => buildErRegionGroups(latest, series), [latest, series]);
   const allHospitals = useMemo(() => groups.flatMap((g) => g.hospitals), [groups]);
@@ -96,13 +97,14 @@ export function ERCard({ open }: Props) {
             <MonitorMetric
               value={nationalSummary.total.toLocaleString("zh-TW")}
               unit="人等床"
+              muted={fresh.muted}
             />
             <ErSeverityBar summary={nationalSummary} />
             {trend14dSpark.length > 0 && (
               <div data-testid="er-wait-trend-14d">
                 <TimeseriesSparkline
                   data={trend14dSpark} unit="人" heightTier="std" fillArea lineColor={ER_LEVEL_COLORS.severe}
-                  gapSec={ER_TREND_GAP_SEC} showTooltip
+                  gapSec={ER_TREND_GAP_SEC} showTooltip staleUntil={fresh.staleUntil}
                 />
               </div>
             )}
@@ -137,6 +139,7 @@ export function ERCard({ open }: Props) {
             </div>
           );
         })}
+        {fresh.reason && <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>}
         <MonitorSub items={["來源：衛福部 急診即時訂閱"]} />
       </div>
     );
@@ -237,6 +240,11 @@ function HospitalCell({
   const level = classifyErCongestion(cell.wait);
   const hasSpark = cell.spark.length >= 2;
   const hasTimeSpark = (timeSeries?.length ?? 0) >= 2;
+  // v2：單院停更（該院自己的最新觀測落後）→ 數值降灰並標「過期／停更 N」
+  const cellFresh = v2 && cell.observedTs != null
+    ? judgeFreshness(MONITOR_CARD_META.erCongestion.fresh, cell.observedTs * 1000, Date.now())
+    : null;
+  const cellStaleLabel = cellFresh && cellFresh.muted ? (cellFresh.header?.label ?? null) : null;
   return (
     <div
       // v2：不畫框，但保留淡底小格，否則迷你走勢會貼著右邊下一家醫院、看不出屬於誰
@@ -264,10 +272,12 @@ function HospitalCell({
           {cell.name}
         </span>
         <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 14), fontWeight: 700, color, lineHeight: 1.1 }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 14), fontWeight: 700, color: cellStaleLabel ? COLORS.textMuted : color, lineHeight: 1.1 }}>
             {cell.wait == null ? "—" : cell.wait}
           </span>
-          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>等床</span>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
+            {cellStaleLabel ? `等床 · ${cellStaleLabel}` : "等床"}
+          </span>
         </div>
       </div>
       {/* 逐點 hover 顯示時間 + 等床數，取代原本蓋住整格（含此圖）的 HTML title

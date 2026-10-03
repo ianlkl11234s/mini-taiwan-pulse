@@ -675,6 +675,7 @@ export function MonitorPanel({
     hotZones: newsDerived("hotZones",
       <HotspotsWidget
         events={allEventsToday}
+        trending={trending}
         countyByEventId={countyByEventId}
         onPickHotspot={onPickHotspot}
       />
