@@ -52,7 +52,7 @@ export function aggregateCountySurge(rows: readonly TrendingRow[] | null | undef
   return out;
 }
 
-const SURGE_TIP = "近 1 小時升溫：該縣市近 1 小時新聞則數 ÷ 過去 7 天每小時平均（依縣市加總各類別）；過去無基準時顯示「新」或「—」";
+const SURGE_TIP = "近 1 小時升溫：該縣市近 1 小時新聞則數 ÷ 過去 7 天有新聞的小時平均（依縣市加總各類別）；過去無基準時顯示「新」或「—」";
 
 export function rankHotspots(
   events: ClusterEvent[],
@@ -213,7 +213,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
         )}
         {v2 && ranked.length > 0 && (
           <div title={SURGE_TIP} style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDim }}>
-            右欄為近 1h 升溫（近 1 小時則數 ÷ 過去 7 天每小時平均）
+            右欄為近 1h 升溫（近 1 小時則數 ÷ 過去 7 天有新聞的小時平均）
           </div>
         )}
       </div>
