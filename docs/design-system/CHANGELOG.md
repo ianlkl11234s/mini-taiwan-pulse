@@ -11,6 +11,7 @@
 |---|---|
 | 換底圖後統計層（BACKLOG R8-1） | `map/regionalStatisticsMap.ts`：`style.load` 時 `isStyleLoaded()` 仍為 false，`render()` 直接 return；`idle` 重試只比對資料物件（快取仍在、source 已被 setStyle 清掉）也不觸發，要等下一次操作才畫回。改成 `style.load` 走 `render(true)` 略過檢查、用 store 快取重建＋`setData`，不重抓（同 perf-audit §7／#481）。暗→淡→暗實測立即畫回、資料請求 0；補單元測試 |
 | 小分組標題露代碼 | 日本「自然保護」：「自然公園 A10 historical」→「自然公園（歷史資料）」、「自然保全 A11 historical」→「自然保育（歷史資料）」（與圖層中文名「自然保育地域」一致）；「世界遺產」的英文小分組「Historical」→「歷史範圍」。代碼 A10／A11 本來就在各層說明與主題詞，搜得到。全站小分組／主題標題掃過一輪，其餘「中文 English」雙語標題、來源專名（UNESCO、Navii、GFS／CMEMS／CAMS）、A1 事故、版本日期不算內部代碼，維持。`layerConsistency` 新增測試：所有小分組與主題標題要有中文、不得含 `[A-Z]\d{2}` 代碼或 historical |
+| 主題列折行（spec §5.5） | 「人口與教育 Population & Education」等主題列在桌機 286px 面板折成兩行：`ThemeBanner` 中文與副標都沒設 `nowrap`，中文可逐字斷行，flex 收縮時中文先被擠斷。改成中文與計數不縮不折行、副標單行省略（同圖層列只截外文）。四個入口 58 個主題列實測全部單行（34px），會截副標的是人口與教育、住宅與不動產、農林漁牧、環境與資源 |
 
 ### 圖層面板統一：統計與世界大分類 — spec §5.5
 

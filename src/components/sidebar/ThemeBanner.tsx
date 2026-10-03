@@ -4,7 +4,10 @@ import { themeName } from "./layerCatalog";
 import { RailToggle } from "./LayerRow";
 import { useRailTheme } from "./railTheme";
 
-/** 主題列（spec §5.5 LT1）：chevron・中文・英文小字・開啟數/總數・總開關；sticky 置頂。 */
+/**
+ * 主題列（spec §5.5 LT1）：chevron・中文・英文小字・開啟數/總數・總開關；sticky 置頂。
+ * 空間不夠時只省略副標（同 `LayerNameLine`）；中文主名與計數不縮、不折行。
+ */
 export function ThemeBanner({
   title, isCollapsed, onCount, totalCount, onToggleCollapse, onBulkToggle,
 }: {
@@ -46,12 +49,12 @@ export function ThemeBanner({
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
         </span>
         <span style={{ flex: 1, display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
+          <span style={{ flex: "0 0 auto", whiteSpace: "nowrap", fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
           {sub && (
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{sub}</span>
+            <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{sub}</span>
           )}
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: DIM, marginRight: 4 }}>
+        <span style={{ flexShrink: 0, whiteSpace: "nowrap", fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: DIM, marginRight: 4 }}>
           {onCount}/{totalCount}
         </span>
       </button>

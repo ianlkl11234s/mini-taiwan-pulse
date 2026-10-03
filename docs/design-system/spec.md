@@ -361,6 +361,7 @@
 - **副標**：台灣、統計、世界用英文；**日本 14 個主題用日文漢字**（P3 B），與中文同字也照樣顯示（例「宗教 宗教」「長照服務 介護サービス」），不去重。沒有 `sub` 時只顯示中文。
 - **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 副標小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
 - **字**：中文 13px（`FONT_SIZE.lg`）semibold `--text-strong`、`FONT_CJK`；英文 10px（`FONT_SIZE.sm`）`--text-dim`、`FONT_CJK`、letterSpacing 0.3、**不轉大寫**；中英 baseline 對齊、gap 6。
+- **空間不足**（2026-10-03 收尾修正）：中文主名與計數 `white-space: nowrap`、不縮；**只省略副標**（`text-overflow: ellipsis`），同圖層列 `LayerNameLine`。中文字可在任意字間斷行，不設 nowrap 會先被擠成兩行（例「人口與教 / 育」）。
 - **計數**：固定 `FONT_DATA` 10px `--text-dim`，**不再依開啟狀態變色**（舊版有開啟時變亮已拿掉）。
 - **容器**：sticky 置頂（滾動時黏住直到下一個主題列推走）、上下 `1px` 分隔線、`backdrop-filter: blur(8px)`；padding `8px 4px 8px 12px`。
 - **禁止**：整列 `FONT_DATA`；`uppercase`；英文與中文同字級；渲染時自己拆 `theme.title`。
