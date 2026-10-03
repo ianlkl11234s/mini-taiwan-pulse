@@ -3360,7 +3360,7 @@ function CompanyCapitalGridLegend({ isDark = true, modeIdx, scaleIdx }: { isDark
         )}
       </div>
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-        {scale.label} 非空網格，202608 登記快照；Magma 色階由暗至亮＝數值由低至高；採各尺度固定非線性級距。
+        {scale.label} 非空網格，202608 登記快照；色階由低階至高階＝數值由低至高；採各尺度固定非線性級距。
       </LegendNote>
     </div>
   );
