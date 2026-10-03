@@ -22,7 +22,7 @@
 | 地圖 R3b 線面（hook）＋網格／影像／文字／擠出 | ✅ 完成 | #475 | 使用者已確認提案與 D 區修正；[逐層報告](../features/map-layer-restyle/R3b-report.md)／[前後對照](../features/map-layer-restyle/r3b-compare.html) |
 | 地圖 R4 圖例對齊 | ✅ 完成 | #465、加油站品牌色 #468 | 28 個不一致圖例已對齊（盤點剩 3 個屬性色、程式同源）；K-1 13 層識別色改地圖現色；手寫色票 90 → 6。新圖例色票一律引用 paint 同一常數（`src/map/layerPaintColors.ts`） |
 | 地圖 R5 熱區＋密度透明度 | ✅ 完成 | #498 | 1 萬點以上 44 層拉遠改熱區（強度逐層校正）、P-3 透明度預設依點數、微型感測器取消聚合；泡泡 M3 使用者決定不統一。下一步：熱區／圖層配色改各層色＋可選科學色盤（另提案） |
-| 地圖 R6 Three.js／Mapbox 切換 | ⏳ 未開始 | — | **先要使用者決定**範圍與開關位置 |
+| 地圖 R6 Three.js／Mapbox 切換 | ⏳ 未開始 | — | 下一輪（2026-10-04 交接）：先盤點、選擇頁逐題請使用者決定範圍與開關位置；[交接](../features/map-layer-restyle/handoff-r6.md) |
 | 地圖 R7 熱區／網格配色 | ✅ 完成 | #510；Agent 控制項說明 MCP #34 | 色盤庫 17 組（暗淡各 7 階）、熱區預設新版 magma＋可換色 43 層、網格可換色 23 個 key、多層熱區 ×0.7、色盤選單（spec §5.36）；[對照](../features/layer-color-picker/phase-d-compare.html)。不做：都市紋理（發散模式）、人流 H3（色寫在資料） |
 | R8 圖層面板統一（台灣／日本／統計／世界／手機／其他清單） | ✅ 完成 | 共用外殼 #509、資料結構 #511、統計連動選單 #513、統計與世界大分類 #514、收尾修正 #516；Agent 控制項說明 MCP #36 | P1–P9 全數落地：所有面板同一套列與主題列（spec §5.5）、雙語結構化名稱、日本日文副標、四個面板都有大分類且主題預設收合、設定區順序測試鎖住（§5.11）、統計連動選單（§5.37）；[A](../features/layer-panel-unify/phase-a-compare.html)／[B](../features/layer-panel-unify/phase-b-compare.html)／[C](../features/layer-panel-unify/phase-c-compare.html)／[收尾](../features/layer-panel-unify/followups-compare.html) 對照。剩 backlog R8-2（手機時間軸條淡色） |
 | 監看模式 split 統一（卡片殼、標題、數值、走勢、狀態、資料品質） | ✅ P1–P5 完成 | 盤點＋拍板 #473；P1 卡片殼 #482；P2a 字級 S13 #486；P2b 數值列與走勢 #487；P3 多指標卡 #493；供電機組出力依台電分區（gis-platform 424，預設依區域、可切依發電方式）#494；P4 來源新鮮度與缺值修正 #500／#503（gis-platform 425）；P5 淡色版 #505 | P6 四領域子指數擱置，見 `.claude/memory/BACKLOG.md` MON-P6 |
@@ -31,7 +31,7 @@
 ### 等使用者決定
 
 - **監看模式子指數（P6）**：2026-10-03 使用者決定先擱置（BACKLOG MON-P6）；重啟時 gis-platform migration 要使用者拍板，權重與基準期待提案。
-- **R6**：哪些 Three.js 圖層要能切回 Mapbox 畫法（飛機、船、公車、台鐵是否納入），切換開關放在哪（建議每層一個）。
+- **R6**：哪些 Three.js 圖層要能切回 Mapbox 畫法（飛機、船、公車、台鐵是否納入），切換開關放在哪（建議每層一個）。（交接：`docs/features/map-layer-restyle/handoff-r6.md`）
 - **泡泡即時層光暈**（新聞事件、A1 即時事故）：要不要限制半徑（目前只限透明度，見 map-layers §3.1）。
 
 ### 已知未修
