@@ -1,4 +1,6 @@
-import { LayerToggleSwitch } from "../components/sidebar/LayerToggleSwitch";
+import { ListRow } from "../components/sidebar/LayerRow";
+import { SubGroupLabel } from "../components/sidebar/ThemeBanner";
+import { railPalette, RailThemeContext } from "../components/sidebar/railTheme";
 import { Slider } from "../components/controls/Slider";
 import { PanelHeader } from "../components/sidebar/PanelHeader";
 import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from "./researchEvidence";
@@ -179,6 +181,8 @@ export function MainMapConnection(props: Props) {
   const [availableAnalysis, setAvailableAnalysis] = useState<AnalysisResultPresentation[]>([]);
   // W1: 本次分析圖層 defaults to its first 5 items + a "展開全部" toggle (spec docs/features/viz-library/DECISIONS.md §6).
   const [resultsExpanded, setResultsExpanded] = useState(false);
+  /** 分析結果列預設展開；這裡只記使用者手動收起的 */
+  const [collapsedResults, setCollapsedResults] = useState<ReadonlySet<string>>(() => new Set());
   /** 4b: the one pending analysis-card draft relayed by pulse_publish_card (a newer draft replaces it). */
   const [cardDraft, setCardDraft] = useState<AnalysisCardDraft | null>(null);
   /** 4b 「做成卡片」: which result's hint is showing (no browser→Agent channel, so the button only explains). */
@@ -736,17 +740,20 @@ export function MainMapConnection(props: Props) {
       {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
         <h3>本次分析圖層 <span className="agent-section-count">{resultCollection.items.length}</span></h3>
         <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆紀錄已顯示 · 僅含本次分析結果</p>
-        {resultCollection.groups.length > 0 && <fieldset className="agent-analysis-groups">
-          <legend>群組</legend>
-          {resultCollection.groups.map(group => <label key={group.groupId} className="agent-analysis-toggle">
-            <input type="checkbox" checked={group.visible} onChange={event => updateResultCollection(collection => ({ ...collection, groups: collection.groups.map(candidate => candidate.groupId === group.groupId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
-            <span>{group.label}</span>
-          </label>)}
-        </fieldset>}
+        {/* 群組與結果列走共用圖層列（layer-panel-unify P8）：黑白列開關，取代原生 checkbox */}
+        <RailThemeContext.Provider value={railPalette(props.isDarkTheme !== false)}>
+        {resultCollection.groups.length > 0 && <div className="agent-analysis-groups" role="group" aria-label="群組">
+          <SubGroupLabel>群組</SubGroupLabel>
+          {resultCollection.groups.map(group => <ListRow key={group.groupId} ariaLabel={group.label} label={group.label}
+            toggle={{ on: group.visible, label: `顯示群組 ${group.label}`, onChange: () => updateResultCollection(collection => ({ ...collection, groups: collection.groups.map(candidate => candidate.groupId === group.groupId ? { ...candidate, visible: !group.visible } : candidate) })) }} />)}
+        </div>}
         <ul>{resultCollection.items.map((item, index) => {
           if (!resultsExpanded && index >= 5) return null;
           const series = analysis.current?.seriesResult(item.resultId) ?? null;
           const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
+          // 結果本體（趨勢線、比較表、排名條）預設展開，不藏進 chevron
+          const expanded = !collapsedResults.has(item.resultId);
+          const toggleExpanded = () => setCollapsedResults(current => { const next = new Set(current); if (next.has(item.resultId)) next.delete(item.resultId); else next.add(item.resultId); return next; });
           if (series) {
             // T1=L1: a warehouse-imported series style (pulse_wh_present kind "series") carries its
             // own periods/values/baseline directly; a session-local read_series/compare_series result
@@ -758,24 +765,30 @@ export function MainMapConnection(props: Props) {
             const unit = warehouseStyle ? warehouseStyle.unit : (typeof series.units.value === "string" ? series.units.value : null);
             const periodCount = warehouseStyle ? warehouseStyle.periods.length : series.rows.length;
             return <li key={item.resultId} className="agent-analysis-result-item">
-              <div className="agent-analysis-row-label"><strong>{title}</strong>
-                <small>
+              <ListRow ariaLabel={title} label={title} expandable expanded={expanded} onClick={toggleExpanded}
+                sub={<>
                   {periodCount} 期{group ? ` · ${group.label}` : ""}
                   {latestText !== null ? ` · 最新一期 ${trend.points[trend.points.length - 1]?.label ?? ""}：${latestText}` : ""}
                   {warehouseStyle?.baselineLabel ? ` · 比較基準：${warehouseStyle.baselineLabel}` : ""}
-                </small>
+                </>} />
+              {expanded && <div className="agent-analysis-row-label agent-analysis-row-body">
                 <TrendLine points={trend.points} baseline={trend.baseline} valueKind={trend.valueKind} unit={unit} />
-              </div>
+              </div>}
             </li>;
           }
           const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
           const rendered = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
+          const label = result?.displayLabel ?? "分析結果";
           return <li key={item.resultId} className="agent-analysis-result-item">
-            <div className="agent-analysis-row-main">
-              <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
-              <div className="agent-analysis-row-label"><strong>{result?.displayLabel ?? "分析結果"}</strong><small>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</small>
+            <ListRow ariaLabel={label} label={label} expandable expanded={expanded} onClick={toggleExpanded}
+              icon={<span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />}
+              accent={rendered?.color ?? result?.color}
+              active={item.visible}
+              sub={<>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</>}
+              toggle={{ on: item.visible, label: `顯示 ${label}`, onChange: () => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) })) }} />
+            {expanded && <div className="agent-analysis-row-label agent-analysis-row-body">
                 <label className="agent-analysis-opacity">透明度
-                  <Slider ariaLabel={`${result?.displayLabel ?? "分析結果"}透明度`} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
+                  <Slider ariaLabel={`${label}透明度`} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
                 </label>
                 {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} theme={vizThemeForBasemap(props.isDarkTheme)} onSelectColumn={column => {
                   if (!props.map) return;
@@ -789,15 +802,14 @@ export function MainMapConnection(props: Props) {
                   <button type="button" className="agent-analysis-make-card" aria-expanded={cardHintFor === item.resultId} onClick={() => setCardHintFor(current => current === item.resultId ? null : item.resultId)}>做成卡片</button>
                   {cardHintFor === item.resultId && <small className="agent-analysis-make-card-hint" role="status">{makeCardHint(result?.displayLabel ?? "這個結果")}</small>}
                 </>}
-              </div>
-              <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} isDarkTheme={props.isDarkTheme !== false} />
-            </div>
-            <span className="agent-analysis-order" aria-label={`${item.resultId} 排序`}>
-              <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
-              <button aria-label="往下移動" disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
-            </span>
+                <span className="agent-analysis-order" aria-label={`${label} 排序`}>
+                  <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
+                  <button aria-label="往下移動" disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
+                </span>
+            </div>}
           </li>;
         })}</ul>
+        </RailThemeContext.Provider>
         {resultCollection.items.length > 5 && <button type="button" className="agent-analysis-expand" onClick={() => setResultsExpanded(value => !value)}>
           {resultsExpanded ? "收合" : `展開全部（共 ${resultCollection.items.length} 項）`}
         </button>}

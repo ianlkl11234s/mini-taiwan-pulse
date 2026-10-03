@@ -6,6 +6,7 @@ import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { MonitorKpis, MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { useMonitorFreshness } from "./monitorFreshness";
+import { useMonitorTheme } from "./monitorTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
 import type { PrisonDay } from "../../../data/prisonLoader";
@@ -37,6 +38,7 @@ function fmt(v: number | null | undefined): string {
 
 export function PrisonCard({ latest, series = [] }: Props) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const [windowDays, setWindowDays] = useState<WindowDays>(365);
   const total = latest?.total_inmates ?? null;
   const cap = latest?.approved_capacity ?? null;
@@ -114,7 +116,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
         {trend.length > 1 ? (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontSize: MF.label, color: COLORS.textDim, marginRight: "auto" }}>在監總數趨勢</span>
+              <span style={{ fontSize: MF.label, color: theme.p.textDim, marginRight: "auto" }}>在監總數趨勢</span>
               {WINDOWS.map((w) => (
                 <button
                   key={w}
@@ -122,9 +124,9 @@ export function PrisonCard({ latest, series = [] }: Props) {
                   style={{
                     fontFamily: FONT_DATA, fontSize: MF.label,
                     padding: "2px 7px", borderRadius: RADIUS.sm, cursor: "pointer",
-                    background: w === windowDays ? COLORS.accentFaint : "transparent",
-                    color: w === windowDays ? COLORS.textStrong : COLORS.textDim,
-                    border: `1px solid ${w === windowDays ? COLORS.borderStrong : COLORS.borderSoft}`,
+                    background: w === windowDays ? theme.p.accentFaint : "transparent",
+                    color: w === windowDays ? theme.p.textStrong : theme.p.textDim,
+                    border: `1px solid ${w === windowDays ? theme.p.borderStrong : theme.p.borderSoft}`,
                   }}
                 >
                   {WINDOW_LABEL[w]}
@@ -134,7 +136,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
             <TimeseriesSparkline
               data={trend}
               unit="人"
-              lineColor={COLORS.accent}
+              lineColor={theme.p.accent}
               heightTier="std"
               gapSec={3 * 86400}
               showTooltip

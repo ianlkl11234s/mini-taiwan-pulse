@@ -5,11 +5,13 @@ import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { MON_CHART_H } from "./monitorChart";
 import { MonitorMetric, MonitorNote } from "./MonitorMetric";
+import { useMonitorTheme, type MonitorTheme } from "./monitorTheme";
 import { useMonitorFreshness } from "./monitorFreshness";
 import { isoWeekThursdayMs, type PublicHealthWeek, type CdcDisease } from "../../../data/intelLoaders";
 
 function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; muted?: boolean }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   // 缺值（null）：v2 顯示「—」；舊版維持原本補 0 的畫面
   const yoy = v2 ? d.yoy : d.yoy ?? 0;
   // 疾病：升 = 警示 → 紅；降 = 改善 → 綠（缺值不判斷）
@@ -26,8 +28,8 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
     return (
       <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: d.color, flexShrink: 0 }} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: COLORS.textStrong }}>{d.label}</span>
+          <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: theme.fill(d.color), flexShrink: 0 }} />
+          <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: theme.p.textStrong }}>{d.label}</span>
         </div>
         <MonitorMetric
           value={d.value}
@@ -41,13 +43,13 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
             <FluidSparkline
               fallbackW={140}
               data={d.spark}
-              color={d.color}
+              color={theme.fill(d.color)}
               h={MON_CHART_H.mini}
               showTooltip
               labelAt={wk}
               unit={d.unit}
             />
-            <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA, fontSize: MF.cap, color: COLORS.textFaint }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA, fontSize: MF.cap, color: theme.p.textFaint }}>
               <span>{wk(0)}</span>
               <span>{wk(n - 1)}</span>
             </div>
@@ -155,6 +157,7 @@ interface Props {
 // 這裡只剩 CDC 健康卡，標題與 grid 欄數同步縮減
 export function SituationCards({ health }: Props) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   // 資料期別 W{n}；RPC 不回年份 → 由週次推該週週四當資料日期（週批次，>14 天過期、>35 天停更）
   const fresh = useMonitorFreshness("situationCards", {
     timeText: health.week > 0 ? `W${health.week}` : null,
@@ -185,9 +188,9 @@ export function SituationCards({ health }: Props) {
         ))}
         {health.diseases.length === 0 && (
           <>
-            <div style={emptyCardStyle(v2)}>等待 CDC 週報資料…</div>
-            <div style={emptyCardStyle(v2)}>等待 CDC 週報資料…</div>
-            <div style={emptyCardStyle(v2)}>等待 CDC 週報資料…</div>
+            <div style={emptyCardStyle(v2, theme)}>等待 CDC 週報資料…</div>
+            <div style={emptyCardStyle(v2, theme)}>等待 CDC 週報資料…</div>
+            <div style={emptyCardStyle(v2, theme)}>等待 CDC 週報資料…</div>
           </>
         )}
       </div>
@@ -198,9 +201,9 @@ export function SituationCards({ health }: Props) {
   );
 }
 
-const emptyCardStyle = (v2: boolean): React.CSSProperties => ({
-  borderRadius: RADIUS.xl, border: `1px dashed ${COLORS.borderSoft}`,
-  background: "rgba(255,255,255,0.01)", padding: "12px 13px",
-  fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint,
+const emptyCardStyle = (v2: boolean, theme: MonitorTheme): React.CSSProperties => ({
+  borderRadius: RADIUS.xl, border: `1px dashed ${theme.p.borderSoft}`,
+  background: theme.neutral(0.01), padding: "12px 13px",
+  fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textFaint,
   display: "flex", alignItems: "center", justifyContent: "center",
 });

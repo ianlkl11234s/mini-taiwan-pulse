@@ -7,8 +7,9 @@
  */
 import { Fragment, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { BORDER } from "../../../styles/designTokens";
 import { MF } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
+import type { IntelPalette } from "../intelTheme";
 
 /**
  * 漲跌／狀態語氣。元件只給顏色，紅綠語意由呼叫端依領域決定
@@ -23,6 +24,11 @@ export const toneColor: Record<MonitorTone, string> = {
   warn: COLORS.statusWarn,
   err: COLORS.statusErr,
 };
+
+/** 依主題的語氣色（P5）；暗色＝`toneColor` */
+export function toneColorFor(p: IntelPalette): Record<MonitorTone, string> {
+  return { up: p.statusErr, down: p.statusLive, neutral: p.textMuted, warn: p.statusWarn, err: p.statusErr };
+}
 
 const NOWRAP = { whiteSpace: "nowrap" } as const;
 
@@ -47,6 +53,8 @@ export function MonitorMetric({
   color?: string;
   muted?: boolean;
 }) {
+  const theme = useMonitorTheme();
+  const tc = toneColorFor(theme.p);
   return (
     <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: 8, rowGap: 2, minWidth: 0 }}>
       <span style={NOWRAP}>
@@ -54,20 +62,20 @@ export function MonitorMetric({
           style={{
             fontFamily: FONT_DATA, fontSize: MF.main, fontWeight: 700, lineHeight: 1.15,
             fontVariantNumeric: "tabular-nums",
-            color: muted ? COLORS.textMuted : color ?? COLORS.textStrong,
+            color: muted ? theme.p.textMuted : color ? theme.text(color) : theme.p.textStrong,
           }}
         >
           {value}
         </span>
         {unit && (
-          <span style={{ fontSize: MF.body, color: COLORS.textMuted, marginLeft: unitGap(unit) }}>{unit}</span>
+          <span style={{ fontSize: MF.body, color: theme.p.textMuted, marginLeft: unitGap(unit) }}>{unit}</span>
         )}
       </span>
       {delta != null && (
         <span
           style={{
             ...NOWRAP, fontFamily: FONT_DATA, fontSize: MF.body,
-            fontVariantNumeric: "tabular-nums", color: toneColor[tone],
+            fontVariantNumeric: "tabular-nums", color: tc[tone],
           }}
         >
           {delta}
@@ -86,22 +94,23 @@ export interface MonitorKpiItem {
 /** 其餘指標：標籤（`MF.label`）在上、數值（`MF.kpi` 19）在下；每格最小 110px 自動折行 */
 /** muted：來源過期／停更時數值降灰（G2） */
 export function MonitorKpis({ items, muted = false }: { items: MonitorKpiItem[]; muted?: boolean }) {
+  const theme = useMonitorTheme();
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: "6px 10px" }}>
       {items.map((it, i) => (
         <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-          <span style={{ fontSize: MF.label, color: COLORS.textMuted }}>{it.label}</span>
+          <span style={{ fontSize: MF.label, color: theme.p.textMuted }}>{it.label}</span>
           <span style={NOWRAP}>
             <span
               style={{
                 fontFamily: FONT_DATA, fontSize: MF.kpi, fontWeight: 700,
-                fontVariantNumeric: "tabular-nums", color: muted ? COLORS.textMuted : COLORS.textStrong,
+                fontVariantNumeric: "tabular-nums", color: muted ? theme.p.textMuted : theme.p.textStrong,
               }}
             >
               {it.value}
             </span>
             {it.unit && (
-              <span style={{ fontSize: MF.body, color: COLORS.textMuted, marginLeft: unitGap(it.unit) }}>{it.unit}</span>
+              <span style={{ fontSize: MF.body, color: theme.p.textMuted, marginLeft: unitGap(it.unit) }}>{it.unit}</span>
             )}
           </span>
         </div>
@@ -112,13 +121,14 @@ export function MonitorKpis({ items, muted = false }: { items: MonitorKpiItem[];
 
 /** 副資訊列（`MF.label`）：每一項不可拆，項與項之間才換行 */
 export function MonitorSub({ items }: { items: ReactNode[] }) {
+  const theme = useMonitorTheme();
   const shown = items.filter((it) => it != null && it !== false && it !== "");
   if (!shown.length) return null;
   return (
     <div
       style={{
         display: "flex", flexWrap: "wrap", justifyContent: "space-between", columnGap: 10, rowGap: 2,
-        fontSize: MF.label, color: COLORS.textDim,
+        fontSize: MF.label, color: theme.p.textDim,
       }}
     >
       {shown.map((it, i) => (
@@ -130,7 +140,8 @@ export function MonitorSub({ items }: { items: ReactNode[] }) {
 
 /** 卡底一行原因（`MF.label`），例如「查詢失敗」「停更 139 天：上游未更新」 */
 export function MonitorNote({ tone = "neutral", children }: { tone?: MonitorTone; children: ReactNode }) {
-  return <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: toneColor[tone] }}>{children}</div>;
+  const tc = toneColorFor(useMonitorTheme().p);
+  return <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: tc[tone] }}>{children}</div>;
 }
 
 export interface MonitorRowItem {
@@ -146,11 +157,12 @@ export interface MonitorRowItem {
 }
 
 /**
- * 多指標卡小倍數列（§5.35 F3）：每列「名稱｜走勢（1fr）｜最新值」，列間 1px `BORDER.soft` 細線。
+ * 多指標卡小倍數列（§5.35 F3）：每列「名稱｜走勢（1fr）｜最新值」，列間 1px `theme.p.borderSoft` 細線。
  * 三欄共用一個 grid，所以每列的圖欄同寬；比例尺各自、不另放圖例。
  * 欄距用 padding 而非 column-gap，細線才會整列連續。
  */
 export function MonitorRows({ rows }: { rows: MonitorRowItem[] }) {
+  const theme = useMonitorTheme();
   if (!rows.length) return null;
   return (
     <div
@@ -160,7 +172,7 @@ export function MonitorRows({ rows }: { rows: MonitorRowItem[] }) {
       {rows.map((r, i) => {
         const cell = {
           padding: "4px 0",
-          borderTop: i > 0 ? `1px solid ${BORDER.soft}` : undefined,
+          borderTop: i > 0 ? `1px solid ${theme.p.borderSoft}` : undefined,
           minWidth: 0,
           alignSelf: "stretch",
           display: "flex",
@@ -168,7 +180,7 @@ export function MonitorRows({ rows }: { rows: MonitorRowItem[] }) {
         } as const;
         return (
           <Fragment key={i}>
-            <div title={r.title} style={{ ...cell, paddingRight: 8, fontSize: MF.label, color: COLORS.textMuted }}>
+            <div title={r.title} style={{ ...cell, paddingRight: 8, fontSize: MF.label, color: theme.p.textMuted }}>
               {r.label}
             </div>
             <div title={r.title} style={cell}>
@@ -179,13 +191,13 @@ export function MonitorRows({ rows }: { rows: MonitorRowItem[] }) {
                 <span
                   style={{
                     fontFamily: FONT_DATA, fontSize: MF.body, fontWeight: 700,
-                    fontVariantNumeric: "tabular-nums", color: COLORS.textStrong,
+                    fontVariantNumeric: "tabular-nums", color: theme.p.textStrong,
                   }}
                 >
                   {r.value}
                 </span>
                 {r.unit && (
-                  <span style={{ fontSize: MF.label, color: COLORS.textMuted, marginLeft: unitGap(r.unit) }}>{r.unit}</span>
+                  <span style={{ fontSize: MF.label, color: theme.p.textMuted, marginLeft: unitGap(r.unit) }}>{r.unit}</span>
                 )}
               </span>
             </div>

@@ -314,6 +314,8 @@
 - **淡色**：底 `LIGHT.surfacePanel`、框 `LIGHT.border`、字 `LIGHT.textStrong`／`textDim`。
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。
 - **實作**：`src/components/sidebar/PanelHeader.tsx`（傳 `eyebrow` 即走 H2；不傳 eyebrow 的舊分支第二輪已改 `FONT_CJK`，視覺仍是舊版標頭）。
+- **圖層面板（2026-10-03 面板統一 A 段）**：桌機 rail 四個入口（台灣 Taiwan／統計 Statistics／世界 World／日本 Japan）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：「全部關閉」→ 搜尋 →（統計）單一／可重疊。桌機有 PanelHeader；手機改用四個分頁（順序同 rail：台灣／統計／世界／日本），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。
+- **搜尋（P9）**：各入口只搜自己的主題；結果列就是一般圖層列（可直接開關、收藏星號、可展開），名稱下一行小字「主題・群組」；結果末尾列出其他入口的相符筆數（例「日本還有 3 筆相符」），點了切到該入口並帶入關鍵字。
 
 ### 5.2 停靠 popup（B 版「細線緊湊」）
 
@@ -374,7 +376,16 @@
 - **暗／淡**：字 `#9ca3af`／`#4b5563`（= textMuted）；線 `rgba(255,255,255,0.14)`／`rgba(0,0,0,0.12)`。拍板稿為 `--border-soft`，實作取 `BORDER.mid` 較明顯，以實作為準。
 - **禁止**：「└」字元縮排；整段 `FONT_DATA`。
 
-- **實作**：`src/components/IconRailSidebar.tsx`（`ThemeBanner`、`MacroGroupLabel`、`SubGroupLabel`；rail 的 `BG_RAIL`／`BG_PANEL`／`PANEL_BORDER` 已走 token，其餘 rail palette（`BORDER`、`BANNER_BG`、`SEARCH_BG`、`TOGGLE_*` 等）仍 inline hex，§10.3）、`src/components/LayerSidebar.tsx`（手機版同規格）、`src/components/sidebar/layerCatalog.ts` `splitThemeTitle()`。
+**圖層列（2026-10-03 面板統一 A 段，P1／P8）**
+
+- **結構**：icon（14px，開啟時圖層色、關閉時 `--text-dim`，統計列也一樣）→ 中文名（13px `FONT_CJK`，外文小字放 `meta`）→ 計數格 → chevron（§5.16）→ 列開關（§5.10）。開啟時列左緣 2px 圖層色。
+- **計數格兼載入狀態**：有數字就顯示（`FONT_DATA` tabular-nums、`toLocaleString("zh-TW")`，單位另用中文 span）；圖層開著且 `loadingRegistry` 有對應任務時改顯示 10px 小轉圈（`.lr-spin`，`role="status"`、`aria-label="載入中"`，減少動態時不轉）。任務與圖層的對應是盡力比對（`src/lib/layerLoading.ts`：key、kebab key、manifest `sourceId` 開頭），只帶資料集或日期的任務接不到，這類仍只有右上載入條（§5.30）。
+- **展開區**：每一列都可展開；展開區最後一行固定是「說明・來源」（收合入口，點開顯示 manifest 說明＋資料來源面板同一張上游資料卡，不另開資料）。統計列的來源說明暫留在統計詳情內（C 段再併入）。
+- **鎖定**：半透明、鎖頭取代 chevron、不顯示開關；點列走 App 端權限提示。
+- **同一個列元件的其他用法**（`ListRow`）：資料來源（沒有開關，狀態圖示 ✓／⚙／? 放在開關那格）、Agent 分析結果（群組與結果都是列開關；結果本體預設展開）、衛星群組（等級徽章在名稱後、顆數在計數格、黑白開關在 chevron 後）、我的・收藏／已開啟（列開關直接開關圖層＋收藏星號）、醫療統計群組列（「指標」選單仍在列外，屬 C 段）。
+- **禁止**：在清單裡另做一種列；用原生 checkbox 或色點當圖層開關；手機名稱另用 `labelMobile`（筆數走計數格）。
+
+- **實作**：`src/components/sidebar/LayerRow.tsx`（`ListRow`、`LayerRow`、`RailToggle`）＋`layerRow.css`、`sidebar/ThemeBanner.tsx`（`ThemeBanner`、`MacroGroupLabel`、`SubGroupLabel`）、`sidebar/ExpandedControls.tsx`、`sidebar/LayerInfoLine.tsx`、`sidebar/LayersPanel.tsx`、`sidebar/layerPanels.ts`、`sidebar/railTheme.ts`（`BG_RAIL`／`BG_PANEL`／`PANEL_BORDER` 已走 token，其餘 rail palette 仍 inline hex，§10.3）；`IconRailSidebar.tsx`（桌機 rail）與 `LayerSidebar.tsx`（手機）只負責外殼與入口切換；`sidebar/layerCatalog.ts` `splitThemeTitle()`。
 
 ### 5.6 時間軸（border-left）
 
@@ -424,7 +435,7 @@
 
 | 階 | 用在哪 | 尺寸 | 開 | 關 | 實作 |
 |---|---|---|---|---|---|
-| **列開關** | 整層開／關：Layers 主題列與圖層列、統計列、醫療統計群組、Agent 分析結果清單 | 28×16 軌道、12px 圓點（左 2 → 14） | **黑白，依主題**：暗 白軌 `#ffffff`＋圓點 `#111827`；淡 深軌 `#1f2937`＋白圓點 | 暗 `#4b5563`／淡 `#d1d5db` 軌道＋白圓點 | `sidebar/LayerToggleSwitch.tsx`（`LAYER_TOGGLE_PALETTE`） |
+| **列開關** | 整層開／關：Layers 主題列與圖層列、統計列、醫療統計群組、Agent 分析結果清單與群組、衛星群組、我的・收藏／已開啟 | 28×16 軌道、12px 圓點（左 2 → 14） | **黑白，依主題**：暗 白軌 `#ffffff`＋圓點 `#111827`；淡 深軌 `#1f2937`＋白圓點 | 暗 `#4b5563`／淡 `#d1d5db` 軌道＋白圓點 | `sidebar/LayerToggleSwitch.tsx`（`LAYER_TOGGLE_PALETTE`） |
 | **細項開關** | 一層裡的選項：圖層控制區（顯示站名、光柱…）、底圖選單「顯示地名」 | 20×11 軌道、7px 圓點（左 2 → 11） | 軌道 `--accent`、圓點 `#fff` | 軌道 `--control-border`、圓點 `--text-strong` | `LayerParamControls.tsx` `ToggleControl`＋`.lpc-sw`、`toolbar/BasemapMenu.tsx` `MiniSwitch` |
 
 - **為什麼兩種顏色**：列開關是「整層開關」，用中性黑白比較穩，開很多層時不會一整排彩色；細項用強調藍，標出「這層裡哪些選項有開」。
@@ -469,7 +480,7 @@
 
 - **規格**：lucide `<ChevronRight size={12}/>`，展開時 `transform: rotate(90deg)`、transition .15s；或 `ChevronRight`／`ChevronDown` 切換（圖例收合鈕）。色 `--text-muted`。
 - **禁止**：`▶`／`▼` 字元（guard `triangle-chevron`）。播放鍵請用 lucide `Play`／`Pause`；升降趨勢的 `▲▼` 成對符號屬資料語意，不算 chevron。
-- **實作**：`.lpc-chev`、`LegendPanel.tsx`、`IconRailSidebar.tsx`。
+- **實作**：`.lpc-chev`、`LegendPanel.tsx`、`sidebar/LayerRow.tsx`、`sidebar/ThemeBanner.tsx`。
 
 ### 5.17 工具列（T2）
 
@@ -510,7 +521,7 @@
   - 共通：10px、padding `3px 5px`（外框版 `2px 5px`）、圓角 3。
 - **篩選**：分段控制（§5.8）；事件列表用左線時間軸（§5.6）。
 - **禁止**：自訂第三種徽章公式；分類與程度用同一種外觀。
-- **暗／淡**：`intel/intelTheme.tsx` 的 `IntelPalette`（`DARK_INTEL`／`LIGHT_INTEL`，淡色一律取自本檔 `LIGHT`）＋ `IntelThemeProvider`／`useIntelTheme()` 分發，由 `IntelPanel` 依 `isDarkTheme` 建 palette；未被 Provider 包住時 fallback 深色（Monitor Mode 目前仍刻意維持全暗，`monitor/NewsFeedPanel.tsx` 顯式套 `DARK_INTEL`；2026-10-01 拍板改為跟底圖主題（§5.35 H2），實作後改寫本句）。
+- **暗／淡**：`intel/intelTheme.tsx` 的 `IntelPalette`（`DARK_INTEL`／`LIGHT_INTEL`，淡色一律取自本檔 `LIGHT`）＋ `IntelThemeProvider`／`useIntelTheme()` 分發，由 `IntelPanel` 依 `isDarkTheme` 建 palette；未被 Provider 包住時 fallback 深色。監看模式新版也由 `MonitorPanel` 依底圖主題包同一個 Provider（§5.35 H2，P5 已實作；舊版一律暗）。
 - **淡色徽章對比規則**：`chipTint`／`chipOutline` 的底色／框線沿用資料 hue 不變（§3.16 資料色不進 token）；但淡色主題若直接拿該 hue 當「字」色，淺色相（黃、淺綠、青…）對近白面板對比不足。呼叫端改用 `intelTheme.ts` 的 `chipText(color, palette)`：暗色原樣回傳，淡色把 hue 與 `LIGHT.textStrong` 依 45%／55% 混色（`CHIP_TEXT_MIX = 0.55`）。已對 7 個新聞分類、6 個警示分類、4 個嚴重度色、`COLORS.cluster` 共 18 色驗證 WCAG 對比：`chipOutline`（字疊在不透明面板底，對純白量測即精確值）全數 ≥5.32:1；`chipTint`（字疊在「白＋該色 14% alpha」的真實淡底，對比略低於純白版本）全數 ≥5.01:1；兩者最低都是 lifeline `#a3e635`（見 `intel/__tests__/intelTheme.contrast.test.ts`，兩種底各自量測，未達標顏色目前為零）。`GIS_LEVELS`／`SEV_LEVELS` 的分級色另用 `levelColor()` 轉換（白色半透明佔位→中性文字階；與 accent／statusWarn／statusErr 同值→換成對應 palette 欄位；其餘資料 hue→`chipText`）。
 - **實作**：`src/components/intel/{IntelHeader.tsx,IntelCard.tsx,IntelFilters.tsx,intelTokens.ts,intelTheme.tsx}`、`intel/alerts/{AlertCard.tsx,AlertSummaryBar.tsx,FeedTabs.tsx}`。
 
@@ -518,7 +529,7 @@
 
 - **位置**：左側 rail「資料來源」（資料庫圖示，Locations 之後）；取代舊右下浮動 ⓘ 與置中詳細視窗。
 - **外殼**：同 Layers：H2（eyebrow「資料」）、搜尋框「搜尋圖層名稱」、狀態篩選分段（「全部 N」＋ ✓／⚙／? 三個狀態圖示與數量，`title` 為中文狀態名）、主題 → L2 群組。
-- **列**：狀態圖示（✓ 已接上 `statusLive`／⚙ 派生 `statusDerived`／? 待補 `statusWarn`）＋中文名，英文名小字 `textDim`；鎖頭圖示表示受限。
+- **列**：共用圖層列（§5.5 圖層列，2026-10-03 起）：圖層 icon＋中文名，英文名小字 `textDim`；沒有開關，狀態圖示（✓ 已接上 `statusLive`／⚙ 派生 `statusDerived`／? 待補 `statusWarn`）放在開關那格；鎖頭圖示表示受限。L2 群組標題用共用 `SubGroupLabel`。
 - **展開**：點列在列下方展開上游資料卡，同時只展開一筆（`aria-expanded`）；卡內 Fact 列標籤 10px `muted` 寬 44、值 `textStrong`，代碼類值 `FONT_DATA`；連結 `link` 色。
 - **暗／淡**：`DARK_DS`／`LIGHT_DS`（皆取 token）。
 - **禁止**：顯示 `datasetId` 當標題（目前有 2 處 fallback，§6.3、guard 記錄中）。
@@ -719,7 +730,7 @@
 
 2026-10-01 拍板（比較頁 `docs/features/monitor-restyle/picks.html`，代號 A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；實作分階段見 `docs/features/monitor-restyle/README.md`「實作順序」。盤點與證據同目錄（2026-09-30）。
 
-**實作狀態**：P1 完成（卡片殼、標題列、面板標頭中文化、窄格不溢出、新舊版切換）；P2a 完成（監看字級 S13）；P2b 完成（共用數值列與走勢，上半部、災害四卡、食品、加權指數、公衛、在監）；P3 完成（8 張多指標卡）；P4 完成（來源新鮮度、缺值修正，見下「新鮮度實作」）；P5–P6 未開始。活的元件頁 §13。
+**實作狀態**：P1 完成（卡片殼、標題列、面板標頭中文化、窄格不溢出、新舊版切換）；P2a 完成（監看字級 S13）；P2b 完成（共用數值列與走勢，上半部、災害四卡、食品、加權指數、公衛、在監）；P3 完成（8 張多指標卡）；P4 完成（來源新鮮度、缺值修正，見下「新鮮度實作」）；P5 完成（淡色版，見下「主題（H2）」）；P6 未開始。活的元件頁 §13。
 
 - **監看字級 S13**（2026-10-01 使用者在 `docs/features/monitor-restyle/fonts.html` 選定；只用在新版監看模式）：最小 13px。新版取消內容整體放大 1.15（舊版保留）。
 
@@ -767,6 +778,7 @@
 - **網路觀察殘缺量測**：RIPE Atlas collector 每 5 分鐘覆寫上一桶，桶內只剩約 100 秒的探針（`internet-health-reading.md`）。新版只畫探針數 ≥ 預期 80% 的完整桶，24 小時線每小時取完整桶加權平均成一點，整小時沒有完整桶畫斜線；即時值取最近一個完整 5 分鐘桶。collector 修好前大段斜線＝量測殘缺，不是網路異常（卡底「怎麼看」說明）。正常色帶（IPv4／IPv6）：Ping 97–100／83–92%、RTT 4–5.5／4–12 ms、Probe 回報 90–100%、可達 ASN 85–100／70–85%（30 天完整桶，建議值）。
 - **狀態提示（G2）**：狀態字見下表（擴充 §6.4）。過期／停更時主數字改 `textMuted`、走勢在最後一筆之後到現在畫斜線、卡底一行原因（10px）。收盤／休市只出中性 pill、不降灰。受影響（資料本身的警訊，如供電吃緊、急診壅塞）用數值與圖的顏色表示，不改卡底、不加色條。
 - **主題（H2）**：監看模式跟底圖主題切換暗／淡（取代 §5.21 原本「刻意維持全暗」）。淡色值只取 `LIGHT`；資料色文字走 `chipText()` 並逐格驗對比；影片牆（YouTube iframe）本身維持暗。
+  - **P5 實作（2026-10-03 使用者在 `docs/features/monitor-restyle/p5-picks.html` 選 S1／W1／D2／P2／X1／R2）**：S1 白卡（`--light-surface-solid`）疊淡灰面板 `rgba(243,244,246,0.95)`；W1 分割／停靠 95%、全屏不透明 `#f3f4f6`；D2 資料色當填色／線經 `monitorTheme.fill()` 加深到對白至少 3:1（文字走 `text()`＝`chipText`）；P2 標題列 pill 淡底實心（`color-mix` 12%）；X1 斜線黑 12%、灰樁黑 6%；R2 壓力環淡色保留等級色光暈、中間數字用等級色。卡片與共用圖表一律 `useMonitorTheme()`（`monitorTheme.ts`），暗色值與改版前字面值相同，所以一般彈窗（沒有 Provider）裡的共用折線不變。舊版一律暗。
 - **指數化（I2）**：分領域子指數 **災害**（颱風、地震、落雷、輻射、警訊）、**民生**（供電、急診、食品價格、公衛）、**國防**（共機、特殊船舶、ISR 衛星）、**網路與交通**（網路觀察、台鐵誤點、機場入出境）。戰情壓力總指數先修好（K1），子指數上線後改由子指數加權合成，權重公開、可展開到原始值。子指數需 gis-platform 預先彙整表與排程（migration 由使用者拍板），排在前端改版之後。停更來源不得默默拉低指數：要在指數旁標出缺了哪些來源。
 - **缺值修正（K1）**：這輪一起把 loader／元件的 `?? 0`、`|| 0`、補 0 改成保留 null；壓力指數 loader 改讀 `updated_at`、`per_signal` 改讀物件；熱區「熱度倍數」合成值改成真實比較或拿掉。RPC 端 `COALESCE(…,0)`（公衛 yoy）與上游停更另開資料工單。
 - **窄格規則**（2026-10-01 使用者在比較頁抓到示意卡數字互壓、標籤被截、漲跌斷行）：
@@ -982,7 +994,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 與 Agent 協作面板、研究頁、活動時間軸 | ✅ 符合 | 分析色階漸層屬資料色例外 |
 | 會員專區 | ✅ 符合 | |
 | Layers 面板主題列／大分類／L2 群組 | ✅ 符合（LT1） | 群組標題與大分類細線顏色仍 inline hex |
-| 即時情報 | ✅ 符合 | Phase L：暗／淡皆吃 `intelTheme.ts` palette；Monitor Mode 戰情看板刻意維持全暗（`NewsFeedPanel` 顯式套 `DARK_INTEL`），不在本輪淡色範圍 |
+| 即時情報 | ✅ 符合 | Phase L：暗／淡皆吃 `intelTheme.ts` palette；監看模式新版 P5 起跟底圖主題（§5.35 H2），舊版維持全暗 |
 | 面板標頭（非 H2 分支） | ⚠️ 部分 | `PanelHeader` 未傳 `eyebrow` 的分支字型已改 `FONT_CJK`，版面仍是舊標頭 |
 | 說明／分享視窗 | ✅ 符合 | H2、語言分段、`kbd`、分享欄位 `1fr auto`（§5.27） |
 | 手機標頭 | ✅ 符合（M1） | 手機時間軸條淡色時仍是暗色底（§10.3） |
@@ -1007,9 +1019,9 @@ PR 前逐項勾（貼進 PR 描述）：
 | 設定（Settings） | 第二輪已移除 rail 上沒有功能的設定鈕（S1）；目前沒有設定入口，真的有設定需求再加（§1「不放沒有功能的按鈕」） | — |
 | 等寬中文 | 3 處 | `FoodPriceBoard.tsx`、`TelecomStatusCard.tsx`、`ManeuverCompareModal.tsx` |
 | popup 暗色連結色 | `DARK_FEATURE.link = #7DD3FC`，與 `COLORS.link #7fb2ff` 不同；本輪只做等值替換未改 | `featureTheme.tsx` |
-| 其他手刻淡色物件 | `UserAvatar`（陰影、分隔線、hover 值不在 token 階）、`InfoModal` palette、`ChatPanel`、`LayerSidebar` 開關色（`LIGHT_LEGEND` 已移到 `legendKit.tsx` 並取 `LIGHT` 值） | 各檔 |
+| 其他手刻淡色物件 | `UserAvatar`（陰影、分隔線、hover 值不在 token 階）、`InfoModal` palette、`ChatPanel`（`LayerSidebar` 開關色已於 2026-10-03 面板統一 A 段改用共用列開關）（`LIGHT_LEGEND` 已移到 `legendKit.tsx` 並取 `LIGHT` 值） | 各檔 |
 | 圖例暗色底與框 | `DARK_LEGEND.bgSubtle`／`border` 是 inline rgba，不是 token | `legend/legendKit.tsx` |
-| Layers rail palette | `BORDER`、`BANNER_BG`、`SEARCH_BG`、`TOGGLE_*`、`ROW_*` 等仍 inline hex（暗淡兩套） | `IconRailSidebar.tsx` `DARK_PALETTE`／`LIGHT_PALETTE` |
+| Layers rail palette | `BORDER`、`BANNER_BG`、`SEARCH_BG`、`TOGGLE_*`、`ROW_*` 等仍 inline hex（暗淡兩套） | `sidebar/railTheme.ts` `DARK_PALETTE`／`LIGHT_PALETTE` |
 | `LAYOUT` 無 CSS 變數 | Agent 面板寫死 `top: 60px; left: 64px`，與 `LAYOUT.leftDockTop` 需人工同步 | `research/mainMapConnection.css` |
 | 地圖常數未接線 | `mapStyleScale.ts` 的 `LINE_WIDTH`／`lineWidthExpr`、`LINE_DASH`、`LINE_OPACITY`、`FILL_OPACITY`、`LABEL` 已定義，還沒有圖層引用（R3）；`HEATMAP`、`POINT_OPACITY` 已由 R5 接線 | `src/map/mapStyleScale.ts` |
 | embed／卡片地圖字型 | embed 與分析卡片頁（皆 MapLibre）未設 `localIdeographFontFamily`，是否需要未驗證 | `src/embed/EmbedApp.tsx`、`src/card/CardMap.tsx` |

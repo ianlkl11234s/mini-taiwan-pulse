@@ -19,6 +19,29 @@
 | UI | spec §5.36 色盤選單：portal 浮出（下方不夠往上開、手機抽屜裡改 modal 層）、lucide `Check`、2px 藍色焦點、中文不用等寬字、還原預設用 `.lpc-btn`；修原型稽核 §8 五項 |
 | 對照 | `docs/features/layer-color-picker/phase-d-compare.html` |
 
+### 圖層面板統一 A 段（共用外殼）— spec §5.1／§5.5／§5.10／§5.22
+
+| 項目 | 內容 |
+|---|---|
+| 共用元件 | `LayerRow`／`ListRow`、`ThemeBanner`、`SubGroupLabel`、`MacroGroupLabel`、`ExpandedControls`、`LayersPanel` 從 `IconRailSidebar.tsx` 搬到 `components/sidebar/`；四個入口只有一份定義 `layerPanels.ts` |
+| P1 圖層列 | 計數格兼載入轉圈（接 `loadingRegistry`，盡力比對）；每列可展開，最後一行「說明・來源」（manifest 說明＋資料來源卡）；icon 關閉一律灰（統計原本彩色）；「All Off」→「全部關閉」；台灣入口標題「台灣 Taiwan」 |
+| P7 手機 | 分頁改四個入口（台灣／統計／世界／日本），直接用桌機 `LayersPanel`；色點開關、手刻 28×14 總開關、`labelMobile`（名稱內筆數）退場；手機也有「全部關閉」，切到日本會飛過去 |
+| P8 其他清單 | 資料來源、Agent 分析結果、衛星群組、我的・收藏／已開啟、醫療統計群組列都改用 `ListRow`；原生 checkbox、強調色衛星開關改成黑白列開關（衛星開關移到 chevron 後） |
+| P9 搜尋 | 結果列改一般圖層列；末尾提示其他入口筆數，點了切換並帶入關鍵字 |
+| 不改 | manifest 名稱結構（B 段）、控制項順序（B 段）、統計設定區與醫療群組「指標」在列外（C 段） |
+| 對照 | `docs/features/layer-panel-unify/phase-a-compare.html` |
+
+### 監看卡 P5 淡色版 — spec §5.35 H2
+
+| 項目 | 內容 |
+|---|---|
+| 拍板 | 比較頁 `docs/features/monitor-restyle/p5-picks.html`：S1 白卡疊淡灰面板、W1 外殼 95%（全屏不透明）、D2 淺色相填色加深、P2 pill 淡底實心、X1 斜線同 alpha 換極性、R2 壓力環保留光暈＋數字用等級色 |
+| 機制 | `MonitorPanel` 收 `isDarkTheme`（App 傳入），新版依底圖包 `IntelThemeProvider`＋`.mtp-mon--light`；舊版一律暗。`monitorTheme.ts`：`useMonitorTheme()` 給 palette、圖表中性色、`fill`（淡色對白至少 3:1）、`text`、`neutral`；暗色值＝改版前字面值 |
+| 共用元件 | 折線、計數柱、數值列、圖表提示框都吃主題（沒有 Provider 時為暗，一般彈窗不變）；設計系統 §13 改暗／淡並排 |
+| 卡片 | 24 格全部換；直播牆影片與影片上的字幕條維持暗；只在舊版跑的分支不動 |
+| 驗收 | 淡色底圖 1920 新版 24 格無截斷、無溢出；暗色新版、淡色底圖下的舊版維持全暗；tsc、1325 個測試 |
+
+
 ### 監看卡 P4 來源新鮮度與缺值修正 — spec §5.35 G2／K1
 
 | 項目 | 內容 |

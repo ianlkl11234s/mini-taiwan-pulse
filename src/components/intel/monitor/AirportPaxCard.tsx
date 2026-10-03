@@ -7,6 +7,7 @@ import { fetchAirportHourlyPax, type AirportPaxBucket } from "../../../data/airp
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorTheme } from "./monitorTheme";
 import { fs, MF } from "./monitorFont";
 import { MonitorKpis, MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { useMonitorFreshness } from "./monitorFreshness";
@@ -18,8 +19,6 @@ const AIRPORTS: Array<{ code: string; label: string }> = [
   { code: "RMQ", label: "台中 RMQ" },
 ];
 const EMPTY_PAX: AirportPaxBucket[] = [];
-const IN_COLOR = COLORS.accent;
-const OUT_COLOR = COLORS.statusWarn;
 
 function LegendDot({ color, label }: { color: string; label: string }) {
   return (
@@ -34,6 +33,9 @@ interface Props { open: boolean }
 
 export function AirportPaxCard({ open }: Props) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const IN_COLOR = theme.p.accent;
+  const OUT_COLOR = theme.p.statusWarn;
   const [activeCode, setActiveCode] = useState("TPE");
   const load = useCallback(() => fetchAirportHourlyPax(activeCode, 24), [activeCode]);
   const query = useMonitorResource({
@@ -73,7 +75,7 @@ export function AirportPaxCard({ open }: Props) {
   });
 
   // 圖與主數字共用：入境主線＋出境疊線（同單位人）
-  const outExtraV2 = useMemo(() => ({ data: outSeriesV2, color: OUT_COLOR, label: "出境" }), [outSeriesV2]);
+  const outExtraV2 = useMemo(() => ({ data: outSeriesV2, color: OUT_COLOR, label: "出境" }), [outSeriesV2, OUT_COLOR]);
 
   if (v2) {
     const fmt = (n: number | null) => (hasReadableData && n != null ? n.toLocaleString("zh-TW") : "—");
@@ -90,9 +92,9 @@ export function AirportPaxCard({ open }: Props) {
               style={{
                 fontFamily: FONT_CJK, fontSize: MF.label,
                 padding: "3px 8px", borderRadius: RADIUS.sm,
-                border: `1px solid ${activeCode === a.code ? COLORS.accent : COLORS.panelBorder}`,
-                background: activeCode === a.code ? COLORS.accentFaint : "transparent",
-                color: activeCode === a.code ? COLORS.textStrong : COLORS.textMuted,
+                border: `1px solid ${activeCode === a.code ? theme.p.accent : theme.p.panelBorder}`,
+                background: activeCode === a.code ? theme.p.accentFaint : "transparent",
+                color: activeCode === a.code ? theme.p.textStrong : theme.p.textMuted,
                 cursor: "pointer",
               }}
             >
@@ -113,7 +115,7 @@ export function AirportPaxCard({ open }: Props) {
               gapSec={2 * 3600} showTooltip seriesLabel="入境" extraSeries={outExtraV2}
               staleUntil={fresh.staleUntil}
             />
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: theme.p.textMuted }}>
               <LegendDot color={IN_COLOR} label="入境" />
               <LegendDot color={OUT_COLOR} label="出境" />
             </div>
