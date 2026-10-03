@@ -76,8 +76,9 @@ function mapMock() {
   const paintCalls: Array<[string, string, unknown]> = [];
   const layoutCalls: Array<[string, string, unknown]> = [];
   const events = new Map<string, (() => void)>();
+  let styleLoaded = true;
   const map = {
-    isStyleLoaded: () => true,
+    isStyleLoaded: () => styleLoaded,
     hasImage: () => false,
     addImage: vi.fn(),
     getSource: (id: string) => sources.get(id),
@@ -88,7 +89,14 @@ function mapMock() {
     on: (event: string, listener: () => void) => events.set(event, listener),
     off: vi.fn(),
   };
-  return { map, sources, layers, paintCalls, layoutCalls, events };
+  /** 模擬 setStyle：清掉所有自訂 source／layer，style.load 當下 isStyleLoaded() 仍為 false。 */
+  const switchStyle = () => {
+    sources.clear(); layers.clear();
+    styleLoaded = false;
+    events.get('style.load')?.();
+    styleLoaded = true;
+  };
+  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle };
 }
 function feature(value: number): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { area_code: 'A', value, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [] } }] };
@@ -170,6 +178,27 @@ describe('attachRegionalStatistics', () => {
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.8, 0.5]);
     expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe('map-hatch-missing-light');
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-light');
+    dispose();
+  });
+
+  it('R8-1：換底圖後用快取資料立即重建，不重抓（style.load 當下 isStyleLoaded() 為 false）', async () => {
+    const { regionalStatisticsStore } = await import('../../state/regionalStatisticsStore');
+    const cached = feature(2);
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: cached });
+    state.visibility[VIEW] = true;
+    let dark = true;
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => dark);
+    const loads = vi.mocked(regionalStatisticsStore.load).mock.calls.length;
+
+    for (const next of [false, true]) {
+      dark = next;
+      mock.switchStyle();
+      expect(mock.sources.get(VIEW)?.setData).toHaveBeenCalledWith(cached);
+      expect(mock.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('visible');
+      expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe(next ? 'map-hatch-missing-dark' : 'map-hatch-missing-light');
+    }
+    expect(vi.mocked(regionalStatisticsStore.load).mock.calls.length).toBe(loads);
     dispose();
   });
 });

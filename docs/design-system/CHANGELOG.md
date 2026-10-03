@@ -5,6 +5,12 @@
 
 ## 2026-10-03
 
+### 圖層面板收尾修正
+
+| 項目 | 內容 |
+|---|---|
+| 換底圖後統計層（BACKLOG R8-1） | `map/regionalStatisticsMap.ts`：`style.load` 時 `isStyleLoaded()` 仍為 false，`render()` 直接 return；`idle` 重試只比對資料物件（快取仍在、source 已被 setStyle 清掉）也不觸發，要等下一次操作才畫回。改成 `style.load` 走 `render(true)` 略過檢查、用 store 快取重建＋`setData`，不重抓（同 perf-audit §7／#481）。暗→淡→暗實測立即畫回、資料請求 0；補單元測試 |
+
 ### 圖層面板統一：統計與世界大分類 — spec §5.5
 
 | 項目 | 內容 |

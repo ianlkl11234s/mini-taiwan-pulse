@@ -24,8 +24,12 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     const fallback = statisticsReleaseFallback(key);
     regionalStatisticsStore.registerRecipe(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}) });
   }
-  function render() {
-    if (!map.isStyleLoaded()) return;
+  /**
+   * @param fromStyleLoad 換底圖（setStyle）後的 style.load：此時 `isStyleLoaded()` 可能仍為 false，
+   *   但 style 已可加 source／layer；略過檢查，用 store 快取資料直接重建（不重抓，perf-audit §7）。
+   */
+  function render(fromStyleLoad = false) {
+    if (!fromStyleLoad && !map.isStyleLoaded()) return;
     const isDark = getIsDark();
     for (const kind of ['missing', 'suppressed'] as HatchKind[]) {
       for (const dark of [true, false]) {
@@ -87,13 +91,15 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     }
     render();
   }
-  const dispose = [layerVisibilityStore.subscribe(visibilityChanged), layerParamsStore.subscribe(render), ...STATISTICS_RENDER_KEYS.map(key => regionalStatisticsStore.subscribe(key, render))];
-  map.on('style.load', render);
+  const rerender = () => render();
+  const dispose = [layerVisibilityStore.subscribe(visibilityChanged), layerParamsStore.subscribe(rerender), ...STATISTICS_RENDER_KEYS.map(key => regionalStatisticsStore.subscribe(key, rerender))];
+  const onStyleLoad = () => render(true);
+  map.on('style.load', onStyleLoad);
   // Data may finish during a Mapbox source update; idle retries rendering that state.
   const onIdle = () => {
     if (STATISTICS_RENDER_KEYS.some(key => regionalStatisticsStore.getSnapshot(key).data !== (rendered.get(key) ?? null))) render();
   };
   map.on('idle', onIdle);
   visibilityChanged();
-  return () => { dispose.forEach(fn => fn()); map.off('style.load', render); map.off('idle', onIdle); STATISTICS_RENDER_KEYS.forEach(key => regionalStatisticsStore.disable(key)); };
+  return () => { dispose.forEach(fn => fn()); map.off('style.load', onStyleLoad); map.off('idle', onIdle); STATISTICS_RENDER_KEYS.forEach(key => regionalStatisticsStore.disable(key)); };
 }

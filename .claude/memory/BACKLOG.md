@@ -177,7 +177,6 @@
 |---|---|---|---|---|---|
 | R5-1 | P2 | ready | 微型感測器（`aqiMicroSensors`）圖層偶爾永遠不出現。 | `src/hooks/useMicroSensorsLayer.ts:157`：style 未載完時改 `map.once("load")`，但 `load` 可能早已觸發，callback 永不執行。改等 `style.load`／`idle` 或先判斷 `map.loaded()`。 | 冷開站、換底圖途中打開該層各 10 次皆出現；補 hook 測試。 |
 | R5-2 | P2 | ready | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | 找出初次加圖層時沒帶入參數預設 filter 的路徑（registry filter 初值 vs 參數變更才 setFilter）。 | 打開即只顯示預設年份；點數與改參數後一致；補測試。 |
-| R8-1 | P2 | ready | 切換底圖後，統計圖層要等下一次操作才會畫回來（origin/master 已存在，非 C 段造成）。 | 查統計圖層在 `style.load` 後的重建路徑；照 #481 做法用快取重建、不重抓。 | 換底圖暗→淡→暗後統計層立即畫回、資料請求 0；補測試。 |
 
 ## Weekly audit findings
 
