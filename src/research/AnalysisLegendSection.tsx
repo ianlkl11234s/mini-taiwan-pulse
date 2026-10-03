@@ -43,6 +43,7 @@ function EntryLegend({ entry, compact }: { entry: AnalysisLegendEntry; compact: 
       <span>{count.label} · {count.radiusM.toLocaleString("zh-TW")} 公尺內</span>
       {compact ? <Bar colors={count.entries.map(item => item.color)} /> : <Swatches entries={count.entries} />}
     </div>}
+    {entry.categoryLegend && <div className="agent-analysis-count-legend"><span>據點類別</span><Swatches entries={entry.categoryLegend.entries} /></div>}
     {entry.scopeRing && !compact && <p className="agent-analysis-scope-legend"><i aria-hidden="true" />分析範圍（虛線）{entry.scopeRing.radiusM != null ? ` · 半徑 ${entry.scopeRing.radiusM.toLocaleString("zh-TW")} 公尺` : ""}</p>}
   </>;
 }

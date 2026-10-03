@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map } from "mapbox-gl";
-import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnalysisResults, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnalysisResults, nearbyRevealSchedule, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
 type Layer = { id: string; type: string; source: string; paint: Record<string, unknown>; filter?: unknown; layout?: Record<string, unknown> };
@@ -388,5 +388,71 @@ describe("analysis result reveal lifecycle", () => {
     expect(() => installAnalysisResults(map, [replacement, invalid])).toThrow("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
     expect(sources.get("research-analysis-result-0")!.data).toBe(original);
     expect(sources.has("research-analysis-result-1")).toBe(false);
+  });
+});
+
+describe("nearby result: category colours, centre point, names and staged reveal", () => {
+  const point = (lng: number, extra: Record<string, unknown>) => ({ geometry: { type: "Point", coordinates: [lng, 25] }, ...extra });
+  const nearby = {
+    resultId: "wh-9:point", datasetId: "warehouse:wh-9", displayLabel: "台北車站周邊", geometry: { type: "Point" as const, role: "actual" as const, spatialAnalysisEligible: true },
+    rows: [
+      point(121.5, { _role: "center", name: "台北車站" }),
+      point(121.501, { _wh_dataset: "bus", _wh_category_label: "公車站", _wh_rank: 1, _wh_name: "北門" }),
+      point(121.502, { _wh_dataset: "bus", _wh_category_label: "公車站", _wh_rank: 5, _wh_name: "遠站" }),
+      point(121.503, { _wh_dataset: "school", _wh_category_label: "學校", _wh_rank: 2, _wh_name: "國小" }),
+    ],
+  } satisfies PresentableResult;
+
+  it("colours POIs by category with a matching legend, keeps the centre out of the POI layer and counts", () => {
+    const { map, layers } = stubMap();
+    const installed = installAnalysisResults(map, [nearby], 0.55, "dark");
+    expect(installed[0]).toMatchObject({ featureCount: 3, categoryLegend: { entries: [{ label: "公車站", color: "#2e81d5" }, { label: "學校", color: "#b38c15" }] } });
+    const main = layers.get("research-analysis-result-points-0")!;
+    expect(main.filter).toEqual(["!=", ["get", "_role"], "center"]);
+    expect(main.paint["circle-color"]).toEqual(["match", ["coalesce", ["get", "_wh_category_label"], ["get", "_wh_dataset"]], "公車站", "#2e81d5", "學校", "#b38c15", "#6b7280"]);
+    expect(layers.get("research-analysis-result-nearby-center-0")!.filter).toEqual(["==", ["get", "_role"], "center"]);
+    expect(layers.get("research-analysis-result-nearby-poi-label-0")!.layout!["text-field"]).toEqual(["get", "_wh_name"]);
+  });
+
+  it("groups by category label across datasets, falling back to the dataset", () => {
+    const { map } = stubMap();
+    const multi = { ...nearby, rows: [point(121.5, { _wh_dataset: "bus", _wh_category_label: "交通" }), point(121.6, { _wh_dataset: "mrt", _wh_category_label: "交通" }), point(121.7, { _wh_dataset: "park" })] } satisfies PresentableResult;
+    const entries = installAnalysisResults(map, [multi], 0.55, "dark")[0]!.categoryLegend!.entries;
+    expect(entries.map(entry => entry.color)).toEqual(["#2e81d5", "#b38c15"]);
+    expect(entries[0]!.label).toBe("交通");
+  });
+
+  it("degrades to the plain single-colour point layer when the new fields are absent", () => {
+    const { map, layers } = stubMap();
+    const plain = { ...nearby, rows: [point(121.5, { name: "甲" }), point(121.6, { name: "乙" })] } satisfies PresentableResult;
+    const installed = installAnalysisResults(map, [plain]);
+    expect(installed[0]!.categoryLegend).toBeUndefined();
+    expect(layers.has("research-analysis-result-nearby-center-0")).toBe(false);
+    expect(layers.has("research-analysis-result-nearby-poi-label-0")).toBe(false);
+    expect(layers.get("research-analysis-result-points-0")!.paint["circle-color"]).toBe("#00b8d9");
+  });
+
+  it("reveals in stages within 1.5s, clears its timer, and does not replay after a hide/show", () => {
+    vi.useFakeTimers();
+    try {
+      const { map, layers, render } = stubMap();
+      installAnalysisResults(map, [nearby]);
+      expect(layers.get("research-analysis-result-nearby-center-0")!.paint["circle-opacity"]).toBe(0);
+      render();
+      vi.advanceTimersByTime(500);
+      expect(layers.get("research-analysis-result-nearby-center-0")!.paint["circle-opacity"]).toBeGreaterThan(0);
+      expect(layers.get("research-analysis-result-nearby-poi-label-0")!.paint["text-opacity"]).toBe(0);
+      vi.advanceTimersByTime(1100);
+      expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.55);
+      expect(layers.get("research-analysis-result-nearby-poi-label-0")!.paint["text-opacity"]).toBe(0.55);
+      expect(vi.getTimerCount()).toBe(0);
+      removeAnalysisResults(map);
+      installAnalysisResults(map, [nearby]);
+      expect(layers.get("research-analysis-result-nearby-center-0")!.paint["circle-opacity"]).toBe(0.55);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("keeps the whole timeline within 1.5s for any category count", () => {
+    for (const count of [0, 1, 3, 7, 12]) expect(nearbyRevealSchedule(count).totalMs).toBeLessThanOrEqual(1500);
   });
 });

@@ -1,7 +1,7 @@
 # 監看模式 split 改版（monitor-restyle）
 
 > **Slug**：`monitor-restyle`
-> **狀態**：2026-10-01 拍板（A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；P1 完成（卡片殼）、P2a 完成（字級 S13）、P2b 完成（數值列與走勢），P3–P6 未開始
+> **狀態**：2026-10-01 拍板（A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；P1 完成（卡片殼）、P2a 完成（字級 S13）、P2b 完成（數值列與走勢）、P3 完成（多指標卡），P4–P6 未開始
 > **比較頁**：[`picks.html`](./picks.html)（暗／淡並排，用代號選）
 > **細節**：外觀盤點 [`inventory-a.md`](./inventory-a.md)（上半 14 格）、[`inventory-b.md`](./inventory-b.md)（下半 10 格＋MonitorPanel 外殼）、資料品質 [`data-quality.md`](./data-quality.md)（含所用 SQL，查詢時間 2026-09-30 23:10 台灣時間）
 > **規格**：[`docs/design-system/spec.md` §5.35](../../design-system/spec.md)（定案）
@@ -73,7 +73,7 @@ split 的 24 格沒有共用卡片框：MonitorPanel 只排位置，框、標題
 | P1 ✅ | 共用卡片殼（`HazardShell` 升格、`MonitorPanel` 統一畫框、拿掉各卡自畫框與額外 zoom）、標題列、面板標頭中文化、窄格規則（`overflow`） | A1、C3、窄格 |
 | P2a ✅ | 監看字級 S13（`fonts.html` 選定）：最小 13、取消 1.15 放大、固定高格重新分配 | — |
 | P2b ✅ | 共用走勢元件（擴充 `TimeseriesSparkline`＋`HazardTrendBars`）、數值列、圖高三階；先套上半 14 格與災害四卡、加權指數、公衛 | B1、D3、E3 |
-| P3 | 多指標卡：供電、急診、共機、特殊船舶、ISR、台鐵、網路、機場（雙主圖規則） | F3 |
+| P3 ✅ | 多指標卡：供電、急診、共機、特殊船舶、ISR、台鐵、網路、機場（雙主圖規則） | F3 |
 | P4 | 來源新鮮度（每格登記週期、狀態字表）＋缺值修正＋壓力指數 loader bug＋熱度倍數 | G2、K1 |
 | P5 | 跟底圖主題的淡色版，逐格驗對比 | H2 |
 | P6 | 四領域子指數（analytics 規格 → gis-platform migration〔使用者拍板〕→ 前端），總指數改由子指數合成 | I2 |

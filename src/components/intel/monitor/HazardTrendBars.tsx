@@ -33,6 +33,11 @@ export interface HazardBar {
   level: number;
   /** tooltip 補充（例如「最大 M5.2」「28 站回報」） */
   note?: string;
+  /**
+   * 子量（選填）：疊在柱子底部、用 `partColor` 實心畫，其餘段維持 level 色
+   * （例：共機柱＝總架次，part＝越中線架次）。`null`／省略＝不畫。
+   */
+  part?: number | null;
 }
 
 interface Props {
@@ -43,8 +48,8 @@ interface Props {
   height?: number;
   /** 監看圖高三階（spec §5.35 B1）：有給時圖區高度＝`MON_CHART_H[tier]`，`height` 被忽略 */
   heightTier?: MonChartTier;
-  /** 標題列，例如「14D · 次數（柱）／規模（色）」 */
-  caption: string;
+  /** 標題列，例如「14D · 次數（柱）／規模（色）」。v2 `bare` 時不畫 */
+  caption?: string;
   /** 中央補充，例如「最高 12 次」。省略則只顯示兩端日期 */
   footer?: string;
   /** 量的單位，進 tooltip 用（例如「次」「µSv/h」） */
@@ -56,6 +61,14 @@ interface Props {
   onSelectBar?: (bar: HazardBar) => void;
   /** 目前選中的 `key ?? label`，會給該柱一塊反白底 */
   selectedKey?: string | null;
+  /** 小倍數列用（spec §5.35 F3，只在監看新版生效）：不畫 caption、footer 與首尾日期 */
+  bare?: boolean;
+  /** 比例尺上限（同一把尺用）；不傳＝本區間最大值 */
+  maxValue?: number | null;
+  /** 子量（`HazardBar.part`）的顏色，傳 token 值 */
+  partColor?: string;
+  /** 子量在 tooltip 的名稱，例如「越中線」 */
+  partLabel?: string;
 }
 
 /**
@@ -71,13 +84,15 @@ const NOWRAP = { whiteSpace: "nowrap" } as const;
 
 export function HazardTrendBars({
   bars, levelColors, height: heightProp = 44, heightTier, caption, footer, unit = "",
-  onSelectBar, selectedKey = null,
+  onSelectBar, selectedKey = null, bare: bareProp = false, maxValue = null, partColor = COLORS.accent, partLabel = "",
 }: Props) {
   const v2 = useMonitorV2();
+  // bare 只在監看新版生效（舊版畫面不可變）
+  const bare = v2 && bareProp;
   // 只在監看新版生效（舊版維持原 height）
   const height = v2 && heightTier ? MON_CHART_H[heightTier] : heightProp;
   const tip = useChartTooltip();
-  const max = useMemo(() => {
+  const autoMax = useMemo(() => {
     const vals = bars.map((b) => b.value).filter((v): v is number => v !== null);
     // 比例尺用「本區間最大值」：跨主題共用元件，沒有全域基準可依。
     // 代價是換資料就換 y 軸尺度 → 所以 footer 一定要印出實際最大值。
@@ -90,12 +105,15 @@ export function HazardTrendBars({
     const m = Math.max(...vals);
     return m > 0 ? m : 1;
   }, [bars]);
+  // maxValue：小倍數列要「同一把尺」時由呼叫端傳共同上限（各列取所有列的最大值）
+  const max = maxValue != null && maxValue > 0 ? maxValue : autoMax;
 
   if (!bars.length) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <span
+    // bare：上下各留 2px，與 TimeseriesSparkline bare 同高（mini 總高 28），小倍數列混用折線與柱時列高一致
+    <div style={{ display: "flex", flexDirection: "column", gap: 3, padding: bare ? "2px 0" : undefined }}>
+      {!bare && caption != null && <span
         style={{
           fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "0.6px",
           color: COLORS.textFaint, whiteSpace: v2 ? "normal" : "nowrap", overflow: "hidden",
@@ -103,7 +121,7 @@ export function HazardTrendBars({
         }}
       >
         {caption}
-      </span>
+      </span>}
       {/* flex: "none" + 確定 height：見檔頭說明，改成 flex:1 柱子會全塌 */}
       <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height, flex: "none" }}>
         {bars.map((b) => {
@@ -130,6 +148,9 @@ export function HazardTrendBars({
           const pct = (b.value / max) * 100;
           const color = levelColors[Math.min(b.level, levelColors.length - 1)] ?? levelColors[0]!;
           const value = b.value;
+          // 子量：截在 [0, value]。part > value 只可能是上游資料不一致（子集合不會大於總數），
+          // 畫出來會讓子段衝出柱頂、看起來比總量還高，所以截到 value，tooltip 仍印截後的值。
+          const part = b.part == null || !Number.isFinite(b.part) ? null : Math.min(Math.max(b.part, 0), value);
           return (
             <div
               key={barKey}
@@ -143,7 +164,10 @@ export function HazardTrendBars({
                   value: Number.isInteger(value)
                     ? fmtChartValue(value, unit.trim())
                     : `${value}${unit}`,
-                }],
+                }, ...(part != null ? [{
+                  dot: partColor,
+                  value: `${partLabel ? `${partLabel} ` : ""}${Number.isInteger(part) ? fmtChartValue(part, unit.trim()) : `${part}${unit}`}`,
+                }] : [])],
                 note: b.note,
               }))}
               onClick={onClick}
@@ -155,18 +179,37 @@ export function HazardTrendBars({
               }}
             >
               {/* 0 也要看得見（1.5% 的底線），否則「當天零次」與「沒資料」在圖上長一樣 */}
-              <div
-                style={{
-                  height: `${Math.max(pct, b.value === 0 ? 1.5 : 3)}%`,
-                  background: color,
-                  borderRadius: `${RADIUS.sm}px ${RADIUS.sm}px 0 0`,
-                }}
-              />
+              {part == null ? (
+                <div
+                  style={{
+                    height: `${Math.max(pct, b.value === 0 ? 1.5 : 3)}%`,
+                    background: color,
+                    borderRadius: `${RADIUS.sm}px ${RADIUS.sm}px 0 0`,
+                  }}
+                />
+              ) : (() => {
+                // 子段高度＝part / max（與總柱同一比例尺）；level 段補足到總柱高
+                const total = Math.max(pct, b.value === 0 ? 1.5 : 3);
+                const partPct = (part / max) * 100;
+                const restPct = Math.max(0, total - partPct);
+                const topRadius = `${RADIUS.sm}px ${RADIUS.sm}px 0 0`;
+                return (
+                  <>
+                    {restPct > 0 && <div style={{ height: `${restPct}%`, background: color, borderRadius: topRadius }} />}
+                    {partPct > 0 && (
+                      <div
+                        data-testid="hazard-bar-part"
+                        style={{ height: `${partPct}%`, background: partColor, borderRadius: restPct > 0 ? 0 : topRadius }}
+                      />
+                    )}
+                  </>
+                );
+              })()}
             </div>
           );
         })}
       </div>
-      <div
+      {!bare && <div
         style={{
           display: "flex", justifyContent: "space-between", gap: 4,
           fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: COLORS.textFaint,
@@ -177,7 +220,7 @@ export function HazardTrendBars({
         <span style={v2 ? NOWRAP : undefined}>{bars[0]?.label}</span>
         {footer && <span style={v2 ? { ...NOWRAP, textAlign: "center" } : { textAlign: "center" }}>{footer}</span>}
         <span style={v2 ? NOWRAP : undefined}>{bars[bars.length - 1]?.label}</span>
-      </div>
+      </div>}
       {tip.node}
     </div>
   );

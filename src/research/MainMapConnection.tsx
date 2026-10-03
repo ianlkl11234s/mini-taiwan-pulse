@@ -20,7 +20,7 @@ import { layerParamsStore } from "../state/layerParamsStore";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
-import { applyMainMapLayers, captureLayerOverrides } from "./mainMapLayers";
+import { applyMainMapLayers, captureLayerOverrides, planMainMapLayers } from "./mainMapLayers";
 import { QueryResponder } from "./QueryResponder";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { describeLayers } from "./layerExploration";
@@ -31,7 +31,7 @@ import { describeDataset, ensureDataset, ensureStatisticsResearchDatasets, searc
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
-import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
+import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
 import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
@@ -267,6 +267,14 @@ export function MainMapConnection(props: Props) {
     const availableResults = describeAnalysisResults(allAnalysisResults, theme);
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
+    // Unknown/locked keys are dropped from the applied scene; only this command's own keys fail it.
+    const layerPlan = planMainMapLayers(scene.layers, patch?.layers, new Set(Object.keys(labels)), locked);
+    if (layerPlan.ignored.length) scene = { ...scene, layers: layerPlan.usable };
+    // A layerControl inherited from the stored scene that no longer validates (e.g. it was the
+    // failing part of an earlier command) is skipped instead of failing every later command.
+    if (!patch?.layerControl && scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) {
+      try { validateLayerControl(scene.layerControl, locked); } catch { scene = { ...scene, layerControl: previous.current?.layerControl }; }
+    }
     let movement: Promise<boolean> = Promise.resolve(true);
     setActivity({ phase: "presenting", title: "正在同步地圖" });
     applying.current = true;
@@ -340,9 +348,9 @@ export function MainMapConnection(props: Props) {
       await new Promise(resolve => setTimeout(resolve, 50));
       resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
     }
-    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
+    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && layerPlan.rejected.length === 0 && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
     const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
-    setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : "圖層或分析結果狀態有衝突，請重新確認。");
+    setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : layerPlan.rejected.length ? `找不到或無法開啟的圖層已略過：${layerPlan.rejected.join("、")}；其餘設定已套用。` : "圖層或分析結果狀態有衝突，請重新確認。");
     setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? "分析結果已呈現" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
     return matches ? "ready" : "error";
   }, []);
@@ -386,8 +394,9 @@ export function MainMapConnection(props: Props) {
           if (!current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
           result = current.timeline.getContext(); break;
         case "map_context":
-          if (!current.map?.isStyleLoaded()) throw new Error("MAP_NOT_READY");
-          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current) };
+          if (!current.map || !isStyleReady(current.map)) throw new Error("MAP_NOT_READY");
+          // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
+          result = { observedAt: new Date().toISOString(), tilesSettled: current.map.isStyleLoaded(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current) };
           break;
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
@@ -558,7 +567,7 @@ export function MainMapConnection(props: Props) {
     };
     const redraw = () => {
       endHover();
-      if (!map.isStyleLoaded()) return;
+      if (!isStyleReady(map)) return;
       const resultIds = visibleResultIds(previous.current?.results);
       const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
       // Series-kind analysis results (read_series/compare_series, geometry "none") are analysis-only

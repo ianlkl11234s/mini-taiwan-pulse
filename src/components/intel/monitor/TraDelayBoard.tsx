@@ -10,8 +10,10 @@ import { useChartTooltip } from "../../ChartHoverTooltip";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
-import { fs } from "./monitorFont";
+import { fs, MF } from "./monitorFont";
 import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { MonitorKpis, MonitorSub } from "./MonitorMetric";
+import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
 /**
  * 台鐵誤點監測（migration 369）
@@ -34,6 +36,8 @@ const WINDOW = 60;
 const TOP_N = 5;
 const EMPTY_TRA_DAYS: TraDelayDay[] = [];
 const EMPTY_TRA_TRAINS: TraDelayTrain[] = [];
+/** 日資料：缺一天以上（nearDestTrains = 0 的日子不入序列）就斷線，不補值連過去 */
+const TRA_GAP_SEC = 86400 * 1.5;
 
 interface Props { open: boolean }
 
@@ -65,6 +69,31 @@ export function TraDelayBoard({ open }: Props) {
   // 資料期別＝主數字對應的營運日（YYYY-MM-DD → MM/DD）
   useMonitorCardHeader({ timeText: latest ? latest.serviceDate.slice(5).replace("-", "/") : null });
 
+  // v2 三線圖資料：nearDestTrains = 0 的日子不入序列（斷線，不代 0）；時間取營運日台北午夜
+  const v2Lines = useMemo(() => {
+    const rows = days.filter((d) => d.observedTrains > 0 && d.nearDestTrains > 0);
+    const toSeries = (pick: (d: TraDelayDay) => number): SparklinePoint[] =>
+      rows.map((d) => ({
+        t: Date.parse(`${d.serviceDate}T00:00:00+08:00`) / 1000,
+        v: (100 * pick(d)) / d.nearDestTrains,
+      }));
+    return {
+      n: rows.length,
+      gaps: days.filter((d) => d.observedTrains > 0 && d.nearDestTrains === 0).length,
+      over0: toSeries((d) => d.nearDestOver0),
+      over5: toSeries((d) => d.nearDestOver5),
+      over15: toSeries((d) => d.nearDestOver15),
+    };
+  }, [days]);
+  const over5Extra = useMemo(
+    () => ({ data: v2Lines.over5, color: TREND_LINES[1].color, label: TREND_LINES[1].label }),
+    [v2Lines],
+  );
+  const over15More = useMemo(
+    () => [{ data: v2Lines.over15, color: TREND_LINES[2].color, label: TREND_LINES[2].label }],
+    [v2Lines],
+  );
+
   if (!latest) {
     return (
       <div>
@@ -81,6 +110,90 @@ export function TraDelayBoard({ open }: Props) {
   // 全部走口徑 C（到站誤點）：與下方三線圖同一口徑，避免同一格裡兩種定義並存
   const delayedPct = (latest.nearDestOver5 / latest.nearDestTrains) * 100;
   const delayedPct15 = (latest.nearDestOver15 / latest.nearDestTrains) * 100;
+
+  if (v2) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+        <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
+        <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
+        <MonitorKpis
+          items={[
+            { label: "到站誤點", value: delayedPct.toFixed(0), unit: "%" },
+            { label: "平均誤點", value: latest.nearDestAvgDelay === null ? "—" : latest.nearDestAvgDelay.toFixed(1), unit: latest.nearDestAvgDelay === null ? undefined : "分" },
+            // 這格刻意維持口徑 A：問的是「當日最糟到什麼程度」，本來就該看途中峰值
+            { label: "途中最大", value: latest.maxDelayMin === null ? "—" : latest.maxDelayMin, unit: latest.maxDelayMin === null ? undefined : "分" },
+          ]}
+        />
+        <MonitorSub
+          items={[
+            `逾 15 分 ${delayedPct15.toFixed(0)}%`,
+            `可判定 ${latest.nearDestTrains} 班`,
+            `${latest.observedTrains} 班在跑`,
+          ]}
+        />
+        {v2Lines.n >= 2 && (
+          <div data-testid="tra-delay-trend" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div style={{ fontSize: MF.label, color: COLORS.textDim }}>
+              到站誤點比例 近 {v2Lines.n} 天{v2Lines.gaps > 0 && ` · ${v2Lines.gaps} 天缺班表`}
+            </div>
+            <TimeseriesSparkline
+              data={v2Lines.over0} unit="%" heightTier="lg" fillArea={false}
+              lineColor={TREND_LINES[0].color} seriesLabel={TREND_LINES[0].label}
+              extraSeries={over5Extra} moreSeries={over15More}
+              gapSec={TRA_GAP_SEC} showTooltip tooltipDateFormat="date"
+            />
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
+              {TREND_LINES.map((l) => (
+                <span key={l.label} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                  <span style={{ width: 8, height: 2, background: l.color, display: "inline-block" }} />
+                  {l.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {trains.length > 0 && (
+          <details data-testid="tra-worst-trains">
+            <summary style={{ cursor: "pointer", fontSize: MF.label, color: COLORS.textMuted }}>
+              最誤點車次 {trains.length} 班
+            </summary>
+            {trains.map((t) => (
+              <div
+                key={t.trainNo}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 0", borderBottom: `1px solid ${COLORS.borderSoft}` }}
+              >
+                <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, color: COLORS.textStrong, minWidth: 48 }}>{t.trainNo}</span>
+                <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted, minWidth: 64, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {t.trainType}
+                </span>
+                <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textDim, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {t.originStation && t.destinationStation ? `${t.originStation}→${t.destinationStation}` : "班表外加班車"}
+                </span>
+                <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, color: delayColor(t.maxDelayMin), minWidth: 40, textAlign: "right", whiteSpace: "nowrap" }}>
+                  {t.maxDelayMin ?? "—"}′
+                </span>
+                {/* max 與 p90 落差大 = 上游尖刺，不是真的誤點這麼久 */}
+                {t.maxDelayMin !== null && t.p90DelayMin !== null && t.maxDelayMin - t.p90DelayMin >= 20 && (
+                  <span title={`多數時間僅 ${t.p90DelayMin} 分，此峰值疑為上游資料尖刺`} style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textFaint }}>
+                    ⚠
+                  </span>
+                )}
+              </div>
+            ))}
+          </details>
+        )}
+        <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textFaint }}>
+          {latest.serviceDate}
+          {latest.coveragePct !== null && latest.scheduledTrains !== null && (
+            <> · 覆蓋 {latest.coveragePct.toFixed(0)}%（{latest.observedTrains}/{latest.scheduledTrains} 班）</>
+          )}
+          <br />
+          到站誤點口徑：取最後觀測（終點前 3 站內）的誤點，分母為可判定班次。
+          非官方數字 —— TDX 在列車抵達終點前 1~3 站即停止回報，拿不到真正到站時刻。
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

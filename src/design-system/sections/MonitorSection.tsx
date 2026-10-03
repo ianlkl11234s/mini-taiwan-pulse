@@ -6,7 +6,7 @@ import { COLORS } from "../../styles/designTokens";
 import { MF, MON_FONT_PX } from "../../components/intel/monitor/monitorFont";
 import { MonitorCardFrame, MonitorCardTime, type MonitorCardHeaderSlot } from "../../components/intel/monitor/MonitorCardFrame";
 import { MonitorStyleContext } from "../../components/intel/monitor/monitorStyle";
-import { MonitorKpis, MonitorMetric, MonitorNote, MonitorSub } from "../../components/intel/monitor/MonitorMetric";
+import { MonitorKpis, MonitorMetric, MonitorNote, MonitorRows, MonitorSub } from "../../components/intel/monitor/MonitorMetric";
 import { MON_CHART_H } from "../../components/intel/monitor/monitorChart";
 import { TimeseriesSparkline, type SparklinePoint } from "../../components/TimeseriesSparkline";
 import { HazardTrendBars, type HazardBar } from "../../components/intel/monitor/HazardTrendBars";
@@ -48,6 +48,23 @@ const DEMO_BARS: HazardBar[] = [3, 5, 0, 2, null, null, 7, 4, 0, 1, 6, 9, 2, 3].
 }));
 const DEMO_LEVELS = [COLORS.accent, COLORS.statusWarn];
 
+/** 示意：共機 14 天，part＝越中線架次（底部子段） */
+const DEMO_PLA_BARS: HazardBar[] = [12, 8, 21, 5, null, 14, 30, 9, 0, 17, 11, 26, 7, 15].map((v, i) => ({
+  label: `09/${String(18 + i).padStart(2, "0")}`,
+  value: v,
+  level: v != null && v >= 20 ? 1 : 0,
+  part: v == null ? null : Math.round(v * 0.6),
+}));
+
+/** 示意：另一條 14 天序列（小倍數列各自比例尺） */
+function demoLine2(scale: number, phase: number): SparklinePoint[] {
+  const end = Math.floor(Date.now() / 1000 / DAY_S) * DAY_S;
+  return Array.from({ length: 14 }, (_, i) => ({
+    t: end - (13 - i) * DAY_S,
+    v: Math.round(scale * (1 + 0.25 * Math.sin(i / 2 + phase))),
+  }));
+}
+
 function MetricDemo() {
   const line = demoLine();
   return (
@@ -76,6 +93,33 @@ function MetricDemo() {
           <MonitorCardFrame title="地震次數" en="Earthquakes" widgetId="demo-bars">
             <MonitorMetric value="42" unit="次" />
             <HazardTrendBars bars={DEMO_BARS} levelColors={DEMO_LEVELS} heightTier="std" caption="近 14 天 · 次數（柱）" footer="共 42 次" unit=" 次" />
+          </MonitorCardFrame>
+        </div>
+        <div style={{ width: 300, display: "flex" }}>
+          <MonitorCardFrame title="共機架次" en="PLA aircraft" widgetId="demo-part">
+            <MonitorMetric value="15" unit="架次" />
+            <HazardTrendBars
+              bars={DEMO_PLA_BARS} levelColors={DEMO_LEVELS} heightTier="std"
+              caption="近 14 天 · 架次（柱）／越中線（底段）" unit=" 架次"
+              partColor={COLORS.statusErr} partLabel="越中線"
+            />
+          </MonitorCardFrame>
+        </div>
+        <div style={{ width: 300, display: "flex" }}>
+          <MonitorCardFrame title="正常範圍色帶" en="Normal band" widgetId="demo-band">
+            <TimeseriesSparkline
+              data={line} heightTier="std" gapSec={1.5 * DAY_S} tooltipDateFormat="date" showTooltip
+              band={{ lo: 10, hi: 18, label: "近 7 天 p10–p90" }}
+            />
+          </MonitorCardFrame>
+        </div>
+        <div style={{ width: 300, display: "flex" }}>
+          <MonitorCardFrame title="小倍數列" en="Small multiples" widgetId="demo-rows">
+            <MonitorRows rows={[
+              { label: "急診", chart: <TimeseriesSparkline data={demoLine2(120, 0)} heightTier="mini" bare fillArea={false} />, value: "132", unit: "人" },
+              { label: "供電", chart: <TimeseriesSparkline data={demoLine2(38000, 1)} heightTier="mini" bare band={{ lo: 33000, hi: 43000 }} />, value: "41,230", unit: "MW" },
+              { label: "共機", chart: <HazardTrendBars bars={DEMO_PLA_BARS} levelColors={DEMO_LEVELS} heightTier="mini" bare partColor={COLORS.statusErr} partLabel="越中線" unit=" 架次" />, value: "15", unit: "架次" },
+            ]} />
           </MonitorCardFrame>
         </div>
         <div style={{ width: 620, display: "flex" }}>
@@ -110,6 +154,9 @@ export function MonitorSection() {
         ["圖高（圖區 px）", MON_CHART_H],
         ["折線缺值", "gapSec 斷線＋缺段斜線帶；最後一個有值點畫實心點"],
         ["柱缺值", "null 灰樁、0 底線"],
+        ["小倍數列", "MonitorRows：名稱｜圖（1fr，同寬）｜最新值；列間 1px --border-soft；圖用 bare＋heightTier mini"],
+        ["正常範圍", "TimeseriesSparkline band { lo, hi, label }：淡色水平帶，值域納入 lo／hi"],
+        ["柱子量", "HazardBar.part＋partColor／partLabel：底部子段高＝part／max，part > value 截到 value"],
         ["外框", "1px --border-panel、--radius-lg、padding 10px 12px、overflow hidden"],
         ["字級 S13（px）", MON_FONT_PX],
         ["標題", "--mon-f-title 700 中文＋--mon-f-cap --text-dim 英文"],

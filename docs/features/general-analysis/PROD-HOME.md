@@ -14,6 +14,15 @@ mini-taiwan-pulse/.worktrees/analysis-prod/
 - 相容連結（勿刪，舊設定與 UI worktree 仍可能用到）：`.worktrees/runtime` → `analysis-prod/runtime`、`.worktrees/research-streamline/runtime` → `../analysis-prod/runtime`。
 - `research-streamline/mini` 不是正式環境，但**不能刪**：多個 UI worktree 的 `node_modules` 連結到它。
 
+## Skill 與本機免授權（2026-10-03 起）
+
+- **Skill 唯一來源**：`analysis-prod/mcp/plugins/pulse-analyst/skills/{pulse-conductor,pulse-layers,pulse-overlay,pulse-insight}`。Claude：`~/.claude-migu/skills/<name>` symlink 指向這裡；Codex：`~/.codex/config.toml` 的 `[[skills.config]] path` 指向各 SKILL.md。mcp 更新後 skill 自動跟著更新（不用再改連結）。
+- **本機免授權**（只在 127.0.0.1＋vite dev）：三處都要開——
+  1. gateway：`runtime/start-v03-gateway.mjs` 的 env 加 `PULSE_RESEARCH_DEV_AUTOPAIR: '1'`（旗標開啟時若 host／origin 不是 loopback 會拒絕啟動）；
+  2. MCP：Claude `.claude.json` 與 Codex `config.toml` 的 pulse-research env 加 `PULSE_RESEARCH_DEV_AUTOPAIR=1`；
+  3. 前端：`analysis-prod/mini/.env.local` 寫 `VITE_RESEARCH_DEV_AUTOPAIR=1`（vite 讀的是 `analysis-prod/mini` 這層；`.env` 是指向主 repo 的 symlink，`.env.local` 則是獨立檔，已 gitignore）。
+- 工具組：MCP 預設 `PULSE_TOOLSET=core`（22 個）；要舊的全部工具設 `PULSE_TOOLSET=full`。
+
 ## 更新（任何一個 repo 合併後）
 
 ```bash
