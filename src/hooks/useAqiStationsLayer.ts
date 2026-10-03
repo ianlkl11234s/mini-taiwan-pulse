@@ -15,10 +15,11 @@ import type { Map as MapboxMap, CircleLayer, GeoJSONSource } from "mapbox-gl";
 import { fetchAqiStationsAt, buildStationsGeoJSON } from "../data/aqiStationsLoader";
 import { buildAqiStepExpression } from "../map/aqiColorScale";
 import { timeStore } from "../state/timeStore";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { keepLoadingUntilMapIdle, loadingRegistry } from "../lib/loadingRegistry";
 import type { AqiStation } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { isStyleReady } from "../research/sceneReadiness";
 import { registerLayerDataProvider, summarizeAqiStations } from "../research/layerDataSummary";
 
 const SOURCE_ID = "aqi-stations-src";
@@ -117,7 +118,7 @@ export function useAqiStationsLayer(
     const refresh = (currentTimeSec: number) => {
       const m = mapRef.current;
       if (!m) return;
-      if (!m.isStyleLoaded()) return;
+      if (!isStyleReady(m)) return;
       ensureLayers(m, isDarkRef.current);
 
       // 粒度對齊到小時（避免每分鐘 refetch）
@@ -127,6 +128,8 @@ export function useAqiStationsLayer(
       if (key === fetchingKeyRef.current) return;
 
       fetchingKeyRef.current = key;
+      const fetchTask = "aqi-stations-fetch";
+      loadingRegistry.start(fetchTask, "空品測站 載入中");
       const targetDate = new Date(hourMs + 3600000); // 查該小時結束時刻
       fetchAqiStationsAt(targetDate)
         .then((list) => {
@@ -144,6 +147,7 @@ export function useAqiStationsLayer(
           console.warn(`[AQI Stations] fetch failed:`, err);
         })
         .finally(() => {
+          loadingRegistry.end(fetchTask);
           if (fetchingKeyRef.current === key) fetchingKeyRef.current = "";
         });
     };
@@ -163,14 +167,23 @@ export function useAqiStationsLayer(
     map.on("style.load", onStyleLoad);
 
     let unsub: (() => void) | null = null;
-    if (!map.isStyleLoaded()) {
-      const onLoad = () => {
+    if (!isStyleReady(map)) {
+      // map.once("load") never re-fires once the map has loaded; with heavy layers open isStyleLoaded()
+      // stays false for ~10 s, so poll the style-parsed check instead and show it in the loading list.
+      const waitTask = "aqi-stations-wait";
+      loadingRegistry.start(waitTask, "空品測站 等待地圖");
+      let waitTimer: ReturnType<typeof setTimeout> | null = null;
+      const poll = () => {
+        waitTimer = null;
+        if (cancelled) return;
+        if (!isStyleReady(map)) { waitTimer = setTimeout(poll, 100); return; }
+        loadingRegistry.end(waitTask);
         unsub = startSubscription();
       };
-      map.once("load", onLoad);
+      waitTimer = setTimeout(poll, 100);
       return () => {
         cancelled = true;
-        map.off("load", onLoad);
+        if (waitTimer) { clearTimeout(waitTimer); loadingRegistry.end(waitTask); }
         map.off("style.load", onStyleLoad);
         if (unsub) unsub();
       };
