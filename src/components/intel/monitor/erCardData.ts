@@ -31,6 +31,8 @@ export interface ErHospitalCell {
   areaName: string;
   /** 當前等一般病床數（latest RPC） */
   wait: number | null;
+  /** 該院最新觀測時間（unix 秒）；單院停更時用來判斷該格是否過期 */
+  observedTs: number | null;
   /** 24h wait_general_cnt 折線（已去除 null 點） */
   spark: number[];
 }
@@ -62,6 +64,7 @@ export function buildErRegionGroups(
       name: h.hosp_name,
       areaName: h.area_name,
       wait: h.wait_general_cnt,
+      observedTs: h.observed_ts ?? null,
       spark: sparkById.get(h.hosp_id) ?? [],
     };
     const bucket = byRegion.get(region);

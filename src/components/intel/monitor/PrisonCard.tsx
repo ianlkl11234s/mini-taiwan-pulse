@@ -5,7 +5,7 @@ import { SectionLabel } from "./PressureRing";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { MonitorKpis, MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
 import type { PrisonDay } from "../../../data/prisonLoader";
@@ -15,9 +15,6 @@ export type { PrisonDay } from "../../../data/prisonLoader";
 const WINDOWS = [90, 365] as const;
 type WindowDays = (typeof WINDOWS)[number];
 const WINDOW_LABEL: Record<WindowDays, string> = { 90: "90D", 365: "1Y" };
-
-/** 幾天沒更新開始標警示。上游是每日檔，連假也不該斷到一週 */
-const STALE_WARN_DAYS = 7;
 
 interface Props {
   /** 最新一筆（= rows[0]，RPC 已按日期新到舊排序） */
@@ -46,20 +43,22 @@ export function PrisonCard({ latest, series = [] }: Props) {
   const overPct = latest?.over_capacity_pct ?? null;
   const isOver = overPct != null && Number(overPct) > 0;
 
-  /** 資料落後天數（以最新 observed_date 對今天算，不是 collected_at —— 見 series 註解） */
-  const staleDays = useMemo(() => {
+  /** 資料日期（台灣 00:00）；只有日期、沒有時間 */
+  const dataMs = useMemo(() => {
     if (!latest?.observed_date) return null;
     const t = Date.parse(`${latest.observed_date}T00:00:00+08:00`);
-    if (Number.isNaN(t)) return null;
-    return Math.floor((Date.now() - t) / 86_400_000);
+    return Number.isNaN(t) ? null : t;
   }, [latest?.observed_date]);
-  const isStale = staleDays != null && staleDays > STALE_WARN_DAYS;
 
-  // v2：資料日期（MM/DD）與停更狀態送標題列
-  useMonitorCardHeader({
+  // v2：資料日期（MM/DD）與新鮮度（週期登記在 monitorCardMeta：日批次，>7 天＝停更）送標題列
+  const fresh = useMonitorFreshness("prison", {
     timeText: latest?.observed_date ? latest.observed_date.slice(5).replace("-", "/") : null,
-    state: isStale ? { kind: "stopped", label: `停更 ${staleDays} 天` } : null,
+    dataMs,
+    reason: dataMs != null ? "上游未更新：法務部矯正署資料停在最後一筆，之後沒有新資料" : undefined,
   });
+  // 舊版畫面沿用原判斷（>7 天＝停更）：燈號／說明文字只在舊版使用
+  const isStale = fresh.state === "stopped";
+  const staleDays = dataMs == null ? null : Math.floor((Date.now() - dataMs) / 86_400_000);
 
   // 停更時燈號一律轉灰：紅／綠是在講「今天超不超收」，資料三個月沒動還亮綠燈就是說謊
   const dotColor = isStale ? COLORS.textDim : isOver ? "#ef4444" : "#10b981";
@@ -99,7 +98,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
       <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
         {latest ? (
           <>
-            <MonitorMetric value={fmt(total)} unit="人" muted={isStale} />
+            <MonitorMetric value={fmt(total)} unit="人" muted={fresh.muted} />
             <MonitorKpis items={[
               { label: "核定容額", value: fmt(cap) },
               { label: "超收率", value: overPct == null ? "—" : `${Number(overPct).toFixed(2)}%` },
@@ -142,14 +141,17 @@ export function PrisonCard({ latest, series = [] }: Props) {
               tooltipDateFormat="date"
               seriesLabel="在監人數"
               compactYAxis
+              staleUntil={fresh.staleUntil}
             />
           </>
         ) : (
           <MonitorNote>{emptyHint}</MonitorNote>
         )}
-        <MonitorNote tone={isStale ? "warn" : "neutral"}>
-          {isStale ? "法務部矯正署上游已停止更新" : "來源：法務部矯正署每日資料"}
-        </MonitorNote>
+        {fresh.reason ? (
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+        ) : (
+          <MonitorNote>來源：法務部矯正署每日資料</MonitorNote>
+        )}
       </div>
     );
   }

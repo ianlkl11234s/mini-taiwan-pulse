@@ -718,7 +718,7 @@
 
 2026-10-01 拍板（比較頁 `docs/features/monitor-restyle/picks.html`，代號 A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；實作分階段見 `docs/features/monitor-restyle/README.md`「實作順序」。盤點與證據同目錄（2026-09-30）。
 
-**實作狀態**：P1 完成（卡片殼、標題列、面板標頭中文化、窄格不溢出、新舊版切換）；P2a 完成（監看字級 S13）；P2b 完成（共用數值列與走勢，上半部、災害四卡、食品、加權指數、公衛、在監）；P3 完成（8 張多指標卡）；P4–P6 未開始。活的元件頁 §13。
+**實作狀態**：P1 完成（卡片殼、標題列、面板標頭中文化、窄格不溢出、新舊版切換）；P2a 完成（監看字級 S13）；P2b 完成（共用數值列與走勢，上半部、災害四卡、食品、加權指數、公衛、在監）；P3 完成（8 張多指標卡）；P4 完成（來源新鮮度、缺值修正，見下「新鮮度實作」）；P5–P6 未開始。活的元件頁 §13。
 
 - **監看字級 S13**（2026-10-01 使用者在 `docs/features/monitor-restyle/fonts.html` 選定；只用在新版監看模式）：最小 13px。新版取消內容整體放大 1.15（舊版保留）。
 
@@ -788,6 +788,13 @@
 | 收盤／休市 | 來源依時段正常暫停 | 中性 pill，不降灰 |
 | 讀取中／更新中斷／無權限 | 傳輸狀態（現有 `MonitorDataStatus`） | 維持現行 |
 
+- **新鮮度實作（P4）**：週期登記在 `monitorCardMeta.ts` 的 `fresh`，判斷在 `monitorFreshness.ts`（`judgeFreshness` 純函式＋`useMonitorFreshness(widgetId, { time, timeText, dataMs, paused, retired, reason })`，取代卡片直接呼叫 `useMonitorCardHeader`）。週期類型：
+  - `stream`（每 N 分）：> 2 週期延遲、> 6 週期過期、> 7 天停更。新聞四格 30、警訊 15、輻射 15、網路觀察 5、供電 10、急診 15、機場 60、戰情概覽 60。
+  - `days`（日／週批次，以台灣日期差）：> `staleDays`（預設 2）過期、> `stoppedDays`（預設 7）停更。食品、台鐵 3 天（T+1＋週末）；公衛週報 14／35 天；在監、共機、ISR 預設。
+  - `market`：加權指數盤中 1 分；收盤傳 `paused` 只出中性 pill，資料超過 4 天仍轉過期（避免收集器死在收盤後永遠掛「收盤」）。
+  - `event`：地震、落雷、颱風、特殊船舶——最新事件時間不代表來源活著（沒船、沒落雷的日子本來就沒有列），不判過期。
+  - 不登記：新聞直播、災防觀測（沒有資料本身的時間）。
+  - 走勢尾段：折線 `TimeseriesSparkline staleUntil`；計數柱由 loader 把日序列補到今天、最後一筆之後補 null（灰樁），只在過期／停更時才補，平常不補（日彙整本來就落後一天）。
 - **禁止**：寫死圖寬 px；缺值補 0 或合成值當資料；未就緒時用預設值決定顏色（改版前戰情概覽用 50）；印內部欄位名（`latest_valid_day`、`border_airport_snapshot`）；個別卡片額外 `zoom`；英文大寫標題；各卡自畫外框。
 - **實作**（改版前位置）：`src/components/intel/monitor/`（`MonitorPanel.tsx`、`monitorSplitLayout.ts`、各卡元件）、`PressureRing.tsx`（`Widget`／`SectionLabel`／`Sparkline`）、`HazardCards.tsx`（`HazardShell`）、`HazardTrendBars.tsx`、`MonitorDataStatus.tsx`。
 
@@ -975,7 +982,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 開站畫面（§5.33） | ✅ 符合 | #395 |
 | 左側停靠面板（底色／上緣，§5.1） | ✅ 符合 | #395；Agent 面板 CSS 以字面值對齊 `LAYOUT.leftDockTop` |
 | 分析卡片頁（§5.34） | ⚠️ 部分 | 只有暗色；視覺值未逐項稽核 |
-| 地圖圖層數值（點／線／面／圖例） | ⚠️ 部分 | R1（統計細縫、缺值／遮蔽斜線、地圖中文字型、圖例標題）與 R2（點：registry 192＋hook 122 層）完成；R3 線面文字、R4 圖例色、R5 熱區＋密度透明度、R6 Three.js 未做。盤點 `docs/design-system/layer-style-inventory.json`；拍板結果 [`map-layers.md`](./map-layers.md) §7 |
+| 地圖圖層數值（點／線／面／圖例） | ⚠️ 部分 | R1（統計細縫、缺值／遮蔽斜線、地圖中文字型、圖例標題）與 R2（點：registry 192＋hook 122 層）完成；R3 線面文字、R4 圖例色、R5 熱區＋密度透明度、R6 Three.js 未做（R5 已於 2026-10-03 套用，見 map-layers §3.1 P-3／P-4、§3.4 G-2）。盤點 `docs/design-system/layer-style-inventory.json`；拍板結果 [`map-layers.md`](./map-layers.md) §7 |
 | 左下時間軸（TC3） | ✅ 符合 | 即時／歷史共用 `TimelineShell`＋`TimeAxis`；刻度標籤 9.5px、時間 15px 依設計稿，不在 7 階字級上 |
 
 ### 10.3 未處理（已知，誠實列出）
@@ -993,7 +1000,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 圖例暗色底與框 | `DARK_LEGEND.bgSubtle`／`border` 是 inline rgba，不是 token | `legend/legendKit.tsx` |
 | Layers rail palette | `BORDER`、`BANNER_BG`、`SEARCH_BG`、`TOGGLE_*`、`ROW_*` 等仍 inline hex（暗淡兩套） | `IconRailSidebar.tsx` `DARK_PALETTE`／`LIGHT_PALETTE` |
 | `LAYOUT` 無 CSS 變數 | Agent 面板寫死 `top: 60px; left: 64px`，與 `LAYOUT.leftDockTop` 需人工同步 | `research/mainMapConnection.css` |
-| 地圖常數未接線 | `mapStyleScale.ts` 的 `LINE_WIDTH`／`lineWidthExpr`、`LINE_DASH`、`LINE_OPACITY`、`FILL_OPACITY`、`HEATMAP`、`LABEL`、`POINT_OPACITY` 已定義，還沒有圖層引用（R3／R5） | `src/map/mapStyleScale.ts` |
+| 地圖常數未接線 | `mapStyleScale.ts` 的 `LINE_WIDTH`／`lineWidthExpr`、`LINE_DASH`、`LINE_OPACITY`、`FILL_OPACITY`、`LABEL` 已定義，還沒有圖層引用（R3）；`HEATMAP`、`POINT_OPACITY` 已由 R5 接線 | `src/map/mapStyleScale.ts` |
 | embed／卡片地圖字型 | embed 與分析卡片頁（皆 MapLibre）未設 `localIdeographFontFamily`，是否需要未驗證 | `src/embed/EmbedApp.tsx`、`src/card/CardMap.tsx` |
 | 分析卡片頁只有暗色 | `CARD_THEME = "dark"`，沒有淡色版（§5.34） | `src/card/cardStyle.ts` |
 | 捷運顯示模式標籤 | 「Mapbox 點位」含英文品牌名，與 §6.1 中文優先不一致，待決 | `src/data/transportHubTypes.ts` |

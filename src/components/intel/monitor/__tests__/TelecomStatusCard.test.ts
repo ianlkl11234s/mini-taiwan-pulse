@@ -9,6 +9,7 @@ import {
   RipeTimelineView,
   TelecomStatusCardView,
   completeMaskFrom,
+  isCompleteProbeCount,
   hourlyCompleteSeries,
   toSparkline,
   type AtlasDaySummaries,
@@ -415,5 +416,41 @@ describe("TelecomStatusCardView v2 (N-A)", () => {
     }));
     expect(html).toContain("—／—");
     expect(html).not.toContain("50.0");
+  });
+});
+
+describe("isCompleteProbeCount expected probes", () => {
+  it("uses the bucket's own expected probe count when given, else the hard-coded roster value", () => {
+    // 寫死值 IPv4 79：80% = 63.2；IPv6 39：80% = 31.2
+    expect(isCompleteProbeCount(4, 63)).toBe(false);
+    expect(isCompleteProbeCount(4, 64)).toBe(true);
+    // 該桶預期 100 支：80 才算完整
+    expect(isCompleteProbeCount(4, 79, 100)).toBe(false);
+    expect(isCompleteProbeCount(4, 80, 100)).toBe(true);
+    // 預期值缺／非法 → 退回寫死值
+    expect(isCompleteProbeCount(6, 32, null)).toBe(true);
+    expect(isCompleteProbeCount(6, 31, 0)).toBe(false);
+    expect(isCompleteProbeCount(4, null, 100)).toBe(false);
+  });
+
+  it("completeMaskFrom reads expectedProbeCount from each point", () => {
+    const T0 = 1_788_000_000;
+    const mk = (sampleCount: number, expectedProbeCount?: number) => ({
+      at: T0, value: 0.9, state: "ready" as const, sampleCount,
+      ...(expectedProbeCount ? { expectedProbeCount } : {}),
+    });
+    const series = (points: ReturnType<typeof mk>[], family: 4 | 6) => ({
+      addressFamily: family, signal: `ping_success_ratio_ipv${family}` as const,
+      points, coverage: 1, readyBuckets: points.length, totalBuckets: points.length,
+    });
+    const summary = {
+      range: "24h", source: "ripe_atlas", metric: "ping_success_ratio", unit: "ratio",
+      from: T0 - 300, to: T0 + 300, bucketSeconds: 300,
+      ipv4: series([mk(70, 100)], 4), ipv6: series([mk(70)], 6),
+      coverage: 1, latestAt: T0, truncated: false, partial: false, empty: false,
+    } as unknown as InternetHealthTimelineSummary;
+    const mask = completeMaskFrom(summary)!;
+    expect(mask[4].has(T0)).toBe(false); // 70 < 80%×100
+    expect(mask[6].has(T0)).toBe(true); // 70 ≥ 80%×39（退回寫死值）
   });
 });

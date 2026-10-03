@@ -31,7 +31,7 @@ export const EarthquakesGlobalHost: LayerHostComponent = ({ deps }) => {
   useEarthquakesGlobalLayer(
     deps.mapRef,
     deps.layerVisibility.earthquakesGlobal,
-    p.earthquakesGlobalOpacity ?? 0.9,
+    p.earthquakesGlobalOpacity ?? 0.8,
     paramNum(values, "earthquakesGlobal", "earthquakesGlobalDays"),
   );
   return null;
@@ -58,7 +58,7 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
   useWorldTrashDebrisLayer(
     deps.mapRef,
     deps.layerVisibility.worldTrashDebris,
-    p.worldTrashDebrisOpacity ?? 0.85,
+    p.worldTrashDebrisOpacity ?? 0.75,
     deps.isDarkTheme,
   );
   return null;

@@ -52,6 +52,10 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| AG-1 | P1 | ready | 圖層組能講出畫面上看得到的現象，而不只是「已打開」。 | core 工具組沒有圖層統計或摘要；評估新增唯讀的圖層摘要工具，或讓 map_context 帶回可見範圍的統計。 | L01–L04 回答第二句是具體現象，分層題庫維持 ≥12/13。[Agent STATUS](../../docs/features/general-analysis/STATUS.md) |
+| AG-2 | P2 | conditional | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | **等下次倉庫重建**（analytics #134 已修上游標題，build_warehouse 已加修形狀）。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
+| AG-3 | P3 | decision | 地震漣漪暫停時的行為：新版暫停 3 秒收起，舊版會無限循環。 | 等使用者決定要不要循環。 | 決定後依需求調整 `useEarthquakesGlobalLayer`，並附單元測試。 |
+| AG-4 | P3 | decision | A10 綜合生活品質題的判分方式。 | 綜合指標的權重與方向沒有標準答案；需決定題庫要收哪些口徑，或改成只檢查方法正確。 | 題庫寫明可接受口徑，並以唯讀查詢驗證各口徑數字。 |
 | AR-11e | P1 | blocked | Retire the CWA imagery DB fallback and legacy RPCs only after R2 CORS is production-safe. | R2 custom-domain CORS is still blocking browser reads; keep the owner-approved 14-day DB copy and collector dual-write, then follow `IMG-cwa-r2-cors`. | Production browser reads manifest/CDN imagery without CORS errors, frontend makes zero legacy RPC calls, and the RPC retirement ships as an independently verified DB release. [Imagery backlog](../../docs/features/imagery/backlog.md) |
 | AR-12/13 | P1 | ready | Move C-class shared realtime snapshots from per-user DB reads to CDN delivery. | Define snapshot writer, manifest and CDN read contract. | Target consumers read immutable/current CDN snapshots with no regression. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
 | AR-14/15 | P1 | ready | Turn saved ship/bus trails into CDN-consumable products. | Historical flight trails (AR-16) shipped as an immutable static product; now design equivalent processed bundles for ship/bus instead of browser reads of raw `trails/`. | Ship and bus browsers read processed CDN products with correct day selection and controlled egress. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
@@ -162,6 +166,15 @@
 |---|---|---|---|---|---|
 | PF-3 | P3 | conditional | Optional RDP simplification of bus route geometry (~3 m). | Deferred by owner 2026-09-30. Measured on the `cumDist`-free intercity file: gzip 14.5 → 3.0 MB at ~3 m. Must recompute progress/`totalDist` and re-validate replay; regenerate `*_v2` (or `_v3`) names for the 4 S3 files. | Owner decides to proceed. |
 | PF-5 | P3 | conditional | Cap Mapbox render resolution on Retina. | mapbox-gl 3.18 has no `pixelRatio` option; only a global `window.devicePixelRatio` override works, which also softens Three.js and other canvases. | Owner decision recorded. |
+
+## Map design-system follow-ups (2026-10-03)
+
+> Found while shipping R5 dense-point heatmaps (#498); both pre-date R5 and were left unchanged. Write-up: [`docs/design-system/CHANGELOG.md`](../../docs/design-system/CHANGELOG.md) 2026-10-03.
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| R5-1 | P2 | ready | 微型感測器（`aqiMicroSensors`）圖層偶爾永遠不出現。 | `src/hooks/useMicroSensorsLayer.ts:157`：style 未載完時改 `map.once("load")`，但 `load` 可能早已觸發，callback 永不執行。改等 `style.load`／`idle` 或先判斷 `map.loaded()`。 | 冷開站、換底圖途中打開該層各 10 次皆出現；補 hook 測試。 |
+| R5-2 | P2 | ready | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | 找出初次加圖層時沒帶入參數預設 filter 的路徑（registry filter 初值 vs 參數變更才 setFilter）。 | 打開即只顯示預設年份；點數與改參數後一致；補測試。 |
 
 ## Weekly audit findings
 

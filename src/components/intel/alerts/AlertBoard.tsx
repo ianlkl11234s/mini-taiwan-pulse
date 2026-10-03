@@ -9,6 +9,7 @@ import {
   fetchActiveAlerts,
   type AlertTally,
   type ActiveAlert,
+  type AlertSeriesMap,
 } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
@@ -27,7 +28,7 @@ interface Props {
   tally: AlertTally;
   status: IntelQueryStatus;
   lastSuccessAt: number | null;
-  series: Record<AlertGroupShort, number[]>;
+  series: AlertSeriesMap;
   accent: string;
   nowTs: number;
 }
@@ -35,7 +36,9 @@ interface Props {
 // ─── AlertTrend — 24h 全 group 加總 area-line ──────────────────
 function AlertTrend({
   series, accent,
-}: { series: Record<AlertGroupShort, number[]>; accent: string }) {
+}: { series: AlertSeriesMap; accent: string }) {
+  // 失敗＝全 null：不畫面積線、高峰顯示「—」（不是 24 格 0）
+  const noData = ALERT_GROUP_ORDER.every((g) => series[g].every((v) => v == null));
   const totals = Array.from({ length: 24 }, (_, h) =>
     ALERT_GROUP_ORDER.reduce((sum, g) => sum + (series[g][h] ?? 0), 0),
   );
@@ -62,7 +65,8 @@ function AlertTrend({
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: [{ dot: accent, value: fmtChartValue(totals[h]!, "則") }],
+      rows: noData ? [] : [{ dot: accent, value: fmtChartValue(totals[h]!, "則") }],
+      ...(noData ? { note: "無資料" } : null),
     });
   }
 
@@ -96,7 +100,7 @@ function AlertTrend({
             color: COLORS.textMuted,
           }}
         >
-          {v2 ? "高峰" : "Peak"} {peak}
+          {v2 ? "高峰" : "Peak"} {noData ? "—" : peak}
         </span>
       </div>
       <svg
@@ -108,14 +112,16 @@ function AlertTrend({
         onMouseMove={handleMove}
         onMouseLeave={tip.hide}
       >
-        <polygon points={area} fill={`${accent}33`} />
-        <polyline
-          points={points}
-          fill="none"
-          stroke={accent}
-          strokeWidth={0.8}
-          vectorEffect="non-scaling-stroke"
-        />
+        {!noData && <polygon points={area} fill={`${accent}33`} />}
+        {!noData && (
+          <polyline
+            points={points}
+            fill="none"
+            stroke={accent}
+            strokeWidth={0.8}
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
       </svg>
       {tip.node}
     </div>
@@ -123,7 +129,9 @@ function AlertTrend({
 }
 
 // ─── Sparkline (per-group) ──────────────────
-function Sparkline({ data, color }: { data: number[]; color: string }) {
+function Sparkline({ data: raw, color }: { data: (number | null)[]; color: string }) {
+  const noData = raw.every((v) => v == null);
+  const data = raw.map((v) => v ?? 0);
   const peak = Math.max(1, ...data);
   const W = 100;
   const H = 16;
@@ -143,7 +151,8 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: [{ dot: color, value: fmtChartValue(data[h] ?? 0, "則") }],
+      rows: noData ? [] : [{ dot: color, value: fmtChartValue(data[h] ?? 0, "則") }],
+      ...(noData ? { note: "無資料" } : null),
     });
   }
 
@@ -158,13 +167,15 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
         onMouseMove={handleMove}
         onMouseLeave={tip.hide}
       >
-        <polyline
-          points={pts}
-          fill="none"
-          stroke={color}
-          strokeWidth={0.8}
-          vectorEffect="non-scaling-stroke"
-        />
+        {!noData && (
+          <polyline
+            points={pts}
+            fill="none"
+            stroke={color}
+            strokeWidth={0.8}
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
       </svg>
       {tip.node}
     </>
@@ -179,7 +190,7 @@ function GroupCard({
   count: number;
   severe: number;
   topTerm: string | null;
-  spark: number[];
+  spark: (number | null)[];
   hot: boolean;
   onClick: () => void;
 }) {

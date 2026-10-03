@@ -23,7 +23,7 @@ export const AnimalWelfarePointsHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("animalWelfarePoints");
   useAnimalWelfarePointsLayer(
     deps.mapRef, deps.layerVisibility.animalWelfarePoints,
-    p.animalWelfarePointsOpacity ?? 0.85, p.animalWelfarePointsScale ?? 1, deps.isDarkTheme,
+    p.animalWelfarePointsOpacity ?? 0.8, p.animalWelfarePointsScale ?? 1, deps.isDarkTheme,
     p.animalWelfarePointsTypeMask,
   );
   return null;

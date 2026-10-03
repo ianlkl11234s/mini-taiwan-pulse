@@ -72,26 +72,23 @@ describe("R3b G4 / T3 / F4 style contract", () => {
     }
   });
 
-  it("三個動態 count badge 保留 overlap；GFW 仍以 vessel_count step 決定字級", () => {
+  it("動態 count badge 保留 overlap；GFW 仍以 vessel_count step 決定字級", () => {
     const global = readFileSync(new URL("../../hooks/useGlobalEventsLayer.ts", import.meta.url), "utf8");
-    const micro = readFileSync(new URL("../../hooks/useMicroSensorsLayer.ts", import.meta.url), "utf8");
     const gfw = readFileSync(new URL("../../hooks/useGfwHourlyGridLayer.ts", import.meta.url), "utf8");
     expect(global).toContain("...badgeLabelLayout()");
     expect(global).toContain("...labelHaloPaint(isDarkTheme)");
-    for (const source of [micro, gfw]) {
-      expect(source).toContain('"text-allow-overlap": true');
-      expect(source).toContain('"text-ignore-placement": true');
-    }
-    expect(micro).toContain("...labelHaloPaint(isDark)");
+    expect(gfw).toContain('"text-allow-overlap": true');
+    expect(gfw).toContain('"text-ignore-placement": true');
     expect(gfw).toContain('"text-halo-width": LABEL.haloWidth');
     expect(gfw).toContain('["step", ["get", "vessel_count"], 10, 10, 11, 50, 12]');
   });
 
-  it("MicroSensors 主題切換只走 paint，不重建 cluster source 或 GeoJSON", () => {
+  it("MicroSensors 不聚合；主題切換只走 paint，不重建 source 或 GeoJSON", () => {
     const micro = readFileSync(new URL("../../hooks/useMicroSensorsLayer.ts", import.meta.url), "utf8");
     expect(micro).toContain("const themeRef = useRef(isDark)");
-    expect(micro).toContain("ensureLayers(m, themeRef.current, cluster");
-    expect(micro).not.toContain("[mapRef, visible, isDark, cluster, mapTick]");
-    expect(micro).toContain('map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-halo-color"');
+    expect(micro).toContain("ensureLayers(m, themeRef.current, modeIdxRef.current");
+    expect(micro).not.toContain("cluster:");
+    expect(micro).not.toContain("point_count");
+    expect(micro).toContain('pointRadius("M", sizeScale)');
   });
 });

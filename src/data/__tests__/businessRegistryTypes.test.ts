@@ -11,6 +11,7 @@ import {
 } from "../businessRegistryTypes";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { isOverlayVisible } from "../../map/overlayManager";
+import { densePointsFromZoom, heatmapMaxzoom } from "../../map/mapStyleScale";
 import { LAYER_MANIFEST } from "../layerManifest";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import type { LayerVisibility } from "../../types";
@@ -121,8 +122,11 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     const a1 = OVERLAY_REGISTRY.find((c) => c.id === "factoryLocations" && c.pmtiles?.sourceLayer === "factory_locations")!;
     const a5 = OVERLAY_REGISTRY.find((c) => c.id === "regulatedFacilities")!;
     const a2 = OVERLAY_REGISTRY.find((c) => c.id === "industrialParkBoundaries")!;
-    expect(a1.layers[0]?.minzoom).toBe(0);
-    expect(a5.layers[0]?.minzoom).toBe(0);
+    // R5：全尺度皆有圖面——出點縮放以下由同 source 的熱區接手（熱區不設 minzoom）
+    expect(a1.layers[0]?.type).toBe("heatmap");
+    expect(a1.layers[0]?.minzoom).toBeUndefined();
+    expect(a5.layers[0]?.type).toBe("heatmap");
+    expect(a5.layers[0]?.minzoom).toBeUndefined();
     expect(a2.sourceUrl).toBe("./industrial_zone/industrial_park_boundaries_20260818.pmtiles");
     expect(LAYER_MANIFEST.industrialParkBoundaries.description).toContain("不含科學園區");
     expect(LAYER_MANIFEST.regulatedFacilities.label).toBe("列管設施 Regulated Facilities");
@@ -150,14 +154,23 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
 });
 
 describe("工廠／製造業／列管設施原點與密度分離", () => {
-  it.each(["factoryLocations", "manufacturingCompanyPoints", "regulatedFacilities"] as const)("%s 全台尺度沒有 cluster 概覽或 zoom 隱藏", (key) => {
+  it.each([
+    ["factoryLocations", 90_652],
+    ["manufacturingCompanyPoints", 184_944],
+    ["regulatedFacilities", 80_732],
+  ] as const)("%s 全台尺度沒有 cluster 概覽；拉遠由同 source 熱區接手（R5）", (key, count) => {
     const configs = OVERLAY_REGISTRY.filter((item) => item.id === key);
     expect(configs).toHaveLength(1);
     expect(configs[0]!.sourceUrl).toMatch(/_allzoom_b8\.pmtiles$/);
     expect(configs[0]!.pmtiles?.minzoom).toBe(0);
-    expect(configs[0]!.layers).toHaveLength(1);
-    expect(configs[0]!.layers[0]!.minzoom).toBe(0);
-    expect(configs[0]!.layers[0]!.maxzoom).toBeUndefined();
+    const [heat, point] = configs[0]!.layers;
+    expect(configs[0]!.layers).toHaveLength(2);
+    expect(heat!.type).toBe("heatmap");
+    expect(heat!.minzoom).toBeUndefined();
+    expect(heat!.maxzoom).toBe(heatmapMaxzoom(densePointsFromZoom(count)));
+    expect(point!.type).toBe("circle");
+    expect(point!.minzoom).toBe(densePointsFromZoom(count));
+    expect(point!.maxzoom).toBeUndefined();
     expect(JSON.stringify(configs)).not.toContain("overview");
   });
 

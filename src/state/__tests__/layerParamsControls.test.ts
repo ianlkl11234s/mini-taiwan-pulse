@@ -84,7 +84,7 @@ describe("buildParamControls", () => {
   // ── Phase I：標籤與數值拆欄（name / valueText），label 維持整串給 research 端 ──
   it("slider name／valueText：前綴結尾運算符號移到數值欄，字母／中文單位前補空白", () => {
     const opacity = (buildParamControls("religionTemples") ?? [])[2] as SliderConfig;
-    expect(opacity).toMatchObject({ name: "透明度", valueText: "0.80" });
+    expect(opacity).toMatchObject({ name: "透明度", valueText: "0.75" });
 
     const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
     expect(z).toMatchObject({ name: "漂浮高度", valueText: "0 px" });
@@ -100,7 +100,7 @@ describe("buildParamControls", () => {
 
   it("slider onChange 寫回 store，label 隨新值重算（toFixed 位數不變）", () => {
     const before = (buildParamControls("religionTemples") ?? [])[2] as SliderConfig;
-    expect(before.label).toBe("透明度 0.80");
+    expect(before.label).toBe("透明度 0.75");
     before.onChange(0.5);
     expect(layerParamsStore.getParam("religionTemples", "religionTemplesOpacity")).toBe(0.5);
 

@@ -4,10 +4,106 @@ import { THEMED_PAINT_COLORS } from "./layerPaintColors";
 import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "./layerPaintColors";
 import { FOSSIL_PAINT_COLORS } from "./layerPaintColors";
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
-import type { OverlayConfig } from "../types";
+import type { OverlayConfig, OverlayLayerSpec } from "../types";
+import { paramDefault } from "../data/layerParamsSpec";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
+
+/** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
+const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
+
+/**
+ * R5（P-4）密集點的出點縮放：第一參數＝全資料集點數（2026-10-02 量測），第二參數＝原本點的 minzoom
+ * （較高者保留，不讓點比原本更早出現）。熱區畫在這個縮放以下。
+ */
+const DENSE_FROM = {
+  pollutionPenaltyGeneral: densePointsFromZoom(248_556, 5),
+  streetTreesNational: densePointsFromZoom(210_436),
+  manufacturingCompanyPoints: densePointsFromZoom(184_944),
+  pollutionFacility: densePointsFromZoom(152_246),
+  pollutionPenaltyMobile: densePointsFromZoom(111_067, 5),
+  streetTreesTaipei3epoch: densePointsFromZoom(105_675),
+  streetTreesTaipeiDiff: densePointsFromZoom(99_527),
+  factoryLocations: densePointsFromZoom(90_652),
+  regulatedFacilities: densePointsFromZoom(80_732),
+  wasteStopsStatic: densePointsFromZoom(73_060, 6),
+  pollutionPenaltyCritical: densePointsFromZoom(55_281, 5),
+  busStationsCity: densePointsFromZoom(49_989),
+  agriRetail: densePointsFromZoom(37_430, 8),
+  medLTC: densePointsFromZoom(31_330),
+  noiseEnforcementEvents: densePointsFromZoom(29_661, 5),
+  osmPowerTowers: densePointsFromZoom(26_589, 8),
+  medClinic: densePointsFromZoom(23_704),
+  accidentTaipei: densePointsFromZoom(22_918, 10),
+  agriProduceWholesale: densePointsFromZoom(22_843, 8),
+  accessibleParkFacilities: densePointsFromZoom(20_870),
+  religionTemples: densePointsFromZoom(19_201),
+  tourHotels: densePointsFromZoom(15_654),
+  medAED: densePointsFromZoom(15_490),
+  busStationsIntercity: densePointsFromZoom(15_383),
+  publicToilets: densePointsFromZoom(13_281, 11),
+  convenienceStores: densePointsFromZoom(13_223),
+  sportsSchool: densePointsFromZoom(12_221, 7),
+  bicycleSupport: densePointsFromZoom(11_989),
+  commonRegistrationAddresses: densePointsFromZoom(11_121, 6),
+  riversideTreesTaipei: densePointsFromZoom(10_917),
+} as const;
+
+/** 共同登記地址「至少 N 家公司」門檻；點與熱區共用。 */
+const commonRegistrationFilter = (p?: Record<string, number>): unknown[] => [
+  ">=",
+  ["to-number", ["get", "n_companies"], 0],
+  p?.commonRegistrationAddressesMinCompanies ?? 5,
+];
+
+/** 行道樹變化 status 篩選（點用 opacity 歸零）→ 熱區 weight：0=全部 1=只看消失 2=只看變動。 */
+function streetTreesDiffStatusWeight(filt: number): unknown {
+  if (filt === 1) return ["case", ["==", ["get", "status"], "disappeared"], 1, 0];
+  if (filt === 2) return ["case", ["==", ["get", "status"], "persisted"], 0, 1];
+  return 1;
+}
+
+/** 行道樹三時點軌跡篩選（點用 opacity 歸零）→ 熱區 weight。 */
+function streetTrees3epochTrajWeight(filtIdx: number): unknown {
+  const codes = STREET_TREE_3EPOCH_TRAJ_FILTERS[filtIdx]?.codes ?? null;
+  return codes ? ["match", ["get", "traj"], codes, 1, 0] : 1;
+}
+
+/**
+ * R5（P-4／G-2）密集點的熱區子圖層：畫在出點縮放以下（maxzoom 見 heatmapMaxzoom），不可點擊
+ * （gisClickRegistry 只登記點）。與點共用同一個透明度滑桿：熱區透明度＝0.8 ×（滑桿 ÷ 預設）。
+ * - `opacity` 省略＝該層用 `opacityParam` 乘數型滑桿，由 applyLayerOpacity 統一乘上，這裡傳 1。
+ * - `filter` 與點的子圖層相同（函式形式時 suffix 也要列進 rebuildOnParamChange 才會跟著更新）。
+ * - `weight`：點用 opacity 歸零做篩選時，熱區改吃同條件的 `["case", 條件, 1, 0]`。
+ * - `intensity`：依資料密度校正（2026-10-02：全台 z7.3／本州 z6 視角，以 heatmap kernel 離線模擬＋瀏覽器截圖對照，
+ *   全台層取「頂色像素約佔熱區 11%」、日本層約 2%；只有臺北的層改在臺北 z9.3 視角取約 11%（行道樹全市均勻密集，
+ *   0.03 會整片飽和）；以 fireHydrants 0.1、medClinic 1、jpReligionGsi 1 為目視定錨）。
+ *   低縮放切片有抽稀的層（busStationsCity、medLTC、medAED、agri* 等）值較高是在補抽稀，不代表資料較稀。
+ */
+function denseHeatmapLayer(o: {
+  suffix?: string;
+  pointsFromZoom: number;
+  intensity: number;
+  opacity?: { layer: string; param: string };
+  filter?: OverlayLayerSpec["filter"];
+  weight?: (params?: Record<string, number>) => unknown;
+}): OverlayLayerSpec {
+  return {
+    suffix: o.suffix ?? "heatmap",
+    type: "heatmap",
+    maxzoom: heatmapMaxzoom(o.pointsFromZoom),
+    ...(o.filter ? { filter: o.filter } : {}),
+    paint: (_isDark, p) => {
+      let scale = 1;
+      if (o.opacity) {
+        const def = Number(paramDefault(o.opacity.layer, o.opacity.param));
+        scale = def > 0 ? (p?.[o.opacity.param] ?? def) / def : 1;
+      }
+      return heatmapPaint(scale, o.intensity, o.weight ? o.weight(p) : 1);
+    },
+  };
+}
 
 /** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
 const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
@@ -381,10 +477,16 @@ function publicLifePointOverlay(
   options?: {
     filter?: (params?: Record<string, number>) => unknown[];
     labelMinzoom?: number;
+    /** R5 密集點：出點縮放以下畫熱區（點數 ≥ 10k 才給）。 */
+    dense?: { pointsFromZoom: number; intensity: number };
   },
 ): OverlayConfig {
   const paramFilter = options?.filter;
   const filterProps = paramFilter ? { filter: paramFilter } : {};
+  const dense = options?.dense;
+  const pointMinzoom = dense ? { minzoom: dense.pointsFromZoom } : {};
+  // 透明度 fallback 跟滑桿預設一致（P-3 依點數分階）
+  const opacityDefault = Number(paramDefault(id, `${id}Opacity`) ?? .85);
   const labelFilter = (params?: Record<string, number>): unknown[] => ["all",
     ...(paramFilter ? [paramFilter(params)] : []),
     ["has", "name"],
@@ -408,18 +510,19 @@ function publicLifePointOverlay(
     paint: (dark, p) => ({
       "text-color": dark ? "#f8fafc" : "#0f172a",
       ...labelHaloPaint(dark),
-      "text-opacity": p?.[`${id}Opacity`] ?? .85,
+      "text-opacity": p?.[`${id}Opacity`] ?? opacityDefault,
     }),
   }];
-  return { id, sourceUrl, sourceId, ...(pmtiles ? { pmtiles } : {}), attribution, rebuildOnParamChange: ["glow", "circle", ...(pmtiles ? [] : ["label"])], layers: [
-    { suffix: "glow", type: "circle", paint: (_dark, p) => {
+  return { id, sourceUrl, sourceId, ...(pmtiles ? { pmtiles } : {}), attribution, rebuildOnParamChange: [...(dense && paramFilter ? ["heatmap"] : []), "glow", "circle", ...(pmtiles ? [] : ["label"])], layers: [
+    ...(dense ? [denseHeatmapLayer({ ...dense, opacity: { layer: id, param: `${id}Opacity` }, ...filterProps })] : []),
+    { suffix: "glow", type: "circle", ...pointMinzoom, paint: (_dark, p) => {
       const scale = p?.[`${id}Scale`] ?? 1;
-      const opacity = p?.[`${id}Opacity`] ?? .85;
+      const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.9, radius[0] * .5) * scale, 5, radius[0] * 1.8 * scale, 12, radius[1] * 1.8 * scale], "circle-blur": .8, "circle-opacity": opacity * .28 };
     }, ...filterProps },
-    { suffix: "circle", type: "circle", paint: (dark, p) => {
+    { suffix: "circle", type: "circle", ...pointMinzoom, paint: (dark, p) => {
       const scale = p?.[`${id}Scale`] ?? 1;
-      const opacity = p?.[`${id}Opacity`] ?? .85;
+      const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.7, radius[0] * .35) * scale, 5, radius[0] * scale, 12, radius[1] * scale], "circle-opacity": opacity, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, .25, 5, .6, 12, 1.2], "circle-stroke-opacity": opacity };
     }, ...filterProps },
     ...labelLayers,
@@ -431,8 +534,8 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("materialRecyclingPoints", "./public_life/material_recycling_points.geojson", "material-recycling-points", PUBLIC_LIFE_COLORS.materialRecyclingPoints, undefined, undefined, undefined, { labelMinzoom: 14, filter: (p) => recyclingMaterialFilter(p?.materialRecyclingPointsMaterialMask) }),
   publicLifePointOverlay("disasterShelters", "./public_life/disaster_shelters.pmtiles", "disaster-shelters", PUBLIC_LIFE_COLORS.disasterShelters, { sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, "內政部消防署 data.gov.tw 73242 · 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterShelterTypeFilter(p?.disasterSheltersTypeMask) }),
   publicLifePointOverlay("playgrounds", "./public_life/playgrounds.geojson", "playgrounds", PUBLIC_LIFE_COLORS.playgrounds, undefined, undefined, undefined, { labelMinzoom: 14 }),
-  publicLifePointOverlay("accessibleParkFacilities", "./public_life/accessible_park_facilities.pmtiles", "accessible-park-facilities", ["match", ["get", "accessibility_status"], "yes", ACCESSIBILITY_STATUS_COLORS.yes, "limited", ACCESSIBILITY_STATUS_COLORS.limited, "no", ACCESSIBILITY_STATUS_COLORS.no, ACCESSIBILITY_STATUS_COLORS.unknown], { sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 16, filter: (p) => accessibleFacilityFilter(p?.accessibleParkFacilitiesTypeMask, p?.accessibleParkFacilitiesStatusMask) }),
-  publicLifePointOverlay("bicycleSupport", "./public_life/bicycle_support.pmtiles", "bicycle-support", ["case", ["==", ["get", "has_repair"], true], BICYCLE_SUPPORT_COLORS.repair, ["==", ["get", "has_air"], true], BICYCLE_SUPPORT_COLORS.air, ["==", ["get", "has_parking"], true], BICYCLE_SUPPORT_COLORS.parking, ["==", ["get", "has_water"], true], BICYCLE_SUPPORT_COLORS.water, ["==", ["get", "has_toilet"], true], BICYCLE_SUPPORT_COLORS.toilet, BICYCLE_SUPPORT_COLORS.other], { sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 14, filter: (p) => bicycleSupportServiceFilter(p?.bicycleSupportServiceMask) }),
+  publicLifePointOverlay("accessibleParkFacilities", "./public_life/accessible_park_facilities.pmtiles", "accessible-park-facilities", ["match", ["get", "accessibility_status"], "yes", ACCESSIBILITY_STATUS_COLORS.yes, "limited", ACCESSIBILITY_STATUS_COLORS.limited, "no", ACCESSIBILITY_STATUS_COLORS.no, ACCESSIBILITY_STATUS_COLORS.unknown], { sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 16, filter: (p) => accessibleFacilityFilter(p?.accessibleParkFacilitiesTypeMask, p?.accessibleParkFacilitiesStatusMask), dense: { pointsFromZoom: DENSE_FROM.accessibleParkFacilities, intensity: 0.3 } }),
+  publicLifePointOverlay("bicycleSupport", "./public_life/bicycle_support.pmtiles", "bicycle-support", ["case", ["==", ["get", "has_repair"], true], BICYCLE_SUPPORT_COLORS.repair, ["==", ["get", "has_air"], true], BICYCLE_SUPPORT_COLORS.air, ["==", ["get", "has_parking"], true], BICYCLE_SUPPORT_COLORS.parking, ["==", ["get", "has_water"], true], BICYCLE_SUPPORT_COLORS.water, ["==", ["get", "has_toilet"], true], BICYCLE_SUPPORT_COLORS.toilet, BICYCLE_SUPPORT_COLORS.other], { sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 14, filter: (p) => bicycleSupportServiceFilter(p?.bicycleSupportServiceMask), dense: { pointsFromZoom: DENSE_FROM.bicycleSupport, intensity: 3 } }),
   { id: "nationalParks", sourceUrl: "./public_life/national_parks.pmtiles", sourceId: "national-parks", pmtiles: { sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, attribution: "國家公園署 / 海洋國家公園管理處 / TGOS · 政府資料開放授權條款第1版", rebuildOnParamChange: ["fill", "outline"], layers: [
     { suffix: "fill", type: "fill", paint: (_dark, p) => ({ "fill-color": "#15803d", "fill-opacity": (p?.nationalParksOpacity ?? .5) * .55 }) },
     { suffix: "outline", type: "line", paint: (_dark, p) => ({ "line-color": "#22c55e", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .8, 12, 2.2], "line-opacity": p?.nationalParksOpacity ?? .5 }) },
@@ -647,19 +750,25 @@ function sportsRadius(scale: number): unknown[] {
 // 靠 config.filter 分 layer 隸屬類；circle 依 category 27 類 match 分色 + open_status 淡化。
 function sportsVenueOverlay(meta: SportsLayerMeta): OverlayConfig {
   const { id, layerValue, suffix } = meta;
+  // R5：學校場館 1.2 萬點 → 拉遠畫熱區（config.filter 分類，熱區自動吃同一個 filter）
+  const pointsFromZoom = id === "sportsSchool" ? DENSE_FROM.sportsSchool : 7;
+  const opacityDefault = Number(paramDefault(id, `${id}Opacity`) ?? 0.8);
   return {
     id,
     sourceUrl: SPORTS_SOURCE,
     sourceId: "sports-venues",
     filter: ["==", ["get", "layer"], layerValue],
     layers: [
+      ...(id === "sportsSchool"
+        ? [denseHeatmapLayer({ suffix: `${suffix}-heatmap`, pointsFromZoom, intensity: 3, opacity: { layer: id, param: `${id}Opacity` } })]
+        : []),
       {
         suffix,
         type: "circle",
-        minzoom: 7,
+        minzoom: pointsFromZoom,
         paint: (isDark, p) => {
           const scale = p?.[`${id}Scale`] ?? 1;
-          const opacity = p?.[`${id}Opacity`] ?? 0.8;
+          const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
           // open_status="不對外" 淡化（避免誤讀為可用場地）
           const closed: unknown[] = ["==", ["get", "open_status"], "不對外"];
           const fillOpacity: unknown[] = ["case", closed, opacity * SPORTS_CLOSED_DIM, opacity];
@@ -1509,9 +1618,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1.5 }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsCity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1527,7 +1637,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsCity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1541,7 +1651,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0, 10, 0.3, 14, 0.5,
             ],
-            "circle-opacity": isDark ? 0.7 : 0.6,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
           };
         },
       },
@@ -1556,9 +1667,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1574,7 +1686,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1588,7 +1700,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0, 10, 0.3, 14, 0.5,
             ],
-            "circle-opacity": isDark ? 0.7 : 0.6,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
           };
         },
       },
@@ -1817,7 +1930,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: 7,
         paint: (isDark, p) => {
           const scale = p?.cctvScale ?? 1;
-          const opacity = p?.cctvOpacity ?? 0.7;
+          const opacity = p?.cctvOpacity ?? 0.8;
           const z = p?.cctvZ ?? 0;
           return {
             "circle-radius": [
@@ -1844,7 +1957,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: 7,
         paint: (isDark, p) => {
           const scale = p?.cctvScale ?? 1;
-          const opacity = p?.cctvOpacity ?? 0.7;
+          const opacity = p?.cctvOpacity ?? 0.8;
           const z = p?.cctvZ ?? 0;
           return {
             "circle-radius": [
@@ -1954,7 +2067,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 消防栓 (僅臺北市 + 高雄市，69,839 點) ──
-  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → minzoom 12 控密度
+  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → 原本 minzoom 12 控密度。
+  // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
     id: "fireHydrants",
     sourceUrl: "./geo/fire_hydrants.pmtiles",
@@ -1962,12 +2076,20 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "fire_hydrants", minzoom: 0, maxzoom: 12 },
     layers: [
       {
+        // 熱區不可點擊（gisClickRegistry 只登記 circle/glow）；透明度滑桿按比例同時控制熱區。
+        suffix: "heatmap",
+        type: "heatmap",
+        maxzoom: heatmapMaxzoom(FIRE_HYDRANTS_POINTS_FROM_ZOOM),
+        // intensity 0.1：臺北／高雄市區點極密（約為日本宗教設施的 10 倍），目視校正。
+        paint: (_isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1),
+      },
+      {
         suffix: "glow",
         type: "circle",
-        minzoom: 12,
+        minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const opacity = p?.fireHydrantsOpacity ?? 0.75;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -1990,10 +2112,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 12,
+        minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const opacity = p?.fireHydrantsOpacity ?? 0.75;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -2555,9 +2677,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "convenience-stores",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.convenienceStores, intensity: 1 }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.convenienceStores,
         paint: (isDark, params) => {
           const scale = params?.convenienceScale ?? 1;
           return {
@@ -2573,7 +2696,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.convenienceStores,
         paint: (isDark, params) => {
           const scale = params?.convenienceScale ?? 1;
           return {
@@ -2587,7 +2710,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0, 10, 0.3, 14, 0.5,
             ],
-            "circle-opacity": isDark ? 0.7 : 0.6,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
           };
         },
       },
@@ -2622,7 +2746,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const scale = params?.postOfficesScale ?? 1;
-          const opacity = params?.postOfficesOpacity ?? 0.85;
+          const opacity = params?.postOfficesOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2669,7 +2793,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const scale = params?.iPostBoxesScale ?? 1;
-          const opacity = params?.iPostBoxesOpacity ?? 0.85;
+          const opacity = params?.iPostBoxesOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2716,7 +2840,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const scale = params?.communityCentersScale ?? 1;
-          const opacity = params?.communityCentersOpacity ?? 0.85;
+          const opacity = params?.communityCentersOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2941,12 +3065,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "publicToilets",
     sourceUrl: "./environment/public_toilets_national.geojson",
     sourceId: "public-toilets",
-    rebuildOnParamChange: ["glow", "circle", "label"],
+    rebuildOnParamChange: ["heatmap", "glow", "circle", "label"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.publicToilets, intensity: 3, opacity: { layer: "publicToilets", param: "publicToiletsOpacity" }, filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask) }),
       {
         suffix: "glow",
         type: "circle",
-        minzoom: 11,
+        minzoom: DENSE_FROM.publicToilets,
         filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask),
         paint: (_isDark, params) => {
           const scale = params?.publicToiletsScale ?? 1;
@@ -2971,7 +3096,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 11,
+        minzoom: DENSE_FROM.publicToilets,
         filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask),
         paint: (_isDark, params) => {
           const scale = params?.publicToiletsScale ?? 1;
@@ -3080,9 +3205,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_clinics", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medClinic, intensity: 1, opacity: { layer: "medClinic", param: "medClinicOpacity" } }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medClinic,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
           return {
@@ -3098,10 +3224,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medClinic,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
-          const opacity = params?.medClinicOpacity ?? 0.85;
+          const opacity = params?.medClinicOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -3149,7 +3275,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, params) => {
           const scale = params?.medPharmacyScale ?? 1;
-          const opacity = params?.medPharmacyOpacity ?? 0.85;
+          const opacity = params?.medPharmacyOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -3176,9 +3302,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_aed", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medAED, intensity: 5, opacity: { layer: "medAED", param: "medAEDOpacity" } }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medAED,
         paint: (isDark, params) => {
           const scale = params?.medAEDScale ?? 1;
           return {
@@ -3194,10 +3321,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medAED,
         paint: (isDark, params) => {
           const scale = params?.medAEDScale ?? 1;
-          const opacity = params?.medAEDOpacity ?? 0.9;
+          const opacity = params?.medAEDOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -3224,9 +3351,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_ltc", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medLTC, intensity: 3, opacity: { layer: "medLTC", param: "medLTCOpacity" } }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medLTC,
         paint: (isDark, params) => {
           const scale = params?.medLTCScale ?? 1;
           return {
@@ -3242,10 +3370,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medLTC,
         paint: (isDark, params) => {
           const scale = params?.medLTCScale ?? 1;
-          const opacity = params?.medLTCOpacity ?? 0.85;
+          const opacity = params?.medLTCOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4014,10 +4142,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "waste-stops-static",
     pmtiles: { sourceLayer: "waste_stops", minzoom: 6, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 0.3 }),
       {
         suffix: "waste-stops-glow",
         type: "circle",
-        minzoom: 6,
+        minzoom: DENSE_FROM.wasteStopsStatic,
         paint: (isDark, p) => {
           const scale = p?.wasteStopsStaticScale ?? 1;
           const glow = p?.wasteStopsStaticGlow ?? 0.10;
@@ -4042,7 +4171,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "waste-stops-fill",
         type: "circle",
-        minzoom: 6,
+        minzoom: DENSE_FROM.wasteStopsStatic,
         paint: (isDark, p) => {
           const scale = p?.wasteStopsStaticScale ?? 1;
           const z = p?.wasteStopsStaticZ ?? 0;
@@ -4056,7 +4185,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               17, 2.2 * scale,
             ],
             "circle-color": isDark ? "#fbbf24" : "#d97706",
-            "circle-opacity": isDark ? 0.6 : 0.75,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
             "circle-stroke-width": 0,
             "circle-translate": [0, -z],
             "circle-translate-anchor": "viewport",
@@ -4074,13 +4204,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "agri-retail",
     pmtiles: { sourceLayer: "agri_retail", minzoom: 0, maxzoom: 12 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriRetail, intensity: 3, opacity: { layer: "agriRetail", param: "agriRetailOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 8,
+        minzoom: DENSE_FROM.agriRetail,
         paint: (isDark, p) => {
           const scale = p?.agriRetailScale ?? 1;
-          const opacity = p?.agriRetailOpacity ?? 0.85;
+          const opacity = p?.agriRetailOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4102,13 +4233,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "agri-produce-wholesale",
     pmtiles: { sourceLayer: "produce_wholesale", minzoom: 0, maxzoom: 12 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriProduceWholesale, intensity: 2, opacity: { layer: "agriProduceWholesale", param: "agriProduceWholesaleOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 8,
+        minzoom: DENSE_FROM.agriProduceWholesale,
         paint: (isDark, p) => {
           const scale = p?.agriProduceWholesaleScale ?? 1;
-          const opacity = p?.agriProduceWholesaleOpacity ?? 0.85;
+          const opacity = p?.agriProduceWholesaleOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4189,11 +4321,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "business-registry-manufacturing-company-points",
     pmtiles: { sourceLayer: "manufacturing_company_points", minzoom: 0, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ suffix: "manufacturing-heatmap", pointsFromZoom: DENSE_FROM.manufacturingCompanyPoints, intensity: 0.07, opacity: { layer: "manufacturingCompanyPoints", param: "manufacturingCompanyPointsOpacity" } }),
       {
-        suffix: "manufacturing-circle", type: "circle", minzoom: 0,
+        suffix: "manufacturing-circle", type: "circle", minzoom: DENSE_FROM.manufacturingCompanyPoints,
         paint: (isDark, p) => {
           const scale = p?.manufacturingCompanyPointsScale ?? 1;
-          const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.82;
+          const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.6;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 12, 2.2 * scale, 14, 3.5 * scale, 17, 6.4 * scale],
             "circle-color": companyCapitalQColorExpr(),
@@ -4215,11 +4348,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "business-registry-factory-locations",
     pmtiles: { sourceLayer: "factory_locations", minzoom: 0, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.factoryLocations, intensity: 0.15, opacity: { layer: "factoryLocations", param: "factoryLocationsOpacity" } }),
       {
-        suffix: "circle", type: "circle", minzoom: 0,
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.factoryLocations,
         paint: (isDark, p) => {
           const scale = p?.factoryLocationsScale ?? 1;
-          const opacity = p?.factoryLocationsOpacity ?? 0.76;
+          const opacity = p?.factoryLocationsOpacity ?? 0.75;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
             "circle-color": FACTORY_LOCATION_COLOR,
@@ -4238,11 +4372,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "business-registry-regulated-facilities",
     pmtiles: { sourceLayer: "regulated_facilities", minzoom: 0, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.regulatedFacilities, intensity: 0.3, opacity: { layer: "regulatedFacilities", param: "regulatedFacilitiesOpacity" } }),
       {
-        suffix: "circle", type: "circle", minzoom: 0,
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.regulatedFacilities,
         paint: (isDark, p) => {
           const scale = p?.regulatedFacilitiesScale ?? 1;
-          const opacity = p?.regulatedFacilitiesOpacity ?? 0.72;
+          const opacity = p?.regulatedFacilitiesOpacity ?? 0.75;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
             "circle-color": REGULATED_FACILITY_COLOR,
@@ -4307,17 +4442,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "commonRegistrationAddresses",
     sourceUrl: "./business_registry/common_registration_addresses_202608_r2.geojson",
     sourceId: "business-registry-common-registration-addresses",
-    rebuildOnParamChange: ["circle"],
+    rebuildOnParamChange: ["heatmap", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.commonRegistrationAddresses, intensity: 0.3, opacity: { layer: "commonRegistrationAddresses", param: "commonRegistrationAddressesOpacity" }, filter: commonRegistrationFilter }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 6,
-        filter: (p) => [
-          ">=",
-          ["to-number", ["get", "n_companies"], 0],
-          p?.commonRegistrationAddressesMinCompanies ?? 5,
-        ],
+        minzoom: DENSE_FROM.commonRegistrationAddresses,
+        filter: commonRegistrationFilter,
         layout: {
           "circle-sort-key": ["to-number", ["get", "n_companies"], 0],
         },
@@ -4648,10 +4780,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_diff", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipeiDiffOpacity", "streetTreesTaipeiDiffStatusIdx", "streetTreesTaipeiDiffRadius", "streetTreesTaipeiDiffColorModeIdx"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipeiDiff, intensity: 0.01, opacity: { layer: "streetTreesTaipeiDiff", param: "streetTreesTaipeiDiffOpacity" }, weight: (p) => streetTreesDiffStatusWeight(p?.streetTreesTaipeiDiffStatusIdx ?? 0) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipeiDiff,
         paint: (_isDark, p) => {
-          const base = p?.streetTreesTaipeiDiffOpacity ?? 0.7;
+          const base = p?.streetTreesTaipeiDiffOpacity ?? 0.75;
           const filt = p?.streetTreesTaipeiDiffStatusIdx ?? 0; // 0=全部 1=只看消失 2=只看變動
           const radiusMult = p?.streetTreesTaipeiDiffRadius ?? 1;
           const colorMode = p?.streetTreesTaipeiDiffColorModeIdx ?? 0; // 0=status 1=species 2=diameter 3=height
@@ -4714,7 +4847,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const opacity = p?.protectedTreesNationalOpacity ?? 0.85;
+          const opacity = p?.protectedTreesNationalOpacity ?? 0.8;
           const radiusMult = p?.protectedTreesNationalRadius ?? 1;
           const colorMode = p?.protectedTreesNationalColorModeIdx ?? 0; // 0=樹齡 1=城市
           const cityValues = PROTECTED_TREE_CITIES.map((city) => city.name);
@@ -4747,10 +4880,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "riverside-trees-taipei",
     rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkMask"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.riversideTreesTaipei, intensity: 0.05, opacity: { layer: "riversideTreesTaipei", param: "riversideTreesTaipeiOpacity" }, weight: (p) => multiSelectOpacityExpression("park_name", p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS), RIVERSIDE_PARKS, 1) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.riversideTreesTaipei,
         paint: (isDark, p) => {
-          const opacity = p?.riversideTreesTaipeiOpacity ?? 0.85;
+          const opacity = p?.riversideTreesTaipeiOpacity ?? 0.75;
           const radiusMult = p?.riversideTreesTaipeiRadius ?? 1;
           const parkMask = p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS);
           const opExpr = (mult: number): unknown[] | number =>
@@ -4782,7 +4916,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const opacity = p?.parksTaipeiOpacity ?? 0.85;
+          const opacity = p?.parksTaipeiOpacity ?? 0.8;
           const radiusMult = p?.parksTaipeiRadius ?? 1;
           const categoryValues = TAIPEI_PARK_CATEGORIES.map((category) => category.name);
           const categoryMask = p?.parksTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
@@ -4820,10 +4954,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_3epoch", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipei3epochOpacity", "streetTreesTaipei3epochRadius", "streetTreesTaipei3epochColorModeIdx", "streetTreesTaipei3epochTrajFilterIdx"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipei3epoch, intensity: 0.01, opacity: { layer: "streetTreesTaipei3epoch", param: "streetTreesTaipei3epochOpacity" }, weight: (p) => streetTrees3epochTrajWeight(p?.streetTreesTaipei3epochTrajFilterIdx ?? 0) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipei3epoch,
         paint: (_isDark, p) => {
-          const base = p?.streetTreesTaipei3epochOpacity ?? 0.7;
+          const base = p?.streetTreesTaipei3epochOpacity ?? 0.6;
           const radiusMult = p?.streetTreesTaipei3epochRadius ?? 1;
           const colorMode = p?.streetTreesTaipei3epochColorModeIdx ?? 0; // 0=traj 1=species 2=diameter 3=height
           const filtIdx = p?.streetTreesTaipei3epochTrajFilterIdx ?? 0;  // 0=全部 1..4 見 STREET_TREE_3EPOCH_TRAJ_FILTERS
@@ -4868,10 +5003,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_national", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityMask"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesNational, intensity: 0.03, opacity: { layer: "streetTreesNational", param: "streetTreesNationalOpacity" }, weight: (p) => multiSelectOpacityExpression("city", p?.streetTreesNationalCityMask ?? allMultiSelectBitmask(STREET_TREE_NATIONAL_CITIES.map((c) => c.value)), STREET_TREE_NATIONAL_CITIES.map((c) => c.value), 1) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesNational,
         paint: (_isDark, p) => {
-          const base = p?.streetTreesNationalOpacity ?? 0.7;
+          const base = p?.streetTreesNationalOpacity ?? 0.6;
           const radiusMult = p?.streetTreesNationalRadius ?? 1;
           const colorMode = p?.streetTreesNationalColorModeIdx ?? 0; // 0=species 1=diameter 2=height 3=city
           const cityValues = STREET_TREE_NATIONAL_CITIES.map((city) => city.value);
@@ -5315,7 +5451,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return ["has", "start_date"];
         },
         paint: (isDark, p) => {
-          const opacity = p?.artsEventsOpacity ?? 0.85;
+          const opacity = p?.artsEventsOpacity ?? 0.8;
           const radiusMult = p?.artsEventsRadius ?? 1;
           const today = cultureTodayStr();
           return {
@@ -5607,7 +5743,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": FORESTRY_PAINT_COLORS.forestTreatmentWorks,
             "circle-stroke-color": "#b45309",
             "circle-stroke-width": 0.4,
-            "circle-opacity": params?.forestTreatmentWorksOpacity ?? 0.85,
+            "circle-opacity": params?.forestTreatmentWorksOpacity ?? 0.8,
           };
         },
       },
@@ -5708,7 +5844,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const opacity = p?.canopyGiantsOpacity ?? 0.85;
+          const opacity = p?.canopyGiantsOpacity ?? 0.8;
           const scale = p?.canopyGiantsScale ?? 1;
           return {
             "circle-color": canopyGiantDistColorExpr(),
@@ -5816,7 +5952,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": FORESTRY_PAINT_COLORS.forestTrailSigns,
             "circle-stroke-color": "#365314",
             "circle-stroke-width": 0.5,
-            "circle-opacity": params?.forestTrailSignsOpacity ?? 0.85,
+            "circle-opacity": params?.forestTrailSignsOpacity ?? 0.8,
           };
         },
       },
@@ -5840,7 +5976,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": FORESTRY_PAINT_COLORS.forestSignalPoints,
             "circle-stroke-color": "#14532d",
             "circle-stroke-width": 0.6,
-            "circle-opacity": params?.forestSignalPointsOpacity ?? 0.85,
+            "circle-opacity": params?.forestSignalPointsOpacity ?? 0.8,
           };
         },
       },
@@ -5916,7 +6052,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": FORESTRY_PAINT_COLORS.forestWildlife,
             "circle-stroke-color": "#581c87",
             "circle-stroke-width": 0.5,
-            "circle-opacity": params?.forestWildlifeOpacity ?? 0.85,
+            "circle-opacity": params?.forestWildlifeOpacity ?? 0.8,
           };
         },
       },
@@ -6210,12 +6346,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: ["osmPowerTowersOpacity", "osmPowerTowersSize"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.osmPowerTowers, intensity: 1, opacity: { layer: "osmPowerTowers", param: "osmPowerTowersOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 8,
+        minzoom: DENSE_FROM.osmPowerTowers,
         paint: (isDark, params) => {
-          const o = params?.osmPowerTowersOpacity ?? 0.85;
+          const o = params?.osmPowerTowersOpacity ?? 0.75;
           const s = params?.osmPowerTowersSize ?? 1;
           return {
             "circle-radius": [
@@ -6760,7 +6897,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-blur": 1,
             "circle-color": mountainRescueColorExpr(),
-            "circle-opacity": (p?.mountainRescueIncidentsOpacity ?? 0.85) * 0.16,
+            "circle-opacity": (p?.mountainRescueIncidentsOpacity ?? 0.8) * 0.16,
           };
         },
       },
@@ -6770,7 +6907,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.mountainRescueIncidentsScale ?? 1;
-          const opacity = p?.mountainRescueIncidentsOpacity ?? 0.85;
+          const opacity = p?.mountainRescueIncidentsOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -6984,7 +7121,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "fill",
         filter: ["==", ["geometry-type"], "Polygon"],
         paint: (_isDark, params) => {
-          const o = params?.parkingOnstreetOpacity ?? 0.6;
+          const o = params?.parkingOnstreetOpacity ?? 0.8;
           return {
             "fill-color": neutralCapacityColorExpr() as unknown as string,
             "fill-opacity": o,
@@ -7007,7 +7144,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         filter: ["==", ["geometry-type"], "Point"],
         paint: (isDark, params) => {
-          const o = params?.parkingOnstreetOpacity ?? 0.6;
+          const o = params?.parkingOnstreetOpacity ?? 0.8;
           const scale = params?.parkingOnstreetScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3 * scale, 14, 7 * scale],
@@ -7035,7 +7172,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.parkingOffstreetOpacity ?? 0.9;
+          const o = params?.parkingOffstreetOpacity ?? 0.8;
           const scale = params?.parkingOffstreetScale ?? 1;
           // 半徑隨 total_spaces（log 尺標，兩端 clamp）：小場小圓、大場大圓
           const radius = (zoom6: number, zoom13: number) => [
@@ -7322,7 +7459,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
-          const o = params?.facOsmSupplementOpacity ?? 0.7;
+          const o = params?.facOsmSupplementOpacity ?? 0.8;
           const s = params?.facOsmSupplementScale ?? 1;
           return {
             "circle-radius": [
@@ -7361,7 +7498,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.gasStationCpcOpacity ?? 0.85;
+          const o = params?.gasStationCpcOpacity ?? 0.8;
           const s = params?.gasStationCpcScale ?? 1.7;
           return {
             "circle-radius": [
@@ -7485,7 +7622,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.gasStationCanonicalOpacity ?? 0.9;
+          const o = params?.gasStationCanonicalOpacity ?? 0.8;
           const s = params?.gasStationCanonicalScale ?? 1.7;
           return {
             "circle-radius": [
@@ -7547,7 +7684,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
-          const o = params?.lpgRetailersOpacity ?? 0.75;
+          const o = params?.lpgRetailersOpacity ?? 0.8;
           const s = params?.lpgRetailersScale ?? 1.3;
           return {
             "circle-radius": [
@@ -8324,7 +8461,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle",
       paint: (_isDark, p) => {
         const s = p?.policeStationScale ?? 1;
-        const op = p?.policeStationOpacity ?? 0.85;
+        const op = p?.policeStationOpacity ?? 0.8;
         // 半徑用 (zoom × subtype tier) 二維插值：subtype 帶 baseRadius factor
         const radiusFactor: unknown[] = [
           "match", ["get", "facility_subtype"],
@@ -8398,7 +8535,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle",
       paint: (_isDark, p) => {
         const s = p?.speedCameraScale ?? 1;
-        const op = p?.speedCameraOpacity ?? 0.85;
+        const op = p?.speedCameraOpacity ?? 0.8;
         // limit_kph 字串轉數字後分級 factor
         const limitFactor: unknown[] = [
           "step", ["coalesce", ["to-number", ["get", "limit_kph"]], 60],
@@ -8666,7 +8803,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle",
       paint: (_isDark, p) => {
         const s = p?.trafficAccidentYearlyScale ?? 1;
-        const op = p?.trafficAccidentYearlyOpacity ?? 0.85;
+        const op = p?.trafficAccidentYearlyOpacity ?? 0.8;
         return {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2 * s, 12, 4 * s, 16, 7 * s] as unknown as number,
           "circle-color": "#fb7185",
@@ -8681,11 +8818,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson",
     sourceId: "accident-taipei",
     rebuildOnParamChange: ["accidentTaipeiOpacity", "accidentTaipeiScale"],
-    layers: [{
-      suffix: "circle", type: "circle", minzoom: 10,
+    layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.accidentTaipei, intensity: 0.05, opacity: { layer: "accidentTaipei", param: "accidentTaipeiOpacity" } }), {
+      suffix: "circle", type: "circle", minzoom: DENSE_FROM.accidentTaipei,
       paint: (_isDark, p) => {
         const s = p?.accidentTaipeiScale ?? 1;
-        const op = p?.accidentTaipeiOpacity ?? 0.7;
+        const op = p?.accidentTaipeiOpacity ?? 0.75;
         return {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 1.2 * s, 14, 2.5 * s, 17, 5 * s] as unknown as number,
           "circle-color": [
@@ -9039,7 +9177,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle", minzoom: 7,
       paint: (_isDark, p) => {
         const s = p?.civilDefenseShelterScale ?? 1;
-        const op = p?.civilDefenseShelterOpacity ?? 0.7;
+        const op = p?.civilDefenseShelterOpacity ?? 0.75;
         return {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 0.6 * s, 10, 1.2 * s, 14, 2.5 * s, 17, 5 * s] as unknown as number,
           "circle-color": [
@@ -9212,10 +9350,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
     filter: NOISE_ENFORCEMENT_FILTER,
-    layers: [{
-      suffix: "noise-circle", type: "circle", minzoom: 5, maxzoom: 15,
+    layers: [
+      denseHeatmapLayer({ suffix: "noise-heatmap", pointsFromZoom: DENSE_FROM.noiseEnforcementEvents, intensity: 0.3, opacity: { layer: "noiseEnforcementEvents", param: "noiseEnforcementEventsOpacity" } }), {
+      suffix: "noise-circle", type: "circle", minzoom: DENSE_FROM.noiseEnforcementEvents, maxzoom: 15,
       paint: (_isDark, p) => {
-        const op = p?.noiseEnforcementEventsOpacity ?? 0.8;
+        const op = p?.noiseEnforcementEventsOpacity ?? 0.75;
         const moneyRadius: unknown[] = [
           "interpolate", ["linear"],
           ["log10", ["max", 10, ["coalesce", ["to-number", ["get", "penalty_money"]], 10]]],
@@ -9435,12 +9574,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       envStatusColorExpr("uv_level", CWA_UV_LEVELS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "uv_level"], null]], { dynamicData: true }),
   ],
 
-  // RPI 河段試作（淡水河水系 38 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線
+  // RPI 河段推估（全台 301 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線
   //（line-dasharray 不支援 data-driven）。中心線來自 OSM → source attribution 必帶 ODbL。
   {
-    id: "riverRpiSegmentsTamsui",
-    sourceUrl: "./environment/river_rpi_segments_tamsui_trial.geojson",
-    sourceId: "river-rpi-segments-tamsui",
+    id: "riverRpiSegments",
+    sourceUrl: "./environment/river_rpi_segments.geojson",
+    sourceId: "river-rpi-segments",
     attribution: OSM_ODBL_ATTRIBUTION,
     layers: [
       {
@@ -9448,9 +9587,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["!", ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]]],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (_isDark, p) => ({
-          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsTamsuiModeIdx ?? 0) as unknown as string,
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsModeIdx ?? 0) as unknown as string,
           "line-width": 3,
-          "line-opacity": p?.riverRpiSegmentsTamsuiOpacity ?? 0.85,
+          "line-opacity": p?.riverRpiSegmentsOpacity ?? 0.85,
         }),
       },
       {
@@ -9458,9 +9597,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]],
         layout: { "line-join": "round" },
         paint: (_isDark, p) => ({
-          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsTamsuiModeIdx ?? 0) as unknown as string,
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsModeIdx ?? 0) as unknown as string,
           "line-width": 3,
-          "line-opacity": p?.riverRpiSegmentsTamsuiOpacity ?? 0.85,
+          "line-opacity": p?.riverRpiSegmentsOpacity ?? 0.85,
           "line-dasharray": [2, 2],
         }),
       },
@@ -9480,13 +9619,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_facilities.pmtiles",
     sourceId: "pollution-facility",
     pmtiles: { sourceLayer: "pollution_facilities", minzoom: 0, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.pollutionFacility, intensity: 0.1, opacity: { layer: "pollutionFacility", param: "pollutionFacilityOpacity" } }), {
       suffix: "circle",
       type: "circle",
-      minzoom: 0,
+      minzoom: DENSE_FROM.pollutionFacility,
       paint: (_isDark, p) => {
         const s = p?.pollutionFacilityScale ?? 1;
-        const op = p?.pollutionFacilityOpacity ?? 0.8;
+        const op = p?.pollutionFacilityOpacity ?? 0.6;
         return {
           "circle-color": SEVERITY_COLOR_EXPR as unknown as string,
           "circle-radius": [
@@ -9511,14 +9651,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_penalties.pmtiles",
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ suffix: "critical-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyCritical, intensity: 0.3, opacity: { layer: "pollutionPenaltyCritical", param: "pollutionPenaltyOpacity" }, filter: PENALTY_CRITICAL_FILTER }), {
       suffix: "critical-circle",
       type: "circle",
-      minzoom: 5,
+      minzoom: DENSE_FROM.pollutionPenaltyCritical,
       filter: PENALTY_CRITICAL_FILTER,
       paint: (_isDark, p) => {
         const s = p?.pollutionPenaltyScale ?? 1;
-        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        const op = p?.pollutionPenaltyOpacity ?? 0.6;
         return {
           "circle-color": PENALTY_MEDIUM_COLOR_EXPR as unknown as string,
           // 大小 ∝ 罰鍰：以 log10(penalty_money) 為主軸，**全 zoom（含拉到全台 z5）都反映金額**。
@@ -9567,14 +9708,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_penalties.pmtiles",
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ suffix: "general-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyGeneral, intensity: 0.1, opacity: { layer: "pollutionPenaltyGeneral", param: "pollutionPenaltyOpacity" }, filter: PENALTY_GENERAL_FILTER }), {
       suffix: "general-circle",
       type: "circle",
-      minzoom: 5,
+      minzoom: DENSE_FROM.pollutionPenaltyGeneral,
       filter: PENALTY_GENERAL_FILTER,
       paint: (_isDark, p) => {
         const s = p?.pollutionPenaltyScale ?? 1;
-        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        const op = p?.pollutionPenaltyOpacity ?? 0.6;
         return {
           "circle-color": PENALTY_MEDIUM_COLOR_EXPR as unknown as string,
           "circle-radius": [
@@ -9601,14 +9743,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_penalties.pmtiles",
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ suffix: "mobile-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyMobile, intensity: 0.15, opacity: { layer: "pollutionPenaltyMobile", param: "pollutionPenaltyOpacity" }, filter: PENALTY_MOBILE_FILTER }), {
       suffix: "mobile-circle",
       type: "circle",
-      minzoom: 5,
+      minzoom: DENSE_FROM.pollutionPenaltyMobile,
       filter: PENALTY_MOBILE_FILTER,
       paint: (_isDark, p) => {
         const s = p?.pollutionPenaltyScale ?? 1;
-        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        const op = p?.pollutionPenaltyOpacity ?? 0.6;
         return {
           "circle-color": PENALTY_SEVERITY_COLORS.mobile,
           "circle-radius": [
@@ -9637,7 +9780,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       minzoom: 0,
       paint: (_isDark, p) => {
         const s = p?.pollutionSiteScale ?? 1;
-        const op = p?.pollutionSiteOpacity ?? 0.9;
+        const op = p?.pollutionSiteOpacity ?? 0.8;
         return {
           // 仍列管（is_active=1）用亮紅描邊突顯，已解除用灰
           "circle-color": ["case", ["==", ["coalesce", ["to-number", ["get", "is_active"]], 0], 1], "#dc2626", "#6b7280"] as unknown as string,
@@ -9686,7 +9829,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourAttractionsScale ?? 1;
-          const opacity = p?.tourAttractionsOpacity ?? 0.85;
+          const opacity = p?.tourAttractionsOpacity ?? 0.8;
           const color = p?.tourAttractionsModeIdx === 1 ? TOUR_ATTRACTIONS_HEAT_COLOR : TOUR_ATTRACTIONS_CATEGORY_COLOR;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
@@ -9827,7 +9970,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourHeritageScale ?? 1;
-          const opacity = p?.tourHeritageOpacity ?? 0.85;
+          const opacity = p?.tourHeritageOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": TOUR_HERITAGE_CATEGORY_COLOR,
@@ -9852,16 +9995,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./religion/temples.pmtiles",
     sourceId: "religion-temples",
     pmtiles: { sourceLayer: "temples", minzoom: 5, maxzoom: 14 },
-    rebuildOnParamChange: ["circle"],
+    rebuildOnParamChange: ["heatmap", "circle"],
     attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局 | © OpenStreetMap contributors (ODbL)",
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.religionTemples, intensity: 2, opacity: { layer: "religionTemples", param: "religionTemplesOpacity" }, filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511) }),
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.religionTemples,
         filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511),
         paint: (isDark, p) => {
           const scale = p?.religionTemplesScale ?? 1;
-          const opacity = p?.religionTemplesOpacity ?? 0.8;
+          const opacity = p?.religionTemplesOpacity ?? 0.75;
           return {
             // 1k~10k 級距的密度 baseline（19k 點）：z6 2.5px → z12 5.5px
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.5 * scale, 12, 5.5 * scale],
@@ -9888,7 +10032,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => registryModeFilter(p?.religionChurchesRegistryIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.religionChurchesScale ?? 1;
-          const opacity = p?.religionChurchesOpacity ?? 0.85;
+          const opacity = p?.religionChurchesOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": RELIGION_LAYER_COLORS.religionChurches,
@@ -9965,7 +10109,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, p) => {
           const scale = p?.religionOtherWorshipScale ?? 1;
-          const opacity = p?.religionOtherWorshipOpacity ?? 0.85;
+          const opacity = p?.religionOtherWorshipOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": RELIGION_LAYER_COLORS.religionOtherWorship,
@@ -10039,7 +10183,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.funeralFacilitiesScale ?? 1;
-          const opacity = p?.funeralFacilitiesOpacity ?? 0.85;
+          const opacity = p?.funeralFacilitiesOpacity ?? 0.8;
           return {
             // 1k~10k 級距的密度 baseline（3.7k 點）：z6 3px → z12 6px
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
@@ -10174,7 +10318,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.welfareLtcInstitutionsScale ?? 1;
-          const opacity = p?.welfareLtcInstitutionsOpacity ?? 0.85;
+          const opacity = p?.welfareLtcInstitutionsOpacity ?? 0.8;
           return {
             // 1k~10k 級距的 UX baseline（layer-onboarding Step 3）：z6 3px → z12 6px
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
@@ -10206,7 +10350,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.welfareNursingHomesScale ?? 1;
-          const opacity = p?.welfareNursingHomesOpacity ?? 0.85;
+          const opacity = p?.welfareNursingHomesOpacity ?? 0.8;
           const beds = nursingBedsExpr();
           // sqrt 縮放：床數最大約 450 → sqrt ≈ 21，z12 半徑 3~13.6px。
           // 無床（居家護理所 732）落在基底 3px —— 這是誠實的，不是資料缺漏。
@@ -10239,7 +10383,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => welfareFilter(p?.welfareChildcarePrecisionIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.welfareChildcareScale ?? 1;
-          const opacity = p?.welfareChildcareOpacity ?? 0.85;
+          const opacity = p?.welfareChildcareOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": WELFARE_LAYER_COLORS.welfareChildcare,
@@ -10269,7 +10413,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.welfareChildServicesScale ?? 1;
-          const opacity = p?.welfareChildServicesOpacity ?? 0.85;
+          const opacity = p?.welfareChildServicesOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": childServiceColorExpr(),
@@ -10296,7 +10440,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => welfareFilter(p?.welfareElderlyHomesPrecisionIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.welfareElderlyHomesScale ?? 1;
-          const opacity = p?.welfareElderlyHomesOpacity ?? 0.85;
+          const opacity = p?.welfareElderlyHomesOpacity ?? 0.8;
           const beds = elderlyBedsExpr();
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"],
@@ -10713,6 +10857,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       minzoom: CRAM_PMTILES_MINZOOM,
       maxzoom: CRAM_PMTILES_MAXZOOM,
     },
+    // R5 不套熱區：切片 minzoom 8 且建置時大量抽稀（全台 z8 僅 35 點、z12 1,372 點／17,137），
+    // 熱區密度趨近 0 看不見，維持原本 z8 起畫點（2026-10-02 量測）。
     rebuildOnParamChange: ["circle"],
     layers: [{
       suffix: "circle", type: "circle",
@@ -10932,7 +11078,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourCampingScale ?? 1;
-          const opacity = p?.tourCampingOpacity ?? 0.85;
+          const opacity = p?.tourCampingOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": "#7cb342",
@@ -10953,10 +11099,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "tourHotels",
     sourceUrl: "./tourism/hotels_national.geojson",
     sourceId: "tour-hotels",
-    rebuildOnParamChange: ["glow", "circle"],
+    rebuildOnParamChange: ["heatmap", "glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.tourHotels, intensity: 1.5, opacity: { layer: "tourHotels", param: "tourHotelsOpacity" }, filter: (p) => tourHotelsClassFilter(p) }),
       {
-        suffix: "glow", type: "circle",
+        suffix: "glow", type: "circle", minzoom: DENSE_FROM.tourHotels,
         filter: (p) => tourHotelsClassFilter(p),
         paint: (_isDark, p) => {
           const scale = p?.tourHotelsScale ?? 1;
@@ -10969,11 +11116,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         },
       },
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.tourHotels,
         filter: (p) => tourHotelsClassFilter(p),
         paint: (isDark, p) => {
           const scale = p?.tourHotelsScale ?? 1;
-          const opacity = p?.tourHotelsOpacity ?? 0.85;
+          const opacity = p?.tourHotelsOpacity ?? 0.75;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.2 * scale, 9, 2.5 * scale, 12, 5 * scale],
             "circle-color": TOUR_HOTELS_CLASS_COLOR,
@@ -10998,7 +11145,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourRestaurantsScale ?? 1;
-          const opacity = p?.tourRestaurantsOpacity ?? 0.85;
+          const opacity = p?.tourRestaurantsOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": "#c62828",
@@ -11037,7 +11184,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "official-bridges-new-taipei",
     pmtiles: { sourceLayer: "official_bridges", minzoom: 7, maxzoom: 15 },
     attribution: "新北市政府橋梁清冊",
-    layers: [{ suffix: "line", type: "line", paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "line-color": NETWORK_STRUCTURES_COLORS.official, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1 * scale, 12, 2.5 * scale, 16, 4 * scale], "line-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.85 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: ["==", ["get", "geometry_role"], "coincident_endpoints"], paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "circle-color": NETWORK_STRUCTURES_COLORS.official, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.85, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
+    layers: [{ suffix: "line", type: "line", paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "line-color": NETWORK_STRUCTURES_COLORS.official, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1 * scale, 12, 2.5 * scale, 16, 4 * scale], "line-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.8 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: ["==", ["get", "geometry_role"], "coincident_endpoints"], paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "circle-color": NETWORK_STRUCTURES_COLORS.official, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.8, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
   },
   {
     id: "bridgeComparisonNewTaipei",
@@ -11046,7 +11193,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bridge-comparison-new-taipei",
     pmtiles: { sourceLayer: "bridge_comparison", minzoom: 7, maxzoom: 15 },
     attribution: "新北市政府橋梁清冊；© OpenStreetMap contributors (ODbL)",
-    layers: [{ suffix: "line", type: "line", filter: comparisonStatusFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "line-color": comparisonColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.4 * scale, 12, 3 * scale, 16, 4.5 * scale], "line-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: comparisonGeometryFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "circle-color": comparisonColorExpression as unknown as string, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
+    layers: [{ suffix: "line", type: "line", filter: comparisonStatusFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "line-color": comparisonColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.4 * scale, 12, 3 * scale, 16, 4.5 * scale], "line-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.8 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: comparisonGeometryFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "circle-color": comparisonColorExpression as unknown as string, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.8, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
   },
   {
     id: "tainanBridgeInspections",
@@ -11059,7 +11206,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       return {
         "circle-color": "#a855f7",
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 2.5 * scale, 12, 5 * scale, 16, 8 * scale],
-        "circle-opacity": p?.tainanBridgeInspectionsOpacity ?? 0.9,
+        "circle-opacity": p?.tainanBridgeInspectionsOpacity ?? 0.8,
         "circle-stroke-color": "#fff",
         "circle-stroke-width": 1 * scale,
       };
@@ -11093,7 +11240,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "changhuaTrafficSignals", sourceUrl: "./network_structures/changhua_traffic_signals_20260924.pmtiles", sourceId: "changhua-traffic-signals",
     pmtiles: { sourceLayer: "changhua_traffic_signals", minzoom: 7, maxzoom: 15 },
     attribution: "彰化縣政府號誌清冊（政府資料開放授權條款第 1 版）",
-    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#84cc16", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 2 * (p?.changhuaTrafficSignalsScale ?? 1), 12, 4.5 * (p?.changhuaTrafficSignalsScale ?? 1), 16, 7 * (p?.changhuaTrafficSignalsScale ?? 1)], "circle-opacity": p?.changhuaTrafficSignalsOpacity ?? 0.85, "circle-stroke-color": "#fff", "circle-stroke-width": 0.8 }) }],
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#84cc16", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 2 * (p?.changhuaTrafficSignalsScale ?? 1), 12, 4.5 * (p?.changhuaTrafficSignalsScale ?? 1), 16, 7 * (p?.changhuaTrafficSignalsScale ?? 1)], "circle-opacity": p?.changhuaTrafficSignalsOpacity ?? 0.8, "circle-stroke-color": "#fff", "circle-stroke-width": 0.8 }) }],
   },
 ];
 

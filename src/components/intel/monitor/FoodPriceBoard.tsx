@@ -3,9 +3,9 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE, BORDER } from "../../../styles/designTokens";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
-import { MonitorMetric } from "./MonitorMetric";
+import { MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { MON_CHART_H } from "./monitorChart";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
 import { SectionLabel } from "./PressureRing";
 import {
   fetchFoodPriceDaily, fetchFoodPriceSummary,
@@ -55,7 +55,9 @@ export function FoodPriceBoard({ open }: Props) {
     return m;
   }, [days]);
 
-  const totalAlerts = summary.reduce((s, x) => s + x.highAlertDays + x.lowAlertDays, 0);
+  // 異常日數缺值（null）時不加總成 0：v2 不宣稱「期間無異常日」；舊版維持原本 ?? 0
+  const alertsKnown = summary.every((x) => x.highAlertDays != null && x.lowAlertDays != null);
+  const totalAlerts = summary.reduce((s, x) => s + (x.highAlertDays ?? 0) + (x.lowAlertDays ?? 0), 0);
 
   /**
    * 資料截止日與落後天數。
@@ -78,14 +80,19 @@ export function FoodPriceBoard({ open }: Props) {
     const t = Date.parse(`${latestDate}T00:00:00+08:00`);
     return Number.isNaN(t) ? null : Math.floor((Date.now() - t) / 86_400_000);
   }, [latestDate]);
-  // T+1 來源、連假可能連休數日 → 3 天內不算異常
-  const isStale = staleDays != null && staleDays > 3;
+  // 資料日期（台灣 00:00）；只有日期沒有時間
+  const dataMs = useMemo(() => {
+    if (!latestDate) return null;
+    const t = Date.parse(`${latestDate}T00:00:00+08:00`);
+    return Number.isNaN(t) ? null : t;
+  }, [latestDate]);
 
-  // v2：資料截止日（MM/DD）與過期狀態送標題列（沿用上方 >3 天判斷）
-  useMonitorCardHeader({
+  // v2：資料截止日（MM/DD）與新鮮度送標題列（週期登記在 monitorCardMeta：日批次，>3 天＝過期；T+1 來源、連假可能連休數日）
+  const fresh = useMonitorFreshness("foodPriceBoard", {
     timeText: latestDate ? latestDate.slice(5).replace("-", "/") : null,
-    state: isStale ? { kind: "stale", label: `過期 ${staleDays} 天` } : null,
+    dataMs,
   });
+  const isStale = fresh.state === "stale" || fresh.state === "stopped";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -115,10 +122,13 @@ export function FoodPriceBoard({ open }: Props) {
               {ORDER.map((key) => {
                 const s = summary.find((x) => x.indicator === key);
                 if (!s) return null;
-                return <IndexCell key={key} s={s} series={byIndicator.get(key) ?? []} />;
+                return <IndexCell key={key} s={s} series={byIndicator.get(key) ?? []} muted={fresh.muted} />;
               })}
             </div>
             <Legend />
+            {v2 && fresh.reason && (
+              <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+            )}
             <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, lineHeight: 1.5 }}>
               {latestDate && !(v2 && isStale) && (
                 <span style={{ color: isStale ? "#fbbf24" : COLORS.textMuted, fontWeight: isStale ? 700 : 400 }}>
@@ -127,7 +137,7 @@ export function FoodPriceBoard({ open }: Props) {
                 </span>
               )}
               農業部批發拍賣成交價 · 基期 2024-2025 = 100 ·
-              近 {WINDOW} 天{totalAlerts > 0 ? ` · 期間 ${totalAlerts} 個異常日` : " · 期間無異常日"} ·
+              近 {WINDOW} 天{totalAlerts > 0 ? ` · 期間 ${totalAlerts} 個異常日` : alertsKnown || !v2 ? " · 期間無異常日" : ""} ·
               ⚠️ 肉價不含牛（台灣無牛肉交易行情）
             </div>
           </>
@@ -139,7 +149,7 @@ export function FoodPriceBoard({ open }: Props) {
 
 /* ── 單一指數格 ─────────────────────────────────────────── */
 
-function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] }) {
+function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPriceDay[]; muted: boolean }) {
   const v2 = useMonitorV2();
   const color = FOOD_COLORS[s.indicator];
   const dev = s.latestDev;
@@ -147,6 +157,12 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
   const devColor = dev === null ? COLORS.textFaint
     : dev >= 10 ? FOOD_ALERT_HIGH : dev <= -10 ? FOOD_ALERT_LOW : COLORS.textDefault;
   const stale = s.latestLight === "low_coverage";
+  // 缺值（null）：v2 顯示「—」；舊版維持原本補 0 的畫面
+  const latestVal = v2 ? s.latestVal : s.latestVal ?? 0;
+  const latestText = latestVal === null ? "—" : latestVal.toFixed(1);
+  const hiDays = v2 ? s.highAlertDays : s.highAlertDays ?? 0;
+  const loDays = v2 ? s.lowAlertDays : s.lowAlertDays ?? 0;
+  const warnDays = v2 ? s.warnDays : s.warnDays ?? 0;
 
   return (
     <div
@@ -186,7 +202,8 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
       {/* 主數值：指數 + 偏離 */}
       {v2 ? (
         <MonitorMetric
-          value={s.latestVal.toFixed(1)}
+          value={latestText}
+          muted={muted}
           delta={
             <>
               <span style={{ color: devColor, fontWeight: 600 }}>
@@ -199,7 +216,7 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
       ) : (
       <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 21), fontWeight: 600, color: COLORS.textStrong, lineHeight: 1 }}>
-          {s.latestVal.toFixed(1)}
+          {latestText}
         </span>
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 11), fontWeight: 600, color: devColor }}>
           {dev === null ? "—" : `${dev > 0 ? "+" : ""}${dev.toFixed(1)}%`}
@@ -213,22 +230,25 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
       {/* 底部：異常天數（方向分離）+ YoY */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
         <div style={{ display: "flex", gap: 5, fontFamily: FONT_DATA, fontSize: fs(v2, 8.5) }}>
-          {s.highAlertDays > 0 && (
+          {hiDays != null && hiDays > 0 && (
             <span style={{ color: FOOD_ALERT_HIGH }} title="價格異常偏高的天數（民生壓力）">
-              ▲{s.highAlertDays}
+              ▲{hiDays}
             </span>
           )}
-          {s.lowAlertDays > 0 && (
+          {loDays != null && loDays > 0 && (
             <span style={{ color: FOOD_ALERT_LOW }} title="價格異常偏低的天數（供給過剩／產地崩盤）">
-              ▼{s.lowAlertDays}
+              ▼{loDays}
             </span>
           )}
-          {s.highAlertDays === 0 && s.lowAlertDays === 0 && (
+          {hiDays === 0 && loDays === 0 && (
             <span style={{ color: COLORS.textFaint }}>無異常日</span>
           )}
-          {s.warnDays > 0 && (
+          {hiDays == null && loDays == null && (
+            <span style={{ color: COLORS.textFaint }}>異常日 —</span>
+          )}
+          {warnDays != null && warnDays > 0 && (
             <span style={{ color: COLORS.textDim }} title="黃燈（注意）天數">
-              ·{s.warnDays} 注意
+              ·{warnDays} 注意
             </span>
           )}
         </div>
@@ -298,7 +318,8 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const geom = useMemo(() => {
-    const pts = series.filter((d) => Number.isFinite(d.indexVal));
+    // indexVal 缺值（null）的日子排除（Number(null)=0 會被畫成假低點）
+    const pts = series.filter((d): d is FoodPriceDay & { indexVal: number } => d.indexVal != null && Number.isFinite(d.indexVal));
     if (pts.length < 2) return null;
     const vals = pts.map((d) => d.indexVal);
     const mn = Math.min(...vals), mx = Math.max(...vals);
@@ -366,7 +387,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     <>
     <div
       style={v2
-        ? { flex: "none", height: MON_CHART_H.lg, position: "relative" }
+        ? { flex: "none", height: MON_CHART_H.lg, position: "relative", marginRight: 4 } // 最新點半徑 3.5，右緣留白免得被卡片裁掉
         : { flex: 1, minHeight: SPARK_MIN_H, position: "relative" }}
     >
     <svg

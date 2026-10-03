@@ -3,7 +3,7 @@ import { useSyncExternalStore } from "react";
 import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, useLegendTheme } from "./legendKit";
 import {
   CEMS_STATUSES, CWA_UV_LEVELS, DIOXIN_STATION_STOPS, ENV_ALERT_COLOR, ENV_STALE_COLOR, INCINERATOR_NOX_STOPS,
-  NUSC_GAMMA_HIGH_USVH, NUSC_GAMMA_STOPS, OSM_ODBL_ATTRIBUTION, PM25_MANUAL_STOPS, RIVER_RPI_CLASSES, RIVER_RPI_SEGMENT_MODES,
+  NUSC_GAMMA_HIGH_USVH, NUSC_GAMMA_STOPS, OSM_ODBL_ATTRIBUTION, PM25_MANUAL_STOPS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR, RIVER_RPI_SEGMENT_MODES,
   SEA_WATER_CLASSES, WATER_EFFLUENT_STATUSES, envCssGradient, type EnvGradientStop,
 } from "../../data/environmentLayerTypes";
 import { getEnvLiveStatus, subscribeEnvLiveStatus, type EnvLiveKey } from "../../data/environmentLiveLoaders";
@@ -50,14 +50,15 @@ export function SeaWaterQualityStationsLegend() {
   </div>;
 }
 
-export function RiverRpiSegmentsTamsuiLegend() {
-  const p = useKeyOverlayParams("riverRpiSegmentsTamsui");
-  const mode = RIVER_RPI_SEGMENT_MODES[p.riverRpiSegmentsTamsuiModeIdx ?? 0] ?? RIVER_RPI_SEGMENT_MODES[0];
+export function RiverRpiSegmentsLegend() {
+  const p = useKeyOverlayParams("riverRpiSegments");
+  const mode = RIVER_RPI_SEGMENT_MODES[p.riverRpiSegmentsModeIdx ?? 0] ?? RIVER_RPI_SEGMENT_MODES[0];
   return <div>
-    <LegendTitle zh={`RPI 河段（試作・推估河段）· ${mode.label}`} en="River RPI Segments" />
+    <LegendTitle zh={`河川污染指數河段（推估）· ${mode.label}`} en="River RPI Segments" />
     {RIVER_RPI_CLASSES.map((row) => <LegendRow key={row.value} swatch={<SwatchLine color={row.color} width={3} />}>{row.label}</LegendRow>)}
+    <LegendRow swatch={<SwatchLine color={RIVER_RPI_NO_DATA_COLOR} width={3} />}>無樣本（不代表乾淨）</LegendRow>
     <LegendRow swatch={<SwatchLine color={RIVER_RPI_CLASSES[0].color} width={3} dash={[2, 2]} />}>已確認感潮段（虛線，RPI 代表性較差）</LegendRow>
-    <LegendNote>僅淡水河水系 38 段試作：以上游測站代表其下游至下一站，非連續監測。部分感潮（未驗證）段見 popup。與 RPI 測站同色。中心線 {OSM_ODBL_ATTRIBUTION}</LegendNote>
+    <LegendNote>全台有測站的河川：以上游測站代表其下游至下一站，非連續監測；沒有測站的河川不著色，不代表乾淨。河名改派、流向推斷等待複核事項見 popup。與 RPI 測站同色。中心線 {OSM_ODBL_ATTRIBUTION}</LegendNote>
   </div>;
 }
 

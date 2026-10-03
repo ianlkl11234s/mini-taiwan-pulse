@@ -3,7 +3,45 @@
 > 每一輪拍板了什麼、哪個 PR 做的。規格細節以 [`spec.md`](./spec.md)、[`map-layers.md`](./map-layers.md) 為準；數值以程式（見 [`README.md`](./README.md)「程式裡的唯一來源」）與活的元件頁為準。
 > 設計稿都在 `docs/features/ui-consistency-audit-20260927/`（UI）與 `docs/features/map-layer-restyle/`（地圖）。
 
+## 2026-10-03
+
+### 監看卡 P4 來源新鮮度與缺值修正 — spec §5.35 G2／K1
+
+| 項目 | 內容 |
+|---|---|
+| 新鮮度 | `monitorFreshness.ts`：每格週期登記在 `monitorCardMeta.ts`（stream／days／market／event），只用資料本身的時間判斷即時／延遲／過期／停更／無資料／收盤；`useMonitorFreshness` 取代卡片直接呼叫 `useMonitorCardHeader` |
+| G2 畫法 | 過期／停更：主數字 `muted`、折線 `staleUntil` 尾段斜線、卡底 `MonitorNote` 原因；`MonitorKpis` 加 `muted`；計數柱在過期時才補 null 灰樁到今天 |
+| 資料時間 | 加權指數改用最後交易日＋HH:MM（不再套今天日期）；機場、ISR 不再退回瀏覽器收到的時間；新聞直播不再用解析器時間；公衛由週次推週四 |
+| 缺值修正 | 地震規模／深度、落雷計數（彙整落後時不說「今日尚無落雷」）、颱風、輻射站數、警訊序列失敗、食品、加權指數高低、共機、台鐵、公衛、信號分級（另列「未分級」）、供電分區、機場空序列 → 保留 null 顯示「—」；特殊船舶新版合併柱真 0 畫底線 |
+| 壓力指數 | loader 改讀 `updated_at`、解析 `per_signal` 物件（只顯示子分數，不在前端複製權重）；未就緒改中性色；新版環內不再疊英文等級字 |
+| 熱區 | 「熱度倍數」合成值（1＋則數×0.28）改為近 1 小時升溫（`get_news_trending` 按縣市 Σ則數 ÷ Σ7 天每小時平均），新舊版都換 |
+| 網路觀察 | 每個 5 分鐘桶用資料的 `expected_probe_count` 判斷完整桶（取代寫死 79／39；7D／30D 與即時值仍用寫死值） |
+| 不改 | 只在舊版路徑的補 0（舊版供電／急診 `[0,0]`、共機 AxisBar、機場舊版加總）；資料庫端 `COALESCE(…,0)`（公衛年增、漲跌幅、壓力指數比較）前端已能接 null，要改 RPC 才看得到 |
+| 驗收 | 1920／1496／1280 新版 24 格無截斷、無溢出；1920 舊版版面不變；tsc、1323 個測試 |
+
+### 地圖 R5 密集點熱區＋密度透明度 — map-layers §3.1 P-3／P-4、§3.4 G-2
+
+| 項目 | 內容 |
+|---|---|
+| 點數盤點 | 292 個點圖層（台灣、日本、全球）：>100k 10、10k–100k 45、1k–10k 78、<1k 158、未知 1（`jpRamsarSites` 資料檔遺失） |
+| 熱區 | 42 層＋示範 2 層（`fireHydrants`、`jpReligionGsi`）：10k–100k z<10、>100k z<12 熱區；原本 minzoom 較高者保留原出點縮放（使用者選 B）；共用 magma、熱區與點同 filter、滑桿同時控制 |
+| 強度 | 每層目視校正 0.01–5；7 層低縮放 PMTiles 抽稀，強度偏高為補償、密度分布被壓平 |
+| 保留 | `powerPoles` 熱區、`companyPoints` 密度格網、`jpMedical*`／`jpCare*` 10km 格網（使用者決定）；`eduCramSchool` 抽稀過重不套 |
+| 取消聚合 | `aqiMicroSensors` 456 點直接顯示（使用者：點不多就全顯示） |
+| P-3 | 滑桿預設：>100k 0.6、10k–100k 0.75、1k–10k 0.8；<1k 不動 |
+| 不做 | 泡泡 M3 大小正規化：使用者決定各層維持原大小 |
+| 對照 | `docs/features/map-layer-restyle/r5-compare.html`（示範兩層前後）、`r5-all.html`（全層拉遠總覽） |
+| 後續 | 熱區配色全站同色難分辨 → 提案「各層預設色＋科學色盤可選」 |
+
 ## 2026-10-02
+
+### 資料面修正與供電依區域分組
+
+| 項目 | 內容 |
+|---|---|
+| 網路觀察 collector | RIPE collector 覆寫問題已修（data-collectors #124），19:05 起資料完整 |
+| 台電分區 | gis-platform migration 424（#133）：`get_ssot_facility_output_24h` 每廠多 `taipower_region`（north／central／south／east／offshore_island／null），調查見 `docs/features/monitor-restyle/power-regions.md` |
+| 供電卡 | 機組出力小格加「依區域｜依發電方式」分段，預設依區域；東部目前無電廠，顯示空組說明而非 0 MW；僅新版 |
 
 ### 監看卡 P3 多指標卡實作 — spec §5.35
 
