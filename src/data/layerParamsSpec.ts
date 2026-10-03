@@ -568,7 +568,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
     "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", "顯示替代路線（代表性起訖對）", "關渡＋淡江同時中斷", "設施類型",
     "資料源", "即時水位", "預測水位 (12-19h)", "累計流量", "閘門", "堤防安全", "河床沖刷", "揚塵", "信心", "確認", "漁電共生",
     "兩版都有", "只看官方", "只看舊版 OSM", "軌跡篩選", "深度", "累積時長", "作物 芋", "高度門檻 ≥", "行政層級", "疊加", "回放",
-    "▶ 歷史播放", "待核實", "軌跡", "含疑似（未查證）", "時段", "污染等級", "測站類型", "相關度", "嚴重", "只看事件", "依時間",
+    "歷史播放", "待核實", "軌跡", "含疑似（未查證）", "時段", "污染等級", "測站類型", "相關度", "嚴重", "只看事件", "依時間",
     "空污", "水污", "廢棄物", "毒化物", "土污", "雙北", "基宜", "桃竹苗", "中彰投", "雲嘉南", "高屏", "花東", "離島", "只看列管中",
     "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式",
   ].map((label) => [label, "data" as const])),
@@ -597,7 +597,8 @@ export function paramControlCategory(spec: LayerParamSpec): ParamControlCategory
   if (spec.category) return spec.category;
   if (spec.kind === "palette") return "color";
   if (spec.kind === "multiSelect") return "data";
-  const label = (spec.kind === "slider" ? spec.labelPrefix : spec.label).trim();
+  // 開頭的播放符號等非文字字元不算進詞彙（播放鍵標籤 → 「歷史播放」）
+  const label = (spec.kind === "slider" ? spec.labelPrefix : spec.label).replace(/^[^\p{L}\p{N}]+/u, "").trim();
   if (spec.kind === "slider" && label.includes("透明度")) return "opacity";
   return CATEGORY_BY_LABEL[label] ?? null;
 }

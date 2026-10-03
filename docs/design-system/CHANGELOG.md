@@ -5,6 +5,19 @@
 
 ## 2026-10-03
 
+### 圖層面板統一 B 段（資料結構）— spec §5.5／§5.11／§5.22
+
+| 項目 | 內容 |
+|---|---|
+| P2 名稱 | manifest `name: { zh, alt?, qualifier? }`（`layerName()` 寫入），`label` 由 `composeLayerLabel()` 組成 `中文 外文（限定詞）`，搜尋、Agent、無障礙名稱照讀；列上同一行：中文＋外文小字（只省略外文）＋限定詞小標籤（`LayerNameLine`）。525 筆字面名稱：352 筆自動（兩支舊拆字函式一致、字串不變），173 筆人工，其中 52 筆字串改變（來源／版本改成限定詞、拿掉 emoji 與寫死的筆數）；清單 `docs/features/layer-panel-unify/names-review.md`。日本醫療三組常數加 `zh`／`ja` |
+| 拆字退場 | `splitThemeTitle`、`DataSourcePanel` `splitLabel` 移除；主題顯示名稱改查 `themeName()`（`THEME_NAMES`），大分類 `LAYER_MACRO_GROUPS` 改 `{ zh, en }` |
+| `labelMobile` | 欄位與 136 筆資料移除（A 段後已無畫面讀取） |
+| P3 日本副標 | 14 個主題補日文漢字副標，同字照樣顯示（宗教 宗教）；行政區→行政区域、旅宿→宿泊、長照服務→介護サービス、高度與地表→高さ・地表（內容是建物與樹冠高度，不用「標高」） |
+| P4 大分類 | `LayerPanelDef.macroGroups` 每個入口一份；日本 5 類，主題清單照分類重排；統計、世界待選定，暫不分 |
+| P5 順序 | 資料篩選→顏色→透明度→大小→其他外觀→說明・來源；`paramControlCategory`（明寫 `category`＞型別＞「透明度」字樣＞詞彙表），`buildParamControls` 與 Agent 端共用 `orderedVisibleParamsSpec`；190 層順序改變（黃金快照只有順序差）；汙染設施／裁處的篩選移到透明度前；`layerParamsOrder.test` 擋未分類標籤 |
+| 內部代碼 | 寺廟說明的 `deity_family` 改中文；資料來源卡不再用資料集代號當標題（guard `internal-id-display` 基準 3→1） |
+| 對照 | `docs/features/layer-panel-unify/phase-b-compare.html` |
+
 ### R7 熱區／網格配色 — map-layers §3.4 G-2／G-3、LG-8；spec §5.36
 
 | 項目 | 內容 |
