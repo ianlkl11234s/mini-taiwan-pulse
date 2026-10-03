@@ -1,5 +1,6 @@
 import { LAYER_PARAMS_SPEC, MULTI_SELECT_ALL, MULTI_SELECT_NONE, type LayerParamSpec, type ParamValue } from "../data/layerParamsSpec";
 import type { MemberSceneSnapshot } from "./memberSchema";
+import { linkedSelectSnapshot } from "../state/linkedSelect";
 
 const specsFor = (key: string): readonly LayerParamSpec[] => (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] ?? [];
 type SelectParamSpec = Extract<LayerParamSpec, { kind: "select" }>;
@@ -10,6 +11,8 @@ function optionsFor(spec: SelectParamSpec, siblings: Record<string, unknown>) {
 }
 
 function validParam(spec: LayerParamSpec, value: unknown, siblings: Record<string, unknown>): value is ParamValue {
+  // 連動選單的值在 provider，選項要等載入；存檔與還原另走 linked 通道（見下）
+  if (spec.kind === "linkedSelect") return false;
   if (spec.kind === "slider") return typeof value === "number" && Number.isFinite(value) && value >= spec.min && value <= spec.max;
   if (spec.kind === "toggle") return typeof value === "boolean";
   if (typeof value !== "string") return false;
@@ -30,13 +33,22 @@ function compatibleDefault(spec: LayerParamSpec, siblings: Record<string, unknow
   return optionsFor(spec, siblings).find((option) => !option.disabled)?.value ?? spec.default;
 }
 
-/** Persist only declared scalar controls; replay/animation switches restart paused. */
+/**
+ * Persist only declared scalar controls; replay/animation switches restart paused.
+ * 連動選單（C 段）：讀 provider 的目前值；選項已就緒且值非空才存，`persist: false`（群組「指標」）不存。
+ */
 export function captureSceneParams(keys: readonly string[], all: Readonly<Record<string, Readonly<Record<string, unknown>>>>) {
   const params: Record<string, Record<string, ParamValue>> = {};
   for (const key of keys) {
     const current = all[key] ?? {};
     const out: Record<string, ParamValue> = {};
     for (const spec of specsFor(key)) {
+      if (spec.kind === "linkedSelect") {
+        if (spec.persist === false) continue;
+        const snap = linkedSelectSnapshot(key, spec);
+        if (snap.value && snap.options.some((option) => option.value === snap.value)) out[spec.name] = snap.value;
+        continue;
+      }
       const value = /playing|autoplay/i.test(spec.name) ? spec.default : current[spec.name];
       if (validParam(spec, value, current)) out[spec.name] = value;
     }
@@ -45,7 +57,11 @@ export function captureSceneParams(keys: readonly string[], all: Readonly<Record
   return params;
 }
 
-/** Resolve before applying anything: old keys and unauthorized controls are never restored. */
+/**
+ * Resolve before applying anything: old keys and unauthorized controls are never restored.
+ * 連動選單的值不在這裡驗證（選項要等資料載入）：原樣放進 `linked`，由 `restoreLinkedSelects`
+ * 在圖層開啟後等選項就緒再逐列驗證套用。舊存檔沒有這些值 → `linked` 為空。
+ */
 export function resolveSceneRestore(scene: MemberSceneSnapshot, knownKeys: ReadonlySet<string>, lockedKeys: ReadonlySet<string>, basemaps: readonly string[]) {
   const skipped: string[] = [];
   const layers = scene.layers.filter((key) => {
@@ -54,10 +70,17 @@ export function resolveSceneRestore(scene: MemberSceneSnapshot, knownKeys: Reado
     return true;
   });
   const params: Record<string, Record<string, ParamValue>> = {};
+  const linked: Record<string, Record<string, string>> = {};
   for (const key of layers) {
     const stored = scene.params[key] ?? {};
     const out: Record<string, ParamValue> = {};
-    const specs = specsFor(key);
+    const allSpecs = specsFor(key);
+    for (const spec of allSpecs) {
+      if (spec.kind !== "linkedSelect" || spec.persist === false) continue;
+      const value = stored[spec.name];
+      if (typeof value === "string" && value) (linked[key] ??= {})[spec.name] = value;
+    }
+    const specs = allSpecs.filter((spec) => spec.kind !== "linkedSelect");
     // Resolve in declaration order. A dependent select only sees an already validated
     // parent value, never a stale or malformed value from the saved snapshot.
     const siblings: Record<string, ParamValue> = {};
@@ -72,10 +95,10 @@ export function resolveSceneRestore(scene: MemberSceneSnapshot, knownKeys: Reado
       }
       siblings[spec.name] = out[spec.name]!;
     }
-    for (const name of Object.keys(stored)) if (!specs.some((s) => s.name === name)) skipped.push(`${key}.${name}：參數已移除`);
+    for (const name of Object.keys(stored)) if (!allSpecs.some((s) => s.name === name && (s.kind !== "linkedSelect" || s.persist !== false))) skipped.push(`${key}.${name}：參數已移除`);
     params[key] = out;
   }
   const basemap = basemaps.includes(scene.basemap) ? scene.basemap : "dark";
   if (basemap !== scene.basemap) skipped.push(`${scene.basemap}：底圖已移除，使用 Dark`);
-  return { layers, params, basemap, skipped };
+  return { layers, params, linked, basemap, skipped };
 }

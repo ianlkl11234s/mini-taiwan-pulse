@@ -18,7 +18,8 @@ interface Props {
   labels: Readonly<Record<string, string>>; visibleKeys: string[]; lockedKeys: ReadonlySet<string>;
   onToggleLayer: (key: string) => void;
   captureScene: () => MemberSceneSnapshot;
-  restoreScene: (scene: MemberSceneSnapshot) => string[];
+  /** 連動選單（統計期別等）要等選項載入才驗證，所以是非同步；resolve 的是略過項目 */
+  restoreScene: (scene: MemberSceneSnapshot) => Promise<string[]>;
   capturePlace: (kind: "center" | "selection" | "bounds") => PlaceInput["geometry"];
   restorePlace: (place: SavedPlace) => void;
   /** 4b：owner 才看得到「卡片」分頁（自己發布的分析卡清單與撤銷）。 */
@@ -55,8 +56,10 @@ export function MemberPanel(props: Props) {
     setNotice("");
     void Promise.resolve().then(work).catch((error: unknown) => setNotice(error instanceof Error ? error.message : "操作未完成，請重試。"));
   };
-  const openScene = (scene: SavedScene) => attempt(() => {
-    const skipped = props.restoreScene(scene.snapshot);
+  const openScene = (scene: SavedScene) => attempt(async () => {
+    const restoring = props.restoreScene(scene.snapshot);
+    setNotice("正在重開場景…");
+    const skipped = await restoring;
     setNotice(skipped.length ? `已重開。略過項目：${skipped.join("；")}` : "已重開場景。即時模式會讀取新資料；回放保留所選時間。");
   });
   const chooseGeometry = (kind: "center" | "selection" | "bounds") => attempt(() => { setGeometry(JSON.stringify(props.capturePlace(kind))); setSourceKind("map"); });
