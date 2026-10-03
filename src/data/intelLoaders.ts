@@ -254,7 +254,7 @@ export interface MarketIndex {
   high: number | null;
   low: number | null;
   change: number;
-  change_pct: number;
+  change_pct: number | null;
   turnover: string | null;  // 顯示用成交量「1365.1 萬張」（migration 325 起；上游欄位實為成交股數）
   time: string | null;      // "13:33"
   status: string | null;    // 盤中 / 收盤 / 休市
@@ -262,7 +262,7 @@ export interface MarketIndex {
 
 const EMPTY_MARKET: MarketIndex = {
   index: 0, prev_close: 0, open: 0, high: 0, low: 0,
-  change: 0, change_pct: 0, turnover: null, time: null, status: null,
+  change: 0, change_pct: null, turnover: null, time: null, status: null,
 };
 
 async function _fetchMarketIndexRaw(): Promise<IntelLoadResult<MarketIndex>> {
@@ -287,7 +287,8 @@ async function _fetchMarketIndexRaw(): Promise<IntelLoadResult<MarketIndex>> {
   const index = Number(row.index ?? row.idx ?? 0);
   const prev = Number(row.prev_close ?? row.y ?? 0);
   const change = Number(row.change ?? (index - prev).toFixed(2));
-  const pct = Number(row.change_pct ?? (prev ? +((change / prev) * 100).toFixed(2) : 0));
+  // 缺值保留 null（migration 425 起 RPC 沒有前收盤價時回 NULL，不再回 0）
+  const pct = row.change_pct != null ? Number(row.change_pct) : prev ? +((change / prev) * 100).toFixed(2) : null;
   return {
     status: "ready",
     lastSuccessAt: Date.now(),

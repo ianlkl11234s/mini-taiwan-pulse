@@ -192,7 +192,7 @@ export function TwseTicker({
         <MonitorMetric
           value={has ? data.index.toLocaleString() : "—"}
           muted={stale || fresh.muted}
-          delta={has ? `${up ? "▲ +" : "▼ "}${data.change.toLocaleString()}（${up ? "+" : ""}${data.change_pct}%）` : undefined}
+          delta={has ? `${up ? "▲ +" : "▼ "}${data.change.toLocaleString()}${data.change_pct == null ? "" : `（${up ? "+" : ""}${data.change_pct}%）`}` : undefined}
           tone={tone}
         />
         <MonitorSub items={[
@@ -271,7 +271,7 @@ export function TwseTicker({
               {up ? "▲" : "▼"} {up ? "+" : ""}{data.change.toLocaleString()}
             </span>
             <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
-              {up ? "+" : ""}{data.change_pct}%
+              {up ? "+" : ""}{data.change_pct ?? 0}%
             </span>
           </>
         )}

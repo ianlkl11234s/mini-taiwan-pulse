@@ -67,13 +67,15 @@ import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { MF } from "./monitorFont";
 
 const EMPTY_PRESSURE: PressureIndexNow = {
-  composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
+  composite: 0, level: null, vs_baseline: null, vs_1h_ago: null, per_signal: [], asof: null,
 };
 const EMPTY_MARKET: MarketIndex = {
-  index: 0, prev_close: 0, open: 0, high: 0, low: 0, change: 0, change_pct: 0,
+  index: 0, prev_close: 0, open: 0, high: 0, low: 0, change: 0, change_pct: null,
   turnover: null, time: null, status: null,
 };
 const EMPTY_CLUSTERS: Cluster[] = [];
+/** 最新一則新聞超過這麼久，就不信彙整時間（彙整照跑不代表收集器活著） */
+const NEWS_QUIET_MAX_MS = 12 * 3600_000;
 const EMPTY_ALERT_SUMMARY: [] = [];
 
 const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
@@ -265,6 +267,8 @@ interface Cluster {
   lon: number | null;
   lat: number | null;
   events: IntelCardEvent[];
+  /** 新聞管線彙整時間（epoch 毫秒）；RPC 尚未回傳時為 null */
+  aggregatedAt: number | null;
 }
 
 interface Props {
@@ -353,6 +357,7 @@ export function MonitorPanel({
       location_name: r.location_name,
       lon: r.lon,
       lat: r.lat,
+      aggregatedAt: r.aggregated_at ? Date.parse(r.aggregated_at) : null,
       events: (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
         ...e, county: r.county ?? undefined, location_name: r.location_name ?? undefined,
         related_count: Math.max(0, arr.length - 1 - idx),
@@ -608,8 +613,22 @@ export function MonitorPanel({
   for (const c of clusters) for (const e of c.events) {
     if (latestNewsTs === null || e.published_ts > latestNewsTs) latestNewsTs = e.published_ts;
   }
+  // 時間＝新聞管線彙整時間（每 30 分跑一次，凌晨沒有新新聞也會前進）。
+  // 但彙整照跑不代表收集器活著：最新一則已超過 12 小時就改用發布時間判斷，讓停更顯示出來。
+  let newsAggregatedMs: number | null = null;
+  for (const c of clusters) {
+    if (c.aggregatedAt != null && Number.isFinite(c.aggregatedAt)
+      && (newsAggregatedMs === null || c.aggregatedAt > newsAggregatedMs)) newsAggregatedMs = c.aggregatedAt;
+  }
+  const latestNewsMs = latestNewsTs != null ? latestNewsTs * 1000 : null;
+  const newsQuiet = latestNewsMs != null && now * 1000 - latestNewsMs > NEWS_QUIET_MAX_MS;
+  const newsDataMs = newsQuiet || newsAggregatedMs == null ? latestNewsMs : newsAggregatedMs;
   const newsTime = (id: MonitorWidgetId) => (
-    <MonitorFreshTime widgetId={id} time={latestNewsTs != null ? latestNewsTs * 1000 : null} />
+    <MonitorFreshTime
+      widgetId={id}
+      time={newsDataMs}
+      reason={newsQuiet ? "最新一則新聞已超過 12 小時，收集可能停了" : undefined}
+    />
   );
 
   // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
