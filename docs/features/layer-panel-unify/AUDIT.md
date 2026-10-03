@@ -30,7 +30,7 @@
 | 站主限定 | `lockedKeys` → `LayerRow` 鎖頭、半透明 | 例：日本「歷史航班軌跡 Japan」 |
 | 空品產品切換 | `src/App.tsx` 2993 | `AqiProductSwitcher` 浮在圖例上方，不在側欄 |
 | 拆字函式 | `layerCatalog.ts` `splitThemeTitle` 2085（第一個空格切）vs `DataSourcePanel.tsx` `splitLabel` 77（尾段 ASCII 才切） | 兩支規則不相容；spec §5.5 指定前者為唯一入口 |
-| 名稱資料 | `src/data/layerManifest.ts` `label: string`（288），`labelMobile?`（290） | 525 筆 `label: "`；`labelMobile` 約 147 處 |
+| 名稱資料 | `src/data/layerManifest.ts` `label: string`（288），`labelMobile?`（290） | 525 筆 `label: "`；`labelMobile` 約 140 餘筆 |
 | 主題資料 | `layerCatalog.ts` `ThemeDef` 124、`JAPAN_TAB_THEME_TITLES` 205（14 個）、`LAYER_MACRO_GROUPS` 1990、`THEME_MACRO_GROUPS`（統計主題已有對應） | |
 | 測試 | `src/components/sidebar/__tests__/layerConsistency.test.ts` 440–473 | 讀兩個 sidebar **原始碼字串**比對（`<ParamControlList controls={controls} />`、`StatisticsDetails` 掛載字串） |
 
@@ -89,3 +89,4 @@ spec §5.1（面板外殼）、§5.5（主題列 LT1、大分類、L2 群組）�
 
 - Agent 分析結果清單：需要配對 Agent 才有內容，只截到未配對的空狀態；選擇頁的列名是示意。
 - 空品產品切換器、圖例：未開對應圖層，未截。
+- 淡色只截到清單視圖（台灣、日本、統計），展開設定只有暗色截圖。
