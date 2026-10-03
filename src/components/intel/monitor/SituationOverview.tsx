@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { IntelIcon, ICON } from "../IntelIcon";
 import {
-  COLORS, FONT_CJK, FONT_DATA, PRESSURE_LEVELS, pressureLevel,
+  COLORS, FONT_CJK, FONT_DATA, PRESSURE_LEVELS, pressureLevel, type PressureLevelDef,
 } from "../intelTokens";
 import { PressureRing, CompareLine, Widget } from "./PressureRing";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
@@ -12,7 +12,14 @@ import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
+import { MonitorNote, MonitorRows } from "./MonitorMetric";
+
+/** 未就緒（讀取中／中斷／受限）時的中性等級：不可用預設分數去決定等級色 */
+const NEUTRAL_LEVEL: PressureLevelDef = {
+  ...PRESSURE_LEVELS[0]!, label: "—", color: COLORS.textMuted,
+  soft: "rgba(255,255,255,0.04)", glow: "rgba(255,255,255,0)", anim: "none", period: 0,
+};
 
 function MiniStat({
   label, en, zh, value, color,
@@ -70,8 +77,9 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
       </div>
     );
   }
-  const sorted = [...signals].sort((a, b) => b.contribution - a.contribution);
-  const maxC = Math.max(...sorted.map((s) => s.contribution)) || 1;
+  // 只有各訊號子分數（0–100）；權重不在前端複製，排序與長條都用子分數
+  const sorted = [...signals].sort((a, b) => b.score - a.score);
+  const maxC = Math.max(...sorted.map((s) => s.score)) || 1;
   return (
     <div
       style={{
@@ -90,22 +98,37 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
           {v2 ? "指數組成" : "指數組成 · SIGNAL BREAKDOWN"}
         </span>
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
-          {v2 ? "權重「災害重」· 5 分鐘平滑" : "權重「災害重」· 5min EMA"}
+          {v2 ? "各訊號子分數 0–100 · 總分 5 分鐘平滑" : "權重「災害重」· 5min EMA"}
         </span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(240px, 1fr))" : "1fr 1fr", gap: "7px 22px" }}>
+      {v2 ? (
+        <MonitorRows
+          rows={sorted.map((s) => {
+            const lvl = pressureLevel(s.score);
+            return {
+              label: s.label,
+              title: `${s.label} 子分數 ${Math.round(s.score)}`,
+              chart: (
+                <div style={{ height: 7, borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", overflow: "hidden" }}>
+                  <span style={{ display: "block", height: "100%", width: `${Math.max(0, Math.min(100, s.score))}%`, background: lvl.color, borderRadius: RADIUS.md, opacity: 0.9 }} />
+                </div>
+              ),
+              value: Math.round(s.score),
+            };
+          })}
+        />
+      ) : (
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px 22px" }}>
         {sorted.map((s) => {
-          const lvl = pressureLevel(s.raw);
+          const lvl = pressureLevel(s.score);
           return (
             <div
               key={s.id}
               {...tip.bind(() => ({
                 title: s.label,
                 rows: [
-                  { dot: lvl.color, label: "貢獻分數", value: fmtChartValue(Math.round(s.raw)) },
-                  { label: "權重", value: `×${s.weight.toFixed(2)}` },
+                  { dot: lvl.color, label: "子分數", value: fmtChartValue(Math.round(s.score)) },
                 ],
-                note: s.note ?? undefined,
               }))}
               style={{ display: "flex", alignItems: "center", gap: 9 }}
             >
@@ -124,7 +147,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
                   ...(v2 ? { minWidth: 38 } : { width: 30 }), flexShrink: 0,
                 }}
               >
-                ×{s.weight.toFixed(2)}
+                {/* 後端不回權重：留空欄位維持舊版排版 */}
               </span>
               <div
                 style={{
@@ -135,7 +158,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
                 <span
                   style={{
                     display: "block", height: "100%",
-                    width: `${(s.contribution / maxC) * 100}%`,
+                    width: `${(s.score / maxC) * 100}%`,
                     background: lvl.color, borderRadius: RADIUS.md, opacity: 0.9,
                     transition: "width .5s cubic-bezier(.22,1,.36,1)",
                   }}
@@ -147,12 +170,13 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
                   color: lvl.color, ...(v2 ? { minWidth: 32 } : { width: 30 }), textAlign: "right", flexShrink: 0,
                 }}
               >
-                {Math.round(s.raw)}
+                {Math.round(s.score)}
               </span>
             </div>
           );
         })}
       </div>
+      )}
       {tip.node}
       {/* 4-檔戰情等級 legend */}
       <div
@@ -198,13 +222,13 @@ export function SituationOverview({
   const v2 = useMonitorV2();
   const [open, setOpen] = useState(false);
   const stale = status === "error" && lastSuccessAt !== null;
-  // v2：壓力指數資料時間（asof）送標題列；中斷時標為過期（沿用既有 stale 判斷，不新增門檻）
+  // v2：壓力指數資料時間（RPC updated_at）與新鮮度送標題列（stream 60 分）
   const asofMs = pressure.asof ? Date.parse(pressure.asof) : NaN;
-  useMonitorCardHeader({
+  const fresh = useMonitorFreshness("situationOverview", {
     time: Number.isNaN(asofMs) ? null : asofMs,
-    state: stale ? { kind: "stale", label: "更新中斷" } : null,
   });
-  const level = pressureLevel(status === "ready" ? smoothedScore : 50);
+  // 未就緒時用中性等級，不拿預設分數上色
+  const level = status === "ready" ? pressureLevel(smoothedScore) : NEUTRAL_LEVEL;
   const availability = status === "denied"
     ? "壓力指數無權限讀取"
     : status === "error"
@@ -258,7 +282,7 @@ export function SituationOverview({
             cursor: "pointer", position: "relative", lineHeight: 0,
           }}
         >
-          <PressureRing score={smoothedScore} level={level} status={status} stale={stale} />
+          <PressureRing score={smoothedScore} level={level} status={status} stale={stale || (v2 && status === "ready" && fresh.muted)} />
           <span
             style={{
               position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
@@ -304,6 +328,11 @@ export function SituationOverview({
         </div>
       </div>
 
+      {v2 && status === "ready" && fresh.reason && (
+        <div style={{ marginTop: 8 }}>
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+        </div>
+      )}
       {open && status === "ready" && <PressureDrawer signals={pressure.per_signal} />}
     </Widget>
   );

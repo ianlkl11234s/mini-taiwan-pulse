@@ -119,24 +119,39 @@ export function trendingKeys(rows: TrendingRow[], threshold = 2): Set<string> {
 
 // ── Monitor Phase 2 ──────────────────────────────────────────────
 
-/** 壓力指數 0-100 + 10 signal 細節（get_pressure_index_now()） */
+/** 壓力指數單一訊號子分數（RPC per_signal 物件的一個 key，0-100）；權重不在前端複製 */
 export interface PressureSignal {
   id: string;
   label: string;
-  en: string;
-  weight: number;
-  raw: number;          // 0-100
-  contribution: number; // weight * raw
-  note: string | null;
+  score: number; // 0-100
 }
 
+/** 壓力指數 0-100 + 10 signal 子分數（get_pressure_index_now()） */
 export interface PressureIndexNow {
   composite: number;     // 0-100 加權後
-  level: string | null;  // peace / notice / alert / emergency
-  vs_baseline: number;   // 與「平常同時段」差
-  vs_1h_ago: number;     // 與 1h 前差
+  level: string | null;  // RPC 回 normal / attention / alert / emergency（前端等級色由分數決定，不讀此欄）
+  vs_baseline: number | null;   // 與「平常同時段」差；null＝缺值
+  vs_1h_ago: number | null;     // 與 1h 前差；null＝缺值
   per_signal: PressureSignal[];
-  asof: string | null;   // ISO
+  asof: string | null;   // ISO；來源是 RPC 的 updated_at（資料本身時間）
+}
+
+/** per_signal 物件的 key → 中文標籤（順序即顯示順序） */
+export const PRESSURE_SIGNAL_LABELS: ReadonlyArray<readonly [string, string]> = [
+  ["power", "供電"], ["road", "道路"], ["er", "急診"], ["earthquake", "地震"], ["alert", "警報"],
+  ["rain", "降雨"], ["pumb", "抽水站"], ["aqi", "空品"], ["freeway", "國道"], ["flight", "航班"],
+];
+
+/** 解析 per_signal 物件；缺 key／非數值的訊號略過（不補 0） */
+export function parsePressureSignals(raw: unknown): PressureSignal[] {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
+  const obj = raw as Record<string, unknown>;
+  const out: PressureSignal[] = [];
+  for (const [id, label] of PRESSURE_SIGNAL_LABELS) {
+    const score = requiredFiniteNumber(obj[id]);
+    if (score !== null) out.push({ id, label, score });
+  }
+  return out;
 }
 
 export interface IntelLoadResult<T> {
@@ -147,7 +162,7 @@ export interface IntelLoadResult<T> {
 }
 
 const EMPTY_PRESSURE: PressureIndexNow = {
-  composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
+  composite: 0, level: null, vs_baseline: null, vs_1h_ago: null, per_signal: [], asof: null,
 };
 
 function requiredFiniteNumber(value: unknown): number | null {
@@ -176,7 +191,7 @@ async function _fetchPressureIndexRaw(): Promise<IntelLoadResult<PressureIndexNo
   // RPC 可能回 single row 或 array，做防呆攤平
   const row = Array.isArray(data) ? data[0] : data;
   const composite = requiredFiniteNumber(row?.composite);
-  if (!row || row.asof == null || composite === null) {
+  if (!row || row.updated_at == null || composite === null) {
     return { status: "error", data: EMPTY_PRESSURE, lastSuccessAt: null, message: "壓力指數尚無有效觀測值" };
   }
   return {
@@ -185,10 +200,10 @@ async function _fetchPressureIndexRaw(): Promise<IntelLoadResult<PressureIndexNo
     data: {
       composite,
       level: row.level ?? null,
-      vs_baseline: Number(row.vs_baseline ?? 0),
-      vs_1h_ago: Number(row.vs_1h_ago ?? 0),
-      per_signal: asArray<PressureSignal>(row.per_signal),
-      asof: row.asof ?? null,
+      vs_baseline: requiredFiniteNumber(row.vs_baseline),
+      vs_1h_ago: requiredFiniteNumber(row.vs_1h_ago),
+      per_signal: parsePressureSignals(row.per_signal),
+      asof: row.updated_at ?? null,
     },
   };
 }
@@ -234,11 +249,12 @@ export function fetchSignalsTimeline(
 export interface MarketIndex {
   index: number;
   prev_close: number;
-  open: number;
-  high: number;
-  low: number;
+  /** open／high／low：null＝RPC 缺值（不補 0） */
+  open: number | null;
+  high: number | null;
+  low: number | null;
   change: number;
-  change_pct: number;
+  change_pct: number | null;
   turnover: string | null;  // 顯示用成交量「1365.1 萬張」（migration 325 起；上游欄位實為成交股數）
   time: string | null;      // "13:33"
   status: string | null;    // 盤中 / 收盤 / 休市
@@ -246,7 +262,7 @@ export interface MarketIndex {
 
 const EMPTY_MARKET: MarketIndex = {
   index: 0, prev_close: 0, open: 0, high: 0, low: 0,
-  change: 0, change_pct: 0, turnover: null, time: null, status: null,
+  change: 0, change_pct: null, turnover: null, time: null, status: null,
 };
 
 async function _fetchMarketIndexRaw(): Promise<IntelLoadResult<MarketIndex>> {
@@ -271,16 +287,17 @@ async function _fetchMarketIndexRaw(): Promise<IntelLoadResult<MarketIndex>> {
   const index = Number(row.index ?? row.idx ?? 0);
   const prev = Number(row.prev_close ?? row.y ?? 0);
   const change = Number(row.change ?? (index - prev).toFixed(2));
-  const pct = Number(row.change_pct ?? (prev ? +((change / prev) * 100).toFixed(2) : 0));
+  // 缺值保留 null（migration 425 起 RPC 沒有前收盤價時回 NULL，不再回 0）
+  const pct = row.change_pct != null ? Number(row.change_pct) : prev ? +((change / prev) * 100).toFixed(2) : null;
   return {
     status: "ready",
     lastSuccessAt: Date.now(),
     data: {
       index,
       prev_close: prev,
-      open: Number(row.open ?? 0),
-      high: Number(row.high ?? 0),
-      low: Number(row.low ?? 0),
+      open: requiredFiniteNumber(row.open),
+      high: requiredFiniteNumber(row.high),
+      low: requiredFiniteNumber(row.low),
       change,
       change_pct: pct,
       turnover: row.turnover ?? null,
@@ -423,8 +440,10 @@ export interface CdcDisease {
   en: string;
   value: string;
   unit: string;
-  spark: number[];
-  yoy: number;
+  /** null 點＝該週缺值（不補 0） */
+  spark: (number | null)[];
+  /** null＝缺值（DB 端目前 ELSE 0，見 migration 312:2847，前端已 null-safe） */
+  yoy: number | null;
   note: string;
   color: string;
 }
@@ -520,14 +539,35 @@ async function _fetchPublicHealthWeeklyRaw(): Promise<PublicHealthWeek> {
       en: r.en ?? def.en,
       value: String(r.value ?? "—"),
       unit: r.unit ?? def.unit,
-      spark: Array.isArray(r.spark) ? r.spark.map(Number) : [],
-      yoy: Number(r.yoy ?? 0),
+      spark: Array.isArray(r.spark) ? r.spark.map((v: unknown) => requiredFiniteNumber(v)) : [],
+      yoy: requiredFiniteNumber(r.yoy),
       note: r.note ?? "",
       color: r.color ?? def.color,
     });
   }
   return { week, diseases };
 }
+/**
+ * RPC 只回 ISO 週次、不回年份：取「該週週四（台灣 00:00）不晚於現在 +7 天」的最近一年推算資料日期。
+ * 週次 ≤0 或超出範圍回 null。（無法偵測落後超過一年的資料。）
+ */
+export function isoWeekThursdayMs(week: number, nowMs: number = Date.now()): number | null {
+  if (!Number.isInteger(week) || week < 1 || week > 53) return null;
+  const nowYear = new Date(nowMs + 8 * 3600_000).getUTCFullYear();
+  for (let year = nowYear; year >= nowYear - 2; year--) {
+    // ISO 週 1 含 1/4：先找該年 1/4 所在週的週四，再加 (week-1) 週
+    const jan4 = Date.UTC(year, 0, 4);
+    const dow = new Date(jan4).getUTCDay() || 7; // 週一=1…週日=7
+    const week1Thu = jan4 + (4 - dow) * 86_400_000;
+    const thu = week1Thu + (week - 1) * 7 * 86_400_000;
+    // 週 53 在沒有第 53 週的年份會溢到隔年 → 跳過
+    if (week === 53 && new Date(thu).getUTCFullYear() !== year) continue;
+    const ms = thu - 8 * 3600_000; // 台灣 00:00 的 epoch
+    if (ms <= nowMs + 7 * 86_400_000) return ms;
+  }
+  return null;
+}
+
 export const fetchPublicHealthWeekly = cachedOnce(_fetchPublicHealthWeeklyRaw, TTL_WEEKLY);
 
 /* ────────────────────────────────────────────────────────────
@@ -569,29 +609,54 @@ export interface PlaSeverityDay {
   chartUrl: string | null;
 }
 
+/** 統計值 null＝RPC 缺值（不補 0）；舊版畫面用 `toStrictPlaSummary`／`toStrictPlaKind` 還原成補 0 */
+export interface PlaPercentiles { p50: number | null; p75: number | null; p90: number | null; p97: number | null; max: number | null }
 export interface PlaSituationSummary {
   windowDays: number;
   dateFrom: string;
   dateTo: string;
-  daysTotal: number;
-  daysZero: number;
-  daysUnknown: number;
-  daysCrossed: number;
-  sorties: { p50: number; p75: number; p90: number; p97: number; max: number };
-  crossed: { p50: number; p75: number; p90: number; p97: number; max: number };
-  zones: { north: number; central: number; southwest: number; east: number };
+  daysTotal: number | null;
+  daysZero: number | null;
+  daysUnknown: number | null;
+  daysCrossed: number | null;
+  sorties: PlaPercentiles;
+  crossed: PlaPercentiles;
+  zones: { north: number | null; central: number | null; southwest: number | null; east: number | null };
+}
+
+type Strict<T> = { [K in keyof T]: T[K] extends number | null ? number : T[K] };
+export type PlaSituationSummaryStrict = Omit<PlaSituationSummary, "sorties" | "crossed" | "zones" | "daysTotal" | "daysZero" | "daysUnknown" | "daysCrossed"> & {
+  daysTotal: number; daysZero: number; daysUnknown: number; daysCrossed: number;
+  sorties: Strict<PlaPercentiles>; crossed: Strict<PlaPercentiles>; zones: Strict<PlaSituationSummary["zones"]>;
+};
+const z0 = (v: number | null) => v ?? 0;
+const strictPct = (p: PlaPercentiles): Strict<PlaPercentiles> => ({ p50: z0(p.p50), p75: z0(p.p75), p90: z0(p.p90), p97: z0(p.p97), max: z0(p.max) });
+export function toStrictPlaSummary(r: PlaSituationSummary): PlaSituationSummaryStrict {
+  return {
+    ...r,
+    daysTotal: z0(r.daysTotal), daysZero: z0(r.daysZero), daysUnknown: z0(r.daysUnknown), daysCrossed: z0(r.daysCrossed),
+    sorties: strictPct(r.sorties), crossed: strictPct(r.crossed),
+    zones: { north: z0(r.zones.north), central: z0(r.zones.central), southwest: z0(r.zones.southwest), east: z0(r.zones.east) },
+  };
 }
 
 export interface PlaKindStat {
   kind: string;
-  /** 出現天數 —— 唯一精確的彙總指標 */
-  days: number;
+  /** 出現天數 —— 唯一精確的彙總指標；null＝缺值 */
+  days: number | null;
   /** 單一機型項次的架次總和（精確） */
-  sortiesExact: number;
+  sortiesExact: number | null;
   /** 混合項次架次（與其他機型共享，**不可**與 exact 相加） */
-  sortiesShared: number;
-  itemsTotal: number;
-  itemsSingle: number;
+  sortiesShared: number | null;
+  itemsTotal: number | null;
+  itemsSingle: number | null;
+}
+export type PlaKindStatStrict = { kind: string; days: number; sortiesExact: number; sortiesShared: number; itemsTotal: number; itemsSingle: number };
+export function toStrictPlaKind(k: PlaKindStat): PlaKindStatStrict {
+  return {
+    kind: k.kind, days: z0(k.days), sortiesExact: z0(k.sortiesExact), sortiesShared: z0(k.sortiesShared),
+    itemsTotal: z0(k.itemsTotal), itemsSingle: z0(k.itemsSingle),
+  };
 }
 
 export const PLA_KIND_LABELS: Record<string, string> = {
@@ -652,9 +717,9 @@ async function _fetchPlaSituationSummary(windowDays: number): Promise<PlaSituati
   }
   const r = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | undefined;
   if (!r) return null;
-  const n = (k: string) => Number(r[k] ?? 0);
+  const n = (k: string) => num(r[k]);
   return {
-    windowDays: n("window_days"),
+    windowDays: n("window_days") ?? windowDays, // 缺值用呼叫時的視窗參數（不是補 0）
     dateFrom: String(r.date_from), dateTo: String(r.date_to),
     daysTotal: n("days_total"), daysZero: n("days_zero"),
     daysUnknown: n("days_unknown"), daysCrossed: n("days_crossed"),
@@ -685,11 +750,11 @@ async function _fetchPlaKindSummary(windowDays: number): Promise<PlaKindStat[]> 
   }
   return asArray<Record<string, unknown>>(data).map((r) => ({
     kind: String(r.kind),
-    days: Number(r.days ?? 0),
-    sortiesExact: Number(r.sorties_exact ?? 0),
-    sortiesShared: Number(r.sorties_shared ?? 0),
-    itemsTotal: Number(r.items_total ?? 0),
-    itemsSingle: Number(r.items_single ?? 0),
+    days: num(r.days),
+    sortiesExact: num(r.sorties_exact),
+    sortiesShared: num(r.sorties_shared),
+    itemsTotal: num(r.items_total),
+    itemsSingle: num(r.items_single),
   }));
 }
 
@@ -715,7 +780,8 @@ export type FoodLight = "green" | "amber" | "red" | "low_coverage";
 export interface FoodPriceDay {
   tradeDate: string;
   indicator: FoodIndicator;
-  indexVal: number;
+  /** null＝該日缺值（不補 0） */
+  indexVal: number | null;
   indexSa: number | null;
   z: number | null;
   devPct: number | null;
@@ -725,19 +791,19 @@ export interface FoodPriceDay {
 export interface FoodPriceSummary {
   indicator: FoodIndicator;
   latestDate: string;
-  latestVal: number;
+  latestVal: number | null;
   latestLight: FoodLight;
   latestDev: number | null;
   latestZ: number | null;
   yoyPct: number | null;
-  minVal: number;
-  maxVal: number;
-  highAlertDays: number;
-  lowAlertDays: number;
-  warnDays: number;
+  minVal: number | null;
+  maxVal: number | null;
+  highAlertDays: number | null;
+  lowAlertDays: number | null;
+  warnDays: number | null;
   spanFrom: string;
   spanTo: string;
-  nDays: number;
+  nDays: number | null;
 }
 
 export const FOOD_LABELS: Record<FoodIndicator, string> = {
@@ -781,7 +847,7 @@ async function _fetchFoodPriceDaily(days: number): Promise<FoodPriceDay[]> {
     .map((r) => ({
       tradeDate: String(r.trade_date),
       indicator: r.indicator as FoodIndicator,
-      indexVal: Number(r.index_val),
+      indexVal: num(r.index_val),
       indexSa: num(r.index_sa),
       z: num(r.z_score),
       devPct: num(r.dev_pct),
@@ -805,19 +871,19 @@ async function _fetchFoodPriceSummary(days: number): Promise<FoodPriceSummary[]>
     .map((r) => ({
       indicator: r.indicator as FoodIndicator,
       latestDate: String(r.latest_date),
-      latestVal: Number(r.latest_val),
+      latestVal: num(r.latest_val),
       latestLight: String(r.latest_light ?? "green") as FoodLight,
       latestDev: num(r.latest_dev),
       latestZ: num(r.latest_z),
       yoyPct: num(r.yoy_pct),
-      minVal: Number(r.min_val),
-      maxVal: Number(r.max_val),
-      highAlertDays: Number(r.high_alert_days ?? 0),
-      lowAlertDays: Number(r.low_alert_days ?? 0),
-      warnDays: Number(r.warn_days ?? 0),
+      minVal: num(r.min_val),
+      maxVal: num(r.max_val),
+      highAlertDays: num(r.high_alert_days),
+      lowAlertDays: num(r.low_alert_days),
+      warnDays: num(r.warn_days),
       spanFrom: String(r.span_from),
       spanTo: String(r.span_to),
-      nDays: Number(r.n_days ?? 0),
+      nDays: num(r.n_days),
     }))
     .sort((a, b) => FOOD_ORDER.indexOf(a.indicator) - FOOD_ORDER.indexOf(b.indicator));
 }
@@ -915,24 +981,25 @@ export function fetchVesselZoneDaily(windowDays = 120): Promise<VesselZoneDay[]>
 export interface TraDelayDay {
   serviceDate: string;
   scheduledTrains: number | null;
-  observedTrains: number;
+  /** 計數欄位 null＝缺值（不補 0）；舊版畫面用 `toStrictTraDay` 還原成補 0 */
+  observedTrains: number | null;
   coveragePct: number | null;
-  delayedOver0: number;
-  delayedOver5: number;
-  delayedOver10: number;
-  delayedOver15: number;
-  delayedOver30: number;
-  delayedP90Over5: number;
+  delayedOver0: number | null;
+  delayedOver5: number | null;
+  delayedOver10: number | null;
+  delayedOver15: number | null;
+  delayedOver30: number | null;
+  delayedP90Over5: number | null;
   /**
    * 口徑 C（到站誤點近似）—— 分母是 nearDestTrains，不是 observedTrains。
    * 只計「最後觀測落在終點前 3 站內」的班次，最接近一般人講的「這班車誤點了」。
    * nearDestTrains = 0 代表當天沒有班表可對照（班表缺漏 6 天 + 班表開始前 3 天），
    * 此組指標無意義，畫圖必須斷開不可補值連過去。
    */
-  nearDestTrains: number;
-  nearDestOver0: number;
-  nearDestOver5: number;
-  nearDestOver15: number;
+  nearDestTrains: number | null;
+  nearDestOver0: number | null;
+  nearDestOver5: number | null;
+  nearDestOver15: number | null;
   nearDestAvgDelay: number | null;
   /** 準點率 %：分母為 observedTrains、閾值 5 分（口徑 A：途中曾誤點） */
   ontimeRatePct: number | null;
@@ -940,6 +1007,19 @@ export interface TraDelayDay {
   p90DelayMin: number | null;
   maxDelayMin: number | null;
   byTrainType: Record<string, TraDelayTypeStat> | null;
+}
+
+const TRA_COUNT_KEYS = [
+  "observedTrains", "delayedOver0", "delayedOver5", "delayedOver10", "delayedOver15", "delayedOver30",
+  "delayedP90Over5", "nearDestTrains", "nearDestOver0", "nearDestOver5", "nearDestOver15",
+] as const;
+type TraCountKey = (typeof TRA_COUNT_KEYS)[number];
+/** 計數欄位已補 0 的版本（只給舊版畫面沿用原本輸出；v2 請用 TraDelayDay 的 null） */
+export type TraDelayDayStrict = Omit<TraDelayDay, TraCountKey> & Record<TraCountKey, number>;
+export function toStrictTraDay(d: TraDelayDay): TraDelayDayStrict {
+  const out = { ...d } as Record<string, unknown>;
+  for (const k of TRA_COUNT_KEYS) out[k] = d[k] ?? 0;
+  return out as unknown as TraDelayDayStrict;
 }
 
 export interface TraDelayTypeStat {
@@ -978,19 +1058,19 @@ async function _fetchTraDelaySummary(days: number): Promise<TraDelayDay[]> {
   return asArray<Record<string, unknown>>(data).map((r) => ({
     serviceDate: String(r.service_date),
     scheduledTrains: num(r.scheduled_trains),
-    observedTrains: Number(r.observed_trains ?? 0),
+    observedTrains: num(r.observed_trains),
     coveragePct: num(r.coverage_pct),
-    delayedOver0: Number(r.delayed_over_0 ?? 0),
-    delayedOver5: Number(r.delayed_over_5 ?? 0),
-    delayedOver10: Number(r.delayed_over_10 ?? 0),
-    delayedOver15: Number(r.delayed_over_15 ?? 0),
-    delayedOver30: Number(r.delayed_over_30 ?? 0),
-    nearDestTrains: Number(r.near_dest_trains ?? 0),
-    nearDestOver0: Number(r.near_dest_over_0 ?? 0),
-    nearDestOver5: Number(r.near_dest_over_5 ?? 0),
-    nearDestOver15: Number(r.near_dest_over_15 ?? 0),
+    delayedOver0: num(r.delayed_over_0),
+    delayedOver5: num(r.delayed_over_5),
+    delayedOver10: num(r.delayed_over_10),
+    delayedOver15: num(r.delayed_over_15),
+    delayedOver30: num(r.delayed_over_30),
+    nearDestTrains: num(r.near_dest_trains),
+    nearDestOver0: num(r.near_dest_over_0),
+    nearDestOver5: num(r.near_dest_over_5),
+    nearDestOver15: num(r.near_dest_over_15),
     nearDestAvgDelay: num(r.near_dest_avg_delay),
-    delayedP90Over5: Number(r.delayed_p90_over_5 ?? 0),
+    delayedP90Over5: num(r.delayed_p90_over_5),
     ontimeRatePct: num(r.ontime_rate_pct),
     avgDelayMin: num(r.avg_delay_min),
     p90DelayMin: num(r.p90_delay_min),

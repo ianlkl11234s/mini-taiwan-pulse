@@ -565,7 +565,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["dioxin-stations-circle"], type: "dioxinStations" },
   { layers: ["pm25-manual-stations-circle"], type: "pm25ManualStations" },
   { layers: ["sea-water-quality-stations-circle"], type: "seaWaterQualityStations" },
-  { layers: ["river-rpi-segments-tamsui-line", "river-rpi-segments-tamsui-tidal"], type: "riverRpiSegmentsTamsui" },
+  { layers: ["river-rpi-segments-line", "river-rpi-segments-tidal"], type: "riverRpiSegments" },
   { layers: ["official-noise-monitoring-circle"], type: "officialNoiseMonitoring" },
   { layers: ["pollution-penalty-noise-circle"], type: "noiseEnforcementEvents" },
   // 環境污染（點層優先於大面積；三層皆 PMTiles circle）

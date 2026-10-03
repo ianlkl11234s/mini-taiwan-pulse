@@ -14,6 +14,7 @@ import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
 import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
+import { JP_WATER_LAYER_KEYS } from "../../data/jpWaterTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 import { RASTER } from "../../map/mapStyleScale";
@@ -161,7 +162,9 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
     jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.8,
     jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
   }, deps.isDarkTheme);
-  return <JpWaterAlert />;
+  // 登入時的權限探測失敗不該對沒開日本水資源圖層的人跳全域錯誤框
+  const anyJpWaterVisible = JP_WATER_LAYER_KEYS.some((key) => key !== "jpWaterLocalPipes" && deps.layerVisibility[key]);
+  return anyJpWaterVisible ? <JpWaterAlert /> : null;
 };
 
 /** 日本旅宿、自然保護與世界遺產：production PMTiles/GeoJSON + DEV-only research layers。 */

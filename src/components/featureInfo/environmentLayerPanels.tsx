@@ -1,4 +1,4 @@
-// 環境氣候 popup：水質與污水 4 層（#490）＋第二波 9 層（海域水質、RPI 河段試作、PM2.5 手動站、戴奧辛、
+// 環境氣候 popup：水質與污水 4 層（#490）＋第二波 9 層（海域水質、RPI 河段推估、PM2.5 手動站、戴奧辛、
 // 焚化廠、核安會輻射、放流水、CEMS、紫外線）。上游 feature 的 source 欄位含內部表名或根本沒有（即時 RPC），
 // 故 panel 自帶人類可讀來源並自掛 SourceFooter。null 一律顯示原因，不當 0。
 import { useEffect, useState } from "react";
@@ -8,7 +8,8 @@ import {
   DRINKING_WATER_ZONE_TYPES, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR,
   SEWAGE_GEOCODE_QUALITY_LABELS, SEWAGE_UNCERTAIN_QUALITIES, WATER_QUALITY_STATION_TYPE_LABELS, WATER_QUALITY_STATION_TYPES,
   CEMS_CODE2_LEAD_LABELS, CEMS_STATUSES, CWA_UV_LEVELS, ENV_ALERT_COLOR, ENV_STALE_COLOR, ENV_VALUE_FLAG_LABELS,
-  NUSC_GAMMA_HIGH_USVH, OSM_ODBL_ATTRIBUTION, RIVER_RPI_TIDAL_LABELS, SEA_WATER_CLASSES, WATER_EFFLUENT_COORD_SOURCE_LABELS,
+  NUSC_GAMMA_HIGH_USVH, OSM_ODBL_ATTRIBUTION, RIVER_RPI_TIDAL_LABELS, RIVER_RPI_ASSIGN_METHOD_LABELS, RIVER_RPI_DIRECTION_LABELS,
+  RIVER_RPI_REASSIGN_METHOD, riverRpiReviewNotes, SEA_WATER_CLASSES, WATER_EFFLUENT_COORD_SOURCE_LABELS,
   WATER_EFFLUENT_STATUSES,
 } from "../../data/environmentLayerTypes";
 import { fetchCemsItems, fetchWaterEffluentItems, type CemsItem, type EffluentItem } from "../../data/environmentLiveLoaders";
@@ -174,30 +175,58 @@ function rpiTarget(props: Record<string, unknown>): string {
   const node = text(props.to_node);
   if (node.startsWith("confluence:")) return `匯入${node.slice("confluence:".length)}`;
   if (node === "mouth") return "河口";
+  if (node === "unknown") return "下游終點未定";
   return text(props.to_station_name, "下一站");
 }
 
-export function RiverRpiSegmentsTamsuiPanel({ props }: PanelProps) {
+/** 最下游段（無下一站）延伸到匯流點／河口：中間沒有測站；延伸到河口者可能受潮汐影響（未以潮位驗證）。 */
+function rpiDownstreamNote(props: Record<string, unknown>): string {
+  const node = text(props.to_node);
+  if (node === "mouth") return "下游沒有測站，延伸至河口；近河口段可能受潮汐影響（未以潮位資料驗證）";
+  if (node.startsWith("confluence:") || node === "unknown") return "下游沒有測站，延伸至河道終點";
+  return "";
+}
+
+function rpiAssignment(props: Record<string, unknown>): string {
+  const raw = text(props.river_raw);
+  const assigned = text(props.river_assigned, text(props.river_name));
+  if (props.assign_method === RIVER_RPI_REASSIGN_METHOD && raw && assigned && raw !== assigned) {
+    return `環境部登記為${raw}，依位置對應至${assigned}`;
+  }
+  return "";
+}
+
+export function RiverRpiSegmentsPanel({ props }: PanelProps) {
   const latest = RIVER_RPI_CLASSES.find((row) => row.value === props.class_latest);
   const mean = RIVER_RPI_CLASSES.find((row) => row.value === props.class_12m_mean);
   const rpi = number(props.rpi_latest);
   const rpiMean = number(props.rpi_12m_mean);
   const length = number(props.length_km);
+  const distance = number(props.assign_distance_m);
+  const direction = text(props.direction);
+  const reviewNotes = riverRpiReviewNotes(props.review_flags);
+  const method = RIVER_RPI_ASSIGN_METHOD_LABELS[text(props.assign_method)];
   return <>
-    <Title color={latest?.color ?? RIVER_RPI_NO_DATA_COLOR}>{`${text(props.river_name, "河段")}（試作・推估河段）`}</Title>
+    <Title color={latest?.color ?? RIVER_RPI_NO_DATA_COLOR}>{`${text(props.river_name, "河段")}（推估河段）`}</Title>
     <Row label="河段" value={`${text(props.from_station_name, "上游測站")} → ${rpiTarget(props)}`} />
+    <Row label="河名" value={rpiAssignment(props)} />
+    <Row label="流域" value={text(props.basin)} />
     <Row label="最新 RPI" value={rpi == null ? "無資料（不代表乾淨）" : `${fmt(rpi)}（${latest?.label ?? "無等級"}）`} color={latest?.color} />
     <Row label="採樣日" value={day(props.rpi_latest_date)} />
     <Row label="近 12 月平均" value={rpiMean == null ? "無樣本（不代表乾淨）" : `${fmt(rpiMean)}（${mean?.label ?? "無等級"}，${fmt(number(props.n_samples_12m) ?? 0, 0)} 次）`} color={mean?.color} />
     <Row label="長度" value={length == null ? "" : `${fmt(length)} 公里`} />
-    <Row label="感潮" value={RIVER_RPI_TIDAL_LABELS[text(props.tidal)] ?? "未知"} />
+    <Row label="感潮" value={RIVER_RPI_TIDAL_LABELS[text(props.tidal)] ?? "未判定"} />
+    <Row label="流向" value={direction === "verified" ? "" : (RIVER_RPI_DIRECTION_LABELS[direction] ?? "未驗證")} />
+    <Row label="待複核" value={reviewNotes.join("；")} />
     <PopupDetails summary="推估方法與限制">
       <Row label="方法" value="以上游測站代表其下游至下一站，非連續監測、非空間內插" />
-      <Row label="限制" value={text(props.caveats)} />
-      <Row label="感潮段" value="受潮汐影響的河段，單一採樣的 RPI 代表性較差；已確認感潮段地圖以虛線表示，部分感潮（未驗證）未另標" />
-      <Row label="範圍" value="僅淡水河水系 38 段試作，非全國" />
+      <Row label="河名對應" value={method == null ? "" : `${method}${distance == null ? "" : `（測站距河道 ${fmt(distance, 0)} 公尺）`}`} />
+      <Row label="流向" value={direction === "verified" ? (RIVER_RPI_DIRECTION_LABELS.verified ?? "") : ""} />
+      <Row label="下游" value={rpiDownstreamNote(props)} />
+      <Row label="感潮段" value="受潮汐影響的河段，單一採樣的 RPI 代表性較差；感潮只在淡水河、高屏溪判定，已確認感潮段地圖以虛線表示，其餘流域未判定" />
+      <Row label="範圍" value="全台有 RPI 測站的河川；沒有測站的河川不著色，不代表乾淨" />
     </PopupDetails>
-    <SourceFooter props={{ source_org: `環境部河川水質監測（RPI）＋經濟部水利署河道面＋${OSM_ODBL_ATTRIBUTION}`, source_url: "https://data.gov.tw/dataset/6078", license: `${LICENSE}；河川中心線 ODbL 1.0` }} />
+    <SourceFooter props={{ source_org: `環境部河川水質監測（RPI）＋經濟部水利署河道面與流域範圍＋${OSM_ODBL_ATTRIBUTION}`, source_url: "https://data.gov.tw/dataset/6078", license: `${LICENSE}；河川中心線 ODbL 1.0` }} />
   </>;
 }
 

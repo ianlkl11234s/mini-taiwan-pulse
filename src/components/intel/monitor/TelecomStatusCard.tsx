@@ -25,7 +25,7 @@ import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { MonitorMetric, MonitorNote, MonitorRows, MonitorSub } from "./MonitorMetric";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness, type MonitorFreshness } from "./monitorFreshness";
 
 export type InternetHealthPhase = "loading" | "ready" | "error";
 type TimelinePhase = "loading" | "ready" | "error";
@@ -253,15 +253,21 @@ export function toSparkline(summary: InternetHealthTimelineSummary, family: 4 | 
  * collector 回看窗切在桶中間＋無條件覆寫，多數 5 分鐘桶只剩桶尾約 1.6 分鐘的探針。
  * 判定只看「回報探針數」（ping_success／probe_connectivity 的 sample_count）；
  * RTT 樣本數與成功 ASN 數在真實斷線時也會下降，不能拿來判斷，否則會把真的異常藏掉。
- * 預期探針數綁 roster 2026-08-31.1（IPv4 約 79、IPv6 約 39 支有回報），低於 80% 視為殘缺。
- * 只套在 5 分鐘原值（24H）；7D／30D 是多桶加權，無法逐桶篩。
+ * 預期探針數優先用該桶自己的 `metadata.expected_probe_count`（collector 逐桶寫入）；
+ * 缺值時退回 roster 2026-08-31.1 的寫死值（IPv4 約 79、IPv6 約 39 支有回報）。低於 80% 視為殘缺。
+ * 只套在 5 分鐘原值（24H）；7D／30D 是多桶加權，拿不到逐桶探針數，無法逐桶篩。
  */
 const ATLAS_EXPECTED_PROBES: Record<4 | 6, number> = { 4: 79, 6: 39 };
 const COMPLETE_PROBE_RATIO = 0.8;
 const RAW_BUCKET_SECONDS = 300;
 
-export function isCompleteProbeCount(family: 4 | 6, count: number | null | undefined): boolean {
-  return count != null && count >= COMPLETE_PROBE_RATIO * ATLAS_EXPECTED_PROBES[family];
+export function isCompleteProbeCount(
+  family: 4 | 6,
+  count: number | null | undefined,
+  expected?: number | null,
+): boolean {
+  const base = expected != null && expected > 0 ? expected : ATLAS_EXPECTED_PROBES[family];
+  return count != null && count >= COMPLETE_PROBE_RATIO * base;
 }
 
 type AtlasMetric = "ping_success_ratio" | "median_rtt_ms" | "probe_connectivity_ratio" | "reachable_asn_ratio";
@@ -276,7 +282,7 @@ export function completeMaskFrom(summary: InternetHealthTimelineSummary | null |
   const mask: CompleteMask = { 4: new Set(), 6: new Set() };
   for (const family of [4, 6] as const) {
     for (const point of (family === 4 ? summary.ipv4 : summary.ipv6).points) {
-      if (point.state === "ready" && isCompleteProbeCount(family, point.sampleCount)) mask[family].add(point.at);
+      if (point.state === "ready" && isCompleteProbeCount(family, point.sampleCount, point.expectedProbeCount)) mask[family].add(point.at);
     }
   }
   return mask;
@@ -560,13 +566,14 @@ const legendSwatch = (color: string) => (
 );
 
 function TelecomStatusV2Body({
-  measurements, phase, nowTs, timeline, atlasDay,
+  measurements, phase, nowTs, timeline, atlasDay, fresh,
 }: {
   measurements: InternetHealthMeasurement[];
   phase: InternetHealthPhase;
   nowTs: number;
   timeline?: ReactNode;
   atlasDay?: AtlasDaySummaries | null;
+  fresh: MonitorFreshness;
 }) {
   const atlas = useMemo(() => measurements.filter((item) => item.source_key === "ripe_atlas"), [measurements]);
   const ris = measurements.filter((item) => item.source_key === "ripe_ris");
@@ -614,12 +621,13 @@ function TelecomStatusV2Body({
         <span data-testid="internet-health-status-label">{statusText}</span>
       </div>
       <div>
-        <MonitorMetric value={`${freshMetricCount}/14`} unit="項即時" muted={freshMetricCount === 0} />
+        <MonitorMetric value={`${freshMetricCount}/14`} unit="項即時" muted={freshMetricCount === 0 || fresh.muted} />
         <MonitorSub items={[
           `回報來源 ${reportingFeeds}/2`,
           `RIPE 最後更新 ${timeLabel(latestAt, nowTs)}`,
           fallbackAt != null ? `以最近完整量測（${hhmm(fallbackAt)}）計` : null,
         ]} />
+        {fresh.reason && <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>}
       </div>
 
       <div data-testid="internet-health-atlas-rows">
@@ -637,6 +645,7 @@ function TelecomStatusV2Body({
                 bare
                 fillArea={false}
                 band={ATLAS_BANDS[r.metric][4]}
+                staleUntil={fresh.staleUntil}
               />
             )
             : <div style={{ height: 28 }} />,
@@ -701,14 +710,10 @@ export function TelecomStatusCardView({
   const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測更新中斷" : freshMetricCount > 0 ? "RIPE 量測可用" : "等待 RIPE 量測";
   const statusColor = freshMetricCount > 0 && phase === "ready" ? RIPE_CYAN : COLORS.textDim;
   const v2 = useMonitorV2();
-  // 資料時間＝最後 RIPE 更新；過期沿用既有 freshness 判斷（沒有任何新鮮量測、但有過期量測）
+  // 資料時間＝最後 RIPE 更新（5 分週期，由 fresh 判斷標題列狀態）；DB 的逐項 freshness 細項標示保留在卡內
   const latestMs = latestAt ? Date.parse(latestAt) : NaN;
-  const hasStaleMeasurement = measurements.some((item) => item.freshness === "stale");
-  useMonitorCardHeader({
-    time: Number.isFinite(latestMs) ? latestMs : null,
-    state: freshMetricCount === 0 && hasStaleMeasurement ? { kind: "stale", label: "過期" } : null,
-  });
-  if (v2) return <TelecomStatusV2Body measurements={measurements} phase={phase} nowTs={nowTs} timeline={timeline} atlasDay={atlasDay} />;
+  const fresh = useMonitorFreshness("internetHealth", { time: Number.isFinite(latestMs) ? latestMs : null });
+  if (v2) return <TelecomStatusV2Body measurements={measurements} phase={phase} nowTs={nowTs} timeline={timeline} atlasDay={atlasDay} fresh={fresh} />;
   const current = "CURRENT";
   const description = phase === "error" ? `本次更新失敗；保留最後成功量測，但傳輸成功或舊資料都不等於 ${current}。` : "持續觀察 RIPE Atlas 端到端量測與 RIPE RIS BGP 路由更新。數值先如實呈現，異常判讀待基準累積後再加入。";
 

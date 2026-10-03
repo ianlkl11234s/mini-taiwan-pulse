@@ -165,8 +165,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "officialNoiseMonitoring", "aviationNoiseZones", "soundCameraLocations",
   // 💧 水質與污水：四個 public/environment GeoJSON；純 registry overlay，無 loader / hook。
   "riverRpiStations", "waterQualityStations", "sewageTreatmentPlants", "drinkingWaterProtectionZones",
-  // 🌊 環境第二波 5 個靜態 GeoJSON（海域水質、PM2.5 手動站、戴奧辛、焚化廠、RPI 河段試作）：純 registry overlay。
-  "seaWaterQualityStations", "pm25ManualStations", "dioxinStations", "incineratorEmissions", "riverRpiSegmentsTamsui",
+  // 🌊 環境第二波 5 個靜態 GeoJSON（海域水質、PM2.5 手動站、戴奧辛、焚化廠、RPI 河段推估）：純 registry overlay。
+  "seaWaterQualityStations", "pm25ManualStations", "dioxinStations", "incineratorEmissions", "riverRpiSegments",
   // 🤝 社福長照 9 層（第 40 主題）：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 loader / hook。
   // ⚠️ `welfareCenters`（上一行）是**基礎建設**主題的社福中心，不是本批成員 ——
   //    兩者零重疊（本批 welfareGovOffices 已在上游排除 T0103），只是名字像。

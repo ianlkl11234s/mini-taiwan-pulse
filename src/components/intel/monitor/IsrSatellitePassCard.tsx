@@ -17,7 +17,8 @@ import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
+import { taipeiDateKeyFromMs } from "../../../lib/taipeiDay";
 import { MonitorMetric, MonitorSub, MonitorNote } from "./MonitorMetric";
 import { MF } from "./monitorFont";
 
@@ -114,6 +115,32 @@ export function buildIsrPassBars(
         : "過境計數缺失或 scope 不完整，非 0",
     };
   });
+}
+
+/**
+ * v2 停更時：最新有效日之後到「今天（台灣）」每天補一根 null 灰柱（不是 0），總長不超過 windowDays。
+ * 沒落後或沒有最新有效日就原樣回傳。
+ */
+export function padIsrBarsToToday(
+  bars: HazardBar[],
+  latestValidDay: string | null,
+  todayKey: string,
+  windowDays: number,
+): HazardBar[] {
+  if (!latestValidDay || bars.length === 0) return bars;
+  const lastMs = Date.parse(`${latestValidDay}T00:00:00Z`);
+  const todayMs = Date.parse(`${todayKey}T00:00:00Z`);
+  if (!Number.isFinite(lastMs) || !Number.isFinite(todayMs) || todayMs <= lastMs) return bars;
+  const gapDays = Math.round((todayMs - lastMs) / 86_400_000);
+  const tail: HazardBar[] = [];
+  for (let i = 1; i <= Math.min(gapDays, windowDays); i++) {
+    const day = new Date(lastMs + i * 86_400_000).toISOString().slice(0, 10);
+    tail.push({
+      label: `${day.slice(5, 7)}/${day.slice(8, 10)}`, key: day, value: null, level: 0,
+      note: "來源尚未更新，非 0",
+    });
+  }
+  return [...bars, ...tail].slice(-windowDays);
 }
 
 /**
@@ -276,7 +303,12 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
   const state: LoadState = query.status === "ready" ? "ready"
     : query.status === "error" || query.status === "denied" ? "error" : "loading";
 
-  const latest = deriveIsrLatestDisplay(report, state);
+  const v2 = useMonitorV2();
+  // v2：loader 自算的 stale／unknown 不再擋主數字（改由 fresh 降灰＋卡底原因）；incomplete 等其餘判斷照舊。舊版維持原判斷
+  const latest = deriveIsrLatestDisplay(
+    v2 && report && report.latestValidDay && report.freshness !== "fresh" ? { ...report, freshness: "fresh" } : report,
+    state,
+  );
   const windowRows = useMemo(
     () => selectIsrPassWindow(
       report?.rows ?? [],
@@ -319,15 +351,19 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
     ? COLORS.textFaint
     : ISR_PASS_LEVEL_COLORS[latestLevel];
 
-  const v2 = useMonitorV2();
-  // 資料時間＝最新有效日（與其他日更卡一致顯示資料日期）；沒有就退回計算時間。過期沿用既有 freshness 判斷。
-  const computedMs = report?.computedAt ? Date.parse(report.computedAt) : NaN;
+  // 資料時間＝最新有效日（只有日期）；沒有就是「無資料」，不退回計算時間。新鮮度（日批次，>2 天過期、>7 天停更）由 fresh 判斷
   const latestDayText = report?.latestValidDay ? `${report.latestValidDay.slice(5, 7)}/${report.latestValidDay.slice(8, 10)}` : null;
-  useMonitorCardHeader({
-    time: latestDayText == null && Number.isFinite(computedMs) ? computedMs : null,
+  const latestDayMs = report?.latestValidDay ? Date.parse(`${report.latestValidDay}T00:00:00+08:00`) : NaN;
+  const fresh = useMonitorFreshness("isrSatellitePasses", {
     timeText: latestDayText,
-    state: report?.freshness === "stale" ? { kind: "stale", label: "過期" } : null,
+    dataMs: Number.isFinite(latestDayMs) ? latestDayMs : null,
   });
+  const barsV2 = useMemo(
+    () => (fresh.staleUntil != null
+      ? padIsrBarsToToday(bars, report?.latestValidDay ?? null, taipeiDateKeyFromMs(Date.now()), windowDays)
+      : bars),
+    [bars, fresh.staleUntil, report?.latestValidDay, windowDays],
+  );
 
   if (v2) {
     const coverageWarn = report?.scopeCoverageComplete === false || report?.coverageComplete === false || report?.chinaIsrCensusComplete === false;
@@ -343,7 +379,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 10, fontFamily: FONT_CJK }}>
         <MonitorDataStatus label="ISR 過境資料" query={query} />
-        {latestLevel !== null && (
+        {latestLevel !== null && !fresh.muted && (
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
             <span
               title="依所選期間 p25／p50／p75／p90 分布判定；不是威脅或實際蒐情分級"
@@ -362,12 +398,14 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
             unit="次過境"
             color={latestLevel === null ? undefined : latestLevelColor}
             delta={`${latest.uniqueSatelliteCount} 顆衛星`}
+            muted={fresh.muted}
           />
         ) : (
           <MonitorNote tone={latest.kind === "error" || latest.kind === "stale" ? "warn" : "neutral"}>
             {latest.kind === "stale" ? "最新計數暫不呈現 · 不以 0 代替" : DISPLAY_LABEL[latest.kind]}
           </MonitorNote>
         )}
+        {fresh.reason && <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>}
         <div role="group" aria-label="過境統計期間" style={{ display: "flex", gap: 4 }}>
           {ISR_PASSES_WINDOW_OPTIONS.map((option) => {
             const selected = option === windowDays;
@@ -405,9 +443,9 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
             高於所選 {windowDays}D 的 p90（{formatMetric(thresholds.p90)}）門檻；僅為公開軌道推算的過境量比較，不代表威脅或實際蒐情。
           </MonitorNote>
         )}
-        {bars.length > 0 && (
+        {barsV2.length > 0 && (
           <HazardTrendBars
-            bars={bars}
+            bars={barsV2}
             levelColors={[...ISR_PASS_LEVEL_COLORS]}
             heightTier="std"
             unit="次"

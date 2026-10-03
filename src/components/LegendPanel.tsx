@@ -236,7 +236,7 @@ import {
   DRINKING_WATER_ZONE_TYPES, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR, WATER_QUALITY_STATION_TYPES,
 } from "../data/environmentLayerTypes";
 import {
-  SeaWaterQualityStationsLegend, RiverRpiSegmentsTamsuiLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
+  SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
   IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend,
 } from "./legend/environmentLegends";
 
@@ -680,7 +680,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "sewageTreatmentPlants", render: () => <SewageTreatmentPlantsLegend /> },
   { id: "drinkingWaterProtectionZones", render: () => <DrinkingWaterProtectionZonesLegend /> },
   { id: "seaWaterQualityStations", render: () => <SeaWaterQualityStationsLegend /> },
-  { id: "riverRpiSegmentsTamsui", render: () => <RiverRpiSegmentsTamsuiLegend /> },
+  { id: "riverRpiSegments", render: () => <RiverRpiSegmentsLegend /> },
   { id: "pm25ManualStations", render: () => <Pm25ManualStationsLegend /> },
   { id: "dioxinStations", render: () => <DioxinStationsLegend /> },
   { id: "incineratorEmissions", render: () => <IncineratorEmissionsLegend /> },

@@ -2095,3 +2095,34 @@ Statistics snapshot 已上 R2，`current.json` 的 R2 object metadata 明確是
 1. mutable pointer 與 content-hashed objects 必須使用不同 cache scope，禁止 broad parent-path rule。
 2. 發布驗收同時查 origin object metadata 與 public edge headers；任一邊不能替另一邊作證。
 3. 至少讀回一個 pointer、一個 artifact 與一個大 geometry；Cloudflare dashboard 設定成功不是 runtime evidence。
+
+## 2026-10-02 Agent 回歸測試第一次接真地圖：四個潛藏 bug 一次現形
+
+### 現象
+
+舊回歸測試只開倉庫工具，上圖工具全部列入 disallowed，所以「有沒有畫圖」從來沒被測過。第一次接上真地圖（本機免授權配對＋無頭瀏覽器）就連續失敗：
+
+- 帶樣式的結果全部 `GATEWAY_REJECTED`；
+- 打開全球地震圖層後，所有地圖指令都報 MAP_NOT_READY；
+- Agent 猜錯一次圖層代號，整個 study 之後全部 SCENE_ERROR；
+- 快取偶發 `WAREHOUSE_FETCH_FAILED`。
+
+### 根因
+
+1. **gateway 樣式驗證落後**：gis-platform `6c059c3` 用完全比對的欄位白名單，只認 4 種舊樣式。MCP phase A／B（`6956078`、`443ac28`）新增欄位和類型後，一律回 400。relayClient 又把錯誤碼蓋成 GATEWAY_REJECTED。正式站同版也受影響，只是沒人接地圖測過。
+2. **地震漣漪讓 `map.loaded()` 永遠 false**：每一幀改依資料計算的 `circle-radius`，Mapbox 3.18 就把整份 source 標成重載。研究地圖用 `map.loaded()` 判斷 ready。
+3. **錯誤會黏住 study**：gateway 在瀏覽器回 ack 時，就把指令合進 study 狀態，不管有沒有畫成功；之後每次重畫都帶著那個未知的圖層代號，整批丟錯。
+4. **快取暫存檔名撞名**：`store.ts` 用 `<pid>.tmp`，同一程序並行寫入時 rename 會 ENOENT。
+
+### 修正
+
+- gis-platform #134 放寬樣式驗證，錯誤碼原樣回傳。
+- mini 改用 `isStyleReady()`；漣漪改成 Three.js 自繪。
+- 未知圖層代號只讓那一道指令失敗；MCP 端送出前先驗證代號。
+- 快取暫存檔名改成唯一。
+
+### 下次守門
+
+1. 回歸測試要有「接真地圖」的模式（`--live-map --reset-cmd`），並把「上圖」列為評分維度；沒接地圖的分數不能代表使用者體驗。
+2. 前後端契約是白名單驗證的，MCP 改 payload 時必須同時改 gateway 驗證和測試 fixture。用 MCP 實際輸出當 fixture，不要手寫。
+3. 逐幀動畫不能改依資料計算的 paint 或 filter，要用 feature-state 或自繪圖層。

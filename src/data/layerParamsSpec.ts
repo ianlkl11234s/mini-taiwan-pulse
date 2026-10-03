@@ -3166,12 +3166,12 @@ export const LAYER_PARAMS_SPEC = {
   waterEffluentLive: [opacitySlider("waterEffluentLiveOpacity", 0.9), scaleSlider("waterEffluentLiveScale", 1)],
   cemsStackLive: [opacitySlider("cemsStackLiveOpacity", 0.9), scaleSlider("cemsStackLiveScale", 1)],
   cwaUvDaily: [opacitySlider("cwaUvDailyOpacity", 0.9), scaleSlider("cwaUvDailyScale", 1)],
-  riverRpiSegmentsTamsui: [
-    opacitySlider("riverRpiSegmentsTamsuiOpacity", 0.85),
+  riverRpiSegments: [
+    opacitySlider("riverRpiSegmentsOpacity", 0.85),
     {
-      kind: "select", name: "riverRpiSegmentsTamsuiMode", label: "著色依據",
+      kind: "select", name: "riverRpiSegmentsMode", label: "著色依據",
       default: "latest", options: RIVER_RPI_SEGMENT_MODES.map(({ label, value }) => ({ label, value })),
-      out: "riverRpiSegmentsTamsuiModeIdx",
+      out: "riverRpiSegmentsModeIdx",
       encode: RIVER_RPI_SEGMENT_MODES.map((mode) => mode.value),
     },
   ],

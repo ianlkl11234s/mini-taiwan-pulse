@@ -90,6 +90,17 @@ function MetricDemo() {
           </MonitorCardFrame>
         </div>
         <div style={{ width: 300, display: "flex" }}>
+          <MonitorCardFrame title="過期（G2）" en="Stale" widgetId="demo-stale">
+            <MonitorCardTime timeText="09/29" state={{ kind: "stale", label: "過期 4 天" }} />
+            <MonitorMetric value="12.4" unit="%" muted />
+            <TimeseriesSparkline
+              data={line.slice(0, -4)} heightTier="std" gapSec={1.5 * DAY_S} unit="%" tooltipDateFormat="date"
+              staleUntil={Math.floor(Date.now() / 1000)}
+            />
+            <MonitorNote tone="warn">資料停在 09/29，超過預期更新時間</MonitorNote>
+          </MonitorCardFrame>
+        </div>
+        <div style={{ width: 300, display: "flex" }}>
           <MonitorCardFrame title="地震次數" en="Earthquakes" widgetId="demo-bars">
             <MonitorMetric value="42" unit="次" />
             <HazardTrendBars bars={DEMO_BARS} levelColors={DEMO_LEVELS} heightTier="std" caption="近 14 天 · 次數（柱）" footer="共 42 次" unit=" 次" />

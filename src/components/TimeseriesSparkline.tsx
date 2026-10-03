@@ -78,6 +78,11 @@ export interface TimeseriesSparklineProps {
    * `label` 進 tooltip（showTooltip 時）與色帶的原生提示。不傳＝不畫、值域不變。
    */
   band?: { lo: number; hi: number; label?: string };
+  /**
+   * 來源過期／停更（spec §5.35 G2，只在監看新版生效）：X 軸延伸到這個時間（unix seconds，
+   * 通常是現在），最後一筆之後到這裡畫缺值斜線。不傳或早於最後一筆＝行為不變。
+   */
+  staleUntil?: number | null;
 }
 
 /**
@@ -251,6 +256,7 @@ export function TimeseriesSparkline({
   compactYAxis = false,
   bare: bareProp = false,
   band,
+  staleUntil,
 }: TimeseriesSparklineProps) {
   const v2 = useMonitorV2();
   // bare 只在監看新版生效（舊版畫面不可變）
@@ -289,7 +295,12 @@ export function TimeseriesSparkline({
 
   const view = useMemo(() => {
     if (data.length === 0) return null;
-    const { tMin, tMax } = computeTimeRange(data, timeDomain)!;
+    const range = computeTimeRange(data, timeDomain)!;
+    const tMin = range.tMin;
+    // G2：停更時 X 軸延伸到 staleUntil，尾段畫斜線（只在新版）
+    const lastT = data[data.length - 1]!.t;
+    const staleTail = v2 && staleUntil != null && Number.isFinite(staleUntil) && staleUntil > lastT;
+    const tMax = staleTail ? Math.max(range.tMax, staleUntil) : range.tMax;
     // Y 值域把 extraSeries（如有）與警戒線一起納入，否則第二條線／警戒線可能跑出畫面
     // moreSeries 併進第二條線的資料一起算值域（不傳時與舊算法逐位元相同）
     const extraForRange = moreSeries?.length
@@ -327,6 +338,7 @@ export function TimeseriesSparkline({
       const b = mainSegs[i + 1]!;
       gapBands.push({ x0: xScale(a[a.length - 1]!.t), x1: xScale(b[0]!.t) });
     }
+    if (staleTail) gapBands.push({ x0: xScale(lastT), x1: xScale(staleUntil) });
 
     // X 軸時間 tick：≤48h 取整點（local）、步距 1/2/4/8h；>48h 取日界 00:00、
     // 步距 1/2/4/7/14/30/60 天、標籤 M/D（8h 步距在多日範圍會生出數十個 tick 疊成字牆）
@@ -386,7 +398,7 @@ export function TimeseriesSparkline({
     }
 
     return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, moreViews, gapBands, timeTicks: shownTimeTicks };
-  }, [data, timeDomain, warningValue, band, height, w, gapSec, extraSeries, moreSeries, v2, PAD_L, PAD_R, PAD_B, padT]);
+  }, [data, timeDomain, warningValue, band, height, w, gapSec, extraSeries, moreSeries, v2, PAD_L, PAD_R, PAD_B, padT, staleUntil]);
 
   function handleMouseMove(e: ReactMouseEvent<SVGSVGElement>) {
     if (!showTooltip || !view || data.length === 0) return;
@@ -436,7 +448,7 @@ export function TimeseriesSparkline({
       break;
     }
   }
-  /** 一段缺值斜線帶（x0→x1、圖區上緣到底線）；P4 停更「最後一筆到現在」可再呼叫一次 */
+  /** 一段缺值斜線帶（x0→x1、圖區上緣到底線）；斷線缺口與停更尾段（staleUntil）共用 */
   const gapBand = (x0: number, x1: number, key: string) => (
     <rect
       key={key}

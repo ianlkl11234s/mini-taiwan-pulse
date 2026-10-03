@@ -32,6 +32,8 @@ export interface RawCluster {
   max_severity: number | null;
   max_gis_relevance: number | null;
   events: ClusterEvent[] | null;       // jsonb array
+  /** 新聞管線最後一次彙整這一天的時間（live.news_events_daily.refreshed_at，每列同值；migration 425 起） */
+  aggregated_at?: string | null;
 }
 
 /** events_json 內每一則的 shape（RPC jsonb_build_object 對齊） */

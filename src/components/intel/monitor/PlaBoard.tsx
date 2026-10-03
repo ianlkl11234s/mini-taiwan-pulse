@@ -7,13 +7,15 @@ import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import {
   fetchPlaSeverityDaily, fetchPlaSituationSummary, fetchPlaKindSummary,
   PLA_LEVEL_LABELS, PLA_LEVEL_COLORS, PLA_KIND_LABELS,
-  type PlaSeverityDay, type PlaSituationSummary, type PlaKindStat, type PlaLevel,
+  toStrictPlaSummary, toStrictPlaKind,
+  type PlaSeverityDay, type PlaSituationSummary, type PlaSituationSummaryStrict,
+  type PlaKindStat, type PlaKindStatStrict, type PlaLevel,
 } from "../../../data/intelLoaders";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness, type MonitorFreshness } from "./monitorFreshness";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import { MonitorMetric, MonitorSub, MonitorNote, MonitorRows } from "./MonitorMetric";
 import { MF } from "./monitorFont";
@@ -50,8 +52,15 @@ export function PlaBoard({ open }: Props) {
 
   const latest = days.length ? days[days.length - 1]! : null;
   const v2 = useMonitorV2();
-  // 資料期別＝最新 report_date（YYYY-MM-DD → MM/DD）
-  useMonitorCardHeader({ timeText: latest ? latest.reportDate.slice(5).replace("-", "/") : null });
+  // 資料期別＝最新 report_date（YYYY-MM-DD → MM/DD）；資料日期＝該日台灣 00:00（日報，>2 天過期）
+  const latestMs = latest ? Date.parse(`${latest.reportDate}T00:00:00+08:00`) : NaN;
+  const fresh = useMonitorFreshness("plaBoard", {
+    timeText: latest ? latest.reportDate.slice(5).replace("-", "/") : null,
+    dataMs: Number.isNaN(latestMs) ? null : latestMs,
+  });
+  // 舊版畫面沿用原本「缺值補 0」的輸出；v2 用保留 null 的原值
+  const summaryS = useMemo(() => (summary ? toStrictPlaSummary(summary) : null), [summary]);
+  const kindsS = useMemo(() => kinds.map(toStrictPlaKind), [kinds]);
 
   return (
     // zoom：本板內文大量是 8.5~10px 字面值，比其他卡的 FONT_SIZE token 小一截，
@@ -79,11 +88,11 @@ export function PlaBoard({ open }: Props) {
             {daysQuery.status === "unknown" || summaryQuery.status === "unknown" ? "資料載入中…" : "尚無可用共機態勢資料"}
           </div>
         ) : (
-          v2 ? <PlaV2Body days={days} summary={summary} kinds={kinds} /> : <>
-            <SeverityHead day={latest} summary={summary} />
-            <TrendRow days={days} summary={summary} />
-            <ZoneRow days={days} summary={summary} />
-            <KindRow kinds={kinds} summary={summary} />
+          v2 ? <PlaV2Body days={days} summary={summary} kinds={kinds} fresh={fresh} /> : <>
+            <SeverityHead day={latest} summary={summaryS!} />
+            <TrendRow days={days} summary={summaryS!} />
+            <ZoneRow days={days} summary={summaryS!} />
+            <KindRow kinds={kindsS} summary={summaryS!} />
             <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, lineHeight: 1.5 }}>
               中共解放軍臺海周邊海、空域動態 · @MoNDefense · 每日 0600 (UTC+8) 截止 ·
               分級為近 {summary.windowDays} 天滾動百分位（相對值，非絕對威脅評估）
@@ -97,7 +106,7 @@ export function PlaBoard({ open }: Props) {
 
 /* ── 嚴重度頭部 ─────────────────────────────────────────── */
 
-function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSituationSummary }) {
+function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSituationSummaryStrict }) {
   const v2 = useMonitorV2();
   const lv = (day.level ?? 1) as PlaLevel;
   const color = day.level === null ? COLORS.textFaint : PLA_LEVEL_COLORS[lv];
@@ -201,7 +210,7 @@ function AxisBar({ label, pct, value, unit }: {
 const TREND_WINDOWS = [120, 90, 30, 7] as const;
 type TrendWindow = (typeof TREND_WINDOWS)[number];
 
-function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummaryStrict }) {
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
   const [win, setWin] = useState<TrendWindow>(120);
@@ -320,7 +329,7 @@ const ZONES = [
   { key: "central", label: "中部" },
 ] as const;
 
-function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummaryStrict }) {
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const latest = days.length ? days[days.length - 1]! : null;
@@ -369,7 +378,7 @@ function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituat
 
 /* ── 侵擾方式（機型）────────────────────────────────────── */
 
-function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituationSummary }) {
+function KindRow({ kinds, summary }: { kinds: PlaKindStatStrict[]; summary: PlaSituationSummaryStrict }) {
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const shown = useMemo(() => kinds.filter((k) => k.days > 0).slice(0, 6), [kinds]);
@@ -445,20 +454,26 @@ function RowLabel({ children, right }: { children: React.ReactNode; right?: Reac
 
 /** 柱色盤：index = level - 1（level 1~5 → 平靜…顯著） */
 const PLA_BAR_COLORS = ([1, 2, 3, 4, 5] as const).map((l) => PLA_LEVEL_COLORS[l]);
+/** v2 柱色盤多一格中性色：level 為 null（解析失敗）時用，不可退回第 1 級色 */
+const PLA_V2_BAR_COLORS = [...PLA_BAR_COLORS, COLORS.textMuted];
 /** 越中線小柱列單色（獨立一列，不疊在分級柱上） */
 const PLA_CROSSED_BAR_COLORS = [COLORS.accent];
 const PLA_BAR_TRACK = { height: 8, borderRadius: RADIUS.sm, background: COLORS.borderSoft, overflow: "hidden" } as const;
 
-function PlaV2Body({ days, summary, kinds }: { days: PlaSeverityDay[]; summary: PlaSituationSummary; kinds: PlaKindStat[] }) {
+function PlaV2Body({ days, summary, kinds, fresh }: { days: PlaSeverityDay[]; summary: PlaSituationSummary; kinds: PlaKindStat[]; fresh: MonitorFreshness }) {
   const day = days[days.length - 1]!;
-  const lv = (day.level ?? 1) as PlaLevel;
-  const color = day.level === null ? COLORS.textFaint : PLA_LEVEL_COLORS[lv];
-  const label = day.level === null ? "資料未解析" : PLA_LEVEL_LABELS[lv];
+  // level 為 null＝該日解析失敗：不上任何級距色、不印級距門檻（不可退回第 1 級「< p50 架次」）
+  const lv = day.level;
+  const color = lv === null ? COLORS.textFaint : PLA_LEVEL_COLORS[lv];
+  const label = lv === null ? "資料未解析" : PLA_LEVEL_LABELS[lv];
+  const q = (n: number | null) => n ?? "—";
+  const sp = summary.sorties, cr = summary.crossed;
   const band =
-    lv >= 5 ? `≥ ${summary.sorties.p97} 架次 / ${summary.crossed.p97} 越線`
-    : lv === 4 ? `≥ ${summary.sorties.p90} 架次 / ${summary.crossed.p90} 越線`
-    : lv === 3 ? `≥ ${summary.sorties.p75} 架次 / ${summary.crossed.p75} 越線`
-    : lv === 2 ? `≥ ${summary.sorties.p50} 架次` : `< ${summary.sorties.p50} 架次`;
+    lv === null ? null
+    : lv >= 5 ? `≥ ${q(sp.p97)} 架次 / ${q(cr.p97)} 越線`
+    : lv === 4 ? `≥ ${q(sp.p90)} 架次 / ${q(cr.p90)} 越線`
+    : lv === 3 ? `≥ ${q(sp.p75)} 架次 / ${q(cr.p75)} 越線`
+    : lv === 2 ? `≥ ${q(sp.p50)} 架次` : `< ${q(sp.p50)} 架次`;
   const pillStyle = (c: string) => ({
     fontFamily: FONT_CJK, fontSize: MF.label, padding: "1px 8px", borderRadius: RADIUS.pill,
     background: `${c}22`, border: `1px solid ${c}66`, color: c, whiteSpace: "nowrap" as const,
@@ -467,13 +482,14 @@ function PlaV2Body({ days, summary, kinds }: { days: PlaSeverityDay[]; summary: 
     <>
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px" }}>
         <span style={pillStyle(color)}>{label}</span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim }}>{band}</span>
+        {band && <span style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim }}>{band}</span>}
         {day.resonance && <span style={pillStyle(COLORS.statusErr)}>雙軸共振 ↑</span>}
       </div>
       <MonitorMetric
         value={day.sorties ?? "—"}
         unit="架次"
         color={day.sorties === null ? undefined : color}
+        muted={fresh.muted}
         delta={day.pctSorties == null ? "百分位未知" : `近 ${summary.windowDays} 天第 ${day.pctSorties} 百分位`}
       />
       <MonitorSub
@@ -481,7 +497,7 @@ function PlaV2Body({ days, summary, kinds }: { days: PlaSeverityDay[]; summary: 
           `越中線 ${day.crossedMedian ?? "—"} 架次`,
           `共艦 ${day.planVessels ?? "—"} 艘`,
           `公務船 ${day.officialShips ?? "—"} 艘`,
-          `近 ${summary.windowDays} 天 ${summary.daysCrossed} 天有越線`,
+          `近 ${summary.windowDays} 天 ${q(summary.daysCrossed)} 天有越線`,
         ]}
       />
       <PlaV2Trend days={days} summary={summary} />
@@ -489,6 +505,9 @@ function PlaV2Body({ days, summary, kinds }: { days: PlaSeverityDay[]; summary: 
         <PlaV2Zones days={days} summary={summary} />
         <PlaV2Kinds kinds={kinds} summary={summary} />
       </div>
+      {fresh.reason && (
+        <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+      )}
       <MonitorNote>
         中共解放軍臺海周邊海、空域動態 · @MoNDefense · 每日 0600 (UTC+8) 截止 · 分級為近 {summary.windowDays} 天滾動百分位（相對值，非絕對威脅評估）
       </MonitorNote>
@@ -505,7 +524,7 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
       key: d.reportDate,
       // null = 解析失敗 → 灰樁；0 = 真的零架次
       value: d.sorties,
-      level: (d.level ?? 1) - 1,
+      level: d.level === null ? PLA_BAR_COLORS.length : d.level - 1,
       note: d.level === null ? undefined : `${PLA_LEVEL_LABELS[d.level]}｜架次 p${d.pctSorties ?? "—"}｜越中線 p${d.pctCrossed ?? "—"}`,
     })),
     [shown],
@@ -554,7 +573,7 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
       </div>
       <HazardTrendBars
         bars={bars}
-        levelColors={PLA_BAR_COLORS}
+        levelColors={PLA_V2_BAR_COLORS}
         heightTier="lg"
         unit="架次"
         footer={`本區間 中位 ${stats.p50} · 最高 ${stats.max} 架次`}
@@ -586,7 +605,7 @@ function PlaV2Trend({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
 function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
   const tip = useChartTooltip();
   const latest = days[days.length - 1] ?? null;
-  const maxDays = Math.max(...ZONES.map((z) => summary.zones[z.key]), 1);
+  const maxDays = Math.max(...ZONES.map((z) => summary.zones[z.key] ?? 0), 1);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
       <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>
@@ -595,9 +614,9 @@ function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
       <MonitorRows
         rows={ZONES.map((z) => {
           const n = summary.zones[z.key];
-          const pct = Math.round((n / summary.daysTotal) * 100);
+          const pct = n === null || summary.daysTotal === null || summary.daysTotal === 0 ? null : Math.round((n / summary.daysTotal) * 100);
           const on = latest?.adiz[z.key] ?? false;
-          const rare = pct <= 20;
+          const rare = pct !== null && pct <= 20;
           const color = rare ? COLORS.statusWarn : COLORS.accent;
           return {
             label: <span style={{ whiteSpace: "nowrap", color: on ? COLORS.textStrong : undefined, fontWeight: on ? 700 : 400 }}>{on ? "●" : "○"}{z.label}</span>,
@@ -605,15 +624,15 @@ function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
               <div
                 {...tip.bind(() => ({
                   title: z.label,
-                  rows: [{ dot: color, value: `${fmtChartValue(n, "天")}（${pct}%）` }],
+                  rows: [{ dot: color, value: n === null ? "—" : `${fmtChartValue(n, "天")}（${pct ?? "—"}%）` }],
                   note: `${on ? "昨日進入" : "昨日未進入"}${rare ? " · 少見（≤20%）" : ""}`,
                 }))}
                 style={PLA_BAR_TRACK}
               >
-                <div style={{ width: `${(n / maxDays) * 100}%`, height: "100%", background: color }} />
+                <div style={{ width: `${((n ?? 0) / maxDays) * 100}%`, height: "100%", background: color }} />
               </div>
             ),
-            value: `${n} 天 ${pct}%`,
+            value: n === null ? "—" : `${n} 天${pct === null ? "" : ` ${pct}%`}`,
           };
         })}
       />
@@ -624,9 +643,9 @@ function PlaV2Zones({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSit
 
 function PlaV2Kinds({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituationSummary }) {
   const tip = useChartTooltip();
-  const shown = useMemo(() => kinds.filter((k) => k.days > 0).slice(0, 6), [kinds]);
+  const shown = useMemo(() => kinds.filter((k) => (k.days ?? 0) > 0).slice(0, 6), [kinds]);
   if (!shown.length) return null;
-  const maxDays = Math.max(...shown.map((k) => k.days), 1);
+  const maxDays = Math.max(...shown.map((k) => k.days ?? 0), 1);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
       <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textMuted }}>
@@ -634,32 +653,35 @@ function PlaV2Kinds({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSitu
       </span>
       <MonitorRows
         rows={shown.map((k) => {
-          const rare = k.days / summary.daysTotal <= 0.15;
-          const mixed = k.itemsTotal > k.itemsSingle;
+          const share = k.days === null || !summary.daysTotal ? null : k.days / summary.daysTotal;
+          const rare = share !== null && share <= 0.15;
+          const mixed = (k.itemsTotal ?? 0) > (k.itemsSingle ?? 0);
           const color = rare ? COLORS.statusWarn : COLORS.accent;
           const name = PLA_KIND_LABELS[k.kind] ?? k.kind;
-          const itemsNote = mixed
-            ? `${k.itemsSingle}/${k.itemsTotal} 個項次是單一機型（架次精確 ${k.sortiesExact}）；其餘為多機型合併計數，各自架次不可拆`
-            : `全部 ${k.itemsTotal} 個項次皆單一機型，架次精確`;
+          const itemsNote = k.itemsTotal === null || k.itemsSingle === null
+            ? "項次統計缺值"
+            : mixed
+              ? `${k.itemsSingle}/${k.itemsTotal} 個項次是單一機型（架次精確 ${k.sortiesExact ?? "—"}）；其餘為多機型合併計數，各自架次不可拆`
+              : `全部 ${k.itemsTotal} 個項次皆單一機型，架次精確`;
           return {
             label: <span style={{ whiteSpace: "nowrap" }}>{name}</span>,
             chart: (
               <div
                 {...tip.bind(() => ({
                   title: name,
-                  rows: [{ dot: color, value: fmtChartValue(k.days, "天") }],
-                  note: `占 ${Math.round((k.days / summary.daysTotal) * 100)}% 天數${rare ? " · 少見" : ""} · ${itemsNote}`,
+                  rows: [{ dot: color, value: k.days === null ? "—" : fmtChartValue(k.days, "天") }],
+                  note: `${share === null ? "" : `占 ${Math.round(share * 100)}% 天數`}${rare ? " · 少見" : ""} · ${itemsNote}`,
                 }))}
                 style={PLA_BAR_TRACK}
               >
-                <div style={{ width: `${(k.days / maxDays) * 100}%`, height: "100%", background: color }} />
+                <div style={{ width: `${((k.days ?? 0) / maxDays) * 100}%`, height: "100%", background: color }} />
               </div>
             ),
-            value: `${k.days} 天${mixed ? " ＊" : ""}`,
+            value: `${k.days ?? "—"} 天${mixed ? " ＊" : ""}`,
           };
         })}
       />
-      {shown.some((k) => k.itemsTotal > k.itemsSingle) && (
+      {shown.some((k) => (k.itemsTotal ?? 0) > (k.itemsSingle ?? 0)) && (
         <span style={{ fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title="＊ 該機型有部分項次與其他機型合併計數，架次不可拆；出動天數為精確值">
           ＊ 部分項次與他機型合併計數，天數為精確值
         </span>

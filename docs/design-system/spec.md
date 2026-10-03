@@ -718,7 +718,7 @@
 
 2026-10-01 拍板（比較頁 `docs/features/monitor-restyle/picks.html`，代號 A1／B1／C3／D3／E3／F3＋雙主圖／G2／H2／I2／K1）；實作分階段見 `docs/features/monitor-restyle/README.md`「實作順序」。盤點與證據同目錄（2026-09-30）。
 
-**實作狀態**：P1 完成（卡片殼、標題列、面板標頭中文化、窄格不溢出、新舊版切換）；P2a 完成（監看字級 S13）；P2b 完成（共用數值列與走勢，上半部、災害四卡、食品、加權指數、公衛、在監）；P3 完成（8 張多指標卡）；P4–P6 未開始。活的元件頁 §13。
+**實作狀態**：P1 完成（卡片殼、標題列、面板標頭中文化、窄格不溢出、新舊版切換）；P2a 完成（監看字級 S13）；P2b 完成（共用數值列與走勢，上半部、災害四卡、食品、加權指數、公衛、在監）；P3 完成（8 張多指標卡）；P4 完成（來源新鮮度、缺值修正，見下「新鮮度實作」）；P5–P6 未開始。活的元件頁 §13。
 
 - **監看字級 S13**（2026-10-01 使用者在 `docs/features/monitor-restyle/fonts.html` 選定；只用在新版監看模式）：最小 13px。新版取消內容整體放大 1.15（舊版保留）。
 
@@ -788,6 +788,13 @@
 | 收盤／休市 | 來源依時段正常暫停 | 中性 pill，不降灰 |
 | 讀取中／更新中斷／無權限 | 傳輸狀態（現有 `MonitorDataStatus`） | 維持現行 |
 
+- **新鮮度實作（P4）**：週期登記在 `monitorCardMeta.ts` 的 `fresh`，判斷在 `monitorFreshness.ts`（`judgeFreshness` 純函式＋`useMonitorFreshness(widgetId, { time, timeText, dataMs, paused, retired, reason })`，取代卡片直接呼叫 `useMonitorCardHeader`）。週期類型：
+  - `stream`（每 N 分）：> 2 週期延遲、> 6 週期過期、> 7 天停更。新聞四格 30、警訊 15、輻射 15、網路觀察 5、供電 10、急診 15、機場 60、戰情概覽 60。
+  - `days`（日／週批次，以台灣日期差）：> `staleDays`（預設 2）過期、> `stoppedDays`（預設 7）停更。食品、台鐵 3 天（T+1＋週末）；公衛週報 14／35 天；在監、共機、ISR 預設。
+  - `market`：加權指數盤中 1 分；收盤傳 `paused` 只出中性 pill，資料超過 4 天仍轉過期（避免收集器死在收盤後永遠掛「收盤」）。
+  - `event`：地震、落雷、颱風、特殊船舶——最新事件時間不代表來源活著（沒船、沒落雷的日子本來就沒有列），不判過期。
+  - 不登記：新聞直播、災防觀測（沒有資料本身的時間）。
+  - 走勢尾段：折線 `TimeseriesSparkline staleUntil`；計數柱由 loader 把日序列補到今天、最後一筆之後補 null（灰樁），只在過期／停更時才補，平常不補（日彙整本來就落後一天）。
 - **禁止**：寫死圖寬 px；缺值補 0 或合成值當資料；未就緒時用預設值決定顏色（改版前戰情概覽用 50）；印內部欄位名（`latest_valid_day`、`border_airport_snapshot`）；個別卡片額外 `zoom`；英文大寫標題；各卡自畫外框。
 - **實作**（改版前位置）：`src/components/intel/monitor/`（`MonitorPanel.tsx`、`monitorSplitLayout.ts`、各卡元件）、`PressureRing.tsx`（`Widget`／`SectionLabel`／`Sparkline`）、`HazardCards.tsx`（`HazardShell`）、`HazardTrendBars.tsx`、`MonitorDataStatus.tsx`。
 

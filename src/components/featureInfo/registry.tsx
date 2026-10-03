@@ -151,7 +151,7 @@ import {
 } from "./noisePanels";
 import {
   RiverRpiStationsPanel, WaterQualityStationsPanel, SewageTreatmentPlantsPanel, DrinkingWaterProtectionZonesPanel,
-  SeaWaterQualityStationsPanel, RiverRpiSegmentsTamsuiPanel, Pm25ManualStationsPanel, DioxinStationsPanel, IncineratorEmissionsPanel,
+  SeaWaterQualityStationsPanel, RiverRpiSegmentsPanel, Pm25ManualStationsPanel, DioxinStationsPanel, IncineratorEmissionsPanel,
   NuscGammaRadiationPanel, WaterEffluentLivePanel, CemsStackLivePanel, CwaUvDailyPanel,
 } from "./environmentLayerPanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
@@ -504,7 +504,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   sewageTreatmentPlants: SewageTreatmentPlantsPanel,
   drinkingWaterProtectionZones: DrinkingWaterProtectionZonesPanel,
   seaWaterQualityStations: SeaWaterQualityStationsPanel,
-  riverRpiSegmentsTamsui: RiverRpiSegmentsTamsuiPanel,
+  riverRpiSegments: RiverRpiSegmentsPanel,
   pm25ManualStations: Pm25ManualStationsPanel,
   dioxinStations: DioxinStationsPanel,
   incineratorEmissions: IncineratorEmissionsPanel,
@@ -990,7 +990,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   sewageTreatmentPlants: "公共污水處理廠",
   drinkingWaterProtectionZones: "飲用水水源水質保護區（環境部）",
   seaWaterQualityStations: "海域水質測站",
-  riverRpiSegmentsTamsui: "RPI 河段（試作・推估）",
+  riverRpiSegments: "河川污染指數河段（推估）",
   pm25ManualStations: "PM2.5 手動採樣站",
   dioxinStations: "環境空氣戴奧辛測站",
   incineratorEmissions: "焚化廠空污監測",

@@ -1986,3 +1986,23 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：feature index 加入 agent research／GIS analysis 入口。
 - `REFLECTIONS.md`：本篇。
 - 完整 handoff：`docs/features/agent-research-workbench/layer-discovery-mcp-handoff-20260921.md`。
+
+## 2026-10-02～03 Pulse Agent v2：拆成四個 skill、接真地圖測試、六輪收斂
+
+### What worked
+
+- 先找出「怪怪的」的具體原因，不急著拆分：回答規則寫在三處、規則本身擋畫圖、兩套工具宇宙、上圖要 5 步、測試沒接地圖。拆 skill 前先修這些。
+- 三條鐵則寫成能從工具紀錄檢查的條件（`shown:true`、計算前先有地圖動作），而不是「畫面要有動靜」這種沒辦法驗證的描述；Codex 審查點出這點後效果明顯。
+- 測試失敗一律先分類（skill／工具／測試架構／題庫／資料），一輪只改一類，分數變化才看得出是誰的功勞。分層題庫 6 → 10 → 10 → 26/26（repeat），舊題 14 → 18/20。
+- 驗算題庫抓到三題標準答案本身是錯的，Agent 其實答對了；依原因修目錄、配方和題庫，沒有放寬檢查。
+
+### Friction / limits
+
+- 子代理在長時間測試中兩次因串流停滯而中斷，留下沒 commit 的改動和卡住的 eval 程序；之後長跑要用背景執行並定期看進度，中斷時用 PID 停程序、自己接手 commit。
+- 測試期間要把使用者層 skill 換成新版，但正式 MCP 還是舊版，換錯時機會讓真實 session 叫不存在的工具；每輪測完都要還原，上線時 skill 要最後換。
+- 含金鑰的暫存 MCP 設定檔被重複產生，必須每輪結束檢查並刪除。
+
+### 下次
+
+- 改 MCP payload 時，同時改 gateway 白名單和用實際輸出當 fixture 的測試。
+- 新功能的驗收一定包含「接真地圖」那一輪，不能只靠倉庫工具的分數。

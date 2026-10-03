@@ -52,6 +52,10 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| AG-1 | P1 | ready | 圖層組能講出畫面上看得到的現象，而不只是「已打開」。 | core 工具組沒有圖層統計或摘要；評估新增唯讀的圖層摘要工具，或讓 map_context 帶回可見範圍的統計。 | L01–L04 回答第二句是具體現象，分層題庫維持 ≥12/13。[Agent STATUS](../../docs/features/general-analysis/STATUS.md) |
+| AG-2 | P2 | conditional | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | **等下次倉庫重建**（analytics #134 已修上游標題，build_warehouse 已加修形狀）。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
+| AG-3 | P3 | decision | 地震漣漪暫停時的行為：新版暫停 3 秒收起，舊版會無限循環。 | 等使用者決定要不要循環。 | 決定後依需求調整 `useEarthquakesGlobalLayer`，並附單元測試。 |
+| AG-4 | P3 | decision | A10 綜合生活品質題的判分方式。 | 綜合指標的權重與方向沒有標準答案；需決定題庫要收哪些口徑，或改成只檢查方法正確。 | 題庫寫明可接受口徑，並以唯讀查詢驗證各口徑數字。 |
 | AR-11e | P1 | blocked | Retire the CWA imagery DB fallback and legacy RPCs only after R2 CORS is production-safe. | R2 custom-domain CORS is still blocking browser reads; keep the owner-approved 14-day DB copy and collector dual-write, then follow `IMG-cwa-r2-cors`. | Production browser reads manifest/CDN imagery without CORS errors, frontend makes zero legacy RPC calls, and the RPC retirement ships as an independently verified DB release. [Imagery backlog](../../docs/features/imagery/backlog.md) |
 | AR-12/13 | P1 | ready | Move C-class shared realtime snapshots from per-user DB reads to CDN delivery. | Define snapshot writer, manifest and CDN read contract. | Target consumers read immutable/current CDN snapshots with no regression. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
 | AR-14/15 | P1 | ready | Turn saved ship/bus trails into CDN-consumable products. | Historical flight trails (AR-16) shipped as an immutable static product; now design equivalent processed bundles for ship/bus instead of browser reads of raw `trails/`. | Ship and bus browsers read processed CDN products with correct day selection and controlled egress. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |

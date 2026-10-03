@@ -9,7 +9,7 @@ import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { MonitorKpis, MonitorMetric, MonitorNote } from "./MonitorMetric";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
+import { useMonitorFreshness } from "./monitorFreshness";
 
 const AIRPORTS: Array<{ code: string; label: string }> = [
   { code: "TPE", label: "桃園 TPE" },
@@ -49,18 +49,37 @@ export function AirportPaxCard({ open }: Props) {
     return [toSeries((r) => Number(r.pax_in)), toSeries((r) => Number(r.pax_out))];
   }, [query.data]);
 
+  // v2 專用：缺值（null／非數字）剔除成缺口，真 0 保留（舊版仍沿用上面「0＝缺格」的畫法）
+  const [inSeriesV2, outSeriesV2] = useMemo(() => {
+    const toSeries = (pick: (r: AirportPaxBucket) => number | null | undefined): SparklinePoint[] =>
+      query.data.flatMap((r) => {
+        const raw = pick(r);
+        const t = Date.parse(r.hour_bucket) / 1000;
+        if (raw == null || !Number.isFinite(Number(raw)) || !Number.isFinite(t)) return [];
+        return [{ t, v: Number(raw) }];
+      });
+    return [toSeries((r) => r.pax_in), toSeries((r) => r.pax_out)];
+  }, [query.data]);
+  const sumOrNull = (pts: SparklinePoint[]) => (pts.length ? pts.reduce((s, p) => s + p.v, 0) : null);
+
   const sumIn = inSeries.reduce((s, p) => s + p.v, 0);
   const sumOut = outSeries.reduce((s, p) => s + p.v, 0);
   const hasReadableData = query.status === "ready" || query.lastSuccessAt !== null;
-  // 標題列時間＝最新一筆快照小時（沒資料時退回最後成功更新）
+  // 標題列時間＝最新一筆快照小時；沒有最新小時桶就是「無資料」，不退回最後成功更新（那是瀏覽器時間）
   const latestBucket = query.data.reduce((m, r) => Math.max(m, Date.parse(r.hour_bucket) || 0), 0);
-  useMonitorCardHeader({ time: latestBucket > 0 ? latestBucket : query.lastSuccessAt });
+  const fresh = useMonitorFreshness("airportPax", {
+    time: latestBucket > 0 ? latestBucket : null,
+    reason: "機場資料收集已停止或 24 小時內無資料",
+  });
 
   // 圖與主數字共用：入境主線＋出境疊線（同單位人）
-  const outExtra = useMemo(() => ({ data: outSeries, color: OUT_COLOR, label: "出境" }), [outSeries]);
+  const outExtraV2 = useMemo(() => ({ data: outSeriesV2, color: OUT_COLOR, label: "出境" }), [outSeriesV2]);
 
   if (v2) {
-    const fmt = (n: number) => (hasReadableData ? n.toLocaleString("zh-TW") : "—");
+    const fmt = (n: number | null) => (hasReadableData && n != null ? n.toLocaleString("zh-TW") : "—");
+    const sumInV2 = sumOrNull(inSeriesV2);
+    const sumOutV2 = sumOrNull(outSeriesV2);
+    const loaded = query.status !== "unknown";
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -82,24 +101,26 @@ export function AirportPaxCard({ open }: Props) {
           ))}
         </div>
         <MonitorDataStatus label="機場旅客資料" query={query} />
-        <MonitorMetric value={fmt(sumIn)} unit="人" color={IN_COLOR} />
-        <MonitorKpis items={[{ label: "24 小時出境", value: fmt(sumOut), unit: "人" }]} />
+        <MonitorMetric value={fmt(sumInV2)} unit="人" color={IN_COLOR} muted={fresh.muted} />
+        <MonitorKpis items={[{ label: "24 小時出境", value: fmt(sumOutV2), unit: "人" }]} />
         {query.status === "unknown" ? (
           <MonitorNote>載入中…</MonitorNote>
-        ) : inSeries.length === 0 ? (
-          <MonitorNote>無資料（此機場未涵蓋）</MonitorNote>
-        ) : (
+        ) : inSeriesV2.length === 0 ? null : (
           <>
             {/* gapSec 2h：相鄰快照缺 2 小時以上 → 斷線呈現（缺格 ≠ 低谷） */}
             <TimeseriesSparkline
-              data={inSeries} unit="人" lineColor={IN_COLOR} heightTier="std"
-              gapSec={2 * 3600} showTooltip seriesLabel="入境" extraSeries={outExtra}
+              data={inSeriesV2} unit="人" lineColor={IN_COLOR} heightTier="std"
+              gapSec={2 * 3600} showTooltip seriesLabel="入境" extraSeries={outExtraV2}
+              staleUntil={fresh.staleUntil}
             />
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
               <LegendDot color={IN_COLOR} label="入境" />
               <LegendDot color={OUT_COLOR} label="出境" />
             </div>
           </>
+        )}
+        {loaded && fresh.reason && (
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
         )}
         <MonitorNote>來源：移民署 APIS（每小時）</MonitorNote>
       </div>
