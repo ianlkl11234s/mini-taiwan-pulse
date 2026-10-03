@@ -30,7 +30,7 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 **下一個 session 的入口**：BACKLOG AG-5。
 
 - 卡點：正式站量測需要使用者登入正式站、在面板產生 token，並在 analysis-prod/mcp 執行 `pbpaste | npm run token:save`；Claude Code 需 `/mcp` 重連才會用新版工具。
-- 第一步：使用者完成上述後，跑 `node scratchpad/bench/e2e-prod-connect.mjs prod`（腳本在 session scratchpad；已記錄於 PLAN §9）。
+- 第一步：使用者完成上述後，在 mini-pulse-gis-mcp 跑 `node eval/prod-connect/e2e-prod-connect.mjs prod`。
 - 驗收：各項通過，數字寫回 PLAN。
 
 其餘待辦：AG-2～AG-4、AG-6（其他自繪圖層摘要）、AG-7（回歸測試重置殘留圖層）。
