@@ -54,7 +54,10 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
-| AG-1 | P1 | ready | 圖層組能講出畫面上看得到的現象，而不只是「已打開」。 | core 工具組沒有圖層統計或摘要；評估新增唯讀的圖層摘要工具，或讓 map_context 帶回可見範圍的統計。 | L01–L04 回答第二句是具體現象，分層題庫維持 ≥12/13。[Agent STATUS](../../docs/features/general-analysis/STATUS.md) |
+| AG-1 | P1 | done | 圖層組能講出畫面上看得到的現象。 | 2026-10-03 完成：mini #512（map_context bounds＋visibleSummary）、#517（自繪圖層用圖層資料做摘要）、#519（網頁先等資料、aqi 改 isStyleReady）；MCP #37／#38（skill 讀摘要）。 | 分層題庫 13/13；L01–L04 第二句皆為具體現象（run 2026-10-03T14-50、15-09）。 |
+| AG-5 | P1 | blocked | 正式站端到端量測（token 接上、set_camera／set_layers／map_context、show_nearby 上圖、重整還原）。 | **等使用者**在正式站面板產生 token 並 `pbpaste \| npm run token:save`（analysis-prod/mcp）；Claude Code 需 `/mcp` 重連。 | `e2e-prod-connect.mjs prod` 各項通過，數字與 PLAN P0 表（map_context 0.96 s、set_layers 4.8 s）對照寫回 PLAN。 |
+| AG-6 | P2 | ready | 其他自繪圖層補摘要：riverLevel、groundwater、iotWraRiver（與 rainGauge 同工廠）。 | 照 #517 rainGauge 做法在 visibleSummary 補上。 | 開這幾層時 visibleSummary 不再是 custom_renderer，附單元測試。 |
+| AG-7 | P3 | ready | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | eval `--reset-cmd` 改為重整前先全部關閉（或 gateway scene 清空）。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
 | AG-2 | P2 | conditional | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | **等下次倉庫重建**（analytics #134 已修上游標題，build_warehouse 已加修形狀）。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
 | AG-3 | P3 | decision | 地震漣漪暫停時的行為：新版暫停 3 秒收起，舊版會無限循環。 | 等使用者決定要不要循環。 | 決定後依需求調整 `useEarthquakesGlobalLayer`，並附單元測試。 |
 | AG-4 | P3 | decision | A10 綜合生活品質題的判分方式。 | 綜合指標的權重與方向沒有標準答案；需決定題庫要收哪些口徑，或改成只檢查方法正確。 | 題庫寫明可接受口徑，並以唯讀查詢驗證各口徑數字。 |
