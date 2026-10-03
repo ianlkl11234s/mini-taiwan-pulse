@@ -1,4 +1,5 @@
 import { LAYER_MANIFEST, type LayerSource } from "../data/layerManifest";
+import { layerDataProviderFor, type DataRanked, type LayerDataProvider } from "./layerDataSummary";
 
 /**
  * AG-1 (SPEC-prod-connect §2.7): a bounded "what is drawn in the viewport" digest for
@@ -33,6 +34,10 @@ export type VisibleSummaryArea = { level: "town" | "county"; field: string; item
 export type VisibleSummaryMax = { field: string; value: number; name: string | null; lngLat: [number, number] | null };
 export type VisibleSummaryLayer =
   | { layerKey: string; label: string; status: "ok"; featureCount: number; capped: boolean; topAreas: VisibleSummaryArea | null; max: VisibleSummaryMax | null }
+  /** Custom-rendered layer digested from the hook's in-memory rows (see layerDataSummary.ts). */
+  | { layerKey: string; label: string; basis: "layer_data"; status: "ok"; featureCount: number; capped: boolean; topAreas: VisibleSummaryArea | null; max: (VisibleSummaryMax & { at?: string }) | null; ranked?: DataRanked; asOf?: string | null; note?: string }
+  | { layerKey: string; label: string; basis: "layer_data"; status: "data_not_loaded" }
+  | { layerKey: string; label: string; basis: "layer_data"; status: "not_applicable"; reason: "raster"; seeLayerKey: string; note: string }
   | { layerKey: string; status: "not_applicable"; reason: "custom_renderer" | "raster" | "no_style_layer" }
   | { layerKey: string; label: string; status: "no_rendered_features" | "skipped_budget" };
 export type VisibleSummary = { basis: "rendered_viewport"; note: string; truncated: boolean; layers: VisibleSummaryLayer[] };
@@ -40,16 +45,21 @@ export type VisibleSummary = { basis: "rendered_viewport"; note: string; truncat
 export const VISIBLE_SUMMARY_MAX_LAYERS = 10;
 export const VISIBLE_SUMMARY_MAX_FEATURES = 5000;
 export const VISIBLE_SUMMARY_BUDGET_MS = 150;
-const NOTE = "只統計目前畫面範圍內已畫出的圖徵；圖磚未載完時可能偏少";
+const NOTE = "只統計目前畫面範圍內已畫出的圖徵；圖磚未載完時可能偏少。自繪圖層（basis: layer_data）改用網頁已載入的圖層資料統計";
 const TOWN_FIELDS = ["TOWNNAME", "townname", "town", "town_name", "鄉鎮市區", "TOWN"];
 const COUNTY_FIELDS = ["COUNTYNAME", "countyname", "county", "county_name", "縣市", "COUNTY"];
-const NAME_FIELDS = ["name", "名稱", "title", "NAME"];
+const NAME_FIELDS = ["name", "名稱", "title", "NAME", "station_name"];
 const PAINT_ORDER = ["circle-radius", "circle-color", "fill-color", "fill-extrusion-height", "heatmap-weight", "line-width", "line-color", "icon-size"];
 const SUMMARIZABLE_KINDS = new Set(["geojson", "pmtiles", "supabase"]);
 const MAX_TEXT = 60;
+/**
+ * Manifest-`custom` layers whose hook still draws plain Mapbox GeoJSON style layers
+ * (no Three.js), so the rendered-feature path can read them by their self-built source id.
+ */
+const CUSTOM_RENDERED_SOURCES: Record<string, string[]> = { rainGauge: ["rain-gauge"] };
 
 type SourcesFor = (layerKey: string) => LayerSource[] | null;
-export type VisibleSummaryOptions = { labelFor?: (layerKey: string) => string; sourcesFor?: SourcesFor; now?: () => number };
+export type VisibleSummaryOptions = { labelFor?: (layerKey: string) => string; sourcesFor?: SourcesFor; dataProviderFor?: (layerKey: string) => LayerDataProvider | null; now?: () => number };
 
 function manifestSources(layerKey: string): LayerSource[] | null {
   const entry = (LAYER_MANIFEST as Record<string, { source: LayerSource | LayerSource[] } | undefined>)[layerKey];
@@ -142,7 +152,10 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
   const now = options.now ?? (() => performance.now());
   const sourcesFor = options.sourcesFor ?? manifestSources;
   const labelFor = options.labelFor ?? ((key: string) => key);
+  const dataProviderFor = options.dataProviderFor ?? layerDataProviderFor;
   const started = now();
+  let bounds: [number, number, number, number] | null = null;
+  try { bounds = viewportBounds(map); } catch { bounds = null; }
   const keys = visibleLayerKeys.slice(0, VISIBLE_SUMMARY_MAX_LAYERS);
   let styleLayers: VisibleSummaryStyleLayer[] = [];
   try { styleLayers = map.getStyle()?.layers ?? []; } catch { styleLayers = []; }
@@ -151,8 +164,15 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
     const label = labelFor(layerKey).slice(0, 120);
     if (now() - started > VISIBLE_SUMMARY_BUDGET_MS) { layers.push({ layerKey, label, status: "skipped_budget" }); continue; }
     const sources = sourcesFor(layerKey) ?? [];
-    const sourceIds = new Set(sources.flatMap(source => SUMMARIZABLE_KINDS.has(source.kind) && "sourceId" in source ? [source.sourceId] : []));
-    if (!sourceIds.size) { layers.push({ layerKey, status: "not_applicable", reason: "custom_renderer" }); continue; }
+    const sourceIds = new Set([...sources.flatMap(source => SUMMARIZABLE_KINDS.has(source.kind) && "sourceId" in source ? [source.sourceId] : []), ...(CUSTOM_RENDERED_SOURCES[layerKey] ?? [])]);
+    if (!sourceIds.size) {
+      // Custom renderers are invisible to queryRenderedFeatures; use the layer's own rows when it registered a provider.
+      const provider = bounds ? dataProviderFor(layerKey) : null;
+      let digest: ReturnType<LayerDataProvider> | null = null;
+      try { digest = provider ? provider(bounds!) : null; } catch { digest = null; }
+      layers.push(digest ? { layerKey, label, basis: "layer_data", ...digest } : { layerKey, status: "not_applicable", reason: "custom_renderer" });
+      continue;
+    }
     const candidates = styleLayers.filter(layer => {
       const sourceId = styleSourceId(layer);
       return sourceId !== null && sourceIds.has(sourceId) && layer.layout?.visibility !== "none" && map.getLayer(layer.id) !== undefined;

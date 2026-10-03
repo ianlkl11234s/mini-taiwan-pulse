@@ -16,6 +16,7 @@ import {
 } from "../data/typhoonTracksLoader";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { registerLayerDataProvider, summarizeTyphoons } from "../research/layerDataSummary";
 
 // 颱風軌跡 — observed 實線 + forecast 虛線 + 軌跡點 + 現在位置光圈。
 //
@@ -249,6 +250,13 @@ export function useTyphoonTracksLayer(
     applyFilter(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(500, applyFilter);
   }, [visible, sourceFilter, ensureSource, mapRef, mapTick, dataTick]);
+
+  // Agent 畫面摘要（AG-1）：自建 source，改用已載入的軌跡點算「此刻活動中的颱風」（同黃色光圈的判定）
+  useEffect(() => {
+    if (!visible) return;
+    return registerLayerDataProvider("typhoonTracks", (bounds) =>
+      summarizeTyphoons(dataRef.current, bounds, timeStore.getTime(), sourceFilter, dataReadyRef.current));
+  }, [visible, sourceFilter]);
 
   // 套用 opacity（乘以各 layer 的 base opacity）
   useEffect(() => {

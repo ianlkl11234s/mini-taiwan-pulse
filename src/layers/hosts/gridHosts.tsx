@@ -10,11 +10,13 @@
 //     `spatialParams` / `youbikeParams` 六個 useMemo），identity 同樣用
 //    per-key 快照當 deps —— store 保證「只有這個 key 真的變動時才換 identity」。
 
-import { useCallback, useEffect, useMemo, useState, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { timeStore } from "../../state/timeStore";
 import { updateH3Layer, ensureH3Layers } from "../../map/h3LayerFactory";
 import { ensureYoubikeLayers, updateYoubikeLayer } from "../../map/youbikeLayerFactory";
+import { requireH3 } from "../../map/h3Runtime";
+import { registerLayerDataProvider, summarizeYoubikeCells } from "../../research/layerDataSummary";
 import {
   ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer,
   ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer,
@@ -273,5 +275,16 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
     rehydrate(map);
   }, [mapRef, rehydrate, youbikeTimeKey]);
   useGridStyleRehydration(mapRef, rehydrate);
+  // Agent 畫面摘要（AG-1）：H3 多邊形由前端自建 source，改用當下時刻的 cell 資料統計（不打網路）
+  const getCellsRef = useRef(getYoubikeCellsForTime);
+  getCellsRef.current = getYoubikeCellsForTime;
+  useEffect(() => {
+    if (!visible) return;
+    return registerLayerDataProvider("youbikeFullness", (bounds) => {
+      let h3: ReturnType<typeof requireH3>;
+      try { h3 = requireH3(); } catch { return { status: "data_not_loaded" }; }
+      return summarizeYoubikeCells(getCellsRef.current(timeStore.getTime()), bounds, (cell) => h3.cellToLatLng(cell));
+    });
+  }, [visible]);
   return null;
 };

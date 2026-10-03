@@ -20,6 +20,7 @@ import {
 // 只取型別：值走 lazy import，three 不進首屏 bundle（見 lazyThreeLayers 檔頭）
 import type { EarthquakeRippleSnapshot } from "../map/earthquakeRippleCustomLayer";
 import type { QuakeRippleItem } from "../three/QuakeRippleScene";
+import { registerLayerDataProvider, summarizeEarthquakes } from "../research/layerDataSummary";
 
 /**
  * USGS 全球地震 — timeline 連動 + 擴散圈動畫。
@@ -75,6 +76,16 @@ function taipeiDayBounds(ts: number): { dayStart: number; dayEnd: number } {
   const tzOffset = 8 * 3600;
   const dayStart = Math.floor((ts + tzOffset) / SEC_PER_DAY) * SEC_PER_DAY - tzOffset;
   return { dayStart, dayEnd: dayStart + SEC_PER_DAY };
+}
+
+/**
+ * 已發生標記（post 層）的顯示時間窗：僅當日 → 台北日界 00:00 起；其餘 → 游標往前 N 天。
+ * filter 與 Agent 畫面摘要共用，兩邊才會對得上畫面。
+ */
+export function earthquakeGlobalDisplayWindow(currentTime: number, lookbackDays: number): { from: number; to: number; dayEnd: number; onlyToday: boolean } {
+  const onlyToday = lookbackDays <= 1;
+  const { dayStart, dayEnd } = taipeiDayBounds(currentTime);
+  return { from: onlyToday ? dayStart : currentTime - lookbackDays * SEC_PER_DAY, to: currentTime, dayEnd, onlyToday };
 }
 
 const RADIUS_EXPR = [
@@ -350,9 +361,7 @@ export function useEarthquakesGlobalLayer(
     let lastFilterSig: string | null = null;
     const applyFilter = (currentTime: number) => {
       // 顯示窗下界：僅當日 → 台北日界 00:00；其餘 → 游標往前 N 天
-      const onlyToday = lookbackDays <= 1;
-      const { dayStart, dayEnd } = taipeiDayBounds(currentTime);
-      const lowerBound = onlyToday ? dayStart : currentTime - lookbackDays * SEC_PER_DAY;
+      const { from: lowerBound, dayEnd, onlyToday } = earthquakeGlobalDisplayWindow(currentTime, lookbackDays);
       // 僅當日時，預示視窗不得越過日界（否則會露出明天的地震）
       const preUpper = onlyToday
         ? Math.min(currentTime + PRE_WINDOW, dayEnd)
@@ -428,6 +437,18 @@ export function useEarthquakesGlobalLayer(
       stopRipple();
     };
   }, [visible, lookbackDays, ensureSource, mapRef, mapTick, dataTick]);
+
+  // Agent 畫面摘要（AG-1）：點位走自建 source、漣漪走 Three，rendered features 讀不到 →
+  // 直接用已抓的事件 + 與 post 層相同的時間窗統計。currentTime 在呼叫當下讀 timeStore（不進 deps）。
+  useEffect(() => {
+    if (!visible) return;
+    return registerLayerDataProvider("earthquakesGlobal", (bounds) => {
+      if (!dataReadyRef.current) return { status: "data_not_loaded" };
+      const window = earthquakeGlobalDisplayWindow(timeStore.getTime(), lookbackDays);
+      const label = window.onlyToday ? "時間軸當日（台灣時間）至游標" : `時間軸游標往前 ${lookbackDays} 天`;
+      return summarizeEarthquakes(eventsRef.current, bounds, { from: window.from, to: window.to, label });
+    });
+  }, [visible, lookbackDays]);
 
   // 套用 opacity（乘以各 layer 的 base opacity）。漣漪在 Three 端每幀讀 opacityRef。
   useEffect(() => {
