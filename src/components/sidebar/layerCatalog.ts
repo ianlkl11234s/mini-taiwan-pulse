@@ -182,13 +182,16 @@ function localResearchGroup(title: string, keys: ManifestKey[]): SubGroupDef[] {
 
 /**
  * 世界 rail tab 只放語意明確的全球主題；不再用泛稱「世界 World」包住事件與環境。
- * 桌機主 Layers panel 用 WORLD_TAB_THEME_TITLES 把這些主題濾掉，世界 tab 則依陣列順序顯示。
+ * 桌機主 Layers panel 用 WORLD_TAB_THEME_TITLES 把這些主題濾掉，世界 tab 依大分類排序顯示。
  */
 export const GLOBAL_SITUATION_THEME_TITLE = "全球情勢 Global Situation";
 export const GLOBAL_ENVIRONMENT_THEME_TITLE = "全球環境 Global Environment";
 export const COMMUNICATIONS_THEME_TITLE = "全球通訊 Global Communications";
 
-/** 劃入「世界」rail tab 的主題清單（2026-07-19 全球氣候自主 Layers panel 搬入）。 */
+/**
+ * 劃入「世界」rail tab 的主題清單（2026-07-19 全球氣候自主 Layers panel 搬入）。
+ * 只決定 membership 與同一大分類內的先後；面板順序由 `THEME_MACRO_GROUPS` 的大分類決定（layerPanels.ts `WORLD_THEMES`）。
+ */
 export const WORLD_TAB_THEME_TITLES: string[] = [
   GLOBAL_SITUATION_THEME_TITLE,
   "全球海事 Global Maritime",
@@ -299,10 +302,39 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
  * 這裡刻意不沿用 manifest.section：manifest 的 section 是完整 Layers 目錄位置，
  * 統計入口則是跨主題索引。Layer key、label、來源、release 與 geometry 契約仍由
  * manifest / statistics recipes 管理，這裡只決定統計入口的閱讀順序。
+ * 2026-10-03 依統計面板大分類（layerPanels.ts `STATISTICS_MACRO_GROUPS`）拆主題並重排：同一大分類的主題相鄰；
+ * 從原「人口與社會」拆出的主題維持展開、從原「交通與運輸」拆出的維持收合。
  */
 export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   {
+    title: "人口與教育 Population & Education",
+    defaultCollapsed: true,
+    groups: [
+      { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
+      { title: "教育與少子化", layers: [
+        ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
+      ] },
+    ],
+  },
+  {
+    title: "醫療與長照 Health & Care",
+    defaultCollapsed: true,
+    groups: [
+      { title: "醫療與長照", layers: [
+        fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
+      ] },
+    ],
+  },
+  {
+    title: "犯罪與治安 Crime & Safety",
+    defaultCollapsed: true,
+    groups: [
+      { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
+    ],
+  },
+  {
     title: "工作與所得 Work & Income",
+    defaultCollapsed: true,
     groups: [
       { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
       { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
@@ -315,41 +347,25 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     ],
   },
   {
-    title: "人口與社會 People & Society",
+    title: "住宅與不動產 Housing & Property",
+    defaultCollapsed: true,
     groups: [
-      { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
-      { title: "教育與少子化", layers: [
-        ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
-      ] },
-      { title: "醫療與長照", layers: [
-        fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
-      ] },
       { title: "住宅存量與使用", layers: [
         fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship"),
       ] },
       { title: "不動產總市值", layers: [fromManifest("propertyValueAdmin")] },
-      { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
     ],
   },
   {
-    title: "交通與運輸 Transport",
+    title: "公共運輸 Public Transport",
     defaultCollapsed: true,
     groups: [
       { title: "建置量", layers: [fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount")] },
       { title: "使用與營運", layers: [fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm"), fromManifest("statsTmrtStationOutboundCounty")] },
-      { title: "車輛登記存量", layers: [fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount")] },
       { title: "自行車（臺北市，民國 110 年）", layers: [
         fromManifest("statsTaipeiUrbanRentalStations"), fromManifest("statsTaipeiUrbanRentalTrips"),
         fromManifest("statsTaipeiRiversideRentalStations"), fromManifest("statsTaipeiRiversideBicycles"),
         fromManifest("statsTaipeiRiversideRentalTrips"),
-      ] },
-      { title: "道路安全與監測", layers: [
-        fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount"),
-        fromManifest("statsTaipeiTrafficViolationCitations"), fromManifest("statsTaichungRoadNoiseMonitoringStations"),
-      ] },
-      { title: "駕照與停車", layers: [
-        fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
-        fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
       ] },
       { title: "航空運輸", layers: [
         fromManifest("statsAirportTakeoffsLandings"), fromManifest("statsAirportPassengerMovements"),
@@ -360,6 +376,27 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "運輸補助", layers: [
         fromManifest("statsMaritimeSubsidyCounty"), fromManifest("statsCivilAeronauticsSubsidyCounty"),
       ] },
+    ],
+  },
+  {
+    title: "道路與車輛 Roads & Vehicles",
+    defaultCollapsed: true,
+    groups: [
+      { title: "車輛登記存量", layers: [fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount")] },
+      { title: "道路安全與監測", layers: [
+        fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount"),
+        fromManifest("statsTaipeiTrafficViolationCitations"), fromManifest("statsTaichungRoadNoiseMonitoringStations"),
+      ] },
+      { title: "駕照與停車", layers: [
+        fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
+        fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
+      ] },
+    ],
+  },
+  {
+    title: "交通用地 Transport Land",
+    defaultCollapsed: true,
+    groups: [
       { title: "交通用地", layers: [
         fromManifest("statsRoadLandAreaTownship"), fromManifest("statsRailLandAreaTownship"),
         fromManifest("statsAirportLandAreaTownship"), fromManifest("statsPortLandAreaTownship"),
@@ -1835,10 +1872,11 @@ const THEME_CATALOG: ThemeDef[] = [
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
   //    tab 抬頭已是「日本 Japan」，故不再多包一層「日本」主題 ——
   //    行政區 / 交通 / 教育 / 人口 / 宗教 直接當頂層主題並列（比照世界 tab 多主題）。
+  //    2026-10-03 使用者決定：日本主題一律預設收合，與台灣一致。
   // ───────────────────────────────────────────────────────────────
   {
     title: "醫療設施",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [{ title: "Navii 設施名錄", layers: [
       fromManifest("jpMedicalHospitals"), fromManifest("jpMedicalClinics"), fromManifest("jpMedicalDental"),
       fromManifest("jpMedicalMaternity"), fromManifest("jpMedicalPharmacies"),
@@ -1846,7 +1884,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "長照服務",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [{ title: "服務使用情境", layers: [
       fromManifest("jpCarePlanning"), fromManifest("jpCareHomeVisit"), fromManifest("jpCareDayServices"),
       fromManifest("jpCareResidential"), fromManifest("jpCareCombined"), fromManifest("jpCareEquipment"),
@@ -1861,7 +1899,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "水資源",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [{ title: "水資源靜態資料", layers: [
       fromManifest("jpWaterDams"), fromManifest("jpWaterRivers"), fromManifest("jpWaterSupplyFacilities"), fromManifest("jpWaterSupplyAreas"), fromManifest("jpWaterSewerFacilities"),
       fromManifest("jpWaterLakes"), fromManifest("jpWaterLocalFacilities"),
@@ -1872,7 +1910,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "行政區",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       {
         title: "面",
@@ -1885,7 +1923,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "交通",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       {
         title: "點位",
@@ -1905,7 +1943,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "旅宿",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       { title: "總覽", layers: [
         fromManifest("jpAccommodationCanonical"),
@@ -1920,7 +1958,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "自然保護",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       ...localResearchGroup("自然公園 A10 historical", [
         "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
@@ -1939,7 +1977,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "世界遺產",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       { title: "UNESCO 現行名錄", layers: [fromManifest("jpWorldHeritageCultural"), fromManifest("jpWorldHeritageNatural")] },
       ...localResearchGroup("Historical", ["jpWorldNaturalHeritageHistorical"]),
@@ -1947,12 +1985,12 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "治安",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [{ title: "點位", layers: [fromManifest("jpPoliceFacilities")] }],
   },
   {
     title: "教育",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       {
         title: "點位",
@@ -1964,7 +2002,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "人口",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       {
         title: "面",
@@ -1976,7 +2014,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "宗教",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       {
         title: "點位",
@@ -1990,7 +2028,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "高度與地表",
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [{ title: "日本高度（分區資料）", layers: [fromManifest("jpBuildingHeight"), fromManifest("jpCanopyHeight")] }],
   },
 
@@ -1998,7 +2036,7 @@ const THEME_CATALOG: ThemeDef[] = [
 
 /**
  * Layers 的第一層閱讀順序：不改 theme title、layer key 或資料契約，只提供 UI 分段。
- * 全球與日本主題在 desktop 仍由各自 rail 顯示；mobile 則併入相符的既有大分類。
+ * 全球與日本主題由各自入口顯示；世界入口的大分類直接讀這張對照（layerPanels.ts `WORLD_MACRO_GROUPS`）。
  */
 export const LAYER_MACRO_GROUPS = [
   { key: "baseline", zh: "基準", en: "Baseline" },
@@ -2098,8 +2136,13 @@ export interface ThemeName {
 
 const THEME_NAMES: Record<string, ThemeName> = {
   // 統計入口的重組主題（STATISTICS_TAB_THEMES）
-  "人口與社會 People & Society": { zh: "人口與社會", sub: "People & Society" },
-  "交通與運輸 Transport": { zh: "交通與運輸", sub: "Transport" },
+  "人口與教育 Population & Education": { zh: "人口與教育", sub: "Population & Education" },
+  "醫療與長照 Health & Care": { zh: "醫療與長照", sub: "Health & Care" },
+  "犯罪與治安 Crime & Safety": { zh: "犯罪與治安", sub: "Crime & Safety" },
+  "住宅與不動產 Housing & Property": { zh: "住宅與不動產", sub: "Housing & Property" },
+  "公共運輸 Public Transport": { zh: "公共運輸", sub: "Public Transport" },
+  "道路與車輛 Roads & Vehicles": { zh: "道路與車輛", sub: "Roads & Vehicles" },
+  "交通用地 Transport Land": { zh: "交通用地", sub: "Transport Land" },
   "農林漁牧 Agriculture, Forestry & Fisheries": { zh: "農林漁牧", sub: "Agriculture, Forestry & Fisheries" },
   "環境與資源 Environment & Resources": { zh: "環境與資源", sub: "Environment & Resources" },
   "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },

@@ -47,6 +47,7 @@ import {
   THEMES,
   THEME_NAME_TITLES,
   WORLD_TAB_THEME_TITLES,
+  themeMacroGroup,
   themeName,
 } from "../layerCatalog";
 import { JAPAN_MACRO_GROUPS, LAYER_PANELS } from "../layerPanels";
@@ -563,9 +564,26 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
   it("日本大分類照使用者決定的 5 類", () => {
     expect(JAPAN_MACRO_GROUPS.map((group) => group.zh)).toEqual(["行政與人口", "交通與旅宿", "醫療與照護", "社會", "自然與環境"]);
     expect(LAYER_PANELS.find((panel) => panel.id === "japan")!.macroGroups).toBe(JAPAN_MACRO_GROUPS);
-    // 統計、世界的分法待使用者選定：先不分
-    expect(LAYER_PANELS.find((panel) => panel.id === "statistics")!.macroGroups).toBeUndefined();
-    expect(LAYER_PANELS.find((panel) => panel.id === "world")!.macroGroups).toBeUndefined();
+  });
+
+  it("統計大分類照使用者決定的 5 類（S-B），世界沿用台灣大分類名（W-A）", () => {
+    const panel = (id: string) => LAYER_PANELS.find((candidate) => candidate.id === id)!;
+    expect(panel("statistics").macroGroups!.map((group) => group.zh)).toEqual(["人口與社會", "經濟與住宅", "交通", "土地與環境", "基準"]);
+    expect(panel("world").macroGroups!.map((group) => group.zh)).toEqual(["公共生活", "環境與資源", "情報"]);
+    expect(panel("world").themes.map((theme) => theme.title)).toEqual([
+      "全球通訊 Global Communications", "全球氣候 Global Climate", GLOBAL_ENVIRONMENT_THEME_TITLE, GLOBAL_SITUATION_THEME_TITLE, "全球海事 Global Maritime",
+    ]);
+    // 世界大分類與 THEMES 排序讀同一張對照，不另立一份
+    for (const group of panel("world").macroGroups!) {
+      const key = LAYER_MACRO_GROUPS.find((candidate) => candidate.zh === group.zh)!.key;
+      for (const title of group.themes) expect(themeMacroGroup(title), title).toBe(key);
+    }
+  });
+
+  it("日本主題一律預設收合，與台灣一致（2026-10-03 使用者決定）", () => {
+    for (const theme of LAYER_PANELS.find((panel) => panel.id === "japan")!.themes) {
+      expect(theme.defaultCollapsed, theme.title).toBe(true);
+    }
   });
 
   it("圖層名稱結構化：日本圖層有中文主名與日文小字，來源放限定詞", () => {
