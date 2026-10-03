@@ -15,7 +15,7 @@ import { LayerNameLine, ListRow } from "./LayerRow";
 import { SubGroupLabel } from "./ThemeBanner";
 import { LAYER_ICONS } from "./layerIcons";
 import { railPalette, RailThemeContext } from "./railTheme";
-import { THEMES, LAYER_COLORS, layerDisplayName } from "./layerCatalog";
+import { THEMES, LAYER_COLORS, layerDisplayName, themeName } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
@@ -76,13 +76,6 @@ const CONFIDENCE_LABEL: Record<string, string> = { HIGH: "高", MED: "中", LOW:
 
 function statusOf(key: string): UpstreamStatus {
   return UPSTREAM_REGISTRY[key as keyof LayerVisibility]?.status ?? "catalog_missing";
-}
-
-/** 圖層／主題名稱多為「中文 English」單一字串；只在尾段是純 ASCII 時才拆出英文名，
- *  避免把「2015 年」這類含空白的中文數字誤切。 */
-function splitLabel(label: string): { zh: string; en: string } {
-  const m = /^(.+?)\s+([A-Za-z][A-Za-z0-9 .,()/'’&+-]*)$/.exec(label);
-  return m ? { zh: m[1] ?? label, en: m[2] ?? "" } : { zh: label, en: "" };
 }
 
 type Fact = { k: string; v: ReactNode; mono?: boolean };
@@ -315,11 +308,11 @@ export function DataSourceCard({
 // ── 主題 / 群組標題 ──
 
 function ThemeHeader({ p, title }: { p: DsPalette; title: string }) {
-  const { zh, en } = splitLabel(title);
+  const { zh, sub } = themeName(title);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 10px 0", fontSize: FONT_SIZE.base, fontWeight: 600, color: p.text, fontFamily: FONT_CJK }}>
       <span>{zh}</span>
-      {en && <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: p.dim, letterSpacing: 0.8 }}>{en}</span>}
+      {sub && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: p.dim, letterSpacing: 0.8 }}>{sub}</span>}
     </div>
   );
 }

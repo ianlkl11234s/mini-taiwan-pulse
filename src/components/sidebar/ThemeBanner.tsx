@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
-import { splitThemeTitle } from "./layerCatalog";
+import { themeName } from "./layerCatalog";
 import { RailToggle } from "./LayerRow";
 import { useRailTheme } from "./railTheme";
 
@@ -17,8 +17,8 @@ export function ThemeBanner({
 }) {
   const { DIM, BORDER, TEXT_STRONG, BANNER_BG } = useRailTheme();
   const someOn = onCount > 0;
-  // LT1（design-system §5.5）：theme.title 資料格式是「中文 English」，渲染時拆開分別給字級／字型。
-  const { zh, en } = splitThemeTitle(title);
+  // LT1（design-system §5.5）：title 是識別字串，顯示名稱查 THEME_NAMES（副標：英文，日本主題用日文）。
+  const { zh, sub } = themeName(title);
   return (
     <div
       style={{
@@ -47,8 +47,8 @@ export function ThemeBanner({
         </span>
         <span style={{ flex: 1, display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
           <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
-          {en && (
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{en}</span>
+          {sub && (
+            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{sub}</span>
           )}
         </span>
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: DIM, marginRight: 4 }}>
@@ -85,10 +85,9 @@ export function SubGroupLabel({ children }: { children: string }) {
 }
 
 /** 大分類標題：只顯示中文（LT1），右側細線同 L2 群組線色（design-system §5.5）。 */
-export function MacroGroupLabel({ title }: { title: string }) {
+export function MacroGroupLabel({ zh }: { zh: string }) {
   const { DIM, COLOR_SCHEME } = useRailTheme();
   const dark = COLOR_SCHEME === "dark";
-  const { zh } = splitThemeTitle(title);
   return (
     <div
       style={{

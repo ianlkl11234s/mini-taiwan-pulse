@@ -279,7 +279,7 @@ function SidebarContent({
         search={panelSearch[panel.id]}
         onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
         themes={panel.themes}
-        showMacroGroups={panel.showMacroGroups}
+        macroGroups={panel.macroGroups}
         allOffKeys={panel.allOffKeys}
         statisticsModeControl={panel.statisticsModeControl}
         visibility={visibility}

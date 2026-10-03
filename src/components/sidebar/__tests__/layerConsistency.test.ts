@@ -45,8 +45,11 @@ import {
   LAYER_COLORS,
   LAYER_MACRO_GROUPS,
   THEMES,
+  THEME_NAME_TITLES,
   WORLD_TAB_THEME_TITLES,
+  themeName,
 } from "../layerCatalog";
+import { JAPAN_MACRO_GROUPS, LAYER_PANELS } from "../layerPanels";
 import { hasLayerDetails } from "../../LayerSidebar";
 import { STATISTICS_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../../data/layerManifest";
@@ -517,5 +520,50 @@ describe("日本與世界 tab 命名規則", () => {
       theme: GLOBAL_ENVIRONMENT_THEME_TITLE,
       group: "廢棄物觀測 Waste Observations",
     });
+  });
+});
+
+describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () => {
+  it("每個主題都登記了顯示名稱（新增主題要補 THEME_NAMES）", () => {
+    const missing = THEMES.map((theme) => theme.title).filter((title) => !THEME_NAME_TITLES.has(title));
+    expect(missing).toEqual([]);
+  });
+
+  it("日本 14 個主題一律有日文副標，與中文同字也照樣顯示", () => {
+    expect(JAPAN_TAB_THEME_TITLES).toHaveLength(14);
+    for (const title of JAPAN_TAB_THEME_TITLES) {
+      expect(themeName(title).sub, title).toBeTruthy();
+    }
+    expect(themeName("宗教")).toEqual({ zh: "宗教", sub: "宗教" });
+    expect(themeName("長照服務")).toEqual({ zh: "長照服務", sub: "介護サービス" });
+  });
+
+  it("有大分類的面板：主題不漏不重、同一大分類相鄰、順序與定義一致", () => {
+    for (const panel of LAYER_PANELS) {
+      if (!panel.macroGroups) continue;
+      const titles = panel.themes.map((theme) => theme.title);
+      const groupOf = (title: string) => panel.macroGroups!.findIndex((group) => group.themes.includes(title));
+      for (const title of titles) {
+        expect(panel.macroGroups.filter((group) => group.themes.includes(title)), `${panel.id}:${title}`).toHaveLength(1);
+      }
+      const order = titles.map(groupOf);
+      expect(order, panel.id).toEqual([...order].sort((a, b) => a - b));
+      for (const group of panel.macroGroups) {
+        for (const title of group.themes) expect(titles, `${panel.id}:${group.zh}`).toContain(title);
+      }
+    }
+  });
+
+  it("日本大分類照使用者決定的 5 類", () => {
+    expect(JAPAN_MACRO_GROUPS.map((group) => group.zh)).toEqual(["行政與人口", "交通與旅宿", "醫療與照護", "社會", "自然與環境"]);
+    expect(LAYER_PANELS.find((panel) => panel.id === "japan")!.macroGroups).toBe(JAPAN_MACRO_GROUPS);
+    // 統計、世界的分法待使用者選定：先不分
+    expect(LAYER_PANELS.find((panel) => panel.id === "statistics")!.macroGroups).toBeUndefined();
+    expect(LAYER_PANELS.find((panel) => panel.id === "world")!.macroGroups).toBeUndefined();
+  });
+
+  it("圖層名稱結構化：日本圖層有中文主名與日文小字，來源放限定詞", () => {
+    expect(LAYER_MANIFEST.jpStations.name).toEqual({ zh: "車站", alt: "駅" });
+    expect(LAYER_MANIFEST.jpReligionGsi.name).toEqual({ zh: "宗教設施", alt: "宗教施設", qualifier: "国土地理院" });
   });
 });
