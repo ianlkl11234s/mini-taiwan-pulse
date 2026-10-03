@@ -17,6 +17,12 @@
 | Q5 台日統一範圍 | C：面板整體統一 | **很重要：連同統計與世界圖層，理論上所有 layers 的設定面板都要統一** → 獨立一輪（盤點＋選擇頁） |
 | Q6 熱區疊放 | B：多層熱區同時開時各自降透明度 | |
 
+### 0.1 色盤庫收錄（2026-10-03，[`ramp-gallery.html`](./ramp-gallery.html)）
+
+使用者勾選 17 組：magma、rocket、YlOrBr、bilbao、turku、BuPu、Burg、acton、PuBu、oslo、tokyo、speed、viridis、cividis、YlGnBu、PuBuGn、batlow（建議 12 組全收，另加 cividis、rocket、PuBu、oslo、turku）。使用者接受其中有彼此太像的組合（例：PuBu／oslo、magma／rocket）；清單排序時把相近的分開放，並在清單上不另標警告（待確認）。
+- cividis 收錄 → 「公司年齡結構」網格不必換。
+- YlOrRd 未收錄 → 「不動產總市值」「預售熱力圖」「日本人口 1km」三個網格要改用庫內色階（建議 YlOrBr，最接近）。
+
 ## 1. 要解決什麼
 
 - 多數時候不換色：每層維持設計系統給的預設色。
