@@ -280,7 +280,7 @@ water_flood_extreme.geojson   650mm/24h 淹水潛勢
 
 ## 6. 參考文件
 
-- `docs/water-opendata-catalog.md` — WRA 27 筆開放資料完整盤點
+- `docs/features/water-resources/water-opendata-catalog.md` — WRA 27 筆開放資料完整盤點
 - `docs/development-rules.md` — 開發規則詳細版
 - `docs/supabase-optimization.md` — Pre-aggregate pattern（Phase 2 會用到）
 - `../gis-platform/migrations/052_reservoir_context_rpc.sql` — 看 `get_reservoir_context` 回傳 schema

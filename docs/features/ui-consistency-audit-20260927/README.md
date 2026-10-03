@@ -10,4 +10,4 @@
 | [tokens-draft.css](./tokens-draft.css) | CSS 變數草案（鏡射 `src/styles/designTokens.ts`） |
 | [mockup.html](./mockup.html) | 「現況 vs 建議」對照頁（瀏覽器直接開） |
 
-既有設計系統 SSOT：[`docs/design-system.md`](../../design-system.md)、`src/styles/designTokens.ts`。本資料夾只是盤點與草案，`src/` 未改動。截圖未補（盤點當時瀏覽器分頁在背景）。
+既有設計系統 SSOT：[`docs/design-system/spec.md`](../../design-system/spec.md)、`src/styles/designTokens.ts`。本資料夾只是盤點與草案，`src/` 未改動。截圖未補（盤點當時瀏覽器分頁在背景）。

@@ -1,6 +1,6 @@
 # 地圖圖層規格套用計畫
 
-> 依據：[`docs/design-system-map-layers.md`](../../design-system-map-layers.md) §3／§4（2026-09-28 拍板版）與 §7 拍板結果。
+> 依據：[`docs/design-system/map-layers.md`](../../design-system/map-layers.md) §3／§4（2026-09-28 拍板版）與 §7 拍板結果。
 > 盤點資料：`docs/design-system/layer-style-inventory.json`（`npm run design:audit-layers` 重產）。
 > 狀態：2026-09-30 R1（#391）、R2（#392、#393、#396、#398、#401）、R3a（#461）、R4（#465，加油站品牌色 #468）完成；R3b 按確認版完成本地實作，待 Claude 驗收（`R3b-report.md`）。規格以 [`docs/design-system/map-layers.md`](../../design-system/map-layers.md) 為準。
 

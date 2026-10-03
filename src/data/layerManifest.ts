@@ -2358,7 +2358,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "ship", confidence: "HIGH" }],
-      note: "gis-platform migration 339/340；設計文件 mini-taiwan-pulse/docs/proposal/vessel-watch-layer.md",
+      note: "gis-platform migration 339/340；設計文件 mini-taiwan-pulse/docs/archive/2026-10-04/proposal/vessel-watch-layer.md",
     },
     dataClass: "D",
     source: {

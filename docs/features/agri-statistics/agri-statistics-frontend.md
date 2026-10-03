@@ -21,8 +21,8 @@ Catalog audit：本次5 datasets **0 ERROR**，所有manifest列檔存在且hash
 
 ## 唯一入口與檔案
 
-- `docs/handoff/agri-statistics-recipes.json`：27目標recipes、五source families，以及兩個既有layer的cross-topic引用。`enabled=false`只列阻塞項，不建立toggle或空release。
-- `docs/handoff/agri-statistics-selector.ts`：可直接引用的exact whitelist selector。每個選項含真正存在的release、period、dimensions與bundle_path。
+- `docs/features/agri-statistics/agri-statistics-recipes.json`：27目標recipes、五source families，以及兩個既有layer的cross-topic引用。`enabled=false`只列阻塞項，不建立toggle或空release。
+- `docs/features/agri-statistics/agri-statistics-selector.ts`：可直接引用的exact whitelist selector。每個選項含真正存在的release、period、dimensions與bundle_path。
 - `output/agri-statistics/frontend-acceptance.json`：每層exact selector、真實非零/零/missing/suppressed案例與HTTP回讀證據。來源未出現的狀態明記NOT_PRESENT_IN_SOURCE，沒有製造測試案例冒充真實數據。
 - `docs/handoff/agri-statistics-boundaries.json`：四個可用reference版本對應的確切geometry/code/name欄位與hash；11501是來源統計參考版，非圖形版本別名。
 - `output/agri-statistics/boundary-acceptance.json`：縣市22／鄉鎮368 identity唯一、geometry有效；不把11501未證轉為已證。

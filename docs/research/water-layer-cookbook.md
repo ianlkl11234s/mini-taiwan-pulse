@@ -231,7 +231,7 @@
 
 | 路徑 | 內容 |
 |---|---|
-| `docs/water-resources-status.md` | 水資源系統 Phase 1 + 2 完成狀態 |
-| `docs/water-opendata-catalog.md` | 開放資料盤點 + DB schema 對照 |
+| `docs/features/water-resources/water-resources-status.md` | 水資源系統 Phase 1 + 2 完成狀態 |
+| `docs/features/water-resources/water-opendata-catalog.md` | 開放資料盤點 + DB schema 對照 |
 | `docs/research/iot-wra-integration-study.md` | iot_wra 跟既有 collector 重疊度研究 + 架構決策 |
 | `CLAUDE.md` § 新增 Layer 強制順序 | 加新故事如要加 layer 的步驟 |

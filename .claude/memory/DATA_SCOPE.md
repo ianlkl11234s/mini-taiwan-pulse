@@ -202,7 +202,7 @@ water_flood_extreme.geojson    650mm/24h 淹水潛勢（已顯示，單情境）
 Phase 3 候選：4 筆（129475/6 敏感區、36695 枯旱、58343 洩洪）
 非空間候選：36696 水權統計（補「用水」缺口）
 
-詳見 `docs/water-opendata-catalog.md`。
+詳見 `docs/features/water-resources/water-opendata-catalog.md`。
 
 ## S3 對應路徑
 

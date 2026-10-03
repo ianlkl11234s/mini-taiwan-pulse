@@ -142,7 +142,7 @@ W2 分包 → W3 → W4（最大，建議獨立場次、先拍板 R2）。
 > 警報進壓力指數 signal／mobile RWD／歷史檢索），另加覆核發現的
 > 「`safety` 群組被長效期告警灌量、地震 `county` 欄是震央描述」兩項資料面決策，**須 owner 拍板**。
 
-- **SSOT（本身就是合規交接文件，直接照做）**：`docs/proposal/alerts-integration-impl.md`
+- **SSOT（本身就是合規交接文件，直接照做）**：`docs/archive/2026-10-04/proposal/alerts-integration-impl.md`
   ——自帶 12 顆 task、RPC signature（RETURNS TABLE 級）、元件 Props＋設計 jsx 行號、
   設計 bundle 重抓 URL、驗收 walkthrough。前置需求說明在同目錄
   `alerts-integration-handoff.md`。

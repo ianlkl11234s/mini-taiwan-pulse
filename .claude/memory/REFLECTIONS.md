@@ -105,7 +105,7 @@
 - **分階段規劃 Phase 1a / 1b / 1c 並每段跑 tsc -b**：避免一次改 20 檔才發現編譯壞掉
 - **動手前先調查上游資料結構**：Phase 1b 前先查 `river_lines` 發現 2,445 km outlier
   MultiLineString，避免部署後才發現「全台都亮」bug
-- **status doc 當工作 checkpoint**：`docs/water-resources-status.md` 讓中斷 session
+- **status doc 當工作 checkpoint**：`docs/features/water-resources/water-resources-status.md` 讓中斷 session
   回來能 5 分鐘接上
 - **遇到卡點停下來問使用者選路**：Phase 1a 遇到 geojson 沒 compare_id 時列 A/B
   方案讓使用者選
@@ -640,7 +640,7 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 
 ### What didn't ❌
 
-- **三犯 `git add -A`**：working tree 有 `docs/proposal/monitor-mode.md`
+- **三犯 `git add -A`**：working tree 有 `docs/archive/2026-10-04/proposal/monitor-mode.md`
   untracked 草稿時，連續三次 `git add -A` 把草稿掃進衛星 commit。每次都要
   `git rm --cached` + `git commit --amend`。第一次該記住的。
 - **commit 切到錯分支沒察覺**：在 feat/news-filter-critical 上 commit 衛星
@@ -679,7 +679,7 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 **做得好**：
 1. **設計師 jsx 程式碼直接 port**：Monitor 全套（PressureRing/TwseTicker/SituationOverview/SituationCards/LiveWall/TimelineDock/IndicatorPanel/MonitorPanel）幾乎照搬，**只把 CSS var 換成 ts const、mock data 換 supabase loader**，視覺幾乎 1:1。下次有設計交接照這個 SOP 走，不要重新設計。
 2. **跨 repo SOP 已寫進 PLAYBOOKS**：本 session 第一次完整跑 data-collectors + gis-platform + mini-taiwan-pulse 三 repo 同步部署，過程踩到的坑（transformer 漏註冊、RPC 名對不上、@handle 不認）全固化進 PRINCIPLES + INCIDENTS + PLAYBOOKS。
-3. **alerts handoff 寫成自帶 task list 的 impl doc**：另一 session 拿了 `docs/proposal/alerts-integration-impl.md` + 一段 prompt 就能開工。寫的時候用 PRINCIPLES「三要素」（RPC signature / 元件 Props / 設計 URL）逐項檢查。
+3. **alerts handoff 寫成自帶 task list 的 impl doc**：另一 session 拿了 `docs/archive/2026-10-04/proposal/alerts-integration-impl.md` + 一段 prompt 就能開工。寫的時候用 PRINCIPLES「三要素」（RPC signature / 元件 Props / 設計 URL）逐項檢查。
 
 **該改進**：
 1. **Monitor 卡空白 bug 該在 ship 前就抓到**：我寫前端 loader 時假設後端 RPC 跟著 handoff doc 建好，但只 pressure 那支真的有。下次 ship 前一定要 `psql proname` 一條一條比對。
@@ -934,7 +934,7 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 
 **觸發**：用戶盤整開發流程，目標「下一次開發能有效觸發 SKILLS、避免重複問題」。
 
-**做了什麼**：3 波共 65+ 檔改動 — 建 handoff/ADR/features 骨架、寫 layer-onboarding skill、CLAUDE.md 加 Git Workflow、全域 memory 28→7 大改組。詳見 `docs/proposal/dx-overhaul-2026-07.md`。
+**做了什麼**：3 波共 65+ 檔改動 — 建 handoff/ADR/features 骨架、寫 layer-onboarding skill、CLAUDE.md 加 Git Workflow、全域 memory 28→7 大改組。詳見 `docs/archive/2026-10-04/proposal/dx-overhaul-2026-07.md`。
 
 **做對的地方**：
 - 用對抗式 Explore agent 平行驗證 memory 涵蓋度，揭露 2 條 critical 缺項（複合索引 / pg_cron TZ 教訓）之前 PRINCIPLES 沒有

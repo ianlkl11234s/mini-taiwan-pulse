@@ -105,9 +105,9 @@ timeStore.subscribeDate(cb)      // 只在日期變化
 6. **UI 顯示用 `useSyncExternalStore`**
 
 ### 規則所在位置
-- [`docs/development-rules.md §8`](./development-rules.md#8-動態圖層時間訂閱external-time-store) — 完整版（API + 決策表 + 節流建議 + 正反例 + 檢查清單）
-- [`CLAUDE.md`](../CLAUDE.md) 「新增 Layer 強制順序」第 6 點
-- [`.claude/agents/layer-creator.md`](../.claude/agents/layer-creator.md) — agent 產骨架時自動套用
+- [`docs/development-rules.md §8`](../../development-rules.md#8-動態圖層時間訂閱external-time-store) — 完整版（API + 決策表 + 節流建議 + 正反例 + 檢查清單）
+- [`CLAUDE.md`](../../../CLAUDE.md) 「新增 Layer 強制順序」第 6 點
+- [`.claude/agents/layer-creator.md`](../../../.claude/agents/layer-creator.md) — agent 產骨架時自動套用
 
 ---
 
@@ -116,8 +116,8 @@ timeStore.subscribeDate(cb)      // 只在日期變化
 ### 新增
 - `src/state/timeStore.ts` — external time store（核心基建）
 - `docs/perf-external-time-store.md` — P0-A 計畫文件
-- `docs/perf-p0a-test-plan.md` — P0-A 測試 checklist
-- `docs/perf-optimization-2026-04-14.md` — 本文件
+- `docs/archive/2026-10-04/perf-p0a-test-plan.md` — P0-A 測試 checklist
+- `docs/archive/2026-10-04/perf-optimization-2026-04-14.md` — 本文件
 
 ### 改動（前端）
 - `src/App.tsx` — 假相依改訂閱 + 穩定化 props
