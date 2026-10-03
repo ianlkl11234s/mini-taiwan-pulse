@@ -41,7 +41,8 @@ export function PressureRing({
   const animStyle = animName ? { animation: `${animName} ${level.period}s ease-in-out infinite` } : {};
   const hasGlow = level.glow !== "rgba(255,59,48,0)" && level.glow !== "rgba(255,152,0,0)" && level.glow !== "rgba(76,175,80,0)" && level.glow !== "rgba(234,179,8,0)";
   return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+    // v2：旋轉後的 SVG 外接框比環大 27px，會撐出卡片 body 的捲動高度 → 裁在環的方框內
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0, overflow: v2 ? "hidden" : undefined }}>
       <svg
         width={size}
         height={size}
@@ -78,11 +79,14 @@ export function PressureRing({
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
           {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
         </span>
-        <span
-          style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: COLORS.textFaint }}
-        >
-          {status === "ready" ? level.en : "DATA"}
-        </span>
+        {/* 英文等級字只在舊版（v2 字級放大後會和中文疊在一起；§6.1 標籤一律中文） */}
+        {!v2 && (
+          <span
+            style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: COLORS.textFaint }}
+          >
+            {status === "ready" ? level.en : "DATA"}
+          </span>
+        )}
       </div>
     </div>
   );

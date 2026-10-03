@@ -387,7 +387,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     <>
     <div
       style={v2
-        ? { flex: "none", height: MON_CHART_H.lg, position: "relative" }
+        ? { flex: "none", height: MON_CHART_H.lg, position: "relative", marginRight: 4 } // 最新點半徑 3.5，右緣留白免得被卡片裁掉
         : { flex: 1, minHeight: SPARK_MIN_H, position: "relative" }}
     >
     <svg
