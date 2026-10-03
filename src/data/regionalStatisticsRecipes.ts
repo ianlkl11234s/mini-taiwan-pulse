@@ -14,6 +14,11 @@ export interface StatisticsReleaseOption {
 }
 
 export interface StatisticsReleaseSelector {
+  /**
+   * The dimension keys `resolve` emits, in emitted order (= the cascade order of the panel's
+   * linked selects; layer-panel-unify C). Declared statically so the controls spec exists before releases load.
+   */
+  readonly dimensionKeys: readonly string[];
   /** Only derives choices from public releases, never invents a dimensions tuple. */
   resolve(release: { release_id: string; period_start: string; period_end?: string }): StatisticsReleaseOption | null;
 }
@@ -27,6 +32,7 @@ const MARITIME_FUND_BY_RELEASE_PREFIX: Record<string, string> = {
 };
 
 export const maritimeSubsidyReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'month', 'agency_fund'],
   resolve(release) {
     const matched = /^(\d{4})-(\d{2})-01-([0-9a-f]{12})-/.exec(release.release_id);
     if (!matched) return null;
@@ -50,6 +56,7 @@ const CIVIL_AERONAUTICS_SUBSIDY_DIMENSIONS: Record<string, Record<string, string
 
 /** Only exposes the three immutable 112Q4 bundles verified by analytics. */
 export const civilAeronauticsSubsidyReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'quarter', 'budget_type', 'value_basis'],
   resolve(release) {
     const dimensions = CIVIL_AERONAUTICS_SUBSIDY_DIMENSIONS[release.release_id];
     if (!dimensions || release.period_start !== '2023-01-01') return null;
@@ -59,6 +66,7 @@ export const civilAeronauticsSubsidyReleaseSelector: StatisticsReleaseSelector =
 
 /** Release years are derived from public period fields, never synthesized from an opaque id. */
 export const countyTransportSupplyReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year'],
   resolve(release) {
     const matched = /^(2023|2024)-01-01$/.exec(release.period_start);
     if (!matched || release.period_end !== `${matched[1]}-12-31`) return null;
@@ -100,6 +108,7 @@ const TAIPEI_TRAFFIC_VIOLATION_ARTICLE_BY_RELEASE: Record<string, string> = {
 };
 
 export const taipeiTrafficViolationCitationReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'law_article', 'geographic_coverage'],
   resolve(release) {
     const lawArticle = TAIPEI_TRAFFIC_VIOLATION_ARTICLE_BY_RELEASE[release.release_id];
     if (!lawArticle || release.period_start !== '2025-01-01' || release.period_end !== '2025-12-31') return null;
@@ -116,6 +125,7 @@ const TAICHUNG_ROAD_NOISE_ZONE_BY_RELEASE: Record<string, string> = {
 
 /** Only the four immutable 2024-Q3 source classes are selectable. */
 export const taichungRoadNoiseMonitoringReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'quarter', 'control_zone_class', 'geographic_coverage'],
   resolve(release) {
     const controlZoneClass = TAICHUNG_ROAD_NOISE_ZONE_BY_RELEASE[release.release_id];
     if (!controlZoneClass || release.period_start !== '2024-07-01' || release.period_end !== '2024-09-30') return null;
@@ -136,6 +146,7 @@ const BUS_OPERATION_SOURCE_FIELD_BY_RELEASE: Record<string, string> = {
 
 /** Only the eight manifest-listed 114Y SEGIS fields are selectable. */
 export const busOperationReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'source_field', 'geographic_coverage'],
   resolve(release) {
     const sourceField = BUS_OPERATION_SOURCE_FIELD_BY_RELEASE[release.release_id];
     if (!sourceField || release.period_start !== '2025-01-01' || release.period_end !== '2025-12-31') return null;
@@ -145,6 +156,7 @@ export const busOperationReleaseSelector: StatisticsReleaseSelector = {
 
 /** Only the manifest-listed 2025-12 facility-crosswalk release is selectable. */
 export const tmrtStationOutboundReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'month', 'system_id', 'geographic_semantics'],
   resolve(release) {
     if (release.release_id !== '2025-12-tmrt-station-outbound-2412a544-4ace434cfa54' || release.period_start !== '2025-12-01' || release.period_end !== '2025-12-31') return null;
     return { releaseId: release.release_id, dimensions: { roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' } };
@@ -158,26 +170,30 @@ const TAIPEI_BICYCLE_DIMENSIONS: Record<string, Record<string, string>> = {
   '2021-110-column6-e086f1f0d13b': { roc_year: '110', source_field: 'COLUMN6', geographic_coverage: 'taipei_township_only' },
   '2021-110-column7-789178e51f5b': { roc_year: '110', source_field: 'COLUMN7', geographic_coverage: 'taipei_township_only' },
 };
-export const taipeiBicycleReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const taipeiBicycleReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'source_field', 'geographic_coverage'], resolve(release) {
   const dimensions = TAIPEI_BICYCLE_DIMENSIONS[release.release_id];
   return dimensions && release.period_start === '2021-01-01' && release.period_end === '2021-12-31' ? { releaseId: release.release_id, dimensions } : null;
 } };
 
 const A1_DIMENSIONS = { year: '2025', accident_class: 'A1', geographic_coverage: 'county_location' };
 const A1_RELEASES = new Set(['2025-a1_accident_count-a4edcb32fca1', '2025-a1_death_count-6c2ddae0632c', '2025-a1_injury_count-bef1310f8549']);
-export const a1AccidentReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const a1AccidentReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['year', 'accident_class', 'geographic_coverage'], resolve(release) {
   return A1_RELEASES.has(release.release_id) && release.period_start === '2025-01-01' && release.period_end === '2025-12-31' ? { releaseId: release.release_id, dimensions: A1_DIMENSIONS } : null;
 } };
 
 const CAA_AIRPORT_DIMENSIONS = { roc_year: '115', month: '07', geographic_semantics: 'facility_location_activity', health: 'CURRENT', coverage: 'PARTIAL' };
 const CAA_AIRPORT_RELEASES = new Set(['2026-07-caa-airport-takeoffs_landings_count-21a7e7f4-152b35d71cab', '2026-07-caa-airport-airport_passenger_movements-21a7e7f4-f3d8707e7740', '2026-07-caa-airport-airport_cargo_tonnes-21a7e7f4-b53d2f849a96']);
-export const caaAirportActivityReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const caaAirportActivityReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'month', 'geographic_semantics', 'health', 'coverage'], resolve(release) {
   return CAA_AIRPORT_RELEASES.has(release.release_id) && release.period_start === '2026-07-01' && release.period_end === '2026-07-31' ? { releaseId: release.release_id, dimensions: CAA_AIRPORT_DIMENSIONS } : null;
 } };
 
 const TAOYUAN_AIRPORT_DIMENSIONS = { year: '2022', airport_iata: 'TPE', airport_icao: 'RCTP', geographic_semantics: 'facility_location_activity', health: 'STALE', refresh: 'manual' };
 const TAOYUAN_AIRPORT_RELEASES = new Set(['2022-taoyuan-airport-airport_arrivals_count-d6d399a1-98c10b4dc1a8', '2022-taoyuan-airport-airport_departures_count-d6d399a1-e978ed456827', '2022-taoyuan-airport-airport_transit_count-d6d399a1-93ef361ca2f6', '2022-taoyuan-airport-airport_passenger_movements-d6d399a1-3fea2b07f916']);
-export const taoyuanAirportReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const taoyuanAirportReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['year', 'airport_iata', 'airport_icao', 'geographic_semantics', 'health', 'refresh'], resolve(release) {
   return TAOYUAN_AIRPORT_RELEASES.has(release.release_id) && release.period_start === '2022-01-01' && release.period_end === '2022-12-31' ? { releaseId: release.release_id, dimensions: TAOYUAN_AIRPORT_DIMENSIONS } : null;
 } };
 

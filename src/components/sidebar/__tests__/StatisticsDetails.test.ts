@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDetailControlStyle, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
-import { medicalStatisticsSelectStyle } from '../MedicalStatisticsGroupControls';
+import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel } from '../StatisticsDetails';
+import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary } from '../../../data/statisticsLabels';
+import { unparseableStatisticsReleaseCount } from '../../../data/statisticsSelection';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
 import { getSocialRecipeDetails } from '../../../data/socialStatisticsRecipes';
 import { ensureStatisticsRecipeDetails } from '../../../data/statisticsRecipeDetails';
@@ -9,12 +10,13 @@ beforeAll(() => ensureStatisticsRecipeDetails());
 import { getLaborRecipe, laborLocationSemantics } from '../../../data/laborStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
-  it('keeps statistics selectors readable in either sidebar theme', () => {
-    // 外觀交給共用 `.lpc-select`（主題 class 在展開區容器上）；style 只帶 color-scheme，讓原生下拉清單跟著主題
-    expect(statisticsDetailControlStyle('light')).toEqual({ colorScheme: 'light' });
-    expect(statisticsDetailControlStyle('dark')).toEqual({ colorScheme: 'dark' });
-    expect(medicalStatisticsSelectStyle('light')).toEqual({ colorScheme: 'light' });
-    expect(medicalStatisticsSelectStyle('dark')).toEqual({ colorScheme: 'dark' });
+  it('shows reference boundary codes as Chinese source descriptions (spec §6.3)', () => {
+    expect(boundaryVersionLabel('COUNTY_MOI_1140318')).toBe('內政部縣市界（114 年 3 月 18 日版）');
+    expect(boundaryVersionLabel('SOMETHING_NEW_1')).toBe('未命名的參考邊界版本');
+    expect(boundaryVersionLabel(undefined)).toBe('未提供');
+    const text = humanizeStatisticsText('縣市歸屬以 COUNTY_MOI_1140318 參考縣界顯示；11501為來源統計參考版；TOWN_MOI_1140318為實際顯示圖形版本。');
+    expect(text).not.toMatch(/MOI_|NLSC_/);
+    expect(text).toContain('內政部縣市界（114 年 3 月 18 日版）');
   });
 
   it('renders the selected period and fund as a compact disclosure label', () => {

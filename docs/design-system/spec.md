@@ -459,7 +459,8 @@
 - **順序（P5，2026-10-03 B 段）**：**資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀 → 說明・來源**。
   - 類別判斷（`layerParamsSpec.ts` `paramControlCategory`）：控制項寫了 `category` 就照寫的；否則 `palette`＝顏色（熱區／網格顏色）、`multiSelect`＝資料篩選、滑桿標籤含「透明度」＝透明度；其餘查 `CATEGORY_BY_LABEL` 詞彙表（例 年份／類別／定位精度／模式＝資料篩選，配色／著色模式＝顏色，大小／寬度／線寬／光點＝大小，高度／3D／光暈／網格大小＝其他外觀）。同一個詞在不同層意思不同時在 spec 寫 `category`（例 `urbanHeat`「顯示」選指標＝資料篩選、`buildingsGba`「顯示模式」＝其他外觀）。
   - 排序在 `buildParamControls` 做（`orderedVisibleParamsSpec`，同類保持宣告順序）；Agent 端 `research/layerControls.ts` 用同一支對位置。spec 陣列、store、overlay 編碼、manifest `params.kinds` 都照宣告順序，不受影響。
-  - 寫死在 `ExpandedControls` 的區塊不參與排序：航班模式鈕、統計詳情（`StatisticsDetails`，資料篩選，已在最前）、`PropertyValueStatisticsDetails`、歷史航跡在控制項之前；「說明・來源」固定最後。
+  - 寫死在 `ExpandedControls` 的區塊不參與排序：航班模式鈕、`PropertyValueStatisticsDetails`、歷史航跡在控制項之前；「說明・來源」固定最後。統計的期別、指標、細項（C 段）已改成連動選單（§5.37），照類別排在資料篩選；統計的來源與處理紀錄放在「說明・來源」裡。
+  - `linkedSelect` 一律歸資料篩選（不必進詞彙表）。
   - 護欄：`src/state/__tests__/layerParamsOrder.test.ts`——分不出類（新標籤）就紅：在詞彙表補一列或寫 `category`；輸出名次必須單調不減。
 - **禁止**：手寫圖層控制 JSX（一律 `layerParamsSpec.ts` 規格 → `ParamControlList`）；標籤與數值擠在同一字串；為了順序去搬 spec 陣列（排序由類別決定）。
 - **實作**：`src/components/sidebar/{LayerParamControls.tsx,layerParamControls.css}`、`src/state/layerParamsControls.ts`。
@@ -833,6 +834,18 @@
 - **禁止**：自由取色器（只能從驗證過的色盤庫挑）；用文字「✓」當選取標記；用等寬字型顯示中文色盤名；在面板內行內展開清單。
 - **實作**：`src/components/sidebar/{PaletteControl.tsx,paletteControl.css}`（由 `LayerParamControls.tsx` `renderControl` 的 `palette` 分支使用）、`src/state/layerParamsControls.ts` `PaletteConfig`。
 
+### 5.37 連動選單（C 段：統計期別／指標／細項）
+
+- **用途**：選項要非同步載入、而且彼此連動的資料篩選（目前只有統計：指標 → 資料期別或各維度；統計群組的「指標／口徑」）。規格 `layerParamsSpec.ts` 的 `kind: "linkedSelect"`（`provider`、`field`、`dependsOn`、`primary`、`persist`），統計的規格由 `data/statisticsParamsSpec.ts` 從 recipe 目錄派生，不逐層手寫。**值不在 layerParamsStore**：provider（`state/linkedSelect.ts` 註冊表；統計＝`state/statisticsLinkedSelect.ts`，值在 `regionalStatisticsStore`）負責選項、目前值與寫入。
+- **連動規則（全部 provider 共用）**：本列選項＝與上游各列目前值相符的合法組合裡本欄的相異值。改一列時，宣告在前的列不動、它設成新值，之後各列依序「目前值仍合法就保留，否則改成第一個合法值」，一定落在真實存在的組合。例外：教育固定入口的「指標」不隨換學年——目前學年沒有的指標停用並標「（此學年未提供）」（統計規則 §3）。
+- **外觀**：與一般選單同一列（§5.11 V2：標籤一行、原生 `.lpc-select` 全寬一行），一律用選單不轉分段（期別字串長、選項數會隨上游變）。
+- **可見**：選項 ≥2 才顯示（只有一個值的維度不佔列，目前選擇寫在「說明・來源」的「目前選擇」）；provider 尚未就緒（載入中、錯誤）且同一 provider 沒有任何一列可見時，`primary` 那一列保底顯示。
+- **狀態**：狀態文字只放在同一 provider 第一個可見的那一列的數值欄（中文用 `FONT_CJK`、`--lpc-muted`）：「載入中…」「載入失敗：原因」＋選單下「重試」（`.lpc-link`）；改值後資料載入期間顯示「切換中…」、選單暫停操作（`aria-busy`）。選項還沒有時選單停用、只有一個「載入中…」選項。載入本身走 loadingRegistry（配方明細、統計數值）。
+- **Agent**：`research/layerControls.ts` 列出連動選單時帶當下選項、`linked.status`、`linked.dependsOn`；設定時值必須在當下選項內（停用的也不行），選項未載入回 `LAYER_CONTROL_OPTIONS_NOT_READY`，非同步改值等資料載入後才讀回。
+- **場景存檔**：存 provider 的目前值（群組「指標」`persist: false` 不存，由可見圖層表達）；還原時等圖層開啟、選項就緒後逐列驗證套用，不合法或逾時的列列進「略過項目」。
+- **禁止**：在 `ExpandedControls` 或統計元件裡另寫期別／指標 select；把值複製進 layerParamsStore（兩個寫入者會互相蓋）；載入中把整列藏起來造成版面跳動（用保底列）。
+- **實作**：`src/state/{linkedSelect.ts,statisticsLinkedSelect.ts}`、`src/data/statisticsParamsSpec.ts`、`LayerParamControls.tsx` `LinkedSelectControl`、`layerParamsControls.ts` `LinkedSelectConfig`／`visibleControlSpecs`。
+
 ## 6. 文案規則
 
 ### 6.1 標籤一律中文
@@ -854,7 +867,7 @@
 ### 6.3 不印內部識別碼
 
 - `datasetId`、倉庫代號（`warehouse:wh-8`）、layer key、indicator id 不直接顯示。
-- 顯示前先過映射：資料集 → `describeDataset(datasetId).label`（`research/MainMapConnection.tsx`）；圖層 → `HEADER_LABELS`／`layerCatalog` 中文名；統計 → `statisticsDataSources` 定義。
+- 顯示前先過映射：資料集 → `describeDataset(datasetId).label`（`research/MainMapConnection.tsx`）；圖層 → `HEADER_LABELS`／`layerCatalog` 中文名；統計 → `statisticsDataSources` 定義；統計參考邊界代碼（`COUNTY_MOI_1140318` 等）→ `data/statisticsLabels.ts` `boundaryVersionLabel()`／說明文字裡夾帶的用 `humanizeStatisticsText()`（代碼仍留在資料集欄位）。
 - 映射查不到時顯示中性文字（例「未命名資料集」），不 fallback 成代號。
 - 除錯需要看代號時放在 `title` tooltip 或開發者面板，不放在主要文字。
 - guard `internal-id-display` 為**只記錄不擋**的啟發式（§9.2）。

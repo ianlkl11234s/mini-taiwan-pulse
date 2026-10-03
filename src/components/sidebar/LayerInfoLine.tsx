@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronRight, Info } from "lucide-react";
 import { FONT_CJK, FONT_SIZE } from "../../styles/designTokens";
 import { LAYER_MANIFEST, type ManifestKey } from "../../data/layerManifest";
+import { humanizeStatisticsText } from "../../data/statisticsLabels";
 import type { LayerVisibility } from "../../types";
 import { DataSourceCard, dataSourcePalette } from "./DataSourcePanel";
 import { useRailTheme } from "./railTheme";
@@ -10,11 +11,13 @@ import { useRailTheme } from "./railTheme";
  * 圖層展開區最後一行「說明・來源」（layer-panel-unify P1）。
  * 只放入口與既有內容：manifest 的說明文字＋資料來源面板同一張上游資料卡，不新增資料。
  * 收合為預設，點開才載入上游資料卡（與資料來源面板同一條 lazy 路徑）。
+ * `children`（統計圖層，C 段）：以該層自己的來源與處理紀錄取代通用上游資料卡。
  */
-export function LayerInfoLine({ layerKey }: { layerKey: keyof LayerVisibility }) {
+export function LayerInfoLine({ layerKey, children }: { layerKey: keyof LayerVisibility; children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { DIM, INACTIVE_TEXT, COLOR_SCHEME } = useRailTheme();
-  const description = (LAYER_MANIFEST as Record<string, { description?: string }>)[layerKey as ManifestKey]?.description;
+  // 說明文字夾帶的參考邊界代碼換成中文（spec §6.3；統計 recipe 的說明會帶 COUNTY_MOI_… 這類代碼）
+  const description = humanizeStatisticsText((LAYER_MANIFEST as Record<string, { description?: string }>)[layerKey as ManifestKey]?.description);
   return (
     <div style={{ fontFamily: FONT_CJK }}>
       <button
@@ -30,7 +33,7 @@ export function LayerInfoLine({ layerKey }: { layerKey: keyof LayerVisibility })
       {open && (
         <div>
           {description && <p style={{ margin: "2px 0 4px", color: DIM, fontSize: FONT_SIZE.sm, lineHeight: 1.5 }}>{description}</p>}
-          <DataSourceCard p={dataSourcePalette(COLOR_SCHEME === "dark")} layerKey={layerKey} locked={false} hideActivate />
+          {children ?? <DataSourceCard p={dataSourcePalette(COLOR_SCHEME === "dark")} layerKey={layerKey} locked={false} hideActivate />}
         </div>
       )}
     </div>

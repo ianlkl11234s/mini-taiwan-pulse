@@ -26,6 +26,7 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 
 import type { LayerVisibility, TransportType } from "../../types";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
+import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
 
 // ── Color Config ──
@@ -113,6 +114,12 @@ export interface LayerDef {
    * runtime SSOT 為下方 GATED_LAYERS（兩個 sidebar + App toggle gate 共用）。
    */
   gated?: boolean;
+  /**
+   * 群組變體（圖層面板統一 C 段）：一列對應多個 key 的統計群組（醫療、住宅、土地…）。
+   * 面板只在 `lead` 成員的位置畫一列群組列；切換成員走展開區的共用「指標／口徑」連動選單
+   * （`${key}Variant`，`state/statisticsLinkedSelect.ts`），不再是列外的手寫 select。
+   */
+  variant?: { group: string; lead: boolean };
 }
 
 export interface SubGroupDef {
@@ -459,6 +466,12 @@ for (const recipe of COMPARISON_UI_RECIPES) {
     : id.startsWith('aquaculture_') ? '水產養殖' : '農地與設施';
   const group = STATISTICS_TAB_THEMES.flatMap(theme => theme.groups).find(group => group.title === title);
   group?.layers.push(fromManifest(recipe.layer_key));
+}
+
+// 群組變體：統計入口裡屬於同一群組的成員標上 group／lead（LayersPanel 依此畫群組列）。
+for (const layer of STATISTICS_TAB_THEMES.flatMap(theme => theme.groups.flatMap(group => group.layers))) {
+  const group = getMedicalStatisticsGroup(layer.key);
+  if (group) layer.variant = { group: group.key, lead: group.options[0]?.key === layer.key };
 }
 
 /**

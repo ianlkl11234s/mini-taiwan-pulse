@@ -11,9 +11,7 @@
     "src/components/sidebar/layerParamControls.css": 1,
     "src/research/mainMapConnection.css": 3
   },
-  "internal-id-display": {
-    "src/components/sidebar/StatisticsDetails.tsx": 1
-  },
+  "internal-id-display": {},
   "native-range": {},
   "raw-z-index": {
     "src/App.tsx": 2,

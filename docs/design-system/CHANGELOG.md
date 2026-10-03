@@ -5,6 +5,20 @@
 
 ## 2026-10-03
 
+### 圖層面板統一 C 段（統計連動選單）— spec §5.11／§5.37／§6.3
+
+| 項目 | 內容 |
+|---|---|
+| 決定 | AUDIT P6 A：新增「連動選單」控制項，統計完全走共用規格，一次到位 |
+| 控制項 | `layerParamsSpec` 新型別 `linkedSelect`（`provider`／`field`／`dependsOn`／`primary`／`persist`）；值在 provider 不在 layerParamsStore；共用連動規則（前面的列不動、後面的列合法就保留否則第一個合法值）在 `state/linkedSelect.ts`；接到 `buildParamControls`（`visibleControlSpecs` 含可見規則）、`LayerParamControls`、`research/layerControls`、`memberSceneAdapter`、manifest `params.kinds` |
+| 統計 | 357 個統計 key 由 recipe 目錄派生連動選單（`data/statisticsParamsSpec.ts`）：教育固定入口與勞動「顯示」有指標列；環境＝資料期別＋細項；其他依維度鍵順序；releaseSelector 補 `dimensionKeys`。`StatisticsDetails` 不再畫 select，只剩「說明・來源」內容（位置口徑、資料限制、目前選擇、來源與處理紀錄、相關圖層），放在展開區最後 |
+| 群組變體 | 醫療、住宅、土地等一列對多個 key 的群組：`LayerDef.variant`（群組＋lead）決定群組列位置；「指標／口徑」改成展開區第一列連動選單（`statisticsVariant` provider，同期別切換、必要時預載），不存進場景 |
+| 載入狀態 | 保底列（`primary`）顯示「載入中…」「載入失敗＋重試」；改值後「切換中…」；資料與配方明細照舊走 loadingRegistry |
+| 場景 | 存連動選單目前值；還原時等選項就緒再逐列驗證，略過項目一起回報；舊存檔不受影響 |
+| 內部代碼 | 參考邊界代碼改中文（說明・來源、圖例、popup、資料來源卡、圖層說明）；guard `internal-id-display` 基準 1→0 |
+| 黃金快照 | `params` section：357 個統計 key 在透明度前多出連動選單（未載入狀態），其他 key 不變 |
+| 對照 | `docs/features/layer-panel-unify/phase-c-compare.html` |
+
 ### 圖層面板統一 B 段（資料結構）— spec §5.5／§5.11／§5.22
 
 | 項目 | 內容 |

@@ -94,6 +94,23 @@
   min-width: 0;
 }
 
+/* ── 連動選單（C 段）：載入／錯誤狀態放在數值欄（中文字用 CJK 字體）；重試與說明在選單下 ── */
+.lpc-v .lpc-status {
+  font-family: var(--font-cjk);
+  color: var(--lpc-muted);
+}
+
+.lpc-row > .lpc-c > .lpc-link,
+.lpc-note {
+  display: block;
+  margin-top: 2px;
+}
+
+.lpc-note {
+  font: 10px/1.35 var(--font-cjk);
+  color: var(--lpc-muted);
+}
+
 /* ── 滑桿 S1：改用共用 controls/Slider（src/components/controls/slider.css 的 .ctl-range），
  *    顏色由元件 inline 指到 --lpc-track／--lpc-fill／--lpc-thumb（ui-r2 Phase Q 收斂） ── */
 

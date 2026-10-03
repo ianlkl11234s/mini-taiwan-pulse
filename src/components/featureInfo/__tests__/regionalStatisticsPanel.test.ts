@@ -17,7 +17,9 @@ describe('RegionalStatisticsPanel labor semantics', () => {
     expect(html).toContain('缺資料（missing），不等於 0');
     expect(html).toContain('source_not_covered');
     expect(html).toContain('實際工作所在地');
-    expect(html).toContain('COUNTY_MOI_1140318');
+    // 參考邊界顯示中文來源描述，不印內部代碼（spec §6.3）
+    expect(html).toContain('內政部縣市界（114 年 3 月 18 日版）');
+    expect(html).not.toContain('COUNTY_MOI_1140318');
     expect(html).toContain('20／22');
   });
 

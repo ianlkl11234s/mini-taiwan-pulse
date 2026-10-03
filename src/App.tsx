@@ -120,6 +120,7 @@ import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
 import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
 import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapter";
+import { restoreLinkedSelects } from "./state/linkedSelect";
 import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
@@ -224,6 +225,8 @@ export default function App() {
   const [memberPlaceGeometry, setMemberPlaceGeometry] = useState<MemberPlaceGeometry | null>(null);
   const previousMemberIdRef = useRef<string | null>(memberUser?.id ?? null);
   const restoringMemberSceneRef = useRef(false);
+  /** 場景還原完成（含連動選單）時把略過項目交回會員面板 */
+  const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
   const memberLabels = useMemo(() => Object.fromEntries(LAYER_SEARCH_INDEX.map((item) => [item.key, item.label])), []);
@@ -1562,15 +1565,21 @@ export default function App() {
     if (!result.ok) throw new Error(result.errors.join("；"));
     return result.value;
   };
-  const restoreMemberScene = (snapshot: MemberSceneSnapshot): string[] => {
+  /**
+   * 回傳的 Promise 在連動選單（統計期別、細項）也還原完才 resolve：那些值要等圖層開啟、選項載入後
+   * 才能驗證（`restoreLinkedSelects`），不合法或逾時的列一併列進「略過項目」。
+   */
+  const restoreMemberScene = (snapshot: MemberSceneSnapshot): Promise<string[]> => {
     const validated = validateScene(snapshot);
     if (!validated.ok) throw new Error(validated.errors.join("；"));
     if (!mapRef.current || !mapPrepared) throw new Error("地圖尚未就緒。");
     const resolved = resolveSceneRestore(validated.value, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
     markPrivateView(); setMemberPlaceGeometry(null); restoringMemberSceneRef.current = true;
+    pendingSceneDoneRef.current?.(resolved.skipped);
+    const done = new Promise<string[]>((resolve) => { pendingSceneDoneRef.current = resolve; });
     setPendingMemberScene(validated.value); setAppMode(validated.value.time.mode);
     setHistoricalPlaying(false);
-    return resolved.skipped;
+    return done;
   };
   useEffect(() => {
     if (!pendingMemberScene || appMode !== pendingMemberScene.time.mode) return;
@@ -1587,6 +1596,8 @@ export default function App() {
     mapRef.current?.jumpTo({ center: [scene.camera.lng, scene.camera.lat], zoom: scene.camera.zoom, pitch: scene.camera.pitch, bearing: scene.camera.bearing });
     setFeatureInfo(null); setExpandedLayer(null);
     restoringMemberSceneRef.current = false; setPendingMemberScene(null);
+    const done = pendingSceneDoneRef.current; pendingSceneDoneRef.current = null;
+    void restoreLinkedSelects(resolved.linked).then((linkedSkipped) => done?.([...resolved.skipped, ...linkedSkipped]));
   }, [pendingMemberScene, appMode, knownMemberKeys, setLayerVisibility, setFeatureInfo, timeline]);
 
   const captureMemberPlace = (kind: "center" | "selection" | "bounds"): MemberPlaceGeometry => {
@@ -1620,6 +1631,7 @@ export default function App() {
     const userId = memberUser?.id ?? null;
     if (previousMemberIdRef.current !== userId) {
       setMemberPlaceGeometry(null); setPendingMemberScene(null); restoringMemberSceneRef.current = false;
+      pendingSceneDoneRef.current?.([]); pendingSceneDoneRef.current = null;
       if (privateViewRef.current) {
         mapRef.current?.jumpTo({ center: [121.5318, 25.0464], zoom: 12.5, pitch: 0, bearing: 0 });
         window.history.replaceState(null, "", window.location.pathname);

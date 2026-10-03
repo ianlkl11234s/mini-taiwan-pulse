@@ -18,6 +18,11 @@ import {
 } from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
 import { paletteById } from "../map/palettes";
+import {
+  linkedSelectHiddenFor, linkedSelectSnapshot, retryLinkedSelects, setLinkedSelect, type LinkedSelectStatus,
+} from "./linkedSelect";
+// provider 以 import 副作用註冊（統計＋統計群組）；控件、Agent、場景存檔都經本檔或 linkedSelect 讀取
+import "./statisticsLinkedSelect";
 
 // ══════════════════════════════════════════════════════════════════
 //  控件型別（AR-22 P3-3）
@@ -93,7 +98,24 @@ export interface PaletteConfig {
   onChange: (v: string) => void;
 }
 
-export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig | PaletteConfig;
+/**
+ * 連動選單（圖層面板統一 C 段）：選項與值來自 provider（`state/linkedSelect.ts`），可能還在載入。
+ * `statusText` 只放在同一 provider 第一個可見的那一列（避免每列都印「載入中」）。
+ */
+export interface LinkedSelectConfig {
+  type: "linkedSelect";
+  label: string;
+  value: string;
+  options: { label: string; value: string; disabled?: boolean }[];
+  status: LinkedSelectStatus;
+  statusText?: string;
+  /** 回 Promise 時（例：群組切換要先預載）控件顯示忙碌直到完成 */
+  onChange: (v: string) => void | Promise<void>;
+  /** 錯誤時的重試（只在 statusText 那一列） */
+  onRetry?: () => void;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig | PaletteConfig | LinkedSelectConfig;
 
 /** 前綴結尾的運算符號（`高度 ×` → 名稱「高度」、數值「×1.0」） */
 const TRAILING_OPERATOR = /^(.*?)\s*([×+≥≤±-]+)$/u;
@@ -125,11 +147,20 @@ export function buildParamControls(
 ): ParamControl[] | null {
   const spec = getParamsSpec(key);
   if (!spec) return null;
+  const visible = visibleControlSpecs(key, values);
+  // 每個 provider 第一個可見的連動選單負責顯示載入／錯誤狀態
+  const statusCarriers = new Set<string>();
+  const seenProviders = new Set<string>();
+  for (const s of visible) {
+    if (s.kind !== "linkedSelect" || seenProviders.has(s.provider)) continue;
+    seenProviders.add(s.provider);
+    statusCarriers.add(s.name);
+  }
   // `showWhen` 的控件在條件不成立時整個不渲染（等價於手寫版的 `...(cond ? [x] : [])`）；
   // `resolved` 讓 showWhen / disableRule 一定查得到值（傳入的快照可能只有部分欄位）。
   const resolved = resolveParamValues(spec, values);
   // P5（spec §5.11）：資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀；同類保持宣告順序（sort 為穩定排序）。
-  return orderedVisibleParamsSpec(spec, values).map((s) => {
+  return visible.map((s) => {
     switch (s.kind) {
       case "slider": {
         const v = values[s.name];
@@ -205,6 +236,33 @@ export function buildParamControls(
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };
       }
+      case "linkedSelect": {
+        const snap = linkedSelectSnapshot(key, s);
+        const carrier = statusCarriers.has(s.name);
+        const statusText = !carrier ? undefined
+          : snap.status === "loading" ? "載入中…"
+            : snap.status === "error" ? (snap.error ? `載入失敗：${snap.error}` : "載入失敗")
+              : snap.status === "idle" ? "尚未載入" : undefined;
+        return {
+          type: "linkedSelect" as const,
+          label: s.label,
+          value: snap.value,
+          options: snap.options,
+          status: snap.status,
+          ...(statusText ? { statusText } : {}),
+          onChange: (next: string) => setLinkedSelect(key, s, next),
+          ...(carrier && snap.status === "error" ? { onRetry: () => retryLinkedSelects(key, s.provider) } : {}),
+        };
+      }
     }
   });
+}
+
+/**
+ * 面板上實際渲染的控件規格（順序＝`buildParamControls` 輸出順序）。Agent 端（`research/layerControls`）
+ * 靠位置把控件對回 spec，所以兩邊**必須**都經這支（含連動選單的可見規則）。
+ */
+export function visibleControlSpecs(key: string, values: LayerParamValues = layerParamsStore.getParams(key)) {
+  const spec = getParamsSpec(key);
+  return spec ? orderedVisibleParamsSpec(spec, values, linkedSelectHiddenFor(key)) : [];
 }

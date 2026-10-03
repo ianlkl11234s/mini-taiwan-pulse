@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { ChevronRight, Search, Star } from "lucide-react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import type { DisplayMode, ExpandableLayerKey, LayerVisibility, ViewMode } from "../../types";
-import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { searchLayers } from "../../lib/layerSearch";
 import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeName, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
@@ -276,20 +275,19 @@ export function LayersPanel({
               {!isCollapsed && theme.groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, name, label }) => {
-                    const medicalGroup = getMedicalStatisticsGroup(key);
-                    if (medicalGroup) {
-                      if (medicalGroup.options[0]?.key !== key) return null;
+                  {group.layers.map(({ key, name, label, variant }) => {
+                    // 群組變體（C 段）：只在 lead 成員的位置畫一列群組列
+                    if (variant) {
+                      if (!variant.lead) return null;
                       return (
                         <MedicalStatisticsGroupControls
-                          key={medicalGroup.key}
+                          key={variant.group}
                           groupKey={key}
                           visibility={visibility}
                           expandedLayer={expandedLayer}
                           onLayerClick={onLayerClick}
                           textColor={TEXT_STRONG}
                           dimColor={DIM}
-                          colorScheme={COLOR_SCHEME}
                           renderControls={(selectedKey) => (
                             <ExpandedControls
                               layerKey={selectedKey as ExpandableLayerKey}
