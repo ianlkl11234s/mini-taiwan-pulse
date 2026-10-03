@@ -2410,6 +2410,7 @@ export default function App() {
             onClose={() => setMonitorOpen(false)}
             mode={monitorMode}
             onModeChange={setMonitorMode}
+            isDarkTheme={isDarkTheme}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 11, speed: 1.2 });
             }}

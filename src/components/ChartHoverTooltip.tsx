@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNo
 import { createPortal } from "react-dom";
 import {
   BORDER,
-  COLORS,
+  LIGHT,
   ELEVATION,
   FONT_DATA,
   FONT_SIZE,
@@ -11,6 +11,7 @@ import {
   SPACING,
   SURFACE,
 } from "../styles/designTokens";
+import { useMonitorTheme } from "./intel/monitor/monitorTheme";
 
 /**
  * 圖表 hover tooltip 共用基礎設施（監看模式 35 個圖表實例共用）
@@ -154,6 +155,8 @@ interface TipState {
  * ```
  */
 export function useChartTooltip(): ChartTooltipApi {
+  // P5：監看模式淡色時 tooltip 跟著淡；沒有 Provider（一般彈窗）時為暗色，與改版前相同
+  const { isDark, p } = useMonitorTheme();
   const [state, setState] = useState<TipState | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
@@ -221,10 +224,10 @@ export function useChartTooltip(): ChartTooltipApi {
           pointerEvents: "none",
           // 量到尺寸前先藏起來，避免第一幀閃在錯的位置
           visibility: size ? "visible" : "hidden",
-          background: SURFACE.strong,
-          border: `1px solid ${BORDER.mid}`,
+          background: isDark ? SURFACE.strong : LIGHT.surfaceStrong,
+          border: `1px solid ${isDark ? BORDER.mid : LIGHT.borderMid}`,
           borderRadius: RADIUS.lg,
-          boxShadow: ELEVATION.sm,
+          boxShadow: isDark ? ELEVATION.sm : LIGHT.elevationLg,
           backdropFilter: "blur(8px)",
           WebkitBackdropFilter: "blur(8px)",
           padding: "7px 9px",
@@ -240,7 +243,7 @@ export function useChartTooltip(): ChartTooltipApi {
               fontFamily: FONT_DATA,
               fontSize: FONT_SIZE.sm,
               fontWeight: FONT_WEIGHT.bold,
-              color: COLORS.textStrong,
+              color: p.textStrong,
               whiteSpace: "nowrap",
             }}
           >
@@ -256,7 +259,7 @@ export function useChartTooltip(): ChartTooltipApi {
               gap: SPACING.sm,
               fontFamily: FONT_DATA,
               fontSize: FONT_SIZE.sm,
-              color: COLORS.textDefault,
+              color: p.textDefault,
               whiteSpace: "nowrap",
             }}
           >
@@ -271,12 +274,12 @@ export function useChartTooltip(): ChartTooltipApi {
                 }}
               />
             )}
-            {row.label && <span style={{ color: COLORS.textMuted }}>{row.label}</span>}
+            {row.label && <span style={{ color: p.textMuted }}>{row.label}</span>}
             <span style={{ marginLeft: "auto", fontWeight: FONT_WEIGHT.semibold }}>{row.value}</span>
           </div>
         ))}
         {state.content.note && (
-          <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+          <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: p.textFaint }}>
             {state.content.note}
           </div>
         )}

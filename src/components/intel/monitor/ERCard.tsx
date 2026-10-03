@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS, FONT_SIZE, WHITE_ALPHA } from "../../../styles/designTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { useChartTooltip } from "../../ChartHoverTooltip";
@@ -17,6 +17,7 @@ import { fs, MF } from "./monitorFont";
 import { judgeFreshness, useMonitorFreshness } from "./monitorFreshness";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
+import { useMonitorTheme } from "./monitorTheme";
 
 interface Props { open: boolean }
 const EMPTY_ER_LATEST: ErHospitalLatest[] = [];
@@ -30,6 +31,7 @@ const ER_WINDOW_SEC = 24 * 3600;
 
 export function ERCard({ open }: Props) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const loadLatest = useCallback(() => fetchErHospitalLatest(), []);
   const loadSeries = useCallback(() => fetchErHospital24hAll(), []);
   const loadTrend = useCallback(() => fetchErWaitTotal14d(), []);
@@ -103,7 +105,7 @@ export function ERCard({ open }: Props) {
             {trend14dSpark.length > 0 && (
               <div data-testid="er-wait-trend-14d">
                 <TimeseriesSparkline
-                  data={trend14dSpark} unit="人" heightTier="std" fillArea lineColor={ER_LEVEL_COLORS.severe}
+                  data={trend14dSpark} unit="人" heightTier="std" fillArea lineColor={theme.fill(ER_LEVEL_COLORS.severe)}
                   gapSec={ER_TREND_GAP_SEC} showTooltip staleUntil={fresh.staleUntil}
                 />
               </div>
@@ -117,16 +119,16 @@ export function ERCard({ open }: Props) {
           return (
             <div key={g.region} data-testid={`er-region-${g.region}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: COLORS.textDefault, whiteSpace: "nowrap" }}>
+                <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: theme.p.textDefault, whiteSpace: "nowrap" }}>
                   {g.region}
                 </span>
                 <span
                   data-testid={`er-region-total-${g.region}`}
-                  style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textDim, whiteSpace: "nowrap" }}
+                  style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textDim, whiteSpace: "nowrap" }}
                 >
                   {g.hospitals.length} 院 · 共 {regionSummary.total.toLocaleString("zh-TW")} 人等床
                 </span>
-                <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
+                <div style={{ flex: 1, height: 1, background: theme.p.borderSoft }} />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 6 }}>
                 {g.hospitals.map((h) => (
@@ -236,6 +238,7 @@ function HospitalCell({
   timeDomain?: { from: number; to: number };
 }) {
   const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const color = erCongestionColor(cell.wait);
   const level = classifyErCongestion(cell.wait);
   const hasSpark = cell.spark.length >= 2;
@@ -250,12 +253,12 @@ function HospitalCell({
       // v2：不畫框，但保留淡底小格，否則迷你走勢會貼著右邊下一家醫院、看不出屬於誰
       style={v2 ? {
         display: "flex", alignItems: "center", gap: 6, minWidth: 0,
-        padding: "4px 6px", borderRadius: RADIUS.md, background: WHITE_ALPHA[4],
+        padding: "4px 6px", borderRadius: RADIUS.md, background: theme.neutral(0.04),
       } : {
         display: "flex", alignItems: "center", gap: 6,
         padding: "5px 7px", borderRadius: RADIUS.md,
         background: "rgba(255,255,255,0.025)",
-        border: `1px solid ${COLORS.borderSoft}`,
+        border: `1px solid ${theme.p.borderSoft}`,
         minWidth: 0,
       }}
     >
@@ -265,17 +268,17 @@ function HospitalCell({
       >
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: COLORS.textDefault,
+            fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: theme.p.textDefault,
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
           {cell.name}
         </span>
         <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 14), fontWeight: 700, color: cellStaleLabel ? COLORS.textMuted : color, lineHeight: 1.1 }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 14), fontWeight: 700, color: cellStaleLabel ? theme.p.textMuted : theme.text(color), lineHeight: 1.1 }}>
             {cell.wait == null ? "—" : cell.wait}
           </span>
-          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
             {cellStaleLabel ? `等床 · ${cellStaleLabel}` : "等床"}
           </span>
         </div>
@@ -286,7 +289,7 @@ function HospitalCell({
         <div style={{ flex: "0 1 72px", minWidth: 40 }}>
           {hasTimeSpark && (
             <TimeseriesSparkline
-              data={timeSeries!} timeDomain={timeDomain} unit="人" lineColor={color}
+              data={timeSeries!} timeDomain={timeDomain} unit="人" lineColor={theme.fill(color)}
               heightTier="mini" bare fillArea={false} gapSec={ER_CELL_GAP_SEC} showTooltip
             />
           )}
@@ -294,7 +297,7 @@ function HospitalCell({
       ) : (
         <Sparkline
           data={hasSpark ? cell.spark : [0, 0]}
-          color={color}
+          color={theme.fill(color)}
           w={40}
           h={18}
           showTooltip={hasSpark}
@@ -384,11 +387,12 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
 
 /** v2 全台分級堆疊條＋一行色點圖例（家數） */
 function ErSeverityBar({ summary }: { summary: ErSummary }) {
+  const theme = useMonitorTheme();
   const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
   const tip = useChartTooltip();
   return (
     <div data-testid="er-national-summary" style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-      <div style={{ display: "flex", height: 8, borderRadius: RADIUS.sm, overflow: "hidden", background: WHITE_ALPHA[8] }}>
+      <div style={{ display: "flex", height: 8, borderRadius: RADIUS.sm, overflow: "hidden", background: theme.neutral(0.08) }}>
         {ER_SEVERITY_ORDER.map((lv) => {
           const n = summary.counts[lv];
           if (n === 0) return null;
@@ -396,22 +400,22 @@ function ErSeverityBar({ summary }: { summary: ErSummary }) {
           return (
             <span
               key={lv}
-              {...tip.bind({ title: ER_LEVEL_LABELS[lv], rows: [{ dot: ER_LEVEL_COLORS[lv], value: `${n} 院` }], note: `${(pct * 100).toFixed(0)}%` })}
-              style={{ width: `${pct * 100}%`, background: ER_LEVEL_COLORS[lv] }}
+              {...tip.bind({ title: ER_LEVEL_LABELS[lv], rows: [{ dot: theme.fill(ER_LEVEL_COLORS[lv]), value: `${n} 院` }], note: `${(pct * 100).toFixed(0)}%` })}
+              style={{ width: `${pct * 100}%`, background: theme.fill(ER_LEVEL_COLORS[lv]) }}
             />
           );
         })}
         {tip.node}
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 12px", fontFamily: FONT_DATA, fontSize: MF.label, color: COLORS.textMuted }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 12px", fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textMuted }}>
         {ER_SEVERITY_ORDER.map((lv) => (
           <span key={lv} data-testid={`er-national-count-${lv}`} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-            <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: ER_LEVEL_COLORS[lv] }} />
+            <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: theme.fill(ER_LEVEL_COLORS[lv]) }} />
             {ER_LEVEL_LABELS[lv]} {summary.counts[lv]} 院
           </span>
         ))}
         {summary.noData > 0 && (
-          <span style={{ color: COLORS.textDim, whiteSpace: "nowrap" }}>無資料 {summary.noData} 院</span>
+          <span style={{ color: theme.p.textDim, whiteSpace: "nowrap" }}>無資料 {summary.noData} 院</span>
         )}
       </div>
     </div>
