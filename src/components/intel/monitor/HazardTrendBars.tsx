@@ -4,6 +4,7 @@ import { useMonitorV2 } from "./monitorStyle";
 import { MON_CHART_H, type MonChartTier } from "./monitorChart";
 import { COLORS, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
+import { useMonitorTheme } from "./monitorTheme";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 /**
@@ -75,18 +76,21 @@ interface Props {
  * 選中標記用外框不用填底 —— 填底會整格罩上一層灰，把柱子本身的分級色蓋掉，
  * 看起來就像「無資料灰樁」，正好與它要表達的意思相反。
  */
-const SELECTED_OUTLINE = (picked: boolean) =>
+const SELECTED_OUTLINE = (picked: boolean, selectedOutline: string) =>
   picked
-    ? { outline: "1px solid rgba(255,255,255,0.65)", outlineOffset: -1, borderRadius: 2 }
+    ? { outline: `1px solid ${selectedOutline}`, outlineOffset: -1, borderRadius: 2 }
     : null;
 
 const NOWRAP = { whiteSpace: "nowrap" } as const;
 
 export function HazardTrendBars({
   bars, levelColors, height: heightProp = 44, heightTier, caption, footer, unit = "",
-  onSelectBar, selectedKey = null, bare: bareProp = false, maxValue = null, partColor = COLORS.accent, partLabel = "",
+  onSelectBar, selectedKey = null, bare: bareProp = false, maxValue = null, partColor: partColorProp = COLORS.accent, partLabel = "",
 }: Props) {
   const v2 = useMonitorV2();
+  // P5 主題：暗色值與改版前相同；淡色時資料色加深（D2）、灰樁換極性（X1）
+  const theme = useMonitorTheme();
+  const partColor = theme.fill(partColorProp);
   // bare 只在監看新版生效（舊版畫面不可變）
   const bare = v2 && bareProp;
   // 只在監看新版生效（舊版維持原 height）
@@ -116,7 +120,7 @@ export function HazardTrendBars({
       {!bare && caption != null && <span
         style={{
           fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "0.6px",
-          color: COLORS.textFaint, whiteSpace: v2 ? "normal" : "nowrap", overflow: "hidden",
+          color: theme.p.textFaint, whiteSpace: v2 ? "normal" : "nowrap", overflow: "hidden",
           textOverflow: v2 ? "clip" : "ellipsis",
         }}
       >
@@ -137,16 +141,16 @@ export function HazardTrendBars({
                 onClick={onClick}
                 style={{
                   flex: 1, minWidth: 0, height: "100%",
-                  background: "rgba(255,255,255,0.06)",
+                  background: theme.chart.stub,
                   borderRadius: 1,
                   cursor: onClick ? "pointer" : undefined,
-                  ...SELECTED_OUTLINE(picked),
+                  ...SELECTED_OUTLINE(picked, theme.chart.selected),
                 }}
               />
             );
           }
           const pct = (b.value / max) * 100;
-          const color = levelColors[Math.min(b.level, levelColors.length - 1)] ?? levelColors[0]!;
+          const color = theme.fill(levelColors[Math.min(b.level, levelColors.length - 1)] ?? levelColors[0]!);
           const value = b.value;
           // 子量：截在 [0, value]。part > value 只可能是上游資料不一致（子集合不會大於總數），
           // 畫出來會讓子段衝出柱頂、看起來比總量還高，所以截到 value，tooltip 仍印截後的值。
@@ -175,7 +179,7 @@ export function HazardTrendBars({
                 flex: 1, minWidth: 0, height: "100%",
                 display: "flex", flexDirection: "column", justifyContent: "flex-end",
                 cursor: onClick ? "pointer" : undefined,
-                ...SELECTED_OUTLINE(picked),
+                ...SELECTED_OUTLINE(picked, theme.chart.selected),
               }}
             >
               {/* 0 也要看得見（1.5% 的底線），否則「當天零次」與「沒資料」在圖上長一樣 */}
@@ -212,7 +216,7 @@ export function HazardTrendBars({
       {!bare && <div
         style={{
           display: "flex", justifyContent: "space-between", gap: 4,
-          fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: COLORS.textFaint,
+          fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: theme.p.textFaint,
           // v2：窄格放不下時整項換行，日期與 footer 本身不斷行
           ...(v2 ? { flexWrap: "wrap" as const, rowGap: 2 } : null),
         }}

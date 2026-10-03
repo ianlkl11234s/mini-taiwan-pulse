@@ -2,7 +2,8 @@ import { useId, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as R
 import { useMonitorV2 } from "./intel/monitor/monitorStyle";
 import { fs, MF } from "./intel/monitor/monitorFont";
 import { MON_CHART_H, type MonChartTier } from "./intel/monitor/monitorChart";
-import { COLORS, FONT_SIZE, SURFACE, BORDER, RADIUS, WHITE_ALPHA } from "../styles/designTokens";
+import { FONT_SIZE, RADIUS } from "../styles/designTokens";
+import { useMonitorTheme } from "./intel/monitor/monitorTheme";
 
 /**
  * 24h SVG sparkline — Y 軸刻度 + 警戒線 + X 軸 6/12/18h tick
@@ -242,8 +243,8 @@ export function TimeseriesSparkline({
   unit = "",
   warningValue = null,
   warningLabel = "警戒",
-  lineColor = "#60a5fa",
-  warningColor = "#ef4444",
+  lineColor: lineColorProp = "#60a5fa",
+  warningColor: warningColorProp = "#ef4444",
   height: heightProp = 120,
   heightTier,
   fillArea = true,
@@ -259,6 +260,12 @@ export function TimeseriesSparkline({
   staleUntil,
 }: TimeseriesSparklineProps) {
   const v2 = useMonitorV2();
+  // P5 主題：沒有 Provider（一般彈窗）時為暗色，值與改版前相同；淡色時資料色加深（D2）
+  const theme = useMonitorTheme();
+  const { chart } = theme;
+  const lineColor = theme.fill(lineColorProp);
+  const warningColor = theme.fill(warningColorProp);
+  const extraColor = extraSeries ? theme.fill(extraSeries.color) : "";
   // bare 只在監看新版生效（舊版畫面不可變）
   const bare = v2 && bareProp;
   const PAD_L = bare ? BARE_PAD : v2 ? V2_PAD_L : BASE_PAD_L;
@@ -424,13 +431,13 @@ export function TimeseriesSparkline({
   if (data.length === 0 || !view) {
     // 小倍數列：一列高度只有約 28px，放不下置中提示句，只留「—」
     if (bare) {
-      return <div style={{ fontSize: MF.label, color: COLORS.textDim }}>—</div>;
+      return <div style={{ fontSize: MF.label, color: theme.p.textDim }}>—</div>;
     }
     return (
       <div
         style={{
           fontSize: fs(v2, FONT_SIZE.sm),
-          color: COLORS.textDim,
+          color: theme.p.textDim,
           padding: "8px 4px",
           textAlign: "center",
         }}
@@ -476,7 +483,7 @@ export function TimeseriesSparkline({
           <>
             <defs>
               <pattern id={hatchId} width={6} height={6} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <line x1={0} y1={0} x2={0} y2={6} stroke={WHITE_ALPHA[12]} strokeWidth={2} />
+                <line x1={0} y1={0} x2={0} y2={6} stroke={chart.hatch} strokeWidth={2} />
               </pattern>
             </defs>
             {view.gapBands.map((b, i) => gapBand(b.x0, b.x1, `gap-${i}`))}
@@ -493,7 +500,7 @@ export function TimeseriesSparkline({
               y={yTop}
               width={Math.max(0, w - PAD_L - PAD_R)}
               height={Math.max(0, yBot - yTop)}
-              fill={WHITE_ALPHA[8]}
+              fill={chart.band}
             >
               {band.label && <title>{`${band.label} ${fmtValue(band.lo)}–${fmtValue(band.hi)}`}</title>}
             </rect>
@@ -515,7 +522,7 @@ export function TimeseriesSparkline({
                 x2={w - PAD_R}
                 y1={y}
                 y2={y}
-                stroke="rgba(255,255,255,0.08)"
+                stroke={chart.grid}
                 strokeWidth={0.5}
               />
               {showYLabel && <text
@@ -524,7 +531,7 @@ export function TimeseriesSparkline({
                 fontSize={8}
                 style={axisTextStyle}
                 textAnchor="end"
-                fill="rgba(255,255,255,0.5)"
+                fill={chart.axis}
                 fontFamily="monospace"
               >
                 {fmtTick(tv, view.tickStep, compactYAxis)}
@@ -619,7 +626,7 @@ export function TimeseriesSparkline({
                 cx={view.xScale(sv.first.t)}
                 cy={view.yScale(sv.first.v)}
                 r={1.6}
-                fill={extraSeries.color}
+                fill={extraColor}
               />
             ) : (
               <polyline
@@ -627,7 +634,7 @@ export function TimeseriesSparkline({
                 data-testid="sparkline-extra-line"
                 points={sv.pts}
                 fill="none"
-                stroke={extraSeries.color}
+                stroke={extraColor}
                 strokeWidth={1.4}
                 strokeLinejoin="round"
                 strokeLinecap="round"
@@ -639,7 +646,7 @@ export function TimeseriesSparkline({
             cx={view.xScale(extraSeries.data[extraSeries.data.length - 1]!.t)}
             cy={view.yScale(extraSeries.data[extraSeries.data.length - 1]!.v)}
             r={2.2}
-            fill={extraSeries.color}
+            fill={extraColor}
           />
         )}
 
@@ -648,14 +655,14 @@ export function TimeseriesSparkline({
           <g key={`ms-${si}`}>
             {view.moreViews[si]!.segs.map((sv, i) =>
               sv.single ? (
-                <circle key={i} cx={view.xScale(sv.first.t)} cy={view.yScale(sv.first.v)} r={1.6} fill={s.color} />
+                <circle key={i} cx={view.xScale(sv.first.t)} cy={view.yScale(sv.first.v)} r={1.6} fill={theme.fill(s.color)} />
               ) : (
-                <polyline key={i} data-testid="sparkline-more-line" points={sv.pts} fill="none" stroke={s.color}
+                <polyline key={i} data-testid="sparkline-more-line" points={sv.pts} fill="none" stroke={theme.fill(s.color)}
                   strokeWidth={1.4} strokeLinejoin="round" strokeLinecap="round" />
               ),
             )}
             {s.data.length > 0 && (
-              <circle cx={view.xScale(s.data[s.data.length - 1]!.t)} cy={view.yScale(s.data[s.data.length - 1]!.v)} r={2.2} fill={s.color} />
+              <circle cx={view.xScale(s.data[s.data.length - 1]!.t)} cy={view.yScale(s.data[s.data.length - 1]!.v)} r={2.2} fill={theme.fill(s.color)} />
             )}
           </g>
         ))}
@@ -669,7 +676,7 @@ export function TimeseriesSparkline({
             fontSize={8}
             style={axisTextStyle}
             textAnchor={tk.x < PAD_L + 12 ? "start" : tk.x > w - PAD_R - 12 ? "end" : "middle"}
-            fill="rgba(255,255,255,0.5)"
+            fill={chart.axis}
             fontFamily="monospace"
           >
             {tk.label}
@@ -684,7 +691,7 @@ export function TimeseriesSparkline({
             fontSize={8}
             style={axisTextStyle}
             textAnchor="end"
-            fill="rgba(255,255,255,0.4)"
+            fill={chart.axisFaint}
             fontFamily="monospace"
           >
             {unit}
@@ -710,12 +717,12 @@ export function TimeseriesSparkline({
             if (extraSeries && extraV != null) {
               lines.push({
                 text: `${extraSeries.label ? extraSeries.label + " " : ""}${fmtTooltipValue(extraV, unit)}`,
-                dot: extraSeries.color,
+                dot: extraColor,
               });
             }
             moreSeries?.forEach((s, si) => {
               const mv = view.moreViews[si]!.byT.get(hp.t);
-              if (mv != null) lines.push({ text: `${s.label ? s.label + " " : ""}${fmtTooltipValue(mv, unit)}`, dot: s.color });
+              if (mv != null) lines.push({ text: `${s.label ? s.label + " " : ""}${fmtTooltipValue(mv, unit)}`, dot: theme.fill(s.color) });
             });
             if (band?.label && Number.isFinite(band.lo) && Number.isFinite(band.hi)) {
               lines.push({ text: `${band.label} ${fmtValue(band.lo)}–${fmtValue(band.hi)}` });
@@ -741,15 +748,15 @@ export function TimeseriesSparkline({
               <g data-testid="sparkline-tooltip" pointerEvents="none">
                 <line
                   x1={x} x2={x} y1={padT} y2={height - PAD_B}
-                  stroke={WHITE_ALPHA[20]} strokeWidth={1} strokeDasharray="2 2"
+                  stroke={chart.hover} strokeWidth={1} strokeDasharray="2 2"
                 />
-                <circle cx={x} cy={yMain} r={2.6} fill={lineColor} stroke={SURFACE.solid} strokeWidth={1} />
+                <circle cx={x} cy={yMain} r={2.6} fill={lineColor} stroke={chart.tooltipBg} strokeWidth={1} />
                 {yExtra != null && (
-                  <circle cx={x} cy={yExtra} r={2.6} fill={extraSeries!.color} stroke={SURFACE.solid} strokeWidth={1} />
+                  <circle cx={x} cy={yExtra} r={2.6} fill={extraColor} stroke={chart.tooltipBg} strokeWidth={1} />
                 )}
                 <rect
                   x={boxX} y={boxY} width={boxW} height={boxH}
-                  rx={RADIUS.md} fill={SURFACE.solid} stroke={BORDER.panel} strokeWidth={1}
+                  rx={RADIUS.md} fill={chart.tooltipBg} stroke={chart.tooltipBorder} strokeWidth={1}
                 />
                 {lines.map((l, i) => (
                   <g key={i}>
@@ -761,7 +768,7 @@ export function TimeseriesSparkline({
                       y={boxY + 4 + i * lineH + lineH / 2 + (v2 ? 4.5 : 3)}
                       fontSize={8}
                       style={axisTextStyle}
-                      fill={i === 0 ? COLORS.textStrong : COLORS.textDefault}
+                      fill={i === 0 ? theme.p.textStrong : theme.p.textDefault}
                       fontFamily="monospace"
                     >
                       {l.text}

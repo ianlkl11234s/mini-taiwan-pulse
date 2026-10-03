@@ -1,6 +1,6 @@
 import { IntelIcon, ICON } from "../IntelIcon";
 import { FONT_CJK, FONT_DATA, withAlpha } from "../intelTokens";
-import { DARK_INTEL, IntelThemeProvider, neutralFill, useIntelTheme } from "../intelTheme";
+import { neutralFill, useIntelTheme } from "../intelTheme";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { IntelCard, type IntelCardEvent } from "../IntelCard";
 import { IntelFilters, type TimeRange } from "../IntelFilters";
@@ -34,16 +34,11 @@ interface Props {
 }
 
 /**
- * Monitor Mode（戰情看板）刻意維持全暗（`MonitorPanel` 本身無 `isDarkTheme`，見 App.tsx 只把
- * `isDarkTheme` 傳給 IntelPanel／不傳給 Monitor 的取捨）。這裡顯式套 `DARK_INTEL`，讓重用的
- * `IntelCard`／`IntelFilters` 不論外層 context 為何都固定深色，不隨主站底圖切換。
+ * 主題由 MonitorPanel 的 `IntelThemeProvider` 決定（P5：新版跟底圖主題、舊版一律暗），
+ * 重用的 `IntelCard`／`IntelFilters` 直接吃外層 context。
  */
 export function NewsFeedPanel(props: Props) {
-  return (
-    <IntelThemeProvider palette={DARK_INTEL}>
-      <NewsFeedPanelInner {...props} />
-    </IntelThemeProvider>
-  );
+  return <NewsFeedPanelInner {...props} />;
 }
 
 function NewsFeedPanelInner({
