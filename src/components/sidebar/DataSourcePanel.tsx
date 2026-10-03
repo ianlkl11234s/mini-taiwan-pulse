@@ -9,6 +9,7 @@
  * 規格依據：docs/features/ui-consistency-audit-20260927/ui-controls-sheet.html §4 D1。
  */
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
+import { humanizeStatisticsText } from "../../data/statisticsLabels";
 import { Search, Lock } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
 import { LayerNameLine, ListRow } from "./LayerRow";
@@ -178,7 +179,7 @@ export function DataSourceCard({
     const recordLicense = artifactSource && !derivation && typeof artifactSource.license === "string" ? artifactSource.license : null;
     return {
       title: `${kindLabel} · ${statisticsSource.label}`,
-      desc: [statisticsSource.metricLabel, statisticsSource.contract, statisticsSource.disclosure].filter(Boolean).join(" — "),
+      desc: humanizeStatisticsText([statisticsSource.metricLabel, statisticsSource.contract, statisticsSource.disclosure].filter(Boolean).join(" — ")),
       facts: facts(
         statisticsSource.provider ? { k: "機關", v: statisticsSource.provider } : null,
         { k: "頻率", v: statisticsSource.period },

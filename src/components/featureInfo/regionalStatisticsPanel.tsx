@@ -1,4 +1,5 @@
 import { Row } from './shared';
+import { boundaryVersionLabel, humanizeStatisticsText } from '../../data/statisticsLabels';
 
 const INPUT_LABELS: Record<string, string> = {
   official_complete_county_sum: '22縣市同類合計', numerator: '分子', denominator: '分母', numerator_hectares: '同類面積（公頃）',
@@ -37,16 +38,16 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.source_token != null && <Row label="來源原值" value={String(props.source_token)} />}
     {props.missing_reason != null && <Row label="缺值原因" value={String(props.missing_reason)} />}
     <Row label="資料期別" value={String(props.period_label ?? props.release_id ?? '—')} />
-    {props.location_semantics != null && <Row label="位置口徑" value={String(props.location_semantics)} />}
-    {props.disclosure != null && <Row label="資料限制" value={String(props.disclosure)} />}
+    {props.location_semantics != null && <Row label="位置口徑" value={humanizeStatisticsText(String(props.location_semantics))} />}
+    {props.disclosure != null && <Row label="資料限制" value={humanizeStatisticsText(String(props.disclosure))} />}
     {props.comparison_formula != null && <Row label="計算方式" value={String(props.comparison_formula)} />}
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={INPUT_LABELS[key]!} value={inputValue(value)} />)}
     {props.interpretation != null && <Row label="如何理解" value={String(props.interpretation)} />}
     {props.time_caveat != null && <Row label="時間口徑" value={String(props.time_caveat)} />}
     <Row label="行政區代碼" value={String(props.area_code ?? '—')} />
-    <Row label="參考邊界" value={String(props.boundary_version ?? '—')} />
-    {props.boundary_semantics != null && <Row label="邊界角色" value={String(props.boundary_semantics)} />}
-    {props.source_statistical_boundary_version != null && <Row label="統計參考版" value={String(props.source_statistical_boundary_version)} />}
+    <Row label="參考邊界" value={props.boundary_version == null ? '—' : boundaryVersionLabel(props.boundary_version)} />
+    {props.boundary_semantics != null && <Row label="邊界角色" value={humanizeStatisticsText(String(props.boundary_semantics))} />}
+    {props.source_statistical_boundary_version != null && <Row label="統計參考版" value={boundaryVersionLabel(props.source_statistical_boundary_version)} />}
     {props.availability != null && <Row label="資料可用狀態" value={String(props.availability)} />}
     {props.coverage_status != null && <Row label="覆蓋狀態" value={String(props.coverage_status)} />}
     {props.coverage_numerator != null && props.coverage_denominator != null && <Row label="覆蓋筆數" value={`${String(props.coverage_numerator)}／${String(props.coverage_denominator)}`} />}
