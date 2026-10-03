@@ -127,6 +127,13 @@ describe("TimeseriesSparkline monitor v2 (spec §5.35 E3)", () => {
     expect(html.match(/data-testid="sparkline-gap"/g)).toHaveLength(1);
   });
 
+  it("v2 staleUntil：最後一筆到停更時間多一條尾段斜線；早於最後一筆或舊版不畫", () => {
+    expect(v2({ ...props, staleUntil: 20_000 }).match(/data-testid="sparkline-gap"/g)).toHaveLength(2);
+    expect(v2({ ...props, staleUntil: 12_000 }).match(/data-testid="sparkline-gap"/g)).toHaveLength(1);
+    expect(v2({ data: pts, staleUntil: 20_000 }).match(/data-testid="sparkline-gap"/g)).toHaveLength(1);
+    expect(legacy({ ...props, staleUntil: 20_000 })).not.toContain("sparkline-gap");
+  });
+
   it("moreSeries 畫第三條線並納入值域；不傳時不出現", () => {
     const more = [{ data: [{ t: 12_000, v: 100 }, { t: 12_600, v: 120 }], color: "#ef4444", label: "超過 15 分" }];
     const html = legacy({ ...props, moreSeries: more });
