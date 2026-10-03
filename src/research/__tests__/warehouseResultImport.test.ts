@@ -26,6 +26,27 @@ describe("warehouse result import", () => {
     }
   });
 
+  it("drops Z ordinates so a 3D polygon result (DuckDB ST_Intersection on Z-tagged source) presents on the map", async () => {
+    // Minimised from a flood-hazard pulse_sql result: MultiPolygon rings with [lng, lat, 0] positions.
+    const zRing = [[121.5196, 25.0157, 0], [121.5196, 25.0159, 0], [121.5198, 25.0159, 0], [121.5198, 25.0157, 0], [121.5196, 25.0157, 0]];
+    const zText = JSON.stringify({ type: "FeatureCollection", features: [
+      { type: "Feature", geometry: { type: "MultiPolygon", coordinates: [[zRing], [zRing.map(([x, y, z]) => [x! + 0.001, y!, z])]] }, properties: { depth: "0.3-0.5" } },
+      { type: "Feature", geometry: { type: "Polygon", coordinates: [zRing.map(([x, y, z]) => [x!, y! - 0.001, z])] }, properties: { depth: "0.5-1.0" } },
+      { type: "Feature", geometry: { type: "Point", coordinates: [121.52, 25.01, 12.5] }, properties: { name: "z point" } },
+    ] });
+    const zSha = createHash("sha256").update(zText).digest("hex");
+    const session = new ResearchAnalysisSession();
+    const receipt = await session.importWarehouseResult({ resultId: "wh-9", sha256: zSha, label: "淹水潛勢範圍", featureCount: 3 }, okFetch(zText));
+    const resultIds = (receipt.resultIds as string[]).slice().sort();
+    expect(resultIds).toEqual(["wh-9:multipolygon", "wh-9:point", "wh-9:polygon"]);
+    const presented = session.presentable(resultIds);
+    const flat = (value: unknown): unknown[] => Array.isArray(value) && typeof value[0] === "number" ? [value] : (value as unknown[]).flatMap(flat);
+    for (const result of presented) for (const row of result.rows) {
+      for (const position of flat((row.geometry as { coordinates: unknown }).coordinates)) expect(position).toHaveLength(2);
+    }
+    expect(session.bounds(resultIds).featureCount).toBe(3);
+  });
+
   it("splits a verified mixed result into one session result per geometry type", async () => {
     const fetchText = okFetch();
     const results = await loadWarehouseResult({ resultId: "wh-8", sha256: sha, label: "671 環域", featureCount: 3 }, fetchText);

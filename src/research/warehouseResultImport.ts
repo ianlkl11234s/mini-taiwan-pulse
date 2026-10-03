@@ -48,6 +48,15 @@ function positionsOf(value: unknown, depth: number): Position[] | null {
   return out;
 }
 const DEPTH: Record<WarehouseImportGeometry, number> = { Point: 0, LineString: 1, MultiLineString: 2, Polygon: 2, MultiPolygon: 3 };
+/** Validated copy of `value` with every position reduced to [lng, lat]: PostGIS/DuckDB sources can
+ *  carry Z (or M) ordinates, and the session/overlay geometry checks accept 2D positions only. */
+function planarCoordinates(value: unknown, depth: number): unknown {
+  if (depth === 0) return isPosition(value) ? [value[0], value[1]] : null;
+  if (!Array.isArray(value) || value.length === 0) return null;
+  const out: unknown[] = [];
+  for (const part of value) { const planar = planarCoordinates(part, depth - 1); if (planar === null) return null; out.push(planar); }
+  return out;
+}
 
 /** Normalized features: MultiPoint is split into Points; unsupported or invalid geometry rejects the whole file. */
 export function normalizeWarehouseFeatures(collection: unknown): { type: WarehouseImportGeometry; geometry: { type: string; coordinates: unknown }; properties: Record<string, unknown> }[] {
@@ -64,8 +73,9 @@ export function normalizeWarehouseFeatures(collection: unknown): { type: Warehou
       for (const point of points) out.push({ type: "Point", geometry: { type: "Point", coordinates: point }, properties });
       continue;
     }
-    if (!(geometry.type in DEPTH) || !positionsOf(geometry.coordinates, DEPTH[geometry.type as WarehouseImportGeometry])) throw new Error("WAREHOUSE_RESULT_INVALID");
-    out.push({ type: geometry.type as WarehouseImportGeometry, geometry: { type: geometry.type, coordinates: geometry.coordinates }, properties });
+    const coordinates = geometry.type in DEPTH ? planarCoordinates(geometry.coordinates, DEPTH[geometry.type as WarehouseImportGeometry]) : null;
+    if (coordinates === null) throw new Error("WAREHOUSE_RESULT_INVALID");
+    out.push({ type: geometry.type as WarehouseImportGeometry, geometry: { type: geometry.type, coordinates }, properties });
   }
   return out;
 }
