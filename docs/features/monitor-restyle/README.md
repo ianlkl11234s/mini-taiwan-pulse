@@ -66,6 +66,8 @@ split 的 24 格沒有共用卡片框：MonitorPanel 只排位置，框、標題
 | `MonitorDataStatus`＋`useMonitorResource` | 已是共用狀態列 | 只管傳輸狀態，要加來源新鮮度 |
 | ISR `deriveIsrLatestDisplay`＋`DISPLAY_LABEL` | 缺值／過期文案最完整 | 可當狀態文案範本 |
 
+> **接手 P4**：[`handoff-p4.md`](./handoff-p4.md)
+
 ## 實作順序（每階段一個 PR）
 
 | 階段 | 範圍 | 對應代號 |
