@@ -2006,3 +2006,23 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - 改 MCP payload 時，同時改 gateway 白名單和用實際輸出當 fixture 的測試。
 - 新功能的驗收一定包含「接真地圖」那一輪，不能只靠倉庫工具的分數。
+
+## 2026-10-03～04 監看模式改版 P4、P4b、P5
+
+### What worked
+
+- P4 先派唯讀 agent 定位全部檔:行，再依「loader 擁有權」分三組，避免兩組同時改 `intelLoaders.ts`；advisor 提醒後才改分組，省下互相覆寫的風險。
+- 共用底層讓暗色值等於舊字面值（`monitorTheme.ts`），730 處換色不必逐處擔心舊版或一般彈窗變色。
+- 瀏覽器量測用 DOM `scrollHeight-clientHeight` 掃全部格子，再對有問題的格子截圖，比逐張看全頁快；抓到壓力環旋轉外框撐出 27px、食品最新點溢出 4px。
+- 使用者要「根本解」時照上游先動：gis-platform migration 先寫、先審、套用並查證，前端最後 push。
+
+### Friction / limits
+
+- 「最後一列日期」不等於來源新鮮度：特殊船舶與落雷沒有事件的日子本來就沒有列，第一次接線誤判成停更，改成 event 週期。
+- 網址 `?style=light` 會被 App 覆寫，第一次淡色截圖其實是暗色；要用工具列「底圖」切換。
+- 收尾時才發現 design-system README 的「最後更新」和 CHANGELOG 漏一輪，多開一個文件 PR，還遇到平行 session 同列衝突。
+
+### 下次
+
+- 每輪 PR 前把「最後更新」列、CHANGELOG、feature README 實作順序一起對一次，不留到收尾。
+- 新鮮度登記前先問「沒資料的日子有沒有列」，有列才可用最後一列判斷。
