@@ -437,21 +437,28 @@ describe("鐵則 4：select 控件渲染閾值", () => {
    * 唯一的失敗模式是「兩個 sidebar 的閾值改了一邊忘了另一邊」——
    * 桌機看到 dropdown、手機看到撐爆的 button row。
    */
-  it("IconRailSidebar 與 LayerSidebar 用同一個閾值", () => {
-    // Phase I 起兩個 sidebar 共用 `ParamControlList`（sidebar/LayerParamControls.tsx），
-    // 閾值只寫在共用元件一處；兩個 sidebar 都必須走它，不能各自再渲染一份。
+  it("IconRailSidebar 與 LayerSidebar 用同一個閾值（兩者都經共用 LayersPanel → ExpandedControls → ParamControlList）", () => {
+    // Phase I 起兩個 sidebar 共用 `ParamControlList`（sidebar/LayerParamControls.tsx），閾值只寫在共用元件一處。
+    // 圖層面板統一 A 段起，桌機與手機連面板本體都共用（sidebar/LayersPanel.tsx），展開區只有 ExpandedControls 一份；
+    // 保護意圖不變：兩個 sidebar 都必須走共用元件，不能各自再渲染一份控制項。
     const THRESHOLD = "ctrl.options.length > 3";
     expect(
       readFileSync("src/components/sidebar/LayerParamControls.tsx", "utf8").includes(THRESHOLD),
       `共用控制項元件找不到 \`${THRESHOLD}\` —— 渲染邏輯改了形狀（請同步更新本測試）。` +
       `§4a 規則 4：≥ 4 個 option 必用原生 <select>，中文標籤的 button row 一定撐爆 240px 窄欄。`,
     ).toBe(true);
+    expect(readFileSync("src/components/sidebar/ExpandedControls.tsx", "utf8")).toContain("<ParamControlList controls={controls} />");
+    expect(readFileSync("src/components/sidebar/LayersPanel.tsx", "utf8")).toContain("<ExpandedControls");
     for (const file of [
-      "src/components/sidebar/ExpandedControls.tsx",
+      "src/components/IconRailSidebar.tsx",
       "src/components/LayerSidebar.tsx",
+      "src/components/sidebar/LayersPanel.tsx",
     ]) {
       const source = readFileSync(file, "utf8");
-      expect(source.includes("<ParamControlList controls={controls} />"), `${file} 沒有走共用的 ParamControlList`).toBe(true);
+      if (file !== "src/components/sidebar/LayersPanel.tsx") {
+        expect(source, `${file} 沒有走共用的 LayersPanel`).toMatch(/import \{ LayersPanel[^}]*\} from "\.\/sidebar\/LayersPanel"/);
+        expect(source, `${file} 不該再自己掛 ParamControlList`).not.toContain("<ParamControlList");
+      }
       expect(source.includes("ctrl.options.length"), `${file} 又自己渲染了一份 select —— 閾值會分岔`).toBe(false);
     }
   });
@@ -463,15 +470,16 @@ describe("區域統計 sidebar 接線", () => {
     expect(hasLayerDetails("flights", false)).toBe(false);
   });
 
-  it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情，mobile 使用可存取的展開按鈕", () => {
+  it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情（共用 ExpandedControls），每一列都有可存取的展開按鈕", () => {
     expect(readFileSync('src/components/sidebar/ExpandedControls.tsx', 'utf8')).toContain('isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />');
-    expect(readFileSync('src/components/sidebar/LayersPanel.tsx', 'utf8')).toContain('textColor={TEXT_STRONG}\n                          dimColor={DIM}\n                          colorScheme={COLOR_SCHEME}');
-    const layerSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
-    expect(layerSidebar).toContain("isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />");
-    expect(layerSidebar).toContain("textColor={textColor}\n                    dimColor={dimColor}\n                    colorScheme={isDarkTheme ? 'dark' : 'light'}");
-    const mobileSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
-    expect(mobileSidebar).toContain('aria-label={`${displayLabel} 詳情`}');
-    expect(mobileSidebar).toContain('{isExpanded && hasDetails && (');
+    const panel = readFileSync('src/components/sidebar/LayersPanel.tsx', 'utf8');
+    expect(panel).toContain('textColor={TEXT_STRONG}\n                          dimColor={DIM}\n                          colorScheme={COLOR_SCHEME}');
+    // 每一列都有展開區（至少「說明・來源」），列按鈕帶 aria-expanded
+    expect(panel).toContain('{isExpanded && (');
+    expect(readFileSync('src/components/sidebar/LayerRow.tsx', 'utf8')).toContain('aria-expanded={expandable ? expanded : undefined}');
+    for (const file of ['src/components/IconRailSidebar.tsx', 'src/components/LayerSidebar.tsx']) {
+      expect(readFileSync(file, 'utf8')).toContain('<LayersPanel');
+    }
     expect(readFileSync('src/components/MobileBottomSheet.tsx', 'utf8')).toContain('zIndex: 40');
     expect(readFileSync('src/App.tsx', 'utf8')).toContain('onLayerClick={handleLayerClick}');
   });
