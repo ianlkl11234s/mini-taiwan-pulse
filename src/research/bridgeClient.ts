@@ -3,6 +3,19 @@ export const RESEARCH_API_PREFIX = "/api/research/v1";
 export const BRIDGE_TIMEOUT_MS = 8_000;
 export const MAX_BRIDGE_RESPONSE_BYTES = 32 * 1024;
 export const MAX_NETWORK_PROVIDER_RESPONSE_BYTES = 2 * 1024 * 1024;
+/** P1 result channel (SPEC-prod-connect §2.3, §2.8): GET bytes ≤24 MiB within 30 s; meta ≤288 KiB. */
+export const RESULT_FETCH_TIMEOUT_MS = 30_000;
+export const MAX_RESULT_BYTES = 24 * 1024 * 1024;
+export const QUERY_TRANSPORT_LIMIT_BYTES = 288 * 1024;
+export type WarehouseResultMeta = { resultId: string; sha256: string; bytes: number; label: string; featureCount: number; style: Record<string, unknown> | null };
+export type WarehouseResultsMeta = { results: WarehouseResultMeta[]; missing: string[] };
+const STUDY_ID = /^[a-f0-9]{32}$/;
+const TAB_ID = /^[A-Za-z0-9._-]{1,128}$/;
+/** Session results may be split per geometry (`wh-3:point`); the gateway stores the base id. */
+export function warehouseBaseResultId(resultId: string): string | null {
+  const match = /^(wh-[0-9]{1,6})(?::[a-z]+)?$/.exec(resultId);
+  return match ? match[1]! : null;
+}
 
 export type LayerControlValue = number | boolean | string | string[];
 export type LayerControlScene = { layerKey: string; controlId: string; value: LayerControlValue; expectedValue: LayerControlValue };
@@ -48,20 +61,39 @@ export class BridgeClient {
     return this.post("/browser/network-provider", { studyId, tabId, operation, args }, isNetworkProviderResponse, MAX_NETWORK_PROVIDER_RESPONSE_BYTES);
   }
   async revoke(studyId: string): Promise<void> { await this.post("/studies/revoke", { studyId }, isAnyResponse); }
+  /** Raw GeoJSON text of an uploaded warehouse result. Integrity is checked by the caller against the relay sha256, never the X-Result-Sha256 header. */
+  async fetchResult(studyId: string, tabId: string, resultId: string): Promise<string> {
+    const baseId = warehouseBaseResultId(resultId);
+    if (!STUDY_ID.test(studyId) || !TAB_ID.test(tabId) || !baseId) throw new BridgeError("INVALID_INPUT");
+    return this.request(`/browser/results/${studyId}/${tabId}/${baseId}`, { method: "GET" }, RESULT_FETCH_TIMEOUT_MS, MAX_RESULT_BYTES, (response, text) => {
+      if (response.ok) return text;
+      throw new BridgeError(errorCode(parseJson(text)), retryAfterMs(response));
+    });
+  }
+  async resultsMeta(studyId: string, tabId: string, resultIds: string[]): Promise<WarehouseResultsMeta> {
+    return this.post("/browser/results/meta", { studyId, tabId, resultIds }, isResultsMeta, QUERY_TRANSPORT_LIMIT_BYTES);
+  }
 
-  private async post<T>(path: string, body: Record<string, unknown>, guard: (value: unknown) => value is T, maxResponseBytes = MAX_BRIDGE_RESPONSE_BYTES): Promise<T> {
-    const token = await this.getAccessToken();
-    if (!token) throw new BridgeError("AUTH_REQUIRED");
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), BRIDGE_TIMEOUT_MS);
-    try {
-      const response = await this.fetcher(`${RESEARCH_API_PREFIX}${path}`, { method: "POST", redirect: "error", cache: "no-store", signal: controller.signal, headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
-      const text = await boundedText(response, maxResponseBytes);
+  private async post<T>(path: string, body: Record<string, unknown>, guard: (value: unknown) => value is T, maxResponseBytes = MAX_BRIDGE_RESPONSE_BYTES, timeoutMs = BRIDGE_TIMEOUT_MS): Promise<T> {
+    return this.request(path, { method: "POST", body: JSON.stringify(body) }, timeoutMs, maxResponseBytes, (response, text) => {
       let payload: unknown;
       try { payload = text ? JSON.parse(text) : {}; } catch { throw new BridgeError("INVALID_RESPONSE"); }
       if (!response.ok) throw new BridgeError(errorCode(payload), retryAfterMs(response));
       if (!guard(payload)) throw new BridgeError("INVALID_RESPONSE");
       return payload;
+    });
+  }
+
+  private async request<T>(path: string, init: { method: "GET" | "POST"; body?: string }, timeoutMs: number, maxResponseBytes: number, read: (response: Response, text: string) => T): Promise<T> {
+    const token = await this.getAccessToken();
+    if (!token) throw new BridgeError("AUTH_REQUIRED");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const headers: Record<string, string> = init.body === undefined ? { authorization: `Bearer ${token}` } : { "content-type": "application/json", authorization: `Bearer ${token}` };
+      const response = await this.fetcher(`${RESEARCH_API_PREFIX}${path}`, { method: init.method, redirect: "error", cache: "no-store", signal: controller.signal, headers, ...(init.body === undefined ? {} : { body: init.body }) });
+      const text = await boundedText(response, maxResponseBytes);
+      return read(response, text);
     } catch (error) {
       if (error instanceof BridgeError) throw error;
       if (controller.signal.aborted) throw new BridgeError("REQUEST_TIMEOUT");
@@ -70,7 +102,11 @@ export class BridgeClient {
   }
 }
 
+function parseJson(text: string): unknown { try { return text ? JSON.parse(text) : {}; } catch { return {}; } }
+
 async function boundedText(response: Response, maxBytes: number): Promise<string> {
+  const declared = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maxBytes) { await response.body?.cancel().catch(() => undefined); throw new BridgeError("RESPONSE_TOO_LARGE"); }
   const reader = response.body?.getReader();
   if (!reader) return response.text();
   const chunks: Uint8Array[] = []; let size = 0;
@@ -93,6 +129,12 @@ function isPairingRequest(value: unknown): value is PairingRequest { return isOb
 function isPairingStatus(value: unknown): value is PairingStatus { return exactObject(value, ["pairingId", "claimed", "approved", "deviceLabel", "phrase"]) && safeId(value.pairingId) && typeof value.claimed === "boolean" && typeof value.approved === "boolean" && nullableText(value.deviceLabel) && nullableText(value.phrase); }
 function safeId(value: unknown): value is string { return typeof value === "string" && /^[A-Za-z0-9._-]{1,128}$/.test(value); }
 function isAnyResponse(_value: unknown): _value is unknown { return true; }
+function isResultMeta(value: unknown): value is WarehouseResultMeta {
+  return exactObject(value, ["resultId", "sha256", "bytes", "label", "featureCount", "style"]) && typeof value.resultId === "string" && /^wh-[0-9]{1,6}$/.test(value.resultId) && typeof value.sha256 === "string" && /^[a-f0-9]{64}$/.test(value.sha256) && isNonnegativeInteger(value.bytes) && typeof value.label === "string" && isNonnegativeInteger(value.featureCount) && (value.style === null || isObject(value.style));
+}
+function isResultsMeta(value: unknown): value is WarehouseResultsMeta {
+  return exactObject(value, ["results", "missing"]) && Array.isArray(value.results) && value.results.length <= 8 && value.results.every(isResultMeta) && Array.isArray(value.missing) && value.missing.length <= 8 && value.missing.every(item => typeof item === "string" && /^wh-[0-9]{1,6}$/.test(item));
+}
 function isNetworkProviderResponse(value: unknown): value is { graph: Record<string, unknown>; payload: Record<string, unknown> } { return exactObject(value, ["graph", "payload"]) && isObject(value.graph) && isObject(value.payload); }
 function nullableText(value: unknown): value is string | null { return value === null || typeof value === "string"; }
 function exactObject(value: unknown, keys: string[]): value is Record<string, unknown> { return isObject(value) && Object.keys(value).length === keys.length && keys.every((key) => key in value); }

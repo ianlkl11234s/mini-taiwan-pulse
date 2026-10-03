@@ -54,6 +54,7 @@ import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
 import { summarizeVisibleLayers, viewportBounds, type VisibleSummaryMap } from "./visibleSummary";
+import { restoreWarehouseResults } from "./warehouseResultRestore";
 import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
@@ -198,6 +199,10 @@ export function MainMapConnection(props: Props) {
   const networkProvider = useRef<ValhallaNetworkProvider | null>(null);
   const locationLookup = useRef<AbortController | null>(null);
   const connectionEpoch = useRef(0);
+  /** Gateway channel for P1 result bytes; render() needs it to restore results after a reload. */
+  const connectionRef = useRef<BridgeConnectionContext | null>(null);
+  /** Warehouse base ids whose upload is gone for this connection; not re-queried on every render. */
+  const expiredWarehouseIds = useRef<Set<string>>(new Set());
   const applying = useRef(false);
   const previous = useRef<Scene | null>(null);
   const generation = useRef(0);
@@ -253,6 +258,21 @@ export function MainMapConnection(props: Props) {
       previous.current = scene; return "ready";
     }
     if (scene.results && !analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+    // P1: a reloaded tab keeps the scene's warehouse ids but not their rows. Re-import them from
+    // the gateway before validation; the 1 s expiry watchdog only starts after setResultCollection.
+    let expiredResults = 0;
+    const connection = connectionRef.current;
+    if (scene.results && connection) {
+      const session = analysis.current!;
+      const restore = await restoreWarehouseResults(scene.results, {
+        has: resultId => session.hasResult(resultId),
+        meta: baseIds => connection.client.resultsMeta(connection.studyId, connection.tabId, baseIds),
+        importResult: args => session.importWarehouseResult(args, id => connection.client.fetchResult(connection.studyId, connection.tabId, id)),
+        expired: expiredWarehouseIds.current,
+      });
+      if (run !== generation.current || analysis.current !== session) return "error";
+      if (restore.dropped.length) { expiredResults = restore.dropped.length; scene = { ...scene, results: restore.collection }; }
+    }
     // Validate every declared ID, including hidden collection entries, before
     // acknowledging the scene. Hidden must not become a way to retain an
     // expired or unauthorized result beyond the normal session boundary.
@@ -357,10 +377,15 @@ export function MainMapConnection(props: Props) {
     const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
     setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : layerPlan.rejected.length ? `找不到或無法開啟的圖層已略過：${layerPlan.rejected.join("、")}；其餘設定已套用。` : "圖層或分析結果狀態有衝突，請重新確認。");
     setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? "分析結果已呈現" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
+    if (expiredResults) {
+      setMessage("上次的分析結果已過期，已從地圖移除；其餘結果照常呈現。");
+      setActivity({ phase: "complete", title: "上次的分析結果已過期", detail: `${expiredResults} 項無法還原，已移除；可重新執行分析取得目前版本。` });
+    }
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
     setEvidence([]);
+    connectionRef.current = context; expiredWarehouseIds.current = new Set();
     controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; networkProvider.current = context ? new ValhallaNetworkProvider({ requester: (operation, args) => context.client.networkProvider(context.studyId, context.tabId, operation, args) }) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
@@ -431,7 +456,7 @@ export function MainMapConnection(props: Props) {
         }
         case "import_warehouse_result": {
           if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
-          result = await analysis.current.importWarehouseResult(request.args);
+          result = await analysis.current.importWarehouseResult(request.args, id => context.client.fetchResult(context.studyId, context.tabId, id));
           break;
         }
         case "analysis_card_draft": {

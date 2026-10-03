@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { BridgeClient, BridgeError, MAX_BRIDGE_RESPONSE_BYTES, RESEARCH_API_PREFIX, visibleResultIds } from "./bridgeClient";
+import { BridgeClient, BridgeError, MAX_BRIDGE_RESPONSE_BYTES, MAX_RESULT_BYTES, RESEARCH_API_PREFIX, RESULT_FETCH_TIMEOUT_MS, visibleResultIds, warehouseBaseResultId } from "./bridgeClient";
 
 const gatewayRoot = process.env.PULSE_RESEARCH_GATEWAY_ROOT;
 
@@ -144,4 +144,61 @@ describe("BridgeClient", () => {
     expect(commandResponse.status).toBe(200);
     await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { layers: { schools: true }, focus: null, results: canonicalResults } } });
   }, 15_000);
+});
+
+describe("BridgeClient P1 result channel", () => {
+  const studyId = "a".repeat(32);
+  const tabId = "3f9a2b1c-0000-4000-8000-000000000000";
+
+  it("GETs result bytes on the base id with Bearer auth, no body, no query string", async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response("{\"type\":\"FeatureCollection\",\"features\":[]}", { headers: { "content-type": "application/geo+json", "x-result-sha256": "ignored" } }));
+    const client = new BridgeClient(async () => "secret-token", fetcher);
+    await expect(client.fetchResult(studyId, tabId, "wh-3:point")).resolves.toBe("{\"type\":\"FeatureCollection\",\"features\":[]}");
+    expect(fetcher).toHaveBeenCalledWith(`${RESEARCH_API_PREFIX}/browser/results/${studyId}/${tabId}/wh-3`, expect.objectContaining({ method: "GET", redirect: "error", cache: "no-store", headers: { authorization: "Bearer secret-token" } }));
+    expect(fetcher.mock.calls[0]?.[1]).not.toHaveProperty("body");
+    expect(warehouseBaseResultId("wh-12:multipolygon")).toBe("wh-12");
+    expect(warehouseBaseResultId("analysis-1")).toBeNull();
+    await expect(client.fetchResult("not-a-study", tabId, "wh-3")).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    await expect(client.fetchResult(studyId, tabId, "../wh-3")).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  });
+
+  it("maps gateway JSON errors (401/404) to bridge codes", async () => {
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ error: { code: "RESULT_NOT_FOUND" } }, 404))).fetchResult(studyId, tabId, "wh-3")).rejects.toMatchObject({ code: "RESULT_NOT_FOUND" });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ error: { code: "AUTH_REQUIRED" } }, 401))).fetchResult(studyId, tabId, "wh-3")).rejects.toMatchObject({ code: "AUTH_REQUIRED" });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(new Response("<html>", { status: 502 }))).fetchResult(studyId, tabId, "wh-3")).rejects.toMatchObject({ code: "BRIDGE_REQUEST_FAILED" });
+  });
+
+  it("aborts a result body larger than 24 MiB, by header or while streaming", async () => {
+    let pulled = 0; let cancelled = false;
+    const chunk = new Uint8Array(1024 * 1024);
+    const body = new ReadableStream<Uint8Array>({ pull(controller) { pulled += 1; controller.enqueue(chunk); }, cancel() { cancelled = true; } });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(new Response(body))).fetchResult(studyId, tabId, "wh-3")).rejects.toMatchObject({ code: "RESPONSE_TOO_LARGE" });
+    expect(cancelled).toBe(true);
+    expect(pulled).toBeLessThanOrEqual(MAX_RESULT_BYTES / chunk.byteLength + 2);
+    const declared = new Response("x", { headers: { "content-length": String(MAX_RESULT_BYTES + 1) } });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(declared)).fetchResult(studyId, tabId, "wh-3")).rejects.toMatchObject({ code: "RESPONSE_TOO_LARGE" });
+  });
+
+  it("uses a 30 s budget for result bytes", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetcher = vi.fn((_input: unknown, init: RequestInit) => new Promise<Response>((_, reject) => init.signal?.addEventListener("abort", () => reject(new Error("aborted")))));
+      const pending = new BridgeClient(async () => "t", fetcher as unknown as typeof fetch).fetchResult(studyId, tabId, "wh-3");
+      const settled = expect(pending).rejects.toMatchObject({ code: "REQUEST_TIMEOUT" });
+      await vi.advanceTimersByTimeAsync(8_000);
+      expect(fetcher.mock.calls[0]?.[1].signal?.aborted).toBe(false);
+      await vi.advanceTimersByTimeAsync(RESULT_FETCH_TIMEOUT_MS - 8_000);
+      await settled;
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("posts meta requests and validates the strict envelope", async () => {
+    const meta = { results: [{ resultId: "wh-3", sha256: "b".repeat(64), bytes: 120034, label: "台北車站周邊", featureCount: 40, style: null }], missing: ["wh-5"] };
+    const fetcher = vi.fn().mockResolvedValue(response(meta));
+    await expect(new BridgeClient(async () => "t", fetcher).resultsMeta(studyId, tabId, ["wh-3", "wh-5"])).resolves.toEqual(meta);
+    expect(fetcher).toHaveBeenCalledWith(`${RESEARCH_API_PREFIX}/browser/results/meta`, expect.objectContaining({ method: "POST", body: JSON.stringify({ studyId, tabId, resultIds: ["wh-3", "wh-5"] }) }));
+    for (const bad of [{ results: [], missing: [], extra: 1 }, { results: [{ ...meta.results[0], sha256: "X" }], missing: [] }, { results: [], missing: ["../x"] }]) {
+      await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(bad))).resultsMeta(studyId, tabId, ["wh-3"])).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    }
+  });
 });

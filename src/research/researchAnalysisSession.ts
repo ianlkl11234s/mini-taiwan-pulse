@@ -6,7 +6,7 @@ import type { QueryRecordsInput } from "./queryExecutor";
 import { describeDataset, ensureDataset, queryRecordsDetailed, validateQueryRecordsInput } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import type { WalkingIsochroneExecution } from "./networkProvider";
-import { loadWarehouseResult, validateWarehouseImportArgs } from "./warehouseResultImport";
+import { loadWarehouseResult, validateWarehouseImportArgs, type WarehouseResultFetcher } from "./warehouseResultImport";
 
 export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "compare_regions" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
 export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation" | "resultStyle"> & { displayLabel?: string; units?: StoredDataResult["units"] };
@@ -539,10 +539,10 @@ export class ResearchAnalysisSession {
   }
 
   /** Register a verified server-side warehouse result; one session result per geometry type. Re-importing an id replaces it. */
-  async importWarehouseResult(args: Record<string, unknown>, fetchImpl?: typeof fetch): Promise<Record<string, unknown>> {
+  async importWarehouseResult(args: Record<string, unknown>, fetchText: WarehouseResultFetcher): Promise<Record<string, unknown>> {
     const input = validateWarehouseImportArgs(args);
     const generation = this.generation;
-    const results = await withLoading("research:warehouse-result", "載入分析倉庫結果", loadWarehouseResult(input, fetchImpl));
+    const results = await withLoading("research:warehouse-result", "載入分析倉庫結果", loadWarehouseResult(input, fetchText));
     if (generation !== this.generation) throw new Error("SESSION_REVOKED");
     for (const stale of [input.resultId, ...["point", "linestring", "multilinestring", "polygon", "multipolygon"].map(type => `${input.resultId}:${type}`)]) this.store.remove(stale);
     for (const result of results) this.store.put(result);
