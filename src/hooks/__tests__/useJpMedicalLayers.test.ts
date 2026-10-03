@@ -7,9 +7,8 @@ const harness = vi.hoisted(() => {
   const states: unknown[] = [];
   const cleanups: Array<() => void> = [];
   return {
-    // R7 網格色盤訂閱（layerPalette.ts）：測試只要當下快照
+    // R7 網格色盤訂閱（layerPalette.ts 的 useCallback；useSyncExternalStore 沿用下方 runtime 版，只當 deps）
     useCallback: <T,>(fn: T) => fn,
-    useSyncExternalStore: <T,>(_subscribe: unknown, get: () => T) => get(),
     begin: () => { cursor = 0; },
     cleanup: () => { cleanups.splice(0).reverse().forEach((fn) => fn()); states.length = 0; cursor = 0; },
     useState: <T,>(initial: T | (() => T)) => {
