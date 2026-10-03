@@ -190,7 +190,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
                   display: "inline-flex", alignItems: "center", gap: 2,
                   fontFamily: FONT_DATA, fontSize: v2 ? MF.body : 9.5,
                   color: r.surge != null && r.surge >= 2 ? COLORS.statusWarn : COLORS.textDim,
-                  ...(v2 ? { minWidth: 50 } : { width: 40 }),
+                  ...(v2 ? { minWidth: 42 } : { width: 40 }),
                 }}
               >
                 {r.surge != null && r.surge >= 2 && (
