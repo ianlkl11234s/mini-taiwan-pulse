@@ -62819,15 +62819,6 @@
   "params": {
     "a1AccidentRealtime": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.95",
         "max": 1,
         "min": 0.1,
@@ -62835,6 +62826,15 @@
         "step": 0.05,
         "value": 0.95,
         "valueText": "0.95"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "accessibleParkFacilities": [
@@ -63002,15 +63002,6 @@
     ],
     "accidentTaipei": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "defaultValue": "magma",
         "label": "熱區顏色",
         "options": [
@@ -63095,19 +63086,19 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "activeFaults": [],
     "agriCropSuitability": [
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
       {
         "label": "作物 芋",
         "options": [
@@ -63642,6 +63633,15 @@
         ],
         "type": "select",
         "value": "0"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "agriLeisureFarmZones": [
@@ -63893,15 +63893,6 @@
     ],
     "agriSoilFertility": [
       {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "著色",
         "options": [
           {
@@ -63931,6 +63922,15 @@
         ],
         "type": "select",
         "value": "health"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "agriWholesaleMarket": [
@@ -63998,6 +63998,15 @@
         "valueText": "0.90"
       },
       {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
         "label": "顯示",
         "options": [
           {
@@ -64011,15 +64020,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
       },
       {
         "label": "光暈 0.8",
@@ -64058,15 +64058,6 @@
     ],
     "allenCoralAtlas": [
       {
-        "label": "透明度 0.65",
-        "max": 1,
-        "min": 0,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.65,
-        "valueText": "0.65"
-      },
-      {
         "label": "主題",
         "options": [
           {
@@ -64103,6 +64094,15 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.65,
+        "valueText": "0.65"
       }
     ],
     "anfrWirelessSites": [
@@ -64127,15 +64127,6 @@
     ],
     "animalAdoption": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -64143,6 +64134,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "animalShelterPressure": [
@@ -64221,15 +64221,6 @@
     ],
     "antiCorruptionOffice": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -64237,6 +64228,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "aqiImagery": [
@@ -64484,15 +64484,6 @@
     ],
     "aquacultureWaterSatelliteMoa": [
       {
-        "label": "填色透明度 0.55",
-        "max": 0.85,
-        "min": 0,
-        "name": "填色透明度",
-        "step": 0.05,
-        "value": 0.55,
-        "valueText": "0.55"
-      },
-      {
         "label": "確認",
         "type": "toggle",
         "value": true
@@ -64506,9 +64497,7 @@
         "label": "其他",
         "type": "toggle",
         "value": true
-      }
-    ],
-    "aquacultureWaterUnion": [
+      },
       {
         "label": "填色透明度 0.55",
         "max": 0.85,
@@ -64517,7 +64506,9 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
-      },
+      }
+    ],
+    "aquacultureWaterUnion": [
       {
         "label": "兩版都有",
         "type": "toggle",
@@ -64532,6 +64523,15 @@
         "label": "只看舊版 OSM",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "填色透明度 0.55",
+        "max": 0.85,
+        "min": 0,
+        "name": "填色透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "aquacultureZone": [
@@ -64771,15 +64771,6 @@
     ],
     "bikeStations": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -64787,17 +64778,6 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
-      }
-    ],
-    "bridgeComparisonNewTaipei": [
-      {
-        "label": "透明度 0.80",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -64807,7 +64787,9 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
+      }
+    ],
+    "bridgeComparisonNewTaipei": [
       {
         "label": "比對狀態",
         "options": [
@@ -64842,6 +64824,24 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "bridgeRainThresholds": [
@@ -64856,15 +64856,6 @@
       }
     ],
     "bridgeResilienceTwinCity": [
-      {
-        "label": "透明度 0.90",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
-      },
       {
         "label": "交通模式",
         "options": [
@@ -64901,6 +64892,16 @@
         "value": false
       },
       {
+        "label": "顯示替代路線（代表性起訖對）",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "關渡＋淡江同時中斷",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "村里色階（僅不分遠近）",
         "options": [
           {
@@ -64916,17 +64917,35 @@
         "value": "p90"
       },
       {
-        "label": "顯示替代路線（代表性起訖對）",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "關渡＋淡江同時中斷",
-        "type": "toggle",
-        "value": false
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       }
     ],
     "bssNationalBridgePointsPreview": [
+      {
+        "label": "品質",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "影像有支持",
+            "value": "1"
+          },
+          {
+            "label": "待確認",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
       {
         "defaultValue": "magma",
         "label": "熱區顏色",
@@ -65021,37 +65040,9 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "品質",
-        "options": [
-          {
-            "label": "全部",
-            "value": "0"
-          },
-          {
-            "label": "影像有支持",
-            "value": "1"
-          },
-          {
-            "label": "待確認",
-            "value": "2"
-          }
-        ],
-        "type": "select",
-        "value": "0"
       }
     ],
     "bssNationalBridgePreview": [
-      {
-        "label": "透明度 0.82",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.82,
-        "valueText": "0.82"
-      },
       {
         "label": "交通類別",
         "options": [
@@ -65097,9 +65088,36 @@
         ],
         "type": "select",
         "value": "0"
+      },
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.82,
+        "valueText": "0.82"
       }
     ],
     "buildingsGba": [
+      {
+        "label": "高度門檻 ≥ 0 m",
+        "max": 100,
+        "min": 0,
+        "name": "高度門檻",
+        "step": 5,
+        "value": 0,
+        "valueText": "≥0 m"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
       {
         "label": "顯示模式",
         "options": [
@@ -65126,24 +65144,6 @@
         ],
         "type": "select",
         "value": "0"
-      },
-      {
-        "label": "高度門檻 ≥ 0 m",
-        "max": 100,
-        "min": 0,
-        "name": "高度門檻",
-        "step": 5,
-        "value": 0,
-        "valueText": "≥0 m"
-      },
-      {
-        "label": "透明度 0.75",
-        "max": 1,
-        "min": 0,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
       }
     ],
     "busIntercityLive": [
@@ -65167,13 +65167,13 @@
         "value": "route"
       },
       {
-        "label": "高度 +0m",
-        "max": 500,
-        "min": 0,
-        "name": "高度",
-        "step": 10,
-        "value": 0,
-        "valueText": "+0 m"
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "光點 4",
@@ -65185,13 +65185,13 @@
         "valueText": "4"
       },
       {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
+        "label": "高度 +0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "+0 m"
       }
     ],
     "busLive": [
@@ -65256,13 +65256,13 @@
         "value": "route"
       },
       {
-        "label": "高度 +0m",
-        "max": 500,
-        "min": 0,
-        "name": "高度",
-        "step": 10,
-        "value": 0,
-        "valueText": "+0 m"
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "光點 4",
@@ -65274,26 +65274,17 @@
         "valueText": "4"
       },
       {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
+        "label": "高度 +0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "+0 m"
       }
     ],
     "busStationsCity": [
       {
-        "label": "大小 0.4",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 0.4,
-        "valueText": "0.4"
-      },
-      {
         "defaultValue": "magma",
         "label": "熱區顏色",
         "options": [
@@ -65378,19 +65369,19 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 0.4",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.4,
+        "valueText": "0.4"
       }
     ],
     "busStationsIntercity": [
       {
-        "label": "大小 0.4",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 0.4,
-        "valueText": "0.4"
-      },
-      {
         "defaultValue": "magma",
         "label": "熱區顏色",
         "options": [
@@ -65475,6 +65466,15 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 0.4",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.4,
+        "valueText": "0.4"
       }
     ],
     "canopyGiants": [
@@ -65510,15 +65510,6 @@
     ],
     "cctv": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -65526,6 +65517,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       },
       {
         "label": "漂浮高度 0px",
@@ -65601,15 +65601,6 @@
     ],
     "civilDefenseShelter": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -65617,18 +65608,18 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "coalTerminal": [
-      {
-        "label": "大小 1.4",
-        "max": 4,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.4,
-        "valueText": "1.4"
-      },
       {
         "label": "透明度 0.95",
         "max": 1,
@@ -65637,18 +65628,18 @@
         "step": 0.05,
         "value": 0.95,
         "valueText": "0.95"
+      },
+      {
+        "label": "大小 1.4",
+        "max": 4,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.4,
+        "valueText": "1.4"
       }
     ],
     "coastGuardStation": [
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -65657,9 +65648,27 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "commonRegistrationAddresses": [
+      {
+        "label": "共同登記 ≥ 5 家",
+        "max": 800,
+        "min": 5,
+        "name": "共同登記",
+        "step": 1,
+        "value": 5,
+        "valueText": "≥5 家"
+      },
       {
         "defaultValue": "magma",
         "label": "熱區顏色",
@@ -65754,15 +65763,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "共同登記 ≥ 5 家",
-        "max": 800,
-        "min": 5,
-        "name": "共同登記",
-        "step": 1,
-        "value": 5,
-        "valueText": "≥5 家"
       }
     ],
     "communityCenters": [
@@ -65890,25 +65890,6 @@
     ],
     "companyCapitalGrid": [
       {
-        "label": "網格大小",
-        "options": [
-          {
-            "label": "150 m",
-            "value": "0"
-          },
-          {
-            "label": "450 m",
-            "value": "1"
-          },
-          {
-            "label": "1.5 km",
-            "value": "2"
-          }
-        ],
-        "type": "select",
-        "value": "0"
-      },
-      {
         "label": "指標",
         "options": [
           {
@@ -66012,24 +65993,28 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "companyIndustryDistribution": [
+      },
       {
-        "label": "顯示方式",
+        "label": "網格大小",
         "options": [
           {
-            "label": "產業群組色",
-            "value": "groups"
+            "label": "150 m",
+            "value": "0"
           },
           {
-            "label": "合計密度",
-            "value": "density"
+            "label": "450 m",
+            "value": "1"
+          },
+          {
+            "label": "1.5 km",
+            "value": "2"
           }
         ],
         "type": "select",
-        "value": "groups"
-      },
+        "value": "0"
+      }
+    ],
+    "companyIndustryDistribution": [
       {
         "label": "產業群組",
         "options": [
@@ -66468,104 +66453,24 @@
         "step": 0.05,
         "value": 0.68,
         "valueText": "0.68"
+      },
+      {
+        "label": "顯示方式",
+        "options": [
+          {
+            "label": "產業群組色",
+            "value": "groups"
+          },
+          {
+            "label": "合計密度",
+            "value": "density"
+          }
+        ],
+        "type": "select",
+        "value": "groups"
       }
     ],
     "companyPoints": [
-      {
-        "defaultValue": "viridis",
-        "label": "網格顏色",
-        "options": [
-          {
-            "label": "岩漿",
-            "value": "magma"
-          },
-          {
-            "label": "翠綠",
-            "value": "viridis"
-          },
-          {
-            "label": "黃橙褐",
-            "value": "YlOrBr"
-          },
-          {
-            "label": "紫藍綠",
-            "value": "PuBuGn"
-          },
-          {
-            "label": "酒紅",
-            "value": "Burg"
-          },
-          {
-            "label": "流速",
-            "value": "speed"
-          },
-          {
-            "label": "巴特洛",
-            "value": "batlow"
-          },
-          {
-            "label": "藍紫",
-            "value": "BuPu"
-          },
-          {
-            "label": "畢爾包",
-            "value": "bilbao"
-          },
-          {
-            "label": "黃綠藍",
-            "value": "YlGnBu"
-          },
-          {
-            "label": "阿克頓",
-            "value": "acton"
-          },
-          {
-            "label": "東京",
-            "value": "tokyo"
-          },
-          {
-            "label": "火箭",
-            "value": "rocket"
-          },
-          {
-            "label": "紫藍",
-            "value": "PuBu"
-          },
-          {
-            "label": "圖爾庫",
-            "value": "turku"
-          },
-          {
-            "label": "色盲友善",
-            "value": "cividis"
-          },
-          {
-            "label": "奧斯陸",
-            "value": "oslo"
-          }
-        ],
-        "role": "grid",
-        "type": "palette",
-        "value": "viridis"
-      },
-      {
-        "label": "透明度 0.80",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "行業中類",
         "options": [
@@ -67156,49 +67061,93 @@
         ],
         "type": "select",
         "value": "all"
-      }
-    ],
-    "contour25k": [
-      {
-        "label": "寬度 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
       },
       {
-        "label": "透明度 0.70",
+        "defaultValue": "viridis",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
-      }
-    ],
-    "contourDtm20": [
-      {
-        "label": "寬度 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
+        "value": 0.8,
+        "valueText": "0.80"
       },
-      {
-        "label": "透明度 0.55",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.55,
-        "valueText": "0.55"
-      }
-    ],
-    "convenienceStores": [
       {
         "label": "大小 1.0",
         "max": 3,
@@ -67207,7 +67156,49 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "contour25k": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       },
+      {
+        "label": "寬度 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "contourDtm20": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "convenienceStores": [
       {
         "defaultValue": "magma",
         "label": "熱區顏色",
@@ -67293,6 +67284,15 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "coralReefDistribution": [
@@ -67308,15 +67308,6 @@
     ],
     "correctionalFacility": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -67324,18 +67315,18 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
-      }
-    ],
-    "countyBoundary": [
+      },
       {
-        "label": "寬度 1.0",
-        "max": 4,
+        "label": "大小 1.0",
+        "max": 3,
         "min": 0.3,
-        "name": "寬度",
+        "name": "大小",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
+      }
+    ],
+    "countyBoundary": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -67344,18 +67335,18 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "court": [
+      },
       {
-        "label": "大小 1.0",
-        "max": 3,
+        "label": "寬度 1.0",
+        "max": 4,
         "min": 0.3,
-        "name": "大小",
+        "name": "寬度",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
+      }
+    ],
+    "court": [
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -67364,6 +67355,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "courtJurisdiction": [
@@ -67543,15 +67543,6 @@
     ],
     "cyclingRoutes": [
       {
-        "label": "線寬 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "線寬",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -67559,6 +67550,15 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "線寬 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "線寬",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "dioxinStations": [
@@ -67721,15 +67721,6 @@
     ],
     "earthquakes": [
       {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "模式",
         "options": [
           {
@@ -67743,6 +67734,15 @@
         ],
         "type": "select",
         "value": "timeline"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "earthquakesGlobal": [
@@ -68091,15 +68091,6 @@
     ],
     "etcGantry": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -68107,6 +68098,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       },
       {
         "label": "漂浮高度 0px",
@@ -68160,15 +68160,6 @@
     ],
     "facHistorical": [
       {
-        "label": "大小 0.5",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 0.5,
-        "valueText": "0.5"
-      },
-      {
         "label": "透明度 0.50",
         "max": 1,
         "min": 0.1,
@@ -68176,6 +68167,15 @@
         "step": 0.05,
         "value": 0.5,
         "valueText": "0.50"
+      },
+      {
+        "label": "大小 0.5",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
       }
     ],
     "facOffshore": [
@@ -68191,15 +68191,6 @@
     ],
     "facOsmSupplement": [
       {
-        "label": "大小 0.5",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 0.5,
-        "valueText": "0.5"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -68207,9 +68198,7 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
-      }
-    ],
-    "facPlanned": [
+      },
       {
         "label": "大小 0.5",
         "max": 3,
@@ -68218,7 +68207,9 @@
         "step": 0.1,
         "value": 0.5,
         "valueText": "0.5"
-      },
+      }
+    ],
+    "facPlanned": [
       {
         "label": "透明度 0.70",
         "max": 1,
@@ -68227,9 +68218,27 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 0.5",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
       }
     ],
     "facPrimary": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.65,
+        "valueText": "0.65"
+      },
       {
         "label": "總大小 0.5",
         "max": 3,
@@ -68256,27 +68265,9 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      },
-      {
-        "label": "透明度 0.65",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.65,
-        "valueText": "0.65"
       }
     ],
     "facSecondary": [
-      {
-        "label": "大小 0.5",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 0.5,
-        "valueText": "0.5"
-      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -68285,6 +68276,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 0.5",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
       }
     ],
     "factoryDensityGrid": [
@@ -68474,15 +68474,6 @@
     ],
     "farmRoads": [
       {
-        "label": "寬度 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -68490,6 +68481,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "fireEvents": [
@@ -68582,15 +68582,6 @@
     ],
     "fireHydrants": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "defaultValue": "magma",
         "label": "熱區顏色",
         "options": [
@@ -68675,6 +68666,15 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       },
       {
         "label": "漂浮高度 0px",
@@ -68891,14 +68891,13 @@
     ],
     "fireStations": [
       {
-        "label": "散點",
-        "type": "toggle",
-        "value": true
-      },
-      {
-        "label": "3D 光柱波動",
-        "type": "toggle",
-        "value": true
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",
@@ -68910,13 +68909,14 @@
         "valueText": "1.0"
       },
       {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "label": "散點",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "3D 光柱波動",
+        "type": "toggle",
+        "value": true
       },
       {
         "label": "漂浮高度 0px",
@@ -68929,24 +68929,6 @@
       }
     ],
     "flights": [
-      {
-        "label": "高度倍率 ×3.0",
-        "max": 5,
-        "min": 1,
-        "name": "高度倍率",
-        "step": 0.5,
-        "value": 3,
-        "valueText": "×3.0"
-      },
-      {
-        "label": "高度 +50m",
-        "max": 200,
-        "min": 0,
-        "name": "高度",
-        "step": 50,
-        "value": 50,
-        "valueText": "+50 m"
-      },
       {
         "label": "透明度 0.10",
         "max": 0.5,
@@ -68964,6 +68946,24 @@
         "step": 0.000001,
         "value": 0.000005,
         "valueText": "0.5"
+      },
+      {
+        "label": "高度倍率 ×3.0",
+        "max": 5,
+        "min": 1,
+        "name": "高度倍率",
+        "step": 0.5,
+        "value": 3,
+        "valueText": "×3.0"
+      },
+      {
+        "label": "高度 +50m",
+        "max": 200,
+        "min": 0,
+        "name": "高度",
+        "step": 50,
+        "value": 50,
+        "valueText": "+50 m"
       }
     ],
     "floodAlerts": [
@@ -68979,20 +68979,20 @@
     ],
     "floodSensor": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
         "value": 1,
         "valueText": "1.00"
       }
@@ -69010,15 +69010,6 @@
     ],
     "forestAlishanRail": [
       {
-        "label": "大小 1.2",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.2,
-        "valueText": "1.2"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -69026,6 +69017,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.2",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.2,
+        "valueText": "1.2"
       }
     ],
     "forestCompartments": [
@@ -69165,15 +69165,6 @@
     ],
     "forestRoads": [
       {
-        "label": "寬度 1.0",
-        "max": 4,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -69181,6 +69172,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 4,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "forestSignalPoints": [
@@ -69265,15 +69265,6 @@
     ],
     "fossilFuelInfra": [
       {
-        "label": "大小 1.2",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.2,
-        "valueText": "1.2"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -69281,18 +69272,18 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.2",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.2,
+        "valueText": "1.2"
       }
     ],
     "freewayCongestion": [
-      {
-        "label": "線寬 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "線寬",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -69301,6 +69292,15 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "線寬 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "線寬",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "funeralFacilities": [
@@ -69528,15 +69528,6 @@
     ],
     "gasStationCanonical": [
       {
-        "label": "大小 1.7",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.7,
-        "valueText": "1.7"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -69544,19 +69535,19 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.7",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.7,
+        "valueText": "1.7"
       }
     ],
     "gasStationCpc": [
       {
-        "label": "大小 1.7",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.7,
-        "valueText": "1.7"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -69564,9 +69555,7 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
-      }
-    ],
-    "gasStationFpcc": [
+      },
       {
         "label": "大小 1.7",
         "max": 3,
@@ -69575,7 +69564,9 @@
         "step": 0.1,
         "value": 1.7,
         "valueText": "1.7"
-      },
+      }
+    ],
+    "gasStationFpcc": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -69584,18 +69575,18 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "gasStationOther": [
+      },
       {
-        "label": "大小 2.2",
+        "label": "大小 1.7",
         "max": 3,
         "min": 0.3,
         "name": "大小",
         "step": 0.1,
-        "value": 2.2,
-        "valueText": "2.2"
-      },
+        "value": 1.7,
+        "valueText": "1.7"
+      }
+    ],
+    "gasStationOther": [
       {
         "label": "透明度 0.70",
         "max": 1,
@@ -69604,9 +69595,27 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 2.2",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 2.2,
+        "valueText": "2.2"
       }
     ],
     "gasStationTaisugar": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
       {
         "label": "大小 1.7",
         "max": 3,
@@ -69615,7 +69624,9 @@
         "step": 0.1,
         "value": 1.7,
         "valueText": "1.7"
-      },
+      }
+    ],
+    "geothermalWells": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -69624,9 +69635,7 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "geothermalWells": [
+      },
       {
         "label": "大小 1.0",
         "max": 3,
@@ -69635,15 +69644,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
       }
     ],
     "gfwDarkVessels": [
@@ -69680,15 +69680,6 @@
       }
     ],
     "gfwHourlyTracks": [
-      {
-        "label": "透明度 0.75",
-        "max": 1,
-        "min": 0,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
-      },
       {
         "label": "拖尾",
         "options": [
@@ -69741,6 +69732,15 @@
         "label": "未知",
         "type": "toggle",
         "value": false
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "gfwVesselPresence": [
@@ -69755,15 +69755,6 @@
       }
     ],
     "globalEvents": [
-      {
-        "label": "透明度 0.90",
-        "max": 1,
-        "min": 0,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
-      },
       {
         "label": "分類",
         "options": [
@@ -69874,6 +69865,15 @@
         "label": "僅顯示臺灣相關（直接／間接）",
         "type": "toggle",
         "value": false
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       }
     ],
     "govServiceOffices": [
@@ -69898,35 +69898,26 @@
     ],
     "groundwater": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
         "value": 1,
         "valueText": "1.00"
       }
     ],
     "groundwaterWells": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -69934,9 +69925,33 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "h3Population": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "Day",
+            "value": "day"
+          },
+          {
+            "label": "Night",
+            "value": "night"
+          }
+        ],
+        "type": "select",
+        "value": "day"
+      },
       {
         "label": "透明度 0.6",
         "max": 1,
@@ -69968,24 +69983,18 @@
         "step": 0.2,
         "value": 1,
         "valueText": "1.00"
-      },
-      {
-        "label": "指標",
-        "options": [
-          {
-            "label": "Day",
-            "value": "day"
-          },
-          {
-            "label": "Night",
-            "value": "night"
-          }
-        ],
-        "type": "select",
-        "value": "day"
       }
     ],
     "highways": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
       {
         "label": "線寬 0.6",
         "max": 3,
@@ -70003,27 +70012,9 @@
         "step": 0.1,
         "value": 0.3,
         "valueText": "0.3"
-      },
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
       }
     ],
     "hikingTrails": [
-      {
-        "label": "寬度 1.2",
-        "max": 4,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1.2,
-        "valueText": "1.2"
-      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -70032,6 +70023,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "寬度 1.2",
+        "max": 4,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1.2,
+        "valueText": "1.2"
       }
     ],
     "hillshade": [
@@ -70046,33 +70046,6 @@
       }
     ],
     "historicalFlightTrails": [
-      {
-        "label": "透明度 0.28",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.28,
-        "valueText": "0.28"
-      },
-      {
-        "label": "高度倍率 3.0",
-        "max": 10,
-        "min": 1,
-        "name": "高度倍率",
-        "step": 0.5,
-        "value": 3,
-        "valueText": "3.0"
-      },
-      {
-        "label": "線條強度 0.75",
-        "max": 1,
-        "min": 0.25,
-        "name": "線條強度",
-        "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
-      },
       {
         "label": "方向 全部",
         "options": [
@@ -70114,6 +70087,33 @@
         ],
         "type": "select",
         "value": "0"
+      },
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.28,
+        "valueText": "0.28"
+      },
+      {
+        "label": "高度倍率 3.0",
+        "max": 10,
+        "min": 1,
+        "name": "高度倍率",
+        "step": 0.5,
+        "value": 3,
+        "valueText": "3.0"
+      },
+      {
+        "label": "線條強度 0.75",
+        "max": 1,
+        "min": 0.25,
+        "name": "線條強度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "iPostBoxes": [
@@ -70138,15 +70138,6 @@
     ],
     "immigrationOffice": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -70154,6 +70145,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "incineratorEmissions": [
@@ -70300,11 +70300,6 @@
         "valueText": "0.50"
       },
       {
-        "label": "顯示外框線",
-        "type": "toggle",
-        "value": true
-      },
-      {
         "label": "大小 1.0",
         "max": 3,
         "min": 0.3,
@@ -70312,6 +70307,11 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      },
+      {
+        "label": "顯示外框線",
+        "type": "toggle",
+        "value": true
       }
     ],
     "industrialRefinery": [
@@ -70325,11 +70325,6 @@
         "valueText": "0.55"
       },
       {
-        "label": "顯示外框線",
-        "type": "toggle",
-        "value": true
-      },
-      {
         "label": "大小 1.0",
         "max": 3,
         "min": 0.3,
@@ -70337,6 +70332,11 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      },
+      {
+        "label": "顯示外框線",
+        "type": "toggle",
+        "value": true
       }
     ],
     "industrialStorageTank": [
@@ -70350,11 +70350,6 @@
         "valueText": "0.55"
       },
       {
-        "label": "顯示外框線",
-        "type": "toggle",
-        "value": true
-      },
-      {
         "label": "大小 1.0",
         "max": 3,
         "min": 0.3,
@@ -70362,6 +70357,11 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      },
+      {
+        "label": "顯示外框線",
+        "type": "toggle",
+        "value": true
       }
     ],
     "internetExchangePoints": [
@@ -70386,15 +70386,6 @@
     ],
     "investigationBureau": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -70402,27 +70393,18 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
-      }
-    ],
-    "iotWraRiver": [
+      },
       {
-        "label": "大小 1.00",
+        "label": "大小 1.0",
         "max": 3,
-        "min": 0.5,
+        "min": 0.3,
         "name": "大小",
         "step": 0.1,
         "value": 1,
-        "valueText": "1.00"
-      },
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
+        "valueText": "1.0"
+      }
+    ],
+    "iotWraRiver": [
       {
         "label": "即時水位",
         "type": "toggle",
@@ -70432,17 +70414,6 @@
         "label": "預測水位 (12-19h)",
         "type": "toggle",
         "value": true
-      }
-    ],
-    "iotWraStructure": [
-      {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
       },
       {
         "label": "透明度 1.00",
@@ -70453,6 +70424,17 @@
         "value": 1,
         "valueText": "1.00"
       },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
+    "iotWraStructure": [
       {
         "label": "累計流量",
         "type": "toggle",
@@ -70477,18 +70459,27 @@
         "label": "揚塵",
         "type": "toggle",
         "value": true
-      }
-    ],
-    "islandPowerGrid": [
+      },
       {
-        "label": "大小 1.0",
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
         "max": 3,
-        "min": 0.3,
+        "min": 0.5,
         "name": "大小",
         "step": 0.1,
         "value": 1,
-        "valueText": "1.0"
-      },
+        "valueText": "1.00"
+      }
+    ],
+    "islandPowerGrid": [
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -70497,6 +70488,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "isobath": [
@@ -70642,30 +70642,6 @@
     ],
     "jpAccommodationDensity": [
       {
-        "label": "網格大小",
-        "options": [
-          {
-            "label": "450 公尺",
-            "value": "450"
-          },
-          {
-            "label": "1.5 公里",
-            "value": "1500"
-          }
-        ],
-        "type": "select",
-        "value": "450"
-      },
-      {
-        "label": "透明度 0.72",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.72,
-        "valueText": "0.72"
-      },
-      {
         "defaultValue": "YlOrBr",
         "label": "網格顏色",
         "options": [
@@ -70741,6 +70717,30 @@
         "role": "grid",
         "type": "palette",
         "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.72",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.72,
+        "valueText": "0.72"
+      },
+      {
+        "label": "網格大小",
+        "options": [
+          {
+            "label": "450 公尺",
+            "value": "450"
+          },
+          {
+            "label": "1.5 公里",
+            "value": "1500"
+          }
+        ],
+        "type": "select",
+        "value": "450"
       }
     ],
     "jpAccommodationJta": [
@@ -70930,6 +70930,15 @@
     ],
     "jpBuildingHeight": [
       {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
         "label": "呈現",
         "options": [
           {
@@ -70943,15 +70952,6 @@
         ],
         "type": "select",
         "value": "0"
-      },
-      {
-        "label": "透明度 0.75",
-        "max": 1,
-        "min": 0.3,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
       }
     ],
     "jpCanopyHeight": [
@@ -71495,33 +71495,6 @@
     ],
     "jpHistoricalFlightTrails": [
       {
-        "label": "透明度 0.28",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.28,
-        "valueText": "0.28"
-      },
-      {
-        "label": "高度倍率 3.0",
-        "max": 10,
-        "min": 1,
-        "name": "高度倍率",
-        "step": 0.5,
-        "value": 3,
-        "valueText": "3.0"
-      },
-      {
-        "label": "線條強度 0.75",
-        "max": 1,
-        "min": 0.25,
-        "name": "線條強度",
-        "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
-      },
-      {
         "label": "方向 全部",
         "options": [
           {
@@ -71562,6 +71535,33 @@
         ],
         "type": "select",
         "value": "0"
+      },
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.28,
+        "valueText": "0.28"
+      },
+      {
+        "label": "高度倍率 3.0",
+        "max": 10,
+        "min": 1,
+        "name": "高度倍率",
+        "step": 0.5,
+        "value": 3,
+        "valueText": "3.0"
+      },
+      {
+        "label": "線條強度 0.75",
+        "max": 1,
+        "min": 0.25,
+        "name": "線條強度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "jpMarineEbsaCoastal": [
@@ -72105,6 +72105,37 @@
     ],
     "jpPoliceFacilities": [
       {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "color": "#7c3aed",
+            "label": "警察本部",
+            "value": "headquarters"
+          },
+          {
+            "color": "#2563eb",
+            "label": "警察署",
+            "value": "police_station"
+          },
+          {
+            "color": "#f59e0b",
+            "label": "交番",
+            "value": "koban"
+          },
+          {
+            "color": "#14b8a6",
+            "label": "駐在所",
+            "value": "chuzai"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
         "defaultValue": "magma",
         "label": "熱區顏色",
         "options": [
@@ -72198,40 +72229,52 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "設施類型",
-        "options": [
-          {
-            "label": "全部",
-            "value": "all"
-          },
-          {
-            "color": "#7c3aed",
-            "label": "警察本部",
-            "value": "headquarters"
-          },
-          {
-            "color": "#2563eb",
-            "label": "警察署",
-            "value": "police_station"
-          },
-          {
-            "color": "#f59e0b",
-            "label": "交番",
-            "value": "koban"
-          },
-          {
-            "color": "#14b8a6",
-            "label": "駐在所",
-            "value": "chuzai"
-          }
-        ],
-        "type": "select",
-        "value": "all"
       }
     ],
     "jpPopulationMesh1km": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "人口 2020",
+            "value": "pop_2020"
+          },
+          {
+            "label": "人口 2030",
+            "value": "pop_2030"
+          },
+          {
+            "label": "人口 2040",
+            "value": "pop_2040"
+          },
+          {
+            "label": "人口 2050",
+            "value": "pop_2050"
+          },
+          {
+            "label": "人口 2070",
+            "value": "pop_2070"
+          },
+          {
+            "label": "高齡比 2030",
+            "value": "ratio65_2030"
+          },
+          {
+            "label": "高齡比 2040",
+            "value": "ratio65_2040"
+          },
+          {
+            "label": "高齡比 2050",
+            "value": "ratio65_2050"
+          },
+          {
+            "label": "高齡比 2070",
+            "value": "ratio65_2070"
+          }
+        ],
+        "type": "select",
+        "value": "pop_2020"
+      },
       {
         "defaultValue": "YlOrBr",
         "label": "網格顏色",
@@ -72317,49 +72360,6 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
-      },
-      {
-        "label": "指標",
-        "options": [
-          {
-            "label": "人口 2020",
-            "value": "pop_2020"
-          },
-          {
-            "label": "人口 2030",
-            "value": "pop_2030"
-          },
-          {
-            "label": "人口 2040",
-            "value": "pop_2040"
-          },
-          {
-            "label": "人口 2050",
-            "value": "pop_2050"
-          },
-          {
-            "label": "人口 2070",
-            "value": "pop_2070"
-          },
-          {
-            "label": "高齡比 2030",
-            "value": "ratio65_2030"
-          },
-          {
-            "label": "高齡比 2040",
-            "value": "ratio65_2040"
-          },
-          {
-            "label": "高齡比 2050",
-            "value": "ratio65_2050"
-          },
-          {
-            "label": "高齡比 2070",
-            "value": "ratio65_2070"
-          }
-        ],
-        "type": "select",
-        "value": "pop_2020"
       }
     ],
     "jpPrimitiveNatureEnvironmentArea": [
@@ -72813,6 +72813,21 @@
     ],
     "jpStations": [
       {
+        "label": "上色",
+        "options": [
+          {
+            "label": "種類",
+            "value": "type"
+          },
+          {
+            "label": "運量",
+            "value": "ridership"
+          }
+        ],
+        "type": "select",
+        "value": "type"
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -72829,21 +72844,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "上色",
-        "options": [
-          {
-            "label": "種類",
-            "value": "type"
-          },
-          {
-            "label": "運量",
-            "value": "ridership"
-          }
-        ],
-        "type": "select",
-        "value": "type"
       }
     ],
     "jpWaterAgriculturalPonds": [
@@ -73214,6 +73214,15 @@
     ],
     "lighthouses": [
       {
+        "label": "光束透明度 0.10",
+        "max": 0.8,
+        "min": 0.05,
+        "name": "光束透明度",
+        "step": 0.05,
+        "value": 0.1,
+        "valueText": "0.10"
+      },
+      {
         "label": "大小 0.6",
         "max": 3,
         "min": 0.3,
@@ -73235,15 +73244,6 @@
         "step": 0.1,
         "value": 0.9,
         "valueText": "0.9"
-      },
-      {
-        "label": "光束透明度 0.10",
-        "max": 0.8,
-        "min": 0.05,
-        "name": "光束透明度",
-        "step": 0.05,
-        "value": 0.1,
-        "valueText": "0.10"
       }
     ],
     "lightning": [
@@ -73317,24 +73317,6 @@
     ],
     "livestockFarmCattle": [
       {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
-      },
-      {
-        "label": "大小 0.30",
-        "max": 0.5,
-        "min": 0.01,
-        "name": "大小",
-        "step": 0.01,
-        "value": 0.3,
-        "valueText": "0.30"
-      },
-      {
         "label": "品項 全部",
         "options": [
           {
@@ -73356,17 +73338,15 @@
         ],
         "type": "select",
         "value": "0"
-      }
-    ],
-    "livestockFarmChicken": [
+      },
       {
-        "label": "透明度 0.80",
+        "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 0.30",
@@ -73376,7 +73356,9 @@
         "step": 0.01,
         "value": 0.3,
         "valueText": "0.30"
-      },
+      }
+    ],
+    "livestockFarmChicken": [
       {
         "label": "品項 全部",
         "options": [
@@ -73411,9 +73393,7 @@
         ],
         "type": "select",
         "value": "0"
-      }
-    ],
-    "livestockFarmDuck": [
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -73431,7 +73411,9 @@
         "step": 0.01,
         "value": 0.3,
         "valueText": "0.30"
-      },
+      }
+    ],
+    "livestockFarmDuck": [
       {
         "label": "品項 全部",
         "options": [
@@ -73454,17 +73436,15 @@
         ],
         "type": "select",
         "value": "0"
-      }
-    ],
-    "livestockFarmGoose": [
+      },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 0.30",
@@ -73474,7 +73454,9 @@
         "step": 0.01,
         "value": 0.3,
         "valueText": "0.30"
-      },
+      }
+    ],
+    "livestockFarmGoose": [
       {
         "label": "品項 全部",
         "options": [
@@ -73493,9 +73475,7 @@
         ],
         "type": "select",
         "value": "0"
-      }
-    ],
-    "livestockFarmOther": [
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -73513,7 +73493,9 @@
         "step": 0.01,
         "value": 0.3,
         "valueText": "0.30"
-      },
+      }
+    ],
+    "livestockFarmOther": [
       {
         "label": "品項 全部",
         "options": [
@@ -73544,17 +73526,15 @@
         ],
         "type": "select",
         "value": "0"
-      }
-    ],
-    "livestockFarmPig": [
+      },
       {
-        "label": "透明度 0.80",
+        "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.8,
-        "valueText": "0.80"
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 0.30",
@@ -73564,7 +73544,9 @@
         "step": 0.01,
         "value": 0.3,
         "valueText": "0.30"
-      },
+      }
+    ],
+    "livestockFarmPig": [
       {
         "label": "品項 全部",
         "options": [
@@ -73587,17 +73569,15 @@
         ],
         "type": "select",
         "value": "0"
-      }
-    ],
-    "livestockFarmSheep": [
+      },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 0.30",
@@ -73607,7 +73587,9 @@
         "step": 0.01,
         "value": 0.3,
         "valueText": "0.30"
-      },
+      }
+    ],
+    "livestockFarmSheep": [
       {
         "label": "品項 全部",
         "options": [
@@ -73626,6 +73608,24 @@
         ],
         "type": "select",
         "value": "0"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 0.30",
+        "max": 0.5,
+        "min": 0.01,
+        "name": "大小",
+        "step": 0.01,
+        "value": 0.3,
+        "valueText": "0.30"
       }
     ],
     "livestockFeed": [
@@ -73690,15 +73690,6 @@
     ],
     "lngTerminal": [
       {
-        "label": "大小 1.6",
-        "max": 4,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.6,
-        "valueText": "1.6"
-      },
-      {
         "label": "透明度 0.95",
         "max": 1,
         "min": 0.1,
@@ -73706,18 +73697,18 @@
         "step": 0.05,
         "value": 0.95,
         "valueText": "0.95"
+      },
+      {
+        "label": "大小 1.6",
+        "max": 4,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.6,
+        "valueText": "1.6"
       }
     ],
     "lpgRetailers": [
-      {
-        "label": "大小 1.3",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.3,
-        "valueText": "1.3"
-      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -73726,18 +73717,18 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
-      }
-    ],
-    "lpgSubpackaging": [
+      },
       {
-        "label": "大小 1.1",
+        "label": "大小 1.3",
         "max": 3,
         "min": 0.3,
         "name": "大小",
         "step": 0.1,
-        "value": 1.1,
-        "valueText": "1.1"
-      },
+        "value": 1.3,
+        "valueText": "1.3"
+      }
+    ],
+    "lpgSubpackaging": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -73746,6 +73737,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.1",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.1,
+        "valueText": "1.1"
       }
     ],
     "manufacturingCompanyDensityGrid": [
@@ -73957,15 +73957,6 @@
     ],
     "maritimeBoundary": [
       {
-        "label": "寬度 1.0",
-        "max": 4,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.65",
         "max": 1,
         "min": 0.1,
@@ -73973,6 +73964,15 @@
         "step": 0.05,
         "value": 0.65,
         "valueText": "0.65"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 4,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "materialRecyclingPoints": [
@@ -74480,15 +74480,6 @@
     ],
     "newsEvents": [
       {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "相關度",
         "options": [
           {
@@ -74537,9 +74528,13 @@
         "value": true
       },
       {
-        "label": "漣漪",
-        "type": "toggle",
-        "value": true
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "大小 1.0",
@@ -74549,6 +74544,11 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      },
+      {
+        "label": "漣漪",
+        "type": "toggle",
+        "value": true
       }
     ],
     "noiseCaptureGrid": [
@@ -74737,15 +74737,6 @@
     ],
     "nuclearRadiation": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -74753,6 +74744,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "nuscGammaRadiation": [
@@ -74786,6 +74786,15 @@
         "valueText": "0.65"
       },
       {
+        "label": "線寬 1.05px",
+        "max": 1.5,
+        "min": 0.5,
+        "name": "線寬",
+        "step": 0.05,
+        "value": 1.05,
+        "valueText": "1.05 px"
+      },
+      {
         "label": "動畫速度 1.0×",
         "max": 3,
         "min": 0.2,
@@ -74802,15 +74811,6 @@
         "step": 1000,
         "value": 12000,
         "valueText": "12000"
-      },
-      {
-        "label": "線寬 1.05px",
-        "max": 1.5,
-        "min": 0.5,
-        "name": "線寬",
-        "step": 0.05,
-        "value": 1.05,
-        "valueText": "1.05 px"
       }
     ],
     "officialBridgesHsinchu": [
@@ -74855,15 +74855,6 @@
     ],
     "officialNoiseMonitoring": [
       {
-        "label": "透明度 0.90",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
-      },
-      {
         "label": "時段",
         "options": [
           {
@@ -74881,6 +74872,15 @@
         ],
         "type": "select",
         "value": "day"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       }
     ],
     "offshoreWindZones": [
@@ -74895,25 +74895,6 @@
       }
     ],
     "ooklaFixedPerformance": [
-      {
-        "label": "解析度",
-        "options": [
-          {
-            "label": "粗 z6（約 500 km）",
-            "value": "6"
-          },
-          {
-            "label": "中 z8（約 156 km）",
-            "value": "8"
-          },
-          {
-            "label": "細 z10（約 78 km）",
-            "value": "10"
-          }
-        ],
-        "type": "select",
-        "value": "6"
-      },
       {
         "label": "配色",
         "options": [
@@ -74937,6 +74918,25 @@
         "step": 0.05,
         "value": 0.65,
         "valueText": "0.65"
+      },
+      {
+        "label": "解析度",
+        "options": [
+          {
+            "label": "粗 z6（約 500 km）",
+            "value": "6"
+          },
+          {
+            "label": "中 z8（約 156 km）",
+            "value": "8"
+          },
+          {
+            "label": "細 z10（約 78 km）",
+            "value": "10"
+          }
+        ],
+        "type": "select",
+        "value": "6"
       }
     ],
     "ooklaFixedTaiwan": [
@@ -74967,25 +74967,6 @@
     ],
     "ooklaMobilePerformance": [
       {
-        "label": "解析度",
-        "options": [
-          {
-            "label": "粗 z6（約 500 km）",
-            "value": "6"
-          },
-          {
-            "label": "中 z8（約 156 km）",
-            "value": "8"
-          },
-          {
-            "label": "細 z10（約 78 km）",
-            "value": "10"
-          }
-        ],
-        "type": "select",
-        "value": "6"
-      },
-      {
         "label": "配色",
         "options": [
           {
@@ -75008,6 +74989,25 @@
         "step": 0.05,
         "value": 0.65,
         "valueText": "0.65"
+      },
+      {
+        "label": "解析度",
+        "options": [
+          {
+            "label": "粗 z6（約 500 km）",
+            "value": "6"
+          },
+          {
+            "label": "中 z8（約 156 km）",
+            "value": "8"
+          },
+          {
+            "label": "細 z10（約 78 km）",
+            "value": "10"
+          }
+        ],
+        "type": "select",
+        "value": "6"
       }
     ],
     "ooklaMobileTaiwan": [
@@ -75037,15 +75037,6 @@
       }
     ],
     "osmBridgeCarriers": [
-      {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
-      },
       {
         "label": "承載類型",
         "options": [
@@ -75084,6 +75075,15 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "osmBridgeFootprints": [
@@ -75119,15 +75119,6 @@
     ],
     "osmExpressway": [
       {
-        "label": "寬度 1.0",
-        "max": 5,
-        "min": 0.5,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -75135,18 +75126,18 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 5,
+        "min": 0.5,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "osmPowerLines": [
-      {
-        "label": "寬度 0.7",
-        "max": 3,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 0.7,
-        "valueText": "0.7"
-      },
       {
         "label": "透明度 0.40",
         "max": 1,
@@ -75155,18 +75146,18 @@
         "step": 0.05,
         "value": 0.4,
         "valueText": "0.40"
+      },
+      {
+        "label": "寬度 0.7",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 0.7,
+        "valueText": "0.7"
       }
     ],
     "osmPowerPlantsStatic": [
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -75175,9 +75166,7 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "osmPowerTowers": [
+      },
       {
         "label": "大小 1.0",
         "max": 3,
@@ -75186,7 +75175,9 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
+      }
+    ],
+    "osmPowerTowers": [
       {
         "defaultValue": "magma",
         "label": "熱區顏色",
@@ -75272,17 +75263,26 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "osmRoadDrive": [
       {
-        "label": "全台顯示 關",
+        "label": "透明度 0.85",
         "max": 1,
-        "min": 0,
-        "name": "全台顯示",
-        "step": 0.1,
-        "value": 0,
-        "valueText": "關"
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "寬度 1.0",
@@ -75294,6 +75294,17 @@
         "valueText": "1.0"
       },
       {
+        "label": "全台顯示 關",
+        "max": 1,
+        "min": 0,
+        "name": "全台顯示",
+        "step": 0.1,
+        "value": 0,
+        "valueText": "關"
+      }
+    ],
+    "osmSolarFarms": [
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -75301,9 +75312,7 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "osmSolarFarms": [
+      },
       {
         "label": "大小 1.0",
         "max": 3,
@@ -75312,7 +75321,9 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
+      }
+    ],
+    "osmSubstations": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -75321,9 +75332,7 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "osmSubstations": [
+      },
       {
         "label": "大小 0.30",
         "max": 3,
@@ -75332,7 +75341,9 @@
         "step": 0.05,
         "value": 0.3,
         "valueText": "0.30"
-      },
+      }
+    ],
+    "osmSubstationsEhv": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -75341,9 +75352,7 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "osmSubstationsEhv": [
+      },
       {
         "label": "大小 0.50",
         "max": 3,
@@ -75352,7 +75361,9 @@
         "step": 0.05,
         "value": 0.5,
         "valueText": "0.50"
-      },
+      }
+    ],
+    "osmWindTurbines": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -75361,9 +75372,7 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "osmWindTurbines": [
+      },
       {
         "label": "大小 1.0",
         "max": 3,
@@ -75372,15 +75381,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
       }
     ],
     "parkingOffstreet": [
@@ -75508,15 +75508,6 @@
     ],
     "pipelineGas": [
       {
-        "label": "寬度 2.0",
-        "max": 5,
-        "min": 0.5,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 2,
-        "valueText": "2.0"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -75524,18 +75515,18 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
-      }
-    ],
-    "pipelineOilGas": [
+      },
       {
-        "label": "寬度 1.5",
+        "label": "寬度 2.0",
         "max": 5,
         "min": 0.5,
         "name": "寬度",
         "step": 0.1,
-        "value": 1.5,
-        "valueText": "1.5"
-      },
+        "value": 2,
+        "valueText": "2.0"
+      }
+    ],
+    "pipelineOilGas": [
       {
         "label": "透明度 0.70",
         "max": 1,
@@ -75544,6 +75535,15 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "寬度 1.5",
+        "max": 5,
+        "min": 0.5,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1.5,
+        "valueText": "1.5"
       }
     ],
     "plaActivity": [
@@ -75580,6 +75580,11 @@
         "value": false
       },
       {
+        "label": "待核實",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.60",
         "max": 1,
         "min": 0,
@@ -75587,11 +75592,6 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
-      },
-      {
-        "label": "待核實",
-        "type": "toggle",
-        "value": false
       }
     ],
     "playgrounds": [
@@ -75759,15 +75759,6 @@
     ],
     "policeStation": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -75775,104 +75766,18 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
-      }
-    ],
-    "pollutionFacility": [
-      {
-        "defaultValue": "magma",
-        "label": "熱區顏色",
-        "options": [
-          {
-            "label": "岩漿",
-            "value": "magma"
-          },
-          {
-            "label": "翠綠",
-            "value": "viridis"
-          },
-          {
-            "label": "黃橙褐",
-            "value": "YlOrBr"
-          },
-          {
-            "label": "紫藍綠",
-            "value": "PuBuGn"
-          },
-          {
-            "label": "酒紅",
-            "value": "Burg"
-          },
-          {
-            "label": "流速",
-            "value": "speed"
-          },
-          {
-            "label": "巴特洛",
-            "value": "batlow"
-          },
-          {
-            "label": "藍紫",
-            "value": "BuPu"
-          },
-          {
-            "label": "畢爾包",
-            "value": "bilbao"
-          },
-          {
-            "label": "黃綠藍",
-            "value": "YlGnBu"
-          },
-          {
-            "label": "阿克頓",
-            "value": "acton"
-          },
-          {
-            "label": "東京",
-            "value": "tokyo"
-          },
-          {
-            "label": "火箭",
-            "value": "rocket"
-          },
-          {
-            "label": "紫藍",
-            "value": "PuBu"
-          },
-          {
-            "label": "圖爾庫",
-            "value": "turku"
-          },
-          {
-            "label": "色盲友善",
-            "value": "cividis"
-          },
-          {
-            "label": "奧斯陸",
-            "value": "oslo"
-          }
-        ],
-        "role": "heatmap",
-        "type": "palette",
-        "value": "magma"
       },
       {
-        "label": "透明度 0.60",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.6,
-        "valueText": "0.60"
-      },
-      {
-        "label": "大小 1.00",
+        "label": "大小 1.0",
         "max": 3,
         "min": 0.3,
         "name": "大小",
         "step": 0.1,
         "value": 1,
-        "valueText": "1.00"
-      },
+        "valueText": "1.0"
+      }
+    ],
+    "pollutionFacility": [
       {
         "label": "最低嚴重度",
         "options": [
@@ -75920,105 +75825,105 @@
         "label": "土污",
         "type": "toggle",
         "value": true
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "pollutionPenaltyCritical": [
       {
-        "defaultValue": "magma",
-        "label": "熱區顏色",
-        "options": [
-          {
-            "label": "岩漿",
-            "value": "magma"
-          },
-          {
-            "label": "翠綠",
-            "value": "viridis"
-          },
-          {
-            "label": "黃橙褐",
-            "value": "YlOrBr"
-          },
-          {
-            "label": "紫藍綠",
-            "value": "PuBuGn"
-          },
-          {
-            "label": "酒紅",
-            "value": "Burg"
-          },
-          {
-            "label": "流速",
-            "value": "speed"
-          },
-          {
-            "label": "巴特洛",
-            "value": "batlow"
-          },
-          {
-            "label": "藍紫",
-            "value": "BuPu"
-          },
-          {
-            "label": "畢爾包",
-            "value": "bilbao"
-          },
-          {
-            "label": "黃綠藍",
-            "value": "YlGnBu"
-          },
-          {
-            "label": "阿克頓",
-            "value": "acton"
-          },
-          {
-            "label": "東京",
-            "value": "tokyo"
-          },
-          {
-            "label": "火箭",
-            "value": "rocket"
-          },
-          {
-            "label": "紫藍",
-            "value": "PuBu"
-          },
-          {
-            "label": "圖爾庫",
-            "value": "turku"
-          },
-          {
-            "label": "色盲友善",
-            "value": "cividis"
-          },
-          {
-            "label": "奧斯陸",
-            "value": "oslo"
-          }
-        ],
-        "role": "heatmap",
-        "type": "palette",
-        "value": "magma"
-      },
-      {
-        "label": "透明度 0.60",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.6,
-        "valueText": "0.60"
-      },
-      {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "介質",
         "options": [
           {
@@ -76155,105 +76060,105 @@
         "label": "▶ 歷史播放",
         "type": "toggle",
         "value": false
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "pollutionPenaltyGeneral": [
       {
-        "defaultValue": "magma",
-        "label": "熱區顏色",
-        "options": [
-          {
-            "label": "岩漿",
-            "value": "magma"
-          },
-          {
-            "label": "翠綠",
-            "value": "viridis"
-          },
-          {
-            "label": "黃橙褐",
-            "value": "YlOrBr"
-          },
-          {
-            "label": "紫藍綠",
-            "value": "PuBuGn"
-          },
-          {
-            "label": "酒紅",
-            "value": "Burg"
-          },
-          {
-            "label": "流速",
-            "value": "speed"
-          },
-          {
-            "label": "巴特洛",
-            "value": "batlow"
-          },
-          {
-            "label": "藍紫",
-            "value": "BuPu"
-          },
-          {
-            "label": "畢爾包",
-            "value": "bilbao"
-          },
-          {
-            "label": "黃綠藍",
-            "value": "YlGnBu"
-          },
-          {
-            "label": "阿克頓",
-            "value": "acton"
-          },
-          {
-            "label": "東京",
-            "value": "tokyo"
-          },
-          {
-            "label": "火箭",
-            "value": "rocket"
-          },
-          {
-            "label": "紫藍",
-            "value": "PuBu"
-          },
-          {
-            "label": "圖爾庫",
-            "value": "turku"
-          },
-          {
-            "label": "色盲友善",
-            "value": "cividis"
-          },
-          {
-            "label": "奧斯陸",
-            "value": "oslo"
-          }
-        ],
-        "role": "heatmap",
-        "type": "palette",
-        "value": "magma"
-      },
-      {
-        "label": "透明度 0.60",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.6,
-        "valueText": "0.60"
-      },
-      {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "介質",
         "options": [
           {
@@ -76390,105 +76295,105 @@
         "label": "▶ 歷史播放",
         "type": "toggle",
         "value": false
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "pollutionPenaltyMobile": [
       {
-        "defaultValue": "magma",
-        "label": "熱區顏色",
-        "options": [
-          {
-            "label": "岩漿",
-            "value": "magma"
-          },
-          {
-            "label": "翠綠",
-            "value": "viridis"
-          },
-          {
-            "label": "黃橙褐",
-            "value": "YlOrBr"
-          },
-          {
-            "label": "紫藍綠",
-            "value": "PuBuGn"
-          },
-          {
-            "label": "酒紅",
-            "value": "Burg"
-          },
-          {
-            "label": "流速",
-            "value": "speed"
-          },
-          {
-            "label": "巴特洛",
-            "value": "batlow"
-          },
-          {
-            "label": "藍紫",
-            "value": "BuPu"
-          },
-          {
-            "label": "畢爾包",
-            "value": "bilbao"
-          },
-          {
-            "label": "黃綠藍",
-            "value": "YlGnBu"
-          },
-          {
-            "label": "阿克頓",
-            "value": "acton"
-          },
-          {
-            "label": "東京",
-            "value": "tokyo"
-          },
-          {
-            "label": "火箭",
-            "value": "rocket"
-          },
-          {
-            "label": "紫藍",
-            "value": "PuBu"
-          },
-          {
-            "label": "圖爾庫",
-            "value": "turku"
-          },
-          {
-            "label": "色盲友善",
-            "value": "cividis"
-          },
-          {
-            "label": "奧斯陸",
-            "value": "oslo"
-          }
-        ],
-        "role": "heatmap",
-        "type": "palette",
-        "value": "magma"
-      },
-      {
-        "label": "透明度 0.60",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.6,
-        "valueText": "0.60"
-      },
-      {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "介質",
         "options": [
           {
@@ -76625,9 +76530,109 @@
         "label": "▶ 歷史播放",
         "type": "toggle",
         "value": false
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "pollutionSite": [
+      {
+        "label": "只看列管中",
+        "type": "toggle",
+        "value": true
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -76645,11 +76650,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
-      },
-      {
-        "label": "只看列管中",
-        "type": "toggle",
-        "value": true
       }
     ],
     "popCount": [
@@ -76697,6 +76697,15 @@
         "valueText": "1.00"
       },
       {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
         "label": "顯示",
         "options": [
           {
@@ -76710,15 +76719,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
       },
       {
         "label": "光暈 1.0",
@@ -76766,15 +76766,6 @@
     ],
     "powerGenerationUnit": [
       {
-        "label": "柱高 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "柱高",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -76788,6 +76779,15 @@
         "max": 3,
         "min": 0.3,
         "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "柱高 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "柱高",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
@@ -76835,15 +76835,6 @@
     ],
     "powerPlants": [
       {
-        "label": "大小 0.5",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 0.5,
-        "valueText": "0.5"
-      },
-      {
         "label": "透明度 0.95",
         "max": 1,
         "min": 0.1,
@@ -76851,9 +76842,36 @@
         "step": 0.05,
         "value": 0.95,
         "valueText": "0.95"
+      },
+      {
+        "label": "大小 0.5",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 0.5,
+        "valueText": "0.5"
       }
     ],
     "powerPoles": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
       {
         "label": "全台顯示 關",
         "max": 1,
@@ -76871,38 +76889,11 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
-        "label": "透明度 0.70",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
       }
     ],
     "powerRegionDemand": [],
     "powerStatusHud": [],
     "precipRaster": [
-      {
-        "label": "透明度 0.70",
-        "max": 1,
-        "min": 0.3,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
-      },
       {
         "label": "累積時長",
         "options": [
@@ -76925,6 +76916,15 @@
         ],
         "type": "select",
         "value": "24"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "propertyValueAdmin": [
@@ -76954,25 +76954,6 @@
       }
     ],
     "propertyValueGrid": [
-      {
-        "label": "網格大小",
-        "options": [
-          {
-            "label": "150m 細格",
-            "value": "0"
-          },
-          {
-            "label": "450m 中格",
-            "value": "1"
-          },
-          {
-            "label": "1.5km 粗格",
-            "value": "2"
-          }
-        ],
-        "type": "select",
-        "value": "0"
-      },
       {
         "label": "上色模式",
         "options": [
@@ -77077,21 +77058,31 @@
         "valueText": "0.70"
       },
       {
+        "label": "網格大小",
+        "options": [
+          {
+            "label": "150m 細格",
+            "value": "0"
+          },
+          {
+            "label": "450m 中格",
+            "value": "1"
+          },
+          {
+            "label": "1.5km 粗格",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
         "label": "3D 立體",
         "type": "toggle",
         "value": false
       }
     ],
     "prosecutorsOffice": [
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -77100,24 +77091,18 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "protectedTreesNational": [
-      {
-        "label": "染色模式",
-        "options": [
-          {
-            "label": "依樹齡",
-            "value": "age"
-          },
-          {
-            "label": "依城市",
-            "value": "city"
-          }
-        ],
-        "type": "select",
-        "value": "age"
-      },
       {
         "label": "城市",
         "options": [
@@ -77167,6 +77152,21 @@
         ]
       },
       {
+        "label": "染色模式",
+        "options": [
+          {
+            "label": "依樹齡",
+            "value": "age"
+          },
+          {
+            "label": "依城市",
+            "value": "city"
+          }
+        ],
+        "type": "select",
+        "value": "age"
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0,
@@ -77187,6 +77187,15 @@
     ],
     "provincialRoads": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
         "label": "線寬 0.6",
         "max": 3,
         "min": 0.3,
@@ -77203,15 +77212,6 @@
         "step": 0.1,
         "value": 0.2,
         "valueText": "0.2"
-      },
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
       }
     ],
     "publicLibraries": [
@@ -77427,6 +77427,24 @@
     ],
     "rail": [
       {
+        "label": "軌道透明度 0.35",
+        "max": 1,
+        "min": 0.05,
+        "name": "軌道透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "光點 1.0",
+        "max": 0.00002,
+        "min": 0.000001,
+        "name": "光點",
+        "step": 0.000001,
+        "value": 0.00001,
+        "valueText": "1.0"
+      },
+      {
         "label": "列車",
         "type": "toggle",
         "value": true
@@ -77454,36 +77472,9 @@
         "step": 10,
         "value": 110,
         "valueText": "+110 m"
-      },
-      {
-        "label": "光點 1.0",
-        "max": 0.00002,
-        "min": 0.000001,
-        "name": "光點",
-        "step": 0.000001,
-        "value": 0.00001,
-        "valueText": "1.0"
-      },
-      {
-        "label": "軌道透明度 0.35",
-        "max": 1,
-        "min": 0.05,
-        "name": "軌道透明度",
-        "step": 0.05,
-        "value": 0.35,
-        "valueText": "0.35"
       }
     ],
     "rainGauge": [
-      {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -77492,9 +77483,23 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "realEstatePresaleGrid": [
+      {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
       {
         "defaultValue": "YlOrBr",
         "label": "網格顏色",
@@ -77580,14 +77585,14 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
-      },
+      }
+    ],
+    "realEstatePresalePoint": [
       {
         "label": "排除雙北重繪",
         "type": "toggle",
         "value": false
-      }
-    ],
-    "realEstatePresalePoint": [
+      },
       {
         "label": "透明度 0.70",
         "max": 1,
@@ -77596,14 +77601,14 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
-      },
+      }
+    ],
+    "realEstateRentalGrid": [
       {
         "label": "排除雙北重繪",
         "type": "toggle",
         "value": false
-      }
-    ],
-    "realEstateRentalGrid": [
+      },
       {
         "defaultValue": "batlow",
         "label": "網格顏色",
@@ -77689,15 +77694,15 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
-      },
-      {
-        "label": "排除雙北重繪",
-        "type": "toggle",
-        "value": false
       }
     ],
     "realEstateRentalPoint": [
       {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -77705,15 +77710,15 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
-      },
-      {
-        "label": "排除雙北重繪",
-        "type": "toggle",
-        "value": false
       }
     ],
     "realEstateSaleGrid": [
       {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -77721,15 +77726,15 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
-      },
-      {
-        "label": "排除雙北重繪",
-        "type": "toggle",
-        "value": false
       }
     ],
     "realEstateSalePoint": [
       {
+        "label": "排除雙北重繪",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -77737,11 +77742,6 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
-      },
-      {
-        "label": "排除雙北重繪",
-        "type": "toggle",
-        "value": false
       }
     ],
     "regulatedFacilities": [
@@ -78238,15 +78238,6 @@
     ],
     "renewablePermitsTaipei": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -78254,6 +78245,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "retailMarkets": [
@@ -78298,15 +78298,6 @@
     ],
     "riverLevel": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -78314,18 +78305,18 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "riverRpiSegments": [
-      {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
-      },
       {
         "label": "著色依據",
         "options": [
@@ -78340,27 +78331,18 @@
         ],
         "type": "select",
         "value": "latest"
-      }
-    ],
-    "riverRpiStations": [
+      },
       {
-        "label": "透明度 0.90",
+        "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "riverRpiStations": [
       {
         "label": "污染等級",
         "options": [
@@ -78387,6 +78369,24 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "riversideTreesTaipei": [
@@ -78646,15 +78646,6 @@
     ],
     "roadCongestion": [
       {
-        "label": "寬度 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -78662,6 +78653,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "roadEvents": [
@@ -78864,6 +78864,11 @@
     ],
     "schools": [
       {
+        "label": "分級配色",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -78880,11 +78885,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "分級配色",
-        "type": "toggle",
-        "value": false
       }
     ],
     "seaWaterQualityStations": [
@@ -78909,15 +78909,6 @@
     ],
     "serviceArea": [
       {
-        "label": "大小 1.4",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1.4,
-        "valueText": "1.4"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -78925,6 +78916,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.4",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1.4,
+        "valueText": "1.4"
       },
       {
         "label": "漂浮高度 0px",
@@ -78978,15 +78978,6 @@
     ],
     "ships": [
       {
-        "label": "光點 0.3",
-        "max": 0.00002,
-        "min": 0.000001,
-        "name": "光點",
-        "step": 0.000001,
-        "value": 0.000003,
-        "valueText": "0.3"
-      },
-      {
         "label": "航跡 0.15",
         "max": 1,
         "min": 0.05,
@@ -78994,6 +78985,15 @@
         "step": 0.05,
         "value": 0.15,
         "valueText": "0.15"
+      },
+      {
+        "label": "光點 0.3",
+        "max": 0.00002,
+        "min": 0.000001,
+        "name": "光點",
+        "step": 0.000001,
+        "value": 0.000003,
+        "valueText": "0.3"
       }
     ],
     "slopeVector": [
@@ -79088,15 +79088,6 @@
     ],
     "soundCameraLocations": [
       {
-        "label": "透明度 0.90",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
-      },
-      {
         "label": "定位精度",
         "options": [
           {
@@ -79118,6 +79109,15 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       }
     ],
     "spatialEconomy": [
@@ -79190,15 +79190,6 @@
     ],
     "speedCamera": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -79206,18 +79197,18 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
-      }
-    ],
-    "speedZoneSegment": [
+      },
       {
-        "label": "線寬 1.0",
-        "max": 5,
+        "label": "大小 1.0",
+        "max": 3,
         "min": 0.3,
-        "name": "線寬",
+        "name": "大小",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
+      }
+    ],
+    "speedZoneSegment": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -79226,6 +79217,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "線寬 1.0",
+        "max": 5,
+        "min": 0.3,
+        "name": "線寬",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "sportsCenter": [
@@ -79416,6 +79416,15 @@
         "valueText": "1.00"
       },
       {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
         "label": "顯示",
         "options": [
           {
@@ -79429,15 +79438,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
       },
       {
         "label": "光柱",
@@ -79465,6 +79465,15 @@
         "valueText": "1.00"
       },
       {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
         "label": "顯示",
         "options": [
           {
@@ -79478,15 +79487,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
       },
       {
         "label": "光柱",
@@ -79514,6 +79514,15 @@
         "valueText": "1.00"
       },
       {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
         "label": "顯示",
         "options": [
           {
@@ -79527,15 +79536,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
       },
       {
         "label": "光柱",
@@ -83481,6 +83481,24 @@
     ],
     "streetTreesNational": [
       {
+        "label": "城市",
+        "options": [
+          {
+            "label": "台北",
+            "value": "taipei"
+          },
+          {
+            "label": "台中",
+            "value": "taichung"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "taipei",
+          "taichung"
+        ]
+      },
+      {
         "label": "染色模式",
         "options": [
           {
@@ -83502,24 +83520,6 @@
         ],
         "type": "select",
         "value": "species"
-      },
-      {
-        "label": "城市",
-        "options": [
-          {
-            "label": "台北",
-            "value": "taipei"
-          },
-          {
-            "label": "台中",
-            "value": "taichung"
-          }
-        ],
-        "type": "multiSelect",
-        "value": [
-          "taipei",
-          "taichung"
-        ]
       },
       {
         "defaultValue": "magma",
@@ -83619,29 +83619,6 @@
     ],
     "streetTreesTaipei3epoch": [
       {
-        "label": "染色模式",
-        "options": [
-          {
-            "label": "依軌跡",
-            "value": "traj"
-          },
-          {
-            "label": "依樹種",
-            "value": "species"
-          },
-          {
-            "label": "依胸徑",
-            "value": "diameter"
-          },
-          {
-            "label": "依樹高",
-            "value": "height"
-          }
-        ],
-        "type": "select",
-        "value": "traj"
-      },
-      {
         "label": "軌跡篩選",
         "options": [
           {
@@ -83667,6 +83644,29 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "染色模式",
+        "options": [
+          {
+            "label": "依軌跡",
+            "value": "traj"
+          },
+          {
+            "label": "依樹種",
+            "value": "species"
+          },
+          {
+            "label": "依胸徑",
+            "value": "diameter"
+          },
+          {
+            "label": "依樹高",
+            "value": "height"
+          }
+        ],
+        "type": "select",
+        "value": "traj"
       },
       {
         "defaultValue": "magma",
@@ -83766,6 +83766,25 @@
     ],
     "streetTreesTaipeiDiff": [
       {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "只看消失",
+            "value": "disappeared"
+          },
+          {
+            "label": "只看變動",
+            "value": "changed"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
         "label": "染色模式",
         "options": [
           {
@@ -83787,25 +83806,6 @@
         ],
         "type": "select",
         "value": "status"
-      },
-      {
-        "label": "狀態",
-        "options": [
-          {
-            "label": "全部",
-            "value": "all"
-          },
-          {
-            "label": "只看消失",
-            "value": "disappeared"
-          },
-          {
-            "label": "只看變動",
-            "value": "changed"
-          }
-        ],
-        "type": "select",
-        "value": "all"
       },
       {
         "defaultValue": "magma",
@@ -83966,15 +83966,6 @@
     ],
     "taipeiEvacuate": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -83982,19 +83973,19 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "taipeiPumb": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -84002,6 +83993,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.5,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "taipeiRoadTunnels": [
@@ -84026,15 +84026,6 @@
     ],
     "taipeiSewer": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.5,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -84042,18 +84033,18 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      }
-    ],
-    "taxiStand": [
+      },
       {
-        "label": "大小 1.0",
+        "label": "大小 1.00",
         "max": 3,
-        "min": 0.3,
+        "min": 0.5,
         "name": "大小",
         "step": 0.1,
         "value": 1,
-        "valueText": "1.0"
-      },
+        "valueText": "1.00"
+      }
+    ],
+    "taxiStand": [
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -84062,6 +84053,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       },
       {
         "label": "漂浮高度 0px",
@@ -84086,6 +84086,15 @@
     ],
     "temperatureWave": [
       {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
         "label": "3D",
         "type": "toggle",
         "value": true
@@ -84109,30 +84118,12 @@
         "valueText": "300"
       },
       {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
-      },
-      {
         "label": "網格線",
         "type": "toggle",
         "value": false
       }
     ],
     "theftTaoyuan": [
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -84141,6 +84132,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "tourAmusementParks": [
@@ -84514,15 +84514,6 @@
         "valueText": "0.85"
       },
       {
-        "label": "高度 +0m",
-        "max": 500,
-        "min": 0,
-        "name": "高度",
-        "step": 10,
-        "value": 0,
-        "valueText": "+0 m"
-      },
-      {
         "label": "光點 4",
         "max": 0.00001,
         "min": 0.000001,
@@ -84530,18 +84521,18 @@
         "step": 0.000001,
         "value": 0.000004,
         "valueText": "4"
+      },
+      {
+        "label": "高度 +0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "+0 m"
       }
     ],
     "townshipBoundary": [
-      {
-        "label": "寬度 1.0",
-        "max": 4,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 0.75",
         "max": 1,
@@ -84550,18 +84541,18 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
-      }
-    ],
-    "trafficAccidentYearly": [
+      },
       {
-        "label": "大小 1.0",
-        "max": 3,
+        "label": "寬度 1.0",
+        "max": 4,
         "min": 0.3,
-        "name": "大小",
+        "name": "寬度",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
+      }
+    ],
+    "trafficAccidentYearly": [
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -84570,6 +84561,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "transitAlerts": [
@@ -85034,15 +85034,6 @@
     ],
     "vesselWatch": [
       {
-        "label": "透明度 0.90",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
-      },
-      {
         "label": "軌跡 3 天",
         "max": 14,
         "min": 1,
@@ -85055,18 +85046,18 @@
         "label": "含疑似（未查證）",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       }
     ],
     "villageBoundary": [
-      {
-        "label": "寬度 1.0",
-        "max": 4,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 0.65",
         "max": 1,
@@ -85075,6 +85066,15 @@
         "step": 0.05,
         "value": 0.65,
         "valueText": "0.65"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 4,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "visitorCentres": [
@@ -85141,6 +85141,15 @@
         "value": true
       },
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
         "label": "光點大小 0.15",
         "max": 0.8,
         "min": 0.01,
@@ -85166,38 +85175,11 @@
         "step": 5,
         "value": 70,
         "valueText": "70 m"
-      },
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
       }
     ],
     "wasteScheduleNote": [],
     "wasteStop": [],
     "wasteStopsStatic": [
-      {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
-        "label": "光暈 0.10",
-        "max": 0.5,
-        "min": 0,
-        "name": "光暈",
-        "step": 0.02,
-        "value": 0.1,
-        "valueText": "0.10"
-      },
       {
         "defaultValue": "magma",
         "label": "熱區顏色",
@@ -85285,6 +85267,24 @@
         "valueText": "1.00"
       },
       {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "光暈 0.10",
+        "max": 0.5,
+        "min": 0,
+        "name": "光暈",
+        "step": 0.02,
+        "value": 0.1,
+        "valueText": "0.10"
+      },
+      {
         "label": "漂浮高度 0px",
         "max": 100,
         "min": 0,
@@ -85295,6 +85295,15 @@
       }
     ],
     "wasteTruck": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
       {
         "label": "光點大小 0.15",
         "max": 0.8,
@@ -85321,15 +85330,6 @@
         "step": 5,
         "value": 70,
         "valueText": "70 m"
-      },
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
       }
     ],
     "waterBasins": [
@@ -85345,15 +85345,6 @@
     ],
     "waterCanals": [
       {
-        "label": "寬度 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -85361,24 +85352,33 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
-      }
-    ],
-    "waterDetentionBasins": [
+      },
       {
-        "label": "大小 1.00",
+        "label": "寬度 1.00",
         "max": 3,
         "min": 0.3,
-        "name": "大小",
+        "name": "寬度",
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
-      },
+      }
+    ],
+    "waterDetentionBasins": [
       {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
         "value": 1,
         "valueText": "1.00"
       }
@@ -85405,6 +85405,15 @@
     ],
     "waterFacilities": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
         "label": "大小 1.00",
         "max": 3,
         "min": 0.3,
@@ -85412,27 +85421,9 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
-      },
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
       }
     ],
     "waterFloodExtreme": [
-      {
-        "label": "透明度 1.00",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
       {
         "label": "深度",
         "options": [
@@ -85459,18 +85450,18 @@
         ],
         "type": "select",
         "value": "0"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "waterLevees": [
-      {
-        "label": "寬度 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "寬度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -85479,24 +85470,33 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
-      }
-    ],
-    "waterMonitorStations": [
+      },
       {
-        "label": "大小 1.00",
+        "label": "寬度 1.00",
         "max": 3,
         "min": 0.3,
-        "name": "大小",
+        "name": "寬度",
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
-      },
+      }
+    ],
+    "waterMonitorStations": [
       {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
         "value": 1,
         "valueText": "1.00"
       }
@@ -85513,24 +85513,6 @@
       }
     ],
     "waterQualityStations": [
-      {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "測站類型",
         "options": [
@@ -85553,18 +85535,27 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "waterReservoirs": [
-      {
-        "label": "水位計高度 1.00",
-        "max": 3,
-        "min": 0,
-        "name": "水位計高度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -85582,18 +85573,18 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      }
-    ],
-    "waterRivers": [
+      },
       {
-        "label": "寬度 1.00",
+        "label": "水位計高度 1.00",
         "max": 3,
-        "min": 0.3,
-        "name": "寬度",
+        "min": 0,
+        "name": "水位計高度",
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
-      },
+      }
+    ],
+    "waterRivers": [
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -85602,18 +85593,18 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "寬度 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
       }
     ],
     "wdBattery": [
-      {
-        "label": "大小 1.50",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1.5,
-        "valueText": "1.50"
-      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -85622,6 +85613,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.50",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1.5,
+        "valueText": "1.50"
       },
       {
         "label": "高度 0m",
@@ -85635,15 +85635,6 @@
     ],
     "wdClothes": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -85651,6 +85642,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -85664,15 +85664,6 @@
     ],
     "wdMixed": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -85680,6 +85671,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -85693,15 +85693,6 @@
     ],
     "wdRecyclingContainer": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -85709,6 +85700,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -85799,15 +85799,6 @@
     ],
     "weatherStations": [
       {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -85815,6 +85806,15 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "welfareCenters": [
@@ -86263,15 +86263,6 @@
     ],
     "wfIncinerator": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -86281,26 +86272,6 @@
         "valueText": "0.85"
       },
       {
-        "label": "高度 0m",
-        "max": 500,
-        "min": 0,
-        "name": "高度",
-        "step": 10,
-        "value": 0,
-        "valueText": "0 m"
-      },
-      {
-        "label": "底圈 1.00",
-        "max": 4,
-        "min": 0,
-        "name": "底圈",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      }
-    ],
-    "wfLandfill": [
-      {
         "label": "大小 1.00",
         "max": 3,
         "min": 0.3,
@@ -86310,6 +86281,26 @@
         "valueText": "1.00"
       },
       {
+        "label": "底圈 1.00",
+        "max": 4,
+        "min": 0,
+        "name": "底圈",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "高度 0m",
+        "max": 500,
+        "min": 0,
+        "name": "高度",
+        "step": 10,
+        "value": 0,
+        "valueText": "0 m"
+      }
+    ],
+    "wfLandfill": [
+      {
         "label": "透明度 0.45",
         "max": 1,
         "min": 0.1,
@@ -86317,6 +86308,15 @@
         "step": 0.05,
         "value": 0.45,
         "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86330,15 +86330,6 @@
     ],
     "wfLandfillCoastal": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -86346,6 +86337,15 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86359,15 +86359,6 @@
     ],
     "wfMedical": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -86375,6 +86366,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86388,15 +86388,6 @@
     ],
     "wfMonitoring": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -86404,6 +86395,15 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86417,15 +86417,6 @@
     ],
     "wfOther": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -86433,6 +86424,15 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86446,15 +86446,6 @@
     ],
     "wfRecycling": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -86462,6 +86453,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86475,15 +86475,6 @@
     ],
     "wfScrapYard": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -86491,6 +86482,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86504,15 +86504,6 @@
     ],
     "wfTransfer": [
       {
-        "label": "大小 1.00",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.05,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -86520,6 +86511,15 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.00",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
       },
       {
         "label": "高度 0m",
@@ -86542,6 +86542,15 @@
         "valueText": "0.80"
       },
       {
+        "label": "線寬 1.15px",
+        "max": 1.5,
+        "min": 0.5,
+        "name": "線寬",
+        "step": 0.05,
+        "value": 1.15,
+        "valueText": "1.15 px"
+      },
+      {
         "label": "動畫速度 1.0×",
         "max": 3,
         "min": 0.2,
@@ -86558,28 +86567,10 @@
         "step": 1000,
         "value": 12000,
         "valueText": "12000"
-      },
-      {
-        "label": "線寬 1.15px",
-        "max": 1.5,
-        "min": 0.5,
-        "name": "線寬",
-        "step": 0.05,
-        "value": 1.15,
-        "valueText": "1.15 px"
       }
     ],
     "windPlan": [],
     "womenChildWarning": [
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -86588,6 +86579,15 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "worldTrashDebris": [
@@ -86680,6 +86680,15 @@
     ],
     "youbikeFullness": [
       {
+        "label": "透明度 0.7",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.1,
+        "value": 0.65,
+        "valueText": "0.7"
+      },
+      {
         "label": "網格",
         "options": [
           {
@@ -86716,15 +86725,6 @@
         ],
         "type": "select",
         "value": "mixed"
-      },
-      {
-        "label": "透明度 0.7",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.1,
-        "value": 0.65,
-        "valueText": "0.7"
       },
       {
         "label": "對比 1.0",

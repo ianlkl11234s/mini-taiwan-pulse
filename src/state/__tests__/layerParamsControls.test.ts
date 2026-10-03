@@ -17,6 +17,13 @@ import {
 
 beforeEach(() => layerParamsStore.reset());
 
+/** 面板順序依 P5 類別排序（spec §5.11）；測試用標籤找控件，不靠位置。 */
+function byLabel<T>(key: string, prefix: string): T {
+  const control = (buildParamControls(key) ?? []).find((candidate) => candidate.label.startsWith(prefix));
+  if (!control) throw new Error(`${key} 找不到「${prefix}」控件`);
+  return control as T;
+}
+
 describe("buildParamControls", () => {
   it("multiSelect 值採 scalar 編碼，支援預設全選、全關與穩定排序", () => {
     const options = [{ label: "甲", value: "a" }, { label: "乙", value: "b" }, { label: "丙", value: "c" }];
@@ -120,12 +127,11 @@ describe("buildParamControls", () => {
   });
 
   it("全球情勢篩選保留分類值，並把嚴重度與天數編為數值", () => {
-    const controls = buildParamControls("globalEvents") ?? [];
-    const category = controls[1] as SelectConfig;
-    const severity = controls[2] as SelectConfig;
-    const days = controls[3] as SelectConfig;
-    const relations = controls[5] as ToggleConfig;
-    const taiwanOnly = controls[7] as ToggleConfig;
+    const category = byLabel<SelectConfig>("globalEvents", "分類");
+    const severity = byLabel<SelectConfig>("globalEvents", "最低嚴重度");
+    const days = byLabel<SelectConfig>("globalEvents", "過去");
+    const relations = byLabel<ToggleConfig>("globalEvents", "跨國關聯線");
+    const taiwanOnly = byLabel<ToggleConfig>("globalEvents", "僅顯示臺灣相關");
     expect(taiwanOnly.value).toBe(false);
     taiwanOnly.onChange(true);
 
@@ -155,12 +161,12 @@ describe("buildParamControls", () => {
 
   // ── P3-2B 補：toggle 的 0/1 中介第一次有真實使用者 ────────────────
   it("toggle onChange 寫回 store，overlayParams 編成 0/1", () => {
-    const tog = (buildParamControls("realEstateSaleGrid") ?? [])[1] as ToggleConfig;
+    const tog = byLabel<ToggleConfig>("realEstateSaleGrid", "排除雙北重繪");
     expect(tog.value).toBe(false);
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["realEstateExcludeTaipei"]).toBe(0);
 
     tog.onChange(true);
-    expect((buildParamControls("realEstateSaleGrid") ?? [])[1]).toMatchObject({ value: true });
+    expect(byLabel("realEstateSaleGrid", "排除雙北重繪")).toMatchObject({ value: true });
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["realEstateExcludeTaipei"]).toBe(1);
   });
 
@@ -196,7 +202,7 @@ describe("buildParamControls", () => {
   // 黃金快照兩種編碼都過。抄成 `encode` 版的話「≥0.5m」會餵 1（＝ ≥1m 的意思）
   // 給 paint —— 篩選整個錯掉，畫面照樣有東西、沒有任何錯誤訊息。
   it("encodeNumeric：out 是值本身而不是選項索引", () => {
-    const sel = (buildParamControls("waterFloodExtreme") ?? [])[1] as SelectConfig;
+    const sel = byLabel<SelectConfig>("waterFloodExtreme", "深度");
     expect(sel.value).toBe("0");
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["floodMinDepth"]).toBe(0);
 
@@ -216,34 +222,34 @@ describe("buildParamControls", () => {
 
   // ── P3-2C 補：zeroLabel ／ labelSep ／ labelByValue 的非預設分支 ────
   it("zeroLabel：0 印「關」，離開 0 就恢復印數字", () => {
-    const s = (buildParamControls("powerPoles") ?? [])[0] as SliderConfig;
+    const s = byLabel<SliderConfig>("powerPoles", "全台顯示");
     expect(s.label).toBe("全台顯示 關");
     s.onChange(0.5);
-    expect((buildParamControls("powerPoles") ?? [])[0]).toMatchObject({ label: "全台顯示 0.50" });
+    expect(byLabel("powerPoles", "全台顯示")).toMatchObject({ label: "全台顯示 0.50" });
     // 回到 0 要回到「關」（不是停在 "0.00"）
-    ((buildParamControls("powerPoles") ?? [])[0] as SliderConfig).onChange(0);
-    expect((buildParamControls("powerPoles") ?? [])[0]).toMatchObject({ label: "全台顯示 關" });
+    byLabel<SliderConfig>("powerPoles", "全台顯示").onChange(0);
+    expect(byLabel("powerPoles", "全台顯示")).toMatchObject({ label: "全台顯示 關" });
   });
 
   it("labelSep：前綴與數字之間不補空白", () => {
-    const s = (buildParamControls("facPrimary") ?? [])[1] as SliderConfig;
+    const s = byLabel<SliderConfig>("facPrimary", "大廠（即時）");
     expect(s.label).toBe("大廠（即時）1.30");
     // 對照組：同一個 key 的其他 slider 仍補空白
-    expect((buildParamControls("facPrimary") ?? [])[0]).toMatchObject({ label: "總大小 0.5" });
+    expect(byLabel("facPrimary", "總大小")).toMatchObject({ label: "總大小 0.5" });
   });
 
   it("labelByValue：select 的 label 隨自己的值變（顯示表 ≠ 選項表）", () => {
-    const sel = (buildParamControls("livestockFarmPig") ?? [])[2] as SelectConfig;
+    const sel = byLabel<SelectConfig>("livestockFarmPig", "品項");
     expect(sel.label).toBe("品項 全部");
     sel.onChange("1");
-    expect((buildParamControls("livestockFarmPig") ?? [])[2]).toMatchObject({ label: "品項 肉豬" });
+    expect(byLabel("livestockFarmPig", "品項")).toMatchObject({ label: "品項 肉豬" });
 
     // 作物層：label 只有 nameZh，選項是 `${nameZh} (${nameEn})` —— 兩者刻意不同
-    const crop = (buildParamControls("agriCropSuitability") ?? [])[1] as SelectConfig;
+    const crop = byLabel<SelectConfig>("agriCropSuitability", "作物");
     expect(crop.label).toBe("作物 芋");
     expect(crop.options[1]).toMatchObject({ label: "蘋果 (apple)", value: "1" });
     crop.onChange("11");
-    const after = (buildParamControls("agriCropSuitability") ?? [])[1] as SelectConfig;
+    const after = byLabel<SelectConfig>("agriCropSuitability", "作物");
     expect(after.label).toBe("作物 香蕉");
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["agriCropSuitabilityCropId"]).toBe(11);
   });
@@ -252,7 +258,7 @@ describe("buildParamControls", () => {
   // 黃金快照只跑預設值 → 條件式控件在快照裡**永遠是收合的**。
   // 少了這幾條，`showWhen` 寫錯條件（永遠展不開）不會有任何閘紅。
   it("showWhen：條件成立時控件才出現，且順序不變", () => {
-    // [網格大小, 上色模式, 網格顏色（R7，總市值模式）, 透明度, 3D]
+    // P5 順序：[上色模式, 網格顏色（R7，總市值模式）, 透明度, 網格大小, 3D]
     const before = buildParamControls("propertyValueGrid") ?? [];
     expect(before).toHaveLength(5);
 
@@ -268,12 +274,12 @@ describe("buildParamControls", () => {
 
   it("showWhen：select 值觸發的條件（buildingsGba 夜景模式才有 Bloom 門檻）", () => {
     expect(buildParamControls("buildingsGba") ?? []).toHaveLength(3);
-    ((buildParamControls("buildingsGba") ?? [])[0] as SelectConfig).onChange("3");
+    byLabel<SelectConfig>("buildingsGba", "顯示模式").onChange("3");
     const after = buildParamControls("buildingsGba") ?? [];
     expect(after).toHaveLength(4);
     expect(after[3]).toMatchObject({ label: "Bloom 高樓門檻 ≥ 100 m" });
     // 非夜景模式（"4" 估值）就要收回去
-    (after[0] as SelectConfig).onChange("4");
+    byLabel<SelectConfig>("buildingsGba", "顯示模式").onChange("4");
     expect(buildParamControls("buildingsGba") ?? []).toHaveLength(3);
   });
 
@@ -286,7 +292,7 @@ describe("buildParamControls", () => {
   });
 
   it("disableRule：150m 尺度停用人均市值並在 label 講明，換尺度就解除", () => {
-    const mode = () => (buildParamControls("propertyValueGrid") ?? [])[1] as SelectConfig;
+    const mode = () => byLabel<SelectConfig>("propertyValueGrid", "上色模式");
     // 預設 scaleIdx "0"（150m，無 pop）→ 人均選項停用 ＋ 原因後綴
     expect(mode().options[0]).toMatchObject({ label: "總市值", value: "0", disabled: false });
     expect(mode().options[1]).toMatchObject({
@@ -294,7 +300,7 @@ describe("buildParamControls", () => {
     });
 
     // 換到 450m（hasPop）→ 解除停用、label 回到原字串（快照看不到這一面）
-    ((buildParamControls("propertyValueGrid") ?? [])[0] as SelectConfig).onChange("1");
+    byLabel<SelectConfig>("propertyValueGrid", "網格大小").onChange("1");
     expect(mode().options[1]).toMatchObject({ label: "人均市值", value: "1", disabled: false });
   });
 

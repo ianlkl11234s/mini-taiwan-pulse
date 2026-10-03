@@ -12,8 +12,8 @@
  */
 
 import {
-  getParamsSpec, MULTI_SELECT_ALL, MULTI_SELECT_NONE, resolveMultiSelectValues, resolveParamValues, resolveSelectOptions,
-  serializeMultiSelectValues, visibleParamsSpec,
+  getParamsSpec, MULTI_SELECT_ALL, MULTI_SELECT_NONE, orderedVisibleParamsSpec, resolveMultiSelectValues, resolveParamValues, resolveSelectOptions,
+  serializeMultiSelectValues,
   type LayerParamValues,
 } from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
@@ -128,7 +128,8 @@ export function buildParamControls(
   // `showWhen` 的控件在條件不成立時整個不渲染（等價於手寫版的 `...(cond ? [x] : [])`）；
   // `resolved` 讓 showWhen / disableRule 一定查得到值（傳入的快照可能只有部分欄位）。
   const resolved = resolveParamValues(spec, values);
-  return visibleParamsSpec(spec, values).map((s) => {
+  // P5（spec §5.11）：資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀；同類保持宣告順序（sort 為穩定排序）。
+  return orderedVisibleParamsSpec(spec, values).map((s) => {
     switch (s.kind) {
       case "slider": {
         const v = values[s.name];
