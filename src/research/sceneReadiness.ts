@@ -130,3 +130,25 @@ export function waitForMapStyle(map: {
     map.on("style.load", parsed); map.on("render", rendered); map.on("remove", removed);
   });
 }
+
+/**
+ * Polls until `read()` returns a value (e.g. the main map once App marks it prepared).
+ * A tab now attaches at load (P3), so agent commands and queries can arrive before the
+ * map exists; they wait here, bounded, instead of failing with MAP_NOT_READY at once.
+ * Resolves null on timeout or once `isCurrent()` turns false.
+ */
+export function waitForValue<T>(read: () => T | null | undefined, isCurrent: () => boolean, timeoutMs: number, pollMs = 100): Promise<T | null> {
+  const first = read();
+  if (first != null || !isCurrent()) return Promise.resolve(first ?? null);
+  const deadline = Date.now() + timeoutMs;
+  return new Promise(resolve => {
+    const tick = () => {
+      if (!isCurrent()) { resolve(null); return; }
+      const value = read();
+      if (value != null) { resolve(value); return; }
+      if (Date.now() >= deadline) { resolve(null); return; }
+      setTimeout(tick, pollMs);
+    };
+    setTimeout(tick, pollMs);
+  });
+}

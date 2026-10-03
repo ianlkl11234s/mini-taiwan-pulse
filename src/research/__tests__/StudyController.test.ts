@@ -187,4 +187,41 @@ describe("StudyController with the P2 long poll", () => {
     await vi.waitFor(() => expect(client.ack).toHaveBeenCalledWith("study-1", "tab-1", "command-9", 1));
     expect(render).toHaveBeenCalled();
   });
+
+  it("represent() re-renders a snapshot whose render failed before the map was prepared", async () => {
+    // Reload restore: the long poll delivers the snapshot once; it must not be lost when render gives up.
+    const { controller, render } = setup();
+    render.mockRejectedValueOnce(new Error("MAP_NOT_READY"));
+    const restored = state(18, { view: { revision: 18, phase: "ready" }, scene: { ...baseScene, results: { items: [{ resultId: "wh-3", visible: true, groupId: null }], groups: [] } } as Scene });
+    controller.receive(restored);
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(1));
+    await Promise.resolve(); await Promise.resolve();
+    controller.represent();
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(2));
+    expect(render).toHaveBeenLastCalledWith(restored.scene, 18);
+    await Promise.resolve(); await Promise.resolve();
+    controller.represent();
+    expect(render).toHaveBeenCalledTimes(2);
+  });
+
+  it("represent() re-renders the applied scene after a command render failed, and is a no-op once settled", async () => {
+    const { controller, client, render } = setup();
+    render.mockRejectedValueOnce(new Error("MAP_NOT_READY"));
+    controller.receive(state(0, { pendingCommand: pending() }));
+    await vi.waitFor(() => expect(client.report).toHaveBeenCalledWith("study-1", "tab-1", 1, "error"));
+    controller.represent();
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(client.report).toHaveBeenLastCalledWith("study-1", "tab-1", 1, "ready"));
+    controller.represent();
+    expect(render).toHaveBeenCalledTimes(2);
+  });
+
+  it("represent() does nothing when the last render was ready", async () => {
+    const { controller, render } = setup();
+    controller.receive(state(1));
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(1));
+    await Promise.resolve();
+    controller.represent();
+    expect(render).toHaveBeenCalledTimes(1);
+  });
 });

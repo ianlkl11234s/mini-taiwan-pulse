@@ -33,7 +33,7 @@ import { describeDataset, ensureDataset, ensureStatisticsResearchDatasets, searc
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
-import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
+import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender, waitForValue } from "./sceneReadiness";
 import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
@@ -64,6 +64,9 @@ type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | n
    *  Drives I2 selection dimming and the G2 compact legend; kept apart from `selection` coords, which are reported to the Agent. */
   analysisResultSelected?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
+/** P3: commands and map_context arriving before App marks the map prepared wait this long (headless first load takes several seconds). */
+const MAP_PREPARE_WAIT_MS = 20_000;
+const MAP_CONTEXT_WAIT_MS = 10_000;
 export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", ...ANALYSIS_OPERATIONS]);
 
 export function completedActivityForOperation(operation: string, data: Record<string, unknown>): Activity {
@@ -249,9 +252,12 @@ export function MainMapConnection(props: Props) {
   }, [capture, planAnalysisResults]);
   const render = useCallback(async (requestedScene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
     let scene = requestedScene;
-    const { bridge, map, labels, locked } = latest.current;
-    if (!map) throw new Error("MAP_NOT_READY");
     const run = ++generation.current;
+    // P3: the tab attaches at load, so a command or the first snapshot can arrive before App
+    // marks the map prepared; wait for it (bounded) instead of failing at once.
+    const map = await waitForValue(() => latest.current.map, () => run === generation.current, MAP_PREPARE_WAIT_MS);
+    if (!map) { if (run !== generation.current) return "error"; throw new Error("MAP_NOT_READY"); }
+    const { bridge, labels, locked } = latest.current;
     if (!await waitForMapStyle(map, () => run === generation.current && latest.current.map === map)) {
       if (run !== generation.current) return "error";
       throw new Error("MAP_NOT_READY");
@@ -428,13 +434,18 @@ export function MainMapConnection(props: Props) {
         case "time_context":
           if (!current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
           result = current.timeline.getContext(); break;
-        case "map_context":
-          if (!current.map || !isStyleReady(current.map)) throw new Error("MAP_NOT_READY");
+        case "map_context": {
+          // Same P3 window as render(): a query right after load or reload waits for the map (bounded, under the 25 s query deadline).
+          const liveMap = await waitForValue(() => latest.current.map && isStyleReady(latest.current.map) ? latest.current.map : null, () => epoch === connectionEpoch.current, MAP_CONTEXT_WAIT_MS);
+          if (!liveMap) throw new Error("MAP_NOT_READY");
+          const live = latest.current;
+          const liveVisible = live.bridge.getVisibleLayerKeys();
           // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
-          result = { observedAt: new Date().toISOString(), tilesSettled: current.map.isStyleLoaded(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current),
+          result = { observedAt: new Date().toISOString(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
             // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
-            bounds: viewportBounds(current.map), visibleSummary: summarizeVisibleLayers(current.map as unknown as VisibleSummaryMap, visible, { labelFor: key => current.labels[key] ?? key }) };
+            bounds: viewportBounds(liveMap), visibleSummary: summarizeVisibleLayers(liveMap as unknown as VisibleSummaryMap, liveVisible, { labelFor: key => live.labels[key] ?? key }) };
           break;
+        }
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
         case "describe_dataset": {
@@ -569,6 +580,8 @@ export function MainMapConnection(props: Props) {
     map?.on("movestart", started); map?.on("moveend", moved);
     return () => { unsubscribe(); unsubscribeParams(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
   }, [props.map]);
+  // P3: a scene whose render gave up before the map was prepared is rendered again once it is.
+  useEffect(() => { if (props.map) controller.current?.represent(); }, [props.map]);
   useEffect(() => {
     const map = props.map;
     if (!map) return;

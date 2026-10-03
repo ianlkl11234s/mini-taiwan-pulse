@@ -13,6 +13,8 @@ export class StudyController {
   private deferred: StudyState | null = null;
   /** An ack may have committed after its response was lost; never replay it blindly. */
   private uncertainCommandId: string | null = null;
+  /** False after the newest render failed or did not settle (e.g. the map was not prepared yet); represent() retries it. */
+  private settled = true;
   constructor(private readonly connection: BridgeConnectionContext, private readonly render: Render, private readonly onError: () => void) {}
 
   receive(state: StudyState): void {
@@ -36,6 +38,16 @@ export class StudyController {
     if (!this.busy) void this.flushManual();
   }
 
+  /**
+   * Re-renders the current state when its last render did not settle "ready". The long poll
+   * never resends an unchanged snapshot, so without this a scene that arrived before the map was
+   * prepared (first load, reload restore) would stay unapplied until the next revision.
+   */
+  represent(): void {
+    if (this.stopped || this.busy || this.interacting || this.queued || !this.state || this.settled) return;
+    this.present(this.state.scene, this.state.revision, this.state.view.phase !== "ready");
+  }
+
   stop(): void { this.stopped = true; ++this.generation; this.queued = null; this.deferred = null; }
 
   /** Replays a snapshot deferred during busy/interacting once fully idle; stale revisions are still rejected by receive(). */
@@ -48,7 +60,8 @@ export class StudyController {
   private present(scene: Scene, revision: number, report: boolean): void {
     const generation = ++this.generation;
     let rendered: Promise<"ready" | "error">;
-    try { rendered = this.render(scene, revision); } catch { this.onError(); return; }
+    try { rendered = this.render(scene, revision); } catch { this.settled = false; this.onError(); return; }
+    void rendered.then(phase => { if (generation === this.generation) this.settled = phase === "ready"; }, () => { if (generation === this.generation) this.settled = false; });
     void rendered.then(async phase => {
       if (!report || this.stopped || generation !== this.generation || this.state?.revision !== revision) return;
       const { client, studyId, tabId } = this.connection;
@@ -72,6 +85,7 @@ export class StudyController {
         renderFailureNotified = true;
         this.onError();
       };
+      void rendered.then(phase => { if (generation === this.generation) this.settled = phase === "ready"; }, () => { if (generation === this.generation) this.settled = false; });
       void rendered.catch(() => {
         notifyRenderFailure();
       });
