@@ -447,7 +447,7 @@ describe("鐵則 4：select 控件渲染閾值", () => {
       `§4a 規則 4：≥ 4 個 option 必用原生 <select>，中文標籤的 button row 一定撐爆 240px 窄欄。`,
     ).toBe(true);
     for (const file of [
-      "src/components/IconRailSidebar.tsx",
+      "src/components/sidebar/ExpandedControls.tsx",
       "src/components/LayerSidebar.tsx",
     ]) {
       const source = readFileSync(file, "utf8");
@@ -464,9 +464,8 @@ describe("區域統計 sidebar 接線", () => {
   });
 
   it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情，mobile 使用可存取的展開按鈕", () => {
-    const railSidebar = readFileSync('src/components/IconRailSidebar.tsx', 'utf8');
-    expect(railSidebar).toContain('isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />');
-    expect(railSidebar).toContain('textColor={TEXT_STRONG}\n                            dimColor={DIM}\n                            colorScheme={COLOR_SCHEME}');
+    expect(readFileSync('src/components/sidebar/ExpandedControls.tsx', 'utf8')).toContain('isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />');
+    expect(readFileSync('src/components/sidebar/LayersPanel.tsx', 'utf8')).toContain('textColor={TEXT_STRONG}\n                          dimColor={DIM}\n                          colorScheme={COLOR_SCHEME}');
     const layerSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
     expect(layerSidebar).toContain("isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />");
     expect(layerSidebar).toContain("textColor={textColor}\n                    dimColor={dimColor}\n                    colorScheme={isDarkTheme ? 'dark' : 'light'}");

@@ -89,7 +89,7 @@ afterEach(() => {
 describe("Global Events Intel tab", () => {
   it("列表只活在 INTEL：舊 sidebar 元件已移除，圖層 controls 保留", () => {
     expect(existsSync(new URL("../../sidebar/GlobalEventsList.tsx", import.meta.url))).toBe(false);
-    for (const file of ["LayerSidebar.tsx", "IconRailSidebar.tsx"]) {
+    for (const file of ["LayerSidebar.tsx", "sidebar/ExpandedControls.tsx"]) {
       const source = readFileSync(new URL(`../../${file}`, import.meta.url), "utf8");
       expect(source).not.toContain("GlobalEventsList");
       expect(source).toContain("buildParamControls");
