@@ -2,6 +2,12 @@ import { describe, expect, it } from "vitest";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CARE_TYPES, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS, jpMedicalGridColorExpression } from "./jpMedicalTypes";
 
 describe("日本醫療分類契約", () => {
+  it("中日文名稱欄位與整串 label 一致（manifest 名稱讀 zh／ja，圖例讀 label）", () => {
+    for (const item of [...JP_MEDICAL_CATEGORIES, ...JP_MEDICAL_CARE_GROUPS, ...JP_MEDICAL_AREA_LEVELS]) {
+      expect(item.label).toBe(`${item.zh} ${item.ja}`);
+    }
+  });
+
   it("保留五種 Navii record_kind 與固定顏色", () => {
     expect(JP_MEDICAL_CATEGORIES.map((item) => item.value)).toEqual(["hospital", "clinic", "dental", "maternity", "pharmacy"]);
     expect(new Set(JP_MEDICAL_CATEGORIES.map((item) => item.color)).size).toBe(5);
