@@ -533,7 +533,8 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const source = String(props.source ?? "");
   const info = CCTV_SOURCE[source] ?? { color: "#26c6da", label: source };
-  const streamUrl = String(props.VideoStreamURL ?? "");
+  // TDX 曾提供帶前置單引號的 URL；只修正這種可明確辨識的格式瑕疵。
+  const streamUrl = String(props.VideoStreamURL ?? "").replace(/^'(?=https?:\/\/)/, "");
   const imageUrlRaw = props.VideoImageURL != null ? String(props.VideoImageURL) : "";
   const imageUrl = imageUrlRaw && imageUrlRaw !== "null" && imageUrlRaw !== "undefined" ? imageUrlRaw : "";
   // 換選別支時用 CCTVID 當 key 強制 remount，確保串流狀態機與 MJPEG 連線重置
@@ -549,10 +550,10 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="來源" value={info.label} color={info.color} />
       <Row label="方向" value={String(props.RoadDirection ?? "")} />
       <Row label="ID" value={String(props.CCTVID ?? "")} />
-      {streamUrl ? (
+      {streamUrl || imageUrl ? (
         <CctvStreamView
           key={cctvKey}
-          streamUrl={streamUrl}
+          streamUrl={streamUrl || imageUrl}
           imageUrl={imageUrl}
           source={source}
           accentColor={info.color}
