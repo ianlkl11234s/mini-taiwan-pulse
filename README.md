@@ -2,13 +2,13 @@
 
 **用開放資料，把台灣畫成一張會呼吸的地圖。**
 
-🌏 **線上版：[mini-taiwan-pulse.itsmigu.com](https://mini-taiwan-pulse.itsmigu.com)**
+🌏 **線上版：[mini-taiwan-pulse.itsmigu.com](https://mini-taiwan-pulse.itsmigu.com)**　·　目前版本 **v3.0.0**（2026-10-04）→ [CHANGELOG](CHANGELOG.md)
 
 天空的航班、海面的船舶、軌道上的列車、街上的公車——這些會動的東西是這個專案的起點。
-後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星……
-**62 個正式環境主題、569 個可開關的圖層**，疊在同一張 3D 地圖與同一條時間軸上。
+後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星、區域統計……
+全部疊在同一張 3D 地圖與同一條時間軸上，並可以讓本機的 AI Agent 直接操作地圖做空間分析。
 
-> 統計時點 2026-09-20。registry 以 `src/data/layerManifest.ts` 為準；正式站可見主題與 toggle 以 `src/components/sidebar/layerCatalog.ts` 的 production `THEMES` 為準。
+> 數字統計時點 2026-10-04。圖層登記以 [`src/data/layerManifest.ts`](src/data/layerManifest.ts) 為準，側欄主題以 [`src/components/sidebar/layerCatalog.ts`](src/components/sidebar/layerCatalog.ts) 的 `THEMES` 為準。
 
 ---
 
@@ -20,125 +20,45 @@
 
 ![南台灣 — H3 人口密度 3D 柱狀圖](docs/images/southern-taiwan-h3-population-3d.png)
 
-> ⚠️ 現有截圖攝於專案的「交通時代」，尚未反映後來擴充的能源／農業／水資源等主題。
+> ⚠️ 截圖攝於 2026-09 介面改版（v2.0.0）之前，尚未反映新的面板、圖例、色盤與監看模式。新介面可看[活的設計系統頁](tools/design-system.html)（需 dev server）或其靜態快照 [`docs/design-system/reference.html`](docs/design-system/reference.html)。
 
 ---
 
-## 能看到什麼
+## 功能總覽
 
-圖層登記在單一 SSOT [`src/data/layerManifest.ts`](src/data/layerManifest.ts)：**778 個 layer key**。
-正式環境有 569 個 sidebar toggle，10 個是沒有 toggle 的內部 key；其餘 199 個是可驗證但未對正式站開放的 release-gated／DEV-only 登記，不得當成已上線圖層。
+### 圖層規模
 
-主題前段班：
-
-| 主題 | 層數 | 舉例 |
+| 項目 | 數量 | 來源 |
 |---|---:|---|
-| 能源 Energy | 41 | 發電廠、機組即時出力、變電所、輸電線與鐵塔、加油站、離岸風場 |
-| 交通 Move | 39 | 航班、船舶、6 個軌道系統、公車即時、國道壅塞 |
-| 農業 Agriculture | 29 | 農田範圍 FTW、畜禽飼養場、養殖魚塭、土壤肥力、作物適栽 |
-| 水資源 Water | 25 | 水庫、河川、堤防、即時雨量、河川水位、淹水潛勢 |
-| 環境氣候 Environment | 26 | 氣象站、溫度場、衛星雲圖、空品、都市熱島、行道樹 |
-| 執法治安 Law & Order | 20 | 警察機關、測速照相、法院、鄉鎮犯罪統計、海巡 |
-| 廢棄物 Waste | 18 | 垃圾車即時位置與路線、清運點、焚化爐、掩埋場 |
-| 教育 Education | 17 | 各級學校、校地範圍、學區、幼兒園、補習班 |
-| 林業 Forestry | 16 | 林班、保安林、步道、樹冠高度、山屋營地 |
-| 太空 Space | 16 | 衛星即時軌跡（SGP4 推算）、未來軌跡、覆蓋足跡 |
+| manifest 登記的 layer key | 864（資料路徑 A 139／B 112／C 56／D 557） | `LAYER_MANIFEST` |
+| 側欄主題 | 68 個，分 6 大分類 | `THEMES` + `LAYER_MACRO_GROUPS` |
+| 側欄圖層開關（不重複 key） | 854 | `THEMES` 內的圖層 |
+| 站主限定圖層 | 54 | `GATED_LAYERS` |
+| Agent 倉庫可分析（L2） | 660／864 | [`layer-status-summary.md`](docs/features/general-analysis/layer-status-summary.md)（腳本產生） |
 
-<details>
-<summary>完整 62 主題清單</summary>
+六大分類（主題數／圖層開關數）：基準 2／17、移動與城市 12／147、公共生活 16／329、安全與治理 8／63、環境與資源 26／272、情報 4／26。
+側欄目錄的登記不等於正式站全部可見：統計比較由 build flag `VITE_STATISTICS_COMPARISONS_ENABLED` 控制，站主限定圖層對一般訪客顯示鎖頭、不下載資料。
 
-| 主題 | 層數 |
-|---|---:|
-| 底圖 Base Map | 15 |
-| 行政區 | 2 |
-| 房地產統計 Real Estate Statistics | 1 |
-| 交通統計 Transport Statistics | 38 |
-| 人口統計 Population Statistics | 1 |
-| 住宅存量與使用 | 18 |
-| 交通 Move | 39 |
-| 人口社經 People | 5 |
-| 都市分析 Urban Analysis | 1 |
-| 房地產 Real Estate | 7 |
-| 工商登記 Business Registry | 13 |
-| 交通 | 4 |
-| 人口 | 1 |
-| 教育與少子化統計 | 23 |
-| 醫療與長照統計 | 16 |
-| 基礎建設 Infrastructure | 9 |
-| 教育 Education | 17 |
-| 社福長照 Welfare | 9 |
-| 運動休閒 Sports & Leisure | 6 |
-| 文化 Culture | 5 |
-| 宗教 Religion | 6 |
-| 殯葬 Funeral | 5 |
-| 觀光 Tourism | 11 |
-| 全球通訊 Global Communications | 10 |
-| 長照服務 | 6 |
-| 旅宿 | 5 |
-| 教育 | 1 |
-| 宗教 | 3 |
-| 醫療 Medical | 8 |
-| 消防 Fire & Rescue | 5 |
-| 災害 Hazard | 12 |
-| 民防避難 Civil Defense | 1 |
-| 執法治安 Law & Order | 20 |
-| 醫療設施 | 5 |
-| 醫療圈 | 3 |
-| 治安 | 1 |
-| 水資源統計 Water Statistics | 2 |
-| 廢棄物統計 Waste Statistics | 2 |
-| 資源回收統計 Recycling Statistics | 1 |
-| 能源統計 Energy Statistics | 1 |
-| 農業統計 Agriculture Statistics | 1 |
-| 農業統計 | 8 |
-| 畜牧統計 | 4 |
-| 漁業統計 | 4 |
-| 林業統計 | 4 |
-| 能源 Energy | 41 |
-| 廢棄物 Waste | 18 |
-| 環境氣候 Environment | 26 |
-| 水資源 Water | 25 |
-| 全球氣候 Global Climate | 5 |
-| 農業 Agriculture | 29 |
-| 動物福利 Animal Welfare | 3 |
-| 林業 Forestry | 16 |
-| 全球環境 Global Environment | 3 |
-| 水資源 | 13 |
-| 自然保護 | 1 |
-| 世界遺產 | 2 |
-| 高度與地表 | 2 |
-| 太空 Space | 16 |
-| 情勢 Situation | 3 |
-| 全球情勢 Global Situation | 1 |
-| 全球海事 Global Maritime | 6 |
+### 主站各區
 
-（不含 10 個內部 key，也不含 199 個 release-gated／DEV-only 登記。）
-
-</details>
-
-### 幾個值得一看的
-
-- **會動的東西**：航班 3D 光軌、船舶 InstancedMesh 光球、6 個軌道系統（台鐵／高鐵／北捷／高捷／高雄輕軌／中捷）依真實時刻表跑、公車 GPS snap 到路線幾何上移動
-- **時間軸**：所有動態圖層共用同一條時間軸，可回放歷史日期、加速播放、切換 1d/3d/7d 範圍
-- **衛星**：從 TLE 以 SGP4 逐秒推算即時位置 + 未來軌跡 + 覆蓋足跡
-- **統計面**：H3 六角格人口／人流，2D 填色與 3D 柱狀可切換
-- **BYOK 對話**：自帶 API key 的地圖 agent（Anthropic／Google／OpenAI），可查圖層、查資料、操作地圖
-- **可嵌入版** `/embed`：獨立的 MapLibre + PMTiles 輕量進入點
-
-### 資料量級
-
-隨手抓幾個有代表性的（2026-08 快照，完整盤點見 `.claude/memory/DATA_SCOPE.md`）：
-
-| 圖層 | 量體 |
+| 區塊 | 內容 |
 |---|---|
-| 農地田區（FTW） | 386,829 塊 |
-| 民防避難所 | 62,695 處 |
-| 垃圾車停運點 | 77,125 點 / 2,048 條路線 |
-| 淹水潛勢圖徵 | 17,303 |
-| 社福長照設施 | 10,004 點（9 類） |
-| 發電廠（含再生能源） | 10,665 |
-| 衛星 TLE 分類庫 | 約 67,000 顆 |
-| 共機動態 | 731 天零缺日紀錄 |
+| **地圖**（台灣／日本／統計／世界分頁） | R8 起所有面板共用同一套列與主題列、中英雙語圖層名、大分類＋主題預設收合；手機版同一套 |
+| **動態圖層＋時間軸** | 航班光軌、船舶、6 個軌道系統依真實時刻表跑、全台公車；共用時間軸可回放歷史、加速、切 1d/3d/7d |
+| **監看模式 Monitor** | dock／wall／split 三種呈現的戰情卡（新聞、警訊、地震、颱風、加權指數、機場、急診…），暗／淡雙主題 |
+| **統計** | 區域統計 choropleth（一律走 R2 snapshot）、統計比較、連動選單 |
+| **站主限定** | `profiles.tier = 'owner'` 才解鎖的敏感圖層（後端 RPC 同步檢查）與 Agent 面板 → [`owner-gated-layers`](docs/features/owner-gated-layers/README.md) |
+| **會員專區** | Google 登入、收藏、場景、地點 → [`member-area`](docs/features/member-area/handoff.md) |
+| **BYOK 對話** | 自帶 API key（Anthropic／Google／OpenAI）的站內地圖助手，瀏覽器直連 → [`byok-chat`](docs/features/byok-chat/README.md)。與下方 Agent 分析是兩條不同路線 |
+
+### 其他入口（vite 多入口）
+
+| 路徑 | 用途 |
+|---|---|
+| `/embed` | 可嵌入的輕量地圖（MapLibre + Protomaps + PMTiles，不吃 Mapbox 額度）→ [`embeddable-map`](docs/features/embeddable-map/README.md) |
+| `/card/<slug>` | 分析卡：Agent 產草稿、使用者在畫面按發布，30 天、可撤銷（`src/card/`、`card.html`） |
+| `/lab/` | 隔離的研究畫布（`lab/index.html`） |
+| `/tools/…` | 開發／POC 頁面（設計系統元件頁、bbox 框選、JEV 篩選等）→ [`tools/README.md`](tools/README.md) |
 
 ### 覆蓋範圍與已知限制
 
@@ -150,9 +70,76 @@
 - 少數縣市級資料（竊盜／交通事故）目前只有單一縣市
 - 部分資料的官方來源只保留最新快照，本專案的資料庫是**唯一的歷史紀錄**（例如地震回放）
 
-全球級的則有：衛星、全球氣候場、USGS 地震、颱風路徑。
+全球級的有：衛星、全球氣候場、USGS 地震、颱風路徑、全球海事。各主題的來龍去脈在 [`docs/features/`](docs/features/README.md)。
 
-其他細節（每個主題怎麼來、踩過什麼坑）散在 [`docs/features/`](docs/features/) 的 74 個資料夾裡。
+---
+
+## Agent 分析（MCP）
+
+讓本機的 Claude Code 或 Codex 用自然語言問地理問題，Agent 會**移動鏡頭、開圖層、把計算結果畫在你開著的地圖分頁上**。計算在本機做，瀏覽器只負責呈現。
+
+```
+本機 Claude Code／Codex
+   │  stdio
+   ▼
+pulse-research MCP（本機；內含 DuckDB 分析倉庫、等時圈、地理編碼）
+   │  HTTPS 長輪詢
+   ▼
+Zeabur research-gateway（正式站 nginx /api/research/v1/ 走內網轉送）
+   │
+   ▼
+已登入的瀏覽器分頁（站主的 Agent 面板）→ 地圖
+```
+
+| 元件 | 在哪 |
+|---|---|
+| MCP server、倉庫引擎、回歸測試、skills | 另一個 repo `mini-pulse-gis-mcp`（工作區 `../mini-pulse-gis-mcp`）|
+| research-gateway（配對、轉送指令與結果、分析卡資料表） | `gis-platform` repo 的 `services/research-gateway/`（以 `zeabur deploy` 部署，不隨本 repo 的 master 自動部署） |
+| 前端：Agent 面板、token 產生、地圖執行端、分析卡頁 | 本 repo `src/research/`、`src/card/` |
+
+**倉庫**：DuckDB + 版本化 GeoParquet，正本在 R2，由 `taipei-gis-analytics` 的 manifest 自動建置；新圖層只要有 manifest 並能入倉庫，就是 L2 可分析。
+
+**工具**（預設 `PULSE_TOOLSET=core` 共 22 個，分五類）：
+
+| 類別 | 做什麼 |
+|---|---|
+| 地圖控制 | 配對分頁、讀地圖狀態、移鏡頭、開關圖層、切時間、改單一圖層設定 |
+| 找圖層與資料 | 搜尋圖層、圖層說明、跨資料集找資料、描述倉庫資料集、分頁讀回結果 |
+| 分析與計算 | 唯讀 SQL、周邊生活機能、縣市／鄉鎮排名、等時圈（Valhalla）、找地點、地址轉座標 |
+| 呈現 | 周邊一步上圖、結果上圖（區域深淺、熱力、泡泡、流向、格點、立體柱、等時圈、時間序列等樣式） |
+| 發布 | 產分析卡草稿（發布必須由使用者在畫面上按） |
+
+**Skills**（Agent v2，四個）：`pulse-conductor`（主指揮、回答格式唯一出處）→ 分派給 `pulse-layers`（圖層與鏡頭）、`pulse-overlay`（附近、計數、比較、排名、等時圈）、`pulse-insight`（為什麼、相關、熱點、變化）。唯一來源在 mcp repo 的 `plugins/pulse-analyst/skills/`。
+
+**配對流程**（2026-10-03 起）：
+
+1. 瀏覽器開正式站並以站主登入 → Agent 面板產生 agent token（30 天、可撤銷）
+2. 在 mcp 目錄 `pbpaste | npm run token:save` 存到本機
+3. 分頁保持開著；Agent 第一次動地圖時自動接上，多分頁時會請你選
+4. mcp 更新後在 Claude Code 用 `/mcp` 重連
+
+本機測試用 `npm run research:local:start|stop|status`（本機 gateway + vite）與 `npm run dev:exploration`。
+
+**文件**：入口與現況 [`general-analysis/README.md`](docs/features/general-analysis/README.md)、[`STATUS.md`](docs/features/general-analysis/STATUS.md)；本機正式環境 [`PROD-HOME.md`](docs/features/general-analysis/PROD-HOME.md)；正式站連線 [`PLAN-prod-connect-20261003.md`](docs/features/general-analysis/PLAN-prod-connect-20261003.md)；系統圖 [`pulse-research-system-map.html`](docs/features/agent-research-workbench/pulse-research-system-map.html)；視覺化 [`viz-library`](docs/features/viz-library/README.md)。
+架構決策在 GIS 工作區 `.gis-agent-system/decisions/`：0014 分析倉庫、0015 分析專案家、0016 Agent v2 skill plugin、0017 正式站連線。
+
+---
+
+## 介面改版紀錄（2026-09～10）
+
+v2.0.0 起整站外觀以設計系統重做。**各工作線的 PR 與現況總表在 [`docs/design-system/README.md`](docs/design-system/README.md)「目前進度」**，這裡只列對照：
+
+| 工作線 | 內容 | 版本 | 文件 |
+|---|---|---|---|
+| UI 統一 Phase A–R | 字型、popup、工具列、時間軸、控制項、z-index；載入提示與 Agent 光暈 | v2.0.0 | [`ui-consistency-audit-20260927`](docs/features/ui-consistency-audit-20260927/handoff.md)、[`spec.md`](docs/design-system/spec.md) |
+| 地圖 R1–R2 | 共用數值、統計圖細縫、圖例 kit、點圖層三階 | v2.1.0 | [`map-layer-restyle/PLAN.md`](docs/features/map-layer-restyle/PLAN.md)、[`map-layers.md`](docs/design-system/map-layers.md) |
+| 地圖 R3–R4 | 線面分階（registry／hook）、圖例對齊 | v2.2.0 | [`R3b-report.md`](docs/features/map-layer-restyle/R3b-report.md)、[`R4-report.md`](docs/features/map-layer-restyle/R4-report.md) |
+| 地圖 R5、R7 | 密集點改熱區、熱區／網格可換色盤 | v3.0.0 | [`layer-color-picker`](docs/features/layer-color-picker/PROPOSAL.md) |
+| R8 圖層面板統一 | 共用列、雙語結構化名稱、大分類、統計連動選單 | v3.0.0 | [`layer-panel-unify/PLAN.md`](docs/features/layer-panel-unify/PLAN.md) |
+| 監看模式 P1–P5 | 卡片殼、字級、數值列與走勢、多指標卡、資料新鮮度、淡色版 | v3.0.0 | [`monitor-restyle`](docs/features/monitor-restyle/README.md) |
+| 地圖 R6 | Three.js 圖層的「基本點線面」模式 | ⏳ 未開始 | [`handoff-r6.md`](docs/features/map-layer-restyle/handoff-r6.md) |
+
+UI 改動必須遵守 [`spec.md`](docs/design-system/spec.md)（PR 前照 §8 checklist），守門測試 `src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，不可用改基準繞過。
 
 ---
 
@@ -160,14 +147,17 @@
 
 | 層級 | 選型 | 為什麼 |
 |---|---|---|
-| 框架 | React 19 + TypeScript 5.7 + Vite 6 | — |
+| 框架 | React 19 + TypeScript + Vite | — |
 | 地圖 | Mapbox GL JS v3 | 3D terrain、相機控制、原生向量圖層 |
-| 3D | Three.js r172（Mapbox CustomLayer） | 光軌／光球／光柱／波浪曲面這類 Mapbox 畫不出來的東西，共用同一個 WebGL context 才不會有兩層畫布對不齊的問題 |
-| 向量切片 | PMTiles | 大面積靜態圖層（路網、等高線、行政界）走單一檔案 + HTTP Range 按需載入，不需要另外養一台 tile server |
-| 動態資料 | Supabase (PostGIS) RPC | 時序資料落 DB，前端只讀薄 RPC |
-| 空間索引 | H3 (h3-js) | 六角格統計 |
-| 嵌入版底圖 | MapLibre GL + Protomaps | `/embed` 不吃 Mapbox 額度 |
-| 部署 | Docker 多階段 build + nginx | — |
+| 3D | Three.js（Mapbox CustomLayer） | 光軌／光球／光柱這類 Mapbox 畫不出來的東西；共用同一個 WebGL context，圖層打開才建 |
+| 向量切片 | PMTiles（CDN） | 大面積靜態圖層單檔 + HTTP Range，不養 tile server |
+| 動態資料 | Supabase（PostGIS）RPC、Auth | 時序資料落 DB，前端只讀薄 RPC；會員與站主身分 |
+| 統計 | Cloudflare R2 snapshot | 區域統計一律走預先發布的 snapshot |
+| 空間索引 | H3（h3-js） | 六角格統計 |
+| 嵌入版／分析卡 | MapLibre GL + Protomaps | 不吃 Mapbox 額度 |
+| Agent 分析 | MCP（stdio）+ DuckDB + GeoParquet + Valhalla | 計算在本機，瀏覽器只呈現 |
+| 私有研究服務 | Node（`server/coral-private`） | 站主限定的私人圖層 API |
+| 部署 | Docker 三階段 + nginx，Zeabur | — |
 
 ---
 
@@ -175,157 +165,48 @@
 
 ### 環境需求
 
-- Node.js 22+（`npm` — 本專案不使用 pnpm）
-- Python 3（部分資料預處理腳本）
-- Mapbox Access Token
-- Supabase 專案（動態圖層需要；只看靜態圖層可略）
+- Node.js 22+（`npm`，不使用 pnpm）
+- Python 3（部分預處理腳本）
+- Mapbox Access Token；Supabase 專案（動態圖層需要，只看靜態圖層可略）
 
 ### 環境變數
 
-複製 `.env.example` 為 `.env` 後填入。**以下只列變數名與用途，實際值請自行取得。**
+複製 `.env.example` 為 `.env` 後填入。**以下只列變數名與用途。**
 
 | 變數 | 必要性 | 用途 |
 |---|---|---|
-| `VITE_MAPBOX_TOKEN` | 必填 | Mapbox 底圖。**build time 注入**（Vite 會嵌進靜態檔） |
-| `VITE_SUPABASE_URL` | 動態圖層必填 | Supabase 專案 URL |
-| `VITE_SUPABASE_ANON_KEY` | 動態圖層必填 | Supabase anon key（只讀 RPC） |
-| `VITE_IMAGERY_CDN_BASE` | 選填 | 氣象衛星／雷達影像改走 CDN；未設則回退 base64 RPC |
-| `VITE_EMBED_BASEMAP_URL` | 選填 | `/embed` 的 PMTiles 底圖位置；未設用預設路徑 |
-| `VITE_WASTE_MATCHED_TRAILS` | 選填 | 垃圾車路線 feature flag |
-| `S3_BUCKET` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_REGION` | 部署／腳本 | 大型資產的上傳與容器啟動時拉取 |
+| `VITE_MAPBOX_TOKEN` | 必填 | Mapbox 底圖，build time 注入 |
+| `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | 動態圖層必填 | Supabase 專案與 anon key（只讀 RPC） |
+| `VITE_WASTE_MATCHED_TRAILS` | 選填 | 設 `0` 強制垃圾車路線走 GPS fallback |
+| `VITE_IMAGERY_CDN_BASE` | 選填 | 氣象衛星／雷達影像改走 CDN |
+| `VITE_EMBED_BASEMAP_URL` | 選填 | `/embed` 的 PMTiles 底圖位置 |
+| `VITE_STATISTICS_COMPARISONS_ENABLED` | 選填 | 開啟統計比較（Dockerfile build ARG，預設 `false`） |
+| `PULSE_RESEARCH_GATEWAY_ORIGIN` | 本機 Agent 測試 | dev server 把 `/api/research/v1` 代理到哪個 gateway |
+| `VITE_RESEARCH_TEST_IDENTITY` | 本機 Agent 測試 | 只在 DEV 有效的測試身分 |
+| `S3_BUCKET` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_REGION` | 部署／腳本 | 大型資產上傳與容器啟動時拉取 |
 | `FR24_API_TOKEN` | 選填 | 航班軌跡抓取腳本 |
 
-> `SUPABASE_SERVICE_ROLE_KEY` 只給後端腳本用，**絕不可進 bundle**。
+> `SUPABASE_SERVICE_ROLE_KEY` 只給後端腳本用，**絕不可進 bundle**。Agent 分析的金鑰在 mcp 端，不在本 repo。
 
-### 安裝與啟動
+### 常用指令
 
 ```bash
 npm install
-cp .env.example .env      # 依上表填入
+cp .env.example .env
 npm run dev               # http://localhost:3721
-```
-
-大型靜態資產（PMTiles、路網 GeoJSON、軌道時刻表）不進 git。本機若未同步這些檔案，
-對應圖層在本機開發環境可能無資料；正式環境則必須通過部署契約與 runtime 驗收，不得把缺資產當成正常。完整體驗見 [部署](#部署) 一節。
-
-```bash
 npm run build             # tsc -b && vite build
-npm test                  # vitest run
+npm test                  # vitest run（含 layerConsistency、design-system guard）
 npx tsc -b                # 型別檢查（commit 前必跑，禁用 --noEmit）
 ```
 
----
-
-## 架構概覽
-
-### 資料從哪來
-
-本專案是一個 GIS 生態系的**消費端**，自己不做資料收集：
-
-```
-data-collectors/           80+ 收集器，24hr 運行，抓即時資料
-        │
-taipei-gis-analytics/      資料引擎：開放資料目錄 + 清理 pipeline + 產 PMTiles
-        │
-gis-platform/              Supabase / PostGIS —— 時空資料 SSOT
-        │
-        ▼
-mini-taiwan-pulse          ← 你在這裡（只讀，負責渲染）
-```
-
-跨 repo 有資料契約變動時**上游先動、下游後動**，順序見 [`CLAUDE.md`](CLAUDE.md)。
-
-### 資料怎麼進到前端：四條路
-
-每個圖層在 manifest 標一個 `dataClass`，決定它走哪條路：
-
-| 級別 | 路徑 | 層數 | 說明 |
-|---|---|---:|---|
-| **A** | `public/<domain>/*.geojson` 全量 fetch | 129 | 最單純。體積上限約 5MB，超過要改切 PMTiles |
-| **B** | PMTiles + HTTP Range | 98 | 大面積靜態圖層。**必須同步 nginx.conf 與部署腳本清單**，漏掉會整批 404 |
-| **C** | Supabase RPC / 即時 API | 52 | 動態資料。必須註冊 loadingRegistry，時間相依一律走 timeStore 訂閱 |
-| **D** | 自行接線 | 499 | Three.js / WebGL CustomLayer、統計 recipes，或 hook 自己 addSource/addLayer；含未對正式站開放的登記 |
-
-### 前端怎麼渲染
-
-```
-Mapbox GL JS（底圖 + 3D terrain + 相機）
-  ├── Three.js CustomLayer ×16      航班光軌／船舶／列車／公車／燈塔光束／車站光柱／溫度波浪…
-  ├── Mapbox 原生 fill / line / circle / fill-extrusion   多數 POI 與面圖層
-  └── PMTiles source                大面積靜態切片
-```
-
-Three.js 場景在 `src/three/`（19 個 `*Scene.ts` + 7 個支援檔／子目錄），與 Mapbox 的橋接在 `src/map/*CustomLayer.ts`。
-
-### 時間軸
-
-Replay 模式下時間每秒更新約 60 次。若 `currentTime` 進了 React deps，每個 tick 都會
-重算整棵樹，成本是 `O(圖層數 × 60Hz)`——單開一層感覺不出來，多層同開就卡死。
-
-所以 `currentTime` 放在 React 之外的 store（`src/state/timeStore.ts`），動態圖層
-**禁止**把它放進 `useEffect` / `useMemo` / `useCallback` 的 deps，一律改為訂閱，
-並依資料特性選節流粒度（UI 顯示 250ms、路況快照 1000ms）。
-規則見 [`docs/development-rules.md`](docs/development-rules.md) §8，
-成因與盤點見 [`docs/perf-external-time-store.md`](docs/perf-external-time-store.md)。
-
-### 資料庫契約
-
-Supabase 的前端讀取契約以 `public.*` RPC 為主，或限定的 `reference.*` / `spatial.*` 讀取；
-高頻時序的 `realtime.*` 一律不對前端開放，要用就包一層 RPC。
-
-RPC 超過 1s 或 10k rows 一律套 pre-aggregate pattern（普通 table + per-day refresh function +
-pg_cron + 薄 SELECT RPC），避開 Supabase pooler 的 statement timeout。
-見 [`docs/supabase-optimization.md`](docs/supabase-optimization.md)、盤點表在
-[`docs/supabase_rpc_audit.md`](docs/supabase_rpc_audit.md)。
-
----
-
-## 新增一個圖層
-
-這是本專案最刻意設計的部分。過去新增一層要碰 14 個檔案約 21 處，其中**大約一半是純登記**
-——同一份事實（這層叫什麼、什麼顏色、哪顆 icon、資料從哪來、屬於哪個主題）被抄進五、六張表，
-抄漏就漂移，而且多半 `tsc` 擋不住（值錯不是型別錯）。
-
-現在那份事實收在一處：
-
-```
-src/data/layerManifest.ts     一筆 entry  ─┐
-src/data/layerParamsSpec.ts   一筆規格    ─┴→ 派生 6 張登記表
-                                             LAYER_COLORS / LAYER_ICONS /
-                                             LAYER_LABELS / THEMES 的 LayerDef /
-                                             UPSTREAM_REGISTRY / 參數控件
-
-你只需要自己寫「實質邏輯」：
-  src/data/*Loader.ts          資料載入
-  src/hooks/use*Layer.ts       圖層 hook
-  src/map/overlayRegistry.ts   paint 表達式（或自己的 CustomLayer）
-```
-
-接線兩處：
-
-- **掛載** → [`src/layers/layerHookRegistry.tsx`](src/layers/layerHookRegistry.tsx)
-- **點擊** → [`src/map/gisClickRegistry.ts`](src/map/gisClickRegistry.ts)
-  （**first-hit-wins，陣列順序是 load-bearing**：點層排前段、大面積面層刻意排末段，重排會靜默改掉命中的那一層）
-
-### 守門機制
-
-| 機制 | 擋什麼 |
+| 指令 | 用途 |
 |---|---|
-| `layerConsistency` 測試 | 沒 entry／欄位空殼／用 `null` 靜默豁免鐵則 |
-| `deployContract` 測試 | 靜態檔沒被列進部署腳本（B 級圖層 404 的根因） |
-| `layerGoldenSnapshot` 測試 | 搬移期的等價證明——派生前後畫面必須零失真 |
-| TypeScript 判別聯集 | 沒有 sidebar 位置的 key 若手癢填 `label`，直接紅 |
+| `npm run design:snapshot` / `design:baseline` / `design:audit-layers` | 設計系統快照、guard 基準、圖層樣式盤點 |
+| `npm run research:local:start` / `dev:exploration` / `research:layer-status` | 本機 Agent 測試環境、可分析圖層總表 |
+| `npm run dev:private-research` | 本機起私有研究服務 |
+| `npm run fetch:flights` / `fetch:tracks` / `s3:upload*` / `rail:bundle` | 資料抓取、資產上傳、軌道打包 |
 
-### UX 四鐵則（缺一不可，違反退件）
-
-1. **透明度 slider 必備** — 每一層都要，不分 fill / line / circle / 3D
-2. **同層出現 ≥2 種分類 → 必寫圖例**，且配色走同一份 `xxxTypes.ts` SSOT（paint / popup / 圖例三邊共用）
-3. **可選取的物件 → 必接 click popup**，polygon 與 line 不是豁免條件
-4. **Sidebar 控件不得橫向溢出** — 參數區只有約 240px，選項 ≤3 用 button row、≥4 用原生 `<select>`
-
-完整定義見 [`docs/development-rules.md`](docs/development-rules.md) §4a。
-
-建議走 `/new-layer` 產骨架，再用 `layer-onboarding` 驗收，可以少漏很多步。
+大型靜態資產（PMTiles、路網 GeoJSON、軌道時刻表）不進 git。本機未同步時對應圖層會無資料；正式環境則必須通過部署契約，不得把缺資產當成正常。
 
 ---
 
@@ -334,75 +215,90 @@ src/data/layerParamsSpec.ts   一筆規格    ─┴→ 派生 6 張登記表
 ```
 mini-taiwan-pulse/
 ├── src/
-│   ├── data/            資料載入器（83 個 *Loader.ts）+ layerManifest / layerParamsSpec
-│   ├── hooks/           圖層 hook（use*Layer.ts）與共用 hook
-│   ├── layers/          layerHookRegistry —— 圖層掛載總表
-│   ├── map/             Mapbox 容器、overlayRegistry、gisClickRegistry、*CustomLayer.ts
-│   ├── three/           Three.js 場景（19 個 Scene + 7 個支援檔／子目錄）
-│   ├── engines/         列車運動插值引擎
-│   ├── components/      UI（IconRailSidebar 桌機 / LayerSidebar 手機 / 時間軸 / 圖例 / popup）
-│   ├── chat/            BYOK 地圖 agent（AI SDK + tools）
-│   ├── embed/           /embed 嵌入版（MapLibre + PMTiles）
-│   ├── state/           timeStore 等外部 store
-│   └── lib/             loadingRegistry 等基礎設施
-├── public/              按資料域分類的靜態 GeoJSON / PMTiles 資產
-├── scripts/
-│   ├── fetch/           外部 API 抓取
-│   ├── preprocess/      預處理
-│   ├── export/          DB 匯出
-│   └── deploy/          S3 上傳 / 容器啟動拉取 / entrypoint
-└── docs/                規則、架構、74 個 feature 資料夾
+│   ├── data/          *Loader.ts（84 個）＋ layerManifest / layerParamsSpec
+│   ├── hooks/         use*Layer.ts 圖層 hook
+│   ├── layers/        layerHookRegistry —— 圖層掛載總表
+│   ├── map/           Mapbox 容器、overlayRegistry、gisClickRegistry、*CustomLayer.ts（19 個）、樣式分階
+│   ├── three/         Three.js 場景（20 個 *Scene.ts）
+│   ├── components/    側欄、時間軸、圖例、popup、監看模式（intel/monitor）
+│   ├── research/      Agent 面板與地圖執行端
+│   ├── card/ embed/   分析卡、嵌入版
+│   ├── chat/          BYOK 對話
+│   ├── design-system/ 活的設計系統元件頁
+│   └── state/ lib/ styles/   timeStore、loadingRegistry、design tokens
+├── server/coral-private/   私有研究服務
+├── lab/ tools/        研究畫布、開發／POC 頁面
+├── public/            按資料域分類的靜態資產
+├── scripts/           fetch / preprocess / export / deploy / research / design
+└── docs/
 ```
 
-目錄規則（什麼東西該放哪）以 [`CLAUDE.md`](CLAUDE.md) 為準。
+目錄規則以 [`CLAUDE.md`](CLAUDE.md) 為準。`docs/` 地圖：
+
+| 位置 | 內容 |
+|---|---|
+| [`docs/development-rules.md`](docs/development-rules.md) | 完整開發規則（資料契約、圖層接線、UX 四鐵則、時間訂閱） |
+| [`docs/design-system/`](docs/design-system/README.md) | UI 與地圖圖層視覺規格 |
+| [`docs/features/<slug>/`](docs/features/README.md) | 各功能領域的脈絡、交接與 changelog |
+| [`docs/launch/`](docs/launch/03_DEPLOY_RUNBOOK.md) | 上線與部署 runbook |
+| [`docs/archive/`](docs/archive/README.md) | 已完成或被取代的文件 |
 
 ---
 
-## 測試
+## 資料架構
 
-```bash
-npm test        # vitest run；2026-09-20 基準：234 files，1,746 passed / 10 skipped
-npx tsc -b      # project references；禁用 --noEmit
-```
+本專案是 GIS 生態系的**消費端**，自己不做資料收集：`data-collectors`（收集器）→ `taipei-gis-analytics`（目錄、pipeline、PMTiles）→ `gis-platform`（Supabase／PostGIS SSOT）→ 本 repo（只讀、負責渲染）。跨 repo 有資料契約變動時**上游先動、下游後動**，見 [`CLAUDE.md`](CLAUDE.md)。
 
-測試不只測邏輯，很大一部分在**守登記簿的一致性**（見上面「守門機制」）——
-這類 bug 在執行期不會炸、只會讓某層安靜地不見，所以用測試釘住。
+| 資料型態 | 走哪條路 |
+|---|---|
+| 動態、時序 | Supabase `public.*` RPC；禁止前端直打 `realtime.*`；>1s 或 >10k rows 套 pre-aggregate → [`supabase-optimization.md`](docs/supabase-optimization.md) |
+| 區域統計 | 一律 R2 snapshot → [`statistics-layer-guidelines.md`](docs/statistics-layer-guidelines.md) |
+| 大面積靜態 | PMTiles／GeoJSON 走 CDN 或容器 `/data`；URL 是契約，不可任意搬路徑 |
+
+每個圖層在 manifest 標 `dataClass`（A GeoJSON 全量／B PMTiles／C RPC 或即時 API／D 自行接線）。新增圖層只寫一筆 `layerManifest.ts` entry ＋ 一筆 `layerParamsSpec.ts` 規格，登記表自動派生；建議走 `/new-layer` 產骨架、`layer-onboarding` 驗收，並遵守 UX 四鐵則（透明度、圖例、popup、select）與點線面分階登記 → [`development-rules.md`](docs/development-rules.md) §4、§4a。
+
+**時間軸**：`currentTime` 放在 React 之外的 [`timeStore`](src/state/timeStore.ts)，動態圖層禁止放進 hook deps，一律訂閱 → [`perf-external-time-store.md`](docs/perf-external-time-store.md)、[`TIMELINE_ARCHITECTURE.md`](docs/TIMELINE_ARCHITECTURE.md)。
+
+---
+
+## 開發流程與版本
+
+- **分支**：`develop`／`master` 雙主幹。功能分支從 `develop` 開，PR `--base develop`；`master` 只收發布合併與 `hotfix/*` → [`docs/git-workflow.md`](docs/git-workflow.md)
+- **合併**：一律一般 merge commit（`gh pr merge --merge`），禁止 squash／rebase
+- **CHANGELOG**：每個 user-facing PR 在 [`CHANGELOG.md`](CHANGELOG.md) 的 `## [Unreleased]` 加一行
+- **版號**：SemVer，`package.json` 為唯一來源，網站「資訊 → 關於」顯示；發布與 hotfix 步驟 → [`docs/RELEASING.md`](docs/RELEASING.md)
+- **commit**：Conventional Commits；`memory:` 用於 `.claude/memory` 更新
 
 ---
 
 ## 部署
 
-Zeabur 綁 GitHub `master` 自動部署。
+Zeabur 服務綁 GitHub `master` 自動部署：**merge 進 `master` ＝ 直接上線**。`develop` 的部署環境需另行設定。
 
-**Build**（Dockerfile 多階段）：
+**Dockerfile 三階段**：
 
-```
-node:22-alpine    npm ci → npm run build（VITE_MAPBOX_TOKEN 以 build ARG 注入）
-      ↓
-nginx:alpine      dist → /usr/share/nginx/html，監聽 8080
-```
+1. `node:22-alpine` build：`npm ci` → `npm run build`（`VITE_MAPBOX_TOKEN`、`VITE_STATISTICS_COMPARISONS_ENABLED` 為 build ARG）
+2. `node:22-alpine` coral-server：安裝 `server/coral-private` 的相依
+3. `nginx:alpine` runtime：裝 aws-cli、nodejs、python3；放入 dist、私有研究服務與部署腳本，監聽 8080
 
-**容器啟動時**（`scripts/deploy/entrypoint.sh`）：
+**容器啟動**（[`scripts/deploy/entrypoint.sh`](scripts/deploy/entrypoint.sh)）：有 S3 憑證時背景執行 `pull-deploy-assets.sh` 同步資產到 `/data`，背景重整氣候貼圖，然後 `exec nginx`。資產拉取放背景，健康檢查不必等首次同步。
 
-1. 若 S3 憑證存在 → **背景**執行 `pull-deploy-assets.sh`，把約 30 類資產
-   （PMTiles、GeoJSON、H3 JSON、軌道 tarball、pre-render RPC 快照）同步進 `/data`
-2. 背景起一個氣候貼圖定時重整迴圈（預設 6 小時）
-3. `exec nginx`
+nginx 另外負責 `/api/research/v1/`（轉送 research-gateway）、`/api/private-research/`、`/card/`、`/lab/`。PMTiles 刻意不進 `gzip_types`（再壓會破壞 Range 請求）。新增大檔要同步部署腳本與 nginx，否則正式站 404。
 
-資產拉取刻意放背景：nginx 立刻綁 port，健康檢查不必等首次同步（首拉數百 MB）跑完。
-之後每次重啟走 `aws s3 sync`，未變更的物件會跳過。
+本機 Docker：`docker compose up -d`（http://localhost:3721），不帶 S3 憑證，只覆蓋部分圖層。
 
-nginx 用 `root /data` 覆寫 66 個 location，其中一部分再 `try_files` 回退到 build 產物，
-所以本機沒同步資產時仍跑得起來。PMTiles **刻意不進 `gzip_types`**——
-它內部已壓縮，再走一次 gzip 會破壞 Range 請求。
+---
 
-本機 Docker：
+## 相關 repo
 
-```bash
-docker compose up -d      # http://localhost:3721 （host 3721 → container 8080）
-```
-
-本機 compose 不帶 S3 憑證，改用 bind mount 掛 `./public`，因此只覆蓋部分圖層。
+| repo | 角色 |
+|---|---|
+| `gis-platform` | Supabase migrations、research-gateway |
+| `data-collectors` | 持續收集即時資料 |
+| `taipei-gis-analytics` | 開放資料目錄、pipeline、跨 repo handoff／ADR |
+| `mini-pulse-gis-mcp` | pulse-research MCP server 與 Agent skills |
+| `pulse-api` | FastAPI 備援 |
+| `mini-taipei-v3` | 鐵道資料來源 |
 
 ---
 
@@ -413,24 +309,8 @@ docker compose up -d      # http://localhost:3721 （host 3721 → container 808
 中央氣象署、農業部、環境部、衛生福利部、教育部、各縣市政府開放資料平台，
 以及 OpenStreetMap、AIS 船舶訊號、FlightRadar24、Space-Track TLE 與 UCS 衛星資料庫。
 
-每個圖層的上游血緣登記在 manifest 的 `upstream` 欄位（**301 個不同的上游 dataset**，此處指已橋接 catalog），
-並保留對帳狀態與 confidence；可在站上的「資料來源」面板逐層查看。
+每個圖層的上游血緣登記在 manifest 的 `upstream` 欄位，可在站上的「資料來源」面板逐層查看。
 
 感謝所有開放資料的維護者——沒有這些，這張地圖不會存在。
 
-程式碼採 MIT License，見 [LICENSE](LICENSE)。**資料本身的授權依各來源規定**，
-與本專案的程式碼授權無關。
-
----
-
-## 相關文件
-
-| 文件 | 內容 |
-|---|---|
-| [`CLAUDE.md`](CLAUDE.md) | 開發規則摘要、目錄規則、git workflow |
-| [`docs/development-rules.md`](docs/development-rules.md) | 完整規則 + 範例（資料契約、圖層接線、UX 四鐵則） |
-| [`docs/perf-external-time-store.md`](docs/perf-external-time-store.md) | timeStore：為什麼 `currentTime` 不能進 React |
-| [`docs/TIMELINE_ARCHITECTURE.md`](docs/TIMELINE_ARCHITECTURE.md) | 時間軸 UI 的三層結構設計提案 |
-| [`docs/supabase-optimization.md`](docs/supabase-optimization.md) | pre-aggregate pattern 完整指南 |
-| [`docs/known-issues.md`](docs/known-issues.md) | 歷史 bug + 診斷指令 |
-| [`docs/features/`](docs/features/) | 74 個功能領域各自的脈絡與交接文件 |
+程式碼採 MIT License，見 [LICENSE](LICENSE)。**資料本身的授權依各來源規定**，與本專案的程式碼授權無關。
