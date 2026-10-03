@@ -1,5 +1,5 @@
 import { LAYER_MANIFEST } from "../data/layerManifest";
-import { getParamsSpec, resolveMultiSelectValues, visibleParamsSpec, type LayerParamSpec } from "../data/layerParamsSpec";
+import { getParamsSpec, orderedVisibleParamsSpec, resolveMultiSelectValues, type LayerParamSpec } from "../data/layerParamsSpec";
 import { buildParamControls, type ParamControl } from "../state/layerParamsControls";
 import { layerParamsStore } from "../state/layerParamsStore";
 import { paletteById } from "../map/palettes";
@@ -26,9 +26,9 @@ function describe(layerKey: string, locked: ReadonlySet<string>): { controls: Co
   if (locked.has(layerKey)) fail("LAYER_DENIED");
   const spec = getParamsSpec(layerKey);
   if (!spec) return { controls: [], actual: new Map() };
-  // buildParamControls intentionally omits names; visibleParamsSpec has identical ordering.
+  // buildParamControls intentionally omits names; orderedVisibleParamsSpec has identical ordering.
   const actual = new Map<string, ParamControl>();
-  const visible = visibleParamsSpec(spec, layerParamsStore.getParams(layerKey));
+  const visible = orderedVisibleParamsSpec(spec, layerParamsStore.getParams(layerKey));
   (buildParamControls(layerKey) ?? []).forEach((control, index) => actual.set(visible[index]!.name, control));
   return {
     actual,

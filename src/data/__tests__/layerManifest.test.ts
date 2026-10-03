@@ -4,7 +4,7 @@
  *
  * manifest 有兩種欄位，各需要不同的保護：
  *
- *   已派生（color / icon / label / labelMobile / expandable / gated / upstream）
+ *   已派生（color / icon / name・label / expandable / gated / upstream）
  *     → 由**本檔下方「已派生欄位真的在驅動下游表」那組斷言**保護：
  *       manifest 的值與 LAYER_COLORS / LAYER_ICONS / THEMES / UPSTREAM_REGISTRY
  *       逐 key 相等，改壞任一邊立刻紅。
@@ -24,7 +24,7 @@
 import { describe, it, expect } from "vitest";
 
 import {
-  LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry, type LayerSource,
+  LAYER_MANIFEST, MANIFEST_KEYS, composeLayerLabel, type LayerManifestEntry, type LayerSource,
 } from "../layerManifest";
 import { LAYER_COLORS, THEMES, LAYER_LABELS } from "../../components/sidebar/layerCatalog";
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
@@ -94,7 +94,7 @@ describe("layerManifest 已派生欄位真的在驅動下游表", () => {
     for (const [k, m] of entries) expect(LAYER_ICONS[k]).toBe(m.icon);
   });
 
-  it("THEMES 的 LayerDef 來自 manifest（label / labelMobile / expandable / gated）", () => {
+  it("THEMES 的 LayerDef 來自 manifest（name / label / expandable / gated）", () => {
     for (const [k, m] of entries) {
       const def = THEMES.flatMap((t) => t.groups).flatMap((g) => g.layers).find((l) => l.key === k);
       if (m.section === null) {
@@ -106,7 +106,9 @@ describe("layerManifest 已派生欄位真的在驅動下游表", () => {
       }
       expect(def, `${k} 不在 THEMES 裡`).toBeTruthy();
       expect(def!.label).toBe(m.label);
-      expect(def!.labelMobile).toBe(m.labelMobile);
+      expect(def!.name).toEqual(m.name);
+      // label 一律由 name 組出（不可手寫、不可漂移）
+      expect(m.label).toBe(composeLayerLabel(m.name));
       expect(def!.expandable).toBe(m.expandable);
       expect(def!.gated).toBe(m.gated);
       // LAYER_LABELS 是 THEMES 的 derived 表 —— 一併確認派生鏈沒斷
@@ -332,7 +334,7 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
     }
   });
 
-  it("params 宣告 = buildParamControls 實際產出的控件數與型別序列", () => {
+  it("params 宣告 = buildParamControls 實際產出的控件數與型別", () => {
     for (const [k, m] of entries) {
       const actual = controls[k] ?? [];
       if (m.params === null) {
@@ -341,9 +343,11 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
       }
       expect(actual.length, `${k} 控件數宣告 ${m.params.count}、實際 ${actual.length}`)
         .toBe(m.params.count);
-      // SliderConfig 的 type 是 optional（省略即 slider）→ 正規化後再比
-      expect(actual.map((c) => c.type ?? "slider"), `${k} 控件型別序列宣告錯`)
-        .toEqual(m.params.kinds);
+      // SliderConfig 的 type 是 optional（省略即 slider）→ 正規化後再比。
+      // 面板依 P5 類別排序（spec §5.11），所以這裡比「型別的組成」；宣告順序由
+      // layerParamsStore.test（spec 宣告順序 ＝ manifest kinds）把關，面板順序由 layerParamsOrder.test 把關。
+      expect([...actual.map((c) => c.type ?? "slider")].sort(), `${k} 控件型別宣告錯`)
+        .toEqual([...m.params.kinds].sort());
     }
   });
 });

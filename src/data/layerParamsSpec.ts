@@ -239,7 +239,7 @@ export type OverlayOutKey = string | null;
  * 小數位數逐控件不同（透明度 2 位、大小 1 位），漏掉就會產生
  * 「編得過但字串悄悄不一樣」的漂移，正是本工程要消滅的那一類。
  */
-export interface SliderParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+export interface SliderParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "slider";
   /** 參數名。慣例沿用舊 useState 變數名 —— 它同時是 overlayParams 的預設 key */
   name: string;
@@ -308,7 +308,7 @@ export interface SliderParamSpec extends SharedSlotField, ConditionalField, Casc
  * 才餵得進 paint expression。編碼由 `encodeParamsToOverlay` 統一做，
  * 規格端只宣告 `out`（省略 = 用 `name`）。
  */
-export interface ToggleParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+export interface ToggleParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "toggle";
   name: string;
   label: string;
@@ -332,7 +332,7 @@ export interface ToggleParamSpec extends SharedSlotField, ConditionalField, Casc
  *   - `["all", ...OPTIONS.map((o) => o.value)]`（「全部」是控件端才 prepend 的）
  * 兩者的 idx 會整體位移 1，抄錯不會編譯錯、只會讓篩選整個錯位。
  */
-interface SelectParamSpecBase extends SharedSlotField, ConditionalField, CascadeField {
+interface SelectParamSpecBase extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "select";
   name: string;
   /** 控件 label；宣告了 `labelByValue` 時，本欄退化成「查無對應時的兜底」 */
@@ -456,7 +456,7 @@ export const MULTI_SELECT_NONE = "__none__";
  * 分類多選的值維持 scalar string，避免改動既有 store。`__all__` 會隨 options
  * 自動展開，`__none__` 是全關，其他值為排序後的 JSON string array。
  */
-export interface MultiSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+export interface MultiSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "multiSelect";
   name: string;
   label: string;
@@ -520,7 +520,7 @@ export function encodeMultiSelectBitmask(
  * 之後的連動選單照同一個形狀：spec 宣告 → `buildParamControls` 產控件 →
  * `renderControl` 畫 → `research/layerControls` 與 `memberSceneAdapter` 用 `options` 驗值。
  */
-export interface PaletteParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+export interface PaletteParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "palette";
   name: string;
   label: string;
@@ -534,6 +534,80 @@ export interface PaletteParamSpec extends SharedSlotField, ConditionalField, Cas
 }
 
 export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec;
+
+// ══════════════════════════════════════════════════════════════════
+//  設定區順序（layer-panel-unify P5，spec §5.11）
+// ══════════════════════════════════════════════════════════════════
+//
+// 展開區控制項一律依類別排：資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀；
+// 「說明・來源」由 ExpandedControls 固定放最後。排序在 `buildParamControls` 做
+// （同類保持宣告順序），spec 陣列與 store／overlay 編碼都不動。
+//
+// 類別判斷：`category` 明寫 > 控件型別（palette＝顏色、multiSelect＝資料篩選）>
+// 滑桿標籤含「透明度」＝透明度 > 下方標籤詞彙表。**查不到就是 null**，
+// `layerParamsOrder.test.ts` 會紅：新圖層用了新標籤，要在詞彙表補一列或在 spec 寫 `category`。
+
+export type ParamControlCategory = "data" | "color" | "opacity" | "size" | "look";
+
+/** 排序：陣列位置即名次 */
+export const PARAM_CONTROL_CATEGORY_ORDER: readonly ParamControlCategory[] = ["data", "color", "opacity", "size", "look"];
+
+interface ControlCategoryField {
+  /** 設定區類別；省略時依型別與標籤詞彙表判斷（同一個詞在不同層意思不同時才寫） */
+  category?: ParamControlCategory;
+}
+
+const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
+  // 資料篩選：決定「畫哪些資料、哪個指標、哪段時間」
+  ...Object.fromEntries([
+    "指標", "品項 全部", "類別", "年份", "定位精度", "位置精度", "狀態", "類型", "型別", "介質", "縣市", "最低嚴重度",
+    "登記", "方向 全部", "航線範圍 全部", "品質", "營業狀態", "服務型態", "共同登記 ≥", "行業中類", "資本額分位",
+    "設立年下限", "設立年上限", "製造業", "上市櫃", "有商標", "地址不一致", "聚焦行業中類", "回溯", "主題", "研究區域",
+    "分類", "過去", "時間範圍", "拖尾", "其他", "跨國關聯線（非移動軌跡）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）",
+    "漁船", "貨輪", "客輪", "運搬船", "未知", "承載類型", "比對狀態", "交通類別", "交通模式", "權重",
+    "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", "顯示替代路線（代表性起訖對）", "關渡＋淡江同時中斷", "設施類型",
+    "資料源", "即時水位", "預測水位 (12-19h)", "累計流量", "閘門", "堤防安全", "河床沖刷", "揚塵", "信心", "確認", "漁電共生",
+    "兩版都有", "只看官方", "只看舊版 OSM", "軌跡篩選", "深度", "累積時長", "作物 芋", "高度門檻 ≥", "行政層級", "疊加", "回放",
+    "歷史播放", "待核實", "軌跡", "含疑似（未查證）", "時段", "污染等級", "測站類型", "相關度", "嚴重", "只看事件", "依時間",
+    "空污", "水污", "廢棄物", "毒化物", "土污", "雙北", "基宜", "桃竹苗", "中彰投", "雲嘉南", "高屏", "花東", "離島", "只看列管中",
+    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式",
+  ].map((label) => [label, "data" as const])),
+  // 顏色：配色方式（熱區／網格色盤是 palette 型別，不必列）
+  ...Object.fromEntries([
+    "配色", "染色模式", "上色", "著色", "著色模式", "著色依據", "上色模式", "村里色階（僅不分遠近）", "分級配色", "分帶填色",
+  ].map((label) => [label, "color" as const])),
+  // 透明度：標籤不含「透明度」字樣的透明度滑桿
+  "填色濃度": "opacity",
+  "航跡": "opacity",
+  // 大小
+  ...Object.fromEntries([
+    "大小", "點位大小", "光點大小", "音符大小", "總大小", "寬度", "線寬", "邊框寬", "光點", "大廠（即時）", "其他廠", "底圈",
+  ].map((label) => [label, "size" as const])),
+  // 其他外觀
+  ...Object.fromEntries([
+    "高度", "高度 +", "高度倍率", "高度倍率 ×", "漂浮高度", "對比", "3D", "3D 立體", "顯示", "光柱", "邊框", "顯示外框線",
+    "光暈", "動畫速度", "粒子數", "全台顯示", "音符高度", "線條強度", "網格大小", "解析度", "顯示方式", "樣式", "呈現",
+    "水位計高度", "柱高", "熱區", "Bloom 高樓門檻 ≥", "列車", "軌道", "光束", "光束距離", "散點", "3D 光柱波動", "離地高度",
+    "網格線", "漣漪", "網格", "高度依據",
+  ].map((label) => [label, "look" as const])),
+};
+
+/** 控制項的設定區類別；查不到回 null（測試擋）。 */
+export function paramControlCategory(spec: LayerParamSpec): ParamControlCategory | null {
+  if (spec.category) return spec.category;
+  if (spec.kind === "palette") return "color";
+  if (spec.kind === "multiSelect") return "data";
+  // 開頭的播放符號等非文字字元不算進詞彙（播放鍵標籤 → 「歷史播放」）
+  const label = (spec.kind === "slider" ? spec.labelPrefix : spec.label).replace(/^[^\p{L}\p{N}]+/u, "").trim();
+  if (spec.kind === "slider" && label.includes("透明度")) return "opacity";
+  return CATEGORY_BY_LABEL[label] ?? null;
+}
+
+/** 排序用名次；分不出類的排在最後（只會發生在測試已經紅的情況）。 */
+export function paramControlRank(spec: LayerParamSpec): number {
+  const role = paramControlCategory(spec);
+  return role === null ? PARAM_CONTROL_CATEGORY_ORDER.length : PARAM_CONTROL_CATEGORY_ORDER.indexOf(role);
+}
 
 /** 控件值的三種形狀（與三種 spec 一一對應） */
 export type ParamValue = number | string | boolean;
@@ -2416,7 +2490,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   urbanHeat: [
     {
-      kind: "select", name: "urbanHeatModeIdx", label: "顯示", default: "0",
+      kind: "select", name: "urbanHeatModeIdx", label: "顯示", default: "0", category: "data", // 選指標（熱島強度／地表溫度），不是外觀
       options: URBAN_HEAT_MODES.map((m) => ({ label: m.label, value: m.value })),
       out: "urbanHeatModeIdx", encode: URBAN_HEAT_MODES.map((o) => o.value),
     },
@@ -3003,7 +3077,7 @@ export const LAYER_PARAMS_SPEC = {
 
   buildingsGba: [
     {
-      kind: "select", name: "buildingsGbaModeIdx", label: "顯示模式", default: "0",
+      kind: "select", name: "buildingsGbaModeIdx", label: "顯示模式", default: "0", category: "look", // 高度分級／3D／夜景是外觀
       options: [...BUILDINGS_GBA_MODES],
       // 存的是模式編號本身（手寫版是 `parseInt(v, 10)` 直接進 overlayParams）
       out: "buildingsGbaModeIdx", encodeNumeric: true,
@@ -3742,6 +3816,18 @@ export function visibleParamsSpec(
 ): LayerParamSpec[] {
   const resolved = resolveParamValues(spec, values);
   return spec.filter((s) => !s.showWhen || resolved[s.showWhen.param] === s.showWhen.equals);
+}
+
+/**
+ * 面板上的實際順序（P5，spec §5.11）：可見控件依類別穩定排序。
+ * `buildParamControls` 與 Agent 端 `research/layerControls.ts` 都用這支，兩邊逐位對得上
+ * （research 端靠位置把沒有 name 的控件對回 spec）。manifest `params.kinds` 仍比宣告順序，不比這個。
+ */
+export function orderedVisibleParamsSpec(
+  spec: readonly LayerParamSpec[],
+  values: LayerParamValues,
+): LayerParamSpec[] {
+  return visibleParamsSpec(spec, values).sort((a, b) => paramControlRank(a) - paramControlRank(b));
 }
 
 /**

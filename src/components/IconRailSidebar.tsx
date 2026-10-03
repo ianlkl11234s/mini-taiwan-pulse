@@ -364,7 +364,7 @@ export function IconRailSidebar({
                 onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
                 themes={panel.themes}
                 title={panel.title}
-                showMacroGroups={panel.showMacroGroups}
+                macroGroups={panel.macroGroups}
                 allOffKeys={panel.allOffKeys}
                 statisticsModeControl={panel.statisticsModeControl}
                 visibility={visibility}

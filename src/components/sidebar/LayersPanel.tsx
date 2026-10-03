@@ -4,8 +4,8 @@ import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designToken
 import type { DisplayMode, ExpandableLayerKey, LayerVisibility, ViewMode } from "../../types";
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { searchLayers } from "../../lib/layerSearch";
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, THEMES, TRANSPORT_LABELS, splitThemeTitle, themeMacroGroup, type ThemeDef } from "./layerCatalog";
-import { LAYER_PANELS, panelLayerKeys, type LayerPanelId } from "./layerPanels";
+import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeName, type ThemeDef } from "./layerCatalog";
+import { LAYER_PANELS, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
 import { StatisticsModeControl } from "./StatisticsModeControl";
 import { MedicalStatisticsGroupControls } from "./MedicalStatisticsGroupControls";
@@ -31,7 +31,8 @@ export interface LayersPanelProps {
   /** PanelHeader 標題；`onClose` 未給時不顯示標頭（手機用分頁代替）。 */
   title?: string;
   /** 是否顯示第一層大分類。 */
-  showMacroGroups?: boolean;
+  /** 大分類（面板定義 `LayerPanelDef.macroGroups`）；沒給就不顯示 */
+  macroGroups?: readonly PanelMacroGroup[];
   visibility: LayerVisibility;
   lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
@@ -62,7 +63,7 @@ export interface LayersPanelProps {
  */
 export function LayersPanel({
   search, onSearchChange, themes, title = "Layers",
-  showMacroGroups = false,
+  macroGroups,
   visibility, lockedKeys, expandedLayer, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onDisplayModeChange,
@@ -78,7 +79,7 @@ export function LayersPanel({
     const context = new Map<string, string>();
     for (const theme of themesToRender) {
       for (const group of theme.groups) {
-        for (const layer of group.layers) context.set(layer.key, `${splitThemeTitle(theme.title).zh}・${group.title}`);
+        for (const layer of group.layers) context.set(layer.key, `${themeName(theme.title).zh}・${group.title}`);
       }
     }
     return context;
@@ -194,6 +195,7 @@ export function LayersPanel({
                   <div key={result.key}>
                     <LayerRow
                       layerKey={result.key}
+                      name={layerDisplayName(result.key, result.label)}
                       label={result.label}
                       sub={searchContext.get(result.key)}
                       expandable
@@ -256,17 +258,13 @@ export function LayersPanel({
             }
           };
 
-          const macroGroup = showMacroGroups ? themeMacroGroup(theme.title) : null;
-          const previousMacroGroup = showMacroGroups && themeIndex > 0
-            ? themeMacroGroup(themesToRender[themeIndex - 1]!.title)
-            : null;
-          const macroTitle = macroGroup
-            ? LAYER_MACRO_GROUPS.find((group) => group.key === macroGroup)?.title
-            : null;
+          const macroGroup = macroGroups?.find((group) => group.themes.includes(theme.title)) ?? null;
+          const previousTitle = themeIndex > 0 ? themesToRender[themeIndex - 1]!.title : null;
+          const showMacroLabel = macroGroup !== null && (previousTitle === null || !macroGroup.themes.includes(previousTitle));
 
           return (
             <div key={theme.title}>
-              {macroTitle && macroGroup !== previousMacroGroup && <MacroGroupLabel title={macroTitle} />}
+              {showMacroLabel && <MacroGroupLabel zh={macroGroup.zh} />}
               <ThemeBanner
                 title={theme.title}
                 isCollapsed={isCollapsed}
@@ -278,7 +276,7 @@ export function LayersPanel({
               {!isCollapsed && theme.groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, label }) => {
+                  {group.layers.map(({ key, name, label }) => {
                     const medicalGroup = getMedicalStatisticsGroup(key);
                     if (medicalGroup) {
                       if (medicalGroup.options[0]?.key !== key) return null;
@@ -310,6 +308,7 @@ export function LayersPanel({
                       <div key={key}>
                         <LayerRow
                           layerKey={key}
+                          name={name}
                           label={label}
                           expandable
                           active={active}

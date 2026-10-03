@@ -1,6 +1,7 @@
 import { memo, type ReactNode } from "react";
 import { ChevronRight, Lock, type LucideIcon } from "lucide-react";
-import { FONT_CJK, FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import type { LayerName } from "../../data/layerManifest";
 import type { LayerVisibility } from "../../types";
 import { useLayerLiveCount } from "../../state/liveCountStore";
 import { useLayerLoading } from "../../lib/layerLoading";
@@ -12,6 +13,25 @@ import "./layerRow.css";
 export function RailToggle({ on, onChange, label }: { on: boolean; onChange: () => void; label?: string }) {
   const { ACCENT_TOGGLE, TOGGLE_OFF, TOGGLE_KNOB_ON, TOGGLE_KNOB_OFF } = useRailTheme();
   return <LayerToggleSwitch on={on} onChange={onChange} label={label} ACCENT_TOGGLE={ACCENT_TOGGLE} TOGGLE_OFF={TOGGLE_OFF} TOGGLE_KNOB_ON={TOGGLE_KNOB_ON} TOGGLE_KNOB_OFF={TOGGLE_KNOB_OFF} />;
+}
+
+/**
+ * 圖層名稱（layer-panel-unify P2 A）：同一行顯示中文主名＋外文小字＋來源標籤。
+ * 空間不夠時只省略外文；中文不縮（比整列還長時才換行）；來源標籤不縮。
+ */
+export function LayerNameLine({ name }: { name: LayerName }) {
+  const { DIM, BORDER } = useRailTheme();
+  return (
+    <span style={{ display: "flex", alignItems: "baseline", gap: 5, minWidth: 0 }}>
+      <span style={{ flex: "0 0 auto", maxWidth: "100%" }}>{name.zh}</span>
+      {name.alt && (
+        <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: DIM }}>{name.alt}</span>
+      )}
+      {name.qualifier && (
+        <span style={{ flexShrink: 0, alignSelf: "center", padding: "0 4px", border: `1px solid ${BORDER}`, borderRadius: RADIUS.md, fontSize: FONT_SIZE.xs, lineHeight: "13px", color: DIM, whiteSpace: "nowrap" }}>{name.qualifier}</span>
+      )}
+    </span>
+  );
 }
 
 export interface ListRowProps {
@@ -82,7 +102,7 @@ export function ListRow({
       >
         {icon}
         <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: FONT_SIZE.md, color: TEXT_STRONG, transition: "color 0.15s" }}>
+          <span style={{ display: "flex", alignItems: "baseline", minWidth: 0, fontSize: FONT_SIZE.md, color: TEXT_STRONG, transition: "color 0.15s" }}>
             {label}{meta}
           </span>
           {sub && <span style={{ fontSize: FONT_SIZE.sm, color: DIM, marginTop: 1 }}>{sub}</span>}
@@ -114,6 +134,9 @@ export function ListRow({
 // 即時計數（useLayerLiveCount）與載入狀態（useLayerLoading）也都是 per-key 訂閱。
 export interface LayerRowProps {
   layerKey: keyof LayerVisibility;
+  /** 結構化名稱（畫面顯示） */
+  name: LayerName;
+  /** 整串名稱（無障礙名稱、開關標籤） */
   label: string;
   expandable: boolean;
   active: boolean;
@@ -132,7 +155,7 @@ export interface LayerRowProps {
 }
 
 export const LayerRow = memo(function LayerRow({
-  layerKey, label, expandable, active, locked, color, count: staticCount, isExpanded, Icon,
+  layerKey, name, label, expandable, active, locked, color, count: staticCount, isExpanded, Icon,
   onLayerClick, onToggleVisibility, trailing, sub,
 }: LayerRowProps) {
   // 列車／公車／客運：只有該 row 訂閱 liveCountStore（播放中 2Hz），其他 row 不重渲
@@ -146,7 +169,7 @@ export const LayerRow = memo(function LayerRow({
   return (
     <ListRow
       ariaLabel={label}
-      label={label}
+      label={<LayerNameLine name={name} />}
       sub={sub}
       icon={<Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />}
       count={count}

@@ -32,7 +32,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 
 import {
   LAYER_MANIFEST, manifestColors,
-  type ManifestKey, type LayerManifestEntry,
+  type ManifestKey, type LayerManifestEntry, type LayerName,
 } from "../../data/layerManifest";
 
 /**
@@ -103,10 +103,10 @@ export const TRANSPORT_LABELS: Record<TransportType, string> = {
 
 export interface LayerDef {
   key: keyof LayerVisibility;
-  /** 桌機 IconRailSidebar 顯示文字（預設） */
+  /** 結構化名稱（P2）：面板列讀這個，同一行顯示中文＋外文小字＋來源標籤 */
+  name: LayerName;
+  /** 由 `name` 組出的整串名稱：搜尋、無障礙名稱、Agent 等只要一個字串的地方用 */
   label: string;
-  /** 手機 LayerSidebar 顯示文字（多為較長全稱）；未填則沿用 label */
-  labelMobile?: string;
   expandable?: boolean;
   /**
    * owner-only 私人圖層：非 owner 帳號顯示鎖頭、禁 toggle。
@@ -143,7 +143,7 @@ export interface SectionDef {
  * 順序就是 UI 顯示順序 —— 若改成「派生的 append 在最後」，圖層會整批換位置，
  * 黃金快照的 themes/sidebarSections section 立刻紅。
  *
- * 選填欄位用條件展開而非 `labelMobile: m.labelMobile`：後者會產生一個值為
+ * 選填欄位用條件展開而非 `gated: m.gated`：後者會產生一個值為
  * undefined 的**存在的 key**，跟「這個 key 不存在」在序列化/比對上是兩回事。
  */
 function fromManifest(key: ManifestKey): LayerDef {
@@ -157,8 +157,7 @@ function fromManifest(key: ManifestKey): LayerDef {
   if (m.section === null) {
     throw new Error(`[layerManifest] ${key} 是 orphan（不在 THEMES），不該被 fromManifest 引用`);
   }
-  const def: LayerDef = { key: m.key, label: m.label };
-  if (m.labelMobile !== undefined) def.labelMobile = m.labelMobile;
+  const def: LayerDef = { key: m.key, name: m.name, label: m.label };
   if (m.expandable !== undefined) def.expandable = m.expandable;
   if (m.gated !== undefined) def.gated = m.gated;
   return def;
@@ -202,7 +201,8 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療設施", "長照服務", "醫療圈", "水資源", "高度與地表"];
+// 2026-10-03 依日本面板的大分類（layerPanels.ts `JAPAN_MACRO_GROUPS`）重排：同一大分類的主題相鄰。
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "人口", "交通", "旅宿", "醫療設施", "長照服務", "醫療圈", "治安", "教育", "宗教", "自然保護", "世界遺產", "水資源", "高度與地表"];
 
 /** 環境統計依 recipe 的中分類／小分組派生；raw 在 ratio 前，toggle 群組只在第一個成員渲染。 */
 function environmentLayers(match: (recipe: EnvironmentRecipe) => boolean): LayerDef[] {
@@ -1988,12 +1988,12 @@ const THEME_CATALOG: ThemeDef[] = [
  * 全球與日本主題在 desktop 仍由各自 rail 顯示；mobile 則併入相符的既有大分類。
  */
 export const LAYER_MACRO_GROUPS = [
-  { key: "baseline", title: "基準 Baseline" },
-  { key: "city", title: "移動與城市 City & Mobility" },
-  { key: "publicLife", title: "公共生活 Public Life" },
-  { key: "safety", title: "安全與治理 Safety & Governance" },
-  { key: "environment", title: "環境與資源 Environment & Resources" },
-  { key: "intelligence", title: "情報 Intelligence" },
+  { key: "baseline", zh: "基準", en: "Baseline" },
+  { key: "city", zh: "移動與城市", en: "City & Mobility" },
+  { key: "publicLife", zh: "公共生活", en: "Public Life" },
+  { key: "safety", zh: "安全與治理", en: "Safety & Governance" },
+  { key: "environment", zh: "環境與資源", en: "Environment & Resources" },
+  { key: "intelligence", zh: "情報", en: "Intelligence" },
 ] as const;
 
 export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
@@ -2072,20 +2072,108 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "水資源": "environment",
 };
 
+/**
+ * 主題的顯示名稱（spec §5.5 LT1、layer-panel-unify P3）。`theme.title` 是識別字串（manifest
+ * `section.theme`、大分類、各入口清單都拿它當 key），**不拆字**；畫面一律讀這張表。
+ * - `sub`：副標小字。台灣、統計、世界用英文；日本 14 個主題用日文漢字（P3 B，與中文同字也照樣顯示）。
+ * 新增主題時補一列；`layerCatalog` 測試會擋漏列。
+ */
+export interface ThemeName {
+  zh: string;
+  sub?: string;
+}
+
+const THEME_NAMES: Record<string, ThemeName> = {
+  // 統計入口的重組主題（STATISTICS_TAB_THEMES）
+  "人口與社會 People & Society": { zh: "人口與社會", sub: "People & Society" },
+  "交通與運輸 Transport": { zh: "交通與運輸", sub: "Transport" },
+  "農林漁牧 Agriculture, Forestry & Fisheries": { zh: "農林漁牧", sub: "Agriculture, Forestry & Fisheries" },
+  "環境與資源 Environment & Resources": { zh: "環境與資源", sub: "Environment & Resources" },
+  "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
+  "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
+  "農業統計": { zh: "農業統計" },
+  "畜牧統計": { zh: "畜牧統計" },
+  "漁業統計": { zh: "漁業統計" },
+  "林業統計": { zh: "林業統計" },
+  "交通統計 Transport Statistics": { zh: "交通統計", sub: "Transport Statistics" },
+  "水資源統計 Water Statistics": { zh: "水資源統計", sub: "Water Statistics" },
+  "廢棄物統計 Waste Statistics": { zh: "廢棄物統計", sub: "Waste Statistics" },
+  "能源統計 Energy Statistics": { zh: "能源統計", sub: "Energy Statistics" },
+  "農業統計 Agriculture Statistics": { zh: "農業統計", sub: "Agriculture Statistics" },
+  "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
+  "統計比較": { zh: "統計比較" },
+  "教育與少子化統計": { zh: "教育與少子化統計" },
+  "醫療與長照統計": { zh: "醫療與長照統計" },
+  "住宅存量與使用": { zh: "住宅存量與使用" },
+  "房地產統計 Real Estate Statistics": { zh: "房地產統計", sub: "Real Estate Statistics" },
+  "資源回收統計 Recycling Statistics": { zh: "資源回收統計", sub: "Recycling Statistics" },
+  "水質與污水統計 Water Quality & Sewage Statistics": { zh: "水質與污水統計", sub: "Water Quality & Sewage Statistics" },
+  "空氣品質統計 Air Quality Statistics": { zh: "空氣品質統計", sub: "Air Quality Statistics" },
+  "污染與公害統計 Pollution & Nuisance Statistics": { zh: "污染與公害統計", sub: "Pollution & Nuisance Statistics" },
+  "環境治理統計 Environmental Enforcement Statistics": { zh: "環境治理統計", sub: "Environmental Enforcement Statistics" },
+  "治安與交通 Safety & Transport": { zh: "治安與交通", sub: "Safety & Transport" },
+  "行政區參考 Administrative Boundaries": { zh: "行政區參考", sub: "Administrative Boundaries" },
+  "底圖 Base Map": { zh: "底圖", sub: "Base Map" },
+  "交通 Move": { zh: "交通", sub: "Move" },
+  "人口社經 People": { zh: "人口社經", sub: "People" },
+  "都市分析 Urban Analysis": { zh: "都市分析", sub: "Urban Analysis" },
+  "房地產 Real Estate": { zh: "房地產", sub: "Real Estate" },
+  "工商登記 Business Registry": { zh: "工商登記", sub: "Business Registry" },
+  "基礎建設 Infrastructure": { zh: "基礎建設", sub: "Infrastructure" },
+  "教育 Education": { zh: "教育", sub: "Education" },
+  "社福長照 Welfare": { zh: "社福長照", sub: "Welfare" },
+  "運動休閒 Sports & Leisure": { zh: "運動休閒", sub: "Sports & Leisure" },
+  "文化 Culture": { zh: "文化", sub: "Culture" },
+  "宗教 Religion": { zh: "宗教", sub: "Religion" },
+  "殯葬 Funeral": { zh: "殯葬", sub: "Funeral" },
+  "觀光 Tourism": { zh: "觀光", sub: "Tourism" },
+  "醫療 Medical": { zh: "醫療", sub: "Medical" },
+  "消防 Fire & Rescue": { zh: "消防", sub: "Fire & Rescue" },
+  "災害 Hazard": { zh: "災害", sub: "Hazard" },
+  "民防避難 Civil Defense": { zh: "民防避難", sub: "Civil Defense" },
+  "執法治安 Law & Order": { zh: "執法治安", sub: "Law & Order" },
+  "環境氣候 Environment": { zh: "環境氣候", sub: "Environment" },
+  "水資源 Water": { zh: "水資源", sub: "Water" },
+  "廢棄物 Waste": { zh: "廢棄物", sub: "Waste" },
+  "能源 Energy": { zh: "能源", sub: "Energy" },
+  "農業 Agriculture": { zh: "農業", sub: "Agriculture" },
+  "動物福利 Animal Welfare": { zh: "動物福利", sub: "Animal Welfare" },
+  "林業 Forestry": { zh: "林業", sub: "Forestry" },
+  "太空 Space": { zh: "太空", sub: "Space" },
+  "情勢 Situation": { zh: "情勢", sub: "Situation" },
+  [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },
+  [GLOBAL_ENVIRONMENT_THEME_TITLE]: { zh: "全球環境", sub: "Global Environment" },
+  [COMMUNICATIONS_THEME_TITLE]: { zh: "全球通訊", sub: "Global Communications" },
+  "全球氣候 Global Climate": { zh: "全球氣候", sub: "Global Climate" },
+  "全球海事 Global Maritime": { zh: "全球海事", sub: "Global Maritime" },
+  "行政區": { zh: "行政區", sub: "行政区域" },
+  "交通": { zh: "交通", sub: "交通" },
+  "旅宿": { zh: "旅宿", sub: "宿泊" },
+  "自然保護": { zh: "自然保護", sub: "自然保護" },
+  "世界遺產": { zh: "世界遺產", sub: "世界遺産" },
+  "治安": { zh: "治安", sub: "治安" },
+  "教育": { zh: "教育", sub: "教育" },
+  "人口": { zh: "人口", sub: "人口" },
+  "宗教": { zh: "宗教", sub: "宗教" },
+  "醫療設施": { zh: "醫療設施", sub: "医療施設" },
+  "長照服務": { zh: "長照服務", sub: "介護サービス" },
+  "醫療圈": { zh: "醫療圈", sub: "医療圏" },
+  "高度與地表": { zh: "高度與地表", sub: "高さ・地表" },
+  "水資源": { zh: "水資源", sub: "水資源" },
+};
+
+/** 主題標題 → 顯示名稱；查不到時整串當中文（測試保證 THEMES 全部有列）。 */
+export function themeName(title: string): ThemeName {
+  return THEME_NAMES[title] ?? { zh: title };
+}
+
+/** 測試用：有登記顯示名稱的主題標題。 */
+export const THEME_NAME_TITLES: ReadonlySet<string> = new Set(Object.keys(THEME_NAMES));
+
 export function themeMacroGroup(title: string): LayerMacroGroup {
   const group = THEME_MACRO_GROUPS[title];
   if (!group) throw new Error(`[layerCatalog] 未分類的 theme: ${title}`);
   return group;
-}
-
-/**
- * 主題／大分類標題資料格式為「中文 English」（空白分隔，英文部分可能不存在）。
- * design-system §5.5 LT1：渲染時拆成中文與英文分開設定字級／字型 —— 不改資料本身，只在這裡拆分。
- */
-export function splitThemeTitle(title: string): { zh: string; en: string } {
-  const spaceIndex = title.indexOf(" ");
-  if (spaceIndex === -1) return { zh: title, en: "" };
-  return { zh: title.slice(0, spaceIndex), en: title.slice(spaceIndex + 1) };
 }
 
 const MACRO_GROUP_ORDER = new Map(
@@ -2116,6 +2204,20 @@ export const LAYER_LABELS: Partial<Record<keyof LayerVisibility, string>> = (() 
   }
   return out;
 })();
+
+/** 結構化名稱查表（P2）：搜尋結果、資料來源、我的等只拿到 key 的清單用它顯示雙語名稱。 */
+export const LAYER_NAMES: Partial<Record<keyof LayerVisibility, LayerName>> = (() => {
+  const out: Partial<Record<keyof LayerVisibility, LayerName>> = {};
+  for (const section of SECTIONS) {
+    for (const def of section.layers) out[def.key] = def.name;
+  }
+  return out;
+})();
+
+/** key → 結構化名稱；查不到（例 orphan、Agent 臨時圖層）就用傳入的整串名稱當中文主名。 */
+export function layerDisplayName(key: string, fallback?: string): LayerName {
+  return LAYER_NAMES[key as keyof LayerVisibility] ?? { zh: fallback ?? key };
+}
 
 // ── owner-only 私人圖層 SSOT（見 docs/features/owner-gated-layers）──
 // 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：sidebar 顯示鎖頭 + toggle no-op。

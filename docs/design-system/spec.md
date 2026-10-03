@@ -353,20 +353,26 @@
 
 ### 5.5 Layers 主題列、大分類與 L2 群組標題
 
-三層由大到小：**大分類**（例「交通與城市」）→ **主題列**（例「交通 Move」，可收合、有總開關）→ **L2 群組**（例「點位」）。
+三層由大到小：**大分類**（例「移動與城市」）→ **主題列**（例「交通 Move」，可收合、有總開關）→ **L2 群組**（例「點位」）。
 
 **主題列（LT1，第二輪拍板）**
 
-- **資料**：`theme.title` 維持「中文 English」一個字串；渲染時**一律**用 `layerCatalog.ts` 的 `splitThemeTitle()` 拆成 `{ zh, en }`（唯一拆分入口，不要自己 `split(" ")`）。沒有空格時 `en` 為空、只顯示中文。
-- **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 英文小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
+- **資料**（2026-10-03 B 段）：`theme.title` 是識別字串（manifest `section.theme`、大分類、各入口清單都拿它當 key），**不拆字**。顯示名稱查 `layerCatalog.ts` 的 `themeName(title)` → `{ zh, sub? }`（`THEME_NAMES` 表；新增主題要補一列，`layerConsistency` 測試擋漏列）。舊的 `splitThemeTitle()` 已移除。
+- **副標**：台灣、統計、世界用英文；**日本 14 個主題用日文漢字**（P3 B），與中文同字也照樣顯示（例「宗教 宗教」「長照服務 介護サービス」），不去重。沒有 `sub` 時只顯示中文。
+- **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 副標小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
 - **字**：中文 13px（`FONT_SIZE.lg`）semibold `--text-strong`、`FONT_CJK`；英文 10px（`FONT_SIZE.sm`）`--text-dim`、`FONT_CJK`、letterSpacing 0.3、**不轉大寫**；中英 baseline 對齊、gap 6。
 - **計數**：固定 `FONT_DATA` 10px `--text-dim`，**不再依開啟狀態變色**（舊版有開啟時變亮已拿掉）。
 - **容器**：sticky 置頂（滾動時黏住直到下一個主題列推走）、上下 `1px` 分隔線、`backdrop-filter: blur(8px)`；padding `8px 4px 8px 12px`。
-- **禁止**：整列 `FONT_DATA`；`uppercase`；英文與中文同字級。
+- **禁止**：整列 `FONT_DATA`；`uppercase`；英文與中文同字級；渲染時自己拆 `theme.title`。
+
+**大分類（P4，2026-10-03 B 段）**
+
+- **資料驅動**：每個入口一份定義 `LayerPanelDef.macroGroups`（`sidebar/layerPanels.ts`，`{ zh, en?, themes }[]`）；面板依陣列順序顯示，主題在清單裡必須按組相鄰（測試鎖住）。沒給就不分。
+- **現況**：台灣沿用全站 6 類（`LAYER_MACRO_GROUPS`＋`THEME_MACRO_GROUPS`，後者同時決定 `THEMES` 排序）；日本 5 類：行政與人口（行政區、人口）、交通與旅宿（交通、旅宿）、醫療與照護（醫療設施、長照服務、醫療圈）、社會（治安、教育、宗教）、自然與環境（自然保護、世界遺產、水資源、高度與地表）；**統計、世界待使用者選定分法，暫不分**（補資料即可，不改元件）。
 
 **大分類標題（LT1）**
 
-- 只顯示中文（`splitThemeTitle(title).zh`），**9.5px**（刻意小於 L2 的 10px，見 §3.13 例外表）、letterSpacing 1.2、`--text-dim`、`FONT_CJK`；右側 1px 細線拉到底，線色同 L2 群組線（暗 `rgba(255,255,255,0.14)`／淡 `rgba(0,0,0,0.12)`）；padding `10px 12px 4px`、gap 8。
+- 只顯示中文（`macroGroups[].zh`），**9.5px**（刻意小於 L2 的 10px，見 §3.13 例外表）、letterSpacing 1.2、`--text-dim`、`FONT_CJK`；右側 1px 細線拉到底，線色同 L2 群組線（暗 `rgba(255,255,255,0.14)`／淡 `rgba(0,0,0,0.12)`）；padding `10px 12px 4px`、gap 8。
 
 **L2 群組標題**
 
@@ -378,14 +384,15 @@
 
 **圖層列（2026-10-03 面板統一 A 段，P1／P8）**
 
-- **結構**：icon（14px，開啟時圖層色、關閉時 `--text-dim`，統計列也一樣）→ 中文名（13px `FONT_CJK`，外文小字放 `meta`）→ 計數格 → chevron（§5.16）→ 列開關（§5.10）。開啟時列左緣 2px 圖層色。
+- **結構**：icon（14px，開啟時圖層色、關閉時 `--text-dim`，統計列也一樣）→ 名稱（`LayerNameLine`）→ 計數格 → chevron（§5.16）→ 列開關（§5.10）。開啟時列左緣 2px 圖層色。
+- **名稱（P2 A，2026-10-03 B 段）**：manifest `name: { zh, alt?, qualifier? }`（`...layerName({ … })` 寫入，`label` 由 `composeLayerLabel` 組成 `中文 外文（限定詞）`，給搜尋、Agent、無障礙名稱用，不手寫）。同一行：中文 12px `--text-strong` → 外文 10px `--text-dim`（空間不夠時**只省略外文**，中文保持完整、必要時換行）→ 限定詞小標籤（9px、1px 邊框、radius 4，例「国土地理院」「2014」「5/10 min」，不縮）。中文口徑（「（每萬人口）」「（縣市）」）屬中文主名，不放限定詞。只拿到 key 的清單（搜尋結果、資料來源、我的）用 `layerDisplayName(key)` 查。
 - **計數格兼載入狀態**：有數字就顯示（`FONT_DATA` tabular-nums、`toLocaleString("zh-TW")`，單位另用中文 span）；圖層開著且 `loadingRegistry` 有對應任務時改顯示 10px 小轉圈（`.lr-spin`，`role="status"`、`aria-label="載入中"`，減少動態時不轉）。任務與圖層的對應是盡力比對（`src/lib/layerLoading.ts`：key、kebab key、manifest `sourceId` 開頭），只帶資料集或日期的任務接不到，這類仍只有右上載入條（§5.30）。
 - **展開區**：每一列都可展開；展開區最後一行固定是「說明・來源」（收合入口，點開顯示 manifest 說明＋資料來源面板同一張上游資料卡，不另開資料）。統計列的來源說明暫留在統計詳情內（C 段再併入）。
 - **鎖定**：半透明、鎖頭取代 chevron、不顯示開關；點列走 App 端權限提示。
 - **同一個列元件的其他用法**（`ListRow`）：資料來源（沒有開關，狀態圖示 ✓／⚙／? 放在開關那格）、Agent 分析結果（群組與結果都是列開關；結果本體預設展開）、衛星群組（等級徽章在名稱後、顆數在計數格、黑白開關在 chevron 後）、我的・收藏／已開啟（列開關直接開關圖層＋收藏星號）、醫療統計群組列（「指標」選單仍在列外，屬 C 段）。
-- **禁止**：在清單裡另做一種列；用原生 checkbox 或色點當圖層開關；手機名稱另用 `labelMobile`（筆數走計數格）。
+- **禁止**：在清單裡另做一種列；用原生 checkbox 或色點當圖層開關；另設手機名稱或在名稱裡寫筆數（`labelMobile` 已移除，筆數走計數格）；名稱裡放 emoji、全形空白或「└」假裝子項；自己拆 `label` 字串。
 
-- **實作**：`src/components/sidebar/LayerRow.tsx`（`ListRow`、`LayerRow`、`RailToggle`）＋`layerRow.css`、`sidebar/ThemeBanner.tsx`（`ThemeBanner`、`MacroGroupLabel`、`SubGroupLabel`）、`sidebar/ExpandedControls.tsx`、`sidebar/LayerInfoLine.tsx`、`sidebar/LayersPanel.tsx`、`sidebar/layerPanels.ts`、`sidebar/railTheme.ts`（`BG_RAIL`／`BG_PANEL`／`PANEL_BORDER` 已走 token，其餘 rail palette 仍 inline hex，§10.3）；`IconRailSidebar.tsx`（桌機 rail）與 `LayerSidebar.tsx`（手機）只負責外殼與入口切換；`sidebar/layerCatalog.ts` `splitThemeTitle()`。
+- **實作**：`src/components/sidebar/LayerRow.tsx`（`ListRow`、`LayerRow`、`RailToggle`）＋`layerRow.css`、`sidebar/ThemeBanner.tsx`（`ThemeBanner`、`MacroGroupLabel`、`SubGroupLabel`）、`sidebar/ExpandedControls.tsx`、`sidebar/LayerInfoLine.tsx`、`sidebar/LayersPanel.tsx`、`sidebar/layerPanels.ts`、`sidebar/railTheme.ts`（`BG_RAIL`／`BG_PANEL`／`PANEL_BORDER` 已走 token，其餘 rail palette 仍 inline hex，§10.3）；`IconRailSidebar.tsx`（桌機 rail）與 `LayerSidebar.tsx`（手機）只負責外殼與入口切換；`sidebar/layerCatalog.ts`（`themeName()`、`layerDisplayName()`）、`data/layerManifest.ts`（`LayerName`、`layerName()`、`composeLayerLabel()`）。
 
 ### 5.6 時間軸（border-left）
 
@@ -449,7 +456,12 @@
 - **結構**：圖層列展開後，名稱下方一塊控制區，左側 `1px --lpc-line` 直線、padding-left 10、gap 6；每個控制項一列：**標籤＋數值同一行、控件全寬在下一行**（grid `"k v" "c c"`）。
 - **尺寸**：標籤 10px `--text-muted` `FONT_CJK`、超長省略；數值 10px `FONT_DATA` `--text-default` tabular-nums 靠右。
 - **暗／淡**：`.lpc-theme`／`.lpc-theme--light`（`layerControlThemeClass(isDarkTheme)`）。淡色左線 `rgba(0,0,0,.12)` 不在 token 階上，刻意保留。
-- **禁止**：手寫圖層控制 JSX（一律 `layerParamsSpec.ts` 規格 → `ParamControlList`）；標籤與數值擠在同一字串。
+- **順序（P5，2026-10-03 B 段）**：**資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀 → 說明・來源**。
+  - 類別判斷（`layerParamsSpec.ts` `paramControlCategory`）：控制項寫了 `category` 就照寫的；否則 `palette`＝顏色（熱區／網格顏色）、`multiSelect`＝資料篩選、滑桿標籤含「透明度」＝透明度；其餘查 `CATEGORY_BY_LABEL` 詞彙表（例 年份／類別／定位精度／模式＝資料篩選，配色／著色模式＝顏色，大小／寬度／線寬／光點＝大小，高度／3D／光暈／網格大小＝其他外觀）。同一個詞在不同層意思不同時在 spec 寫 `category`（例 `urbanHeat`「顯示」選指標＝資料篩選、`buildingsGba`「顯示模式」＝其他外觀）。
+  - 排序在 `buildParamControls` 做（`orderedVisibleParamsSpec`，同類保持宣告順序）；Agent 端 `research/layerControls.ts` 用同一支對位置。spec 陣列、store、overlay 編碼、manifest `params.kinds` 都照宣告順序，不受影響。
+  - 寫死在 `ExpandedControls` 的區塊不參與排序：航班模式鈕、統計詳情（`StatisticsDetails`，資料篩選，已在最前）、`PropertyValueStatisticsDetails`、歷史航跡在控制項之前；「說明・來源」固定最後。
+  - 護欄：`src/state/__tests__/layerParamsOrder.test.ts`——分不出類（新標籤）就紅：在詞彙表補一列或寫 `category`；輸出名次必須單調不減。
+- **禁止**：手寫圖層控制 JSX（一律 `layerParamsSpec.ts` 規格 → `ParamControlList`）；標籤與數值擠在同一字串；為了順序去搬 spec 陣列（排序由類別決定）。
 - **實作**：`src/components/sidebar/{LayerParamControls.tsx,layerParamControls.css}`、`src/state/layerParamsControls.ts`。
 
 ### 5.12 多選清單
@@ -532,7 +544,7 @@
 - **列**：共用圖層列（§5.5 圖層列，2026-10-03 起）：圖層 icon＋中文名，英文名小字 `textDim`；沒有開關，狀態圖示（✓ 已接上 `statusLive`／⚙ 派生 `statusDerived`／? 待補 `statusWarn`）放在開關那格；鎖頭圖示表示受限。L2 群組標題用共用 `SubGroupLabel`。
 - **展開**：點列在列下方展開上游資料卡，同時只展開一筆（`aria-expanded`）；卡內 Fact 列標籤 10px `muted` 寬 44、值 `textStrong`，代碼類值 `FONT_DATA`；連結 `link` 色。
 - **暗／淡**：`DARK_DS`／`LIGHT_DS`（皆取 token）。
-- **禁止**：顯示 `datasetId` 當標題（目前有 2 處 fallback，§6.3、guard 記錄中）。
+- **禁止**：顯示 `datasetId` 當標題（§6.3）。2026-10-03 B 段已修掉 2 處 fallback：沒有 catalog 標題時卡片標題改「上游資料集」／「已比對的上游資料集」，代號移到「資料集」事實列（`FONT_DATA`），比對信心印「高／中／低」。
 - **實作**：`src/components/sidebar/DataSourcePanel.tsx`、`IconRailSidebar.tsx`（rail 入口）。
 
 ### 5.23 圖例收合鈕
@@ -930,13 +942,13 @@ PR 前逐項勾（貼進 PR 描述）：
 | `uppercase-eyebrow` | `textTransform: "uppercase"`／`text-transform: uppercase` | 擋 | 3（2） |
 | `font-data-on-cjk` | 啟發式：`FONT_DATA` 元素的直接子文字含中文（同一行內） | 擋 | 3（3） |
 | `raw-z-index` | `zIndex: <n>`／`z-index: <n>` 且 n ≥ 10（`src/styles/**` 定義檔除外；0–9 元件內部小值不算） | 擋 | 17（15）（#390 刪除 `LoadingIndicator` 後） |
-| `internal-id-display` | 啟發式：`datasetId` 放進 JSX 子節點或 `title`／`label`／`desc`／`text` 欄位 | **只記錄** | 3（2） |
+| `internal-id-display` | 啟發式：`datasetId` 放進 JSX 子節點或 `title`／`label`／`desc`／`text` 欄位 | **只記錄** | 1（1）（2026-10-03 B 段修掉資料來源卡 2 處） |
 
 `raw-z-index` 於 Phase Q 新增，基準以 `design:baseline --reset` 由當下程式碼建立（規則新增屬 §9.1 的 reset 條件；其他規則的值同時只降不升）。已登記的特例（§5.25 特例表）也計在基準內——它們不會再增加，但也不會自動歸零。
 
 **誤判與漏判**：
 - `font-data-on-cjk` 只看同一行；跨行的 JSX（例 F2 footer 第二行）不會命中，屬已知漏判。正確混排寫法（中文在外、數字 span 在內）不會誤判。
-- `internal-id-display` 會命中「先顯示標題、查不到才 fallback 代號」的寫法（`DataSourcePanel.tsx` 2 處屬此類，是真的問題）；但也可能把合法的 tooltip 或除錯欄位算進去，因此只記錄不擋。
+- `internal-id-display` 會命中「先顯示標題、查不到才 fallback 代號」的寫法（`DataSourcePanel.tsx` 原有 2 處屬此類，2026-10-03 已修）；但也可能把合法的 tooltip 或除錯欄位算進去，因此只記錄不擋。
 - `web-font` 的 `Georgia` 也會命中資料中的國名（目前 0 筆）；遇到時把字串移到資料檔（`src/data/**` 同樣受掃描，需在 PR 說明）。
 - `raw-z-index` 只看 `zIndex:`／`z-index:` 後直接接數字的寫法；`zIndex: cond ? 50 : 10`、字串拼接或變數不會命中（漏判）。註解行不算。
 - `triangle-chevron` 同時擋播放鍵 `▶`（應改 lucide `Play`）；`▲▼` 成對的升降趨勢不擋。
