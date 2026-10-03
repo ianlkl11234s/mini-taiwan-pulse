@@ -3,6 +3,22 @@
 > 每一輪拍板了什麼、哪個 PR 做的。規格細節以 [`spec.md`](./spec.md)、[`map-layers.md`](./map-layers.md) 為準；數值以程式（見 [`README.md`](./README.md)「程式裡的唯一來源」）與活的元件頁為準。
 > 設計稿都在 `docs/features/ui-consistency-audit-20260927/`（UI）與 `docs/features/map-layer-restyle/`（地圖）。
 
+## 2026-10-03
+
+### 地圖 R5 密集點熱區＋密度透明度 — map-layers §3.1 P-3／P-4、§3.4 G-2
+
+| 項目 | 內容 |
+|---|---|
+| 點數盤點 | 292 個點圖層（台灣、日本、全球）：>100k 10、10k–100k 45、1k–10k 78、<1k 158、未知 1（`jpRamsarSites` 資料檔遺失） |
+| 熱區 | 42 層＋示範 2 層（`fireHydrants`、`jpReligionGsi`）：10k–100k z<10、>100k z<12 熱區；原本 minzoom 較高者保留原出點縮放（使用者選 B）；共用 magma、熱區與點同 filter、滑桿同時控制 |
+| 強度 | 每層目視校正 0.01–5；7 層低縮放 PMTiles 抽稀，強度偏高為補償、密度分布被壓平 |
+| 保留 | `powerPoles` 熱區、`companyPoints` 密度格網、`jpMedical*`／`jpCare*` 10km 格網（使用者決定）；`eduCramSchool` 抽稀過重不套 |
+| 取消聚合 | `aqiMicroSensors` 456 點直接顯示（使用者：點不多就全顯示） |
+| P-3 | 滑桿預設：>100k 0.6、10k–100k 0.75、1k–10k 0.8；<1k 不動 |
+| 不做 | 泡泡 M3 大小正規化：使用者決定各層維持原大小 |
+| 對照 | `docs/features/map-layer-restyle/r5-compare.html`（示範兩層前後）、`r5-all.html`（全層拉遠總覽） |
+| 後續 | 熱區配色全站同色難分辨 → 提案「各層預設色＋科學色盤可選」 |
+
 ## 2026-10-02
 
 ### 監看卡 P3 多指標卡實作 — spec §5.35

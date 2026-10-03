@@ -7,7 +7,7 @@
 > - **資料表**：[`layer-style-inventory.json`](./layer-style-inventory.json)（803 個圖層逐一列出，重跑 `npm run design:audit-layers` 產生）。本檔只放分佈、離群與規則，不逐層抄。
 > - **數值來源（改值只改程式）**：`src/map/mapStyleScale.ts`（拍板數值常數）、`src/map/pointTiers.ts`（點分階）、`src/map/pointSpec.ts`（registry 點圖層集中套用）、`src/components/legend/legendKit.tsx`（圖例元件）。
 > - **視覺參考**：活的元件頁 `design-system.html`（`src/design-system/`，`npm run dev` 後開 `/design-system.html`）「地圖圖層」區塊；靜態快照 [`reference.html`](./reference.html)；拍板用的比較頁 [`map-layer-picks.html`](./map-layer-picks.html)（真實底圖 1:1，現況 vs 提案，暗／淡並排）。
-> - **狀態**：§2 是 R1 前（2026-09-28）的盤點基準，開頭另列 R2 後的目前值；§3、§4 **已於 2026-09-28 逐項拍板**（結果見 §7）。**已套用**：R1（統計面、缺值／遮蔽、地圖中文字型、圖例元件與標題）、R2（點圖層：registry 192＋hook 122 層）。**未套用**：R3 線面文字、R4 圖例色、R5 熱區與密度透明度、R6 Three.js。§3 各條有標套用狀態。逐層調整時照 §6 工作流。
+> - **狀態**：§2 是 R1 前（2026-09-28）的盤點基準，開頭另列 R2 後的目前值；§3、§4 **已於 2026-09-28 逐項拍板**（結果見 §7）。**已套用**：R1（統計面、缺值／遮蔽、地圖中文字型、圖例元件與標題）、R2（點圖層：registry 192＋hook 122 層）、R5（密集點熱區與密度透明度，2026-10-03）。**未套用**：R3 線面文字、R4 圖例色、R6 Three.js。§3 各條有標套用狀態。逐層調整時照 §6 工作流。
 > - 分析結果（Agent 畫在地圖上的結果）的視覺規格已定案於 [`features/viz-library/DECISIONS.md`](../features/viz-library/DECISIONS.md)，本檔只引用，不重寫。統計圖層配色另見 [`statistics-layer-guidelines.md`](../statistics-layer-guidelines.md) §4。
 
 ## 目錄
@@ -194,7 +194,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | 強調 L | **6.5** | 少量重點設施（≤ 50 點）、即時事件 |
 
 寫法：`circle-radius: 4.5 * size`（常數，不寫 `interpolate zoom`）。與分析結果（viz-library M1）同一組值，全站點大小一致。低縮放時點會較密：由 P-3 的密度透明度與 P-4 的熱區門檻處理，不靠縮小半徑。onboarding 表（<1k：z6 4／z12 8）是舊值，逐層改時一併更新該表。
-資料驅動大小（泡泡，分階 **B**）：**目前保留各層原本的半徑表達式，只統一描邊**（部分仍隨縮放，例 `newsEvents`）；照 viz-library M3（面積 ∝ 值、rMin 4、rMax 28）正規化列為後續。
+資料驅動大小（泡泡，分階 **B**）：**目前保留各層原本的半徑表達式，只統一描邊**（部分仍隨縮放，例 `newsEvents`）；viz-library M3（面積 ∝ 值、rMin 4、rMax 28）正規化：**使用者 2026-10-02 決定不統一**，各層維持原本大小；R5 只替其中的密集層加熱區。
 （原提案 A「隨縮放 S 2.5／4、M 4／6、L 6／9」未採用。）
 
 **分階表**（改階只改 `src/map/pointTiers.ts`，不改 `overlayRegistry.ts` 字面值）：
@@ -235,7 +235,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - 日本宗教設施（國土地理院 `jpReligionGsi`，約 16.7 萬點）：z ≤ 8 描邊寬 0、z9 起 1px（低縮放描邊會糊成一片，`useJpReligionLayers.ts`，#396）。
 - 特殊船舶 `vesselWatch`：訊號中斷 `stale` ×0.3、推定 `presumed` ×0.4 的淡化同時乘在點與描邊透明度上；透明度滑桿當倍率乘進同一式，不蓋掉淡化（`useVesselWatchLayer.ts` `vesselPointPaint`，#398）。
 
-**P-3 不透明度**：主體點 0.85（現況中位）；密集 1k–10k 0.8、10k–100k 0.75、>100k 0.6（沿 onboarding 表）。裝飾子圖層見 P-6。（**未套用，延到 R5**：需先統計點數；常數 `POINT_OPACITY` 已定義、R5 待接線。）
+**P-3 不透明度**：主體點 0.85（現況中位）；密集 1k–10k 0.8、10k–100k 0.75、>100k 0.6（沿 onboarding 表）。裝飾子圖層見 P-6。（**R5 已套用**：依全台點數改透明度滑桿預設，`densePointOpacity`；1k–10k 改 0.8，<1k 不動；共用滑桿與乘數型滑桿維持。點數盤點見 `docs/features/map-layer-restyle/r5-all.html`。）
 
 **P-4 密集點處理門檻**
 
@@ -245,7 +245,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | 10k–100k | z < 10 用**熱區**（G-2），z ≥ 10 畫點 |
 | > 100k | 必須用**熱區**或 PMTiles 低 zoom 抽稀；z ≥ 12 才畫單點 |
 
-拍板改：低縮放一律用**熱區**，不用聚合（cluster 數字泡泡）。（R5 待接線；待處理例：日本宗教設施 16.7 萬點低縮放糊成一片。）
+拍板改：低縮放一律用**熱區**，不用聚合（cluster 數字泡泡）。（**R5 已套用**：42 層＋示範 2 層；原本點 minzoom 較高者保留原出點縮放、熱區補在其下（使用者 2026-10-02 選 B）；唯一的 Mapbox 聚合 `aqiMicroSensors`（456 點）改為直接顯示；既有低縮放做法保留：`powerPoles` 熱區、`companyPoints` 密度格網、`jpMedical*`／`jpCare*` 10km 格網。`eduCramSchool` 因 PMTiles 低縮放抽稀過重不套熱區。）
 
 **P-5 icon 與 circle 的選用**：預設 circle。只有「形狀本身帶語意且 circle 分不出」時才用 icon（例：變電所菱形、方向箭頭），且 ≤ 5k 點；icon 顯示尺寸對齊點的直徑：預設 M 階 9px；形狀在 9px 分不清時用 L 階 13px（`icon-size` = 目標 px ÷ sprite 原圖邊長；P-1 採固定半徑後，icon 也固定大小）。icon 也必須有對應的圖例圖示。
 
@@ -321,7 +321,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 ### 3.4 3D／熱區／網格／影像
 
 - **G-1 Three.js／CustomLayer**：拍板加碼：每個 Three.js／CustomLayer 圖層都要有**「基本點線面」模式**，用 Mapbox 原生 circle／line／fill 畫同一份資料，並套用本檔 §3 的數值階；**預設是 Mapbox 模式**，Three.js 立體版保留為可切換的選項（圖層控制項加一個切換）。理由：點線面比較好理解，但不放棄立體效果。Three.js 模式本身的值在 shader／材質，不進數值階；透明度、圖例、popup 兩種模式都照四鐵則。13 層 `unresolved` 在 JSON 有檔案指標，實作時逐層讀值、補記到該層 `docs/features/<slug>/`。
-- **G-2 熱區**：magma（截）色階、密度 0 完全透明、`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoomOver10k`／`pointsFromZoomOver100k`（10／12），helper `densePointsFromZoom`／`heatmapPaint`。對齊 viz-library M5。（R5 示範：`fireHydrants`、`jpReligionGsi`；其他圖層待接線。）
+- **G-2 熱區**：magma（截）色階、密度 0 完全透明、`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoomOver10k`／`pointsFromZoomOver100k`（10／12），helper `densePointsFromZoom`／`heatmapPaint`。對齊 viz-library M5。熱區 maxzoom 為出點縮放 +0.01（`heatmapMaxzoom`，避免 tile 縮放等於 maxzoom 時提早消失）；強度 `intensity` 為 z12 值、每拉遠一級減半，**每層目視校正**（0.01–5，無法由點數推算），透明度滑桿同時控制熱區（0.8 × 滑桿 ÷ 預設）；熱區與點共用 filter、不可點擊。（R5 已套用。熱區配色改為各層色與使用者可選色盤的機制另提案。）
 - **G-3 網格**：建議面 0.7、格縫同 F-2；R3b 使用者確認 14 層全部維持現況。只有來源明確計數 0 才可視為空格，缺值／未涵蓋／遮蔽不可改成 0 或刪除；H3 解析度與方格尺寸照 viz-library M6。
 - **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。（R3b 已接線：`RASTER`；量測類含雷達、AQI、沙塵、降雨、淹水深度。）
 
@@ -479,7 +479,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 |---|---|---|---|
 | **P-1** | 點尺寸三階 | **B**：固定 S 3／M 4.5／L 6.5，不隨縮放 | R2 完成：registry 192 層（#392）＋hook 122 層（#396、#398），`pointTiers.ts`＋`pointSpec.ts`；2026-09-29 拍板 11 個 hook 層改 B；泡泡 registry 38＋hook 16 層待 M3 正規化 |
 | **P-2** | 點描邊 | **A**：暗 `#0a0a14`／淡 `#ffffff`，1px，47 層白框全改 | R2 全部完成（registry＋hook）；依屬性變化的描邊（資料編碼）保留，見 §3.1 |
-| **P-3** | 點不透明度 | 同意：0.85；依密度 0.8／0.75／0.6 | 延到 R5（需點數；多數圖層透明度寫在各自 paint） |
+| **P-3** | 點不透明度 | 同意：0.85；依密度 0.8／0.75／0.6 | R5 已套用（滑桿預設依點數） |
 | **P-4** | 密集點門檻 | 同意，**改用熱區** | 「想要不要是聚合，可以是熱區的形式來顯示」 |
 | **P-5** | icon 使用條件 | 同意 | R2：變電所固定大小，超高壓 L 13px、一般 M 9px |
 | **P-6** | 選取與裝飾 | 同意，**逐層檢視 92 層** | R2：registry 即時 5 層保留並限制；其他光暈透明度 0（保留當點擊範圍）；hook 即時層各自限制，見 §3.1；泡泡即時層半徑未設上限 |

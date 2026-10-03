@@ -975,7 +975,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 開站畫面（§5.33） | ✅ 符合 | #395 |
 | 左側停靠面板（底色／上緣，§5.1） | ✅ 符合 | #395；Agent 面板 CSS 以字面值對齊 `LAYOUT.leftDockTop` |
 | 分析卡片頁（§5.34） | ⚠️ 部分 | 只有暗色；視覺值未逐項稽核 |
-| 地圖圖層數值（點／線／面／圖例） | ⚠️ 部分 | R1（統計細縫、缺值／遮蔽斜線、地圖中文字型、圖例標題）與 R2（點：registry 192＋hook 122 層）完成；R3 線面文字、R4 圖例色、R5 熱區＋密度透明度、R6 Three.js 未做。盤點 `docs/design-system/layer-style-inventory.json`；拍板結果 [`map-layers.md`](./map-layers.md) §7 |
+| 地圖圖層數值（點／線／面／圖例） | ⚠️ 部分 | R1（統計細縫、缺值／遮蔽斜線、地圖中文字型、圖例標題）與 R2（點：registry 192＋hook 122 層）完成；R3 線面文字、R4 圖例色、R5 熱區＋密度透明度、R6 Three.js 未做（R5 已於 2026-10-03 套用，見 map-layers §3.1 P-3／P-4、§3.4 G-2）。盤點 `docs/design-system/layer-style-inventory.json`；拍板結果 [`map-layers.md`](./map-layers.md) §7 |
 | 左下時間軸（TC3） | ✅ 符合 | 即時／歷史共用 `TimelineShell`＋`TimeAxis`；刻度標籤 9.5px、時間 15px 依設計稿，不在 7 階字級上 |
 
 ### 10.3 未處理（已知，誠實列出）
@@ -993,7 +993,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 圖例暗色底與框 | `DARK_LEGEND.bgSubtle`／`border` 是 inline rgba，不是 token | `legend/legendKit.tsx` |
 | Layers rail palette | `BORDER`、`BANNER_BG`、`SEARCH_BG`、`TOGGLE_*`、`ROW_*` 等仍 inline hex（暗淡兩套） | `IconRailSidebar.tsx` `DARK_PALETTE`／`LIGHT_PALETTE` |
 | `LAYOUT` 無 CSS 變數 | Agent 面板寫死 `top: 60px; left: 64px`，與 `LAYOUT.leftDockTop` 需人工同步 | `research/mainMapConnection.css` |
-| 地圖常數未接線 | `mapStyleScale.ts` 的 `LINE_WIDTH`／`lineWidthExpr`、`LINE_DASH`、`LINE_OPACITY`、`FILL_OPACITY`、`HEATMAP`、`LABEL`、`POINT_OPACITY` 已定義，還沒有圖層引用（R3／R5） | `src/map/mapStyleScale.ts` |
+| 地圖常數未接線 | `mapStyleScale.ts` 的 `LINE_WIDTH`／`lineWidthExpr`、`LINE_DASH`、`LINE_OPACITY`、`FILL_OPACITY`、`LABEL` 已定義，還沒有圖層引用（R3）；`HEATMAP`、`POINT_OPACITY` 已由 R5 接線 | `src/map/mapStyleScale.ts` |
 | embed／卡片地圖字型 | embed 與分析卡片頁（皆 MapLibre）未設 `localIdeographFontFamily`，是否需要未驗證 | `src/embed/EmbedApp.tsx`、`src/card/CardMap.tsx` |
 | 分析卡片頁只有暗色 | `CARD_THEME = "dark"`，沒有淡色版（§5.34） | `src/card/cardStyle.ts` |
 | 捷運顯示模式標籤 | 「Mapbox 點位」含英文品牌名，與 §6.1 中文優先不一致，待決 | `src/data/transportHubTypes.ts` |
