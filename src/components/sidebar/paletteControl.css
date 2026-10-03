@@ -86,6 +86,11 @@ button.pal-btn:hover {
   overflow: hidden;
 }
 
+/* 按鈕在比彈出層高的容器裡（手機底部抽屜）：改用 modal 層，靠 DOM 順序蓋在抽屜上 */
+.pal-pop.pal-pop--high {
+  z-index: var(--z-modal);
+}
+
 .lpc-theme--light.pal-pop {
   background: var(--light-surface-solid);
   box-shadow: var(--light-elevation-lg);

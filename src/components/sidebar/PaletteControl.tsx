@@ -42,6 +42,19 @@ function Ramp({ option }: { option: PaletteOption }) {
   );
 }
 
+/**
+ * 按鈕所在的容器若比彈出層高（手機底部抽屜 MobileBottomSheet 是 40），清單改用 modal 層，
+ * 否則會被抽屜蓋住。同層靠 DOM 順序：portal 最後掛到 body，蓋在抽屜上。
+ */
+function inHighLayer(button: HTMLElement): boolean {
+  const popover = Number.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--z-popover"), 10) || 30;
+  for (let el: HTMLElement | null = button.parentElement; el; el = el.parentElement) {
+    const z = Number.parseInt(getComputedStyle(el).zIndex, 10);
+    if (Number.isFinite(z) && z > popover) return true;
+  }
+  return false;
+}
+
 function place(button: HTMLElement): Placement {
   const r = button.getBoundingClientRect();
   const vw = window.innerWidth;
@@ -60,6 +73,7 @@ export function PaletteControl({ ctrl }: { ctrl: PaletteConfig }) {
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<Placement | null>(null);
   const [light, setLight] = useState(false);
+  const [high, setHigh] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const current = ctrl.options.find((o) => o.value === ctrl.value) ?? ctrl.options[0];
@@ -78,6 +92,7 @@ export function PaletteControl({ ctrl }: { ctrl: PaletteConfig }) {
     const button = buttonRef.current;
     if (!button) return;
     setLight(Boolean(button.closest(".lpc-theme--light")));
+    setHigh(inHighLayer(button));
     setPlacement(place(button));
     setOpen(true);
   };
@@ -154,7 +169,7 @@ export function PaletteControl({ ctrl }: { ctrl: PaletteConfig }) {
       {open && placement && createPortal(
         <div
           ref={listRef}
-          className={`lpc-theme${light ? " lpc-theme--light" : ""} pal-pop`}
+          className={`lpc-theme${light ? " lpc-theme--light" : ""} pal-pop${high ? " pal-pop--high" : ""}`}
           style={{ left: placement.left, width: placement.width, top: placement.top, bottom: placement.bottom, maxHeight: placement.maxHeight }}
           onKeyDown={onListKey}
         >
