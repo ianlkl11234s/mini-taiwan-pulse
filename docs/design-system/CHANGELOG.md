@@ -5,6 +5,14 @@
 
 ## 2026-10-02
 
+### 資料面修正與供電依區域分組
+
+| 項目 | 內容 |
+|---|---|
+| 網路觀察 collector | RIPE collector 覆寫問題已修（data-collectors #124），19:05 起資料完整 |
+| 台電分區 | gis-platform migration 424（#133）：`get_ssot_facility_output_24h` 每廠多 `taipower_region`（north／central／south／east／offshore_island／null），調查見 `docs/features/monitor-restyle/power-regions.md` |
+| 供電卡 | 機組出力小格加「依區域｜依發電方式」分段，預設依區域；東部目前無電廠，顯示空組說明而非 0 MW；僅新版 |
+
 ### 監看卡 P3 多指標卡實作 — spec §5.35
 
 | 項目 | 內容 |
