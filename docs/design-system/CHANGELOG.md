@@ -5,6 +5,18 @@
 
 ## 2026-10-03
 
+### 圖層面板統一 A 段（共用外殼）— spec §5.1／§5.5／§5.10／§5.22
+
+| 項目 | 內容 |
+|---|---|
+| 共用元件 | `LayerRow`／`ListRow`、`ThemeBanner`、`SubGroupLabel`、`MacroGroupLabel`、`ExpandedControls`、`LayersPanel` 從 `IconRailSidebar.tsx` 搬到 `components/sidebar/`；四個入口只有一份定義 `layerPanels.ts` |
+| P1 圖層列 | 計數格兼載入轉圈（接 `loadingRegistry`，盡力比對）；每列可展開，最後一行「說明・來源」（manifest 說明＋資料來源卡）；icon 關閉一律灰（統計原本彩色）；「All Off」→「全部關閉」；台灣入口標題「台灣 Taiwan」 |
+| P7 手機 | 分頁改四個入口（台灣／統計／世界／日本），直接用桌機 `LayersPanel`；色點開關、手刻 28×14 總開關、`labelMobile`（名稱內筆數）退場；手機也有「全部關閉」，切到日本會飛過去 |
+| P8 其他清單 | 資料來源、Agent 分析結果、衛星群組、我的・收藏／已開啟、醫療統計群組列都改用 `ListRow`；原生 checkbox、強調色衛星開關改成黑白列開關（衛星開關移到 chevron 後） |
+| P9 搜尋 | 結果列改一般圖層列；末尾提示其他入口筆數，點了切換並帶入關鍵字 |
+| 不改 | manifest 名稱結構（B 段）、控制項順序（B 段）、統計設定區與醫療群組「指標」在列外（C 段） |
+| 對照 | `docs/features/layer-panel-unify/phase-a-compare.html` |
+
 ### 監看卡 P4 來源新鮮度與缺值修正 — spec §5.35 G2／K1
 
 | 項目 | 內容 |
