@@ -760,7 +760,7 @@
   實作：`monitorFont.ts`（`MON_FONT_PX`、`MF`、`fs(v2, legacyPx)`：≤9.5→cap、≤10.5→label、≤12.5→body、≤15→title、≤21→kpi、≥22→main；≥36 的一次性大字原樣）、`monitorCard.css` 變數。全站 7 階（§3.13）不變；監看以外（即時情報面板等）不受影響。
 
 - **新舊版切換**：面板標頭「新版／舊版」，預設新版，存 localStorage `mtp-monitor-style`；舊版是改版前畫面原樣，供對照或退回。各卡以 `useMonitorV2()` 分支，**舊版樣式值不改**。
-- **資料時間來源**：卡片用 `useMonitorCardHeader({ time, timeText, state })` 送到標題列；由 MonitorPanel 組裝的格子用 `<MonitorCardTime>`。一律送**資料本身的時間**（觀測、發布、報表日），**不送瀏覽器收到回應的時間**。新聞四格＝未篩選資料中最新一則發布時間；環境輻射＝有回報站的最新觀測時間（停報站不算）。拿不到資料時間的格子不顯示時間：警訊整合（警報 RPC 只回計數）、災防觀測（寫死的 YouTube 影片，無資料時間）。
+- **資料時間來源**：卡片用 `useMonitorCardHeader({ time, timeText, state })` 送到標題列；由 MonitorPanel 組裝的格子用 `<MonitorCardTime>`。一律送**資料本身的時間**（觀測、發布、報表日），**不送瀏覽器收到回應的時間**。新聞四格＝新聞管線彙整時間（RPC `aggregated_at`＝`live.news_events_daily.refreshed_at`，每 30 分彙整、凌晨也會前進；migration 425），最新一則發布時間已超過 12 小時則改用發布時間判斷並在卡底寫「收集可能停了」；環境輻射＝有回報站的最新觀測時間（停報站不算）。拿不到資料時間的格子不顯示時間：警訊整合（警報 RPC 只回計數）、災防觀測（寫死的 YouTube 影片，無資料時間）。
 - **固定高格補償**：多了標題列與 S13 字級後，上半部固定高格子依 1920／1496 實測加高、其下格子順移，左右兩欄仍同止（`MonitorPanel.tsx` `V2_ADJUST_*`）：split 警訊 8、熱區 6、信號分級 6 列（新聞事件讓出 1 列，清單本來就捲動）；dock 新聞 15、警訊 9、熱區 6、時間軸 10、信號分級 5 列。
 
 - **用途**：監看模式（Monitor）split／dock／wall 裡的每一格看板。改版前 `MonitorPanel` 只排位置不畫框，24 格各自手刻（3 種框、5 種標題、9 種主數字字級、5 套時間序列、約 20 處缺值畫成 0）。
@@ -792,7 +792,7 @@
 - **主題（H2）**：監看模式跟底圖主題切換暗／淡（取代 §5.21 原本「刻意維持全暗」）。淡色值只取 `LIGHT`；資料色文字走 `chipText()` 並逐格驗對比；影片牆（YouTube iframe）本身維持暗。
   - **P5 實作（2026-10-03 使用者在 `docs/features/monitor-restyle/p5-picks.html` 選 S1／W1／D2／P2／X1／R2）**：S1 白卡（`--light-surface-solid`）疊淡灰面板 `rgba(243,244,246,0.95)`；W1 分割／停靠 95%、全屏不透明 `#f3f4f6`；D2 資料色當填色／線經 `monitorTheme.fill()` 加深到對白至少 3:1（文字走 `text()`＝`chipText`）；P2 標題列 pill 淡底實心（`color-mix` 12%）；X1 斜線黑 12%、灰樁黑 6%；R2 壓力環淡色保留等級色光暈、中間數字用等級色。卡片與共用圖表一律 `useMonitorTheme()`（`monitorTheme.ts`），暗色值與改版前字面值相同，所以一般彈窗（沒有 Provider）裡的共用折線不變。舊版一律暗。
 - **指數化（I2）**：分領域子指數 **災害**（颱風、地震、落雷、輻射、警訊）、**民生**（供電、急診、食品價格、公衛）、**國防**（共機、特殊船舶、ISR 衛星）、**網路與交通**（網路觀察、台鐵誤點、機場入出境）。戰情壓力總指數先修好（K1），子指數上線後改由子指數加權合成，權重公開、可展開到原始值。子指數需 gis-platform 預先彙整表與排程（migration 由使用者拍板），排在前端改版之後。停更來源不得默默拉低指數：要在指數旁標出缺了哪些來源。
-- **缺值修正（K1）**：這輪一起把 loader／元件的 `?? 0`、`|| 0`、補 0 改成保留 null；壓力指數 loader 改讀 `updated_at`、`per_signal` 改讀物件；熱區「熱度倍數」合成值改成真實比較或拿掉。RPC 端 `COALESCE(…,0)`（公衛 yoy）與上游停更另開資料工單。
+- **缺值修正（K1）**：這輪一起把 loader／元件的 `?? 0`、`|| 0`、補 0 改成保留 null；壓力指數 loader 改讀 `updated_at`、`per_signal` 改讀物件；熱區「熱度倍數」合成值改成真實比較或拿掉。RPC 端缺值補 0 已於 migration 425 改回 NULL（公衛 yoy、加權指數 change_pct、壓力指數 vs_baseline／vs_1h_ago）；熱區 `get_news_trending.baseline_avg` 的 `COALESCE(…,0)` 刻意保留（前端以 0 判斷「新」）。上游停更另開資料工單。
 - **窄格規則**（2026-10-01 使用者在比較頁抓到示意卡數字互壓、標籤被截、漲跌斷行）：
   - 卡片 `overflow: hidden`＋`min-width: 0`，內容不得畫出格子（改版前 `fit:"content"` 格是 `overflow: visible`）。
   - 主數字、KPI 數值、漲跌、時間 `white-space: nowrap`；放不下時整組換行，不在數字中間斷行、不縮字。

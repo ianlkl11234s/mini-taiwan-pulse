@@ -134,3 +134,7 @@ SELECT max(sent), max(effective), max(collected_at) FROM live.disaster_alerts WH
 SELECT handle, observed_at, updated_at, is_live FROM live.yt_live_current ORDER BY handle LIMIT 20;
 SELECT count(*) FROM live.yt_live_current WHERE video_id IN ('KyT4qSK8lJo','ADZTiqEGT8g');
 ```
+
+## 後續（2026-10-03）
+
+新聞四格已改用 `news_events_daily.refreshed_at`：migration 425 讓 `get_news_events_day_clustered_v2` 回傳 `aggregated_at`，前端 #503 以它判斷新鮮度（最新一則超過 12 小時改用發布時間）。
