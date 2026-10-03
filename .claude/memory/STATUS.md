@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-10-03 晚（本機 Claude Code 連正式站：P0–P3＋AG-1 上線）
+**最後更新**：2026-10-04（正式站端到端量測完成）
 
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
 
@@ -25,12 +25,22 @@
 
 set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms；token 接上 55 ms；重整還原 5.5 s；18 MiB 上傳 151 ms。正式站改版前（P0）：set_camera 4.7 s、map_context 0.96 s、set_layers 4.8 s；網路經 Cloudflare 新加坡，ping 150 ms。
 
+## 正式站量測（2026-10-04，`e2e-prod-connect.mjs prod`）
+
+| 動作 | 改版前（P0） | 改版後 |
+|---|---|---|
+| 接上分頁 | 手動配對 12.5 s | 0.93 s（免碼） |
+| set_camera | 4.7 s | 1.8 s（6/6 ready） |
+| set_layers | 4.8 s | 0.87 s |
+| map_context | 0.96 s | 0.45 s（含 AG-1 摘要） |
+| show_nearby 上圖 | 不可用 | p50 5.8 s |
+
+重整還原與撤銷尚未在正式站實測（需使用者手動）。
+
 ## 卡點與下一步
 
-**下一個 session 的入口**：BACKLOG AG-5。
+**下一個 session 的入口**：BACKLOG AG-6（其他自繪圖層摘要）。
 
-- 卡點：正式站量測需要使用者登入正式站、在面板產生 token，並在 analysis-prod/mcp 執行 `pbpaste | npm run token:save`；Claude Code 需 `/mcp` 重連才會用新版工具。
-- 第一步：使用者完成上述後，在 mini-pulse-gis-mcp 跑 `node eval/prod-connect/e2e-prod-connect.mjs prod`。
-- 驗收：各項通過，數字寫回 PLAN。
+- 使用者有空時手動驗：正式站重整一次看結果還原、面板撤銷 token 一次看 15 s 內斷線（AG-5 剩餘）。
 
-其餘待辦：AG-2～AG-4、AG-6（其他自繪圖層摘要）、AG-7（回歸測試重置殘留圖層）。
+其餘待辦：AG-2～AG-4、AG-7（回歸測試重置殘留圖層）。
