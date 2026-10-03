@@ -387,6 +387,18 @@ export function dayAlertsToCards(rows: DisasterAlert[]): ActiveAlert[] {
   return out;
 }
 
+/** 24 小時警報序列；null＝該小時沒有資料（來源失敗），畫成「無資料」而不是 0 則 */
+export type AlertSeriesMap = Record<AlertGroupShort, (number | null)[]>;
+
+/** 序列查詢失敗用：24 格全 null（不是 24 格 0）。真 0（查詢成功但沒警報）仍走 emptySeries / indexSeries */
+export function nullSeries(): AlertSeriesMap {
+  const out = {} as AlertSeriesMap;
+  for (const g of ALERT_GROUP_ORDER) {
+    out[g] = Array.from({ length: 24 }, () => null);
+  }
+  return out;
+}
+
 export function emptySeries(): Record<AlertGroupShort, number[]> {
   const out = {} as Record<AlertGroupShort, number[]>;
   for (const g of ALERT_GROUP_ORDER) {

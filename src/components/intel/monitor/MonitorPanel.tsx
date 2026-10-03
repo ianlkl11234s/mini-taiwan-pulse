@@ -19,7 +19,7 @@ import {
 } from "../../../data/newsEventsLoader";
 import {
   fetchAlertSummary,
-  tallySummary, indexSeries, EMPTY_TALLY, emptySeries,
+  tallySummary, indexSeries, EMPTY_TALLY, emptySeries, nullSeries,
 } from "../../../data/alertsLoader";
 import { useIntelPollingQuery } from "../../../hooks/useIntelPollingQuery";
 import type { NewsCategory } from "../../../data/newsEventTypes";
@@ -498,8 +498,10 @@ export function MonitorPanel({
     [alertSummaryQuery],
   );
   const alertSeries = useMemo(
-    () => (alertSeriesRows.length ? indexSeries(alertSeriesRows) : emptySeries()),
-    [alertSeriesRows],
+    // 新版：查詢失敗＝缺值（不畫成 24 格 0）；舊版維持原畫面
+    () => (alertSeriesRows.length ? indexSeries(alertSeriesRows)
+      : v2 && dashboard.alertSeries.status === "error" ? nullSeries() : emptySeries()),
+    [alertSeriesRows, v2, dashboard.alertSeries.status],
   );
 
   const trendingKeySet = useMemo(() => buildTrendingKeys(trending), [trending]);

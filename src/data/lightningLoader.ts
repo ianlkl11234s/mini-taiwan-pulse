@@ -148,20 +148,20 @@ export interface LightningSummary {
   /** 查詢的台北日 YYYY-MM-DD */
   dateKey: string;
   source: LightningSource;
-  /** 主來源近 1 小時落雷數 */
-  count1h: number;
-  /** 主來源當日累計 */
-  countDay: number;
+  /** 主來源近 1 小時落雷數；查詢沒給計數（count=null）時 null，不當 0 */
+  count1h: number | null;
+  /** 主來源當日累計；查詢沒給計數時 null（監看 v2 顯示「—」，不說「今日尚無落雷」） */
+  countDay: number | null;
   /** 主來源最新一筆（無則 null） */
   latest: { ts: number; lon: number; lat: number; strikeType: number } | null;
   fallbackSource: LightningSource;
-  /** 對照來源當日累計 —— 0 代表上游持續斷供 */
-  fallbackCountDay: number;
+  /** 對照來源當日累計 —— 0 代表上游持續斷供；查詢沒給計數時 null */
+  fallbackCountDay: number | null;
 }
 
 async function fetchLightningDayCount(
   source: LightningSource, dateKey: string, sinceTs: number | null,
-): Promise<number> {
+): Promise<number | null> {
   const lightningCountQuery = supabase.rpc(
     "get_lightning_day",
     { date_key: dateKey, p_source: source },
@@ -171,7 +171,8 @@ async function fetchLightningDayCount(
     sinceTs == null ? lightningCountQuery : lightningCountQuery.gte("strike_ts", sinceTs)
   );
   if (error) throw error;
-  return count ?? 0;
+  // count=null（沒報錯但沒給計數）不是「0 筆」：回 null 讓卡片顯示「—」
+  return count ?? null;
 }
 
 async function fetchLightningLatest(
@@ -193,11 +194,11 @@ async function fetchLightningSummaryUncached(): Promise<LightningSummary> {
   const base: LightningSummary = {
     dateKey,
     source: MONITOR_LIGHTNING_SOURCE,
-    count1h: 0,
-    countDay: 0,
+    count1h: null,
+    countDay: null,
     latest: null,
     fallbackSource: MONITOR_LIGHTNING_FALLBACK_SOURCE,
-    fallbackCountDay: 0,
+    fallbackCountDay: null,
   };
   const sinceTs = Math.floor(Date.now() / 1000) - 3600;
   const [countDay, count1h, latest, fallbackCountDay] = await Promise.all([
@@ -254,8 +255,8 @@ export const invalidateLightningSummary = (): void => fetchLightningSummaryCache
 export interface LightningDay {
   /** 台北曆日 YYYY-MM-DD */
   dateKey: string;
-  /** 當日總落雷數；當日無資料時補 0 */
-  count: number;
+  /** 當日總落雷數；資料區間內沒列＝真 0；超過最後一筆資料日（anchorToday）＝null */
+  count: number | null;
   cloudToGround: number | null;
   maxIntensityKa: number | null;
 }
@@ -274,13 +275,21 @@ const DEFAULT_LIGHTNING_DAILY_DAYS = 14;
  * 把 RPC 回傳（只含有資料的日期，已由舊到新排序）補成連續 days 天。
  * 右界錨在 rows 最後一筆的 strike_date（不是 todayTaiwan()，理由見檔頭）。
  */
-function padLightningDaily(rows: LightningDailyRpcRow[], days: number): LightningDay[] {
+function padLightningDaily(rows: LightningDailyRpcRow[], days: number, anchorToday = false): LightningDay[] {
+  // COUNT 類：資料區間內沒列＝真 0；anchorToday 時，最後收集日之後的天＝null（灰樁，不是 0）
+  const lastKey = rows.length ? rows[rows.length - 1]!.strike_date : "";
   return padTaipeiDaily(rows, days, (r) => r.strike_date, (dateKey, r) => ({
     dateKey,
-    count: r?.event_count ?? 0,
+    count: r ? r.event_count : anchorToday && dateKey > lastKey ? null : 0,
     cloudToGround: r?.cloud_to_ground ?? null,
     maxIntensityKa: r?.max_intensity_ka ?? null,
-  }));
+  }), anchorToday ? { anchor: "today" } : undefined);
+}
+
+/** cache key：`14`（預設錨最後一列）或 `14:today`（監看 v2 錨今天） */
+function parseDailyKey(key: string): { days: number; anchorToday: boolean } {
+  const [d, mode] = key.split(":");
+  return { days: clampDailyDays(d ?? ""), anchorToday: mode === "today" };
 }
 
 function clampDailyDays(daysKey: string): number {
@@ -288,8 +297,9 @@ function clampDailyDays(daysKey: string): number {
 }
 
 async function fetchLightningDailyUncached(daysKey: string): Promise<LightningDay[]> {
+  const { days: dayCount, anchorToday } = parseDailyKey(daysKey);
   const { data, error } = await supabase.rpc("get_lightning_daily", {
-    p_days: clampDailyDays(daysKey),
+    p_days: dayCount,
     // ⚠️ 一定要指定來源。RPC 的 p_source=null 會把 cwa 與 taipower **加總**，
     // 但兩者是同一批落雷的兩份獨立觀測，加起來等於重複計算
     // （實測 2026-08-14：cwa 2985 + taipower 2204 = 5189）。
@@ -298,7 +308,7 @@ async function fetchLightningDailyUncached(daysKey: string): Promise<LightningDa
     p_source: "cwa",
   });
   if (error) throw error;
-  return padLightningDaily((data ?? []) as LightningDailyRpcRow[], clampDailyDays(daysKey));
+  return padLightningDaily((data ?? []) as LightningDailyRpcRow[], dayCount, anchorToday);
 }
 
 const fetchLightningDailyCached = cachedByKey<LightningDay[]>(
@@ -313,7 +323,8 @@ const fetchLightningDailyCached = cachedByKey<LightningDay[]>(
  */
 export const fetchLightningDaily = (
   days: number = DEFAULT_LIGHTNING_DAILY_DAYS,
-): Promise<LightningDay[]> => fetchLightningDailyCached(String(days));
+  opts: { anchorToday?: boolean } = {},
+): Promise<LightningDay[]> => fetchLightningDailyCached(opts.anchorToday ? `${days}:today` : String(days));
 
 export const invalidateLightningDaily = (): void => fetchLightningDailyCached.invalidate();
 

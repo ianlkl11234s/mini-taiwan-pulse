@@ -5,13 +5,15 @@ import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { MON_CHART_H } from "./monitorChart";
 import { MonitorMetric, MonitorNote } from "./MonitorMetric";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
-import type { PublicHealthWeek, CdcDisease } from "../../../data/intelLoaders";
+import { useMonitorFreshness } from "./monitorFreshness";
+import { isoWeekThursdayMs, type PublicHealthWeek, type CdcDisease } from "../../../data/intelLoaders";
 
-function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
+function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; muted?: boolean }) {
   const v2 = useMonitorV2();
-  // 疾病：升 = 警示 → 紅；降 = 改善 → 綠
-  const worse = d.yoy >= 0;
+  // 缺值（null）：v2 顯示「—」；舊版維持原本補 0 的畫面
+  const yoy = v2 ? d.yoy : d.yoy ?? 0;
+  // 疾病：升 = 警示 → 紅；降 = 改善 → 綠（缺值不判斷）
+  const worse = yoy != null && yoy >= 0;
   const yc = worse ? COLORS.statusWarn : COLORS.statusLive;
   if (v2) {
     // 新版：兩種疾病是並列的同等指標，各一個主數字＋年增；走勢用列內迷你高度（mini）。
@@ -30,8 +32,9 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
         <MonitorMetric
           value={d.value}
           unit={d.unit}
-          delta={`${worse ? "↑ +" : "↓ "}${d.yoy}% 年增`}
-          tone={worse ? "up" : "down"}
+          muted={muted}
+          delta={yoy == null ? "年增 —" : `${worse ? "↑ +" : "↓ "}${yoy}% 年增`}
+          tone={yoy == null ? "neutral" : worse ? "up" : "down"}
         />
         {n > 1 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -107,14 +110,14 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
           <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700, color: yc }}>
             {worse ? "↑" : "↓"}
             {worse ? "+" : ""}
-            {d.yoy}%
+            {yoy}%
           </span>
           <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
             vs 去年同期
           </span>
         </span>
         <Sparkline
-          data={d.spark}
+          data={d.spark.map((v) => v ?? 0)}
           color={d.color}
           // 62→88（2026-08-20 卡片改成撐滿欄寬後）：單一疾病時整張卡有 350px 以上，
           // 62px 的走勢圖會孤零零縮在右上角。88 是「三張並排的最窄情況」還放得下的上限
@@ -152,7 +155,11 @@ interface Props {
 // 這裡只剩 CDC 健康卡，標題與 grid 欄數同步縮減
 export function SituationCards({ health }: Props) {
   const v2 = useMonitorV2();
-  useMonitorCardHeader({ timeText: health.week > 0 ? `W${health.week}` : null });
+  // 資料期別 W{n}；RPC 不回年份 → 由週次推該週週四當資料日期（週批次，>14 天過期、>35 天停更）
+  const fresh = useMonitorFreshness("situationCards", {
+    timeText: health.week > 0 ? `W${health.week}` : null,
+    dataMs: health.week > 0 ? isoWeekThursdayMs(health.week) : null,
+  });
   return (
     <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
       {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -174,7 +181,7 @@ export function SituationCards({ health }: Props) {
           每格仍有 200px 以上讀得到 sparkline（固定 3 格在 split 的 w6 只剩 ~130px）。 */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
         {health.diseases.map((d) => (
-          <DiseaseCard key={d.id} d={d} week={health.week} />
+          <DiseaseCard key={d.id} d={d} week={health.week} muted={fresh.muted} />
         ))}
         {health.diseases.length === 0 && (
           <>
@@ -184,6 +191,9 @@ export function SituationCards({ health }: Props) {
           </>
         )}
       </div>
+      {v2 && fresh.reason && health.diseases.length > 0 && (
+        <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+      )}
     </div>
   );
 }

@@ -38,7 +38,8 @@ export const MONITOR_CARD_META: Record<MonitorWidgetId, MonitorCardMeta> = {
   erCongestion: { title: "急診壅塞", en: "ER congestion", fresh: { cadence: "stream", periodMin: 15 } },
   situationOverview: { title: "戰情概覽", en: "Pressure index", fresh: { cadence: "stream", periodMin: 60 } },
   plaBoard: { title: "共機擾台", en: "PLA activity", fresh: { cadence: "days" } },
-  vesselZone: { title: "特殊船舶接近", en: "Vessel zones", fresh: { cadence: "days" } },
+  // 沒有船的日子 RPC 沒有列，最後一列日期不代表來源停更 → 不判過期
+  vesselZone: { title: "特殊船舶接近", en: "Vessel zones", fresh: { cadence: "event" } },
   isrSatellitePasses: { title: "中國 ISR 衛星過境", en: "ISR passes", fresh: { cadence: "days" } },
   traDelay: { title: "台鐵誤點", en: "TRA delay", fresh: { cadence: "days", staleDays: 3 } },
   internetHealth: { title: "網路觀察", en: "RIPE NCC", fresh: { cadence: "stream", periodMin: 5 } },

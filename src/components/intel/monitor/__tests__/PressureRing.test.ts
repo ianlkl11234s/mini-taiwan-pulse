@@ -12,7 +12,7 @@ vi.mock("../../../../hooks/useMonitorResource", () => ({
   useMonitorResource: () => ({ status: "ready", data: [], lastSuccessAt: 1 }),
 }));
 
-import { TwseTicker } from "../PressureRing";
+import { TwseTicker, marketDataMs } from "../PressureRing";
 
 function textOf(node: unknown): string {
   if (node == null || typeof node === "boolean") return "";
@@ -34,5 +34,16 @@ describe("TwseTicker stale presentation", () => {
     expect(text).toContain("更新中斷");
     expect(text).toContain("最後成功");
     expect(text).not.toContain("盤中 13:30");
+  });
+});
+
+describe("marketDataMs", () => {
+  it("combines the history trade_date with the RPC HH:MM (Taipei), never today's date", () => {
+    expect(marketDataMs("2026-09-30", "13:30")).toBe(Date.parse("2026-09-30T13:30:00+08:00"));
+  });
+  it("returns null without a date or with a bad time", () => {
+    expect(marketDataMs(undefined, "13:30")).toBeNull();
+    expect(marketDataMs("2026-09-30", null)).toBeNull();
+    expect(marketDataMs("2026-09-30", "收盤")).toBeNull();
   });
 });

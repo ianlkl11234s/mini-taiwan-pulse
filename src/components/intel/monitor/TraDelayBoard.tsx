@@ -4,15 +4,15 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import {
   fetchTraDelaySummary, fetchTraDelayTrains,
-  type TraDelayDay, type TraDelayTrain,
+  toStrictTraDay, type TraDelayDay, type TraDelayDayStrict, type TraDelayTrain,
 } from "../../../data/intelLoaders";
 import { useChartTooltip } from "../../ChartHoverTooltip";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
-import { useMonitorCardHeader } from "./MonitorCardFrame";
-import { MonitorKpis, MonitorSub } from "./MonitorMetric";
+import { useMonitorFreshness } from "./monitorFreshness";
+import { MonitorKpis, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
 /**
@@ -55,31 +55,41 @@ export function TraDelayBoard({ open }: Props) {
   const daysQuery = useMonitorResource({ open, queryKey: "tra-delay-summary", intervalMs: 60 * 60_000, emptyData: EMPTY_TRA_DAYS, load: loadDays });
   const trainsQuery = useMonitorResource({ open, queryKey: "tra-delay-trains", intervalMs: 60 * 60_000, emptyData: EMPTY_TRA_TRAINS, load: loadTrains });
   const days = daysQuery.data;
+  // 舊版畫面沿用原本「缺值補 0」的輸出；v2 用 days（保留 null）
+  const daysS = useMemo(() => days.map(toStrictTraDay), [days]);
   const trains = trainsQuery.data;
 
   // 主數字用「最後一個算得出到站誤點的日子」——最新一天可能剛好缺班表（實測 175 天內有 9 天）
   const latest = useMemo(() => {
     for (let i = days.length - 1; i >= 0; i--) {
-      if (days[i]!.nearDestTrains > 0) return days[i]!;
+      if ((days[i]!.nearDestTrains ?? 0) > 0) return days[i]!;
     }
     return null;
   }, [days]);
 
   const v2 = useMonitorV2();
-  // 資料期別＝主數字對應的營運日（YYYY-MM-DD → MM/DD）
-  useMonitorCardHeader({ timeText: latest ? latest.serviceDate.slice(5).replace("-", "/") : null });
+  // 資料期別＝主數字對應的營運日（YYYY-MM-DD → MM/DD）；資料日期＝該日台灣 00:00（日批次，>3 天過期）
+  const latestMs = latest ? Date.parse(`${latest.serviceDate}T00:00:00+08:00`) : NaN;
+  const fresh = useMonitorFreshness("traDelay", {
+    timeText: latest ? latest.serviceDate.slice(5).replace("-", "/") : null,
+    dataMs: Number.isNaN(latestMs) ? null : latestMs,
+  });
 
   // v2 三線圖資料：nearDestTrains = 0 的日子不入序列（斷線，不代 0）；時間取營運日台北午夜
   const v2Lines = useMemo(() => {
-    const rows = days.filter((d) => d.observedTrains > 0 && d.nearDestTrains > 0);
-    const toSeries = (pick: (d: TraDelayDay) => number): SparklinePoint[] =>
-      rows.map((d) => ({
-        t: Date.parse(`${d.serviceDate}T00:00:00+08:00`) / 1000,
-        v: (100 * pick(d)) / d.nearDestTrains,
-      }));
+    const rows = days.filter((d) => (d.observedTrains ?? 0) > 0 && (d.nearDestTrains ?? 0) > 0);
+    // 該日計數缺值（null）→ 這個點略過（斷線），不當 0
+    const toSeries = (pick: (d: TraDelayDay) => number | null): SparklinePoint[] =>
+      rows.flatMap((d) => {
+        const n = pick(d);
+        return n === null ? [] : [{
+          t: Date.parse(`${d.serviceDate}T00:00:00+08:00`) / 1000,
+          v: (100 * n) / d.nearDestTrains!,
+        }];
+      });
     return {
       n: rows.length,
-      gaps: days.filter((d) => d.observedTrains > 0 && d.nearDestTrains === 0).length,
+      gaps: days.filter((d) => (d.observedTrains ?? 0) > 0 && d.nearDestTrains === 0).length,
       over0: toSeries((d) => d.nearDestOver0),
       over5: toSeries((d) => d.nearDestOver5),
       over15: toSeries((d) => d.nearDestOver15),
@@ -108,8 +118,13 @@ export function TraDelayBoard({ open }: Props) {
   }
 
   // 全部走口徑 C（到站誤點）：與下方三線圖同一口徑，避免同一格裡兩種定義並存
-  const delayedPct = (latest.nearDestOver5 / latest.nearDestTrains) * 100;
-  const delayedPct15 = (latest.nearDestOver15 / latest.nearDestTrains) * 100;
+  // v2：計數缺值（null）→ null → 顯示「—」；舊版用補 0 的 strict 版本
+  const ratio = (n: number | null) => (n === null || latest.nearDestTrains === null ? null : (n / latest.nearDestTrains) * 100);
+  const pctV2 = ratio(latest.nearDestOver5);
+  const pct15V2 = ratio(latest.nearDestOver15);
+  const latestS = toStrictTraDay(latest);
+  const delayedPct = (latestS.nearDestOver5 / latestS.nearDestTrains) * 100;
+  const delayedPct15 = (latestS.nearDestOver15 / latestS.nearDestTrains) * 100;
 
   if (v2) {
     return (
@@ -117,8 +132,9 @@ export function TraDelayBoard({ open }: Props) {
         <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
         <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
         <MonitorKpis
+          muted={fresh.muted}
           items={[
-            { label: "到站誤點", value: delayedPct.toFixed(0), unit: "%" },
+            { label: "到站誤點", value: pctV2 === null ? "—" : pctV2.toFixed(0), unit: pctV2 === null ? undefined : "%" },
             { label: "平均誤點", value: latest.nearDestAvgDelay === null ? "—" : latest.nearDestAvgDelay.toFixed(1), unit: latest.nearDestAvgDelay === null ? undefined : "分" },
             // 這格刻意維持口徑 A：問的是「當日最糟到什麼程度」，本來就該看途中峰值
             { label: "途中最大", value: latest.maxDelayMin === null ? "—" : latest.maxDelayMin, unit: latest.maxDelayMin === null ? undefined : "分" },
@@ -126,9 +142,9 @@ export function TraDelayBoard({ open }: Props) {
         />
         <MonitorSub
           items={[
-            `逾 15 分 ${delayedPct15.toFixed(0)}%`,
-            `可判定 ${latest.nearDestTrains} 班`,
-            `${latest.observedTrains} 班在跑`,
+            `逾 15 分 ${pct15V2 === null ? "—" : `${pct15V2.toFixed(0)}%`}`,
+            `可判定 ${latest.nearDestTrains ?? "—"} 班`,
+            `${latest.observedTrains ?? "—"} 班在跑`,
           ]}
         />
         {v2Lines.n >= 2 && (
@@ -141,6 +157,7 @@ export function TraDelayBoard({ open }: Props) {
               lineColor={TREND_LINES[0].color} seriesLabel={TREND_LINES[0].label}
               extraSeries={over5Extra} moreSeries={over15More}
               gapSec={TRA_GAP_SEC} showTooltip tooltipDateFormat="date"
+              staleUntil={fresh.staleUntil}
             />
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: COLORS.textMuted }}>
               {TREND_LINES.map((l) => (
@@ -182,9 +199,12 @@ export function TraDelayBoard({ open }: Props) {
             ))}
           </details>
         )}
+        {fresh.reason && (
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+        )}
         <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: COLORS.textFaint }}>
           {latest.serviceDate}
-          {latest.coveragePct !== null && latest.scheduledTrains !== null && (
+          {latest.coveragePct !== null && latest.scheduledTrains !== null && latest.observedTrains !== null && (
             <> · 覆蓋 {latest.coveragePct.toFixed(0)}%（{latest.observedTrains}/{latest.scheduledTrains} 班）</>
           )}
           <br />
@@ -211,21 +231,21 @@ export function TraDelayBoard({ open }: Props) {
         />
         <Stat
           label="平均誤點"
-          value={latest.nearDestAvgDelay === null ? "—" : `${latest.nearDestAvgDelay.toFixed(1)}′`}
-          sub={`可判定 ${latest.nearDestTrains} 班`}
-          color={delayColor(latest.nearDestAvgDelay)}
+          value={latestS.nearDestAvgDelay === null ? "—" : `${latestS.nearDestAvgDelay.toFixed(1)}′`}
+          sub={`可判定 ${latestS.nearDestTrains} 班`}
+          color={delayColor(latestS.nearDestAvgDelay)}
         />
         {/* 這格刻意維持口徑 A：問的是「當日最糟到什麼程度」，本來就該看途中峰值 */}
         <Stat
           label="途中最大"
-          value={latest.maxDelayMin === null ? "—" : `${latest.maxDelayMin}′`}
-          sub={`${latest.observedTrains} 班在跑`}
-          color={delayColor(latest.maxDelayMin)}
+          value={latestS.maxDelayMin === null ? "—" : `${latestS.maxDelayMin}′`}
+          sub={`${latestS.observedTrains} 班在跑`}
+          color={delayColor(latestS.maxDelayMin)}
         />
       </div>
 
       {/* 近 60 天誤點比例走勢（三個閾值） */}
-      <DelayTrendChart days={days} />
+      <DelayTrendChart days={daysS} />
 
       {/* 最誤點車次 */}
       {trains.length > 0 && (
@@ -287,9 +307,9 @@ export function TraDelayBoard({ open }: Props) {
       <div style={{
         fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, lineHeight: 1.5,
       }}>
-        {latest.serviceDate}
-        {latest.coveragePct !== null && latest.scheduledTrains !== null && (
-          <> · 覆蓋 {latest.coveragePct.toFixed(0)}%（{latest.observedTrains}/{latest.scheduledTrains} 班）</>
+        {latestS.serviceDate}
+        {latestS.coveragePct !== null && latestS.scheduledTrains !== null && (
+          <> · 覆蓋 {latestS.coveragePct.toFixed(0)}%（{latestS.observedTrains}/{latestS.scheduledTrains} 班）</>
         )}
         <br />
         到站誤點口徑：取最後觀測（終點前 3 站內）的誤點，分母為可判定班次。
@@ -311,14 +331,14 @@ export function TraDelayBoard({ open }: Props) {
  * nearDestTrains = 0 的日子（班表缺漏）折線**斷開**，不補值連過去。
  */
 const TREND_LINES = [
-  { label: "超過 0 分",  color: COLORS.accent,     pick: (d: TraDelayDay) => d.nearDestOver0 },
-  { label: "超過 5 分",  color: COLORS.statusWarn, pick: (d: TraDelayDay) => d.nearDestOver5 },
-  { label: "超過 15 分", color: COLORS.statusErr,  pick: (d: TraDelayDay) => d.nearDestOver15 },
+  { label: "超過 0 分",  color: COLORS.accent,     pick: (d: TraDelayDayStrict) => d.nearDestOver0 },
+  { label: "超過 5 分",  color: COLORS.statusWarn, pick: (d: TraDelayDayStrict) => d.nearDestOver5 },
+  { label: "超過 15 分", color: COLORS.statusErr,  pick: (d: TraDelayDayStrict) => d.nearDestOver15 },
 ] as const;
 
 const CHART_H = 46;
 
-function DelayTrendChart({ days }: { days: TraDelayDay[] }) {
+function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
 

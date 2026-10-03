@@ -82,8 +82,9 @@ export function fetchEarthquakes(): Promise<EarthquakeEvent[]> {
 export interface EarthquakeSummary {
   /** 最新「有感」地震（CWA local/significant 報告優先，退回最新任一筆）；無則 null */
   latest: {
-    magnitude: number;
-    depth_km: number;
+    /** 來源沒給規模／深度時 null（監看 v2 顯示「M—」「—」，不是 M0.0） */
+    magnitude: number | null;
+    depth_km: number | null;
     location_desc: string;
     occurred_ts: number;
     report_type: string | null;
@@ -118,8 +119,8 @@ async function fetchEarthquakeSummaryUncached(): Promise<EarthquakeSummary> {
   return {
     latest: pick
       ? {
-          magnitude: pick.magnitude == null ? 0 : Number(pick.magnitude),
-          depth_km: pick.depth_km == null ? 0 : Number(pick.depth_km),
+          magnitude: pick.magnitude == null ? null : Number(pick.magnitude),
+          depth_km: pick.depth_km == null ? null : Number(pick.depth_km),
           location_desc: pick.location_desc ?? "",
           occurred_ts: Math.floor(new Date(pick.occurred_at).getTime() / 1000),
           report_type: pick.report_type,
