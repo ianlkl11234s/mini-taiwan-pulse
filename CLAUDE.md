@@ -53,10 +53,12 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 ### 7. UI 規範（Design System）⚠️
 任何 UI 改動（面板、popup、控制項、樣式表）必須遵守 [`docs/design-system/spec.md`](./docs/design-system/spec.md)（PR 前照 §8 checklist）。`src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，**不可用改基準繞過**；只有違規確實減少時才跑 `npm run design:baseline` 降低基準。
 
-## Git Workflow（GitHub Flow）
+## Git Workflow（develop → master，2026-10-04 起）
 
-- **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge。此規則依使用者 2026-09-15 指示取代舊 squash 慣例，適用後續所有 PR（含 hotfix）。未經明確要求，不壓縮、合併或改寫既有 commit。
-
+- **`develop` 是所有 PR 的 base**（`gh pr create --base develop`）；`master` = 正式站，只收 develop 的發布合併與 `hotfix/*`。GitHub 預設分支仍是 master，開 PR 務必指定 base。
+- **`develop → master` 會觸發 Zeabur 正式部署，須使用者拍板**；發布步驟、版號（SemVer）、tag 與 GitHub Release → [`docs/RELEASING.md`](./docs/RELEASING.md)
+- 每個 user-facing PR 在根目錄 [`CHANGELOG.md`](./CHANGELOG.md) 的 `## [Unreleased]` 加一行
+- **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge（使用者 2026-09-15 指示）。未經明確要求，不壓縮、合併或改寫既有 commit。
 - branch 命名 / PR 流程 / hotfix 判準 → [`docs/git-workflow.md`](./docs/git-workflow.md)
 - PR 描述用 `.github/pull_request_template.md`（`gh pr create` 自動帶入）
 - commit 遵循 Conventional Commits；本專案特例 `memory:` 用於 `.claude/memory` 更新
@@ -67,7 +69,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 1. taipei-gis-analytics：pipeline 改 + `docs/handoff/<slug>.md` 更新 + push
 2. gis-platform：migration 補 + push
 3. data-collectors：若涉 collector 改 + push
-4. mini-taiwan-pulse：前端接線 + `docs/features/<slug>/handoff.md` 反向引用 + PR
+4. mini-taiwan-pulse：前端接線 + `docs/features/<slug>/handoff.md` 反向引用 + PR 到 `develop`（上游部署完才發布到 master）
 
 反向亂序會造成「上線時前端硬依賴的欄位不存在」。
 

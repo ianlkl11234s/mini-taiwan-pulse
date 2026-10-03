@@ -1,5 +1,8 @@
 /// <reference types="vite/client" />
 
+/** package.json 的 version，由 vite.config.ts define 注入（見 docs/RELEASING.md）。 */
+declare const __APP_VERSION__: string;
+
 interface ImportMetaEnv {
   readonly VITE_MAPBOX_TOKEN: string;
   readonly VITE_SUPABASE_URL: string;

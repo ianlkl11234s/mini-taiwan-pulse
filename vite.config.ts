@@ -5,6 +5,7 @@ import { readFile, rm, stat } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import schoolsGridReceipt from "./src/research/contracts/schools-grid-receipt.json";
+import packageJson from "./package.json";
 import { parseSingleByteRange } from "./src/data/gfwV4Range";
 import { buildLayerSearchIndex } from "./src/lib/layerSearch";
 import {
@@ -1205,6 +1206,10 @@ function serveLocalPopulationPreview(): Plugin {
 }
 
 export default defineConfig({
+  // 版號唯一來源是 package.json（見 docs/RELEASING.md）；「資訊 → 關於」顯示。
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+  },
   plugins: [
     react(),
     serveCardPage(),

@@ -823,7 +823,10 @@ function AboutPage({ lang }: { lang: Lang }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <div>
-        <h2 style={{ fontSize: FONT_SIZE.xl, color: c.text, margin: "0 0 10px", letterSpacing: 1 }}>Mini Taiwan Pulse</h2>
+        <h2 style={{ fontSize: FONT_SIZE.xl, color: c.text, margin: "0 0 10px", letterSpacing: 1 }}>
+          Mini Taiwan Pulse{" "}
+          <span style={{ fontSize: FONT_SIZE.base, fontWeight: 400, color: c.sub, letterSpacing: 0 }}>v{__APP_VERSION__}</span>
+        </h2>
         <p style={{ fontSize: FONT_SIZE.lg, lineHeight: 1.9, color: c.text, margin: 0 }}>
           {L ? "用開放資料，感受台灣的脈動。" : "Feel Taiwan's pulse through open data."}
         </p>
