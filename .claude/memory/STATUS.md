@@ -1,42 +1,36 @@
 # Status
 
-**最後更新**：2026-10-03（Pulse Agent v2 上線：四個 skill 的 plugin、22 個核心工具、本機免授權配對）
+**最後更新**：2026-10-03 晚（本機 Claude Code 連正式站：P0–P3＋AG-1 上線）
 
-> 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。Agent 分析的完整進度看 [`docs/features/general-analysis/STATUS.md`](../../docs/features/general-analysis/STATUS.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0016（`.gis-agent-system/decisions/0016-pulse-agent-v2-skill-plugin.md`）。
+> 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
 
 ## 範圍
 
 | repo / system | 現況 |
 |---|---|
-| **mini-taiwan-pulse** | #495（周邊呈現與分段浮現、免授權面板、scene-ready、地震漣漪改 Three.js、舊 skill 移除）、#496（PROD-HOME 修正）、#497（圖例來源）已合併到 master；Zeabur 已部署。 |
-| **mini-pulse-gis-mcp** | #31（core 工具組、show_result／show_nearby、自動配對、pulse-analyst plugin、eval 接真地圖）、#32、#33（名稱標籤與來源）已合併；`plugins/pulse-analyst/skills/` 是 skill 的唯一來源。 |
-| **gis-platform** | #134（gateway 免授權配對、樣式驗證放寬、scene-ready 測試）已合併。 |
-| **taipei-gis-analytics** | #134（牧場 manifest 標題）已合併。 |
-| **本機正式環境** | `analysis-prod/{gateway 232b85a, mcp fd47e9f, mini 6f3b65b2}`；8794、3734 在跑，免授權開著。 |
-| **使用者層設定** | Claude `~/.claude-migu/skills/` 與 Codex `~/.codex/config.toml` 都指向 analysis-prod 的四支 skill；兩邊的 pulse-research env 都加了 `PULSE_RESEARCH_DEV_AUTOPAIR=1`。 |
+| **mini-taiwan-pulse** | #506（面板站主可見、nginx 轉 gateway）、#512（AG-1＋P1–P3）、#517（自繪圖層摘要＋SCENE_ERROR 修正）、#519（map_context 等資料、aqi isStyleReady）、#515（文件）已合併並部署。 |
+| **gis-platform** | #136（zbpack 啟動）、#137（結果通道、長輪詢、agent token、清掉配對碼）已合併；Zeabur 服務 `research-gateway` 以 `zeabur deploy` 部署（不綁 GitHub）。 |
+| **mini-pulse-gis-mcp** | #35（P1–P3＋AG-1）、#37、#38（摘要讀法）已合併。 |
+| **本機** | analysis-prod 三個 worktree 已切到最新；8794 改測試身分（`PULSE_RESEARCH_TEST_IDENTITY`），3734 `.env.local` 改 `VITE_RESEARCH_TEST_IDENTITY=1`。Claude／Codex 的 pulse-research 預設連正式站。 |
 
 ## 上線狀態
 
-| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
-|---|---|---|---|---|---|---|---|---|---|
-| gateway（本機 8794） | done：72 tests | done：樣式 11 種全通過 | done：#134 merged | N/A | done：設定檢查通過 | done：analysis-prod 已 checkout | done：已重啟 | done：代理回 405 | done：自動配對分頁 |
-| MCP（analysis-prod） | done：462 tests＋build | done：22 工具 | done：#31–#33 merged | N/A | done：stdio 列出 22 個工具 | done | done：已 build | N/A | done：show_nearby 回 `shown:true`，截圖 prod-smoke-3 |
-| mini 正式站 | done：CI 綠 | done | done：#495–#497 merged | N/A | N/A | done：資產同步完成 | done：部署 6abfeb0f 已切流量 | done：200 | not run：正式站沒有 Agent 面板，沒做目視 |
-| mini 本機 3734 | done | done | done | N/A | N/A | done | done | done | done：中心點、虛線圈、分類點、人讀標籤、圖例來源 |
+| 上線項目 | build | contract/wire | stage | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|
+| gateway（Zeabur） | done：100 tests | done：本機 e2e 13 項 | done：#137 | done：12:36Z pod 啟動 | done：新端點未登入 401、`/pairings/claim` 404 | not run：需使用者 token |
+| mini 正式站 | done：CI 綠 | done | done：#512／#517／#519 | done | done：上傳路徑放行 2 MB、一般路徑 100 KB 413 | not run：需使用者 token |
+| MCP（analysis-prod） | done：524 tests | done | done：#35／#37／#38 | done：已 build | N/A | done：本機 live-map 分層題庫 13/13 |
 
-## 回歸測試（Sonnet、無頭瀏覽器、每題重置）
+## 數字（本機無頭瀏覽器，改版前 → 後）
 
-- 舊 20 題：14 → **18/20**；剩 A10（綜合指標算法分歧）。A18 修正後補測 2/2 通過。
-- 分層 13 題：**12/13**（repeat 2 曾 26/26）；上圖、動靜、語氣都是 100%。
-- run 紀錄：`analysis-prod/mcp/eval/agent-regression/runs/`。
+set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms；token 接上 55 ms；重整還原 5.5 s；18 MiB 上傳 151 ms。正式站改版前（P0）：set_camera 4.7 s、map_context 0.96 s、set_layers 4.8 s；網路經 Cloudflare 新加坡，ping 150 ms。
 
 ## 卡點與下一步
 
-**下一個 session 的入口**：mini-taiwan-pulse master ＋ mini-pulse-gis-mcp main。
+**下一個 session 的入口**：BACKLOG AG-5。
 
-- 目標：圖層組要能講出畫面上「看得到的現象」。
-- 現在的卡點：只開圖層的題目只能回「已打開」。core 工具組沒有圖層統計或摘要，讀不到圖層背後的數值。
-- 第一步：在 core 加一個唯讀的圖層摘要工具，或讓 `pulse_get_map_context` 帶回可見範圍的統計摘要。先評估哪一種成本低。
-- 驗收：L01–L04 回答第二句是一個具體的現象（例如「雨集中在宜蘭山區」），而且分層題庫維持 12/13 以上。
+- 卡點：正式站量測需要使用者登入正式站、在面板產生 token，並在 analysis-prod/mcp 執行 `pbpaste | npm run token:save`；Claude Code 需 `/mcp` 重連才會用新版工具。
+- 第一步：使用者完成上述後，跑 `node scratchpad/bench/e2e-prod-connect.mjs prod`（腳本在 session scratchpad；已記錄於 PLAN §9）。
+- 驗收：各項通過，數字寫回 PLAN。
 
-其餘待辦見 BACKLOG 的 AG-1～AG-4。
+其餘待辦：AG-2～AG-4、AG-6（其他自繪圖層摘要）、AG-7（回歸測試重置殘留圖層）。
