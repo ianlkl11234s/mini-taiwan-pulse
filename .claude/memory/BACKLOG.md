@@ -58,6 +58,9 @@
 | AG-5 | P1 | done | 正式站端到端量測。 | 2026-10-04 完成（使用者產生 token）：bind 0.93 s、set_camera 1.8 s（6/6 ready）、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s。**未實測**：重整還原（需使用者手動重整，本次自動通過不算）、撤銷 token（正式模式跳過）。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
 | AG-6 | P2 | ready | 其他自繪圖層補摘要：riverLevel、groundwater、iotWraRiver（與 rainGauge 同工廠）。 | 照 #517 rainGauge 做法在 visibleSummary 補上。 | 開這幾層時 visibleSummary 不再是 custom_renderer，附單元測試。 |
 | AG-7 | P3 | ready | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | eval `--reset-cmd` 改為重整前先全部關閉（或 gateway scene 清空）。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
+| AG-8 | P1 | done | 實際使用時發現的周邊／上圖工具問題（2026-10-04）。 | 已修：中文類別篩選（MCP #40）、0 筆類別不再消失＋北北基改用北北基站牌（#40）、帶 Z 座標的面結果匯入失敗（mini #522）、淹水資料重建修形狀（R2 20261003T165705Z）、北北基站牌只在需要時載入＋去重欄位錯誤明確報錯（MCP #41）、公車資料重複載入（analytics #138；R2 20261003T173242Z）。 | 高雄「教育」篩選 118 筆、永和交通 53 個站牌、淹水範圍 shown:true（已驗）。 |
+| AG-9 | P2 | ready | 同類 manifest 重複：`bus_stations`（含 test_* 抽樣）與 `bus`（all／city／intercity 重疊）。 | 比照 analytics #138 只列唯一來源檔，再重建上傳。 | 每個站位／站牌 UID 只一列。 |
+| AG-10 | P2 | idea | 網站部署後已開著的分頁仍跑舊程式（淹水上圖修好後要重新整理才生效）。 | 評估面板偵測新版本並提示重新整理。 | 部署後舊分頁會看到「有新版本」提示。 |
 | AG-2 | P2 | conditional | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | **等下次倉庫重建**（analytics #134 已修上游標題，build_warehouse 已加修形狀）。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
 | AG-3 | P3 | decision | 地震漣漪暫停時的行為：新版暫停 3 秒收起，舊版會無限循環。 | 等使用者決定要不要循環。 | 決定後依需求調整 `useEarthquakesGlobalLayer`，並附單元測試。 |
 | AG-4 | P3 | decision | A10 綜合生活品質題的判分方式。 | 綜合指標的權重與方向沒有標準答案；需決定題庫要收哪些口徑，或改成只檢查方法正確。 | 題庫寫明可接受口徑，並以唯讀查詢驗證各口徑數字。 |
