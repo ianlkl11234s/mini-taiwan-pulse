@@ -1,13 +1,21 @@
 # Pulse Agent 分析：總進度（唯一的最新進度頁）
 
-> **最後更新：2026-10-03。** 進度以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
+> **最後更新：2026-10-03（晚）。** 進度以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
 > 每次合併重要 PR 後，更新本頁的「能做什麼」「指標」「待辦」三節。
+
+## 2026-10-03 正式站連線上線
+
+Agent 現在直接連正式站（`research-gateway` 已在 Zeabur）：面板產生 token、MCP 自動接上，不再靠本機免授權。本機測試 e2e 13 項全過，延遲大降（set_camera 4.6→1.7 s、set_layers 1.6→0.16 s）；正式站未登入檢查正常。細節與 release truth 看 [PLAN-prod-connect-20261003.md](./PLAN-prod-connect-20261003.md)「P1–P3 進度」。
+
+下一步：
+1. **AG-1 自繪圖層**：L01–L04 圖層是自繪（`custom_renderer`），Agent 讀不到數字、只能說「已打開」；另有鏡頭移動偶發 SCENE_ERROR。PR `feat/ag1-layer-data-summary` 進行中。
+2. **正式站量測待使用者 token**：面板產生 token 並 `token:save` 後，跑 `e2e-prod-connect.mjs prod` 與正式站量測；Claude Code 需 `/mcp` 重連。
 
 ## 從這裡開始
 
 **想用（讓 Agent 幫你分析）**
 1. 啟動本機環境：照 [PROD-HOME.md](./PROD-HOME.md)「啟動與停止」開 8794 gateway 與 3734 前端（已在跑就跳過；檢查：`lsof -iTCP:3734 -sTCP:LISTEN`）。
-2. 瀏覽器開 `http://127.0.0.1:3734`。本機免授權模式（三處旗標見 PROD-HOME）不用登入、不用配對碼：面板亮綠燈「本機免授權・已連線」，Agent 第一次動地圖時自動接上；開多個分頁時 Agent 會請你選分頁。未開旗標時照舊：登入 → 取得配對碼 → 貼給 Agent → 比對短語按確認。
+2. 正式用法：開 `https://mini-taiwan-pulse.itsmigu.com` 登入，面板產生 token，`pbpaste | npm run token:save`（在 `analysis-prod/mcp`），Agent 第一次動地圖時自動接上分頁；多個分頁會請你選。本機測試改用測試身分（見 PROD-HOME），不用登入。
 3. 直接用白話問，例如「台北車站 800 公尺內有什麼」「各縣市 A1 事故率排名」「把這個做成卡片」。
 
 **想改（開發）**
@@ -33,7 +41,7 @@
 | Agent v2：四個 skill | 主指揮 `pulse-conductor`＋圖層／一般分析／深入分析三組，放在 mcp repo `plugins/pulse-analyst/skills/`（唯一一份；舊 pulse-gis-analyst、geo-reasoning、pulse-map-story 已移除）。三鐵則：每題上圖、計算前地圖先動、回答白話 | 10-03 |
 | 精簡工具組 | 預設 `PULSE_TOOLSET=core` 22 個工具（`full` 保留全部）；`pulse_show_result`／`pulse_show_nearby` 一步上圖；圖層代號驗證；大結果自動簡化 | 10-03 |
 | 周邊一問就畫好 | 中心點、白色虛線圈、依類別上色、最近幾個標名稱、分段浮現（NEARBY-MAP-PLAN 第 1–6 項） | 10-03 |
-| 本機免授權配對 | 只在 127.0.0.1＋DEV＋三處旗標；仍綁定特定分頁 | 10-03 |
+| 正式站連線（P1–P3） | 面板產生 token＋MCP 自動接上分頁；結果通道（大結果上傳）；快路徑（set_camera 4.6→1.7 s，本機量測）；已移除配對碼與 dev autopair | 10-03（gis-platform #137、mini #512、mcp #35） |
 
 ## 指標
 

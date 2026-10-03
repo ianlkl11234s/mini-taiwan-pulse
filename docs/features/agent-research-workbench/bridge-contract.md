@@ -1,9 +1,32 @@
 # Research bridge Phase B wire contract
 
 Implementation contract for local integration; production acceptance remains separate.
+
+> **2026-10-03 更新**：正式站連線（P1–P3）已上線，端點以本段「正式站連線端點」為準，完整契約（request／response／錯誤碼／timeout 鏈）見 [SPEC-prod-connect-p1-p3.md](../general-analysis/SPEC-prod-connect-p1-p3.md) §2。下方 Phase B 原文保留當時脈絡；其中 `/pairings*`、`/browser/query` 已移除。
 All endpoints prefix `/api/research/v1`. JSON only, private no-store, no secrets in URLs.
 Browser auth: `Authorization: Bearer <Supabase access token>`, fixed same-origin API.
 Agent auth: `Authorization: Research <session credential>`; credential only companion memory.
+
+## 正式站連線端點（2026-10-03，SSOT 為 SPEC §2）
+
+Browser owner API（`Bearer <Supabase access token>`；本機測試身分為 `Bearer test-local`，僅 loopback）：
+- POST `/studies`、`/studies/revoke`、`/browser/sync`（單次，recover／暫停用）、`/browser/status`、`/browser/manual`、`/browser/ack`、`/browser/report`、`/browser/pause`：語意同下方 Phase B。
+- POST `/browser/wait` `{studyId,tabId,...}`：取代舊 3 s sync 迴圈與 `/browser/query` 迴圈，long-poll 同時回狀態與待處理 query；事件發生時 wake。
+- POST `/browser/query-result`：回傳 query 結果（沿用）。
+- POST `/browser/results/meta`、GET `/browser/results/{studyId}/{tabId}/{resultId}`：瀏覽器讀取結果通道的 meta 與檔案（sha256 驗證）。
+- POST `/agent-tokens/create` `{label}`、`/agent-tokens/list`、`/agent-tokens/revoke` `{tokenId}`：token 只在 create 回應出現一次；每帳號 active 最多 10 把，30 天到期；revoke 連帶撤銷該 token 建立的 session。
+
+Agent token API（`Authorization: Agent <token>`）：
+- POST `/agent/tabs`：列出本帳號活躍分頁（`studyId`、`tabLabel`、`lastSeenMs`、`agent: none|self|other`）。
+- POST `/agent/bind` `{studyId,deviceLabel}`：綁定分頁，回 session credential（同形於舊 pairing exchange）；同分頁其他 live session 被撤銷（`displaced`）。
+
+Agent session API（`Authorization: Research <credential>`）：
+- POST `/session`、`/disconnect`、`/state`、`/commands`、`/commands/status`（支援 `waitMs`）、`/agent/query`、`/agent/query-status`（支援 `waitMs`）：語意同 Phase B。
+- POST `/agent/results/declare`、PUT `/agent/results/{uploadId}`：宣告後串流上傳大結果（落盤＋sha256），再以 `import_warehouse_result` query 讓瀏覽器匯入。上傳路徑 body 上限 24 MiB（nginx 上傳 location 另放行），一般路徑維持 32 KiB。
+
+已移除：`/pairings*`（含 `/pairings/claim`，正式站回 404）、`/dev/pairings*`、`/browser/query`。新增 session 錯誤碼：`SESSION_EXPIRED`、`SESSION_DISPLACED`、`TOKEN_REVOKED`、`TOKEN_EXPIRED`、`TOKEN_LIMIT`、`TOKEN_NOT_FOUND`、`TAB_NOT_ACTIVE` 等，見 SPEC §2.2。
+
+## Phase B 原始契約（歷史，部分端點已移除）
 
 Browser owner API:
 - POST `/studies` `{tabId}` => `{studyId,tabId}`
