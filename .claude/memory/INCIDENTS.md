@@ -2127,6 +2127,31 @@ Statistics snapshot 已上 R2，`current.json` 的 R2 object metadata 明確是
 2. 前後端契約是白名單驗證的，MCP 改 payload 時必須同時改 gateway 驗證和測試 fixture。用 MCP 實際輸出當 fixture，不要手寫。
 3. 逐幀動畫不能改依資料計算的 paint 或 filter，要用 feature-state 或自繪圖層。
 
+## 2026-10-03 監看模式：壓力指數永遠「更新中斷」、18 格停更看不出來
+
+### 現象
+
+- 戰情概覽的壓力指數一直顯示「更新中斷」，沒人發現是前端讀錯欄位。
+- 24 格監看卡只有 5 格自己判斷過期；在監（上游停 2026-05-15）、機場、公衛等停更或落後時，畫面仍像正常資料。
+- 多處缺值被畫成 0：地震規模 M0.0、公衛年增 +0%、警訊序列失敗畫成 24 格 0、機場停更顯示「0 人」。
+
+### 根因
+
+1. `intelLoaders.ts` 讀 `row.asof`，RPC 實際回 `updated_at`；`per_signal` 是物件卻被 `asArray` 轉成空陣列。
+2. 共用 `MonitorDataStatus` 只看傳輸狀態（連不連得上），不看資料多舊；卡片標題的時間有幾格還退回「瀏覽器收到的時間」。
+3. loader／RPC 習慣用 `?? 0`、`COALESCE(…,0)`、`ELSE 0` 兜底。
+
+### 修正
+
+- mini #500：`monitorFreshness.ts` 依每格週期判斷即時／延遲／過期／停更／無資料／收盤；缺值保留 null；壓力指數讀 `updated_at`。
+- gis-platform 425（#135）＋mini #503：新聞 RPC 回傳彙整時間 `aggregated_at`；公衛 yoy、change_pct、壓力比較缺值回 NULL。
+
+### 下次守門
+
+1. 「ready」只代表傳輸成功；每個監看格都要用資料本身的時間判斷新鮮度。
+2. 新 loader／RPC 不准用 0 兜底缺值；COUNT 類「沒有列＝真 0」才保留 0。
+3. 新卡上線時，至少在瀏覽器看一次「來源停更」時的畫面，而不只看有資料時。
+
 ## 2026-10-02 R5 校正子代理兩度停滯 600 秒：同名 agent-browser daemon 互卡
 
 ### 症狀
