@@ -166,7 +166,7 @@ git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review
 - 更新 `docs/features/<slug>/changelog.md`
 - 更新 `docs/features/<slug>/backlog.md` 對應項標 ✅
 - 若動到資料契約 → 開 ADR
-- 走 GitHub Flow PR（模板見 CLAUDE.md §Git Workflow）
+- 從 `develop` 開分支，`gh pr create --base develop`（模板見 CLAUDE.md §Git Workflow）
 
 ## Command 完成後自動輸出
 
