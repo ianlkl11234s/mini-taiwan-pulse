@@ -2,6 +2,7 @@
  * §3 面板外殼＋H2、§4 停靠 popup、§5 控制項、§7 載入狀態條、§8 Agent 光暈、§9 圖例。
  * 被展示的元件都從實作檔 import；只有「元件本身拉進資料載入鏈」時才仿製外殼（標「結構仿製，樣式為真」）。
  */
+import { SEQUENTIAL_PALETTES } from "../../map/palettes";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Camera, HelpCircle, Share2 } from "lucide-react";
 import {
@@ -143,6 +144,7 @@ function ControlsDemo({ isDark }: { isDark: boolean }) {
   const [ms, setMs] = useState<string[]>(["a", "c"]);
   const [sw, setSw] = useState(true);
   const [raw, setRaw] = useState(40);
+  const [pal, setPal] = useState("magma");
   const detailsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // 多選清單是 <details>，預設收合；參考頁展開它以便看到兩欄 checkbox
@@ -150,6 +152,10 @@ function ControlsDemo({ isDark }: { isDark: boolean }) {
   }, []);
 
   const controls: ParamControl[] = [
+    {
+      type: "palette", label: "熱區顏色", value: pal, defaultValue: "magma", role: "heatmap",
+      options: SEQUENTIAL_PALETTES.map((p) => ({ label: p.zh, value: p.id })), onChange: setPal,
+    },
     { label: `透明度 ${opacity.toFixed(2)}`, name: "透明度", valueText: opacity.toFixed(2), value: opacity, min: 0, max: 1, step: 0.05, onChange: setOpacity },
     { label: `大小 ×${size.toFixed(1)}`, name: "大小", valueText: `×${size.toFixed(1)}`, value: size, min: 0.5, max: 3, step: 0.1, onChange: setSize },
     { type: "select", label: "播放倍速", value: select, options: SPEED_OPTS, onChange: setSelect },

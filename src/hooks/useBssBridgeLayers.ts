@@ -9,7 +9,8 @@ import {
 import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { bssBridgePrivateAccessToken, useBssBridgePrivateAccess } from "./useBssBridgePrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -37,6 +38,7 @@ export const BSS_BRIDGE_POINT_HEATMAP_LAYER_ID = "bss-national-bridge-preview-po
 const POINTS_FROM_ZOOM = densePointsFromZoom(49_960, BSS_BRIDGE_POINT_MIN_ZOOM);
 // 2026-10-02 校正（全台 z7.3 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
 const HEATMAP_INTENSITY = 2;
+const HEAT_KEYS = ["bssNationalBridgePointsPreview"] as const;
 const heatScale = (opacity: number) => clamp(opacity) / POINT_OPACITY_DEFAULT;
 
 /** 全部 style layer（初始 visibility none）；匯出供測試做 style-spec 驗證。 */
@@ -73,7 +75,7 @@ export function buildBssBridgeLayers(state: Snapshot): (LineLayer | CircleLayer 
   const heat = {
     id: BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, type: "heatmap", source: BSS_BRIDGE_SOURCE_ID, "source-layer": BSS_BRIDGE_SOURCE_LAYER,
     maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM), filter: bssBridgePointFilter(controls.pointQuality), layout: hidden,
-    paint: heatmapPaint(heatScale(opacity.bssNationalBridgePointsPreview), HEATMAP_INTENSITY),
+    paint: heatmapLayerPaint("bssNationalBridgePointsPreview", isDark, heatScale(opacity.bssNationalBridgePointsPreview), HEATMAP_INTENSITY),
   } as unknown as HeatmapLayer;
   return [...lines, heat, point];
 }
@@ -93,7 +95,7 @@ function syncLayers(map: MapboxMap, state: Snapshot) {
   if (map.getLayer(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID)) {
     map.setLayoutProperty(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, "visibility", visibility.bssNationalBridgePointsPreview ? "visible" : "none");
     map.setFilter(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, bssBridgePointFilter(controls.pointQuality) as never);
-    map.setPaintProperty(BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(heatScale(opacity.bssNationalBridgePointsPreview)));
+    applyHeatmapStyle(map, BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, "bssNationalBridgePointsPreview", isDark, heatScale(opacity.bssNationalBridgePointsPreview));
   }
   if (map.getLayer(BSS_BRIDGE_POINT_LAYER_ID)) {
     map.setLayoutProperty(BSS_BRIDGE_POINT_LAYER_ID, "visibility", visibility.bssNationalBridgePointsPreview ? "visible" : "none");
@@ -173,8 +175,9 @@ export function useBssBridgeLayers(
     return () => { map.off("style.load", mount); map.off("error", onError); };
   }, [access.allowed, access.userId, active, mapRef, tick]);
 
+  const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
   useEffect(() => {
     const map = mapRef.current; if (!map) return;
     syncLayers(map, latest.current);
-  }, [isDarkTheme, mapRef, mountRevision, stateKey]);
+  }, [isDarkTheme, mapRef, mountRevision, stateKey, heatStyle]);
 }

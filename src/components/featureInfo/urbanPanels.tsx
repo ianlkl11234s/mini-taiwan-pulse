@@ -1,6 +1,7 @@
 import { FONT_SIZE } from "../../styles/designTokens";
 import { Row, Title } from "./shared";
-import { useFeatureTheme } from "./featureTheme";
+import { DARK_FEATURE, useFeatureTheme } from "./featureTheme";
+import { usePaletteRamp } from "../../state/layerPalette";
 import {
   STREET_TREE_3EPOCH_TRAJ,
   STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -363,7 +364,9 @@ export function PropertyValueAdminPanel({ props }: { props: Record<string, unkno
 export function PropertyValueGridPanel({ props }: { props: Record<string, unknown> }) {
   const vMkt = Number(props.v_mkt);
   const scale = scaleFromGridId(props.grid_id);
-  const color = propertyValueBandColor(scale.bands, vMkt);
+  // R7：標題色跟地圖同一個色盤選單（總市值 9 階）
+  const ramp = usePaletteRamp("propertyValueGrid", useFeatureTheme() === DARK_FEATURE, scale.bands.length, "propertyValueGridPalette");
+  const color = propertyValueBandColor(scale.bands.map((b, i) => ({ ...b, color: ramp[i] ?? b.color })), vMkt);
   const pop = Number(props.pop);
   const hasPop = scale.hasPop && Number.isFinite(pop);
   const perCapitaValue = !hasPop ? ""

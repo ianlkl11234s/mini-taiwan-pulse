@@ -21,7 +21,7 @@ describe("research layer controls", () => {
     expect(() => applyLayerControl({ layerKey: "religionTemples", controlId: multi.controlId, expectedValue: [], value: [option.value] }, new Set())).toThrow("LAYER_CONTROL_EXPECTED_VALUE_MISMATCH");
     expect(() => describeLayerControls("religionTemples", new Set(["religionTemples"]))).toThrow("LAYER_DENIED");
     expect(() => applyLayerControl({ layerKey: "religionTemples", controlId: "religionTemplesOpacity", expectedValue: 0.75, value: 0.51 }, new Set())).toThrow("LAYER_CONTROL_VALUE_INVALID");
-    const hidden = describeLayerControls("propertyValueGrid", new Set()).controls.find(control => control.hidden)!;
+    const hidden = describeLayerControls("propertyValueGrid", new Set()).controls.find(control => control.hidden && control.controlId === "propertyValueGridContrast")!;
     expect(hidden.showWhen).toEqual({ param: "propertyValueGridExtruded", equals: true });
     expect(() => applyLayerControl({ layerKey: "propertyValueGrid", controlId: hidden.controlId, expectedValue: hidden.value, value: hidden.value }, new Set())).toThrow("LAYER_CONTROL_HIDDEN_OR_UNKNOWN");
   });

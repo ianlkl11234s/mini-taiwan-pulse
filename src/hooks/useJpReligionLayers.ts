@@ -4,7 +4,8 @@ import { fetchJpReligionWikidata } from "../data/jpReligionLoader";
 import { JP_RELIGION_COLOR_EXPRESSION } from "../data/jpReligionTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -75,6 +76,8 @@ function heatmapLayer(
   pointsFromZoom: number,
   opacityScale: number,
   intensity: number,
+  paletteKey: string,
+  isDark: boolean,
 ): HeatmapLayer {
   return {
     id,
@@ -83,12 +86,14 @@ function heatmapLayer(
     ...(sourceLayer ? { "source-layer": sourceLayer } : {}),
     maxzoom: heatmapMaxzoom(pointsFromZoom),
     layout: { visibility: "none" },
-    paint: heatmapPaint(opacityScale, intensity),
+    paint: heatmapLayerPaint(paletteKey, isDark, opacityScale, intensity),
   } as HeatmapLayer;
 }
 
 /** 密集點（P-4）：出點縮放以下改畫熱區；intensity 為該層 heatmap-intensity 倍率。 */
-interface HeatmapConfig { layerId: string; pointsFromZoom: number; intensity: number }
+/** `paletteKey`：熱區顏色讀哪一層的色盤選單（R7） */
+const NO_KEYS: readonly string[] = [];
+interface HeatmapConfig { layerId: string; pointsFromZoom: number; intensity: number; paletteKey: string }
 
 const strokeFactor = (opacity: number, defaultOpacity: number) => clampOpacity(opacity) / defaultOpacity;
 
@@ -117,6 +122,7 @@ function usePmtilesLayer(
   config: PmtilesLayerConfig,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const heatStyle = useHeatmapStyleSignature(config.heatmap ? [config.heatmap.paletteKey] : NO_KEYS);
   const { sourceId, sourceLayer, layerId, file, opacityDefault, heatmap } = config;
 
   useEffect(() => {
@@ -144,11 +150,11 @@ function usePmtilesLayer(
       const heatScale = clampOpacity(opacity) / opacityDefault;
       if (heatmap) {
         if (!map.getLayer(heatmap.layerId)) {
-          map.addLayer(heatmapLayer(heatmap.layerId, sourceId, sourceLayer, heatmap.pointsFromZoom, heatScale, heatmap.intensity));
+          map.addLayer(heatmapLayer(heatmap.layerId, sourceId, sourceLayer, heatmap.pointsFromZoom, heatScale, heatmap.intensity, heatmap.paletteKey, isDark));
         }
         if (map.getLayer(heatmap.layerId)) {
           map.setLayoutProperty(heatmap.layerId, "visibility", "visible");
-          map.setPaintProperty(heatmap.layerId, "heatmap-opacity", heatmapOpacity(heatScale));
+          applyHeatmapStyle(map, heatmap.layerId, heatmap.paletteKey, isDark, heatScale);
         }
       }
       if (!map.getLayer(layerId)) {
@@ -180,7 +186,7 @@ function usePmtilesLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sourceId, sourceLayer, layerId, file, opacityDefault, heatmap]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sourceId, sourceLayer, layerId, file, opacityDefault, heatmap, heatStyle]);
 }
 
 const GSI_CONFIG: PmtilesLayerConfig = {
@@ -189,7 +195,7 @@ const GSI_CONFIG: PmtilesLayerConfig = {
   layerId: GSI_LAYER_ID,
   file: "jp_religion_gsi.pmtiles",
   opacityDefault: GSI_OPACITY_DEFAULT,
-  heatmap: { layerId: GSI_HEATMAP_LAYER_ID, pointsFromZoom: GSI_POINTS_FROM_ZOOM, intensity: GSI_HEATMAP_INTENSITY },
+  heatmap: { layerId: GSI_HEATMAP_LAYER_ID, pointsFromZoom: GSI_POINTS_FROM_ZOOM, intensity: GSI_HEATMAP_INTENSITY, paletteKey: "jpReligionGsi" },
 };
 
 // 2026-09-30 PF-4：原 10.9 MB 整包 GeoJSON → PMTiles（-r1 全量 71,040 點，Z4–z14 比照 GSI；
@@ -200,7 +206,7 @@ const OSM_CONFIG: PmtilesLayerConfig = {
   layerId: OSM_LAYER_ID,
   file: "jp_religion_osm_20260930.pmtiles",
   opacityDefault: OSM_OPACITY_DEFAULT,
-  heatmap: { layerId: OSM_HEATMAP_LAYER_ID, pointsFromZoom: OSM_POINTS_FROM_ZOOM, intensity: OSM_HEATMAP_INTENSITY },
+  heatmap: { layerId: OSM_HEATMAP_LAYER_ID, pointsFromZoom: OSM_POINTS_FROM_ZOOM, intensity: OSM_HEATMAP_INTENSITY, paletteKey: "jpReligionOsm" },
 };
 
 interface GeoJsonLayerConfig {
@@ -222,6 +228,7 @@ function useGeoJsonLayer(
   isDarkTheme: boolean,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const heatStyle = useHeatmapStyleSignature(config.heatmap ? [config.heatmap.paletteKey] : NO_KEYS);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const [dataTick, setDataTick] = useState(0);
 
@@ -262,11 +269,11 @@ function useGeoJsonLayer(
       if (heatmap) {
         const heatScale = clampOpacity(opacity) / config.opacityDefault;
         if (!map.getLayer(heatmap.layerId)) {
-          map.addLayer(heatmapLayer(heatmap.layerId, config.sourceId, undefined, heatmap.pointsFromZoom, heatScale, heatmap.intensity));
+          map.addLayer(heatmapLayer(heatmap.layerId, config.sourceId, undefined, heatmap.pointsFromZoom, heatScale, heatmap.intensity, heatmap.paletteKey, isDark));
         }
         if (map.getLayer(heatmap.layerId)) {
           map.setLayoutProperty(heatmap.layerId, "visibility", "visible");
-          map.setPaintProperty(heatmap.layerId, "heatmap-opacity", heatmapOpacity(heatScale));
+          applyHeatmapStyle(map, heatmap.layerId, heatmap.paletteKey, isDark, heatScale);
         }
       }
       if (!map.getLayer(config.layerId)) {
@@ -308,6 +315,7 @@ function useGeoJsonLayer(
     config.layerId,
     config.opacityDefault,
     config.heatmap,
+    heatStyle,
     isDarkTheme,
   ]);
 }
@@ -318,7 +326,7 @@ const WIKIDATA_CONFIG: GeoJsonLayerConfig = {
   fetcher: fetchJpReligionWikidata,
   logName: "Wikidata",
   opacityDefault: WIKIDATA_OPACITY_DEFAULT,
-  heatmap: { layerId: WIKIDATA_HEATMAP_LAYER_ID, pointsFromZoom: WIKIDATA_POINTS_FROM_ZOOM, intensity: WIKIDATA_HEATMAP_INTENSITY },
+  heatmap: { layerId: WIKIDATA_HEATMAP_LAYER_ID, pointsFromZoom: WIKIDATA_POINTS_FROM_ZOOM, intensity: WIKIDATA_HEATMAP_INTENSITY, paletteKey: "jpReligionWikidata" },
 };
 
 export interface JpReligionLayerVisibility {

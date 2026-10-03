@@ -2,11 +2,12 @@ import { LAYER_MANIFEST } from "../data/layerManifest";
 import { getParamsSpec, resolveMultiSelectValues, visibleParamsSpec, type LayerParamSpec } from "../data/layerParamsSpec";
 import { buildParamControls, type ParamControl } from "../state/layerParamsControls";
 import { layerParamsStore } from "../state/layerParamsStore";
+import { paletteById } from "../map/palettes";
 
 export type LayerControlValue = number | boolean | string | string[];
 export type LayerControlRequest = { layerKey: string; controlId: string; value: LayerControlValue; expectedValue: LayerControlValue };
 type ControlDescription = {
-  controlId: string; label: string; kind: "slider" | "toggle" | "select" | "multiSelect"; value: LayerControlValue;
+  controlId: string; label: string; kind: "slider" | "toggle" | "select" | "multiSelect" | "palette"; value: LayerControlValue;
   slider: { min: number; max: number; step: number } | null;
   options: { label: string; value: string; disabled: boolean }[];
   hidden: boolean; showWhen: { param: string; equals: number | boolean | string } | null;
@@ -42,7 +43,9 @@ function describe(layerKey: string, locked: ReadonlySet<string>): { controls: Co
       return {
         controlId: item.name, label: control?.label ?? ("label" in item ? item.label : item.labelPrefix), kind: controlKind, value,
         slider: controlKind === "slider" ? { min: rawControl?.min ?? (item.kind === "slider" ? item.min : 0), max: rawControl?.max ?? (item.kind === "slider" ? item.max : 0), step: rawControl?.step ?? (item.kind === "slider" ? item.step : 1) } : null,
-        options: controlKind === "select" || controlKind === "multiSelect" ? ((rawControl?.options ?? ("options" in item ? item.options : [])).map((option: { label: string; value: string; disabled?: boolean }) => ({ ...option, disabled: option.disabled === true }))) : [],
+        options: controlKind === "palette"
+          ? (item.kind === "palette" ? item.options : []).map((id) => ({ label: paletteById(id)?.zh ?? id, value: id, disabled: false }))
+          : controlKind === "select" || controlKind === "multiSelect" ? ((rawControl?.options ?? ("options" in item ? item.options : [])).map((option: { label: string; value: string; disabled?: boolean }) => ({ ...option, disabled: option.disabled === true }))) : [],
         hidden: !control, showWhen: item.showWhen ?? null, sharedGroup: item.sharedGroup ?? null, cascade: item.cascade ?? [],
       };
     }),
@@ -62,7 +65,7 @@ function validate(control: ParamControl, value: LayerControlValue): void {
     if (typeof value !== "number" || !Number.isFinite(value) || value < raw.min || value > raw.max || Math.abs((value - raw.min) / raw.step - Math.round((value - raw.min) / raw.step)) > 1e-9) fail("LAYER_CONTROL_VALUE_INVALID");
   } else if (control.type === "toggle") {
     if (typeof value !== "boolean") fail("LAYER_CONTROL_VALUE_INVALID");
-  } else if (control.type === "select") {
+  } else if (control.type === "select" || control.type === "palette") {
     if (typeof value !== "string" || !raw.options.some((option: { value: string; disabled?: boolean }) => option.value === value && !option.disabled)) fail("LAYER_CONTROL_VALUE_INVALID");
   } else if (!Array.isArray(value) || value.some(item => typeof item !== "string") || new Set(value).size !== value.length || value.some(item => !raw.options.some((option: { value: string; disabled?: boolean }) => option.value === item && !option.disabled))) fail("LAYER_CONTROL_VALUE_INVALID");
 }

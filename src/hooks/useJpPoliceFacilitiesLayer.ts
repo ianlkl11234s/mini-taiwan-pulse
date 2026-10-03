@@ -9,7 +9,8 @@ import {
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
-import { densePointsFromZoom, heatmapMaxzoom, heatmapOpacity, heatmapPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -24,6 +25,7 @@ const MAXZOOM = 14;
 // R5（P-4／G-2）：13,195 點（10k–100k）z < 10 畫熱區、z ≥ 10 畫點（source z5 起有磚）。
 const POINTS_FROM_ZOOM = densePointsFromZoom(13_195);
 // 2026-10-02 校正（本州 z6 視角 heatmap 離線模擬；準則見 overlayRegistry denseHeatmapLayer 說明）
+const HEAT_KEYS = ["jpPoliceFacilities"] as const;
 const HEATMAP_INTENSITY = 5;
 
 function clampOpacity(opacity: number): number {
@@ -87,7 +89,7 @@ function policeCircleLayer(opacity: number, scale: number, typeIndex: number, is
 }
 
 /** G-2 熱區：與點同一個設施類別 filter，畫在出點縮放以下，不可點擊。 */
-function policeHeatmapLayer(opacity: number, typeIndex: number): HeatmapLayer {
+function policeHeatmapLayer(opacity: number, typeIndex: number, isDark: boolean): HeatmapLayer {
   const initialFilter = jpPoliceFacilityInitialFilter(typeIndex);
   return {
     id: HEATMAP_LAYER_ID,
@@ -97,7 +99,7 @@ function policeHeatmapLayer(opacity: number, typeIndex: number): HeatmapLayer {
     maxzoom: heatmapMaxzoom(POINTS_FROM_ZOOM),
     ...(initialFilter === undefined ? {} : { filter: initialFilter }),
     layout: { visibility: "none" },
-    paint: heatmapPaint(clampOpacity(opacity) / OPACITY_DEFAULT, HEATMAP_INTENSITY),
+    paint: heatmapLayerPaint("jpPoliceFacilities", isDark, clampOpacity(opacity) / OPACITY_DEFAULT, HEATMAP_INTENSITY),
   } as HeatmapLayer;
 }
 
@@ -111,6 +113,7 @@ export function useJpPoliceFacilitiesLayer(
   isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -137,11 +140,11 @@ export function useJpPoliceFacilitiesLayer(
         } as any);
       }
       if (!map.getLayer(HEATMAP_LAYER_ID)) {
-        map.addLayer(policeHeatmapLayer(opacity, typeIndex), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
+        map.addLayer(policeHeatmapLayer(opacity, typeIndex, isDark), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
       }
       if (map.getLayer(HEATMAP_LAYER_ID)) {
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(HEATMAP_LAYER_ID, "heatmap-opacity", heatmapOpacity(clampOpacity(opacity) / OPACITY_DEFAULT));
+        applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpPoliceFacilities", isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
         map.setFilter(HEATMAP_LAYER_ID, jpPoliceFacilityTypeFilter(typeIndex));
       }
       if (!map.getLayer(LAYER_ID)) map.addLayer(policeCircleLayer(opacity, scale, typeIndex, isDark));
@@ -162,5 +165,5 @@ export function useJpPoliceFacilitiesLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, typeIndex, isDarkTheme, mapTick]);
+  }, [mapRef, visible, opacity, scale, typeIndex, isDarkTheme, mapTick, heatStyle]);
 }

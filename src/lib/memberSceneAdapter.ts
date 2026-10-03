@@ -13,6 +13,7 @@ function validParam(spec: LayerParamSpec, value: unknown, siblings: Record<strin
   if (spec.kind === "slider") return typeof value === "number" && Number.isFinite(value) && value >= spec.min && value <= spec.max;
   if (spec.kind === "toggle") return typeof value === "boolean";
   if (typeof value !== "string") return false;
+  if (spec.kind === "palette") return spec.options.includes(value);
   if (spec.kind === "multiSelect") {
     if (value === MULTI_SELECT_ALL || value === MULTI_SELECT_NONE) return true;
     try {
