@@ -11,7 +11,7 @@
  * - 下次過台灣 ← scan 12h
  * - 距上次變軌 ← maneuvers prop
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA } from "./satelliteConsoleTokens";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
@@ -20,6 +20,9 @@ import { deriveFleetView } from "../../data/satelliteDataState";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { localeForTaiwanSat } from "../../data/satelliteTaiwanLocale";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { LocateFixed, BookOpen } from "lucide-react";
+import { chipOutline } from "../intel/intelTokens";
+import { SATELLITE_COLORS } from "../../data/satelliteTypes";
 import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import { DARK_PALETTE, RailThemeContext } from "../sidebar/railTheme";
 import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
@@ -28,6 +31,35 @@ interface Props {
   maneuvers: ManeuverRow[];
   onSelectNorad: (n: number) => void;
   onFlyTo?: (lon: number, lat: number) => void;
+}
+
+/** 台灣衛星資料色（§3.16：只用在名稱前狀態點與覆蓋中文字） */
+const TAIWAN_COLOR = SATELLITE_COLORS.taiwan;
+
+// §5.21 狀態徽章：chipOutline，圓角 3、10px
+const CHIP_BASE = {
+  display: "inline-flex", alignItems: "center", padding: "2px 5px", borderRadius: 3,
+  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.2, whiteSpace: "nowrap", flexShrink: 0,
+} as const;
+
+/** §5.15 小型圖示按鈕：20×20、RADIUS.md、hover 出底；必有 title 與 aria-label */
+function IconBtn({ title, onClick, children }: { title: string; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      title={title}
+      aria-label={title}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.borderSoft; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+      style={{
+        width: 20, height: 20, padding: 0, display: "inline-flex", alignItems: "center", justifyContent: "center",
+        border: "none", borderRadius: RADIUS.md, background: "transparent", color: COLORS.textStrong, cursor: "pointer",
+      }}
+    >
+      {children}
+    </button>
+  );
 }
 
 const TW_CENTER = { lon: 121.0, lat: 23.7 };
@@ -198,7 +230,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
         </div>
       )}
 
-      <div style={{ padding: "0 12px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ padding: "0 12px 10px", display: "flex", flexDirection: "column" }}>
         {rows.map((r) => {
           const isCovering = r.nextPassMin === 0;
           const isLegacy = r.tier === "legacy";
@@ -206,117 +238,69 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
             <div
               key={r.norad}
               style={{
-                padding: "8px 11px",
-                borderRadius: RADIUS.xl,
-                background: isCovering ? "rgba(79,195,247,0.10)" : "rgba(255,255,255,0.025)",
-                border: `1px solid ${isCovering ? "rgba(79,195,247,0.45)" : COLORS.borderSoft}`,
+                padding: "7px 2px 8px",
+                borderTop: `1px solid ${COLORS.borderSoft}`,
                 fontFamily: FONT_CJK,
                 cursor: "pointer",
-                transition: "background 0.12s ease",
               }}
               onClick={() => onSelectNorad(r.norad)}
-              onMouseEnter={(e) => { if (!isCovering) e.currentTarget.style.background = "rgba(100,170,255,0.06)"; }}
-              onMouseLeave={(e) => { if (!isCovering) e.currentTarget.style.background = "rgba(255,255,255,0.025)"; }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 12.5, fontWeight: 700, color: COLORS.textStrong }}>{r.zh}</span>
-                <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDim }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                <span
+                  title={isCovering ? "正覆蓋台灣" : undefined}
+                  style={{
+                    width: 7, height: 7, borderRadius: RADIUS.full, flexShrink: 0, boxSizing: "border-box",
+                    ...(isCovering ? { background: TAIWAN_COLOR } : { border: `1px solid ${COLORS.textDim}` }),
+                  }}
+                />
+                <span style={{ fontSize: FONT_SIZE.md, fontWeight: 700, color: COLORS.textStrong, whiteSpace: "nowrap" }}>{r.zh}</span>
+                <span style={{
+                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim,
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0,
+                }}>
                   {r.name}
                 </span>
-                {isLegacy && (
-                  <span style={{
-                    padding: "0 5px",
-                    borderRadius: RADIUS.md,
-                    background: "rgba(255,152,0,0.16)",
-                    border: "1px solid rgba(255,152,0,0.45)",
-                    fontSize: 9.5,
-                    color: COLORS.statusWarn,
-                  }}>
-                    ⚠ 超齡服役
-                  </span>
-                )}
-                {r.tier === "research" && (
-                  <span style={{
-                    padding: "0 5px",
-                    borderRadius: RADIUS.md,
-                    background: "rgba(255,255,255,0.06)",
-                    border: `1px solid ${COLORS.borderMid}`,
-                    fontSize: 9.5,
-                    color: COLORS.textMuted,
-                  }}>
-                    學研
-                  </span>
-                )}
-                <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDim }}>
-                  NORAD {r.norad}
+                {isLegacy && <span style={{ ...CHIP_BASE, ...chipOutline(COLORS.statusWarn) }}>超齡服役</span>}
+                {r.tier === "research" && <span style={{ ...CHIP_BASE, ...chipOutline(COLORS.textMuted) }}>學研</span>}
+                <span style={{ marginLeft: "auto", display: "inline-flex", gap: 4, flexShrink: 0 }}>
+                  <IconBtn title="飛到衛星" onClick={() => onFlyTo?.(r.lon, r.lat)}>
+                    <LocateFixed size={13} strokeWidth={2} aria-hidden="true" />
+                  </IconBtn>
+                  <IconBtn title="開啟衛星百科" onClick={() => onSelectNorad(r.norad)}>
+                    <BookOpen size={13} strokeWidth={2} aria-hidden="true" />
+                  </IconBtn>
                 </span>
               </div>
 
-              <div style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 8, fontSize: 10.5, color: COLORS.textMuted }}>
-                <span>{r.use}</span>
+              <div style={{ marginTop: 3, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px", fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
+                <span style={{ whiteSpace: "nowrap" }}>{r.use}</span>
                 <span style={{ color: COLORS.textFaint }}>·</span>
-                <span style={{ fontFamily: FONT_DATA }}>{Math.round(r.altKm)} km</span>
+                <span style={{ whiteSpace: "nowrap" }}><span style={{ fontFamily: FONT_DATA }}>{Math.round(r.altKm)}</span> km</span>
+                <span style={{ color: COLORS.textFaint }}>·</span>
+                <span style={{ whiteSpace: "nowrap", fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+                  NORAD 編號 <span style={{ fontFamily: FONT_DATA }}>{r.norad}</span>
+                </span>
               </div>
 
               <div style={{
-                marginTop: 5,
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                fontFamily: FONT_DATA,
-                fontSize: FONT_SIZE.sm,
-                color: COLORS.textMuted,
+                marginTop: 2, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px",
+                fontSize: FONT_SIZE.sm, color: COLORS.textMuted,
               }}>
-                <span>{r.lat.toFixed(1)}°{r.lat >= 0 ? "N" : "S"} {Math.abs(r.lon).toFixed(1)}°{r.lon >= 0 ? "E" : "W"}</span>
+                <span style={{ fontFamily: FONT_DATA, whiteSpace: "nowrap" }}>{r.lat.toFixed(1)}°{r.lat >= 0 ? "N" : "S"} {Math.abs(r.lon).toFixed(1)}°{r.lon >= 0 ? "E" : "W"}</span>
                 <span style={{ color: COLORS.textFaint }}>·</span>
-                <span style={{ color: isCovering ? "#4fc3f7" : COLORS.textDefault }}>
+                <span style={{ whiteSpace: "nowrap", color: isCovering ? TAIWAN_COLOR : COLORS.textDefault, fontWeight: isCovering ? 600 : 400 }}>
                   {isCovering
                     ? "正覆蓋台灣"
                     : r.nextPassMin == null
-                      ? "12h 內無通過"
-                      : `下次過台 ${r.nextPassMin} 分`}
+                      ? "12 小時內不會經過"
+                      : <><span style={{ fontFamily: FONT_DATA }}>{r.nextPassMin}</span> 分鐘後過台</>}
                 </span>
                 {r.daysSinceManeuver != null && (
                   <>
                     <span style={{ color: COLORS.textFaint }}>·</span>
-                    <span>距上次變軌 {r.daysSinceManeuver}d</span>
+                    <span style={{ whiteSpace: "nowrap" }}>距上次變軌 <span style={{ fontFamily: FONT_DATA }}>{r.daysSinceManeuver}</span> 天</span>
                   </>
                 )}
-              </div>
-
-              <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
-                <button
-                  onClick={(e) => { e.stopPropagation(); onFlyTo?.(r.lon, r.lat); }}
-                  style={{
-                    flex: 1,
-                    padding: "4px 0",
-                    borderRadius: RADIUS.md,
-                    border: `1px solid ${COLORS.borderMid}`,
-                    background: "transparent",
-                    color: COLORS.textDefault,
-                    fontFamily: FONT_CJK,
-                    fontSize: 10.5,
-                    cursor: "pointer",
-                  }}
-                >
-                  飛到衛星
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); onSelectNorad(r.norad); }}
-                  style={{
-                    flex: 1,
-                    padding: "4px 0",
-                    borderRadius: RADIUS.md,
-                    border: "1px solid rgba(100,170,255,0.55)",
-                    background: "rgba(100,170,255,0.16)",
-                    color: "#cfe4ff",
-                    fontFamily: FONT_CJK,
-                    fontSize: 10.5,
-                    cursor: "pointer",
-                  }}
-                >
-                  百科
-                </button>
               </div>
             </div>
           );
