@@ -8,8 +8,9 @@
  */
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, GitCompareArrows } from "lucide-react";
-import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
-import { RADIUS, FONT_SIZE, CONTROL } from "../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { useIntelTheme } from "../intel/intelTheme";
 import { chipOutline } from "../intel/intelTokens";
 import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
@@ -21,7 +22,7 @@ import {
   type ManeuverSeverity,
 } from "../../data/satelliteManeuversLoader";
 import { useManeuverImpacts, type ManeuverImpactState } from "../../hooks/useManeuverImpacts";
-import { ctrlButton, resolveManeuverListScope, SEVERITY_VIEW } from "./maneuverAlertKit";
+import { ctrlButton, resolveManeuverListScope, severityColor, SEVERITY_VIEW } from "./maneuverAlertKit";
 
 interface Props {
   maneuvers: ManeuversState;
@@ -37,10 +38,11 @@ const CN_GROUPS = new Set(["YAOGAN", "JILIN", "GAOFEN", "TJS", "BEIDOU", "SHIYAN
 const INTL_GROUPS = new Set(["USA", "JAPAN", "RUSSIA", "INDIA", "KOREA", "FRANCE", "GERMANY", "ITALY", "ISRAEL"]);
 
 const SECTION_PAD = "0 14px";
-const SECTION_STYLE = { borderBottom: `1px solid ${COLORS.borderSoft}`, paddingBottom: 12 } as const;
 
 export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCompare, isHistory = false }: Props) {
   const [expandedGrey, setExpandedGrey] = useState(false);
+  const p = useIntelTheme();
+  const SECTION_STYLE = { borderBottom: `1px solid ${p.borderSoft}`, paddingBottom: 12 } as const;
   const maneuvers = state.rows;
   const scope = resolveManeuverListScope(isHistory);
 
@@ -76,7 +78,7 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
   if (banner.kind !== "ok") {
     const isEmpty = banner.kind === "empty";
     const isError = banner.kind === "error";
-    const tone = isEmpty ? COLORS.statusLive : isError ? COLORS.statusErr : COLORS.textDim;
+    const tone = isEmpty ? p.statusLive : isError ? p.statusErr : p.textDim;
     return (
       <div style={SECTION_STYLE}>
         <SubGroupLabel>變軌警報</SubGroupLabel>
@@ -85,11 +87,11 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
           <div role="status" style={{
             padding: "6px 10px",
             borderRadius: RADIUS.lg,
-            background: CONTROL.bg,
-            border: `1px solid ${COLORS.borderSoft}`,
+            background: p.controlBg,
+            border: `1px solid ${p.borderSoft}`,
             fontFamily: FONT_CJK,
             fontSize: FONT_SIZE.base,
-            color: COLORS.textDefault,
+            color: p.textDefault,
             display: "flex",
             alignItems: "center",
             gap: 8,
@@ -122,11 +124,11 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
       <SubGroupLabel>變軌警報</SubGroupLabel>
       <ScopeNotice text={scope.notice} />
       {state.stale && (
-        <div role="status" style={{ padding: "0 14px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.statusWarn }}>
+        <div role="status" style={{ padding: "0 14px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: p.statusWarn }}>
           更新中斷，目前顯示的是上次讀取的資料
         </div>
       )}
-      <div style={{ padding: "0 14px", fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+      <div style={{ padding: "0 14px", fontSize: FONT_SIZE.sm, color: p.textDim }}>
         近 24 小時 · 共 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{total}</span> 筆
       </div>
 
@@ -139,18 +141,18 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
           <SevCell severity="unknown" count={sortedUnknown.length} />
         </div>
         {/* 國別計數 */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 6, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 6, fontSize: FONT_SIZE.sm, color: p.textMuted }}>
           <CountryCount zh="中國" n={cnCount} hot />
-          <span style={{ color: COLORS.textFaint }}>·</span>
+          <span style={{ color: p.textFaint }}>·</span>
           <CountryCount zh="國際" n={intlCount} />
-          <span style={{ color: COLORS.textFaint }}>·</span>
+          <span style={{ color: p.textFaint }}>·</span>
           <CountryCount zh="台灣" n={twCount} />
         </div>
       </div>
 
       <div style={{ padding: SECTION_PAD }}>
         {featured.length > 0 && (
-          <div style={{ marginTop: 8, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+          <div style={{ marginTop: 8, borderBottom: `1px solid ${p.borderSoft}` }}>
             {featured.map(renderRow)}
           </div>
         )}
@@ -161,7 +163,7 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
               type="button"
               aria-expanded={expandedGrey}
               onClick={() => setExpandedGrey((v) => !v)}
-              style={ctrlButton({ width: "100%", justifyContent: "flex-start", fontFamily: FONT_CJK, color: COLORS.textMuted })}
+              style={ctrlButton(p, { width: "100%", justifyContent: "flex-start", fontFamily: FONT_CJK, color: p.textMuted })}
             >
               {expandedGrey ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
               <span>
@@ -170,7 +172,7 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
               </span>
             </button>
             {expandedGrey && (
-              <div style={{ marginTop: 4, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+              <div style={{ marginTop: 4, borderBottom: `1px solid ${p.borderSoft}` }}>
                 {folded.map(renderRow)}
               </div>
             )}
@@ -182,41 +184,44 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
 }
 
 function ScopeNotice({ text }: { text: string | null }) {
+  const p = useIntelTheme();
   if (!text) return null;
   return (
-    <div role="note" style={{ padding: "0 14px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.5, color: COLORS.textDim }}>
+    <div role="note" style={{ padding: "0 14px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.5, color: p.textDim }}>
       {text}
     </div>
   );
 }
 
 function SevCell({ severity, count }: { severity: ManeuverSeverity; count: number }) {
+  const p = useIntelTheme();
   const v = SEVERITY_VIEW[severity];
   const hot = count > 0 && (severity === "red" || severity === "orange");
   return (
     <div style={{
       flex: 1, minWidth: 0, padding: "6px 8px",
-      borderRadius: RADIUS.lg, background: CONTROL.bg, border: `1px solid ${COLORS.borderSoft}`,
+      borderRadius: RADIUS.lg, background: p.controlBg, border: `1px solid ${p.borderSoft}`,
     }}>
       <div style={{
         fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.xl, fontWeight: 700, lineHeight: 1.1,
-        color: count === 0 ? COLORS.textDim : hot ? v.color : COLORS.textDefault,
+        color: count === 0 ? p.textDim : hot ? severityColor(severity, p) : p.textDefault,
       }}>
         {count}
       </div>
-      <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, whiteSpace: "nowrap" }}>{v.zh}</div>
+      <div style={{ fontSize: FONT_SIZE.sm, color: p.textMuted, whiteSpace: "nowrap" }}>{v.zh}</div>
     </div>
   );
 }
 
 function CountryCount({ zh, n, hot }: { zh: string; n: number; hot?: boolean }) {
+  const p = useIntelTheme();
   return (
     <span style={{ whiteSpace: "nowrap" }}>
       {zh}{" "}
       <span style={{
         fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums",
         fontWeight: n > 0 ? 600 : 400,
-        color: n > 0 ? (hot ? COLORS.textStrong : COLORS.textDefault) : COLORS.textDim,
+        color: n > 0 ? (hot ? p.textStrong : p.textDefault) : p.textDim,
       }}>{n}</span>
     </span>
   );
@@ -231,13 +236,14 @@ interface RowProps {
 }
 
 function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }: RowProps) {
+  const p = useIntelTheme();
   const sev = SEVERITY_VIEW[severity];
   const typeToken = MANEUVER_TOKEN[row.maneuver_type];
   if (!typeToken) return null;
 
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "7px 0", borderTop: `1px solid ${COLORS.borderSoft}` }}>
-      <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: sev.color, flexShrink: 0, marginTop: 4 }} />
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "7px 0", borderTop: `1px solid ${p.borderSoft}` }}>
+      <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: severityColor(severity, p), flexShrink: 0, marginTop: 4 }} />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
           <button
@@ -246,16 +252,16 @@ function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }
             title={`查看 ${row.name} 的衛星百科`}
             style={{
               flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", textAlign: "left", cursor: "pointer",
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong,
-              textDecoration: "underline", textDecorationColor: COLORS.borderMid, textUnderlineOffset: 3,
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 600, color: p.textStrong,
+              textDecoration: "underline", textDecorationColor: p.borderMid, textUnderlineOffset: 3,
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             }}
           >
             {row.name}
           </button>
-          <span style={{ flexShrink: 0, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>{formatRelTime(row.curr_fetched_at)}</span>
+          <span style={{ flexShrink: 0, fontSize: FONT_SIZE.sm, color: p.textDim }}>{formatRelTime(row.curr_fetched_at)}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: FONT_SIZE.sm, color: p.textMuted }}>
           <span style={{ whiteSpace: "nowrap" }}>{sev.zh} · {typeToken.zh}</span>
           <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatManeuverDetail(row)}</span>
           <ImpactText impact={impact} />
@@ -266,7 +272,7 @@ function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }
         title="看覆蓋變化"
         aria-label="看覆蓋變化"
         onClick={() => onOpenCompare(row)}
-        style={ctrlButton({ width: 26, height: 26, padding: 0, flexShrink: 0, color: COLORS.textMuted })}
+        style={ctrlButton(p, { width: 26, height: 26, padding: 0, flexShrink: 0, color: p.textMuted })}
       >
         <GitCompareArrows size={14} aria-hidden="true" />
       </button>
@@ -274,17 +280,17 @@ function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }
   );
 }
 
-const plain = { whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: COLORS.textDim } as const;
-
 /** 台灣過境影響：有變化用 warn 色 chipOutline，其餘淡字 */
 function ImpactText({ impact: state }: { impact: ManeuverImpactState | undefined }) {
+  const p = useIntelTheme();
+  const plain = { whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: p.textDim } as const;
   if (state?.kind === "unavailable") return <span style={plain}>台灣過境 · 無法計算</span>;
   if (!state) return <span style={plain}>台灣過境計算中…</span>;
   const { impact } = state;
   if (impact.affectsTw) {
     return (
       <span style={{
-        ...chipOutline(COLORS.statusWarn),
+        ...chipOutline(p.statusWarn),
         display: "inline-flex", alignItems: "center", padding: "1px 5px", borderRadius: 3,
         fontSize: FONT_SIZE.sm, lineHeight: 1.2, whiteSpace: "nowrap",
       }}>

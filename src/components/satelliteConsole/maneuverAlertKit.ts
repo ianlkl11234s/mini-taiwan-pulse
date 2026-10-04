@@ -1,10 +1,12 @@
 /**
  * P4 變軌警報／對比彈窗共用小工具（嚴重度 token、清單範圍函式邊界、按鈕樣式）。
- * 色全部取自 COLORS（STATUS token）；變軌類型中文名讀 MANEUVER_TOKEN.zh。
+ * 暗色值取自 COLORS（STATUS token）；淡色經 `severityColor`／`ctrlButton` 換成主題 palette（P5 SV1）。
+ * 變軌類型中文名讀 MANEUVER_TOKEN.zh。
  */
 import type { CSSProperties } from "react";
 import { COLORS } from "./satelliteConsoleTokens";
-import { CONTROL, FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import { levelColor, type IntelPalette } from "../intel/intelTheme";
 import type { ManeuverSeverity } from "../../data/satelliteManeuversLoader";
 
 /** 嚴重度：中文名＋顏色（例行／無法判定走中性灰，不撞狀態色） */
@@ -14,6 +16,13 @@ export const SEVERITY_VIEW: Record<ManeuverSeverity, { zh: string; color: string
   grey: { zh: "例行", color: COLORS.textMuted },
   unknown: { zh: "無法判定", color: COLORS.textMuted },
 };
+
+/** 嚴重度色跟主題：紅／橘沿用即時情報 `levelColor`（statusErr／statusWarn → palette 同欄位），
+ *  例行／無法判定直接取 palette.textMuted（暗色同 COLORS.textMuted） */
+export function severityColor(sev: ManeuverSeverity, p: IntelPalette): string {
+  if (sev === "grey" || sev === "unknown") return p.textMuted;
+  return levelColor(SEVERITY_VIEW[sev].color, p);
+}
 
 export interface ManeuverListScope {
   /** 傳給 RPC 的時間錨點（epoch ms）；null = 以「現在」往前 24 小時 */
@@ -35,7 +44,7 @@ export function resolveManeuverListScope(isHistory: boolean): ManeuverListScope 
 }
 
 /** 一般控制鈕（§5.7 C2）：24px 高、透明邊框 */
-export function ctrlButton(extra?: CSSProperties): CSSProperties {
+export function ctrlButton(p: IntelPalette, extra?: CSSProperties): CSSProperties {
   return {
     display: "inline-flex",
     alignItems: "center",
@@ -44,9 +53,9 @@ export function ctrlButton(extra?: CSSProperties): CSSProperties {
     height: 24,
     padding: "0 8px",
     borderRadius: RADIUS.md,
-    border: `1px solid ${CONTROL.border}`,
-    background: CONTROL.bg,
-    color: COLORS.textDefault,
+    border: `1px solid ${p.controlBorder}`,
+    background: p.controlBg,
+    color: p.textDefault,
     fontSize: FONT_SIZE.sm,
     cursor: "pointer",
     ...extra,

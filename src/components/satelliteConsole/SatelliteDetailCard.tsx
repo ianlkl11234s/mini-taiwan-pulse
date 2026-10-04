@@ -12,8 +12,9 @@
  * - 預測 ← computePrediction(events)
  */
 import { useEffect, useMemo, useState } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN, PANEL_WIDTH } from "./satelliteConsoleTokens";
-import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT, SURFACE } from "../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, MANEUVER_TOKEN, PANEL_WIDTH } from "./satelliteConsoleTokens";
+import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT, LIGHT } from "../../styles/designTokens";
+import { useIntelTheme } from "../intel/intelTheme";
 import { PanelHeader } from "../sidebar/PanelHeader";
 import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import { Row, SourceFooter } from "../featureInfo/shared";
@@ -44,6 +45,7 @@ const PANEL_LEFT = 64;
 const CARD_GAP = 8;
 
 export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
+  const p = useIntelTheme();
   const [catalogRes, setCatalogRes] = useState<CatalogResult | null>(null);
   const [historyRes, setHistoryRes] = useState<TleHistoryResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,18 +88,18 @@ export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
         width: 380,
         maxWidth: "calc(100vw - 16px)",
         maxHeight: "calc(100vh - 112px)",
-        background: SURFACE.strong,
+        background: p.panelBg,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        border: `1px solid ${COLORS.panelBorder}`,
+        border: `1px solid ${p.panelBorder}`,
         borderRadius: RADIUS.xl,
         zIndex: 35,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
         fontFamily: FONT_CJK,
-        color: COLORS.textDefault,
-        boxShadow: ELEVATION.lg,
+        color: p.textDefault,
+        boxShadow: p.isDark ? ELEVATION.lg : LIGHT.elevationLg,
         animation: "satConsoleFadeIn .25s ease-out",
       }}
     >
@@ -105,19 +107,19 @@ export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
         eyebrow="衛星百科"
         title={title}
         onClose={onClose}
-        borderColor={COLORS.panelBorder}
-        mutedColor={COLORS.textDim}
-        textColor={COLORS.textStrong}
+        borderColor={p.panelBorder}
+        mutedColor={p.textDim}
+        textColor={p.textStrong}
       />
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "8px 14px 14px" }}>
         {loading ? (
-          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "20px 0", textAlign: "center" }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: p.textFaint, padding: "20px 0", textAlign: "center" }}>
             載入中…
           </div>
         ) : (
           <>
-            <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+            <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>
               <span title="NORAD 編號">衛星編號 <Mono>{norad}</Mono></span>
               {catalog?.cospar_number && <> · <span title="COSPAR 編號">國際編號 <Mono>{catalog.cospar_number}</Mono></span></>}
             </div>
@@ -125,7 +127,7 @@ export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
             {/* UCS 目錄讀取失敗／查無此衛星：各自文案，不以整卡「—」帶過 */}
             {catalogRes && catalogRes.status !== "ok" && (
               <Section title="衛星基本資料">
-                <div role="status" style={{ fontSize: FONT_SIZE.base, color: catalogRes.status === "error" ? COLORS.statusWarn : COLORS.textFaint, padding: "4px 0" }}>
+                <div role="status" style={{ fontSize: FONT_SIZE.base, color: catalogRes.status === "error" ? p.statusWarn : p.textFaint, padding: "4px 0" }}>
                   {catalogRes.status === "error"
                     ? "UCS 衛星資料庫讀取失敗"
                     : "UCS 衛星資料庫沒有這顆衛星的紀錄"}
@@ -165,24 +167,24 @@ export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
             {/* 變軌歷史 */}
             <Section title="變軌歷史" trailing={historyRes?.ok ? `近 30 天 ${events.length} 筆` : "近 30 天"}>
               {!historyRes?.ok ? (
-                <div role="status" style={{ fontSize: FONT_SIZE.sm, color: COLORS.statusWarn, padding: "4px 0" }}>
+                <div role="status" style={{ fontSize: FONT_SIZE.sm, color: p.statusWarn, padding: "4px 0" }}>
                   歷史軌道資料讀取失敗，無法判斷近 30 天變軌
                 </div>
               ) : historyRes.rows.length === 0 ? (
-                <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "4px 0" }}>
+                <div style={{ fontSize: FONT_SIZE.sm, color: p.textFaint, padding: "4px 0" }}>
                   近 30 天沒有歷史軌道資料
                 </div>
               ) : events.length === 0 ? (
-                <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "4px 0" }}>
+                <div style={{ fontSize: FONT_SIZE.sm, color: p.textFaint, padding: "4px 0" }}>
                   近 30 天軌道參數變化未達閾值，無顯著機動
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   {events.slice(0, 8).map((e, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, borderTop: i ? `1px solid ${COLORS.borderSoft}` : "none" }}>
-                      <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.sm, color: COLORS.textMuted, width: 78, flexShrink: 0 }}>{e.date}</span>
-                      <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, flexShrink: 0 }}>{MANEUVER_TOKEN[e.type].zh}</span>
-                      <span style={{ color: COLORS.textDefault, fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.sm }}>{e.detail}</span>
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, borderTop: i ? `1px solid ${p.borderSoft}` : "none" }}>
+                      <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.sm, color: p.textMuted, width: 78, flexShrink: 0 }}>{e.date}</span>
+                      <span style={{ fontSize: FONT_SIZE.sm, color: p.textMuted, flexShrink: 0 }}>{MANEUVER_TOKEN[e.type].zh}</span>
+                      <span style={{ color: p.textDefault, fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.sm }}>{e.detail}</span>
                     </div>
                   ))}
                 </div>
@@ -192,10 +194,10 @@ export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
             {/* 啟發式預測（P-D：必須標「依歷史間隔估算」「非精準預測」） */}
             {prediction.muDays != null && prediction.muDays > 0 && (
               <Section title="下次變軌">
-                <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault }}>
-                  約 <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong }}>{prediction.nextLowDays}–{prediction.nextHighDays}</span> 天內
+                <div style={{ fontSize: FONT_SIZE.base, color: p.textDefault }}>
+                  約 <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: p.textStrong }}>{prediction.nextLowDays}–{prediction.nextHighDays}</span> 天內
                 </div>
-                <div style={{ marginTop: 3, fontSize: FONT_SIZE.sm, color: COLORS.textDim, lineHeight: 1.5 }}>
+                <div style={{ marginTop: 3, fontSize: FONT_SIZE.sm, color: p.textDim, lineHeight: 1.5 }}>
                   依歷史間隔估算：近 30 天 <Mono>{prediction.sampleSize}</Mono> 次變軌、平均間隔 <Mono>{prediction.muDays.toFixed(1)}</Mono> 天 · 非精準預測
                 </div>
               </Section>
@@ -219,10 +221,11 @@ function Mono({ children }: { children: React.ReactNode }) {
 }
 
 function Section({ title, trailing, children }: { title: string; trailing?: string; children: React.ReactNode }) {
+  const p = useIntelTheme();
   return (
     <div style={{ marginBottom: 4 }}>
       <div style={{ margin: "0 -12px" }}><SubGroupLabel>{title}</SubGroupLabel></div>
-      {trailing && <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, paddingBottom: 2 }}>{trailing}</div>}
+      {trailing && <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim, paddingBottom: 2 }}>{trailing}</div>}
       {children}
     </div>
   );
