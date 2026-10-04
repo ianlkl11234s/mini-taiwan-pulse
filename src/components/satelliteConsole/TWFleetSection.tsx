@@ -15,7 +15,8 @@ import { useEffect, useMemo, useState } from "react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA } from "./satelliteConsoleTokens";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { loadSatellites } from "../../data/satelliteLoader";
+import { useSatelliteRecords } from "../../hooks/useSatelliteRecords";
+import { deriveFleetView } from "../../data/satelliteDataState";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { localeForTaiwanSat } from "../../data/satelliteTaiwanLocale";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
@@ -101,33 +102,34 @@ function nextPassMin(satrec: satellite.SatRec, nowSec: number, altHint: number):
 }
 
 export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
-  const [parsed, setParsed] = useState<ParsedSat[]>([]);
+  const tle = useSatelliteRecords();
+  // null = TLE 已到但還沒解析完（仍視為載入中）
+  const [parsedRaw, setParsed] = useState<ParsedSat[] | null>(null);
+  const parsed = parsedRaw ?? [];
+  // TLE 目錄中的台灣衛星總數（含解析失敗者），用來算「N 顆暫無法計算」
+  const twTotal = useMemo(() => tle.records.filter((r) => r.category === "taiwan").length, [tle.records]);
   // 訂閱 timeStore — 拉時間軸時整個 panel 重算位置
   const timelineSec = useTimeStoreTime(250);
 
   // 1 次性載入 + parse
   useEffect(() => {
-    let alive = true;
-    loadSatellites().then((recs) => {
-      if (!alive) return;
-      const tw = recs.filter((r) => r.category === "taiwan");
-      const out: ParsedSat[] = [];
-      for (const r of tw) {
-        try {
-          const satrec = satellite.twoline2satrec(r.tleLine1, r.tleLine2);
-          let altKm = 0;
-          const nRadSec = satrec.no / 60;
-          if (nRadSec > 0) {
-            const a = Math.pow(MU / (nRadSec ** 2), 1 / 3);
-            altKm = a - R_EARTH;
-          }
-          out.push({ rec: r, satrec, altKm });
-        } catch { /* skip bad TLE */ }
-      }
-      setParsed(out);
-    });
-    return () => { alive = false; };
-  }, []);
+    if (tle.status !== "ok") return;
+    const tw = tle.records.filter((r) => r.category === "taiwan");
+    const out: ParsedSat[] = [];
+    for (const r of tw) {
+      try {
+        const satrec = satellite.twoline2satrec(r.tleLine1, r.tleLine2);
+        let altKm = 0;
+        const nRadSec = satrec.no / 60;
+        if (nRadSec > 0) {
+          const a = Math.pow(MU / (nRadSec ** 2), 1 / 3);
+          altKm = a - R_EARTH;
+        }
+        out.push({ rec: r, satrec, altKm });
+      } catch { /* skip bad TLE */ }
+    }
+    setParsed(out);
+  }, [tle.status, tle.records]);
 
   const rows: LiveRow[] = useMemo(() => {
     const now = new Date(timelineSec * 1000);
@@ -171,10 +173,14 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
     });
   }, [parsed, maneuvers, timelineSec]);
 
-  if (rows.length === 0) {
+  const view = deriveFleetView(tle.status === "ok" && parsedRaw == null ? "loading" : tle.status, twTotal, rows.length);
+  if (view.kind !== "ready") {
     return (
-      <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textFaint }}>
-        台灣衛星 — 載入中…
+      <div role="status" style={{
+        padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+        color: view.kind === "error" ? COLORS.statusWarn : COLORS.textFaint,
+      }}>
+        {view.text}
       </div>
     );
   }
@@ -191,6 +197,11 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
         alignItems: "center",
       }}>
         <span>TAIWAN · {rows.length} SATS</span>
+        {view.skipped > 0 && (
+          <span style={{ marginLeft: 8, color: COLORS.statusWarn, letterSpacing: 0, fontFamily: FONT_CJK }}>
+            {view.skipped} 顆暫無法計算
+          </span>
+        )}
         <span style={{ marginLeft: "auto", color: "#4fc3f7" }}>
           覆蓋中：{rows.filter((r) => r.nextPassMin === 0).length}
         </span>

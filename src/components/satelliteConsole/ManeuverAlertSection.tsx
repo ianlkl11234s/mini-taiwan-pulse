@@ -9,18 +9,19 @@
 import { useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN, CN_GROUP_TO_CATEGORY, GROUP_FLAG } from "./satelliteConsoleTokens";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { SATELLITE_COLORS } from "../../data/satelliteTypes";
+import { SATELLITE_COLORS, SATELLITE_LABELS, type SatelliteCategory } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { describeManeuversBanner, type ManeuversState } from "../../data/satelliteDataState";
 import {
   formatManeuverDetail,
   formatRelTime,
   getManeuverSeverity,
   type ManeuverSeverity,
 } from "../../data/satelliteManeuversLoader";
-import { useManeuverImpacts } from "../../hooks/useManeuverImpacts";
+import { useManeuverImpacts, type ManeuverImpactState } from "../../hooks/useManeuverImpacts";
 
 interface Props {
-  maneuvers: ManeuverRow[];
+  maneuvers: ManeuversState;
   onSelectNorad: (n: number) => void;
   onOpenCompare: (m: ManeuverRow) => void;
   onFlyTo?: (lon: number, lat: number) => void;
@@ -35,16 +36,20 @@ const SEV_TOKEN: Record<ManeuverSeverity, { color: string; soft: string; border:
   red:    { color: "#ef4444", soft: "rgba(239,68,68,0.12)",  border: "rgba(239,68,68,0.55)",  label: "重大", pulse: true },
   orange: { color: "#f97316", soft: "rgba(249,115,22,0.10)", border: "rgba(249,115,22,0.50)", label: "注意", pulse: false },
   grey:   { color: "#9ca3af", soft: "rgba(255,255,255,0.02)",border: "rgba(255,255,255,0.12)",label: "例行", pulse: false },
+  // 判定所需的變化量缺值：不歸入例行，也不當 0
+  unknown:{ color: "#9ca3af", soft: "rgba(255,255,255,0.02)",border: "rgba(255,255,255,0.12)",label: "無法判定", pulse: false },
 };
 
-export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }: Props) {
+export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCompare }: Props) {
   const [expandedGrey, setExpandedGrey] = useState(false);
+  const maneuvers = state.rows;
 
-  const { cnCount, twCount, intlCount, sortedRed, sortedOrange, sortedGrey } = useMemo(() => {
+  const { cnCount, twCount, intlCount, sortedRed, sortedOrange, sortedGrey, sortedUnknown } = useMemo(() => {
     let cn = 0, tw = 0, intl = 0;
     const red: ManeuverRow[] = [];
     const orange: ManeuverRow[] = [];
     const grey: ManeuverRow[] = [];
+    const unknown: ManeuverRow[] = [];
     for (const m of maneuvers) {
       if (TAIWAN_GROUP.has(m.cn_group) || m.country_operator === "Taiwan") tw++;
       else if (INTL_GROUPS.has(m.cn_group)) intl++;
@@ -52,27 +57,34 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
       const sev = getManeuverSeverity(m);
       if (sev === "red") red.push(m);
       else if (sev === "orange") orange.push(m);
-      else grey.push(m);
+      else if (sev === "grey") grey.push(m);
+      else unknown.push(m);
     }
     const byTime = (a: ManeuverRow, b: ManeuverRow) =>
       new Date(b.curr_fetched_at).getTime() - new Date(a.curr_fetched_at).getTime();
     red.sort(byTime);
     orange.sort(byTime);
     grey.sort(byTime);
-    return { cnCount: cn, twCount: tw, intlCount: intl, sortedRed: red, sortedOrange: orange, sortedGrey: grey };
+    unknown.sort(byTime);
+    return { cnCount: cn, twCount: tw, intlCount: intl, sortedRed: red, sortedOrange: orange, sortedGrey: grey, sortedUnknown: unknown };
   }, [maneuvers]);
 
   // affects TW 計算（非阻塞）
   const impacts = useManeuverImpacts(maneuvers);
 
-  if (maneuvers.length === 0) {
+  const banner = describeManeuversBanner(state);
+  if (banner.kind !== "ok") {
+    const isEmpty = banner.kind === "empty";
+    const isError = banner.kind === "error";
     return (
       <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}` }}>
-        <div style={{
+        <div role="status" style={{
           padding: "8px 10px",
           borderRadius: RADIUS.lg,
-          background: COLORS.statusLiveSoft,
-          border: `1px solid ${COLORS.statusLiveBorder}`,
+          background: isEmpty ? COLORS.statusLiveSoft : isError ? "rgba(239,68,68,0.12)" : "rgba(156,163,175,0.10)",
+          border: isEmpty
+            ? `1px solid ${COLORS.statusLiveBorder}`
+            : isError ? "1px solid rgba(239,68,68,0.45)" : `1px solid ${COLORS.borderMid}`,
           fontFamily: FONT_CJK,
           fontSize: 11.5,
           color: COLORS.textDefault,
@@ -80,19 +92,28 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
           alignItems: "center",
           gap: 8,
         }}>
-          <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: COLORS.statusLive }} />
-          近 24h 無變軌偵測 · 監測中
+          <span style={{
+            width: 7, height: 7, borderRadius: RADIUS.full,
+            background: isEmpty ? COLORS.statusLive : isError ? COLORS.statusErr : COLORS.textDim,
+          }} />
+          {banner.text}
         </div>
       </div>
     );
   }
 
   const featured = [...sortedRed, ...sortedOrange];
-  const hasGrey = sortedGrey.length > 0;
+  const foldedCount = sortedGrey.length + sortedUnknown.length;
+  const hasGrey = foldedCount > 0;
   const hasFeatured = featured.length > 0;
 
   return (
     <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+      {state.stale && (
+        <div role="status" style={{ marginBottom: 6, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.statusWarn }}>
+          更新中斷，目前顯示的是上次讀取的資料
+        </div>
+      )}
       {/* Banner */}
       <div style={{
         display: "flex",
@@ -133,6 +154,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
           <SevDot s="red" /> 重大 {sortedRed.length}
           <SevDot s="orange" /> 注意 {sortedOrange.length}
           {sortedGrey.length > 0 && <><SevDot s="grey" /> 例行 {sortedGrey.length}</>}
+          {sortedUnknown.length > 0 && <><SevDot s="unknown" /> 無法判定 {sortedUnknown.length}</>}
         </div>
       )}
 
@@ -173,16 +195,19 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
             }}
           >
             <SevDot s="grey" />
-            <span>{sortedGrey.length} 筆例行機動 (drift/station-keeping)</span>
+            <span>
+              {sortedGrey.length} 筆例行機動 (drift/station-keeping)
+              {sortedUnknown.length > 0 ? `、${sortedUnknown.length} 筆無法判定` : ""}
+            </span>
             <span style={{ marginLeft: "auto", color: COLORS.textDim }}>{expandedGrey ? "▾ 收合" : "▸ 展開"}</span>
           </button>
           {expandedGrey && (
             <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 6 }}>
-              {sortedGrey.map((m) => (
+              {[...sortedGrey, ...sortedUnknown].map((m) => (
                 <ManeuverCard
                   key={`${m.norad_id}-${m.curr_epoch}`}
                   row={m}
-                  severity="grey"
+                  severity={getManeuverSeverity(m)}
                   impact={impacts.get(m.norad_id)}
                   onSelectNorad={onSelectNorad}
                   onOpenCompare={onOpenCompare}
@@ -210,7 +235,7 @@ function SevDot({ s }: { s: ManeuverSeverity }) {
 interface CardProps {
   row: ManeuverRow;
   severity: ManeuverSeverity;
-  impact: ReturnType<ReturnType<typeof useManeuverImpacts>["get"]>;
+  impact: ManeuverImpactState | undefined;
   onSelectNorad: (n: number) => void;
   onOpenCompare: (m: ManeuverRow) => void;
   compact?: boolean;
@@ -237,7 +262,7 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
       {/* 上行 */}
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: groupColor, flexShrink: 0 }} />
-        <span style={{ fontSize: FONT_SIZE.lg, flexShrink: 0 }} title={row.country_operator || row.cn_group}>
+        <span style={{ fontSize: FONT_SIZE.lg, flexShrink: 0 }} title={SATELLITE_LABELS[catKey as SatelliteCategory]}>
           {GROUP_FLAG[row.cn_group] ?? "🌐"}
         </span>
         <span
@@ -331,9 +356,23 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
   );
 }
 
-function ImpactChip({ impact, small }: { impact: ReturnType<ReturnType<typeof useManeuverImpacts>["get"]>; small?: boolean }) {
+function ImpactChip({ impact: state, small }: { impact: ManeuverImpactState | undefined; small?: boolean }) {
+  // 算不出來（與計算中分開）
+  if (state?.kind === "unavailable") {
+    return (
+      <span style={{
+        padding: small ? "1px 6px" : "2px 7px",
+        borderRadius: RADIUS.md,
+        background: "rgba(255,255,255,0.04)",
+        border: `1px solid ${COLORS.borderMid}`,
+        fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
+      }}>
+        影響 TW · 無法計算
+      </span>
+    );
+  }
   // 計算中
-  if (!impact) {
+  if (!state) {
     return (
       <span style={{
         padding: small ? "1px 6px" : "2px 7px",
@@ -346,6 +385,7 @@ function ImpactChip({ impact, small }: { impact: ReturnType<ReturnType<typeof us
       </span>
     );
   }
+  const impact = state.impact;
   // 影響
   if (impact.affectsTw) {
     return (

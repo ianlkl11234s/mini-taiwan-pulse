@@ -14,12 +14,15 @@ import { TWFleetSection } from "./TWFleetSection";
 import { CoverageStatsSection } from "./CoverageStatsSection";
 import { SatelliteDetailCard } from "./SatelliteDetailCard";
 import { ManeuverCompareModal } from "./ManeuverCompareModal";
-import { fetchRecentManeuvers, type ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { describeFreshness, type ManeuversState } from "../../data/satelliteDataState";
+import { useSatelliteRecords } from "../../hooks/useSatelliteRecords";
 import { satelliteConsoleStore, useSatelliteConsole } from "../../state/satelliteConsoleStore";
 import { useTimeStoreTime, isHistoryMode } from "../../hooks/useTimeStoreTime";
 import type { LayerVisibility } from "../../types";
 
 interface Props {
+  /** 變軌資料（App 持有的單一來源，面板不自己輪詢） */
+  maneuvers: ManeuversState;
   open: boolean;
   onClose: () => void;
   layerVisibility: LayerVisibility;
@@ -28,32 +31,27 @@ interface Props {
   onFlyTo?: (lon: number, lat: number) => void;
 }
 
-export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisibility, onFlyTo }: Props) {
-  const [maneuvers, setManeuvers] = useState<ManeuverRow[]>([]);
+export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, setLayerVisibility, onFlyTo }: Props) {
   const consoleState = useSatelliteConsole();
   // 訂閱時間軸 — 顯示時間徽章 + 歷史模式邊框
   const timelineSec = useTimeStoreTime(500);
   const isHistory = isHistoryMode(timelineSec);
-
-  // 載入近 24h 變軌，30s polling
+  // 資料新鮮度：TLE 抓取時間 + 變軌最後成功讀取時間；每分鐘重算「是否過期」
+  const tle = useSatelliteRecords(open);
+  const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {
     if (!open) return;
-    let alive = true;
-    const tick = () => {
-      fetchRecentManeuvers(24).then((rows) => {
-        if (alive) setManeuvers(rows);
-      });
-    };
-    tick();
-    const id = window.setInterval(tick, 30_000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
+    const id = window.setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => window.clearInterval(id);
   }, [open]);
+  const freshness = [
+    // TLE 由 gis-platform 每 2h 從 Space-Track 同步
+    describeFreshness({ label: "TLE", status: tle.status, fetchedAt: tle.fetchedAt, nowMs, periodMin: 120 }),
+    describeFreshness({ label: "變軌", status: maneuvers.status, fetchedAt: maneuvers.fetchedAt, stale: maneuvers.stale, nowMs }),
+  ];
 
-  // 全部變軌（含 INTL）— Header 警示用，總數就好；細節由 §A 拆給看
-  const totalManeuverCount = maneuvers.length;
+  // 全部變軌（含 INTL）— Header 警示用，總數就好；細節由 §A 拆給看。讀取失敗時不亮 ALERT
+  const totalManeuverCount = maneuvers.status === "ok" ? maneuvers.rows.length : 0;
 
   if (!open) return null;
 
@@ -99,18 +97,18 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
           />
 
           <CoverageStatsSection
-            maneuvers={maneuvers}
+            maneuvers={maneuvers.rows}
           />
 
           <CNGroupSection
-            maneuvers={maneuvers}
+            maneuvers={maneuvers.rows}
             layerVisibility={layerVisibility}
             setLayerVisibility={setLayerVisibility}
             onSelectNorad={(n) => satelliteConsoleStore.selectNorad(n)}
           />
 
           <TWFleetSection
-            maneuvers={maneuvers}
+            maneuvers={maneuvers.rows}
             onSelectNorad={(n) => satelliteConsoleStore.selectNorad(n)}
             onFlyTo={onFlyTo}
           />
@@ -125,8 +123,14 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
           color: COLORS.textFaint,
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          flexWrap: "wrap",
+          gap: "4px 10px",
         }}>
+          <div role="status" style={{ flexBasis: "100%", display: "flex", flexWrap: "wrap", gap: "2px 10px" }}>
+            {freshness.map((f) => (
+              <span key={f.text} style={{ color: f.tone === "warn" ? COLORS.statusWarn : COLORS.textFaint }}>{f.text}</span>
+            ))}
+          </div>
           <span>UCS Database · Space-Track</span>
           <span style={{ marginLeft: "auto" }}>
             <label style={{ display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer", color: COLORS.textMuted }}>

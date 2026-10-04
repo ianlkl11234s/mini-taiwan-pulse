@@ -16,8 +16,9 @@ import { X } from "lucide-react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { fetchTlePair, type TleHistoryRow } from "../../data/satelliteHistoryLoader";
+import { fetchTlePair, type TleHistoryRow, type TlePair } from "../../data/satelliteHistoryLoader";
 import { formatManeuverDetail, type ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { computePassDiff } from "../../data/satelliteDataState";
 
 interface Props {
   maneuver: ManeuverRow;
@@ -259,7 +260,7 @@ function MiniMap({
 }
 
 export function ManeuverCompareModal({ maneuver, onClose }: Props) {
-  const [pair, setPair] = useState<{ prev: TleHistoryRow | null; curr: TleHistoryRow | null }>({ prev: null, curr: null });
+  const [pair, setPair] = useState<TlePair>({ prev: null, curr: null, error: null });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -290,9 +291,7 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
       else if (wasIn && !nowIn) lost.push(r);
     }
     const twDiff = currTrack.twPasses - prevTrack.twPasses;
-    const pct = prevTrack.twPasses > 0
-      ? Math.round((twDiff / prevTrack.twPasses) * 100)
-      : (currTrack.twPasses > 0 ? 100 : 0);
+    const { pct } = computePassDiff(prevTrack.twPasses, currTrack.twPasses);
     return {
       gained,
       lost,
@@ -364,11 +363,19 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
         <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "14px 16px 16px" }}>
           {loading ? (
             <div style={{ padding: "40px 0", textAlign: "center", color: COLORS.textFaint, fontSize: FONT_SIZE.base }}>
-              載入 TLE pair + 計算 7 天 ground track…
+              載入變軌前後軌道並推算中…
+            </div>
+          ) : pair.error ? (
+            <div role="status" style={{ padding: "20px 0", textAlign: "center", color: COLORS.statusErr, fontSize: FONT_SIZE.base }}>
+              {pair.error === "unconfigured" ? "資料讀取失敗：未設定資料來源" : "歷史軌道資料讀取失敗，請稍後再試"}
             </div>
           ) : !pair.prev || !pair.curr ? (
-            <div style={{ padding: "20px 0", textAlign: "center", color: COLORS.statusWarn, fontSize: FONT_SIZE.base }}>
-              tle_history 找不到對應的 prev/curr TLE（epoch 可能尚未歸檔）
+            <div role="status" style={{ padding: "20px 0", textAlign: "center", color: COLORS.statusWarn, fontSize: FONT_SIZE.base }}>
+              歷史軌道資料中找不到這次變軌前／後的紀錄（可能尚未歸檔）
+            </div>
+          ) : !prevTrack || !currTrack ? (
+            <div role="status" style={{ padding: "20px 0", textAlign: "center", color: COLORS.statusWarn, fontSize: FONT_SIZE.base }}>
+              軌道資料無法解析，無法推算過台次數
             </div>
           ) : (
             <>
@@ -377,8 +384,8 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
 
               {/* ── 雙 mini-map（TW-centric） ── */}
               <div style={{ display: "flex", gap: 14, marginTop: 14 }}>
-                <MiniMap track={prevTrack} prevTrack={prevTrack} label="BEFORE · 變軌前 7 天" color="#ff9800" side="before" />
-                <MiniMap track={currTrack} prevTrack={prevTrack} label="AFTER · 變軌後 7 天" color="#4fc3f7" side="after" />
+                <MiniMap track={prevTrack} prevTrack={prevTrack} label="BEFORE · 變軌前軌道推算 7 天" color="#ff9800" side="before" />
+                <MiniMap track={currTrack} prevTrack={prevTrack} label="AFTER · 變軌後軌道推算 7 天" color="#4fc3f7" side="after" />
               </div>
 
               {/* ── 區域差異 chips ── */}
@@ -401,7 +408,7 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
 }
 
 /** 過台頻次 headline — 主敘事 */
-function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number; twDiff: number; pct: number } }) {
+function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number; twDiff: number; pct: number | null } }) {
   const isUp = diff.twDiff > 0;
   const isDown = diff.twDiff < 0;
   const maxPasses = Math.max(diff.twBefore, diff.twAfter, 5);
@@ -419,7 +426,7 @@ function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number;
         fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
         color: COLORS.textFaint, marginBottom: 8,
       }}>
-        OVERHEAD PASSES · 過台頻次 7 天
+        OVERHEAD PASSES · 以變軌前／後軌道推算未來 7 天
       </div>
       <div style={{ display: "flex", alignItems: "stretch", gap: 16 }}>
         <PassBar label="BEFORE" value={diff.twBefore} max={maxPasses} color="rgba(255,152,0,0.55)" />
@@ -430,12 +437,14 @@ function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number;
           <span style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 800, color: pctColor, lineHeight: 1,
           }}>
-            {isUp ? "+" : ""}{diff.pct}%
+            {diff.pct != null
+              ? `${isUp ? "+" : ""}${diff.pct}%`
+              : `${isUp ? "+" : isDown ? "−" : ""}${Math.abs(diff.twDiff)} 次`}
           </span>
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
             {isUp ? "↑ 增加" : isDown ? "↓ 減少" : "持平"}
             {" "}
-            {isUp || isDown ? `${Math.abs(diff.twDiff)} 次` : ""}
+            {diff.pct != null && (isUp || isDown) ? `${Math.abs(diff.twDiff)} 次` : ""}
           </span>
         </div>
         <PassBar label="AFTER" value={diff.twAfter} max={maxPasses} color={barColor} />

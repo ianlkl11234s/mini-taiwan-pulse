@@ -743,7 +743,7 @@ export default function App() {
   const satManeuvers = useSatelliteManeuvers(satConsole.open);
   const maneuverNorads = useMemo(() => {
     const s = new Set<number>();
-    for (const m of satManeuvers) s.add(m.norad_id);
+    for (const m of satManeuvers.rows) s.add(m.norad_id);
     return s;
   }, [satManeuvers]);
   // 打開 Console 時：飛去台灣俯瞰 + 自動打開 Taiwan 圖層（其餘 CN 群維持使用者既有設定）
@@ -2382,6 +2382,7 @@ export default function App() {
 
           {/* 衛星情報 Satellite Console */}
           <SatelliteConsole
+            maneuvers={satManeuvers}
             open={satConsole.open}
             onClose={() => satelliteConsoleStore.setOpen(false)}
             layerVisibility={layerVisibility}

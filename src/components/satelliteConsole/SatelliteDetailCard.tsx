@@ -3,7 +3,8 @@
  *
  * 顯示 UCS catalog 完整 28 欄 + 變軌歷史（30d）+ 啟發式預測（μ±σ）
  *
- * 所有時間預測必須標：「估算」「信心區間 NN%」「*基於歷史變軌間隔，非精準預測」
+ * 所有時間預測必須標：「依歷史間隔估算」「非精準預測」；不顯示信心百分比（公式值不是統計量），
+ * 歷史變軌間隔少於 MIN_PREDICTION_INTERVALS 個時不顯示預測
  *
  * 資料：
  * - UCS ← get_satellite_catalog RPC
@@ -14,12 +15,12 @@ import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
 import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT, SURFACE } from "../../styles/designTokens";
-import { fetchCatalog, formatOperatingSince, type CatalogRow } from "../../data/satelliteCatalogLoader";
+import { fetchCatalog, formatOperatingSince, type CatalogResult } from "../../data/satelliteCatalogLoader";
 import {
   fetchTleHistory,
   deriveManeuverEvents,
   computePrediction,
-  type TleHistoryRow,
+  type TleHistoryResult,
   type DerivedManeuverEvent,
   type PredictionStats,
 } from "../../data/satelliteHistoryLoader";
@@ -34,8 +35,8 @@ interface Props {
 }
 
 export function SatelliteDetailCard({ norad, onClose }: Props) {
-  const [catalog, setCatalog] = useState<CatalogRow | null>(null);
-  const [history, setHistory] = useState<TleHistoryRow[]>([]);
+  const [catalogRes, setCatalogRes] = useState<CatalogResult | null>(null);
+  const [historyRes, setHistoryRes] = useState<TleHistoryResult | null>(null);
   const [loading, setLoading] = useState(true);
   // 訂閱時間軸 — 「已運作」欄會隨拉軸更新；變軌歷史也以時間軸當下為基準
   const timelineSec = useTimeStoreTime(1000);
@@ -48,14 +49,18 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
       fetchTleHistory(norad, 30),
     ]).then(([cat, hist]) => {
       if (!alive) return;
-      setCatalog(cat);
-      setHistory(hist);
+      setCatalogRes(cat);
+      setHistoryRes(hist);
       setLoading(false);
     });
     return () => { alive = false; };
   }, [norad]);
 
-  const events: DerivedManeuverEvent[] = useMemo(() => deriveManeuverEvents(history), [history]);
+  const catalog = catalogRes?.status === "ok" ? catalogRes.row : null;
+  const events: DerivedManeuverEvent[] = useMemo(
+    () => (historyRes?.ok ? deriveManeuverEvents(historyRes.rows) : []),
+    [historyRes],
+  );
   const prediction: PredictionStats = useMemo(() => computePrediction(events), [events]);
 
   const twLocale = localeForTaiwanSat(norad);
@@ -132,45 +137,67 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
           </div>
         ) : (
           <>
-            {/* 操作方／用途 */}
-            <Section title="操作方／用途">
-              <Row label="國家" value={fmtCountry(catalog?.country_operator)} />
-              {catalog?.operator && <Row label="運營商" value={catalog.operator} />}
-              <Row label="用途" value={twLocale?.use || catalog?.purpose || "—"} />
-              {catalog?.detailed_purpose && catalog.detailed_purpose !== catalog.purpose && (
-                <Row label="細項" value={catalog.detailed_purpose} />
-              )}
-              {catalog?.users && <Row label="用戶" value={catalog.users} />}
-            </Section>
+            {/* UCS 目錄讀取失敗／查無此衛星：各自文案，不以整卡「—」帶過 */}
+            {catalogRes && catalogRes.status !== "ok" && (
+              <Section title="衛星基本資料">
+                <div role="status" style={{ fontSize: FONT_SIZE.base, color: catalogRes.status === "error" ? COLORS.statusWarn : COLORS.textFaint, padding: "4px 0" }}>
+                  {catalogRes.status === "error"
+                    ? "UCS 衛星資料庫讀取失敗"
+                    : "UCS 衛星資料庫沒有這顆衛星的紀錄"}
+                </div>
+              </Section>
+            )}
+            {catalogRes?.status === "ok" && (
+              <>
+              {/* 操作方／用途 */}
+              <Section title="操作方／用途">
+                <Row label="國家" value={fmtCountry(catalog?.country_operator)} />
+                {catalog?.operator && <Row label="運營商" value={catalog.operator} />}
+                <Row label="用途" value={twLocale?.use || catalog?.purpose || "—"} />
+                {catalog?.detailed_purpose && catalog.detailed_purpose !== catalog.purpose && (
+                  <Row label="細項" value={catalog.detailed_purpose} />
+                )}
+                {catalog?.users && <Row label="用戶" value={catalog.users} />}
+              </Section>
 
-            {/* 發射 */}
-            <Section title="發射">
-              <Row label="日期" value={catalog?.launch_date || "—"} />
-              <Row label="場地" value={catalog?.launch_site || "—"} />
-              <Row label="火箭" value={catalog?.launch_vehicle || "—"} />
-              <Row label="製造" value={catalog?.contractor || "—"} />
-              <Row label="已運作" value={formatOperatingSince(catalog?.launch_date || null, timelineSec * 1000)} />
-              {catalog?.launch_mass_kg != null && (
-                <Row label="質量" value={`${catalog.launch_mass_kg} kg`} />
-              )}
-              {catalog?.expected_lifetime_yrs != null && (
-                <Row label="設計壽命" value={`${catalog.expected_lifetime_yrs} 年`} />
-              )}
-            </Section>
+              {/* 發射 */}
+              <Section title="發射">
+                <Row label="日期" value={catalog?.launch_date || "—"} />
+                <Row label="場地" value={catalog?.launch_site || "—"} />
+                <Row label="火箭" value={catalog?.launch_vehicle || "—"} />
+                <Row label="製造" value={catalog?.contractor || "—"} />
+                <Row label="已運作" value={formatOperatingSince(catalog?.launch_date || null, timelineSec * 1000)} />
+                {catalog?.launch_mass_kg != null && (
+                  <Row label="質量" value={`${catalog.launch_mass_kg} kg`} />
+                )}
+                {catalog?.expected_lifetime_yrs != null && (
+                  <Row label="設計壽命" value={`${catalog.expected_lifetime_yrs} 年`} />
+                )}
+              </Section>
 
-            {/* 軌道 */}
-            <Section title="軌道">
-              <Row label="參數" value={orbitStr} />
-              {catalog?.eccentricity != null && (
-                <Row label="離心率" value={catalog.eccentricity.toExponential(2)} />
-              )}
-            </Section>
+              {/* 軌道 */}
+              <Section title="軌道">
+                <Row label="參數" value={orbitStr} />
+                {catalog?.eccentricity != null && (
+                  <Row label="離心率" value={catalog.eccentricity.toExponential(2)} />
+                )}
+              </Section>
+              </>
+            )}
 
             {/* 變軌歷史 */}
-            <Section title={`變軌歷史 · 近 30 天（${events.length} 筆）`}>
-              {events.length === 0 ? (
+            <Section title={historyRes?.ok ? `變軌歷史 · 近 30 天（${events.length} 筆）` : "變軌歷史 · 近 30 天"}>
+              {!historyRes?.ok ? (
+                <div role="status" style={{ fontSize: 10.5, color: COLORS.statusWarn, padding: "4px 0" }}>
+                  歷史軌道資料讀取失敗，無法判斷近 30 天變軌
+                </div>
+              ) : historyRes.rows.length === 0 ? (
                 <div style={{ fontSize: 10.5, color: COLORS.textFaint, padding: "4px 0" }}>
-                  近 30 天 TLE 變化未達閾值，無顯著機動
+                  近 30 天沒有歷史軌道資料
+                </div>
+              ) : events.length === 0 ? (
+                <div style={{ fontSize: 10.5, color: COLORS.textFaint, padding: "4px 0" }}>
+                  近 30 天軌道參數變化未達閾值，無顯著機動
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -195,7 +222,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
 
             {/* 啟發式預測 */}
             {prediction.muDays != null && prediction.muDays > 0 && (
-              <Section title="啟發式預測">
+              <Section title="依歷史間隔估算">
                 <div style={{ padding: "8px 10px", borderRadius: RADIUS.lg, background: "rgba(100,170,255,0.08)", border: "1px solid rgba(100,170,255,0.25)" }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
                     <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>下次變軌約</span>
@@ -203,8 +230,8 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
                       {prediction.nextLowDays}–{prediction.nextHighDays}
                     </span>
                     <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>天內</span>
-                    <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-                      信心 {prediction.confidencePercent}%
+                    <span style={{ marginLeft: "auto", fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+                      依歷史間隔估算
                     </span>
                   </div>
                   <div style={{ marginTop: 5, fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
@@ -222,7 +249,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
                     }} />
                   </div>
                   <div style={{ marginTop: 6, fontSize: 9.5, color: COLORS.textFaint }}>
-                    ⚠ 估算 · 非精準預測 · 基於 satellite_tle_history 推算的歷史變軌間隔
+                    ⚠ 估算 · 非精準預測 · 依歷史軌道資料中的變軌間隔推算
                   </div>
                 </div>
               </Section>
@@ -230,7 +257,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
 
             {/* footnote */}
             <div style={{ marginTop: 10, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, lineHeight: 1.5 }}>
-              來源：UCS Satellite Database (reference.satellite_catalog) · TLE history (realtime.satellite_tle_history)
+              來源：UCS 衛星資料庫 · 歷史軌道資料
             </div>
           </>
         )}

@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA } from "./satelliteConsoleTokens";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { loadSatellites } from "../../data/satelliteLoader";
+import { useSatelliteRecords } from "../../hooks/useSatelliteRecords";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { SATELLITE_COLORS } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
@@ -89,9 +89,13 @@ function subpoint(satrec: satellite.SatRec, t: Date): { lon: number; lat: number
 }
 
 export function CoverageStatsSection({ maneuvers }: Props) {
-  const [parsed, setParsed] = useState<ParsedSat[]>([]);
-  const [coveringNow, setCoveringNow] = useState<ParsedSat[]>([]);
-  const [passes, setPasses] = useState<PassTick[]>([]);
+  // null = 尚未算出（顯示「—」／「…」，不可當 0）
+  const tle = useSatelliteRecords();
+  const [parsed, setParsed] = useState<ParsedSat[] | null>(null);
+  const [coveringRaw, setCoveringNow] = useState<ParsedSat[] | null>(null);
+  const [passesRaw, setPasses] = useState<PassTick[] | null>(null);
+  const coveringNow = coveringRaw ?? [];
+  const passes = passesRaw ?? [];
   const [expanded, setExpanded] = useState(false);
   const [computingScan, setComputingScan] = useState(false);
   // 預設只看「遙測偵察」（Yaogan/Jilin/Gaofen + TW）
@@ -100,29 +104,25 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   const timelineSec = useTimeStoreTime(500);
 
   useEffect(() => {
-    let alive = true;
-    loadSatellites().then((recs) => {
-      if (!alive) return;
-      const out: ParsedSat[] = [];
-      for (const r of recs) {
-        try {
-          const satrec = satellite.twoline2satrec(r.tleLine1, r.tleLine2);
-          const nRadSec = satrec.no / 60;
-          if (nRadSec <= 0) continue;
-          const a = Math.pow(MU / (nRadSec ** 2), 1 / 3);
-          const altKm = a - R_EARTH;
-          if (altKm < 100 || altKm > 50000) continue;
-          out.push({ rec: r, satrec, radiusKm: coverageRadiusKm(altKm) });
-        } catch { /* skip */ }
-      }
-      setParsed(out);
-    });
-    return () => { alive = false; };
-  }, []);
+    if (tle.status !== "ok") return;
+    const out: ParsedSat[] = [];
+    for (const r of tle.records) {
+      try {
+        const satrec = satellite.twoline2satrec(r.tleLine1, r.tleLine2);
+        const nRadSec = satrec.no / 60;
+        if (nRadSec <= 0) continue;
+        const a = Math.pow(MU / (nRadSec ** 2), 1 / 3);
+        const altKm = a - R_EARTH;
+        if (altKm < 100 || altKm > 50000) continue;
+        out.push({ rec: r, satrec, radiusKm: coverageRadiusKm(altKm) });
+      } catch { /* skip */ }
+    }
+    setParsed(out);
+  }, [tle.status, tle.records]);
 
   // 依時間軸算「該時刻覆蓋中」— timelineSec 變動就重算
   useEffect(() => {
-    if (parsed.length === 0) return;
+    if (!parsed) return;
     const t = new Date(timeStore.getTime() * 1000);
     const out: ParsedSat[] = [];
     for (const p of parsed) {
@@ -137,7 +137,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
 
   // 6h pass scan — 起點是「時間軸當下」，每分鐘級別變動才重算（拉時間軸防抖）
   useEffect(() => {
-    if (parsed.length === 0) return;
+    if (!parsed) return;
     let alive = true;
     setComputingScan(true);
     const run = () => {
@@ -218,6 +218,16 @@ export function CoverageStatsSection({ maneuvers }: Props) {
     return reconOnly ? passes.filter((p) => isRecon(p.cat)) : passes;
   }, [passes, reconOnly]);
 
+  // TLE 讀取失敗：不顯示 0，改顯示失敗文字
+  if (tle.status === "error") {
+    return (
+      <div role="status" style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.statusWarn }}>
+        衛星資料讀取失敗，無法計算覆蓋統計
+      </div>
+    );
+  }
+  const tleLoading = tle.status === "loading";
+
   return (
     <div style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK }}>
       {/* 主數字列 — 覆蓋中 + 6h 通過 + breakdown */}
@@ -225,17 +235,17 @@ export function CoverageStatsSection({ maneuvers }: Props) {
         <div>
           <span style={{ color: COLORS.textDim }}>覆蓋台灣中</span>
           <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: coveringNow.length > 0 ? "#4fc3f7" : COLORS.textDefault }}>
-            {coveringNow.length}
+            {tleLoading ? "讀取中…" : coveringRaw == null ? "—" : coveringNow.length}
           </span>
-          <span style={{ color: COLORS.textDim, marginLeft: 2 }}>顆</span>
+          {coveringRaw != null && <span style={{ color: COLORS.textDim, marginLeft: 2 }}>顆</span>}
         </div>
         <div style={{ width: 1, height: 18, background: COLORS.borderSoft }} />
         <div>
           <span style={{ color: COLORS.textDim }}>未來 6h 通過</span>
           <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: COLORS.textDefault }}>
-            {computingScan ? "…" : passes.length}
+            {tleLoading ? "讀取中…" : computingScan || passesRaw == null ? "…" : passes.length}
           </span>
-          <span style={{ color: COLORS.textDim, marginLeft: 2 }}>次</span>
+          {!tleLoading && !computingScan && passesRaw != null && <span style={{ color: COLORS.textDim, marginLeft: 2 }}>次</span>}
         </div>
         <button
           onClick={() => setExpanded((v) => !v)}
