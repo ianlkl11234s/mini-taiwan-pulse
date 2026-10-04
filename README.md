@@ -2,7 +2,7 @@
 
 **用開放資料，把台灣畫成一張會呼吸的地圖。**
 
-🌏 **線上版：[mini-taiwan-pulse.itsmigu.com](https://mini-taiwan-pulse.itsmigu.com)**　·　目前版本 **v3.0.0**（2026-10-04）→ [CHANGELOG](CHANGELOG.md)
+🌏 **線上版：[mini-taiwan-pulse.itsmigu.com](https://mini-taiwan-pulse.itsmigu.com)**　·　目前版本 **v2.3.0**（2026-10-04）→ [CHANGELOG](CHANGELOG.md)，網站「資訊 → 關於」也會顯示
 
 天空的航班、海面的船舶、軌道上的列車、街上的公車——這些會動的東西是這個專案的起點。
 後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星、區域統計……
@@ -134,9 +134,9 @@ v2.0.0 起整站外觀以設計系統重做。**各工作線的 PR 與現況總�
 | UI 統一 Phase A–R | 字型、popup、工具列、時間軸、控制項、z-index；載入提示與 Agent 光暈 | v2.0.0 | [`ui-consistency-audit-20260927`](docs/features/ui-consistency-audit-20260927/handoff.md)、[`spec.md`](docs/design-system/spec.md) |
 | 地圖 R1–R2 | 共用數值、統計圖細縫、圖例 kit、點圖層三階 | v2.1.0 | [`map-layer-restyle/PLAN.md`](docs/features/map-layer-restyle/PLAN.md)、[`map-layers.md`](docs/design-system/map-layers.md) |
 | 地圖 R3–R4 | 線面分階（registry／hook）、圖例對齊 | v2.2.0 | [`R3b-report.md`](docs/features/map-layer-restyle/R3b-report.md)、[`R4-report.md`](docs/features/map-layer-restyle/R4-report.md) |
-| 地圖 R5、R7 | 密集點改熱區、熱區／網格可換色盤 | v3.0.0 | [`layer-color-picker`](docs/features/layer-color-picker/PROPOSAL.md) |
-| R8 圖層面板統一 | 共用列、雙語結構化名稱、大分類、統計連動選單 | v3.0.0 | [`layer-panel-unify/PLAN.md`](docs/features/layer-panel-unify/PLAN.md) |
-| 監看模式 P1–P5 | 卡片殼、字級、數值列與走勢、多指標卡、資料新鮮度、淡色版 | v3.0.0 | [`monitor-restyle`](docs/features/monitor-restyle/README.md) |
+| 地圖 R5、R7 | 密集點改熱區、熱區／網格可換色盤 | v2.3.0 | [`layer-color-picker`](docs/features/layer-color-picker/PROPOSAL.md) |
+| R8 圖層面板統一 | 共用列、雙語結構化名稱、大分類、統計連動選單 | v2.3.0 | [`layer-panel-unify/PLAN.md`](docs/features/layer-panel-unify/PLAN.md) |
+| 監看模式 P1–P5 | 卡片殼、字級、數值列與走勢、多指標卡、資料新鮮度、淡色版 | v2.3.0 | [`monitor-restyle`](docs/features/monitor-restyle/README.md) |
 | 地圖 R6 | Three.js 圖層的「基本點線面」模式 | ⏳ 未開始 | [`handoff-r6.md`](docs/features/map-layer-restyle/handoff-r6.md) |
 
 UI 改動必須遵守 [`spec.md`](docs/design-system/spec.md)（PR 前照 §8 checklist），守門測試 `src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，不可用改基準繞過。
