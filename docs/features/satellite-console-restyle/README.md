@@ -16,6 +16,9 @@
 | 4 | 歷史模式變軌清單 | 要**跟著時間軸走**；作法細節待使用者確認（需 gis-platform migration，見 P-D 附註）。P-D 先做其他列，此列暫留 |
 | 5 | 分段順序 | P-D → P1 → P2 → P3 → P4 → P5 |
 | 6 | P1 比較頁 | E3＋H1＋B1＋T1＋S1＋F1（2026-10-04） |
+| 7 | P1 確認（`p2-p5-picks.html` 頁首） | UCS 連結、標頭變矮、「抓取於」語意皆 OK |
+| 8 | P2–P5 比較頁（[`p2-p5-picks.html`](./p2-p5-picks.html)） | P2：N1 G1 K3 M2 L1；P3：C3 V3 W1 X1 Y2；P4：A3 R3 D3 Q2 J3 U1 O1 Z3；P5：SC2 HT1 SV1（2026-10-04） |
+| 9 | 歷史模式變軌清單（決策 #4 作法） | Z3：gis-platform 新增帶時間錨點的 RPC（migration 套用須使用者另行拍板、上游先動、另開 PR）；上線前前端先做 Z1 過渡標示 |
 
 ## 一句話
 

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>衛星情報面板 P2–P5 比較</title>
+<style>
+/* 頁面外框跟系統主題；示意面板用 app 的實際 token 值（picks-kit.js PK.P），不跟頁面主題 */
+:root {
+  --bg: #f4f5f7; --fg: #1b1f27; --muted: #5b6472; --line: #d9dde3; --chip: #e8ebf0; --accent: #0b6fd6; --sel-bg: rgba(11,111,214,0.06); --bar: rgba(244,245,247,0.97); --err: #b42318; --warnc: #a15c00;
+  --f-ui: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
+  --f-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121418; --fg: #e6e8ec; --muted: #9aa3b0; --line: #2a2f37; --chip: #1e2229; --accent: #64aaff; --sel-bg: rgba(100,170,255,0.08); --bar: rgba(18,20,24,0.97); --err: #ff8a80; --warnc: #ffb74d; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #121418; --fg: #e6e8ec; --muted: #9aa3b0; --line: #2a2f37; --chip: #1e2229; --accent: #64aaff; --sel-bg: rgba(100,170,255,0.08); --bar: rgba(18,20,24,0.97); --err: #ff8a80; --warnc: #ffb74d; color-scheme: dark }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); overflow-x: hidden; }
+a { color: var(--accent); }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 24px 16px 200px; display: grid; gap: 36px; }
+header h1 { font-size: 22px; margin: 0 0 8px; text-wrap: balance; }
+header p { margin: 0 0 6px; color: var(--muted); max-width: 78ch; line-height: 1.65; font-size: 14px; }
+#pk-root { display: grid; gap: 36px; min-width: 0; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 8px 0; border-bottom: 1px solid var(--line); }
+.toc a { text-decoration: none; }
+.phase { display: grid; gap: 28px; min-width: 0; scroll-margin-top: 48px; }
+.phase h1.ph { font-size: 20px; margin: 0; padding-top: 8px; border-top: 3px solid var(--fg); }
+.intro { color: var(--muted); font-size: 14px; line-height: 1.7; max-width: 84ch; }
+.intro p { margin: 0 0 6px; }
+.missing { color: var(--muted); font-size: 14px; margin: 0; }
+.err { color: var(--err); font-size: 13.5px; border: 1px solid var(--err); border-radius: 6px; padding: 8px 12px; }
+.err ul { margin: 4px 0 0; padding-left: 20px; }
+.q { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 18px; min-width: 0; scroll-margin-top: 48px; }
+.q h2 { font-size: 17px; margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.q h2 .k { font-family: var(--f-data); font-size: 13px; background: var(--chip); padding: 2px 8px; border-radius: 4px; }
+.q > p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.65; max-width: 84ch; }
+.q code, .summary code, .cap code, .intro code { font-family: var(--f-data); font-size: 12px; }
+.ref { display: grid; gap: 8px; max-width: 470px; min-width: 0; }
+.opts { display: grid; gap: 16px; }
+.opt { display: grid; gap: 8px; min-width: 0; padding: 10px; border: 2px solid transparent; border-radius: 10px; cursor: pointer; }
+.opt:hover { border-color: var(--line); }
+.opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.opt.sel { border-color: var(--accent); background: var(--sel-bg); }
+.selmark { display: none; font-size: 12px; color: #fff; background: var(--accent); border-radius: 4px; padding: 0 6px; }
+.opt.sel .selmark { display: inline; }
+.lab { font-size: 14px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.lab b { font-family: var(--f-data); color: var(--accent); }
+.rec { font-size: 12px; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0 6px; }
+.shared { font-size: 12px; color: var(--warnc); border: 1px solid var(--warnc); border-radius: 4px; padding: 0 6px; }
+.cap { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.cap.warnc { color: var(--warnc); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); gap: 12px; }
+.tl { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.stage { border-radius: 10px; padding: 12px; min-width: 0; overflow: hidden; }
+.stage.dk { background: #12141c linear-gradient(115deg, transparent 46%, #1d212b 46% 48%, transparent 48%), linear-gradient(20deg, transparent 62%, #1a1e27 62% 63.5%, transparent 63.5%) #10121a; }
+.stage.lt { background: #e5e8ec linear-gradient(115deg, transparent 46%, #f8f9fa 46% 48%, transparent 48%), linear-gradient(20deg, transparent 62%, #f8f9fa 62% 63.5%, transparent 63.5%) #e5e8ec; }
+.summary { background: var(--chip); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; line-height: 1.75; }
+.summary ul { margin: 6px 0 0; padding-left: 20px; }
+.ov { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); gap: 12px; }
+table.t { border-collapse: collapse; font-size: 13px; margin: 6px 0; max-width: 100%; display: block; overflow-x: auto; }
+table.t th, table.t td { border: 1px solid var(--line); padding: 3px 8px; text-align: left; white-space: nowrap; }
+table.t th { background: var(--chip); font-weight: 600; }
+/* P1 確認 */
+.chk { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14px; line-height: 1.6; }
+.chk-c { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; cursor: pointer; font-size: 13.5px; }
+.seg:has(input:checked) { border-color: var(--accent); background: var(--sel-bg); }
+.note1 { flex: 1 1 200px; min-width: 0; font: inherit; font-size: 13.5px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); }
+.pnote { display: grid; gap: 6px; font-size: 14px; }
+.pnote textarea, #pk-ans-ta { width: 100%; font: inherit; font-size: 13.5px; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); resize: vertical; }
+#pk-ans-ta { font-family: var(--f-data); font-size: 12.5px; }
+/* 底部答案列 */
+.ansbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--bar); border-top: 1px solid var(--line); backdrop-filter: blur(8px); }
+.ans-in { max-width: 1320px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+#pk-ans-text { flex: 1 1 360px; min-width: 0; margin: 0; font-family: var(--f-data); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; max-height: 6.2em; overflow-y: auto; }
+.ans-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ans-btns button { font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--chip); color: var(--fg); cursor: pointer; }
+.ans-btns button:hover { border-color: var(--accent); }
+#pk-copy { background: var(--accent); color: #fff; border-color: var(--accent); }
+#pk-flash { font-size: 12.5px; color: var(--accent); }
+/* 示意面板（值抄自實際元件） */
+.pn { width: min(412px, 100%); border-radius: 8px; overflow: hidden; font-family: var(--f-ui); }
+.pn * { min-width: 0; }
+.mono { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+.stub { margin: 8px 14px; padding: 8px 10px; border-radius: 6px; font-size: 10px; text-align: center; }
+.nw { white-space: nowrap; }
+.ell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 600px) { .wrap { gap: 28px; } header h1 { font-size: 20px; } #pk-ans-text { max-height: 4.6em; font-size: 11px; } .opt { padding: 6px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>衛星情報面板 P2–P5 比較</h1>
+    <p>這頁一次把 P2（群組列）、P3（台灣衛星隊＋覆蓋統計）、P4（變軌警報、對比彈窗、百科卡、地圖 popup）、P5（淡色版）的選擇做完。每題先放「現況」，再放 2–3 個選項，每個選項暗色與淡色並排。示意面板都建立在 P1 已實作的標頭、區段標題、footer 上，值取自站上實際 token；顆數與時間為示意。</p>
+    <p>點選項卡片就是選它（再點一次取消，也可用鍵盤 Enter／空白鍵）。標「建議」的是建議組合；按底部「全部採用建議」會把還沒選的題目填成建議，已選的不動。標「⚠ 改共用元件」的選項會動到其他面板也在用的元件。</p>
+    <p>淡色欄在 P5 實作前只是示意：P2–P4 先照暗色做，淡色欄用來確認選的樣式到淡色時也撐得住。最上方先確認 P1 的三個細節。選完按「複製答案」貼回來；複製失敗就用頁面最下方的文字框。選擇會存在這個瀏覽器裡，重新整理不會消失。</p>
+  </header>
+  <div id="pk-root"></div>
+</div>
+<script src="picks-kit.js"></script>
+<script src="picks-p2.js" onerror="window.PK && PK.markMissing('P2')"></script>
+<script src="picks-p3.js" onerror="window.PK && PK.markMissing('P3')"></script>
+<script src="picks-p4.js" onerror="window.PK && PK.markMissing('P4')"></script>
+<script src="picks-p5.js" onerror="window.PK && PK.markMissing('P5')"></script>
+</body>
+</html>
