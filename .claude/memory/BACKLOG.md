@@ -60,8 +60,11 @@
 | AG-6 | P2 | ready | 其他自繪圖層補摘要：riverLevel、groundwater、iotWraRiver（與 rainGauge 同工廠）。 | 照 #517 rainGauge 做法在 visibleSummary 補上。 | 開這幾層時 visibleSummary 不再是 custom_renderer，附單元測試。 |
 | AG-7 | P3 | ready | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | eval `--reset-cmd` 改為重整前先全部關閉（或 gateway scene 清空）。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
 | AG-8 | P1 | done | 實際使用時發現的周邊／上圖工具問題（2026-10-04）。 | 已修：中文類別篩選（MCP #40）、0 筆類別不再消失＋北北基改用北北基站牌（#40）、帶 Z 座標的面結果匯入失敗（mini #522）、淹水資料重建修形狀（R2 20261003T165705Z）、北北基站牌只在需要時載入＋去重欄位錯誤明確報錯（MCP #41）、公車資料重複載入（analytics #138；R2 20261003T173242Z）。 | 高雄「教育」篩選 118 筆、永和交通 53 個站牌、淹水範圍 shown:true（已驗）。 |
-| AG-9 | P2 | ready | 同類 manifest 重複：`bus_stations`（含 test_* 抽樣）與 `bus`（all／city／intercity 重疊）。 | 比照 analytics #138 只列唯一來源檔，再重建上傳。 | 每個站位／站牌 UID 只一列。 |
+| AG-9 | P2 | done | 同類 manifest 重複：`bus_stations` 與 `bus`。 | 2026-10-04 完成（analytics #139；R2 20261003T180623Z）：bus 834,052→226,276、bus_stations 49,501→16,215，每個 UID 一列、無空幾何。 | 已驗。 |
 | AG-10 | P2 | idea | 網站部署後已開著的分頁仍跑舊程式（淹水上圖修好後要重新整理才生效）。 | 評估面板偵測新版本並提示重新整理。 | 部署後舊分頁會看到「有新版本」提示。 |
+| AG-11 | P3 | ready | 公車總表（`bus`）標題寫「即時位置」，實為靜態站點與路線。 | 改 analytics manifest title 或 MCP datasetLabelOverrides。 | find_data 顯示的標題不再含「即時」。 |
+| AG-12 | P2 | done | 公車首末班問答。 | 2026-10-04 完成：analytics #139 四份無幾何表、MCP #43 `bus-first-last` 配方＋同義詞、R2 20261004T020349Z。限制：首末班表缺雙北／臺南／連江（改用班表）；973 個子路線方向兩表都無時刻。 | 正式倉庫實測永和→內湖得 214（04:50／21:00）。 |
+| AG-13 | P2 | done | 建置靜默丟 CSV 列＋find_data 候選太早被砍。 | 2026-10-04：MCP #43（固定讀法、獨立計列數、`build_point_geometry:false`）；6 份資料補回 99 列（R2 20261004T130110Z）；MCP #44 候選池 3 倍上限 20（每次約 +0.6 s）。 | 已驗。 |
 | AG-2 | P2 | conditional | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | **等下次倉庫重建**（analytics #134 已修上游標題，build_warehouse 已加修形狀）。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
 | AG-3 | P3 | decision | 地震漣漪暫停時的行為：新版暫停 3 秒收起，舊版會無限循環。 | 等使用者決定要不要循環。 | 決定後依需求調整 `useEarthquakesGlobalLayer`，並附單元測試。 |
 | AG-4 | P3 | decision | A10 綜合生活品質題的判分方式。 | 綜合指標的權重與方向沒有標準答案；需決定題庫要收哪些口徑，或改成只檢查方法正確。 | 題庫寫明可接受口徑，並以唯讀查詢驗證各口徑數字。 |

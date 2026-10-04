@@ -1,15 +1,21 @@
 # Pulse Agent 分析：總進度（唯一的最新進度頁）
 
-> **最後更新：2026-10-03（晚）。** 進度以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
+> **最後更新：2026-10-04。** 進度以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
 > 每次合併重要 PR 後，更新本頁的「能做什麼」「指標」「待辦」三節。
 
-## 2026-10-03 正式站連線上線
+## 2026-10-04 現況（Agent × MCP）
 
-Agent 現在直接連正式站（`research-gateway` 已在 Zeabur）：面板產生 token、MCP 自動接上，不再靠本機免授權。本機測試 e2e 13 項全過，延遲大降（set_camera 4.6→1.7 s、set_layers 1.6→0.16 s）；正式站未登入檢查正常。細節與 release truth 看 [PLAN-prod-connect-20261003.md](./PLAN-prod-connect-20261003.md)「P1–P3 進度」。
+**已上線**
+- **本機 Claude Code 連正式站**（ADR-0017）：gateway 在 Zeabur `research-gateway`；正式站面板產生 token → `pbpaste | npm run token:save`（analysis-prod/mcp）→ MCP 自動接上分頁。正式站實測：接上 0.93 s、set_camera 1.8 s、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s。
+- **圖層組講得出現象**（AG-1）：map_context 帶 `bounds`＋`visibleSummary`，自繪圖層（颱風、地震、YouBike、空品、雨量站）用圖層資料做摘要；分層題庫 13/13。
+- **實際使用修掉的工具問題**（AG-8）：中文類別篩選、0 筆類別不再消失＋北北基改用北北基站牌、帶 Z 座標的面結果能上圖、淹水資料重建修形狀、北北基站牌只在需要時載入、去重欄位錯誤明確報錯。
+- **資料正確性**：公車資料重複載入修正（analytics #138、#139）；建置不再靜默丟 CSV 列（MCP #43），6 份資料補回 99 列。
+- **公車首末班**：新增四份無幾何表（停靠站序、班表、首末班、路線）與 pulse-overlay `bus-first-last` 配方；例：永和豫溪街往內湖只有 214（網溪國小一，平日起站 04:50／21:00）。
+- **find_data 先多看再砍**（MCP #44）：字面比對取 3 倍、上限 20 給 Jev 再截；每次找資料約 0.4 → 1.0 s。
 
-下一步：
-1. **AG-1 自繪圖層**：L01–L04 圖層是自繪（`custom_renderer`），Agent 讀不到數字、只能說「已打開」；另有鏡頭移動偶發 SCENE_ERROR。PR `feat/ag1-layer-data-summary` 進行中。
-2. **正式站量測待使用者 token**：面板產生 token 並 `token:save` 後，跑 `e2e-prod-connect.mjs prod` 與正式站量測；Claude Code 需 `/mcp` 重連。
+**R2 倉庫版本**：`20261004T130110Z`（回退依序：`20261004T020349Z` → `20261003T180623Z` → `20261003T173242Z` → `20261003T165705Z` → `20261003T031158Z`）。上傳一律 `scripts/upload-store.mts plan` 檢查後再 `execute`。
+
+**下一步**：見 `.claude/memory/BACKLOG.md` AG-6（其他自繪圖層摘要）、AG-10（部署後舊分頁提示重新整理）、AG-11（公車總表標題誤寫「即時」）、AG-7（回歸測試重置殘留圖層）。手動待驗：正式站重整還原、面板撤銷 token。
 
 ## 從這裡開始
 
@@ -89,12 +95,12 @@ Agent 現在直接連正式站（`research-gateway` 已在 Zeabur）：面板產
 | 視覺化 | 呼吸脈衝（需即時標記）、合併重複 sparkline、分析卡支援更多樣式與村里、立體柱高度預設 | viz-library BACKLOG |
 | 效能 | `researchDatasets.ts` `allDescriptors()` 無快取 | viz-library BACKLOG |
 | 指標名稱 | 統計指標缺中文名稱欄位（分析卡圖例靠 Agent 填） | viz-library BACKLOG |
-| 上雲 | gateway 上 Zeabur、MCP 遠端化、Agent 面板改 owner 權限 | [PROD-HOME.md](./PROD-HOME.md)「全雲端準備清單」 |
+| 上雲 | ~~gateway 上 Zeabur、Agent 面板改 owner 權限~~（10-03 完成，ADR-0017）；MCP 遠端化（雲端引擎）仍未做 | [PROD-HOME.md](./PROD-HOME.md)、`zeabur-cloud-engine-option.md` |
 
 ## 下一步建議（依優先）
 
-0. ~~周邊問題「一問就畫好」~~（10-03 完成，見上表）。下一個：圖層組只能說「已打開」，讀不到圖層數值（core 工具沒有圖層統計），要能講出看得到的現象。
+0. ~~周邊問題「一問就畫好」~~（10-03）、~~圖層組講現象~~（10-04 AG-1）、~~正式站連線~~（10-04）。
 1. **資料新鮮度自動化**：倉庫每月重建與 Valhalla 月更自動化，並更新過舊資料（事故點）。現在功能已齊，資料過期是最大風險。
 2. **Agent 品質第二輪**：回歸測試加 `--repeat`，看出穩定分數後再修 A12、A09。
-3. **上雲第一步**：研究 gateway 部署到 Zeabur，讓 Agent 分析不依賴本機開機（照 PROD-HOME 清單）。
+3. ~~上雲第一步：gateway 部署到 Zeabur~~（10-03 完成）。分析引擎仍在本機，Mac 沒開就不能分析；要擺脫要走雲端引擎（`zeabur-cloud-engine-option.md`）。
 4. 覆蓋度與其餘待辦依需要排入。
