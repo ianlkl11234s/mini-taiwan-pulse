@@ -177,6 +177,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "drinkingWaterPoints", "publicWasteBaskets", "materialRecyclingPoints", "disasterShelters",
   "playgrounds", "accessibleParkFacilities", "bicycleSupport", "nationalParks", "visitorCentres",
   "publicLifeOsmCoverage",
+  // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
+  "railRoutes",
 
   // ── OVERLAY_REGISTRY 的 PMTiles 層（65）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",

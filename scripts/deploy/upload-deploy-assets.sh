@@ -585,6 +585,14 @@ for f in public/static-rpc/*.json; do
 done
 
 # Rail 個別檔案（打包成 tar.gz 上傳）
+# 軌道路線靜態圖層（railRoutes）必備檔：由 scripts/preprocess/build-rail-routes.py 產生（進 git）。
+# 缺檔就中止，免得 rail.tar.gz 少了它、正式站該層 404。
+RAIL_REQUIRED_FILES=(
+  "public/rail/routes_static.geojson"
+)
+for f in "${RAIL_REQUIRED_FILES[@]}"; do
+  [ -f "$f" ] || { echo "ERROR: $f 不存在（先跑 python3 scripts/preprocess/build-rail-routes.py）"; exit 1; }
+done
 if [ -d "public/rail" ]; then
   echo "Packing public/rail/ → rail.tar.gz..."
   tar -czf /tmp/rail.tar.gz -C public rail

@@ -55,7 +55,7 @@ import { statisticsManifestParams } from "./statisticsParamsSpec";
 
 import type { LucideIcon } from "lucide-react";
 import {
-  Video, Radio, Network, LandPlot, TrainFront, Factory,
+  Video, Radio, Network, LandPlot, TrainFront, TrainTrack, Factory,
   Church, Landmark, HeartHandshake, Sparkles, Camera,
   Cross, Briefcase, Flower, Grid3x3,
   Building2, CalendarDays, Theater, Library,
@@ -794,6 +794,29 @@ export const LAYER_MANIFEST = {
     params: { count: 5, kinds: ["toggle", "select", "slider", "slider", "slider"] },
     description: "台鐵／高鐵／捷運列車依時刻表推算的即時位置與軌道",
     topics: ["交通", "鐵道", "即時"],
+  },
+
+  // 靜態軌道路線：geojson overlay（無時刻表、無 Three.js）。即時列車請看上面的 `rail`。
+  railRoutes: {
+    key: "railRoutes",
+    section: { theme: "交通 Move", group: "路網" },
+    ...layerName({ zh: "軌道路線", alt: "Rail Routes" }),
+    expandable: true,
+    color: "#ee6c00",
+    icon: TrainTrack,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rail", confidence: "MED" }],
+      processing: "mini-taipei-v3 軌道幾何（台鐵 golden、高鐵、台北／高雄／台中捷運、高雄輕軌）去重後的單向路線；信義線東延段（象山→廣慈/奉天宮）線形取自 OpenStreetMap (ways 197881274, 806179562, 453081585)，ODbL 1.0 © OpenStreetMap contributors，地下線形為近似",
+      note: "僅路線幾何，不含時刻表或列車位置；不含貓空纜車",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "rail-routes", url: "./rail/routes_static.geojson" },
+    legend: "railRoutes",
+    popup: "railRoutes",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "全台軌道路線（台鐵、高鐵、各都會捷運與輕軌）；純靜態線形，不載入時刻表。即時列車位置請用「鐵道」圖層",
+    topics: ["交通", "鐵道", "路線", "捷運"],
   },
 
   // ⑤ 多控件（8 個，slider/select/toggle 三型都有）—— 控件密度最高的 overlay 層，
@@ -10040,7 +10063,7 @@ export const LAYER_MANIFEST = {
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "station-points", url: "./geo/station_points.geojson" },
-    legend: null,
+    legend: "stationsMetro",
     // 與 stationsTRA **共用同一個 layerType**（各自的 GIS_LAYERS 條目 → 同一個 railStation
     // panel）。批 4 的「兩個 key 一個 layer」是共用 layer id，這裡是兩組 layer id 共用 type。
     popup: "railStation",

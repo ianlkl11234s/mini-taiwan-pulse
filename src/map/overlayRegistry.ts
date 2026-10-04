@@ -9,7 +9,7 @@ import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { paramDefault } from "../data/layerParamsSpec";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
 
 /** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
@@ -119,6 +119,7 @@ import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
   OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
 } from "../data/telecomTypes";
+import { RAIL_ROUTES_URL, RAIL_ROUTES_SOURCE_ID, RAIL_ROUTES_FALLBACK_COLOR, railRoutesSystemFilter } from "../data/railRoutesTypes";
 import { FOREST_RESERVE_PMTILES_URL, FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
@@ -633,6 +634,28 @@ function hubPointLayers(
       },
     },
   ];
+}
+
+// ── 捷運站：依線著色、轉乘站白底深描邊 ──
+// 資料屬性由 scripts/preprocess/build-station-points.py --enrich 寫入（line_color 取自 routes_static.geojson）。
+// 半徑由 withPointSpec 的 tier M 固定（P-1），轉乘站以描邊加粗顯示；描邊讀 feature 資料，withPointSpec 會保留。
+const METRO_LINE_COLOR = ["coalesce", ["get", "line_color"], ["get", "color"]];
+const METRO_IS_TRANSFER = ["==", ["get", "transfer"], true];
+function metroTransferCore(layer: OverlayLayerSpec): OverlayLayerSpec {
+  const base = layer.paint;
+  return {
+    ...layer,
+    paint: (isDark, params) => ({
+      ...base(isDark, params),
+      "circle-color": ["case", METRO_IS_TRANSFER, TRANSFER_STATION.fill, METRO_LINE_COLOR],
+      "circle-stroke-color": ["case", METRO_IS_TRANSFER, transferRingColor(isDark), mapSeamColor(isDark)],
+      "circle-stroke-width": ["case", METRO_IS_TRANSFER, TRANSFER_STATION.ringWidth, POINT_STROKE.width],
+    }),
+  };
+}
+function metroPointLayers(prefix: string): OverlayConfig["layers"] {
+  return hubPointLayers(prefix, "metroDisplayModeIdx", METRO_LINE_COLOR, "stationScale")
+    .map((l) => (l.suffix.endsWith("point-core") ? metroTransferCore(l) : l));
 }
 
 // ── 🐷 畜牧 Livestock helpers ──
@@ -1309,15 +1332,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     // 顯示模式切到「實際範圍」時 metro-pt-* 會被藏回去。半徑、透明度都能走 paint diff。
     layers: [
       // Mapbox 點位：所有縮放都有點（原本 maxzoom 10，放大後點會消失）
-      ...hubPointLayers(
-        "metro-overview-",
-        "metroDisplayModeIdx",
-        ["get", "color"],
-        "stationScale",
-      ),
+      ...metroPointLayers("metro-overview-"),
       // 實際範圍（光暈示意）：低縮放仍顯示點，z≥10 換成下面的範圍光暈
       {
-        ...hubPointLayers("metro-lowzoom-", "metroDisplayModeIdx", ["get", "color"], "stationScale")[1]!,
+        ...metroPointLayers("metro-lowzoom-")[1]!,
         suffix: "metro-lowzoom-core",
         layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         maxzoom: 10,
@@ -1381,10 +1399,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const is3d = (params?.metroPillar3d ?? 0) > 0;
           return {
             "circle-radius": BASE_RADIUS * scale,
-            "circle-color": ["get", "color"] as unknown as string,
+            "circle-color": METRO_LINE_COLOR as unknown as string,
             "circle-opacity": is3d ? 0 : (_isDark ? 0.08 : 0.12),
             "circle-stroke-width": _isDark ? 1 : 1.5,
-            "circle-stroke-color": ["get", "color"] as unknown as string,
+            "circle-stroke-color": METRO_LINE_COLOR as unknown as string,
             "circle-stroke-opacity": is3d ? 0 : (_isDark ? 0.3 : 0.5),
           };
         },
@@ -5889,6 +5907,43 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-color": "#0e7490",
             "circle-stroke-width": 0.8,
             "circle-opacity": params?.forestDamLakesOpacity ?? 0.95,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 軌道路線（靜態 GeoJSON，LineString；線色＝geojson `color` 各線官方線色）──
+  // 系統 select 走 filter（rebuild 帶新值）；寬度走 paint diff。不載入任何時刻表。
+  {
+    id: "railRoutes",
+    sourceUrl: RAIL_ROUTES_URL,
+    sourceId: RAIL_ROUTES_SOURCE_ID,
+    rebuildOnParamChange: ["line"],
+    rebuildOnParamKeys: ["railRoutesSystemIdx"],
+    attribution: "信義線東延段線形 © OpenStreetMap contributors (ODbL)",
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        filter: (p) => railRoutesSystemFilter(p?.railRoutesSystemIdx ?? 0),
+        paint: (_isDark, params) => {
+          const w = params?.railRoutesWidth ?? 1;
+          // 共用走廊（台鐵／高鐵／捷運並行段）：offset_slot（建置腳本算的半整數）× 線寬，
+          // 讓並行線像路線圖一樣緊貼平行，不再互相穿插；停駐點與線寬相同，任何 zoom 都剛好貼齊。
+          const slot = ["coalesce", ["get", "offset_slot"], 0];
+          return {
+            "line-color": ["coalesce", ["get", "color"], RAIL_ROUTES_FALLBACK_COLOR] as unknown as string,
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 0.8 * w, 9, 1.6 * w, 12, 2.6 * w, 15, 4 * w,
+            ] as unknown as number,
+            "line-offset": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", slot, 0.8 * w], 9, ["*", slot, 1.6 * w], 12, ["*", slot, 2.6 * w], 15, ["*", slot, 4 * w],
+            ] as unknown as number,
+            "line-opacity": params?.railRoutesOpacity ?? 0.9,
           };
         },
       },

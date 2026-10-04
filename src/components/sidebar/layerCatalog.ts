@@ -619,6 +619,7 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         title: "路網",
         layers: [
+          fromManifest("railRoutes"),
           fromManifest("highways"),
           fromManifest("osmExpressway"),
           fromManifest("provincialRoads"),
