@@ -1,15 +1,17 @@
 /**
- * §A 變軌警報區（v2 — 嚴重度分級 + 影響 TW chip + 例行折疊）
+ * §A 變軌警報區（P4：區段標題＋四格嚴重度＋清單列）
  *
  * 排序：red → orange → grey，副 key 時間 DESC
- * 卡片：依嚴重度上色（紅閃 / 橘 / 灰例行）
- * 例行（grey）折疊成「N 筆例行機動」按鈕展開
- * 影響 TW：async 計算前後 7 天過台次數差，差 != 0 標「影響 TW」綠 chip
+ * 重大／注意直接列出；例行與無法判定摺疊。每列：嚴重度色點＋衛星名（點名稱＝開百科）＋
+ * 類型中文＋相對時間＋「看覆蓋變化」圖示鈕；下行顯示變化量與台灣過境影響。
+ * 讀取中／失敗／更新中斷（P-D）維持在本區。
  */
 import { useMemo, useState } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN, CN_GROUP_TO_CATEGORY, GROUP_FLAG } from "./satelliteConsoleTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { SATELLITE_COLORS, SATELLITE_LABELS, type SatelliteCategory } from "../../data/satelliteTypes";
+import { ChevronDown, ChevronRight, GitCompareArrows } from "lucide-react";
+import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE, CONTROL } from "../../styles/designTokens";
+import { chipOutline } from "../intel/intelTokens";
+import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
 import { describeManeuversBanner, type ManeuversState } from "../../data/satelliteDataState";
 import {
@@ -19,30 +21,28 @@ import {
   type ManeuverSeverity,
 } from "../../data/satelliteManeuversLoader";
 import { useManeuverImpacts, type ManeuverImpactState } from "../../hooks/useManeuverImpacts";
+import { ctrlButton, resolveManeuverListScope, SEVERITY_VIEW } from "./maneuverAlertKit";
 
 interface Props {
   maneuvers: ManeuversState;
   onSelectNorad: (n: number) => void;
   onOpenCompare: (m: ManeuverRow) => void;
   onFlyTo?: (lon: number, lat: number) => void;
+  /** 時間軸是否在歷史模式（清單範圍提示用） */
+  isHistory?: boolean;
 }
 
 const TAIWAN_GROUP = new Set(["TAIWAN"]);
 const CN_GROUPS = new Set(["YAOGAN", "JILIN", "GAOFEN", "TJS", "BEIDOU", "SHIYAN"]);
 const INTL_GROUPS = new Set(["USA", "JAPAN", "RUSSIA", "INDIA", "KOREA", "FRANCE", "GERMANY", "ITALY", "ISRAEL"]);
 
-/** 嚴重度視覺 token */
-const SEV_TOKEN: Record<ManeuverSeverity, { color: string; soft: string; border: string; label: string; pulse: boolean }> = {
-  red:    { color: "#ef4444", soft: "rgba(239,68,68,0.12)",  border: "rgba(239,68,68,0.55)",  label: "重大", pulse: true },
-  orange: { color: "#f97316", soft: "rgba(249,115,22,0.10)", border: "rgba(249,115,22,0.50)", label: "注意", pulse: false },
-  grey:   { color: "#9ca3af", soft: "rgba(255,255,255,0.02)",border: "rgba(255,255,255,0.12)",label: "例行", pulse: false },
-  // 判定所需的變化量缺值：不歸入例行，也不當 0
-  unknown:{ color: "#9ca3af", soft: "rgba(255,255,255,0.02)",border: "rgba(255,255,255,0.12)",label: "無法判定", pulse: false },
-};
+const SECTION_PAD = "0 14px";
+const SECTION_STYLE = { borderBottom: `1px solid ${COLORS.borderSoft}`, paddingBottom: 12 } as const;
 
-export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCompare }: Props) {
+export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCompare, isHistory = false }: Props) {
   const [expandedGrey, setExpandedGrey] = useState(false);
   const maneuvers = state.rows;
+  const scope = resolveManeuverListScope(isHistory);
 
   const { cnCount, twCount, intlCount, sortedRed, sortedOrange, sortedGrey, sortedUnknown } = useMemo(() => {
     let cn = 0, tw = 0, intl = 0;
@@ -76,359 +76,225 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
   if (banner.kind !== "ok") {
     const isEmpty = banner.kind === "empty";
     const isError = banner.kind === "error";
+    const tone = isEmpty ? COLORS.statusLive : isError ? COLORS.statusErr : COLORS.textDim;
     return (
-      <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}` }}>
-        <div role="status" style={{
-          padding: "8px 10px",
-          borderRadius: RADIUS.lg,
-          background: isEmpty ? COLORS.statusLiveSoft : isError ? "rgba(239,68,68,0.12)" : "rgba(156,163,175,0.10)",
-          border: isEmpty
-            ? `1px solid ${COLORS.statusLiveBorder}`
-            : isError ? "1px solid rgba(239,68,68,0.45)" : `1px solid ${COLORS.borderMid}`,
-          fontFamily: FONT_CJK,
-          fontSize: 11.5,
-          color: COLORS.textDefault,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}>
-          <span style={{
-            width: 7, height: 7, borderRadius: RADIUS.full,
-            background: isEmpty ? COLORS.statusLive : isError ? COLORS.statusErr : COLORS.textDim,
-          }} />
-          {banner.text}
+      <div style={SECTION_STYLE}>
+        <SubGroupLabel>變軌警報</SubGroupLabel>
+        <ScopeNotice text={scope.notice} />
+        <div style={{ padding: "4px 14px 0" }}>
+          <div role="status" style={{
+            padding: "6px 10px",
+            borderRadius: RADIUS.lg,
+            background: CONTROL.bg,
+            border: `1px solid ${COLORS.borderSoft}`,
+            fontFamily: FONT_CJK,
+            fontSize: FONT_SIZE.base,
+            color: COLORS.textDefault,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}>
+            <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: tone, flexShrink: 0 }} />
+            {banner.text}
+          </div>
         </div>
       </div>
     );
   }
 
   const featured = [...sortedRed, ...sortedOrange];
-  const foldedCount = sortedGrey.length + sortedUnknown.length;
-  const hasGrey = foldedCount > 0;
-  const hasFeatured = featured.length > 0;
+  const folded = [...sortedGrey, ...sortedUnknown];
+  const total = maneuvers.length;
+
+  const renderRow = (m: ManeuverRow) => (
+    <ManeuverRowItem
+      key={`${m.norad_id}-${m.curr_epoch}`}
+      row={m}
+      severity={getManeuverSeverity(m)}
+      impact={impacts.get(m.norad_id)}
+      onSelectNorad={onSelectNorad}
+      onOpenCompare={onOpenCompare}
+    />
+  );
 
   return (
-    <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+    <div style={SECTION_STYLE}>
+      <SubGroupLabel>變軌警報</SubGroupLabel>
+      <ScopeNotice text={scope.notice} />
       {state.stale && (
-        <div role="status" style={{ marginBottom: 6, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.statusWarn }}>
+        <div role="status" style={{ padding: "0 14px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.statusWarn }}>
           更新中斷，目前顯示的是上次讀取的資料
         </div>
       )}
-      {/* Banner */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "8px 10px",
-        marginBottom: 9,
-        borderRadius: RADIUS.lg,
-        background: hasFeatured ? "rgba(239,68,68,0.12)" : "rgba(156,163,175,0.10)",
-        border: hasFeatured ? "1px solid rgba(239,68,68,0.45)" : `1px solid ${COLORS.borderMid}`,
-        fontFamily: FONT_CJK,
-        fontSize: 11.5,
-        color: COLORS.textStrong,
-      }}>
-        <span style={{
-          width: 7, height: 7, borderRadius: RADIUS.full,
-          background: hasFeatured ? COLORS.statusErr : COLORS.textDim,
-          boxShadow: hasFeatured ? `0 0 6px ${COLORS.statusErr}` : "none",
-          animation: hasFeatured ? "satManeuverPulse 1.1s ease-in-out infinite" : "none",
-        }} />
-        <span style={{ fontWeight: 600 }}>近 24h 變軌偵測</span>
-        <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, color: COLORS.textDefault, letterSpacing: "0.3px" }}>
-          CN <span style={{ color: hasFeatured ? COLORS.statusErr : COLORS.textDefault, fontWeight: 700 }}>{cnCount}</span>
-          {" / "}
-          INTL <span style={{ color: intlCount > 0 ? "#22c55e" : COLORS.textDim, fontWeight: 700 }}>{intlCount}</span>
-          {" / "}
-          TW <span style={{ color: twCount > 0 ? COLORS.statusErr : COLORS.textDim, fontWeight: 700 }}>{twCount}</span>
-        </span>
+      <div style={{ padding: "0 14px", fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+        近 24 小時 · 共 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{total}</span> 筆
       </div>
 
-      {/* 嚴重度說明 inline */}
-      {(sortedRed.length > 0 || sortedOrange.length > 0) && (
-        <div style={{
-          marginBottom: 8,
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
-          display: "flex", alignItems: "center", gap: 8,
-        }}>
-          <SevDot s="red" /> 重大 {sortedRed.length}
-          <SevDot s="orange" /> 注意 {sortedOrange.length}
-          {sortedGrey.length > 0 && <><SevDot s="grey" /> 例行 {sortedGrey.length}</>}
-          {sortedUnknown.length > 0 && <><SevDot s="unknown" /> 無法判定 {sortedUnknown.length}</>}
+      <div style={{ padding: "6px 14px 0" }}>
+        {/* 四格嚴重度 */}
+        <div style={{ display: "flex", gap: 6 }}>
+          <SevCell severity="red" count={sortedRed.length} />
+          <SevCell severity="orange" count={sortedOrange.length} />
+          <SevCell severity="grey" count={sortedGrey.length} />
+          <SevCell severity="unknown" count={sortedUnknown.length} />
         </div>
-      )}
+        {/* 國別計數 */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 6, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+          <CountryCount zh="中國" n={cnCount} hot />
+          <span style={{ color: COLORS.textFaint }}>·</span>
+          <CountryCount zh="國際" n={intlCount} />
+          <span style={{ color: COLORS.textFaint }}>·</span>
+          <CountryCount zh="台灣" n={twCount} />
+        </div>
+      </div>
 
-      {/* Featured (red + orange) — 直立排列，每張卡完整資訊 */}
-      {hasFeatured && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {featured.map((m) => (
-            <ManeuverCard
-              key={`${m.norad_id}-${m.curr_epoch}`}
-              row={m}
-              severity={getManeuverSeverity(m)}
-              impact={impacts.get(m.norad_id)}
-              onSelectNorad={onSelectNorad}
-              onOpenCompare={onOpenCompare}
-            />
-          ))}
-        </div>
-      )}
+      <div style={{ padding: SECTION_PAD }}>
+        {featured.length > 0 && (
+          <div style={{ marginTop: 8, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+            {featured.map(renderRow)}
+          </div>
+        )}
 
-      {/* Grey (例行) — 折疊 */}
-      {hasGrey && (
-        <div style={{ marginTop: hasFeatured ? 8 : 0 }}>
-          <button
-            onClick={() => setExpandedGrey((v) => !v)}
-            style={{
-              width: "100%",
-              padding: "6px 10px",
-              borderRadius: RADIUS.lg,
-              background: "rgba(255,255,255,0.025)",
-              border: `1px dashed ${COLORS.borderMid}`,
-              color: COLORS.textMuted,
-              fontFamily: FONT_CJK,
-              fontSize: FONT_SIZE.base,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <SevDot s="grey" />
-            <span>
-              {sortedGrey.length} 筆例行機動 (drift/station-keeping)
-              {sortedUnknown.length > 0 ? `、${sortedUnknown.length} 筆無法判定` : ""}
-            </span>
-            <span style={{ marginLeft: "auto", color: COLORS.textDim }}>{expandedGrey ? "▾ 收合" : "▸ 展開"}</span>
-          </button>
-          {expandedGrey && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 6 }}>
-              {[...sortedGrey, ...sortedUnknown].map((m) => (
-                <ManeuverCard
-                  key={`${m.norad_id}-${m.curr_epoch}`}
-                  row={m}
-                  severity={getManeuverSeverity(m)}
-                  impact={impacts.get(m.norad_id)}
-                  onSelectNorad={onSelectNorad}
-                  onOpenCompare={onOpenCompare}
-                  compact
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        {folded.length > 0 && (
+          <div style={{ marginTop: 8 }}>
+            <button
+              type="button"
+              aria-expanded={expandedGrey}
+              onClick={() => setExpandedGrey((v) => !v)}
+              style={ctrlButton({ width: "100%", justifyContent: "flex-start", fontFamily: FONT_CJK, color: COLORS.textMuted })}
+            >
+              {expandedGrey ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
+              <span>
+                例行調整 <span style={{ fontFamily: FONT_DATA }}>{sortedGrey.length}</span> 筆
+                {sortedUnknown.length > 0 && <>、無法判定 <span style={{ fontFamily: FONT_DATA }}>{sortedUnknown.length}</span> 筆</>}
+              </span>
+            </button>
+            {expandedGrey && (
+              <div style={{ marginTop: 4, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+                {folded.map(renderRow)}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-function SevDot({ s }: { s: ManeuverSeverity }) {
+function ScopeNotice({ text }: { text: string | null }) {
+  if (!text) return null;
   return (
-    <span style={{
-      width: 6, height: 6, borderRadius: RADIUS.full,
-      background: SEV_TOKEN[s].color,
-      animation: SEV_TOKEN[s].pulse ? "satManeuverPulse 1.1s ease-in-out infinite" : "none",
-    }} />
+    <div role="note" style={{ padding: "0 14px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.5, color: COLORS.textDim }}>
+      {text}
+    </div>
   );
 }
 
-interface CardProps {
+function SevCell({ severity, count }: { severity: ManeuverSeverity; count: number }) {
+  const v = SEVERITY_VIEW[severity];
+  const hot = count > 0 && (severity === "red" || severity === "orange");
+  return (
+    <div style={{
+      flex: 1, minWidth: 0, padding: "6px 8px",
+      borderRadius: RADIUS.lg, background: CONTROL.bg, border: `1px solid ${COLORS.borderSoft}`,
+    }}>
+      <div style={{
+        fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.xl, fontWeight: 700, lineHeight: 1.1,
+        color: count === 0 ? COLORS.textDim : hot ? v.color : COLORS.textDefault,
+      }}>
+        {count}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, whiteSpace: "nowrap" }}>{v.zh}</div>
+    </div>
+  );
+}
+
+function CountryCount({ zh, n, hot }: { zh: string; n: number; hot?: boolean }) {
+  return (
+    <span style={{ whiteSpace: "nowrap" }}>
+      {zh}{" "}
+      <span style={{
+        fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums",
+        fontWeight: n > 0 ? 600 : 400,
+        color: n > 0 ? (hot ? COLORS.textStrong : COLORS.textDefault) : COLORS.textDim,
+      }}>{n}</span>
+    </span>
+  );
+}
+
+interface RowProps {
   row: ManeuverRow;
   severity: ManeuverSeverity;
   impact: ManeuverImpactState | undefined;
   onSelectNorad: (n: number) => void;
   onOpenCompare: (m: ManeuverRow) => void;
-  compact?: boolean;
 }
 
-function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, compact }: CardProps) {
-  const sev = SEV_TOKEN[severity];
+function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }: RowProps) {
+  const sev = SEVERITY_VIEW[severity];
   const typeToken = MANEUVER_TOKEN[row.maneuver_type];
   if (!typeToken) return null;
-  const catKey = CN_GROUP_TO_CATEGORY[row.cn_group] || "china_shiyan";
-  const groupColor = SATELLITE_COLORS[catKey as keyof typeof SATELLITE_COLORS] || COLORS.textDim;
 
   return (
-    <div style={{
-      padding: compact ? "5px 9px" : "9px 11px",
-      borderRadius: RADIUS.lg,
-      background: sev.soft,
-      border: `1px solid ${sev.border}`,
-      display: "flex",
-      flexDirection: "column",
-      gap: compact ? 3 : 5,
-      animation: sev.pulse && !compact ? "satManeuverPulse 1.5s ease-in-out infinite" : "none",
-    }}>
-      {/* 上行 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: groupColor, flexShrink: 0 }} />
-        <span style={{ fontSize: FONT_SIZE.lg, flexShrink: 0 }} title={SATELLITE_LABELS[catKey as SatelliteCategory]}>
-          {GROUP_FLAG[row.cn_group] ?? "🌐"}
-        </span>
-        <span
-          onClick={() => onSelectNorad(row.norad_id)}
-          style={{
-            fontFamily: FONT_CJK,
-            fontSize: compact ? FONT_SIZE.base : FONT_SIZE.md,
-            fontWeight: 600,
-            color: COLORS.textStrong,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            cursor: "pointer",
-            flex: 1,
-          }}
-        >
-          {row.name}
-        </span>
-        {/* 嚴重度 chip */}
-        <span style={{
-          padding: "1px 6px",
-          borderRadius: RADIUS.md,
-          background: `${sev.color}22`,
-          border: `1px solid ${sev.color}55`,
-          fontFamily: FONT_DATA,
-          fontSize: FONT_SIZE.xs,
-          fontWeight: 700,
-          color: sev.color,
-          flexShrink: 0,
-        }}>
-          {sev.label}
-        </span>
-        {/* 類型 chip */}
-        <span style={{
-          padding: "1px 6px",
-          borderRadius: RADIUS.md,
-          background: `${typeToken.color}22`,
-          border: `1px solid ${typeToken.color}55`,
-          fontFamily: FONT_DATA,
-          fontSize: FONT_SIZE.xs,
-          fontWeight: 700,
-          color: typeToken.color,
-          flexShrink: 0,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 2,
-        }}>
-          <span>{typeToken.icon}</span>
-          {row.maneuver_type === "PLANE_CHANGE" ? "PLANE" : row.maneuver_type === "ALTITUDE_CHANGE" ? "ALT" : "SHAPE"}
-        </span>
-      </div>
-
-      {/* 中行：detail + relTime */}
-      <div style={{
-        display: "flex", alignItems: "center", gap: 8,
-        fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted,
-      }}>
-        <span>{formatManeuverDetail(row)}</span>
-        <span style={{ marginLeft: "auto", color: COLORS.textDim }}>{formatRelTime(row.curr_fetched_at)}</span>
-      </div>
-
-      {/* 下行：影響 TW chip + 按鈕（compact 模式只顯 chip + 飛到按鈕） */}
-      {!compact ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <ImpactChip impact={impact} />
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "7px 0", borderTop: `1px solid ${COLORS.borderSoft}` }}>
+      <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: sev.color, flexShrink: 0, marginTop: 4 }} />
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
           <button
+            type="button"
             onClick={() => onSelectNorad(row.norad_id)}
-            style={btnStyle(COLORS.borderMid, COLORS.textDefault, "transparent")}
+            title={`查看 ${row.name} 的衛星百科`}
+            style={{
+              flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", textAlign: "left", cursor: "pointer",
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong,
+              textDecoration: "underline", textDecorationColor: COLORS.borderMid, textUnderlineOffset: 3,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}
           >
-            詳情
+            {row.name}
           </button>
-          <button
-            onClick={() => onOpenCompare(row)}
-            style={btnStyle("rgba(100,170,255,0.55)", "#cfe4ff", "rgba(100,170,255,0.16)")}
-          >
-            覆蓋變化
-          </button>
+          <span style={{ flexShrink: 0, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>{formatRelTime(row.curr_fetched_at)}</span>
         </div>
-      ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <ImpactChip impact={impact} small />
-          <button
-            onClick={() => onOpenCompare(row)}
-            style={{ ...btnStyle("rgba(100,170,255,0.35)", "#cfe4ff", "transparent"), fontSize: FONT_SIZE.sm, padding: "3px 8px" }}
-          >
-            對比
-          </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+          <span style={{ whiteSpace: "nowrap" }}>{sev.zh} · {typeToken.zh}</span>
+          <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatManeuverDetail(row)}</span>
+          <ImpactText impact={impact} />
         </div>
-      )}
+      </div>
+      <button
+        type="button"
+        title="看覆蓋變化"
+        aria-label="看覆蓋變化"
+        onClick={() => onOpenCompare(row)}
+        style={ctrlButton({ width: 26, height: 26, padding: 0, flexShrink: 0, color: COLORS.textMuted })}
+      >
+        <GitCompareArrows size={14} aria-hidden="true" />
+      </button>
     </div>
   );
 }
 
-function ImpactChip({ impact: state, small }: { impact: ManeuverImpactState | undefined; small?: boolean }) {
-  // 算不出來（與計算中分開）
-  if (state?.kind === "unavailable") {
-    return (
-      <span style={{
-        padding: small ? "1px 6px" : "2px 7px",
-        borderRadius: RADIUS.md,
-        background: "rgba(255,255,255,0.04)",
-        border: `1px solid ${COLORS.borderMid}`,
-        fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
-      }}>
-        影響 TW · 無法計算
-      </span>
-    );
-  }
-  // 計算中
-  if (!state) {
-    return (
-      <span style={{
-        padding: small ? "1px 6px" : "2px 7px",
-        borderRadius: RADIUS.md,
-        background: "rgba(255,255,255,0.04)",
-        border: `1px solid ${COLORS.borderMid}`,
-        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
-      }}>
-        計算 TW 影響中…
-      </span>
-    );
-  }
-  const impact = state.impact;
-  // 影響
+const plain = { whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: COLORS.textDim } as const;
+
+/** 台灣過境影響：有變化用 warn 色 chipOutline，其餘淡字 */
+function ImpactText({ impact: state }: { impact: ManeuverImpactState | undefined }) {
+  if (state?.kind === "unavailable") return <span style={plain}>台灣過境 · 無法計算</span>;
+  if (!state) return <span style={plain}>台灣過境計算中…</span>;
+  const { impact } = state;
   if (impact.affectsTw) {
     return (
       <span style={{
-        padding: small ? "1px 6px" : "2px 7px",
-        borderRadius: RADIUS.md,
-        background: "rgba(34,197,94,0.16)",
-        border: "1px solid rgba(34,197,94,0.55)",
-        fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: "#22c55e", fontWeight: 600,
-        display: "inline-flex", alignItems: "center", gap: 3,
+        ...chipOutline(COLORS.statusWarn),
+        display: "inline-flex", alignItems: "center", padding: "1px 5px", borderRadius: 3,
+        fontSize: FONT_SIZE.sm, lineHeight: 1.2, whiteSpace: "nowrap",
       }}>
-        ✓ 影響 TW
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, opacity: 0.8 }}>
-          ({impact.passBefore}→{impact.passAfter})
-        </span>
+        台灣過境 <Num>{impact.passBefore}</Num>→<Num>{impact.passAfter}</Num> 次
       </span>
     );
   }
-  // 無影響
-  return (
-    <span style={{
-      padding: small ? "1px 6px" : "2px 7px",
-      borderRadius: RADIUS.md,
-      background: "rgba(255,255,255,0.03)",
-      border: `1px solid ${COLORS.borderSoft}`,
-      fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
-    }}>
-      過台不變 ({impact.passBefore}=)
-    </span>
-  );
+  return <span style={plain}>台灣過境不變（<Num>{impact.passBefore}</Num> 次）</span>;
 }
 
-function btnStyle(border: string, color: string, bg: string) {
-  return {
-    padding: "5px 10px",
-    borderRadius: RADIUS.md,
-    background: bg,
-    border: `1px solid ${border}`,
-    color,
-    fontFamily: FONT_CJK,
-    fontSize: FONT_SIZE.base,
-    cursor: "pointer",
-    transition: "all 0.15s ease",
-    flexShrink: 0,
-  };
+function Num({ children }: { children: number }) {
+  return <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{children}</span>;
 }

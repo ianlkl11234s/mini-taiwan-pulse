@@ -52,10 +52,8 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
   // 全部變軌（含 INTL）— Header 警示用，總數就好；細節由變軌警報區呈現。讀取失敗時不顯示「變軌 N」
   const totalManeuverCount = maneuvers.status === "ok" ? maneuvers.rows.length : 0;
 
-  if (!open) return null;
-
-  return (
-    <>
+  // 面板關閉時仍要能顯示百科卡／對比彈窗（地圖 popup「查看衛星百科」會直接開卡）
+  const panel = open ? (
       <div
         style={{
           position: "fixed",
@@ -93,6 +91,7 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
             onSelectNorad={(n) => satelliteConsoleStore.selectNorad(n)}
             onOpenCompare={(m) => satelliteConsoleStore.openCompare(m)}
             onFlyTo={onFlyTo}
+            isHistory={isHistory}
           />
 
           <CoverageStatsSection
@@ -157,11 +156,17 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
           )}
         </div>
       </div>
+  ) : null;
+
+  return (
+    <>
+      {panel}
 
       {/* §E 百科卡 — overlay on top of panel */}
       {consoleState.selectedNorad != null && (
         <SatelliteDetailCard
           norad={consoleState.selectedNorad}
+          docked={open}
           onClose={() => satelliteConsoleStore.selectNorad(null)}
           onOpenCompare={(m) => satelliteConsoleStore.openCompare(m)}
         />

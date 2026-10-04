@@ -1,8 +1,9 @@
-import { Row, SourceFooter } from "./shared";
-import { FONT_SIZE } from "../../styles/designTokens";
+import { Row, SourceFooter, Title } from "./shared";
+import { FONT_SIZE, FONT_DATA, RADIUS } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { getSatelliteTleFetchedAt } from "../../data/satelliteLoader";
 import { SATELLITE_SOURCE_URLS } from "../../data/satelliteDataState";
+import { satelliteConsoleStore } from "../../state/satelliteConsoleStore";
 import { SATELLITE_COLORS, SATELLITE_LABELS, type SatelliteCategory } from "../../data/satelliteTypes";
 
 // 地圖上的衛星 feature 只帶 cat／norad／name／altKm，沒有來源欄位；
@@ -21,16 +22,33 @@ export function SatellitePanel({ props }: { props: Record<string, unknown> }) {
   const norad = String(props.norad ?? "");
   const altKm = Number(props.altKm);
   const color = SATELLITE_COLORS[cat] ?? "#888";
-  const catLabel = SATELLITE_LABELS[cat] ?? cat;
+  // 類別名稱表（SATELLITE_LABELS）圖例也在用，不動它；只在 popup 端去掉國旗 emoji
+  const catLabel = (SATELLITE_LABELS[cat] ?? cat).replace(/^[\u{1F1E6}-\u{1F1FF}]{2}\s*/u, "");
+  const noradNum = Number(norad);
+  const mono = { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" } as const;
   return (
     <div>
-      <div style={{ fontWeight: 700, color, fontSize: FONT_SIZE.lg }}>{name || "Satellite"}</div>
+      <Title color={color}>{name || "衛星"}</Title>
       <Row label="類別" value={catLabel} color={color} />
-      <Row label="NORAD" value={norad} />
-      <Row label="高度" value={Number.isFinite(altKm) ? `${altKm.toLocaleString()} km` : ""} />
+      <Row label="編號" value={norad} mono title="NORAD 編號" />
+      <Row label="高度" value={Number.isFinite(altKm) ? `${altKm.toLocaleString()} km` : ""} mono />
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textDim }}>
-        足跡：內圈 50 km 掃描寬度／外圈 1,500 km 仰角 ≥10° 可見範圍
+        足跡：內圈 <span style={mono}>50</span> km 掃描寬度、外圈 <span style={mono}>1,500</span> km 可見範圍（仰角 <span style={mono}>≥10°</span>）
       </div>
+      {Number.isInteger(noradNum) && noradNum > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <button
+            type="button"
+            onClick={() => satelliteConsoleStore.selectNorad(noradNum)}
+            style={{
+              height: 24, padding: "0 8px", borderRadius: RADIUS.md, cursor: "pointer",
+              border: `1px solid ${t.border}`, background: t.bgSubtle, color: t.textDefault, fontSize: FONT_SIZE.sm,
+            }}
+          >
+            查看衛星百科
+          </button>
+        </div>
+      )}
       <SourceFooter
         props={{
           ...SATELLITE_SOURCE,
