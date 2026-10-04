@@ -55,7 +55,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 
 ## Git Workflow（develop → master，2026-10-04 起）
 
-- **`develop` 是所有 PR 的 base**（`gh pr create --base develop`）；`master` = 正式站，只收 develop 的發布合併與 `hotfix/*`。GitHub 預設分支仍是 master，開 PR 務必指定 base。
+- **`develop` 是所有 PR 的 base**（`gh pr create --base develop`）；`master` = 正式站，只收 develop 的發布合併與 `hotfix/*`。GitHub 預設分支已是 develop（2026-10-04 起）。
 - **`develop → master` 會觸發 Zeabur 正式部署，須使用者拍板**；發布步驟、版號（SemVer）、tag 與 GitHub Release → [`docs/RELEASING.md`](./docs/RELEASING.md)
 - 每個 user-facing PR 在根目錄 [`CHANGELOG.md`](./CHANGELOG.md) 的 `## [Unreleased]` 加一行
 - **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge（使用者 2026-09-15 指示）。未經明確要求，不壓縮、合併或改寫既有 commit。

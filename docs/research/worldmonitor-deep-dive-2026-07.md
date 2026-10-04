@@ -2,7 +2,7 @@
 
 > 對標：[koala73/worldmonitor](https://github.com/koala73/worldmonitor) @ HEAD `72c2cd7`（v2.10.0），shallow clone 原始碼實測，非僅讀文件。
 >
-> 前作：[`docs/proposal/worldmonitor-taiwan-vision.md`](../proposal/worldmonitor-taiwan-vision.md)（2026-06-15，UX/產品視角）。本文不重複前作，聚焦四個前作未覆蓋面向：**架構工程、統計情報方法論、MCP agent 介面、OSINT 生態系整合**。
+> 前作：[`docs/archive/2026-10-04/proposal/worldmonitor-taiwan-vision.md`](../archive/2026-10-04/proposal/worldmonitor-taiwan-vision.md)（已歸檔）（2026-06-15，UX/產品視角）。本文不重複前作，聚焦四個前作未覆蓋面向：**架構工程、統計情報方法論、MCP agent 介面、OSINT 生態系整合**。
 >
 > 方法：4 個平行研究 agent（2×Opus 逐檔實測 worldmonitor、2× 盤點自家生態系），主模型整合驗收。文中 worldmonitor 檔案路徑皆為該 repo 相對路徑。
 

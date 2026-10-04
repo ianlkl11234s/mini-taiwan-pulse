@@ -257,7 +257,7 @@ mini-taiwan-pulse/
 
 每個圖層在 manifest 標 `dataClass`（A GeoJSON 全量／B PMTiles／C RPC 或即時 API／D 自行接線）。新增圖層只寫一筆 `layerManifest.ts` entry ＋ 一筆 `layerParamsSpec.ts` 規格，登記表自動派生；建議走 `/new-layer` 產骨架、`layer-onboarding` 驗收，並遵守 UX 四鐵則（透明度、圖例、popup、select）與點線面分階登記 → [`development-rules.md`](docs/development-rules.md) §4、§4a。
 
-**時間軸**：`currentTime` 放在 React 之外的 [`timeStore`](src/state/timeStore.ts)，動態圖層禁止放進 hook deps，一律訂閱 → [`perf-external-time-store.md`](docs/perf-external-time-store.md)、[`TIMELINE_ARCHITECTURE.md`](docs/TIMELINE_ARCHITECTURE.md)。
+**時間軸**：`currentTime` 放在 React 之外的 [`timeStore`](src/state/timeStore.ts)，動態圖層禁止放進 hook deps，一律訂閱 → [`TIMELINE_ARCHITECTURE.md`](docs/TIMELINE_ARCHITECTURE.md)。
 
 ---
 
