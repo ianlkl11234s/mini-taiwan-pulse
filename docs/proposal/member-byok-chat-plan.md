@@ -21,7 +21,7 @@ LLM 透過白名單 tools 操作地圖與查資料，絕不生 SQL 直打 DB。*
 | `architecture-overhaul-plan.md` AR-43 | 對話介面已規劃，但走「後端 Edge Function + 單一 key」→ **本計畫改走 BYOK**（差異見 §1.1）|
 | `architecture-overhaul-plan.md` AR-41 / audit D3 | 收窄 Exposed schemas 到 public only → **上 Auth 前的硬前置** |
 | worktree `mini-taiwan-pulse-auth/docs/auth-membership-plan.md`（2026-06-25，未 commit） | 已拍板：Google OAuth only、GA4 為主的使用監測、收藏延後 → **Phase 0 骨架照抄、GA4 分工結論沿用**，本檔取代它成為 SSOT |
-| `worldmonitor-taiwan-vision.md` A3 | 「AI Brief 每 30 分鐘後端 Haiku」→ 與本計畫獨立不衝突，屬未來免費 tier 素材（Phase 4）|
+| `worldmonitor-taiwan-vision.md`（已歸檔，後繼 `docs/research/worldmonitor-deep-dive-2026-07.md`）A3 | 「AI Brief 每 30 分鐘後端 Haiku」→ 與本計畫獨立不衝突，屬未來免費 tier 素材（Phase 4）|
 | `docs/archive/2026-10-04/proposal/monitor-mode.md` / `docs/archive/2026-10-04/proposal/alerts-integration-impl.md` | 其 pre-aggregate 薄 RPC（news/alert 系列）= 問答 tool 的現成白名單成員 |
 | P2 layer manifest（未做） | AR-43 原本依賴 manifest 當 tool schema 來源 → **本計畫不等它**：先用 `layerCatalog.ts` THEMES 當目錄（它本來就是 sidebar SSOT），tool 層設計成目錄來源可抽換，manifest 落地後一行切換 |
 

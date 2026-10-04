@@ -33,5 +33,5 @@
 
 - [ ] **GC-9** Quick wins：PRMSL 等壓線 / 250hPa 噴流 / SST / 波浪（collector 已抓、前端零接線）
   - [ ] **GC-9a** · P3 · `ready`：海溫（CMEMS `thetao`）＋ 波浪（CMEMS `VHM0`）上圖。2026-09-29 owner 決定兩者繼續收集、之後要做成可顯示。現況：data-collectors `collectors/global_climate/cmems.py` 每日抓、寫 `live.global_climate_grids`（`dataset_id` = `cmems_sst` / `cmems_waves`）＋ S3 `global_climate_cmems/YYYY/MM/DD/*.nc`；**目前沒有任何下游讀取**（`climate_bake.py` 只烤 currents）。格網同 currents：90–180E × -15–55N、1081×841；sst 每 6h（今日 00Z 起 9 步），waves 每 3h（17 步）。Next action：比照 currents 在 `climate_bake.py` 加 sst／waves 的 raster 烤圖（純量場，不需粒子）→ 前端圖層＋`climateRamps.ts` 色階＋圖例＋`ClimateFieldPanel` 讀值。Acceptance：兩層在 production 可開關、圖例與 popup 讀值正確、資料時刻隨烤圖更新。
-- [ ] **GC-10** 颱風作戰室 preset（軌跡 + 風場 + 等壓線 + 雲圖；對應 worldmonitor-taiwan-vision D-1）
+- [ ] **GC-10** 颱風作戰室 preset（軌跡 + 風場 + 等壓線 + 雲圖；對應 `docs/archive/2026-10-04/proposal/worldmonitor-taiwan-vision.md` D-1）
 - [ ] **GC-11** 海流 × 船舶軌跡疊圖分析

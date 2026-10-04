@@ -115,7 +115,7 @@ timeStore.subscribeDate(cb)      // 只在日期變化
 
 ### 新增
 - `src/state/timeStore.ts` — external time store（核心基建）
-- `docs/perf-external-time-store.md` — P0-A 計畫文件
+- `docs/archive/2026-10-04/perf-external-time-store.md` — P0-A 計畫文件
 - `docs/archive/2026-10-04/perf-p0a-test-plan.md` — P0-A 測試 checklist
 - `docs/archive/2026-10-04/perf-optimization-2026-04-14.md` — 本文件
 

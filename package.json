@@ -1,7 +1,7 @@
 {
   "name": "mini-taiwan-pulse",
   "private": true,
-  "version": "3.0.0",
+  "version": "2.4.0",
   "type": "module",
   "packageManager": "npm@11.4.2",
   "scripts": {

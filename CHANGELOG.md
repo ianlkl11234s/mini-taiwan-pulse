@@ -4,7 +4,8 @@
 
 | 版號 | 日期 | 重點 |
 |---|---|---|
-| v3.0.0 | 2026-10-04 | 圖層面板統一、監看卡 v2、Agent 正式站 |
+| v2.4.0 | 2026-10-04 | 版號與正式工程循環：develop／master、CHANGELOG、站上顯示版號 |
+| v2.3.0 | 2026-10-04 | 圖層面板統一、監看卡 v2、Agent 正式站預覽 |
 | v2.2.0 | 2026-10-01 | 效能稽核、線面規格 R3–R4、橋梁韌性 |
 | v2.1.1 | 2026-09-30 | 圖層、時間軸與分析的批次修正 |
 | v2.1.0 | 2026-09-29 | 地圖圖層規格 R1–R2、分析卡、開場畫面 |
@@ -42,23 +43,27 @@
 | v0.2.0 | 2026-03-03 | 圖層註冊表、交通設施圖層、H3 六角網格 |
 | v0.1.0 | 2026-02-24 | 專案起點：從航跡藝術轉為多運具脈動 |
 
-> 版號規則見 [docs/RELEASING.md](docs/RELEASING.md)（MAJOR＝介面或資料格式大改版；MINOR＝新功能、新資料批次；PATCH＝只修正）。v0.1.0–v3.0.0 全部為依 git 歷史回溯補打的版號，每版 tag 指向 `origin/master` first-parent 上該期最後一個 commit；PR 與版本的對應以「該 PR 第一次進入 master first-parent 的位置」為準（見 [docs/release-pr-index.tsv](docs/release-pr-index.tsv)），所以少數 PR 的編號或 GitHub 合併時間會與版本順序不一致。v0.x 期間尚未走 PR 流程，括號內為 commit 短碼。
+> 版號規則見 [docs/RELEASING.md](docs/RELEASING.md)（MAJOR＝介面或資料格式大改版；MINOR＝新功能、新資料批次；PATCH＝只修正）。v0.1.0–v2.3.0 全部為依 git 歷史回溯補打的版號，每版 tag 指向 `origin/master` first-parent 上該期最後一個 commit；PR 與版本的對應以「該 PR 第一次進入 master first-parent 的位置」為準（見 [docs/release-pr-index.tsv](docs/release-pr-index.tsv)），所以少數 PR 的編號或 GitHub 合併時間會與版本順序不一致。v0.x 期間尚未走 PR 流程，括號內為 commit 短碼。
 
 ## [Unreleased]
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+## v2.4.0 — 2026-10-04 — 版號與正式工程循環
+
 ### 新增
 
-- 網站「資訊 → 關於」顯示目前版號（由 package.json 注入）
+- 網站「資訊 → 關於」顯示目前版號（由 package.json 注入）（#527）
+- 根目錄 `CHANGELOG.md`：依 git 與 PR 歷史回溯 v0.1.0–v2.3.0 共 37 版，每版 tag 打在 master 對應 commit（#527、本版）
 
 ### 注意事項
 
-- 改走 develop／master 雙主幹：PR 一律進 `develop`，`master` 只收發布與 hotfix；CI 也會在 develop 上跑
-- 開發／POC 頁面搬進 `tools/`：正式網址 `/design-system.html`、`/bbox.html`、`/jev-layer-screening.html` 改為 `/tools/…`（舊網址會落到 SPA 首頁）
-- 已完成的計畫文件移到 `docs/archive/2026-10-04/`（索引見 `docs/archive/README.md`）
+- 改走 develop／master 雙主幹：PR 一律進 `develop`（GitHub 預設分支已改為 develop），`master` 只收發布與 hotfix；CI 也會在 develop 上跑（#527、#528）
+- 開發／POC 頁面搬進 `tools/`：正式網址 `/design-system.html`、`/bbox.html`、`/jev-layer-screening.html` 改為 `/tools/…`（舊網址會落到 SPA 首頁）（#527）
+- 已完成的計畫文件移到 `docs/archive/2026-10-04/`（索引見 `docs/archive/README.md`）；README 依現況重寫（#527、本版）
+- 補回 network-structures 正式站驗收紀錄（PR #222 merge 後才推的 commit）
 
-## v3.0.0 — 2026-10-04 — 圖層面板統一、監看卡 v2、Agent 正式站
+## v2.3.0 — 2026-10-04 — 圖層面板統一、監看卡 v2、Agent 正式站預覽
 
 ### 新增
 
@@ -79,7 +84,8 @@
 
 ### 注意事項
 
-- 圖層面板、圖層命名、監看卡外觀一次全面換新，是本版升 MAJOR 的原因；R1–R4 已在 v2.1.0／v2.2.0 先行上線
+- v2 系列＝整段介面改版：v2.0.0 設計系統 → v2.1／v2.2 地圖圖層規格 R1–R4 → 本版圖層面板 R8、色盤 R7、熱區 R5 與監看卡 v2，介面改版至此收齊
+- Agent 面板本版只開放站主使用，算預覽；v3.0.0 保留給「Agent 化」成為主軸的那次發布
 - 監看卡 P6 子指數、R6（Three.js 基本點線面模式）尚未開始，只有交接文件（#507、#526）
 
 ## v2.2.0 — 2026-10-01 — 效能稽核、線面規格 R3–R4、橋梁韌性

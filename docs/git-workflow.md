@@ -13,7 +13,7 @@
 | `feat/<slug>` 等工作分支 | 從 `develop` 開，完成後 PR 回 `develop` | — |
 | `hotfix/<slug>` | 線上緊急修正。從 `master` 開，修完合回 `master`，再合回 `develop` | — |
 
-GitHub 預設分支維持 `master`，所以開 PR 時**要明確指定 base**：
+GitHub 預設分支是 `develop`（2026-10-04 起），`gh pr create` 預設就以 develop 為 base；指定 `--base develop` 也無妨：
 
 ```bash
 git switch develop && git pull
