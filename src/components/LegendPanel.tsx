@@ -241,6 +241,7 @@ import {
   SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
   IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend,
 } from "./legend/environmentLegends";
+import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -487,6 +488,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "flights", render: () => <FlightsLegend /> },
   { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
+  { id: "railRoutes", render: () => <RailRoutesLegend /> },
+  { id: "stationsMetro", render: () => <MetroStationsLegend /> },
   { id: "ports", render: () => <PortsLegend /> },
   { id: "newsEvents", render: ({ isDark }) => <NewsEventsLegend  isDark={isDark} /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },

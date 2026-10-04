@@ -1,6 +1,7 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { RAIL_ROUTES_FALLBACK_COLOR, RAIL_ROUTES_SYSTEM_LABELS } from "../../data/railRoutesTypes";
 
 /** 氣象站類型對應色 */
 const WEATHER_TYPE_COLORS: Record<string, string> = {
@@ -104,7 +105,9 @@ export function RailStationPanel({ props }: { props: Record<string, unknown> }) 
   const t = useFeatureTheme();
   const systemId = String(props.system_id ?? "");
   const info = RAIL_SYSTEM_INFO[systemId];
-  const accentColor = String(props.color ?? info?.color ?? "#b8a080");
+  const accentColor = String(props.line_color ?? props.color ?? info?.color ?? "#b8a080");
+  const lineName = props.line_name ? String(props.line_name) : "";
+  const isTransfer = props.transfer === true || props.transfer === "true";
 
   return (
     <>
@@ -115,11 +118,29 @@ export function RailStationPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       <Row label="系統" value={info?.name ?? systemId} color={accentColor} />
+      {lineName && <Row label="路線" value={isTransfer ? `${lineName}（轉乘站）` : lineName} color={accentColor} />}
       <Row label="站代碼" value={String(props.station_id ?? "")} />
     </>
   );
 }
 
+/** 軌道路線（railRoutes 靜態線）：線名 / 系統 / 來源；東延段另標 OSM 授權。 */
+export function RailRoutesPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const systemId = String(props.system ?? "");
+  const accentColor = String(props.color ?? RAIL_ROUTES_FALLBACK_COLOR);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "軌道路線")}
+        </div>
+      </div>
+      <Row label="系統" value={RAIL_ROUTES_SYSTEM_LABELS[systemId] ?? systemId} color={accentColor} />
+    </>
+  );
+}
 
 const SHIP_TYPE_INFO = (type: number): { label: string; color: string } => {
   if (type >= 60 && type <= 69) return { label: "客船 Passenger", color: "#a78bfa" };

@@ -131,8 +131,8 @@ const NO_PARAMS_LEDGER = new Set([
  * docs/features/layer-manifest/changelog.md 各批），不是目測。
  */
 const NO_LEGEND_LEDGER = new Set([
-  // 交通：車站/場站/線形皆單色（鐵道車種分色在 rail，已接 RailLegend）
-  "stationsTHSR", "stationsTRA", "stationsMetro",
+  // 交通：車站/場站/線形皆單色（鐵道車種分色在 rail，已接 RailLegend；stationsMetro 已依線著色並補圖例）
+  "stationsTHSR", "stationsTRA",
   "lighthouses", "airports", "highways", "provincialRoads",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
   // busStationsCity／busStationsIntercity：R5 拉遠改熱區，補單色＋熱區色階圖例（已移出）

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 864,
+    "keyCount": 865,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2213,6 +2213,12 @@
     },
     {
       "layers": [
+        "rail-routes-line"
+      ],
+      "type": "railRoutes"
+    },
+    {
+      "layers": [
         "water-canals-core"
       ],
       "type": "waterCanals"
@@ -4120,8 +4126,15 @@
             "dark": {
               "circle-blur": 0.8,
               "circle-color": [
-                "get",
-                "color"
+                "coalesce",
+                [
+                  "get",
+                  "line_color"
+                ],
+                [
+                  "get",
+                  "color"
+                ]
               ],
               "circle-opacity": 0,
               "circle-radius": [
@@ -4143,8 +4156,15 @@
             "light": {
               "circle-blur": 0.8,
               "circle-color": [
-                "get",
-                "color"
+                "coalesce",
+                [
+                  "get",
+                  "line_color"
+                ],
+                [
+                  "get",
+                  "color"
+                ]
               ],
               "circle-opacity": 0,
               "circle-radius": [
@@ -4181,25 +4201,111 @@
           "paint": {
             "dark": {
               "circle-color": [
-                "get",
-                "color"
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "line_color"
+                  ],
+                  [
+                    "get",
+                    "color"
+                  ]
+                ]
               ],
               "circle-opacity": 0.92,
               "circle-radius": 4.5,
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#6b7280",
+                "#0a0a14"
+              ],
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                2,
+                1
+              ]
             },
             "light": {
               "circle-color": [
-                "get",
-                "color"
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "line_color"
+                  ],
+                  [
+                    "get",
+                    "color"
+                  ]
+                ]
               ],
               "circle-opacity": 0.92,
               "circle-radius": 4.5,
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#1f2937",
+                "#ffffff"
+              ],
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                2,
+                1
+              ]
             }
           },
           "suffix": "metro-overview-point-core",
@@ -4220,25 +4326,111 @@
           "paint": {
             "dark": {
               "circle-color": [
-                "get",
-                "color"
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "line_color"
+                  ],
+                  [
+                    "get",
+                    "color"
+                  ]
+                ]
               ],
               "circle-opacity": 0.92,
               "circle-radius": 4.5,
-              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#6b7280",
+                "#0a0a14"
+              ],
               "circle-stroke-opacity": 0.8,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                2,
+                1
+              ]
             },
             "light": {
               "circle-color": [
-                "get",
-                "color"
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "line_color"
+                  ],
+                  [
+                    "get",
+                    "color"
+                  ]
+                ]
               ],
               "circle-opacity": 0.92,
               "circle-radius": 4.5,
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                "#1f2937",
+                "#ffffff"
+              ],
               "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "transfer"
+                  ],
+                  true
+                ],
+                2,
+                1
+              ]
             }
           },
           "suffix": "metro-lowzoom-core",
@@ -4342,28 +4534,56 @@
           "paint": {
             "dark": {
               "circle-color": [
-                "get",
-                "color"
+                "coalesce",
+                [
+                  "get",
+                  "line_color"
+                ],
+                [
+                  "get",
+                  "color"
+                ]
               ],
               "circle-opacity": 0.08,
               "circle-radius": 5,
               "circle-stroke-color": [
-                "get",
-                "color"
+                "coalesce",
+                [
+                  "get",
+                  "line_color"
+                ],
+                [
+                  "get",
+                  "color"
+                ]
               ],
               "circle-stroke-opacity": 0.3,
               "circle-stroke-width": 1
             },
             "light": {
               "circle-color": [
-                "get",
-                "color"
+                "coalesce",
+                [
+                  "get",
+                  "line_color"
+                ],
+                [
+                  "get",
+                  "color"
+                ]
               ],
               "circle-opacity": 0.12,
               "circle-radius": 5,
               "circle-stroke-color": [
-                "get",
-                "color"
+                "coalesce",
+                [
+                  "get",
+                  "line_color"
+                ],
+                [
+                  "get",
+                  "color"
+                ]
               ],
               "circle-stroke-opacity": 0.5,
               "circle-stroke-width": 1.5
@@ -35398,6 +35618,211 @@
       ],
       "sourceId": "forest-dam-lakes",
       "sourceUrl": "./forestry/dam_lakes_in_forest.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "railRoutes",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "line-offset": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  0.8
+                ],
+                9,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  1.6
+                ],
+                12,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  2.6
+                ],
+                15,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  4
+                ]
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                9,
+                1.6,
+                12,
+                2.6,
+                15,
+                4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "line-offset": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  0.8
+                ],
+                9,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  1.6
+                ],
+                12,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  2.6
+                ],
+                15,
+                [
+                  "*",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "offset_slot"
+                    ],
+                    0
+                  ],
+                  4
+                ]
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                9,
+                1.6,
+                12,
+                2.6,
+                15,
+                4
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "rail-routes",
+      "sourceUrl": "./rail/routes_static.geojson"
     },
     {
       "dynamicData": null,
@@ -77472,6 +77897,61 @@
         "step": 10,
         "value": 110,
         "valueText": "+110 m"
+      }
+    ],
+    "railRoutes": [
+      {
+        "label": "系統",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "台鐵",
+            "value": "tra"
+          },
+          {
+            "label": "高鐵",
+            "value": "thsr"
+          },
+          {
+            "label": "台北捷運",
+            "value": "trtc"
+          },
+          {
+            "label": "高雄捷運",
+            "value": "krtc"
+          },
+          {
+            "label": "高雄輕軌",
+            "value": "klrt"
+          },
+          {
+            "label": "台中捷運",
+            "value": "tmrt"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "寬度 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "rainGauge": [
