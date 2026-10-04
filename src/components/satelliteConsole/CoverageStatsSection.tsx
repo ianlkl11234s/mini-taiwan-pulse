@@ -3,19 +3,24 @@
  *
  * - 覆蓋台灣中：N 顆（即時 SGP4 計算每秒掃所有 loaded sat）
  * - 未來 6h 預計通過：M 次（每分鐘步進 12h，避免太短漏判）
- * - 可展開 timeline：橫向 6h 軸，每顆衛星 pass 時刻 tick
+ * - 可展開通過時間：橫向 6h 軸，每顆衛星 pass 時刻 tick
  *
  * 計算成本：N=350 顆 × 360 步 = 126k SGP4 呼叫，~150ms 一次
  * 為避免 toggle 一次重算一次，cache 5 min；showAllOrbits 變化才重算
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import * as satellite from "satellite.js";
-import { COLORS, FONT_CJK, FONT_DATA } from "./satelliteConsoleTokens";
+import { FONT_CJK, FONT_DATA } from "./satelliteConsoleTokens";
+import { useSatelliteTheme } from "./satelliteTheme";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { loadSatellites } from "../../data/satelliteLoader";
+import { useSatelliteRecords } from "../../hooks/useSatelliteRecords";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { SATELLITE_COLORS } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { ChevronRight } from "lucide-react";
+import { chipOutline } from "../intel/intelTokens";
+import { ControlSegmented, layerControlThemeClass } from "../sidebar/LayerParamControls";
+import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
 import { timeStore } from "../../state/timeStore";
 
@@ -28,6 +33,14 @@ const R_EARTH = 6371;
 const MU = 398600.4418;
 const SCAN_STEP_SEC = 60;
 const SCAN_HOURS = 6;
+/** 台灣衛星資料色（§3.16：只用在覆蓋台灣的數字與細項） */
+const TAIWAN_COLOR = SATELLITE_COLORS.taiwan;
+const AXIS_LABELS = ["現在", "+1", "+2", "+3", "+4", "+5", "+6 小時"];
+// §5.21 狀態徽章：chipOutline，圓角 3、10px
+const MANEUVER_CHIP = {
+  display: "inline-flex", alignItems: "center", padding: "0 4px", borderRadius: 3,
+  fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, lineHeight: 1.4, flexShrink: 0,
+} as const;
 
 interface ParsedSat {
   rec: SatelliteRecord;
@@ -89,9 +102,14 @@ function subpoint(satrec: satellite.SatRec, t: Date): { lon: number; lat: number
 }
 
 export function CoverageStatsSection({ maneuvers }: Props) {
-  const [parsed, setParsed] = useState<ParsedSat[]>([]);
-  const [coveringNow, setCoveringNow] = useState<ParsedSat[]>([]);
-  const [passes, setPasses] = useState<PassTick[]>([]);
+  // null = 尚未算出（顯示「—」／「…」，不可當 0）
+  const tle = useSatelliteRecords();
+  const { p, fill, text } = useSatelliteTheme();
+  const [parsed, setParsed] = useState<ParsedSat[] | null>(null);
+  const [coveringRaw, setCoveringNow] = useState<ParsedSat[] | null>(null);
+  const [passesRaw, setPasses] = useState<PassTick[] | null>(null);
+  const coveringNow = coveringRaw ?? [];
+  const passes = passesRaw ?? [];
   const [expanded, setExpanded] = useState(false);
   const [computingScan, setComputingScan] = useState(false);
   // 預設只看「遙測偵察」（Yaogan/Jilin/Gaofen + TW）
@@ -100,29 +118,25 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   const timelineSec = useTimeStoreTime(500);
 
   useEffect(() => {
-    let alive = true;
-    loadSatellites().then((recs) => {
-      if (!alive) return;
-      const out: ParsedSat[] = [];
-      for (const r of recs) {
-        try {
-          const satrec = satellite.twoline2satrec(r.tleLine1, r.tleLine2);
-          const nRadSec = satrec.no / 60;
-          if (nRadSec <= 0) continue;
-          const a = Math.pow(MU / (nRadSec ** 2), 1 / 3);
-          const altKm = a - R_EARTH;
-          if (altKm < 100 || altKm > 50000) continue;
-          out.push({ rec: r, satrec, radiusKm: coverageRadiusKm(altKm) });
-        } catch { /* skip */ }
-      }
-      setParsed(out);
-    });
-    return () => { alive = false; };
-  }, []);
+    if (tle.status !== "ok") return;
+    const out: ParsedSat[] = [];
+    for (const r of tle.records) {
+      try {
+        const satrec = satellite.twoline2satrec(r.tleLine1, r.tleLine2);
+        const nRadSec = satrec.no / 60;
+        if (nRadSec <= 0) continue;
+        const a = Math.pow(MU / (nRadSec ** 2), 1 / 3);
+        const altKm = a - R_EARTH;
+        if (altKm < 100 || altKm > 50000) continue;
+        out.push({ rec: r, satrec, radiusKm: coverageRadiusKm(altKm) });
+      } catch { /* skip */ }
+    }
+    setParsed(out);
+  }, [tle.status, tle.records]);
 
   // 依時間軸算「該時刻覆蓋中」— timelineSec 變動就重算
   useEffect(() => {
-    if (parsed.length === 0) return;
+    if (!parsed) return;
     const t = new Date(timeStore.getTime() * 1000);
     const out: ParsedSat[] = [];
     for (const p of parsed) {
@@ -137,7 +151,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
 
   // 6h pass scan — 起點是「時間軸當下」，每分鐘級別變動才重算（拉時間軸防抖）
   useEffect(() => {
-    if (parsed.length === 0) return;
+    if (!parsed) return;
     let alive = true;
     setComputingScan(true);
     const run = () => {
@@ -218,189 +232,174 @@ export function CoverageStatsSection({ maneuvers }: Props) {
     return reconOnly ? passes.filter((p) => isRecon(p.cat)) : passes;
   }, [passes, reconOnly]);
 
-  return (
-    <div style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK }}>
-      {/* 主數字列 — 覆蓋中 + 6h 通過 + breakdown */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: FONT_SIZE.base }}>
-        <div>
-          <span style={{ color: COLORS.textDim }}>覆蓋台灣中</span>
-          <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: coveringNow.length > 0 ? "#4fc3f7" : COLORS.textDefault }}>
-            {coveringNow.length}
-          </span>
-          <span style={{ color: COLORS.textDim, marginLeft: 2 }}>顆</span>
-        </div>
-        <div style={{ width: 1, height: 18, background: COLORS.borderSoft }} />
-        <div>
-          <span style={{ color: COLORS.textDim }}>未來 6h 通過</span>
-          <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: COLORS.textDefault }}>
-            {computingScan ? "…" : passes.length}
-          </span>
-          <span style={{ color: COLORS.textDim, marginLeft: 2 }}>次</span>
-        </div>
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          style={{
-            marginLeft: "auto",
-            padding: "3px 8px",
-            borderRadius: RADIUS.md,
-            background: "transparent",
-            border: `1px solid ${COLORS.borderMid}`,
-            color: COLORS.textMuted,
-            fontFamily: FONT_CJK,
-            fontSize: FONT_SIZE.sm,
-            cursor: "pointer",
-          }}
-        >
-          {expanded ? "▾ 收合" : "▸ 看 timeline"}
-        </button>
+  // TLE 讀取失敗：不顯示 0，改顯示失敗文字
+  if (tle.status === "error") {
+    return (
+      <div role="status" style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${p.borderSoft}`, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: p.statusWarn }}>
+        衛星資料讀取失敗，無法計算覆蓋統計
       </div>
+    );
+  }
+  const tleLoading = tle.status === "loading";
+  const coverReady = !tleLoading && coveringRaw != null;
+  const passReady = !tleLoading && !computingScan && passesRaw != null;
 
-      {/* breakdown 細項 — CN/TW + 遙測類 */}
-      {coveringNow.length > 0 && (
-        <div style={{
-          marginTop: 5,
-          display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted,
-        }}>
-          <span>CN <span style={{ color: COLORS.textDefault, fontWeight: 600 }}>{coverageBreakdown.cn}</span></span>
-          <span>/ TW <span style={{ color: "#4fc3f7", fontWeight: 600 }}>{coverageBreakdown.tw}</span></span>
-          <span style={{ color: COLORS.textFaint }}>·</span>
-          <span title="Yaogan/Jilin/Gaofen + Taiwan 整體遙測偵察">
-            遙測類 <span style={{ color: coverageBreakdown.recon > 0 ? "#22c55e" : COLORS.textMuted, fontWeight: 700 }}>
-              {coverageBreakdown.recon}
-            </span> 顆
-          </span>
-          {!computingScan && passes.length > 0 && (
-            <>
-              <span style={{ marginLeft: "auto", color: COLORS.textFaint }}>6h 內</span>
-              <span>遙測 <span style={{ color: passBreakdown.recon > 0 ? "#22c55e" : COLORS.textMuted, fontWeight: 600 }}>{passBreakdown.recon}</span> 次</span>
-            </>
-          )}
+  // X1：讀取中／計算中在數字位置顯示文字（不可顯示 0）
+  const wait = (t: string) => (
+    <span style={{ fontSize: FONT_SIZE.base, color: p.textMuted, lineHeight: "22px", whiteSpace: "nowrap" }}>{t}</span>
+  );
+  const big = (v: number, unit: string, color: string) => (
+    <span style={{ whiteSpace: "nowrap" }}>
+      <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color }}>{v}</span>
+      <span style={{ marginLeft: 3, fontSize: FONT_SIZE.sm, color: p.textDim }}>{unit}</span>
+    </span>
+  );
+  const bdItem = (label: string, n: number, unit = "", color: string = p.textDefault) => (
+    <span style={{ whiteSpace: "nowrap" }}>
+      {label} <span style={{ fontFamily: FONT_DATA, color, fontWeight: 600 }}>{n}</span>{unit}
+    </span>
+  );
+  const bdBox: CSSProperties = { marginTop: 2, display: "flex", flexWrap: "wrap", gap: "2px 8px", fontSize: FONT_SIZE.sm, color: p.textMuted };
+
+  return (
+    <div style={{ borderBottom: `1px solid ${p.borderSoft}`, fontFamily: FONT_CJK }}>
+      <SubGroupLabel>覆蓋統計</SubGroupLabel>
+      <div style={{ padding: "2px 14px 9px" }}>
+        {/* 主數字：兩欄，上小標籤、下大數字＋單位、細項放數字下方 */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>覆蓋台灣中</div>
+            <div style={{ marginTop: 1, minHeight: 22 }}>
+              {tleLoading ? wait("讀取中…") : coveringRaw == null ? wait("計算中…") : big(coveringNow.length, "顆", coveringNow.length > 0 ? text(TAIWAN_COLOR) : p.textDefault)}
+            </div>
+            {coverReady && coveringNow.length > 0 && (
+              <div style={bdBox}>
+                {bdItem("台灣", coverageBreakdown.tw, "", text(TAIWAN_COLOR))}
+                {bdItem("其他國家", coverageBreakdown.cn)}
+                <span title="Yaogan／Jilin／Gaofen／台灣與各國遙測衛星" style={{ whiteSpace: "nowrap" }}>
+                  遙測偵察 <span style={{ fontFamily: FONT_DATA, fontWeight: 600, color: coverageBreakdown.recon > 0 ? p.statusLive : p.textMuted }}>{coverageBreakdown.recon}</span>
+                </span>
+              </div>
+            )}
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>未來 6 小時通過</div>
+            <div style={{ marginTop: 1, minHeight: 22 }}>
+              {tleLoading ? wait("讀取中…") : !passReady ? wait("計算中…") : big(passes.length, "次", p.textDefault)}
+            </div>
+            {passReady && passes.length > 0 && (
+              <div style={bdBox}>
+                <span style={{ whiteSpace: "nowrap" }}>
+                  遙測偵察 <span style={{ fontFamily: FONT_DATA, fontWeight: 600, color: passBreakdown.recon > 0 ? p.statusLive : p.textMuted }}>{passBreakdown.recon}</span> 次
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-      )}
 
-      {/* 覆蓋中 sats 縮略 */}
-      {coveringNow.length > 0 && (
-        <div style={{
-          marginTop: 4,
-          fontFamily: FONT_DATA,
-          fontSize: FONT_SIZE.sm,
-          color: COLORS.textMuted,
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        }}>
-          {coveringNow.slice(0, 6).map((p) => p.rec.name).join(" · ")}
-          {coveringNow.length > 6 ? ` … +${coveringNow.length - 6}` : ""}
-        </div>
-      )}
+        {/* 覆蓋中 sats 縮略 */}
+        {coverReady && coveringNow.length > 0 && (
+          <div
+            title="目前覆蓋台灣的衛星"
+            style={{ marginTop: 5, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: p.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+          >
+            {coveringNow.slice(0, 6).map((p) => p.rec.name).join(" · ")}
+            {coveringNow.length > 6 ? ` … +${coveringNow.length - 6}` : ""}
+          </div>
+        )}
 
-      {/* 6h timeline 展開 */}
-      {expanded && (
-        <div style={{ marginTop: 10, padding: 10, borderRadius: RADIUS.lg, background: "rgba(0,0,0,0.25)" }}>
-          {/* 過濾 toggle */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8, marginBottom: 8,
-            fontFamily: FONT_CJK, fontSize: 10.5,
-          }}>
-            <span style={{ color: COLORS.textMuted }}>顯示</span>
-            <button
-              onClick={() => setReconOnly(true)}
-              style={{
-                padding: "3px 8px",
-                borderRadius: RADIUS.md,
-                background: reconOnly ? "rgba(34,197,94,0.16)" : "transparent",
-                border: `1px solid ${reconOnly ? "rgba(34,197,94,0.55)" : COLORS.borderMid}`,
-                color: reconOnly ? "#22c55e" : COLORS.textMuted,
-                fontFamily: FONT_CJK, fontSize: 10.5, fontWeight: reconOnly ? 600 : 400, cursor: "pointer",
-              }}
-            >
-              只看遙測偵察
-            </button>
-            <button
-              onClick={() => setReconOnly(false)}
-              style={{
-                padding: "3px 8px",
-                borderRadius: RADIUS.md,
-                background: !reconOnly ? COLORS.accentFaint : "transparent",
-                border: `1px solid ${!reconOnly ? COLORS.borderAccent : COLORS.borderMid}`,
-                color: !reconOnly ? "#cfe4ff" : COLORS.textMuted,
-                fontFamily: FONT_CJK, fontSize: 10.5, fontWeight: !reconOnly ? 600 : 400, cursor: "pointer",
-              }}
-            >
-              全部
-            </button>
-            <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
-              {filteredPasses.length} / {passes.length} 次
+        {/* Y2：整列可點展開 */}
+        {!tleLoading && (
+          <button
+            type="button"
+            aria-expanded={expanded}
+            onClick={() => setExpanded((v) => !v)}
+            style={{
+              marginTop: 8, width: "100%", display: "flex", alignItems: "center", gap: 6,
+              padding: "6px 0 0", border: "none", borderTop: `1px solid ${p.borderSoft}`, background: "transparent",
+              color: p.textMuted, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, cursor: "pointer", textAlign: "left",
+            }}
+          >
+            <ChevronRight
+              size={12}
+              aria-hidden="true"
+              style={{ flexShrink: 0, transform: expanded ? "rotate(90deg)" : "none", transition: "transform .15s" }}
+            />
+            <span style={{ whiteSpace: "nowrap" }}>未來 6 小時通過時間</span>
+            <span style={{ marginLeft: "auto", whiteSpace: "nowrap" }}>
+              {passReady ? <><span style={{ fontFamily: FONT_DATA }}>{passes.length}</span> 次</> : "計算中…"}
             </span>
+          </button>
+        )}
+
+        {/* 6 小時通過時間展開 */}
+        {expanded && !tleLoading && (
+          <div style={{ marginTop: 8, padding: 8, borderRadius: RADIUS.lg, background: p.controlBg, border: `1px solid ${p.borderSoft}` }}>
+            <div className={layerControlThemeClass(p.isDark)} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+              <ControlSegmented
+                label="通過時間篩選"
+                value={reconOnly ? "recon" : "all"}
+                options={[{ label: "遙測偵察", value: "recon" }, { label: "全部", value: "all" }]}
+                onChange={(v) => setReconOnly(v === "recon")}
+              />
+              <span style={{ marginLeft: "auto", whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: p.textDim }}>
+                <span style={{ fontFamily: FONT_DATA }}>{filteredPasses.length} / {passes.length}</span> 次
+              </span>
+            </div>
+            {/* 時間軸刻度 */}
+            <div style={{ position: "relative", height: 18, margin: "0 6px 8px" }}>
+              <div style={{ position: "absolute", left: 0, right: 0, top: 14, height: 1, background: p.borderMid }} />
+              {AXIS_LABELS.map((t, h) => (
+                <span key={h} style={{
+                  position: "absolute", left: `${(h / 6) * 100}%`, top: 0, whiteSpace: "nowrap",
+                  transform: `translateX(${h === 0 ? "0" : h === 6 ? "-100%" : "-50%"})`,
+                  fontSize: FONT_SIZE.xs, color: p.textFaint,
+                }}>
+                  {t}
+                </span>
+              ))}
+            </div>
+            {/* tick rows */}
+            <div style={{ position: "relative", maxHeight: 220, overflowY: "auto", margin: "0 6px" }} className="mtp-scroll">
+              {filteredPasses.length === 0 ? (
+                <div style={{ fontSize: FONT_SIZE.sm, color: p.textFaint, padding: "8px 0", textAlign: "center" }}>
+                  {computingScan ? "計算中…" : reconOnly ? "未來 6 小時無遙測偵察類通過" : "未來 6 小時無預計通過"}
+                </div>
+              ) : (
+                filteredPasses.slice(0, 80).map((tick, i) => {
+                  const left = (tick.startMinFromNow / (SCAN_HOURS * 60)) * 100;
+                  const raw = SATELLITE_COLORS[tick.cat as keyof typeof SATELLITE_COLORS];
+                  // SC2：通過時間圓點＝資料色，淡色補到對白 3:1
+                  const color = raw ? fill(raw) : p.textDim;
+                  const isManeuver = maneuverNorads.has(tick.norad);
+                  return (
+                    <div key={i} style={{ position: "relative", height: 18, display: "flex", alignItems: "center" }}>
+                      <span style={{
+                        position: "absolute", left: `${left}%`, top: 5, width: 8, height: 8, borderRadius: RADIUS.full,
+                        background: color, transform: "translateX(-50%)",
+                        outline: isManeuver ? `1.5px solid ${p.statusErr}` : "none", outlineOffset: 1,
+                      }} />
+                      <span style={{
+                        position: "absolute", left: `min(${left + 2}%, calc(100% - 150px))`, top: 1,
+                        display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap",
+                        fontSize: FONT_SIZE.sm, color: p.textMuted,
+                      }}>
+                        <span style={{ fontFamily: FONT_DATA, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis" }}>{tick.name}</span>
+                        {isManeuver && <span style={{ ...MANEUVER_CHIP, ...chipOutline(p.statusErr) }}>變軌</span>}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+              {filteredPasses.length > 80 && (
+                <div style={{ padding: "4px 0", fontSize: FONT_SIZE.xs, color: p.textFaint, textAlign: "center" }}>
+                  共 <span style={{ fontFamily: FONT_DATA }}>{filteredPasses.length}</span> 次 · 顯示前 80 次
+                </div>
+              )}
+            </div>
           </div>
-          {/* axis */}
-          <div style={{ position: "relative", height: 18, marginBottom: 8 }}>
-            <div style={{ position: "absolute", left: 0, right: 0, top: 14, height: 1, background: COLORS.borderMid }} />
-            {[0, 1, 2, 3, 4, 5, 6].map((h) => (
-              <div key={h} style={{
-                position: "absolute",
-                left: `${(h / 6) * 100}%`,
-                top: 0,
-                transform: "translateX(-50%)",
-                fontFamily: FONT_DATA,
-                fontSize: FONT_SIZE.xs,
-                color: COLORS.textFaint,
-              }}>
-                +{h}h
-              </div>
-            ))}
-          </div>
-          {/* tick rows */}
-          <div style={{ position: "relative", maxHeight: 220, overflowY: "auto" }} className="mtp-scroll">
-            {filteredPasses.length === 0 ? (
-              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
-                {computingScan ? "計算中…" : reconOnly ? "未來 6h 無遙測偵察類通過" : "未來 6h 無預計通過"}
-              </div>
-            ) : (
-              filteredPasses.slice(0, 80).map((p, i) => {
-                const left = (p.startMinFromNow / (SCAN_HOURS * 60)) * 100;
-                const color = SATELLITE_COLORS[p.cat as keyof typeof SATELLITE_COLORS] || COLORS.textDim;
-                const isManeuver = maneuverNorads.has(p.norad);
-                return (
-                  <div key={i} style={{ position: "relative", height: 18, display: "flex", alignItems: "center" }}>
-                    <span style={{
-                      position: "absolute",
-                      left: `${left}%`,
-                      top: 5,
-                      width: 8,
-                      height: 8,
-                      borderRadius: RADIUS.full,
-                      background: color,
-                      transform: "translateX(-50%)",
-                      boxShadow: isManeuver ? `0 0 5px ${COLORS.statusErr}` : "none",
-                    }} />
-                    <span style={{
-                      position: "absolute",
-                      left: `min(${left + 1.5}%, calc(100% - 120px))`,
-                      top: 1,
-                      fontFamily: FONT_DATA,
-                      fontSize: 9.5,
-                      color: COLORS.textMuted,
-                      whiteSpace: "nowrap",
-                      maxWidth: 140,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}>
-                      {p.name}{isManeuver ? " ⚡" : ""}
-                    </span>
-                  </div>
-                );
-              })
-            )}
-            {filteredPasses.length > 80 && (
-              <div style={{ padding: "4px 0", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, textAlign: "center" }}>
-                共 {filteredPasses.length} 次 · 顯示前 80
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

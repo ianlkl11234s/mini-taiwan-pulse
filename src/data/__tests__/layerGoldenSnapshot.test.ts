@@ -164,7 +164,11 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-02: +37 環境統計 Statistics 圖層（環境部／國土管理署 18 dataset）。
     // 2026-10-02: +4 水質與污水靜態圖層（RPI 測站、水質測站、污水處理廠、飲用水水源水質保護區）。
     // 2026-10-02: +9 環境第二波（海域水質、RPI 河段試作、PM2.5 手動站、戴奧辛、焚化廠＋即時輻射／放流水／CEMS／紫外線）。
-    expect(keys.length).toBe(864);
+    // 2026-10-04: +1 軌道路線 railRoutes（靜態 geojson 線層，不載入時刻表）。
+    // 2026-10-04: +32 人口統計 Statistics 圖層（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
+    // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
+    // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；11508 × 內政部村里界 1150817）。
+    expect(keys.length).toBe(982);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

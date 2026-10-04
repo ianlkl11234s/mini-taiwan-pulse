@@ -4,6 +4,7 @@ import { isStatisticsLayer, STATISTICS_RECIPES, statisticsBaseKey } from "./regi
 import { getSocialRecipe } from "./socialStatisticsRecipes";
 import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
 import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
+import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
 export type StatisticsSourceKind = "source" | "derived" | "presentation";
@@ -125,6 +126,27 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       sourceUrl: environment.source_landing_url,
       provider: environment.publisher,
       license: environment.license,
+    };
+  }
+
+  const demographics = getDemographicsRecipe(key);
+  if (demographics) {
+    // 人數／戶數是 RIS 村里計數的精確加總；其餘（占比、指數、戶量、密度、中位數）在本層級加總後計算。
+    const derived = demographics.unit !== "人" && demographics.unit !== "戶";
+    const note = demographicsIndicatorNote(demographics);
+    const source = demographicsSource(demographics);
+    const ytd = demographicsYtdLabel(demographics);
+    return {
+      kind: derived ? "derived" : "source",
+      datasetIds: [demographics.dataset_id],
+      label: derived ? "衍生人口統計（本層級加總後計算）" : "原始戶籍人口統計快照",
+      metricLabel: demographicsDisplayLabel(demographics),
+      unit: demographics.unit,
+      level: demographics.level,
+      period: ytd ?? periodLabel(demographics.release_options),
+      contract: `只接受 ${demographics.release_options.length} 個已交付 exact release selector；缺值以斜線表示、不補 0；PARTIAL 期別保留覆蓋狀態。`,
+      disclosure: [`位置口徑：${demographics.location_semantics}`, demographicsDisclosure(demographics), note, demographics.level === "village" ? DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE : undefined].filter(Boolean).join(" "),
+      ...source,
     };
   }
 

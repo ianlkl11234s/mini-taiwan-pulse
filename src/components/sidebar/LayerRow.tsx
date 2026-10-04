@@ -53,6 +53,8 @@ export interface ListRowProps {
   loading?: boolean;
   /** 圖層色：開啟時畫在列左緣 2px */
   accent?: string;
+  /** 開啟時計數字色；預設同 `accent`（淡色底需要另給加深字色時才傳，例 衛星群組） */
+  countColor?: string;
   active?: boolean;
   locked?: boolean;
   lockedTitle?: string;
@@ -72,7 +74,7 @@ export interface ListRowProps {
  * 桌機四入口、手機、資料來源、Agent 分析結果、衛星群組、我的都用這一個元件。
  */
 export function ListRow({
-  label, ariaLabel, icon, meta, sub, count, countUnit, loading, accent, active = false, locked = false, lockedTitle,
+  label, ariaLabel, icon, meta, sub, count, countUnit, loading, accent, countColor, active = false, locked = false, lockedTitle,
   expandable = false, expanded = false, onClick, trailing, toggle, title,
 }: ListRowProps) {
   const { DIM, INACTIVE_TEXT, TEXT_STRONG, ROW_HOVER, COLOR_SCHEME } = useRailTheme();
@@ -109,7 +111,7 @@ export function ListRow({
         </span>
         {loading && !locked && <span className="lr-spin" role="status" aria-label="載入中" title="載入中" />}
         {showCount && (
-          <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, marginRight: 4, color: active && accent ? accent : INACTIVE_TEXT }}>
+          <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, marginRight: 4, color: active && accent ? (countColor ?? accent) : INACTIVE_TEXT }}>
             <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontVariantNumeric: "tabular-nums" }}>{count.toLocaleString("zh-TW")}</span>
             {countUnit && <span style={{ fontSize: FONT_SIZE.sm }}>{countUnit}</span>}
           </span>

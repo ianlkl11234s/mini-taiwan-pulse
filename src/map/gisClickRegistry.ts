@@ -499,6 +499,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🚄 高鐵站體面（12 面）。點位模式的派生面心已在前段；這裡保留原面 popup，
   //    依「面層不可搶點層」放在所有點層之後。與 station-points-* 共用 railStation panel。
   { layers: ["station-polygons-thsr-poly-fill", "station-polygons-thsr-poly-line"], type: "railStation" },
+  // 🚆 軌道路線（靜態線，railRoutes）：線層在站點／站體面之後，免得蓋掉點在站上的 popup。
+  { layers: ["rail-routes-line"], type: "railRoutes" },
   // 💧 水資源 線 / 面 5 層 —— 線層在前（±5px bbox 已夠命中細線，不必收 glow），
   //    面層依覆蓋面積由小到大排後，保護區流域級最大故置末。
   { layers: ["water-canals-core"], type: "waterCanals" },

@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { webcrypto } from "node:crypto";
 import { afterEach, expect, it, vi } from "vitest";
@@ -9,7 +10,12 @@ import { statisticsGeometryCache } from "../statisticsGeometryCache";
 const root = process.env.LABOR_STATISTICS_DATA_ROOT;
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
-it.skipIf(!root)("loads all 12 delivered exact selectors through the real hash-validating loader", async () => {
+// 村里所得 2026-10-04 改指 SEGIS 112 原生界線的新 release，只在增量村里包（output/village-statistics-preview）；
+// labor 預覽包仍是舊 release，所以縣市 11 個 selector 走 labor 包、村里另驗。
+const isVillage = (recipe: typeof LABOR_ENABLED_STATISTICS_RECIPES[number]) => recipe.level === "village";
+const villageCdn = root ? resolve(root, "output/village-statistics-preview/cdn/v1") : "";
+
+it.skipIf(!root)("loads the 11 delivered county exact selectors through the real hash-validating loader", async () => {
   const base = "https://labor-delivery.test";
   const cdn = resolve(root!, "output/labor-statistics/cdn/v1");
   vi.stubEnv("VITE_STATISTICS_CDN_BASE", base);
@@ -24,7 +30,7 @@ it.skipIf(!root)("loads all 12 delivered exact selectors through the real hash-v
   });
   clearRegionalStatisticsCdnCache(); statisticsGeometryCache.clear();
   const results = [];
-  for (const recipe of LABOR_ENABLED_STATISTICS_RECIPES) {
+  for (const recipe of LABOR_ENABLED_STATISTICS_RECIPES.filter((item) => !isVillage(item))) {
     for (const option of recipe.release_options) {
       const result = await loadRegionalStatistics({
         layerKey: recipe.layer_key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id,
@@ -43,7 +49,7 @@ it.skipIf(!root)("loads all 12 delivered exact selectors through the real hash-v
       });
     }
   }
-  expect(results).toHaveLength(12);
+  expect(results).toHaveLength(11);
   const salary = results.find((result) => result.key === "statsLaborCountyAnnualSalaryMedian")!;
   expect(salary).toMatchObject({ observations: 22, observed: 20, missing: 2, health: { coverage: { not_covered_area_codes: ["09007", "09020"] } } });
   const salaryRecipe = LABOR_ENABLED_STATISTICS_RECIPES.find((recipe) => recipe.layer_key === salary.key)!;
@@ -69,15 +75,6 @@ it.skipIf(!root)("loads all 12 delivered exact selectors through the real hash-v
     missing_reason: "source_not_covered",
   });
 
-  const villageRecipe = LABOR_ENABLED_STATISTICS_RECIPES.find((recipe) => recipe.layer_key === "statsLaborVillageIncomeMedian")!;
-  const villageOption = villageRecipe.release_options[0]!;
-  const villageResult = await loadRegionalStatistics({
-    layerKey: villageRecipe.layer_key, datasetId: villageRecipe.dataset_id, indicatorId: villageRecipe.indicator_id,
-    level: villageRecipe.level, releaseId: villageOption.release_id, dimensions: villageOption.dimensions, includeHealth: true,
-  });
-  expect(villageResult.features.filter((feature) => feature.properties?.status === "observed")).toHaveLength(7602);
-  expect(villageResult.features.filter((feature) => feature.properties?.missing_reason === "source_join_or_time_mismatch")).toHaveLength(371);
-  expect(villageResult.geometryManifest.boundary_version).toBe("VILLAGE_NLSC_1150119");
 
   const participationRecipe = LABOR_ENABLED_STATISTICS_RECIPES.find((recipe) => recipe.layer_key === "statsLaborCountyParticipationRate")!;
   const participationOption = participationRecipe.release_options[0]!;
@@ -105,3 +102,29 @@ it.skipIf(!root)("loads all 12 delivered exact selectors through the real hash-v
     comparison_formula: "100% − 勞動力參與率",
   });
 }, 120000);
+
+it.skipIf(!root || !existsSync(villageCdn))("loads village income on the SEGIS 112 native boundary from the incremental village preview", async () => {
+  const base = "https://village-delivery.test";
+  vi.stubEnv("VITE_STATISTICS_CDN_BASE", base);
+  vi.stubEnv("VITE_SOCIAL_STATISTICS_PREVIEW", "false");
+  vi.stubGlobal("crypto", webcrypto);
+  vi.stubGlobal("fetch", async (input: string | URL | Request) => {
+    const url = new URL(String(input));
+    expect(url.origin).toBe(base);
+    const path = resolve(villageCdn, "." + url.pathname);
+    expect(path.startsWith(villageCdn + sep)).toBe(true);
+    return new Response(await readFile(path));
+  });
+  clearRegionalStatisticsCdnCache(); statisticsGeometryCache.clear();
+  const villageRecipe = LABOR_ENABLED_STATISTICS_RECIPES.find((recipe) => recipe.layer_key === "statsLaborVillageIncomeMedian")!;
+  const villageOption = villageRecipe.release_options[0]!;
+  expect(villageOption.release_id).toBe("village-income-median-112-segis112");
+  const villageResult = await loadRegionalStatistics({
+    layerKey: villageRecipe.layer_key, datasetId: villageRecipe.dataset_id, indicatorId: villageRecipe.indicator_id,
+    level: villageRecipe.level, releaseId: villageOption.release_id, dimensions: villageOption.dimensions, includeHealth: true,
+  });
+  expect(villageResult.features).toHaveLength(7748);
+  expect(villageResult.features.filter((feature) => feature.properties?.status === "observed")).toHaveLength(7604);
+  expect(villageResult.features.filter((feature) => feature.properties?.value === null)).toHaveLength(144);
+  expect(villageResult.geometryManifest.boundary_version).toBe("VILLAGE_SEGIS_112");
+}, 300000);

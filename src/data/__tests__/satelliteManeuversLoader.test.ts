@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   formatManeuverDetail,
   formatRelTime,
+  getManeuverSeverity,
+  severityRank,
   type ManeuverRow,
 } from "../satelliteManeuversLoader";
 
@@ -62,5 +64,26 @@ describe("formatRelTime", () => {
   it("3 天前", () => {
     const t = new Date(Date.now() - 3 * 86400 * 1000).toISOString();
     expect(formatRelTime(t)).toBe("3 天前");
+  });
+});
+
+describe("缺值（null）不當 0", () => {
+  it("formatManeuverDetail：delta 為 null 顯示「—」而不是 0.00", () => {
+    expect(formatManeuverDetail(mkRow({ maneuver_type: "PLANE_CHANGE", delta_inclination: null })))
+      .toBe("傾角 —");
+    expect(formatManeuverDetail(mkRow({ maneuver_type: "ALTITUDE_CHANGE", delta_period_min: null })))
+      .toBe("週期 —");
+    expect(formatManeuverDetail(mkRow({ maneuver_type: "SHAPE_CHANGE", delta_eccentricity: null })))
+      .toBe("離心率 —");
+  });
+
+  it("getManeuverSeverity：判定用的 delta 為 null → unknown，不歸例行", () => {
+    expect(getManeuverSeverity(mkRow({ maneuver_type: "PLANE_CHANGE", delta_inclination: null }))).toBe("unknown");
+    expect(getManeuverSeverity(mkRow({ maneuver_type: "PLANE_CHANGE", delta_inclination: 0.001 }))).toBe("grey");
+    expect(getManeuverSeverity(mkRow({ maneuver_type: "PLANE_CHANGE", delta_inclination: -0.2 }))).toBe("red");
+  });
+
+  it("severityRank：unknown 排在例行之後", () => {
+    expect(severityRank("unknown")).toBeLessThan(severityRank("grey"));
   });
 });

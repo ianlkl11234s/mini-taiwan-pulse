@@ -9,6 +9,7 @@ import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -55,7 +56,7 @@ import { statisticsManifestParams } from "./statisticsParamsSpec";
 
 import type { LucideIcon } from "lucide-react";
 import {
-  Video, Radio, Network, LandPlot, TrainFront, Factory,
+  Video, Radio, Network, LandPlot, TrainFront, TrainTrack, Factory,
   Church, Landmark, HeartHandshake, Sparkles, Camera,
   Cross, Briefcase, Flower, Grid3x3,
   Building2, CalendarDays, Theater, Library,
@@ -427,6 +428,22 @@ const ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ENVIRONMENT_E
   }];
 })) as Record<EnvironmentStatisticsLayerKey, LayerManifestEntry>;
 
+/** Demographics recipes (內政部戶政司 RIS 戶籍人口／年齡結構) share the dynamic Statistics renderer. */
+const DEMOGRAPHICS_LEVEL_QUALIFIERS: Partial<Record<string, string>> = { county: "縣市", township: "鄉鎮市區", village: "村里" };
+const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: DEMOGRAPHICS_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    ...layerName({ zh: demographicsDisplayLabel(recipe), qualifier: DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
+    description: demographicsDisclosure(recipe),
+    topics: ["統計", "人口", "戶籍", recipe.subgroup.replace(/（[^）]*）$/, ""), DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市"],
+  }];
+})) as Record<DemographicsStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -521,6 +538,7 @@ export const LAYER_MANIFEST = {
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
   ...LABOR_STATISTICS_MANIFEST_ENTRIES,
   ...ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES,
+  ...DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
@@ -794,6 +812,29 @@ export const LAYER_MANIFEST = {
     params: { count: 5, kinds: ["toggle", "select", "slider", "slider", "slider"] },
     description: "台鐵／高鐵／捷運列車依時刻表推算的即時位置與軌道",
     topics: ["交通", "鐵道", "即時"],
+  },
+
+  // 靜態軌道路線：geojson overlay（無時刻表、無 Three.js）。即時列車請看上面的 `rail`。
+  railRoutes: {
+    key: "railRoutes",
+    section: { theme: "交通 Move", group: "路網" },
+    ...layerName({ zh: "軌道路線", alt: "Rail Routes" }),
+    expandable: true,
+    color: "#ee6c00",
+    icon: TrainTrack,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rail", confidence: "MED" }],
+      processing: "mini-taipei-v3 軌道幾何（台鐵 golden、高鐵、台北／高雄／台中捷運、高雄輕軌）去重後的單向路線；信義線東延段（象山→廣慈/奉天宮）線形取自 OpenStreetMap (ways 197881274, 806179562, 453081585)，ODbL 1.0 © OpenStreetMap contributors，地下線形為近似",
+      note: "僅路線幾何，不含時刻表或列車位置；不含貓空纜車",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "rail-routes", url: "./rail/routes_static.geojson" },
+    legend: "railRoutes",
+    popup: "railRoutes",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "全台軌道路線（台鐵、高鐵、各都會捷運與輕軌）；純靜態線形，不載入時刻表。即時列車位置請用「鐵道」圖層",
+    topics: ["交通", "鐵道", "路線", "捷運"],
   },
 
   // ⑤ 多控件（8 個，slider/select/toggle 三型都有）—— 控件密度最高的 overlay 層，
@@ -10040,7 +10081,7 @@ export const LAYER_MANIFEST = {
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "station-points", url: "./geo/station_points.geojson" },
-    legend: null,
+    legend: "stationsMetro",
     // 與 stationsTRA **共用同一個 layerType**（各自的 GIS_LAYERS 條目 → 同一個 railStation
     // panel）。批 4 的「兩個 key 一個 layer」是共用 layer id，這裡是兩組 layer id 共用 type。
     popup: "railStation",

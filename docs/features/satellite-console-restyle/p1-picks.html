@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>衛星面板 P1 比較</title>
+<style>
+/* 頁面外框跟系統主題；示意面板用 app 的實際 token 值（暗＝SURFACE/COLORS，淡＝LIGHT／LIGHT_INTEL／railTheme.LIGHT_PALETTE），不跟頁面主題 */
+:root {
+  --bg: #f4f5f7; --fg: #1b1f27; --muted: #5b6472; --line: #d9dde3; --chip: #e8ebf0; --accent: #0b6fd6;
+  --f-ui: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
+  --f-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121418; --fg: #e6e8ec; --muted: #9aa3b0; --line: #2a2f37; --chip: #1e2229; --accent: #64aaff; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #121418; --fg: #e6e8ec; --muted: #9aa3b0; --line: #2a2f37; --chip: #1e2229; --accent: #64aaff; color-scheme: dark }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); overflow-x: hidden; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 36px; }
+header h1 { font-size: 22px; margin: 0 0 8px; text-wrap: balance; }
+header p { margin: 0 0 6px; color: var(--muted); max-width: 78ch; line-height: 1.65; font-size: 14px; }
+.q { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 18px; min-width: 0; }
+.q h2 { font-size: 17px; margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.q h2 .k { font-family: var(--f-data); font-size: 13px; background: var(--chip); padding: 2px 8px; border-radius: 4px; }
+.q > p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.65; max-width: 84ch; }
+.q > p code, .summary code, .cap code { font-family: var(--f-data); font-size: 12px; }
+.ref { display: grid; gap: 8px; max-width: 470px; min-width: 0; }
+.opts { display: grid; gap: 22px; }
+.opt { display: grid; gap: 8px; min-width: 0; }
+.lab { font-size: 14px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.lab b { font-family: var(--f-data); color: var(--accent); }
+.rec { font-size: 12px; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0 6px; }
+.cap { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); gap: 12px; }
+.tl { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.stage { border-radius: 10px; padding: 12px; min-width: 0; overflow: hidden; }
+.stage.dk { background: #12141c linear-gradient(115deg, transparent 46%, #1d212b 46% 48%, transparent 48%), linear-gradient(20deg, transparent 62%, #1a1e27 62% 63.5%, transparent 63.5%) #10121a; }
+.stage.lt { background: #e5e8ec linear-gradient(115deg, transparent 46%, #f8f9fa 46% 48%, transparent 48%), linear-gradient(20deg, transparent 62%, #f8f9fa 62% 63.5%, transparent 63.5%) #e5e8ec; }
+.summary { background: var(--chip); border-radius: 8px; padding: 14px 16px; font-size: 13.5px; line-height: 1.75; }
+.summary ul { margin: 6px 0 0; padding-left: 20px; }
+.ov { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); gap: 12px; }
+/* 示意面板（值抄自實際元件） */
+.pn { width: min(412px, 100%); border-radius: 8px; overflow: hidden; font-family: var(--f-ui); }
+.pn * { min-width: 0; }
+.mono { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+.stub { margin: 8px 14px; padding: 8px 10px; border-radius: 6px; font-size: 10px; text-align: center; }
+.nw { white-space: nowrap; }
+.ell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 600px) { .wrap { gap: 28px; } header h1 { font-size: 20px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>衛星情報面板 P1：標頭、區段標題、footer 比較</h1>
+    <p>P1 範圍：面板外殼、標頭改 H2（<code>PanelHeader</code>＋中文 eyebrow）、區段標題中文化、footer 依 §5.3 F2。下面每題先放「現況」（目前只有暗色），再放 2–3 個選項，每個選項都並排暗色與淡色。示意面板用站上實際 token 值。</p>
+    <p>群組列的名稱（「Yaogan 遙感」、國旗＋英文）、等級徽章 S/A/B/C、變軌 ⚡ 徽章都<strong>照現況畫</strong>，屬 P2 處理；變軌警報區、覆蓋統計、台灣衛星卡以灰色佔位表示（P3／P4）。顆數、時間為示意。</p>
+    <p>選好後把代號（例 E1／H1／B1／T1／S1／F1）貼回來即可。</p>
+  </header>
+
+  <section class="q" id="OV">
+    <h2><span class="k">總覽</span>現況 vs 建議組合</h2>
+    <p>建議組合＝E1＋H1＋B1＋T1＋S1＋F1。淡色欄是 P5 接上主題後的樣子，P1 先只改結構，但這次一起確認淡色看起來沒問題。</p>
+    <div class="ov" id="ov"></div>
+  </section>
+
+  <div id="qs"></div>
+
+  <div class="summary">
+    <b>不需要選、會照規則做的：</b>
+    <ul>
+      <li>外殼陰影改取 <code>ELEVATION.lg</code>（值不變）；歷史模式橘框改 <code>statusWarnBorder</code> token，拿掉橘色外光暈（§5.1 外殼沒有光暈）。z-index 維持 30（§5.25 已登記未歸層）。</li>
+      <li>關閉鈕改 <code>PanelHeader</code> 內建：lucide <code>X</code> 14px、<code>--text-muted</code>、<code>aria-label="關閉衛星情報"</code>。</li>
+      <li>狀態列整列 <code>FONT_CJK</code>，只有時間包 <code>FONT_DATA</code>＋tabular-nums；「§A 警報固定看現實 24h」改白話「變軌警報固定看近 24 小時」，只在歷史模式顯示（即時模式本來就是近 24 小時，不需要提醒）。</li>
+      <li>footer 原生 checkbox 一律換成開關（§5.10 禁 checkbox）；來源行不再整行等寬。</li>
+      <li>群組列已是共用 <code>ListRow</code>，P1 只把外包的 <code>DARK_PALETTE</code> 改成跟主題（實際切淡色在 P5）。</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// ── Token 值（抄自 designTokens / intelTheme DARK_INTEL·LIGHT_INTEL / railTheme / LayerToggleSwitch / layerParamControls.css）──
+const CJK = '"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif';
+const P = {
+  dark: { isDark: true, panel: "rgba(10,10,20,0.88)", border: "rgba(255,255,255,0.10)", soft: "rgba(255,255,255,0.06)", mid: "rgba(255,255,255,0.14)",
+    strong: "#f3f4f6", def: "#d8dce3", muted: "#9ca3af", dim: "#6b7280", faint: "#4b5560",
+    accent: "#64aaff", link: "#7fb2ff", live: "#22c55e", warn: "#ff9800", err: "#ef4444", warnBorder: "rgba(255,152,0,0.45)",
+    ctrlBorder: "rgba(255,255,255,0.12)", shadow: "0 12px 40px rgba(0,0,0,0.45)", stub: "rgba(255,255,255,0.04)",
+    rail: { TEXT: "#fff", DIM: "#6B7280", INACT: "#9CA3AF", ton: "#ffffff", toff: "#4b5563", kon: "#111827", koff: "#ffffff", sub: "#9CA3AF", line: "rgba(255,255,255,0.14)" } },
+  light: { isDark: false, panel: "rgba(255,255,255,0.95)", border: "rgba(0,0,0,0.10)", soft: "rgba(0,0,0,0.06)", mid: "rgba(0,0,0,0.16)",
+    strong: "#111827", def: "#1f2937", muted: "#4b5563", dim: "#6b7280", faint: "#6b7280",
+    accent: "#0b6fd6", link: "#0284c7", live: "#15803d", warn: "#c2410c", err: "#b42318", warnBorder: "rgba(194,65,12,0.45)",
+    ctrlBorder: "rgba(0,0,0,0.14)", shadow: "0 12px 40px rgba(0,0,0,0.18)", stub: "rgba(0,0,0,0.04)",
+    rail: { TEXT: "#111827", DIM: "#9CA3AF", INACT: "#6B7280", ton: "#1f2937", toff: "#d1d5db", kon: "#ffffff", koff: "#ffffff", sub: "#4B5563", line: "rgba(0,0,0,0.12)" } },
+};
+// SATELLITE_COLORS（資料色，§3.16，暗淡不變）
+const SAT = { yaogan: "#ef5350", jilin: "#ff7043", gaofen: "#ec407a", usa: "#93c5fd", japan: "#fb7185", taiwan: "#4fc3f7" };
+function alpha(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+function mix(a, b, t) { const x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16);
+  const c = (s) => Math.round(((x >> s) & 255) + ((((y >> s) & 255) - ((x >> s) & 255)) * t));
+  return "#" + ((c(16) << 16) | (c(8) << 8) | c(0)).toString(16).padStart(6, "0"); }
+// chipText：淡色把資料 hue 往 LIGHT.textStrong 混 55%（intelTheme CHIP_TEXT_MIX）
+const chipText = (hex, p) => p.isDark ? hex : mix(hex, "#111827", 0.55);
+
+const iconX = (c) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`;
+const iconSat = (c) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M13 7 9 3 5 7l4 4"/><path d="m17 11 4 4-4 4-4-4"/><path d="m8 12 4 4 6-6-4-4Z"/><path d="m16 8 3-3"/><path d="M9 21a6 6 0 0 0-6-6"/></svg>`;
+const chev = (c) => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" style="flex-shrink:0"><path d="m9 18 6-6-6-6"/></svg>`;
+
+// ── 外殼 ──
+function shell(p, inner, o = {}) {
+  const bd = o.history ? p.warnBorder : p.border;
+  return `<div class="stage ${p.isDark ? "dk" : "lt"}"><div class="pn" style="background:${p.panel};border:1px solid ${bd};box-shadow:${p.shadow};color:${p.def}">${inner}</div></div>`;
+}
+function curShell(inner) { // 現況：歷史模式外加橘光暈，這裡畫即時模式
+  const p = P.dark;
+  return `<div class="stage dk"><div class="pn" style="background:${p.panel};border:1px solid ${p.border};box-shadow:0 12px 40px rgba(0,0,0,0.45);color:${p.def}">${inner}</div></div>`;
+}
+const stub = (p, t) => `<div class="stub" style="background:${p.stub};color:${p.dim};border:1px dashed ${p.mid}">${t}</div>`;
+
+// ── 現況標頭（SatelliteConsoleHeader.tsx 原樣） ──
+function curHeader() {
+  const p = P.dark;
+  return `<div style="display:flex;align-items:center;gap:9px;padding:13px 14px 11px;border-bottom:1px solid ${p.border}">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="${p.accent}" stroke-width="1.6" stroke-linecap="round" style="flex-shrink:0"><circle cx="12" cy="12" r="2"/><path d="M4 12a8 8 0 1 0 16 0"/><path d="M20 12a8 8 0 0 1-16 0" stroke-dasharray="2 3"/><circle cx="20" cy="12" r="1.2" fill="${p.accent}"/></svg>
+    <div style="display:flex;flex-direction:column;line-height:1.15"><span style="font-size:13.5px;font-weight:700;color:${p.strong}">衛星情報</span><span class="mono" style="font-size:9px;letter-spacing:2.5px;color:${p.dim}">SATELLITE</span></div>
+    <span style="display:inline-flex;align-items:center;gap:5px;margin-left:6px;padding:2px 8px;border-radius:4px;background:rgba(239,68,68,0.16);border:1px solid rgba(239,68,68,0.45)"><span style="width:6px;height:6px;border-radius:50%;background:${p.err};box-shadow:0 0 6px ${p.err}"></span><span class="mono" style="font-size:10px;font-weight:700;color:${p.err}">ALERT</span></span>
+    <div style="flex:1"></div>
+    <span style="width:24px;height:24px;display:flex;align-items:center;justify-content:center">${iconX(p.dim)}</span>
+  </div>
+  <div class="mono" style="padding:7px 14px 8px;border-bottom:1px solid ${p.soft};display:flex;align-items:center;gap:8px;font-size:10px">
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;background:rgba(34,197,94,0.16);border:1px solid rgba(34,197,94,0.45);font-weight:700;color:${p.live}"><span style="width:6px;height:6px;border-radius:50%;background:${p.live}"></span>LIVE</span>
+    <span style="color:${p.dim}" class="nw">顯示時間</span><span style="color:${p.def};font-weight:600">14:32</span>
+    <span class="ell" style="margin-left:auto;color:${p.faint}">§A 警報固定看現實 24h</span>
+  </div>`;
+}
+
+// ── 新標頭：PanelHeader（eyebrow 分支）原樣 ──
+function panelHeader(p, o = {}) {
+  const eb = o.eyebrow ?? "情報";
+  const inline = o.inline ? `<span style="display:inline-flex;gap:6px;align-items:center;margin-left:8px;vertical-align:1px">${o.inline}</span>` : "";
+  return `<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid ${p.border}">
+    <div style="flex:1;min-width:0"><div style="color:${p.dim};font-size:9px;letter-spacing:1.4px;line-height:1.3">${eb}</div>
+    <h2 style="margin:1px 0 0;color:${p.strong};font-size:13px;font-weight:700;line-height:1.4;display:flex;align-items:center;flex-wrap:wrap">衛星情報${inline}</h2></div>
+    <span style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="關閉衛星情報">${iconX(p.muted)}</span>
+  </div>`;
+}
+// 徽章樣式：outline＝chipOutline（radius 3、2px 5px、10px）；tint＝chipTint（3px 5px、無框）；pill＝IntelHeader LIVE pill（radius 9999、2px 6px、9px、亮點）
+function badge(p, color, text, style) {
+  const tc = color; // 狀態色已是主題安全值（palette.statusLive/Err/Warn），不再過 chipText
+  if (style === "tint") return `<span class="nw" style="display:inline-flex;align-items:center;gap:4px;padding:3px 5px;border-radius:3px;background:${alpha(color, 0.14)};color:${tc};font-size:10px;line-height:1.2">${text}</span>`;
+  if (style === "pill") return `<span class="nw" style="display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:9999px;border:1px solid ${alpha(color, 0.45)};color:${tc};font-size:9px;font-weight:600;line-height:1.2"><span style="width:6px;height:6px;border-radius:50%;background:${color};box-shadow:0 0 6px ${color}"></span>${text}</span>`;
+  return `<span class="nw" style="display:inline-flex;align-items:center;gap:4px;padding:2px 5px;border-radius:3px;border:1px solid ${alpha(color, 0.5)};color:${tc};font-size:10px;line-height:1.2">${text}</span>`;
+}
+const num = (n) => `<span class="mono">${n}</span>`;
+// B 選項 → 即時/變軌徽章樣式
+const BSTY = { B1: ["outline", "outline"], B2: ["outline", "tint"], B3: ["pill", "tint"] };
+function liveBadge(p, b, history) { return history ? badge(p, p.warn, "歷史", BSTY[b][0]) : badge(p, p.live, "即時", BSTY[b][0]); }
+function alertBadge(p, b) { return badge(p, p.err, `變軌 ${num(3)}`, BSTY[b][1]); }
+
+// 狀態列（H1：獨立一列；H2：只剩時間）
+function statusRow(p, o) {
+  const h = o.history;
+  const left = o.layout === "H2" ? "" : liveBadge(p, o.b, h);
+  const right = h ? `<span class="ell" style="margin-left:auto;color:${p.dim}">變軌警報固定看近 24 小時</span>`
+    : (o.layout === "H2" ? "" : `<span style="margin-left:auto">${alertBadge(p, o.b)}</span>`);
+  return `<div style="padding:6px 14px 7px;border-bottom:1px solid ${p.soft};display:flex;align-items:center;gap:8px;font-size:10px;background:${h ? (p.isDark ? "rgba(255,152,0,0.06)" : "rgba(194,65,12,0.05)") : "transparent"}">
+    ${left}<span class="nw" style="color:${p.dim}">顯示時間</span><span class="mono" style="color:${p.def};font-weight:600">${h ? "12:17" : "14:32"}</span>
+    ${h ? `<span class="nw" style="color:${p.warn}">（<span class="mono">-2:15</span>）</span>` : ""}${right}</div>`;
+}
+function newHeader(p, o = {}) {
+  const layout = o.layout ?? "H1", b = o.b ?? "B1";
+  const inline = layout === "H2" ? liveBadge(p, b, o.history) + (o.history ? "" : alertBadge(p, b)) : "";
+  return panelHeader(p, { eyebrow: o.eyebrow, inline }) + statusRow(p, { layout, b, history: o.history });
+}
+
+// ── 群組列（ListRow 原樣；名稱／等級／⚡ 是 P2，照現況） ──
+function row(p, g) {
+  const r = p.rail, on = g.on;
+  const tier = `<span class="mono" style="margin-left:6px;padding:0 5px;border-radius:4px;border:1px solid ${p.mid};font-size:9px;color:${p.muted};line-height:14px">${g.tier}</span>`;
+  const man = g.man ? `<span class="mono" style="margin-left:4px;padding:1px 6px;border-radius:4px;background:${alpha(P.dark.err, 0.16)};border:1px solid ${alpha(P.dark.err, 0.45)};font-size:9px;font-weight:700;color:${p.err}">⚡${g.man}</span>` : "";
+  return `<div style="display:flex;align-items:center;border-left:2px solid ${on ? g.c : "transparent"};border-top:1px solid ${p.soft}">
+    <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;padding:5px 8px 5px 10px">${iconSat(on ? g.c : (p.isDark ? "#6b7280" : r.DIM))}
+      <span style="flex:1;min-width:0;display:flex;align-items:baseline;font-size:12px;color:${r.TEXT}"><span class="ell">${g.n}</span>${tier}${man}</span>
+      <span class="nw" style="display:inline-flex;align-items:baseline;gap:2px;margin-right:4px;color:${on ? g.c : r.INACT}"><span class="mono" style="font-size:11px">${g.cnt}</span><span style="font-size:10px">顆</span></span>
+      <span style="display:flex;color:${r.DIM}">${chev(r.DIM)}</span></div>
+    <span style="padding-right:12px;display:flex">${rowSwitch(p, on)}</span></div>`;
+}
+function rowSwitch(p, on) { const r = p.rail; // LayerToggleSwitch 28×16（列開關，黑白）
+  return `<span role="switch" aria-checked="${on}" style="position:relative;width:28px;height:16px;border-radius:8px;background:${on ? r.ton : r.toff};flex-shrink:0;display:inline-block"><span style="position:absolute;top:2px;left:${on ? 14 : 2}px;width:12px;height:12px;border-radius:50%;background:${on ? r.kon : r.koff}"></span></span>`; }
+function miniSwitch(p, on) { // .lpc-sw 20×11（細項開關，強調色）
+  return `<span role="switch" aria-checked="${on}" style="position:relative;width:20px;height:11px;border-radius:9999px;background:${on ? p.accent : p.ctrlBorder};flex-shrink:0;display:inline-block"><span style="position:absolute;top:2px;left:${on ? 11 : 2}px;width:7px;height:7px;border-radius:50%;background:${on ? "#fff" : p.strong}"></span></span>`; }
+const CN = [
+  { n: "Yaogan 遙感", tier: "S", man: 2, cnt: 128, c: SAT.yaogan, on: true },
+  { n: "Jilin-1 吉林", tier: "S", cnt: 117, c: SAT.jilin, on: true },
+  { n: "Gaofen 高分", tier: "S", cnt: 46, c: SAT.gaofen, on: true },
+];
+const INTL = [
+  { n: "🇺🇸 USA", tier: "S", cnt: 52, c: SAT.usa, on: false },
+  { n: "🇯🇵 Japan IGS", tier: "S", cnt: 9, c: SAT.japan, on: false },
+];
+
+// ── 區段標題 ──
+function curTitle(text, right) { const p = P.dark;
+  return `<div class="mono" style="padding:9px 14px 6px;font-size:9px;letter-spacing:2px;color:${p.faint};display:flex;align-items:center"><span class="ell">${text}</span>${right ? `<span class="nw" style="margin-left:auto;color:${SAT.taiwan}">${right}</span>` : ""}</div>`; }
+function subLabel(p, text, trailing) { // SubGroupLabel；trailing 為 T2 假想的新 prop
+  return `<div style="display:flex;align-items:center;gap:8px;color:${p.rail.sub};font-size:10px;font-weight:600;letter-spacing:0.6px;padding:10px 12px 3px 12px">
+    <span class="nw">${text}</span><span aria-hidden="true" style="flex:1;height:1px;background:${p.rail.line}"></span>${trailing ? `<span class="nw" style="font-weight:400;letter-spacing:0;color:${p.rail.DIM}">${trailing}</span>` : ""}</div>`; }
+function macroLabel(p, text) { // MacroGroupLabel 9.5px DIM
+  return `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px 4px;color:${p.rail.DIM};font-size:9.5px;letter-spacing:1.2px">
+    <span class="nw">${text}</span><span aria-hidden="true" style="flex:1;height:1px;background:${p.rail.line}"></span></div>`; }
+function title(p, t, key) {
+  const zh = { cn: "中國", intl: "國際偵察", tw: "台灣衛星隊" }[key];
+  if (t === "T1") return subLabel(p, zh);
+  if (t === "T3") return macroLabel(p, zh);
+  const tr = { cn: `${num(6)} 群`, intl: `${num(9)} 國`, tw: `${num(7)} 顆 · 覆蓋中 <span class="mono" style="color:${chipText(SAT.taiwan, p)}">1</span>` }[key];
+  return subLabel(p, zh, tr);
+}
+function curList() { const p = P.dark;
+  return `<div style="border-bottom:1px solid ${p.soft}">${curTitle("CHINA · 6 GROUPS")}${CN.map((g) => row(p, g)).join("")}
+    <div style="margin-top:4px;border-top:1px solid ${p.soft}">${curTitle("INTL RECON · 9 COUNTRIES")}</div>${INTL.map((g) => row(p, g)).join("")}</div>
+    <div style="border-bottom:1px solid ${p.soft}">${curTitle("TAIWAN · 7 SATS", "覆蓋中：1")}${stub(p, "台灣衛星卡 ×7（P3）")}</div>`; }
+function newList(p, t, o = {}) {
+  const top = o.toggleTop ? toggleRow(p, o.sw ?? "S1", true, true) : "";
+  return `${top}<div style="border-bottom:1px solid ${p.soft}">${title(p, t, "cn")}${CN.map((g) => row(p, g)).join("")}
+    <div style="margin-top:4px">${title(p, t, "intl")}</div>${INTL.map((g) => row(p, g)).join("")}</div>
+    <div style="border-bottom:1px solid ${p.soft}">${title(p, t, "tw")}${stub(p, "台灣衛星卡 ×7（P3）")}</div>`; }
+
+// ── footer ──
+function curFooter() { const p = P.dark;
+  return `<div class="mono" style="padding:8px 14px;border-top:1px solid ${p.soft};font-size:9px;color:${p.faint};display:flex;align-items:center;gap:10px">
+    <span class="ell">UCS Database · Space-Track</span><span class="nw" style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;color:${p.muted}">
+    <span style="width:12px;height:12px;border:1px solid #8a8f98;border-radius:2px;display:inline-block;background:#fff"></span>顯示全部軌道</span></div>`; }
+function toggleRow(p, sw, on, asListTop) {
+  const s = sw === "S2" ? rowSwitch(p, on) : miniSwitch(p, on);
+  const lbl = `<span style="font-size:10px;color:${on ? p.def : p.muted}">顯示全部軌道</span>`;
+  return `<div style="display:flex;align-items:center;gap:6px;padding:${asListTop ? "8px 14px" : "7px 14px"};${asListTop ? `border-bottom:1px solid ${p.soft}` : `border-top:1px solid ${p.soft}`}">${s}${lbl}</div>`;
+}
+function srcLines(p) { // §5.3 F2：第一行機關（連原始頁）；第二行等寬「抓取於」；Tier 未查到 → 省略
+  return `<div style="font-size:9px;color:${p.dim};line-height:1.5"><div>UCS 衛星資料庫 · <span style="color:${p.link}">原始下載頁 ↗</span></div><div>Space-Track 軌道資料 · <span style="color:${p.link}">原始下載頁 ↗</span></div>
+    <div class="mono" style="margin-top:2px">抓取於 10/04 13:20</div></div>`; }
+function footer(p, f, sw = "S1") {
+  if (f === "F1") return toggleRow(p, sw, true) + `<div style="padding:8px 14px;border-top:1px solid ${p.soft}">${srcLines(p)}</div>`;
+  if (f === "F2") { const s = sw === "S2" ? rowSwitch(p, true) : miniSwitch(p, true);
+    return `<div style="padding:8px 14px;border-top:1px solid ${p.soft};display:flex;align-items:flex-start;gap:10px"><div style="flex:1;min-width:0">${srcLines(p)}</div>
+      <span class="nw" style="display:inline-flex;align-items:center;gap:6px;padding-top:1px">${s}<span style="font-size:10px;color:${p.def}">顯示全部軌道</span></span></div>`; }
+  return `<div style="padding:8px 14px;border-top:1px solid ${p.soft}">${srcLines(p)}</div>`;
+}
+
+// ── 組合 ──
+function full(p, o = {}) {
+  return shell(p, newHeader(p, { layout: o.h, b: o.b, eyebrow: o.eyebrow }) + stub(p, "變軌警報區（P4）") + stub(p, "覆蓋統計（P3）")
+    + newList(p, o.t ?? "T1", { toggleTop: o.f === "F3", sw: o.sw }) + footer(p, o.f ?? "F1", o.sw));
+}
+const curFull = () => curShell(curHeader() + stub(P.dark, "變軌警報區（P4）") + stub(P.dark, "覆蓋統計（P3）") + curList() + curFooter());
+
+function pair(fn) { return `<div class="pair"><div><div class="tl">暗</div>${fn(P.dark)}</div><div><div class="tl">淡</div>${fn(P.light)}</div></div>`; }
+
+document.getElementById("ov").innerHTML =
+  `<div><div class="tl">現況（只有暗色）</div>${curFull()}</div>` +
+  `<div><div class="tl">建議組合・暗</div>${full(P.dark)}</div>` +
+  `<div><div class="tl">建議組合・淡</div>${full(P.light)}</div>`;
+
+const Q = [
+  { k: "E", t: "標頭 eyebrow 用字", note: "§5.1 H2：eyebrow 9px、中文、放標題上方（現況是英文「SATELLITE」放下方、等寬、字距 2.5）。標題維持「衛星情報」。",
+    cur: () => curShell(curHeader()),
+    opts: [
+      { c: "E1", d: "「情報」——與即時情報同一個 eyebrow，兩個情報面板成一家", spec: "§5.1、§6.1", rec: true, f: (p) => shell(p, newHeader(p, { eyebrow: "情報" })) },
+      { c: "E2", d: "「太空」——說明領域，不跟即時情報重複", spec: "§5.1、§6.1", f: (p) => shell(p, newHeader(p, { eyebrow: "太空" })) },
+      { c: "E3", d: "「情報 · 太空」——比照 popup eyebrow「主題 · 圖層」的兩段寫法", spec: "§5.1、§5.2 eyebrow 寫法", f: (p) => shell(p, newHeader(p, { eyebrow: "情報 · 太空" })) },
+    ] },
+  { k: "H", t: "標頭結構：狀態徽章放哪", note: "改用共用 <code>PanelHeader</code>（eyebrow 分支）。<code>PanelHeader</code> 沒有 icon 位置，現在標題左邊的衛星 icon 會拿掉（即時情報的 <code>IntelHeader</code> 也是手刻才有 icon，README 已記為範本偏差）。下方各附一張歷史模式。",
+    cur: () => curShell(curHeader()),
+    opts: [
+      { c: "H1", d: "標頭用 PanelHeader 原樣；「即時／歷史」與「變軌 N」放在下面的狀態列", spec: "§5.1（不改共用元件）", rec: true,
+        f: (p) => shell(p, newHeader(p, { layout: "H1" })) + `<div style="height:8px"></div>` + shell(p, newHeader(p, { layout: "H1", history: true }), { history: true }) },
+      { c: "H2", d: "比照即時情報：徽章跟在標題後面，狀態列只剩顯示時間。⚠ 要幫共用 PanelHeader 加一個「標題後插槽」prop，所有 rail 面板共用這個元件", spec: "§5.21（H2＋即時 pill）",
+        f: (p) => shell(p, newHeader(p, { layout: "H2" })) + `<div style="height:8px"></div>` + shell(p, newHeader(p, { layout: "H2", history: true }), { history: true }) },
+    ] },
+  { k: "B", t: "狀態徽章公式", note: "§5.21 只有兩種徽章：分類用 <code>chipTint</code>（淡底無框）、程度／狀態用 <code>chipOutline</code>（透明底＋框）。「即時／歷史」是狀態；「變軌 N」可以看成狀態（有警報）或要更醒目。另外即時情報的 LIVE pill 是圓膠囊＋亮點，和 <code>chipOutline</code> 的圓角 3 不同。以 H1 版面示意。",
+    cur: () => curShell(curHeader()),
+    opts: [
+      { c: "B1", d: "兩個都用 chipOutline（圓角 3、10px），最貼規格", spec: "§5.21 程度／狀態", rec: true, f: (p) => shell(p, newHeader(p, { b: "B1" })) },
+      { c: "B2", d: "即時 chipOutline；變軌 chipTint（淡紅底，較醒目）", spec: "§5.21 兩公式並用", f: (p) => shell(p, newHeader(p, { b: "B2" })) },
+      { c: "B3", d: "即時用即時情報 LIVE 膠囊（圓膠囊＋亮點、9px）；變軌 chipTint", spec: "沿用 IntelHeader 實作（非 §5.21 公式）", f: (p) => shell(p, newHeader(p, { b: "B3" })) },
+    ] },
+  { k: "T", t: "區段標題", note: "取代英文大寫「CHINA · 6 GROUPS」「INTL RECON · 9 COUNTRIES」「TAIWAN · 7 SATS」。「6 群」「9 國」是固定數字，下面的列一眼就數得到；台灣的「覆蓋中 N」要另找地方。標題左緣 12px 與群組列（左線 2＋內距 10）對齊。",
+    cur: () => curShell(curList()),
+    opts: [
+      { c: "T1", d: "SubGroupLabel（10px 半粗、textMuted、右側細線），只寫中文名、不帶數字。「覆蓋中 N」移到台灣衛星卡（每張已標「正覆蓋台灣」，覆蓋統計也有總數）", spec: "§5.5 L2 群組標題（共用元件原樣）", rec: true, f: (p) => shell(p, newList(p, "T1")) },
+      { c: "T2", d: "SubGroupLabel＋數字放細線右側（數字等寬、單位中文）。⚠ 要幫共用 SubGroupLabel 加尾端插槽；它現在只收純字串", spec: "§5.5 變體、§6.2 數字等寬", f: (p) => shell(p, newList(p, "T2")) },
+      { c: "T3", d: "MacroGroupLabel（9.5px、更淡），只寫中文名；層級感較弱，當分段提示", spec: "§5.5 大分類標題", f: (p) => shell(p, newList(p, "T3")) },
+    ] },
+  { k: "S", t: "「顯示全部軌道」開關", note: "原生 checkbox 要換掉（§5.10 禁 checkbox）。README 寫「<code>LayerToggleSwitch</code> 20×11」，但 <code>LayerToggleSwitch</code> 其實是 28×16 黑白的<b>列開關</b>；20×11 強調藍是<b>細項開關</b>（<code>.lpc-sw</code>）。§5.10：整層開關用列開關，一層裡的選項用細項開關；「顯示全部軌道」是衛星圖層的顯示選項。左開右關示意。",
+    cur: () => curShell(curFooter()),
+    opts: [
+      { c: "S1", d: "細項開關 20×11（開＝強調藍）", spec: "§5.10 細項開關", rec: true, f: (p) => shell(p, toggleRow(p, "S1", true) + toggleRow(p, "S1", false)) },
+      { c: "S2", d: "列開關 28×16（LayerToggleSwitch，黑白），與上面群組列同一種", spec: "§5.10 列開關", f: (p) => shell(p, toggleRow(p, "S2", true) + toggleRow(p, "S2", false)) },
+    ] },
+  { k: "F", t: "footer 結構", note: "§5.3 F2：第一行「機關 · Tier N · 原始下載頁 ↗」、第二行等寬「授權 · 抓取於 …」，9px textDim。這裡有兩個來源，各自接原始頁。Tier 與授權目前查不到，依 F2「缺項省略」不顯示；「抓取於」要等 P-D 的新鮮度資料，拿不到時整行省略。F2 原本是給 popup 的來源 footer，沒有放控制項的位置，所以開關擺哪也是一個選擇。開關以 S1 示意。",
+    cur: () => curShell(curFooter()),
+    opts: [
+      { c: "F1", d: "開關留在面板底部，但獨立一列；下面才是 F2 來源兩行", spec: "§5.3 F2＋§5.10", rec: true, f: (p) => shell(p, `<div style="height:6px"></div>` + footer(p, "F1")) },
+      { c: "F2", d: "精簡：來源與開關同一區，開關靠右；佔高度最少，但來源行會被擠窄、手機上易換行", spec: "§5.3 F2（版面變體）", f: (p) => shell(p, `<div style="height:6px"></div>` + footer(p, "F2")) },
+      { c: "F3", d: "開關移到清單最上方（中國區段之前），footer 只剩來源；開關靠近它控制的群組", spec: "§5.3 F2 原樣", f: (p) => shell(p, newList(p, "T1", { toggleTop: true }) + footer(p, "F3")) },
+    ] },
+];
+
+document.getElementById("qs").innerHTML = Q.map((q) => `<section class="q" id="${q.k}">
+  <h2><span class="k">${q.k}</span>${q.t}</h2><p>${q.note}</p>
+  <div class="ref"><div class="lab"><b>現況</b><span style="color:var(--muted)">只有暗色</span></div>${q.cur()}</div>
+  <div class="opts">${q.opts.map((o) => `<div class="opt">
+    <div class="lab"><b>${o.c}</b><span>${o.d}</span>${o.rec ? '<span class="rec">建議</span>' : ""}</div>
+    <p class="cap">依據：${o.spec}</p>${pair(o.f)}</div>`).join("")}</div>
+</section>`).join("");
+</script>
+</body>
+</html>

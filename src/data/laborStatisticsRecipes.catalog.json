@@ -23,22 +23,22 @@
   "recipes": [
     {
       "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
-      "boundary_version": "VILLAGE_NLSC_1150119",
+      "boundary_version": "VILLAGE_SEGIS_112",
       "coverage": {
-        "denominator": 7973,
+        "denominator": 7748,
         "expected": {
-          "village_count": 7973
+          "village_count": 7748
         },
-        "numerator": 7602,
+        "numerator": 7604,
         "observed": {
-          "missing_count": 371,
+          "missing_count": 144,
           "status": "PARTIAL",
-          "village_count": 7602
+          "village_count": 7604
         },
         "status": "PARTIAL"
       },
       "dataset_id": "labor_statistics",
-      "disclosure": "112年綜所稅申報戶所得；115年村里界僅為 display reference，371村里缺值不補零。",
+      "disclosure": "112年綜所稅申報戶所得；界線改用綜所稅資料原生 112 年村里界（SEGIS 112，排除未編定）；舊版 115 年界線含 206 個未編定村里碼並缺瑪家三和村。144 村里來源本身缺值，不補零。",
       "enabled": true,
       "filters": [
         {
@@ -102,21 +102,21 @@
         "zero_uses_numeric_scale": true
       },
       "level": "village",
-      "location_semantics": "112年綜所稅申報戶所得；115年村里界僅為 display reference，371村里缺值不補零。",
+      "location_semantics": "112年綜所稅申報戶所得；界線為同一份 SEGIS 112 年村里統計檔自帶的原生界線（排除未編定），來源缺值村里不補零。",
       "related_layer_keys": [],
       "release_options": [
         {
-          "bundle_path": "data/processed/socioeconomic/labor_statistics/releases/village-income-median-112.json",
+          "bundle_path": "data/processed/socioeconomic/labor_statistics/releases/village-income-median-112-segis112.json",
           "coverage": {
-            "denominator": 7973,
+            "denominator": 7748,
             "expected": {
-              "village_count": 7973
+              "village_count": 7748
             },
-            "numerator": 7602,
+            "numerator": 7604,
             "observed": {
-              "missing_count": 371,
+              "missing_count": 144,
               "status": "PARTIAL",
-              "village_count": 7602
+              "village_count": 7604
             },
             "status": "PARTIAL"
           },
@@ -128,7 +128,7 @@
           "health": "PARTIAL",
           "period_end": "2023-12-31",
           "period_start": "2023-01-01",
-          "release_id": "village-income-median-112"
+          "release_id": "village-income-median-112-segis112"
         }
       ],
       "release_selector": {
