@@ -402,7 +402,7 @@ A + B 可平行（不同檔案）。C/D/E/F 互不依賴可彈性。
 - PR https://github.com/ianlkl11234s/gis-platform/pull/10
 - 已上線 4 layer：電廠 / 機組即時出力（3D beam）/ 變電所 / 充電站
 
-下一波完整規劃請讀 docs/energy-v2-plan.md（本檔），重點：
+下一波完整規劃請讀 docs/archive/2026-10-04/energy-v2-plan.md（本檔），重點：
 
 1. Monitor 整合（用戶 priority A）
    - 全國供電燈號 HUD + 4 區用電 bars + 14 廠出力 sparklines 都搬 monitor
@@ -433,5 +433,5 @@ A + B 可平行（不同檔案）。C/D/E/F 互不依賴可彈性。
 - VIEW 含 36 polygon → ST_Centroid
 
 切新分支 `feat/energy-v2-A`（A 是 monitor），照 v1 SOP 一個 phase 一個 commit、不 push。
-status doc 接續寫 docs/energy-v2-status.md。
+status doc 接續寫 docs/archive/2026-10-04/energy-v2-status.md。
 ```

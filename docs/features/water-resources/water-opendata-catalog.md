@@ -241,4 +241,4 @@ RPC `get_reservoir_context` 已備好。前端 P2 實作清單：
 |---|---|
 | `gis-platform` | migrations 047/048/049/050/051/052 |
 | `data-collectors` | 修 `water_reservoir.py` + 新 `water_reservoir_daily_ops.py` + 2 支 seed 腳本 + `supabase_writer` / `config` / `main` 整合 |
-| `mini-taiwan-pulse` | 本文件（docs/water-opendata-catalog.md）；前端 P2 未做 |
+| `mini-taiwan-pulse` | 本文件（docs/features/water-resources/water-opendata-catalog.md）；前端 P2 未做 |

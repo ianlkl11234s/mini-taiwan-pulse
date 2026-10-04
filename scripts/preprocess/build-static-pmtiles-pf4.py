@@ -4,7 +4,7 @@
     python3 scripts/preprocess/build-static-pmtiles-pf4.py            # 全部
     python3 scripts/preprocess/build-static-pmtiles-pf4.py waste_stops # 指定目標
 
-原則（docs/perf-overhaul-2026-06.md「tippecanoe 轉檔坑」）：
+原則（docs/archive/2026-10-04/perf-overhaul-2026-06.md「tippecanoe 轉檔坑」）：
   - 點：-r1 + --no-feature-limit + --no-tile-size-limit（每個 zoom 都是全量）
   - 面：另加 --no-tiny-polygon-reduction；不用任何 --coalesce / --drop-* 旗標
   - 不帶 -y/-x：屬性全保留（popup / 分色 / filter 欄位名與原檔一致）

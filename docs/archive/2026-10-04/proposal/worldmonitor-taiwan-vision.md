@@ -4,7 +4,7 @@
 >
 > 本文記錄一次「我現有的圖層之上能長出什麼產品」的探索：worldmonitor 的拆解、現有能力盤點、以及四組提案（情報面板 / 跨流關聯 / UX 升級 / 產品方向）。
 >
-> 相關既有文件：[`monitor-mode.md`](./monitor-mode.md)、[`intel-panel-status.md`](../intel-panel-status.md)、[`alerts-integration-impl.md`](./alerts-integration-impl.md)、[`satellite-console.md`](./satellite-console.md)
+> 相關既有文件：[`monitor-mode.md`](./monitor-mode.md)、[`intel-panel-status.md`](../intel-panel-status.md)、[`alerts-integration-impl.md`](./alerts-integration-impl.md)、[`satellite-console.md`](../../../proposal/satellite-console.md)
 
 ---
 
@@ -187,6 +187,6 @@ worldmonitor 的 CorrelationEngine 最聰明，而**我的資料密度做這件�
 
 ## 8. 回來時的下一步
 
-- [ ] 先讀 `docs/monitor-mode.md` + `docs/intel-panel-status.md` + `docs/proposal/alerts-integration-impl.md`，盤點「情報面板 / 警報」已做到哪
+- [ ] 先讀 `docs/monitor-mode.md` + `docs/archive/2026-10-04/intel-panel-status.md` + `docs/archive/2026-10-04/proposal/alerts-integration-impl.md`，盤點「情報面板 / 警報」已做到哪
 - [ ] 決定提案 A1（Event Feed）vs C（Presets）哪個先做 → 出一份含檔案觸點 + RPC 設計 + UI 草圖的實作規劃
 - [ ] 評估 Pulse Index 的加權公式（哪些 RPC、各佔權重）

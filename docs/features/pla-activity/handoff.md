@@ -21,7 +21,7 @@
 1. 本檔（狀態與待辦）
 2. `taipei-gis-analytics/docs/topic-research/defense_pla/shape-extraction-methodology.md`
    （**什麼方法行不通、為什麼** —— 省下重走冤枉路的時間）
-3. `mini-taiwan-pulse/docs/proposal/pla-activity-layer.md`（前端接線規劃，含 10 個註冊點）
+3. `mini-taiwan-pulse/docs/archive/2026-10-04/proposal/pla-activity-layer.md`（前端接線規劃，含 10 個註冊點）
 
 **⚠️ 最優先的一件事**：線上 collector 仍是舊版，**每 30 分鐘覆蓋修好的資料**（見 §5.1）。
 
@@ -79,7 +79,7 @@ Monitor 戰情概覽的 TAIEX 卡片加近 30 交易日走勢線。
 
 ## 3. 下一步：共機活動區圖層（PT-0 Phase 5）
 
-完整規劃見 `mini-taiwan-pulse/docs/proposal/pla-activity-layer.md`。摘要：
+完整規劃見 `mini-taiwan-pulse/docs/archive/2026-10-04/proposal/pla-activity-layer.md`。摘要：
 
 **A 期 — 資料上線**：建 `spatial.pla_tracks`（date × shape_no × Polygon × kind × needs_review）
 + `get_pla_tracks_day()` / `get_pla_track_dates()` 兩支 RPC；先灌 2026 年守門通過的 116 天。

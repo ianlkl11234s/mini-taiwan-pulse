@@ -6,7 +6,7 @@
 >
 > - **資料表**：[`layer-style-inventory.json`](./layer-style-inventory.json)（803 個圖層逐一列出，重跑 `npm run design:audit-layers` 產生）。本檔只放分佈、離群與規則，不逐層抄。
 > - **數值來源（改值只改程式）**：`src/map/mapStyleScale.ts`（拍板數值常數）、`src/map/pointTiers.ts`（點分階）、`src/map/pointSpec.ts`（registry 點圖層集中套用）、`src/components/legend/legendKit.tsx`（圖例元件）。
-> - **視覺參考**：活的元件頁 `design-system.html`（`src/design-system/`，`npm run dev` 後開 `/design-system.html`）「地圖圖層」區塊；靜態快照 [`reference.html`](./reference.html)；拍板用的比較頁 [`map-layer-picks.html`](./map-layer-picks.html)（真實底圖 1:1，現況 vs 提案，暗／淡並排）。
+> - **視覺參考**：活的元件頁 `tools/design-system.html`（`src/design-system/`，`npm run dev` 後開 `/tools/design-system.html`）「地圖圖層」區塊；靜態快照 [`reference.html`](./reference.html)；拍板用的比較頁 [`map-layer-picks.html`](./map-layer-picks.html)（真實底圖 1:1，現況 vs 提案，暗／淡並排）。
 > - **狀態**：§2 是 R1 前（2026-09-28）的盤點基準，開頭另列 R2 後的目前值；§3、§4 **已於 2026-09-28 逐項拍板**（結果見 §7）。**已套用**：R1（統計面、缺值／遮蔽、地圖中文字型、圖例元件與標題）、R2（點圖層：registry 192＋hook 122 層）、R3a／R3b（線面、網格、影像、文字、擠出）、R4（圖例色）、R5（密集點熱區與密度透明度，2026-10-03）、R7（熱區／網格色盤可選，2026-10-03）。**未套用**：R6 Three.js。§3 各條有標套用狀態。逐層調整時照 §6 工作流。
 > - 分析結果（Agent 畫在地圖上的結果）的視覺規格已定案於 [`features/viz-library/DECISIONS.md`](../features/viz-library/DECISIONS.md)，本檔只引用，不重寫。統計圖層配色另見 [`statistics-layer-guidelines.md`](../statistics-layer-guidelines.md) §4。
 

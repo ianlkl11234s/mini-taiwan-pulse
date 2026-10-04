@@ -2,7 +2,7 @@
 
 > 分支：`feat/intel-panel`（3 repo 同時開）
 > 起：2026-06-14
-> 來源：`docs/proposal/monitor-mode.md` + Claude Design Intel.html handoff（/tmp/design-intel/）
+> 來源：`docs/archive/2026-10-04/proposal/monitor-mode.md` + Claude Design Intel.html handoff（/tmp/design-intel/）
 > 範圍：**只做 Explore mode 左側 docked panel**，Monitor / Wall / Indicator / TimelineDock 一律 Phase 2
 
 ## 設計檔重點抽出

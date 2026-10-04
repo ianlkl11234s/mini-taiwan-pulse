@@ -46,7 +46,7 @@
 | `TimeseriesSparkline`（`heightTier`、`gapSec`、`bare`、`band`、`extraSeries`、`moreSeries`） | `src/components/TimeseriesSparkline.tsx` | 連續量；新版缺口自動斜線＋最新點 |
 | `HazardTrendBars`（`heightTier`、`bare`、`part`、`maxValue`） | `HazardTrendBars.tsx` | 計數；null＝灰樁、0＝底線 |
 
-活的元件頁 §13（`/design-system.html#monitor`）有全部示範。
+活的元件頁 §13（`/tools/design-system.html#monitor`）有全部示範。
 
 ## 4. 工作方式（照前幾階段）
 
