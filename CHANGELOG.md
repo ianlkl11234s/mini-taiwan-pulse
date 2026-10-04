@@ -49,6 +49,8 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+- 新增靜態「軌道路線 Rail Routes」圖層（交通 → 路網）：台鐵／高鐵／台北捷運／高雄捷運／高雄輕軌／台中捷運路線（含貓空纜車），可依系統篩選，不載入時刻表；台鐵／高鐵／捷運共用走廊（如台北—板橋—南港、新左營、古亭／東門）改為像路線圖一樣緊貼平行，不再互相穿插；含 2026-08-30 通車的信義線東延段（象山→廣慈/奉天宮，線形 © OpenStreetMap contributors, ODbL）與 R01 站點。⚠️ 發布前須重跑 `scripts/deploy/upload-deploy-assets.sh` 讓 `rail.tar.gz` 含 `rail/routes_static.geojson`
+- 「捷運站」圖層改為依所屬路線線色著色，轉乘站（同名且 500 m 內）以白底深描邊顯示，新增圖例與 popup 路線名；站點座標不變，僅在 `station_points.geojson` 補 `line_id`／`line_name`／`line_color`／`transfer` 屬性（`build-station-points.py --enrich`）
 - Statistics「人口與教育」新增人口統計 117 層：戶籍人口、年齡結構、人口動態、遷徙、原住民、已設戶籍外來人口（縣市／鄉鎮；戶籍人口、年齡結構、原住民另有村里 115 年 8 月一期；正負指標用 PuOr 雙向色階、年初累計獨立標示）
 - 村里綜合所得改用綜所稅資料原生的 112 年村里界（舊 115 年界線含未編定村里碼、缺瑪家三和村）
 

@@ -111,6 +111,7 @@ import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
+import { RAIL_ROUTES_SYSTEM_OPTIONS } from "./railRoutesTypes";
 import { RIVER_RPI_FILTER_OPTIONS, RIVER_RPI_SEGMENT_MODES, WATER_QUALITY_STATION_FILTER_OPTIONS } from "./environmentLayerTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
@@ -2127,6 +2128,16 @@ export const LAYER_PARAMS_SPEC = {
   ecoNetworkZones: [opacitySlider("ecoNetworkZonesOpacity", 0.5)],
 
   // ══════════ 森林山域・能源電力航空 ══════════
+  railRoutes: [
+    { kind: "slider", name: "railRoutesWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("railRoutesOpacity", 0.9),
+    {
+      kind: "select", name: "railRoutesSystem", label: "系統", category: "data", // 篩選畫哪個系統
+      default: "all", options: [...RAIL_ROUTES_SYSTEM_OPTIONS],
+      out: "railRoutesSystemIdx",
+      encode: RAIL_ROUTES_SYSTEM_OPTIONS.map((option) => option.value),
+    },
+  ],
   forestRoads: [
     { kind: "slider", name: "forestRoadsWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
     opacitySlider("forestRoadsOpacity", 0.8),

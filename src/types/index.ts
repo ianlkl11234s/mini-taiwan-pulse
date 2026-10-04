@@ -738,7 +738,7 @@ export interface FeatureInfo {
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
-    | "provincialRoad" | "highway" | "cyclingRoute"
+    | "provincialRoad" | "highway" | "cyclingRoute" | "railRoutes"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
@@ -1034,6 +1034,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   historicalFlightTrails: boolean;
   ships: boolean;
   rail: boolean;
+  railRoutes: boolean;
   stationsTHSR: boolean;
   stationsTRA: boolean;
   stationsMetro: boolean;
