@@ -96,7 +96,12 @@ export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: 
   const source = recipe(from); const target = recipe(to);
   if (!source || !target) return false;
   const sourceOption = selectionOption(from, source);
-  const option = releaseOptions(to, target).find(candidate => candidate.period_start === sourceOption?.period_start && candidate.period_end === sourceOption?.period_end && sameIdentityDimensions(sourceOption, candidate));
+  const targetOptions = releaseOptions(to, target);
+  // 人口統計村里層只交付一期（11508，界線版本須與資料期別一致）：從縣市／鄉鎮的其他期別切入時落到這唯一一期
+  // （主 agent 決策：只有一期可選不算「靜默跳年份」；期別寫在說明・來源）。其他群組仍要求同期別。
+  const onlyVillagePeriod = getDemographicsRecipe(to)?.level === 'village' && targetOptions.length === 1 ? targetOptions[0] : undefined;
+  const option = targetOptions.find(candidate => candidate.period_start === sourceOption?.period_start && candidate.period_end === sourceOption?.period_end && sameIdentityDimensions(sourceOption, candidate))
+    ?? onlyVillagePeriod;
   if (!option) return false;
   regionalStatisticsStore.setSelection(to, { layerKey: to, datasetId: target.dataset_id, indicatorId: target.indicator_id, level: target.level as StatisticsRecipe['level'], label: target.label, releaseId: option.release_id, dimensions: option.dimensions, allowReleaseFallback: false, includeHealth: true });
   const opacity = layerParamsStore.getParam(from, `${from}Opacity`);

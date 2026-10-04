@@ -2,8 +2,9 @@
 
 > **上游 SSOT**：`../../../taipei-gis-analytics/docs/handoff/household-registration-population-frontend.md`、`population-age-structure-frontend.md`（含 recipes／boundaries JSON）。本檔只記前端接線差異。
 
-- 收錄：只收 `enabled: true`（縣市＋鄉鎮 32 recipes、288 exact selectors）；村里 16 recipes HOLD。
+- 收錄：只收 `enabled: true`（P0–P6 縣市＋鄉鎮 97 recipes、620 exact selectors）；各 dataset handoff 的村里 recipes 仍 HOLD。村里 20 recipes 改由 `docs/handoff/village-statistics-recipes.json` 提供（只 11508 × `VILLAGE_NLSC_1150817`；同檔的勞動村里 recipe 不收，由 `laborStatisticsRecipes.json` 手動對齊）。
 - 本地預覽根：analytics `output/demographics-statistics-preview/cdn/v1`（`assemble_demographics_preview.py` 合併；artifact／geometry 逐位元組複製、SHA 不變，只有合併 manifest 為新檔）。不是可發布的全量 manifest。
+- 村里預覽根：analytics `output/village-statistics-preview/cdn/v1`（增量包，2 geometry＋21 artifact）。尚未合入 demographics 預覽 manifest，所以 DEV preview route（`/__demographics-statistics-cdn`）看不到村里層、勞動村里新 release 也不在 labor 預覽包；瀏覽器 QA 要等增量合入或另開村里預覽根。delivery test 已分開對村里包驗證。
 - 正式發布：須另行授權，以增量方式合入線上全量 manifest、沿用線上 geometry（`COUNTY_MOI_1140318` 3feeca87…、`TOWN_MOI_1140318` 80749d60…），不得上傳本地重序列化 geometry。
 
 ## 加入 P3–P6（vital_events／migration／indigenous／foreign_origin）

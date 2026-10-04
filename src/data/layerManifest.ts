@@ -429,17 +429,18 @@ const ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ENVIRONMENT_E
 })) as Record<EnvironmentStatisticsLayerKey, LayerManifestEntry>;
 
 /** Demographics recipes (內政部戶政司 RIS 戶籍人口／年齡結構) share the dynamic Statistics renderer. */
+const DEMOGRAPHICS_LEVEL_QUALIFIERS: Partial<Record<string, string>> = { county: "縣市", township: "鄉鎮市區", village: "村里" };
 const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
   return [recipe.layer_key, {
     key: recipe.layer_key,
     section: { theme: DEMOGRAPHICS_STATISTICS_THEME_TITLE, group: recipe.subgroup },
-    ...layerName({ zh: demographicsDisplayLabel(recipe), qualifier: recipe.level === "township" ? "鄉鎮市區" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    ...layerName({ zh: demographicsDisplayLabel(recipe), qualifier: DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
     legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
     description: demographicsDisclosure(recipe),
-    topics: ["統計", "人口", "戶籍", recipe.subgroup.replace(/（[^）]*）$/, ""), recipe.level === "township" ? "鄉鎮市區" : "縣市"],
+    topics: ["統計", "人口", "戶籍", recipe.subgroup.replace(/（[^）]*）$/, ""), DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市"],
   }];
 })) as Record<DemographicsStatisticsLayerKey, LayerManifestEntry>;
 

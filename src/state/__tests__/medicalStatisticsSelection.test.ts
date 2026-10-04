@@ -8,6 +8,7 @@ import { getSocialRecipeDetails } from '../../data/socialStatisticsRecipes';
 import { getAgriRecipeDetails } from '../../data/agriStatisticsRecipes';
 import { ensureStatisticsRecipeDetails } from '../../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
+import { getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 const beds = ['statsHealthHospitalBedTotal', 'statsHealthAcuteBedTotal', 'statsHealthIcuBedTotal', 'statsHealthHospiceBedTotal'] as const;
 beforeAll(() => ensureStatisticsRecipeDetails());
 beforeEach(() => {
@@ -101,5 +102,33 @@ describe('medical family switching', () => {
     expect(await prepareMedicalStatisticsVariant(from, to, [from, to], () => false)).toBe(false);
     expect(layerVisibilityStore.getAll()[from]).toBe(true);
     expect(layerVisibilityStore.getAll()[to]).toBe(false);
+  });
+});
+describe('demographics level switching (村里只有 11508 一期)', () => {
+  const county = 'statsDemographicsCountyShareAge65Plus' as const;
+  const township = 'statsDemographicsTownshipShareAge65Plus' as const;
+  const village = 'statsDemographicsVillageShareAge65Plus' as const;
+  const members = [county, township, village] as const;
+  const select = (key: typeof members[number], suffix: string) => {
+    const recipe = getDemographicsRecipe(key)!;
+    const option = recipe.release_options.find(item => item.release_id.endsWith(`-${suffix}`))!;
+    regionalStatisticsStore.setSelection(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, releaseId: option.release_id, dimensions: option.dimensions });
+  };
+  it('falls back to the only village period (11508) when the county period has no village release', () => {
+    select(county, '11412');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [county]: true });
+    expect(selectMedicalStatisticsVariant(county, village, members)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(village).selection).toMatchObject({ releaseId: 'pas-share-age-65-plus-village-11508', dimensions: { month: '08', roc_year: '115' }, allowReleaseFallback: false });
+    expect(members.filter(key => layerVisibilityStore.getAll()[key])).toEqual([village]);
+  });
+  it('keeps 11508 when switching back from village to county, and still refuses cross-period county→township', () => {
+    select(village, '11508');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [village]: true });
+    expect(selectMedicalStatisticsVariant(village, county, members)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(county).selection?.releaseId).toBe('pas-share-age-65-plus-county-11508');
+    // 縣市↔鄉鎮仍是同期別切換：11412 對到鄉鎮 11412，不會被村里 fallback 影響。
+    select(county, '11412');
+    expect(selectMedicalStatisticsVariant(county, township, members)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(township).selection?.releaseId).toBe('pas-share-age-65-plus-township-11412');
   });
 });

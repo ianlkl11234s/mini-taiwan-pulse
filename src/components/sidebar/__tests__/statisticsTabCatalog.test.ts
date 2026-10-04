@@ -95,11 +95,13 @@ describe("STATISTICS_TAB_THEMES", () => {
     // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
     const pollution = group("環境與資源 Environment & Resources", "污染與公害");
     expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));
-    // 人口統計：縣市成員在鄉鎮之前，群組列（第一個成員）預設縣市層級。
+    // 人口統計：縣市→鄉鎮→村里，群組列（第一個成員）預設縣市層級（村里 80MB 界線不會因展開群組而預載）。
     const ageStructure = group("人口與教育 Population & Education", "年齡結構");
     expect(ageStructure[0]).toBe("statsDemographicsCountyPopAge0To14");
     expect(ageStructure.indexOf("statsDemographicsCountyShareAge65Plus")).toBeLessThan(ageStructure.indexOf("statsDemographicsTownshipShareAge65Plus"));
-    expect(group("人口與教育 Population & Education", "戶籍人口")).toHaveLength(8);
+    expect(ageStructure.indexOf("statsDemographicsTownshipShareAge65Plus")).toBeLessThan(ageStructure.indexOf("statsDemographicsVillageShareAge65Plus"));
+    expect(group("人口與教育 Population & Education", "戶籍人口")).toHaveLength(12);
+    expect(group("人口與教育 Population & Education", "原住民")).toContain("statsDemographicsVillageIndigenousShare");
     // 既有每月出生數併入同名「人口動態」小群組末尾
     expect(group("人口與教育 Population & Education", "人口動態").slice(-1)).toEqual(["statsBirthsTownship"]);
     expect(group("人口與教育 Population & Education", "外來人口")).toContain("statsDemographicsCountyNaturalizationCount");

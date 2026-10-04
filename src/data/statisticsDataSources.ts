@@ -4,7 +4,7 @@ import { isStatisticsLayer, STATISTICS_RECIPES, statisticsBaseKey } from "./regi
 import { getSocialRecipe } from "./socialStatisticsRecipes";
 import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
 import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
-import { demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
+import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
 export type StatisticsSourceKind = "source" | "derived" | "presentation";
@@ -145,7 +145,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: demographics.level,
       period: ytd ?? periodLabel(demographics.release_options),
       contract: `只接受 ${demographics.release_options.length} 個已交付 exact release selector；缺值以斜線表示、不補 0；PARTIAL 期別保留覆蓋狀態。`,
-      disclosure: [`位置口徑：${demographics.location_semantics}`, demographicsDisclosure(demographics), note].filter(Boolean).join(" "),
+      disclosure: [`位置口徑：${demographics.location_semantics}`, demographicsDisclosure(demographics), note, demographics.level === "village" ? DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE : undefined].filter(Boolean).join(" "),
       ...source,
     };
   }

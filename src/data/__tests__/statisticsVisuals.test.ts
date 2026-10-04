@@ -137,8 +137,9 @@ describe('getStatisticsVisual', () => {
     // 2026-10-02: +37 環境統計（環境部／國土管理署 18 dataset）。
     // 2026-10-04: +32 人口統計（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
     // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
-    expect(STATISTICS_KEYS).toHaveLength(442);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(454);
+    // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；只有 11508 一期）。
+    expect(STATISTICS_KEYS).toHaveLength(462);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(474);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

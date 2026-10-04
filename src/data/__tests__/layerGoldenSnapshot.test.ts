@@ -166,7 +166,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-02: +9 環境第二波（海域水質、RPI 河段試作、PM2.5 手動站、戴奧辛、焚化廠＋即時輻射／放流水／CEMS／紫外線）。
     // 2026-10-04: +32 人口統計 Statistics 圖層（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
     // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
-    expect(keys.length).toBe(961);
+    // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；11508 × 內政部村里界 1150817）。
+    expect(keys.length).toBe(981);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

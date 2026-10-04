@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 961,
+    "keyCount": 981,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2717,6 +2717,10 @@
         "statsDemographicsTownshipHouseholdCount-fill",
         "statsDemographicsTownshipHouseholdSize-fill",
         "statsDemographicsTownshipPopulationDensity-fill",
+        "statsDemographicsVillagePopulationTotal-fill",
+        "statsDemographicsVillageHouseholdCount-fill",
+        "statsDemographicsVillageHouseholdSize-fill",
+        "statsDemographicsVillagePopulationDensity-fill",
         "statsDemographicsCountyPopAge0To14-fill",
         "statsDemographicsCountyPopAge15To64-fill",
         "statsDemographicsCountyPopAge65Plus-fill",
@@ -2741,6 +2745,18 @@
         "statsDemographicsTownshipOldDependencyRatio-fill",
         "statsDemographicsTownshipSexRatio-fill",
         "statsDemographicsTownshipMedianAge-fill",
+        "statsDemographicsVillagePopAge0To14-fill",
+        "statsDemographicsVillagePopAge15To64-fill",
+        "statsDemographicsVillagePopAge65Plus-fill",
+        "statsDemographicsVillageShareAge0To14-fill",
+        "statsDemographicsVillageShareAge15To64-fill",
+        "statsDemographicsVillageShareAge65Plus-fill",
+        "statsDemographicsVillageAgingIndex-fill",
+        "statsDemographicsVillageDependencyRatio-fill",
+        "statsDemographicsVillageChildDependencyRatio-fill",
+        "statsDemographicsVillageOldDependencyRatio-fill",
+        "statsDemographicsVillageSexRatio-fill",
+        "statsDemographicsVillageMedianAge-fill",
         "statsDemographicsCountyBirths-fill",
         "statsDemographicsCountyDeaths-fill",
         "statsDemographicsCountyNaturalIncrease-fill",
@@ -2793,6 +2809,10 @@
         "statsDemographicsTownshipIndigenousPlainPopulation-fill",
         "statsDemographicsTownshipIndigenousMountainPopulation-fill",
         "statsDemographicsTownshipIndigenousShare-fill",
+        "statsDemographicsVillageIndigenousPopulation-fill",
+        "statsDemographicsVillageIndigenousPlainPopulation-fill",
+        "statsDemographicsVillageIndigenousMountainPopulation-fill",
+        "statsDemographicsVillageIndigenousShare-fill",
         "statsDemographicsCountyForeignOriginPopulation-fill",
         "statsDemographicsCountyForeignOriginMainlandPopulation-fill",
         "statsDemographicsCountyForeignOriginForeignNationalPopulation-fill",
@@ -90744,6 +90764,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -90929,6 +90965,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -91350,6 +91402,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -91881,6 +91949,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipHouseholdCount"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageHouseholdCount"
           }
         ],
         "status": "ready",
@@ -91916,6 +91988,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipHouseholdSize"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageHouseholdSize"
           }
         ],
         "status": "ready",
@@ -92061,6 +92137,18 @@
           {
             "label": "鄉鎮市區：山地原住民人口數",
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
         "status": "ready",
@@ -92112,6 +92200,18 @@
           {
             "label": "鄉鎮市區：山地原住民人口數",
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
         "status": "ready",
@@ -92163,6 +92263,18 @@
           {
             "label": "鄉鎮市區：山地原住民人口數",
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
         "status": "ready",
@@ -92198,6 +92310,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipIndigenousShare"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageIndigenousShare"
           }
         ],
         "status": "ready",
@@ -92359,6 +92475,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipMedianAge"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageMedianAge"
           }
         ],
         "status": "ready",
@@ -92727,6 +92847,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -92872,6 +93008,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口數",
             "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
         "status": "ready",
@@ -92923,6 +93071,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口數",
             "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
         "status": "ready",
@@ -92974,6 +93134,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口數",
             "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
         "status": "ready",
@@ -93009,6 +93181,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipPopulationDensity"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillagePopulationDensity"
           }
         ],
         "status": "ready",
@@ -93044,6 +93220,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipPopulationTotal"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillagePopulationTotal"
           }
         ],
         "status": "ready",
@@ -93079,6 +93259,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipSexRatio"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageSexRatio"
           }
         ],
         "status": "ready",
@@ -93130,6 +93314,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口占比",
             "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
         "status": "ready",
@@ -93181,6 +93377,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口占比",
             "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
         "status": "ready",
@@ -93232,6 +93440,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口占比",
             "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
         "status": "ready",
@@ -93291,6 +93511,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -93476,6 +93712,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -93897,6 +94149,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -94428,6 +94696,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipHouseholdCount"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageHouseholdCount"
           }
         ],
         "status": "ready",
@@ -94463,6 +94735,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipHouseholdSize"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageHouseholdSize"
           }
         ],
         "status": "ready",
@@ -94608,6 +94884,18 @@
           {
             "label": "鄉鎮市區：山地原住民人口數",
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
         "status": "ready",
@@ -94659,6 +94947,18 @@
           {
             "label": "鄉鎮市區：山地原住民人口數",
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
         "status": "ready",
@@ -94710,6 +95010,18 @@
           {
             "label": "鄉鎮市區：山地原住民人口數",
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
         "status": "ready",
@@ -94745,6 +95057,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipIndigenousShare"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageIndigenousShare"
           }
         ],
         "status": "ready",
@@ -94906,6 +95222,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipMedianAge"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageMedianAge"
           }
         ],
         "status": "ready",
@@ -95255,6 +95575,22 @@
           {
             "label": "鄉鎮市區：扶老比",
             "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
         "status": "ready",
@@ -95400,6 +95736,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口數",
             "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
         "status": "ready",
@@ -95451,6 +95799,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口數",
             "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
         "status": "ready",
@@ -95502,6 +95862,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口數",
             "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
         "status": "ready",
@@ -95537,6 +95909,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipPopulationDensity"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillagePopulationDensity"
           }
         ],
         "status": "ready",
@@ -95572,6 +95948,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipPopulationTotal"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillagePopulationTotal"
           }
         ],
         "status": "ready",
@@ -95607,6 +95987,10 @@
           {
             "label": "鄉鎮市區",
             "value": "statsDemographicsTownshipSexRatio"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageSexRatio"
           }
         ],
         "status": "ready",
@@ -95658,6 +96042,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口占比",
             "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
         "status": "ready",
@@ -95709,6 +96105,18 @@
           {
             "label": "鄉鎮市區：65 歲以上人口占比",
             "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
         "status": "ready",
@@ -95760,11 +96168,1163 @@
           {
             "label": "鄉鎮市區：65 歲以上人口占比",
             "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsDemographicsTownshipShareAge65Plus"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageAgingIndex": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：老化指數",
+            "value": "statsDemographicsCountyAgingIndex"
+          },
+          {
+            "label": "縣市：扶養比",
+            "value": "statsDemographicsCountyDependencyRatio"
+          },
+          {
+            "label": "縣市：扶幼比",
+            "value": "statsDemographicsCountyChildDependencyRatio"
+          },
+          {
+            "label": "縣市：扶老比",
+            "value": "statsDemographicsCountyOldDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：老化指數",
+            "value": "statsDemographicsTownshipAgingIndex"
+          },
+          {
+            "label": "鄉鎮市區：扶養比",
+            "value": "statsDemographicsTownshipDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶幼比",
+            "value": "statsDemographicsTownshipChildDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶老比",
+            "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageAgingIndex"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageChildDependencyRatio": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：老化指數",
+            "value": "statsDemographicsCountyAgingIndex"
+          },
+          {
+            "label": "縣市：扶養比",
+            "value": "statsDemographicsCountyDependencyRatio"
+          },
+          {
+            "label": "縣市：扶幼比",
+            "value": "statsDemographicsCountyChildDependencyRatio"
+          },
+          {
+            "label": "縣市：扶老比",
+            "value": "statsDemographicsCountyOldDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：老化指數",
+            "value": "statsDemographicsTownshipAgingIndex"
+          },
+          {
+            "label": "鄉鎮市區：扶養比",
+            "value": "statsDemographicsTownshipDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶幼比",
+            "value": "statsDemographicsTownshipChildDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶老比",
+            "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageChildDependencyRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageDependencyRatio": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：老化指數",
+            "value": "statsDemographicsCountyAgingIndex"
+          },
+          {
+            "label": "縣市：扶養比",
+            "value": "statsDemographicsCountyDependencyRatio"
+          },
+          {
+            "label": "縣市：扶幼比",
+            "value": "statsDemographicsCountyChildDependencyRatio"
+          },
+          {
+            "label": "縣市：扶老比",
+            "value": "statsDemographicsCountyOldDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：老化指數",
+            "value": "statsDemographicsTownshipAgingIndex"
+          },
+          {
+            "label": "鄉鎮市區：扶養比",
+            "value": "statsDemographicsTownshipDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶幼比",
+            "value": "statsDemographicsTownshipChildDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶老比",
+            "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageDependencyRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageHouseholdCount": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyHouseholdCount"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipHouseholdCount"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageHouseholdCount"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageHouseholdCount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageHouseholdSize": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyHouseholdSize"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipHouseholdSize"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageHouseholdSize"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageHouseholdSize"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageIndigenousMountainPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageIndigenousMountainPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageIndigenousPlainPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageIndigenousPlainPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageIndigenousPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          },
+          {
+            "label": "村里：原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPopulation"
+          },
+          {
+            "label": "村里：平地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousPlainPopulation"
+          },
+          {
+            "label": "村里：山地原住民人口數",
+            "value": "statsDemographicsVillageIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageIndigenousPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageIndigenousShare": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyIndigenousShare"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipIndigenousShare"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageIndigenousShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageIndigenousShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageMedianAge": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyMedianAge"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipMedianAge"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageMedianAge"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageMedianAge"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageOldDependencyRatio": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：老化指數",
+            "value": "statsDemographicsCountyAgingIndex"
+          },
+          {
+            "label": "縣市：扶養比",
+            "value": "statsDemographicsCountyDependencyRatio"
+          },
+          {
+            "label": "縣市：扶幼比",
+            "value": "statsDemographicsCountyChildDependencyRatio"
+          },
+          {
+            "label": "縣市：扶老比",
+            "value": "statsDemographicsCountyOldDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：老化指數",
+            "value": "statsDemographicsTownshipAgingIndex"
+          },
+          {
+            "label": "鄉鎮市區：扶養比",
+            "value": "statsDemographicsTownshipDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶幼比",
+            "value": "statsDemographicsTownshipChildDependencyRatio"
+          },
+          {
+            "label": "鄉鎮市區：扶老比",
+            "value": "statsDemographicsTownshipOldDependencyRatio"
+          },
+          {
+            "label": "村里：老化指數",
+            "value": "statsDemographicsVillageAgingIndex"
+          },
+          {
+            "label": "村里：扶養比",
+            "value": "statsDemographicsVillageDependencyRatio"
+          },
+          {
+            "label": "村里：扶幼比",
+            "value": "statsDemographicsVillageChildDependencyRatio"
+          },
+          {
+            "label": "村里：扶老比",
+            "value": "statsDemographicsVillageOldDependencyRatio"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageOldDependencyRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillagePopAge0To14": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：0-14 歲人口數",
+            "value": "statsDemographicsCountyPopAge0To14"
+          },
+          {
+            "label": "縣市：15-64 歲人口數",
+            "value": "statsDemographicsCountyPopAge15To64"
+          },
+          {
+            "label": "縣市：65 歲以上人口數",
+            "value": "statsDemographicsCountyPopAge65Plus"
+          },
+          {
+            "label": "鄉鎮市區：0-14 歲人口數",
+            "value": "statsDemographicsTownshipPopAge0To14"
+          },
+          {
+            "label": "鄉鎮市區：15-64 歲人口數",
+            "value": "statsDemographicsTownshipPopAge15To64"
+          },
+          {
+            "label": "鄉鎮市區：65 歲以上人口數",
+            "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillagePopAge0To14"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillagePopAge15To64": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：0-14 歲人口數",
+            "value": "statsDemographicsCountyPopAge0To14"
+          },
+          {
+            "label": "縣市：15-64 歲人口數",
+            "value": "statsDemographicsCountyPopAge15To64"
+          },
+          {
+            "label": "縣市：65 歲以上人口數",
+            "value": "statsDemographicsCountyPopAge65Plus"
+          },
+          {
+            "label": "鄉鎮市區：0-14 歲人口數",
+            "value": "statsDemographicsTownshipPopAge0To14"
+          },
+          {
+            "label": "鄉鎮市區：15-64 歲人口數",
+            "value": "statsDemographicsTownshipPopAge15To64"
+          },
+          {
+            "label": "鄉鎮市區：65 歲以上人口數",
+            "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillagePopAge15To64"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillagePopAge65Plus": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：0-14 歲人口數",
+            "value": "statsDemographicsCountyPopAge0To14"
+          },
+          {
+            "label": "縣市：15-64 歲人口數",
+            "value": "statsDemographicsCountyPopAge15To64"
+          },
+          {
+            "label": "縣市：65 歲以上人口數",
+            "value": "statsDemographicsCountyPopAge65Plus"
+          },
+          {
+            "label": "鄉鎮市區：0-14 歲人口數",
+            "value": "statsDemographicsTownshipPopAge0To14"
+          },
+          {
+            "label": "鄉鎮市區：15-64 歲人口數",
+            "value": "statsDemographicsTownshipPopAge15To64"
+          },
+          {
+            "label": "鄉鎮市區：65 歲以上人口數",
+            "value": "statsDemographicsTownshipPopAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口數",
+            "value": "statsDemographicsVillagePopAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口數",
+            "value": "statsDemographicsVillagePopAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口數",
+            "value": "statsDemographicsVillagePopAge65Plus"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillagePopAge65Plus"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillagePopulationDensity": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyPopulationDensity"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipPopulationDensity"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillagePopulationDensity"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillagePopulationDensity"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillagePopulationTotal": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyPopulationTotal"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipPopulationTotal"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillagePopulationTotal"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillagePopulationTotal"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageSexRatio": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountySexRatio"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipSexRatio"
+          },
+          {
+            "label": "村里",
+            "value": "statsDemographicsVillageSexRatio"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageSexRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageShareAge0To14": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：0-14 歲人口占比",
+            "value": "statsDemographicsCountyShareAge0To14"
+          },
+          {
+            "label": "縣市：15-64 歲人口占比",
+            "value": "statsDemographicsCountyShareAge15To64"
+          },
+          {
+            "label": "縣市：65 歲以上人口占比",
+            "value": "statsDemographicsCountyShareAge65Plus"
+          },
+          {
+            "label": "鄉鎮市區：0-14 歲人口占比",
+            "value": "statsDemographicsTownshipShareAge0To14"
+          },
+          {
+            "label": "鄉鎮市區：15-64 歲人口占比",
+            "value": "statsDemographicsTownshipShareAge15To64"
+          },
+          {
+            "label": "鄉鎮市區：65 歲以上人口占比",
+            "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageShareAge0To14"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageShareAge15To64": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：0-14 歲人口占比",
+            "value": "statsDemographicsCountyShareAge0To14"
+          },
+          {
+            "label": "縣市：15-64 歲人口占比",
+            "value": "statsDemographicsCountyShareAge15To64"
+          },
+          {
+            "label": "縣市：65 歲以上人口占比",
+            "value": "statsDemographicsCountyShareAge65Plus"
+          },
+          {
+            "label": "鄉鎮市區：0-14 歲人口占比",
+            "value": "statsDemographicsTownshipShareAge0To14"
+          },
+          {
+            "label": "鄉鎮市區：15-64 歲人口占比",
+            "value": "statsDemographicsTownshipShareAge15To64"
+          },
+          {
+            "label": "鄉鎮市區：65 歲以上人口占比",
+            "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageShareAge15To64"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsVillageShareAge65Plus": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：0-14 歲人口占比",
+            "value": "statsDemographicsCountyShareAge0To14"
+          },
+          {
+            "label": "縣市：15-64 歲人口占比",
+            "value": "statsDemographicsCountyShareAge15To64"
+          },
+          {
+            "label": "縣市：65 歲以上人口占比",
+            "value": "statsDemographicsCountyShareAge65Plus"
+          },
+          {
+            "label": "鄉鎮市區：0-14 歲人口占比",
+            "value": "statsDemographicsTownshipShareAge0To14"
+          },
+          {
+            "label": "鄉鎮市區：15-64 歲人口占比",
+            "value": "statsDemographicsTownshipShareAge15To64"
+          },
+          {
+            "label": "鄉鎮市區：65 歲以上人口占比",
+            "value": "statsDemographicsTownshipShareAge65Plus"
+          },
+          {
+            "label": "村里：0-14 歲人口占比",
+            "value": "statsDemographicsVillageShareAge0To14"
+          },
+          {
+            "label": "村里：15-64 歲人口占比",
+            "value": "statsDemographicsVillageShareAge15To64"
+          },
+          {
+            "label": "村里：65 歲以上人口占比",
+            "value": "statsDemographicsVillageShareAge65Plus"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsVillageShareAge65Plus"
       },
       {
         "label": "資料期別",

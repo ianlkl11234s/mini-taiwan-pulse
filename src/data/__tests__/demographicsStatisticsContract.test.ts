@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import recipesJson from "../demographicsStatisticsRecipes.json";
 import {
   DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY,
-  DEMOGRAPHICS_STATISTICS_TOGGLE_GROUPS, demographicsDisplayLabel, demographicsIndicatorNote, demographicsPeriodLabel, demographicsReleaseOptions, resolveDemographicsRelease,
+  DEMOGRAPHICS_STATISTICS_TOGGLE_GROUPS, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsPeriodLabel, demographicsReleaseOptions, resolveDemographicsRelease,
   type DemographicsStatisticsLayerKey,
 } from "../demographicsStatisticsRecipes";
 import { STATISTICS_RECIPES, statisticsRenderRecipe } from "../regionalStatisticsRecipes";
@@ -11,6 +11,7 @@ import { getMedicalStatisticsGroup } from "../medicalStatisticsGroups";
 import { statisticsLinkedSelects } from "../statisticsParamsSpec";
 import { getStatisticsVisual, statisticsVisualColors } from "../statisticsVisuals";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
+import { boundaryVersionLabel } from "../statisticsLabels";
 
 type Recipe = typeof DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES[number];
 const publicReleases = (recipe: Recipe): StatisticsRelease[] => recipe.release_options.map((option) => ({
@@ -20,24 +21,24 @@ const publicReleases = (recipe: Recipe): StatisticsRelease[] => recipe.release_o
 const delivered = (recipesJson as { recipes: Array<{ layer_key: string; enabled: boolean; level: string }> }).recipes;
 
 describe("demographics statistics recipes", () => {
-  it("registers exactly the enabled county/township handoff recipes; village HOLD stays out", () => {
+  it("registers exactly the enabled handoff recipes: county/township plus the 20 village 11508 layers", () => {
     expect(delivered.every((recipe) => recipe.enabled)).toBe(true);
-    expect(delivered.some((recipe) => recipe.level === "village")).toBe(false);
+    expect(delivered.filter((recipe) => recipe.level === "village")).toHaveLength(20);
     // KEYS tuple must track the JSON, otherwise a new handoff silently misses the LayerVisibility union.
     expect(delivered.map((recipe) => recipe.layer_key).sort()).toEqual([...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS].sort());
-    expect(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES).toHaveLength(97);
+    expect(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES).toHaveLength(117);
     for (const key of DEMOGRAPHICS_ENABLED_STATISTICS_KEYS) {
       expect(STATISTICS_RECIPES[key].dataset_id).toBe(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY[key].dataset_id);
       expect("releaseId" in STATISTICS_RECIPES[key]).toBe(false);
     }
   });
 
-  it("keeps 620 exact selectors (P0 72＋P2 216＋P3 110＋P4 68＋P5 72＋P6 82), one tuple per release", () => {
+  it("keeps 640 exact selectors (P0 76＋P2 228＋P3 110＋P4 68＋P5 76＋P6 82; 村里各 1), one tuple per release", () => {
     const perDataset = new Map<string, number>();
     for (const recipe of DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES) perDataset.set(recipe.dataset_id, (perDataset.get(recipe.dataset_id) ?? 0) + recipe.release_options.length);
     expect(Object.fromEntries(perDataset)).toEqual({
-      household_registration_population: 72, population_age_structure: 216, population_vital_events: 110,
-      population_migration: 68, indigenous_population: 72, foreign_origin_population: 82,
+      household_registration_population: 76, population_age_structure: 228, population_vital_events: 110,
+      population_migration: 68, indigenous_population: 76, foreign_origin_population: 82,
     });
     for (const recipe of DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES) {
       expect(new Set(recipe.release_options.map((option) => option.release_id)).size).toBe(recipe.release_options.length);
@@ -133,8 +134,13 @@ describe("demographics statistics recipes", () => {
     // 歸化只有縣市層：選單只列「縣市」
     expect(getMedicalStatisticsGroup("statsDemographicsCountyNaturalizationCount")?.options).toEqual([{ key: "statsDemographicsCountyNaturalizationCount", label: "縣市" }]);
     expect(getMedicalStatisticsGroup("statsDemographicsTownshipPopulationDensity")?.options.map((option) => [option.key, option.label])).toEqual([
-      ["statsDemographicsCountyPopulationDensity", "縣市"], ["statsDemographicsTownshipPopulationDensity", "鄉鎮市區"],
+      ["statsDemographicsCountyPopulationDensity", "縣市"], ["statsDemographicsTownshipPopulationDensity", "鄉鎮市區"], ["statsDemographicsVillagePopulationDensity", "村里"],
     ]);
+    expect(getMedicalStatisticsGroup("statsDemographicsVillageIndigenousShare")?.options.map((option) => option.label)).toEqual(["縣市", "鄉鎮市區", "村里"]);
+    expect(getMedicalStatisticsGroup("statsDemographicsCountyShareAge65Plus")?.options.slice(-1)[0]).toEqual({ key: "statsDemographicsVillageShareAge65Plus", label: "村里：65 歲以上人口占比" });
+    // 村里只做 P0/P2/P5；流量（P3/P4）與外來人口沒有村里選項。
+    expect(getMedicalStatisticsGroup("statsDemographicsCountyBirths")?.options.some((option) => option.key.includes("Village"))).toBe(false);
+    expect(getMedicalStatisticsGroup("statsDemographicsCountyForeignOriginShare")?.options.some((option) => option.key.includes("Village"))).toBe(false);
     expect(getMedicalStatisticsGroup("statsDemographicsCountyShareAge65Plus")?.options[2]).toEqual({ key: "statsDemographicsCountyShareAge65Plus", label: "縣市：65 歲以上人口占比" });
   });
 
@@ -172,6 +178,43 @@ describe("demographics statistics recipes", () => {
     expect(naturalization.sourceUrl).toBe("https://data.gov.tw/dataset/62563");
     expect(getStatisticsDataSourceDefinition("statsDemographicsCountyIndigenousShare")!.disclosure).toContain("平埔");
     expect(getStatisticsDataSourceDefinition("statsDemographicsCountyNetMigrationRate")!.disclosure).toContain("棕色為負");
+  });
+});
+
+describe("demographics village layers (11508 × 內政部村里界 1150817)", () => {
+  const village = DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.level === "village");
+
+  it("has exactly one period (115-08) on the matching boundary version, 7,781 villages (aging index 7,777)", () => {
+    expect(new Set(village.map((recipe) => recipe.dataset_id))).toEqual(new Set(["household_registration_population", "population_age_structure", "indigenous_population"]));
+    for (const recipe of village) {
+      expect(recipe.boundary_version).toBe("VILLAGE_NLSC_1150817");
+      expect(recipe.release_options).toHaveLength(1);
+      expect(recipe.release_options[0]!.dimensions).toEqual({ month: "08", roc_year: "115" });
+      expect(recipe.release_options[0]!.release_id).toMatch(/-village-11508$/);
+      // 老化指數有 4 村里 0–14 歲人口為 0（not_applicable），不補值。
+      expect(recipe.coverage).toMatchObject({ numerator: recipe.indicator_id === "aging_index" ? 7777 : 7781, denominator: 7781 });
+      expect(STATISTICS_RECIPES[recipe.layer_key as DemographicsStatisticsLayerKey].dimensions).toEqual({ month: "08", roc_year: "115" });
+      expect(demographicsIndicatorNote(recipe)).toContain("村里層僅提供 115 年 8 月一期（界線版本須與資料期別一致）");
+    }
+    // 縣市／鄉鎮不帶村里說明
+    expect(demographicsIndicatorNote(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyPopulationTotal) ?? "").not.toContain("村里層僅提供");
+  });
+
+  it("names the boundary in Chinese and lists the village boundary source in the source overview", () => {
+    const total = DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsVillagePopulationTotal;
+    expect(boundaryVersionLabel("VILLAGE_NLSC_1150817")).toBe("內政部村里界（115 年 8 月 17 日版）");
+    expect(boundaryVersionLabel("VILLAGE_SEGIS_112")).toBe("SEGIS 112 年村里界（綜所稅原生界線）");
+    expect(total.disclosure).toContain("VILLAGE_NLSC_1150817");
+    expect(demographicsDisclosure(total)).not.toContain("VILLAGE_NLSC_1150817");
+    expect(demographicsDisclosure(total)).toContain("內政部村里界（115 年 8 月 17 日版）");
+    const card = getStatisticsDataSourceDefinition(total.layer_key)!;
+    expect(card.level).toBe("village");
+    expect(card.period).toBe("2026-08-31 至 2026-08-31");
+    expect(card.disclosure).toContain("data.gov.tw 7438");
+    expect(card.disclosure).toContain("村里層僅提供 115 年 8 月一期");
+    expect(card.disclosure).not.toMatch(/VILLAGE_[A-Z]/);
+    expect(card.provider).toBe("內政部戶政司 RIS（授權條款待確認）");
+    expect(getStatisticsDataSourceDefinition("statsDemographicsCountyPopulationTotal")!.disclosure).not.toContain("7438");
   });
 });
 

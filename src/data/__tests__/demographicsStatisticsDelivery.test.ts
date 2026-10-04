@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { webcrypto } from "node:crypto";
 import { afterEach, expect, it, vi } from "vitest";
@@ -9,22 +10,18 @@ import { statisticsGeometryCache } from "../statisticsGeometryCache";
 /**
  * Real-data gate: point DEMOGRAPHICS_STATISTICS_DATA_ROOT at the taipei-gis-analytics checkout after running
  * pipelines/shared/regional_statistics/assemble_demographics_preview.py. Skipped when the local preview is absent.
+ * 村里層是另一個增量包（assemble_village_statistics_preview.py → output/village-statistics-preview），
+ * 尚未合入 demographics preview manifest，所以分開驗。
  */
 const root = process.env.DEMOGRAPHICS_STATISTICS_DATA_ROOT;
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
 type Recipe = typeof DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES[number];
-const load = (recipe: Recipe, suffix: string) => {
-  const option = recipe.release_options.find((item) => item.release_id.endsWith(`-${suffix}`))!;
-  return loadRegionalStatistics({
-    layerKey: recipe.layer_key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id,
-    level: recipe.level, releaseId: option.release_id, dimensions: option.dimensions, includeHealth: true,
-  });
-};
+const countyTownship = DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.level !== "village");
+const villageRecipes = DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.level === "village");
+const villageCdn = root ? resolve(root, "output/village-statistics-preview/cdn/v1") : "";
 
-it.skipIf(!root)("loads all 620 delivered exact selectors through the real hash-validating loader", async () => {
-  const base = "https://demographics-delivery.test";
-  const cdn = resolve(root!, "output/demographics-statistics-preview/cdn/v1");
+function stubCdn(base: string, cdn: string) {
   vi.stubEnv("VITE_STATISTICS_CDN_BASE", base);
   vi.stubEnv("VITE_DEMOGRAPHICS_STATISTICS_PREVIEW", "false");
   vi.stubGlobal("crypto", webcrypto);
@@ -36,9 +33,21 @@ it.skipIf(!root)("loads all 620 delivered exact selectors through the real hash-
     return new Response(await readFile(path));
   });
   clearRegionalStatisticsCdnCache(); statisticsGeometryCache.clear();
+}
+
+const load = (recipe: Recipe, suffix: string) => {
+  const option = recipe.release_options.find((item) => item.release_id.endsWith(`-${suffix}`))!;
+  return loadRegionalStatistics({
+    layerKey: recipe.layer_key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id,
+    level: recipe.level, releaseId: option.release_id, dimensions: option.dimensions, includeHealth: true,
+  });
+};
+
+it.skipIf(!root)("loads all 620 delivered exact selectors through the real hash-validating loader", async () => {
+  stubCdn("https://demographics-delivery.test", resolve(root!, "output/demographics-statistics-preview/cdn/v1"));
 
   let loaded = 0;
-  for (const recipe of DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES) {
+  for (const recipe of countyTownship) {
     for (const option of recipe.release_options) {
       const result = await loadRegionalStatistics({
         layerKey: recipe.layer_key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id,
@@ -99,3 +108,17 @@ it.skipIf(!root)("loads all 620 delivered exact selectors through the real hash-
   const density = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyPopulationDensity, "11412");
   expect(String(density.features[0]?.properties?.disclosure)).toContain("EPSG:3826");
 }, 300000);
+
+it.skipIf(!root || !existsSync(villageCdn))("loads the 20 village 11508 selectors from the incremental village preview", async () => {
+  stubCdn("https://village-delivery.test", villageCdn);
+  expect(villageRecipes).toHaveLength(20);
+  for (const recipe of villageRecipes) {
+    const result = await load(recipe, "11508");
+    expect(result.geometryManifest.boundary_version).toBe("VILLAGE_NLSC_1150817");
+    expect(result.features).toHaveLength(7781);
+    expect(result.health?.coverage_status).toBe(recipe.release_options[0]!.coverage.status);
+  }
+  // 老化指數 4 村里 not_applicable（0–14 歲為 0），不補值。
+  const aging = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsVillageAgingIndex, "11508");
+  expect(aging.features.filter((feature) => feature.properties?.status !== "observed")).toHaveLength(4);
+}, 600000);

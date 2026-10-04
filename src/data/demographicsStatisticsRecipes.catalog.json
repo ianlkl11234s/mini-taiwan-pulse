@@ -43,6 +43,14 @@
       "enabled_recipes": 13,
       "held_recipes": 6,
       "exact_selectors": 82
+    },
+    {
+      "handoff": "docs/handoff/village-statistics-recipes.json",
+      "sha256": "74f8493a2a56b539e25440af005597ad893acbcddab1905130f87353daf6cdda",
+      "enabled_recipes": 20,
+      "held_recipes": 0,
+      "exact_selectors": 20,
+      "skipped_non_demographics_recipes": 1
     }
   ],
   "generator": "scripts/statistics/build_demographics_statistics_recipes.py",
@@ -2746,6 +2754,482 @@
       },
       "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; national totals gated (11312/11412); ODRP061 cross-check identical; license unverified.",
       "subgroup": "戶籍人口（鄉鎮市區）",
+      "unit": "人/km²"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "household_registration_population",
+      "disclosure": "戶籍登記人口（非常住、非活動人口）；觀察日＝該月月底統計標準日。鄉鎮／縣市為村里加總。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "population_total",
+      "label": "戶籍人口數",
+      "layer_key": "statsDemographicsVillagePopulationTotal",
+      "legend": {
+        "breaks": [
+          954,
+          1672,
+          2868,
+          4711
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/household_registration_population/releases/hrp-population-total-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "hrp-population-total-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; national totals gated (11312/11412); ODRP061 cross-check identical; license unverified.",
+      "subgroup": "戶籍人口（村里）",
+      "unit": "人"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "household_registration_population",
+      "disclosure": "戶籍登記戶數；觀察日＝月底。鄉鎮／縣市為村里加總。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "household_count",
+      "label": "戶數",
+      "layer_key": "statsDemographicsVillageHouseholdCount",
+      "legend": {
+        "breaks": [
+          397,
+          692,
+          1213,
+          2018
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/household_registration_population/releases/hrp-household-count-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "hrp-household-count-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; national totals gated (11312/11412); ODRP061 cross-check identical; license unverified.",
+      "subgroup": "戶籍人口（村里）",
+      "unit": "戶"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "household_registration_population",
+      "disclosure": "戶量＝該層級人口加總 ÷ 戶數加總（不平均子區比率）；戶數 0 的區為 not_applicable。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "household_size",
+      "label": "戶量（平均每戶人口）",
+      "layer_key": "statsDemographicsVillageHouseholdSize",
+      "legend": {
+        "breaks": [
+          2.1479,
+          2.3077,
+          2.4483,
+          2.6272
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/household_registration_population/releases/hrp-household-size-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "hrp-household-size-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; national totals gated (11312/11412); ODRP061 cross-check identical; license unverified.",
+      "subgroup": "戶籍人口（村里）",
+      "unit": "人/戶"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "household_registration_population",
+      "disclosure": "人口密度＝該層級人口加總 ÷ reference boundary 在 EPSG:3826 的平面面積（km²）；面積不是內政部公告土地面積，參考界線版本不等於歷史期別的原生界線。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "population_density",
+      "label": "人口密度",
+      "layer_key": "statsDemographicsVillagePopulationDensity",
+      "legend": {
+        "breaks": [
+          298.79,
+          1038.49,
+          5569.18,
+          18263.84
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/household_registration_population/releases/hrp-population-density-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "hrp-population-density-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; national totals gated (11312/11412); ODRP061 cross-check identical; license unverified.",
+      "subgroup": "戶籍人口（村里）",
       "unit": "人/km²"
     },
     {
@@ -10906,6 +11390,1482 @@
       },
       "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
       "subgroup": "年齡結構（鄉鎮市區）",
+      "unit": "歲"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "0-14 歲戶籍人口（足歲 0–14）；觀察日＝月底統計標準日。鄉鎮／縣市為村里加總。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "pop_age_0_14",
+      "label": "0-14 歲人口數",
+      "layer_key": "statsDemographicsVillagePopAge0To14",
+      "legend": {
+        "breaks": [
+          100,
+          250,
+          500,
+          1000
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-pop-age-0-14-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-pop-age-0-14-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "人"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "15-64 歲戶籍人口；觀察日＝月底。鄉鎮／縣市為村里加總。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "pop_age_15_64",
+      "label": "15-64 歲人口數",
+      "layer_key": "statsDemographicsVillagePopAge15To64",
+      "legend": {
+        "breaks": [
+          500,
+          1000,
+          2000,
+          4000
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-pop-age-15-64-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-pop-age-15-64-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "人"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "65 歲以上戶籍人口（含 100 歲以上開放組）；觀察日＝月底。鄉鎮／縣市為村里加總。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "pop_age_65_plus",
+      "label": "65 歲以上人口數",
+      "layer_key": "statsDemographicsVillagePopAge65Plus",
+      "legend": {
+        "breaks": [
+          200,
+          400,
+          600,
+          1000
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-pop-age-65-plus-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-pop-age-65-plus-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "人"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "0-14 歲占比＝0-14 歲人口 ÷ 總戶籍人口 × 100（%）。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "share_age_0_14",
+      "label": "0-14 歲人口占比",
+      "layer_key": "statsDemographicsVillageShareAge0To14",
+      "legend": {
+        "breaks": [
+          8,
+          10,
+          12,
+          14
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-share-age-0-14-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-share-age-0-14-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "%"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "15-64 歲占比＝15-64 歲人口 ÷ 總戶籍人口 × 100（%）。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "share_age_15_64",
+      "label": "15-64 歲人口占比",
+      "layer_key": "statsDemographicsVillageShareAge15To64",
+      "legend": {
+        "breaks": [
+          66,
+          68,
+          70,
+          72
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-share-age-15-64-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-share-age-15-64-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "%"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "65 歲以上占比＝65+ 人口 ÷ 總戶籍人口 × 100（%）；14% 為高齡社會、20% 為超高齡社會門檻。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "share_age_65_plus",
+      "label": "65 歲以上人口占比",
+      "layer_key": "statsDemographicsVillageShareAge65Plus",
+      "legend": {
+        "breaks": [
+          14,
+          17,
+          20,
+          23
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-share-age-65-plus-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-share-age-65-plus-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "%"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7777,
+        "observed": {
+          "missing_count": 4,
+          "status": "PARTIAL",
+          "village_count": 7777
+        },
+        "status": "PARTIAL",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "老化指數＝65+ 人口 ÷ 0-14 歲人口 × 100；0-14 歲人口為 0 的區為 not_applicable。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "PARTIAL",
+      "indicator_id": "aging_index",
+      "label": "老化指數",
+      "layer_key": "statsDemographicsVillageAgingIndex",
+      "legend": {
+        "breaks": [
+          100,
+          150,
+          200,
+          300
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-aging-index-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7777,
+            "observed": {
+              "missing_count": 4,
+              "status": "PARTIAL",
+              "village_count": 7777
+            },
+            "status": "PARTIAL",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "PARTIAL",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-aging-index-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "65+ 人／每百位 0-14 歲"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "扶養比＝(0-14 歲＋65+ 人口) ÷ 15-64 歲人口 × 100。以年齡定義依賴人口，不代表實際經濟扶養關係。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "dependency_ratio",
+      "label": "扶養比",
+      "layer_key": "statsDemographicsVillageDependencyRatio",
+      "legend": {
+        "breaks": [
+          36,
+          40,
+          44,
+          48
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-dependency-ratio-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-dependency-ratio-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "依賴人口／每百位 15-64 歲"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "扶幼比＝0-14 歲人口 ÷ 15-64 歲人口 × 100。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "child_dependency_ratio",
+      "label": "扶幼比",
+      "layer_key": "statsDemographicsVillageChildDependencyRatio",
+      "legend": {
+        "breaks": [
+          12,
+          14,
+          16,
+          18
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-child-dependency-ratio-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-child-dependency-ratio-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "0-14 人／每百位 15-64 歲"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "扶老比＝65+ 人口 ÷ 15-64 歲人口 × 100。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "old_dependency_ratio",
+      "label": "扶老比",
+      "layer_key": "statsDemographicsVillageOldDependencyRatio",
+      "legend": {
+        "breaks": [
+          20,
+          25,
+          30,
+          35
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-old-dependency-ratio-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-old-dependency-ratio-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "65+ 人／每百位 15-64 歲"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "性比例＝男性戶籍人口 ÷ 女性戶籍人口 × 100；100 為男女相等（數值色階只表示高低，不代表好壞）。鄉鎮／縣市先加總村里單一年齡計數，再於該層級計算，不平均子區比率。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "sex_ratio",
+      "label": "性比例",
+      "layer_key": "statsDemographicsVillageSexRatio",
+      "legend": {
+        "breaks": [
+          95,
+          100,
+          105,
+          110
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-sex-ratio-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-sex-ratio-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
+      "unit": "男／每百位女"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "population_age_structure",
+      "disclosure": "年齡中位數：以該層級加總後的單一年齡分布，視每一歲為區間 [x, x+1) 組內均勻分布線性內插：x + (N/2 − 累積至 x 前人數) ÷ x 歲人數；100 歲以上為開放組，中位數若落入開放組則不內插、值為 null（本輸出 0 例）。與內政部公告值可能有小數差。 村里層只發布代碼全數落在 VILLAGE_NLSC_1150817（NLSC 1150817 排除 206 個未編定村里＋三和村，7,781 村里；與 RIS 11508 代碼集合相同） 參考界線的期別。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "median_age",
+      "label": "年齡中位數",
+      "layer_key": "statsDemographicsVillageMedianAge",
+      "legend": {
+        "breaks": [
+          42,
+          44,
+          46,
+          48
+        ],
+        "breaks_rationale": "固定門檻：由 2018–2026 全期分布挑選整數後寫死；不按當期 quantile 重算；比率類縣市／鄉鎮共用。",
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "scale": "sequential",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [
+        "statsDemographicsVillagePopulationTotal"
+      ],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/population_age_structure/releases/pas-median-age-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "pas-median-age-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; age-group sum == P0 population_total for every area/period (diff 0); 2025 county aging/dependency/sex ratios within 0.005 of SEGIS; license unverified.",
+      "subgroup": "年齡結構（村里）",
       "unit": "歲"
     },
     {
@@ -22206,6 +24166,482 @@
       },
       "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; ODRP013 村里集合與人口逐列等於 P0；原民會 145512 縣市小計 11012–11412 五期 IDENTICAL; license unverified.",
       "subgroup": "原住民人口（鄉鎮市區）",
+      "unit": "%"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "indigenous_population",
+      "disclosure": "戶籍登記具原住民身分者（平地＋山地原住民）；觀察日＝該月月底統計標準日。11508 起 RIS 另列平埔族群身分（全國 40 人），不含在本值。鄉鎮／縣市為村里加總。 113、114 年底全國原住民人口分別年增 22,636、17,782 人，明顯高於 108–112 年每年約 3–6 千人；原因未在本 pipeline 驗證，跨年比較請留意。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "indigenous_population",
+      "label": "原住民人口數",
+      "layer_key": "statsDemographicsVillageIndigenousPopulation",
+      "legend": {
+        "breaks": [
+          6,
+          16,
+          35,
+          84
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/indigenous_population/releases/ip-indigenous-population-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "ip-indigenous-population-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; ODRP013 村里集合與人口逐列等於 P0；village 11508 代碼集合＝VILLAGE_NLSC_1150817; license unverified.",
+      "subgroup": "原住民人口（村里）",
+      "unit": "人"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "indigenous_population",
+      "disclosure": "戶籍登記為平地原住民身分者；觀察日＝月底。鄉鎮／縣市為村里加總。 113、114 年底全國原住民人口分別年增 22,636、17,782 人，明顯高於 108–112 年每年約 3–6 千人；原因未在本 pipeline 驗證，跨年比較請留意。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "indigenous_plain_population",
+      "label": "平地原住民人口數",
+      "layer_key": "statsDemographicsVillageIndigenousPlainPopulation",
+      "legend": {
+        "breaks": [
+          2,
+          7,
+          16,
+          38
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/indigenous_population/releases/ip-indigenous-plain-population-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "ip-indigenous-plain-population-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; ODRP013 村里集合與人口逐列等於 P0；village 11508 代碼集合＝VILLAGE_NLSC_1150817; license unverified.",
+      "subgroup": "原住民人口（村里）",
+      "unit": "人"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "indigenous_population",
+      "disclosure": "戶籍登記為山地原住民身分者；觀察日＝月底。「山地／平地」是法定身分別，不是居住地為山地或平地鄉。 113、114 年底全國原住民人口分別年增 22,636、17,782 人，明顯高於 108–112 年每年約 3–6 千人；原因未在本 pipeline 驗證，跨年比較請留意。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "indigenous_mountain_population",
+      "label": "山地原住民人口數",
+      "layer_key": "statsDemographicsVillageIndigenousMountainPopulation",
+      "legend": {
+        "breaks": [
+          3,
+          8,
+          16,
+          36
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/indigenous_population/releases/ip-indigenous-mountain-population-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "ip-indigenous-mountain-population-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; ODRP013 村里集合與人口逐列等於 P0；village 11508 代碼集合＝VILLAGE_NLSC_1150817; license unverified.",
+      "subgroup": "原住民人口（村里）",
+      "unit": "人"
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "VILLAGE_NLSC_1150817",
+      "coverage": {
+        "denominator": 7781,
+        "expected": {
+          "village_count": 7781
+        },
+        "numerator": 7781,
+        "observed": {
+          "missing_count": 0,
+          "status": "COMPLETE",
+          "village_count": 7781
+        },
+        "status": "COMPLETE",
+        "unmatched_source_total": 0,
+        "unmatched_source_units": 0
+      },
+      "dataset_id": "indigenous_population",
+      "disclosure": "原住民人口占比＝該層級原住民人口加總 ÷ 同期同層戶籍人口（household_registration_population population_total）× 100；分子或分母任一缺值即 missing。 113、114 年底全國原住民人口分別年增 22,636、17,782 人，明顯高於 108–112 年每年約 3–6 千人；原因未在本 pipeline 驗證，跨年比較請留意。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "month",
+          "options": [
+            "08"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "115"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "人口統計",
+      "health": "CURRENT",
+      "indicator_id": "indigenous_share",
+      "label": "原住民人口占比",
+      "layer_key": "statsDemographicsVillageIndigenousShare",
+      "legend": {
+        "breaks": [
+          0.44,
+          0.76,
+          1.18,
+          2.23
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "village",
+      "license_status": "unverified",
+      "location_semantics": "戶籍登記地（村里）；非常住地、非工作地。",
+      "related_layer_keys": [],
+      "release_options": [
+        {
+          "bundle_path": "data/processed/demographics/indigenous_population/releases/ip-indigenous-share-village-11508.json",
+          "coverage": {
+            "denominator": 7781,
+            "expected": {
+              "village_count": 7781
+            },
+            "numerator": 7781,
+            "observed": {
+              "missing_count": 0,
+              "status": "COMPLETE",
+              "village_count": 7781
+            },
+            "status": "COMPLETE",
+            "unmatched_source_total": 0,
+            "unmatched_source_units": 0
+          },
+          "dimensions": {
+            "month": "08",
+            "roc_year": "115"
+          },
+          "health": "CURRENT",
+          "period_end": "2026-08-31",
+          "period_start": "2026-08-31",
+          "release_id": "ip-indigenous-share-village-11508"
+        }
+      ],
+      "release_selector": {
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_gate": "LOCAL_PASS_LICENSE_UNVERIFIED: raw page SHA reverified; ODRP013 村里集合與人口逐列等於 P0；village 11508 代碼集合＝VILLAGE_NLSC_1150817; license unverified.",
+      "subgroup": "原住民人口（村里）",
       "unit": "%"
     },
     {

@@ -1,9 +1,10 @@
-// 人口統計（內政部戶政司 RIS：P0/P1 戶籍人口與戶數、P2 年齡結構；縣市＋鄉鎮）。
+// 人口統計（內政部戶政司 RIS：P0–P6；縣市＋鄉鎮，P0/P2/P5 另有村里 115 年 8 月一期）。
 // 交付 JSON 由 scripts/statistics/build_demographics_statistics_recipes.py 從 analytics handoff
-// 只收 enabled recipes（村里 HOLD 不收）；首屏只帶去掉交付收據的派生目錄（statisticsRecipeCatalog.test.ts 保證一致）。
+// 只收 enabled recipes（各 dataset 的村里 HOLD 不收；村里層來自 village-statistics handoff）；首屏只帶去掉交付收據的派生目錄（statisticsRecipeCatalog.test.ts 保證一致）。
 // 加入 P3–P6：builder 加 handoff → 重產 catalog → 下方 KEYS 補 key → 群組規格補一列（未列的指標自動一指標一群組）。
 import catalogJson from "./demographicsStatisticsRecipes.catalog.json";
 import type { StatisticsLevel, StatisticsRelease } from "./regionalStatisticsLoader";
+import { humanizeStatisticsText } from "./statisticsLabels";
 
 export interface DemographicsReleaseOption {
   release_id: string;
@@ -82,6 +83,14 @@ export const DEMOGRAPHICS_ENABLED_STATISTICS_KEYS = [
   "statsDemographicsTownshipForeignOriginPopulation", "statsDemographicsTownshipForeignOriginMainlandPopulation", "statsDemographicsTownshipForeignOriginForeignNationalPopulation",
   "statsDemographicsTownshipForeignOriginHkMacauPopulation", "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation", "statsDemographicsTownshipForeignOriginShare",
   "statsDemographicsCountyNaturalizationCount",
+  // 村里（只有 11508 一期 × VILLAGE_NLSC_1150817）：戶籍人口 4、年齡結構 12、原住民 4
+  "statsDemographicsVillagePopulationTotal", "statsDemographicsVillageHouseholdCount", "statsDemographicsVillageHouseholdSize", "statsDemographicsVillagePopulationDensity",
+  "statsDemographicsVillagePopAge0To14", "statsDemographicsVillagePopAge15To64", "statsDemographicsVillagePopAge65Plus",
+  "statsDemographicsVillageShareAge0To14", "statsDemographicsVillageShareAge15To64", "statsDemographicsVillageShareAge65Plus",
+  "statsDemographicsVillageAgingIndex", "statsDemographicsVillageDependencyRatio", "statsDemographicsVillageChildDependencyRatio",
+  "statsDemographicsVillageOldDependencyRatio", "statsDemographicsVillageSexRatio", "statsDemographicsVillageMedianAge",
+  "statsDemographicsVillageIndigenousPopulation", "statsDemographicsVillageIndigenousPlainPopulation", "statsDemographicsVillageIndigenousMountainPopulation",
+  "statsDemographicsVillageIndigenousShare",
 ] as const;
 export type DemographicsStatisticsLayerKey = typeof DEMOGRAPHICS_ENABLED_STATISTICS_KEYS[number];
 
@@ -173,7 +182,13 @@ const DATASET_NOTES: Record<string, string> = {
   foreign_origin_population: "只含已在臺灣設立戶籍者；不是移工、不是外僑居留人數，也不等於新住民人數。",
 };
 
-type NoteSource = Pick<DemographicsRecipe, "indicator_id"> & Partial<Pick<DemographicsRecipe, "dataset_id" | "release_options">>;
+/** 村里層只發布界線代碼與資料期別完全一致的一期（RIS 11508 × VILLAGE_NLSC_1150817）。 */
+export const DEMOGRAPHICS_VILLAGE_NOTE = "村里層僅提供 115 年 8 月一期（界線版本須與資料期別一致）；其他期別的村里代碼與任何可取得的村里界都對不齊，不發布。";
+
+/** 村里界線來源（資料來源總覽／說明・來源）。 */
+export const DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE = "村里界線：內政部國土測繪中心村里界 115 年 8 月 17 日版（data.gov.tw 7438，政府資料開放授權條款第 1 版），排除 206 個未編定村里並補入瑪家鄉三和村，共 7,781 村里，代碼與 RIS 11508 完全一致；多邊形未另以獨立來源驗證。";
+
+type NoteSource = Pick<DemographicsRecipe, "indicator_id"> & Partial<Pick<DemographicsRecipe, "dataset_id" | "release_options" | "level">>;
 
 /** 年初累計期別（dimensions 帶 month_range），例如「115 年 1–8 月累計」。 */
 export function demographicsYtdLabel(recipe: Partial<Pick<DemographicsRecipe, "release_options">>): string | undefined {
@@ -189,6 +204,7 @@ export function demographicsIndicatorNote(recipe: NoteSource): string | undefine
     INDICATOR_NOTES[recipe.indicator_id.replace(/_ytd$/, "")],
     recipe.dataset_id ? DATASET_NOTES[recipe.dataset_id] : undefined,
     ytd ? `年初累計（${ytd}），不是全年，不可與年度值比較或加總。` : undefined,
+    recipe.level === "village" ? DEMOGRAPHICS_VILLAGE_NOTE : undefined,
   ].filter(Boolean);
   return notes.length ? notes.join(" ") : undefined;
 }
@@ -206,9 +222,12 @@ export function demographicsPeriodLabel(key: string, release: Pick<StatisticsRel
   return option?.dimensions.month_range ? demographicsYtdLabel({ release_options: [option] }) : undefined;
 }
 
-/** 交付 disclosure 以 Markdown 粗體強調（例：**不是移工**）；UI 是純文字，去掉標記、保留字句。 */
+/**
+ * 交付 disclosure 以 Markdown 粗體強調（例：**不是移工**）；UI 是純文字，去掉標記、保留字句。
+ * 村里 disclosure 夾帶邊界代碼（VILLAGE_NLSC_1150817），一律換成中文描述（spec §6.3 不印內部識別碼）。
+ */
 export function demographicsDisclosure(recipe: Pick<DemographicsRecipe, "disclosure">): string {
-  return recipe.disclosure.replace(/\*\*/g, "");
+  return humanizeStatisticsText(recipe.disclosure.replace(/\*\*/g, ""));
 }
 
 /** 來源卡授權措辭：RIS API 授權欄位尚未以 data.gov.tw 資料集頁確認，不得寫成 OGDL。 */
@@ -223,10 +242,11 @@ export function demographicsSource(recipe: Pick<DemographicsRecipe, "dataset_id"
   return { provider: DEMOGRAPHICS_SOURCE_LABEL, license: "授權條款待確認（RIS API 授權欄位尚未以 data.gov.tw 資料集頁確認；不標示為政府資料開放授權條款）", sourceUrl: "https://www.ris.gov.tw/rs-opendata/api/Main/docs/v1" };
 }
 
-const LEVEL_LABELS: Partial<Record<StatisticsLevel, string>> = { county: "縣市", township: "鄉鎮市區" };
+const LEVEL_LABELS: Partial<Record<StatisticsLevel, string>> = { county: "縣市", township: "鄉鎮市區", village: "村里" };
 
 /**
- * Statistics 群組：一列＝一個概念；選單在同一群組內切換指標與縣市／鄉鎮（同期別保留）。
+ * Statistics 群組：一列＝一個概念；選單在同一群組內切換指標與縣市／鄉鎮／村里（同期別保留；村里只有 11508，
+ * 從其他期別切入村里時落到 11508，見 medicalStatisticsSelection.ts）。
  * 未列在這裡的已啟用指標會自動成為「一指標一群組」，P3–P6 不會漏接。
  */
 const GROUP_SPECS: ReadonlyArray<{ key: string; label: string; indicators: readonly string[] }> = [
@@ -270,7 +290,7 @@ function groupSpecs() {
   return [...GROUP_SPECS, ...extra];
 }
 
-/** Toggle groups consumed by medicalStatisticsGroups.ts（縣市在前、鄉鎮在後；群組內同期別切換）。 */
+/** Toggle groups consumed by medicalStatisticsGroups.ts（縣市→鄉鎮→村里；群組內同期別切換）。 */
 export const DEMOGRAPHICS_STATISTICS_TOGGLE_GROUPS = groupSpecs()
   .map((spec) => {
     const members = DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES

@@ -142,12 +142,14 @@ const BOUNDARY_VERSION_LABELS: Record<string, string> = {
   COUNTY_MOI_1140318: '內政部縣市界（114 年 3 月 18 日版）',
   TOWN_MOI_1140318: '內政部鄉鎮市區界（114 年 3 月 18 日版）',
   VILLAGE_NLSC_1150119: '國土測繪中心村里界（115 年 1 月 19 日版）',
+  VILLAGE_NLSC_1150817: '內政部村里界（115 年 8 月 17 日版）',
+  VILLAGE_SEGIS_112: 'SEGIS 112 年村里界（綜所稅原生界線）',
   TOWNSHIP_REFERENCE_MOI_11501: '內政部鄉鎮市區統計參考界（115 年 1 月版）',
   township_reference_20260626_v1: '鄉鎮市區參考界（2026-06-26 第 1 版）',
   township_boundary_20260626_identity_only: '鄉鎮市區代碼對照（2026-06-26，只核對代碼）',
   county_identity_only: '縣市代碼對照（只核對代碼）',
 };
-const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only)\b/g;
+const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only)\b/g;
 
 /** 單一邊界版本代碼的中文描述；查無對照時不印代碼。 */
 export function boundaryVersionLabel(code: unknown): string {
