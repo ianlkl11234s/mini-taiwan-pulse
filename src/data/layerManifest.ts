@@ -9,6 +9,7 @@ import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -427,6 +428,22 @@ const ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ENVIRONMENT_E
   }];
 })) as Record<EnvironmentStatisticsLayerKey, LayerManifestEntry>;
 
+/** Demographics recipes (內政部戶政司 RIS 戶籍人口／年齡結構) share the dynamic Statistics renderer. */
+const DEMOGRAPHICS_LEVEL_QUALIFIERS: Partial<Record<string, string>> = { county: "縣市", township: "鄉鎮市區", village: "村里" };
+const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: DEMOGRAPHICS_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    ...layerName({ zh: demographicsDisplayLabel(recipe), qualifier: DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
+    description: demographicsDisclosure(recipe),
+    topics: ["統計", "人口", "戶籍", recipe.subgroup.replace(/（[^）]*）$/, ""), DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市"],
+  }];
+})) as Record<DemographicsStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -521,6 +538,7 @@ export const LAYER_MANIFEST = {
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
   ...LABOR_STATISTICS_MANIFEST_ENTRIES,
   ...ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES,
+  ...DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },

@@ -33,6 +33,14 @@ describe("statistics data-source definitions", () => {
     expect(definition.contract).toContain("participation_rate selector");
     expect(definition.disclosure).toContain("非勞動力率＝100%－同一期勞動力參與率");
   });
+
+  it("labels demographics with the RIS source, unverified licence and raw/derived nature", () => {
+    const count = getStatisticsDataSourceDefinition("statsDemographicsTownshipPopAge65Plus")!;
+    expect(count).toMatchObject({ kind: "source", provider: "內政部戶政司 RIS（授權條款待確認）", period: "9 個既有公開期別" });
+    const ratio = getStatisticsDataSourceDefinition("statsDemographicsCountyAgingIndex")!;
+    expect(ratio.kind).toBe("derived");
+    expect(ratio.datasetIds).toEqual(["population_age_structure"]);
+  });
 });
 
 

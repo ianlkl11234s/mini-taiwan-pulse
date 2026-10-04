@@ -59,8 +59,15 @@ describe("labor statistics adapter contract", () => {
 
   it("keeps coverage, missingness, and industry selector semantics exact", () => {
     const village = getLaborRecipe("statsLaborVillageIncomeMedian")!;
-    expect(village.release_options[0]?.coverage).toMatchObject({ denominator: 7973, numerator: 7602, observed: { missing_count: 371, status: "PARTIAL" } });
-    expect(village.disclosure).toContain("371村里缺值不補零");
+    // 2026-10-04：改用綜所稅資料原生的 SEGIS 112 年村里界（舊 115 年界線含 206 個未編定碼、缺三和村）。
+    expect(village.boundary_version).toBe("VILLAGE_SEGIS_112");
+    expect(village.release_options.map((option) => option.release_id)).toEqual(["village-income-median-112-segis112"]);
+    expect(village.release_options[0]?.dimensions).toEqual({ denominator: "filing_household", income_measure: "comprehensive_income_median", roc_year: "112" });
+    expect(village.release_options[0]?.coverage).toMatchObject({ denominator: 7748, numerator: 7604, observed: { missing_count: 144, status: "PARTIAL" } });
+    expect(village.disclosure).toContain("原生 112 年村里界");
+    expect(village.disclosure).toContain("206 個未編定村里碼並缺瑪家三和村");
+    expect(`${village.disclosure} ${village.location_semantics}`).not.toContain("display reference");
+    // 圖例不動：沿用 Pulse 現行 8 階 Cividis 固定門檻（跨期比較基準不變）。
     expect(village.legend.breaks).toEqual([388, 415, 438, 460, 486, 523, 593]);
     expect(village.legend.colors).toHaveLength(8);
 

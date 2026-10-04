@@ -28,6 +28,7 @@ import type { LayerVisibility, TransportType } from "../../types";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -224,6 +225,25 @@ function environmentSubgroups(group: string): SubGroupDef[] {
 }
 const environmentDataTheme = (group: string): ThemeDef => ({ title: ENVIRONMENT_STATISTICS_THEME_TITLES[group]!, groups: environmentSubgroups(group) });
 
+/** 人口統計（戶籍人口／年齡結構…）依 recipe subgroup 派生；Layers 階層保留縣市／鄉鎮小分組。 */
+function demographicsDataGroups(): SubGroupDef[] {
+  const subgroups = [...new Set(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => recipe.subgroup))];
+  return subgroups.map((title) => ({ title, layers: DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
+}
+/**
+ * Statistics 分頁：戶籍人口→年齡結構→人口動態→遷徙→原住民→外來人口；同一資料集的縣市＋鄉鎮成員放同一小群組，
+ * toggle 群組只在第一個成員渲染。既有「每月出生數（歷史快照）」併入同名「人口動態」小群組末尾。
+ */
+function demographicsTabGroups(): SubGroupDef[] {
+  const titles = [...new Set(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map(demographicsTabGroupTitle))];
+  const groups: SubGroupDef[] = titles.map((title) => ({ title, layers: DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => demographicsTabGroupTitle(recipe) === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
+  const births = fromManifest("statsBirthsTownship");
+  const dynamics = groups.find((group) => group.title === "人口動態");
+  if (dynamics) dynamics.layers.push(births);
+  else groups.push({ title: "人口動態", layers: [births] });
+  return groups;
+}
+
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "工作與所得 Work & Income", groups: [
@@ -277,7 +297,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
     { title: "養殖結構", layers: [fromManifest("statsAquacultureAreaCounty")] },
   ] },
   { title: "林業統計", groups: [{ title: "土地使用結構", layers: [fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"), fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship")] }] },
-  { title: "人口統計 Population Statistics", groups: [{ title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
+  { title: "人口統計 Population Statistics", groups: [...demographicsDataGroups(), { title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
   { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
     fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
     ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
@@ -310,7 +330,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     title: "人口與教育 Population & Education",
     defaultCollapsed: true,
     groups: [
-      { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
+      ...demographicsTabGroups(),
       { title: "教育與少子化", layers: [
         ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
       ] },
