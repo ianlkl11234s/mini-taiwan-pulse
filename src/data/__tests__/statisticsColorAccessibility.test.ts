@@ -40,3 +40,16 @@ for (const [vision,matrix] of Object.entries(matrices)) {
     }
   });
 }
+
+it('covers the signed demographics PuOr scales (natural increase / net migration) in every vision simulation', () => {
+  for (const key of ['statsDemographicsCountyNaturalIncrease', 'statsDemographicsTownshipNaturalIncreaseRate', 'statsDemographicsCountyNetMigration', 'statsDemographicsTownshipNetMigrationYtd'] as const) {
+    const recipe = statisticsRenderRecipe(key);
+    const zeroIndex = (recipe.breaks as readonly number[]).indexOf(0);
+    expect(zeroIndex, key).toBeGreaterThan(0);
+    for (const matrix of Object.values(matrices)) {
+      const values = recipe.colors.map(color => lightness(color, matrix));
+      for (let i = 1; i <= zeroIndex; i++) expect(values[i]! - values[i - 1]!, key).toBeGreaterThan(5);
+      for (let i = zeroIndex + 2; i < values.length; i++) expect(values[i - 1]! - values[i]!, key).toBeGreaterThan(5);
+    }
+  }
+});

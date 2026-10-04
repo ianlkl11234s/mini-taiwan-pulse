@@ -1,7 +1,8 @@
 import { getStatisticsVisual } from "../../data/statisticsVisuals";
 import { ListRow } from "./LayerRow";
 import { useRailTheme } from "./railTheme";
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useSyncExternalStore, type ReactNode } from 'react';
+import { getStatisticsPeriodNotice, subscribeStatisticsPeriodNotice } from '../../state/medicalStatisticsSelection';
 import type { LayerVisibility } from '../../types';
 import { getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey } from '../../data/medicalStatisticsGroups';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -40,6 +41,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     if (!expanded || !selected || selected === expandedLayer) return;
     if (visibility[selected] && !visibility[expandedLayer as keyof LayerVisibility]) onLayerClick(selected, 'statistics-variant-switch');
   }, [expanded, selected, expandedLayer, visibility, onLayerClick]);
+  const periodNotice = useSyncExternalStore(subscribeStatisticsPeriodNotice, () => (selected ? getStatisticsPeriodNotice(selected) : undefined));
   if (!group || !selected) return null;
   const visual = getStatisticsVisual(group.options[0]!.key, group.label);
   const Icon = visual.icon;
@@ -68,6 +70,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     {expanded && <>
       {active.length > 1 && <p style={{ margin: '2px 12px 0 22px', color: dimColor, fontSize: FONT_SIZE.sm }}>目前重疊顯示 {active.length} 種；選擇{group.optionLabel ?? '指標'}後，此主題改為單一類型。</p>}
       {renderControls(selected)}
+      {periodNotice && <p role="status" style={{ margin: '2px 12px 4px 22px', color: '#fbbf24', fontSize: FONT_SIZE.sm }}>{periodNotice}</p>}
     </>}
   </div>;
 }

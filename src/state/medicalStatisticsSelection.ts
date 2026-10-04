@@ -4,6 +4,7 @@ import { getAgriRecipe, getAgriRecipeDetails } from '../data/agriStatisticsRecip
 import { ensureStatisticsRecipeDetails, statisticsRecipeDetailsLoaded, type StatisticsRecipeFamily } from '../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEnvironmentRecipe } from '../data/environmentStatisticsRecipes';
+import { demographicsVillageOnlyPeriod, getDemographicsRecipe } from '../data/demographicsStatisticsRecipes';
 import { STATISTICS_RECIPES } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
 import type { StatisticsRecipe, StatisticsRelease } from '../data/regionalStatisticsLoader';
@@ -18,6 +19,22 @@ type Recipe = { dataset_id: string; indicator_id: string; level: string; label: 
 
 const METRIC_DIMENSIONS = new Set(['source_field', 'denominator_period', 'bed_measure']);
 
+/** 切換變體時期別被改動的提示（guidelines §3：不可靜默跳年份）。key = 切換後的圖層。 */
+const periodNotices = new Map<string, string>();
+const periodNoticeListeners = new Set<() => void>();
+function setPeriodNotice(key: string, notice: string | undefined) {
+  if ((periodNotices.get(key) ?? undefined) === notice) return;
+  if (notice) periodNotices.set(key, notice); else periodNotices.delete(key);
+  for (const listener of periodNoticeListeners) listener();
+}
+export function getStatisticsPeriodNotice(key: string): string | undefined {
+  return periodNotices.get(key);
+}
+export function subscribeStatisticsPeriodNotice(listener: () => void): () => void {
+  periodNoticeListeners.add(listener);
+  return () => { periodNoticeListeners.delete(listener); };
+}
+
 /** Agri/social exact release_options live in that family's lazily loaded recipe details (PF-7/PF-10). */
 function recipeDetailsFamilies(...keys: string[]): StatisticsRecipeFamily[] {
   const families = new Set<StatisticsRecipeFamily>();
@@ -29,7 +46,7 @@ function recipeDetailsFamilies(...keys: string[]): StatisticsRecipeFamily[] {
 }
 
 function recipe(key: string): Recipe {
-  return getSocialRecipeDetails(key) ?? getAgriRecipeDetails(key) ?? getComparisonRecipe(key) ?? getEnvironmentRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
+  return getSocialRecipeDetails(key) ?? getAgriRecipeDetails(key) ?? getComparisonRecipe(key) ?? getEnvironmentRecipe(key) ?? getDemographicsRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
 }
 
 function releaseOptions(key: string, source: NonNullable<Recipe>): ReleaseOption[] {
@@ -95,8 +112,18 @@ export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: 
   const source = recipe(from); const target = recipe(to);
   if (!source || !target) return false;
   const sourceOption = selectionOption(from, source);
-  const option = releaseOptions(to, target).find(candidate => candidate.period_start === sourceOption?.period_start && candidate.period_end === sourceOption?.period_end && sameIdentityDimensions(sourceOption, candidate));
+  const targetOptions = releaseOptions(to, target);
+  // 人口統計村里層只交付一期（11508，界線版本須與資料期別一致）：從縣市／鄉鎮的其他期別切入時落到這唯一一期
+  // （主 agent 決策：只有一期可選不算「靜默跳年份」；期別寫在說明・來源）。其他群組仍要求同期別。
+  // 落到這一期時在選單下方明示「已切換期別」（不靜默跳年份）。
+  const demographicsTarget = getDemographicsRecipe(to);
+  const onlyVillagePeriod = demographicsTarget?.level === 'village' && targetOptions.length === 1 ? targetOptions[0] : undefined;
+  const samePeriod = targetOptions.find(candidate => candidate.period_start === sourceOption?.period_start && candidate.period_end === sourceOption?.period_end && sameIdentityDimensions(sourceOption, candidate));
+  const option = samePeriod ?? onlyVillagePeriod;
   if (!option) return false;
+  const periodText = demographicsTarget ? demographicsVillageOnlyPeriod(demographicsTarget) : undefined;
+  setPeriodNotice(to, samePeriod ? undefined : `村里層僅有${periodText ? ` ${periodText}` : ''}一期，已切換期別。`);
+  setPeriodNotice(from, undefined);
   regionalStatisticsStore.setSelection(to, { layerKey: to, datasetId: target.dataset_id, indicatorId: target.indicator_id, level: target.level as StatisticsRecipe['level'], label: target.label, releaseId: option.release_id, dimensions: option.dimensions, allowReleaseFallback: false, includeHealth: true });
   const opacity = layerParamsStore.getParam(from, `${from}Opacity`);
   if (typeof opacity === 'number') layerParamsStore.setParam(to, `${to}Opacity`, opacity);

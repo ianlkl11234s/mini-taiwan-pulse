@@ -1,5 +1,11 @@
 # Changelog — labor-statistics
 
+## 2026-10-04 — 村里所得改用 SEGIS 112 原生界線
+
+- `statsLaborVillageIncomeMedian` 改指新 release `village-income-median-112-segis112` × `VILLAGE_SEGIS_112`（112 年綜所稅村里 SHP 自帶界線，排除未編定）。原因：舊界線 `VILLAGE_NLSC_1150119` 是 115 年版，含 206 個未編定村里碼、缺瑪家三和村，且與 112 年數值不同期；同代碼 236 組 IoU<0.9，值會畫在錯的範圍上。
+- 新 release 與舊 release 共同的 7,746 個代碼逐筆相同；找回三和村（10013280006）與 10002060008 兩筆來源有值，覆蓋 7,604／7,748（144 筆來源本身缺值）。圖例維持現行 8 階固定門檻。
+- 舊 release 與舊 geometry 仍在 R2（immutable），前端不再使用。已於 2026-10-04 增量發布（manifest `f8cdd6bb…`）。
+
 ## 2026-09-27 — 所得色階、非勞動力率與 details 精簡
 
 - 村里綜合所得由 5 階改為 8 階 Cividis 色階，切點來自 7,602 筆 observed values 的 octile；missing 仍為灰色、不等於 0。

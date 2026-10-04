@@ -7,6 +7,7 @@ import { getAgriRecipe, agriReleaseOptions } from './agriStatisticsRecipes';
 import { getSocialRecipe, getSocialRecipeDetails, socialReleaseOptions } from './socialStatisticsRecipes';
 import { getLaborRecipe, laborReleaseOptions } from './laborStatisticsRecipes';
 import { environmentReleaseOptions, getEnvironmentRecipe } from './environmentStatisticsRecipes';
+import { demographicsReleaseOptions, getDemographicsRecipe } from './demographicsStatisticsRecipes';
 import { getComparisonRecipe, comparisonReleaseOptions } from './comparisonStatisticsRecipes';
 import { getEducationPresentationView } from './statisticsPresentationViews';
 import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsRenderKey, type StatisticsReleaseOption } from './regionalStatisticsRecipes';
@@ -40,6 +41,7 @@ export function statisticsReleaseOptions(key: StatisticsRenderKey, releases: Sta
   if (getSocialRecipe(baseKey)) return restrictToViewStage(socialReleaseOptions(baseKey, releases));
   if (getLaborRecipe(baseKey)) return restrictToViewStage(laborReleaseOptions(baseKey, releases));
   if (getEnvironmentRecipe(baseKey)) return environmentReleaseOptions(baseKey, releases);
+  if (getDemographicsRecipe(baseKey)) return demographicsReleaseOptions(baseKey, releases);
   const recipe = STATISTICS_RECIPES[baseKey];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return [];
   return restrictToViewStage(releases.flatMap(release => {
@@ -68,7 +70,7 @@ export function unparseableStatisticsReleaseCount(key: StatisticsRenderKey, rele
     const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
     return compatible.filter(release => !allowed.has(release.release_id)).length;
   }
-  if (getLaborRecipe(baseKey) || getEnvironmentRecipe(baseKey)) {
+  if (getLaborRecipe(baseKey) || getEnvironmentRecipe(baseKey) || getDemographicsRecipe(baseKey)) {
     const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
     return compatible.filter(release => !allowed.has(release.release_id)).length;
   }
