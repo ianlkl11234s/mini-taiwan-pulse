@@ -3,7 +3,7 @@
  *
  * Protomaps basemap（OSM 衍生）以單一 PMTiles 檔自託管，瀏覽器用 HTTP Range Request
  * 直接讀 —— 沒有 tile server、沒有 API key、**不載入 mapbox-gl 故不產生 map load 費用**。
- * 路線決策見 docs/proposal/embed-basemap-osm.md。
+ * 路線決策見 docs/archive/2026-10-04/proposal/embed-basemap-osm.md。
  *
  * 底圖來源優先序：
  * 1. `VITE_EMBED_BASEMAP_URL`（正式站指向 Cloudflare R2；egress 免費）

@@ -4,7 +4,7 @@
  * 把「相機位置 + 開啟哪些圖層 + 圖層參數 + 凍結日期」序列化進 query string，
  * 讓一條網址就能重現特定畫面 —— 主站用於分享連結，`/embed` 用於文章嵌入。
  *
- * 設計原則（見 docs/proposal/embeddable-map-impl.md §4）：
+ * 設計原則（見 docs/archive/2026-10-04/proposal/embeddable-map-impl.md §4）：
  * 1. **Diff-based**：只序列化與預設不同的項目。預設幾乎全關，故 `layers=` 就是「要開的清單」。
  * 2. **Human-readable**：寫文章時要手打／手改，不做 base64 壓縮。
  * 3. **版本化**：`v=1`。缺版本或版本不符一律回空物件，避免舊嵌入碼被新解析器誤讀。

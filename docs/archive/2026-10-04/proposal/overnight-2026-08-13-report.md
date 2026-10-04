@@ -1,6 +1,6 @@
 # 過夜批次報告（2026-08-12 夜 → 08-13 晨）
 
-> 對應交接文件：`docs/proposal/next-batch-handoff-2026-08-12.md`（W1~W6）
+> 對應交接文件：`docs/archive/2026-10-04/proposal/next-batch-handoff-2026-08-12.md`（W1~W6）
 > owner 開工時調整範圍：**做 W1／W2／W3／W5／W6(a,b,c)／AR-11e；不做 W4 snapshot-to-CDN；ships 下滑不查**
 > 執行方式：opus 主控拆解／決策／驗收，工作派 sonnet-opus 子代理，各自獨立 git worktree（base = `origin/master` `382b896`）
 > **一律未 push、未開 PR、未 merge、未 apply migration、未刪任何資料** —— 全部等 owner 明早拍板

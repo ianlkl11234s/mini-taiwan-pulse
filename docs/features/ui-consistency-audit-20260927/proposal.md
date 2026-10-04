@@ -5,7 +5,7 @@
 
 ## 0. 為什麼不是「重建設計系統」
 
-`docs/design-system.md` 已完整定義 `SURFACE`/`COLORS`/`BORDER`/`RADIUS`/`FONT_SIZE`/`FONT_WEIGHT`/`ELEVATION`/`SPACING`/`FONT_CJK`/`FONT_DATA`，Phase 0–6 已上線。本提案**只做兩件事**：
+`docs/design-system/spec.md` 已完整定義 `SURFACE`/`COLORS`/`BORDER`/`RADIUS`/`FONT_SIZE`/`FONT_WEIGHT`/`ELEVATION`/`SPACING`/`FONT_CJK`/`FONT_DATA`，Phase 0–6 已上線。本提案**只做兩件事**：
 1. 把 `research/` 與 `member/` 兩個獨立 CSS 子系統接上同一份數值（用 CSS 變數鏡射，因為它們是 `.css` 檔，無法直接 `import` TS 常數）。
 2. 修正字體角色被用反的地方，並補齊被跳過的統一結構（popup footer、共用 Title、活動時間軸語彙）。
 

@@ -1,7 +1,7 @@
 # 嵌入動態／歷史圖層（EM 系列後續）
 
 > 2026-08-04 規劃 · **尚未動工**
-> 前置：[`embeddable-map-impl.md`](./embeddable-map-impl.md)（Phase 1 已完成）· [`embed-basemap-osm.md`](./embed-basemap-osm.md)（MapLibre 路線）
+> 前置：[`embeddable-map-impl.md`](../archive/2026-10-04/proposal/embeddable-map-impl.md)（Phase 1 已完成）· [`embed-basemap-osm.md`](../archive/2026-10-04/proposal/embed-basemap-osm.md)（MapLibre 路線）
 > 起因：`/embed` 目前只吃 145 個靜態圖層，動態圖層一律擋掉。本檔規劃「怎麼讓動態／歷史資料也能嵌」。
 
 ## 1. 先更正兩個前提
@@ -227,7 +227,7 @@ Pro plan 250 GB 額度撐 25 篇同級文章就見底（超出 $0.09/GB）。
 - **圖例**：ShipsLegend（6 類船種）、RailLegend（TRA 車種由 `TRA_TRAIN_TYPES` 推導）、FlightsLegend（單條——FlightScene 是 `idx % colors` 輪替配色無分類語意，不憑空發明分類）。三者同步移出 `layerConsistency` 的 `BASELINE_NO_LEGEND`。
 - **色票單一出處**：ship 色票從 `ShipScene.ts` 移至 `src/data/shipTrails.ts`——LegendPanel 是 base bundle 的 static import，圖例若向 Scene 取色會把 three 拖進純靜態嵌入。
 - **bundle 不變量持續成立**：build 後 `dist/assets/embed-*.js` 內 `WebGLRenderer`/`InstancedMesh` 出現 0 次，three 全在 lazy chunk。
-- **示範頁** `demo-embed.html`：9 張卡（班機 3 變化／船舶／鐵路／兩兩與三層共存／共機快照／充電站）。rail 卡帶 `h=8`（凌晨僅 ~50–130 車，白天 400+，避免第一眼偏空）。
+- **示範頁** `tools/demo-embed.html`：9 張卡（班機 3 變化／船舶／鐵路／兩兩與三層共存／共機快照／充電站）。rail 卡帶 `h=8`（凌晨僅 ~50–130 車，白天 400+，避免第一眼偏空）。
 - **上生產接線（2026-08-08 完成）**：`embed-snapshots/{flights,ships,rail}/` 與 `public/embed-rail/` 已接完 deploy-assets → S3 → nginx，四份資產（3 快照 + rail_slim）已上傳 `s3://migu-gis-data-collector/deploy-assets/`，大小與本地逐位元組一致（md5 roundtrip MATCH）。
   - **改動**：`upload-deploy-assets.sh` 新增 `embed-rail/` sync 區塊（`embed-snapshots/` 原已就位）；`pull-deploy-assets.sh` mkdir 加 `$DATA_DIR/embed-rail` + 新增對應 sync；`nginx.conf` 新增 `location /embed-rail/`。兩端皆用**整夾 sync**，未來加新日期／新圖層零改腳本，重跑為 no-op（冪等已實測）。
   - **Content-Encoding 決定：不設（走「前端自解」那條路）**。理由是正式站的 nginx 服務的是 **volume 上的本地檔**（pull 用 `aws s3 sync` 落地），S3 的 metadata 根本到不了瀏覽器 —— 設 `--content-encoding gzip` 對線上零幫助，只會替下載環節引入「body 可能被中途解壓」的變數，製造「宣告 gzip 但實際已解壓」的矛盾。不設則 dev（vite 直接送檔）與 prod 行為完全一致，`fetchMaybeGzipJson()` 的 magic byte(0x1f 0x8b) 分支兩邊都吃得下。

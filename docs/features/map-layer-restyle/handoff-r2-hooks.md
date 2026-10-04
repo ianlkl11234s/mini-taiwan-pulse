@@ -6,7 +6,7 @@
 
 ## 1. 背景（一分鐘版）
 
-地圖圖層視覺規格已拍板（`docs/design-system-map-layers.md` §3、§7）。R2 前半（PR #392，已上線）把 **OVERLAY_REGISTRY 驅動的 192 個點圖層**統一成：
+地圖圖層視覺規格已拍板（`docs/design-system/map-layers.md` §3、§7）。R2 前半（PR #392，已上線）把 **OVERLAY_REGISTRY 驅動的 192 個點圖層**統一成：
 
 - **P-1 B 固定三階半徑**：小 S 3、中 M 4.5、大 L 6.5（px），**不隨縮放**；乘上大小滑桿（以滑桿預設值為 1）。
 - **P-2 A 描邊**：底圖色 1px（暗 `#0a0a14` 透明度 0.8、淡 `#ffffff` 0.9），描邊透明度跟透明度滑桿。
@@ -18,7 +18,7 @@
 - `src/map/mapStyleScale.ts`：所有數值與 helper（`pointRadius`、`pointStrokePaint`、`POINT_STROKE`、`mapSeamColor`、`POINT_RADIUS`）
 - `src/map/pointSpec.ts`：前半的套用邏輯（半徑與描邊的算法、光暈規則、`LIVE_DECORATION_LAYERS`、`DECORATION_SUFFIX_RE`、`POINT_SPEC_EXEMPT`），**照這個邏輯寫，不要自創**
 - `src/map/pointTiers.ts`：`HOOK_POINT_TIERS`（本次名單，使用者已確認「全照建議」）
-- `docs/features/map-layer-restyle/PLAN.md` R2 段、`docs/design-system.md` §10.3
+- `docs/features/map-layer-restyle/PLAN.md` R2 段、`docs/design-system/spec.md` §10.3
 
 ## 2. 目標與完成定義
 

@@ -1,7 +1,7 @@
 # 資料來源配對結果 — Step 1 完成報告
 
 **日期**：2026-07-01
-**計畫文件**：[`docs/proposal/data-sources-ssot-bridge.md`](../proposal/data-sources-ssot-bridge.md)
+**計畫文件（已歸檔）**：[`docs/archive/2026-10-04/proposal/data-sources-ssot-bridge.md`](../archive/2026-10-04/proposal/data-sources-ssot-bridge.md)
 **全部 CSV / 報告**：`docs/audit/data_sources_*.csv` + `scratchpad/audit/` (Phase 0-5)
 
 ---

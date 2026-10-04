@@ -2,7 +2,8 @@
 
 > 提案日期：2026-06-13
 > 分支：`feat/satellite-layer`（接續現有衛星圖層）
-> 狀態：規劃中，待 Phase A 拍板實作
+> 狀態：程式已上線（`src/components/satelliteConsole/`、`satellite_maneuvers`）；本檔仍是 BACKLOG SAT-* 項目的 canonical plan，未完成項以 BACKLOG 為準。
+> （原狀態：規劃中，待 Phase A 拍板實作）
 
 ## 0. 背景與目標
 

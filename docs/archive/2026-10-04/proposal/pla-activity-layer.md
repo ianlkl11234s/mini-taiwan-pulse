@@ -1,7 +1,7 @@
 # 共機活動區圖層 + 情報群組改組（PL 系列）
 
 > **2026-08-02 更新：本規劃已全數執行完畢，保留作為決策軌跡。**
-> 實作結果與驗收見 [`../features/pla-activity/README.md`](../features/pla-activity/README.md)。
+> 實作結果與驗收見 [`../features/pla-activity/README.md`](../../../features/pla-activity/README.md)。
 >
 > §6 四項待決事項的拍板結果：
 > 1. 群組名稱 → **情勢 Situation**

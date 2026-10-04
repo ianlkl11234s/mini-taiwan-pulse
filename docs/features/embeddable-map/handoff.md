@@ -215,6 +215,6 @@ open "http://localhost:3721/"
 # 嵌入版
 open "http://localhost:3721/embed.html?v=1&lng=120.2&lat=23.0&z=12.5&layers=religionTemples,religionChurches"
 
-# 文章嵌入效果（需另起 8900 供檔，見 docs/proposal/embed-prototype/README.md）
+# 文章嵌入效果（需另起 8900 供檔，見 docs/archive/2026-10-04/proposal/embed-prototype/README.md）
 open "http://localhost:8900/demo-religion.html"
 ```

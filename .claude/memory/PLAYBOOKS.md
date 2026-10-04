@@ -167,7 +167,7 @@ git push origin master
 > build log 全文 grep `pnpm|yarn|corepack` 零命中）。
 > repo 內**沒有** `zeabur.json`／`zbpack.json`，service env 也無任何 `ZBPACK_*`，
 > 即唯一能把 build 導離 Dockerfile 的機制不存在。
-> ⚠️ **merge 進 master ＝ 直接上線**，沒有 staging 中繼——PR merge 的那一刻就是部署。
+> ⚠️ **merge 進 master ＝ 直接上線**——PR merge 的那一刻就是部署。2026-10-04 起日常 PR 只進 `develop`，`develop → master` 是發布動作、須使用者拍板（見 `docs/RELEASING.md`）；develop 的部署環境由使用者另設。
 > S3 只放 runtime 資料（容器啟動時 `pull-deploy-assets.sh` 拉進 `/data`），**不參與 build**。
 
 ### 6b. ⚠️ 新增大型資料檔到 S3 → **5 檔強制同步 checklist**（2026-03-06 教訓）
@@ -1700,7 +1700,7 @@ side-effect 模組要確保求值早於 import graph；未注入即 throw（不 
 ⚠️ 色票放 `src/data/*.ts`，**不要向 Scene 檔取色** —— LegendPanel 是 static import，
 會把 three 拖進純靜態 bundle。做完把該層從 `layerConsistency` 的 `NO_LEGEND_LEDGER` 移出（並把 manifest 的 `legend` 從 null 改成圖例 id）。
 
-**6. demo 卡**（`demo-embed.html` 加一張）
+**6. demo 卡**（`tools/demo-embed.html` 加一張）
 挑一個「看得出東西在動」的時間窗。⚠️ **預設 960x 對密集班距太快**：
 北捷尖峰班距只剩 0.2 牆鐘秒、高雄輕軌 4.3 秒繞完一圈 → 糊成一團看不出疏密，
 這類卡片要帶 `p.speed=180`。

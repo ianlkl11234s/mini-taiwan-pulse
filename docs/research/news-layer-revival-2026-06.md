@@ -20,7 +20,7 @@
 
 **結論：前端是現成的，缺的整段都在資料管線。** 復活成本主要在後端，前端只需把資料來源從靜態 GeoJSON 換成 Supabase RPC（或 S3 日檔）。
 
-設計文件：`docs/NEWS_MAP_PLAN.md`（4-phase 完整計畫，仍適用）。
+設計文件：`docs/archive/2026-10-04/NEWS_MAP_PLAN.md`（4-phase 完整計畫，仍適用）。
 
 ---
 

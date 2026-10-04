@@ -334,7 +334,7 @@ CREATE INDEX ON realtime.national_signals (signal_type, ts DESC);
 ## 10. 參考資料
 
 - 既有新聞管線：`.claude/memory/news-roadmap.md`
-- 既有 NEWS_MAP_PLAN：`docs/NEWS_MAP_PLAN.md`（Phase 1-3 已完成）
+- 既有 NEWS_MAP_PLAN：`docs/archive/2026-10-04/NEWS_MAP_PLAN.md`（Phase 1-3 已完成）
 - 既有 Timeline 架構：`docs/TIMELINE_ARCHITECTURE.md`
 - Supabase pre-aggregate pattern：`docs/supabase-optimization.md`
 - 圖層 UX 四鐵則：`CLAUDE.md` §5a（透明度 / 圖例 / popup / dropdown）

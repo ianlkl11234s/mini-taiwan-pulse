@@ -1,7 +1,7 @@
 # Monitor v2 — 元件化監控儀表板規劃
 
 > 2026-07-08 起草。基於四路調查：Monitor 前端現況、data-collectors 盤點、taipei-gis-analytics/TwinkleHub 盤點、worldmonitor 等參考專案研究。
-> 前身：`docs/proposal/monitor-mode.md`（Phase 1/2，已上線）、`docs/proposal/alerts-integration-impl.md`（AI 系列）。
+> 前身：`docs/archive/2026-10-04/proposal/monitor-mode.md`（Phase 1/2，已上線）、`docs/archive/2026-10-04/proposal/alerts-integration-impl.md`（AI 系列）。
 > Backlog 對應：MO 系列（未完成：MO-4/5/7/8/12/13/14/15/16）+ 本文件新增 MV2 系列。
 
 ---
@@ -159,4 +159,4 @@ Phase 1、2 是純前端且互相獨立於資料擴充，可先出貨；Phase 3 
 
 ## 7. 過夜自動執行
 
-執行手冊見 `docs/proposal/monitor-v2-overnight-runbook.md`（02:00 排程啟動，主 agent 分派 Opus/Sonnet 子任務並驗收，產出夜間報告）。
+執行手冊見 `docs/archive/2026-10-04/proposal/monitor-v2-overnight-runbook.md`（02:00 排程啟動，主 agent 分派 Opus/Sonnet 子任務並驗收，產出夜間報告）。

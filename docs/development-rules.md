@@ -211,7 +211,7 @@ myNewLayer: [
 
 ## 4a. 圖層 UX 標配（四大鐵則）
 
-> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system.md)；guard 測試 `src/styles/__tests__/designSystemGuard.test.ts`。
+> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system/spec.md)；guard 測試 `src/styles/__tests__/designSystemGuard.test.ts`。
 
 新 layer 必須同時通過下列四條，缺一不可。違反時 reviewer 應退件。
 
@@ -335,7 +335,7 @@ Commit 前必跑。
 
 ## 8. 動態圖層時間訂閱（External Time Store）
 
-> 2026-04-14 後所有隨時間變化的圖層**強制**遵守此規則。背景見 `docs/perf-external-time-store.md`。
+> 2026-04-14 後所有隨時間變化的圖層**強制**遵守此規則。背景見 `docs/TIMELINE_ARCHITECTURE.md`（原 perf-external-time-store 已歸檔：`docs/archive/2026-10-04/perf-external-time-store.md`）。
 
 ### 原則
 Timeline 的 `currentTime` 存在 **`src/state/timeStore.ts`**（不是 React state）。

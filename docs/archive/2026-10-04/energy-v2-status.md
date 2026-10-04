@@ -216,6 +216,6 @@ B.1 資料層必須與 B.2 UI 接線同時送進來才不會 ratchet fail。
 
 ## 已知不對齊（追加 plan 對比）
 
-- `docs/energy-v2-plan.md` §B 強調 cluster，B.3 暫用 zoom-gate 著色不做 mapbox cluster。
+- `docs/archive/2026-10-04/energy-v2-plan.md` §B 強調 cluster，B.3 暫用 zoom-gate 著色不做 mapbox cluster。
   雷雨季實測超過 5000 點 / 卡頓再升級。
 - §B `is_stale + 高劑量 = 灰色 stroke` 用「虛邊框」實作（plan 寫 stroke，做 stroke-width 1.5 + 灰色）。

@@ -1,6 +1,6 @@
 # Monitor v2 執行報告（T1–T6 全數完成）
 
-> 2026-07-09 執行。規劃：`docs/proposal/monitor-v2-plan.md`；手冊：`docs/proposal/monitor-v2-overnight-runbook.md`。
+> 2026-07-09 執行。規劃：`docs/proposal/monitor-v2-plan.md`；手冊：`docs/archive/2026-10-04/proposal/monitor-v2-overnight-runbook.md`。
 > 全程：worktree 隔離、未 push、未動 production DB、未觸碰 `feat/light-theme` 工作區。
 
 ## 完成清單

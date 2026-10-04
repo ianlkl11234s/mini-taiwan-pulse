@@ -17,7 +17,7 @@
 1. 先開 `docs/features/<slug>/` 資料夾（`cp -r docs/features/_TEMPLATE ...`）
 2. 若涉資料契約 → 先開 `taipei-gis-analytics/docs/handoff/<slug>.md`
 3. 若涉架構決策 → 開 ADR `taipei-gis-analytics/docs/adr/NNNN-*.md`
-4. 走 GitHub Flow branch：`feat/<slug>` / `fix/<slug>` / `perf/<slug>`（見 CLAUDE.md §Git Workflow）
+4. 從 `develop` 開 `feat/<slug>` / `fix/<slug>` / `perf/<slug>`，PR base 為 `develop`（見 CLAUDE.md §Git Workflow、`docs/git-workflow.md`）
 
 **Why**：層層漏項是最常見 bug 根因（PMTiles keep_attrs / LAYER_COLORS / legend / popup / cross-repo drift）。
 **How to apply**：Session 開頭讀到本條 = 之後任何 layer 對話都先觸發 skill。
