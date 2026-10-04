@@ -2,7 +2,7 @@
 
 **用開放資料，把台灣畫成一張會呼吸的地圖。**
 
-🌏 **線上版：[mini-taiwan-pulse.itsmigu.com](https://mini-taiwan-pulse.itsmigu.com)**　·　目前版本 **v2.3.0**（2026-10-04）→ [CHANGELOG](CHANGELOG.md)，網站「資訊 → 關於」也會顯示
+🌏 **線上版：[mini-taiwan-pulse.itsmigu.com](https://mini-taiwan-pulse.itsmigu.com)**　·　目前版本 **v2.4.0**（2026-10-04）→ [CHANGELOG](CHANGELOG.md)，網站「資訊 → 關於」也會顯示
 
 天空的航班、海面的船舶、軌道上的列車、街上的公車——這些會動的東西是這個專案的起點。
 後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星、區域統計……

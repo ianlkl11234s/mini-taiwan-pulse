@@ -4,6 +4,7 @@
 
 | 版號 | 日期 | 重點 |
 |---|---|---|
+| v2.4.0 | 2026-10-04 | 版號與正式工程循環：develop／master、CHANGELOG、站上顯示版號 |
 | v2.3.0 | 2026-10-04 | 圖層面板統一、監看卡 v2、Agent 正式站預覽 |
 | v2.2.0 | 2026-10-01 | 效能稽核、線面規格 R3–R4、橋梁韌性 |
 | v2.1.1 | 2026-09-30 | 圖層、時間軸與分析的批次修正 |
@@ -48,15 +49,19 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+## v2.4.0 — 2026-10-04 — 版號與正式工程循環
+
 ### 新增
 
-- 網站「資訊 → 關於」顯示目前版號（由 package.json 注入）
+- 網站「資訊 → 關於」顯示目前版號（由 package.json 注入）（#527）
+- 根目錄 `CHANGELOG.md`：依 git 與 PR 歷史回溯 v0.1.0–v2.3.0 共 37 版，每版 tag 打在 master 對應 commit（#527、本版）
 
 ### 注意事項
 
-- 改走 develop／master 雙主幹：PR 一律進 `develop`，`master` 只收發布與 hotfix；CI 也會在 develop 上跑
-- 開發／POC 頁面搬進 `tools/`：正式網址 `/design-system.html`、`/bbox.html`、`/jev-layer-screening.html` 改為 `/tools/…`（舊網址會落到 SPA 首頁）
-- 已完成的計畫文件移到 `docs/archive/2026-10-04/`（索引見 `docs/archive/README.md`）
+- 改走 develop／master 雙主幹：PR 一律進 `develop`（GitHub 預設分支已改為 develop），`master` 只收發布與 hotfix；CI 也會在 develop 上跑（#527、#528）
+- 開發／POC 頁面搬進 `tools/`：正式網址 `/design-system.html`、`/bbox.html`、`/jev-layer-screening.html` 改為 `/tools/…`（舊網址會落到 SPA 首頁）（#527）
+- 已完成的計畫文件移到 `docs/archive/2026-10-04/`（索引見 `docs/archive/README.md`）；README 依現況重寫（#527、本版）
+- 補回 network-structures 正式站驗收紀錄（PR #222 merge 後才推的 commit）
 
 ## v2.3.0 — 2026-10-04 — 圖層面板統一、監看卡 v2、Agent 正式站預覽
 
