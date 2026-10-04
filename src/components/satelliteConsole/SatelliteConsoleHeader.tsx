@@ -1,6 +1,7 @@
-import { IntelIcon, ICON } from "../intel/IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, clockTime } from "./satelliteConsoleTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { chipOutline } from "../intel/intelTokens";
+import { PanelHeader } from "../sidebar/PanelHeader";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { isHistoryMode, formatTimelineOffset } from "../../hooks/useTimeStoreTime";
 
 interface Props {
@@ -10,135 +11,73 @@ interface Props {
   onClose: () => void;
 }
 
+// §5.21 狀態徽章：chipOutline（透明底＋框），圓角 3、10px
+const chipBase = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+  padding: "2px 5px",
+  borderRadius: 3,
+  fontSize: FONT_SIZE.sm,
+  lineHeight: 1.2,
+  whiteSpace: "nowrap",
+} as const;
+
 export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }: Props) {
   const hot = totalManeuvers > 0;
   const isHistory = isHistoryMode(timelineSec);
   const offsetLabel = isHistory ? formatTimelineOffset(timelineSec) : null;
-
-  // 即時 / 歷史模式的色票
   const badgeColor = isHistory ? COLORS.statusWarn : COLORS.statusLive;
-  const badgeSoft = isHistory ? "rgba(255,152,0,0.16)" : COLORS.statusLiveSoft;
-  const badgeBorder = isHistory ? "rgba(255,152,0,0.55)" : COLORS.statusLiveBorder;
 
   return (
     <>
-      {/* ── 1 列：標題 + LIVE/ALERT/HISTORY 徽章 ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 9,
-          padding: "13px 14px 11px",
-          borderBottom: `1px solid ${COLORS.panelBorder}`,
-          flexShrink: 0,
-        }}
-      >
-        <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke={COLORS.accent}
-             strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-          <circle cx="12" cy="12" r="2" />
-          <path d="M4 12a8 8 0 1 0 16 0" />
-          <path d="M20 12a8 8 0 0 1-16 0" strokeDasharray="2 3" />
-          <circle cx="20" cy="12" r="1.2" fill={COLORS.accent} />
-        </svg>
-        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-          <span style={{ fontFamily: FONT_CJK, fontSize: 13.5, fontWeight: 700, color: COLORS.textStrong }}>
-            衛星情報
-          </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim }}>
-            SATELLITE
-          </span>
-        </div>
-        {/* 變軌 ALERT 徽章（紅）— 警報是「DB 24h 內」的客觀事實，不受歷史模式影響 */}
-        {hot && !isHistory && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-              marginLeft: 6,
-              padding: "2px 8px",
-              borderRadius: RADIUS.md,
-              background: "rgba(239,68,68,0.16)",
-              border: "1px solid rgba(239,68,68,0.45)",
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: RADIUS.full,
-                background: COLORS.statusErr,
-                boxShadow: `0 0 6px ${COLORS.statusErr}`,
-                animation: "intelRing 1.6s ease-in-out infinite",
-              }}
-            />
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, color: COLORS.statusErr }}>
-              ALERT
-            </span>
-          </span>
-        )}
-        <div style={{ flex: 1 }} />
-        <button
-          onClick={onClose}
-          aria-label="close"
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: RADIUS.md,
-            border: "none",
-            background: "transparent",
-            color: COLORS.textDim,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-          }}
-        >
-          <IntelIcon d={ICON.x} size={14} />
-        </button>
-      </div>
+      {/* 標頭：共用 PanelHeader（H2 eyebrow 分支）；衛星情報 Console 目前只有暗色 */}
+      <PanelHeader
+        eyebrow="情報 · 太空"
+        title="衛星情報"
+        onClose={onClose}
+        borderColor={COLORS.panelBorder}
+        mutedColor={COLORS.textDim}
+        textColor={COLORS.textStrong}
+      />
 
-      {/* ── 2 列：顯示時間徽章 ── */}
+      {/* 狀態列（H1）：即時／歷史徽章、顯示時間、變軌警報 */}
       <div
         style={{
           flexShrink: 0,
-          padding: "7px 14px 8px",
+          padding: "6px 14px 7px",
           borderBottom: `1px solid ${COLORS.borderSoft}`,
           display: "flex",
           alignItems: "center",
           gap: 8,
-          fontFamily: FONT_DATA,
+          fontFamily: FONT_CJK,
           fontSize: FONT_SIZE.sm,
           background: isHistory ? "rgba(255,152,0,0.06)" : "transparent",
         }}
       >
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 5,
-            padding: "2px 8px",
-            borderRadius: RADIUS.md,
-            background: badgeSoft,
-            border: `1px solid ${badgeBorder}`,
-            fontFamily: FONT_DATA,
-            fontWeight: 700,
-            color: badgeColor,
-          }}
-        >
-          <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: badgeColor }} />
-          {isHistory ? "HISTORY" : "LIVE"}
-        </span>
-        <span style={{ color: COLORS.textDim }}>顯示時間</span>
-        <span style={{ color: COLORS.textDefault, fontWeight: 600 }}>
+        <span style={{ ...chipBase, ...chipOutline(badgeColor) }}>{isHistory ? "歷史" : "即時"}</span>
+        <span style={{ color: COLORS.textDim, whiteSpace: "nowrap" }}>顯示時間</span>
+        <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: COLORS.textDefault }}>
           {clockTime(timelineSec)}
         </span>
         {offsetLabel && (
-          <span style={{ color: badgeColor }}>（{offsetLabel}）</span>
+          <span style={{ color: COLORS.statusWarn, whiteSpace: "nowrap" }}>
+            （{offsetLabel.split(/([+\-\d:]+)/).filter(Boolean).map((part, i) =>
+              /^[+\-\d:]+$/.test(part) ? <span key={i} style={{ fontFamily: FONT_DATA }}>{part}</span> : part)}）
+          </span>
         )}
-        <span style={{ marginLeft: "auto", color: COLORS.textFaint }}>
-          §A 警報固定看現實 24h
-        </span>
+        {/* 變軌警報是「DB 24h 內」的客觀事實，不受歷史模式影響 → 歷史模式只提示固定看近 24 小時 */}
+        {isHistory ? (
+          <span style={{ marginLeft: "auto", color: COLORS.textDim, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            變軌警報固定看近 24 小時
+          </span>
+        ) : (
+          hot && (
+            <span style={{ marginLeft: "auto", ...chipBase, ...chipOutline(COLORS.statusErr) }}>
+              變軌 <span style={{ fontFamily: FONT_DATA }}>{totalManeuvers}</span>
+            </span>
+          )
+        )}
       </div>
     </>
   );

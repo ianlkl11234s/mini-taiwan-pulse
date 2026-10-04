@@ -18,6 +18,7 @@ import type { LayerVisibility } from "../../types";
 import * as satellite from "satellite.js";
 import { Satellite as SatelliteIcon } from "lucide-react";
 import { ListRow } from "../sidebar/LayerRow";
+import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import { DARK_PALETTE, RailThemeContext } from "../sidebar/railTheme";
 
 interface Props {
@@ -183,25 +184,12 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
     // 衛星情報 Console 只有暗色
     <RailThemeContext.Provider value={DARK_PALETTE}>
     <div style={{ borderBottom: `1px solid ${COLORS.borderSoft}` }}>
-      <div style={{
-        padding: "9px 14px 6px",
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.xs,
-        letterSpacing: "2px",
-        color: COLORS.textFaint,
-      }}>
-        CHINA · 6 GROUPS
-      </div>
+      <SubGroupLabel>中國</SubGroupLabel>
       {CN_GROUPS_META.map(renderGroup)}
 
       {/* 國際偵察區 */}
-      <div style={{
-        padding: "9px 14px 6px",
-        marginTop: 4,
-        borderTop: `1px solid ${COLORS.borderSoft}`,
-        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px", color: COLORS.textFaint,
-      }}>
-        INTL RECON · 9 COUNTRIES
+      <div style={{ marginTop: 4, borderTop: `1px solid ${COLORS.borderSoft}` }}>
+        <SubGroupLabel>國際偵察</SubGroupLabel>
       </div>
       {INTL_GROUPS_META.map(renderGroup)}
     </div>

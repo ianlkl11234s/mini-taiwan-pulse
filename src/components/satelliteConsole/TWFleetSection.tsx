@@ -20,6 +20,8 @@ import { deriveFleetView } from "../../data/satelliteDataState";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { localeForTaiwanSat } from "../../data/satelliteTaiwanLocale";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { SubGroupLabel } from "../sidebar/ThemeBanner";
+import { DARK_PALETTE, RailThemeContext } from "../sidebar/railTheme";
 import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
 
 interface Props {
@@ -187,25 +189,14 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
 
   return (
     <div style={{ borderBottom: `1px solid ${COLORS.borderSoft}` }}>
-      <div style={{
-        padding: "9px 14px 6px",
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.xs,
-        letterSpacing: "2px",
-        color: COLORS.textFaint,
-        display: "flex",
-        alignItems: "center",
-      }}>
-        <span>TAIWAN · {rows.length} SATS</span>
-        {view.skipped > 0 && (
-          <span style={{ marginLeft: 8, color: COLORS.statusWarn, letterSpacing: 0, fontFamily: FONT_CJK }}>
-            {view.skipped} 顆暫無法計算
-          </span>
-        )}
-        <span style={{ marginLeft: "auto", color: "#4fc3f7" }}>
-          覆蓋中：{rows.filter((r) => r.nextPassMin === 0).length}
-        </span>
-      </div>
+      <RailThemeContext.Provider value={DARK_PALETTE}>
+        <SubGroupLabel>台灣衛星隊</SubGroupLabel>
+      </RailThemeContext.Provider>
+      {view.skipped > 0 && (
+        <div style={{ padding: "0 12px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+          <span style={{ fontFamily: FONT_DATA }}>{view.skipped}</span> 顆暫無法計算
+        </div>
+      )}
 
       <div style={{ padding: "0 12px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
         {rows.map((r) => {

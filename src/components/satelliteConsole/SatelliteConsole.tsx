@@ -14,7 +14,9 @@ import { TWFleetSection } from "./TWFleetSection";
 import { CoverageStatsSection } from "./CoverageStatsSection";
 import { SatelliteDetailCard } from "./SatelliteDetailCard";
 import { ManeuverCompareModal } from "./ManeuverCompareModal";
-import { describeFreshness, type ManeuversState } from "../../data/satelliteDataState";
+import { formatTaipeiClock, formatTaipeiDateClock, isFreshnessExpired, SATELLITE_SOURCE_URLS, type ManeuversState } from "../../data/satelliteDataState";
+import { layerControlThemeClass } from "../sidebar/LayerParamControls";
+import { DARK_FEATURE } from "../featureInfo/featureTheme";
 import { useSatelliteRecords } from "../../hooks/useSatelliteRecords";
 import { satelliteConsoleStore, useSatelliteConsole } from "../../state/satelliteConsoleStore";
 import { useTimeStoreTime, isHistoryMode } from "../../hooks/useTimeStoreTime";
@@ -44,13 +46,10 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
     const id = window.setInterval(() => setNowMs(Date.now()), 60_000);
     return () => window.clearInterval(id);
   }, [open]);
-  const freshness = [
-    // TLE 由 gis-platform 每 2h 從 Space-Track 同步
-    describeFreshness({ label: "TLE", status: tle.status, fetchedAt: tle.fetchedAt, nowMs, periodMin: 120 }),
-    describeFreshness({ label: "變軌", status: maneuvers.status, fetchedAt: maneuvers.fetchedAt, stale: maneuvers.stale, nowMs }),
-  ];
+  // TLE 由 gis-platform 每 2h 從 Space-Track 同步 → 週期 120 分
+  const tleExpired = tle.fetchedAt != null && isFreshnessExpired(tle.fetchedAt, nowMs, 120);
 
-  // 全部變軌（含 INTL）— Header 警示用，總數就好；細節由 §A 拆給看。讀取失敗時不亮 ALERT
+  // 全部變軌（含 INTL）— Header 警示用，總數就好；細節由變軌警報區呈現。讀取失敗時不顯示「變軌 N」
   const totalManeuverCount = maneuvers.status === "ok" ? maneuvers.rows.length : 0;
 
   if (!open) return null;
@@ -114,35 +113,48 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
           />
         </div>
 
+        {/* 顯示選項（§5.10 細項開關）：獨立一列 */}
+        <div
+          className={layerControlThemeClass(true)}
+          style={{ flexShrink: 0, padding: "7px 14px", borderTop: `1px solid ${COLORS.borderSoft}` }}
+        >
+          <button
+            type="button"
+            role="switch"
+            aria-checked={consoleState.showAllOrbits}
+            className="lpc-toggle"
+            onClick={() => satelliteConsoleStore.setShowAllOrbits(!consoleState.showAllOrbits)}
+            style={{ color: consoleState.showAllOrbits ? COLORS.textDefault : COLORS.textMuted }}
+          >
+            <span className="lpc-sw" aria-hidden="true" />
+            <span>顯示全部軌道</span>
+          </button>
+        </div>
+
+        {/* 來源（§5.3 F2）：兩個來源各連原始頁，第三行等寬「抓取於」 */}
         <div style={{
           flexShrink: 0,
           padding: "8px 14px",
           borderTop: `1px solid ${COLORS.borderSoft}`,
-          fontFamily: FONT_DATA,
           fontSize: FONT_SIZE.xs,
-          color: COLORS.textFaint,
-          display: "flex",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "4px 10px",
+          lineHeight: 1.5,
+          color: COLORS.textDim,
         }}>
-          <div role="status" style={{ flexBasis: "100%", display: "flex", flexWrap: "wrap", gap: "2px 10px" }}>
-            {freshness.map((f) => (
-              <span key={f.text} style={{ color: f.tone === "warn" ? COLORS.statusWarn : COLORS.textFaint }}>{f.text}</span>
-            ))}
-          </div>
-          <span>UCS Database · Space-Track</span>
-          <span style={{ marginLeft: "auto" }}>
-            <label style={{ display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer", color: COLORS.textMuted }}>
-              <input
-                type="checkbox"
-                checked={consoleState.showAllOrbits}
-                onChange={(e) => satelliteConsoleStore.setShowAllOrbits(e.target.checked)}
-                style={{ accentColor: COLORS.accent }}
-              />
-              顯示全部軌道
-            </label>
-          </span>
+          {([["UCS 衛星資料庫", SATELLITE_SOURCE_URLS.ucs], ["Space-Track 軌道資料", SATELLITE_SOURCE_URLS.spaceTrack]] as const).map(([name, url]) => (
+            <div key={name}>
+              {name} · <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: DARK_FEATURE.link, textDecoration: "none" }}>原始下載頁 ↗</a>
+            </div>
+          ))}
+          {(tle.fetchedAt != null || maneuvers.fetchedAt != null) && (
+            <div role="status" style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>
+              {tle.fetchedAt != null && <>抓取於 {formatTaipeiDateClock(tle.fetchedAt)}</>}
+              {tleExpired && <span style={{ color: COLORS.statusWarn, fontFamily: FONT_CJK }}> · 資料過期</span>}
+              {maneuvers.fetchedAt != null && <>{tle.fetchedAt != null ? " · " : ""}變軌 {formatTaipeiClock(maneuvers.fetchedAt)}</>}
+              {maneuvers.fetchedAt != null && maneuvers.stale && (
+                <span style={{ color: COLORS.statusWarn, fontFamily: FONT_CJK }}> · 變軌更新中斷</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

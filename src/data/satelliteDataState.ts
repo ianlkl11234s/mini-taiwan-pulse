@@ -68,6 +68,24 @@ export function formatTaipeiClock(ms: number): string {
   return `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
 }
 
+/** 「MM/DD HH:MM」（台灣時間）— footer「抓取於」用 */
+export function formatTaipeiDateClock(ms: number): string {
+  const d = new Date(ms + 8 * 3600_000);
+  return `${pad2(d.getUTCMonth() + 1)}/${pad2(d.getUTCDate())} ${formatTaipeiClock(ms)}`;
+}
+
+/** 週期性資料是否已過期（stale／stopped；判準同 describeFreshness） */
+export function isFreshnessExpired(fetchedAt: number, nowMs: number, periodMin: number): boolean {
+  const f = judgeFreshness({ cadence: "stream", periodMin }, fetchedAt, nowMs);
+  return f.state === "stale" || f.state === "stopped";
+}
+
+/** 衛星圖層共通來源（面板 footer 與地圖 popup 共用） */
+export const SATELLITE_SOURCE_URLS = {
+  ucs: "https://www.ucsusa.org/resources/satellite-database",
+  spaceTrack: "https://www.space-track.org/",
+} as const;
+
 export interface FreshnessLabel {
   text: string;
   /** warn：失敗、中斷或過期，用警示色 */
@@ -97,8 +115,7 @@ export function describeFreshness(input: FreshnessInput): FreshnessLabel {
   const base = `${label} 更新 ${formatTaipeiClock(fetchedAt)}`;
   if (stale) return { text: `${base}（更新中斷，顯示舊資料）`, tone: "warn" };
   if (periodMin != null) {
-    const f = judgeFreshness({ cadence: "stream", periodMin }, fetchedAt, nowMs);
-    if (f.state === "stale" || f.state === "stopped") return { text: `${base}（資料過期）`, tone: "warn" };
+    if (isFreshnessExpired(fetchedAt, nowMs, periodMin)) return { text: `${base}（資料過期）`, tone: "warn" };
   }
   return { text: base, tone: "normal" };
 }

@@ -2,6 +2,7 @@ import { Row, SourceFooter } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { getSatelliteTleFetchedAt } from "../../data/satelliteLoader";
+import { SATELLITE_SOURCE_URLS } from "../../data/satelliteDataState";
 import { SATELLITE_COLORS, SATELLITE_LABELS, type SatelliteCategory } from "../../data/satelliteTypes";
 
 // 地圖上的衛星 feature 只帶 cat／norad／name／altKm，沒有來源欄位；
@@ -10,7 +11,7 @@ import { SATELLITE_COLORS, SATELLITE_LABELS, type SatelliteCategory } from "../.
 // （layerType「satellites」已列入 FeatureInfoPanel 的 FOOTER_SELF_MANAGED_LAYER_TYPES）。
 const SATELLITE_SOURCE = {
   source_org: "Space-Track（TLE）· UCS 衛星資料庫（分類）",
-  source_url: "https://www.space-track.org/",
+  source_url: SATELLITE_SOURCE_URLS.spaceTrack,
 } as const;
 
 export function SatellitePanel({ props }: { props: Record<string, unknown> }) {

@@ -1,7 +1,7 @@
 # 衛星情報面板改版（satellite-console-restyle）
 
 > **Slug**：`satellite-console-restyle`
-> **狀態**：2026-10-04 盤點完成；同日使用者拍板（見下方「決策紀錄」），P-D 先行、P1 比較頁製作中
+> **狀態**：2026-10-04 盤點完成；同日使用者拍板（見下方「決策紀錄」），P-D 先行；P1 已實作（見決策 6）
 > **P-D 進度**：2026-10-04 已實作對照表 B 除「時間軸拉到過去，變軌清單仍抓現在」以外的 12 列（分支 `feat/satellite-console-restyle`）；該列待使用者決定作法，原樣保留（見文末「P-D 實作紀錄」）
 > **細節**：外殼與清單區 [`inventory-shell.md`](./inventory-shell.md)、卡片／彈窗／資料狀態 [`inventory-cards.md`](./inventory-cards.md)
 > **規格**：[`docs/design-system/spec.md`](../../design-system/spec.md)
@@ -15,6 +15,7 @@
 | 3 | 「信心 N%」 | 拿掉百分比，改「依歷史間隔估算」；事件數不足時不顯示 |
 | 4 | 歷史模式變軌清單 | 要**跟著時間軸走**；作法細節待使用者確認（需 gis-platform migration，見 P-D 附註）。P-D 先做其他列，此列暫留 |
 | 5 | 分段順序 | P-D → P1 → P2 → P3 → P4 → P5 |
+| 6 | P1 比較頁 | E3＋H1＋B1＋T1＋S1＋F1（2026-10-04） |
 
 ## 一句話
 
@@ -130,7 +131,7 @@
 
 | 階段 | 範圍 | 需選擇頁 |
 |---|---|---|
-| P1 | 外殼、標頭 H2（`PanelHeader`＋中文 eyebrow）、區段標題中文化（`SubGroupLabel`）、footer 依 §5.3 | 需要（標頭與區段標題樣式、footer 結構） |
+| P1 | 外殼、標頭 H2（`PanelHeader`＋中文 eyebrow）、區段標題中文化（`SubGroupLabel`）、footer 依 §5.3 | 需要（標頭與區段標題樣式、footer 結構）。**已完成**（2026-10-04，E3＋H1＋B1＋T1＋S1＋F1） |
 | P2 | 群組列名稱（中文在前、去 emoji 國旗）、等級徽章改寫、變軌徽章改 `chipTint` | 需要（群名與等級徽章寫法） |
 | P3 | 台灣衛星隊＋覆蓋統計：控制項（C2 按鈕）、chevron、分段控制、新鮮度顯示 | 需要（卡片樣式、新鮮度位置） |
 | P4 | 變軌警報區、對比彈窗（§5.27）、衛星百科卡、地圖 popup | 需要（彈窗與警報區視覺） |
