@@ -1,7 +1,7 @@
 # 人口統計 Statistics（戶籍人口／年齡結構）
 
 > **Slug**：`demographics-statistics`（上游 handoff：`household-registration-population`、`population-age-structure`）
-> **狀態**：dev（本地接線＋本地 browser QA 完成；尚未發布 R2／CDN）
+> **狀態**：dev（R2／CDN 已於 2026-10-04 增量發布：縣市／鄉鎮 manifest `cef036a8…`，村里 manifest `f8cdd6bb…`；前端尚未部署）
 > **上線日期**：未上線
 
 ## 一句話說明

@@ -244,6 +244,20 @@ export function demographicsSource(recipe: Pick<DemographicsRecipe, "dataset_id"
 
 const LEVEL_LABELS: Partial<Record<StatisticsLevel, string>> = { county: "縣市", township: "鄉鎮市區", village: "村里" };
 
+/** 村里層只有一期時的期別文字（例：「115 年 8 月」）；多期或非村里回 undefined。 */
+export function demographicsVillageOnlyPeriod(recipe: Pick<DemographicsRecipe, "level" | "release_options">): string | undefined {
+  if (recipe.level !== "village" || recipe.release_options.length !== 1) return undefined;
+  const { roc_year: year, month } = recipe.release_options[0]!.dimensions as Record<string, string | undefined>;
+  return year && month ? `${year} 年 ${Number(month)} 月` : year ? `${year} 年` : undefined;
+}
+
+/** 選單中的地理層級文字；村里只有一期時直接標出期別（guidelines §3：不靜默跳年份）。 */
+export function demographicsLevelOptionLabel(recipe: Pick<DemographicsRecipe, "level" | "release_options">): string {
+  const base = LEVEL_LABELS[recipe.level] ?? recipe.level;
+  const only = demographicsVillageOnlyPeriod(recipe);
+  return only ? `${base}（僅 ${only}）` : base;
+}
+
 /**
  * Statistics 群組：一列＝一個概念；選單在同一群組內切換指標與縣市／鄉鎮／村里（同期別保留；村里只有 11508，
  * 從其他期別切入村里時落到 11508，見 medicalStatisticsSelection.ts）。
@@ -305,8 +319,8 @@ export const DEMOGRAPHICS_STATISTICS_TOGGLE_GROUPS = groupSpecs()
       optionLabel: single ? "地理層級" : levels.size > 1 ? "指標／地理層級" : "指標",
       options: members.map((recipe) => ({
         key: recipe.layer_key,
-        label: single ? LEVEL_LABELS[recipe.level] ?? recipe.level
-          : levels.size > 1 ? `${LEVEL_LABELS[recipe.level] ?? recipe.level}：${demographicsDisplayLabel(recipe)}` : demographicsDisplayLabel(recipe),
+        label: single ? demographicsLevelOptionLabel(recipe)
+          : levels.size > 1 ? `${demographicsLevelOptionLabel(recipe)}：${demographicsDisplayLabel(recipe)}` : demographicsDisplayLabel(recipe),
       })),
     };
   })

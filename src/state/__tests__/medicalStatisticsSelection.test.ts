@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../medicalStatisticsSelection';
+import { getStatisticsPeriodNotice, prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../medicalStatisticsSelection';
 import { regionalStatisticsStore } from '../regionalStatisticsStore';
 import { layerVisibilityStore, buildDefaultVisibility } from '../layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../statisticsDisplayModeStore';
@@ -120,6 +120,20 @@ describe('demographics level switching (村里只有 11508 一期)', () => {
     expect(selectMedicalStatisticsVariant(county, village, members)).toBe(true);
     expect(regionalStatisticsStore.getSnapshot(village).selection).toMatchObject({ releaseId: 'pas-share-age-65-plus-village-11508', dimensions: { month: '08', roc_year: '115' }, allowReleaseFallback: false });
     expect(members.filter(key => layerVisibilityStore.getAll()[key])).toEqual([village]);
+    // 期別被改動要明示（guidelines §3：不可靜默跳年份）
+    expect(getStatisticsPeriodNotice(village)).toBe('村里層僅有 115 年 8 月一期，已切換期別。');
+  });
+  it('shows no period notice when the county period already matches the village period, and clears it on switching away', () => {
+    select(county, '11412');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [county]: true });
+    expect(selectMedicalStatisticsVariant(county, village, members)).toBe(true);
+    expect(getStatisticsPeriodNotice(village)).toBeTruthy();
+    expect(selectMedicalStatisticsVariant(village, county, members)).toBe(true);
+    expect(getStatisticsPeriodNotice(village)).toBeUndefined();
+    expect(getStatisticsPeriodNotice(county)).toBeUndefined();
+    select(county, '11508');
+    expect(selectMedicalStatisticsVariant(county, village, members)).toBe(true);
+    expect(getStatisticsPeriodNotice(village)).toBeUndefined();
   });
   it('keeps 11508 when switching back from village to county, and still refuses cross-period county→township', () => {
     select(village, '11508');

@@ -134,10 +134,10 @@ describe("demographics statistics recipes", () => {
     // 歸化只有縣市層：選單只列「縣市」
     expect(getMedicalStatisticsGroup("statsDemographicsCountyNaturalizationCount")?.options).toEqual([{ key: "statsDemographicsCountyNaturalizationCount", label: "縣市" }]);
     expect(getMedicalStatisticsGroup("statsDemographicsTownshipPopulationDensity")?.options.map((option) => [option.key, option.label])).toEqual([
-      ["statsDemographicsCountyPopulationDensity", "縣市"], ["statsDemographicsTownshipPopulationDensity", "鄉鎮市區"], ["statsDemographicsVillagePopulationDensity", "村里"],
+      ["statsDemographicsCountyPopulationDensity", "縣市"], ["statsDemographicsTownshipPopulationDensity", "鄉鎮市區"], ["statsDemographicsVillagePopulationDensity", "村里（僅 115 年 8 月）"],
     ]);
-    expect(getMedicalStatisticsGroup("statsDemographicsVillageIndigenousShare")?.options.map((option) => option.label)).toEqual(["縣市", "鄉鎮市區", "村里"]);
-    expect(getMedicalStatisticsGroup("statsDemographicsCountyShareAge65Plus")?.options.slice(-1)[0]).toEqual({ key: "statsDemographicsVillageShareAge65Plus", label: "村里：65 歲以上人口占比" });
+    expect(getMedicalStatisticsGroup("statsDemographicsVillageIndigenousShare")?.options.map((option) => option.label)).toEqual(["縣市", "鄉鎮市區", "村里（僅 115 年 8 月）"]);
+    expect(getMedicalStatisticsGroup("statsDemographicsCountyShareAge65Plus")?.options.slice(-1)[0]).toEqual({ key: "statsDemographicsVillageShareAge65Plus", label: "村里（僅 115 年 8 月）：65 歲以上人口占比" });
     // 村里只做 P0/P2/P5；流量（P3/P4）與外來人口沒有村里選項。
     expect(getMedicalStatisticsGroup("statsDemographicsCountyBirths")?.options.some((option) => option.key.includes("Village"))).toBe(false);
     expect(getMedicalStatisticsGroup("statsDemographicsCountyForeignOriginShare")?.options.some((option) => option.key.includes("Village"))).toBe(false);

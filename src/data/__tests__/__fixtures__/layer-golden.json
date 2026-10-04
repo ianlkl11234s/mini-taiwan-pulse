@@ -90766,19 +90766,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -90967,19 +90967,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -91404,19 +91404,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -91951,7 +91951,7 @@
             "value": "statsDemographicsTownshipHouseholdCount"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageHouseholdCount"
           }
         ],
@@ -91990,7 +91990,7 @@
             "value": "statsDemographicsTownshipHouseholdSize"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageHouseholdSize"
           }
         ],
@@ -92139,15 +92139,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -92202,15 +92202,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -92265,15 +92265,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -92312,7 +92312,7 @@
             "value": "statsDemographicsTownshipIndigenousShare"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageIndigenousShare"
           }
         ],
@@ -92477,7 +92477,7 @@
             "value": "statsDemographicsTownshipMedianAge"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageMedianAge"
           }
         ],
@@ -92849,19 +92849,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -93010,15 +93010,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -93073,15 +93073,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -93136,15 +93136,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -93183,7 +93183,7 @@
             "value": "statsDemographicsTownshipPopulationDensity"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillagePopulationDensity"
           }
         ],
@@ -93222,7 +93222,7 @@
             "value": "statsDemographicsTownshipPopulationTotal"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillagePopulationTotal"
           }
         ],
@@ -93261,7 +93261,7 @@
             "value": "statsDemographicsTownshipSexRatio"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageSexRatio"
           }
         ],
@@ -93316,15 +93316,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -93379,15 +93379,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -93442,15 +93442,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -93513,19 +93513,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -93714,19 +93714,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -94151,19 +94151,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -94698,7 +94698,7 @@
             "value": "statsDemographicsTownshipHouseholdCount"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageHouseholdCount"
           }
         ],
@@ -94737,7 +94737,7 @@
             "value": "statsDemographicsTownshipHouseholdSize"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageHouseholdSize"
           }
         ],
@@ -94886,15 +94886,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -94949,15 +94949,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -95012,15 +95012,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -95059,7 +95059,7 @@
             "value": "statsDemographicsTownshipIndigenousShare"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageIndigenousShare"
           }
         ],
@@ -95224,7 +95224,7 @@
             "value": "statsDemographicsTownshipMedianAge"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageMedianAge"
           }
         ],
@@ -95577,19 +95577,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -95738,15 +95738,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -95801,15 +95801,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -95864,15 +95864,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -95911,7 +95911,7 @@
             "value": "statsDemographicsTownshipPopulationDensity"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillagePopulationDensity"
           }
         ],
@@ -95950,7 +95950,7 @@
             "value": "statsDemographicsTownshipPopulationTotal"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillagePopulationTotal"
           }
         ],
@@ -95989,7 +95989,7 @@
             "value": "statsDemographicsTownshipSexRatio"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageSexRatio"
           }
         ],
@@ -96044,15 +96044,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -96107,15 +96107,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -96170,15 +96170,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -96241,19 +96241,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -96316,19 +96316,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -96391,19 +96391,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -96442,7 +96442,7 @@
             "value": "statsDemographicsTownshipHouseholdCount"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageHouseholdCount"
           }
         ],
@@ -96481,7 +96481,7 @@
             "value": "statsDemographicsTownshipHouseholdSize"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageHouseholdSize"
           }
         ],
@@ -96536,15 +96536,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -96599,15 +96599,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -96662,15 +96662,15 @@
             "value": "statsDemographicsTownshipIndigenousMountainPopulation"
           },
           {
-            "label": "村里：原住民人口數",
+            "label": "村里（僅 115 年 8 月）：原住民人口數",
             "value": "statsDemographicsVillageIndigenousPopulation"
           },
           {
-            "label": "村里：平地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：平地原住民人口數",
             "value": "statsDemographicsVillageIndigenousPlainPopulation"
           },
           {
-            "label": "村里：山地原住民人口數",
+            "label": "村里（僅 115 年 8 月）：山地原住民人口數",
             "value": "statsDemographicsVillageIndigenousMountainPopulation"
           }
         ],
@@ -96709,7 +96709,7 @@
             "value": "statsDemographicsTownshipIndigenousShare"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageIndigenousShare"
           }
         ],
@@ -96748,7 +96748,7 @@
             "value": "statsDemographicsTownshipMedianAge"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageMedianAge"
           }
         ],
@@ -96811,19 +96811,19 @@
             "value": "statsDemographicsTownshipOldDependencyRatio"
           },
           {
-            "label": "村里：老化指數",
+            "label": "村里（僅 115 年 8 月）：老化指數",
             "value": "statsDemographicsVillageAgingIndex"
           },
           {
-            "label": "村里：扶養比",
+            "label": "村里（僅 115 年 8 月）：扶養比",
             "value": "statsDemographicsVillageDependencyRatio"
           },
           {
-            "label": "村里：扶幼比",
+            "label": "村里（僅 115 年 8 月）：扶幼比",
             "value": "statsDemographicsVillageChildDependencyRatio"
           },
           {
-            "label": "村里：扶老比",
+            "label": "村里（僅 115 年 8 月）：扶老比",
             "value": "statsDemographicsVillageOldDependencyRatio"
           }
         ],
@@ -96878,15 +96878,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -96941,15 +96941,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -97004,15 +97004,15 @@
             "value": "statsDemographicsTownshipPopAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口數",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口數",
             "value": "statsDemographicsVillagePopAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口數",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口數",
             "value": "statsDemographicsVillagePopAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口數",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口數",
             "value": "statsDemographicsVillagePopAge65Plus"
           }
         ],
@@ -97051,7 +97051,7 @@
             "value": "statsDemographicsTownshipPopulationDensity"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillagePopulationDensity"
           }
         ],
@@ -97090,7 +97090,7 @@
             "value": "statsDemographicsTownshipPopulationTotal"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillagePopulationTotal"
           }
         ],
@@ -97129,7 +97129,7 @@
             "value": "statsDemographicsTownshipSexRatio"
           },
           {
-            "label": "村里",
+            "label": "村里（僅 115 年 8 月）",
             "value": "statsDemographicsVillageSexRatio"
           }
         ],
@@ -97184,15 +97184,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -97247,15 +97247,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
@@ -97310,15 +97310,15 @@
             "value": "statsDemographicsTownshipShareAge65Plus"
           },
           {
-            "label": "村里：0-14 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：0-14 歲人口占比",
             "value": "statsDemographicsVillageShareAge0To14"
           },
           {
-            "label": "村里：15-64 歲人口占比",
+            "label": "村里（僅 115 年 8 月）：15-64 歲人口占比",
             "value": "statsDemographicsVillageShareAge15To64"
           },
           {
-            "label": "村里：65 歲以上人口占比",
+            "label": "村里（僅 115 年 8 月）：65 歲以上人口占比",
             "value": "statsDemographicsVillageShareAge65Plus"
           }
         ],
