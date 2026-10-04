@@ -22,7 +22,7 @@ const load = (recipe: Recipe, suffix: string) => {
   });
 };
 
-it.skipIf(!root)("loads all 288 delivered exact selectors through the real hash-validating loader", async () => {
+it.skipIf(!root)("loads all 620 delivered exact selectors through the real hash-validating loader", async () => {
   const base = "https://demographics-delivery.test";
   const cdn = resolve(root!, "output/demographics-statistics-preview/cdn/v1");
   vi.stubEnv("VITE_STATISTICS_CDN_BASE", base);
@@ -51,7 +51,7 @@ it.skipIf(!root)("loads all 288 delivered exact selectors through the real hash-
       loaded += 1;
     }
   }
-  expect(loaded).toBe(288);
+  expect(loaded).toBe(620);
 
   // 全國 11412 65+ 占比＝縣市 65+ 人數加總 ÷ 縣市戶籍人口加總（不平均比率）。
   const old = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyPopAge65Plus, "11412");
@@ -72,6 +72,29 @@ it.skipIf(!root)("loads all 288 delivered exact selectors through the real hash-
   expect(missing).toEqual(["64000050", "64000120"]);
   expect(partial.features.find((feature) => feature.properties?.area_code === "64000050")?.properties).toMatchObject({ value: null, status: "missing" });
   expect(partial.health).toMatchObject({ coverage_status: "PARTIAL", coverage_numerator: 366, coverage_denominator: 368 });
+
+  // P3：全國民國 113 年（2024）出生 134,856（縣市加總）；臺北市與 processed CSV 一致。
+  const births = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyBirths, "2024");
+  expect(sum(births.values.observations)).toBe(134856);
+  expect(births.values.observations.find((value) => value.area_code === "63000")).toMatchObject({ value: 17122, status: "observed" });
+  const naturalRate = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyNaturalIncreaseRate, "2024");
+  expect(naturalRate.values.observations.find((value) => value.area_code === "65000")).toMatchObject({ value: -3.44, status: "observed" });
+  const ytdRecipe = DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyBirthsYtd;
+  const ytd = await loadRegionalStatistics({ layerKey: ytdRecipe.layer_key, datasetId: ytdRecipe.dataset_id, indicatorId: ytdRecipe.indicator_id, level: ytdRecipe.level, releaseId: ytdRecipe.release_options[0]!.release_id, dimensions: ytdRecipe.release_options[0]!.dimensions, includeHealth: true });
+  expect(ytd.features.find((feature) => feature.properties?.area_code === "09007")?.properties).toMatchObject({ value: 43, period_label: "115 年 1–8 月累計" });
+  // P4：淨遷徙可為負，不補 0。
+  const net = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyNetMigration, "2025");
+  expect(net.values.observations.find((value) => value.area_code === "63000")).toMatchObject({ value: -44484, status: "observed" });
+  // P5：原住民 11412 全國 629,456；臺東縣 79,340。
+  const indigenous = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyIndigenousPopulation, "11412");
+  expect(sum(indigenous.values.observations)).toBe(629456);
+  expect(indigenous.values.observations.find((value) => value.area_code === "10014")).toMatchObject({ value: 79340 });
+  // P6：新北市 11412 已設戶籍外來人口 80,478；歸化 113 年 PARTIAL。
+  const foreign = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyForeignOriginPopulation, "11412");
+  expect(foreign.values.observations.find((value) => value.area_code === "65000")).toMatchObject({ value: 80478 });
+  expect(String(foreign.features[0]?.properties?.disclosure)).toContain("不是移工");
+  const naturalization = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyNaturalizationCount, "113");
+  expect(naturalization.health?.coverage_status).toBe("PARTIAL");
 
   const density = await load(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY.statsDemographicsCountyPopulationDensity, "11412");
   expect(String(density.features[0]?.properties?.disclosure)).toContain("EPSG:3826");

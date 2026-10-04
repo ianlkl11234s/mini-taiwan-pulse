@@ -11,6 +11,13 @@ import {
   ClipboardCheck,
   Droplets,
   Factory,
+  Feather,
+  Flower2,
+  Gem,
+  Globe,
+  IdCard,
+  ArrowLeftRight,
+  TrendingUpDown,
   Flame,
   FlaskConical,
   Gauge,
@@ -154,6 +161,7 @@ const ENVIRONMENT_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> 
 /**
  * 人口統計（demographicsStatisticsRecipes）以 key 前綴 `statsDemographics` 明確指定，避免未來
  * 「出生」「死亡」等標籤落入出生登記（公用事業）分支；icon 依 key 的指標段。
+ * 可正可負的指標（自然增加、淨遷徙及其率；recipe 門檻對稱於 0）由 statisticsVisualColors 走 PuOr 雙向色階。
  */
 const DEMOGRAPHICS_KEY = /^statsDemographics(?:County|Township|Village)(.+)$/;
 const DEMOGRAPHICS_ICONS: ReadonlyArray<readonly [RegExp, LucideIcon]> = [
@@ -163,6 +171,14 @@ const DEMOGRAPHICS_ICONS: ReadonlyArray<readonly [RegExp, LucideIcon]> = [
   [/^(?:AgingIndex|DependencyRatio|ChildDependencyRatio|OldDependencyRatio)$/, Hourglass],
   [/^SexRatio$/, Scale],
   [/^MedianAge$/, CalendarClock],
+  [/^(?:Births|CrudeBirthRate)/, Baby],
+  [/^(?:Deaths|CrudeDeathRate)/, Flower2],
+  [/^NaturalIncrease/, TrendingUpDown],
+  [/^(?:Marriages|Divorces|CrudeMarriageRate|CrudeDivorceRate)/, Gem],
+  [/^(?:In|Out|Net)Migration/, ArrowLeftRight],
+  [/^Indigenous/, Feather],
+  [/^ForeignOrigin/, Globe],
+  [/^Naturalization/, IdCard],
 ];
 
 function demographicsVisual(key: string): StatisticsVisual | undefined {

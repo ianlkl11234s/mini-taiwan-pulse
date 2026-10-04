@@ -6,7 +6,7 @@
 
 ## 一句話說明
 
-Statistics「人口與教育」新增「戶籍人口」與「年齡結構」兩組，共 32 層（縣市＋鄉鎮 × 16 指標），107–114 年底＋115 年 8 月底共 9 期；村里 HOLD 不收。
+Statistics「人口與教育」依序新增「戶籍人口→年齡結構→人口動態→遷徙→原住民→外來人口」六組，共 97 層、620 個 exact selector（P0–P6）；村里 HOLD 不收。既有「每月出生數（歷史快照）」併入「人口動態」末尾。
 
 ## 圖層 / 群組
 
@@ -16,6 +16,11 @@ Statistics「人口與教育」新增「戶籍人口」與「年齡結構」兩�
 | 年齡組人口數、年齡組人口占比 | 0-14／15-64／65+ × 縣市、鄉鎮 | 指標／地理層級＋資料期別 |
 | 老化指數與扶養比 | 老化指數、扶養比、扶幼比、扶老比 × 縣市、鄉鎮 | 同上 |
 | 性比例、年齡中位數 | 縣市、鄉鎮 | 地理層級＋資料期別 |
+| 出生與死亡、自然增加、結婚與離婚 | 數與粗率 × 縣市、鄉鎮（2021–2025） | 指標／地理層級＋資料期別 |
+| 人口動態年初累計、遷徙年初累計 | 115 年 1–8 月累計（獨立列，不與年度值互換或比較） | 指標／地理層級 |
+| 遷入與遷出、淨遷徙（社會增加） | 2018–2025（社會增加率 2019 起） | 指標／地理層級＋資料期別 |
+| 原住民人口數／占比 | 平地、山地 × 縣市、鄉鎮 | 同上 |
+| 已設戶籍外來人口數／占比、歸化國籍人數 | 原屬地區 × 縣市、鄉鎮；歸化只有縣市 | 同上 |
 
 - 群組內切換保留同一期別（county↔township 以 period 比對）。
 - 期別只有一列「資料期別」（每期恰一組 `{roc_year, month}`，不拆成年／月串連）；時點期別顯示「YYYY-MM-DD（時點）」。
@@ -23,10 +28,14 @@ Statistics「人口與教育」新增「戶籍人口」與「年齡結構」兩�
 ## 視覺
 
 - 色階唯一入口 `src/data/statisticsVisuals.ts`：新增 `population` 主題 ColorBrewer **RdPu**（淺粉→深紫，sequential），key 前綴 `statsDemographics` 優先判定，避免未來「出生」等標籤落入出生登記（公用事業）分支。不用紅綠暗示好壞；性比例也維持 sequential。
+- 可正可負（自然增加、淨遷徙及其率，含年初累計）：recipe 門檻對稱於 0，`statisticsVisualColors` 走 PuOr 六階（棕負、紫非負、0 為分界），不以紅綠表好壞；四種色覺模擬明度測試覆蓋。
 - 門檻用 recipe `legend.breaks`（`fixed_breaks`），不重算 quantile；recipe 自帶的藍色 colors 不使用。
 - icon：人數 Users、戶 HousePlus、密度 UsersRound、年齡組 PersonStanding、老化／扶養 Hourglass、性比例 Scale、中位數 CalendarClock。
 
 ## 來源與口徑
+
+- 「資料可用狀態」STALE 是上游 health 規則（非最新期別＝歷史快照，`07_export_statistics_bundles.py:248`、`population_bundle_kit.py:238`），不是資料錯誤；顯示改為「STALE（歷史期別：已有較新期別，數值本身不受影響）」。
+- P3：按登記日期；2022 年含 1 個月（3 月）來自 data.gov.tw 131138 靜態 CSV。P4：縣市遷入 ≠ 鄉鎮加總（只計跨越本層界線者）。P6：只含已設戶籍者，不是移工、不是外僑居留；授權依 data.gov.tw 127528／62563 頁為 OGDL v1；歸化為年度流量、縣市層，110／111／113 年 PARTIAL。
 
 - 來源卡：「內政部戶政司 RIS（授權條款待確認）」，不寫 OGDL。
 - 年齡中位數：本專案依單一年齡內插自算，非內政部公告。
@@ -44,7 +53,7 @@ Statistics「人口與教育」新增「戶籍人口」與「年齡結構」兩�
 
 ```sh
 # analytics：合併 fragments（不改原包）並起唯讀 server
-python3 pipelines/shared/regional_statistics/assemble_demographics_preview.py household-registration-population population-age-structure
+python3 pipelines/shared/regional_statistics/assemble_demographics_preview.py household-registration-population population-age-structure population-vital-events population-migration indigenous-population foreign-origin-population
 cd output/demographics-statistics-preview/cdn/v1 && python3 -m http.server 3763 --bind 127.0.0.1
 # pulse worktree
 VITE_DEMOGRAPHICS_STATISTICS_PREVIEW=true DEMOGRAPHICS_STATISTICS_PREVIEW_PORT=3763 npm run dev -- --host 127.0.0.1 --port <free port>

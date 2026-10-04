@@ -18,7 +18,7 @@ import { getAgriRecipe } from '../data/agriStatisticsRecipes';
 import { getSocialRecipe, getSocialRecipeDetails, resolveSocialRelease } from '../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatisticsPresentationView, resolveLaborRelease } from '../data/laborStatisticsRecipes';
 import { getEnvironmentRecipe, resolveEnvironmentRelease } from '../data/environmentStatisticsRecipes';
-import { getDemographicsRecipe, resolveDemographicsRelease } from '../data/demographicsStatisticsRecipes';
+import { demographicsPeriodLabel, getDemographicsRecipe, resolveDemographicsRelease } from '../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../data/statisticsPresentationViews';
 import { STATISTICS_RECIPES, isStatisticsRenderLayer, statisticsBaseKey, statisticsRenderRecipe, type StatisticsLayerKey, type StatisticsReleaseOption, type StatisticsRenderKey } from '../data/regionalStatisticsRecipes';
@@ -210,7 +210,7 @@ function buildModel(key: string): StatisticsModel {
       if (spec.field === 'metric') return metricLabels.get(value) ?? value;
       if (spec.field === 'release') {
         const release = state.releases.find((candidate) => candidate.release_id === value);
-        return release ? statisticsPeriodLabel(release) : '已公開期別';
+        return release ? (demographics ? demographicsPeriodLabel(activeBaseKey, release) : undefined) ?? statisticsPeriodLabel(release) : '已公開期別';
       }
       return statisticsDimensionValueLabel(spec.field.slice(4), value, recipe.dataset_id);
     },

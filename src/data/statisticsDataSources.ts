@@ -4,7 +4,7 @@ import { isStatisticsLayer, STATISTICS_RECIPES, statisticsBaseKey } from "./regi
 import { getSocialRecipe } from "./socialStatisticsRecipes";
 import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
 import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
-import { DEMOGRAPHICS_SOURCE_LABEL, demographicsIndicatorNote, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
+import { demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
 export type StatisticsSourceKind = "source" | "derived" | "presentation";
@@ -134,19 +134,19 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
     // 人數／戶數是 RIS 村里計數的精確加總；其餘（占比、指數、戶量、密度、中位數）在本層級加總後計算。
     const derived = demographics.unit !== "人" && demographics.unit !== "戶";
     const note = demographicsIndicatorNote(demographics);
+    const source = demographicsSource(demographics);
+    const ytd = demographicsYtdLabel(demographics);
     return {
       kind: derived ? "derived" : "source",
       datasetIds: [demographics.dataset_id],
       label: derived ? "衍生人口統計（本層級加總後計算）" : "原始戶籍人口統計快照",
-      metricLabel: demographics.label,
+      metricLabel: demographicsDisplayLabel(demographics),
       unit: demographics.unit,
       level: demographics.level,
-      period: periodLabel(demographics.release_options),
+      period: ytd ?? periodLabel(demographics.release_options),
       contract: `只接受 ${demographics.release_options.length} 個已交付 exact release selector；缺值以斜線表示、不補 0；PARTIAL 期別保留覆蓋狀態。`,
-      disclosure: [`位置口徑：${demographics.location_semantics}`, demographics.disclosure, note].filter(Boolean).join(" "),
-      sourceUrl: "https://www.ris.gov.tw/rs-opendata/api/Main/docs/v1",
-      provider: DEMOGRAPHICS_SOURCE_LABEL,
-      license: "授權條款待確認（RIS API 授權欄位尚未以 data.gov.tw 資料集頁確認；不標示為政府資料開放授權條款）",
+      disclosure: [`位置口徑：${demographics.location_semantics}`, demographicsDisclosure(demographics), note].filter(Boolean).join(" "),
+      ...source,
     };
   }
 

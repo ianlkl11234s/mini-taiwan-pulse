@@ -3,7 +3,7 @@ import { getAgriRecipe, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriSt
 import { getSocialRecipe } from '../../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSemantics } from '../../data/laborStatisticsRecipes';
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
-import { DEMOGRAPHICS_SOURCE_LABEL, demographicsIndicatorNote, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
+import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -16,7 +16,7 @@ import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
 import { LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
-import { LEVEL_LABELS, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsPeriodLabel } from '../../data/statisticsLabels';
+import { LEVEL_LABELS, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelection';
 
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
@@ -101,7 +101,7 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
     {environment && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(environment.location_semantics)}</p>}
     {environment && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(environment.disclosure)}</p>}
     {demographics && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(demographics.location_semantics)}</p>}
-    {demographics && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(demographics.disclosure)}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
+    {demographics && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(demographicsDisclosure(demographics))}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
     <details><summary>來源與處理紀錄</summary>
       <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         {agri && <span>{humanizeStatisticsText(agri.disclosure ?? agri.boundary_semantics)}</span>}
@@ -111,12 +111,12 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
         {labor && <span>顯示參考邊界：{boundaryVersionLabel(labor.boundary_version)}；{humanizeStatisticsText(labor.boundary_semantics)}</span>}
         {environment && <span>來源資料集：{environment.source_title ?? '未提供'}（{environment.publisher}）；顯示參考邊界：{boundaryVersionLabel(environment.boundary_version)}</span>}
         {environment?.derived && <span>衍生指標：分子與原始數同一期別、同一細項；分母說明見資料限制。</span>}
-        {demographics && <span>來源：{DEMOGRAPHICS_SOURCE_LABEL}；顯示參考邊界：{boundaryVersionLabel(demographics.boundary_version)}；{humanizeStatisticsText(demographics.boundary_semantics)}</span>}
+        {demographics && <span>來源：{demographicsSource(demographics).provider}；授權：{demographicsSource(demographics).license}；顯示參考邊界：{boundaryVersionLabel(demographics.boundary_version)}；{humanizeStatisticsText(demographics.boundary_semantics)}</span>}
         {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>製造業是工業的子集；不得與工業加總。</span>}
         {selectedLaborMetric?.formula && <span>衍生方式：{selectedLaborMetric.formula}</span>}
         <span>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</span>
         {'freshness' in recipe && <span>資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
-        {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
+        {state.health?.availability && <span>資料可用狀態：{statisticsAvailabilityLabel(state.health.availability)}</span>}
         {state.health?.reason && <span>資料限制：{state.health.reason}</span>}
         {state.data && <span>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length}／{state.data.features.length} 個{statisticsSelectedTupleAreaLabel(recipe)}；灰色區域為缺資料，不等於 0</span>}
         {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <span>人均指標的分母為全體戶籍人口，並非學齡人口；學年度統計與人口統計之間存在時間差。</span>}
@@ -164,9 +164,9 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
     <LegendTitle zh={recipe.label} style={{ marginBottom: 0 }} />
-    <span>{state.release ? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
+    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release) : undefined) ?? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
     {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
-    {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
+    {state.health?.availability && <span>資料可用狀態：{statisticsAvailabilityLabel(state.health.availability)}</span>}
     {state.health?.coverage_status && <span>{statisticsCoverageStatusLabel(Boolean(agri))}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     {!environmentBinaryRows && <span>{recipe.breaks.some(value => value < 0) ? '棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞' : '淺 → 深：數值低 → 高；請依本指標的數字區間比較'}</span>}
@@ -175,6 +175,6 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>交叉斜線：遮蔽 suppressed（*）</LegendRow>}
     {agri && <span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span>}
     {labor && <><span>位置口徑：{humanizeStatisticsText(laborLocationSemantics(labor))}</span><span>資料期與顯示邊界（{boundaryVersionLabel(labor.boundary_version)}）分開揭露</span></>}
-    {demographics && <span>固定門檻（跨期可比，不依當期重算）；來源：{DEMOGRAPHICS_SOURCE_LABEL}</span>}
+    {demographics && <span>固定門檻（跨期可比，不依當期重算）；來源：{demographicsSource(demographics).provider}</span>}
   </div>;
 }

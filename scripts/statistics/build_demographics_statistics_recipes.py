@@ -25,6 +25,10 @@ OUT = Path(__file__).resolve().parents[2] / "src/data/demographicsStatisticsReci
 HANDOFFS = (
     "household-registration-population",  # P0/P1 戶籍人口與戶數
     "population-age-structure",           # P2 年齡結構
+    "population-vital-events",            # P3 人口動態（出生／死亡／婚姻；年度＋年初累計 YTD）
+    "population-migration",               # P4 遷徙
+    "indigenous-population",              # P5 原住民
+    "foreign-origin-population",          # P6 已設戶籍外來人口＋歸化
 )
 
 

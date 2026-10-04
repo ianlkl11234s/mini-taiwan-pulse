@@ -88,6 +88,20 @@ describe('getStatisticsVisual', () => {
     expect(getStatisticsVisual('statsDemographicsCountyBirths', '出生數').theme).toBe('人口');
     expect(getStatisticsVisual('statsDemographicsCountyAgingIndex').colors).toEqual(['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']);
     expect(getStatisticsVisual('statsBirthsTownship').icon).toBe(Baby);
+    expect(getStatisticsVisual('statsDemographicsCountyBirths').icon).toBe(Baby);
+  });
+
+  it('uses PuOr centred on 0 for signed demographics (natural increase, net migration and their rates)', () => {
+    for (const [key, breaks] of [
+      ['statsDemographicsCountyNaturalIncrease', [-5000, -2000, 0, 2000, 5000]],
+      ['statsDemographicsTownshipNetMigrationRate', [-10, -5, 0, 5, 10]],
+      ['statsDemographicsCountyNetMigrationYtd', [-2000, -1000, 0, 1000, 2000]],
+    ] as const) {
+      expect(STATISTICS_RECIPES[key].breaks).toEqual(breaks);
+      expect(statisticsRenderRecipe(key).colors).toEqual(['#b35806', '#f1a340', '#fee0b6', '#d8daeb', '#998ec3', '#542788']);
+    }
+    // 非負指標仍為 RdPu 序列色
+    expect(statisticsRenderRecipe('statsDemographicsCountyBirths').colors[0]).toBe('#feebe2');
   });
 
   it('uses the eight-class colorblind-friendly income palette for village income', () => {
@@ -122,8 +136,9 @@ describe('getStatisticsVisual', () => {
   it('covers all source keys, presentation views, and their manifest entries', () => {
     // 2026-10-02: +37 環境統計（環境部／國土管理署 18 dataset）。
     // 2026-10-04: +32 人口統計（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
-    expect(STATISTICS_KEYS).toHaveLength(377);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(389);
+    // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
+    expect(STATISTICS_KEYS).toHaveLength(442);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(454);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

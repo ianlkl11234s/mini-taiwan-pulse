@@ -9,7 +9,7 @@ import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
-import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -434,11 +434,11 @@ const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS
   return [recipe.layer_key, {
     key: recipe.layer_key,
     section: { theme: DEMOGRAPHICS_STATISTICS_THEME_TITLE, group: recipe.subgroup },
-    ...layerName({ zh: recipe.label, qualifier: recipe.level === "township" ? "鄉鎮市區" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    ...layerName({ zh: demographicsDisplayLabel(recipe), qualifier: recipe.level === "township" ? "鄉鎮市區" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
     legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
-    description: recipe.disclosure,
+    description: demographicsDisclosure(recipe),
     topics: ["統計", "人口", "戶籍", recipe.subgroup.replace(/（[^）]*）$/, ""), recipe.level === "township" ? "鄉鎮市區" : "縣市"],
   }];
 })) as Record<DemographicsStatisticsLayerKey, LayerManifestEntry>;

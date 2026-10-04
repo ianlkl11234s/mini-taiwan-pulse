@@ -12,7 +12,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentSt
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../../data/demographicsStatisticsRecipes";
 
 const EXPECTED_THEME_STRUCTURE = [
-  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "教育與少子化"] },
+  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化"] },
   { title: "醫療與長照 Health & Care", groups: ["醫療與長照"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["犯罪與治安"] },
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
@@ -100,6 +100,9 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(ageStructure[0]).toBe("statsDemographicsCountyPopAge0To14");
     expect(ageStructure.indexOf("statsDemographicsCountyShareAge65Plus")).toBeLessThan(ageStructure.indexOf("statsDemographicsTownshipShareAge65Plus"));
     expect(group("人口與教育 Population & Education", "戶籍人口")).toHaveLength(8);
+    // 既有每月出生數併入同名「人口動態」小群組末尾
+    expect(group("人口與教育 Population & Education", "人口動態").slice(-1)).toEqual(["statsBirthsTownship"]);
+    expect(group("人口與教育 Population & Education", "外來人口")).toContain("statsDemographicsCountyNaturalizationCount");
     expect(group("環境與資源 Environment & Resources", "環境治理")).toEqual(expect.arrayContaining(["statsEnvInspectionsCounty", "statsEnvFineRateCounty"]));
     expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining(["statsWasteGeneratedCounty", "statsRecyclingPer10kCounty", "statsResponsibleEnterprisesCounty"]));
     expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining([

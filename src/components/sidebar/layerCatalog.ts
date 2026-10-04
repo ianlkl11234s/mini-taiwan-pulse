@@ -230,10 +230,18 @@ function demographicsDataGroups(): SubGroupDef[] {
   const subgroups = [...new Set(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => recipe.subgroup))];
   return subgroups.map((title) => ({ title, layers: DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
 }
-/** Statistics 分頁：同一資料集的縣市＋鄉鎮成員放同一小群組；toggle 群組只在第一個成員渲染。 */
+/**
+ * Statistics 分頁：戶籍人口→年齡結構→人口動態→遷徙→原住民→外來人口；同一資料集的縣市＋鄉鎮成員放同一小群組，
+ * toggle 群組只在第一個成員渲染。既有「每月出生數（歷史快照）」併入同名「人口動態」小群組末尾。
+ */
 function demographicsTabGroups(): SubGroupDef[] {
   const titles = [...new Set(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map(demographicsTabGroupTitle))];
-  return titles.map((title) => ({ title, layers: DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => demographicsTabGroupTitle(recipe) === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
+  const groups: SubGroupDef[] = titles.map((title) => ({ title, layers: DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => demographicsTabGroupTitle(recipe) === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
+  const births = fromManifest("statsBirthsTownship");
+  const dynamics = groups.find((group) => group.title === "人口動態");
+  if (dynamics) dynamics.layers.push(births);
+  else groups.push({ title: "人口動態", layers: [births] });
+  return groups;
 }
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
@@ -323,7 +331,6 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       ...demographicsTabGroups(),
-      { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
       { title: "教育與少子化", layers: [
         ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
       ] },

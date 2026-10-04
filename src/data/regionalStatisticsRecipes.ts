@@ -4,7 +4,7 @@ import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
 import { SOCIAL_STATISTICS_RECIPES_BY_KEY, getSocialRecipe, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { ENVIRONMENT_STATISTICS_RECIPES_BY_KEY, environmentDefaultDimensions, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
-import { DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY, demographicsLatestOption, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
+import { DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY, demographicsDisplayLabel, demographicsLatestOption, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
@@ -451,9 +451,9 @@ export const STATISTICS_RECIPES = {
     dataset_id: recipe.dataset_id,
     indicator_id: recipe.indicator_id,
     level: recipe.level as StatisticsLevel,
-    label: recipe.label,
+    label: demographicsDisplayLabel(recipe),
     unit: recipe.unit,
-    frequency: `年底快照＋最新月底（${recipe.release_options.length} 個已交付期別）`,
+    frequency: `${recipe.release_options.length} 個已交付期別`,
     dimensions: demographicsLatestOption(recipe)?.dimensions ?? {},
     includeHealth: true,
     provenance: {
@@ -464,7 +464,7 @@ export const STATISTICS_RECIPES = {
       relatedLayerKeys: recipe.related_layer_keys,
     },
     breaks: recipe.legend.breaks,
-    colors: statisticsVisualColors(key, recipe.label, recipe.legend.breaks),
+    colors: statisticsVisualColors(key, demographicsDisplayLabel(recipe), recipe.legend.breaks),
   }])) as Record<DemographicsStatisticsLayerKey, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];

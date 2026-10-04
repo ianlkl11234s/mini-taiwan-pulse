@@ -16,6 +16,19 @@ export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_s
   return `${start} — ${end}`;
 }
 
+/**
+ * health.availability 的顯示文字。STALE 是上游 health_policy「歷史或舊快照，仍可顯示但須標示」：
+ * 已有更新期別，不代表數值錯誤；原代碼保留在括號前方便對照。
+ */
+const AVAILABILITY_LABELS: Record<string, string> = {
+  CURRENT: 'CURRENT（最新期別）',
+  STALE: 'STALE（歷史期別：已有較新期別，數值本身不受影響）',
+  PARTIAL: 'PARTIAL（部分地區缺值，未補 0）',
+};
+export function statisticsAvailabilityLabel(value: string): string {
+  return AVAILABILITY_LABELS[value] ?? value;
+}
+
 const DIMENSION_LABELS: Record<string, string> = {
   crop: '作物', season: '期作', year: '年度', animal: '畜種', animal_kind: '畜種', survey_years_roc: '調查年度', area_unit: '面積單位',
   agency_fund: '基金',

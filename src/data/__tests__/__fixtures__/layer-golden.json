@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 896,
+    "keyCount": 961,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2741,6 +2741,71 @@
         "statsDemographicsTownshipOldDependencyRatio-fill",
         "statsDemographicsTownshipSexRatio-fill",
         "statsDemographicsTownshipMedianAge-fill",
+        "statsDemographicsCountyBirths-fill",
+        "statsDemographicsCountyDeaths-fill",
+        "statsDemographicsCountyNaturalIncrease-fill",
+        "statsDemographicsCountyMarriages-fill",
+        "statsDemographicsCountyDivorces-fill",
+        "statsDemographicsCountyCrudeBirthRate-fill",
+        "statsDemographicsCountyCrudeDeathRate-fill",
+        "statsDemographicsCountyNaturalIncreaseRate-fill",
+        "statsDemographicsCountyCrudeMarriageRate-fill",
+        "statsDemographicsCountyCrudeDivorceRate-fill",
+        "statsDemographicsCountyBirthsYtd-fill",
+        "statsDemographicsCountyDeathsYtd-fill",
+        "statsDemographicsCountyNaturalIncreaseYtd-fill",
+        "statsDemographicsCountyMarriagesYtd-fill",
+        "statsDemographicsCountyDivorcesYtd-fill",
+        "statsDemographicsTownshipBirths-fill",
+        "statsDemographicsTownshipDeaths-fill",
+        "statsDemographicsTownshipNaturalIncrease-fill",
+        "statsDemographicsTownshipMarriages-fill",
+        "statsDemographicsTownshipDivorces-fill",
+        "statsDemographicsTownshipCrudeBirthRate-fill",
+        "statsDemographicsTownshipCrudeDeathRate-fill",
+        "statsDemographicsTownshipNaturalIncreaseRate-fill",
+        "statsDemographicsTownshipCrudeMarriageRate-fill",
+        "statsDemographicsTownshipCrudeDivorceRate-fill",
+        "statsDemographicsTownshipBirthsYtd-fill",
+        "statsDemographicsTownshipDeathsYtd-fill",
+        "statsDemographicsTownshipNaturalIncreaseYtd-fill",
+        "statsDemographicsTownshipMarriagesYtd-fill",
+        "statsDemographicsTownshipDivorcesYtd-fill",
+        "statsDemographicsCountyInMigration-fill",
+        "statsDemographicsCountyOutMigration-fill",
+        "statsDemographicsCountyNetMigration-fill",
+        "statsDemographicsCountyNetMigrationRate-fill",
+        "statsDemographicsCountyInMigrationYtd-fill",
+        "statsDemographicsCountyOutMigrationYtd-fill",
+        "statsDemographicsCountyNetMigrationYtd-fill",
+        "statsDemographicsTownshipInMigration-fill",
+        "statsDemographicsTownshipOutMigration-fill",
+        "statsDemographicsTownshipNetMigration-fill",
+        "statsDemographicsTownshipNetMigrationRate-fill",
+        "statsDemographicsTownshipInMigrationYtd-fill",
+        "statsDemographicsTownshipOutMigrationYtd-fill",
+        "statsDemographicsTownshipNetMigrationYtd-fill",
+        "statsDemographicsCountyIndigenousPopulation-fill",
+        "statsDemographicsCountyIndigenousPlainPopulation-fill",
+        "statsDemographicsCountyIndigenousMountainPopulation-fill",
+        "statsDemographicsCountyIndigenousShare-fill",
+        "statsDemographicsTownshipIndigenousPopulation-fill",
+        "statsDemographicsTownshipIndigenousPlainPopulation-fill",
+        "statsDemographicsTownshipIndigenousMountainPopulation-fill",
+        "statsDemographicsTownshipIndigenousShare-fill",
+        "statsDemographicsCountyForeignOriginPopulation-fill",
+        "statsDemographicsCountyForeignOriginMainlandPopulation-fill",
+        "statsDemographicsCountyForeignOriginForeignNationalPopulation-fill",
+        "statsDemographicsCountyForeignOriginHkMacauPopulation-fill",
+        "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation-fill",
+        "statsDemographicsCountyForeignOriginShare-fill",
+        "statsDemographicsTownshipForeignOriginPopulation-fill",
+        "statsDemographicsTownshipForeignOriginMainlandPopulation-fill",
+        "statsDemographicsTownshipForeignOriginForeignNationalPopulation-fill",
+        "statsDemographicsTownshipForeignOriginHkMacauPopulation-fill",
+        "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation-fill",
+        "statsDemographicsTownshipForeignOriginShare-fill",
+        "statsDemographicsCountyNaturalizationCount-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -90703,6 +90768,132 @@
         "valueText": "0.55"
       }
     ],
+    "statsDemographicsCountyBirths": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyBirths"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyBirthsYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyBirthsYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsDemographicsCountyChildDependencyRatio": [
       {
         "label": "指標／地理層級",
@@ -90762,6 +90953,368 @@
         "valueText": "0.55"
       }
     ],
+    "statsDemographicsCountyCrudeBirthRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyCrudeBirthRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyCrudeDeathRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyCrudeDeathRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyCrudeDivorceRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyCrudeDivorceRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyCrudeMarriageRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyCrudeMarriageRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyDeaths": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyDeaths"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyDeathsYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyDeathsYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsDemographicsCountyDependencyRatio": [
       {
         "label": "指標／地理層級",
@@ -90802,6 +91355,502 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsDemographicsCountyDependencyRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyDivorces": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyDivorces"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyDivorcesYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyDivorcesYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyForeignOriginForeignNationalPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyForeignOriginHkMacauPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyForeignOriginMainlandPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyForeignOriginPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyForeignOriginPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyForeignOriginShare": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyForeignOriginShare"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipForeignOriginShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyForeignOriginShare"
       },
       {
         "label": "資料期別",
@@ -90891,6 +91940,414 @@
         "valueText": "0.55"
       }
     ],
+    "statsDemographicsCountyInMigration": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數",
+            "value": "statsDemographicsCountyInMigration"
+          },
+          {
+            "label": "縣市：遷出人數",
+            "value": "statsDemographicsCountyOutMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數",
+            "value": "statsDemographicsTownshipInMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數",
+            "value": "statsDemographicsTownshipOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyInMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyInMigrationYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyInMigrationYtd"
+          },
+          {
+            "label": "縣市：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyOutMigrationYtd"
+          },
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNetMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipInMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipOutMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNetMigrationYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyInMigrationYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyIndigenousMountainPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyIndigenousMountainPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyIndigenousPlainPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyIndigenousPlainPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyIndigenousPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyIndigenousPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyIndigenousShare": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyIndigenousShare"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipIndigenousShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyIndigenousShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyMarriages": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyMarriages"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyMarriagesYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyMarriagesYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsDemographicsCountyMedianAge": [
       {
         "label": "地理層級",
@@ -90907,6 +92364,315 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsDemographicsCountyMedianAge"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyNaturalIncrease": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：自然增加數",
+            "value": "statsDemographicsCountyNaturalIncrease"
+          },
+          {
+            "label": "縣市：自然增加率",
+            "value": "statsDemographicsCountyNaturalIncreaseRate"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數",
+            "value": "statsDemographicsTownshipNaturalIncrease"
+          },
+          {
+            "label": "鄉鎮市區：自然增加率",
+            "value": "statsDemographicsTownshipNaturalIncreaseRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyNaturalIncrease"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyNaturalIncreaseRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：自然增加數",
+            "value": "statsDemographicsCountyNaturalIncrease"
+          },
+          {
+            "label": "縣市：自然增加率",
+            "value": "statsDemographicsCountyNaturalIncreaseRate"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數",
+            "value": "statsDemographicsTownshipNaturalIncrease"
+          },
+          {
+            "label": "鄉鎮市區：自然增加率",
+            "value": "statsDemographicsTownshipNaturalIncreaseRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyNaturalIncreaseRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyNaturalIncreaseYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyNaturalIncreaseYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyNaturalizationCount": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyNetMigration": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsCountyNetMigration"
+          },
+          {
+            "label": "縣市：社會增加率",
+            "value": "statsDemographicsCountyNetMigrationRate"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsTownshipNetMigration"
+          },
+          {
+            "label": "鄉鎮市區：社會增加率",
+            "value": "statsDemographicsTownshipNetMigrationRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyNetMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyNetMigrationRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsCountyNetMigration"
+          },
+          {
+            "label": "縣市：社會增加率",
+            "value": "statsDemographicsCountyNetMigrationRate"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsTownshipNetMigration"
+          },
+          {
+            "label": "鄉鎮市區：社會增加率",
+            "value": "statsDemographicsTownshipNetMigrationRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyNetMigrationRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyNetMigrationYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyInMigrationYtd"
+          },
+          {
+            "label": "縣市：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyOutMigrationYtd"
+          },
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNetMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipInMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipOutMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNetMigrationYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyNetMigrationYtd"
       },
       {
         "label": "資料期別",
@@ -90966,6 +92732,100 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsDemographicsCountyOldDependencyRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyOutMigration": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數",
+            "value": "statsDemographicsCountyInMigration"
+          },
+          {
+            "label": "縣市：遷出人數",
+            "value": "statsDemographicsCountyOutMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數",
+            "value": "statsDemographicsTownshipInMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數",
+            "value": "statsDemographicsTownshipOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyOutMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsCountyOutMigrationYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyInMigrationYtd"
+          },
+          {
+            "label": "縣市：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyOutMigrationYtd"
+          },
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNetMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipInMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipOutMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNetMigrationYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsCountyOutMigrationYtd"
       },
       {
         "label": "資料期別",
@@ -91455,6 +93315,132 @@
         "valueText": "0.55"
       }
     ],
+    "statsDemographicsTownshipBirths": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipBirths"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipBirthsYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipBirthsYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsDemographicsTownshipChildDependencyRatio": [
       {
         "label": "指標／地理層級",
@@ -91514,6 +93500,368 @@
         "valueText": "0.55"
       }
     ],
+    "statsDemographicsTownshipCrudeBirthRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipCrudeBirthRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipCrudeDeathRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipCrudeDeathRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipCrudeDivorceRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipCrudeDivorceRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipCrudeMarriageRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipCrudeMarriageRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipDeaths": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數",
+            "value": "statsDemographicsCountyBirths"
+          },
+          {
+            "label": "縣市：死亡數",
+            "value": "statsDemographicsCountyDeaths"
+          },
+          {
+            "label": "縣市：粗出生率",
+            "value": "statsDemographicsCountyCrudeBirthRate"
+          },
+          {
+            "label": "縣市：粗死亡率",
+            "value": "statsDemographicsCountyCrudeDeathRate"
+          },
+          {
+            "label": "鄉鎮市區：出生數",
+            "value": "statsDemographicsTownshipBirths"
+          },
+          {
+            "label": "鄉鎮市區：死亡數",
+            "value": "statsDemographicsTownshipDeaths"
+          },
+          {
+            "label": "鄉鎮市區：粗出生率",
+            "value": "statsDemographicsTownshipCrudeBirthRate"
+          },
+          {
+            "label": "鄉鎮市區：粗死亡率",
+            "value": "statsDemographicsTownshipCrudeDeathRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipDeaths"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipDeathsYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipDeathsYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsDemographicsTownshipDependencyRatio": [
       {
         "label": "指標／地理層級",
@@ -91554,6 +93902,502 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsDemographicsTownshipDependencyRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipDivorces": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipDivorces"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipDivorcesYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipDivorcesYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipForeignOriginForeignNationalPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipForeignOriginHkMacauPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipForeignOriginMainlandPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipForeignOriginPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：已設戶籍外來人口數",
+            "value": "statsDemographicsCountyForeignOriginPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsCountyForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsCountyForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsCountyForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "縣市：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口數",
+            "value": "statsDemographicsTownshipForeignOriginPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬大陸地區）",
+            "value": "statsDemographicsTownshipForeignOriginMainlandPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬外國籍）",
+            "value": "statsDemographicsTownshipForeignOriginForeignNationalPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬港澳地區）",
+            "value": "statsDemographicsTownshipForeignOriginHkMacauPopulation"
+          },
+          {
+            "label": "鄉鎮市區：已設戶籍外來人口（原屬臺灣地區無戶籍國民）",
+            "value": "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipForeignOriginPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipForeignOriginShare": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyForeignOriginShare"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipForeignOriginShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipForeignOriginShare"
       },
       {
         "label": "資料期別",
@@ -91643,6 +94487,414 @@
         "valueText": "0.55"
       }
     ],
+    "statsDemographicsTownshipInMigration": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數",
+            "value": "statsDemographicsCountyInMigration"
+          },
+          {
+            "label": "縣市：遷出人數",
+            "value": "statsDemographicsCountyOutMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數",
+            "value": "statsDemographicsTownshipInMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數",
+            "value": "statsDemographicsTownshipOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipInMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipInMigrationYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyInMigrationYtd"
+          },
+          {
+            "label": "縣市：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyOutMigrationYtd"
+          },
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNetMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipInMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipOutMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNetMigrationYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipInMigrationYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipIndigenousMountainPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipIndigenousPlainPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipIndigenousPopulation": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPopulation"
+          },
+          {
+            "label": "縣市：平地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousPlainPopulation"
+          },
+          {
+            "label": "縣市：山地原住民人口數",
+            "value": "statsDemographicsCountyIndigenousMountainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPopulation"
+          },
+          {
+            "label": "鄉鎮市區：平地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousPlainPopulation"
+          },
+          {
+            "label": "鄉鎮市區：山地原住民人口數",
+            "value": "statsDemographicsTownshipIndigenousMountainPopulation"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipIndigenousPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipIndigenousShare": [
+      {
+        "label": "地理層級",
+        "options": [
+          {
+            "label": "縣市",
+            "value": "statsDemographicsCountyIndigenousShare"
+          },
+          {
+            "label": "鄉鎮市區",
+            "value": "statsDemographicsTownshipIndigenousShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipIndigenousShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipMarriages": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：結婚對數",
+            "value": "statsDemographicsCountyMarriages"
+          },
+          {
+            "label": "縣市：離婚對數",
+            "value": "statsDemographicsCountyDivorces"
+          },
+          {
+            "label": "縣市：粗結婚率",
+            "value": "statsDemographicsCountyCrudeMarriageRate"
+          },
+          {
+            "label": "縣市：粗離婚率",
+            "value": "statsDemographicsCountyCrudeDivorceRate"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數",
+            "value": "statsDemographicsTownshipMarriages"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數",
+            "value": "statsDemographicsTownshipDivorces"
+          },
+          {
+            "label": "鄉鎮市區：粗結婚率",
+            "value": "statsDemographicsTownshipCrudeMarriageRate"
+          },
+          {
+            "label": "鄉鎮市區：粗離婚率",
+            "value": "statsDemographicsTownshipCrudeDivorceRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipMarriages"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipMarriagesYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipMarriagesYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsDemographicsTownshipMedianAge": [
       {
         "label": "地理層級",
@@ -91659,6 +94911,296 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsDemographicsTownshipMedianAge"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipNaturalIncrease": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：自然增加數",
+            "value": "statsDemographicsCountyNaturalIncrease"
+          },
+          {
+            "label": "縣市：自然增加率",
+            "value": "statsDemographicsCountyNaturalIncreaseRate"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數",
+            "value": "statsDemographicsTownshipNaturalIncrease"
+          },
+          {
+            "label": "鄉鎮市區：自然增加率",
+            "value": "statsDemographicsTownshipNaturalIncreaseRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipNaturalIncrease"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipNaturalIncreaseRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：自然增加數",
+            "value": "statsDemographicsCountyNaturalIncrease"
+          },
+          {
+            "label": "縣市：自然增加率",
+            "value": "statsDemographicsCountyNaturalIncreaseRate"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數",
+            "value": "statsDemographicsTownshipNaturalIncrease"
+          },
+          {
+            "label": "鄉鎮市區：自然增加率",
+            "value": "statsDemographicsTownshipNaturalIncreaseRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipNaturalIncreaseRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipNaturalIncreaseYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyBirthsYtd"
+          },
+          {
+            "label": "縣市：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDeathsYtd"
+          },
+          {
+            "label": "縣市：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNaturalIncreaseYtd"
+          },
+          {
+            "label": "縣市：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyMarriagesYtd"
+          },
+          {
+            "label": "縣市：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyDivorcesYtd"
+          },
+          {
+            "label": "鄉鎮市區：出生數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipBirthsYtd"
+          },
+          {
+            "label": "鄉鎮市區：死亡數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDeathsYtd"
+          },
+          {
+            "label": "鄉鎮市區：自然增加數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+          },
+          {
+            "label": "鄉鎮市區：結婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipMarriagesYtd"
+          },
+          {
+            "label": "鄉鎮市區：離婚對數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipDivorcesYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipNaturalIncreaseYtd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipNetMigration": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsCountyNetMigration"
+          },
+          {
+            "label": "縣市：社會增加率",
+            "value": "statsDemographicsCountyNetMigrationRate"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsTownshipNetMigration"
+          },
+          {
+            "label": "鄉鎮市區：社會增加率",
+            "value": "statsDemographicsTownshipNetMigrationRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipNetMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipNetMigrationRate": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsCountyNetMigration"
+          },
+          {
+            "label": "縣市：社會增加率",
+            "value": "statsDemographicsCountyNetMigrationRate"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）",
+            "value": "statsDemographicsTownshipNetMigration"
+          },
+          {
+            "label": "鄉鎮市區：社會增加率",
+            "value": "statsDemographicsTownshipNetMigrationRate"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipNetMigrationRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipNetMigrationYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyInMigrationYtd"
+          },
+          {
+            "label": "縣市：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyOutMigrationYtd"
+          },
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNetMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipInMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipOutMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNetMigrationYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipNetMigrationYtd"
       },
       {
         "label": "資料期別",
@@ -91718,6 +95260,100 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsDemographicsTownshipOldDependencyRatio"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipOutMigration": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數",
+            "value": "statsDemographicsCountyInMigration"
+          },
+          {
+            "label": "縣市：遷出人數",
+            "value": "statsDemographicsCountyOutMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數",
+            "value": "statsDemographicsTownshipInMigration"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數",
+            "value": "statsDemographicsTownshipOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipOutMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDemographicsTownshipOutMigrationYtd": [
+      {
+        "label": "指標／地理層級",
+        "options": [
+          {
+            "label": "縣市：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyInMigrationYtd"
+          },
+          {
+            "label": "縣市：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyOutMigrationYtd"
+          },
+          {
+            "label": "縣市：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsCountyNetMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷入人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipInMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：遷出人數（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipOutMigrationYtd"
+          },
+          {
+            "label": "鄉鎮市區：淨遷徙人數（社會增加數）（115 年 1–8 月累計）",
+            "value": "statsDemographicsTownshipNetMigrationYtd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDemographicsTownshipOutMigrationYtd"
       },
       {
         "label": "資料期別",
