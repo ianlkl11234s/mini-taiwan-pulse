@@ -1,9 +1,9 @@
 /**
- * §F 變軌前後覆蓋對比 modal
+ * §F 變軌前後覆蓋對比 modal（P4：§5.27 置中視窗）
  *
- * v2 設計（TW-centric + bbox 上色 + headline 過台頻次）：
- * - 主敘事：過台頻次 N→M (±%) 大字 + 進度條對比
- * - 雙 mini-map 統一框到 TW 區域（lng 108–145, lat 5–35）
+ * - 一張地圖疊兩條軌跡（橘＝變軌前、藍＝變軌後）；手機改底部 sheet＋分段控制切換單一軌道
+ * - 主敘事：文字「變軌前 N 次 → 變軌後 M 次」＋增減徽章（不畫柱）
+ * - mini-map 統一框到 TW 區域（lng 108–145, lat 5–35），SVG 隨容器寬縮放
  * - 12 個 TW 關聯 region 直接畫 bbox 在地圖上
  *   gained = 綠 / lost = 紅 / 不變 = 微灰
  * - 區域差異縮成一行 chips
@@ -12,16 +12,30 @@
  * 起點 = 變軌事件本身（curr_fetched_at），不跟現實 now 不跟時間軸
  */
 import { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
 import * as satellite from "satellite.js";
-import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { fetchTlePair, type TleHistoryRow } from "../../data/satelliteHistoryLoader";
-import { formatManeuverDetail, type ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE, SURFACE, LIGHT, Z_INDEX } from "../../styles/designTokens";
+import { chipOutline, withAlpha } from "../intel/intelTokens";
+import { SATELLITE_COLORS } from "../../data/satelliteTypes";
+import { satelliteThemeFor, useSatelliteTheme, type SatelliteTheme } from "./satelliteTheme";
+import { PanelHeader } from "../sidebar/PanelHeader";
+import { ControlSegmented, layerControlThemeClass } from "../sidebar/LayerParamControls";
+import { LegendRow, SwatchDot, SwatchLine, SwatchSquare } from "../legend/legendKit";
+import { useIsMobile } from "../../hooks/useIsMobile";
+import { severityColor, SEVERITY_VIEW } from "./maneuverAlertKit";
+import { fetchTlePair, type TleHistoryRow, type TlePair } from "../../data/satelliteHistoryLoader";
+import { formatManeuverDetail, getManeuverSeverity, type ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { computePassDiff } from "../../data/satelliteDataState";
 
 interface Props {
   maneuver: ManeuverRow;
   onClose: () => void;
+}
+
+/** 軌跡色：變軌前＝橘（palette.statusWarn，淡色即 LIGHT.statusWarn）、變軌後＝台灣資料色藍（SC2：淡色 fill 加深）。
+ *  地圖、圖例都經這裡取，確保兩處同色。 */
+function trackColors(t: SatelliteTheme) {
+  return { before: t.p.statusWarn, after: t.fill(SATELLITE_COLORS.taiwan), label: t.text(SATELLITE_COLORS.taiwan) };
 }
 
 const TW_CENTER = { lon: 121.0, lat: 23.7 };
@@ -135,132 +149,128 @@ const FRAME_REGIONS = TW_RELEVANT_REGIONS.filter((r) => {
 });
 
 
-interface MiniMapProps {
-  track: GroundTrack | null;
-  prevTrack: GroundTrack | null;
-  label: string;
-  color: string;
-  width?: number;
-  height?: number;
-  side: "before" | "after";
+type MapMode = "before" | "after" | "both";
+
+const MAP_W = 320;
+const MAP_H = 260;
+/** 區域框色：新增＝statusLive、失去＝statusErr、不變＝中性（同 alpha 跟主題換色／換極性） */
+function regionPalette(t: SatelliteTheme) {
+  return {
+    gained: { fill: withAlpha(t.p.statusLive, 0.22), stroke: withAlpha(t.p.statusLive, 0.75) },
+    lost: { fill: withAlpha(t.p.statusErr, 0.22), stroke: withAlpha(t.p.statusErr, 0.75) },
+    same: { fill: t.neutral(0.04), stroke: t.neutral(0.18) },
+  };
 }
 
-function MiniMap({
-  track, prevTrack, label, color, width = 320, height = 260, side,
-}: MiniMapProps) {
-  // 投影：lng 線性映射；lat 反向（北上南下）
-  const projX = (lon: number) => ((lon - TW_FRAME.lngMin) / (TW_FRAME.lngMax - TW_FRAME.lngMin)) * width;
-  const projY = (lat: number) => ((TW_FRAME.latMax - lat) / (TW_FRAME.latMax - TW_FRAME.latMin)) * height;
+interface MiniMapProps {
+  before: GroundTrack;
+  after: GroundTrack;
+  mode: MapMode;
+}
+
+/** 軌跡切成「進框 → 離框」的線段（避免框外無關線段） */
+function trackSegments(track: GroundTrack): string[] {
   const inFrame = (lon: number, lat: number) =>
     lon >= TW_FRAME.lngMin && lon <= TW_FRAME.lngMax &&
     lat >= TW_FRAME.latMin && lat <= TW_FRAME.latMax;
-
-  // 把點切成「進框 → 離框」的線段（避免框外無關線段）
-  const segments = useMemo(() => {
-    if (!track) return [];
-    const segs: string[] = [];
-    let cur = "";
-    let prevIn = false;
-    for (const p of track.points) {
-      if (!inFrame(p.lon, p.lat)) {
-        if (cur) { segs.push(cur); cur = ""; }
-        prevIn = false;
-        continue;
-      }
-      const x = projX(p.lon);
-      const y = projY(p.lat);
-      cur += (prevIn ? "L" : "M") + `${x.toFixed(1)},${y.toFixed(1)}`;
-      prevIn = true;
+  const projX = (lon: number) => ((lon - TW_FRAME.lngMin) / (TW_FRAME.lngMax - TW_FRAME.lngMin)) * MAP_W;
+  const projY = (lat: number) => ((TW_FRAME.latMax - lat) / (TW_FRAME.latMax - TW_FRAME.latMin)) * MAP_H;
+  const segs: string[] = [];
+  let cur = "";
+  let prevIn = false;
+  for (const p of track.points) {
+    if (!inFrame(p.lon, p.lat)) {
+      if (cur) { segs.push(cur); cur = ""; }
+      prevIn = false;
+      continue;
     }
-    if (cur) segs.push(cur);
-    return segs;
-  }, [track]);
+    cur += (prevIn ? "L" : "M") + `${projX(p.lon).toFixed(1)},${projY(p.lat).toFixed(1)}`;
+    prevIn = true;
+  }
+  if (cur) segs.push(cur);
+  return segs;
+}
 
-  // region bbox 上色：gained / lost / 不變
+function MiniMap({ before, after, mode }: MiniMapProps) {
+  const theme = useSatelliteTheme();
+  const { p } = theme;
+  const track = trackColors(theme);
+  const projX = (lon: number) => ((lon - TW_FRAME.lngMin) / (TW_FRAME.lngMax - TW_FRAME.lngMin)) * MAP_W;
+  const projY = (lat: number) => ((TW_FRAME.latMax - lat) / (TW_FRAME.latMax - TW_FRAME.latMin)) * MAP_H;
+
+  const beforeSegs = useMemo(() => trackSegments(before), [before]);
+  const afterSegs = useMemo(() => trackSegments(after), [after]);
+
+  // region bbox 上色：新增覆蓋（綠）／失去覆蓋（紅）／不變；單側顯示時另一側的變化畫淡
   const regionColors = useMemo(() => {
-    if (!track || !prevTrack) return new Map<string, { fill: string; stroke: string }>();
-    const m = new Map<string, { fill: string; stroke: string }>();
+    const { gained: GAINED, lost: LOST, same: SAME } = regionPalette(satelliteThemeFor(p));
+    const m = new Map<string, { fill: string; stroke: string; faint?: boolean }>();
     for (const r of FRAME_REGIONS) {
-      const wasIn = prevTrack.coveredRegions.has(r.key);
-      const nowIn = track.coveredRegions.has(r.key);
-      if (side === "after") {
-        if (!wasIn && nowIn) m.set(r.key, { fill: "rgba(34,197,94,0.22)", stroke: "rgba(34,197,94,0.75)" });   // gained 綠
-        else if (wasIn && nowIn) m.set(r.key, { fill: "rgba(255,255,255,0.04)", stroke: "rgba(255,255,255,0.18)" }); // 不變
-        else if (wasIn && !nowIn) m.set(r.key, { fill: "rgba(239,68,68,0.10)", stroke: "rgba(239,68,68,0.45)" });    // 顯示 lost 但較弱
-      } else {
-        if (wasIn && !nowIn) m.set(r.key, { fill: "rgba(239,68,68,0.22)", stroke: "rgba(239,68,68,0.75)" });   // lost 紅
-        else if (wasIn && nowIn) m.set(r.key, { fill: "rgba(255,255,255,0.04)", stroke: "rgba(255,255,255,0.18)" });
-        else if (!wasIn && nowIn) m.set(r.key, { fill: "rgba(34,197,94,0.10)", stroke: "rgba(34,197,94,0.45)" });
-      }
+      const wasIn = before.coveredRegions.has(r.key);
+      const nowIn = after.coveredRegions.has(r.key);
+      if (!wasIn && nowIn) m.set(r.key, { ...GAINED, faint: mode === "before" });
+      else if (wasIn && !nowIn) m.set(r.key, { ...LOST, faint: mode === "after" });
+      else if (wasIn && nowIn) m.set(r.key, SAME);
     }
     return m;
-  }, [track, prevTrack, side]);
+  }, [before, after, mode, p]);
 
   return (
-    <div style={{ flex: 1 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-        <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: color }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, letterSpacing: "1.5px", color: COLORS.textMuted }}>
-          {label}
-        </span>
-        {track && (
-          <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDefault, fontWeight: 600 }}>
-            過台 {track.twPasses} 次 / 7d
-          </span>
-        )}
-      </div>
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}
-           style={{ background: "#0b0f14", border: `1px solid ${COLORS.borderSoft}`, borderRadius: RADIUS.lg, display: "block" }}>
-        {/* 經緯線（每 5°） */}
-        {Array.from({ length: 8 }).map((_, i) => {
-          const lng = TW_FRAME.lngMin + i * 5;
-          if (lng > TW_FRAME.lngMax) return null;
-          const x = projX(lng);
-          return <line key={`v${i}`} x1={x} y1={0} x2={x} y2={height} stroke="rgba(255,255,255,0.04)" />;
-        })}
-        {Array.from({ length: 7 }).map((_, i) => {
-          const lat = TW_FRAME.latMin + i * 5;
-          if (lat > TW_FRAME.latMax) return null;
-          const y = projY(lat);
-          return <line key={`h${i}`} x1={0} y1={y} x2={width} y2={y} stroke="rgba(255,255,255,0.04)" />;
-        })}
+    <svg
+      viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+      role="img"
+      aria-label="台灣周邊衛星軌跡示意地圖"
+      style={{ width: "100%", height: "auto", display: "block", // 暗色維持深色底；淡色換中性淺底（加深後的軌跡不能畫在黑底上）
+        background: p.isDark ? "#0b0f14" : LIGHT.fillSubtle, border: `1px solid ${p.borderSoft}`, borderRadius: RADIUS.lg }}
+    >
+      {/* 經緯線（每 5°） */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const lng = TW_FRAME.lngMin + i * 5;
+        if (lng > TW_FRAME.lngMax) return null;
+        const x = projX(lng);
+        return <line key={`v${i}`} x1={x} y1={0} x2={x} y2={MAP_H} stroke={theme.neutral(0.04)} />;
+      })}
+      {Array.from({ length: 7 }).map((_, i) => {
+        const lat = TW_FRAME.latMin + i * 5;
+        if (lat > TW_FRAME.latMax) return null;
+        const y = projY(lat);
+        return <line key={`h${i}`} x1={0} y1={y} x2={MAP_W} y2={y} stroke={theme.neutral(0.04)} />;
+      })}
 
-        {/* region bbox */}
-        {FRAME_REGIONS.map((r) => {
-          const rc = regionColors.get(r.key);
-          if (!rc) return null;
-          const [w, s, e, n] = r.bbox;
-          const x = projX(w);
-          const y = projY(n);
-          const rw = projX(e) - x;
-          const rh = projY(s) - y;
-          return (
-            <g key={r.key}>
-              <rect x={x} y={y} width={Math.max(2, rw)} height={Math.max(2, rh)}
-                    fill={rc.fill} stroke={rc.stroke} strokeWidth={1} rx={1.5} />
-            </g>
-          );
-        })}
+      {/* region bbox */}
+      {FRAME_REGIONS.map((r) => {
+        const rc = regionColors.get(r.key);
+        if (!rc) return null;
+        const [w, s, e, n] = r.bbox;
+        const x = projX(w);
+        const y = projY(n);
+        return (
+          <rect key={r.key} x={x} y={y} width={Math.max(2, projX(e) - x)} height={Math.max(2, projY(s) - y)}
+                fill={rc.fill} stroke={rc.stroke} strokeWidth={1} rx={1.5} opacity={rc.faint ? 0.45 : 1} />
+        );
+      })}
 
-        {/* TW 中心點 */}
-        <circle cx={projX(TW_CENTER.lon)} cy={projY(TW_CENTER.lat)} r={4}
-                fill="#4fc3f7" stroke="white" strokeWidth={1} />
-        <text x={projX(TW_CENTER.lon) + 6} y={projY(TW_CENTER.lat) + 3}
-              fontFamily="ui-monospace, monospace" fontSize={9} fill="#4fc3f7">TW</text>
+      {/* TW 中心點 */}
+      <circle cx={projX(TW_CENTER.lon)} cy={projY(TW_CENTER.lat)} r={4} fill={track.after} stroke="white" strokeWidth={1} />
+      <text x={projX(TW_CENTER.lon) + 7} y={projY(TW_CENTER.lat) + 3} fontFamily={FONT_CJK} fontSize={9} fill={track.label}>台灣</text>
 
-        {/* ground track */}
-        {segments.map((d, i) => (
-          <path key={i} d={d} stroke={color} strokeWidth={1.6} fill="none" opacity={0.85}
-                strokeLinecap="round" strokeLinejoin="round" />
-        ))}
-      </svg>
-    </div>
+      {/* ground track */}
+      {mode !== "after" && beforeSegs.map((d, i) => (
+        <path key={`b${i}`} d={d} stroke={track.before} strokeWidth={1.6} fill="none" opacity={0.85} strokeLinecap="round" strokeLinejoin="round" />
+      ))}
+      {mode !== "before" && afterSegs.map((d, i) => (
+        <path key={`a${i}`} d={d} stroke={track.after} strokeWidth={1.6} fill="none" opacity={0.85} strokeLinecap="round" strokeLinejoin="round" />
+      ))}
+    </svg>
   );
 }
 
 export function ManeuverCompareModal({ maneuver, onClose }: Props) {
-  const [pair, setPair] = useState<{ prev: TleHistoryRow | null; curr: TleHistoryRow | null }>({ prev: null, curr: null });
+  const isMobile = useIsMobile().isMobile;
+  const { p } = useSatelliteTheme();
+  const [pair, setPair] = useState<TlePair>({ prev: null, curr: null, error: null });
   const [loading, setLoading] = useState(true);
+  const [side, setSide] = useState<"before" | "after">("before");
 
   useEffect(() => {
     let alive = true;
@@ -273,195 +283,187 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
     return () => { alive = false; };
   }, [maneuver.norad_id, maneuver.prev_epoch, maneuver.curr_epoch]);
 
+  // §5.27：Esc 關閉
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   const eventMs = useMemo(() => new Date(maneuver.curr_fetched_at).getTime(), [maneuver.curr_fetched_at]);
   const prevTrack = useMemo(() => (pair.prev ? computeGroundTrack(pair.prev, eventMs) : null), [pair.prev, eventMs]);
   const currTrack = useMemo(() => (pair.curr ? computeGroundTrack(pair.curr, eventMs) : null), [pair.curr, eventMs]);
 
   const diff = useMemo(() => {
     if (!prevTrack || !currTrack) return null;
-    const before = prevTrack.coveredRegions;
-    const after = currTrack.coveredRegions;
     const gained: Region[] = [];
     const lost: Region[] = [];
     for (const r of TW_RELEVANT_REGIONS) {
-      const wasIn = before.has(r.key);
-      const nowIn = after.has(r.key);
+      const wasIn = prevTrack.coveredRegions.has(r.key);
+      const nowIn = currTrack.coveredRegions.has(r.key);
       if (!wasIn && nowIn) gained.push(r);
       else if (wasIn && !nowIn) lost.push(r);
     }
-    const twDiff = currTrack.twPasses - prevTrack.twPasses;
-    const pct = prevTrack.twPasses > 0
-      ? Math.round((twDiff / prevTrack.twPasses) * 100)
-      : (currTrack.twPasses > 0 ? 100 : 0);
-    return {
-      gained,
-      lost,
-      twDiff,
-      twBefore: prevTrack.twPasses,
-      twAfter: currTrack.twPasses,
-      pct,
-    };
+    const { diff: twDiff, pct } = computePassDiff(prevTrack.twPasses, currTrack.twPasses);
+    return { gained, lost, twDiff, twBefore: prevTrack.twPasses, twAfter: currTrack.twPasses, pct };
   }, [prevTrack, currTrack]);
 
   const token = MANEUVER_TOKEN[maneuver.maneuver_type];
+  const sevKey = getManeuverSeverity(maneuver);
+  const sev = SEVERITY_VIEW[sevKey];
+  const centerState = (color: string, text: string) => (
+    <div role="status" style={{ padding: "20px 0", textAlign: "center", color, fontSize: FONT_SIZE.base }}>{text}</div>
+  );
 
   return (
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, zIndex: 100, display: "flex",
-        alignItems: "center", justifyContent: "center",
-        background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
-        WebkitBackdropFilter: "blur(4px)",
-        padding: 24,
+        position: "fixed", inset: 0, zIndex: Z_INDEX.modal, display: "flex",
+        alignItems: isMobile ? "flex-end" : "center", justifyContent: "center",
+        background: "rgba(0,0,0,0.8)",
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${maneuver.name} 變軌覆蓋變化`}
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: 760, maxWidth: "100%", maxHeight: "92vh",
-          background: COLORS.panelBg, border: `1px solid ${COLORS.panelBorder}`,
-          borderRadius: RADIUS.xl, fontFamily: FONT_CJK, color: COLORS.textDefault,
+          width: isMobile ? "100vw" : "min(560px, 92vw)",
+          maxHeight: isMobile ? "92vh" : "92vh",
+          height: isMobile ? "92vh" : undefined,
+          background: p.isDark ? SURFACE.solid : LIGHT.surfaceSolid,
+          border: isMobile ? "none" : `1px solid ${p.panelBorder}`,
+          borderRadius: isMobile ? "16px 16px 0 0" : RADIUS.xl,
+          fontFamily: FONT_CJK, color: p.textDefault,
           display: "flex", flexDirection: "column", overflow: "hidden",
           animation: "satConsoleFadeIn .25s ease-out",
         }}
       >
-        {/* header */}
-        <div style={{
-          padding: "12px 16px",
-          borderBottom: `1px solid ${COLORS.panelBorder}`,
-          display: "flex", alignItems: "center", gap: 10,
-        }}>
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 4,
-            padding: "2px 8px", borderRadius: RADIUS.md,
-            background: token.soft, border: `1px solid ${token.color}66`,
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, color: token.color,
-            animation: token.pulse ? "satManeuverPulse 1.1s ease-in-out infinite" : "none",
-          }}>
-            {token.icon} {token.zh}
-          </span>
-          <span style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong }}>
-            {maneuver.name}
-          </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
-            NORAD {maneuver.norad_id}
-          </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginLeft: 6 }}>
-            {formatManeuverDetail(maneuver)}
-          </span>
-          <button
-            onClick={onClose}
-            style={{
-              marginLeft: "auto",
-              width: 28, height: 28, borderRadius: RADIUS.md, border: "none",
-              background: "transparent", color: COLORS.textDim, cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          ><X size={14} /></button>
-        </div>
+        <PanelHeader
+          eyebrow="變軌 · 覆蓋變化"
+          title={maneuver.name}
+          onClose={onClose}
+          borderColor={p.panelBorder}
+          mutedColor={p.textDim}
+          textColor={p.textStrong}
+        />
 
-        <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "14px 16px 16px" }}>
-          {loading ? (
-            <div style={{ padding: "40px 0", textAlign: "center", color: COLORS.textFaint, fontSize: FONT_SIZE.base }}>
-              載入 TLE pair + 計算 7 天 ground track…
-            </div>
-          ) : !pair.prev || !pair.curr ? (
-            <div style={{ padding: "20px 0", textAlign: "center", color: COLORS.statusWarn, fontSize: FONT_SIZE.base }}>
-              tle_history 找不到對應的 prev/curr TLE（epoch 可能尚未歸檔）
-            </div>
-          ) : (
-            <>
-              {/* ── headline 過台頻次 ── */}
-              {diff && <PassDiffHeadline diff={diff} />}
+        <div className="mtp-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "12px 14px 14px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* 副標：嚴重度、類型、變化量、衛星編號 */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, fontSize: FONT_SIZE.sm, color: p.textDim }}>
+            <span style={{ ...chipOutline(severityColor(sevKey, p)), padding: "2px 5px", borderRadius: 3, lineHeight: 1.2, whiteSpace: "nowrap" }}>{sev.zh}</span>
+            <span style={{ color: p.textMuted }}>{token.zh}</span>
+            <span style={{ fontSize: FONT_SIZE.base, color: p.textDefault }}>
+              <MonoNums text={formatManeuverDetail(maneuver)} />
+            </span>
+            <span title="NORAD 編號" style={{ whiteSpace: "nowrap" }}>
+              衛星編號 <span style={{ fontFamily: FONT_DATA }}>{maneuver.norad_id}</span>
+            </span>
+          </div>
 
-              {/* ── 雙 mini-map（TW-centric） ── */}
-              <div style={{ display: "flex", gap: 14, marginTop: 14 }}>
-                <MiniMap track={prevTrack} prevTrack={prevTrack} label="BEFORE · 變軌前 7 天" color="#ff9800" side="before" />
-                <MiniMap track={currTrack} prevTrack={prevTrack} label="AFTER · 變軌後 7 天" color="#4fc3f7" side="after" />
-              </div>
+          {loading ? centerState(p.textFaint, "載入變軌前後軌道並推算中…")
+            : pair.error ? centerState(p.statusErr, pair.error === "unconfigured" ? "資料讀取失敗：未設定資料來源" : "歷史軌道資料讀取失敗，請稍後再試")
+            : !pair.prev || !pair.curr ? centerState(p.statusWarn, "歷史軌道資料中找不到這次變軌前／後的紀錄（可能尚未歸檔）")
+            : !prevTrack || !currTrack ? centerState(p.statusWarn, "軌道資料無法解析，無法推算過台次數")
+            : (
+              <>
+                {diff && <PassDiffHeadline diff={diff} />}
 
-              {/* ── 區域差異 chips ── */}
-              {diff && (
-                <div style={{ marginTop: 14 }}>
-                  <RegionDiffChips gained={diff.gained} lost={diff.lost} />
+                {isMobile && (
+                  <div className={layerControlThemeClass(p.isDark)}>
+                    <ControlSegmented
+                      label="選擇軌道"
+                      value={side}
+                      options={[{ label: "變軌前", value: "before" }, { label: "變軌後", value: "after" }]}
+                      onChange={(v) => setSide(v === "after" ? "after" : "before")}
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4, fontSize: FONT_SIZE.sm, color: p.textMuted }}>
+                    <span>{isMobile ? (side === "before" ? "變軌前軌道" : "變軌後軌道") : "變軌前、後軌跡疊在同一張"}</span>
+                    <span style={{ marginLeft: "auto", whiteSpace: "nowrap" }}>
+                      {isMobile
+                        ? <>過境 <span style={{ fontFamily: FONT_DATA, color: p.textStrong, fontWeight: 600 }}>{side === "before" ? prevTrack.twPasses : currTrack.twPasses}</span> 次</>
+                        : <>過境 <span style={{ fontFamily: FONT_DATA, color: p.textStrong, fontWeight: 600 }}>{prevTrack.twPasses} → {currTrack.twPasses}</span> 次</>}
+                    </span>
+                  </div>
+                  <MiniMap before={prevTrack} after={currTrack} mode={isMobile ? side : "both"} />
                 </div>
-              )}
 
-              <div style={{ marginTop: 10, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-                顯示框：經度 {TW_FRAME.lngMin}–{TW_FRAME.lngMax}°E · 緯度 {TW_FRAME.latMin}–{TW_FRAME.latMax}°N
-                ｜ 比對方法：前後兩條 TLE 跑 SGP4 7 天（10 min 步進），elevation&gt;10° 入境邊緣 = 1 次過台
-              </div>
-            </>
-          )}
+                <MapLegend mode={isMobile ? side : "both"} />
+
+                {diff && <RegionDiffChips gained={diff.gained} lost={diff.lost} />}
+
+                <div style={{ fontSize: FONT_SIZE.xs, color: p.textDim, lineHeight: 1.5 }}>
+                  顯示範圍：東經 <Mono>{TW_FRAME.lngMin}–{TW_FRAME.lngMax}°</Mono>、北緯 <Mono>{TW_FRAME.latMin}–{TW_FRAME.latMax}°</Mono>
+                  {" "}· 以變軌前、後兩組軌道各推算 <Mono>7</Mono> 天（每 <Mono>10</Mono> 分鐘一點），仰角 <Mono>10°</Mono> 以上進入台灣上空算一次過境
+                </div>
+              </>
+            )}
         </div>
       </div>
     </div>
   );
 }
 
-/** 過台頻次 headline — 主敘事 */
-function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number; twDiff: number; pct: number } }) {
-  const isUp = diff.twDiff > 0;
-  const isDown = diff.twDiff < 0;
-  const maxPasses = Math.max(diff.twBefore, diff.twAfter, 5);
-  const barColor = isUp ? "#4fc3f7" : isDown ? COLORS.statusWarn : COLORS.textMuted;
-  const pctColor = isUp ? "#4fc3f7" : isDown ? COLORS.statusErr : COLORS.textMuted;
+function Mono({ children }: { children: React.ReactNode }) {
+  return <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{children}</span>;
+}
 
+/** 文字中的數字片段轉等寬（例「傾角 +0.14°」） */
+function MonoNums({ text }: { text: string }) {
   return (
-    <div style={{
-      padding: "12px 14px",
-      borderRadius: RADIUS.xl,
-      background: "rgba(255,255,255,0.025)",
-      border: `1px solid ${COLORS.borderSoft}`,
-    }}>
-      <div style={{
-        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
-        color: COLORS.textFaint, marginBottom: 8,
-      }}>
-        OVERHEAD PASSES · 過台頻次 7 天
+    <>
+      {text.split(/([+\-−]?\d[\d.]*(?:e[+-]?\d+)?)/i).filter(Boolean).map((part, i) =>
+        /\d/.test(part) ? <Mono key={i}>{part}</Mono> : <span key={i}>{part}</span>)}
+    </>
+  );
+}
+
+function MapLegend({ mode }: { mode: MapMode }) {
+  const theme = useSatelliteTheme();
+  const { p } = theme;
+  const track = trackColors(theme);
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px" }}>
+      {mode !== "after" && <LegendRow swatch={<SwatchLine color={track.before} width={2} />}>變軌前軌跡</LegendRow>}
+      {mode !== "before" && <LegendRow swatch={<SwatchLine color={track.after} width={2} />}>變軌後軌跡</LegendRow>}
+      <LegendRow swatch={<SwatchDot color={track.after} />}>台灣</LegendRow>
+      <LegendRow swatch={<SwatchSquare color={p.statusLive} />}>新增覆蓋</LegendRow>
+      <LegendRow swatch={<SwatchSquare color={p.statusErr} />}>失去覆蓋</LegendRow>
+    </div>
+  );
+}
+
+/** 過台頻次 headline：只用文字（不畫柱） */
+function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number; twDiff: number; pct: number | null } }) {
+  const changed = diff.twDiff !== 0;
+  const abs = Math.abs(diff.twDiff);
+  const label = !changed
+    ? "次數不變"
+    : `${diff.twDiff > 0 ? "增加" : "減少"} ${abs} 次`;
+  const pctText = changed && diff.pct != null ? `（${diff.pct > 0 ? "+" : "−"}${Math.abs(diff.pct)}%）` : "";
+  const { p } = useSatelliteTheme();
+  const big = { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", fontSize: FONT_SIZE.xl, fontWeight: 700, color: p.textStrong } as const;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.sm, color: p.textMuted, marginBottom: 8 }}>
+        台灣上空過境次數 · 以變軌前／後軌道推算未來 7 天
       </div>
-      <div style={{ display: "flex", alignItems: "stretch", gap: 16 }}>
-        <PassBar label="BEFORE" value={diff.twBefore} max={maxPasses} color="rgba(255,152,0,0.55)" />
-        <div style={{
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          minWidth: 80, gap: 2,
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", fontSize: FONT_SIZE.base, color: p.textMuted }}>
+        <span style={{ whiteSpace: "nowrap" }}>變軌前 <span style={big}>{diff.twBefore}</span> 次</span>
+        <span style={{ color: p.textDim }}>→</span>
+        <span style={{ whiteSpace: "nowrap" }}>變軌後 <span style={big}>{diff.twAfter}</span> 次</span>
+        <span style={{
+          ...chipOutline(changed ? p.statusWarn : p.textMuted),
+          marginLeft: "auto", padding: "2px 5px", borderRadius: 3, fontSize: FONT_SIZE.sm, lineHeight: 1.2, whiteSpace: "nowrap",
         }}>
-          <span style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 800, color: pctColor, lineHeight: 1,
-          }}>
-            {isUp ? "+" : ""}{diff.pct}%
-          </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-            {isUp ? "↑ 增加" : isDown ? "↓ 減少" : "持平"}
-            {" "}
-            {isUp || isDown ? `${Math.abs(diff.twDiff)} 次` : ""}
-          </span>
-        </div>
-        <PassBar label="AFTER" value={diff.twAfter} max={maxPasses} color={barColor} />
-      </div>
-    </div>
-  );
-}
-
-function PassBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
-  const pct = max > 0 ? (value / max) * 100 : 0;
-  return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 4 }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textFaint }}>
-          {label}
+          {label}{pctText && <Mono>{pctText}</Mono>}
         </span>
-        <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: COLORS.textStrong, lineHeight: 1 }}>
-          {value}
-        </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>次</span>
-      </div>
-      <div style={{ position: "relative", height: 8, borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)" }}>
-        <div style={{
-          position: "absolute", left: 0, top: 0, bottom: 0, width: `${pct}%`,
-          background: color, borderRadius: RADIUS.md, transition: "width 0.3s ease",
-        }} />
       </div>
     </div>
   );
@@ -469,71 +471,49 @@ function PassBar({ label, value, max, color }: { label: string; value: number; m
 
 /** 區域差異 chips（含 in-frame + off-frame 邊緣提示） */
 function RegionDiffChips({ gained, lost }: { gained: Region[]; lost: Region[] }) {
-  const gainedInFrame = gained.filter((r) => FRAME_REGIONS.includes(r));
-  const gainedOff = gained.filter((r) => !FRAME_REGIONS.includes(r));
-  const lostInFrame = lost.filter((r) => FRAME_REGIONS.includes(r));
-  const lostOff = lost.filter((r) => !FRAME_REGIONS.includes(r));
-
+  const { p } = useSatelliteTheme();
   if (gained.length === 0 && lost.length === 0) {
     return (
-      <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "4px 0" }}>
-        7 天內覆蓋區域無實質差異（軌道平面微移，bbox 命中不變）
+      <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>
+        7 天內覆蓋區域無實質差異（軌道平面微移，經過的區域不變）
       </div>
     );
   }
-
+  const label = { fontSize: FONT_SIZE.sm, color: p.textMuted } as const;
   return (
     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
       {gained.length > 0 && (
         <>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, letterSpacing: "1.5px" }}>
-            新增覆蓋
-          </span>
-          {gainedInFrame.map((r) => (
-            <Chip key={r.key} color="#22c55e" zh={r.zh} prefix="+" />
-          ))}
-          {gainedOff.map((r) => (
-            <Chip key={r.key} color="#22c55e" zh={r.zh} prefix="+" offFrame />
-          ))}
+          <span style={label}>新增覆蓋</span>
+          {gained.map((r) => <Chip key={r.key} color={p.statusLive} region={r} prefix="+" />)}
         </>
       )}
       {lost.length > 0 && (
         <>
-          {gained.length > 0 && <span style={{ color: COLORS.borderMid }}>·</span>}
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, letterSpacing: "1.5px" }}>
-            失去覆蓋
-          </span>
-          {lostInFrame.map((r) => (
-            <Chip key={r.key} color={COLORS.statusErr} zh={r.zh} prefix="−" />
-          ))}
-          {lostOff.map((r) => (
-            <Chip key={r.key} color={COLORS.statusErr} zh={r.zh} prefix="−" offFrame />
-          ))}
+          {gained.length > 0 && <span style={{ color: p.textFaint }}>·</span>}
+          <span style={label}>失去覆蓋</span>
+          {lost.map((r) => <Chip key={r.key} color={p.statusErr} region={r} prefix="−" />)}
         </>
       )}
     </div>
   );
 }
 
-function Chip({ color, zh, prefix, offFrame }: { color: string; zh: string; prefix: string; offFrame?: boolean }) {
+function Chip({ color, region, prefix }: { color: string; region: Region; prefix: string }) {
+  const offFrame = !FRAME_REGIONS.includes(region);
   return (
     <span
-      title={offFrame ? "顯示框外（北方）" : undefined}
+      title={offFrame ? "顯示範圍外（北方）" : undefined}
       style={{
+        ...chipOutline(color),
         display: "inline-flex", alignItems: "center", gap: 3,
-        padding: "2px 7px",
-        borderRadius: RADIUS.md,
-        background: `${color}22`,
-        border: `1px solid ${color}66`,
-        fontFamily: FONT_CJK,
-        fontSize: FONT_SIZE.base,
-        color,
+        padding: "2px 5px", borderRadius: 3, fontSize: FONT_SIZE.sm, lineHeight: 1.2,
         opacity: offFrame ? 0.75 : 1,
       }}
     >
       <span style={{ fontWeight: 700 }}>{prefix}</span>
-      {zh}
-      {offFrame && <span style={{ fontSize: FONT_SIZE.xs, opacity: 0.8 }}>(框外)</span>}
+      {region.zh}
+      {offFrame && <span style={{ fontSize: FONT_SIZE.xs, opacity: 0.8 }}>（範圍外）</span>}
     </span>
   );
 }

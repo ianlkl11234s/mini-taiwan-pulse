@@ -743,7 +743,7 @@ export default function App() {
   const satManeuvers = useSatelliteManeuvers(satConsole.open);
   const maneuverNorads = useMemo(() => {
     const s = new Set<number>();
-    for (const m of satManeuvers) s.add(m.norad_id);
+    for (const m of satManeuvers.rows) s.add(m.norad_id);
     return s;
   }, [satManeuvers]);
   // 打開 Console 時：飛去台灣俯瞰 + 自動打開 Taiwan 圖層（其餘 CN 群維持使用者既有設定）
@@ -2382,11 +2382,13 @@ export default function App() {
 
           {/* 衛星情報 Satellite Console */}
           <SatelliteConsole
+            maneuvers={satManeuvers}
             open={satConsole.open}
             onClose={() => satelliteConsoleStore.setOpen(false)}
             layerVisibility={layerVisibility}
             setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
             onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 3.5, speed: 1.4, pitch: 0 })}
+            isDarkTheme={isDarkTheme}
           />
 
           {/* 🌋 地震回放 Earthquake Replay（事件清單 + 播放控制） */}

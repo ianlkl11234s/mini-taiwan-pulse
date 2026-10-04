@@ -31,21 +31,21 @@ interface SupabaseRow {
   tle_line2: string;
 }
 
-function readCache(): SatelliteRecord[] | null {
+function readCache(): CacheBlob | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const blob = JSON.parse(raw) as CacheBlob;
     if (Date.now() - blob.fetchedAt > CACHE_TTL_MS) return null;
-    return blob.records;
+    return blob;
   } catch {
     return null;
   }
 }
 
-function writeCache(records: SatelliteRecord[]): void {
+function writeCache(records: SatelliteRecord[], fetchedAt: number): void {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), records } satisfies CacheBlob));
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt, records } satisfies CacheBlob));
   } catch { /* ignore */ }
 }
 
@@ -99,16 +99,47 @@ async function fetchAll(): Promise<SatelliteRecord[]> {
   return out;
 }
 
-export async function loadSatellites(): Promise<SatelliteRecord[]> {
+/** 載入結果：失敗與「0 顆」分開；fetchedAt = 這批 TLE 從 Supabase 抓取的時間（epoch ms） */
+export type SatelliteLoadResult =
+  | { ok: true; records: SatelliteRecord[]; fetchedAt: number }
+  | { ok: false; message: string };
+
+let lastFetchedAt: number | null = null;
+let inFlight: Promise<SatelliteLoadResult> | null = null;
+
+/** 最近一次成功載入的 TLE 抓取時間（epoch ms）；尚未載入過回 null */
+export function getSatelliteTleFetchedAt(): number | null {
+  return lastFetchedAt;
+}
+
+export function loadSatellitesResult(): Promise<SatelliteLoadResult> {
   const cached = readCache();
-  if (cached) return cached;
-  try {
-    const records = await withLoading("satellite:tle", "衛星 TLE", fetchAll());
-    writeCache(records);
-    console.log(`[satellite] 載入 ${records.length} 顆衛星 (CN/TW)`);
-    return records;
-  } catch (e) {
-    console.error("[satellite] Supabase fetch error", e);
-    return [];
+  if (cached) {
+    lastFetchedAt = cached.fetchedAt;
+    return Promise.resolve({ ok: true, records: cached.records, fetchedAt: cached.fetchedAt });
   }
+  // 多個元件同時載入時共用同一次請求（失敗時也不會各自重打一輪）
+  if (inFlight) return inFlight;
+  const p: Promise<SatelliteLoadResult> = withLoading("satellite:tle", "衛星 TLE", fetchAll()).then(
+    (records): SatelliteLoadResult => {
+      const fetchedAt = Date.now();
+      writeCache(records, fetchedAt);
+      lastFetchedAt = fetchedAt;
+      console.log(`[satellite] 載入 ${records.length} 顆衛星 (CN/TW)`);
+      return { ok: true, records, fetchedAt };
+    },
+    (e): SatelliteLoadResult => {
+      console.error("[satellite] Supabase fetch error", e);
+      return { ok: false, message: e instanceof Error ? e.message : String(e) };
+    },
+  );
+  inFlight = p;
+  void p.then(() => { inFlight = null; });
+  return p;
+}
+
+/** 舊介面：失敗回 []（地圖圖層用，載入失敗時地圖本來就沒有點）；面板請用 loadSatellitesResult */
+export async function loadSatellites(): Promise<SatelliteRecord[]> {
+  const r = await loadSatellitesResult();
+  return r.ok ? r.records : [];
 }
