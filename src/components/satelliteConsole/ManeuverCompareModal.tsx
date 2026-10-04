@@ -475,7 +475,7 @@ function RegionDiffChips({ gained, lost }: { gained: Region[]; lost: Region[] })
   if (gained.length === 0 && lost.length === 0) {
     return (
       <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>
-        7 天內覆蓋區域無實質差異（軌道平面微移，bbox 命中不變）
+        7 天內覆蓋區域無實質差異（軌道平面微移，經過的區域不變）
       </div>
     );
   }
