@@ -11,6 +11,8 @@ export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',to
 export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>): string {
   const start = release.period_start, end = release.period_end;
   if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return `${start.slice(0,4)} 年`;
+  // 時點快照（例：戶籍人口月底統計標準日）只顯示一個日期，不寫成「X — X」。
+  if (start === end) return `${start}（時點）`;
   return `${start} — ${end}`;
 }
 

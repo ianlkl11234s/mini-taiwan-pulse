@@ -9,9 +9,10 @@ import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../../data/demographicsStatisticsRecipes";
 
 const EXPECTED_THEME_STRUCTURE = [
-  { title: "人口與教育 Population & Education", groups: ["人口動態", "教育與少子化"] },
+  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "教育與少子化"] },
   { title: "醫療與長照 Health & Care", groups: ["醫療與長照"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["犯罪與治安"] },
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
@@ -28,6 +29,7 @@ const layers = STATISTICS_TAB_THEMES.flatMap((theme) => theme.groups.flatMap((gr
 
 const EXPECTED_LAYER_KEYS = [
   "statsLaborVillageIncomeMedian", "statsLaborCountyAnnualSalaryMedian", "statsLaborCountyLaborForce", "statsLaborCountyEmployment", "statsLaborCountyUnemployment", "statsLaborCountyNonLaborForce", "statsLaborCountyParticipationRate", "statsLaborCountyUnemploymentRate", "statsLaborCountyEmploymentByIndustry",
+  ...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS,
   "statsBirthsTownship",
   ...EDUCATION_PRESENTATION_VIEW_KEYS,
   "statsHealthHospitalCount", "statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal", "statsHealthIcuBedTotal", "statsHealthHospiceBedTotal", "statsHealthHealthProfessionalTotal", "statsHealthWesternPhysicianCount", "statsHealthRegisteredNurseCount", "statsHealthNursingStaffListedAgeSexSum", "statsHealthCareWorkerListedSexSum", "statsHealthGeneralNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenInfantBeds", "statsHealthCareWorkerRegistration", "statsHealthMedicalInstitutionBedsPer10000Population", "statsHealthPracticingMedicalPersonnelPer10000Population",
@@ -93,6 +95,11 @@ describe("STATISTICS_TAB_THEMES", () => {
     // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
     const pollution = group("環境與資源 Environment & Resources", "污染與公害");
     expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));
+    // 人口統計：縣市成員在鄉鎮之前，群組列（第一個成員）預設縣市層級。
+    const ageStructure = group("人口與教育 Population & Education", "年齡結構");
+    expect(ageStructure[0]).toBe("statsDemographicsCountyPopAge0To14");
+    expect(ageStructure.indexOf("statsDemographicsCountyShareAge65Plus")).toBeLessThan(ageStructure.indexOf("statsDemographicsTownshipShareAge65Plus"));
+    expect(group("人口與教育 Population & Education", "戶籍人口")).toHaveLength(8);
     expect(group("環境與資源 Environment & Resources", "環境治理")).toEqual(expect.arrayContaining(["statsEnvInspectionsCounty", "statsEnvFineRateCounty"]));
     expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining(["statsWasteGeneratedCounty", "statsRecyclingPer10kCounty", "statsResponsibleEnterprisesCounty"]));
     expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining([

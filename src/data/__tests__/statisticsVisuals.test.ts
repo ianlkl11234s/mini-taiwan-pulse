@@ -3,7 +3,7 @@ import {
   Baby, BedDouble, Beef, Bike, Bus, Car, ChartNoAxesCombined, Droplets, Fish,
   Briefcase, GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
   Recycle, Route, School, Shield, Ship, Stethoscope, Trash2, Trees, TriangleAlert,
-  Volume2, Wheat, Zap,
+  Volume2, Wheat, Zap, Users, HousePlus, CalendarClock,
 } from 'lucide-react';
 import { LAYER_MANIFEST } from '../layerManifest';
 import { STATISTICS_KEYS, STATISTICS_RECIPES, STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../regionalStatisticsRecipes';
@@ -78,6 +78,18 @@ describe('getStatisticsVisual', () => {
     expect(getStatisticsVisual('statsWasteCounty').icon).toBe(Trash2);
   });
 
+  it('routes demographics to the RdPu population theme by key prefix, never births/utilities or red–green', () => {
+    expect(getStatisticsVisual('statsDemographicsCountyPopulationTotal', '戶籍人口數').theme).toBe('人口');
+    expect(getStatisticsVisual('statsDemographicsTownshipShareAge65Plus', '65 歲以上人口占比').theme).toBe('人口');
+    expect(getStatisticsVisual('statsDemographicsCountyPopulationTotal').icon).toBe(Users);
+    expect(getStatisticsVisual('statsDemographicsCountyHouseholdSize').icon).toBe(HousePlus);
+    expect(getStatisticsVisual('statsDemographicsCountyMedianAge').icon).toBe(CalendarClock);
+    // 未來出生／死亡等指標仍走人口主題，不落入出生登記（公用事業）分支
+    expect(getStatisticsVisual('statsDemographicsCountyBirths', '出生數').theme).toBe('人口');
+    expect(getStatisticsVisual('statsDemographicsCountyAgingIndex').colors).toEqual(['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']);
+    expect(getStatisticsVisual('statsBirthsTownship').icon).toBe(Baby);
+  });
+
   it('uses the eight-class colorblind-friendly income palette for village income', () => {
     expect(getStatisticsVisual('statsLaborVillageIncomeMedian', '綜合所得中位數').colors).toEqual([
       '#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e',
@@ -109,8 +121,9 @@ describe('getStatisticsVisual', () => {
 
   it('covers all source keys, presentation views, and their manifest entries', () => {
     // 2026-10-02: +37 環境統計（環境部／國土管理署 18 dataset）。
-    expect(STATISTICS_KEYS).toHaveLength(345);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(357);
+    // 2026-10-04: +32 人口統計（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
+    expect(STATISTICS_KEYS).toHaveLength(377);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(389);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

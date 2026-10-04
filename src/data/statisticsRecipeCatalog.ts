@@ -80,6 +80,7 @@ export function deriveStatisticsRecipeCatalog(
  *   `fragment_context` 是交付紀錄，前端執行期無讀取者，只留在交付 JSON（SSOT），不進 bundle。
  * - environment：同 labor 保留 release_options（STATISTICS_RECIPES 預設 dimensions 與期別白名單首屏即用）；
  *   `delivery`（breaks 依據、raw SHA、coverage 收據）只留在交付 JSON。
+ * - demographics：同 labor 保留 release_options；`fragment_context`／`source_fragment` 是交付收據，只留在交付 JSON。
  * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
  */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
@@ -87,4 +88,5 @@ export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "social", source: "src/data/socialStatisticsRecipes.json", catalog: "src/data/socialStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context"], keepReleaseOptions: false },
   { family: "labor", source: "src/data/laborStatisticsRecipes.json", catalog: "src/data/laborStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context"], keepReleaseOptions: true },
   { family: "environment", source: "src/data/environmentStatisticsRecipes.json", catalog: "src/data/environmentStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "demographics", source: "src/data/demographicsStatisticsRecipes.json", catalog: "src/data/demographicsStatisticsRecipes.catalog.json", omitRecipeKeys: ["fragment_context", "source_fragment"], keepReleaseOptions: true },
 ] as const;

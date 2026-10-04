@@ -18,6 +18,7 @@ import { getAgriRecipe } from '../data/agriStatisticsRecipes';
 import { getSocialRecipe, getSocialRecipeDetails, resolveSocialRelease } from '../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatisticsPresentationView, resolveLaborRelease } from '../data/laborStatisticsRecipes';
 import { getEnvironmentRecipe, resolveEnvironmentRelease } from '../data/environmentStatisticsRecipes';
+import { getDemographicsRecipe, resolveDemographicsRelease } from '../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../data/statisticsPresentationViews';
 import { STATISTICS_RECIPES, isStatisticsRenderLayer, statisticsBaseKey, statisticsRenderRecipe, type StatisticsLayerKey, type StatisticsReleaseOption, type StatisticsRenderKey } from '../data/regionalStatisticsRecipes';
@@ -101,6 +102,7 @@ function buildModel(key: string): StatisticsModel {
   const environment = getEnvironmentRecipe(activeBaseKey);
   const social = getSocialRecipe(activeBaseKey);
   const labor = getLaborRecipe(activeBaseKey);
+  const demographics = getDemographicsRecipe(activeBaseKey);
   const hasRelease = specs.some((spec) => spec.field === 'release');
   const hasDims = specs.some((spec) => spec.field.startsWith('dim:'));
 
@@ -115,7 +117,8 @@ function buildModel(key: string): StatisticsModel {
     const resolved = environment ? (release ? resolveEnvironmentRelease(activeBaseKey, release, option.dimensions) : null)
       : social && release ? resolveSocialRelease(activeBaseKey, release, option.dimensions)
         : labor && release ? resolveLaborRelease(activeBaseKey, release, option.dimensions)
-          : option;
+          : demographics ? (release ? resolveDemographicsRelease(activeBaseKey, release, option.dimensions) : null)
+            : option;
     if (!resolved) return false;
     regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, indicator), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
@@ -131,7 +134,8 @@ function buildModel(key: string): StatisticsModel {
   let currentMetric: string | undefined;
   const metricLabels = new Map<string, string>();
 
-  if (!hasDims && hasRelease && !environment) {
+  // 環境／人口統計的期別即 exact tuple（含 dimensions），必須走白名單分支，不可列原始 releases。
+  if (!hasDims && hasRelease && !environment && !demographics) {
     // 沒有 exact tuple 維度的 recipe：直接列公開期別（舊版「資料期別」單選）。
     tuples = state.releases.map((release) => ({
       values: tupleValues(specs, { releaseId: release.release_id, dimensions: {} }),

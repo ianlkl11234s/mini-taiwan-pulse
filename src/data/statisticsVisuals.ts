@@ -1,6 +1,7 @@
 import {
   Baby,
   Briefcase,
+  CalendarClock,
   BedDouble,
   Beef,
   Bike,
@@ -23,7 +24,13 @@ import {
   GraduationCap,
   HeartHandshake,
   Hospital,
+  Hourglass,
   House,
+  HousePlus,
+  PersonStanding,
+  Scale,
+  Users,
+  UsersRound,
   Plane,
   Presentation,
   Recycle,
@@ -65,6 +72,8 @@ const THEMES = {
   utilities: { theme: '公用事業', accent: '#7bccc4', colors: ['#f0f9e8', '#bae4bc', '#7bccc4', '#43a2ca', '#0868ac'] },
   income: { theme: '所得', accent: '#8d8778', colors: ['#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e'] },
   labor: { theme: '工作與所得', accent: '#2a9d8f', colors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] },
+  // 人口統計：ColorBrewer RdPu（淺粉→深紫）。序列色只表數量高低；老化、性比例都不是好壞，不用紅綠。
+  population: { theme: '人口', accent: '#c51b8a', colors: ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'] },
   security: { theme: '治安', accent: '#ef4444', colors: ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'] },
   fallback: { theme: '統計', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'] },
 } as const satisfies Record<string, StatisticsTheme>;
@@ -143,12 +152,34 @@ const ENVIRONMENT_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> 
 };
 
 /**
+ * 人口統計（demographicsStatisticsRecipes）以 key 前綴 `statsDemographics` 明確指定，避免未來
+ * 「出生」「死亡」等標籤落入出生登記（公用事業）分支；icon 依 key 的指標段。
+ */
+const DEMOGRAPHICS_KEY = /^statsDemographics(?:County|Township|Village)(.+)$/;
+const DEMOGRAPHICS_ICONS: ReadonlyArray<readonly [RegExp, LucideIcon]> = [
+  [/^Household/, HousePlus],
+  [/^PopulationDensity$/, UsersRound],
+  [/^(?:PopAge|ShareAge)/, PersonStanding],
+  [/^(?:AgingIndex|DependencyRatio|ChildDependencyRatio|OldDependencyRatio)$/, Hourglass],
+  [/^SexRatio$/, Scale],
+  [/^MedianAge$/, CalendarClock],
+];
+
+function demographicsVisual(key: string): StatisticsVisual | undefined {
+  const metric = DEMOGRAPHICS_KEY.exec(key)?.[1];
+  if (!metric) return undefined;
+  return visual(THEMES.population, DEMOGRAPHICS_ICONS.find(([pattern]) => pattern.test(metric))?.[1] ?? Users);
+}
+
+/**
  * Presentation semantics only. This deliberately does not import recipe or manifest
  * modules, so the statistics registry can consume it without a dependency cycle.
  */
 export function getStatisticsVisual(key: string, label?: string, group?: string): StatisticsVisual {
   const environment = ENVIRONMENT_KEY_VISUALS[key];
   if (environment) return visual(THEMES[environment[0]], environment[1]);
+  const demographics = demographicsVisual(key);
+  if (demographics) return demographics;
   const text = textFor(key, label, group);
 
   if (has(text, ['教育', 'education', '學校', '學院', '幼兒園', '國小', '國中', '高中'])) {
