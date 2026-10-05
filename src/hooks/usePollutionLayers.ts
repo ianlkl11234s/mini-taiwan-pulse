@@ -18,6 +18,7 @@ import {
  * 設計要點：
  * - 三層都是 PMTiles，Mapbox 會 lazy load tile；setFilter 是純表現層過濾，零重抓。
  * - style.load 後 layer 會重建 → 監聽重新套用（比照 useRealEstateTimeline）。
+ * - layer 是開啟圖層後才非同步加入 → 另監聽 styledata 補套（apply 冪等，R5-2）。
  * - 圖層關閉時不需套 filter（overlayManager 已設 visibility none）。
  */
 
@@ -106,9 +107,13 @@ export function usePollutionLayers(
     if (!map) return;
 
     const apply = () => {
+      // 冪等：已是目標 filter 就不再 setFilter（apply 掛在 styledata 上，避免 setFilter 觸發自身迴圈）
       const setFilter = (ids: string[], filter: unknown[] | null) => {
+        const want = JSON.stringify(filter ?? null);
         for (const id of ids) {
-          if (map.getLayer(id)) map.setFilter(id, filter as unknown as FilterSpecification);
+          if (!map.getLayer(id)) continue;
+          if (JSON.stringify(map.getFilter(id) ?? null) === want) continue;
+          map.setFilter(id, filter as unknown as FilterSpecification);
         }
       };
       setFilter([FACILITY_LAYER, FACILITY_HEATMAP], facilityFilter(facilityMedia, facilityMinSev));
@@ -121,7 +126,13 @@ export function usePollutionLayers(
 
     apply();
     map.on("style.load", apply);
-    return () => { map.off("style.load", apply); };
+    // R5-2：打開圖層時 overlayManager 才非同步建立 layer，上面那次 apply 當下 layer 尚不存在而被略過，
+    // 預設年份篩選要等第一次改參數才生效。layer 加入時會觸發 styledata → 補套一次（apply 冪等）。
+    map.on("styledata", apply);
+    return () => {
+      map.off("style.load", apply);
+      map.off("styledata", apply);
+    };
   }, [
     mapRef,
     // 圖層開關變動 → layer 會被建立/顯示，需重套 filter

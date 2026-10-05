@@ -1,0 +1,17 @@
+
+> mini-taiwan-pulse@2.5.0 test
+> vitest run src/map/__tests__/overlayManager.test.ts
+
+
+ RUN  v3.2.6 /Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/contract-guards-20261005
+
+stderr | src/map/__tests__/overlayManager.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/map/__tests__/overlayManager.test.ts (371 tests) 141ms
+
+ Test Files  1 passed (1)
+      Tests  371 passed (371)
+   Start at  12:43:23
+   Duration  3.52s (transform 1.64s, setup 0ms, collect 2.87s, tests 141ms, environment 0ms, prepare 138ms)
+

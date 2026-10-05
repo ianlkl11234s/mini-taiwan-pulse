@@ -20,6 +20,7 @@ import {
 } from "../overlayManager";
 import type { OverlayConfig } from "../../types";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 // ── 純函式 ──
@@ -600,4 +601,27 @@ describe("updateOverlayTheme (rebuildOnParamChange)", () => {
     ]);
     expect(calls.filter((call) => call.method === "addLayer")).toHaveLength(2);
   });
+});
+
+// GD-1: exercise the production source builder, rather than a copied spec fixture.
+describe("manifest overlay source specs", () => {
+  for (const entry of OVERLAY_REGISTRY) {
+    it(`${entry.id}/${entry.sourceId} has no undefined source fields`, () => {
+      expect(LAYER_MANIFEST).toHaveProperty(entry.id);
+      const { map, calls } = createMockMap();
+      addOverlay(map, entry, true);
+      const sources = calls.filter((call) => call.method === "addSource");
+      expect(sources).toHaveLength(1);
+      const spec = sources[0]!.args[1] as Record<string, unknown>;
+      const undefinedPaths: string[] = [];
+      function inspect(value: unknown, path: string) {
+        if (value === undefined) undefinedPaths.push(path);
+        else if (value !== null && typeof value === "object") {
+          for (const [key, child] of Object.entries(value)) inspect(child, `${path}.${key}`);
+        }
+      }
+      inspect(spec, entry.sourceId);
+      expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+    });
+  }
 });
