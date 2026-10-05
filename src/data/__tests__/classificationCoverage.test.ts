@@ -20,6 +20,9 @@ import {
 import {
   SCHOOL_LEVEL_GROUPS, SCHOOL_LEVEL_ORDER, KINDERGARTEN_OWNERSHIP_COLORS,
 } from "../educationTypes";
+import {
+  HIV_TESTING_CATEGORY_VALUES, SELFTEST_CHANNEL_VALUES, TREATMENT_CATEGORY_VALUES,
+} from "../harmReductionTypes";
 
 function distinctValues(rel: string, field: string): string[] {
   const data = JSON.parse(readFileSync(`public/${rel}`, "utf8")) as GeoJSON.FeatureCollection;
@@ -131,6 +134,25 @@ const CASES: Case[] = [
   // cram_schools 同理走 PMTiles → `短期補習班類別` 14 類的覆蓋率在此守不到；
   // 靠 cramCategoryColorExpr() 的 CRAM_CATEGORY_COLORS.other fallback 兜底（不會消失，但會被
   // 誤歸「其他」）。上游是 daily 更新的源，新類別要靠上游 pipeline 或重跑快照時人工比對。
+  // ── 減害服務：3 個 match 分色欄位（漏值會落成中性灰）──
+  {
+    file: "harm_reduction/drug_treatment_facilities.geojson",
+    field: "category",
+    covered: [...TREATMENT_CATEGORY_VALUES],
+    ssot: "src/data/harmReductionTypes.ts TREATMENT_CATEGORY_OPTIONS",
+  },
+  {
+    file: "harm_reduction/hiv_selftest_outlets.geojson",
+    field: "channel",
+    covered: [...SELFTEST_CHANNEL_VALUES],
+    ssot: "src/data/harmReductionTypes.ts SELFTEST_CHANNEL_OPTIONS",
+  },
+  {
+    file: "harm_reduction/hiv_testing_sites.geojson",
+    field: "category",
+    covered: [...HIV_TESTING_CATEGORY_VALUES],
+    ssot: "src/data/harmReductionTypes.ts HIV_TESTING_CATEGORY_OPTIONS",
+  },
 ];
 
 describe("分類表覆蓋資料實際值", () => {

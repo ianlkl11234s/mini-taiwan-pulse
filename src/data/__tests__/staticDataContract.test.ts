@@ -423,6 +423,36 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     //    契約若漏寫 nullable，minCoverage 預設 1 會直接紅燈提醒（也提醒別把 null 當 0）。
     { field: "students_total", type: "number", nullable: true },
   ],
+  // 💉 減害服務 5 檔（2026-10-06）：清潔針具的服務類型篩選全靠 3 個 boolean flag，
+  //    型別若漂成字串，`== true` 全不成立 → 篩選後整層空白；`*_is_24h` 上游誠實保留 null。
+  "harm_reduction/needle_points.geojson": [
+    { field: "name", type: "string" },
+    { field: "has_education_station", type: "boolean" },
+    { field: "has_vending_machine", type: "boolean" },
+    { field: "has_return_bin", type: "boolean" },
+    { field: "education_is_24h", type: "boolean", nullable: true },
+    { field: "vending_is_24h", type: "boolean", nullable: true },
+    { field: "return_bin_is_24h", type: "boolean", nullable: true },
+    { field: "geocode_precision", type: "string" },
+  ],
+  "harm_reduction/drug_treatment_facilities.geojson": [
+    { field: "name", type: "string" },
+    { field: "category", type: "string" },
+    { field: "has_methadone", type: "boolean" },
+    { field: "has_buprenorphine", type: "boolean" },
+  ],
+  "harm_reduction/hiv_selftest_outlets.geojson": [
+    { field: "name", type: "string" },
+    { field: "channel", type: "string" },
+  ],
+  "harm_reduction/hiv_testing_sites.geojson": [
+    { field: "name", type: "string" },
+    { field: "category", type: "string" },
+  ],
+  "harm_reduction/drug_prevention_centers.geojson": [
+    { field: "name", type: "string" },
+    { field: "address", type: "string" },
+  ],
 };
 
 /**

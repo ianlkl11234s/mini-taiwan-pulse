@@ -108,6 +108,7 @@ export type ExpandableLayerKey =
   | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
+  | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
   | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
   | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
@@ -730,6 +731,7 @@ export interface FeatureInfo {
   layerType: "regionalStatistic" | "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
+    | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
     | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
     | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
@@ -1093,6 +1095,12 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   animalWelfarePoints: boolean;
   retailMarkets: boolean;
   publicToilets: boolean;
+  // 減害服務（清潔針具／替代療法與藥癮戒治／愛滋自我篩檢／愛滋篩檢與指定醫療／毒品危害防制中心）
+  harmReductionNeedle: boolean;
+  harmReductionTreatment: boolean;
+  harmReductionHivSelftest: boolean;
+  harmReductionHivTesting: boolean;
+  harmReductionPreventionCenters: boolean;
   // 公共生活 OSM snapshot（非完整官方清冊；unknown 不等於 false）
   drinkingWaterPoints: boolean;
   publicWasteBaskets: boolean;

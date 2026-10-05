@@ -168,7 +168,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-04: +32 人口統計 Statistics 圖層（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
     // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
     // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；11508 × 內政部村里界 1150817）。
-    expect(keys.length).toBe(982);
+    // 2026-10-06: +5 減害服務（清潔針具／替代療法與藥癮戒治／愛滋自我篩檢／愛滋篩檢與指定醫療／毒品危害防制中心）。
+    expect(keys.length).toBe(987);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

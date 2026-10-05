@@ -246,6 +246,10 @@ import {
   ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS, PUBLIC_LIFE_COLORS,
 } from "../data/publicLifePalette";
 import {
+  HARM_REDUCTION_COLORS, HIV_TESTING_CATEGORY_OPTIONS, SELFTEST_CHANNEL_OPTIONS, TREATMENT_CATEGORY_OPTIONS,
+  categoryColorExpression, hivTestingCategoryFilter, needleServiceFilter, selftestChannelFilter, treatmentCategoryFilter,
+} from "../data/harmReductionTypes";
+import {
   AVIATION_NOISE_ZONE_COLOR_EXPR,
   NOISE_CAPTURE_ATTRIBUTION,
   NOISE_CAPTURE_COLOR_EXPR,
@@ -553,6 +557,15 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
     { suffix: "fill", type: "fill", paint: (_d, p) => ({ "fill-color": ["step", ["coalesce", ["to-number", ["get", "observed_count"]], 0], "#e2e8f0", 1, "#bfdbfe", 5, "#60a5fa", 15, "#1d4ed8"], "fill-opacity": p?.publicLifeOsmCoverageOpacity ?? .55 }) },
     { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": "#2563eb", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .2, 12, .8], "line-opacity": (p?.publicLifeOsmCoverageOpacity ?? .55) * .8 }) },
   ] },
+];
+
+/** 減害服務 5 層：官方名冊 GeoJSON（git 管理），共用公共生活點層 helper；attribution 必須明傳（helper 預設是 OSM）。 */
+const HARM_REDUCTION_OVERLAYS: OverlayConfig[] = [
+  publicLifePointOverlay("harmReductionNeedle", "./harm_reduction/needle_points.geojson", "harm-reduction-needle", HARM_REDUCTION_COLORS.harmReductionNeedle, undefined, "衛生福利部疾病管制署 清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單", undefined, { labelMinzoom: 14, filter: (p) => needleServiceFilter(p?.harmReductionNeedleServiceMask, p?.harmReductionNeedleOnly24h) }),
+  publicLifePointOverlay("harmReductionTreatment", "./harm_reduction/drug_treatment_facilities.geojson", "harm-reduction-treatment", categoryColorExpression("category", TREATMENT_CATEGORY_OPTIONS), undefined, "衛生福利部 指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353", undefined, { labelMinzoom: 13, filter: (p) => treatmentCategoryFilter(p?.harmReductionTreatmentCategoryMask) }),
+  publicLifePointOverlay("harmReductionHivSelftest", "./harm_reduction/hiv_selftest_outlets.geojson", "harm-reduction-hiv-selftest", categoryColorExpression("channel", SELFTEST_CHANNEL_OPTIONS), undefined, "衛生福利部疾病管制署 愛滋自我篩檢通路（快照 2026-10-06）", undefined, { labelMinzoom: 14, filter: (p) => selftestChannelFilter(p?.harmReductionHivSelftestChannelMask) }),
+  publicLifePointOverlay("harmReductionHivTesting", "./harm_reduction/hiv_testing_sites.geojson", "harm-reduction-hiv-testing", categoryColorExpression("category", HIV_TESTING_CATEGORY_OPTIONS), undefined, "衛生福利部疾病管制署 匿名篩檢與愛滋指定醫事機構（2026-09-22 等）", undefined, { labelMinzoom: 14, filter: (p) => hivTestingCategoryFilter(p?.harmReductionHivTestingCategoryMask) }),
+  publicLifePointOverlay("harmReductionPreventionCenters", "./harm_reduction/drug_prevention_centers.geojson", "harm-reduction-prevention-centers", HARM_REDUCTION_COLORS.harmReductionPreventionCenters, undefined, "法務部 毒品危害防制中心（data.gov.tw 13717）· 政府資料開放授權條款第1版", [4, 8], { labelMinzoom: 10 }),
 ];
 
 /**
@@ -11312,6 +11325,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 ];
 
 OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
+OVERLAY_REGISTRY.push(...HARM_REDUCTION_OVERLAYS);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
