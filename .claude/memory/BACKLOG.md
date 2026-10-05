@@ -72,7 +72,6 @@
 | AR-12/13 | P1 | ready | Move C-class shared realtime snapshots from per-user DB reads to CDN delivery. | Define snapshot writer, manifest and CDN read contract. | Target consumers read immutable/current CDN snapshots with no regression. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
 | AR-14/15 | P1 | ready | Turn saved ship/bus trails into CDN-consumable products. | Historical flight trails (AR-16) shipped as an immutable static product; now design equivalent processed bundles for ship/bus instead of browser reads of raw `trails/`. | Ship and bus browsers read processed CDN products with correct day selection and controlled egress. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
 | AR-31~36 | P2 | ready | Improve multi-layer rendering without unrelated refactors. | Prioritize renderer merge, FlightScene, GPU time filter and worker design by measured bottleneck. | Profiling and targeted visual regression evidence meet the selected budget. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
-| AU-1 | P2 | ready | Guard sidebar/map/legend color consistency. | Add a contract test after confirming intended color SSOT. | Test catches divergent color definitions. [Architecture audit](../../docs/research/architecture-audit-2026-08-10.md) |
 | AU-3 | P2 | ready | Eliminate divergent day-prefetch implementations. | Choose one shared path or explicitly scope the two implementations. | One documented contract with targeted tests. [Architecture audit](../../docs/research/architecture-audit-2026-08-10.md) |
 | AU-4 | P2 | ready | Make Three scenes portable to MapLibre embed. | Replace handwritten projections with `toMercator()`. | Main and embed coordinate regression checks pass. [Architecture audit](../../docs/research/architecture-audit-2026-08-10.md) |
 | AU-8 | P2 | ready | Give the shipped food-price monitor feature a proper documentation home. | Add the four feature documents and point this index to it. | README/backlog/changelog/handoff exist and match runtime scope. |
@@ -188,6 +187,7 @@
 | R5-1 | P2 | ready | 微型感測器（`aqiMicroSensors`）圖層偶爾永遠不出現。 | `src/hooks/useMicroSensorsLayer.ts:157`：style 未載完時改 `map.once("load")`，但 `load` 可能早已觸發，callback 永不執行。改等 `style.load`／`idle` 或先判斷 `map.loaded()`。 | 冷開站、換底圖途中打開該層各 10 次皆出現；補 hook 測試。 |
 | R5-2 | P2 | ready | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | 找出初次加圖層時沒帶入參數預設 filter 的路徑（registry filter 初值 vs 參數變更才 setFilter）。 | 打開即只顯示預設年份；點數與改參數後一致；補測試。 |
 | R8-2 | P3 | ready | 手機頂部時間軸條在淡色底圖下仍是暗色（#516 修了手機圖層抽屜，時間軸條不在範圍）。 | 找出手機時間軸條寫死暗色的元件，改傳實際主題、淡色用 LIGHT token，照 #516 做法。 | 手機 390 淡色底圖下時間軸條跟隨主題；暗色數值不變。 |
+| DS-COLOR | P3 | ready | 定義逐層顏色契約：代表色、分類色、主題、色階各以誰為準。 | AU-1（2026-10-05 結案）查證：manifest→側欄已由 `layerManifest.test.ts:88` 逐 key 驗證，地圖↔圖例由 `legendAlignment.test.ts` R4 12 組守門；`docs/design-system/map-layers.md:345` 明定多類別／序列代表色不必出現在 paint。剩下的缺口是「各類顏色的權威來源」未定義，先定契約再擴大守門。 | 每層顏色類型與權威來源有文件；新增守門能抓出違反契約的定義。分析：`docs/research/contract-guards-20261005.md`（PR #539）。 |
 
 ## Weekly audit findings
 
