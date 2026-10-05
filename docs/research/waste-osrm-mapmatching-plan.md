@@ -351,7 +351,7 @@ gis-data-collectors                 osrm-proxy                osrm-taiwan
 - Bearer token 驗證 `/health` 之外的所有路徑
 - env vars:
   ```
-  OSRM_TOKEN=58e6bb61a676dfc6bb24847467f5f28cbbdbab46ef0546c8a2489feb0dfec784
+  OSRM_TOKEN=<REDACTED>
   OSRM_UPSTREAM=osrm-taiwan.zeabur.internal:8080
   ```
 
@@ -362,7 +362,7 @@ gis-data-collectors                 osrm-proxy                osrm-taiwan
 **Collector（ship-only project）env vars**：
 ```
 OSRM_URL=https://osrm-proxy-gis.zeabur.app
-OSRM_TOKEN=58e6bb61a676dfc6bb24847467f5f28cbbdbab46ef0546c8a2489feb0dfec784
+OSRM_TOKEN=<REDACTED>
 WASTE_MATCH_ENABLED=true
 WASTE_MATCH_INTERVAL=5
 WASTE_MATCH_TARGET_DAYS=7    # 涵蓋 GPS 7 天 retention，自動 backfill
