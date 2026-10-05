@@ -48,7 +48,7 @@ export const VISIBLE_SUMMARY_BUDGET_MS = 150;
 const NOTE = "只統計目前畫面範圍內已畫出的圖徵；圖磚未載完時可能偏少。自繪圖層（basis: layer_data）改用網頁已載入的圖層資料統計";
 const TOWN_FIELDS = ["TOWNNAME", "townname", "town", "town_name", "鄉鎮市區", "TOWN"];
 const COUNTY_FIELDS = ["COUNTYNAME", "countyname", "county", "county_name", "縣市", "COUNTY"];
-const NAME_FIELDS = ["name", "名稱", "title", "NAME", "station_name"];
+const NAME_FIELDS = ["name", "名稱", "title", "NAME", "station_name", "well_name"];
 const PAINT_ORDER = ["circle-radius", "circle-color", "fill-color", "fill-extrusion-height", "heatmap-weight", "line-width", "line-color", "icon-size"];
 const SUMMARIZABLE_KINDS = new Set(["geojson", "pmtiles", "supabase"]);
 const MAX_TEXT = 60;
@@ -57,7 +57,13 @@ const DATA_NOT_LOADED_NOTE = "圖層資料還在載入（或此時段沒有資�
  * Manifest-`custom` layers whose hook still draws plain Mapbox GeoJSON style layers
  * (no Three.js), so the rendered-feature path can read them by their self-built source id.
  */
-const CUSTOM_RENDERED_SOURCES: Record<string, string[]> = { rainGauge: ["rain-gauge"] };
+const CUSTOM_RENDERED_SOURCES: Record<string, string[]> = {
+  rainGauge: ["rain-gauge"],
+  // AG-6：同一個 timelineSliceLayer 工廠的其餘三層（source id 見各自 hook 的 SOURCE_ID）
+  riverLevel: ["river-level"],
+  groundwater: ["groundwater"],
+  iotWraRiver: ["iot-wra-river"],
+};
 
 type SourcesFor = (layerKey: string) => LayerSource[] | null;
 export type VisibleSummaryOptions = { labelFor?: (layerKey: string) => string; sourcesFor?: SourcesFor; dataProviderFor?: (layerKey: string) => LayerDataProvider | null; now?: () => number };
