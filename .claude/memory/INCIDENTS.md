@@ -1687,7 +1687,7 @@ ships 移植的背景 agent 一啟動就斷線，實際工作**尚未開始**。
 
 → 規則：**deploy 完成前探測任何新 URL，一律加 cache-buster**（`?cb=$(date +%s)`）。
 本專案唯一的 purge 腳本是 `purge_everything`（會連 297MB 底圖一起清），
-**沒有 scoped purge** → 一旦快取到壞值，代價不對稱（→ G020）。
+**沒有 scoped purge** → 一旦快取到壞值，代價不對稱（→ G017，舊編號 G020）。
 
 ### 事件 C：Zeabur `deployment list` 的 RUNNING 標籤會滯後 → 不能用來判 cutover
 舊 deployment 在數小時後仍被標成 RUNNING，照它判斷會以為新版沒上去（或反之）。

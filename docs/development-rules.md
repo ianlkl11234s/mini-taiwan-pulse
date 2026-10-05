@@ -23,7 +23,7 @@
 | `metadata` | 系統管理 | ❌ |
 | `public` | 所有對前端開放的 RPC wrapper | ✅ |
 
-**Rule**: 前端只用 `public.*` RPC 或 `reference.*` / `spatial.*` 直讀。不允許前端直接打 `realtime.*`。
+**Rule**: 前端只用 `public.*` RPC 或 `reference.*` / `spatial.*` 直讀。不允許前端直接打 `live.*`（舊 `realtime` schema 已併入 `live`，ADR-0010／migration 312）。
 
 ### 環境變數
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`（前端）
