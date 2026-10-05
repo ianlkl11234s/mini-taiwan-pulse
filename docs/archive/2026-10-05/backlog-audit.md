@@ -4,7 +4,7 @@
 
 ## 結論
 
-- 核對 122 列非 done（含原標成 done 的 6 列）。AU-1 依指示不動，所以不在統計內。
+- 核對 122 列非 done（含原標成 done 的 7 列：AG-1／5／8／9／12／13、ST-2）。AU-1 依指示不動，所以不在統計內。
 - 已完成 17 列、被取代 6 列，共 23 列從表格移除。仍有效且已更新 94 列，其中 8 列改成 in_progress（PR 已開）。無法判斷 5 列。
 - 修改後 State 只剩規則允許的值：ready 47、blocked 20、conditional 10、in_progress 8、waiting_external 8、verifying 7。原本標成 `idea`／`decision` 的列一律改成 `blocked`，並在 blocker 欄寫上 owner decision。
 - 今天其他 PR 的對應：
