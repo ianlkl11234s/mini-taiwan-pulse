@@ -4,7 +4,7 @@
 > **狀態**：staging
 > **Owner**：@migu
 > **上線日期**：2026-10-06（develop）
-> **相關 PR**：見 [changelog.md](./changelog.md)
+> **相關 PR**：#548（develop）
 
 ## 一句話說明
 
