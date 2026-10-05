@@ -17,6 +17,26 @@ import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
  */
 
 export const TEMPERATURE_GRID_SOURCE_ID = "temperature-grid-src";
+
+/**
+ * R6 段 1（2026-10-05）：溫度波（temperatureWave）「立體效果」關閉時，平面改畫這個 Mapbox 網格。
+ * 網格層 id 是全域唯一，所以由同一支 host 服務兩個 key：
+ * - temperatureGrid 開著 → 行為與以前完全相同（用 temperatureGrid 自己的透明度）
+ * - 只有溫度波開且立體效果關 → 顯示網格，透明度跟溫度波的「透明度」滑桿
+ */
+export function resolveTemperatureGridDisplay(input: {
+  gridOn: boolean;
+  waveOn: boolean;
+  tempExtruded: boolean;
+  gridOpacity: number;
+  waveOpacity: number;
+}): { visible: boolean; opacity: number } {
+  const { gridOn, waveOn, tempExtruded, gridOpacity, waveOpacity } = input;
+  return {
+    visible: gridOn || (waveOn && !tempExtruded),
+    opacity: gridOn ? gridOpacity : waveOpacity,
+  };
+}
 export const TEMPERATURE_GRID_FILL_LAYER_ID = "temperature-grid-fill";
 
 /** feature-state 未設定時的哨兵值（冷於任何實際觀測值） */

@@ -88,9 +88,11 @@ export const SubstationDiamondIconHost: LayerHostComponent = ({ deps }) => {
 export const OsmPowerLinesGlowHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useOsmPowerLinesGlowLayer");
   const p = useKeyOverlayParams("osmPowerLines");
+  // R6 段 1：Three.js bloom 只在「立體效果」開啟時掛（關閉時 glow hook 不 fetch、不 mount）
+  const values = useLayerParams("osmPowerLines");
   useOsmPowerLinesGlowLayer(
     deps.mapRef,
-    deps.layerVisibility.osmPowerLines,
+    deps.layerVisibility.osmPowerLines && paramBool(values, "osmPowerLines", "osmPowerLines3D"),
     p.osmPowerLinesOpacity ?? 0.4,
     p.osmPowerLinesWidth ?? 1,
   );
@@ -236,9 +238,12 @@ export const PowerPlantGlowHost: LayerHostComponent = ({ deps }) => {
 export const BuildingsNightBloomHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useBuildingsNightBloomLayer");
   const p = useKeyOverlayParams("buildingsGba");
+  // R6 段 1：夜景模式的 Three.js bloom 另需「立體效果」開啟（Mapbox 夜光配色不受影響）
+  const values = useLayerParams("buildingsGba");
   useBuildingsNightBloomLayer(
     deps.mapRef,
-    deps.layerVisibility.buildingsGba && (p.buildingsGbaModeIdx ?? 0) === 3,
+    deps.layerVisibility.buildingsGba && (p.buildingsGbaModeIdx ?? 0) === 3
+      && paramBool(values, "buildingsGba", "buildingsGbaBloom"),
     p.buildingsGbaOpacity ?? 0.75,
     p.buildingsGbaBloomMinHeight ?? 100,
   );

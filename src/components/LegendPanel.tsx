@@ -28,7 +28,7 @@ import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
-import { oneOfParam, paramStr, useLayerParams, useOverlayParams } from "../layers/layerParamsAccess";
+import { oneOfParam, paramBool, paramStr, useLayerParams, useOverlayParams } from "../layers/layerParamsAccess";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES, medicalPoiColor } from "../data/medicalPOITypes";
@@ -467,7 +467,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
   { id: "dustForecast", render: () => <DustForecastLegend /> },
   { id: "temperatureGrid", render: () => <TemperatureGridLegend /> },
-  { id: "temperatureWave", render: () => <TemperatureWaveLegend /> },
+  { id: "temperatureWave", render: ({ visibility }) => <TemperatureWaveLegend gridAlsoOn={!!visibility.temperatureGrid} /> },
   { id: "aqiMicroSensors", render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
   { id: "aqiImagery", render: () => <AqiLegend /> },
   { id: "urbanHeat", render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
@@ -4004,8 +4004,14 @@ function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
 // ⚠️ 與 2D 溫度網格（TemperatureGridLegend 的 11 級絕對 °C）不同：3D 波的顏色是
 //    (temp - tempMin) / (tempMax - tempMin)，**以當日資料範圍拉伸**，
 //    所以沒有固定的 °C 刻度，只能標兩端。硬標 -10/35°C 會在多數日子跟地圖對不上。
-function TemperatureWaveLegend() {
+function TemperatureWaveLegend({ gridAlsoOn }: { gridAlsoOn: boolean }) {
   const t = useLegendTheme();
+  // R6 段 1：立體效果關 → 地圖畫的是溫度網格（同 temperatureGrid），圖例跟著換；
+  // 溫度網格本身也開著時它已有同一份圖例，不重複
+  const values = useLayerParams("temperatureWave");
+  if (!paramBool(values, "temperatureWave", "tempExtruded")) {
+    return gridAlsoOn ? null : <TemperatureGridLegend />;
+  }
   const gradient = `linear-gradient(to right, ${DIVERGING_STOPS.map(
     (s) => `rgb(${Math.round(s.r * 255)},${Math.round(s.g * 255)},${Math.round(s.b * 255)}) ${(s.t * 100).toFixed(1)}%`,
   ).join(", ")})`;

@@ -5,6 +5,7 @@ import {
   BUILDINGS_NIGHT_BLOOM_LAYER_ID,
   buildingsNightBloomModule,
   mountLazyCustomLayer,
+  removeLazyCustomLayer,
 } from "../map/lazyThreeLayers";
 
 /**
@@ -33,6 +34,11 @@ export function useBuildingsNightBloomLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+    // R6 段 1：不可見（層關／非夜景模式／「立體效果」關）→ 不掛 Three 層，已掛的移除
+    if (!visible) {
+      try { removeLazyCustomLayer(map, BUILDINGS_NIGHT_BLOOM_LAYER_ID); } catch { /* map 可能已銷毀 */ }
+      return;
+    }
 
     const tryMount = () => {
       if (map.getLayer(BUILDINGS_NIGHT_BLOOM_LAYER_ID)) return;

@@ -241,10 +241,14 @@ const NO_HOOK_LEDGER = new Set<string>([
  *     L909-942（h3Population / popCount+indicators / socioeconomic /
  *     spatialEconomy 四段 loader effect；popCount 與 indicators 共用同一個
  *     `loadDemographicsResolution`，各自仍宣告一份 appHook 需求，不是重複計數）
+ *   - R6 段 1（2026-10-05）temperatureWave：App 側 `useTemperatureData` ＋
+ *     useThreeJsLayers 的 3D 溫度波（立體效果開）；registry 側 `useTemperatureGridLayer`
+ *     entry（立體效果關時畫平面網格，`hosts/miscHosts.tsx` TemperatureGridHost）
  */
 const DUAL_MOUNT_KEYS = new Set<string>([
   "rail", "h3Population", "popCount", "indicators",
   "socioeconomic", "spatialEconomy", "youbikeFullness",
+  "temperatureWave",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

@@ -461,10 +461,11 @@
 - **尺寸**：標籤 10px `--text-muted` `FONT_CJK`、超長省略；數值 10px `FONT_DATA` `--text-default` tabular-nums 靠右。
 - **暗／淡**：`.lpc-theme`／`.lpc-theme--light`（`layerControlThemeClass(isDarkTheme)`）。淡色左線 `rgba(0,0,0,.12)` 不在 token 階上，刻意保留。
 - **順序（P5，2026-10-03 B 段）**：**資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀 → 說明・來源**。
-  - 類別判斷（`layerParamsSpec.ts` `paramControlCategory`）：控制項寫了 `category` 就照寫的；否則 `palette`＝顏色（熱區／網格顏色）、`multiSelect`＝資料篩選、滑桿標籤含「透明度」＝透明度；其餘查 `CATEGORY_BY_LABEL` 詞彙表（例 年份／類別／定位精度／模式＝資料篩選，配色／著色模式＝顏色，大小／寬度／線寬／光點＝大小，高度／3D／光暈／網格大小＝其他外觀）。同一個詞在不同層意思不同時在 spec 寫 `category`（例 `urbanHeat`「顯示」選指標＝資料篩選、`buildingsGba`「顯示模式」＝其他外觀）。
+  - 類別判斷（`layerParamsSpec.ts` `paramControlCategory`）：控制項寫了 `category` 就照寫的；否則 `palette`＝顏色（熱區／網格顏色）、`multiSelect`＝資料篩選、滑桿標籤含「透明度」＝透明度；其餘查 `CATEGORY_BY_LABEL` 詞彙表（例 年份／類別／定位精度／模式＝資料篩選，配色／著色模式／立體效果＝顏色，大小／寬度／線寬／光點＝大小，高度／3D／光暈／網格大小＝其他外觀）。同一個詞在不同層意思不同時在 spec 寫 `category`（例 `urbanHeat`「顯示」選指標＝資料篩選、`buildingsGba`「顯示模式」＝其他外觀）。
   - 排序在 `buildParamControls` 做（`orderedVisibleParamsSpec`，同類保持宣告順序）；Agent 端 `research/layerControls.ts` 用同一支對位置。spec 陣列、store、overlay 編碼、manifest `params.kinds` 都照宣告順序，不受影響。
   - 寫死在 `ExpandedControls` 的區塊不參與排序：航班模式鈕、`PropertyValueStatisticsDetails`、歷史航跡在控制項之前；「說明・來源」固定最後。統計的期別、指標、細項（C 段）已改成連動選單（§5.37），照類別排在資料篩選；統計的來源與處理紀錄放在「說明・來源」裡。
   - `linkedSelect` 一律歸資料篩選（不必進詞彙表）。
+  - 「立體效果」toggle（R6，2026-10-05）歸顏色組：排在資料篩選之後、透明度之前，每個有 Three.js 效果的非移動物件圖層一個，預設關。
   - 護欄：`src/state/__tests__/layerParamsOrder.test.ts`——分不出類（新標籤）就紅：在詞彙表補一列或寫 `category`；輸出名次必須單調不減。
 - **禁止**：手寫圖層控制 JSX（一律 `layerParamsSpec.ts` 規格 → `ParamControlList`）；標籤與數值擠在同一字串；為了順序去搬 spec 陣列（排序由類別決定）。
 - **實作**：`src/components/sidebar/{LayerParamControls.tsx,layerParamControls.css}`、`src/state/layerParamsControls.ts`。
