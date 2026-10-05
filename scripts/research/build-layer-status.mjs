@@ -101,7 +101,12 @@ function classify(key) {
     else if (!warehouseEntries.length) blocker = "dataset_not_in_warehouse";
     else blocker = `warehouse_${[...new Set(warehouseEntries.map(item => item.status))].join("+")}`;
   }
-  if (override.l2) { l2 = override.l2; blocker = override.note ? `override: ${override.note}` : "override"; }
+  // A snapshot candidate is a pending ingestion decision, not a permanent veto.
+  // Keep display/live/HOLD overrides authoritative; clear only candidates whose
+  // declared dataset has actually passed the warehouse build.
+  if (override.l2 && !(override.class === "snapshot_candidate" && via.startsWith("warehouse"))) {
+    l2 = override.l2; blocker = override.note ? `override: ${override.note}` : "override";
+  }
 
   const precision = [...new Set(spatial.map(item => item.precision_class ?? "unknown"))].join("+");
   const geometry = [...new Set(spatial.map(item => String(item.geometry_type)))].join("+");
@@ -128,7 +133,10 @@ function classify(key) {
     l3_precision: l2 === "spatial" ? precision || "unknown" : "",
     owner_only: entry.section && entry.gated ? "yes" : "",
     blocker,
-    description: String(entry.description ?? "").replace(/\s+/g, " ").slice(0, 140),
+    source_datasets: derivedIds.join(" "),
+    source_layers: (entry.upstream?.derivedFromLayers ?? []).join(" "),
+    analysis_note: override.note ?? "",
+    description: String(entry.description ?? "").replace(/\s+/g, " ").slice(0, 140).trimEnd(),
   };
 }
 
