@@ -1,0 +1,600 @@
+{
+  "librarySeats": {
+    "schema": "live",
+    "table": "tpml_seat_current",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "librarySeatsLoader.ts:57 get_tpml_seat_current -> live.tpml_seat_current (mig 312); yaml tpml_seat_current",
+    "confidence": "high"
+  },
+  "erHospital": {
+    "schema": "live",
+    "table": "er_hospital_current",
+    "time_column": "observed_at",
+    "expected_interval_min": 15,
+    "evidence": "erHospitalLoader.ts:105 get_er_hospital_latest -> live.er_hospital_current; yaml",
+    "confidence": "high"
+  },
+  "a1AccidentRealtime": {
+    "schema": "live",
+    "table": "traffic_accidents_a1",
+    "time_column": "collected_at",
+    "expected_interval_min": 720,
+    "evidence": "a1AccidentRealtimeLoader.ts:28 get_a1_accidents_by_bbox -> live.traffic_accidents_a1 (mig 312); yaml (event-driven, 720min)",
+    "confidence": "high"
+  },
+  "lightning": {
+    "schema": "live",
+    "table": "lightning_events",
+    "time_column": "collected_at",
+    "expected_interval_min": 1440,
+    "evidence": "lightningLoader.ts get_lightning_* -> live.lightning_events (mig 338, dual source share table); yaml (event-driven)",
+    "confidence": "high"
+  },
+  "lightningCwa": {
+    "schema": "live",
+    "table": "lightning_events",
+    "time_column": "collected_at",
+    "expected_interval_min": 1440,
+    "evidence": "lightningLoader.ts get_lightning_* -> live.lightning_events (mig 338, dual source share table); yaml (event-driven)",
+    "confidence": "high"
+  },
+  "nuclearRadiation": {
+    "schema": "live",
+    "table": "nuclear_radiation_stations",
+    "time_column": "updated_at",
+    "expected_interval_min": 15,
+    "evidence": "nuclearLoader.ts:29 get_nuclear_radiation_status -> live.nuclear_radiation_stations (mig 312); yaml notes updated_at=collector heartbeat",
+    "confidence": "high"
+  },
+  "powerGenerationUnit": {
+    "schema": "live",
+    "table": "power_generation_unit",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "overlayRegistry.ts:6187; energy.get_realtime_facility_output reads realtime.power_generation_unit (mig 233:182); yaml",
+    "confidence": "high"
+  },
+  "powerPlantGlow": {
+    "schema": "live",
+    "table": "power_generation_unit",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "manifest L10854 shares get_ssot_power_plants_with_output -> energy.get_realtime_facility_output -> power_generation_unit",
+    "confidence": "medium"
+  },
+  "powerStatusHud": {
+    "schema": "live",
+    "table": "power_system_status",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "energyLoader.ts:52 get_power_dashboard -> live.power_system_status + power_region_demand (mig 312); manifest says not in active THEMES",
+    "confidence": "medium"
+  },
+  "powerRegionDemand": {
+    "schema": "live",
+    "table": "power_region_demand",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "energyLoader.ts:52 get_power_dashboard -> live.power_region_demand; manifest says not in active THEMES",
+    "confidence": "medium"
+  },
+  "newsEvents": {
+    "schema": "live",
+    "table": "news_events",
+    "time_column": "created_at",
+    "expected_interval_min": 20,
+    "evidence": "newsEventsLoader.ts:203 get_news_events_day_clustered_v2 reads live.news_events_daily (pre-aggregate, not in yaml); base news_events created_at in yaml",
+    "confidence": "medium"
+  },
+  "globalEvents": {
+    "schema": "intel",
+    "table": "global_event_candidate_observations",
+    "time_column": "available_at",
+    "expected_interval_min": 60,
+    "evidence": "globalEventsLoader.ts:202 get_global_event_candidates_window -> intel.global_event_candidate_observations (mig 397); alt global_event_collector_run_receipts finished_at",
+    "confidence": "medium"
+  },
+  "plaActivity": {
+    "schema": "spatial",
+    "table": "pla_tracks_runs",
+    "time_column": "run_at",
+    "expected_interval_min": 1440,
+    "evidence": "manifest L2362 spatial.pla_tracks; yaml says pla_tracks_runs is the only reliable heartbeat; alt pla_activity_daily (get_pla_activity_latest, 1440)",
+    "confidence": "medium"
+  },
+  "animalAdoption": {
+    "schema": "live",
+    "table": "animal_adoption_current",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "animalAdoptionLoader.ts:50 get_animal_adoption_shelter_summary -> live.animal_adoption_current (mig 353); yaml",
+    "confidence": "high"
+  },
+  "animalShelterPressure": {
+    "schema": "live",
+    "table": "animal_shelter_outcomes",
+    "time_column": "snapshot_date",
+    "expected_interval_min": 43200,
+    "evidence": "animalShelterOutcomesLoader.ts:98 RPC reads analytics.animal_shelter_pressure_monthly (derived, not in yaml); upstream animal_shelter_outcomes (monthly)",
+    "confidence": "medium"
+  },
+  "animalWelfarePoints": {
+    "schema": "live",
+    "table": "animal_welfare_point_snapshots",
+    "time_column": "snapshot_date",
+    "expected_interval_min": 129600,
+    "evidence": "animalWelfarePointsLoader.ts:129 RPC reads reference.animal_welfare_points_current (derived); upstream snapshots in yaml; alt animal_welfare_point_runs",
+    "confidence": "medium"
+  },
+  "youbikeFullness": {
+    "schema": "live",
+    "table": "youbike_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "youbikeH3Loader.ts:55 get_youbike_h3_snapshots -> live.youbike_snapshots (mig 312); alt youbike_current (15min)；改用 youbike_current（snapshots 為分區母表無時間索引，不硬掃）",
+    "confidence": "medium"
+  },
+  "earthquakesGlobal": {
+    "schema": "live",
+    "table": "earthquakes_global",
+    "time_column": "collected_at",
+    "expected_interval_min": 60,
+    "evidence": "earthquakesGlobalLoader.ts:88 .from('earthquakes_global'); yaml",
+    "confidence": "high"
+  },
+  "typhoonTracks": {
+    "schema": "live",
+    "table": "typhoon_positions",
+    "time_column": "collected_at",
+    "expected_interval_min": 1440,
+    "evidence": "typhoonTracksLoader.ts:73 .from('typhoon_positions'); yaml (seasonal, DEAD expected off-season)",
+    "confidence": "high"
+  },
+  "earthquakes": {
+    "schema": "live",
+    "table": "earthquake_events",
+    "time_column": "occurred_at",
+    "expected_interval_min": 1440,
+    "evidence": "manifest L6394 Supabase table earthquake_events; yaml (event-driven, 1440)",
+    "confidence": "high"
+  },
+  "earthquakeReplay": {
+    "schema": "live",
+    "table": "earthquake_events",
+    "time_column": "occurred_at",
+    "expected_interval_min": 1440,
+    "evidence": "earthquakeReplayLoader.ts:48 earthquake_replay_events (mig 324) joins earthquake_events + 4 extension tables; yaml",
+    "confidence": "medium"
+  },
+  "lifelineAlerts": {
+    "schema": "live",
+    "table": "disaster_alerts",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "disasterAlertLoader.ts:92 get_disaster_alerts_day reads live.disaster_alerts_daily (pre-aggregate, not in yaml); base disaster_alerts in yaml",
+    "confidence": "medium"
+  },
+  "floodAlerts": {
+    "schema": "live",
+    "table": "disaster_alerts",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "disasterAlertLoader.ts:92 get_disaster_alerts_day reads live.disaster_alerts_daily (pre-aggregate, not in yaml); base disaster_alerts in yaml",
+    "confidence": "medium"
+  },
+  "weatherAlerts": {
+    "schema": "live",
+    "table": "disaster_alerts",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "disasterAlertLoader.ts:92 get_disaster_alerts_day reads live.disaster_alerts_daily (pre-aggregate, not in yaml); base disaster_alerts in yaml",
+    "confidence": "medium"
+  },
+  "transitAlerts": {
+    "schema": "live",
+    "table": "disaster_alerts",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "disasterAlertLoader.ts:92 get_disaster_alerts_day reads live.disaster_alerts_daily (pre-aggregate, not in yaml); base disaster_alerts in yaml",
+    "confidence": "medium"
+  },
+  "safetyAlerts": {
+    "schema": "live",
+    "table": "disaster_alerts",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "disasterAlertLoader.ts:92 get_disaster_alerts_day reads live.disaster_alerts_daily (pre-aggregate, not in yaml); base disaster_alerts in yaml",
+    "confidence": "medium"
+  },
+  "cwaCloudImagery": {
+    "schema": "live",
+    "table": "cwa_imagery_frames",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "cwaImageryLoader.ts:170/214 -> live.cwa_imagery_frames (mig 312); cloud/radar are different datasets in same table",
+    "confidence": "high"
+  },
+  "cwaRadarImagery": {
+    "schema": "live",
+    "table": "cwa_imagery_frames",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "cwaImageryLoader.ts:170/214 -> live.cwa_imagery_frames (mig 312); cloud/radar are different datasets in same table",
+    "confidence": "high"
+  },
+  "temperatureWave": {
+    "schema": "live",
+    "table": "temperature_grids",
+    "time_column": "collected_at",
+    "expected_interval_min": 60,
+    "evidence": "temperatureLoader.ts:70 get_temperature_frames reads live.temperature_frames_daily (derived); base temperature_grids in yaml",
+    "confidence": "medium"
+  },
+  "temperatureGrid": {
+    "schema": "live",
+    "table": "temperature_grids",
+    "time_column": "collected_at",
+    "expected_interval_min": 60,
+    "evidence": "temperatureLoader.ts:70 get_temperature_frames reads live.temperature_frames_daily (derived); base temperature_grids in yaml",
+    "confidence": "medium"
+  },
+  "aqiImagery": {
+    "schema": "live",
+    "table": "aqi_imagery_frames",
+    "time_column": "observed_at",
+    "expected_interval_min": 60,
+    "evidence": "aqiImageryLoader.ts:59 -> live.aqi_imagery_frames; yaml",
+    "confidence": "high"
+  },
+  "aqiStations": {
+    "schema": "live",
+    "table": "air_quality_current",
+    "time_column": "observed_at",
+    "expected_interval_min": 60,
+    "evidence": "aqiStationsLoader.ts:73 get_aqi_stations_latest -> live.air_quality_current; yaml",
+    "confidence": "high"
+  },
+  "aqiMicroSensors": {
+    "schema": "live",
+    "table": "micro_sensor_readings",
+    "time_column": "collected_at",
+    "expected_interval_min": 5,
+    "evidence": "microSensorsLoader.ts:57 -> live.micro_sensor_readings (mig 322); yaml",
+    "confidence": "high"
+  },
+  "marineObservationCwa": {
+    "schema": "live",
+    "table": "marine_observation_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "marineObservationLoader.ts:377 -> live.marine_observation_current (mig 378); CWA/ISOHE differ by source_network, same table",
+    "confidence": "high"
+  },
+  "marineObservationIsohe": {
+    "schema": "live",
+    "table": "marine_observation_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 15,
+    "evidence": "marineObservationLoader.ts:377 -> live.marine_observation_current (mig 378); CWA/ISOHE differ by source_network, same table",
+    "confidence": "high"
+  },
+  "groundwaterWells": {
+    "schema": "live",
+    "table": "groundwater_level_readings",
+    "time_column": "observed_at",
+    "expected_interval_min": 60,
+    "evidence": "groundwaterLoader.ts:66 get_groundwater_latest -> live.groundwater_level_readings; yaml",
+    "confidence": "high"
+  },
+  "groundwater": {
+    "schema": "live",
+    "table": "groundwater_level_readings",
+    "time_column": "observed_at",
+    "expected_interval_min": 60,
+    "evidence": "groundwaterLoader.ts:66 get_groundwater_latest -> live.groundwater_level_readings; yaml",
+    "confidence": "high"
+  },
+  "rainGauge": {
+    "schema": "live",
+    "table": "rain_gauge_readings",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "rainGaugeLoader.ts:53 -> live.rain_gauge_readings; yaml",
+    "confidence": "high"
+  },
+  "riverLevel": {
+    "schema": "live",
+    "table": "river_water_level",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "riverLevelLoader.ts:36 -> live.river_water_level; yaml",
+    "confidence": "high"
+  },
+  "floodSensor": {
+    "schema": "live",
+    "table": "uswg_measurements",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "floodSensorLoader.ts:41 -> live.uswg_measurements; yaml",
+    "confidence": "high"
+  },
+  "iotWraRiver": {
+    "schema": "live",
+    "table": "iot_wra_measurements",
+    "time_column": "observed_at",
+    "expected_interval_min": 60,
+    "evidence": "iotWraStructureLoader.ts:57 get_iot_wra_latest reads live.iot_wra_latest (pre-aggregate, not in yaml); base iot_wra_measurements in yaml",
+    "confidence": "medium"
+  },
+  "iotWraStructure": {
+    "schema": "live",
+    "table": "iot_wra_measurements",
+    "time_column": "observed_at",
+    "expected_interval_min": 60,
+    "evidence": "iotWraStructureLoader.ts:57 get_iot_wra_latest reads live.iot_wra_latest (pre-aggregate, not in yaml); base iot_wra_measurements in yaml",
+    "confidence": "medium"
+  },
+  "taipeiSewer": {
+    "schema": "live",
+    "table": "taipei_sewer_measurements",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "wicTaipeiLoader.ts:35 -> live.taipei_sewer_measurements; yaml",
+    "confidence": "high"
+  },
+  "taipeiEvacuate": {
+    "schema": "live",
+    "table": "taipei_evacuate_status",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "wicTaipeiLoader.ts:68 -> live.taipei_evacuate_status; yaml",
+    "confidence": "high"
+  },
+  "taipeiPumb": {
+    "schema": "live",
+    "table": "taipei_pumb_status",
+    "time_column": "observed_at",
+    "expected_interval_min": 10,
+    "evidence": "wicTaipeiLoader.ts:100 -> live.taipei_pumb_status; yaml",
+    "confidence": "high"
+  },
+  "precipRaster": {
+    "schema": "live",
+    "table": "precipitation_raster_frames",
+    "time_column": "collected_at",
+    "expected_interval_min": 120,
+    "evidence": "precipRasterLoader.ts:60 -> live.precipitation_raster_frames; yaml",
+    "confidence": "high"
+  },
+  "wasteTruck": {
+    "schema": "spatial",
+    "table": "waste_positions_realtime",
+    "time_column": "observed_at",
+    "expected_interval_min": 2,
+    "evidence": "wasteLoader.ts:353 get_waste_trails -> spatial.waste_positions_realtime (mig 071); yaml",
+    "confidence": "high"
+  },
+  "flights": {
+    "schema": "live",
+    "table": "flight_positions",
+    "time_column": "collected_at",
+    "expected_interval_min": 5,
+    "evidence": "airspaceLoader.ts:49 get_flight_trails reads live.flight_trails_daily (derived); base flight_positions in yaml",
+    "confidence": "medium"
+  },
+  "ships": {
+    "schema": "live",
+    "table": "ship_positions",
+    "time_column": "collected_at",
+    "expected_interval_min": 10,
+    "evidence": "shipLoader.ts:38 get_ship_trails reads live.ship_trails_daily (derived); base ship_positions in yaml (alt ship_current)",
+    "confidence": "medium"
+  },
+  "busLive": {
+    "schema": "live",
+    "table": "bus_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 2,
+    "evidence": "busLoader.ts:114 get_bus_current -> live.bus_current; yaml",
+    "confidence": "high"
+  },
+  "busIntercityLive": {
+    "schema": "live",
+    "table": "bus_intercity_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 2,
+    "evidence": "busLoader.ts:256 -> live.bus_intercity_current; yaml",
+    "confidence": "high"
+  },
+  "touristShuttleLive": {
+    "schema": "live",
+    "table": "tourist_shuttle_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 2,
+    "evidence": "touristShuttleLoader.ts:68 -> live.tourist_shuttle_current; yaml",
+    "confidence": "high"
+  },
+  "freewayCongestion": {
+    "schema": "live",
+    "table": "freeway_sections_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 10,
+    "evidence": "freewayLoader.ts:88 reads live.freeway_congestion_daily (derived); owner freeway_vd, current table in yaml",
+    "confidence": "medium"
+  },
+  "roadCongestion": {
+    "schema": "live",
+    "table": "road_sections_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 5,
+    "evidence": "roadCongestionLoader.ts:100 reads live.road_congestion_daily (derived); yaml road_sections_current",
+    "confidence": "medium"
+  },
+  "roadEvents": {
+    "schema": "live",
+    "table": "road_events_current",
+    "time_column": "collected_at",
+    "expected_interval_min": 5,
+    "evidence": "roadEventsLoader.ts:126 get_road_events_day reads live.road_events; same collector, current table in yaml (alt road_events)",
+    "confidence": "high"
+  },
+  "aisstreamVessels": {
+    "schema": "live",
+    "table": "aisstream_vessel_current",
+    "time_column": "updated_at",
+    "expected_interval_min": 1,
+    "evidence": "globalMaritimeLoader.ts:79 -> live.aisstream_vessel_current (mig 371); yaml",
+    "confidence": "high"
+  },
+  "waterReservoirs": {
+    "schema": "live",
+    "table": "reservoir_status",
+    "time_column": "snapshot_at",
+    "expected_interval_min": 60,
+    "evidence": "reservoirStatusLoader.ts:9 get_reservoir_status_latest reads public.reservoir_situation_v (view, mig 047; underlying table assumed reservoir_status, not verified)",
+    "confidence": "medium"
+  },
+  "satellitesTaiwan": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesYaogan": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesJilin": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesGaofen": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesTJS": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesBeidou": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesShiyan": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesUSA": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesJapan": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesRussia": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesIndia": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesKorea": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesFrance": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesGermany": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesItaly": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "satellitesIsrael": {
+    "schema": "live",
+    "table": "satellite_tle",
+    "time_column": "updated_at",
+    "expected_interval_min": 1440,
+    "evidence": "layerManifest.ts:361 SAT_SOURCE_NOTE: view satellite_classified (mig 014, TLE-based) + client SGP4; alt satellite_current (120min)",
+    "confidence": "medium"
+  },
+  "_unmapped": {
+    "nuscGammaRadiation": "not in yaml (analytics id environment.radiation_realtime_nusc); useEnvironmentLiveLayer.ts:16; collector pending per manifest",
+    "waterEffluentLive": "not in yaml (environment.effluent_auto_monitoring); useEnvironmentLiveLayer.ts:17; collector pending",
+    "cemsStackLive": "not in yaml (environment.cems_realtime, 4-5h upstream lag); useEnvironmentLiveLayer.ts:18; collector pending",
+    "cwaUvDaily": "not in yaml (environment.uv_index_daily_max, previous-day max, not realtime); useEnvironmentLiveLayer.ts:19",
+    "vesselWatch": "get_vessel_watch_current reads live.vessel_watch_positions/registry (mig 346), not in yaml",
+    "gfwVesselPresence": "live.gfw_vessel_presence_current is in yaml (1440) but manifest says legacy daily collector disabled; real freshness = public.get_gfw_hourly_publish_health()",
+    "gfwHourlyTracks": "freshness via get_gfw_hourly_publish_health(), deliberately excluded from generic MAX(time) (yaml comment)",
+    "windField": "static frames /climate/frames/manifest.json (climateFrames.ts:24), not Supabase; global_climate_grids is producer only",
+    "oceanCurrents": "same as windField (static climate frames)",
+    "dustForecast": "same as windField (static climate frames, CAMS)",
+    "rail": "timetable-inferred positions, not a live table; train_positions in yaml but layer does not read it",
+    "medICUBeds": "manifest: not in active THEMES; no table identified"
+  }
+}
