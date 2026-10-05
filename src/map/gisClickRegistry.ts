@@ -45,6 +45,11 @@ import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLa
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+  { layers: ["harm-reduction-prevention-centers-circle", "harm-reduction-prevention-centers-glow"], type: "harmReductionPreventionCenters" },
+  { layers: ["harm-reduction-needle-circle", "harm-reduction-needle-glow"], type: "harmReductionNeedle" },
+  { layers: ["harm-reduction-treatment-circle", "harm-reduction-treatment-glow"], type: "harmReductionTreatment" },
+  { layers: ["harm-reduction-hiv-testing-circle", "harm-reduction-hiv-testing-glow"], type: "harmReductionHivTesting" },
+  { layers: ["harm-reduction-hiv-selftest-circle", "harm-reduction-hiv-selftest-glow"], type: "harmReductionHivSelftest" },
   { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
   { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
   { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },

@@ -1263,6 +1263,16 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "減害服務 Harm Reduction",
+        layers: [
+          fromManifest("harmReductionNeedle"),
+          fromManifest("harmReductionTreatment"),
+          fromManifest("harmReductionHivSelftest"),
+          fromManifest("harmReductionHivTesting"),
+          fromManifest("harmReductionPreventionCenters"),
+        ],
+      },
+      {
         title: "即時 Emergency",
         layers: [
           fromManifest("erHospital"),

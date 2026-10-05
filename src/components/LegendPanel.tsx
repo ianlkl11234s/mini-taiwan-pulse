@@ -242,6 +242,10 @@ import {
   SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
   IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend,
 } from "./legend/environmentLegends";
+import {
+  HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend,
+  HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend,
+} from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 
 /**
@@ -361,6 +365,11 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "harmReductionNeedle", render: () => <HarmReductionNeedleLegend /> },
+  { id: "harmReductionTreatment", render: () => <HarmReductionTreatmentLegend /> },
+  { id: "harmReductionHivSelftest", render: () => <HarmReductionHivSelftestLegend /> },
+  { id: "harmReductionHivTesting", render: () => <HarmReductionHivTestingLegend /> },
+  { id: "harmReductionPreventionCenters", render: () => <HarmReductionPreventionCentersLegend /> },
   { id: "drinkingWaterPoints", render: () => <PublicLifeOsmLegend label="飲水點" color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: () => <PublicLifeOsmLegend label="公共垃圾桶" color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: () => <PublicLifeOsmLegend label="資源回收點" color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra="僅代表來源明列的材料；未標註不推論可回收材料。" /> },

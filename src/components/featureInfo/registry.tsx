@@ -157,6 +157,7 @@ import {
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
+import { HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel } from "./harmReductionPanels";
 import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
@@ -204,6 +205,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   animalWelfarePoints: AnimalWelfarePointsPanel,
   retailMarket: RetailMarketPanel,
   publicToilet: PublicToiletPanel,
+  harmReductionNeedle: HarmReductionNeedlePanel,
+  harmReductionTreatment: HarmReductionTreatmentPanel,
+  harmReductionHivSelftest: HarmReductionHivSelftestPanel,
+  harmReductionHivTesting: HarmReductionHivTestingPanel,
+  harmReductionPreventionCenters: HarmReductionPreventionCenterPanel,
   drinkingWaterPoints: PublicLifeOsmPanel,
   publicWasteBaskets: PublicLifeOsmPanel,
   materialRecyclingPoints: PublicLifeOsmPanel,
@@ -643,6 +649,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   animalWelfarePoints: "動物福利服務據點",
   retailMarket: "公有市場",
   publicToilet: "公廁",
+  harmReductionNeedle: "清潔針具據點",
+  harmReductionTreatment: "替代療法與藥癮戒治",
+  harmReductionHivSelftest: "愛滋自我篩檢通路",
+  harmReductionHivTesting: "愛滋篩檢與指定醫療",
+  harmReductionPreventionCenters: "毒品危害防制中心",
   drinkingWaterPoints: "飲水點",
   publicWasteBaskets: "公共垃圾桶",
   materialRecyclingPoints: "資源回收點",

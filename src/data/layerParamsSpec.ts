@@ -117,6 +117,10 @@ import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 import {
+  HIV_TESTING_CATEGORY_OPTIONS, NEEDLE_SERVICE_OPTIONS, SELFTEST_CHANNEL_OPTIONS,
+  TREATMENT_CATEGORY_OPTIONS, toParamOptions,
+} from "./harmReductionTypes";
+import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
   BICYCLE_SUPPORT_SERVICE_OPTIONS, DISASTER_SHELTER_TYPE_OPTIONS,
   PUBLIC_TOILET_TYPE_OPTIONS, RECYCLING_MATERIAL_OPTIONS,
@@ -2511,6 +2515,40 @@ export const LAYER_PARAMS_SPEC = {
   nationalParks: [opacitySlider("nationalParksOpacity", 0.5)],
   visitorCentres: [opacitySlider("visitorCentresOpacity", 0.85), scaleSlider("visitorCentresScale", 1)],
   publicLifeOsmCoverage: [opacitySlider("publicLifeOsmCoverageOpacity", 0.55)],
+
+  // ══════════ 減害服務 Harm Reduction 5 層 ══════════
+  harmReductionNeedle: [
+    {
+      kind: "multiSelect", name: "harmReductionNeedleService", label: "服務類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(NEEDLE_SERVICE_OPTIONS), out: "harmReductionNeedleServiceMask",
+    },
+    { kind: "toggle", name: "harmReductionNeedleOnly24h", label: "只看 24 小時服務", default: false, category: "data" },
+    opacitySlider("harmReductionNeedleOpacity", 0.85), scaleSlider("harmReductionNeedleScale", 1),
+  ],
+  harmReductionTreatment: [
+    {
+      kind: "multiSelect", name: "harmReductionTreatmentCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(TREATMENT_CATEGORY_OPTIONS), out: "harmReductionTreatmentCategoryMask",
+    },
+    opacitySlider("harmReductionTreatmentOpacity", 0.85), scaleSlider("harmReductionTreatmentScale", 1),
+  ],
+  harmReductionHivSelftest: [
+    {
+      kind: "multiSelect", name: "harmReductionHivSelftestChannel", label: "通路類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(SELFTEST_CHANNEL_OPTIONS), out: "harmReductionHivSelftestChannelMask",
+    },
+    opacitySlider("harmReductionHivSelftestOpacity", 0.85), scaleSlider("harmReductionHivSelftestScale", 1),
+  ],
+  harmReductionHivTesting: [
+    {
+      kind: "multiSelect", name: "harmReductionHivTestingCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(HIV_TESTING_CATEGORY_OPTIONS), out: "harmReductionHivTestingCategoryMask",
+    },
+    opacitySlider("harmReductionHivTestingOpacity", 0.85), scaleSlider("harmReductionHivTestingScale", 1),
+  ],
+  harmReductionPreventionCenters: [
+    opacitySlider("harmReductionPreventionCentersOpacity", 0.9), scaleSlider("harmReductionPreventionCentersScale", 1),
+  ],
 
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
   busStationsCity: [
