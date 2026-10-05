@@ -2,7 +2,7 @@
 
 ## 範圍與狀態
 
-本地分支 `test/contract-guards-20261005`，base `develop` / `dcd09427`。Collectors 分支 `feat/mojibake-guard`，base `origin/main` / `2759d83`。未 commit、push、merge、部署或操作正式資料。
+本地分支 `test/contract-guards-20261005`，base `develop` / `dcd09427`。Collectors 分支 `feat/mojibake-guard`，base `origin/main` / `2759d83`。既有 GD-1、AU-3 與 GD-2 commits 已建立；本輪追加驗證與修正，未 push、merge、部署或操作正式資料。
 
 ## GD-1
 
@@ -35,3 +35,13 @@ mini 首次 `npm test`：489 files = 22 failed / 460 passed / 7 skipped；3776 t
 最終針對性檢查：`npm test -- --maxWorkers=2 src/map/__tests__/overlayManager.test.ts src/lib/__tests__/dayPrefetchScope.test.ts src/components/sidebar/__tests__/layerConsistency.test.ts src/styles/__tests__/designSystemGuard.test.ts`：4 files / 412 tests passed，11.18 秒。`git diff --check` 通過。完整原始 log：`contract-guards-20261005-evidence/mini-final-targeted.log`。
 
 未解決：mini 完整 suite 未全綠；目前 failures 都是逾時，但未在無負載環境確認 baseline，不能視為已排除。AU-1 需先拍板顏色語意與範圍；本次不改 guard 基準、不新增 CHANGELOG、不做發布。
+
+## 03b 追加驗收（2026-10-05）
+
+- GD-1 commit `578bb17ce89d85c7eaa423cad6a74002521f32cf`、AU-3 commit `4e219284a94c147554e7f1c4267bb4369e3a054f` 已存在，保留歷史，不重複或改寫。AU-1 依追加指示不做。
+- Collectors 原 GD-2 commit `31ea836` 已含 allowlist 與逐列剔除；本輪補修 commit `a14bd6bbb4aa53b8b849a4c1b71188ff44c789ec`：allowlist 僅 `ncdr_alerts`，部分壞列只記 warning（collector 與欄位路徑），名單外 Cyrillic 正常寫入、10 列 1 壞寫入 9 列、全壞 raise。新增 direct multi-table 與 buffer 守門測試。Mutation 6 failed / 2 passed / 25 deselected；還原後 focused 33 passed；隔離全套 594 passed / 2 skipped（33.30s）。詳見 collectors 的 GD-2 報告與 `.artifacts/gd2/`。
+- mini `npx tsc -b` exit 0。`npm test -- --maxWorkers=2` 完整執行：481 files passed / 1 failed / 7 skipped；3743 tests passed / 1 failed / 33 skipped（130.35s）。唯一失敗為 `pollutionPenaltiesDataset.test.ts:34` 的 5000ms timeout。
+- 上述 timeout 個別以 `--maxWorkers=1` 重查：3 tests passed（3.96s，測試 3.58s）；再以 `npm test -- --maxWorkers=1` 跑完整 suite：**482 files passed / 7 skipped；3744 tests passed / 33 skipped**（301.72s）。未修改 timeout、design baseline 或其他測試。完整單 worker 綠燈與雙 worker timeout 分別保留，不能宣稱所有併行設定皆綠。
+- 本輪包含 GD-1 371 tests、AU-3 5 tests、layerConsistency 21 tests、designSystemGuard 15 tests。原 mutation 證據仍保留。
+- evidence 既有 11 檔與新增 4 檔均掃描 connection URI、JWT、AWS/provider key 與 credential assignment，未命中；新增 logs 僅清除行尾空白以通過 diff check，完整原始輸出保留於 `/private/tmp/03b-mini-*.log`。新增 evidence：`03b-mini-tsc.log`、`03b-mini-full.log`、`03b-mini-timeout-recheck.log`、`03b-mini-full-workers1.log`。
+- 本次僅本地契約／mock 寫入驗證，無正式 DB、browser 或部署驗收；未 push。
