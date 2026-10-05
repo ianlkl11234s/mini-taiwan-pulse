@@ -17,11 +17,12 @@
 import { timeStore } from "../state/timeStore";
 
 /**
- * 全域 prefetch 序列：所有 layer 的 prefetch 共用此 queue，
- * 上限 MAX_CONCURRENT 個同時打 Supabase（避免 pooler 連線爆掉）。
+ * 輕量日資料的共用 prefetch 序列，上限 MAX_CONCURRENT 個同時打 Supabase
+ * （避免 pooler 連線爆掉）。CWA imagery 是大型 object-URL payload，保留 hook-local
+ * 串行排程；完整分工見 docs/research/day-prefetch-scope-2026-10-05.md。
  *
- * 經驗值：rangeDays=7 + cwa cloud/radar + lightning + nuclear 同時開
- * = 7×2 + 7 + 7 = 28 個 RPC，未限速時直接打掛 Supabase。
+ * rangeDays=7 時，lightning 與 nuclear 已可各排入 6 個背景日；未限速會與其他
+ * foreground RPC 競爭 pooler。
  */
 const MAX_CONCURRENT_PREFETCH = 2;
 const PREFETCH_DEBOUNCE_MS = 500;

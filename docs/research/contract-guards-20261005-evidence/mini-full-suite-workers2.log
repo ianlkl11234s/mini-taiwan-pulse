@@ -1,0 +1,164 @@
+
+> mini-taiwan-pulse@2.5.0 test
+> vitest run --maxWorkers=2
+
+
+ RUN  v3.2.6 /Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/contract-guards-20261005
+
+stderr | src/research/__tests__/discovery.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/research/__tests__/discovery.test.ts (5 tests | 5 skipped) 10423ms
+   ↓ research discovery > derives searchable layers from the manifest and hides unauthorized metadata
+   ↓ research discovery > returns local camera candidates without claiming a geocoder result
+   ↓ derives dataset IDs and release-selector requirements from the registered dataset contracts
+   ↓ lists bounded catalogue pages and never describes prototype properties as layers
+   ↓ returns a continuation offset without silently dropping layers after the first page
+ ❯ src/research/__tests__/companyPointsDataset.test.ts (5 tests | 2 failed) 49047ms
+   ✓ requires a bounded read and keeps the company public-field and registered-address contract 9ms
+   ✓ reads only immutable shards for an exact bounded point and retains source exclusions 153ms
+   × matches the full-source 2 km and manufacturing oracles in Hualien and Taitung with bounded cold/warm reads 15123ms
+     → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ keeps a dense Kaohsiung bbox below the scan and byte limits  3744ms
+   × keeps the exact-C manufacturing subset in two independent places 30010ms
+     → Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+stderr | src/data/__tests__/staticDataContract.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 靜態 GeoJSON 契約 > registry 引用的靜態 GeoJSON 本機都存在（缺檔 = dev 上該層直接空白）
+⚠ 本機缺 48 個 geojson（應由 S3 管理）：geo/bus_stations_intercity.geojson, geo/bike_stations.geojson, geo/cycling_routes.geojson, geo/weather_stations.geojson, geo/fire_stations.geojson, education/schools.geojson, geo/convenience_stores.geojson, geo/medical_hospitals.geojson, geo/active_faults.geojson, geo/water_basins.geojson, geo/water_protection_zones.geojson, geo/water_dams.geojson, geo/water_detention_basins.geojson, geo/water_facilities.geojson, geo/water_monitor_stations.geojson, agriculture/agri_wholesale_market_companies.geojson, business_registry/common_registration_addresses_202608_r2.geojson, agriculture/feed_factories.geojson, agriculture/livestock_markets.geojson, urban/protected_trees_national.geojson, urban/riverside_trees_taipei.geojson, urban/parks_taipei.geojson, sports/all_venues.geojson, police_justice/police_stations/police_stations_20260626.geojson, police_justice/women_child_warning/women_child_warning_20260626.geojson, police_justice/speed_cameras/speed_cameras_20260626.geojson, police_justice/courts/courts_20260626.geojson, police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson, police_justice/correctional_facilities/correctional_facilities_20260626.geojson, police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson, police_justice/traffic_accident_yearly/traffic_accident_yearly_20260626.geojson, police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson, police_justice/investigation_bureau/investigation_bureau_20260626.geojson, police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson, police_justice/immigration_offices/immigration_offices_20260626.geojson, police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson, tourism/attractions_national.geojson, education/school_district_senior.geojson, education/kindergartens.geojson, education/afterschool_care.geojson, education/mutual_care.geojson, education/university_students.geojson, tourism/hotels_national.geojson, tourism/restaurants_national.geojson, public_life/public_waste_baskets.geojson, public_life/material_recycling_points.geojson, public_life/playgrounds.geojson, public_life/visitor_centres.geojson
+
+stdout | src/data/__tests__/staticDataContract.test.ts > immutable 靜態資料 checksum contract > business_registry/common_registration_addresses_202608_r2.geojson SHA-256 未漂移
+⚠ business_registry/common_registration_addresses_202608_r2.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > business_registry/common_registration_addresses_202608_r2.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ business_registry/common_registration_addresses_202608_r2.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/schools.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/schools.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/school_district_senior.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/school_district_senior.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/kindergartens.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/kindergartens.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/afterschool_care.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/afterschool_care.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/mutual_care.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/mutual_care.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/university_students.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/university_students.geojson 本機不存在（S3 管理），跳過
+
+ ❯ src/data/__tests__/staticDataContract.test.ts (39 tests | 1 failed) 16738ms
+   ✓ 靜態 GeoJSON 契約 > registry 引用的靜態 GeoJSON 本機都存在（缺檔 = dev 上該層直接空白） 2ms
+   ✓ 靜態 GeoJSON 契約 > 每個檔案都是非空的 FeatureCollection  1370ms
+   ✓ 靜態 GeoJSON 契約 > 座標都在合法經緯度範圍內（抓沒轉 WGS84 的 TWD97 TM2）  4186ms
+   ✓ 靜態 GeoJSON 契約 > KNOWN_BROKEN_CRS 名單只進不退（上游修好就要從名單移除） 3ms
+   ✓ Ookla 全球格網發佈資產契約 > 兩份固定版 GeoJSON 都存在，且大小／SHA-256 未漂移  543ms
+   × Ookla 全球格網發佈資產契約 > 保留 Polygon geometry、前端欄位與 z6/z8/z10 三段解析度 6052ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ immutable 靜態資料 checksum contract > business_registry/common_registration_addresses_202608_r2.geojson SHA-256 未漂移 15ms
+   ✓ immutable 靜態資料 checksum contract > business_registry/company_filters_202608_r2.json SHA-256 未漂移 10ms
+   ✓ 前端硬依賴欄位契約 > geo/internet_exchange_points.geojson 的關鍵欄位型別/覆蓋率未漂移 52ms
+   ✓ 前端硬依賴欄位契約 > geo/anfr_wireless_sites.geojson 的關鍵欄位型別/覆蓋率未漂移  1413ms
+   ✓ 前端硬依賴欄位契約 > geo/osm_communication_sites.geojson 的關鍵欄位型別/覆蓋率未漂移 207ms
+   ✓ 前端硬依賴欄位契約 > business_registry/common_registration_addresses_202608_r2.geojson 的關鍵欄位型別/覆蓋率未漂移 9ms
+   ✓ 前端硬依賴欄位契約 > hazards/mountain_rescue_incidents.geojson 的關鍵欄位型別/覆蓋率未漂移  518ms
+   ✓ 前端硬依賴欄位契約 > forestry/mountain_huts.geojson 的關鍵欄位型別/覆蓋率未漂移 86ms
+   ✓ 前端硬依賴欄位契約 > forestry/forestry_treatment_works.geojson 的關鍵欄位型別/覆蓋率未漂移 263ms
+   ✓ 前端硬依賴欄位契約 > religion/churches.geojson 的關鍵欄位型別/覆蓋率未漂移  717ms
+   ✓ 前端硬依賴欄位契約 > religion/ancestral_halls.geojson 的關鍵欄位型別/覆蓋率未漂移 9ms
+   ✓ 前端硬依賴欄位契約 > religion/other_worship.geojson 的關鍵欄位型別/覆蓋率未漂移 21ms
+   ✓ 前端硬依賴欄位契約 > religion/foundations.geojson 的關鍵欄位型別/覆蓋率未漂移 2ms
+   ✓ 前端硬依賴欄位契約 > religion/top100.geojson 的關鍵欄位型別/覆蓋率未漂移 3ms
+   ✓ 前端硬依賴欄位契約 > funeral/funeral_facilities.geojson 的關鍵欄位型別/覆蓋率未漂移 16ms
+   ✓ 前端硬依賴欄位契約 > funeral/funeral_operators.geojson 的關鍵欄位型別/覆蓋率未漂移  318ms
+   ✓ 前端硬依賴欄位契約 > funeral/cemetery_zoning.geojson 的關鍵欄位型別/覆蓋率未漂移 26ms
+   ✓ 前端硬依賴欄位契約 > welfare/nursing_homes_national.geojson 的關鍵欄位型別/覆蓋率未漂移 19ms
+   ✓ 前端硬依賴欄位契約 > welfare/elderly_care_homes_national.geojson 的關鍵欄位型別/覆蓋率未漂移 23ms
+   ✓ 前端硬依賴欄位契約 > welfare/disability_facilities_national.geojson 的關鍵欄位型別/覆蓋率未漂移 19ms
+   ✓ 前端硬依賴欄位契約 > welfare/ltc_institutions_national.geojson 的關鍵欄位型別/覆蓋率未漂移  433ms
+   ✓ 前端硬依賴欄位契約 > welfare/childcare_centers_national.geojson 的關鍵欄位型別/覆蓋率未漂移 29ms
+   ✓ 前端硬依賴欄位契約 > welfare/child_services_national.geojson 的關鍵欄位型別/覆蓋率未漂移 26ms
+   ✓ 前端硬依賴欄位契約 > welfare/welfare_gov_offices_national.geojson 的關鍵欄位型別/覆蓋率未漂移 10ms
+   ✓ 前端硬依賴欄位契約 > welfare/mental_health_facilities_national.geojson 的關鍵欄位型別/覆蓋率未漂移 8ms
+   ✓ 前端硬依賴欄位契約 > welfare/social_work_orgs_national.geojson 的關鍵欄位型別/覆蓋率未漂移 14ms
+   ✓ 前端硬依賴欄位契約 > education/schools.geojson 的關鍵欄位型別/覆蓋率未漂移 8ms
+   ✓ 前端硬依賴欄位契約 > education/school_district_senior.geojson 的關鍵欄位型別/覆蓋率未漂移 1ms
+   ✓ 前端硬依賴欄位契約 > education/kindergartens.geojson 的關鍵欄位型別/覆蓋率未漂移 1ms
+   ✓ 前端硬依賴欄位契約 > education/afterschool_care.geojson 的關鍵欄位型別/覆蓋率未漂移 0ms
+   ✓ 前端硬依賴欄位契約 > education/mutual_care.geojson 的關鍵欄位型別/覆蓋率未漂移 62ms
+   ✓ 前端硬依賴欄位契約 > education/university_students.geojson 的關鍵欄位型別/覆蓋率未漂移 0ms
+   ✓ 工商登記 B3 filter contract > 202608 r2 contract 與共用 B1 r2 PMTiles 契約一致且不發布 PII 13ms
+ ✓ src/research/__tests__/schoolDistrictK12OwnerDataset.test.ts (3 tests) 6899ms
+   ✓ pins the fixed processed receipt and preserves partial-village proxy semantics  4056ms
+   ✓ returns the independently checked Taipei and Hsinchu bbox counts without asserting address assignment  2834ms
+ ❯ src/research/__tests__/campusPolygonOwnerDataset.test.ts (4 tests | 1 failed) 10366ms
+   ✓ pins raw, processed and display receipts; bbox is required 16ms
+   × matches independent full-source Polygon oracles in two counties and a school-level variant 6633ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ retains non-school rows and the separate experimental null Chinese-level semantics  3637ms
+   ✓ fails closed when a shard or manifest no longer matches its receipt 5ms
+ ❯ src/research/__tests__/medLtcOwnerDataset.test.ts (3 tests | 2 failed) 10104ms
+   ✓ requires bbox and excludes identity, address, phone and occupancy fields 13ms
+   × matches Taipei and Taichung source oracles with ABC variants 5067ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × fails closed for a country-scale bbox 5022ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/treePitsTaipeiOwnerDataset.test.ts (4 tests | 2 failed) 10186ms
+   ✓ requires a bbox and describes the fixed owner-only actual MultiPolygon snapshot 7ms
+   × matches independent full-source oracles for two Taipei bboxes and a pit-type selector 5092ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × deduplicates a cross-cell source feature and includes a boundary touch while preserving hole exclusion semantics 5062ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ fails closed before a broad bbox can exceed source scan budgets 21ms
+ ❯ src/research/__tests__/capabilityAudit.test.ts (1 test | 1 failed) 213488ms
+   × capability audit P0 ledger > keeps every manifest layer while retaining the unknown queue reconciliation 213487ms
+     → Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ src/research/__tests__/companyDemographicsOwnerDataset.test.ts (4 tests) 4822ms
+   ✓ reads exact Polygon-intersecting cells at both required grains and preserves category conservation  3118ms
+   ✓ matches full-source Polygon intersections at two places, including cross-cell matches  1674ms
+ ❯ src/research/__tests__/nhiMedicalOwnerDatasets.test.ts (3 tests | 1 failed) 7434ms
+   ✓ uses the SHA-bound safe-field partition and preserves category plus geocode-source receipts 7ms
+   × matches two independent source bbox oracles and a categorical variant 5017ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ requires bbox and fails closed for a broad request  2404ms
+ ❯ src/research/__tests__/religionTemplesOwnerDataset.test.ts (4 tests | 1 failed) 10261ms
+   ✓ requires bbox and exposes only the safe owner-only proxy schema 8ms
+   ✓ matches the Tainan full-source MOI registration variant oracle  2515ms
+   ✓ matches the Kaohsiung full-source OSM null-registration variant oracle  2610ms
+   × keeps nullable safe fields in immutable gzip shards and bounds a nationwide read 5127ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/agriProduceWholesaleOwnerDataset.test.ts (3 tests | 2 failed) 10277ms
+   ✓ requires bbox and exposes only safe proxy fields 5ms
+   × matches Taipei and Taichung full-source oracles and preserves the status variant 5268ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × fails closed for a country-scale bbox 5004ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+stderr | src/map/__tests__/hookPointSpec.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/research/__tests__/companyCapitalGridFineOwnerDatasets.test.ts (3 tests | 2 failed) 12033ms
+   ✓ requires a bbox and keeps polygon cells as an owner-only, non-point surface 4ms
+   × matches Taipei and Kaohsiung full-source grid oracles at both scales within bounds 6019ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × preserves all-missing capital as null and fails closed for a broad Taiwan bbox 6009ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
