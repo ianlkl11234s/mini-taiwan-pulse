@@ -782,7 +782,7 @@ weatherStations,氣象站 Weather Station,臺灣圖層,環境氣候 Environment,
 cwaCloudImagery,衛星雲圖 Cloud Imagery,臺灣圖層,環境氣候 Environment,custom,verified,cwa_satellite,,,,,yes,none,,,,dataset_not_in_warehouse,,,,中央氣象署真彩色衛星雲圖（逐時影像疊圖，隨時間軸播放）
 cwaRadarImagery,雷達回波 Radar Imagery,臺灣圖層,環境氣候 Environment,custom,verified,cwa_satellite,,,,,yes,none,,,,dataset_not_in_warehouse,,,,中央氣象署雷達回波合成圖（降雨強度，隨時間軸播放）
 temperatureWave,溫度波 Temperature Wave,臺灣圖層,環境氣候 Environment,custom,verified,weather temperature,ds_weather_temperature,POINT,2026-07-07,19 counties,yes,spatial,warehouse,official,,,,,,全台氣溫場的 3D 起伏波形（高度＝溫度，隨時間軸變形）
-temperatureGrid,溫度網格 Temperature Grid,臺灣圖層,環境氣候 Environment,custom,verified,weather temperature,ds_weather_temperature,POINT,2026-07-07,19 counties,yes,spatial,warehouse,official,,,,,,全台氣溫場的 2D 方格色階（11 級 step 分色，點擊讀該格溫度）
+temperatureGrid,溫度網格 Temperature Grid,臺灣圖層,環境氣候 Environment,custom,verified,weather temperature,ds_weather_temperature,POINT,2026-07-07,19 counties,yes,spatial,warehouse,official,,,,,,全台氣溫場的 2D 方格色階（10 級 step 分色，點擊讀該格溫度）
 urbanHeat,都市熱島 Urban Heat,臺灣圖層,環境氣候 Environment,pmtiles,verified,urban_heat_lst,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,,,,地表溫度熱島強度（Landsat 熱紅外暖季合成，raster 切片）
 aqiImagery,空氣品質色階 AQI Raster,臺灣圖層,環境氣候 Environment,custom,verified,air_quality,,,,,yes,none,,,,dataset_not_in_warehouse,,,,環境部空氣品質內插色階圖（全台面狀 AQI，隨時間軸播放）
 aqiStations,空氣品質測站 AQI Station,臺灣圖層,環境氣候 Environment,custom,verified,air_quality,,,,,yes,none,,,,dataset_not_in_warehouse,,,,環境部空品測站即時 AQI（點擊看該站六項污染物讀值）

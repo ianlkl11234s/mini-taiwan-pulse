@@ -6,7 +6,7 @@
  *   2. `src/hooks/useMicroSensorsLayer.ts` — 切模式只 setPaintProperty 換 ["get", colorField]
  *   3. `src/components/LegendPanel.tsx` 的 MicroSensorLegend — 依當前 mode 出對應圖例
  *
- * 溫度刻意直接 import `temperatureGridTypes` 的 11 級色階：與溫度網格 2D 圖層
+ * 溫度刻意直接 import `temperatureGridTypes` 的 10 級色階：與溫度網格 2D 圖層
  * 跨圖層同色 = 兩層疊看時「同一個溫度 = 同一個顏色」。
  * 濕度色階移植自 weather_change（Windy 風格 7 級）。
  */
@@ -66,7 +66,7 @@ export function microSensorHumidityColor(humidity: number | null | undefined): s
 }
 
 /**
- * 溫度（°C）→ 色碼，直接走溫度網格 2D 的 11 級色階。
+ * 溫度（°C）→ 色碼，直接走溫度網格 2D 的 10 級色階。
  * ⚠️ 不能用 `< 0` 當無效判準（山區可能低於 0°C）；哨兵是 -999 → 用 ≤ -100 過濾。
  */
 export function microSensorTemperatureColor(tempC: number | null | undefined): string {

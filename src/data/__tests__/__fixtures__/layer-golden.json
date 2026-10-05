@@ -64834,25 +64834,25 @@
             "label": "溫度",
             "legend": [
               {
-                "color": "#313695",
+                "color": "#4575b4",
                 "label": "< 0°C",
                 "max": 0,
                 "min": null
               },
               {
-                "color": "#4575b4",
+                "color": "#6a9fce",
                 "label": "0–5°C",
                 "max": 5,
                 "min": 0
               },
               {
-                "color": "#74add1",
+                "color": "#94c6df",
                 "label": "5–10°C",
                 "max": 10,
                 "min": 5
               },
               {
-                "color": "#abd9e9",
+                "color": "#bfe0ec",
                 "label": "10–15°C",
                 "max": 15,
                 "min": 10
@@ -64864,37 +64864,31 @@
                 "min": 15
               },
               {
-                "color": "#fdae61",
-                "label": "18–20°C",
-                "max": 20,
+                "color": "#fdb768",
+                "label": "18–22°C",
+                "max": 22,
                 "min": 18
               },
               {
-                "color": "#f46d43",
-                "label": "20–25°C",
-                "max": 25,
-                "min": 20
+                "color": "#f88b4c",
+                "label": "22–26°C",
+                "max": 26,
+                "min": 22
               },
               {
-                "color": "#d73027",
-                "label": "25–28°C",
-                "max": 28,
-                "min": 25
+                "color": "#ec5a37",
+                "label": "26–30°C",
+                "max": 30,
+                "min": 26
               },
               {
-                "color": "#b2182b",
-                "label": "28–31°C",
-                "max": 31,
-                "min": 28
-              },
-              {
-                "color": "#800026",
-                "label": "31–34°C",
+                "color": "#d02a28",
+                "label": "30–34°C",
                 "max": 34,
-                "min": 31
+                "min": 30
               },
               {
-                "color": "#4d0019",
+                "color": "#a50026",
                 "label": "≥ 34°C",
                 "max": null,
                 "min": 34

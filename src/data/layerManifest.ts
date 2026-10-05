@@ -7069,7 +7069,7 @@ export const LAYER_MANIFEST = {
     legend: "temperatureGrid",
     popup: "temperatureGrid",
     params: { count: 1, kinds: ["slider"] },
-    description: "全台氣溫場的 2D 方格色階（11 級 step 分色，點擊讀該格溫度）",
+    description: "全台氣溫場的 2D 方格色階（10 級 step 分色，點擊讀該格溫度）",
     topics: ["環境", "氣象", "溫度"],
   },
 

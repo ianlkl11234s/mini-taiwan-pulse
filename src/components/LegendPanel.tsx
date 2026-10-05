@@ -3831,7 +3831,7 @@ function DustForecastLegend() {
   );
 }
 
-// 溫度網格 2D：11 級 step 色階（色票 SSOT = data/temperatureGridTypes.ts，
+// 溫度網格 2D：10 級 step 色階（色票 SSOT = data/temperatureGridTypes.ts，
 // 與 temperatureGridLayerFactory 的 fill-color step 表達式同源）。
 function TemperatureGridLegend() {
   const t = useLegendTheme();
@@ -4009,7 +4009,7 @@ function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
 }
 
 // ── 溫度波 3D：RdBu 發散色盤（TemperatureWaveScene 的 DIVERGING_STOPS）──
-// ⚠️ 與 2D 溫度網格（TemperatureGridLegend 的 11 級絕對 °C）不同：3D 波的顏色是
+// ⚠️ 與 2D 溫度網格（TemperatureGridLegend 的 10 級絕對 °C）不同：3D 波的顏色是
 //    (temp - tempMin) / (tempMax - tempMin)，**以當日資料範圍拉伸**，
 //    所以沒有固定的 °C 刻度，只能標兩端。硬標 -10/35°C 會在多數日子跟地圖對不上。
 function TemperatureWaveLegend({ gridAlsoOn }: { gridAlsoOn: boolean }) {

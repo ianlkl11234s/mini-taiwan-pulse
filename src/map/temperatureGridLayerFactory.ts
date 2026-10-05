@@ -6,7 +6,7 @@ import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
  * 溫度網格 2D（temperatureGrid）— Mapbox 原生 fill 層。
  *
  * 與 3D 溫度波（temperatureWave / TemperatureWaveScene）共用同一份 RPC 資料，
- * 差別只在呈現：這裡把每個陸地 cell 畫成 0.03° 方格，用 11 級 step 色階染色。
+ * 差別只在呈現：這裡把每個陸地 cell 畫成 0.03° 方格，用 10 級 step 色階染色。
  *
  * ⚠️ 幾何只建一次（landIndices 不隨時間變），時間變化一律只走
  * `map.setFeatureState`，絕不重新 setData —— 8k 級 polygon 每幀重建會直接卡死。
@@ -50,7 +50,7 @@ const TEMP_EXPR: ExpressionSpecification = [
 ] as unknown as ExpressionSpecification;
 
 /** ["step", temp, color0, break1, color1, ...] — 由 TEMPERATURE_GRID_BANDS 展開 */
-function buildColorExpr(): ExpressionSpecification {
+export function buildColorExpr(): ExpressionSpecification {
   const step: unknown[] = ["step", TEMP_EXPR, TEMPERATURE_GRID_BANDS[0]!.color];
   for (let i = 1; i < TEMPERATURE_GRID_BANDS.length; i++) {
     const band = TEMPERATURE_GRID_BANDS[i]!;
