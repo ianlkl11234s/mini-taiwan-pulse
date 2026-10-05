@@ -38,6 +38,7 @@ import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
 import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
 import {
   setupWasteMapboxLayers,
+  rebuildWasteMapboxLayers,
   syncWasteMapboxData,
   syncWasteMapboxVisibility,
   syncWasteMapboxParams,
@@ -655,6 +656,8 @@ export default function App() {
   const { byType: wasteDisposalByType } = useWasteDisposalPointLayer(wasteDisposalVis);
   const wasteFacilityByTypeRef = useRef(wasteFacilityByType);
   wasteFacilityByTypeRef.current = wasteFacilityByType;
+  const wasteDisposalByTypeRef = useRef(wasteDisposalByType);
+  wasteDisposalByTypeRef.current = wasteDisposalByType;
   useEffect(() => { requestThreeRepaint(); }, [wasteFacilityByType]);
 
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
@@ -743,7 +746,7 @@ export default function App() {
   const satManeuvers = useSatelliteManeuvers(satConsole.open);
   const maneuverNorads = useMemo(() => {
     const s = new Set<number>();
-    for (const m of satManeuvers) s.add(m.norad_id);
+    for (const m of satManeuvers.rows) s.add(m.norad_id);
     return s;
   }, [satManeuvers]);
   // 打開 Console 時：飛去台灣俯瞰 + 自動打開 Taiwan 圖層（其餘 CN 群維持使用者既有設定）
@@ -1279,6 +1282,26 @@ export default function App() {
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
     syncWasteMapboxData(map, wasteFacilityByType, wasteDisposalByType);
   }, [wasteFacilityByType, wasteDisposalByType]);
+  // G005：換底圖（dark/light）會清掉自訂 layer，setup 旗標卻仍為 true → style.load 後重建
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const onStyleLoad = () => {
+      if (!wasteMapboxSetupRef.current) return;
+      rebuildWasteMapboxLayers(
+        map,
+        { isDark: isDarkThemeRef.current, onFeatureClick: setFeatureInfo },
+        {
+          facilityByType: wasteFacilityByTypeRef.current ?? new Map(),
+          disposalByType: wasteDisposalByTypeRef.current,
+          visibility: layerVisibilityRef.current,
+          params: layerParamRefs.wasteSubParams.current,
+        },
+      );
+    };
+    map.on("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [mapPrepared]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
@@ -2382,11 +2405,13 @@ export default function App() {
 
           {/* 衛星情報 Satellite Console */}
           <SatelliteConsole
+            maneuvers={satManeuvers}
             open={satConsole.open}
             onClose={() => satelliteConsoleStore.setOpen(false)}
             layerVisibility={layerVisibility}
             setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
             onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 3.5, speed: 1.4, pitch: 0 })}
+            isDarkTheme={isDarkTheme}
           />
 
           {/* 🌋 地震回放 Earthquake Replay（事件清單 + 播放控制） */}
@@ -2585,7 +2610,7 @@ export default function App() {
               right: 0,
               zIndex: Z_INDEX.mapOverlay,
               padding: "8px 12px",
-              background: "rgba(0,0,0,0.4)",
+              background: isDarkTheme ? "rgba(0,0,0,0.4)" : LIGHT.surfaceStrong,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
             }}
@@ -2599,7 +2624,7 @@ export default function App() {
                 rangeDays={timeline.rangeDays}
                 windowStart={timeline.windowStart}
                 windowEnd={timeline.windowEnd}
-                isDarkTheme={true}
+                isDarkTheme={isDarkTheme}
                 isMobile={true}
                 onToggle={timeline.toggle}
                 onSpeedChange={timeline.setSpeed}
@@ -2619,7 +2644,7 @@ export default function App() {
                 playing={historicalPlaying}
                 speed={historicalSpeed}
                 granularity={historicalGranularity}
-                isDarkTheme={true}
+                isDarkTheme={isDarkTheme}
                 isMobile={true}
                 onTogglePlay={() => setHistoricalPlaying((v) => !v)}
                 onSpeedChange={setHistoricalSpeed}

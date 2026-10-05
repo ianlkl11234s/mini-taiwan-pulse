@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-10-04（正式站端到端量測完成）
+**最後更新**：2026-10-04（Agent／MCP：正式站連線、工具問題修正、公車首末班、倉庫資料正確性）
 
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
 
@@ -8,9 +8,11 @@
 
 | repo / system | 現況 |
 |---|---|
-| **mini-taiwan-pulse** | #506（面板站主可見、nginx 轉 gateway）、#512（AG-1＋P1–P3）、#517（自繪圖層摘要＋SCENE_ERROR 修正）、#519（map_context 等資料、aqi isStyleReady）、#515（文件）已合併並部署。 |
+| **mini-taiwan-pulse** | #506（面板站主可見、nginx 轉 gateway）、#512（AG-1＋P1–P3）、#517（自繪圖層摘要＋SCENE_ERROR 修正）、#519（map_context 等資料、aqi isStyleReady）、#522（帶 Z 座標的面結果能上圖）、#515／#520／#521／#525（文件與記憶）已合併並部署。 |
 | **gis-platform** | #136（zbpack 啟動）、#137（結果通道、長輪詢、agent token、清掉配對碼）已合併；Zeabur 服務 `research-gateway` 以 `zeabur deploy` 部署（不綁 GitHub）。 |
-| **mini-pulse-gis-mcp** | #35（P1–P3＋AG-1）、#37、#38（摘要讀法）已合併。 |
+| **mini-pulse-gis-mcp** | #35（P1–P3＋AG-1）、#37／#38（摘要讀法）、#39（e2e 腳本）、#40／#41／#42（周邊類別、交通 fallback、嚴格欄位檢查）、#43（CSV 不再靜默丟列＋公車首末班配方）、#44（find_data 先多看再砍）已合併；analysis-prod/mcp 在 d6c1c01d。 |
+| **taipei-gis-analytics** | #138、#139（公車 manifest 去重＋四份無幾何班表資料集）已合併。 |
+| **R2 倉庫** | latest `20261004T130110Z`（回退鏈見 general-analysis STATUS）。 |
 | **本機** | analysis-prod 三個 worktree 已切到最新；8794 改測試身分（`PULSE_RESEARCH_TEST_IDENTITY`），3734 `.env.local` 改 `VITE_RESEARCH_TEST_IDENTITY=1`。Claude／Codex 的 pulse-research 預設連正式站。 |
 
 ## 上線狀態
@@ -60,10 +62,12 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 
 ## 卡點與下一步
 
-**下一個 session 的入口**：BACKLOG AG-6（其他自繪圖層摘要）。
+**下一個 session 的入口（Agent／MCP 線）**：先讀 `docs/features/general-analysis/STATUS.md`「2026-10-04 現況」，再看 BACKLOG AG-6／AG-10／AG-11。
 
-- 使用者有空時手動驗：正式站重整一次看結果還原、面板撤銷 token 一次看 15 s 內斷線（AG-5 剩餘）。
+- 使用 Agent：正式站分頁開著（部署後要重新整理分頁）、Claude Code `/mcp` 重連即可；token 在 `~/.config/pulse-research/agent-token`。
+- 倉庫改資料：analytics 改 manifest → MCP `warehouse/update_store.py --only <safe_id>` 在 `_warehouse-rebuild/<名稱>/store` 重建 → 核對列數 → `upload-store.mts plan` → `execute`；上傳後已連線的 MCP 要 `/mcp` 才讀到新版。
+- 手動待驗：正式站重整還原、面板撤銷 token（AG-5 剩餘）。
 
-其餘待辦：AG-2～AG-4、AG-7（回歸測試重置殘留圖層）。
+其餘待辦：AG-2～AG-4、AG-6、AG-7、AG-10、AG-11。
 
 設計系統線：下一步是 R6（先請使用者決定範圍與開關位置），或 backlog R5-1、R5-2、R8-2；驗收照各項 backlog。

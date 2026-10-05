@@ -1304,6 +1304,14 @@ export default defineConfig({
           rewrite: (path: string) => path.replace(/^\/__labor-statistics-cdn/, ''),
         },
       } : {}),
+      // 人口統計本地預覽：analytics output/demographics-statistics-preview/cdn/v1（DEV-only opt-in）。
+      ...(process.env.VITE_DEMOGRAPHICS_STATISTICS_PREVIEW === 'true' ? {
+        '/__demographics-statistics-cdn': {
+          target: `http://127.0.0.1:${Number(process.env.DEMOGRAPHICS_STATISTICS_PREVIEW_PORT || 3763)}`,
+          changeOrigin: false,
+          rewrite: (path: string) => path.replace(/^\/__demographics-statistics-cdn/, ''),
+        },
+      } : {}),
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
       "/api/private-research/allen-coral-atlas": { target: "http://127.0.0.1:8796", changeOrigin: false },
       "/api/private-research/jp-water": { target: "http://127.0.0.1:8796", changeOrigin: false },

@@ -1222,7 +1222,7 @@ Cloudflare **預設**就會 negative-cache 404，最長 **4 小時**，且只對
 
 - 探測一律 `curl -I "<url>?cb=$(date +%s)"`
 - 代價不對稱是重點：本專案唯一的 purge 腳本是 `purge_everything`，
-  會連 297MB 底圖一起清，**沒有 scoped purge**（→ BACKLOG G020）
+  會連 297MB 底圖一起清，**沒有 scoped purge**（→ BACKLOG G017，舊編號 G020）
 - 內容雜湊 / 含日期的檔名讓「上線後」不必 purge，但**擋不住「上線前」自己種的 404**
 
 → 通則：只讀的探測看起來零風險，但**探測本身會改變 CDN 狀態**。對還沒存在的資源尤其如此。

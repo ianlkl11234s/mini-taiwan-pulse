@@ -153,10 +153,11 @@ export function useMicroSensorsLayer(
       return;
     }
     if (!map.isStyleLoaded()) {
-      const onLoad = () => apply();
-      map.once("load", onLoad);
+      // map.once("load") 在地圖已載入後不會再觸發（R5-1）；改等 idle（style 與 tile 處理完必觸發）
+      const onIdle = () => apply();
+      map.once("idle", onIdle);
       return () => {
-        map.off("load", onLoad);
+        map.off("idle", onIdle);
       };
     }
     apply();

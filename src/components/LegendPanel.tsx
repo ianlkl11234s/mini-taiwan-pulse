@@ -62,6 +62,7 @@ import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES } from "../data/environmentStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES } from "../data/demographicsStatisticsRecipes";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
@@ -241,6 +242,7 @@ import {
   SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
   IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend,
 } from "./legend/environmentLegends";
+import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -386,6 +388,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
+  ...DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
   ...EDUCATION_PRESENTATION_VIEWS.map((view) => ({
     id: view.key,
     render: () => <StatisticsLegend layerKey={view.key} />,
@@ -487,6 +493,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "flights", render: () => <FlightsLegend /> },
   { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
+  { id: "railRoutes", render: () => <RailRoutesLegend /> },
+  { id: "stationsMetro", render: () => <MetroStationsLegend /> },
   { id: "ports", render: () => <PortsLegend /> },
   { id: "newsEvents", render: ({ isDark }) => <NewsEventsLegend  isDark={isDark} /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },

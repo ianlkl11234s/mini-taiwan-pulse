@@ -11,7 +11,22 @@ export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',to
 export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>): string {
   const start = release.period_start, end = release.period_end;
   if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return `${start.slice(0,4)} 年`;
+  // 時點快照（例：戶籍人口月底統計標準日）只顯示一個日期，不寫成「X — X」。
+  if (start === end) return `${start}（時點）`;
   return `${start} — ${end}`;
+}
+
+/**
+ * health.availability 的顯示文字。STALE 是上游 health_policy「歷史或舊快照，仍可顯示但須標示」：
+ * 已有更新期別，不代表數值錯誤；原代碼保留在括號前方便對照。
+ */
+const AVAILABILITY_LABELS: Record<string, string> = {
+  CURRENT: 'CURRENT（最新期別）',
+  STALE: 'STALE（歷史期別：已有較新期別，數值本身不受影響）',
+  PARTIAL: 'PARTIAL（部分地區缺值，未補 0）',
+};
+export function statisticsAvailabilityLabel(value: string): string {
+  return AVAILABILITY_LABELS[value] ?? value;
 }
 
 const DIMENSION_LABELS: Record<string, string> = {
@@ -127,12 +142,14 @@ const BOUNDARY_VERSION_LABELS: Record<string, string> = {
   COUNTY_MOI_1140318: '內政部縣市界（114 年 3 月 18 日版）',
   TOWN_MOI_1140318: '內政部鄉鎮市區界（114 年 3 月 18 日版）',
   VILLAGE_NLSC_1150119: '國土測繪中心村里界（115 年 1 月 19 日版）',
+  VILLAGE_NLSC_1150817: '內政部村里界（115 年 8 月 17 日版）',
+  VILLAGE_SEGIS_112: 'SEGIS 112 年村里界（綜所稅原生界線）',
   TOWNSHIP_REFERENCE_MOI_11501: '內政部鄉鎮市區統計參考界（115 年 1 月版）',
   township_reference_20260626_v1: '鄉鎮市區參考界（2026-06-26 第 1 版）',
   township_boundary_20260626_identity_only: '鄉鎮市區代碼對照（2026-06-26，只核對代碼）',
   county_identity_only: '縣市代碼對照（只核對代碼）',
 };
-const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only)\b/g;
+const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only)\b/g;
 
 /** 單一邊界版本代碼的中文描述；查無對照時不印代碼。 */
 export function boundaryVersionLabel(code: unknown): string {

@@ -1,0 +1,1855 @@
+
+> mini-taiwan-pulse@2.5.0 test
+> vitest run
+
+
+ RUN  v3.2.6 /Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/contract-guards-20261005
+
+ ✓ src/lib/__tests__/dayPrefetchScope.test.ts (4 tests) 3ms
+stderr | src/research/__tests__/layerExploration.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/seniorSchoolDistrictDataset.test.ts (3 tests) 1598ms
+   ✓ 115-school-year senior school district full-surface reader > SHA-binds all 15 full county-boundary proxy surfaces  565ms
+   ✓ 115-school-year senior school district full-surface reader > matches independent Taipei and Taichung interior bboxes while remaining a proxy  1027ms
+stderr | src/research/__tests__/discovery.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/research/__tests__/treePitsTaipeiOwnerDataset.test.ts (4 tests | 2 failed) 10884ms
+   ✓ requires a bbox and describes the fixed owner-only actual MultiPolygon snapshot 2ms
+   × matches independent full-source oracles for two Taipei bboxes and a pit-type selector 5843ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × deduplicates a cross-cell source feature and includes a boundary touch while preserving hole exclusion semantics 5032ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ fails closed before a broad bbox can exceed source scan budgets 5ms
+ ✓ src/research/__tests__/streetTreesNationalOwnerDataset.test.ts (3 tests) 12840ms
+   ✓ matches full-source Taipei and Taichung oracles and distinguishes Taichung park trees  12833ms
+ ❯ src/research/__tests__/companyCapitalGridFineOwnerDatasets.test.ts (3 tests | 1 failed) 8459ms
+   ✓ requires a bbox and keeps polygon cells as an owner-only, non-point surface 4ms
+   × matches Taipei and Kaohsiung full-source grid oracles at both scales within bounds 5270ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ preserves all-missing capital as null and fails closed for a broad Taiwan bbox  3184ms
+stderr | src/research/__tests__/openEndedResearch.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/layerExploration.test.ts (3 tests) 7809ms
+   ✓ describeLayers > bounds keys, marks unavailable catalog metadata, filters unsafe links, and relates layers without toggling them  7789ms
+ ❯ src/research/__tests__/pollutionPenaltiesDataset.test.ts (3 tests | 1 failed) 5108ms
+   × matches independent full-source oracles for dense Taipei and rural contrast within hard budgets 5008ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ fails closed for a broad bbox 99ms
+   ✓ documents the frontend severity filters and noise overlap 0ms
+ ✓ src/research/__tests__/openEndedResearch.test.ts (3 tests | 1 skipped) 3556ms
+   ✓ discovers point and regional-statistics capabilities, then composes a map result without full-page rows  766ms
+ ✓ src/research/__tests__/accidentTaipeiOwnerDataset.test.ts (3 tests) 2652ms
+   ✓ matches independent full-source bbox and case-class oracles with bounded shard reads  2644ms
+ ❯ src/research/__tests__/nhiMedicalOwnerDatasets.test.ts (3 tests | 2 failed) 10709ms
+   ✓ uses the SHA-bound safe-field partition and preserves category plus geocode-source receipts 196ms
+   × matches two independent source bbox oracles and a categorical variant 5495ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × requires bbox and fails closed for a broad request 5004ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+stderr | src/data/__tests__/staticDataContract.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/research/__tests__/civilDefenseSheltersOwnerDataset.test.ts (4 tests | 1 failed) 5361ms
+   ✓ forces bbox and retains owner-only proxy semantics 6ms
+   ✓ reads immutable safe shard fields and retains coordinate-quality exclusions 93ms
+   × matches full-source new-location and coord_precision oracles with bounded reads 5167ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ fails closed when a broad bbox exceeds the partition byte budget 94ms
+ ❯ src/research/__tests__/religionTemplesOwnerDataset.test.ts (4 tests | 1 failed) 9815ms
+   ✓ requires bbox and exposes only the safe owner-only proxy schema 5ms
+   ✓ matches the Tainan full-source MOI registration variant oracle  3459ms
+   ✓ matches the Kaohsiung full-source OSM null-registration variant oracle  1303ms
+   × keeps nullable safe fields in immutable gzip shards and bounds a nationwide read 5047ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/agriProduceWholesaleOwnerDataset.test.ts (3 tests | 1 failed) 9114ms
+   ✓ requires bbox and exposes only safe proxy fields 5ms
+   ✓ matches Taipei and Taichung full-source oracles and preserves the status variant  4047ms
+   × fails closed for a country-scale bbox 5061ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/companyPointsDataset.test.ts (5 tests | 2 failed) 47105ms
+   ✓ requires a bounded read and keeps the company public-field and registered-address contract 10ms
+   ✓ reads only immutable shards for an exact bounded point and retains source exclusions 61ms
+   × matches the full-source 2 km and manufacturing oracles in Hualien and Taitung with bounded cold/warm reads 15066ms
+     → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ keeps a dense Kaohsiung bbox below the scan and byte limits  1870ms
+   × keeps the exact-C manufacturing subset in two independent places 30096ms
+     → Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+stdout | src/data/__tests__/staticDataContract.test.ts > 靜態 GeoJSON 契約 > registry 引用的靜態 GeoJSON 本機都存在（缺檔 = dev 上該層直接空白）
+⚠ 本機缺 48 個 geojson（應由 S3 管理）：geo/bus_stations_intercity.geojson, geo/bike_stations.geojson, geo/cycling_routes.geojson, geo/weather_stations.geojson, geo/fire_stations.geojson, education/schools.geojson, geo/convenience_stores.geojson, geo/medical_hospitals.geojson, geo/active_faults.geojson, geo/water_basins.geojson, geo/water_protection_zones.geojson, geo/water_dams.geojson, geo/water_detention_basins.geojson, geo/water_facilities.geojson, geo/water_monitor_stations.geojson, agriculture/agri_wholesale_market_companies.geojson, business_registry/common_registration_addresses_202608_r2.geojson, agriculture/feed_factories.geojson, agriculture/livestock_markets.geojson, urban/protected_trees_national.geojson, urban/riverside_trees_taipei.geojson, urban/parks_taipei.geojson, sports/all_venues.geojson, police_justice/police_stations/police_stations_20260626.geojson, police_justice/women_child_warning/women_child_warning_20260626.geojson, police_justice/speed_cameras/speed_cameras_20260626.geojson, police_justice/courts/courts_20260626.geojson, police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson, police_justice/correctional_facilities/correctional_facilities_20260626.geojson, police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson, police_justice/traffic_accident_yearly/traffic_accident_yearly_20260626.geojson, police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson, police_justice/investigation_bureau/investigation_bureau_20260626.geojson, police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson, police_justice/immigration_offices/immigration_offices_20260626.geojson, police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson, tourism/attractions_national.geojson, education/school_district_senior.geojson, education/kindergartens.geojson, education/afterschool_care.geojson, education/mutual_care.geojson, education/university_students.geojson, tourism/hotels_national.geojson, tourism/restaurants_national.geojson, public_life/public_waste_baskets.geojson, public_life/material_recycling_points.geojson, public_life/playgrounds.geojson, public_life/visitor_centres.geojson
+
+stdout | src/data/__tests__/staticDataContract.test.ts > immutable 靜態資料 checksum contract > business_registry/common_registration_addresses_202608_r2.geojson SHA-256 未漂移
+⚠ business_registry/common_registration_addresses_202608_r2.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > business_registry/common_registration_addresses_202608_r2.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ business_registry/common_registration_addresses_202608_r2.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/schools.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/schools.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/school_district_senior.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/school_district_senior.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/kindergartens.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/kindergartens.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/afterschool_care.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/afterschool_care.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/mutual_care.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/mutual_care.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/university_students.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/university_students.geojson 本機不存在（S3 管理），跳過
+
+ ❯ src/data/__tests__/staticDataContract.test.ts (39 tests | 1 failed) 17071ms
+   ✓ 靜態 GeoJSON 契約 > registry 引用的靜態 GeoJSON 本機都存在（缺檔 = dev 上該層直接空白） 6ms
+   ✓ 靜態 GeoJSON 契約 > 每個檔案都是非空的 FeatureCollection  3747ms
+   ✓ 靜態 GeoJSON 契約 > 座標都在合法經緯度範圍內（抓沒轉 WGS84 的 TWD97 TM2）  4121ms
+   ✓ 靜態 GeoJSON 契約 > KNOWN_BROKEN_CRS 名單只進不退（上游修好就要從名單移除） 3ms
+   ✓ Ookla 全球格網發佈資產契約 > 兩份固定版 GeoJSON 都存在，且大小／SHA-256 未漂移 87ms
+   × Ookla 全球格網發佈資產契約 > 保留 Polygon geometry、前端欄位與 z6/z8/z10 三段解析度 5675ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ immutable 靜態資料 checksum contract > business_registry/common_registration_addresses_202608_r2.geojson SHA-256 未漂移 0ms
+   ✓ immutable 靜態資料 checksum contract > business_registry/company_filters_202608_r2.json SHA-256 未漂移  363ms
+   ✓ 前端硬依賴欄位契約 > geo/internet_exchange_points.geojson 的關鍵欄位型別/覆蓋率未漂移 25ms
+   ✓ 前端硬依賴欄位契約 > geo/anfr_wireless_sites.geojson 的關鍵欄位型別/覆蓋率未漂移  1254ms
+   ✓ 前端硬依賴欄位契約 > geo/osm_communication_sites.geojson 的關鍵欄位型別/覆蓋率未漂移 175ms
+   ✓ 前端硬依賴欄位契約 > business_registry/common_registration_addresses_202608_r2.geojson 的關鍵欄位型別/覆蓋率未漂移 1ms
+   ✓ 前端硬依賴欄位契約 > hazards/mountain_rescue_incidents.geojson 的關鍵欄位型別/覆蓋率未漂移 144ms
+   ✓ 前端硬依賴欄位契約 > forestry/mountain_huts.geojson 的關鍵欄位型別/覆蓋率未漂移 19ms
+   ✓ 前端硬依賴欄位契約 > forestry/forestry_treatment_works.geojson 的關鍵欄位型別/覆蓋率未漂移 102ms
+   ✓ 前端硬依賴欄位契約 > religion/churches.geojson 的關鍵欄位型別/覆蓋率未漂移 146ms
+   ✓ 前端硬依賴欄位契約 > religion/ancestral_halls.geojson 的關鍵欄位型別/覆蓋率未漂移 9ms
+   ✓ 前端硬依賴欄位契約 > religion/other_worship.geojson 的關鍵欄位型別/覆蓋率未漂移  401ms
+   ✓ 前端硬依賴欄位契約 > religion/foundations.geojson 的關鍵欄位型別/覆蓋率未漂移 5ms
+   ✓ 前端硬依賴欄位契約 > religion/top100.geojson 的關鍵欄位型別/覆蓋率未漂移 4ms
+   ✓ 前端硬依賴欄位契約 > funeral/funeral_facilities.geojson 的關鍵欄位型別/覆蓋率未漂移 204ms
+   ✓ 前端硬依賴欄位契約 > funeral/funeral_operators.geojson 的關鍵欄位型別/覆蓋率未漂移 29ms
+   ✓ 前端硬依賴欄位契約 > funeral/cemetery_zoning.geojson 的關鍵欄位型別/覆蓋率未漂移 42ms
+   ✓ 前端硬依賴欄位契約 > welfare/nursing_homes_national.geojson 的關鍵欄位型別/覆蓋率未漂移 106ms
+   ✓ 前端硬依賴欄位契約 > welfare/elderly_care_homes_national.geojson 的關鍵欄位型別/覆蓋率未漂移 7ms
+   ✓ 前端硬依賴欄位契約 > welfare/disability_facilities_national.geojson 的關鍵欄位型別/覆蓋率未漂移 6ms
+   ✓ 前端硬依賴欄位契約 > welfare/ltc_institutions_national.geojson 的關鍵欄位型別/覆蓋率未漂移 54ms
+   ✓ 前端硬依賴欄位契約 > welfare/childcare_centers_national.geojson 的關鍵欄位型別/覆蓋率未漂移 10ms
+   ✓ 前端硬依賴欄位契約 > welfare/child_services_national.geojson 的關鍵欄位型別/覆蓋率未漂移 130ms
+   ✓ 前端硬依賴欄位契約 > welfare/welfare_gov_offices_national.geojson 的關鍵欄位型別/覆蓋率未漂移 10ms
+   ✓ 前端硬依賴欄位契約 > welfare/mental_health_facilities_national.geojson 的關鍵欄位型別/覆蓋率未漂移 6ms
+   ✓ 前端硬依賴欄位契約 > welfare/social_work_orgs_national.geojson 的關鍵欄位型別/覆蓋率未漂移 16ms
+   ✓ 前端硬依賴欄位契約 > education/schools.geojson 的關鍵欄位型別/覆蓋率未漂移 13ms
+   ✓ 前端硬依賴欄位契約 > education/school_district_senior.geojson 的關鍵欄位型別/覆蓋率未漂移 0ms
+   ✓ 前端硬依賴欄位契約 > education/kindergartens.geojson 的關鍵欄位型別/覆蓋率未漂移 16ms
+   ✓ 前端硬依賴欄位契約 > education/afterschool_care.geojson 的關鍵欄位型別/覆蓋率未漂移 10ms
+   ✓ 前端硬依賴欄位契約 > education/mutual_care.geojson 的關鍵欄位型別/覆蓋率未漂移 4ms
+   ✓ 前端硬依賴欄位契約 > education/university_students.geojson 的關鍵欄位型別/覆蓋率未漂移 1ms
+   ✓ 工商登記 B3 filter contract > 202608 r2 contract 與共用 B1 r2 PMTiles 契約一致且不發布 PII 13ms
+stderr | src/research/__tests__/researchDatasets.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/research/__tests__/medLtcOwnerDataset.test.ts (3 tests | 2 failed) 12463ms
+   ✓ requires bbox and excludes identity, address, phone and occupancy fields 168ms
+   × matches Taipei and Taichung source oracles with ABC variants 6267ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × fails closed for a country-scale bbox 5971ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ src/research/__tests__/factoryLocationsOwnerDataset.test.ts (4 tests) 16221ms
+   ✓ reads immutable safe shards and preserves the active geocode-miss exclusion  436ms
+   ✓ matches independent full-source location and category oracles within bounded reads  15657ms
+stderr | src/hooks/__tests__/mapInteractionLayers.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/map/__tests__/hookPointSpec.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/forestRoadsDataset.test.ts (3 tests) 2542ms
+   ✓ reads the SHA-bound 107-line snapshot with complete, explicitly 2D geometry  2534ms
+ ✓ src/research/__tests__/medAedOwnerDataset.test.ts (3 tests) 7903ms
+   ✓ matches two independent full-source bbox and category oracles within bounded reads  4107ms
+   ✓ fails closed when a broad bbox exceeds the row scan budget  3780ms
+ ✓ src/research/__tests__/researchDatasets.test.ts (9 tests) 8179ms
+   ✓ built-in research datasets > queries two real point adapters without consulting layer visibility  331ms
+   ✓ built-in research datasets > fails closed when the news source is not configured  2940ms
+   ✓ built-in research datasets > rejects null or non-array news RPC payloads, but accepts a legitimate empty array  2078ms
+ ✓ src/research/__tests__/fireHydrantsOwnerDataset.test.ts (3 tests) 3669ms
+   ✓ matches Taipei and dense Kaohsiung CSV oracles within bounded partitions  3569ms
+ ❯ src/map/__tests__/hookPointSpec.test.ts (5 tests | 1 failed) 7880ms
+   × hook point spec R2 ratchet > does not reintroduce zoom-driven circle radii outside the overlay registry 6755ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ hook point spec R2 ratchet > every non-bubble hook point file uses pointRadius and pointStrokePaint 291ms
+   ✓ hook point spec R2 ratchet > no legacy radius helpers remain in hook point files 96ms
+   ✓ hook point spec R2 ratchet > does not hand-roll the stroke opacity formula  691ms
+   ✓ hook point spec R2 ratchet > uses fixed tiers and theme seam strokes in extracted paint helpers 35ms
+ ✓ src/research/__tests__/riversideTreesOwnerDataset.test.ts (1 test) 2795ms
+   ✓ uses the owner-only sidecar for a bounded historical tree query while retaining null notes  2675ms
+ ✓ src/state/__tests__/medicalStatisticsSelection.test.ts (11 tests) 2265ms
+ ❯ src/research/__tests__/streetTreesDiffOwnerDataset.test.ts (3 tests | 1 failed) 5401ms
+   ✓ requires bbox, strips TreeID and free text, and declares proxy geometry 40ms
+   × matches two independent full-source bbox/status oracles within bounded reads 5028ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ fails closed when a broad bbox selects more than the partition byte budget  331ms
+ ✓ src/hooks/__tests__/mapInteractionLayers.test.ts (4 tests) 9856ms
+   ✓ GIS 點擊註冊表的 layer id > 引用的每個 layer id 都真的被建立（否則 popup 靜默失效）  7354ms
+   ✓ GIS 點擊註冊表的 layer id > statistics 動態 id 必須與 recipe key 和 renderer 成對存在  2481ms
+ ✓ src/research/__tests__/eduSchoolsOwnerDatasets.test.ts (3 tests) 634ms
+   ✓ splits all six manifest meanings from one owner-only 4,315-Point source  546ms
+ ✓ src/data/__tests__/busRouteCumDist.test.ts (7 tests | 4 skipped) 967ms
+   ✓ bus route cumDist 重算 > 與原檔一致：chiayi_bus_routes.json  965ms
+stderr | src/map/__tests__/lazyThreeLayers.test.ts > lazyThreeLayers layer ids stay in sync with the real modules > matches every duplicated id
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/cramSchoolsOwnerDataset.test.ts (3 tests) 3044ms
+   ✓ matches two independent city bbox oracles and a category variant within bounds  1424ms
+   ✓ requires bbox and fails closed for an oversized broad request  1612ms
+stderr | src/data/__tests__/layerGoldenSnapshot.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/map/__tests__/lazyThreeLayers.test.ts (3 tests) 3969ms
+   ✓ lazyThreeLayers layer ids stay in sync with the real modules > matches every duplicated id  3964ms
+ ✓ src/research/__tests__/busStationsOwnerDatasets.test.ts (3 tests) 4069ms
+   ✓ requires bounded bbox queries and keeps source-specific safe station fields  569ms
+   ✓ matches full-source City and InterCity bbox oracles in Taipei and Kaohsiung  3497ms
+ ✓ src/research/__tests__/livestockFarmsOwnerDatasets.test.ts (3 tests | 1 skipped) 1931ms
+   ✓ requires bbox and fails closed when broad selection exceeds the owner-only scan budget  1926ms
+ ❯ src/research/__tests__/regulatedFacilitiesOwnerDataset.test.ts (4 tests | 1 failed) 5876ms
+   ✓ requires bbox, retains safe attributes, and states proxy geometry 7ms
+   ✓ preserves active coordinate misses and strips direct facility identifiers  345ms
+   × matches two full-source bbox and attribute oracles within bounded reads 5503ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ fails closed when a broad bbox selects more than the partition byte budget 20ms
+stderr | src/data/__tests__/layerManifest.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/analysisOperations.test.ts (24 tests) 3506ms
+   ✓ BrowserMemoryResultStore > allows a bounded raw 22-county boundary result without raising the entry limit indefinitely  1286ms
+   ✓ AnalysisOperations > rejects aggregate segment work before iterating row pairs  317ms
+   ✓ AnalysisOperations > fails closed for ineligible boundaries and excessive spatial comparisons  1140ms
+   ✓ AnalysisOperations > builds and compares Taipei-local series without inventing missing or zero-baseline values  396ms
+ ✓ src/research/__tests__/sportsVenuesDataset.test.ts (3 tests) 3219ms
+   ✓ uses one fixed source for all five mutually exclusive sports layers  1465ms
+   ✓ preserves observed access status and missing area in a bounded Taitung query  1737ms
+ ✓ src/research/__tests__/hikingTrailsOwnerDataset.test.ts (2 tests) 1813ms
+   ✓ matches two independent source-place oracles while preserving source, license, and path geometry  1804ms
+ ✓ src/research/__tests__/boundedGeometry.test.ts (8 tests) 6182ms
+   ✓ boundedGeometry > buffers real source lines but rejects their combined derived vertex count  4860ms
+   ✓ boundedGeometry > accepts a valid source buffer whose boundary retains a zero-length edge  520ms
+   ✓ boundedGeometry > keeps the bounded positive source pair selected from the first-30 scan  735ms
+ ✓ src/research/__tests__/osmPowerNetworkOwnerDataset.test.ts (2 tests) 1247ms
+   ✓ keeps complete lines and matches two independent bbox and tag variants  433ms
+   ✓ matches two tower-place bboxes and retains source nulls  812ms
+stderr | src/research/__tests__/researchSearch.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/research/__tests__/discovery.test.ts (5 tests | 2 failed) 85109ms
+   ✓ research discovery > derives searchable layers from the manifest and hides unauthorized metadata  933ms
+   ✓ research discovery > returns local camera candidates without claiming a geocoder result 2ms
+   ✓ derives dataset IDs and release-selector requirements from the registered dataset contracts 4ms
+   × lists bounded catalogue pages and never describes prototype properties as layers 47492ms
+     → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × returns a continuation offset without silently dropping layers after the first page 32978ms
+     → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ src/research/__tests__/agriLeisureFarmZonesOwnerDataset.test.ts (3 tests) 4004ms
+   ✓ returns all 109 source attributes and records the seven bounded make_valid repairs  936ms
+   ✓ matches two independent WGS84 bbox oracles, including one repaired source surface  3039ms
+ ✓ src/data/__tests__/layerGoldenSnapshot.test.ts (15 tests) 3021ms
+   ✓ layer 黃金快照 > section「overlays」與 fixture 一致  429ms
+   ✓ layer 黃金快照 > section「params」與 fixture 一致  350ms
+   ✓ layer 黃金快照 > 抽取是決定性的（同一次進程跑兩遍結果相同）  1603ms
+ ✓ src/data/__tests__/layerManifest.test.ts (15 tests) 3395ms
+   ✓ layerManifest 已派生欄位真的在驅動下游表 > THEMES 的 LayerDef 來自 manifest（name / label / expandable / gated）  934ms
+   ✓ layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的防腐） > source + dataClass 宣告 = OVERLAY_REGISTRY 的實際形狀（含同 key 多 config）  1057ms
+   ✓ layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的防腐） > popup 宣告 = HEADER_LABELS / GIS_LAYERS 的實際接線（含 key ≠ layerType 的情形）  577ms
+ ✓ src/research/__tests__/researchSearch.test.ts (2 tests) 2378ms
+   ✓ natural layer discovery > finds existing display layers without requiring an analysis adapter  2375ms
+ ❯ src/research/__tests__/explorationBoundary.test.ts (2 tests | 1 failed) 7672ms
+   × paired research runtime boundary > loads bounded dataset readers, typed analysis and the controlled result overlay only 7669ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ paired research runtime boundary > keeps the owner-only private sidecar inside the local research stack lifecycle 2ms
+ ✓ src/research/__tests__/cemeteryOsmDataset.test.ts (3 tests) 2408ms
+   ✓ requires a bbox and exposes only safe source fields with actual full surfaces  820ms
+   ✓ matches independent full-source polygon intersection oracles in Taipei and Kaohsiung  1586ms
+ ✓ src/data/__tests__/statisticsComparisonReleaseGate.test.ts (3 tests) 2949ms
+   ✓ statistics comparison release gate > keeps comparisons local-only for production defaults while preserving raw selectors and education views  1343ms
+   ✓ statistics comparison release gate > shows every comparison recipe during development  1181ms
+   ✓ statistics comparison release gate > accepts an explicit production release opt-in  425ms
+ ✓ src/research/__tests__/funeralPointsOwnerDatasets.test.ts (4 tests) 4406ms
+   ✓ matches independent Taipei and Kaohsiung source oracles through bounded safe reads  1571ms
+   ✓ preserves explicit coverage, inactive, unlocated, and coordinate-right exclusions  375ms
+   ✓ keeps nationwide reads within the declared partition scan and byte budgets  2408ms
+ ✓ src/research/__tests__/agriRetailOwnerDataset.test.ts (3 tests) 4164ms
+   ✓ matches Taipei and Taichung full-source oracles inside partition limits  3919ms
+stderr | src/research/__tests__/layerCapabilities.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/researchAnalysisSession.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/layerCapabilities.test.ts (5 tests) 2353ms
+ ✓ src/data/__tests__/statisticsRecipeCatalog.test.ts (8 tests) 3385ms
+   ✓ PF-7 statistics recipe catalog ↔ details > environment: committed catalog is exactly derived from the delivered SSOT (rerun build_statistics_recipe_catalogs.ts)  394ms
+   ✓ PF-7 statistics recipe catalog ↔ details > demographics: committed catalog is exactly derived from the delivered SSOT (rerun build_statistics_recipe_catalogs.ts)  426ms
+   ✓ PF-7 statistics recipe catalog ↔ details > details load lazily through loadingRegistry and are never read silently before loading  1643ms
+   ✓ PF-7 statistics recipe catalog ↔ details > PF-10: each family loads only its own details (social never pulls agri, and vice versa)  538ms
+ ❯ src/research/__tests__/companyDemographicsOwnerDataset.test.ts (4 tests | 1 failed) 10051ms
+   ✓ requires bbox and exposes separate owner-only industry and age semantics 5ms
+   ✓ reads exact Polygon-intersecting cells at both required grains and preserves category conservation  4332ms
+   ✓ fails closed when a Taiwan-wide query exceeds the shard scan budget 243ms
+   × matches full-source Polygon intersections at two places, including cross-cell matches 5469ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/data/__tests__/agriStatisticsContract.test.ts (6 tests | 1 failed) 6641ms
+   ✓ 農林漁牧 statistics handoff contract > registers exactly the 24 enabled handoff keys in recipe, registry, manifest, and catalog 8ms
+   ✓ 農林漁牧 statistics handoff contract > keeps all three HOLD recipes out of every UI toggle registry 2ms
+   ✓ 農林漁牧 statistics handoff contract > preserves the two existing datasets as index-only cross-topic references 12ms
+   ✓ 農林漁牧 statistics handoff contract > keeps fixed presentation and reference-boundary semantics machine-exact 254ms
+   × 農林漁牧 statistics handoff contract > resolves every one of the 2,748 immutable tuples and intersects only matching public releases 5993ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ 農林漁牧 statistics handoff contract > rejects altered release identity, partial dimensions, extra dimensions, and an unavailable crop-season tuple 127ms
+stderr | src/hooks/__tests__/useGlobalEventsLayer.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/research/__tests__/campusPolygonOwnerDataset.test.ts (4 tests | 2 failed) 14057ms
+   ✓ pins raw, processed and display receipts; bbox is required 11ms
+   × matches independent full-source Polygon oracles in two counties and a school-level variant 8375ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × retains non-school rows and the separate experimental null Chinese-level semantics 5651ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ fails closed when a shard or manifest no longer matches its receipt 16ms
+ ✓ src/research/__tests__/researchAnalysisSession.test.ts (13 tests | 1 skipped) 7139ms
+   ✓ research analysis session > treats a series (geometry:none) result as map-ineligible, and a spatial one as eligible  397ms
+   ✓ research analysis session > finds the source-observed administrative area containing an explicit map coordinate  613ms
+   ✓ research analysis session > composes query, spatial, aggregate, quality, paging and removal by resultId  1085ms
+ ✓ src/research/__tests__/StudyController.test.ts (17 tests) 1461ms
+ ✓ src/hooks/__tests__/useGlobalEventsLayer.test.ts (19 tests) 1678ms
+   ✓ useGlobalEventsLayer timeline > Replay 每個 window 載一次，200ms 訂閱只做本地 immutable selection  433ms
+   ✓ useGlobalEventsLayer timeline > 跨日換 window 仍保留舊 cursor，9/2→9/3 跨發布時間會 pulse  302ms
+   ✓ useGlobalEventsLayer timeline > 跨日 scrub 連續三次 window 變化只發一次 load（250ms trailing debounce）  535ms
+ ❯ src/research/__tests__/tourismHospitalityOwnerDatasets.test.ts (2 tests | 1 failed) 6377ms
+   ✓ requires bounded hospitality reads and removes address, phone, and descriptions  1180ms
+   × matches fixed processed-source bbox oracles and keeps official Point semantics 5189ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/schoolDistrictK12OwnerDataset.test.ts (3 tests | 2 failed) 15247ms
+   × pins the fixed processed receipt and preserves partial-village proxy semantics 6496ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × returns the independently checked Taipei and Hsinchu bbox counts without asserting address assignment 8710ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ rejects changed bytes and malformed source geometry or schema 26ms
+stderr | src/map/__tests__/overlayExpressions.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > loads a 100-city catalog, caps source classes, and reports capped regions
+[jp-height-lifecycle] {"status":"loading","active":[],"available":0,"capped":0}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > loads a 100-city catalog, caps source classes, and reports capped regions
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-55","jp-canopy-height--r-55","jp-building-height-grid--r-54","jp-canopy-height--r-54","jp-building-height-grid--r-45","jp-building-height-grid--r-44"],"available":100,"capped":98}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > uses detail instead of grid at z13 and cancels delayed moves on suspend
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-55","jp-canopy-height--r-55","jp-building-height-grid--r-54","jp-canopy-height--r-54","jp-building-height-grid--r-45","jp-building-height-grid--r-44"],"available":100,"capped":98}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > uses detail instead of grid at z13 and cancels delayed moves on suspend
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height--r-55","jp-canopy-height--r-55","jp-building-height--r-54","jp-canopy-height--r-54","jp-building-height--r-45","jp-building-height--r-44"],"available":100,"capped":98}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > keeps listeners bounded through style-like suspend/resume cycles
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-55","jp-canopy-height--r-55","jp-building-height-grid--r-54","jp-canopy-height--r-54","jp-building-height-grid--r-45","jp-building-height-grid--r-44"],"available":100,"capped":98}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > keeps listeners bounded through style-like suspend/resume cycles
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-11","jp-canopy-height--r-11","jp-building-height-grid--r-10","jp-canopy-height--r-10","jp-building-height-grid--r-1","jp-building-height-grid--r-0"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-12","jp-canopy-height--r-12","jp-building-height-grid--r-11","jp-canopy-height--r-11","jp-building-height-grid--r-2","jp-building-height-grid--r-1"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-13","jp-canopy-height--r-13","jp-building-height-grid--r-12","jp-canopy-height--r-12","jp-building-height-grid--r-3","jp-building-height-grid--r-2"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-14","jp-canopy-height--r-14","jp-building-height-grid--r-13","jp-canopy-height--r-13","jp-building-height-grid--r-4","jp-building-height-grid--r-3"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-15","jp-canopy-height--r-15","jp-building-height-grid--r-14","jp-canopy-height--r-14","jp-building-height-grid--r-5","jp-building-height-grid--r-4"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-16","jp-canopy-height--r-16","jp-building-height-grid--r-15","jp-canopy-height--r-15","jp-building-height-grid--r-6","jp-building-height-grid--r-5"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-17","jp-canopy-height--r-17","jp-building-height-grid--r-16","jp-canopy-height--r-16","jp-building-height-grid--r-7","jp-building-height-grid--r-6"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-18","jp-canopy-height--r-18","jp-building-height-grid--r-17","jp-canopy-height--r-17","jp-building-height-grid--r-8","jp-building-height-grid--r-7"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-19","jp-canopy-height--r-19","jp-building-height-grid--r-18","jp-canopy-height--r-18","jp-building-height-grid--r-9","jp-building-height-grid--r-8"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-19","jp-canopy-height--r-19","jp-building-height-grid--r-9","jp-canopy-height--r-9","jp-building-height-grid--r-29"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-21","jp-canopy-height--r-21","jp-building-height-grid--r-20","jp-canopy-height--r-20","jp-building-height-grid--r-11","jp-building-height-grid--r-10"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-22","jp-canopy-height--r-22","jp-building-height-grid--r-21","jp-canopy-height--r-21","jp-building-height-grid--r-12","jp-building-height-grid--r-11"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-23","jp-canopy-height--r-23","jp-building-height-grid--r-22","jp-canopy-height--r-22","jp-building-height-grid--r-13","jp-building-height-grid--r-12"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-24","jp-canopy-height--r-24","jp-building-height-grid--r-23","jp-canopy-height--r-23","jp-building-height-grid--r-14","jp-building-height-grid--r-13"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-25","jp-canopy-height--r-25","jp-building-height-grid--r-24","jp-canopy-height--r-24","jp-building-height-grid--r-15","jp-building-height-grid--r-14"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-26","jp-canopy-height--r-26","jp-building-height-grid--r-25","jp-canopy-height--r-25","jp-building-height-grid--r-16","jp-building-height-grid--r-15"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-27","jp-canopy-height--r-27","jp-building-height-grid--r-26","jp-canopy-height--r-26","jp-building-height-grid--r-17","jp-building-height-grid--r-16"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-28","jp-canopy-height--r-28","jp-building-height-grid--r-27","jp-canopy-height--r-27","jp-building-height-grid--r-18","jp-building-height-grid--r-17"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-29","jp-canopy-height--r-29","jp-building-height-grid--r-28","jp-canopy-height--r-28","jp-building-height-grid--r-19","jp-building-height-grid--r-18"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-29","jp-canopy-height--r-29","jp-building-height-grid--r-19","jp-canopy-height--r-19","jp-building-height-grid--r-39"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-31","jp-canopy-height--r-31","jp-building-height-grid--r-30","jp-canopy-height--r-30","jp-building-height-grid--r-21","jp-building-height-grid--r-20"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-32","jp-canopy-height--r-32","jp-building-height-grid--r-31","jp-canopy-height--r-31","jp-building-height-grid--r-22","jp-building-height-grid--r-21"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-33","jp-canopy-height--r-33","jp-building-height-grid--r-32","jp-canopy-height--r-32","jp-building-height-grid--r-23","jp-building-height-grid--r-22"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-34","jp-canopy-height--r-34","jp-building-height-grid--r-33","jp-canopy-height--r-33","jp-building-height-grid--r-24","jp-building-height-grid--r-23"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-35","jp-canopy-height--r-35","jp-building-height-grid--r-34","jp-canopy-height--r-34","jp-building-height-grid--r-25","jp-building-height-grid--r-24"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-36","jp-canopy-height--r-36","jp-building-height-grid--r-35","jp-canopy-height--r-35","jp-building-height-grid--r-26","jp-building-height-grid--r-25"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-37","jp-canopy-height--r-37","jp-building-height-grid--r-36","jp-canopy-height--r-36","jp-building-height-grid--r-27","jp-building-height-grid--r-26"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-38","jp-canopy-height--r-38","jp-building-height-grid--r-37","jp-canopy-height--r-37","jp-building-height-grid--r-28","jp-building-height-grid--r-27"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-39","jp-canopy-height--r-39","jp-building-height-grid--r-38","jp-canopy-height--r-38","jp-building-height-grid--r-29","jp-building-height-grid--r-28"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-39","jp-canopy-height--r-39","jp-building-height-grid--r-29","jp-canopy-height--r-29","jp-building-height-grid--r-49"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-41","jp-canopy-height--r-41","jp-building-height-grid--r-40","jp-canopy-height--r-40","jp-building-height-grid--r-31","jp-building-height-grid--r-30"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-42","jp-canopy-height--r-42","jp-building-height-grid--r-41","jp-canopy-height--r-41","jp-building-height-grid--r-32","jp-building-height-grid--r-31"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-43","jp-canopy-height--r-43","jp-building-height-grid--r-42","jp-canopy-height--r-42","jp-building-height-grid--r-33","jp-building-height-grid--r-32"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-44","jp-canopy-height--r-44","jp-building-height-grid--r-43","jp-canopy-height--r-43","jp-building-height-grid--r-34","jp-building-height-grid--r-33"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-45","jp-canopy-height--r-45","jp-building-height-grid--r-44","jp-canopy-height--r-44","jp-building-height-grid--r-35","jp-building-height-grid--r-34"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-46","jp-canopy-height--r-46","jp-building-height-grid--r-45","jp-canopy-height--r-45","jp-building-height-grid--r-36","jp-building-height-grid--r-35"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-47","jp-canopy-height--r-47","jp-building-height-grid--r-46","jp-canopy-height--r-46","jp-building-height-grid--r-37","jp-building-height-grid--r-36"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-48","jp-canopy-height--r-48","jp-building-height-grid--r-47","jp-canopy-height--r-47","jp-building-height-grid--r-38","jp-building-height-grid--r-37"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-49","jp-canopy-height--r-49","jp-building-height-grid--r-48","jp-canopy-height--r-48","jp-building-height-grid--r-39","jp-building-height-grid--r-38"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-49","jp-canopy-height--r-49","jp-building-height-grid--r-39","jp-canopy-height--r-39","jp-building-height-grid--r-59"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-51","jp-canopy-height--r-51","jp-building-height-grid--r-50","jp-canopy-height--r-50","jp-building-height-grid--r-41","jp-building-height-grid--r-40"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-52","jp-canopy-height--r-52","jp-building-height-grid--r-51","jp-canopy-height--r-51","jp-building-height-grid--r-42","jp-building-height-grid--r-41"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-53","jp-canopy-height--r-53","jp-building-height-grid--r-52","jp-canopy-height--r-52","jp-building-height-grid--r-43","jp-building-height-grid--r-42"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-54","jp-canopy-height--r-54","jp-building-height-grid--r-53","jp-canopy-height--r-53","jp-building-height-grid--r-44","jp-building-height-grid--r-43"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-55","jp-canopy-height--r-55","jp-building-height-grid--r-54","jp-canopy-height--r-54","jp-building-height-grid--r-45","jp-building-height-grid--r-44"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-56","jp-canopy-height--r-56","jp-building-height-grid--r-55","jp-canopy-height--r-55","jp-building-height-grid--r-46","jp-building-height-grid--r-45"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-57","jp-canopy-height--r-57","jp-building-height-grid--r-56","jp-canopy-height--r-56","jp-building-height-grid--r-47","jp-building-height-grid--r-46"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-58","jp-canopy-height--r-58","jp-building-height-grid--r-57","jp-canopy-height--r-57","jp-building-height-grid--r-48","jp-building-height-grid--r-47"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-59","jp-canopy-height--r-59","jp-building-height-grid--r-58","jp-canopy-height--r-58","jp-building-height-grid--r-49","jp-building-height-grid--r-48"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-59","jp-canopy-height--r-59","jp-building-height-grid--r-49","jp-canopy-height--r-49","jp-building-height-grid--r-69"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-61","jp-canopy-height--r-61","jp-building-height-grid--r-60","jp-canopy-height--r-60","jp-building-height-grid--r-51","jp-building-height-grid--r-50"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-62","jp-canopy-height--r-62","jp-building-height-grid--r-61","jp-canopy-height--r-61","jp-building-height-grid--r-52","jp-building-height-grid--r-51"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-63","jp-canopy-height--r-63","jp-building-height-grid--r-62","jp-canopy-height--r-62","jp-building-height-grid--r-53","jp-building-height-grid--r-52"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-64","jp-canopy-height--r-64","jp-building-height-grid--r-63","jp-canopy-height--r-63","jp-building-height-grid--r-54","jp-building-height-grid--r-53"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-65","jp-canopy-height--r-65","jp-building-height-grid--r-64","jp-canopy-height--r-64","jp-building-height-grid--r-55","jp-building-height-grid--r-54"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-66","jp-canopy-height--r-66","jp-building-height-grid--r-65","jp-canopy-height--r-65","jp-building-height-grid--r-56","jp-building-height-grid--r-55"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-67","jp-canopy-height--r-67","jp-building-height-grid--r-66","jp-canopy-height--r-66","jp-building-height-grid--r-57","jp-building-height-grid--r-56"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-68","jp-canopy-height--r-68","jp-building-height-grid--r-67","jp-canopy-height--r-67","jp-building-height-grid--r-58","jp-building-height-grid--r-57"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-69","jp-canopy-height--r-69","jp-building-height-grid--r-68","jp-canopy-height--r-68","jp-building-height-grid--r-59","jp-building-height-grid--r-58"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-69","jp-canopy-height--r-69","jp-building-height-grid--r-59","jp-canopy-height--r-59","jp-building-height-grid--r-79"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-71","jp-canopy-height--r-71","jp-building-height-grid--r-70","jp-canopy-height--r-70","jp-building-height-grid--r-61","jp-building-height-grid--r-60"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-72","jp-canopy-height--r-72","jp-building-height-grid--r-71","jp-canopy-height--r-71","jp-building-height-grid--r-62","jp-building-height-grid--r-61"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-73","jp-canopy-height--r-73","jp-building-height-grid--r-72","jp-canopy-height--r-72","jp-building-height-grid--r-63","jp-building-height-grid--r-62"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-74","jp-canopy-height--r-74","jp-building-height-grid--r-73","jp-canopy-height--r-73","jp-building-height-grid--r-64","jp-building-height-grid--r-63"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-75","jp-canopy-height--r-75","jp-building-height-grid--r-74","jp-canopy-height--r-74","jp-building-height-grid--r-65","jp-building-height-grid--r-64"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-76","jp-canopy-height--r-76","jp-building-height-grid--r-75","jp-canopy-height--r-75","jp-building-height-grid--r-66","jp-building-height-grid--r-65"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-77","jp-canopy-height--r-77","jp-building-height-grid--r-76","jp-canopy-height--r-76","jp-building-height-grid--r-67","jp-building-height-grid--r-66"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-78","jp-canopy-height--r-78","jp-building-height-grid--r-77","jp-canopy-height--r-77","jp-building-height-grid--r-68","jp-building-height-grid--r-67"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-79","jp-canopy-height--r-79","jp-building-height-grid--r-78","jp-canopy-height--r-78","jp-building-height-grid--r-69","jp-building-height-grid--r-68"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-79","jp-canopy-height--r-79","jp-building-height-grid--r-69","jp-canopy-height--r-69","jp-building-height-grid--r-89"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-81","jp-canopy-height--r-81","jp-building-height-grid--r-80","jp-canopy-height--r-80","jp-building-height-grid--r-71","jp-building-height-grid--r-70"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-82","jp-canopy-height--r-82","jp-building-height-grid--r-81","jp-canopy-height--r-81","jp-building-height-grid--r-72","jp-building-height-grid--r-71"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-83","jp-canopy-height--r-83","jp-building-height-grid--r-82","jp-canopy-height--r-82","jp-building-height-grid--r-73","jp-building-height-grid--r-72"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-84","jp-canopy-height--r-84","jp-building-height-grid--r-83","jp-canopy-height--r-83","jp-building-height-grid--r-74","jp-building-height-grid--r-73"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-85","jp-canopy-height--r-85","jp-building-height-grid--r-84","jp-canopy-height--r-84","jp-building-height-grid--r-75","jp-building-height-grid--r-74"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-86","jp-canopy-height--r-86","jp-building-height-grid--r-85","jp-canopy-height--r-85","jp-building-height-grid--r-76","jp-building-height-grid--r-75"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-87","jp-canopy-height--r-87","jp-building-height-grid--r-86","jp-canopy-height--r-86","jp-building-height-grid--r-77","jp-building-height-grid--r-76"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-88","jp-canopy-height--r-88","jp-building-height-grid--r-87","jp-canopy-height--r-87","jp-building-height-grid--r-78","jp-building-height-grid--r-77"],"available":100,"capped":7}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-89","jp-canopy-height--r-89","jp-building-height-grid--r-88","jp-canopy-height--r-88","jp-building-height-grid--r-79","jp-building-height-grid--r-78"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-89","jp-canopy-height--r-89","jp-building-height-grid--r-79","jp-canopy-height--r-79","jp-building-height-grid--r-99"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-91","jp-canopy-height--r-91","jp-building-height-grid--r-90","jp-canopy-height--r-90","jp-building-height-grid--r-81","jp-building-height-grid--r-80"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-92","jp-canopy-height--r-92","jp-building-height-grid--r-91","jp-canopy-height--r-91","jp-building-height-grid--r-82","jp-building-height-grid--r-81"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-93","jp-canopy-height--r-93","jp-building-height-grid--r-92","jp-canopy-height--r-92","jp-building-height-grid--r-83","jp-building-height-grid--r-82"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-94","jp-canopy-height--r-94","jp-building-height-grid--r-93","jp-canopy-height--r-93","jp-building-height-grid--r-84","jp-building-height-grid--r-83"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-95","jp-canopy-height--r-95","jp-building-height-grid--r-94","jp-canopy-height--r-94","jp-building-height-grid--r-85","jp-building-height-grid--r-84"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-96","jp-canopy-height--r-96","jp-building-height-grid--r-95","jp-canopy-height--r-95","jp-building-height-grid--r-86","jp-building-height-grid--r-85"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-97","jp-canopy-height--r-97","jp-building-height-grid--r-96","jp-canopy-height--r-96","jp-building-height-grid--r-87","jp-building-height-grid--r-86"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-98","jp-canopy-height--r-98","jp-building-height-grid--r-97","jp-canopy-height--r-97","jp-building-height-grid--r-88","jp-building-height-grid--r-87"],"available":100,"capped":4}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-99","jp-canopy-height--r-99","jp-building-height-grid--r-98","jp-canopy-height--r-98","jp-building-height-grid--r-89","jp-building-height-grid--r-88"],"available":100,"capped":2}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-99","jp-canopy-height--r-99","jp-building-height-grid--r-89","jp-canopy-height--r-89"],"available":100,"capped":0}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-91","jp-canopy-height--r-91","jp-building-height-grid--r-90","jp-canopy-height--r-90","jp-building-height-grid--r-92"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-92","jp-canopy-height--r-92","jp-building-height-grid--r-91","jp-canopy-height--r-91","jp-building-height-grid--r-93"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-93","jp-canopy-height--r-93","jp-building-height-grid--r-92","jp-canopy-height--r-92","jp-building-height-grid--r-94"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-94","jp-canopy-height--r-94","jp-building-height-grid--r-93","jp-canopy-height--r-93","jp-building-height-grid--r-95"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-95","jp-canopy-height--r-95","jp-building-height-grid--r-94","jp-canopy-height--r-94","jp-building-height-grid--r-96"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-96","jp-canopy-height--r-96","jp-building-height-grid--r-95","jp-canopy-height--r-95","jp-building-height-grid--r-97"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-97","jp-canopy-height--r-97","jp-building-height-grid--r-96","jp-canopy-height--r-96","jp-building-height-grid--r-98"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-98","jp-canopy-height--r-98","jp-building-height-grid--r-97","jp-canopy-height--r-97","jp-building-height-grid--r-99"],"available":100,"capped":1}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-99","jp-canopy-height--r-99","jp-building-height-grid--r-98","jp-canopy-height--r-98"],"available":100,"capped":0}
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-99","jp-canopy-height--r-99"],"available":100,"capped":0}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > unmounts outside coverage and when both toggles are off, including a world-copy view
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-55","jp-canopy-height--r-55","jp-building-height-grid--r-54","jp-canopy-height--r-54","jp-building-height-grid--r-45","jp-building-height-grid--r-44"],"available":100,"capped":98}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > unmounts outside coverage and when both toggles are off, including a world-copy view
+[jp-height-lifecycle] {"status":"ready","active":[],"available":100,"capped":0}
+
+ ✓ src/data/__tests__/socialStatisticsContract.test.ts (5 tests) 3495ms
+   ✓ social statistics adapter contract > intersects every exact tuple with the public release identity and rejects altered identity  771ms
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > unmounts outside coverage and when both toggles are off, including a world-copy view
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height--r-59","jp-canopy-height--r-59","jp-building-height--r-49","jp-canopy-height--r-49","jp-building-height--r-69","jp-building-height--r-58"],"available":100,"capped":98}
+[jp-height-lifecycle] {"status":"ready","active":[],"available":100,"capped":0}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > uses canopy overview below regional detail zoom and for an uncovered high-zoom view
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-55","jp-canopy-height--r-55","jp-building-height-grid--r-54","jp-canopy-height--r-54","jp-building-height-grid--r-45","jp-building-height-grid--r-44"],"available":100,"capped":98}
+
+stdout | src/map/__tests__/jpHeightLifecycle.test.ts > catalog-driven JP height lifecycle > uses canopy overview below regional detail zoom and for an uncovered high-zoom view
+[jp-height-lifecycle] {"status":"ready","active":["jp-building-height-grid--r-55","jp-building-height-grid--r-54","jp-building-height-grid--r-45","jp-building-height-grid--r-44","jp-canopy-height--overview"],"available":100,"capped":96}
+[jp-height-lifecycle] {"status":"ready","active":["jp-canopy-height--overview"],"available":100,"capped":0}
+
+ ✓ src/map/__tests__/jpHeightLifecycle.test.ts (5 tests) 1585ms
+   ✓ catalog-driven JP height lifecycle > loads a 100-city catalog, caps source classes, and reports capped regions  384ms
+   ✓ catalog-driven JP height lifecycle > keeps listeners bounded through style-like suspend/resume cycles  479ms
+   ✓ catalog-driven JP height lifecycle > unmounts outside coverage and when both toggles are off, including a world-copy view  425ms
+ ❯ src/research/__tests__/wasteStopsOwnerDataset.test.ts (3 tests | 1 failed) 5534ms
+   ✓ requires a bbox and exposes only safe owner-only proxy fields 11ms
+   × matches an independent Chiayi bbox and source-method variant oracle with bounded reads 5021ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ has only safe properties in the immutable partitions and fails closed for a nationwide scan  499ms
+ ✓ src/map/__tests__/overlayExpressions.test.ts (5 tests) 5015ms
+   ✓ overlay 表達式（Mapbox style-spec 靜態驗證） > OVERLAY_REGISTRY 全部 layer 在 dark 主題下都是合法 style  2126ms
+   ✓ overlay 表達式（Mapbox style-spec 靜態驗證） > OVERLAY_REGISTRY 全部 layer 在 light 主題下都是合法 style  1395ms
+   ✓ overlay 表達式（Mapbox style-spec 靜態驗證） > 有 filter 函式的 layer，在各種 params index/bitmask 下都產出合法 filter  1134ms
+   ✓ overlay 表達式（Mapbox style-spec 靜態驗證） > 公司人口結構在全選、全關、單中類與兩個年齡模式都產出合法 style  347ms
+stderr | src/research/__tests__/aviationNoiseZonesDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/lib/__tests__/urlState.test.ts (75 tests) 3717ms
+   ✓ parseUrlState — 圖層安全過濾 > production deep link 不得恢復未發布的統計比較圖層  1090ms
+   ✓ parseUrlState — 圖層安全過濾 > development 與明確 production release opt-in 保留統計比較 deep link  2315ms
+ ✓ src/research/__tests__/forestRecreationOwnerDataset.test.ts (2 tests) 2040ms
+   ✓ keeps 23 official source surfaces and source-null attributes distinct  465ms
+   ✓ uses full-source Polygon intersection for two places and Cilan's park variants  1573ms
+ ✓ src/data/__tests__/regionalStatisticsLoader.test.ts (22 tests) 3844ms
+   ✓ regional statistics R2 CDN contract > keeps preview whitelist tuples exact and defaults to the latest verified option  2999ms
+ ✓ src/research/__tests__/aviationNoiseZonesDataset.test.ts (4 tests) 813ms
+   ✓ aviation noise legal village zones fixed snapshot adapter > uses complete Polygon intersection only as a bounded read selector  665ms
+ ❯ src/research/__tests__/capabilityAudit.test.ts (1 test | 1 failed) 153679ms
+   × capability audit P0 ledger > keeps every manifest layer while retaining the unknown queue reconciliation 153679ms
+     → Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+stderr | src/research/__tests__/statisticsDatasetAdapters.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/featureInfo/__tests__/bridgeResiliencePanels.test.ts (24 tests) 1594ms
+   ✓ 雙北跨河橋梁韌性 popup（不分遠近） > 機車 p90 為 null 時顯示「無受影響目的地」，不是 0  487ms
+ ✓ src/data/__tests__/statisticsColorAccessibility.test.ts (5 tests) 796ms
+   ✓ normal: numeric ordering survives color-vision simulation without changing thresholds  483ms
+ ✓ src/research/__tests__/commonRegistrationAddressesDataset.test.ts (3 tests) 640ms
+   ✓ reads the full immutable common-registration source with its published field contract  410ms
+stderr | src/chat/tools/__tests__/wasteStopsChatDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/statisticsDatasetAdapters.test.ts (6 tests) 939ms
+stderr | src/research/__tests__/boundedGeometrySession.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/educationChildcareOwnerDatasets.test.ts (4 tests) 1300ms
+   ✓ retains all three independent source tables while preserving their unlocated records  719ms
+   ✓ uses independent location oracles and keeps bbox separate from unlocated source rows  512ms
+stderr | src/research/__tests__/pollutionSitesDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/companyCapitalGridOwnerDataset.test.ts (3 tests) 2410ms
+   ✓ keeps the 202608 1.5km grid source identity and all-missing capital semantics  750ms
+   ✓ matches independent Taipei and Kaohsiung grid-cell oracles  537ms
+   ✓ filters the complete 1.5km Polygon against a tiny bbox in two regions  1115ms
+ ✓ src/research/__tests__/performingVenuesDataset.test.ts (2 tests) 430ms
+   ✓ keeps the complete 861-row owner-only source but permits only bounded reference lookup  360ms
+stderr | src/components/legend/__tests__/legendAlignment.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/chat/tools/__tests__/wasteStopsChatDataset.test.ts (15 tests) 3337ms
+   ✓ wasteStopsStatic 聊天精簡檔（PF-14） > 與原 GeoJSON 查詢結果一致 > groupBy city 相同  357ms
+   ✓ wasteStopsStatic 聊天精簡檔（PF-14） > 與原 GeoJSON 查詢結果一致 > filterEq district=板橋區 筆數相同  656ms
+   ✓ wasteStopsStatic 聊天精簡檔（PF-14） > 與原 GeoJSON 查詢結果一致 > filterEq vehicle_type=kitchen 筆數相同  394ms
+   ✓ wasteStopsStatic 聊天精簡檔（PF-14） > 與原 GeoJSON 查詢結果一致 > 座標 5 位小數：每點位移 ≤ 1e-5 度，nearest 距離差 ≤ 0.01 km  1285ms
+stderr | src/components/intel/__tests__/GlobalEventsTab.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/__tests__/TimeseriesSparkline.test.ts (25 tests) 532ms
+   ✓ TimeseriesSparkline monitor v2 (spec §5.35 E3) > heightTier 讓圖區等於 MON_CHART_H（總高＝圖區＋軸留白）  398ms
+ ✓ src/research/__tests__/boundedGeometrySession.test.ts (7 tests) 2991ms
+   ✓ bounded geometry session integration > preserves lineage, units and eligible derived surface through buffer, intersection and measurement  1941ms
+   ✓ bounded geometry session integration > flattens source contracts and geometry-operation audit so the unchanged transport guard accepts the receipt  339ms
+   ✓ bounded geometry session integration > fails closed when flattened lineage item counts or metadata bytes exceed the V03 budget  385ms
+ ✓ src/research/__tests__/pollutionSitesDataset.test.ts (2 tests) 1770ms
+   ✓ preserves active and deannounced records as separate source states  1379ms
+   ✓ rejects a changed fixed source  336ms
+ ✓ src/components/legend/__tests__/legendAlignment.test.ts (14 tests) 2494ms
+   ✓ R4 legend theme colors agree with map paint > forestCompartments: both themes render a matching theme-specific paint color  598ms
+   ✓ R4 legend theme colors agree with map paint > jpAccommodationDensity: both themes render a matching theme-specific paint color  667ms
+stderr | src/map/__tests__/pmtilesContract.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/legend/__tests__/legendKit.test.ts (8 tests) 50ms
+stderr | src/research/__tests__/hotSpringDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/cemeteryZoningDatasetAdapter.test.ts (3 tests) 405ms
+   ✓ cemetery zoning derived snapshot adapter > verifies the fixed bytes, count, IDs, CRS and faithfully materializes source MultiPolygons  394ms
+ ✓ src/data/__tests__/gfwFishingEffortLoader.test.ts (5 tests) 1656ms
+   ✓ GFW Fishing Effort shadow contract > 嚴格驗 2,887 個 LOW 0.1° Polygon、非負 hours、component 與 facets 長度  1116ms
+   ✓ GFW Fishing Effort shadow contract > 先驗 compressed bytes/SHA，再解 gzip JSON  394ms
+stdout | src/map/__tests__/pmtilesContract.test.ts > PMTiles 契約 > registry 的 sourceLayer 都存在於切片檔內（打錯 = 圖層永遠空白且不報錯）
+✓ 驗了 19/127 個 PMTiles（其餘本機無檔，由 S3 管理）
+
+ ✓ src/map/__tests__/pmtilesContract.test.ts (2 tests) 681ms
+   ✓ PMTiles 契約 > registry 的 sourceLayer 都存在於切片檔內（打錯 = 圖層永遠空白且不報錯）  465ms
+ ✓ src/components/intel/__tests__/GlobalEventsTab.test.ts (8 tests) 797ms
+ ✓ src/research/__tests__/forestTreatmentWorksDataset.test.ts (1 test) 696ms
+   ✓ keeps the owner-only processed receipt, a new-place bbox oracle, and year/blank-city variants  695ms
+ ✓ src/research/__tests__/hotSpringDataset.test.ts (3 tests) 231ms
+ ✓ src/research/__tests__/forestryPointDatasets.test.ts (1 test) 599ms
+   ✓ registers the three fixed, source-coordinate forestry Point snapshots  598ms
+stderr | src/hooks/useAllenCoralAtlasLayer.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/civicCultureDatasets.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/cemeteryZoningOwnerDataset.test.ts (3 tests) 984ms
+   ✓ keeps the two-city split and full source attributes  395ms
+   ✓ matches independent Taipei and New Taipei source surface oracles  571ms
+ ✓ src/map/__tests__/privateCoralPmtiles.test.ts (9 tests) 548ms
+ ✓ src/hooks/useAllenCoralAtlasLayer.test.ts (12 tests) 344ms
+ ✓ src/components/sidebar/__tests__/StatisticsDetails.test.ts (18 tests) 1933ms
+ ✓ src/state/__tests__/layerParamsStore.test.ts (22 tests) 1642ms
+   ✓ spec ⇄ manifest 焊接 > 每個已遷移 key 的 count / kinds ＝ manifest 宣告（預設值下可見的控件）  684ms
+   ✓ store identity 紀律 > reset 回到 buildDefaultParams  391ms
+ ✓ src/state/__tests__/layerParamsControls.test.ts (24 tests) 808ms
+   ✓ buildParamControls > encodeNumeric：out 是值本身而不是選項索引  346ms
+ ✓ src/research/__tests__/civicCultureDatasets.test.ts (3 tests) 673ms
+ ✓ src/research/__tests__/evChargingOwnerDataset.test.ts (2 tests) 888ms
+   ✓ matches two independent processed-source bbox oracles and source filter  884ms
+ ✓ src/components/featureInfo/__tests__/bssBridgePanels.test.ts (8 tests) 1169ms
+   ✓ 全臺橋梁研究（進行中）popup 語意 > BSS 第一階段支持保留未驗證實橋與舊綜合 QA 界線  338ms
+   ✓ 全臺橋梁研究（進行中）popup 語意 > 全臺 BSS 預覽保留 HOLD、offset 與未評估連通性語意  474ms
+stderr | src/research/__tests__/warehouseResultImport.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/artsEventsOwnerDataset.test.ts (2 tests) 604ms
+   ✓ keeps source-grain show records and null geometry in a fixed historical snapshot  593ms
+stderr | src/research/__tests__/iPostBoxesDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/communityCentersListedDataset.test.ts (1 test) 681ms
+   ✓ keeps every source listing, including proxies and unlocated centers, outside spatial analysis  680ms
+ ✓ src/research/__tests__/speedCameraDataset.test.ts (3 tests) 1306ms
+   ✓ preserves all source attributes while keeping suspect coordinates out of spatial claims  461ms
+   ✓ only enables bounded spatial reads for the 2,743 non-suspect coordinates  758ms
+stderr | src/research/__tests__/zoningAttributeSidecar.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/busRouteDatasetAdapter.test.ts (5 tests) 1070ms
+   ✓ Chiayi TDX bus route research adapter > materializes all 31 verified same-origin route shapes from the immutable local fixture  625ms
+   ✓ Chiayi TDX bus route research adapter > rejects malformed coordinates and oversized route sets while retaining distinct map-keyed paths  407ms
+ ✓ src/research/__tests__/iPostBoxesDataset.test.ts (3 tests) 2849ms
+   ✓ registers the complete verified iPost Box source snapshot and preserves source-empty payment semantics  2050ms
+   ✓ answers a new island place and treats 台/臺 address variants equivalently  721ms
+ ✓ src/research/__tests__/zoningAttributeSidecar.test.ts (3 tests) 2600ms
+   ✓ answers category and source-code variants from all 15,518 records with a pinned receipt  1243ms
+   ✓ pages beyond ten thousand features without truncating the source  1178ms
+ ✓ src/research/__tests__/welfareCarePointsDatasets.test.ts (3 tests) 3414ms
+   ✓ reads only the fixed 3,053-record TGOS LTC sidecar with its receipt and null semantics  2225ms
+   ✓ reads only the fixed 1,043-record TGOS elderly-home sidecar with explicit source nulls  1137ms
+ ✓ src/data/__tests__/statisticsVisuals.test.ts (38 tests) 2126ms
+   ✓ getStatisticsVisual > 教育學校 uses a semantic icon  370ms
+   ✓ getStatisticsVisual > uses sequential palettes with at least five ordered classes  930ms
+   ✓ getStatisticsVisual > covers all source keys, presentation views, and their manifest entries  576ms
+ ✓ src/research/__tests__/researchConnectionRecovery.test.ts (10 tests) 2780ms
+   ✓ AgentTabSession (P3, no pairing code) > resumes the stored study after a reload without creating a new one  515ms
+   ✓ ResearchConnection (P3) > signed-in tab creates its study and stands by on /browser/wait without a pairing code  1668ms
+ ✓ src/research/__tests__/tourAttractionsDataset.test.ts (1 test) 1546ms
+   ✓ reads the fixed V2.1 attraction snapshot without converting unreported visitor values to zero  1544ms
+ ✓ src/research/__tests__/lpgOwnerDatasets.test.ts (2 tests) 638ms
+   ✓ keeps the verified category subsets and a new-place bbox oracle  618ms
+ ✓ src/research/__tests__/nursingHomesOwnerDataset.test.ts (2 tests) 573ms
+   ✓ matches Taipei processed bbox oracle  524ms
+ ✓ src/research/__tests__/pointDatasetAdapter.test.ts (12 tests) 1023ms
+ ✓ src/research/__tests__/wraWaterSystemsOwnerDatasets.test.ts (2 tests) 508ms
+   ✓ matches independent north and south WRA source bboxes, preserving null engineering measures  498ms
+ ✓ src/data/__tests__/statisticsPresentationViews.test.ts (5 tests) 1537ms
+ ✓ src/research/__tests__/warehouseResultImport.test.ts (11 tests) 655ms
+ ✓ src/research/__tests__/welfareCarePointsOwnerDatasets.test.ts (2 tests) 544ms
+   ✓ keeps both mixed-coordinate welfare snapshots owner-only with source and null receipts  444ms
+ ✓ src/research/__tests__/tourHeritageFixedDataset.test.ts (1 test) 741ms
+   ✓ reads the pinned Point snapshot for a new-place bbox and preserves historical-building grade missingness  741ms
+ ✓ src/data/__tests__/bridgeResilienceTypes.test.ts (23 tests) 1503ms
+   ✓ 私人 JSON 載入 > 超過 8 MiB 的資產分段 Range，位元組拼接後才解碼（多位元組字元跨段也正確）  938ms
+stderr | src/components/intel/monitor/__tests__/TelecomStatusCard.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/publicToiletsDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/queryExecutor.test.ts (11 tests) 1406ms
+   ✓ shared research query executor > uses version-bound cursors, bbox and projections while returning access and limit receipts  424ms
+   ✓ shared research query executor > fails closed when a bbox-enabled surface row is malformed or exceeds the geometry budget  420ms
+stderr | src/research/__tests__/visibleSummary.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/map/__tests__/overlayManager.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/visibleSummary.test.ts (10 tests) 228ms
+ ✓ src/components/intel/monitor/__tests__/TelecomStatusCard.test.ts (16 tests) 647ms
+ ✓ src/research/__tests__/publicToiletsDataset.test.ts (2 tests) 991ms
+   ✓ queries the pinned full facility snapshot by county and a Hualien bbox  985ms
+ ✓ src/map/__tests__/overlayManager.test.ts (371 tests) 899ms
+stderr | src/research/__tests__/policeStationsDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/state/__tests__/layerParamsOrder.test.ts (4 tests) 724ms
+   ✓ 設定區順序（P5） > buildParamControls 依 資料篩選→顏色→透明度→大小→其他外觀 輸出  701ms
+ ✓ src/research/__tests__/gasStationsDataset.test.ts (3 tests) 673ms
+   ✓ keeps the verified canonical full source and all five gas-station layer references  374ms
+ ✓ src/research/__tests__/policeStationsDataset.test.ts (3 tests) 726ms
+   ✓ keeps the verified police-station Point snapshot without publishing contact or provenance fields  502ms
+stderr | src/research/__tests__/warehouseResultStyle.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/agriPoiDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/govWelfareOfficesDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/map/__tests__/hookLineFillSpec.test.ts (5 tests) 1213ms
+   ✓ R3b hook line/fill contract > hook fill-outline-color ratchet remains zero (F2 independent outlines)  725ms
+ ✓ src/research/__tests__/protectedTreesOwnerDataset.test.ts (1 test) 703ms
+   ✓ keeps the owner-only eight-city receipt, new-place bbox oracle, and source null variant  702ms
+ ✓ src/research/__tests__/agriPoiDataset.test.ts (2 tests | 1 skipped) 20ms
+ ✓ src/research/__tests__/policeJusticeHistoricalOwnerDatasets.test.ts (2 tests) 632ms
+   ✓ matches independent A1 source oracles at Puli and Taipei  425ms
+ ✓ src/research/__tests__/warehouseResultStyle.test.ts (46 tests) 175ms
+ ✓ src/research/__tests__/govWelfareOfficesDataset.test.ts (3 tests) 363ms
+   ✓ registers the 133 direct TGOS coordinates, retaining snapshot provenance and 台/臺 matching  328ms
+ ✓ src/state/__tests__/linkedSelect.test.ts (17 tests) 914ms
+   ✓ 統計群組「指標」（群組變體） > 選項＝群組成員、值＝目前可見成員；切換＝同期別換可見圖層，不存進場景  547ms
+stdout | src/data/__tests__/classificationCoverage.test.ts > 分類表覆蓋資料實際值 > education/schools.geojson 的 school_level 沒有分類表漏掉的值
+⚠ education/schools.geojson 本機不存在，跳過
+
+stdout | src/data/__tests__/classificationCoverage.test.ts > 分類表覆蓋資料實際值 > education/kindergartens.geojson 的 公/私立 沒有分類表漏掉的值
+⚠ education/kindergartens.geojson 本機不存在，跳過
+
+stdout | src/data/__tests__/classificationCoverage.test.ts > deity_family 上下游 SSOT 一致性 > religionTypes.DEITY_FAMILIES 與上游 deity_family.py 的 family key 相同
+⚠ taipei-gis-analytics 不在 sibling 路徑；跳過跨 repo 檢查
+
+ ✓ src/data/__tests__/classificationCoverage.test.ts (13 tests) 1516ms
+   ✓ 分類表覆蓋資料實際值 > hazards/mountain_rescue_incidents.geojson 的 cause 沒有分類表漏掉的值  711ms
+   ✓ 分類表覆蓋資料實際值 > welfare/nursing_homes_national.geojson 的 nh_type 沒有分類表漏掉的值  326ms
+ ✓ src/research/__tests__/pollutionFacilitiesDataset.test.ts (3 tests) 706ms
+   ✓ accepts Vite's transparent gzip response only when decoded bytes match the immutable shard receipt  540ms
+ ✓ src/research/__tests__/welfareGeocodedOwnerDatasets.test.ts (2 tests) 1310ms
+   ✓ keeps all three mixed-coordinate snapshots owner-only with provenance and null receipts  1102ms
+stderr | src/research/__tests__/earthquakeDatasetAdapter.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/serviceAreaFixedDataset.test.ts (3 tests) 462ms
+   ✓ reads the complete pinned Highway Bureau source snapshot without treating it as access or current operations  375ms
+ ✓ src/research/__tests__/earthquakeDatasetAdapter.test.ts (8 tests) 802ms
+stderr | src/state/__tests__/layerPalette.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/state/__tests__/layerPalette.test.ts (10 tests) 142ms
+ ✓ src/data/__tests__/bridgeResilienceDestinations.test.ts (10 tests) 406ms
+stderr | src/research/__tests__/nearbyData.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/communityCentersDataset.test.ts (3 tests) 444ms
+   ✓ registers only the bounded native-coordinate subset and handles 台/臺 county variants  312ms
+ ✓ src/state/__tests__/layerVisibilityStore.test.ts (22 tests) 836ms
+ ✓ src/research/__tests__/nearbyData.test.ts (3 tests) 192ms
+stderr | src/research/__tests__/nearbyAcceptance.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/groundwaterWellsOwnerDataset.test.ts (4 tests) 831ms
+   ✓ requires bbox and keeps the live groundwater layer out of scope  339ms
+   ✓ matches two new-city source oracles and preserves known false/null semantics  417ms
+ ✓ src/data/__tests__/loadingRegistryContract.test.ts (2 tests) 301ms
+stderr | src/map/__tests__/r5HeatmapContract.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/timelineControl.test.ts (6 tests) 293ms
+ ✓ src/research/__tests__/geothermalWellsOwnerDataset.test.ts (2 tests) 52ms
+stderr | src/research/__tests__/retailMarketsDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/nearbyAcceptance.test.ts (2 tests | 1 skipped) 114ms
+ ✓ src/data/__tests__/gfwHourlyDetailLoader.test.ts (13 tests) 392ms
+   ✓ GFW v3 detail/frame contract > formal Passenger hydrate selects its own same-hash shard and returns complete members  322ms
+ ✓ src/map/__tests__/r5HeatmapContract.test.ts (175 tests) 588ms
+ ✓ src/data/__tests__/statisticsColorScale.test.ts (2 tests) 35ms
+ ✓ src/research/__tests__/retailMarketsDataset.test.ts (3 tests) 1123ms
+   ✓ registers only the 653 TGOS address-level records with version-bound provenance  821ms
+ ✓ src/research/__tests__/wasteFacilitiesOwnerDatasets.test.ts (3 tests) 567ms
+   ✓ returns only its own facility category and fails closed on each source-category count  447ms
+ ✓ src/research/__tests__/canopyGiantsDataset.test.ts (3 tests) 740ms
+   ✓ matches a new-place bbox oracle from the exact Mini display artifact  653ms
+ ✓ src/data/__tests__/demographicsStatisticsContract.test.ts (14 tests) 854ms
+   ✓ demographics statistics recipes > states the RIS source and unverified licence, self-computed median and planar density area  397ms
+stderr | src/research/__tests__/QueryResponder.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/lighthouseDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/components/featureInfo/__tests__/marinePanels.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/featureInfo/__tests__/marinePanels.test.ts (6 tests) 204ms
+ ✓ src/research/__tests__/dgbasCountyTransportOwnerDatasets.test.ts (3 tests) 1249ms
+   ✓ DGBAS county transport owner-only releases > reads two counties from each requested year without mixing releases  634ms
+   ✓ DGBAS county transport owner-only releases > rejects undeclared release selectors and changed owner-only bytes  453ms
+ ✓ src/research/__tests__/culturalFacilitiesOwnerDataset.test.ts (2 tests) 487ms
+   ✓ matches independent Taipei and Kaohsiung point oracles  441ms
+ ✓ src/research/__tests__/QueryResponder.test.ts (12 tests) 109ms
+ ✓ src/research/__tests__/religionPointsOwnerDatasets.test.ts (3 tests) 528ms
+   ✓ reads five bounded owner-only religion snapshots while retaining their source licenses  417ms
+ ✓ src/research/__tests__/AgentTokenSection.test.ts (8 tests) 148ms
+ ✓ src/research/__tests__/lighthouseDataset.test.ts (2 tests) 46ms
+ ✓ src/lib/__tests__/taipeiDay.test.ts (3 tests) 51ms
+ ✓ src/research/__tests__/serviceAreaPolygonDataset.test.ts (3 tests) 186ms
+ ✓ src/chat/__tests__/lazyAgent.test.ts (4 tests) 343ms
+ ✓ src/research/__tests__/scenicAreasDataset.test.ts (4 tests) 349ms
+ ✓ src/data/__tests__/memberLibraryLoader.test.ts (3 tests) 187ms
+stderr | src/research/__tests__/analysisResultMotion.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/featureInfo/__tests__/regionalStatisticsPanel.test.ts (2 tests) 451ms
+   ✓ RegionalStatisticsPanel labor semantics > shows location, boundary role, coverage, and source-not-covered separately from zero  323ms
+ ✓ src/research/__tests__/publicLibrariesDataset.test.ts (3 tests) 538ms
+   ✓ allows bounded spatial reads only for the 570 TGOS address coordinates  346ms
+stderr | src/map/__tests__/pointSpec.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/mountainPointsOwnerDatasets.test.ts (2 tests) 477ms
+   ✓ matches raw bbox oracles  465ms
+ ✓ src/map/__tests__/pointSpec.test.ts (11 tests) 787ms
+   ✓ R2 點圖層規格（pointSpec） > P-2 A：固定描邊一律是底圖色 1px；依資料變化的描邊（資料編碼）保留  510ms
+stderr | src/research/__tests__/govServiceOfficesDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/analysisResultMotion.test.ts (31 tests) 97ms
+ ✓ src/hooks/__tests__/useGfwHourlyGridLayer.test.ts (20 tests) 542ms
+ ✓ src/research/__tests__/welfareChildServicesOwnerDataset.test.ts (3 tests) 677ms
+   ✓ retains all 1,425 source rows including structural no-coordinate records  435ms
+ ✓ src/research/__tests__/govServiceOfficesDataset.test.ts (3 tests) 378ms
+stderr | src/hooks/__tests__/useBssBridgeLayers.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/vizRepresentations.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/hooks/__tests__/useMapInteraction.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/verifiedPointDataset.test.ts (4 tests) 193ms
+stderr | src/research/__tests__/landingStationDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useBssBridgeLayers.test.ts (6 tests) 26ms
+ ✓ src/research/__tests__/vizRepresentations.test.ts (27 tests) 305ms
+ ✓ src/hooks/__tests__/useMapInteraction.test.ts (10 tests) 24ms
+stderr | src/research/__tests__/warehouseResultRestore.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/useSoilLiquefactionPrivateAccess.test.ts (3 tests) 38ms
+stderr | src/components/sidebar/__tests__/layerConsistency.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/sidebar/__tests__/layerConsistency.test.ts (21 tests) 241ms
+ ✓ src/research/__tests__/landingStationDataset.test.ts (2 tests) 55ms
+ ✓ src/research/__tests__/campingDataset.test.ts (1 test) 160ms
+ ✓ src/research/__tests__/airportsOwnerDataset.test.ts (2 tests) 513ms
+   ✓ matches independent Point oracles in Taipei and Kaohsiung, including airport-type filtering  508ms
+ ✓ src/research/__tests__/warehouseResultRestore.test.ts (6 tests) 273ms
+ ✓ src/components/featureInfo/__tests__/GlobalEventPanel.test.ts (4 tests) 730ms
+   ✓ Global Events concise popup > shows only the requested fields in order, with 18px title and unchanged event content  622ms
+ ✓ src/data/__tests__/gfwDarkVesselsLoader.test.ts (5 tests) 39ms
+ ✓ src/research/__tests__/administrativeBoundaryAdapter.test.ts (6 tests | 1 skipped) 56ms
+ ✓ src/research/__tests__/coastGuardStationsDataset.test.ts (3 tests) 264ms
+stderr | src/map/__tests__/r3bStyleContract.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/roadEventDatasetAdapter.test.ts (5 tests) 155ms
+ ✓ src/map/__tests__/r3bStyleContract.test.ts (6 tests) 61ms
+ ✓ src/research/__tests__/populationDatasetAdapter.test.ts (5 tests) 53ms
+stderr | src/data/__tests__/internetHealthLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/waterMonitorStationsOwnerDataset.test.ts (2 tests) 257ms
+ ✓ src/data/__tests__/internetHealthLoader.test.ts (26 tests) 449ms
+   ✓ internet health RIPE timeline > marks a 5,000-row RPC response truncated without inventing complete coverage  302ms
+ ✓ src/embed/__tests__/replayClock.test.ts (28 tests) 91ms
+ ✓ src/research/__tests__/fireStationsDataset.test.ts (3 tests) 105ms
+ ✓ src/research/__tests__/aquacultureZoneOwnerDataset.test.ts (3 tests) 196ms
+stderr | src/chat/tools/__tests__/dataQuery.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/data/__tests__/globalEventsLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/globalEventsLoader.test.ts (6 tests) 330ms
+ ✓ src/data/__tests__/socialStatisticsRouting.test.ts (5 tests) 81ms
+ ✓ src/research/__tests__/tourEventsFixedDataset.test.ts (1 test) 140ms
+stderr | src/research/__tests__/forestryProxyDatasets.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/chat/tools/__tests__/dataQuery.test.ts (24 tests) 110ms
+stderr | src/data/__tests__/layerUxPolicy.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/layerUxPolicy.test.ts (9 tests) 25ms
+ ✓ src/data/__tests__/historicalFlightTrailsLoader.test.ts (15 tests) 154ms
+ ✓ src/research/__tests__/forestryProxyDatasets.test.ts (2 tests) 212ms
+stderr | src/research/__tests__/gridDatasetAdapter.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/intel/monitor/__tests__/NewsFeedPanel.test.ts (1 test) 152ms
+ ✓ src/research/__tests__/addressLookup.test.ts (5 tests) 64ms
+ ✓ src/research/__tests__/officialNoiseMonitoringDataset.test.ts (2 tests) 639ms
+   ✓ keeps all stations while distinguishing measured, historical and unavailable rows  320ms
+   ✓ allows bounded geometry only for located official stations  319ms
+ ✓ src/state/__tests__/statisticsDisplayModeStore.test.ts (12 tests) 683ms
+   ✓ statisticsDisplayModeStore > All Off 與逐一關閉每個開著的圖層結果一致（含統計面 recency 紀錄）  405ms
+ ✓ src/components/intel/monitor/__tests__/MonitorMetric.test.ts (11 tests) 98ms
+ ✓ src/research/__tests__/gridDatasetAdapter.test.ts (4 tests | 1 skipped) 712ms
+   ✓ routes a real-source subset through datasetId → resultId → polygon and preserves lineage  682ms
+ ✓ src/research/__tests__/portsOwnerDataset.test.ts (2 tests) 646ms
+   ✓ matches independent port point oracles in two coastal regions and a category variant  456ms
+ ✓ src/research/__tests__/livestockAuxOwnerDatasets.test.ts (1 test) 667ms
+   ✓ keeps three separate owner-only livestock families aligned with new-place processed oracles  666ms
+ ✓ src/research/bridgeClient.test.ts (24 tests | 1 skipped) 898ms
+ ✓ src/map/__tests__/deployContract.test.ts (27 tests) 370ms
+stderr | src/research/__tests__/layerStatistics.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/timeline/__tests__/timelineAxis.test.ts (18 tests) 543ms
+   ✓ 元件靜態渲染 > 即時模式（展開）：刻度軸 slider、中文控制項、沒有原生 range  451ms
+ ✓ src/research/__tests__/researchMotion.test.ts (8 tests) 321ms
+ ✓ src/research/__tests__/justiceFacilitiesOwnerDatasets.test.ts (3 tests) 638ms
+   ✓ reads six distinct source families as owner-only reference points  537ms
+ ✓ src/research/__tests__/localPopulationPreview.test.ts (4 tests) 416ms
+   ✓ fixed local population preview transport > rejects an oversized artifact before accepting snapshot data  366ms
+ ✓ src/chat/tools/__tests__/mapTools.test.ts (2 tests) 426ms
+ ✓ src/research/__tests__/layerStatistics.test.ts (20 tests | 2 skipped) 1447ms
+   ✓ generic full-source statistics > counts records rather than rendered geometry or deduplicated school IDs  497ms
+ ✓ src/hooks/__tests__/mapReadyTickCoverage.test.ts (2 tests) 791ms
+   ✓ layer hook map-ready 競態 > 含 mapRef 的 deps 陣列都帶上 mapTick  556ms
+ ✓ src/research/__tests__/culturalMuseumsDataset.test.ts (3 tests) 65ms
+stderr | src/map/__tests__/lineFillSpec.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/map/__tests__/lineFillSpec.test.ts (7 tests) 443ms
+ ✓ src/research/__tests__/sceneReadiness.test.ts (14 tests) 15ms
+stderr | src/research/__tests__/welfareCentersDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/shipTrails.test.ts (15 tests) 8ms
+stderr | src/data/__tests__/animalShelterOutcomesLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/animalShelterOutcomesLoader.test.ts (3 tests) 4ms
+ ✓ src/research/__tests__/welfareCentersDataset.test.ts (3 tests) 462ms
+   ✓ registers only upstream TGOS welfare centers and answers a new location plus 台/臺 variants  372ms
+ ✓ src/research/__tests__/soundCameraDataset.test.ts (1 test) 508ms
+   ✓ preserves all listed devices, including 66 with missing geometry  502ms
+stderr | src/hooks/__tests__/useIntelPollingQuery.runtime.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/gfwHourlyGridPlayback.test.ts (18 tests) 7ms
+stderr | src/hooks/__tests__/useSoilLiquefactionLayers.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/research/__tests__/mentalHealthFacilitiesDataset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useSoilLiquefactionLayers.test.ts (8 tests) 225ms
+stderr | src/research/__tests__/datasetLayerStatistics.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/embed/__tests__/embedPopup.test.ts (12 tests) 429ms
+   ✓ buildPopupHtml — 欄位過濾 > 數字加千分位  405ms
+ ✓ src/data/__tests__/railRoutesTypes.test.ts (2 tests) 14ms
+ ✓ src/research/__tests__/mentalHealthFacilitiesDataset.test.ts (3 tests) 55ms
+ ✓ src/hooks/__tests__/useIntelPollingQuery.runtime.test.ts (7 tests) 363ms
+   ✓ useIntelPollingQuery runtime scheduling > keeps one timer over 480 refresh cycles and releases it on close  338ms
+stderr | src/components/featureInfo/__tests__/analysisResultPanels.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/lib/__tests__/loadingStatusController.test.ts (9 tests) 15ms
+ ✓ src/research/__tests__/datasetLayerStatistics.test.ts (3 tests) 320ms
+ ✓ src/card/__tests__/cardStyle.test.ts (8 tests) 47ms
+ ✓ src/components/intel/monitor/__tests__/MonitorDataStatus.test.ts (2 tests) 108ms
+stderr | src/data/__tests__/environmentWave2Contract.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/satelliteDataState.test.ts (20 tests) 10ms
+ ✓ src/components/featureInfo/__tests__/analysisResultPanels.test.ts (6 tests) 43ms
+ ✓ src/research/__tests__/registeredLayerReader.test.ts (6 tests) 594ms
+   ✓ registered layer reader > rejects missing HTML assets, locked layers, and byte budgets without inventing an empty snapshot  308ms
+ ✓ src/research/__tests__/forestWildlifeReferenceDataset.test.ts (1 test) 433ms
+   ✓ keeps the fixed receipt, a new-place bbox oracle, and opaque source-field semantics  433ms
+ ✓ src/components/featureInfo/__tests__/AllenCoralAtlasPanel.test.ts (3 tests) 334ms
+ ✓ src/data/__tests__/environmentWave2Contract.test.ts (13 tests) 33ms
+ ✓ src/components/featureInfo/__tests__/networkStructuresPanels.test.ts (3 tests) 87ms
+ ✓ src/research/__tests__/justiceEventPointsOwnerDatasets.test.ts (2 tests) 441ms
+   ✓ exposes only bounded owner-only warning reference points  356ms
+stderr | src/data/__tests__/noiseLayersContract.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/data/__tests__/noiseLayersContract.test.ts > 噪音／聲響發布資產 > 五個新發布副本存在；裁處沒有第二份 noise 專屬 PMTiles
+⚠ public/environment/noise_capture_grid.pmtiles 本機不存在（deploy-assets 管理），略過內容驗證
+⚠ public/environment/noise_control_zones.pmtiles 本機不存在（deploy-assets 管理），略過內容驗證
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/campus_polygon.pmtiles 的 school_level 分色表涵蓋切片內所有值
+⚠ public/education/campus_polygon.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/campus_polygon.pmtiles 的 feature 數仍是 4336
+⚠ public/education/campus_polygon.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/cram_schools.pmtiles 的 短期補習班類別 分色表涵蓋切片內所有值
+⚠ public/education/cram_schools.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/cram_schools.pmtiles 的 feature 數仍是 17137
+⚠ public/education/cram_schools.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/school_district_k12.pmtiles 的 precision 分色表涵蓋切片內所有值
+⚠ public/education/school_district_k12.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/school_district_k12.pmtiles 的 feature 數仍是 860
+⚠ public/education/school_district_k12.pmtiles 不存在，skip
+
+stderr | src/hooks/__tests__/useMarineObservationLayer.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/pmtilesClassificationCoverage.test.ts (6 tests) 14ms
+ ✓ src/data/__tests__/noiseLayersContract.test.ts (12 tests | 2 skipped) 220ms
+ ✓ src/components/member/__tests__/myAnalysisCards.test.ts (2 tests) 223ms
+ ✓ src/lib/__tests__/memberSceneAdapter.test.ts (3 tests) 7ms
+ ✓ src/data/__tests__/gfwHourlyTracksLoader.test.ts (17 tests) 550ms
+stderr | src/research/__tests__/analysisCardDraft.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useMarineObservationLayer.test.ts (5 tests) 981ms
+   ✓ marine observation Mapbox layer > passes Mapbox style validation  310ms
+ ✓ src/research/__tests__/hotSpringZonesDataset.test.ts (3 tests) 616ms
+   ✓ Taipei hot-spring outcrop zones fixed snapshot adapter > keeps distinct places and repeated-name variants separate under bounded surface queries  308ms
+ ✓ src/research/charts/__tests__/TrendLine.test.ts (7 tests) 710ms
+ ✓ src/research/__tests__/waterFacilitiesOwnerDataset.test.ts (2 tests | 1 skipped) 395ms
+   ✓ keeps mixed-source proxy coordinates and sparse source strings  388ms
+ ✓ src/embed/__tests__/railReplayRange.test.ts (6 tests) 161ms
+ ✓ src/components/featureInfo/__tests__/CoralReefPanel.test.ts (3 tests) 567ms
+ ✓ src/lib/__tests__/beachball.test.ts (15 tests) 94ms
+ ✓ src/research/__tests__/universityStudentsOwnerDataset.test.ts (1 test) 550ms
+   ✓ keeps different school/statistic vintages, nulls, and an independent Chiayi bbox oracle  508ms
+ ✓ src/research/__tests__/analysisCardDraft.test.ts (6 tests) 93ms
+stderr | src/research/__tests__/summarizeWhenLoaded.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/summarizeWhenLoaded.test.ts (3 tests) 36ms
+ ✓ src/research/charts/__tests__/RankBars.test.ts (7 tests) 148ms
+ ✓ src/state/gfwTimelineDataWindow.test.ts (3 tests) 116ms
+stderr | src/hooks/__tests__/useBridgeResilienceLayers.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/tourismFactoriesOwnerDataset.test.ts (2 tests) 105ms
+ ✓ src/map/__tests__/h3LayerFactory.test.ts (6 tests) 155ms
+stdout | src/hooks/__tests__/useCwaImageryLayer.test.ts > useCwaImageryLayer visibility lifecycle > Mapbox busy 時關閉雷達仍立即 soft-hide，不等待下一個 load
+[CWA Imagery] O-A0058-005 loaded 1 frames @ 2026-08-25
+
+stdout | src/hooks/__tests__/useCwaImageryLayer.test.ts > useCwaImageryLayer visibility lifecycle > 雲圖關閉拋錯時仍會繼續關閉雷達
+[CWA Imagery] O-C0042-004 loaded 1 frames @ 2026-08-25
+[CWA Imagery] O-A0058-005 loaded 1 frames @ 2026-08-25
+
+ ✓ src/hooks/__tests__/useCwaImageryLayer.test.ts (2 tests) 54ms
+ ✓ src/research/__tests__/testIdentity.test.ts (3 tests) 143ms
+ ✓ src/research/__tests__/railStationsOwnerDatasets.test.ts (3 tests) 260ms
+stderr | src/components/featureInfo/__tests__/FeatureInfoPanel.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/useJpWaterPrivateAccess.test.ts (2 tests) 70ms
+ ✓ src/components/featureInfo/__tests__/JpPoliceFacilitiesPanel.test.ts (5 tests) 167ms
+ ✓ src/research/__tests__/waterDetentionBasinsDataset.test.ts (2 tests) 149ms
+ ✓ src/hooks/__tests__/useBridgeResilienceLayers.test.ts (16 tests) 17ms
+ ✓ src/data/__tests__/environmentLayersContract.test.ts (4 tests) 38ms
+ ✓ src/card/__tests__/cardPage.test.ts (5 tests) 36ms
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > updateStyle 只改樣式：不重抓資料、不重訂閱、不 setData
+[Test] loaded day data (2026-06-09)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > attaches layers, loads current day, and redraws
+[Test] loaded day data (2026-06-09)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > reloads on date change and clears stale data first
+[Test] loaded day data (2026-06-09)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > reloads on date change and clears stale data first
+[Test] loaded day data (2026-06-08)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > discards a slow load that resolves after the date changed (race)
+[Test] loaded day data (2026-06-08)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > redraws on throttled tick with the latest time
+[Test] loaded day data (2026-06-09)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > dispose unsubscribes and hides layers
+[Test] loaded day data (2026-06-09)
+
+ ✓ src/hooks/factories/__tests__/timelineSliceLayer.test.ts (7 tests) 107ms
+ ✓ src/data/__tests__/gfwHourlyGridLoader.test.ts (9 tests) 58ms
+ ✓ src/components/featureInfo/__tests__/FeatureInfoPanel.test.ts (3 tests) 31ms
+stdout | src/map/__tests__/realEstatePointsCustomLayer.test.ts > real estate point buffer lifecycle > 兩個 instance 共用同一個 inflight 讀取
+[realEstatePoints] buffer 載入 ✓ 1 點
+[realEstatePoints] buffer 載入 ✓ 1 點
+
+stdout | src/map/__tests__/realEstatePointsCustomLayer.test.ts > real estate point buffer lifecycle > HTTP 失敗不快取 rejected promise，下一次可重新讀取
+[realEstatePoints] buffer 載入 ✓ 1 點
+
+ ✓ src/map/__tests__/realEstatePointsCustomLayer.test.ts (3 tests) 55ms
+stderr | src/research/__tests__/analysisLegend.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/data/__tests__/businessRegistryTypes.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/featureInfo/__tests__/shared.test.ts (5 tests) 269ms
+ ✓ src/components/__tests__/CameraHud.test.ts (3 tests) 47ms
+ ✓ src/components/timeline/__tests__/timelineExpand.test.ts (12 tests) 182ms
+ ✓ src/data/__tests__/environmentStatisticsContract.test.ts (9 tests) 758ms
+ ✓ src/data/__tests__/businessRegistryTypes.test.ts (18 tests) 10ms
+stderr | src/components/sidebar/__tests__/statisticsTabCatalog.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/regionComparison.test.ts (8 tests) 20ms
+ ✓ src/research/__tests__/analysisLegend.test.ts (12 tests) 33ms
+ ✓ src/hooks/useAllenCoralPrivateAccess.test.ts (2 tests) 12ms
+ ✓ src/three/__tests__/StationPillarScene.test.ts (2 tests) 2ms
+ ✓ src/research/__tests__/agriWholesaleMarketOwnerDataset.test.ts (1 test) 86ms
+ ✓ src/components/sidebar/__tests__/statisticsTabCatalog.test.ts (8 tests) 212ms
+ ✓ src/components/featureInfo/__tests__/JpWaterPanel.test.ts (2 tests) 22ms
+stderr | src/lib/__tests__/supabase.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/lib/__tests__/supabase.test.ts (7 tests) 129ms
+ ✓ src/research/__tests__/yushanHutsDataset.test.ts (1 test) 77ms
+ ✓ src/components/__tests__/chartHoverTooltip.test.ts (11 tests) 41ms
+ ✓ src/data/__tests__/statisticsGeometryCache.test.ts (7 tests) 38ms
+ ✓ src/lib/__tests__/layerSearch.test.ts (10 tests) 172ms
+ ✓ src/research/__tests__/aquacultureCageNetDataset.test.ts (2 tests) 12ms
+ ✓ src/research/__tests__/analysisPlaybackStore.test.ts (10 tests) 11ms
+stderr | src/layers/hosts/__tests__/gridHostsStyleReload.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/layers/hosts/__tests__/gridHostsStyleReload.test.ts (1 test) 17ms
+ ✓ src/hooks/__tests__/historicalFlightTrailsStyleReload.test.ts (3 tests) 35ms
+stderr | src/data/__tests__/globalEventsPresentation.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/satelliteTypes.test.ts (31 tests) 15ms
+stderr | src/components/featureInfo/__tests__/publicLifePanels.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/featureInfo/__tests__/publicLifePanels.test.ts (4 tests) 10ms
+ ✓ src/data/__tests__/globalEventsPresentation.test.ts (14 tests) 91ms
+ ✓ src/lib/__tests__/allenSignOut.test.ts (8 tests) 29ms
+ ✓ src/research/__tests__/linePolygonAnalysis.test.ts (8 tests) 20ms
+stderr | src/research/__tests__/mainMapConnectionActivity.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/lib/__tests__/loaderCache.test.ts (13 tests) 18ms
+ ✓ src/data/__tests__/businessDemographicsTypes.test.ts (4 tests) 349ms
+   ✓ 公司人口結構格網契約 > 主導群組顏色用 Mapbox 實際編譯並分開驗證最多、同量、真零、缺值與單中類  306ms
+ ✓ src/data/__tests__/globalEventCandidates.test.ts (12 tests) 608ms
+stderr | src/components/featureInfo/__tests__/registry.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/hooks/__tests__/useEarthquakesGlobalLayer.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useEarthquakesGlobalLayer.test.ts (9 tests) 21ms
+ ✓ src/data/gfwV4SpatialFrame.test.ts (9 tests) 15ms
+ ✓ src/research/__tests__/browserChannel.test.ts (6 tests) 90ms
+ ✓ src/research/__tests__/mainMapConnectionActivity.test.ts (7 tests) 23ms
+ ✓ src/data/gfwV4TrackFrameProtocol.test.ts (11 tests) 3ms
+ ✓ src/data/__tests__/jpMedicalLoader.test.ts (9 tests) 21ms
+ ✓ src/research/__tests__/amusementParksDataset.test.ts (1 test) 45ms
+ ✓ src/hooks/__tests__/useGfwHourlyTracksLayer.test.ts (9 tests) 30ms
+stderr | src/components/intel/__tests__/globalSituationFeed.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/App.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/intel/__tests__/globalSituationFeed.test.ts (16 tests) 135ms
+ ✓ src/components/featureInfo/__tests__/registry.test.ts (3 tests) 13ms
+stderr | src/data/__tests__/animalWelfarePointsLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/animalWelfarePointsLoader.test.ts (4 tests) 263ms
+stderr | src/research/__tests__/analysisResultInteraction.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/useCoralReefDistributionLayer.test.ts (4 tests) 294ms
+ ✓ src/data/__tests__/marineObservationLoader.test.ts (4 tests) 274ms
+stderr | src/state/__tests__/memberLibraryStore.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/state/__tests__/memberLibraryStore.test.ts (6 tests) 174ms
+stderr | src/map/__tests__/crimeAreaMonthlyAsset.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/map/__tests__/crimeAreaMonthlyAsset.test.ts (1 test) 707ms
+   ✓ crimeAreaMonthly static PMTiles > ships the registered 368-township archive instead of silently rendering no data  704ms
+ ✓ src/research/__tests__/mainMapLayers.test.ts (6 tests) 208ms
+ ✓ src/research/__tests__/analysisResultInteraction.test.ts (21 tests) 223ms
+ ✓ src/research/__tests__/speedZoneSegmentsDataset.test.ts (3 tests) 238ms
+stderr | src/research/__tests__/layerDataSummary.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useJpMedicalLayers.test.ts (5 tests) 226ms
+ ✓ src/data/gfwV4SpatialTracksLoader.test.ts (3 tests) 193ms
+stderr | src/components/intel/monitor/__tests__/MonitorCardFrame.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/jpHeightCatalog.test.ts (8 tests) 533ms
+ ✓ src/research/__tests__/layerDataSummary.test.ts (16 tests) 384ms
+ ✓ src/data/__tests__/staticRpc.test.ts (3 tests) 484ms
+   ✓ staticRpc > shares only concurrent requests and cleans inflight after settlement  308ms
+ ✓ src/research/__tests__/viewportFit.test.ts (12 tests) 15ms
+ ✓ src/components/intel/monitor/__tests__/MonitorCardFrame.test.ts (5 tests) 62ms
+ ✓ src/research/__tests__/resultValidator.test.ts (3 tests) 65ms
+ ✓ src/research/__tests__/layerControls.test.ts (3 tests) 315ms
+stderr | src/map/__tests__/publicLifeOverlayUx.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/researchResultPopup.test.ts (18 tests) 386ms
+ ✓ src/research/charts/__tests__/CompareTable.test.ts (3 tests) 34ms
+stderr | src/data/__tests__/jpTourismLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/components/intel/monitor/__tests__/PressureRing.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/intel/monitor/__tests__/HazardTrendBars.test.ts (5 tests) 20ms
+ ✓ src/data/__tests__/jpTourismLoader.test.ts (9 tests) 13ms
+ ✓ src/state/__tests__/layerParamsSharedState.test.ts (3 tests) 99ms
+ ✓ src/map/__tests__/publicLifeOverlayUx.test.ts (4 tests) 192ms
+ ✓ src/data/__tests__/laborStatisticsContract.test.ts (5 tests) 202ms
+ ✓ src/components/intel/monitor/__tests__/PressureRing.test.ts (3 tests) 52ms
+ ✓ src/data/transportHubTypes.test.ts (3 tests) 22ms
+ ✓ src/map/__tests__/palettes.test.ts (37 tests) 79ms
+ ✓ src/components/__tests__/LayerSidebar.test.ts (3 tests) 234ms
+stderr | src/hooks/__tests__/useIntelPollingQuery.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/neighborhoodAnalysis.test.ts (4 tests) 147ms
+stderr | src/data/__tests__/isrSatellitePassesLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/isrSatellitePassesLoader.test.ts (6 tests) 19ms
+ ✓ src/map/__tests__/nginxCachePolicy.test.ts (14 tests) 19ms
+stderr | src/map/__tests__/pointTiersDataRadius.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useIntelPollingQuery.test.ts (4 tests) 18ms
+ ✓ src/map/__tests__/pointTiersDataRadius.test.ts (2 tests) 49ms
+ ✓ src/data/__tests__/multiSelectMapbox.test.ts (3 tests) 4ms
+ ✓ src/gfw-v4-bench/acceptanceInstrumentation.test.ts (5 tests) 11ms
+ ✓ src/research/__tests__/networkProvider.test.ts (7 tests) 27ms
+ ✓ src/components/intel/monitor/__tests__/monitorPacking.test.ts (15 tests) 394ms
+ ✓ src/three/__tests__/HistoricalFlightTrailsScene.test.ts (2 tests) 13ms
+stderr | src/components/intel/monitor/__tests__/isrSatellitePassCard.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/card/__tests__/cardApi.test.ts (3 tests) 5ms
+stderr | src/embed/__tests__/embedWhitelist.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/embed/__tests__/embedWhitelist.test.ts (34 tests | 1 skipped) 27ms
+ ✓ src/data/__tests__/jpWaterLoader.test.ts (11 tests) 15ms
+ ✓ src/components/intel/monitor/__tests__/isrSatellitePassCard.test.ts (22 tests) 6ms
+ ✓ src/map/__tests__/historicalFlightTrails.test.ts (1 test) 4ms
+ ✓ src/embed/__tests__/railGeometryManifest.test.ts (22 tests) 10ms
+ ✓ src/data/__tests__/statisticsDataSources.test.ts (6 tests) 16ms
+ ✓ src/data/__tests__/monitorResourceLoaders.test.ts (9 tests) 95ms
+ ✓ src/styles/__tests__/designSystemGuard.test.ts (15 tests) 8ms
+ ✓ src/map/__tests__/regionalStatisticsMap.test.ts (4 tests) 105ms
+ ✓ src/lib/__tests__/analysisCardApi.test.ts (6 tests) 8ms
+ ✓ src/hooks/__tests__/usePropertyValueAdminLayer.test.ts (1 test) 12ms
+ ✓ src/research/__tests__/busOperationStatisticsDatasets.test.ts (2 tests) 32ms
+ ✓ src/map/__tests__/r3bStaticLines.test.ts (2 tests) 11ms
+ ✓ src/card/__tests__/cardDeploy.test.ts (5 tests) 8ms
+ ✓ src/App.test.ts (2 tests) 57ms
+ ✓ src/data/gfwV4SpatialViewport.test.ts (6 tests) 305ms
+ ✓ src/map/gfwV4TrackCustomLayer.test.ts (4 tests) 17ms
+stderr | src/research/__tests__/toolCapabilityRegistry.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/__tests__/LoadingStatus.test.ts (2 tests) 170ms
+ ✓ src/hooks/useTimeline.test.ts (6 tests) 210ms
+stdout | src/data/__tests__/upstreamRegistry.test.ts > UPSTREAM_REGISTRY consistency > every verified datasetId exists in catalog (skips if sibling repo absent)
+⚠ taipei-gis-analytics catalog unavailable; skipping cross-repo check
+
+ ✓ src/data/__tests__/upstreamRegistry.test.ts (6 tests) 135ms
+ ✓ src/research/__tests__/toolCapabilityRegistry.test.ts (4 tests) 320ms
+ ✓ src/three/GfwV4TrackScene.test.ts (11 tests) 31ms
+ ✓ src/components/featureInfo/__tests__/JpBuildingHeightPanel.test.ts (2 tests) 365ms
+   ✓ 日本建物高度 popup 資料語意 > 保留分片、年份、高度方法、輪廓方法與授權  332ms
+ ✓ src/map/__tests__/h3Runtime.test.ts (1 test) 14ms
+ ✓ src/hooks/__tests__/useGfwDarkVesselsLayer.test.ts (4 tests) 305ms
+ ✓ src/data/__tests__/medicalStatisticsGroups.test.ts (8 tests) 478ms
+ ✓ src/state/__tests__/regionalStatisticsStore.test.ts (6 tests) 12ms
+ ✓ src/research/authClient.test.ts (1 test) 286ms
+stderr | src/hooks/__tests__/vesselWatchPointPaint.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/map/__tests__/mapInstanceEvents.test.ts (4 tests) 17ms
+ ✓ src/components/intel/monitor/__tests__/monitorResourceCards.test.ts (8 tests) 81ms
+ ✓ src/card/__tests__/cardPayload.test.ts (7 tests) 14ms
+ ✓ src/hooks/__tests__/useGfwFishingEffortLayer.test.ts (6 tests) 586ms
+   ✓ useGfwFishingEffortLayer > 只在 timeline UTC date exact match 載入，離開 sample date 立即清空  471ms
+ ✓ src/components/intel/monitor/__tests__/monitorFreshness.test.ts (9 tests) 140ms
+stderr | src/data/__tests__/hazardLoaders.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useAqiStationsLayer.test.ts (2 tests) 138ms
+ ✓ src/data/__tests__/hazardLoaders.test.ts (40 tests) 374ms
+ ✓ src/three/__tests__/QuakeRippleScene.test.ts (3 tests) 84ms
+ ✓ src/lib/__tests__/memberSchema.test.ts (6 tests) 3ms
+ ✓ src/hooks/__tests__/vesselWatchPointPaint.test.ts (3 tests) 176ms
+ ✓ src/data/__tests__/demographicsStatisticsRouting.test.ts (5 tests) 84ms
+ ✓ src/gfw-v4-bench/automation.test.ts (1 test) 32ms
+ ✓ src/gfw-v4-bench/metrics.test.ts (4 tests) 170ms
+stderr | src/data/__tests__/vesselWatchFrame.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/vesselWatchFrame.test.ts (12 tests) 274ms
+ ✓ src/gfw-v4-bench/frame.test.ts (3 tests) 55ms
+ ✓ src/data/__tests__/laborStatisticsRouting.test.ts (5 tests) 10ms
+ ✓ src/data/__tests__/statisticsLayerRegistry.test.ts (9 tests) 137ms
+stderr | src/chat/tools/__tests__/layerDetails.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/gfw-v4-bench/contract.test.ts (18 tests) 43ms
+ ✓ src/hooks/__tests__/useJpReligionLayers.test.ts (3 tests) 722ms
+   ✓ useJpReligionLayers scale > 三層 radius 使用固定 M tier，且 scale 變更會更新 paint  596ms
+ ✓ src/hooks/useGfwV4TracksLayer.test.ts (3 tests) 337ms
+ ✓ src/map/__tests__/gfwPmtilesSourceType.test.ts (6 tests) 174ms
+ ✓ src/bbox/gfwTrackContract.test.ts (4 tests) 158ms
+ ✓ src/data/gfwV4SpatialMvt.test.ts (2 tests) 12ms
+stderr | src/data/__tests__/satelliteHistoryLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/satelliteHistoryLoader.test.ts (11 tests) 18ms
+ ✓ src/data/__tests__/newsEventsLoader.test.ts (4 tests) 9ms
+ ✓ src/hooks/__tests__/useGlobalMaritimeLayers.test.ts (2 tests) 103ms
+ ✓ src/hooks/__tests__/timelinePlayback.test.ts (4 tests) 4ms
+ ✓ src/chat/tools/__tests__/layerDetails.test.ts (7 tests) 36ms
+ ✓ src/data/__tests__/bridgeRainThresholds.test.ts (3 tests) 125ms
+ ✓ src/data/__tests__/allenCoralAtlasTypes.test.ts (2 tests) 32ms
+ ✓ src/data/__tests__/intelLoaders.test.ts (12 tests) 225ms
+ ✓ src/components/intel/__tests__/intelTheme.contrast.test.ts (7 tests) 147ms
+stderr | src/hooks/__tests__/useRoadEventsLayer.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/jpCanopyProbeBounds.test.ts (3 tests) 122ms
+ ✓ src/research/__tests__/analysisResultCharts.test.ts (10 tests) 31ms
+ ✓ src/bbox/bboxSelection.test.ts (5 tests) 10ms
+ ✓ src/lib/__tests__/explicitAccessDenied.test.ts (8 tests) 4ms
+ ✓ src/hooks/__tests__/useRoadEventsLayer.test.ts (2 tests) 8ms
+ ✓ src/research/__tests__/cyclingRoutesDataset.test.ts (4 tests | 2 skipped) 218ms
+stderr | src/components/intel/monitor/__tests__/powerCardData.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/intel/monitor/__tests__/powerCardData.test.ts (16 tests) 146ms
+ ✓ src/data/__tests__/propertyValueAdminTypes.test.ts (3 tests) 36ms
+ ✓ src/data/gfwFreshness.test.ts (3 tests) 4ms
+ ✓ src/gfw-v4-bench/cache.test.ts (3 tests) 9ms
+stderr | src/map/__tests__/bssBridgeQualityFilter.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/lib/__tests__/layerGates.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/components/satelliteConsole/__tests__/maneuverAlertKit.test.ts (3 tests) 109ms
+stderr | src/data/__tests__/satelliteManeuversLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/research/__tests__/explorationNavigation.test.ts (6 tests) 6ms
+ ✓ src/data/__tests__/satelliteManeuversLoader.test.ts (10 tests) 267ms
+ ✓ src/lib/__tests__/coralLocalUrl.test.ts (2 tests) 4ms
+stderr | src/hooks/__tests__/animalWelfarePointsLayer.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/lib/__tests__/layerGates.test.ts (6 tests) 202ms
+ ✓ src/map/__tests__/bssBridgeQualityFilter.test.ts (4 tests) 10ms
+ ✓ src/research/__tests__/resultOverlay.test.ts (2 tests) 224ms
+ ✓ src/research/__tests__/vizSpecContract.test.ts (3 tests) 17ms
+ ✓ src/data/gfwV4Range.test.ts (2 tests) 4ms
+stderr | src/components/intel/monitor/__tests__/hotspotsWidget.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/animalWelfarePointsLayer.test.ts (2 tests) 65ms
+ ✓ src/gfw-v4-bench/adapters.test.ts (4 tests) 14ms
+ ✓ src/research/__tests__/spatialKernel.test.ts (5 tests) 37ms
+ ✓ src/data/__tests__/religionTypes.test.ts (2 tests) 20ms
+ ✓ src/research/__tests__/vizFormat.test.ts (5 tests) 50ms
+ ✓ src/components/intel/monitor/__tests__/hotspotsWidget.test.ts (4 tests) 19ms
+ ✓ src/research/__tests__/connectionReliability.test.ts (4 tests) 7ms
+ ✓ src/research/__tests__/researchActivity.test.ts (6 tests) 9ms
+stderr | src/data/__tests__/globalMaritimeLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/globalMaritimeLoader.test.ts (2 tests) 43ms
+ ✓ src/lib/__tests__/coralPrivateUi.test.ts (4 tests) 3ms
+ ✓ src/research/__tests__/researchPlaces.test.ts (1 test) 45ms
+ ✓ src/research/__tests__/vizNullPattern.test.ts (3 tests) 132ms
+stderr | src/data/__tests__/jpWaterOwnerGate.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/publicLifeTypes.test.ts (3 tests) 10ms
+ ✓ src/components/satelliteConsole/__tests__/satelliteTheme.contrast.test.ts (6 tests) 171ms
+ ✓ src/data/__tests__/jpWaterOwnerGate.test.ts (3 tests) 20ms
+ ✓ src/map/__tests__/selectionRing.test.ts (6 tests) 7ms
+ ✓ src/state/__tests__/dateNotifier.test.ts (6 tests) 54ms
+ ✓ src/data/jpMedicalTypes.test.ts (5 tests) 7ms
+ ✓ src/hooks/__tests__/useRealEstatePointsLayer.test.ts (1 test) 132ms
+ ✓ src/embed/__tests__/cameraBridge.test.ts (3 tests) 158ms
+ ✓ src/data/__tests__/jpHeightFeatureMetadata.test.ts (4 tests) 47ms
+ ✓ src/research/__tests__/researchEvidence.test.ts (3 tests) 19ms
+ ✓ src/styles/__tests__/zIndex.test.ts (2 tests) 422ms
+stderr | src/hooks/__tests__/useMonitorDashboardData.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useMonitorResource.test.ts (3 tests) 27ms
+stderr | src/data/__tests__/energyLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/climateFrames.test.ts (13 tests) 101ms
+ ✓ src/data/__tests__/energyLoader.test.ts (9 tests) 265ms
+stderr | src/lib/__tests__/accessDenied.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/state/__tests__/leftPanelMutex.test.ts (5 tests) 4ms
+stderr | src/layers/__tests__/layerHookRegistry.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/hooks/__tests__/useMonitorDashboardData.test.ts (2 tests) 17ms
+ ✓ src/utils/throttledRaf.test.ts (3 tests) 16ms
+ ✓ src/lib/__tests__/accessDenied.test.ts (8 tests) 66ms
+ ✓ src/data/__tests__/jpHeightTypes.test.ts (3 tests) 18ms
+ ✓ src/lib/__tests__/layerLoading.test.ts (3 tests) 214ms
+ ✓ src/lib/__tests__/locationSearch.test.ts (3 tests) 61ms
+stderr | src/data/__tests__/soilLiquefactionOwnerGate.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/soilLiquefactionOwnerGate.test.ts (3 tests) 11ms
+stderr | src/data/__tests__/roadEventsLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/roadEventsLoader.test.ts (5 tests) 2ms
+ ✓ src/layers/__tests__/layerHookRegistry.test.ts (6 tests) 312ms
+ ✓ src/gfw-v4-bench/scrubTelemetry.test.ts (2 tests) 5ms
+ ✓ src/hooks/useJpPoliceFacilitiesLayer.test.ts (3 tests) 5ms
+ ✓ src/lib/__tests__/smoke.test.ts (1 test) 45ms
+ ✓ src/data/__tests__/temperatureWavePalette.test.ts (1 test) 6ms
+ ✓ src/components/boot/__tests__/bootSequence.test.ts (4 tests) 9ms
+ ✓ src/lib/__tests__/statisticsPopupSelection.test.ts (4 tests) 46ms
+stderr | src/data/__tests__/animalAdoptionLoader.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/data/__tests__/animalAdoptionLoader.test.ts (3 tests) 18ms
+ ✓ src/data/gfwV4TrackPicking.test.ts (3 tests) 138ms
+ ✓ src/map/historicalFlightTrailsCustomLayer.test.ts (1 test) 2ms
+ ✓ src/research/jev-layer-screening/engine.test.ts (3 tests) 36ms
+ ✓ src/data/__tests__/gfwHourlyReleaseManifest.test.ts (3 tests) 20ms
+ ✓ src/lib/__tests__/realEstateTime.test.ts (3 tests) 6ms
+ ✓ src/state/__tests__/layerParamRefs.test.ts (3 tests) 33ms
+ ✓ src/data/__tests__/networkStructuresTypes.test.ts (2 tests) 201ms
+ ↓ src/data/__tests__/laborStatisticsDelivery.test.ts (2 tests | 2 skipped)
+ ↓ src/data/__tests__/socialStatisticsDelivery.test.ts (1 test | 1 skipped)
+ ↓ src/data/__tests__/demographicsStatisticsDelivery.test.ts (2 tests | 2 skipped)
+ ↓ src/research/__tests__/activeFaultsDataset.test.ts (3 tests | 3 skipped)
+ ↓ src/research/__tests__/bikeWeatherFixedPointDatasets.test.ts (2 tests | 2 skipped)
+ ↓ src/research/__tests__/parksFixedDataset.test.ts (1 test | 1 skipped)
+ ↓ src/research/__tests__/policeIsochroneOwnerDataset.test.ts (2 tests | 2 skipped)
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 29 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/data/__tests__/agriStatisticsContract.test.ts > 農林漁牧 statistics handoff contract > resolves every one of the 2,748 immutable tuples and intersects only matching public releases
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/data/__tests__/agriStatisticsContract.test.ts:153:3
+    151|   });
+    152| 
+    153|   it("resolves every one of the 2,748 immutable tuples and intersects …
+       |   ^
+    154|     const allPublicReleases = agriEnabledRecipeDetails().flatMap((reci…
+    155|     expect(allPublicReleases).toHaveLength(2748);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/29]⎯
+
+ FAIL  src/data/__tests__/staticDataContract.test.ts > Ookla 全球格網發佈資產契約 > 保留 Polygon geometry、前端欄位與 z6/z8/z10 三段解析度
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/data/__tests__/staticDataContract.test.ts:163:3
+    161|   });
+    162| 
+    163|   it("保留 Polygon geometry、前端欄位與 z6/z8/z10 三段解析度", () => {
+       |   ^
+    164|     const requiredNumeric = ["z", "avg_d_kbps", "avg_u_kbps", "avg_lat…
+    165|     for (const asset of OOKLA_GLOBAL_ASSETS) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/29]⎯
+
+ FAIL  src/map/__tests__/hookPointSpec.test.ts > hook point spec R2 ratchet > does not reintroduce zoom-driven circle radii outside the overlay registry
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/map/__tests__/hookPointSpec.test.ts:106:3
+    104| 
+    105| describe("hook point spec R2 ratchet", () => {
+    106|   it("does not reintroduce zoom-driven circle radii outside the overla…
+       |   ^
+    107|     // R2 hooks baseline before: 24; after this migration: 3（≤ 才是 ratc…
+    108|     expect(zoomDrivenCircleRadii().length).toBeLessThanOrEqual(3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/29]⎯
+
+ FAIL  src/research/__tests__/agriProduceWholesaleOwnerDataset.test.ts > fails closed for a country-scale bbox
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/agriProduceWholesaleOwnerDataset.test.ts:35:53
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/29]⎯
+
+ FAIL  src/research/__tests__/campusPolygonOwnerDataset.test.ts > matches independent full-source Polygon oracles in two counties and a school-level variant
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/campusPolygonOwnerDataset.test.ts:28:46
+     26| });
+     27| 
+     28| it.skipIf(!existsSync(`${root}manifest.json`))("matches independent fu…
+       |                                              ^
+     29|   const executor = new QueryExecutor([campusPolygonOwnerAdapter]);
+     30|   const cases: readonly [Bbox, string | undefined][] = [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/29]⎯
+
+ FAIL  src/research/__tests__/campusPolygonOwnerDataset.test.ts > retains non-school rows and the separate experimental null Chinese-level semantics
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/campusPolygonOwnerDataset.test.ts:44:46
+     42| });
+     43| 
+     44| it.skipIf(!existsSync(`${root}manifest.json`))("retains non-school row…
+       |                                              ^
+     45|   const sourceRows = (await source()).filter(feature => feature.proper…
+     46|   expect(sourceRows).toHaveLength(12);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/29]⎯
+
+ FAIL  src/research/__tests__/capabilityAudit.test.ts > capability audit P0 ledger > keeps every manifest layer while retaining the unknown queue reconciliation
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/capabilityAudit.test.ts:8:3
+      6| 
+      7| describe("capability audit P0 ledger", () => {
+      8|   it("keeps every manifest layer while retaining the unknown queue rec…
+       |   ^
+      9|     const outputDir = mkdtempSync(join(tmpdir(), "pulse-capability-aud…
+     10|     const auditBase = join(outputDir, "audit");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/29]⎯
+
+ FAIL  src/research/__tests__/civilDefenseSheltersOwnerDataset.test.ts > matches full-source new-location and coord_precision oracles with bounded reads
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/civilDefenseSheltersOwnerDataset.test.ts:15:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/29]⎯
+
+ FAIL  src/research/__tests__/companyCapitalGridFineOwnerDatasets.test.ts > matches Taipei and Kaohsiung full-source grid oracles at both scales within bounds
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/companyCapitalGridFineOwnerDatasets.test.ts:29:51
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/29]⎯
+
+ FAIL  src/research/__tests__/companyDemographicsOwnerDataset.test.ts > matches full-source Polygon intersections at two places, including cross-cell matches
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/companyDemographicsOwnerDataset.test.ts:47:54
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/29]⎯
+
+ FAIL  src/research/__tests__/companyPointsDataset.test.ts > matches the full-source 2 km and manufacturing oracles in Hualien and Taitung with bounded cold/warm reads
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/companyPointsDataset.test.ts:64:73
+     62| });
+     63| 
+     64| it.skipIf(!existsSync(sourcePath) || !existsSync(`${root}manifest.json…
+       |                                                                         ^
+     65|   const cases = [
+     66|     { center: [121.60, 23.99] as const, bbox: [121.58, 23.972, 121.62,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/29]⎯
+
+ FAIL  src/research/__tests__/companyPointsDataset.test.ts > keeps the exact-C manufacturing subset in two independent places
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/companyPointsDataset.test.ts:97:73
+     95| });
+     96| 
+     97| it.skipIf(!existsSync(sourcePath) || !existsSync(`${root}manifest.json…
+       |                                                                         ^
+     98|   const executor = new QueryExecutor([manufacturingCompanyPointsAdapte…
+     99|   for (const item of [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/29]⎯
+
+ FAIL  src/research/__tests__/discovery.test.ts > lists bounded catalogue pages and never describes prototype properties as layers
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/discovery.test.ts:42:1
+     40| // 5086ms). Reported as a production perf candidate, not fixed here pe…
+     41| // widen the timeout so this test doesn't flake under load.
+     42| it("lists bounded catalogue pages and never describes prototype proper…
+       | ^
+     43|   expect(discoverLayers("",0,2).returned).toBe(2);
+     44|   expect(discoverLayers("",0,2).truncated).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/29]⎯
+
+ FAIL  src/research/__tests__/discovery.test.ts > returns a continuation offset without silently dropping layers after the first page
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/discovery.test.ts:50:1
+     48| 
+     49| // Same empty-query cost as above, doubled (two discoverLayers("", ...…
+     50| it("returns a continuation offset without silently dropping layers aft…
+       | ^
+     51|   const first = discoverLayers("", 0, 20);
+     52|   expect(first.nextOffset).toBe(20);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/29]⎯
+
+ FAIL  src/research/__tests__/explorationBoundary.test.ts > paired research runtime boundary > loads bounded dataset readers, typed analysis and the controlled result overlay only
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/explorationBoundary.test.ts:39:3
+     37| 
+     38| describe("paired research runtime boundary", () => {
+     39|   it("loads bounded dataset readers, typed analysis and the controlled…
+       |   ^
+     40|     const reached = dependencies(resolve("src/research/MainMapConnecti…
+     41|     expect(reached).toContain("src/research/layerExploration.ts");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/29]⎯
+
+ FAIL  src/research/__tests__/medLtcOwnerDataset.test.ts > matches Taipei and Taichung source oracles with ABC variants
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/medLtcOwnerDataset.test.ts:4:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/29]⎯
+
+ FAIL  src/research/__tests__/medLtcOwnerDataset.test.ts > fails closed for a country-scale bbox
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/medLtcOwnerDataset.test.ts:5:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/29]⎯
+
+ FAIL  src/research/__tests__/nhiMedicalOwnerDatasets.test.ts > matches two independent source bbox oracles and a categorical variant
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/nhiMedicalOwnerDatasets.test.ts:35:46
+     33| });
+     34| 
+     35| it.skipIf(!existsSync(`${root}manifest.json`))("matches two independen…
+       |                                              ^
+     36|   const executor = new QueryExecutor([nhiMedicalHospitalOwnerAdapter, …
+     37|   const cases = [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/29]⎯
+
+ FAIL  src/research/__tests__/nhiMedicalOwnerDatasets.test.ts > requires bbox and fails closed for a broad request
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/nhiMedicalOwnerDatasets.test.ts:49:1
+     47| });
+     48| 
+     49| it("requires bbox and fails closed for a broad request", async () => {
+       | ^
+     50|   const executor = new QueryExecutor([nhiMedicalHospitalOwnerAdapter]);
+     51|   await expect(executor.execute({ datasetId: nhiMedicalHospitalOwnerDe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/29]⎯
+
+ FAIL  src/research/__tests__/pollutionPenaltiesDataset.test.ts > matches independent full-source oracles for dense Taipei and rural contrast within hard budgets
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/pollutionPenaltiesDataset.test.ts:34:46
+     32| afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); cle…
+     33| 
+     34| it.skipIf(!existsSync(`${root}manifest.json`))("matches independent fu…
+       |                                              ^
+     35|   const executor = new QueryExecutor([pollutionPenaltyEventsAdapter]);
+     36|   expect(pollutionPenaltyEventsDescriptor.layerRefs).toEqual(["polluti…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/29]⎯
+
+ FAIL  src/research/__tests__/regulatedFacilitiesOwnerDataset.test.ts > matches two full-source bbox and attribute oracles within bounded reads
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/regulatedFacilitiesOwnerDataset.test.ts:49:46
+     47| });
+     48| 
+     49| it.skipIf(!existsSync(`${root}manifest.json`))("matches two full-sourc…
+       |                                              ^
+     50|   const cases: { bbox: Bbox; filters: { county?: string; industryGroup…
+     51|     { bbox: [121.45, 24.98, 121.50, 25.03], filters: { county: "新北市", …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/29]⎯
+
+ FAIL  src/research/__tests__/religionTemplesOwnerDataset.test.ts > keeps nullable safe fields in immutable gzip shards and bounds a nationwide read
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/religionTemplesOwnerDataset.test.ts:48:46
+     46| });
+     47| 
+     48| it.skipIf(!existsSync(`${root}manifest.json`))("keeps nullable safe fi…
+       |                                              ^
+     49|   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "…
+     50|   const shard = JSON.parse(gunzipSync(await readFile(`${root}${manifes…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/29]⎯
+
+ FAIL  src/research/__tests__/schoolDistrictK12OwnerDataset.test.ts > pins the fixed processed receipt and preserves partial-village proxy semantics
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/schoolDistrictK12OwnerDataset.test.ts:12:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/29]⎯
+
+ FAIL  src/research/__tests__/schoolDistrictK12OwnerDataset.test.ts > returns the independently checked Taipei and Hsinchu bbox counts without asserting address assignment
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/schoolDistrictK12OwnerDataset.test.ts:21:29
+     19| });
+     20| 
+     21| it.skipIf(!existsSync(asset))("returns the independently checked Taipe…
+       |                             ^
+     22|   const executor = new QueryExecutor([schoolDistrictElementaryOwnerAda…
+     23|   const cases = [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/29]⎯
+
+ FAIL  src/research/__tests__/streetTreesDiffOwnerDataset.test.ts > matches two independent full-source bbox/status oracles within bounded reads
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/streetTreesDiffOwnerDataset.test.ts:38:46
+     36| });
+     37| 
+     38| it.skipIf(!existsSync(`${root}manifest.json`))("matches two independen…
+       |                                              ^
+     39|   const cases: { bbox: Bbox; status?: "persisted" | "disappeared" | "a…
+     40|     { bbox: [121.502, 25.027, 121.510, 25.040], status: "disappeared" …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/29]⎯
+
+ FAIL  src/research/__tests__/tourismHospitalityOwnerDatasets.test.ts > matches fixed processed-source bbox oracles and keeps official Point semantics
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/tourismHospitalityOwnerDatasets.test.ts:34:57
+     32| });
+     33| 
+     34| it.skipIf(!existsSync(`${sidecars}hotels/manifest.json`))("matches fix…
+       |                                                         ^
+     35|   const executor = new QueryExecutor([tourismHotelOwnerAdapter, touris…
+     36|   const cases = [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/29]⎯
+
+ FAIL  src/research/__tests__/treePitsTaipeiOwnerDataset.test.ts > matches independent full-source oracles for two Taipei bboxes and a pit-type selector
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/treePitsTaipeiOwnerDataset.test.ts:28:46
+     26| });
+     27| 
+     28| it.skipIf(!existsSync(`${root}manifest.json`))("matches independent fu…
+       |                                              ^
+     29|   const executor = new QueryExecutor([treePitsTaipeiOwnerAdapter]);
+     30|   const cases: readonly [Bbox, string | undefined][] = [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/29]⎯
+
+ FAIL  src/research/__tests__/treePitsTaipeiOwnerDataset.test.ts > deduplicates a cross-cell source feature and includes a boundary touch while preserving hole exclusion semantics
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/treePitsTaipeiOwnerDataset.test.ts:44:46
+     42| });
+     43| 
+     44| it.skipIf(!existsSync(`${root}manifest.json`))("deduplicates a cross-c…
+       |                                              ^
+     45|   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "…
+     46|   const ordinalCounts = new Map<number, number>();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/29]⎯
+
+ FAIL  src/research/__tests__/wasteStopsOwnerDataset.test.ts > matches an independent Chiayi bbox and source-method variant oracle with bounded reads
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/research/__tests__/wasteStopsOwnerDataset.test.ts:30:46
+     28| });
+     29| 
+     30| it.skipIf(!existsSync(`${root}manifest.json`))("matches an independent…
+       |                                              ^
+     31|   const executor = new QueryExecutor([wasteStopsOwnerAdapter]);
+     32|   const all = await executor.execute({ datasetId: wasteStopsOwnerDescr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/29]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-worker]: Timeout calling "onTaskUpdate"
+ ❯ Object.onTimeoutError ../../../../../../../%E8%B3%87%E6%96%99%E5%BA%AB/gen_ai_try/ichef_%E5%B7%A5%E4%BD%9C%E7%94%A8/GIS/mini-taiwan-pulse/node_modules/vitest/dist/chunks/rpc.-pEldfrD.js:53:10
+ ❯ Timeout._onTimeout ../../../../../../../%E8%B3%87%E6%96%99%E5%BA%AB/gen_ai_try/ichef_%E5%B7%A5%E4%BD%9C%E7%94%A8/GIS/mini-taiwan-pulse/node_modules/vitest/dist/chunks/index.B521nVV-.js:59:62
+ ❯ listOnTimeout node:internal/timers:611:17
+ ❯ processTimers node:internal/timers:546:7
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-worker]: Timeout calling "onTaskUpdate"
+ ❯ Object.onTimeoutError ../../../../../../../%E8%B3%87%E6%96%99%E5%BA%AB/gen_ai_try/ichef_%E5%B7%A5%E4%BD%9C%E7%94%A8/GIS/mini-taiwan-pulse/node_modules/vitest/dist/chunks/rpc.-pEldfrD.js:53:10
+ ❯ Timeout._onTimeout ../../../../../../../%E8%B3%87%E6%96%99%E5%BA%AB/gen_ai_try/ichef_%E5%B7%A5%E4%BD%9C%E7%94%A8/GIS/mini-taiwan-pulse/node_modules/vitest/dist/chunks/index.B521nVV-.js:59:62
+ ❯ listOnTimeout node:internal/timers:611:17
+ ❯ processTimers node:internal/timers:546:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  22 failed | 460 passed | 7 skipped (489)
+      Tests  29 failed | 3714 passed | 33 skipped (3776)
+     Errors  2 errors
+   Start at  12:44:11
+   Duration  505.44s (transform 102.41s, setup 0ms, collect 1223.27s, tests 775.66s, environment 345ms, prepare 523.35s)
+

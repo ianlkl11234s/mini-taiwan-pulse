@@ -23,7 +23,13 @@ public/gfw-v4-browser-manifest.json
 public/global-maritime/gfw-hourly/v4/
 # Vite task-local dependency cache created in isolated worktrees
 node_modules.vite-cache/
-public/rail/
+# public/rail 由 export-rail-data.py + S3 rail.tar.gz 管理；只有人工策展的 extensions 與
+# 建置產物 routes_static.geojson（build-rail-routes.py）進 git
+public/rail/*
+!public/rail/routes_static.geojson
+!public/rail/trtc/
+public/rail/trtc/*
+!public/rail/trtc/extensions/
 public/static-rpc/
 public/rail_bundle.json
 scripts/flight-list.json

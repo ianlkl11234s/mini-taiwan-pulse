@@ -1121,7 +1121,7 @@ export const LiveWall = memo(function LiveWall() { /* ... */ });
   無限 re-render 炸線（INCIDENTS 2026-06-18）
 - ⚠️ tsc + 102/102 test 全綠 ≠ runtime 過：useSyncExternalStore 的 stale snapshot
   是 dev-only runtime 檢查，**push 前先 browser 跑一遍**
-- ⚠️ Wall mode 暫停地圖 engine 看似順手但會視覺凍結，留作 G011 backlog 不該硬塞進效能 PR
+- ⚠️ Wall mode 暫停地圖 engine 看似順手但會視覺凍結，留作 G023 backlog（舊編號 G011） 不該硬塞進效能 PR
 
 ---
 

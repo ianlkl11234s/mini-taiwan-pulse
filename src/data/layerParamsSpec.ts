@@ -1,5 +1,6 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
+import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
 // ══════════════════════════════════════════════════════════════════
@@ -110,6 +111,7 @@ import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
+import { RAIL_ROUTES_SYSTEM_OPTIONS } from "./railRoutesTypes";
 import { RIVER_RPI_FILTER_OPTIONS, RIVER_RPI_SEGMENT_MODES, WATER_QUALITY_STATION_FILTER_OPTIONS } from "./environmentLayerTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
@@ -1062,6 +1064,8 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(COMPARISON_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<ComparisonStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   // 環境統計 37 層同 comparison：dynamic renderer 只吃共通透明度；期別／細項由 recipe exact whitelist 提供。
   ...Object.fromEntries(ENVIRONMENT_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<EnvironmentStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 人口統計 32 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<DemographicsStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
   statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
   statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],
@@ -2128,6 +2132,16 @@ export const LAYER_PARAMS_SPEC = {
   ecoNetworkZones: [opacitySlider("ecoNetworkZonesOpacity", 0.5)],
 
   // ══════════ 森林山域・能源電力航空 ══════════
+  railRoutes: [
+    { kind: "slider", name: "railRoutesWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("railRoutesOpacity", 0.9),
+    {
+      kind: "select", name: "railRoutesSystem", label: "系統", category: "data", // 篩選畫哪個系統
+      default: "all", options: [...RAIL_ROUTES_SYSTEM_OPTIONS],
+      out: "railRoutesSystemIdx",
+      encode: RAIL_ROUTES_SYSTEM_OPTIONS.map((option) => option.value),
+    },
+  ],
   forestRoads: [
     { kind: "slider", name: "forestRoadsWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
     opacitySlider("forestRoadsOpacity", 0.8),

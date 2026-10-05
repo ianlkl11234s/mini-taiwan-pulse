@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { AqiStation } from "../../types";
 import type { EarthquakeGlobalEvent } from "../../data/earthquakesGlobalLoader";
@@ -173,6 +174,33 @@ describe("visibleSummary × layer data providers", () => {
   it("reads rainGauge through its self-built Mapbox source (rendered path)", () => {
     const summary = summarizeVisibleLayers(map, ["rainGauge"], custom);
     expect(summary.layers[0]).toMatchObject({ layerKey: "rainGauge", status: "ok", featureCount: 1, topAreas: { level: "town", items: [{ name: "信義區", count: 1 }] }, max: { field: "precipitation_10min", value: 3 } });
+  });
+});
+
+describe("AG-6 timeline-slice custom layers read through their self-built sources", () => {
+  const cases = [
+    { key: "riverLevel", source: "river-level", layer: "river-level-circle", field: "delta_m", nameField: "station_name", name: "A站" },
+    { key: "groundwater", source: "groundwater", layer: "groundwater-circle", field: "delta_m", nameField: "well_name", name: "B井" },
+    { key: "iotWraRiver", source: "iot-wra-river", layer: "iot-wra-river-circle", field: "delta_m", nameField: "name", name: "C站" },
+  ];
+  for (const c of cases) {
+    it(`${c.key} is summarized from rendered features, not custom_renderer`, () => {
+      const map: VisibleSummaryMap = {
+        getBounds: () => ({ getWest: () => 120, getSouth: () => 22, getEast: () => 122, getNorth: () => 25 }),
+        getStyle: () => ({ layers: [{ id: c.layer, type: "circle", source: c.source, paint: { "circle-radius": ["interpolate", ["linear"], ["abs", ["coalesce", ["get", c.field], 0]], 0, 3, 5, 9] } }] }),
+        getLayer: id => (id === c.layer ? {} : undefined),
+        queryRenderedFeatures: () => [{ id: 1, source: c.source, geometry: { type: "Point", coordinates: [121, 24] }, properties: { [c.field]: 1.5, [c.nameField]: c.name } }],
+      };
+      const summary = summarizeVisibleLayers(map, [c.key], { sourcesFor: () => [{ kind: "custom" as const, note: "self-built" }] });
+      expect(summary.layers[0]).toMatchObject({ layerKey: c.key, status: "ok", featureCount: 1, max: { field: c.field, value: 1.5, name: c.name } });
+      expect(summary.layers[0]).not.toMatchObject({ reason: "custom_renderer" });
+    });
+  }
+
+  it("source ids stay in sync with the hooks", () => {
+    for (const [file, id] of [["useRiverLevelLayer", "river-level"], ["useGroundwaterLayer", "groundwater"], ["useIotWraRiverLayer", "iot-wra-river"]]) {
+      expect(readFileSync(`src/hooks/${file}.ts`, "utf8")).toContain(`const SOURCE_ID = "${id}"`);
+    }
   });
 });
 
