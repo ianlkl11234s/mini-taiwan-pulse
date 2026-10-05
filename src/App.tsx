@@ -38,6 +38,7 @@ import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
 import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
 import {
   setupWasteMapboxLayers,
+  rebuildWasteMapboxLayers,
   syncWasteMapboxData,
   syncWasteMapboxVisibility,
   syncWasteMapboxParams,
@@ -655,6 +656,8 @@ export default function App() {
   const { byType: wasteDisposalByType } = useWasteDisposalPointLayer(wasteDisposalVis);
   const wasteFacilityByTypeRef = useRef(wasteFacilityByType);
   wasteFacilityByTypeRef.current = wasteFacilityByType;
+  const wasteDisposalByTypeRef = useRef(wasteDisposalByType);
+  wasteDisposalByTypeRef.current = wasteDisposalByType;
   useEffect(() => { requestThreeRepaint(); }, [wasteFacilityByType]);
 
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
@@ -1279,6 +1282,26 @@ export default function App() {
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
     syncWasteMapboxData(map, wasteFacilityByType, wasteDisposalByType);
   }, [wasteFacilityByType, wasteDisposalByType]);
+  // G005：換底圖（dark/light）會清掉自訂 layer，setup 旗標卻仍為 true → style.load 後重建
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const onStyleLoad = () => {
+      if (!wasteMapboxSetupRef.current) return;
+      rebuildWasteMapboxLayers(
+        map,
+        { isDark: isDarkThemeRef.current, onFeatureClick: setFeatureInfo },
+        {
+          facilityByType: wasteFacilityByTypeRef.current ?? new Map(),
+          disposalByType: wasteDisposalByTypeRef.current,
+          visibility: layerVisibilityRef.current,
+          params: layerParamRefs.wasteSubParams.current,
+        },
+      );
+    };
+    map.on("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [mapPrepared]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
