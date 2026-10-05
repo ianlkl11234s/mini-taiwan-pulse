@@ -1,19 +1,12 @@
-# Changelog — <feature-name>
+# Changelog — 減害服務 Harm Reduction
 
 > 逐 PR 變更紀錄。最新在上。
 
-格式：
-```
-## YYYY-MM-DD — PR #NN <squash commit hash>
-- <what changed>
-- <why (optional)>
-- <breaking? migration needed?>
-```
-
 ---
 
-## YYYY-MM-DD — PR #NN `xxxxxxx`
+## 2026-10-06 — PR #548 `108b0f3d`
 
-- 新增 xxx 圖層
-- 資料源：<摘要>
+- 新增醫療主題「減害服務」五層：清潔針具據點、替代療法與藥癮戒治、愛滋自我篩檢通路、愛滋篩檢與指定醫療、毒品危害防制中心
+- 資料源：疾管署清潔針具名冊（2026-07-14）、衛福部藥癮戒治／替代治療名單（2026-08-31）、疾管署自我篩檢通路（快照 2026-10-06）、疾管署匿名篩檢與指定醫事機構、法務部毒防中心（data.gov.tw 13717）
+- 上游：taipei-gis-analytics PR #143；Supabase gis-platform PR #139（mig 427）
 - Breaking：無
