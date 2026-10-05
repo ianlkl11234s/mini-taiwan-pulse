@@ -2587,7 +2587,7 @@ export default function App() {
               right: 0,
               zIndex: Z_INDEX.mapOverlay,
               padding: "8px 12px",
-              background: "rgba(0,0,0,0.4)",
+              background: isDarkTheme ? "rgba(0,0,0,0.4)" : LIGHT.surfaceStrong,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
             }}
@@ -2601,7 +2601,7 @@ export default function App() {
                 rangeDays={timeline.rangeDays}
                 windowStart={timeline.windowStart}
                 windowEnd={timeline.windowEnd}
-                isDarkTheme={true}
+                isDarkTheme={isDarkTheme}
                 isMobile={true}
                 onToggle={timeline.toggle}
                 onSpeedChange={timeline.setSpeed}
@@ -2621,7 +2621,7 @@ export default function App() {
                 playing={historicalPlaying}
                 speed={historicalSpeed}
                 granularity={historicalGranularity}
-                isDarkTheme={true}
+                isDarkTheme={isDarkTheme}
                 isMobile={true}
                 onTogglePlay={() => setHistoricalPlaying((v) => !v)}
                 onSpeedChange={setHistoricalSpeed}
