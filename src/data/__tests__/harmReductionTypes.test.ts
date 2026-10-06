@@ -35,5 +35,7 @@ describe("harm reduction filters", () => {
     expect(harmReductionPrecisionLabel("cached")).toContain("精度未另標");
     expect(harmReductionPrecisionLabel("google_place_manual")).toContain("人工核對");
     expect(isEstimatedPrecision("google_place_manual")).toBe(false);
+    expect(harmReductionPrecisionLabel("google_place")).toBe("依機構名稱查得位置");
+    expect(isEstimatedPrecision("google_place")).toBe(false);
   });
 });
