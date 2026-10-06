@@ -2,6 +2,7 @@ import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from '.
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
 import { ADDICTION_ENABLED_STATISTICS_KEYS, type AddictionStatisticsLayerKey } from './addictionStatisticsRecipes';
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } from './landslideStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
 // ══════════════════════════════════════════════════════════════════
@@ -84,6 +85,7 @@ import { JP_ACCOMMODATION_DENSITY_SCALES, JP_RAMSAR_GEOMETRY_FILTERS } from "./j
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
+import { ANNUAL_DEFAULT_YEAR, ANNUAL_YEAR_OPTIONS, DOD_DEFAULT_YEAR, DOD_YEAR_OPTIONS, HIGHWAY_CATEGORY_GROUPS, HIGHWAY_YEAR_OPTIONS } from "./landslideTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -1072,6 +1074,8 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<DemographicsStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   // 成癮與減害 61 層同上：期別由 recipe exact whitelist 提供。
   ...Object.fromEntries(ADDICTION_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<AddictionStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 崩塌與水土保持 4 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(LANDSLIDE_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<LandslideStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
   statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
   statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],
@@ -2768,6 +2772,41 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "industrialPowerPlantOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialPowerPlantOutline", label: "顯示外框線", default: true },
     scaleSlider("industrialPowerPlantScale", 1),
+  ],
+  // ══════════ 崩塌 Landslide 4 層 ══════════
+  // 潛勢區與影響範圍共用同一個年度版本選單（sharedGroup：切一個，兩層一起換），預設最新 115 年版。
+  landslideDodAreas: [
+    {
+      kind: "select", name: "landslideDodYear", label: "年度版本", default: String(DOD_DEFAULT_YEAR), sharedGroup: "landslideDodYear", category: "data",
+      options: DOD_YEAR_OPTIONS, out: "landslideDodYearIdx", encode: DOD_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideDodAreasOpacity", 0.55),
+  ],
+  landslideDodImpact: [
+    {
+      kind: "select", name: "landslideDodYear", label: "年度版本", default: String(DOD_DEFAULT_YEAR), sharedGroup: "landslideDodYear", category: "data",
+      options: DOD_YEAR_OPTIONS, out: "landslideDodYearIdx", encode: DOD_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideDodImpactOpacity", 0.35),
+  ],
+  highwayDisasterHistory: [
+    {
+      kind: "multiSelect", name: "highwayDisasterHistoryCategory", label: "災情類別", default: MULTI_SELECT_ALL,
+      options: HIGHWAY_CATEGORY_GROUPS.map(({ value, label }) => ({ value, label })), out: "highwayDisasterHistoryCategoryMask",
+    },
+    {
+      kind: "multiSelect", name: "highwayDisasterHistoryYear", label: "通報年份", default: MULTI_SELECT_ALL,
+      options: HIGHWAY_YEAR_OPTIONS, out: "highwayDisasterHistoryYearMask",
+    },
+    opacitySlider("highwayDisasterHistoryOpacity", densePointOpacity(16_163)), scaleSlider("highwayDisasterHistoryScale", 1),
+  ],
+  // 年度全島崩塌地：只有 4 年（缺年在圖例與說明標示），預設 2024（V2 版）。
+  landslideAnnual: [
+    {
+      kind: "select", name: "landslideAnnualYear", label: "年份", default: String(ANNUAL_DEFAULT_YEAR),
+      options: ANNUAL_YEAR_OPTIONS, out: "landslideAnnualYearIdx", encode: ANNUAL_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideAnnualOpacity", 0.55),
   ],
   mountainRescueIncidents: [
     {

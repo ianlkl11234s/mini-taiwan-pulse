@@ -469,6 +469,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 登山安全：山屋 / 山域事故（小目標，排在林業大面積前）
   { layers: ["mountain-huts-circle"], type: "mountainHut" },
   { layers: ["mountain-rescue-incidents-circle"], type: "mountainRescueIncident" },
+  // 崩塌：省道歷史災情點（小目標）排在面層前
+  { layers: ["highway-disaster-history-circle", "highway-disaster-history-glow"], type: "highwayDisaster" },
   // FORESTRY — points / lines 先（小目標優先）
   { layers: ["forest-education-centers-circle"], type: "forestryPOI" },
   { layers: ["forest-trail-signs-circle"], type: "forestryPOI" },
@@ -597,6 +599,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   },
   { layers: ["pollution-facility-circle"], type: "pollutionFacility" },
   { layers: ["aviation-control-fill", "aviation-control-line"], type: "aviationControl" },
+  // 崩塌面層：年度崩塌地（多為小面）→ 潛勢區 → 影響範圍（潛勢區多半落在影響範圍內，先命中）；
+  //    排在坡度／坡向等全島 fill 之前。
+  { layers: ["landslide-annual-fill", "landslide-annual-outline"], type: "landslideAnnual" },
+  { layers: ["landslide-dod-areas-fill", "landslide-dod-areas-outline"], type: "landslideDodArea" },
+  { layers: ["landslide-dod-impact-fill", "landslide-dod-impact-outline"], type: "landslideDodImpact" },
   { layers: ["aviation-restricted-fill", "aviation-restricted-line"], type: "aviationRestricted" },
   { layers: ["drone-nfz-fill", "drone-nfz-line"], type: "droneNoFlyZone" },
   { layers: ["drone-restricted-fill", "drone-restricted-line"], type: "droneRestrictedZone" },

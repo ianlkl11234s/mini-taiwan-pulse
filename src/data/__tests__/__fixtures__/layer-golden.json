@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1070,
+    "keyCount": 1078,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2169,6 +2169,13 @@
     },
     {
       "layers": [
+        "highway-disaster-history-circle",
+        "highway-disaster-history-glow"
+      ],
+      "type": "highwayDisaster"
+    },
+    {
+      "layers": [
         "forest-education-centers-circle"
       ],
       "type": "forestryPOI"
@@ -3004,6 +3011,10 @@
         "statsInternetAddictionServicesPer100kCounty-fill",
         "statsInternetAddictionServicesTownship-fill",
         "statsInternetAddictionServicesPer100kTownship-fill",
+        "statsLandslideCountCounty-fill",
+        "statsLandslideAreaCounty-fill",
+        "statsSlopeWorksCostCounty-fill",
+        "statsSwcDisasterLossCounty-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -3199,6 +3210,27 @@
         "aviation-control-line"
       ],
       "type": "aviationControl"
+    },
+    {
+      "layers": [
+        "landslide-annual-fill",
+        "landslide-annual-outline"
+      ],
+      "type": "landslideAnnual"
+    },
+    {
+      "layers": [
+        "landslide-dod-areas-fill",
+        "landslide-dod-areas-outline"
+      ],
+      "type": "landslideDodArea"
+    },
+    {
+      "layers": [
+        "landslide-dod-impact-fill",
+        "landslide-dod-impact-outline"
+      ],
+      "type": "landslideDodImpact"
     },
     {
       "layers": [
@@ -67230,6 +67262,877 @@
       ],
       "sourceId": "harm-reduction-dui-crashes",
       "sourceUrl": "./harm_reduction/dui_crash_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideDodImpact",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.6,
+                14,
+                1.6
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.6,
+                14,
+                1.6
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-dod-impact",
+      "sourceUrl": "./hazards/landslide_dod_impact.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideDodAreas",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year_roc"
+            ],
+            115
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#fde68a",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.5,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#7c2d12",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.5,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-dod-areas",
+      "sourceUrl": "./hazards/landslide_dod_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "line-color": "#fdba74",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "#7c2d12",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "landslide_annual"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-annual",
+      "sourceUrl": "./hazards/landslide_annual_swcb_20261006.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "highwayDisasterHistory",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "get",
+                "category_group"
+              ],
+              [
+                "literal",
+                [
+                  "rockfall",
+                  "slope_failure",
+                  "debris_flow",
+                  "precautionary_closure",
+                  "flooding",
+                  "structure_damage",
+                  "traffic_incident",
+                  "other"
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2014",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "get",
+                "category_group"
+              ],
+              [
+                "literal",
+                [
+                  "rockfall",
+                  "slope_failure",
+                  "debris_flow",
+                  "precautionary_closure",
+                  "flooding",
+                  "structure_damage",
+                  "traffic_incident",
+                  "other"
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2014",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#a16207",
+                "slope_failure",
+                "#c2410c",
+                "debris_flow",
+                "#7c2d12",
+                "precautionary_closure",
+                "#7c3aed",
+                "flooding",
+                "#0284c7",
+                "structure_damage",
+                "#be185d",
+                "traffic_incident",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#a16207",
+                "slope_failure",
+                "#c2410c",
+                "debris_flow",
+                "#7c2d12",
+                "precautionary_closure",
+                "#7c3aed",
+                "flooding",
+                "#0284c7",
+                "structure_damage",
+                "#be185d",
+                "traffic_incident",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "get",
+                "category_group"
+              ],
+              [
+                "literal",
+                [
+                  "rockfall",
+                  "slope_failure",
+                  "debris_flow",
+                  "precautionary_closure",
+                  "flooding",
+                  "structure_damage",
+                  "traffic_incident",
+                  "other"
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2014",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#a16207",
+                "slope_failure",
+                "#c2410c",
+                "debris_flow",
+                "#7c2d12",
+                "precautionary_closure",
+                "#7c3aed",
+                "flooding",
+                "#0284c7",
+                "structure_damage",
+                "#be185d",
+                "traffic_incident",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category_group"
+                ],
+                "rockfall",
+                "#a16207",
+                "slope_failure",
+                "#c2410c",
+                "debris_flow",
+                "#7c2d12",
+                "precautionary_closure",
+                "#7c3aed",
+                "flooding",
+                "#0284c7",
+                "structure_damage",
+                "#be185d",
+                "traffic_incident",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "highway_disaster_history"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "highway-disaster-history",
+      "sourceUrl": "./hazards/highway_disaster_history.pmtiles"
     }
   ],
   "params": {
@@ -74972,6 +75875,147 @@
         "valueText": "1.0"
       }
     ],
+    "highwayDisasterHistory": [
+      {
+        "label": "災情類別",
+        "options": [
+          {
+            "label": "落石",
+            "value": "rockfall"
+          },
+          {
+            "label": "邊坡坍方・路基流失",
+            "value": "slope_failure"
+          },
+          {
+            "label": "土石流阻斷",
+            "value": "debris_flow"
+          },
+          {
+            "label": "預警性封閉",
+            "value": "precautionary_closure"
+          },
+          {
+            "label": "淹水",
+            "value": "flooding"
+          },
+          {
+            "label": "橋梁・設施損毀",
+            "value": "structure_damage"
+          },
+          {
+            "label": "交通事故",
+            "value": "traffic_incident"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rockfall",
+          "slope_failure",
+          "debris_flow",
+          "precautionary_closure",
+          "flooding",
+          "structure_damage",
+          "traffic_incident",
+          "other"
+        ]
+      },
+      {
+        "label": "通報年份",
+        "options": [
+          {
+            "label": "2014",
+            "value": "2014"
+          },
+          {
+            "label": "2015",
+            "value": "2015"
+          },
+          {
+            "label": "2016",
+            "value": "2016"
+          },
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2019",
+            "value": "2019"
+          },
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2026（至 10/04）",
+            "value": "2026"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2014",
+          "2015",
+          "2016",
+          "2017",
+          "2018",
+          "2019",
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "highways": [
       {
         "label": "透明度 1.00",
@@ -78166,6 +79210,116 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "landslideAnnual": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024（V2 版）",
+            "value": "2024"
+          }
+        ],
+        "type": "select",
+        "value": "2024"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "landslideDodAreas": [
+      {
+        "label": "年度版本",
+        "options": [
+          {
+            "label": "111 年版（2022）",
+            "value": "111"
+          },
+          {
+            "label": "112 年版（2023）",
+            "value": "112"
+          },
+          {
+            "label": "113 年版（2024）",
+            "value": "113"
+          },
+          {
+            "label": "114 年版（2025）",
+            "value": "114"
+          },
+          {
+            "label": "115 年版（2026）",
+            "value": "115"
+          }
+        ],
+        "type": "select",
+        "value": "115"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "landslideDodImpact": [
+      {
+        "label": "年度版本",
+        "options": [
+          {
+            "label": "111 年版（2022）",
+            "value": "111"
+          },
+          {
+            "label": "112 年版（2023）",
+            "value": "112"
+          },
+          {
+            "label": "113 年版（2024）",
+            "value": "113"
+          },
+          {
+            "label": "114 年版（2025）",
+            "value": "114"
+          },
+          {
+            "label": "115 年版（2026）",
+            "value": "115"
+          }
+        ],
+        "type": "select",
+        "value": "115"
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
       }
     ],
     "librarySeats": [
@@ -106155,6 +107309,76 @@
         "valueText": "0.55"
       }
     ],
+    "statsLandslideAreaCounty": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "崩塌筆數",
+            "value": "statsLandslideCountCounty"
+          },
+          {
+            "label": "崩塌面積（公頃）",
+            "value": "statsLandslideAreaCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLandslideAreaCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLandslideCountCounty": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "崩塌筆數",
+            "value": "statsLandslideCountCounty"
+          },
+          {
+            "label": "崩塌面積（公頃）",
+            "value": "statsLandslideAreaCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLandslideCountCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsLivestockBuildingAreaTownship": [
       {
         "label": "地理層級／比較口徑",
@@ -108474,6 +109698,25 @@
         "valueText": "0.55"
       }
     ],
+    "statsSlopeWorksCostCounty": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsSmokingCessationProvidersCounty": [
       {
         "label": "地理層級／口徑",
@@ -108838,6 +110081,25 @@
         "type": "linkedSelect",
         "value": "statsSubstitutionTreatmentSitesTownship"
       },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSwcDisasterLossCounty": [
       {
         "label": "資料期別",
         "options": [],

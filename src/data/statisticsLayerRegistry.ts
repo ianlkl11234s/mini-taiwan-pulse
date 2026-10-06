@@ -8,6 +8,7 @@ import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
 
 const AGRI_STATISTICS_TAB_LAYER_ROLES = Object.fromEntries(
   AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, "choropleth"]),
@@ -31,6 +32,10 @@ const ADDICTION_STATISTICS_TAB_LAYER_ROLES = Object.fromEntries(
   ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, "choropleth"]),
 ) as Record<AddictionStatisticsLayerKey, "choropleth">;
 
+const LANDSLIDE_STATISTICS_TAB_LAYER_ROLES = Object.fromEntries(
+  LANDSLIDE_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, "choropleth"]),
+) as Record<LandslideStatisticsLayerKey, "choropleth">;
+
 /** Index-only existing recipes are for StatisticsDetails navigation, never sidebar registration. */
 export { AGRI_EXISTING_LAYER_REFERENCES };
 
@@ -43,6 +48,7 @@ export const STATISTICS_TAB_LAYER_ROLES = {
   ...ENVIRONMENT_STATISTICS_TAB_LAYER_ROLES,
   ...DEMOGRAPHICS_STATISTICS_TAB_LAYER_ROLES,
   ...ADDICTION_STATISTICS_TAB_LAYER_ROLES,
+  ...LANDSLIDE_STATISTICS_TAB_LAYER_ROLES,
   ...Object.fromEntries(EDUCATION_PRESENTATION_VIEW_KEYS.map(key => [key, "choropleth"])),
   statsWasteCounty: "choropleth",
   statsRecyclingCounty: "choropleth",

@@ -41,6 +41,7 @@ const DENSE_FROM = {
   accessibleParkFacilities: densePointsFromZoom(20_870),
   religionTemples: densePointsFromZoom(19_201),
   harmReductionDuiCrashes: densePointsFromZoom(36_814),
+  highwayDisasterHistory: densePointsFromZoom(16_163),
   tourHotels: densePointsFromZoom(15_654),
   medAED: densePointsFromZoom(15_490),
   busStationsIntercity: densePointsFromZoom(15_383),
@@ -253,6 +254,9 @@ import {
   internetServiceTypeFilter, needleServiceFilter, prepFundingFilter, selftestChannelFilter, smokingFacilityFilter,
   treatmentCategoryFilter,
 } from "../data/harmReductionTypes";
+import {
+  ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
+} from "../data/landslideTypes";
 import {
   AVIATION_NOISE_ZONE_COLOR_EXPR,
   NOISE_CAPTURE_ATTRIBUTION,
@@ -580,6 +584,72 @@ const HARM_REDUCTION_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("harmReductionTherapeuticCommunities", "./harm_reduction/therapeutic_communities.geojson", "harm-reduction-therapeutic-communities", HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, undefined, "衛生福利部心理健康司 藥癮治療性社區／社區復健方案承辦機構（2025-07-29）", [4, 8], { labelMinzoom: 11 }),
   publicLifePointOverlay("harmReductionAftercare", "./harm_reduction/offender_aftercare_offices.geojson", "harm-reduction-aftercare", HARM_REDUCTION_COLORS.harmReductionAftercare, undefined, "法務部 更生保護會（data.gov.tw 10060，2023-06）· 政府資料開放授權條款第1版", [4, 8], { labelMinzoom: 10 }),
   publicLifePointOverlay("harmReductionDuiCrashes", "./harm_reduction/dui_crash_points.pmtiles", "harm-reduction-dui-crashes", categoryColorExpression("accident_class", DUI_CLASS_OPTIONS), { sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 道路交通事故資料（107–114 年）· 政府資料開放授權條款第1版", undefined, { filter: (p) => duiCrashFilter(p?.harmReductionDuiCrashesClassMask, p?.harmReductionDuiCrashesYearMask, p?.harmReductionDuiCrashesBasisMask), dense: { pointsFromZoom: DENSE_FROM.harmReductionDuiCrashes, intensity: 1 } }),
+];
+
+/**
+ * 崩塌 4 層。潛勢區／影響範圍：git GeoJSON，依共用年度版本選單（landslideDodYearIdx，預設 115 年版）濾出單一年度，
+ * 依來源 risk 上色；影響範圍以虛線外框＋較淡填色和潛勢區區分。省道歷史災情：git PMTiles 點，共用點層 helper
+ * （類別色＋類別／年份多選＋密集點熱區）。年度全島崩塌地：107MB PMTiles（S3 volume），只畫單一年度、z10 起
+ * （z6–z9 切片會遺漏小面，z10 起 143,511 面完整）。
+ */
+const LANDSLIDE_OVERLAYS: OverlayConfig[] = [
+  {
+    id: "landslideDodImpact",
+    sourceUrl: "./hazards/landslide_dod_impact.geojson",
+    sourceId: "landslide-dod-impact",
+    attribution: "農業部農村發展及水土保持署 大規模崩塌影響範圍（111–115 年版）· 政府資料開放授權條款第1版",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (_dark, p) => ({
+        "fill-color": dodRiskColorExpr(),
+        "fill-opacity": p?.landslideDodImpactOpacity ?? 0.35,
+      }) },
+      { suffix: "outline", type: "line", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (_dark, p) => ({
+        "line-color": dodRiskColorExpr(),
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.6, 14, 1.6],
+        "line-dasharray": [2, 2],
+        "line-opacity": Math.min(1, (p?.landslideDodImpactOpacity ?? 0.35) + 0.4),
+      }) },
+    ],
+  },
+  {
+    id: "landslideDodAreas",
+    sourceUrl: "./hazards/landslide_dod_areas.geojson",
+    sourceId: "landslide-dod-areas",
+    attribution: "農業部農村發展及水土保持署 大規模崩塌潛勢區（111–115 年版）· 政府資料開放授權條款第1版",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (_dark, p) => ({
+        "fill-color": dodRiskColorExpr(),
+        "fill-opacity": p?.landslideDodAreasOpacity ?? 0.55,
+      }) },
+      { suffix: "outline", type: "line", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (dark, p) => ({
+        "line-color": dark ? "#fde68a" : "#7c2d12",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5, 14, 1.4],
+        "line-opacity": Math.min(1, (p?.landslideDodAreasOpacity ?? 0.55) + 0.3),
+      }) },
+    ],
+  },
+  {
+    id: "landslideAnnual",
+    sourceUrl: "./hazards/landslide_annual_swcb_20261006.pmtiles",
+    sourceId: "landslide-annual",
+    pmtiles: { sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
+    attribution: "農業部農村發展及水土保持署 年度全島崩塌地（2017／2018／2023／2024）· 政府資料開放授權條款第1版",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", minzoom: ANNUAL_MIN_ZOOM, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (_dark, p) => ({
+        "fill-color": LANDSLIDE_LAYER_COLORS.landslideAnnual,
+        "fill-opacity": p?.landslideAnnualOpacity ?? 0.55,
+      }) },
+      { suffix: "outline", type: "line", minzoom: ANNUAL_MIN_ZOOM, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (dark, p) => ({
+        "line-color": dark ? "#fdba74" : "#7c2d12",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.4, 14, 1.2],
+        "line-opacity": Math.min(1, (p?.landslideAnnualOpacity ?? 0.55) + 0.3),
+      }) },
+    ],
+  },
+  publicLifePointOverlay("highwayDisasterHistory", "./hazards/highway_disaster_history.pmtiles", "highway-disaster-history", highwayCategoryColorExpr(), { sourceLayer: "highway_disaster_history", minzoom: 5, maxzoom: 12 }, "交通部公路局 道路（橋梁）歷史災情（data.gov.tw 31020）· 政府資料開放授權條款第1版", undefined, { filter: (p) => highwayDisasterFilter(p?.highwayDisasterHistoryCategoryMask, p?.highwayDisasterHistoryYearMask), dense: { pointsFromZoom: DENSE_FROM.highwayDisasterHistory, intensity: 1 } }),
 ];
 
 /**
@@ -11340,6 +11410,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
 OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
 OVERLAY_REGISTRY.push(...HARM_REDUCTION_OVERLAYS);
+OVERLAY_REGISTRY.push(...LANDSLIDE_OVERLAYS);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。

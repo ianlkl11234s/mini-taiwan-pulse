@@ -22,6 +22,7 @@ import { getSocialRecipe } from './socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationView } from './laborStatisticsRecipes';
 import { getEnvironmentRecipe } from './environmentStatisticsRecipes';
 import { getAddictionRecipe } from './addictionStatisticsRecipes';
+import { getLandslideRecipe } from './landslideStatisticsRecipes';
 import { getDemographicsRecipe } from './demographicsStatisticsRecipes';
 import { getComparisonRecipe } from './comparisonStatisticsRecipes';
 import { getEducationPresentationView } from './statisticsPresentationViews';
@@ -78,7 +79,7 @@ function statisticsFieldPlan(key: string): FieldPlan[] {
     if (environment.dimension?.key) plan.push(...dims([environment.dimension.key]));
     return plan;
   }
-  if (getDemographicsRecipe(key) || getAddictionRecipe(key)) return [{ field: 'release', label: '資料期別', suffix: 'Period' }];
+  if (getDemographicsRecipe(key) || getAddictionRecipe(key) || getLandslideRecipe(key)) return [{ field: 'release', label: '資料期別', suffix: 'Period' }];
   const keys = statisticsDimensionKeys(key);
   return keys.length ? dims(keys) : [{ field: 'release', label: '資料期別', suffix: 'Period' }];
 }

@@ -11,6 +11,7 @@ import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresen
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../../data/demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../../data/landslideStatisticsRecipes";
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化"] },
@@ -24,6 +25,7 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "交通用地 Transport Land", groups: ["交通用地"] },
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地"] },
   { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收", "水質與污水", "空氣品質", "污染與公害", "環境治理"] },
+  { title: "崩塌與水土保持 Landslides & Soil Conservation", groups: ["崩塌", "治山防災工程", "水土保持災害"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
 const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !key.startsWith('statsComparisonEducation'));
@@ -54,11 +56,12 @@ const EXPECTED_LAYER_KEYS = [
   "statsPigWaterCounty", "statsWaterSupplyHistorical", "statsResidentialElectricity",
   "statsWasteCounty", "statsRecyclingCounty", "statsWasteRecyclingRate",
   ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
+  ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
   "countyBoundary", "townshipBoundary",
 ];
 
 describe("STATISTICS_TAB_THEMES", () => {
-  it("以十二個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
+  it("以十三個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
     expect(STATISTICS_TAB_THEMES.map((theme) => ({
       title: theme.title,
       groups: theme.groups.map((group) => group.title),
@@ -105,6 +108,9 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(group("成癮與減害 Addiction & Harm Reduction", "疾病（HIV）")).toEqual(["statsHivNewCasesCounty", "statsHivPer100kCounty", "statsHivCasesTownship", "statsHivPer100kYearTownship"]);
     expect(group("成癮與減害 Addiction & Harm Reduction", "執法（毒品、酒駕、地檢署）")).not.toContain("statsDrugGrade2SuspectsCounty");
     expect(services).not.toContain("statsDrugPreventionCentersCounty");
+    // 崩塌與水土保持：筆數在面積前（群組列只在第一個成員渲染）；崩塌地處理面積（疑混單位離群值）不接。
+    expect(group("崩塌與水土保持 Landslides & Soil Conservation", "崩塌")).toEqual(["statsLandslideCountCounty", "statsLandslideAreaCounty"]);
+    expect(group("崩塌與水土保持 Landslides & Soil Conservation", "治山防災工程")).toEqual(["statsSlopeWorksCostCounty"]);
     // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
     const pollution = group("環境與資源 Environment & Resources", "污染與公害");
     expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));
