@@ -905,6 +905,11 @@ function wasteSubSliders(key: string, size: number, opacity: number): SliderPara
   ];
 }
 
+/** R6 段 2：廢棄物設施的「立體效果」開關（只走 Three.js ref，預設平面）。 */
+function wasteStereoToggle(key: string): ToggleParamSpec {
+  return { kind: "toggle", name: `${key}3D`, label: "立體效果", default: false, out: null };
+}
+
 // ── 網格類（H3 / SEGIS / YouBike）四支同構 slider ──────────────────
 // 控件組慣例：Opacity → Contrast → 3D → Height，六個子物件層共用同一組形狀。
 function gridOpacitySlider(name: string, def: number): SliderParamSpec {
@@ -1999,7 +2004,13 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "waterProtectionZoneOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
   ],
   waterReservoirs: [
-    { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：即時水情預設畫 Mapbox 平面圓點（色＝警示等級、大小＝有效容量）；
+    // 「立體效果」開啟才疊 Three.js 水位計，水位計高度只對它有意義
+    { kind: "toggle", name: "waterReservoirs3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1,
+      showWhen: { param: "waterReservoirs3D", equals: true },
+    },
     opacitySlider("waterReservoirsOpacity", 1),
     scaleSlider("waterReservoirsScale", 1),
   ],
@@ -2191,7 +2202,13 @@ export const LAYER_PARAMS_SPEC = {
   powerPlants: [scaleSlider("powerPlantsScale", 0.5), opacitySlider("powerPlantsOpacity", 0.95)],
   aviationRestrictedGlow: [opacitySlider("aviationRestrictedGlowOpacity", 0.85)],
   powerGenerationUnit: [
-    { kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：預設畫 Mapbox 平面圓點（色＝燃料、大小＝即時出力 MW）；
+    // 「立體效果」開啟才疊 Three.js 出力光柱，柱高只對光柱有意義
+    { kind: "toggle", name: "powerGenerationUnit3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1,
+      showWhen: { param: "powerGenerationUnit3D", equals: true },
+    },
     opacitySlider("powerGenerationOpacity", 0.7),
     scaleSlider("powerGenerationScale", 1),
   ],
@@ -3782,18 +3799,21 @@ export const LAYER_PARAMS_SPEC = {
   // 13 個廢棄物子層：值進 hook 的 `wasteSubParams` 巢狀 Record（＋同名 ref）。
   // 參數名一律 `${key}Size` / `${key}Opacity` / `${key}Altitude` —— 參數名全域唯一，
   // 不能沿用巢狀物件裡的 `size` / `opacity` / `altitude`。
+  // R6 段 2（2026-10-06）：五類設施預設畫 Mapbox 平面圓點（類別色），「立體效果」開啟才疊 Three.js 造型
   wfIncinerator: [
     ...wasteSubSliders("wfIncinerator", 1.0, 0.85),
-    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
+    wasteStereoToggle("wfIncinerator"),
+    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示；只畫在 Three.js 裡）
     {
       kind: "slider", name: "wfIncineratorRingSize", labelPrefix: "底圈", digits: 2,
       default: 1.0, min: 0, max: 4, step: 0.1, out: null,
+      showWhen: { param: "wfIncinerator3D", equals: true },
     },
   ],
-  wfLandfill: wasteSubSliders("wfLandfill", 1.0, 0.45),
-  wfLandfillCoastal: wasteSubSliders("wfLandfillCoastal", 1.0, 0.55),
-  wfTransfer: wasteSubSliders("wfTransfer", 1.0, 0.85),
-  wfMedical: wasteSubSliders("wfMedical", 1.0, 0.85),
+  wfLandfill: [...wasteSubSliders("wfLandfill", 1.0, 0.45), wasteStereoToggle("wfLandfill")],
+  wfLandfillCoastal: [...wasteSubSliders("wfLandfillCoastal", 1.0, 0.55), wasteStereoToggle("wfLandfillCoastal")],
+  wfTransfer: [...wasteSubSliders("wfTransfer", 1.0, 0.85), wasteStereoToggle("wfTransfer")],
+  wfMedical: [...wasteSubSliders("wfMedical", 1.0, 0.85), wasteStereoToggle("wfMedical")],
   // R6 段 1（2026-10-05）：Three.js 監測井改為選配，預設只畫 Mapbox 點（其他 5 類設施不動）
   wfMonitoring: [
     ...wasteSubSliders("wfMonitoring", 1.0, 0.7),

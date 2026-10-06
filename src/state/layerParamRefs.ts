@@ -140,6 +140,9 @@ export const layerParamRefs = {
   fireStationsScale: ref(0), fireStationsOpacity: ref(0), fireStations3D: ref(false),
   wasteSubParams: ref<Record<string, WasteSubParams>>({}),
   wfMonitoring3D: ref(false),
+  // R6 段 2：五類設施＋水庫的立體效果（Three.js 可見性與 raycast 點選判斷用）
+  wfIncinerator3D: ref(false), wfLandfill3D: ref(false), wfLandfillCoastal3D: ref(false),
+  wfTransfer3D: ref(false), wfMedical3D: ref(false), waterReservoirs3D: ref(false),
   beamVisible: ref(false), beamDistance: ref(0), beamOpacity: ref(0),
   thsrPillarVisible: ref(false), thsrPillarHeight: ref(0), thsrOpacity: ref(1),
   traPillarVisible: ref(false), traPillarHeight: ref(0), traOpacity: ref(1),
@@ -212,6 +215,10 @@ function sync(): void {
   r.fireStationsOpacity.current = rNum(a, "fireStations", "fireStationsOpacity");
   r.fireStations3D.current = rBool(a, "fireStations", "fireStations3D");
   r.wfMonitoring3D.current = rBool(a, "wfMonitoring", "wfMonitoring3D");
+  for (const k of ["wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical"] as const) {
+    r[`${k}3D`].current = rBool(a, k, `${k}3D`);
+  }
+  r.waterReservoirs3D.current = rBool(a, "waterReservoirs", "waterReservoirs3D");
 
   r.tempHeight.current = rNum(a, "temperatureWave", "tempHeight");
   r.tempZOffset.current = rNum(a, "temperatureWave", "tempZOffset");

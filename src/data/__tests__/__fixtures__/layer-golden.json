@@ -1819,6 +1819,12 @@
     },
     {
       "layers": [
+        "water-reservoir-status-circle"
+      ],
+      "type": "waterDam"
+    },
+    {
+      "layers": [
         "water-reservoir-dams-core",
         "water-reservoir-dams-glow-1",
         "water-reservoir-dams-glow-2"
@@ -13671,6 +13677,195 @@
       "rebuildOnParamChange": null,
       "sourceId": "water-reservoir-dams",
       "sourceUrl": "./geo/water_dams.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "waterReservoirs",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "alert"
+                ],
+                "critical",
+                "#ef4444",
+                "warning",
+                "#f97316",
+                "normal",
+                "#22d3ee",
+                "high",
+                "#22c55e",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "effective_capacity_wan"
+                      ],
+                      0
+                    ]
+                  ],
+                  0.3333333333333333
+                ],
+                0,
+                4,
+                36,
+                16
+              ],
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "alert"
+                ],
+                "critical",
+                "#ef4444",
+                "warning",
+                "#f97316",
+                "normal",
+                "#22d3ee",
+                "high",
+                "#22c55e",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "^",
+                  [
+                    "max",
+                    0,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "effective_capacity_wan"
+                      ],
+                      0
+                    ]
+                  ],
+                  0.3333333333333333
+                ],
+                0,
+                4,
+                36,
+                16
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "text-allow-overlap": true,
+            "text-anchor": "top",
+            "text-field": [
+              "case",
+              [
+                "==",
+                [
+                  "typeof",
+                  [
+                    "get",
+                    "storage_ratio_pct"
+                  ]
+                ],
+                "number"
+              ],
+              [
+                "concat",
+                [
+                  "to-string",
+                  [
+                    "round",
+                    [
+                      "get",
+                      "storage_ratio_pct"
+                    ]
+                  ]
+                ],
+                "%"
+              ],
+              ""
+            ],
+            "text-font": [
+              "DIN Pro Bold",
+              "Arial Unicode MS Bold"
+            ],
+            "text-ignore-placement": true,
+            "text-offset": [
+              0,
+              0.9
+            ],
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              11,
+              14,
+              13
+            ]
+          },
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "text-color": "#e5e7eb",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25
+            },
+            "light": {
+              "text-color": "#1f2937",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "water-reservoir-status",
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": null,
@@ -36491,6 +36686,106 @@
       "filter": null,
       "id": "powerGenerationUnit",
       "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "coalesce",
+                [
+                  "get",
+                  "output_mw"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.7,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    0,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "output_mw"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                3,
+                63.245553203367585,
+                20
+              ],
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "coalesce",
+                [
+                  "get",
+                  "color"
+                ],
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.7,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    0,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "output_mw"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                3,
+                63.245553203367585,
+                20
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
         {
           "filter": null,
           "layout": null,
@@ -77294,6 +77589,11 @@
     ],
     "powerGenerationUnit": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -77307,15 +77607,6 @@
         "max": 3,
         "min": 0.3,
         "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
-        "label": "柱高 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "柱高",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
@@ -103880,6 +104171,11 @@
     ],
     "waterReservoirs": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -103896,15 +104192,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "水位計高度 1.00",
-        "max": 3,
-        "min": 0,
-        "name": "水位計高度",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
       }
     ],
     "waterRivers": [
@@ -104586,6 +104873,11 @@
     ],
     "wfIncinerator": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -104604,15 +104896,6 @@
         "valueText": "1.00"
       },
       {
-        "label": "底圈 1.00",
-        "max": 4,
-        "min": 0,
-        "name": "底圈",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.00"
-      },
-      {
         "label": "高度 0m",
         "max": 500,
         "min": 0,
@@ -104623,6 +104906,11 @@
       }
     ],
     "wfLandfill": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
       {
         "label": "透明度 0.45",
         "max": 1,
@@ -104653,6 +104941,11 @@
     ],
     "wfLandfillCoastal": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -104681,6 +104974,11 @@
       }
     ],
     "wfMedical": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -104831,6 +105129,11 @@
       }
     ],
     "wfTransfer": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
       {
         "label": "透明度 0.85",
         "max": 1,

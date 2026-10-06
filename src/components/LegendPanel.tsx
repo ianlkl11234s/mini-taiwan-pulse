@@ -210,7 +210,16 @@ import {
   CAPACITY_BREAKS,
   CAPACITY_RADIUS,
 } from "../data/energyLoader";
+import {
+  POWER_OUTPUT_LEGEND_MW,
+  powerOutputRadius,
+  RESERVOIR_ALERT_LEGEND,
+  RESERVOIR_CAPACITY_LEGEND_WAN,
+  reservoirAlertCss,
+  reservoirCapacityRadius,
+} from "../map/r6FlatEncodings";
 import { LIGHTNING_TYPE_COLORS } from "../data/lightningLoader";
+import { WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS } from "../data/wasteLoader";
 import {
   NUCLEAR_DOSE_THRESHOLDS,
   NUCLEAR_LEVEL_COLORS,
@@ -610,6 +619,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
             : overlayParams.ooklaFixedTaiwanPalette
     } isDark={isDark} taiwanOnly={!visibility.ooklaMobilePerformance && !visibility.ooklaFixedPerformance} />,
   },
+  // R6 段 2：水庫即時水情平面圓點（警示等級色＋容量大小）
+  { id: "waterReservoirs", render: () => <ReservoirStatusLegend /> },
   { id: "waterCanals", render: ({ isDark }) => <WaterCanalLegend isDark={isDark} /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -630,7 +641,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "erHospital", render: () => <ErCongestionLegend /> },
   { id: "parkingOnstreet", render: ({ visibility }) => <ParkingLegend visibility={visibility} /> },
   { id: "floodSensor", render: () => <FloodSensorLegend /> },
-  { id: "powerPlants", render: () => <EnergyFuelLegend /> },
+  // R6 段 2：五類廢棄物處理設施平面圓點（LG-1 類別色）
+  { id: "wfIncinerator", render: ({ visibility }) => <WasteFacilityLegend visibility={visibility} /> },
+  { id: "powerPlants", render: ({ visibility }) => <EnergyFuelLegend visibility={visibility} /> },
   { id: "powerRegionDemand", render: () => <EnergyReserveLegend /> },
   { id: "osmPowerLines", render: ({ visibility }) => <PowerGridLegend visibility={visibility} /> },
   { id: "powerPoles", render: () => <PowerPolesLegend /> },
@@ -5225,8 +5238,11 @@ const FUEL_LEGEND_ROWS: { label: string; key: string }[] = [
   { label: "生質 Biomass/Biogas", key: "biomass" },
 ];
 
-function EnergyFuelLegend() {
+function EnergyFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
+  // 同一份燃料色圖例給 legacy 電廠總圖（容量分級）與機組即時出力（R6 段 2：平面圓點大小＝出力 MW）
+  const showCapacity = visibility.powerPlants;
+  const showOutput = visibility.powerGenerationUnit;
   return (
     <div>
       <LegendTitle zh="發電燃料" en="Fuel" />
@@ -5236,36 +5252,112 @@ function EnergyFuelLegend() {
           <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{row.label}</span>
         </div>
       ))}
-      <div style={{ marginTop: 6 }}>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
-          Capacity (MW)
+      {showCapacity && (
+        <div style={{ marginTop: 6 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            Capacity (MW)
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {[
+              { label: `<${CAPACITY_BREAKS.small}`, r: CAPACITY_RADIUS.tiny },
+              { label: `<${CAPACITY_BREAKS.medium}`, r: CAPACITY_RADIUS.small },
+              { label: `<${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.medium },
+              { label: `≥${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.large },
+            ].map((x) => (
+              <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <div
+                  style={{
+                    width: x.r * 2,
+                    height: x.r * 2,
+                    borderRadius: RADIUS.full,
+                    background: FUEL_FALLBACK_COLOR,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{x.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {[
-            { label: `<${CAPACITY_BREAKS.small}`, r: CAPACITY_RADIUS.tiny },
-            { label: `<${CAPACITY_BREAKS.medium}`, r: CAPACITY_RADIUS.small },
-            { label: `<${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.medium },
-            { label: `≥${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.large },
-          ].map((x) => (
-            <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-              <div
-                style={{
-                  width: x.r * 2,
-                  height: x.r * 2,
-                  borderRadius: RADIUS.full,
-                  background: FUEL_FALLBACK_COLOR,
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{x.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
+      {showOutput && (
+        <LegendSizeRow
+          title="即時出力（機組圓點大小）"
+          items={POWER_OUTPUT_LEGEND_MW.map((mw) => ({ r: powerOutputRadius(mw), label: `${mw.toLocaleString()} MW` }))}
+        />
+      )}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
-        ● 光柱（Layer 4）= 機組即時出力 / 裝置容量<br />
+        {showOutput && <>● 機組即時出力：面積 ∝ 出力 MW，隨時間軸更新；開「立體效果」另疊光柱（柱高 ∝ 出力／裝置容量）<br /></>}
         ● 14 台電廠有 output；OSM/IPP 等暫無
       </LegendNote>
+    </div>
+  );
+}
+
+/**
+ * LG-5 大小：三個參考值的圓，直徑＝地圖實際直徑（R6 段 2 平面圓點固定 px、不隨縮放，所以任一縮放都對得上）。
+ * 中性灰填色＋底圖色細縫，表示「大小」與類別色無關。
+ */
+function LegendSizeRow({ title, items }: { title: string; items: { r: number; label: string }[] }) {
+  const t = useLegendTheme();
+  return (
+    <div style={{ marginTop: 6 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{title}</div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 10, flexWrap: "wrap" }}>
+        {items.map((x) => (
+          <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <span
+              aria-hidden="true"
+              style={{
+                width: x.r * 2, height: x.r * 2, borderRadius: RADIUS.full, background: FUEL_FALLBACK_COLOR,
+                boxShadow: `0 0 0 1px ${t.seam}`, flexShrink: 0, display: "inline-block",
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}><LegendNum>{x.label}</LegendNum></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** R6 段 2：水庫即時水情平面圓點（色＝警示等級，同 3D 水位計水柱色；大小＝有效容量） */
+function ReservoirStatusLegend() {
+  return (
+    <div>
+      <LegendTitle zh="水庫即時水情" en="Reservoir Status" />
+      {RESERVOIR_ALERT_LEGEND.map((row) => (
+        <LegendRow key={row.key} swatch={<SwatchDot color={reservoirAlertCss(row.key)} />}>{row.label}</LegendRow>
+      ))}
+      <LegendSizeRow
+        title="有效容量（圓點大小）"
+        items={RESERVOIR_CAPACITY_LEGEND_WAN.map((wan) => ({ r: reservoirCapacityRadius(wan), label: `${(wan / 10_000).toLocaleString()} 億 m³` }))}
+      />
+      <LegendNote>圓點下方數字＝蓄水率；隨時間軸更新。開「立體效果」另疊 3D 水位計（水柱高＝蓄水率）。</LegendNote>
+    </div>
+  );
+}
+
+/** R6 段 2：五類廢棄物處理設施平面圓點（LG-1，色號＝WASTE_FACILITY_COLORS，與地圖同一常數） */
+const WASTE_FACILITY_LEGEND_ROWS: ReadonlyArray<{ key: keyof LayerVisibility; type: string }> = [
+  { key: "wfIncinerator", type: "incinerator" },
+  { key: "wfLandfill", type: "landfill" },
+  { key: "wfLandfillCoastal", type: "landfill_coastal" },
+  { key: "wfTransfer", type: "transfer_station" },
+  { key: "wfMedical", type: "medical_waste" },
+];
+
+function WasteFacilityLegend({ visibility }: { visibility: LayerVisibility }) {
+  const rows = WASTE_FACILITY_LEGEND_ROWS.filter((r) => visibility[r.key]);
+  return (
+    <div>
+      <LegendTitle zh="垃圾處理設施" en="Waste Facilities" />
+      {rows.map((r) => (
+        <LegendRow key={r.key} swatch={<SwatchDot color={WASTE_FACILITY_COLORS[r.type]!} />}>
+          {WASTE_FACILITY_LABELS[r.type] ?? r.type}
+        </LegendRow>
+      ))}
+      <LegendNote>開「立體效果」另疊 3D 造型（煙囪、穹頂、雷達等）。</LegendNote>
     </div>
   );
 }
