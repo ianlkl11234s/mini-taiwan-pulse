@@ -10,10 +10,12 @@ import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes"
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../../data/demographicsStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../../data/addictionStatisticsRecipes";
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化"] },
   { title: "醫療與長照 Health & Care", groups: ["醫療與長照"] },
+  { title: "成癮與減害 Addiction & Harm Reduction", groups: ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["犯罪與治安"] },
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
   { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值"] },
@@ -35,6 +37,7 @@ const EXPECTED_LAYER_KEYS = [
   "statsHealthHospitalCount", "statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal", "statsHealthIcuBedTotal", "statsHealthHospiceBedTotal", "statsHealthHealthProfessionalTotal", "statsHealthWesternPhysicianCount", "statsHealthRegisteredNurseCount", "statsHealthNursingStaffListedAgeSexSum", "statsHealthCareWorkerListedSexSum", "statsHealthGeneralNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenInfantBeds", "statsHealthCareWorkerRegistration", "statsHealthMedicalInstitutionBedsPer10000Population", "statsHealthPracticingMedicalPersonnelPer10000Population",
   "statsHousingTotalCounty", "statsHousingOccupiedCounty", "statsHousingUnoccupiedCounty", "statsHousingOccasionalCounty", "statsHousingOtherUseCounty", "statsHousingUnusedCounty", "statsHousingResidenceOnlyCounty", "statsHousingMixedUseCounty", "statsHousingOccupiedPctCounty", "statsHousingUnusedPctCounty", "statsHousingTotalTownship", "statsHousingOccupiedTownship", "statsHousingUnoccupiedTownship", "statsHousingOccasionalTownship", "statsHousingOtherUseTownship", "statsHousingUnusedTownship", "statsHousingOccupiedPctTownship", "statsHousingUnusedPctTownship",
   "propertyValueAdmin",
+  ...ADDICTION_ENABLED_STATISTICS_KEYS,
   "crimeAreaMonthly",
   "statsBusOperatingRouteLengthKm", "statsBusApprovedRouteCount", "statsUrbanBusOperatorCount", "statsBusOperatingVehicleCount", "statsBusAccessibleVehicleCount", "statsBusElectricVehicleCount", "statsBusOperatingTripCount", "statsBusOperatingVehicleKm", "statsTmrtStationOutboundCounty",
   "statsTaipeiUrbanRentalStations", "statsTaipeiUrbanRentalTrips", "statsTaipeiRiversideRentalStations", "statsTaipeiRiversideBicycles", "statsTaipeiRiversideRentalTrips",
@@ -55,7 +58,7 @@ const EXPECTED_LAYER_KEYS = [
 ];
 
 describe("STATISTICS_TAB_THEMES", () => {
-  it("以十一個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
+  it("以十二個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
     expect(STATISTICS_TAB_THEMES.map((theme) => ({
       title: theme.title,
       groups: theme.groups.map((group) => group.title),
@@ -92,6 +95,13 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(group("交通用地 Transport Land", "交通用地").some(key => key.startsWith("statsComparison"))).toBe(true);
     expect(group("醫療與長照 Health & Care", "醫療與長照").some(key => key.startsWith("statsComparison"))).toBe(true);
     expect(group("住宅與不動產 Housing & Property", "住宅存量與使用").some(key => key.startsWith("statsComparison"))).toBe(true);
+    // 成癮與減害：同群組成員相鄰、原始數與縣市在前（群組列只在第一個成員渲染）；第二級毒品／毒防中心不接。
+    const services = group("成癮與減害 Addiction & Harm Reduction", "服務據點");
+    expect(services.slice(0, 4)).toEqual(["statsNeedleEducationStationsCounty", "statsNeedleEducationStationsPer100kCounty", "statsNeedleEducationStationsTownship", "statsNeedleEducationStationsPer100kTownship"]);
+    expect(services).toHaveLength(40);
+    expect(group("成癮與減害 Addiction & Harm Reduction", "疾病（HIV）")).toEqual(["statsHivNewCasesCounty", "statsHivPer100kCounty", "statsHivCasesTownship", "statsHivPer100kYearTownship"]);
+    expect(group("成癮與減害 Addiction & Harm Reduction", "執法（毒品、酒駕、地檢署）")).not.toContain("statsDrugGrade2SuspectsCounty");
+    expect(services).not.toContain("statsDrugPreventionCentersCounty");
     // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
     const pollution = group("環境與資源 Environment & Resources", "污染與公害");
     expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));

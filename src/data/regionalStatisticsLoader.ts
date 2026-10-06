@@ -8,6 +8,7 @@ import { agriReleaseOptions, getAgriRecipe, getAgriRecipeDetails, resolveAgriRel
 import { ensureStatisticsRecipeDetails } from './statisticsRecipeDetails';
 import { getLaborRecipe, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from './laborStatisticsRecipes';
 import { getEnvironmentRecipe, environmentReleaseOptions, resolveEnvironmentRelease } from './environmentStatisticsRecipes';
+import { getAddictionRecipe, addictionReleaseOptions, resolveAddictionRelease } from './addictionStatisticsRecipes';
 import { statisticsPeriodLabel } from './statisticsLabels';
 import { getDemographicsRecipe, demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsReleaseOptions, resolveDemographicsRelease } from './demographicsStatisticsRecipes';
 
@@ -345,31 +346,33 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
     const labor = contractLayerKey ? getLaborRecipe(contractLayerKey) : undefined;
     const environment = contractLayerKey ? getEnvironmentRecipe(contractLayerKey) : undefined;
     const demographics = contractLayerKey ? getDemographicsRecipe(contractLayerKey) : undefined;
+    const addiction = contractLayerKey ? getAddictionRecipe(contractLayerKey) : undefined;
     const compatibleReleases = () => releases
       .filter(item => !item.levels || item.levels.includes(recipe.level))
       .map(item => ({ release: item, dimensions: recipe.releaseFallback ? recipe.releaseFallback(item) : recipe.dimensions ?? {} }))
       .filter((item): item is { release: StatisticsRelease; dimensions: Record<string, unknown> } => item.dimensions !== null)
       .sort((a, b) => b.release.period_end.localeCompare(a.release.period_end) || b.release.period_start.localeCompare(a.release.period_start) || b.release.release_id.localeCompare(a.release.release_id));
     let release: StatisticsRelease | undefined;
-    if (!recipe.releaseId && (agri || social || labor || environment || demographics)) {
+    if (!recipe.releaseId && (agri || social || labor || environment || demographics || addiction)) {
       const options = social ? socialReleaseOptions(contractLayerKey!, releases)
         : agri ? agriReleaseOptions(contractLayerKey!, releases)
           : labor ? laborReleaseOptions(contractLayerKey!, releases)
             : demographics ? demographicsReleaseOptions(contractLayerKey!, releases)
-              : environmentReleaseOptions(contractLayerKey!, releases);
+              : addiction ? addictionReleaseOptions(contractLayerKey!, releases)
+                : environmentReleaseOptions(contractLayerKey!, releases);
       const option = options[0];
       if (!option) throw new Error('統計尚無已公開且通過交付白名單的期別');
       release = releases.find(item => item.release_id === option.releaseId);
       effectiveRecipe = { ...recipe, releaseId: option.releaseId, dimensions: option.dimensions, allowReleaseFallback: false };
     } else release = recipe.releaseId ? releases.find(r => r.release_id === recipe.releaseId) : releases[0];
-    if (!agri && !social && !labor && !environment && !demographics && !recipe.releaseId && recipe.releaseFallback) {
+    if (!agri && !social && !labor && !environment && !demographics && !addiction && !recipe.releaseId && recipe.releaseFallback) {
       const requested = recipe.dimensions ?? {};
       const matched = compatibleReleases().find(candidate => Object.entries(requested).every(([key, value]) => candidate.dimensions[key] === value));
       if (!matched) throw new Error('指定統計維度尚未公開或已撤回，請重新選擇');
       release = matched.release;
       effectiveRecipe = { ...recipe, releaseId: release.release_id, dimensions: matched.dimensions, allowReleaseFallback: false };
     }
-    if (!social && !agri && !labor && !environment && !demographics && !release && recipe.releaseId && recipe.allowReleaseFallback) {
+    if (!social && !agri && !labor && !environment && !demographics && !addiction && !release && recipe.releaseId && recipe.allowReleaseFallback) {
       const fallback = compatibleReleases()[0];
       if (!fallback) throw new Error('預設統計期別已撤回，且沒有相容的公開期別可使用');
       release = fallback.release;
@@ -383,8 +386,8 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
       const option = comparisonReleaseOptions(recipe.layerKey!, releases).find(o => o.releaseId === release!.release_id && sameDimensions(o.dimensions, effectiveRecipe.dimensions ?? {}));
       if (!option || indicator.unit !== comparison.unit || comparison.dataset_id !== recipe.datasetId || comparison.indicator_id !== recipe.indicatorId || comparison.level !== recipe.level) throw new Error('比較統計未命中已驗證期別或單位');
     }
-    if (agri || social || labor || environment || demographics) {
-      const configured = social ?? agri ?? labor ?? environment ?? demographics;
+    if (agri || social || labor || environment || demographics || addiction) {
+      const configured = social ?? agri ?? labor ?? environment ?? demographics ?? addiction;
       if (!configured) throw new Error('統計 recipe 與正式發布契約不符');
       if (!configured.enabled || configured.dataset_id !== recipe.datasetId || configured.indicator_id !== recipe.indicatorId || configured.level !== recipe.level || configured.boundary_version !== release.boundary_version) throw new Error('統計 recipe 與正式發布契約不符');
       if (indicator.unit !== configured.unit) throw new Error('統計單位與已驗證 recipe 不符');
@@ -392,7 +395,8 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
         : agri ? resolveAgriRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
           : labor ? resolveLaborRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
             : demographics ? resolveDemographicsRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
-              : resolveEnvironmentRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>);
+              : addiction ? resolveAddictionRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+                : resolveEnvironmentRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>);
       if (!resolved) throw new Error('統計期別或維度不在已驗證白名單中');
       effectiveRecipe = { ...effectiveRecipe, releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false };
     }
@@ -462,6 +466,7 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     const labor = contractLayerKey ? getLaborRecipe(contractLayerKey) : undefined;
     const environment = contractLayerKey ? getEnvironmentRecipe(contractLayerKey) : undefined;
     const demographics = contractLayerKey ? getDemographicsRecipe(contractLayerKey) : undefined;
+    const addiction = contractLayerKey ? getAddictionRecipe(contractLayerKey) : undefined;
     const sourceResponse = { source: sources };
     const observations = first.observations;
     if (!boundary) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
@@ -486,7 +491,7 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
         : notCoveredAreaCodes.has(code) ? 'source_not_covered'
           : sourceMissingReason ?? 'source_join_or_time_mismatch';
       const transformed = effectiveRecipe.valueTransform === 'complement_100';
-      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, missing_reason: missingReason, inputs: value?.inputs, indicator_name: effectiveRecipe.label ?? comparison?.label ?? social?.label ?? labor?.label ?? environment?.label ?? demographics?.label ?? indicator.name, unit: indicator.unit, format: agri?.format ?? labor?.format ?? environment?.format ?? demographics?.format, disclosure: environment?.disclosure ?? (demographics ? [demographicsDisclosure(demographics), demographicsIndicatorNote(demographics)].filter(Boolean).join(' ') : undefined), release_id: release.release_id, period_label: demographics ? demographicsPeriodLabel(contractLayerKey!, release) ?? statisticsPeriodLabel(release) : `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, boundary_semantics: labor?.boundary_semantics ?? demographics?.boundary_semantics, location_semantics: labor ? laborLocationSemantics(labor) : environment?.location_semantics ?? demographics?.location_semantics, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status, coverage_numerator: health?.coverage_numerator, coverage_denominator: health?.coverage_denominator, comparison_formula: transformed ? '100% − 勞動力參與率' : derivation?.formula ?? processing?.formula ?? (demographics && typeof processingParameters?.formula === 'string' && processingParameters.formula !== demographicsDisclosure(demographics) ? processingParameters.formula : undefined), interpretation: transformed ? '非勞動力率占同一期人力資源調查 15 歲以上民間人口的比例。' : derivation?.interpretation ?? processing?.interpretation ?? processing?.description, time_caveat: derivation?.time_caveat ?? processing?.time_caveat } };
+      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, missing_reason: missingReason, inputs: value?.inputs, indicator_name: effectiveRecipe.label ?? comparison?.label ?? social?.label ?? labor?.label ?? environment?.label ?? demographics?.label ?? addiction?.label ?? indicator.name, unit: indicator.unit, format: agri?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format, disclosure: environment?.disclosure ?? addiction?.disclosure ?? (demographics ? [demographicsDisclosure(demographics), demographicsIndicatorNote(demographics)].filter(Boolean).join(' ') : undefined), release_id: release.release_id, period_label: demographics ? demographicsPeriodLabel(contractLayerKey!, release) ?? statisticsPeriodLabel(release) : `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, boundary_semantics: labor?.boundary_semantics ?? demographics?.boundary_semantics, location_semantics: labor ? laborLocationSemantics(labor) : environment?.location_semantics ?? demographics?.location_semantics ?? addiction?.location_semantics, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status, coverage_numerator: health?.coverage_numerator, coverage_denominator: health?.coverage_denominator, comparison_formula: transformed ? '100% − 勞動力參與率' : derivation?.formula ?? processing?.formula ?? (demographics && typeof processingParameters?.formula === 'string' && processingParameters.formula !== demographicsDisclosure(demographics) ? processingParameters.formula : undefined), interpretation: transformed ? '非勞動力率占同一期人力資源調查 15 歲以上民間人口的比例。' : derivation?.interpretation ?? processing?.interpretation ?? processing?.description, time_caveat: derivation?.time_caveat ?? processing?.time_caveat } };
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
     return { catalog, releases, values: first, sources: sourceResponse.source, health, effectiveRecipe: { ...effectiveRecipe, layerKey: renderKey ?? effectiveRecipe.layerKey }, geometryManifest, features };

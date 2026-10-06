@@ -59,6 +59,76 @@
     "class": "live_only",
     "note": "live_only: 價值在最近 7 天事件時間軸與嚴重度變化（AI 初判＋正式事件混合，候選事件分頁 200/頁），需依時間窗匯出才有意義，不適合單點快照；跨國弧線僅表事件關聯非真實座標移動。"
   },
+  "harmReductionAftercare": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「更生保護據點」已有 analytics manifest（offender_aftercare_offices，data/processed/poi/offender_aftercare_offices/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionAlcohol": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「酒癮治療機構」已有 analytics manifest（alcohol_treatment_facilities，data/processed/poi/alcohol_treatment_facilities/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionAntiDrugPharmacies": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「反毒藥局」已有 analytics manifest（anti_drug_pharmacies，data/processed/poi/anti_drug_pharmacies/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionCondomOutlets": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「保險套通路」已有 analytics manifest（condom_outlets，data/processed/poi/condom_outlets/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionDuiCrashes": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「酒駕肇事事故」已有 analytics manifest（dui_crash_points，data/processed/poi/dui_crash_points/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionHivSelftest": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「愛滋自我篩檢通路」已有 analytics manifest（hiv_selftest_outlets，data/processed/poi/hiv_selftest_outlets/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionHivTesting": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「愛滋篩檢與指定醫療」已有 analytics manifest（hiv_testing_sites，data/processed/poi/hiv_testing_sites/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionInternetAddiction": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「網路成癮服務」已有 analytics manifest（internet_addiction_services，data/processed/poi/internet_addiction_services/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionNeedle": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「清潔針具據點」已有 analytics manifest（harm_reduction_needle_points，data/processed/poi/harm_reduction_needle_points/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionPrep": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「PrEP 服務據點」已有 analytics manifest（prep_service_sites，data/processed/poi/prep_service_sites/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionPreventionCenters": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「毒品危害防制中心」已有 analytics manifest（drug_prevention_centers，data/processed/poi/drug_prevention_centers/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionSmokingCessation": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「戒菸服務」已有 analytics manifest（smoking_cessation_providers，data/processed/poi/smoking_cessation_providers/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionTherapeuticCommunities": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「治療性社區」已有 analytics manifest（therapeutic_communities，data/processed/poi/therapeutic_communities/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
+  "harmReductionTreatment": {
+    "l2": "none",
+    "class": "snapshot_candidate",
+    "note": "snapshot_candidate: 減害點位「替代療法與藥癮戒治」已有 analytics manifest（drug_treatment_facilities，data/processed/poi/drug_treatment_facilities/_manifest.json），manifest upstream id 與倉庫 dataset 同名、不需 alias；分析倉庫尚未入倉（pending 2026-10-06）。入倉後 build-layer-status 會自動清除此標記。"
+  },
   "historicalFlightTrails": {
     "l2": "none",
     "class": "snapshot_candidate",

@@ -1,6 +1,7 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
+import { ADDICTION_ENABLED_STATISTICS_KEYS, type AddictionStatisticsLayerKey } from './addictionStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
 // ══════════════════════════════════════════════════════════════════
@@ -1069,6 +1070,8 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(ENVIRONMENT_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<EnvironmentStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   // 人口統計 32 層同上：期別由 recipe exact whitelist 提供。
   ...Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<DemographicsStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 成癮與減害 61 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(ADDICTION_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<AddictionStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
   statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
   statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],

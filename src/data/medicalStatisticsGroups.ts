@@ -2,6 +2,7 @@ import type { LayerVisibility } from "../types";
 import { COMPARISON_STATISTICS_KEYS, COMPARISON_UI_RECIPES } from './comparisonStatisticsRecipes';
 import { ENVIRONMENT_STATISTICS_TOGGLE_GROUPS } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_STATISTICS_TOGGLE_GROUPS } from './demographicsStatisticsRecipes';
+import { ADDICTION_STATISTICS_TOGGLE_GROUPS } from './addictionStatisticsRecipes';
 
 export interface StatisticsToggleOption { key: keyof LayerVisibility; label: string; dimensionLabel?: string; }
 export interface StatisticsToggleGroup { key: string; label: string; optionLabel?: string; options: readonly StatisticsToggleOption[]; }
@@ -67,6 +68,10 @@ export const ENVIRONMENT_STATISTICS_GROUPS: readonly StatisticsToggleGroup[] = E
 export const DEMOGRAPHICS_STATISTICS_GROUPS: readonly StatisticsToggleGroup[] = DEMOGRAPHICS_STATISTICS_TOGGLE_GROUPS.map(group => ({
  ...group, options: group.options.map(item => option(item.key, item.label)),
 }));
+/** 成癮與減害：原始數／每 10 萬人、縣市／鄉鎮同一列（群組規格在 addictionStatisticsRecipes.ts）。 */
+export const ADDICTION_STATISTICS_GROUPS: readonly StatisticsToggleGroup[] = ADDICTION_STATISTICS_TOGGLE_GROUPS.map(group => ({
+ ...group, options: group.options.map(item => option(item.key, item.label)),
+}));
 export const PRIMARY_STATISTICS_GROUPS: readonly StatisticsToggleGroup[] = [
  { key: 'livestockHeadAndFarm', label: '畜禽在養與場數', optionLabel: '指標', options: [option('statsLivestockHeadCountTownship', '在養數量'), option('statsLivestockFarmCountTownship', '飼養場數'), ...comparisonOptions('livestock_heads_per_farm_township')] },
  metricGroup('fisheryProduction', '漁業生產量', 'statsFisheryProductionCounty', 'fishery_production_tonnes_national_share_pct_county'),
@@ -74,7 +79,7 @@ export const PRIMARY_STATISTICS_GROUPS: readonly StatisticsToggleGroup[] = [
 ];
 const COMPARISON_STATISTICS_KEY_SET = new Set<string>(COMPARISON_STATISTICS_KEYS);
 const COMPARISON_UI_KEY_SET = new Set<string>(COMPARISON_UI_RECIPES.map(recipe => recipe.layer_key));
-export const STATISTICS_TOGGLE_GROUPS: readonly StatisticsToggleGroup[] = [...MEDICAL_STATISTICS_GROUPS,...HOUSING_STATISTICS_GROUPS,HOUSING_MIXED_STATISTICS_GROUP,...LAND_STATISTICS_GROUPS,...BUS_STATISTICS_GROUPS,...TRANSPORT_STATISTICS_GROUPS,...WASTE_STATISTICS_GROUPS,...ENVIRONMENT_STATISTICS_GROUPS,...DEMOGRAPHICS_STATISTICS_GROUPS,...PRIMARY_STATISTICS_GROUPS]
+export const STATISTICS_TOGGLE_GROUPS: readonly StatisticsToggleGroup[] = [...MEDICAL_STATISTICS_GROUPS,...HOUSING_STATISTICS_GROUPS,HOUSING_MIXED_STATISTICS_GROUP,...LAND_STATISTICS_GROUPS,...BUS_STATISTICS_GROUPS,...TRANSPORT_STATISTICS_GROUPS,...WASTE_STATISTICS_GROUPS,...ENVIRONMENT_STATISTICS_GROUPS,...DEMOGRAPHICS_STATISTICS_GROUPS,...ADDICTION_STATISTICS_GROUPS,...PRIMARY_STATISTICS_GROUPS]
  .map(group => ({ ...group, options: group.options.filter(option => !COMPARISON_STATISTICS_KEY_SET.has(String(option.key)) || COMPARISON_UI_KEY_SET.has(String(option.key))) }))
  .filter(group => group.options.length > 0);
 export type MedicalStatisticsGroup = (typeof MEDICAL_STATISTICS_GROUPS)[number];

@@ -29,6 +29,7 @@ import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentat
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -244,6 +245,14 @@ function demographicsTabGroups(): SubGroupDef[] {
   return groups;
 }
 
+/**
+ * 成癮與減害：疾病（HIV）→執法（毒品、酒駕、地檢署）→行為調查（吸菸、檳榔）→服務據點；
+ * 同一群組的成員相鄰、原始數與縣市在前（群組列只在第一個成員渲染）。兩套目錄共用同一組小群組。
+ */
+function addictionGroups(): SubGroupDef[] {
+  return ADDICTION_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: ADDICTION_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
+}
+
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "工作與所得 Work & Income", groups: [
@@ -298,6 +307,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   ] },
   { title: "林業統計", groups: [{ title: "土地使用結構", layers: [fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"), fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship")] }] },
   { title: "人口統計 Population Statistics", groups: [...demographicsDataGroups(), { title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
+  { title: ADDICTION_STATISTICS_THEME_TITLE, groups: addictionGroups() },
   { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
     fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
     ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
@@ -344,6 +354,11 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
         fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
       ] },
     ],
+  },
+  {
+    title: ADDICTION_STATISTICS_TAB_THEME_TITLE,
+    defaultCollapsed: true,
+    groups: addictionGroups(),
   },
   {
     title: "犯罪與治安 Crime & Safety",
@@ -2102,6 +2117,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "能源統計 Energy Statistics": "environment",
   "農業統計 Agriculture Statistics": "environment",
   "人口統計 Population Statistics": "city",
+  [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
   "統計比較": "publicLife",
   "教育與少子化統計": "publicLife",
   "醫療與長照統計": "publicLife",
@@ -2179,6 +2195,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   // 統計入口的重組主題（STATISTICS_TAB_THEMES）
   "人口與教育 Population & Education": { zh: "人口與教育", sub: "Population & Education" },
   "醫療與長照 Health & Care": { zh: "醫療與長照", sub: "Health & Care" },
+  "成癮與減害 Addiction & Harm Reduction": { zh: "成癮與減害", sub: "Addiction & Harm Reduction" },
   "犯罪與治安 Crime & Safety": { zh: "犯罪與治安", sub: "Crime & Safety" },
   "住宅與不動產 Housing & Property": { zh: "住宅與不動產", sub: "Housing & Property" },
   "公共運輸 Public Transport": { zh: "公共運輸", sub: "Public Transport" },
@@ -2198,6 +2215,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "能源統計 Energy Statistics": { zh: "能源統計", sub: "Energy Statistics" },
   "農業統計 Agriculture Statistics": { zh: "農業統計", sub: "Agriculture Statistics" },
   "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
+  "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
   "統計比較": { zh: "統計比較" },
   "教育與少子化統計": { zh: "教育與少子化統計" },
   "醫療與長照統計": { zh: "醫療與長照統計" },
