@@ -440,6 +440,10 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "category", type: "string" },
     { field: "has_methadone", type: "boolean" },
     { field: "has_buprenorphine", type: "boolean" },
+    // 第二批：月報服藥人數（130/226 有值）；無月報＝null，不可當 0
+    { field: "maintenance_month", type: "string", nullable: true },
+    { field: "methadone_patients", type: "number", nullable: true },
+    { field: "buprenorphine_patients", type: "number", nullable: true },
   ],
   "harm_reduction/hiv_selftest_outlets.geojson": [
     { field: "name", type: "string" },
@@ -452,6 +456,48 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   "harm_reduction/drug_prevention_centers.geojson": [
     { field: "name", type: "string" },
     { field: "address", type: "string" },
+  ],
+  // 💉 減害服務第二批（2026-10-06）：flag 篩選欄位型別漂成字串 → `== true` 全不成立 → 整層空白
+  "harm_reduction/alcohol_treatment_facilities.geojson": [
+    { field: "name", type: "string" },
+    { field: "is_alcohol_designated", type: "boolean" },
+    { field: "in_subsidy_program", type: "boolean" },
+    { field: "is_dui_assessment", type: "boolean" },
+    { field: "also_drug_treatment", type: "boolean" },
+  ],
+  "harm_reduction/prep_service_sites.geojson": [
+    { field: "name", type: "string" },
+    { field: "public_funded", type: "boolean" },
+    { field: "self_paid", type: "boolean" },
+  ],
+  "harm_reduction/internet_addiction_services.geojson": [
+    { field: "name", type: "string" },
+    { field: "service_type", type: "string" },
+    { field: "special_clinic", type: "boolean" },
+  ],
+  "harm_reduction/offender_aftercare_offices.geojson": [
+    { field: "name", type: "string" },
+    { field: "office_type", type: "string" },
+  ],
+  "harm_reduction/smoking_cessation_providers.geojson": [
+    { field: "name", type: "string" },
+    { field: "facility_type", type: "string" },
+    { field: "service_clinic", type: "boolean" },
+    { field: "service_counseling", type: "boolean" },
+  ],
+  "harm_reduction/anti_drug_pharmacies.geojson": [
+    { field: "name", type: "string" },
+    { field: "program", type: "string" },
+  ],
+  "harm_reduction/condom_outlets.geojson": [
+    { field: "name", type: "string" },
+    { field: "outlet_type", type: "string" },
+    { field: "item_confirmed", type: "boolean" },
+  ],
+  "harm_reduction/therapeutic_communities.geojson": [
+    { field: "name", type: "string" },
+    { field: "service_modes", type: "string" },
+    { field: "is_therapeutic_community", type: "boolean" },
   ],
 };
 

@@ -117,8 +117,9 @@ import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 import {
-  HIV_TESTING_CATEGORY_OPTIONS, NEEDLE_SERVICE_OPTIONS, SELFTEST_CHANNEL_OPTIONS,
-  TREATMENT_CATEGORY_OPTIONS, toParamOptions,
+  ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
+  HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
+  SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
 } from "./harmReductionTypes";
 import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
@@ -2548,6 +2549,66 @@ export const LAYER_PARAMS_SPEC = {
   ],
   harmReductionPreventionCenters: [
     opacitySlider("harmReductionPreventionCentersOpacity", 0.9), scaleSlider("harmReductionPreventionCentersScale", 1),
+  ],
+  // ── 減害服務第二批（2026-10-06）──
+  harmReductionAlcohol: [
+    {
+      kind: "multiSelect", name: "harmReductionAlcoholService", label: "機構身分", default: MULTI_SELECT_ALL,
+      options: toParamOptions(ALCOHOL_SERVICE_OPTIONS), out: "harmReductionAlcoholServiceMask",
+    },
+    opacitySlider("harmReductionAlcoholOpacity", 0.85), scaleSlider("harmReductionAlcoholScale", 1),
+  ],
+  harmReductionSmokingCessation: [
+    {
+      kind: "multiSelect", name: "harmReductionSmokingCessationFacility", label: "機構類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(SMOKING_FACILITY_OPTIONS), out: "harmReductionSmokingCessationFacilityMask",
+    },
+    opacitySlider("harmReductionSmokingCessationOpacity", 0.8), scaleSlider("harmReductionSmokingCessationScale", 1),
+  ],
+  harmReductionInternetAddiction: [
+    {
+      kind: "multiSelect", name: "harmReductionInternetAddictionServiceType", label: "機構類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(INTERNET_SERVICE_TYPE_OPTIONS), out: "harmReductionInternetAddictionServiceTypeMask",
+    },
+    opacitySlider("harmReductionInternetAddictionOpacity", 0.85), scaleSlider("harmReductionInternetAddictionScale", 1),
+  ],
+  harmReductionPrep: [
+    {
+      kind: "multiSelect", name: "harmReductionPrepFunding", label: "PrEP 給付", default: MULTI_SELECT_ALL,
+      options: toParamOptions(PREP_FUNDING_OPTIONS), out: "harmReductionPrepFundingMask",
+    },
+    opacitySlider("harmReductionPrepOpacity", 0.85), scaleSlider("harmReductionPrepScale", 1),
+  ],
+  harmReductionCondomOutlets: [
+    {
+      kind: "multiSelect", name: "harmReductionCondomOutletsOutletType", label: "販售類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(CONDOM_OUTLET_OPTIONS), out: "harmReductionCondomOutletsOutletTypeMask",
+    },
+    opacitySlider("harmReductionCondomOutletsOpacity", 0.85), scaleSlider("harmReductionCondomOutletsScale", 1),
+  ],
+  harmReductionAntiDrugPharmacies: [
+    opacitySlider("harmReductionAntiDrugPharmaciesOpacity", 0.85), scaleSlider("harmReductionAntiDrugPharmaciesScale", 1),
+  ],
+  harmReductionTherapeuticCommunities: [
+    opacitySlider("harmReductionTherapeuticCommunitiesOpacity", 0.9), scaleSlider("harmReductionTherapeuticCommunitiesScale", 1),
+  ],
+  harmReductionAftercare: [
+    opacitySlider("harmReductionAftercareOpacity", 0.9), scaleSlider("harmReductionAftercareScale", 1),
+  ],
+  harmReductionDuiCrashes: [
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesClass", label: "事故類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_CLASS_OPTIONS), out: "harmReductionDuiCrashesClassMask",
+    },
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesYear", label: "年份", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_YEAR_OPTIONS), out: "harmReductionDuiCrashesYearMask",
+    },
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesBasis", label: "酒駕判定", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_BASIS_OPTIONS), out: "harmReductionDuiCrashesBasisMask",
+    },
+    opacitySlider("harmReductionDuiCrashesOpacity", 0.75), scaleSlider("harmReductionDuiCrashesScale", 1),
   ],
 
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════

@@ -22,6 +22,7 @@ import {
   CRAM_CATEGORY_GROUPS,
   DISTRICT_PRECISION_COUNTS,
 } from "../educationTypes";
+import { DUI_BASIS_VALUES, DUI_CLASS_VALUES, DUI_YEAR_VALUES } from "../harmReductionTypes";
 
 /** Node 端的 PMTiles Source（pmtiles 的 FileSource 只吃瀏覽器 File 物件） */
 class NodeFileSource {
@@ -93,6 +94,19 @@ const CASES: Case[] = [
     field: "precision",
     covered: Object.keys(DISTRICT_PRECISION_COUNTS),
   },
+  // 💉 酒駕肇事事故（2026-10-06）：分色 accident_class＋三組多選篩選欄位
+  //    year_roc 必須是字串（multiSelectFilter 以字串比對；數字會讓年份篩選整層空白）
+  ...([
+    ["accident_class", DUI_CLASS_VALUES],
+    ["year_roc", DUI_YEAR_VALUES],
+    ["dui_cause_basis", DUI_BASIS_VALUES],
+  ] as const).map(([field, values]) => ({
+    file: "harm_reduction/dui_crash_points.pmtiles",
+    layer: "dui_crash_points",
+    count: 36814,
+    field,
+    covered: [...values],
+  })),
 ];
 
 describe("PMTiles 分類覆蓋", () => {

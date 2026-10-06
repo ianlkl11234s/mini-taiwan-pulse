@@ -183,6 +183,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   // 減害服務：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
   "harmReductionNeedle", "harmReductionTreatment", "harmReductionHivSelftest",
   "harmReductionHivTesting", "harmReductionPreventionCenters",
+  "harmReductionAlcohol", "harmReductionPrep", "harmReductionInternetAddiction", "harmReductionAftercare", "harmReductionSmokingCessation", "harmReductionAntiDrugPharmacies", "harmReductionCondomOutlets", "harmReductionTherapeuticCommunities", "harmReductionDuiCrashes",
   // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
   "railRoutes",
 

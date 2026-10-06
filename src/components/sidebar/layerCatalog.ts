@@ -1270,6 +1270,15 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("harmReductionHivSelftest"),
           fromManifest("harmReductionHivTesting"),
           fromManifest("harmReductionPreventionCenters"),
+          // 第二批（依系統鏈：治療 → 預防／減害 → 社會復歸；酒駕事故放「執法治安 › 治安態勢」）
+          fromManifest("harmReductionAlcohol"),
+          fromManifest("harmReductionSmokingCessation"),
+          fromManifest("harmReductionInternetAddiction"),
+          fromManifest("harmReductionPrep"),
+          fromManifest("harmReductionCondomOutlets"),
+          fromManifest("harmReductionAntiDrugPharmacies"),
+          fromManifest("harmReductionTherapeuticCommunities"),
+          fromManifest("harmReductionAftercare"),
         ],
       },
       {
@@ -1433,6 +1442,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("trafficAccidentYearly"),
           fromManifest("accidentTaipei"),
           fromManifest("a1AccidentRealtime"),
+          fromManifest("harmReductionDuiCrashes"),
         ],
       },
       {

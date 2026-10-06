@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  NEEDLE_SERVICE_VALUES, TREATMENT_CATEGORY_VALUES,
-  harmReductionPrecisionLabel, isEstimatedPrecision, needleServiceFilter, treatmentCategoryFilter,
+  DUI_YEAR_VALUES, NEEDLE_SERVICE_VALUES, TREATMENT_CATEGORY_VALUES,
+  alcoholServiceFilter, duiCrashFilter, harmReductionPrecisionLabel, isEstimatedPrecision, needleServiceFilter,
+  prepFundingFilter, treatmentCategoryFilter,
 } from "../harmReductionTypes";
 import { allMultiSelectBitmask } from "../multiSelectMapbox";
 
@@ -37,5 +38,31 @@ describe("harm reduction filters", () => {
     expect(isEstimatedPrecision("google_place_manual")).toBe(false);
     expect(harmReductionPrecisionLabel("google_place")).toBe("依機構名稱查得位置");
     expect(isEstimatedPrecision("google_place")).toBe(false);
+  });
+
+  it("新精度值：健保登記地址與來源座標有明確文字，且不算推估", () => {
+    expect(harmReductionPrecisionLabel("nhi_tgos")).toBe("依健保特約機構登記地址定位（TGOS）");
+    expect(harmReductionPrecisionLabel("nhi_google")).toBe("依健保特約機構登記地址定位（Google）");
+    expect(harmReductionPrecisionLabel("source")).toBe("座標由資料來源提供");
+    for (const precision of ["nhi_tgos", "nhi_google", "source"]) expect(isEstimatedPrecision(precision)).toBe(false);
+  });
+
+  it("酒癮／PrEP：flag 多選任一成立；全關恆假", () => {
+    expect(alcoholServiceFilter(4)).toEqual(["any", ["==", ["get", "is_dui_assessment"], true]]);
+    expect(prepFundingFilter()).toEqual(["any",
+      ["==", ["get", "public_funded"], true],
+      ["==", ["get", "self_paid"], true],
+    ]);
+    expect(prepFundingFilter(0)).toEqual(["==", ["get", "name"], "__multi_select_none__"]);
+  });
+
+  it("酒駕事故：類別 × 年份（字串）× 判定口徑取交集", () => {
+    expect(DUI_YEAR_VALUES[0]).toBe("107");
+    expect(duiCrashFilter(1, 1 << 7, 1)).toEqual(["all",
+      ["in", ["get", "accident_class"], ["literal", ["A1"]]],
+      ["in", ["get", "year_roc"], ["literal", ["114"]]],
+      ["in", ["get", "dui_cause_basis"], ["literal", ["primary"]]],
+    ]);
+    expect(duiCrashFilter()).toEqual(["all", ["has", "accident_class"], ["has", "year_roc"], ["has", "dui_cause_basis"]]);
   });
 });

@@ -21,7 +21,8 @@ import {
   SCHOOL_LEVEL_GROUPS, SCHOOL_LEVEL_ORDER, KINDERGARTEN_OWNERSHIP_COLORS,
 } from "../educationTypes";
 import {
-  HIV_TESTING_CATEGORY_VALUES, SELFTEST_CHANNEL_VALUES, TREATMENT_CATEGORY_VALUES,
+  CONDOM_OUTLET_VALUES, HIV_TESTING_CATEGORY_VALUES, INTERNET_SERVICE_TYPE_VALUES, SELFTEST_CHANNEL_VALUES,
+  SMOKING_FACILITY_VALUES, TREATMENT_CATEGORY_VALUES,
 } from "../harmReductionTypes";
 
 function distinctValues(rel: string, field: string): string[] {
@@ -152,6 +153,25 @@ const CASES: Case[] = [
     field: "category",
     covered: [...HIV_TESTING_CATEGORY_VALUES],
     ssot: "src/data/harmReductionTypes.ts HIV_TESTING_CATEGORY_OPTIONS",
+  },
+  // 第二批（2026-10-06）
+  {
+    file: "harm_reduction/internet_addiction_services.geojson",
+    field: "service_type",
+    covered: [...INTERNET_SERVICE_TYPE_VALUES],
+    ssot: "src/data/harmReductionTypes.ts INTERNET_SERVICE_TYPE_OPTIONS",
+  },
+  {
+    file: "harm_reduction/smoking_cessation_providers.geojson",
+    field: "facility_type",
+    covered: [...SMOKING_FACILITY_VALUES],
+    ssot: "src/data/harmReductionTypes.ts SMOKING_FACILITY_OPTIONS",
+  },
+  {
+    file: "harm_reduction/condom_outlets.geojson",
+    field: "outlet_type",
+    covered: [...CONDOM_OUTLET_VALUES],
+    ssot: "src/data/harmReductionTypes.ts CONDOM_OUTLET_OPTIONS",
   },
 ];
 

@@ -109,6 +109,7 @@ export type ExpandableLayerKey =
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
   | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
+  | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
   | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
   | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
@@ -732,6 +733,7 @@ export interface FeatureInfo {
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
+    | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
     | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
     | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
@@ -1101,6 +1103,16 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   harmReductionHivSelftest: boolean;
   harmReductionHivTesting: boolean;
   harmReductionPreventionCenters: boolean;
+  // 減害服務第二批（酒癮／PrEP／網路成癮／更生保護／戒菸／反毒藥局／保險套／治療性社區／酒駕事故）
+  harmReductionAlcohol: boolean;
+  harmReductionPrep: boolean;
+  harmReductionInternetAddiction: boolean;
+  harmReductionAftercare: boolean;
+  harmReductionSmokingCessation: boolean;
+  harmReductionAntiDrugPharmacies: boolean;
+  harmReductionCondomOutlets: boolean;
+  harmReductionTherapeuticCommunities: boolean;
+  harmReductionDuiCrashes: boolean;
   // 公共生活 OSM snapshot（非完整官方清冊；unknown 不等於 false）
   drinkingWaterPoints: boolean;
   publicWasteBaskets: boolean;
