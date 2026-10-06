@@ -1,10 +1,37 @@
 # Status
 
-**最後更新**：2026-10-04（Agent／MCP：正式站連線、工具問題修正、公車首末班、倉庫資料正確性）
+**最後更新**：2026-10-06（資料面盤點、倉庫覆蓋率 +18 層、collector 健康調查、v2.6.0 發布、Agent 題庫第二輪、repo 清理）
 
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
 
-## 範圍
+## 2026-10-05～06：資料面盤點與 v2.6.0
+
+### 範圍與上線
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #539（GD-1、AU-3 契約測試）、#540（倉庫覆蓋率 L2 795／982）、#541（OSRM token 遮蔽、AU-1 結案改列 DS-COLOR）、#542（圖層新鮮度總表 `build-layer-freshness.mjs`）、#543（R5-1／R5-2／R8-2／AG-6／G005）、#544（BACKLOG 健檢）已合併；**v2.6.0** 已發布（#545／#546，tag 打在 master `65c90691`），正式站 main-*.js 顯示 2.6.0。 |
+| **mini-pulse-gis-mcp** | #45（入倉支援 gzip／純屬性表）、#46（題庫第二輪：58/60、提醒 10/10）、#47（評估工具重置修正：台／臺、COMMAND_PENDING、鏡頭歸位）、#48（reset-cmd 用 `--session`）已合併；analysis-prod/mcp 在 `ad85eb2`。 |
+| **R2 倉庫** | latest `20261005T051814Z`（+14 資料集；前一版 `20261004T145742Z`）。 |
+| **gis-data-collectors** | #126（TD-1：時刻表 240 分鐘＋degraded fallback；調查報告）、#127（GD-2：只對 `ncdr_alerts` 擋西里爾亂碼）、#128（OSRM token 改讀 env）已合併並部署。 |
+| **taipei-gis-analytics** | #141（9 份 manifest 補入倉 provenance）、#142（OSRM token 改讀 env）。 |
+| **gis-platform** | #138（孤兒 RPC 審查：87 支候選、DROP_SAFE 15 支草稿未執行）。 |
+| **gis-agent-system** | #2（`scripts/gen_repo_hygiene.py` 盤點腳本＋`ecosystem/REPO_HYGIENE.md`）；ADR-0018 草稿（資料新鮮度自動更新，另一 session 討論中，未 commit）。 |
+| **基礎設施** | osrm-proxy token 已換（舊值 401）；本機清掉 42 個 worktree、57 個已合併分支，備份在 `GIS/_worktree-backups/2026-10-06/`。 |
+
+接地圖 Agent 評估（分層題庫 13 題 × 2）：25/26；唯一失敗是題庫台／臺（已由 MCP #47 修）。
+
+### 卡點與下一步（皆在 BACKLOG）
+
+- 待拍板：FE-01（建議結案）、WA-4 DROP_SAFE 15 支（先開 `track_functions` 觀察一週）、DIO-1（10-01 18:14 UTC 重啟原因，需 Supabase dashboard）、DIO-2（公車軌跡 refresh 增量化，約省 15 GB/天）、TD-1 回填、ADR-0018 三題。
+- 未驗：R5-2 汙染裁處預設年份未做瀏覽器目視。
+- 清理報告跳過 26 個 worktree（13 未合併、4 有改動）待逐個判斷。
+
+---
+
+## 前一輪：Agent／MCP 正式站連線（2026-10-04）
+
+### 範圍
 
 | repo / system | 現況 |
 |---|---|
@@ -15,7 +42,7 @@
 | **R2 倉庫** | latest `20261004T130110Z`（回退鏈見 general-analysis STATUS）。 |
 | **本機** | analysis-prod 三個 worktree 已切到最新；8794 改測試身分（`PULSE_RESEARCH_TEST_IDENTITY`），3734 `.env.local` 改 `VITE_RESEARCH_TEST_IDENTITY=1`。Claude／Codex 的 pulse-research 預設連正式站。 |
 
-## 上線狀態
+### 上線狀態
 
 | 上線項目 | build | contract/wire | stage | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|
@@ -23,11 +50,11 @@
 | mini 正式站 | done：CI 綠 | done | done：#512／#517／#519 | done | done：上傳路徑放行 2 MB、一般路徑 100 KB 413 | not run：需使用者 token |
 | MCP（analysis-prod） | done：524 tests | done | done：#35／#37／#38 | done：已 build | N/A | done：本機 live-map 分層題庫 13/13 |
 
-## 數字（本機無頭瀏覽器，改版前 → 後）
+### 數字（本機無頭瀏覽器，改版前 → 後）
 
 set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms；token 接上 55 ms；重整還原 5.5 s；18 MiB 上傳 151 ms。正式站改版前（P0）：set_camera 4.7 s、map_context 0.96 s、set_layers 4.8 s；網路經 Cloudflare 新加坡，ping 150 ms。
 
-## 正式站量測（2026-10-04，`e2e-prod-connect.mjs prod`）
+### 正式站量測（2026-10-04，`e2e-prod-connect.mjs prod`）
 
 | 動作 | 改版前（P0） | 改版後 |
 |---|---|---|
@@ -39,14 +66,14 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 
 重整還原與撤銷尚未在正式站實測（需使用者手動）。
 
-## 監看模式改版（2026-10-03～04，另一條工作線）
+### 監看模式改版（2026-10-03～04，另一條工作線）
 
 - P1–P5 全部合併（mini #482–#505、#507 backlog、#508 文件）；gis-platform #135／migration 425 已用 psql 套正式庫並查證（`aggregated_at` 有回傳、權限不變）。
 - 上線：mini 前端合併後**正式站部署與瀏覽器未驗**（只在本機 3750 驗過 1920／1496／1280 與淡色底圖）。
 - 擱置：P6 四領域子指數（BACKLOG MON-P6，需使用者定權重與基準期＋migration）、直播牆換台（LW-1）。
 - 下次入口：確認正式站已含 #505，用工具列「底圖」切淡色看監看新版；新聞四格時間應為彙整時間。
 
-## 設計系統／圖層面板（平行工作線，2026-10-02～04）
+### 設計系統／圖層面板（平行工作線，2026-10-02～04）
 
 | repo | 現況 |
 |---|---|
@@ -60,7 +87,7 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 
 設計系統進度以 `docs/design-system/README.md`「目前進度」為準：R1–R5、R7、R8 完成，只剩 R6（Three.js／Mapbox 切換，待使用者決定範圍）。
 
-## 卡點與下一步
+### 卡點與下一步
 
 **下一個 session 的入口（Agent／MCP 線）**：先讀 `docs/features/general-analysis/STATUS.md`「2026-10-04 現況」，再看 BACKLOG AG-6／AG-10／AG-11。
 
