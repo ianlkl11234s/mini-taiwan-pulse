@@ -5,6 +5,7 @@
 > **Owner**：@migu
 > **上線日期**：2026-10-06（develop）
 > **相關 PR**：#548（develop，第一批）；第二批 `feat/harm-reduction-batch2`（待開 PR）
+> **區域統計**：成癮與減害 choropleth（HIV／執法／行為調查／服務據點計數）見 [`../addiction-statistics/README.md`](../addiction-statistics/README.md)
 
 ## 一句話說明
 
