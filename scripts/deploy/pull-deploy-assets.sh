@@ -154,7 +154,7 @@ aws s3 sync "$S3/public_life/" "$DATA_DIR/public_life/" --no-progress
 echo "[pull] sync poi → $DATA_DIR/poi/"
 aws s3 sync "$S3/poi/" "$DATA_DIR/poi/" --no-progress
 
-# 減害服務：鏡像子前綴 deploy-assets/harm_reduction/ → /data/harm_reduction/（5 檔全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
+# 減害服務：鏡像子前綴 deploy-assets/harm_reduction/ → /data/harm_reduction/（13 GeoJSON＋1 PMTiles 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync harm_reduction → $DATA_DIR/harm_reduction/"
 aws s3 sync "$S3/harm_reduction/" "$DATA_DIR/harm_reduction/" --no-progress
 
