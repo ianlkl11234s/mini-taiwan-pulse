@@ -3,8 +3,8 @@
 > 由 `scripts/research/build-layer-status.mjs` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
-- 圖層總數：**1057**；L1 可操作：**1057/1057**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**870/1057**（82.3%）
+- 圖層總數：**1070**；L1 可操作：**1070/1070**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**883/1070**（82.5%）
 - 只有舊瀏覽器 reader：6；尚不可分析：176
 
 ## 各面板 L2 狀態
@@ -12,7 +12,7 @@
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
 | 臺灣圖層 | 634 | 312 | 199 | 2 | 5 | 112 | 4 |
-| 統計 | 338 | 1 | 329 | 3 | 0 | 5 | 0 |
+| 統計 | 351 | 1 | 342 | 3 | 0 | 5 | 0 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 | 0 |
 | 日本 | 60 | 15 | 0 | 2 | 0 | 42 | 1 |
 
