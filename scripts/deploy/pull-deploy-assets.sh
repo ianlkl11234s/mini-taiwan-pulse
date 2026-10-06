@@ -133,8 +133,8 @@ aws s3 sync "$S3/funeral/" "$DATA_DIR/funeral/" --no-progress
 # dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 funeral 慣例）
 echo "[pull] sync welfare → $DATA_DIR/welfare/"
 aws s3 sync "$S3/welfare/" "$DATA_DIR/welfare/" --no-progress
-# 災害：鏡像子前綴 deploy-assets/hazards/ → /data/hazards/（山域事故 geojson 全 git 管理走 dist
-# fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 civic_facilities 慣例）
+# 災害：鏡像子前綴 deploy-assets/hazards/ → /data/hazards/（年度全島崩塌地 PMTiles 107MB 走 S3；
+# 山域事故／大規模崩塌潛勢區等小檔全 git 管理走 dist fallback）
 echo "[pull] sync hazards → $DATA_DIR/hazards/"
 aws s3 sync "$S3/hazards/" "$DATA_DIR/hazards/" --no-progress
 
