@@ -2,9 +2,9 @@
 """Build src/data/addictionStatisticsRecipes.json from the analytics delivery.
 
 Inputs (taipei-gis-analytics harm-reduction worktree, read-only):
-  --recipes    docs/topic-research/harm_reduction/candidate-execution/addiction-statistics-recipes.draft.json
-               (65 recipes; `enabled` is honoured: 第二級毒品嫌疑犯與毒品危害防制中心保留 false，
-               其 selector 不在 R2)。
+  --recipes    docs/handoff/addiction-statistics-recipes.json
+               (78 recipes; `enabled` is honoured: 第二級毒品嫌疑犯與毒品危害防制中心保留 false，
+               其 selector 不在 R2；`display_priority` 原樣帶出：地檢署轄區層 primary、縣市退化版 secondary)。
   --processed  data/processed root; releases/*.json give the exact period, boundary,
                publisher and the observed statuses per release.
 
@@ -15,7 +15,7 @@ values, periods and sources always come from the delivery.
 
 Usage:
   python3 scripts/statistics/build_addiction_statistics_recipes.py \
-    --recipes <analytics WT>/docs/topic-research/harm_reduction/candidate-execution/addiction-statistics-recipes.draft.json \
+    --recipes <analytics WT>/docs/handoff/addiction-statistics-recipes.json \
     --processed <analytics WT>/data/processed
   npx vite-node --script scripts/statistics/build_statistics_recipe_catalogs.ts
 """
@@ -34,6 +34,8 @@ SURVEY = "行為調查（吸菸、檳榔）"
 SERVICES = "服務據點"
 
 BOUNDARY = "縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。"
+DISTRICT_BOUNDARY = ("地檢署轄區界由內政部 114 年 3 月鄉鎮市區界依司法院事務分配（115 年現況）整區合併（22 面）；"
+                     "歷年數值都畫在現行轄區上，不代表歷史轄區。")
 NO_ZERO_FILL = "缺值、不適用、隱私遮蔽都不是 0。"
 
 POLICE = ("統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，"
@@ -50,7 +52,10 @@ SERVICE = ("名冊快照（2026-10-06）的據點數，由本專案減害點位�
            "不代表服務量、開放時間或使用人數。")
 SERVICE_RATIO = "每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。"
 PROSECUTOR = ("地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、"
-              "高雄市顯示「不適用」（這 8 署的人數列未分配）；115 年為 1–8 月累計，不可與整年比較。")
+              "高雄市顯示「不適用」（這 8 署的人數列未分配）；完整 22 署請看「地檢署毒品案件新收（22 地檢署轄區）」；115 年為 1–8 月累計，不可與整年比較。")
+PROSECUTOR_DISTRICT = ("地檢署轄區不等於縣市：雙北與基隆由臺北、士林、新北、基隆四署交錯管轄，高雄市分屬高雄與橋頭兩署，"
+                       "新竹、嘉義地檢署各管轄縣與市；地圖面與名稱都是地檢署，不是縣市。新收人數反映查緝與起訴量，不是吸毒盛行率；"
+                       "苗栗以全縣推定；115 年為 1–8 月累計，不可與整年比較。")
 
 # dataset → (subgroup, visual theme, location semantics, status legend labels)
 DATASETS: dict[str, tuple[str, str, str, dict[str, str]]] = {
@@ -59,6 +64,7 @@ DATASETS: dict[str, tuple[str, str, str, dict[str, str]]] = {
     "addiction_drug_suspects_county": (ENFORCEMENT, "security", "查獲（受理）警察機關所在縣市，不是居住地或發生地", {"missing": "無資料（不等於 0）"}),
     "addiction_dui_county": (ENFORCEMENT, "security", "查獲（受理）警察機關所在縣市，不是居住地或發生地", {"missing": "無資料（不等於 0）"}),
     "addiction_prosecutor_drug_county": (ENFORCEMENT, "security", "地方檢察署受理（轄區不等於縣市；只顯示轄區恰為單一縣市的 14 署）", {"not_applicable": "不適用（地檢署轄區跨縣市或同縣市多署）"}),
+    "addiction_prosecutor_drug_district": (ENFORCEMENT, "security", "地方檢察署受理，以 22 個地檢署轄區顯示（地檢署轄區≠縣市；案件受理地，不是居住地或發生地）", {"missing": "無資料（不等於 0）"}),
     "addiction_tobacco_betel_county": (SURVEY, "health", "受訪者現住縣市（抽樣調查）", {"missing": "無資料（金門、連江未納入調查，不是 0）"}),
     "addiction_service_points": (SERVICES, "health", "服務據點所在行政區（名冊快照）", {"missing": "無資料（不等於 0）"}),
 }
@@ -86,6 +92,11 @@ PRESENTATION: dict[str, tuple[str, str, str, int, str, bool]] = {
     "statsProsecutorDrugGrade1County": ("prosecutorDrug", "地檢署毒品案件新收", "第一級新收人數", 0, PROSECUTOR, False),
     "statsProsecutorDrugGrade2County": ("prosecutorDrug", "地檢署毒品案件新收", "第二級新收人數", 0, PROSECUTOR, False),
     "statsProsecutorDeferredTreatmentCounty": ("prosecutorDrug", "地檢署毒品案件新收", "緩起訴附命戒癮治療人數", 0, f"施用毒品緩起訴處分附命完成戒癮治療人數。{PROSECUTOR}", False),
+    "statsProsecutorDrugNewCasesDistrict": ("prosecutorDrugDistrict", "地檢署毒品案件新收（22 地檢署轄區）", "毒品新收人數", 0, PROSECUTOR_DISTRICT, False),
+    "statsProsecutorDrugUseDistrict": ("prosecutorDrugDistrict", "地檢署毒品案件新收（22 地檢署轄區）", "施用新收人數", 0, PROSECUTOR_DISTRICT, False),
+    "statsProsecutorDrugGrade1District": ("prosecutorDrugDistrict", "地檢署毒品案件新收（22 地檢署轄區）", "第一級新收人數", 0, PROSECUTOR_DISTRICT, False),
+    "statsProsecutorDrugGrade2District": ("prosecutorDrugDistrict", "地檢署毒品案件新收（22 地檢署轄區）", "第二級新收人數", 0, PROSECUTOR_DISTRICT, False),
+    "statsProsecutorDeferredTreatmentDistrict": ("prosecutorDrugDistrict", "地檢署毒品案件新收（22 地檢署轄區）", "緩起訴附命戒癮治療人數", 0, f"施用毒品緩起訴處分附命完成戒癮治療人數。{PROSECUTOR_DISTRICT}", False),
     "statsAdultSmokingRateCounty": ("adultSmoking", "18 歲以上目前吸菸率", "吸菸率", 2, f"113 年國人吸菸行為調查，兩性合計粗率（非標準化率）。{SURVEY_NOTE}", False),
     "statsAdultBetelRateCounty": ("adultBetel", "18 歲以上嚼檳榔率（近六個月）", "嚼檳榔率", 2, f"最近六個月曾經嚼食檳榔比率（102／106／110 年調查）；嚼檳榔調查不含金門、連江（無資料，不是 0）。{SURVEY_NOTE}", False),
 }
@@ -94,7 +105,9 @@ SERVICE_CATEGORIES = {
     "NeedleEducationStations": ("needleEducationStations", "清潔針具衛教站", "清潔針具據點"),
     "NeedleVendingMachines": ("needleVendingMachines", "清潔針具自動服務機", "清潔針具據點"),
     "NeedleReturnBins": ("needleReturnBins", "針具回收桶", "清潔針具據點"),
+    "NeedleSitesTotal": ("needleSitesTotal", "清潔針具據點（三類任一）", "清潔針具據點"),
     "DrugTreatmentFacilities": ("drugTreatmentFacilities", "藥癮／替代治療機構", "替代療法與藥癮戒治"),
+    "SubstitutionTreatmentSites": ("substitutionTreatmentSites", "替代治療執行機構", "替代療法與藥癮戒治"),
     "AlcoholTreatmentFacilities": ("alcoholTreatmentFacilities", "酒癮治療機構", "酒癮治療機構"),
     "HivTestingSites": ("hivTestingSites", "HIV 篩檢服務點", "愛滋篩檢與指定醫療"),
     "HivSelftestOutlets": ("hivSelftestOutlets", "HIV 自我檢測販售點", "愛滋自我篩檢通路"),
@@ -104,11 +117,16 @@ SERVICE_CATEGORIES = {
     "DrugPreventionCenters": ("drugPreventionCenters", "毒品危害防制中心", "毒品危害防制中心"),
 }
 LEVEL_LABEL = {"county": "縣市", "township": "鄉鎮"}
+# 計數口徑（analytics recipe disclosure）：三類針具據點不可相加；替代治療只計執行機構。
+SERVICE_SCOPE = {
+    "NeedleSitesTotal": "衛教站、自動服務機、回收桶任一即算 1 處（同一地點不重複計），三類分開的圖層相加會大於本數。",
+    "SubstitutionTreatmentSites": "只計替代治療執行機構（美沙冬／丁基原啡因），不含 29 處衛星給藥點與只辦藥癮戒治的指定機構。",
+}
 for stem, (group, label, point_layer) in SERVICE_CATEGORIES.items():
     # 全國 <30 點的類別（毒品危害防制中心）只出縣市層。
     for level in ("County",) if stem == "DrugPreventionCenters" else ("County", "Township"):
         lv = LEVEL_LABEL[level.lower()]
-        source = f"點位來源圖層：「{point_layer}」。"
+        source = f"{SERVICE_SCOPE.get(stem, '')}點位來源圖層：「{point_layer}」。"
         PRESENTATION[f"stats{stem}{level}"] = (group, f"{label}據點數", f"{lv}：據點數", 0, f"{SERVICE}{source}", True)
         PRESENTATION[f"stats{stem}Per100k{level}"] = (group, f"{label}據點數", f"{lv}：每 10 萬人", 2, f"{SERVICE}{SERVICE_RATIO}{source}", True)
 
@@ -119,6 +137,7 @@ SOURCE_TITLE = {
     "addiction_drug_suspects_county": "警政署警政統計查詢網：毒品嫌疑犯人數（機關別）",
     "addiction_dui_county": "警政署警政統計查詢網：公共危險（不能安全駕駛）案件與酒駕取締",
     "addiction_prosecutor_drug_county": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療",
+    "addiction_prosecutor_drug_district": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療（22 地檢署轄區）",
     "addiction_tobacco_betel_county": "國健署國人吸菸行為調查（性平會 gecdb）／衛福部心理健康司嚼檳榔率（data.gov.tw 173036）",
     "addiction_service_points": "本專案減害點位圖層（名冊快照 2026-10-06）",
 }
@@ -190,7 +209,9 @@ def main() -> None:
             "pair_raw_key": layer["pair_raw_key"],
             "derived": derived,
             "location_semantics": location,
-            "disclosure": f"{disclosure}{NO_ZERO_FILL}{BOUNDARY}",
+            "disclosure": f"{disclosure}{NO_ZERO_FILL}{DISTRICT_BOUNDARY if layer['level'] == 'prosecutor_district' else BOUNDARY}",
+            # 同一指標兩層都在時 primary（轄區）預設顯示、secondary（縣市退化版）保留；其餘層為 null。
+            "display_priority": layer.get("display_priority"),
             "publisher": layer["source"]["publisher"], "license": layer["source"]["license"],
             "source_landing_url": layer["source"]["landing_url"], "source_download_url": meta["source_download_url"],
             "source_title": SOURCE_TITLE[layer["dataset_id"]],
@@ -198,7 +219,7 @@ def main() -> None:
         })
     document = {
         "version": 1,
-        "scope": "production_r2_pending_import",
+        "scope": "production_r2",
         "generated_from": {"recipes": args.recipes.name, "processed": "taipei-gis-analytics data/processed/poi/addiction_*/releases/*.json"},
         "release_selector": {"type": "exact_whitelist", "identity_fields": ["dataset_id", "indicator_id", "release_id", "period_start", "period_end", "boundary_version", "dimensions"], "unknown_release": "reject"},
         "observation_policy": {"observed_zero": "status observed and value 0", "missing": "value null; no zero fill", "not_applicable": "value null; not zero", "suppressed": "value null; never reverse-engineered"},

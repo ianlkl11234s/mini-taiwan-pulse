@@ -171,7 +171,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-06: +5 減害服務（清潔針具／替代療法與藥癮戒治／愛滋自我篩檢／愛滋篩檢與指定醫療／毒品危害防制中心）。
     // 2026-10-06: +9 減害服務第二批（酒癮／PrEP／網路成癮／更生保護／戒菸／反毒藥局／保險套／治療性社區／酒駕肇事事故）。
     // 2026-10-06: +61 成癮與減害 Statistics 圖層（HIV 4、執法 15、行為調查 2、服務據點 40；第二級毒品／毒防中心不接）。
-    expect(keys.length).toBe(1057);
+    // 2026-10-06: +13 成癮與減害第三輪（地檢署轄區 5、清潔針具三類任一 4、替代治療執行機構 4）。
+    expect(keys.length).toBe(1070);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

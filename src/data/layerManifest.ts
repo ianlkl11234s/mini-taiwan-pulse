@@ -451,7 +451,7 @@ const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS
 })) as Record<DemographicsStatisticsLayerKey, LayerManifestEntry>;
 
 /** Addiction recipes（HIV、毒品／酒駕／地檢署、吸菸檳榔調查、服務據點；縣市＋鄉鎮）share the dynamic Statistics renderer. */
-const ADDICTION_LEVEL_QUALIFIERS: Partial<Record<string, string>> = { county: "縣市", township: "鄉鎮市區" };
+const ADDICTION_LEVEL_QUALIFIERS: Partial<Record<string, string>> = { county: "縣市", township: "鄉鎮市區", prosecutor_district: "地檢署轄區" };
 const ADDICTION_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => {
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
