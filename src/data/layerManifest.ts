@@ -11,6 +11,7 @@ import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -466,6 +467,21 @@ const ADDICTION_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ADDICTION_ENABL
   }];
 })) as Record<AddictionStatisticsLayerKey, LayerManifestEntry>;
 
+/** Landslide recipes（崩塌筆數／面積、治山防災工程經費、水土保持災害損失；縣市）share the dynamic Statistics renderer. */
+const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: LANDSLIDE_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
+    description: recipe.disclosure,
+    topics: ["統計", "災害", "崩塌", "水土保持", recipe.subgroup, "縣市"],
+  }];
+})) as Record<LandslideStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -562,6 +578,7 @@ export const LAYER_MANIFEST = {
   ...ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES,
   ...DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES,
   ...ADDICTION_STATISTICS_MANIFEST_ENTRIES,
+  ...LANDSLIDE_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },

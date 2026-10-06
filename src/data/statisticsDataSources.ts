@@ -5,6 +5,7 @@ import { getSocialRecipe } from "./socialStatisticsRecipes";
 import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
 import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
 import { getAddictionRecipe } from "./addictionStatisticsRecipes";
+import { getLandslideRecipe } from "./landslideStatisticsRecipes";
 import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
@@ -147,6 +148,24 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       sourceUrl: addiction.source_landing_url,
       provider: addiction.publisher,
       license: addiction.license,
+    };
+  }
+
+  const landslide = getLandslideRecipe(key);
+  if (landslide) {
+    return {
+      kind: "source",
+      datasetIds: [landslide.dataset_id],
+      label: "原始崩塌與水土保持統計快照",
+      metricLabel: landslide.label,
+      unit: landslide.unit,
+      level: landslide.level,
+      period: periodLabel(landslide.release_options),
+      contract: `只接受 ${landslide.release_options.length} 個已交付 exact release selector；數值保留來源值，不重算。來源當年未列的縣市顯示「未列」，不補 0。`,
+      disclosure: `位置口徑：${landslide.location_semantics} ${landslide.disclosure}`,
+      sourceUrl: landslide.source_landing_url,
+      provider: landslide.publisher,
+      license: landslide.license,
     };
   }
 

@@ -2,6 +2,7 @@ import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from '.
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
 import { ADDICTION_ENABLED_STATISTICS_KEYS, type AddictionStatisticsLayerKey } from './addictionStatisticsRecipes';
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } from './landslideStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
 // ══════════════════════════════════════════════════════════════════
@@ -1072,6 +1073,8 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<DemographicsStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   // 成癮與減害 61 層同上：期別由 recipe exact whitelist 提供。
   ...Object.fromEntries(ADDICTION_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<AddictionStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 崩塌與水土保持 4 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(LANDSLIDE_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<LandslideStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
   statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
   statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],

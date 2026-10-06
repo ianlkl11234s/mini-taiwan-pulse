@@ -1,5 +1,7 @@
 import {
   Baby,
+  Construction,
+  Mountain,
   Cigarette,
   HandHeart,
   Leaf,
@@ -197,6 +199,16 @@ function addictionVisual(key: string): StatisticsVisual | undefined {
 }
 
 /**
+ * 崩塌與水土保持統計（landslideStatisticsRecipes）以 key 明確指定：地表與水土保持屬環境主題＝既有 BuPu，
+ * 不新增色票（色相只是主題提示，不表示好壞）；icon 區分崩塌／治山工程／災害損失。刻意不 import recipe。
+ */
+const LANDSLIDE_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = {
+  statsLandslideCountCounty: ['environment', Mountain], statsLandslideAreaCounty: ['environment', Mountain],
+  statsSlopeWorksCostCounty: ['environment', Construction], statsSlopeWorksCollapsedLandCounty: ['environment', Construction],
+  statsSwcDisasterLossCounty: ['environment', TriangleAlert],
+};
+
+/**
  * 人口統計（demographicsStatisticsRecipes）以 key 前綴 `statsDemographics` 明確指定，避免未來
  * 「出生」「死亡」等標籤落入出生登記（公用事業）分支；icon 依 key 的指標段。
  * 可正可負的指標（自然增加、淨遷徙及其率；recipe 門檻對稱於 0）由 statisticsVisualColors 走 PuOr 雙向色階。
@@ -236,6 +248,8 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
   if (demographics) return demographics;
   const addiction = addictionVisual(key);
   if (addiction) return addiction;
+  const landslide = LANDSLIDE_KEY_VISUALS[key];
+  if (landslide) return visual(THEMES[landslide[0]], landslide[1]);
   const text = textFor(key, label, group);
 
   if (has(text, ['教育', 'education', '學校', '學院', '幼兒園', '國小', '國中', '高中'])) {

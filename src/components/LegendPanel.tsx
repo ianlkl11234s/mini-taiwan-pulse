@@ -63,6 +63,7 @@ import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecip
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES } from "../data/environmentStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES } from "../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES } from "../data/landslideStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES } from "../data/demographicsStatisticsRecipes";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
@@ -413,6 +414,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
   ...ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...LANDSLIDE_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1070,
+    "keyCount": 1074,
     "sections": [
       "gisLayers",
       "overlays",
@@ -3004,6 +3004,10 @@
         "statsInternetAddictionServicesPer100kCounty-fill",
         "statsInternetAddictionServicesTownship-fill",
         "statsInternetAddictionServicesPer100kTownship-fill",
+        "statsLandslideCountCounty-fill",
+        "statsLandslideAreaCounty-fill",
+        "statsSlopeWorksCostCounty-fill",
+        "statsSwcDisasterLossCounty-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -106155,6 +106159,76 @@
         "valueText": "0.55"
       }
     ],
+    "statsLandslideAreaCounty": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "崩塌筆數",
+            "value": "statsLandslideCountCounty"
+          },
+          {
+            "label": "崩塌面積（公頃）",
+            "value": "statsLandslideAreaCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLandslideAreaCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLandslideCountCounty": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "崩塌筆數",
+            "value": "statsLandslideCountCounty"
+          },
+          {
+            "label": "崩塌面積（公頃）",
+            "value": "statsLandslideAreaCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLandslideCountCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsLivestockBuildingAreaTownship": [
       {
         "label": "地理層級／比較口徑",
@@ -108474,6 +108548,25 @@
         "valueText": "0.55"
       }
     ],
+    "statsSlopeWorksCostCounty": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsSmokingCessationProvidersCounty": [
       {
         "label": "地理層級／口徑",
@@ -108838,6 +108931,25 @@
         "type": "linkedSelect",
         "value": "statsSubstitutionTreatmentSitesTownship"
       },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSwcDisasterLossCounty": [
       {
         "label": "資料期別",
         "options": [],

@@ -30,6 +30,7 @@ import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_SUBGROUPS, LANDSLIDE_STATISTICS_TAB_THEME_TITLE, LANDSLIDE_STATISTICS_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -253,6 +254,11 @@ function addictionGroups(): SubGroupDef[] {
   return ADDICTION_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: ADDICTION_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
 }
 
+/** 崩塌與水土保持：崩塌 → 治山防災工程 → 水土保持災害；兩套目錄共用同一組小群組。 */
+function landslideGroups(): SubGroupDef[] {
+  return LANDSLIDE_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: LANDSLIDE_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
+}
+
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "工作與所得 Work & Income", groups: [
@@ -308,6 +314,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "林業統計", groups: [{ title: "土地使用結構", layers: [fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"), fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship")] }] },
   { title: "人口統計 Population Statistics", groups: [...demographicsDataGroups(), { title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
   { title: ADDICTION_STATISTICS_THEME_TITLE, groups: addictionGroups() },
+  { title: LANDSLIDE_STATISTICS_THEME_TITLE, groups: landslideGroups() },
   { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
     fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
     ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
@@ -481,6 +488,11 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       ] },
       ...["水質與污水", "空氣品質", "污染與公害", "環境治理"].map((title) => ({ title, layers: environmentLayers((recipe) => recipe.tab_group === title) })),
     ],
+  },
+  {
+    title: LANDSLIDE_STATISTICS_TAB_THEME_TITLE,
+    defaultCollapsed: true,
+    groups: landslideGroups(),
   },
   {
     title: "地圖參考 Map Reference",
@@ -2118,6 +2130,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "農業統計 Agriculture Statistics": "environment",
   "人口統計 Population Statistics": "city",
   [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
+  [LANDSLIDE_STATISTICS_THEME_TITLE]: "environment",
   "統計比較": "publicLife",
   "教育與少子化統計": "publicLife",
   "醫療與長照統計": "publicLife",
@@ -2203,6 +2216,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "交通用地 Transport Land": { zh: "交通用地", sub: "Transport Land" },
   "農林漁牧 Agriculture, Forestry & Fisheries": { zh: "農林漁牧", sub: "Agriculture, Forestry & Fisheries" },
   "環境與資源 Environment & Resources": { zh: "環境與資源", sub: "Environment & Resources" },
+  "崩塌與水土保持 Landslides & Soil Conservation": { zh: "崩塌與水土保持", sub: "Landslides & Soil Conservation" },
   "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
   "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
   "農業統計": { zh: "農業統計" },
@@ -2216,6 +2230,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "農業統計 Agriculture Statistics": { zh: "農業統計", sub: "Agriculture Statistics" },
   "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
   "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
+  "崩塌與水土保持統計 Landslide & Soil Conservation Statistics": { zh: "崩塌與水土保持統計", sub: "Landslide & Soil Conservation Statistics" },
   "統計比較": { zh: "統計比較" },
   "教育與少子化統計": { zh: "教育與少子化統計" },
   "醫療與長照統計": { zh: "醫療與長照統計" },

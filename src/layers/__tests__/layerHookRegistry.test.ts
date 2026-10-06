@@ -57,6 +57,7 @@ import { AGRI_ENABLED_STATISTICS_KEYS } from "../../data/agriStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_KEYS } from "../../data/laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../data/environmentStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../data/landslideStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../data/demographicsStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
@@ -122,6 +123,8 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
   // Addiction-statistics recipes share the same MapView dynamic runtime.
   ...ADDICTION_ENABLED_STATISTICS_KEYS,
+  // Landslide-statistics recipes share the same MapView dynamic runtime.
+  ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
   // Demographics-statistics recipes share the same MapView dynamic runtime.
   ...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS,
 ]);
