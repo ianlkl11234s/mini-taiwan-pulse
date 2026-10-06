@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""減害服務 5 層：taipei-gis-analytics 成品 → public/harm_reduction/*.geojson。
+"""減害服務圖層：taipei-gis-analytics 成品 → public/harm_reduction/*.geojson（＋酒駕事故 PMTiles）。
+
+第一批 5 層（2026-10-06 #548）＋第二批 8 層 GeoJSON＋酒駕肇事事故 1 層 PMTiles；
+另把 drug_treatment_monthly_patients（非空間月報）的最新月／期間平均服藥人數併進
+drug_treatment_facilities.geojson（以 entity_id join；無月報的機構留 null，不補 0）。
 
 只做「瘦身 + 補來源欄」，不改任何資料語意：
   - 濾掉 geometry 為 null 的 feature（geocode pending，前端畫不出來）
@@ -11,11 +15,19 @@
 用法：
   python3 scripts/preprocess/build-harm-reduction-public.py \
       --src ../taipei-gis-analytics/data/processed/poi --date 20261006
+
+酒駕事故 GeoJSON 精簡後仍約 15.7MB，超過 dataClass A 約 5MB 上限 → 中繼 GeoJSON 寫到
+暫存目錄，再以 tippecanoe（點資料 -r1 -pf -pk，不抽稀不丟點）切成
+public/harm_reduction/dui_crash_points.pmtiles，並逐 zoom 稽核點數。需要 tippecanoe／tile-join 在 PATH。
 """
 from __future__ import annotations
 
 import argparse
+import csv
 import json
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -59,6 +71,36 @@ PREVENTION_SOURCES = {
 }
 
 
+# 第二批：上游 license 字串 → popup 顯示文字（未標示一律「來源頁未標示授權」）
+def license_text(raw: str | None) -> str:
+    return OGDL if raw == "OGDL-1.0-TW" else UNSPECIFIED
+
+
+def from_props(org: str, vintage: str):
+    """單一來源層：機關名用較完整的寫法，url／license 取 feature 自帶。"""
+    return lambda p: (org, p["source_url"], license_text(p.get("license")), vintage)
+
+
+ANTI_DRUG_SOURCES = {
+    "ntpc_125302": ("新北市政府（data.gov.tw 125302 防毒保衛站）", "2026-08-07"),
+    "kcg_107877_113": ("高雄市政府（data.gov.tw 107877 社區毒品防制關懷站 113 年清冊）", "113 年清冊（2025-06-30）"),
+}
+CONDOM_SOURCES = {
+    "kcg_143426_vending": ("高雄市政府（data.gov.tw 143426 保險套自動服務機）", "2025-06-30"),
+    "kcg_143426_pharmacy": ("高雄市政府（data.gov.tw 143426 平價保險套藥局）", "2025-06-30"),
+    "hccg_67649": ("新竹市政府（data.gov.tw 67649）", "2025-11-21"),
+    "pthg_90622": ("屏東縣政府（data.gov.tw 90622）", "2023-08-31"),
+    "chiayi_52515": ("嘉義市政府（data.gov.tw 52515）", "2026-08-04"),
+}
+
+
+def by_source_ids(table: dict[str, tuple[str, str]]):
+    def resolve(p):
+        org, vintage = table[p["source_ids"][0]]
+        return (org, p["source_url"], license_text(p.get("license")), vintage)
+    return resolve
+
+
 def needle_source(src: str) -> tuple[str, str, str, str]:
     if src in NEEDLE_SOURCES:
         return NEEDLE_SOURCES[src]
@@ -74,33 +116,95 @@ LAYERS = {
         "keep": ["site_type", "has_education_station", "has_vending_machine", "has_return_bin",
                  "education_is_24h", "vending_is_24h", "return_bin_is_24h", "in_cdc_list"],
         "id": "site_id",
-        "source": needle_source,
+        "source": lambda p: needle_source(p["source"]),
     },
     "drug_treatment_facilities": {
         "out": "drug_treatment_facilities.geojson",
         "keep": ["category", "facility_type", "has_methadone", "has_buprenorphine", "designation_valid_to"],
         "id": "entity_id",
-        "source": TREATMENT_SOURCES.__getitem__,
+        "source": lambda p, t=TREATMENT_SOURCES: t[p["source"]],
     },
     "hiv_selftest_outlets": {
         "out": "hiv_selftest_outlets.geojson",
         "keep": ["channel", "outlet_type", "machine_type", "voucher_redeem"],
         "id": "entity_id",
-        "source": SELFTEST_SOURCES.__getitem__,
+        "source": lambda p, t=SELFTEST_SOURCES: t[p["source"]],
     },
     "hiv_testing_sites": {
         "out": "hiv_testing_sites.geojson",
         "keep": ["category", "subtype", "contact_line"],
         "id": "entity_id",
-        "source": TESTING_SOURCES.__getitem__,
+        "source": lambda p, t=TESTING_SOURCES: t[p["source"]],
     },
     "drug_prevention_centers": {
         "out": "drug_prevention_centers.geojson",
         "keep": [],
         "id": "entity_id",
-        "source": PREVENTION_SOURCES.__getitem__,
+        "source": lambda p, t=PREVENTION_SOURCES: t[p["source"]],
+    },
+    # ── 第二批（2026-10-06）──
+    "alcohol_treatment_facilities": {
+        "out": "alcohol_treatment_facilities.geojson",
+        "keep": ["facility_type", "is_alcohol_designated", "in_subsidy_program", "is_dui_assessment",
+                 "also_drug_treatment"],
+        "id": "entity_id",
+        "source": from_props("衛生福利部心理健康司（酒癮治療費用補助方案機構及酒駕酒癮評估機構名單）", "2026-08-07"),
+    },
+    "prep_service_sites": {
+        "out": "prep_service_sites.geojson",
+        "keep": ["facility_type", "public_funded", "self_paid"],
+        "id": "entity_id",
+        "source": from_props("衛生福利部疾病管制署（PrEP 服務醫院名單）", "2026-09-02"),
+    },
+    "internet_addiction_services": {
+        "out": "internet_addiction_services.geojson",
+        "keep": ["service_type", "dept", "special_clinic"],
+        "id": "entity_id",
+        "source": from_props("衛生福利部心理健康司（各縣市網路成癮治療服務資源表）", "2026-07-28"),
+    },
+    "offender_aftercare_offices": {
+        "out": "offender_aftercare_offices.geojson",
+        "keep": ["office_type"],
+        "id": "entity_id",
+        "source": from_props("法務部（data.gov.tw 10060 更生保護會）", "2023-06-05"),
+    },
+    "smoking_cessation_providers": {
+        "out": "smoking_cessation_providers.geojson",
+        "keep": ["facility_type", "service_clinic", "service_counseling"],
+        "id": "entity_id",
+        "source": from_props("衛生福利部國民健康署（戒菸服務合約機構查詢）", "2026-10-06 匯出（來源無版本日）"),
+    },
+    "anti_drug_pharmacies": {
+        "out": "anti_drug_pharmacies.geojson",
+        "keep": ["program"],
+        "id": "entity_id",
+        "source": by_source_ids(ANTI_DRUG_SOURCES),
+    },
+    "condom_outlets": {
+        "out": "condom_outlets.geojson",
+        "keep": ["outlet_type", "item_note", "item_confirmed"],
+        "id": "entity_id",
+        "source": by_source_ids(CONDOM_SOURCES),
+    },
+    "therapeutic_communities": {
+        "out": "therapeutic_communities.geojson",
+        "keep": ["programs", "service_modes", "is_therapeutic_community"],
+        "id": "entity_id",
+        "source": from_props("衛生福利部心理健康司（藥癮治療性社區／社區復健方案承辦機構）", "2025-07-29"),
     },
 }
+
+# 酒駕肇事事故：只留 popup／filter 欄位；不收當事者逐人欄、警察局、事故鍵 provenance。
+# year_roc 轉字串：multiSelectFilter 以字串比對（數字 107 ≠ "107"，篩選會整層空白）。
+DUI_KEEP = ["year_roc", "accident_date", "accident_time", "accident_class", "deaths", "injuries",
+            "county", "town", "location", "cause_main", "dui_cause_basis", "n_dui_parties"]
+DUI_SOURCE = ("內政部警政署（A1／A2 道路交通事故資料 107–114 年，data.gov.tw 158862 等 8 筆）",
+              "https://data.gov.tw/dataset/177136", OGDL, "107–114 年（2018–2025）")
+DUI_LAYER = "dui_crash_points"
+# maxzoom 12：點資料 Mapbox 會 overzoom，z13／z14 只徒增體積（實測 z14 18MB → z12 12.5MB）；
+# 不用「低 zoom 精簡欄位＋tile-join」再省一半，因為 tile-join 的 tilestats.count 會變成各 tile 加總，
+# pmtilesClassificationCoverage 的 feature 數對帳就失去意義。
+DUI_ZOOM = (5, 12)
 
 
 def round_coords(coords):
@@ -109,8 +213,41 @@ def round_coords(coords):
     return [round_coords(c) for c in coords]
 
 
+def list_text(value):
+    """GeoJSON source 的陣列屬性在 Mapbox 端會變 JSON 字串；先串成「、」分隔文字。"""
+    return "、".join(value) if isinstance(value, list) else value
+
+
+def maintenance_summary(src_root: Path, date: str) -> dict[str, dict]:
+    """月報摘要 → {entity_id: {...}}；每 entity 兩列（methadone／buprenorphine）。"""
+    path = src_root / "drug_treatment_monthly_patients" / f"drug_treatment_monthly_patients_summary_{date}.csv"
+    out: dict[str, dict] = {}
+    with path.open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            rec = out.setdefault(row["entity_id"], {"maintenance_month": row["latest_month"],
+                                                     "maintenance_first_month": row["first_month"]})
+            if row["latest_month"] != rec["maintenance_month"]:
+                raise ValueError(f"{row['entity_id']} 兩藥別最新月不一致")
+            rec["maintenance_first_month"] = min(rec["maintenance_first_month"], row["first_month"])
+            rec[f"{row['drug_type']}_patients"] = int(row["latest_patients"])
+            rec[f"{row['drug_type']}_patients_mean"] = round(float(row["mean_patients"]), 1)
+    return out
+
+
+MAINTENANCE_FIELDS = ["maintenance_month", "maintenance_first_month", "methadone_patients", "methadone_patients_mean",
+                      "buprenorphine_patients", "buprenorphine_patients_mean"]
+
+
+def write_collection(path: Path, features: list[dict]) -> None:
+    path.write_text(
+        json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+
+
 def build(src_root: Path, date: str) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    maintenance = maintenance_summary(src_root, date)
     for dataset_id, cfg in LAYERS.items():
         src = src_root / dataset_id / f"{dataset_id}_{date}.geojson"
         data = json.loads(src.read_text(encoding="utf-8"))
@@ -122,10 +259,10 @@ def build(src_root: Path, date: str) -> None:
                 dropped += 1
                 continue
             p = feat["properties"]
-            org, url, license_, vintage = cfg["source"](p["source"])
+            org, url, license_, vintage = cfg["source"](p)
             props = {"id": p[cfg["id"]]}
             for key in COMMON + cfg["keep"]:
-                props[key] = p.get(key)
+                props[key] = list_text(p.get(key))
             props.update({
                 "source_org": org,
                 "source_url": url,
@@ -134,17 +271,71 @@ def build(src_root: Path, date: str) -> None:
                 "fetched_at": p.get("fetched_at"),
                 "vintage": vintage,
             })
+            if dataset_id == "drug_treatment_facilities":
+                rec = maintenance.get(props["id"], {})
+                props.update({key: rec.get(key) for key in MAINTENANCE_FIELDS})
             features.append({
                 "type": "Feature",
                 "geometry": {"type": geom["type"], "coordinates": round_coords(geom["coordinates"])},
                 "properties": props,
             })
         out = OUT_DIR / cfg["out"]
-        out.write_text(
-            json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False, separators=(",", ":")),
-            encoding="utf-8",
-        )
-        print(f"{dataset_id}: {len(features)} features (dropped null geometry {dropped}) → {out.relative_to(ROOT)} {out.stat().st_size:,} B")
+        write_collection(out, features)
+        extra = ""
+        if dataset_id == "drug_treatment_facilities":
+            extra = f"; 月報服藥人數併入 {sum(1 for f in features if f['properties']['maintenance_month'])} 點"
+        print(f"{dataset_id}: {len(features)} features (dropped null geometry {dropped}{extra}) → {out.relative_to(ROOT)} {out.stat().st_size:,} B")
+    build_dui(src_root, date)
+
+
+def build_dui(src_root: Path, date: str) -> None:
+    src = src_root / DUI_LAYER / f"{DUI_LAYER}_{date}.geojson"
+    data = json.loads(src.read_text(encoding="utf-8"))
+    org, url, license_, vintage = DUI_SOURCE
+    features = []
+    dropped = 0
+    for feat in data["features"]:
+        geom = feat.get("geometry")
+        if not geom or not geom.get("coordinates"):
+            dropped += 1
+            continue
+        p = feat["properties"]
+        props = {"id": p["entity_id"]}
+        props.update({key: p.get(key) for key in DUI_KEEP})
+        props["year_roc"] = str(props["year_roc"])
+        props.update({"source_org": org, "source_url": url, "license": license_,
+                      "fetched_at": p.get("fetched_at"), "vintage": vintage})
+        features.append({"type": "Feature",
+                         "geometry": {"type": "Point", "coordinates": round_coords(geom["coordinates"])},
+                         "properties": props})
+    out = OUT_DIR / f"{DUI_LAYER}.pmtiles"
+    with tempfile.TemporaryDirectory() as tmp:
+        mid = Path(tmp) / f"{DUI_LAYER}.geojson"
+        write_collection(mid, features)
+        zmin, zmax = DUI_ZOOM
+        subprocess.run([
+            "tippecanoe", "-o", str(out), "--force", "-l", DUI_LAYER, "-Z", str(zmin), "-z", str(zmax),
+            "-r1", "-pf", "-pk", "--quiet", str(mid),
+        ], check=True)
+        audit_zoom_counts(out, len(features), zmin, zmax)
+    print(f"{DUI_LAYER}: {len(features)} features (dropped null geometry {dropped}) → {out.relative_to(ROOT)} {out.stat().st_size:,} B")
+
+
+def audit_zoom_counts(pmtiles: Path, expected: int, zmin: int, zmax: int) -> None:
+    """逐 zoom 解碼數點：每一層都要等於輸入點數（-r1 -pf -pk 不應丟點）。"""
+    if not shutil.which("tippecanoe-decode"):
+        raise SystemExit("缺 tippecanoe-decode，無法逐 zoom 稽核")
+    for z in range(zmin, zmax + 1):
+        res = subprocess.run(["tippecanoe-decode", "-Z", str(z), "-z", str(z), str(pmtiles)],
+                             check=True, capture_output=True, text=True)
+        ids = set()
+        for tile in json.loads(res.stdout)["features"]:  # 每個 tile 一個 FeatureCollection
+            for layer in tile["features"]:
+                for feat in layer["features"]:
+                    ids.add(feat["properties"]["id"])  # buffer 區重複出現的點以 id 去重
+        if len(ids) != expected:
+            raise SystemExit(f"z{z}: 解碼 {len(ids)} 點 ≠ 輸入 {expected}（丟點）")
+        print(f"  z{z}: {len(ids)} 點 ✓")
 
 
 if __name__ == "__main__":

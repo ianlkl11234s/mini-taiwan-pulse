@@ -157,7 +157,10 @@ import {
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
-import { HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel } from "./harmReductionPanels";
+import {
+  HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel,
+  HarmReductionAlcoholPanel, HarmReductionPrepPanel, HarmReductionInternetAddictionPanel, HarmReductionAftercarePanel, HarmReductionSmokingCessationPanel, HarmReductionAntiDrugPharmacyPanel, HarmReductionCondomOutletPanel, HarmReductionTherapeuticCommunityPanel, HarmReductionDuiCrashPanel,
+} from "./harmReductionPanels";
 import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
@@ -210,6 +213,15 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   harmReductionHivSelftest: HarmReductionHivSelftestPanel,
   harmReductionHivTesting: HarmReductionHivTestingPanel,
   harmReductionPreventionCenters: HarmReductionPreventionCenterPanel,
+  harmReductionAlcohol: HarmReductionAlcoholPanel,
+  harmReductionPrep: HarmReductionPrepPanel,
+  harmReductionInternetAddiction: HarmReductionInternetAddictionPanel,
+  harmReductionAftercare: HarmReductionAftercarePanel,
+  harmReductionSmokingCessation: HarmReductionSmokingCessationPanel,
+  harmReductionAntiDrugPharmacies: HarmReductionAntiDrugPharmacyPanel,
+  harmReductionCondomOutlets: HarmReductionCondomOutletPanel,
+  harmReductionTherapeuticCommunities: HarmReductionTherapeuticCommunityPanel,
+  harmReductionDuiCrashes: HarmReductionDuiCrashPanel,
   drinkingWaterPoints: PublicLifeOsmPanel,
   publicWasteBaskets: PublicLifeOsmPanel,
   materialRecyclingPoints: PublicLifeOsmPanel,
@@ -654,6 +666,15 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   harmReductionHivSelftest: "愛滋自我篩檢通路",
   harmReductionHivTesting: "愛滋篩檢與指定醫療",
   harmReductionPreventionCenters: "毒品危害防制中心",
+  harmReductionAlcohol: "酒癮治療與酒駕酒癮評估",
+  harmReductionPrep: "PrEP 服務醫院",
+  harmReductionInternetAddiction: "網路成癮治療資源",
+  harmReductionAftercare: "更生保護會",
+  harmReductionSmokingCessation: "戒菸服務機構",
+  harmReductionAntiDrugPharmacies: "社區藥局反毒站",
+  harmReductionCondomOutlets: "保險套販售點",
+  harmReductionTherapeuticCommunities: "治療性社區與中途之家",
+  harmReductionDuiCrashes: "酒駕肇事事故",
   drinkingWaterPoints: "飲水點",
   publicWasteBaskets: "公共垃圾桶",
   materialRecyclingPoints: "資源回收點",

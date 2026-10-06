@@ -245,6 +245,7 @@ import {
 import {
   HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend,
   HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend,
+  HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend,
 } from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 
@@ -370,6 +371,15 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "harmReductionHivSelftest", render: () => <HarmReductionHivSelftestLegend /> },
   { id: "harmReductionHivTesting", render: () => <HarmReductionHivTestingLegend /> },
   { id: "harmReductionPreventionCenters", render: () => <HarmReductionPreventionCentersLegend /> },
+  { id: "harmReductionAlcohol", render: () => <HarmReductionAlcoholLegend /> },
+  { id: "harmReductionPrep", render: () => <HarmReductionPrepLegend /> },
+  { id: "harmReductionInternetAddiction", render: () => <HarmReductionInternetAddictionLegend /> },
+  { id: "harmReductionAftercare", render: () => <HarmReductionAftercareLegend /> },
+  { id: "harmReductionSmokingCessation", render: () => <HarmReductionSmokingCessationLegend /> },
+  { id: "harmReductionAntiDrugPharmacies", render: () => <HarmReductionAntiDrugPharmaciesLegend /> },
+  { id: "harmReductionCondomOutlets", render: () => <HarmReductionCondomOutletsLegend /> },
+  { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
+  { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
   { id: "drinkingWaterPoints", render: () => <PublicLifeOsmLegend label="飲水點" color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: () => <PublicLifeOsmLegend label="公共垃圾桶" color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: () => <PublicLifeOsmLegend label="資源回收點" color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra="僅代表來源明列的材料；未標註不推論可回收材料。" /> },

@@ -40,6 +40,7 @@ const DENSE_FROM = {
   agriProduceWholesale: densePointsFromZoom(22_843, 8),
   accessibleParkFacilities: densePointsFromZoom(20_870),
   religionTemples: densePointsFromZoom(19_201),
+  harmReductionDuiCrashes: densePointsFromZoom(36_814),
   tourHotels: densePointsFromZoom(15_654),
   medAED: densePointsFromZoom(15_490),
   busStationsIntercity: densePointsFromZoom(15_383),
@@ -246,8 +247,11 @@ import {
   ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS, PUBLIC_LIFE_COLORS,
 } from "../data/publicLifePalette";
 import {
-  HARM_REDUCTION_COLORS, HIV_TESTING_CATEGORY_OPTIONS, SELFTEST_CHANNEL_OPTIONS, TREATMENT_CATEGORY_OPTIONS,
-  categoryColorExpression, hivTestingCategoryFilter, needleServiceFilter, selftestChannelFilter, treatmentCategoryFilter,
+  CONDOM_OUTLET_OPTIONS, DUI_CLASS_OPTIONS, HARM_REDUCTION_COLORS, HIV_TESTING_CATEGORY_OPTIONS,
+  INTERNET_SERVICE_TYPE_OPTIONS, SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS,
+  alcoholServiceFilter, categoryColorExpression, condomOutletFilter, duiCrashFilter, hivTestingCategoryFilter,
+  internetServiceTypeFilter, needleServiceFilter, prepFundingFilter, selftestChannelFilter, smokingFacilityFilter,
+  treatmentCategoryFilter,
 } from "../data/harmReductionTypes";
 import {
   AVIATION_NOISE_ZONE_COLOR_EXPR,
@@ -559,13 +563,23 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
   ] },
 ];
 
-/** 減害服務 5 層：官方名冊 GeoJSON（git 管理），共用公共生活點層 helper；attribution 必須明傳（helper 預設是 OSM）。 */
+/** 減害服務：官方名冊 GeoJSON＋酒駕事故 PMTiles（git 管理），共用公共生活點層 helper；attribution 必須明傳（helper 預設是 OSM）。 */
 const HARM_REDUCTION_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("harmReductionNeedle", "./harm_reduction/needle_points.geojson", "harm-reduction-needle", HARM_REDUCTION_COLORS.harmReductionNeedle, undefined, "衛生福利部疾病管制署 清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單", undefined, { labelMinzoom: 14, filter: (p) => needleServiceFilter(p?.harmReductionNeedleServiceMask, p?.harmReductionNeedleOnly24h) }),
   publicLifePointOverlay("harmReductionTreatment", "./harm_reduction/drug_treatment_facilities.geojson", "harm-reduction-treatment", categoryColorExpression("category", TREATMENT_CATEGORY_OPTIONS), undefined, "衛生福利部 指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353", undefined, { labelMinzoom: 13, filter: (p) => treatmentCategoryFilter(p?.harmReductionTreatmentCategoryMask) }),
   publicLifePointOverlay("harmReductionHivSelftest", "./harm_reduction/hiv_selftest_outlets.geojson", "harm-reduction-hiv-selftest", categoryColorExpression("channel", SELFTEST_CHANNEL_OPTIONS), undefined, "衛生福利部疾病管制署 愛滋自我篩檢通路（快照 2026-10-06）", undefined, { labelMinzoom: 14, filter: (p) => selftestChannelFilter(p?.harmReductionHivSelftestChannelMask) }),
   publicLifePointOverlay("harmReductionHivTesting", "./harm_reduction/hiv_testing_sites.geojson", "harm-reduction-hiv-testing", categoryColorExpression("category", HIV_TESTING_CATEGORY_OPTIONS), undefined, "衛生福利部疾病管制署 匿名篩檢與愛滋指定醫事機構（2026-09-22 等）", undefined, { labelMinzoom: 14, filter: (p) => hivTestingCategoryFilter(p?.harmReductionHivTestingCategoryMask) }),
   publicLifePointOverlay("harmReductionPreventionCenters", "./harm_reduction/drug_prevention_centers.geojson", "harm-reduction-prevention-centers", HARM_REDUCTION_COLORS.harmReductionPreventionCenters, undefined, "法務部 毒品危害防制中心（data.gov.tw 13717）· 政府資料開放授權條款第1版", [4, 8], { labelMinzoom: 10 }),
+  // ── 第二批（2026-10-06）──
+  publicLifePointOverlay("harmReductionAlcohol", "./harm_reduction/alcohol_treatment_facilities.geojson", "harm-reduction-alcohol", HARM_REDUCTION_COLORS.harmReductionAlcohol, undefined, "衛生福利部心理健康司 酒癮治療費用補助方案機構及酒駕酒癮評估機構名單（2026-08-07）", undefined, { labelMinzoom: 13, filter: (p) => alcoholServiceFilter(p?.harmReductionAlcoholServiceMask) }),
+  publicLifePointOverlay("harmReductionSmokingCessation", "./harm_reduction/smoking_cessation_providers.geojson", "harm-reduction-smoking-cessation", categoryColorExpression("facility_type", SMOKING_FACILITY_OPTIONS), undefined, "衛生福利部國民健康署 戒菸服務合約機構（2026-10-06 官網匯出）", undefined, { labelMinzoom: 15, filter: (p) => smokingFacilityFilter(p?.harmReductionSmokingCessationFacilityMask) }),
+  publicLifePointOverlay("harmReductionInternetAddiction", "./harm_reduction/internet_addiction_services.geojson", "harm-reduction-internet-addiction", categoryColorExpression("service_type", INTERNET_SERVICE_TYPE_OPTIONS), undefined, "衛生福利部 各縣市網路成癮治療服務資源表（2026-07-28）", undefined, { labelMinzoom: 14, filter: (p) => internetServiceTypeFilter(p?.harmReductionInternetAddictionServiceTypeMask) }),
+  publicLifePointOverlay("harmReductionPrep", "./harm_reduction/prep_service_sites.geojson", "harm-reduction-prep", HARM_REDUCTION_COLORS.harmReductionPrep, undefined, "衛生福利部疾病管制署 PrEP 服務醫院名單（2026-09-02）", undefined, { labelMinzoom: 13, filter: (p) => prepFundingFilter(p?.harmReductionPrepFundingMask) }),
+  publicLifePointOverlay("harmReductionCondomOutlets", "./harm_reduction/condom_outlets.geojson", "harm-reduction-condom-outlets", categoryColorExpression("outlet_type", CONDOM_OUTLET_OPTIONS), undefined, "高雄市、新竹市、屏東縣、嘉義市政府 保險套販售點（data.gov.tw）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 14, filter: (p) => condomOutletFilter(p?.harmReductionCondomOutletsOutletTypeMask) }),
+  publicLifePointOverlay("harmReductionAntiDrugPharmacies", "./harm_reduction/anti_drug_pharmacies.geojson", "harm-reduction-anti-drug-pharmacies", HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, undefined, "新北市政府、高雄市政府 社區藥局反毒站（data.gov.tw 125302／107877）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 14 }),
+  publicLifePointOverlay("harmReductionTherapeuticCommunities", "./harm_reduction/therapeutic_communities.geojson", "harm-reduction-therapeutic-communities", HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, undefined, "衛生福利部心理健康司 藥癮治療性社區／社區復健方案承辦機構（2025-07-29）", [4, 8], { labelMinzoom: 11 }),
+  publicLifePointOverlay("harmReductionAftercare", "./harm_reduction/offender_aftercare_offices.geojson", "harm-reduction-aftercare", HARM_REDUCTION_COLORS.harmReductionAftercare, undefined, "法務部 更生保護會（data.gov.tw 10060，2023-06）· 政府資料開放授權條款第1版", [4, 8], { labelMinzoom: 10 }),
+  publicLifePointOverlay("harmReductionDuiCrashes", "./harm_reduction/dui_crash_points.pmtiles", "harm-reduction-dui-crashes", categoryColorExpression("accident_class", DUI_CLASS_OPTIONS), { sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 道路交通事故資料（107–114 年）· 政府資料開放授權條款第1版", undefined, { filter: (p) => duiCrashFilter(p?.harmReductionDuiCrashesClassMask, p?.harmReductionDuiCrashesYearMask, p?.harmReductionDuiCrashesBasisMask), dense: { pointsFromZoom: DENSE_FROM.harmReductionDuiCrashes, intensity: 1 } }),
 ];
 
 /**
