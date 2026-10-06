@@ -120,6 +120,8 @@ export function harmReductionPrecisionLabel(precision: unknown): string {
       return "位置為推估（路段或區域概略位置）";
     case "google_place_manual":
       return "依機構名稱查得位置（人工核對）";
+    case "google_place":
+      return "依機構名稱查得位置";
     default:
       return precision == null ? "" : String(precision);
   }
