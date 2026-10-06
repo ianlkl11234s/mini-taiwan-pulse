@@ -219,7 +219,7 @@ export function isDataSourceBrowserVisible(key: string): boolean {
 }
 
 export function statisticsSourceLevelLabel(level: string): string {
-  return ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區" } as Record<string, string>)[level] ?? level;
+  return ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區" } as Record<string, string>)[level] ?? level;
 }
 
 export function statisticsIndicatorLabel(value: unknown, level: string): string {

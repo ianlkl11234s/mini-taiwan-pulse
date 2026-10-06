@@ -1,4 +1,4 @@
-// 成癮與減害統計（HIV、毒品／酒駕／地檢署執法、吸菸與檳榔調查、服務據點；縣市＋鄉鎮，65 recipe、61 啟用）。
+// 成癮與減害統計（HIV、毒品／酒駕／地檢署執法、吸菸與檳榔調查、服務據點；縣市＋鄉鎮＋地檢署轄區，78 recipe、74 啟用）。
 // 交付 JSON 由 scripts/statistics/build_addiction_statistics_recipes.py 從 analytics 交付產生；
 // 首屏只帶去掉 `delivery` 收據的派生目錄（statisticsRecipeCatalog.test.ts 保證一致）。
 import catalogJson from "./addictionStatisticsRecipes.catalog.json";
@@ -46,6 +46,8 @@ export interface AddictionRecipe {
   source_landing_url: string;
   source_download_url: string;
   source_title: string;
+  /** 同一指標有轄區與縣市兩層時：primary（地檢署轄區，預設顯示）／secondary（縣市退化版）；其餘為 null。 */
+  display_priority: "primary" | "secondary" | null;
 }
 
 interface AddictionRecipeDocument {
@@ -58,13 +60,18 @@ export const ADDICTION_ENABLED_STATISTICS_KEYS = [
   "statsDrugSuspectsCounty", "statsDrugSuspectsPer100kCounty", "statsDrugUseSuspectsCounty", "statsDrugUseSuspectsPer100kCounty",
   "statsDrugGrade1SuspectsCounty", "statsDrugGrade1SuspectsPer100kCounty",
   "statsDuiCasesCounty", "statsDuiRateCounty", "statsDuiEnforcementCounty", "statsDuiEnforcementPer100kCounty",
+  // 地檢署：轄區層（primary，自成一列）排在縣市退化版（secondary，原列不變）前面 → sidebar 先看到轄區。
+  "statsProsecutorDrugNewCasesDistrict", "statsProsecutorDrugUseDistrict", "statsProsecutorDrugGrade1District",
+  "statsProsecutorDrugGrade2District", "statsProsecutorDeferredTreatmentDistrict",
   "statsProsecutorDrugNewCasesCounty", "statsProsecutorDrugUseCounty", "statsProsecutorDrugGrade1County",
   "statsProsecutorDrugGrade2County", "statsProsecutorDeferredTreatmentCounty",
   "statsAdultSmokingRateCounty", "statsAdultBetelRateCounty",
   "statsNeedleEducationStationsCounty", "statsNeedleEducationStationsPer100kCounty", "statsNeedleEducationStationsTownship", "statsNeedleEducationStationsPer100kTownship",
   "statsNeedleVendingMachinesCounty", "statsNeedleVendingMachinesPer100kCounty", "statsNeedleVendingMachinesTownship", "statsNeedleVendingMachinesPer100kTownship",
   "statsNeedleReturnBinsCounty", "statsNeedleReturnBinsPer100kCounty", "statsNeedleReturnBinsTownship", "statsNeedleReturnBinsPer100kTownship",
+  "statsNeedleSitesTotalCounty", "statsNeedleSitesTotalPer100kCounty", "statsNeedleSitesTotalTownship", "statsNeedleSitesTotalPer100kTownship",
   "statsDrugTreatmentFacilitiesCounty", "statsDrugTreatmentFacilitiesPer100kCounty", "statsDrugTreatmentFacilitiesTownship", "statsDrugTreatmentFacilitiesPer100kTownship",
+  "statsSubstitutionTreatmentSitesCounty", "statsSubstitutionTreatmentSitesPer100kCounty", "statsSubstitutionTreatmentSitesTownship", "statsSubstitutionTreatmentSitesPer100kTownship",
   "statsAlcoholTreatmentFacilitiesCounty", "statsAlcoholTreatmentFacilitiesPer100kCounty", "statsAlcoholTreatmentFacilitiesTownship", "statsAlcoholTreatmentFacilitiesPer100kTownship",
   "statsHivTestingSitesCounty", "statsHivTestingSitesPer100kCounty", "statsHivTestingSitesTownship", "statsHivTestingSitesPer100kTownship",
   "statsHivSelftestOutletsCounty", "statsHivSelftestOutletsPer100kCounty", "statsHivSelftestOutletsTownship", "statsHivSelftestOutletsPer100kTownship",
@@ -133,6 +140,9 @@ export function resolveAddictionRelease(
     && option.period_end === release.period_end);
   return matches.length === 1 ? { releaseId: matches[0]!.release_id, dimensions: matches[0]!.dimensions } : null;
 }
+
+/** 地檢署轄區層的圖例／說明附註（轄區不是行政區；縣市名稱不可當標籤）。 */
+export const PROSECUTOR_DISTRICT_LEGEND_NOTE = "地理單位：地檢署轄區（22 署）≠縣市。雙北與基隆由四署交錯管轄、高雄市分屬高雄與橋頭兩署、新竹與嘉義地檢署各管轄縣與市；歷年數值都畫在 115 年現行轄區上。";
 
 /** 圖例的非數值狀態列：依本層實際會出現的狀態分開列出（S7 不適用、S4 無資料、S6 隱私遮蔽）。 */
 export function addictionStatusLegendRows(recipe: AddictionRecipe): Array<{ kind: AddictionStatusKind; hatch: "missing" | "suppressed"; label: string }> {

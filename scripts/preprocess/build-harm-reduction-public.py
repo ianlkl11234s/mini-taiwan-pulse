@@ -11,6 +11,8 @@ drug_treatment_facilities.geojson（以 entity_id join；無月報的機構留 n
   - 座標四捨五入到 6 位小數（約 0.1 m）
   - 補 SourceFooter 需要的 source_org / source_url / license / source_tier / fetched_at，
     以及 popup「資料日期」用的 vintage（依各 feature 的 source 映射；值抄自上游 _manifest.json）
+  - 保留上游中文標籤欄 `<欄>_label`（第三輪起；對照表 SSOT 在 analytics 各 pipeline config.yaml labels），
+    popup 直接顯示，不在前端自建英文代碼對照
 
 用法：
   python3 scripts/preprocess/build-harm-reduction-public.py \
@@ -49,6 +51,9 @@ TREATMENT_SOURCES = {
     "mohw_substance_use_designated_115": ("衛生福利部心理健康司（指定藥癮戒治及替代治療機構名單）",
                                           "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html", UNSPECIFIED, "2026-08-31"),
     "datagov_133353": ("地方政府衛生局（data.gov.tw 133353）", "https://data.gov.tw/dataset/133353", OGDL, "2025-12-12"),
+    # 第三輪：清海醫院（衛福部名單未列，依替代治療月報＋133353 保留；機關名／授權照上游 feature）
+    "mohw_maintenance_monthly_115|datagov_133353": ("衛生福利部心理健康司（替代治療月報）＋地方政府衛生局（data.gov.tw 133353 地址）",
+                                                    "https://data.gov.tw/dataset/133353", OGDL, "月報 115 年 1–8 月；地址 2025-12-12"),
 }
 SELFTEST_SOURCES = {
     "cdc_hiva_physical_outlet": ("衛生福利部疾病管制署（愛滋自我篩檢實體通路）",
@@ -120,75 +125,78 @@ LAYERS = {
     },
     "drug_treatment_facilities": {
         "out": "drug_treatment_facilities.geojson",
-        "keep": ["category", "facility_type", "has_methadone", "has_buprenorphine", "designation_valid_to"],
+        "keep": ["category", "category_label", "facility_type", "facility_type_label", "has_methadone", "has_buprenorphine",
+                 "designation_valid_to"],
         "id": "entity_id",
         "source": lambda p, t=TREATMENT_SOURCES: t[p["source"]],
     },
     "hiv_selftest_outlets": {
         "out": "hiv_selftest_outlets.geojson",
-        "keep": ["channel", "outlet_type", "machine_type", "voucher_redeem"],
+        "keep": ["channel", "channel_label", "outlet_type", "outlet_type_label", "machine_type", "machine_type_label",
+                 "voucher_redeem"],
         "id": "entity_id",
         "source": lambda p, t=SELFTEST_SOURCES: t[p["source"]],
     },
     "hiv_testing_sites": {
         "out": "hiv_testing_sites.geojson",
-        "keep": ["category", "subtype", "contact_line"],
+        "keep": ["category", "category_label", "subtype", "subtype_label", "contact_line"],
         "id": "entity_id",
         "source": lambda p, t=TESTING_SOURCES: t[p["source"]],
     },
     "drug_prevention_centers": {
         "out": "drug_prevention_centers.geojson",
-        "keep": [],
+        "keep": ["category_label"],
         "id": "entity_id",
         "source": lambda p, t=PREVENTION_SOURCES: t[p["source"]],
     },
     # ── 第二批（2026-10-06）──
     "alcohol_treatment_facilities": {
         "out": "alcohol_treatment_facilities.geojson",
-        "keep": ["facility_type", "is_alcohol_designated", "in_subsidy_program", "is_dui_assessment",
-                 "also_drug_treatment"],
+        "keep": ["category_label", "facility_type", "facility_type_label", "service_type_label", "is_alcohol_designated",
+                 "in_subsidy_program", "is_dui_assessment", "also_drug_treatment"],
         "id": "entity_id",
         "source": from_props("衛生福利部心理健康司（酒癮治療費用補助方案機構及酒駕酒癮評估機構名單）", "2026-08-07"),
     },
     "prep_service_sites": {
         "out": "prep_service_sites.geojson",
-        "keep": ["facility_type", "public_funded", "self_paid"],
+        "keep": ["category_label", "facility_type", "facility_type_label", "public_funded", "self_paid"],
         "id": "entity_id",
         "source": from_props("衛生福利部疾病管制署（PrEP 服務醫院名單）", "2026-09-02"),
     },
     "internet_addiction_services": {
         "out": "internet_addiction_services.geojson",
-        "keep": ["service_type", "dept", "special_clinic"],
+        "keep": ["category_label", "service_type", "dept", "special_clinic"],
         "id": "entity_id",
         "source": from_props("衛生福利部心理健康司（各縣市網路成癮治療服務資源表）", "2026-07-28"),
     },
     "offender_aftercare_offices": {
         "out": "offender_aftercare_offices.geojson",
-        "keep": ["office_type"],
+        "keep": ["category_label", "office_type", "office_type_label"],
         "id": "entity_id",
         "source": from_props("法務部（data.gov.tw 10060 更生保護會）", "2023-06-05"),
     },
     "smoking_cessation_providers": {
         "out": "smoking_cessation_providers.geojson",
-        "keep": ["facility_type", "service_clinic", "service_counseling"],
+        "keep": ["category_label", "facility_type", "facility_type_label", "services_label", "service_clinic",
+                 "service_counseling"],
         "id": "entity_id",
         "source": from_props("衛生福利部國民健康署（戒菸服務合約機構查詢）", "2026-10-06 匯出（來源無版本日）"),
     },
     "anti_drug_pharmacies": {
         "out": "anti_drug_pharmacies.geojson",
-        "keep": ["program"],
+        "keep": ["category_label", "program"],
         "id": "entity_id",
         "source": by_source_ids(ANTI_DRUG_SOURCES),
     },
     "condom_outlets": {
         "out": "condom_outlets.geojson",
-        "keep": ["outlet_type", "item_note", "item_confirmed"],
+        "keep": ["category_label", "outlet_type", "outlet_type_label", "item_note", "item_confirmed"],
         "id": "entity_id",
         "source": by_source_ids(CONDOM_SOURCES),
     },
     "therapeutic_communities": {
         "out": "therapeutic_communities.geojson",
-        "keep": ["programs", "service_modes", "is_therapeutic_community"],
+        "keep": ["category_label", "programs", "service_modes", "is_therapeutic_community"],
         "id": "entity_id",
         "source": from_props("衛生福利部心理健康司（藥癮治療性社區／社區復健方案承辦機構）", "2025-07-29"),
     },
@@ -196,8 +204,8 @@ LAYERS = {
 
 # 酒駕肇事事故：只留 popup／filter 欄位；不收當事者逐人欄、警察局、事故鍵 provenance。
 # year_roc 轉字串：multiSelectFilter 以字串比對（數字 107 ≠ "107"，篩選會整層空白）。
-DUI_KEEP = ["year_roc", "accident_date", "accident_time", "accident_class", "deaths", "injuries",
-            "county", "town", "location", "cause_main", "dui_cause_basis", "n_dui_parties"]
+DUI_KEEP = ["year_roc", "accident_date", "accident_time", "accident_class", "accident_class_label", "deaths", "injuries",
+            "county", "town", "location", "cause_main", "dui_cause_basis", "dui_cause_basis_label", "n_dui_parties"]
 DUI_SOURCE = ("內政部警政署（A1／A2 道路交通事故資料 107–114 年，data.gov.tw 158862 等 8 筆）",
               "https://data.gov.tw/dataset/177136", OGDL, "107–114 年（2018–2025）")
 DUI_LAYER = "dui_crash_points"
@@ -219,18 +227,30 @@ def list_text(value):
 
 
 def maintenance_summary(src_root: Path, date: str) -> dict[str, dict]:
-    """月報摘要 → {entity_id: {...}}；每 entity 兩列（methadone／buprenorphine）。"""
-    path = src_root / "drug_treatment_monthly_patients" / f"drug_treatment_monthly_patients_summary_{date}.csv"
-    out: dict[str, dict] = {}
+    """月報長表（processed 成品，PK entity_id×month×drug_type）→ {entity_id: {...}}。
+
+    最新月／首月／最新月服藥人數／期間平均由長表自行彙總；上游的 summary CSV 屬中繼檔
+    （analytics data/intermediate/），跨 repo 消費端只讀 processed 成品。未 join 到機構的列（entity_id 空）略過。
+    """
+    path = src_root / "drug_treatment_monthly_patients" / f"drug_treatment_monthly_patients_{date}.csv"
+    series: dict[tuple[str, str], dict[str, int]] = {}
     with path.open(encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
-            rec = out.setdefault(row["entity_id"], {"maintenance_month": row["latest_month"],
-                                                     "maintenance_first_month": row["first_month"]})
-            if row["latest_month"] != rec["maintenance_month"]:
-                raise ValueError(f"{row['entity_id']} 兩藥別最新月不一致")
-            rec["maintenance_first_month"] = min(rec["maintenance_first_month"], row["first_month"])
-            rec[f"{row['drug_type']}_patients"] = int(row["latest_patients"])
-            rec[f"{row['drug_type']}_patients_mean"] = round(float(row["mean_patients"]), 1)
+            if not row["entity_id"]:
+                continue
+            months = series.setdefault((row["entity_id"], row["drug_type"]), {})
+            if row["month"] in months:
+                raise ValueError(f"{row['entity_id']} {row['drug_type']} {row['month']} 重複")
+            months[row["month"]] = int(row["patients"])
+    out: dict[str, dict] = {}
+    for (entity_id, drug_type), months in sorted(series.items()):
+        latest, first = max(months), min(months)
+        rec = out.setdefault(entity_id, {"maintenance_month": latest, "maintenance_first_month": first})
+        if latest != rec["maintenance_month"]:
+            raise ValueError(f"{entity_id} 兩藥別最新月不一致")
+        rec["maintenance_first_month"] = min(rec["maintenance_first_month"], first)
+        rec[f"{drug_type}_patients"] = months[latest]
+        rec[f"{drug_type}_patients_mean"] = round(sum(months.values()) / len(months), 1)
     return out
 
 

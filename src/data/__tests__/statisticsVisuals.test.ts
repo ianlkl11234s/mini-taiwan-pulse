@@ -149,8 +149,9 @@ describe('getStatisticsVisual', () => {
     // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
     // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；只有 11508 一期）。
     // 2026-10-06: +61 成癮與減害（HIV 4＋執法 15＋行為調查 2＋服務據點 40）。
-    expect(STATISTICS_KEYS).toHaveLength(523);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(535);
+    // 2026-10-06: +13 成癮與減害第三輪（地檢署轄區 5＋清潔針具三類任一 4＋替代治療執行機構 4）。
+    expect(STATISTICS_KEYS).toHaveLength(536);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(548);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

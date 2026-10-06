@@ -3,7 +3,7 @@ import { getAgriRecipe, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriSt
 import { getSocialRecipe } from '../../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSemantics } from '../../data/laborStatisticsRecipes';
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
-import { addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
+import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
@@ -179,6 +179,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     {!environmentBinaryRows && <span>{recipe.breaks.some(value => value < 0) ? '棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞' : '淺 → 深：數值低 → 高；請依本指標的數字區間比較'}</span>}
     {(environmentBinaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
+    {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
     {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
     {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
     {!addiction && <LegendRow swatch={<SwatchHatch kind="missing" />}>{social || labor || environment || demographics ? '斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階' : '斜線：缺資料／未發布數值'}</LegendRow>}

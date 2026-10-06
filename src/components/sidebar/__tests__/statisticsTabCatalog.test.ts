@@ -98,7 +98,10 @@ describe("STATISTICS_TAB_THEMES", () => {
     // 成癮與減害：同群組成員相鄰、原始數與縣市在前（群組列只在第一個成員渲染）；第二級毒品／毒防中心不接。
     const services = group("成癮與減害 Addiction & Harm Reduction", "服務據點");
     expect(services.slice(0, 4)).toEqual(["statsNeedleEducationStationsCounty", "statsNeedleEducationStationsPer100kCounty", "statsNeedleEducationStationsTownship", "statsNeedleEducationStationsPer100kTownship"]);
-    expect(services).toHaveLength(40);
+    expect(services).toHaveLength(48);
+    // 地檢署：轄區層（primary）是群組列 lead，排在縣市退化版前面。
+    const enforcement = group("成癮與減害 Addiction & Harm Reduction", "執法（毒品、酒駕、地檢署）");
+    expect(enforcement.indexOf("statsProsecutorDrugNewCasesDistrict")).toBeLessThan(enforcement.indexOf("statsProsecutorDrugNewCasesCounty"));
     expect(group("成癮與減害 Addiction & Harm Reduction", "疾病（HIV）")).toEqual(["statsHivNewCasesCounty", "statsHivPer100kCounty", "statsHivCasesTownship", "statsHivPer100kYearTownship"]);
     expect(group("成癮與減害 Addiction & Harm Reduction", "執法（毒品、酒駕、地檢署）")).not.toContain("statsDrugGrade2SuspectsCounty");
     expect(services).not.toContain("statsDrugPreventionCentersCounty");

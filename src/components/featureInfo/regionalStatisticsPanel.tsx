@@ -27,11 +27,15 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
   if (typeof inputs === 'string') { try { inputs = JSON.parse(inputs); } catch { inputs = undefined; } }
   const numericFormat = format as { locale?: string; maximumFractionDigits?: number } | undefined;
   const observed = props.status === 'observed' && typeof props.value === 'number';
+  // 地檢署轄區（area_code PD_xxx）不是行政區：名稱用地檢署全銜，另列涵蓋縣市，避免被讀成縣市。
+  const prosecutorDistrict = typeof props.area_code === 'string' && props.area_code.startsWith('PD_');
   const missingLabel = props.status === 'suppressed' ? '遮蔽 suppressed（*）'
     : props.source_status === 'not_reported' ? '未報告 not_reported（-）'
       : `缺資料（${props.status ?? 'missing'}）`;
   return <>
-    <Row label="區域" value={String(props.area_name ?? props.area_code ?? '—')} />
+    <Row label={prosecutorDistrict ? '地檢署轄區' : '區域'} value={String(props.area_name ?? props.area_code ?? '—')} />
+    {prosecutorDistrict && <Row label="轄區涵蓋縣市" value={`${String(props.counties ?? '—')}${typeof props.township_count === 'number' ? `（${props.township_count} 個鄉鎮市區）` : ''}`} />}
+    {prosecutorDistrict && <Row label="注意" value="地檢署轄區≠縣市；歷年數值都畫在 115 年現行轄區上" />}
     <Row label="統計指標" value={String(props.indicator_name ?? '—')} />
     <Row label="數值" value={observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit ?? ''}` : `${missingLabel}，不等於 0`} />
     {props.source_status != null && <Row label="來源狀態" value={String(props.source_status)} />}
@@ -44,7 +48,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={INPUT_LABELS[key]!} value={inputValue(value)} />)}
     {props.interpretation != null && <Row label="如何理解" value={String(props.interpretation)} />}
     {props.time_caveat != null && <Row label="時間口徑" value={String(props.time_caveat)} />}
-    <Row label="行政區代碼" value={String(props.area_code ?? '—')} />
+    <Row label={prosecutorDistrict ? '轄區代碼' : '行政區代碼'} value={String(props.area_code ?? '—')} />
     <Row label="參考邊界" value={props.boundary_version == null ? '—' : boundaryVersionLabel(props.boundary_version)} />
     {props.boundary_semantics != null && <Row label="邊界角色" value={humanizeStatisticsText(String(props.boundary_semantics))} />}
     {props.source_statistical_boundary_version != null && <Row label="統計參考版" value={boundaryVersionLabel(props.source_statistical_boundary_version)} />}

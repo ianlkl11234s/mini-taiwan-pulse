@@ -1,20 +1,21 @@
 import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import {
-  AFTERCARE_OFFICE_TYPE_LABELS, ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS,
+  ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_CLASS_OPTIONS,
   HARM_REDUCTION_COLORS, HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS,
-  PREP_FUNDING_OPTIONS, SELFTEST_CHANNEL_OPTIONS, SELFTEST_OUTLET_TYPE_LABELS, SMOKING_FACILITY_OPTIONS,
+  PREP_FUNDING_OPTIONS, SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS,
   TREATMENT_CATEGORY_OPTIONS, harmReductionPrecisionLabel, isEstimatedPrecision, labelOf,
 } from "../../data/harmReductionTypes";
 
 /**
  * 減害服務圖層 popup。來源 footer 由 FeatureInfoPanel 統一掛（public 檔已帶
  * source_org / source_url / license / fetched_at / source_tier），這裡只補「資料日期」。
+ * 類別文字讀上游中文標籤欄 `<欄>_label`（對照表 SSOT 在 analytics 各 pipeline config.yaml labels），
+ * 前端不自建英文代碼對照；`*_OPTIONS` 只負責篩選值與色票。
  */
 type Props = { props: Record<string, unknown> };
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
-const CJK = /[一-鿿]/;
 
 function colorOf(options: readonly { value: string; color: string }[], value: unknown, fallback: string): string {
   return options.find((option) => option.value === value)?.color ?? fallback;
@@ -50,10 +51,6 @@ export function HarmReductionNeedlePanel({ props }: Props) {
   </>;
 }
 
-const FACILITY_TYPE_LABELS: Record<string, string> = {
-  hospital: "醫院", clinic: "診所", health_center: "衛生所", pharmacy: "藥局", other: "其他",
-};
-
 /** 藥癮維持治療月報（最新月與期間平均；無月報的機構不顯示，不當成 0）。 */
 function maintenanceText(props: Record<string, unknown>, suffix: "" | "_mean"): string {
   const parts = [["美沙冬", props[`methadone_patients${suffix}`]], ["丁基原啡因", props[`buprenorphine_patients${suffix}`]]]
@@ -67,8 +64,8 @@ export function HarmReductionTreatmentPanel({ props }: Props) {
   const drugs = [props.has_methadone === true && "美沙冬", props.has_buprenorphine === true && "丁基原啡因"].filter(Boolean);
   return <>
     <Title color={color}>{str(props.name) || "藥癮治療機構"}</Title>
-    <Row label="類別" value={labelOf(TREATMENT_CATEGORY_OPTIONS, props.category)} color={color} />
-    <Row label="院所類型" value={FACILITY_TYPE_LABELS[str(props.facility_type)] ?? str(props.facility_type)} />
+    <Row label="類別" value={str(props.category_label)} color={color} />
+    <Row label="院所類型" value={str(props.facility_type_label)} />
     <Row label="替代治療藥物" value={drugs.join("、")} />
     <Row label="指定效期至" value={str(props.designation_valid_to)} mono />
     <Row label={`維持治療服藥人數（${str(props.maintenance_month)}）`} value={maintenanceText(props, "")} />
@@ -81,16 +78,14 @@ export function HarmReductionTreatmentPanel({ props }: Props) {
   </>;
 }
 
-const MACHINE_TYPE_LABELS: Record<string, string> = { electronic_banknote: "電子式（可收紙鈔）", mechanical_coin: "機械式（投幣）" };
-
 export function HarmReductionHivSelftestPanel({ props }: Props) {
   const color = colorOf(SELFTEST_CHANNEL_OPTIONS, props.channel, HARM_REDUCTION_COLORS.harmReductionHivSelftest);
   const voucher = props.voucher_redeem === true ? "可" : props.voucher_redeem === false ? "否" : "";
   return <>
     <Title color={color}>{str(props.name) || "愛滋自我篩檢通路"}</Title>
-    <Row label="通路類型" value={labelOf(SELFTEST_CHANNEL_OPTIONS, props.channel)} color={color} />
-    <Row label="場所類型" value={SELFTEST_OUTLET_TYPE_LABELS[str(props.outlet_type)] ?? str(props.outlet_type)} />
-    <Row label="機台型式" value={MACHINE_TYPE_LABELS[str(props.machine_type)] ?? ""} />
+    <Row label="通路類型" value={str(props.channel_label)} color={color} />
+    <Row label="場所類型" value={str(props.outlet_type_label)} />
+    <Row label="機台型式" value={str(props.machine_type_label)} />
     <Row label="可兌換篩檢券" value={voucher} />
     <CommonRows props={props} />
   </>;
@@ -98,11 +93,10 @@ export function HarmReductionHivSelftestPanel({ props }: Props) {
 
 export function HarmReductionHivTestingPanel({ props }: Props) {
   const color = colorOf(HIV_TESTING_CATEGORY_OPTIONS, props.category, HARM_REDUCTION_COLORS.harmReductionHivTesting);
-  const subtype = str(props.subtype);
   return <>
     <Title color={color}>{str(props.name) || "愛滋篩檢與醫療機構"}</Title>
-    <Row label="類別" value={labelOf(HIV_TESTING_CATEGORY_OPTIONS, props.category)} color={color} />
-    <Row label="院所層級" value={subtype === "health_bureau" ? "衛生局／所" : CJK.test(subtype) ? subtype : ""} />
+    <Row label="類別" value={str(props.category_label)} color={color} />
+    <Row label="院所層級" value={str(props.subtype_label)} />
     <Row label="LINE 聯絡" value={str(props.contact_line)} />
     <CommonRows props={props} />
   </>;
@@ -120,11 +114,12 @@ export function HarmReductionPreventionCenterPanel({ props }: Props) {
 const yesNo = (v: unknown): string => (v === true ? "是" : v === false ? "否" : "");
 
 export function HarmReductionAlcoholPanel({ props }: Props) {
-  const services = ALCOHOL_SERVICE_OPTIONS.filter((option) => props[option.flag] === true).map((option) => option.label);
+  const services = str(props.service_type_label)
+    || ALCOHOL_SERVICE_OPTIONS.filter((option) => props[option.flag] === true).map((option) => option.label).join("、");
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionAlcohol}>{str(props.name) || "酒癮治療機構"}</Title>
-    <Row label="服務項目" value={services.join("、")} color={HARM_REDUCTION_COLORS.harmReductionAlcohol} />
-    <Row label="院所類型" value={FACILITY_TYPE_LABELS[str(props.facility_type)] ?? str(props.facility_type)} />
+    <Row label="服務項目" value={services} color={HARM_REDUCTION_COLORS.harmReductionAlcohol} />
+    <Row label="院所類型" value={str(props.facility_type_label)} />
     <Row label="也提供藥癮治療" value={props.also_drug_treatment === true ? "是（同列替代療法與藥癮戒治名單）" : yesNo(props.also_drug_treatment)} />
     <CommonRows props={props} />
   </>;
@@ -135,7 +130,7 @@ export function HarmReductionPrepPanel({ props }: Props) {
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionPrep}>{str(props.name) || "PrEP 服務醫院"}</Title>
     <Row label="PrEP 給付" value={funding.join("、")} color={HARM_REDUCTION_COLORS.harmReductionPrep} />
-    <Row label="院所類型" value={FACILITY_TYPE_LABELS[str(props.facility_type)] ?? str(props.facility_type)} />
+    <Row label="院所類型" value={str(props.facility_type_label)} />
     <CommonRows props={props} />
   </>;
 }
@@ -155,7 +150,7 @@ export function HarmReductionAftercarePanel({ props }: Props) {
   const t = useFeatureTheme();
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionAftercare}>{str(props.name) || "更生保護會"}</Title>
-    <Row label="單位" value={AFTERCARE_OFFICE_TYPE_LABELS[str(props.office_type)] ?? str(props.office_type)} />
+    <Row label="單位" value={str(props.office_type_label)} />
     <Row label="資料版本" value="2023-06 版（來源 3 年未更新，地址電話可能已異動）" color={t.warn} />
     <CommonRows props={props} />
   </>;
@@ -163,11 +158,10 @@ export function HarmReductionAftercarePanel({ props }: Props) {
 
 export function HarmReductionSmokingCessationPanel({ props }: Props) {
   const color = colorOf(SMOKING_FACILITY_OPTIONS, props.facility_type, HARM_REDUCTION_COLORS.harmReductionSmokingCessation);
-  const services = [props.service_clinic === true && "戒菸門診（給藥）", props.service_counseling === true && "戒菸衛教"].filter(Boolean);
   return <>
     <Title color={color}>{str(props.name) || "戒菸服務機構"}</Title>
-    <Row label="機構類型" value={labelOf(SMOKING_FACILITY_OPTIONS, props.facility_type)} color={color} />
-    <Row label="戒菸服務" value={services.join("、")} />
+    <Row label="機構類型" value={str(props.facility_type_label)} color={color} />
+    <Row label="戒菸服務" value={str(props.services_label)} />
     <CommonRows props={props} />
   </>;
 }
@@ -186,7 +180,7 @@ export function HarmReductionCondomOutletPanel({ props }: Props) {
   const color = colorOf(CONDOM_OUTLET_OPTIONS, props.outlet_type, HARM_REDUCTION_COLORS.harmReductionCondomOutlets);
   return <>
     <Title color={color}>{str(props.name) || "保險套販售點"}</Title>
-    <Row label="類型" value={labelOf(CONDOM_OUTLET_OPTIONS, props.outlet_type)} color={color} />
+    <Row label="類型" value={str(props.outlet_type_label)} color={color} />
     <Row label="品項說明" value={str(props.item_note)} />
     {props.item_confirmed === false && <Row label="品項" value="品項待確認（來源未明確標示為保險套）" color={t.warn} />}
     <Row label="涵蓋範圍" value="本圖層僅含高雄市、新竹市、屏東縣、嘉義市" />
@@ -214,12 +208,12 @@ export function HarmReductionDuiCrashPanel({ props }: Props) {
   ].filter(Boolean).join("、");
   return <>
     <Title color={color}>酒駕肇事事故</Title>
-    <Row label="類別" value={labelOf(DUI_CLASS_OPTIONS, props.accident_class)} color={color} />
+    <Row label="類別" value={str(props.accident_class_label)} color={color} />
     <Row label="發生時間" value={`${str(props.accident_date)} ${str(props.accident_time)}`.trim()} mono />
     <Row label="傷亡" value={casualties} />
     <Row label="地點" value={str(props.location)} />
     <Row label="主要肇因" value={str(props.cause_main)} />
-    <Row label="酒駕判定" value={labelOf(DUI_BASIS_OPTIONS, props.dui_cause_basis)} />
+    <Row label="酒駕判定" value={str(props.dui_cause_basis_label)} />
     <Row label="酒駕當事者" value={typeof props.n_dui_parties === "number" ? `${props.n_dui_parties} 人` : ""} />
     <Row label="座標" value="警方事故紀錄座標" />
     <Row label="資料日期" value={str(props.vintage)} mono />

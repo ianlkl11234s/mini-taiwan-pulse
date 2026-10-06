@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1057,
+    "keyCount": 1070,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2944,6 +2944,11 @@
         "statsDuiRateCounty-fill",
         "statsDuiEnforcementCounty-fill",
         "statsDuiEnforcementPer100kCounty-fill",
+        "statsProsecutorDrugNewCasesDistrict-fill",
+        "statsProsecutorDrugUseDistrict-fill",
+        "statsProsecutorDrugGrade1District-fill",
+        "statsProsecutorDrugGrade2District-fill",
+        "statsProsecutorDeferredTreatmentDistrict-fill",
         "statsProsecutorDrugNewCasesCounty-fill",
         "statsProsecutorDrugUseCounty-fill",
         "statsProsecutorDrugGrade1County-fill",
@@ -2963,10 +2968,18 @@
         "statsNeedleReturnBinsPer100kCounty-fill",
         "statsNeedleReturnBinsTownship-fill",
         "statsNeedleReturnBinsPer100kTownship-fill",
+        "statsNeedleSitesTotalCounty-fill",
+        "statsNeedleSitesTotalPer100kCounty-fill",
+        "statsNeedleSitesTotalTownship-fill",
+        "statsNeedleSitesTotalPer100kTownship-fill",
         "statsDrugTreatmentFacilitiesCounty-fill",
         "statsDrugTreatmentFacilitiesPer100kCounty-fill",
         "statsDrugTreatmentFacilitiesTownship-fill",
         "statsDrugTreatmentFacilitiesPer100kTownship-fill",
+        "statsSubstitutionTreatmentSitesCounty-fill",
+        "statsSubstitutionTreatmentSitesPer100kCounty-fill",
+        "statsSubstitutionTreatmentSitesTownship-fill",
+        "statsSubstitutionTreatmentSitesPer100kTownship-fill",
         "statsAlcoholTreatmentFacilitiesCounty-fill",
         "statsAlcoholTreatmentFacilitiesPer100kCounty-fill",
         "statsAlcoholTreatmentFacilitiesTownship-fill",
@@ -106828,6 +106841,178 @@
         "valueText": "0.55"
       }
     ],
+    "statsNeedleSitesTotalCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsNeedleSitesTotalCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsNeedleSitesTotalTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNeedleSitesTotalCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNeedleSitesTotalPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsNeedleSitesTotalCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsNeedleSitesTotalTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNeedleSitesTotalPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNeedleSitesTotalPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsNeedleSitesTotalCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsNeedleSitesTotalTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNeedleSitesTotalPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNeedleSitesTotalTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsNeedleSitesTotalCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsNeedleSitesTotalTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsNeedleSitesTotalPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNeedleSitesTotalTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsNeedleVendingMachinesCounty": [
       {
         "label": "地理層級／口徑",
@@ -107544,6 +107729,53 @@
         "valueText": "0.55"
       }
     ],
+    "statsProsecutorDeferredTreatmentDistrict": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "毒品新收人數",
+            "value": "statsProsecutorDrugNewCasesDistrict"
+          },
+          {
+            "label": "施用新收人數",
+            "value": "statsProsecutorDrugUseDistrict"
+          },
+          {
+            "label": "第一級新收人數",
+            "value": "statsProsecutorDrugGrade1District"
+          },
+          {
+            "label": "第二級新收人數",
+            "value": "statsProsecutorDrugGrade2District"
+          },
+          {
+            "label": "緩起訴附命戒癮治療人數",
+            "value": "statsProsecutorDeferredTreatmentDistrict"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsProsecutorDeferredTreatmentDistrict"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsProsecutorDrugGrade1County": [
       {
         "label": "指標",
@@ -107572,6 +107804,53 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsProsecutorDrugGrade1County"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsProsecutorDrugGrade1District": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "毒品新收人數",
+            "value": "statsProsecutorDrugNewCasesDistrict"
+          },
+          {
+            "label": "施用新收人數",
+            "value": "statsProsecutorDrugUseDistrict"
+          },
+          {
+            "label": "第一級新收人數",
+            "value": "statsProsecutorDrugGrade1District"
+          },
+          {
+            "label": "第二級新收人數",
+            "value": "statsProsecutorDrugGrade2District"
+          },
+          {
+            "label": "緩起訴附命戒癮治療人數",
+            "value": "statsProsecutorDeferredTreatmentDistrict"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsProsecutorDrugGrade1District"
       },
       {
         "label": "資料期別",
@@ -107638,6 +107917,53 @@
         "valueText": "0.55"
       }
     ],
+    "statsProsecutorDrugGrade2District": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "毒品新收人數",
+            "value": "statsProsecutorDrugNewCasesDistrict"
+          },
+          {
+            "label": "施用新收人數",
+            "value": "statsProsecutorDrugUseDistrict"
+          },
+          {
+            "label": "第一級新收人數",
+            "value": "statsProsecutorDrugGrade1District"
+          },
+          {
+            "label": "第二級新收人數",
+            "value": "statsProsecutorDrugGrade2District"
+          },
+          {
+            "label": "緩起訴附命戒癮治療人數",
+            "value": "statsProsecutorDeferredTreatmentDistrict"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsProsecutorDrugGrade2District"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsProsecutorDrugNewCasesCounty": [
       {
         "label": "指標",
@@ -107685,6 +108011,53 @@
         "valueText": "0.55"
       }
     ],
+    "statsProsecutorDrugNewCasesDistrict": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "毒品新收人數",
+            "value": "statsProsecutorDrugNewCasesDistrict"
+          },
+          {
+            "label": "施用新收人數",
+            "value": "statsProsecutorDrugUseDistrict"
+          },
+          {
+            "label": "第一級新收人數",
+            "value": "statsProsecutorDrugGrade1District"
+          },
+          {
+            "label": "第二級新收人數",
+            "value": "statsProsecutorDrugGrade2District"
+          },
+          {
+            "label": "緩起訴附命戒癮治療人數",
+            "value": "statsProsecutorDeferredTreatmentDistrict"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsProsecutorDrugNewCasesDistrict"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsProsecutorDrugUseCounty": [
       {
         "label": "指標",
@@ -107713,6 +108086,53 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsProsecutorDrugUseCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsProsecutorDrugUseDistrict": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "毒品新收人數",
+            "value": "statsProsecutorDrugNewCasesDistrict"
+          },
+          {
+            "label": "施用新收人數",
+            "value": "statsProsecutorDrugUseDistrict"
+          },
+          {
+            "label": "第一級新收人數",
+            "value": "statsProsecutorDrugGrade1District"
+          },
+          {
+            "label": "第二級新收人數",
+            "value": "statsProsecutorDrugGrade2District"
+          },
+          {
+            "label": "緩起訴附命戒癮治療人數",
+            "value": "statsProsecutorDeferredTreatmentDistrict"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsProsecutorDrugUseDistrict"
       },
       {
         "label": "資料期別",
@@ -108246,6 +108666,178 @@
       }
     ],
     "statsSoilRemediationAreaCounty": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSubstitutionTreatmentSitesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsSubstitutionTreatmentSitesCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsSubstitutionTreatmentSitesTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSubstitutionTreatmentSitesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSubstitutionTreatmentSitesPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsSubstitutionTreatmentSitesCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsSubstitutionTreatmentSitesTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSubstitutionTreatmentSitesPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSubstitutionTreatmentSitesPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsSubstitutionTreatmentSitesCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsSubstitutionTreatmentSitesTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSubstitutionTreatmentSitesPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSubstitutionTreatmentSitesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市：據點數",
+            "value": "statsSubstitutionTreatmentSitesCounty"
+          },
+          {
+            "label": "縣市：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kCounty"
+          },
+          {
+            "label": "鄉鎮：據點數",
+            "value": "statsSubstitutionTreatmentSitesTownship"
+          },
+          {
+            "label": "鄉鎮：每 10 萬人",
+            "value": "statsSubstitutionTreatmentSitesPer100kTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSubstitutionTreatmentSitesTownship"
+      },
       {
         "label": "資料期別",
         "options": [],

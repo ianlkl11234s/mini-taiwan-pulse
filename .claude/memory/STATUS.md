@@ -39,7 +39,7 @@
 | **gis-platform** | #136（zbpack 啟動）、#137（結果通道、長輪詢、agent token、清掉配對碼）已合併；Zeabur 服務 `research-gateway` 以 `zeabur deploy` 部署（不綁 GitHub）。 |
 | **mini-pulse-gis-mcp** | #35（P1–P3＋AG-1）、#37／#38（摘要讀法）、#39（e2e 腳本）、#40／#41／#42（周邊類別、交通 fallback、嚴格欄位檢查）、#43（CSV 不再靜默丟列＋公車首末班配方）、#44（find_data 先多看再砍）已合併；analysis-prod/mcp 在 d6c1c01d。 |
 | **taipei-gis-analytics** | #138、#139（公車 manifest 去重＋四份無幾何班表資料集）已合併。 |
-| **R2 倉庫** | latest `20261004T130110Z`（回退鏈見 general-analysis STATUS）。 |
+| **R2 倉庫** | 版本以 R2 `latest.json` 為準（2026-10-06 時為 `20261006T060540Z`，減害／成癮入倉；之後會再重建）；回退鏈見 general-analysis STATUS。 |
 | **本機** | analysis-prod 三個 worktree 已切到最新；8794 改測試身分（`PULSE_RESEARCH_TEST_IDENTITY`），3734 `.env.local` 改 `VITE_RESEARCH_TEST_IDENTITY=1`。Claude／Codex 的 pulse-research 預設連正式站。 |
 
 ### 上線狀態

@@ -44,14 +44,6 @@ export const SELFTEST_CHANNEL_OPTIONS = [
   { value: "physical_outlet", label: "實體通路", color: "#fb7185" },
 ] as const;
 
-/** 實體通路的場所類型（outlet_type）—— 只進 popup，不分色 */
-export const SELFTEST_OUTLET_TYPE_LABELS: Record<string, string> = {
-  public_health: "衛生局／所",
-  pharmacy: "藥局",
-  medical: "醫療院所",
-  ngo_or_community: "民間團體／社區據點",
-};
-
 // ── 愛滋篩檢與指定醫療 ──
 export const HIV_TESTING_CATEGORY_OPTIONS = [
   { value: "anonymous_testing", label: "匿名篩檢", color: "#db2777" },
@@ -95,13 +87,6 @@ export const CONDOM_OUTLET_OPTIONS = [
   { value: "vending_machine", label: "自動販賣機", color: "#0ea5e9" },
   { value: "pharmacy_retail", label: "藥局販售", color: "#2563eb" },
 ] as const;
-
-/** 更生保護會單位類型 —— 只進 popup */
-export const AFTERCARE_OFFICE_TYPE_LABELS: Record<string, string> = {
-  headquarters: "總會",
-  branch: "分會",
-  fujian_branch: "福建更生保護會",
-};
 
 // ── 酒駕肇事事故（PMTiles；year_roc 在切片內是字串）──
 export const DUI_CLASS_OPTIONS = [

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "scope": "production_r2_pending_import",
+  "scope": "production_r2",
   "generated_from": {
-    "recipes": "addiction-statistics-recipes.draft.json",
+    "recipes": "addiction-statistics-recipes.json",
     "processed": "taipei-gis-analytics data/processed/poi/addiction_*/releases/*.json"
   },
   "release_selector": {
@@ -208,6 +208,7 @@
       "derived": false,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "第一級（海洛因等）最貼近注射減害族群。統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -301,6 +302,7 @@
       "derived": true,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "第一級（海洛因等）最貼近注射減害族群。統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。每 10 萬人＝人數（件數）÷同年年底戶籍人口×100,000（2018 年起才有同年分母）；分子仍是查獲機關所在地，不是居民盛行率；比率不可加總。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -490,6 +492,7 @@
       "derived": false,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -583,6 +586,7 @@
       "derived": true,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。每 10 萬人＝人數（件數）÷同年年底戶籍人口×100,000（2018 年起才有同年分母）；分子仍是查獲機關所在地，不是居民盛行率；比率不可加總。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -676,6 +680,7 @@
       "derived": true,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。每 10 萬人＝人數（件數）÷同年年底戶籍人口×100,000（2018 年起才有同年分母）；分子仍是查獲機關所在地，不是居民盛行率；比率不可加總。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -865,6 +870,7 @@
       "derived": false,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -1054,6 +1060,7 @@
       "derived": false,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -1147,6 +1154,7 @@
       "derived": true,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。每 10 萬人＝人數（件數）÷同年年底戶籍人口×100,000（2018 年起才有同年分母）；分子仍是查獲機關所在地，不是居民盛行率；比率不可加總。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -1330,6 +1338,7 @@
       "derived": false,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "交通違規取締量＝執法量，不是酒駕發生率。統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -1423,6 +1432,7 @@
       "derived": true,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "交通違規取締量＝執法量，不是酒駕發生率。統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。每 10 萬人＝人數（件數）÷同年年底戶籍人口×100,000（2018 年起才有同年分母）；分子仍是查獲機關所在地，不是居民盛行率；比率不可加總。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -1618,6 +1628,7 @@
       "derived": false,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "不能安全駕駛（酒駕）公共危險罪發生數。統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -1813,6 +1824,7 @@
       "derived": false,
       "location_semantics": "查獲（受理）警察機關所在縣市，不是居住地或發生地",
       "disclosure": "犯罪率為警政統計來源自帶（件／10 萬人），不重算；比率不可加總。統計單位是查獲（受理）警察機關所在縣市，不是居住地或發生地；數字反映執法強度與專案，不等於吸毒或酒駕盛行率；警政署提醒各縣市數據不宜直接比較；刑事局、航警、國道等署屬單位不歸縣市（列未分配）。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "內政部警政署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://ba.npa.gov.tw/statis/webMain.aspx?k=defjsp",
@@ -1996,6 +2008,7 @@
       "derived": false,
       "location_semantics": "個案居住縣市（本國籍）",
       "disclosure": "本國籍、依居住縣市的年度新通報人數（疾管署資料，經性平會統計資料庫發布）；不含危險因子，無法分辨注射藥癮者；離島數字小，不宜放大解讀；與鄉鎮層（NIDSS 確定病例、依診斷日、5 年合計）口徑不同，兩者不可並列比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "行政院性別平等會（資料來源：衛生福利部疾病管制署）",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.gender.ey.gov.tw/GecDB/Stat_Statistics_DetailData.aspx?sn=3!gqtggxJ2ByWIG0RfhE1A%40%40",
@@ -2089,6 +2102,7 @@
       "derived": true,
       "location_semantics": "個案居住縣市（本國籍）",
       "disclosure": "本國籍、依居住縣市的年度新通報人數（疾管署資料，經性平會統計資料庫發布）；不含危險因子，無法分辨注射藥癮者；離島數字小，不宜放大解讀；與鄉鎮層（NIDSS 確定病例、依診斷日、5 年合計）口徑不同，兩者不可並列比較。每 10 萬人＝新通報人數÷同年年底戶籍人口×100,000（2018 年起）；比率不可加總。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "行政院性別平等會（資料來源：衛生福利部疾病管制署）",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.gender.ey.gov.tw/GecDB/Stat_Statistics_DetailData.aspx?sn=3!gqtggxJ2ByWIG0RfhE1A%40%40",
@@ -2146,6 +2160,7 @@
       "derived": false,
       "location_semantics": "個案居住鄉鎮市區（本國籍、依診斷日、確定病例）",
       "disclosure": "本國籍、依診斷日的確定病例 5 年合計（2016–2020、2021–2025；疾管署 NIDSS）；1–2 例的鄉鎮不顯示數字（隱私遮蔽），0 例照實顯示；與縣市層（性平會 gecdb 年度新通報）口徑不同，兩者不可並列比較，加總也不必相等。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "衛生福利部疾病管制署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://nidss.cdc.gov.tw/nndss/DiseaseMap?id=044",
@@ -2197,6 +2212,7 @@
       "derived": true,
       "location_semantics": "個案居住鄉鎮市區（本國籍、依診斷日、確定病例）",
       "disclosure": "本國籍、依診斷日的確定病例 5 年合計（2016–2020、2021–2025；疾管署 NIDSS）；1–2 例的鄉鎮不顯示數字（隱私遮蔽），0 例照實顯示；與縣市層（性平會 gecdb 年度新通報）口徑不同，兩者不可並列比較，加總也不必相等。年平均每 10 萬人＝5 年病例÷各年年底戶籍人口加總×100,000；只有 2021–2025（2016–2020 缺 2016、2017 年分母）；遮蔽鄉鎮比例同步遮蔽。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "衛生福利部疾病管制署",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://nidss.cdc.gov.tw/nndss/DiseaseMap?id=044",
@@ -2271,7 +2287,8 @@
       "pair_raw_key": null,
       "derived": false,
       "location_semantics": "地方檢察署受理（轄區不等於縣市；只顯示轄區恰為單一縣市的 14 署）",
-      "disclosure": "施用毒品緩起訴處分附命完成戒癮治療人數。地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "disclosure": "施用毒品緩起訴處分附命完成戒癮治療人數。地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；完整 22 署請看「地檢署毒品案件新收（22 地檢署轄區）」；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": "secondary",
       "publisher": "法務部",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
@@ -2346,7 +2363,8 @@
       "pair_raw_key": null,
       "derived": false,
       "location_semantics": "地方檢察署受理（轄區不等於縣市；只顯示轄區恰為單一縣市的 14 署）",
-      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；完整 22 署請看「地檢署毒品案件新收（22 地檢署轄區）」；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": "secondary",
       "publisher": "法務部",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
@@ -2421,7 +2439,8 @@
       "pair_raw_key": null,
       "derived": false,
       "location_semantics": "地方檢察署受理（轄區不等於縣市；只顯示轄區恰為單一縣市的 14 署）",
-      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；完整 22 署請看「地檢署毒品案件新收（22 地檢署轄區）」；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": "secondary",
       "publisher": "法務部",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
@@ -2496,7 +2515,8 @@
       "pair_raw_key": null,
       "derived": false,
       "location_semantics": "地方檢察署受理（轄區不等於縣市；只顯示轄區恰為單一縣市的 14 署）",
-      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；完整 22 署請看「地檢署毒品案件新收（22 地檢署轄區）」；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": "secondary",
       "publisher": "法務部",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
@@ -2571,12 +2591,393 @@
       "pair_raw_key": null,
       "derived": false,
       "location_semantics": "地方檢察署受理（轄區不等於縣市；只顯示轄區恰為單一縣市的 14 署）",
-      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "disclosure": "地檢署轄區不等於縣市：縣市圖只顯示轄區恰為單一縣市的 14 署；臺北市、新北市、基隆市、新竹縣、新竹市、嘉義縣、嘉義市、高雄市顯示「不適用」（這 8 署的人數列未分配）；完整 22 署請看「地檢署毒品案件新收（22 地檢署轄區）」；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": "secondary",
       "publisher": "法務部",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
       "source_download_url": "https://www.rjsd.moj.gov.tw/RJSDWeb/common/WebList3_Report.aspx?menu=GEN_DRUG&list_id=2006",
       "source_title": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療"
+    },
+    {
+      "layer_key": "statsProsecutorDeferredTreatmentDistrict",
+      "enabled": true,
+      "label": "施用毒品緩起訴附命戒癮治療人數（轄區）",
+      "group": "prosecutorDrugDistrict",
+      "group_label": "地檢署毒品案件新收（22 地檢署轄區）",
+      "option_label": "緩起訴附命戒癮治療人數",
+      "subgroup": "執法（毒品、酒駕、地檢署）",
+      "visual_theme": "security",
+      "dataset_id": "addiction_prosecutor_drug_district",
+      "indicator_id": "prosecutor_deferred_addiction_treatment",
+      "level": "prosecutor_district",
+      "boundary_version": "PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2026-01_08-prosecutor_deferred_addiction_treatment-prosecutor_district-v1-2e79ad9b08ff",
+      "release_options": [
+        {
+          "release_id": "2022-prosecutor_deferred_addiction_treatment-prosecutor_district-v1-e7cbbb10b459",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-prosecutor_deferred_addiction_treatment-prosecutor_district-v1-44041ceb7eb8",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-prosecutor_deferred_addiction_treatment-prosecutor_district-v1-81b708364975",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2025-prosecutor_deferred_addiction_treatment-prosecutor_district-v1-236aa9b520c8",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2026-01_08-prosecutor_deferred_addiction_treatment-prosecutor_district-v1-2e79ad9b08ff",
+          "period_start": "2026-01-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          150,
+          300,
+          450,
+          600
+        ],
+        "zero_note": null
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": false,
+      "location_semantics": "地方檢察署受理，以 22 個地檢署轄區顯示（地檢署轄區≠縣市；案件受理地，不是居住地或發生地）",
+      "disclosure": "施用毒品緩起訴處分附命完成戒癮治療人數。地檢署轄區不等於縣市：雙北與基隆由臺北、士林、新北、基隆四署交錯管轄，高雄市分屬高雄與橋頭兩署，新竹、嘉義地檢署各管轄縣與市；地圖面與名稱都是地檢署，不是縣市。新收人數反映查緝與起訴量，不是吸毒盛行率；苗栗以全縣推定；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。地檢署轄區界由內政部 114 年 3 月鄉鎮市區界依司法院事務分配（115 年現況）整區合併（22 面）；歷年數值都畫在現行轄區上，不代表歷史轄區。",
+      "display_priority": "primary",
+      "publisher": "法務部",
+      "license": "政府資料開放授權條款－第1版（法務部資料開放宣告 https://www.moj.gov.tw/2807/2817/33911/ ）",
+      "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
+      "source_download_url": "https://www.rjsd.moj.gov.tw/RJSDWeb/common/WebList3_Report.aspx?menu=GEN_DRUG&list_id=2012",
+      "source_title": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療（22 地檢署轄區）"
+    },
+    {
+      "layer_key": "statsProsecutorDrugGrade1District",
+      "enabled": true,
+      "label": "地檢署第一級毒品新收人數（轄區）",
+      "group": "prosecutorDrugDistrict",
+      "group_label": "地檢署毒品案件新收（22 地檢署轄區）",
+      "option_label": "第一級新收人數",
+      "subgroup": "執法（毒品、酒駕、地檢署）",
+      "visual_theme": "security",
+      "dataset_id": "addiction_prosecutor_drug_district",
+      "indicator_id": "prosecutor_drug_grade1_new_cases",
+      "level": "prosecutor_district",
+      "boundary_version": "PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2026-01_08-prosecutor_drug_grade1_new_cases-prosecutor_district-v1-a235fbe9e6e9",
+      "release_options": [
+        {
+          "release_id": "2022-prosecutor_drug_grade1_new_cases-prosecutor_district-v1-be212820a84e",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-prosecutor_drug_grade1_new_cases-prosecutor_district-v1-fc213e408774",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-prosecutor_drug_grade1_new_cases-prosecutor_district-v1-801ddcccb14e",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2025-prosecutor_drug_grade1_new_cases-prosecutor_district-v1-93571d94d905",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2026-01_08-prosecutor_drug_grade1_new_cases-prosecutor_district-v1-a235fbe9e6e9",
+          "period_start": "2026-01-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          300,
+          500,
+          900,
+          1400
+        ],
+        "zero_note": null
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": false,
+      "location_semantics": "地方檢察署受理，以 22 個地檢署轄區顯示（地檢署轄區≠縣市；案件受理地，不是居住地或發生地）",
+      "disclosure": "地檢署轄區不等於縣市：雙北與基隆由臺北、士林、新北、基隆四署交錯管轄，高雄市分屬高雄與橋頭兩署，新竹、嘉義地檢署各管轄縣與市；地圖面與名稱都是地檢署，不是縣市。新收人數反映查緝與起訴量，不是吸毒盛行率；苗栗以全縣推定；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。地檢署轄區界由內政部 114 年 3 月鄉鎮市區界依司法院事務分配（115 年現況）整區合併（22 面）；歷年數值都畫在現行轄區上，不代表歷史轄區。",
+      "display_priority": "primary",
+      "publisher": "法務部",
+      "license": "政府資料開放授權條款－第1版（法務部資料開放宣告 https://www.moj.gov.tw/2807/2817/33911/ ）",
+      "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
+      "source_download_url": "https://www.rjsd.moj.gov.tw/RJSDWeb/common/WebList3_Report.aspx?menu=GEN_DRUG&list_id=2006",
+      "source_title": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療（22 地檢署轄區）"
+    },
+    {
+      "layer_key": "statsProsecutorDrugGrade2District",
+      "enabled": true,
+      "label": "地檢署第二級毒品新收人數（轄區）",
+      "group": "prosecutorDrugDistrict",
+      "group_label": "地檢署毒品案件新收（22 地檢署轄區）",
+      "option_label": "第二級新收人數",
+      "subgroup": "執法（毒品、酒駕、地檢署）",
+      "visual_theme": "security",
+      "dataset_id": "addiction_prosecutor_drug_district",
+      "indicator_id": "prosecutor_drug_grade2_new_cases",
+      "level": "prosecutor_district",
+      "boundary_version": "PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2026-01_08-prosecutor_drug_grade2_new_cases-prosecutor_district-v1-353631583273",
+      "release_options": [
+        {
+          "release_id": "2022-prosecutor_drug_grade2_new_cases-prosecutor_district-v1-97f294bd091a",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-prosecutor_drug_grade2_new_cases-prosecutor_district-v1-c432367790c5",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-prosecutor_drug_grade2_new_cases-prosecutor_district-v1-e768ef40ca04",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2025-prosecutor_drug_grade2_new_cases-prosecutor_district-v1-a6572217a18a",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2026-01_08-prosecutor_drug_grade2_new_cases-prosecutor_district-v1-353631583273",
+          "period_start": "2026-01-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1000,
+          2000,
+          3000,
+          5000
+        ],
+        "zero_note": null
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": false,
+      "location_semantics": "地方檢察署受理，以 22 個地檢署轄區顯示（地檢署轄區≠縣市；案件受理地，不是居住地或發生地）",
+      "disclosure": "地檢署轄區不等於縣市：雙北與基隆由臺北、士林、新北、基隆四署交錯管轄，高雄市分屬高雄與橋頭兩署，新竹、嘉義地檢署各管轄縣與市；地圖面與名稱都是地檢署，不是縣市。新收人數反映查緝與起訴量，不是吸毒盛行率；苗栗以全縣推定；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。地檢署轄區界由內政部 114 年 3 月鄉鎮市區界依司法院事務分配（115 年現況）整區合併（22 面）；歷年數值都畫在現行轄區上，不代表歷史轄區。",
+      "display_priority": "primary",
+      "publisher": "法務部",
+      "license": "政府資料開放授權條款－第1版（法務部資料開放宣告 https://www.moj.gov.tw/2807/2817/33911/ ）",
+      "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
+      "source_download_url": "https://www.rjsd.moj.gov.tw/RJSDWeb/common/WebList3_Report.aspx?menu=GEN_DRUG&list_id=2006",
+      "source_title": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療（22 地檢署轄區）"
+    },
+    {
+      "layer_key": "statsProsecutorDrugNewCasesDistrict",
+      "enabled": true,
+      "label": "地檢署毒品新收人數（轄區）",
+      "group": "prosecutorDrugDistrict",
+      "group_label": "地檢署毒品案件新收（22 地檢署轄區）",
+      "option_label": "毒品新收人數",
+      "subgroup": "執法（毒品、酒駕、地檢署）",
+      "visual_theme": "security",
+      "dataset_id": "addiction_prosecutor_drug_district",
+      "indicator_id": "prosecutor_drug_new_cases",
+      "level": "prosecutor_district",
+      "boundary_version": "PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2026-01_08-prosecutor_drug_new_cases-prosecutor_district-v1-485bc76f2701",
+      "release_options": [
+        {
+          "release_id": "2022-prosecutor_drug_new_cases-prosecutor_district-v1-815a4324293f",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-prosecutor_drug_new_cases-prosecutor_district-v1-1627d0b7beae",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-prosecutor_drug_new_cases-prosecutor_district-v1-952516bfe750",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2025-prosecutor_drug_new_cases-prosecutor_district-v1-edd28232400e",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2026-01_08-prosecutor_drug_new_cases-prosecutor_district-v1-485bc76f2701",
+          "period_start": "2026-01-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1500,
+          3000,
+          4000,
+          6500
+        ],
+        "zero_note": null
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": false,
+      "location_semantics": "地方檢察署受理，以 22 個地檢署轄區顯示（地檢署轄區≠縣市；案件受理地，不是居住地或發生地）",
+      "disclosure": "地檢署轄區不等於縣市：雙北與基隆由臺北、士林、新北、基隆四署交錯管轄，高雄市分屬高雄與橋頭兩署，新竹、嘉義地檢署各管轄縣與市；地圖面與名稱都是地檢署，不是縣市。新收人數反映查緝與起訴量，不是吸毒盛行率；苗栗以全縣推定；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。地檢署轄區界由內政部 114 年 3 月鄉鎮市區界依司法院事務分配（115 年現況）整區合併（22 面）；歷年數值都畫在現行轄區上，不代表歷史轄區。",
+      "display_priority": "primary",
+      "publisher": "法務部",
+      "license": "政府資料開放授權條款－第1版（法務部資料開放宣告 https://www.moj.gov.tw/2807/2817/33911/ ）",
+      "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
+      "source_download_url": "https://www.rjsd.moj.gov.tw/RJSDWeb/common/WebList3_Report.aspx?menu=GEN_DRUG&list_id=2006",
+      "source_title": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療（22 地檢署轄區）"
+    },
+    {
+      "layer_key": "statsProsecutorDrugUseDistrict",
+      "enabled": true,
+      "label": "地檢署毒品施用新收人數（轄區）",
+      "group": "prosecutorDrugDistrict",
+      "group_label": "地檢署毒品案件新收（22 地檢署轄區）",
+      "option_label": "施用新收人數",
+      "subgroup": "執法（毒品、酒駕、地檢署）",
+      "visual_theme": "security",
+      "dataset_id": "addiction_prosecutor_drug_district",
+      "indicator_id": "prosecutor_drug_use_new_cases",
+      "level": "prosecutor_district",
+      "boundary_version": "PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2026-01_08-prosecutor_drug_use_new_cases-prosecutor_district-v1-007bd6f50562",
+      "release_options": [
+        {
+          "release_id": "2022-prosecutor_drug_use_new_cases-prosecutor_district-v1-02b8aad8d1b6",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-prosecutor_drug_use_new_cases-prosecutor_district-v1-359eeadfd6d1",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-prosecutor_drug_use_new_cases-prosecutor_district-v1-bdaf772501fe",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2025-prosecutor_drug_use_new_cases-prosecutor_district-v1-5d6e1e27733a",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2026-01_08-prosecutor_drug_use_new_cases-prosecutor_district-v1-007bd6f50562",
+          "period_start": "2026-01-01",
+          "period_end": "2026-08-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1000,
+          2000,
+          3000,
+          4500
+        ],
+        "zero_note": null
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": false,
+      "location_semantics": "地方檢察署受理，以 22 個地檢署轄區顯示（地檢署轄區≠縣市；案件受理地，不是居住地或發生地）",
+      "disclosure": "地檢署轄區不等於縣市：雙北與基隆由臺北、士林、新北、基隆四署交錯管轄，高雄市分屬高雄與橋頭兩署，新竹、嘉義地檢署各管轄縣與市；地圖面與名稱都是地檢署，不是縣市。新收人數反映查緝與起訴量，不是吸毒盛行率；苗栗以全縣推定；115 年為 1–8 月累計，不可與整年比較。缺值、不適用、隱私遮蔽都不是 0。地檢署轄區界由內政部 114 年 3 月鄉鎮市區界依司法院事務分配（115 年現況）整區合併（22 面）；歷年數值都畫在現行轄區上，不代表歷史轄區。",
+      "display_priority": "primary",
+      "publisher": "法務部",
+      "license": "政府資料開放授權條款－第1版（法務部資料開放宣告 https://www.moj.gov.tw/2807/2817/33911/ ）",
+      "source_landing_url": "https://www.rjsd.moj.gov.tw/rjsdweb/",
+      "source_download_url": "https://www.rjsd.moj.gov.tw/RJSDWeb/common/WebList3_Report.aspx?menu=GEN_DRUG&list_id=2006",
+      "source_title": "法務部法務統計：地方檢察署毒品案件新收與緩起訴附命戒癮治療（22 地檢署轄區）"
     },
     {
       "layer_key": "statsAlcoholTreatmentFacilitiesCounty",
@@ -2623,6 +3024,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「酒癮治療機構」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4382-46834-107.html",
@@ -2674,6 +3076,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「酒癮治療機構」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4382-46834-107.html",
@@ -2725,6 +3128,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「酒癮治療機構」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4382-46834-107.html",
@@ -2776,6 +3180,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「酒癮治療機構」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4382-46834-107.html",
@@ -2825,6 +3230,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「毒品危害防制中心」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：OGDL-1.0-TW",
       "source_landing_url": "https://data.gov.tw/dataset/13717",
@@ -2874,6 +3280,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「毒品危害防制中心」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：OGDL-1.0-TW",
       "source_landing_url": "https://data.gov.tw/dataset/13717",
@@ -2895,10 +3302,10 @@
       "boundary_version": "COUNTY_MOI_1140318",
       "unit": "處",
       "aggregation": "sum",
-      "default_release_id": "2026-10-06-drug_treatment_facilities_count-county-v1-61efdcb25807",
+      "default_release_id": "2026-10-06-drug_treatment_facilities_count-county-v1-d7a263cac9a8",
       "release_options": [
         {
-          "release_id": "2026-10-06-drug_treatment_facilities_count-county-v1-61efdcb25807",
+          "release_id": "2026-10-06-drug_treatment_facilities_count-county-v1-d7a263cac9a8",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -2925,6 +3332,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
@@ -2946,10 +3354,10 @@
       "boundary_version": "TOWN_MOI_1140318",
       "unit": "處",
       "aggregation": "sum",
-      "default_release_id": "2026-10-06-drug_treatment_facilities_count-township-v1-d558f0e1cb87",
+      "default_release_id": "2026-10-06-drug_treatment_facilities_count-township-v1-b37200821f6c",
       "release_options": [
         {
-          "release_id": "2026-10-06-drug_treatment_facilities_count-township-v1-d558f0e1cb87",
+          "release_id": "2026-10-06-drug_treatment_facilities_count-township-v1-b37200821f6c",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -2976,6 +3384,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
@@ -2997,10 +3406,10 @@
       "boundary_version": "COUNTY_MOI_1140318",
       "unit": "處/10萬人",
       "aggregation": "ratio",
-      "default_release_id": "2026-10-06-drug_treatment_facilities_per_100k-county-v1-183ed4d90680",
+      "default_release_id": "2026-10-06-drug_treatment_facilities_per_100k-county-v1-020f6f229bc9",
       "release_options": [
         {
-          "release_id": "2026-10-06-drug_treatment_facilities_per_100k-county-v1-183ed4d90680",
+          "release_id": "2026-10-06-drug_treatment_facilities_per_100k-county-v1-020f6f229bc9",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -3027,6 +3436,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
@@ -3048,10 +3458,10 @@
       "boundary_version": "TOWN_MOI_1140318",
       "unit": "處/10萬人",
       "aggregation": "ratio",
-      "default_release_id": "2026-10-06-drug_treatment_facilities_per_100k-township-v1-5d2a894869d6",
+      "default_release_id": "2026-10-06-drug_treatment_facilities_per_100k-township-v1-072d0725c2e1",
       "release_options": [
         {
-          "release_id": "2026-10-06-drug_treatment_facilities_per_100k-township-v1-5d2a894869d6",
+          "release_id": "2026-10-06-drug_treatment_facilities_per_100k-township-v1-072d0725c2e1",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -3078,6 +3488,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
@@ -3099,10 +3510,10 @@
       "boundary_version": "COUNTY_MOI_1140318",
       "unit": "處",
       "aggregation": "sum",
-      "default_release_id": "2026-10-06-hiv_selftest_outlets_count-county-v1-0b8a3333e7ca",
+      "default_release_id": "2026-10-06-hiv_selftest_outlets_count-county-v1-daad31566eed",
       "release_options": [
         {
-          "release_id": "2026-10-06-hiv_selftest_outlets_count-county-v1-0b8a3333e7ca",
+          "release_id": "2026-10-06-hiv_selftest_outlets_count-county-v1-daad31566eed",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -3129,6 +3540,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「愛滋自我篩檢通路」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://hiva.cdc.gov.tw/selftest/Service_place.aspx",
@@ -3150,10 +3562,10 @@
       "boundary_version": "TOWN_MOI_1140318",
       "unit": "處",
       "aggregation": "sum",
-      "default_release_id": "2026-10-06-hiv_selftest_outlets_count-township-v1-3338f01ce11b",
+      "default_release_id": "2026-10-06-hiv_selftest_outlets_count-township-v1-73d7d48a43ae",
       "release_options": [
         {
-          "release_id": "2026-10-06-hiv_selftest_outlets_count-township-v1-3338f01ce11b",
+          "release_id": "2026-10-06-hiv_selftest_outlets_count-township-v1-73d7d48a43ae",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -3180,6 +3592,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「愛滋自我篩檢通路」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://hiva.cdc.gov.tw/selftest/Service_place.aspx",
@@ -3201,10 +3614,10 @@
       "boundary_version": "COUNTY_MOI_1140318",
       "unit": "處/10萬人",
       "aggregation": "ratio",
-      "default_release_id": "2026-10-06-hiv_selftest_outlets_per_100k-county-v1-d9b52efbfb8f",
+      "default_release_id": "2026-10-06-hiv_selftest_outlets_per_100k-county-v1-d3556dc98750",
       "release_options": [
         {
-          "release_id": "2026-10-06-hiv_selftest_outlets_per_100k-county-v1-d9b52efbfb8f",
+          "release_id": "2026-10-06-hiv_selftest_outlets_per_100k-county-v1-d3556dc98750",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -3231,6 +3644,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「愛滋自我篩檢通路」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://hiva.cdc.gov.tw/selftest/Service_place.aspx",
@@ -3252,10 +3666,10 @@
       "boundary_version": "TOWN_MOI_1140318",
       "unit": "處/10萬人",
       "aggregation": "ratio",
-      "default_release_id": "2026-10-06-hiv_selftest_outlets_per_100k-township-v1-59c6ee317cd4",
+      "default_release_id": "2026-10-06-hiv_selftest_outlets_per_100k-township-v1-a5a5658a0b42",
       "release_options": [
         {
-          "release_id": "2026-10-06-hiv_selftest_outlets_per_100k-township-v1-59c6ee317cd4",
+          "release_id": "2026-10-06-hiv_selftest_outlets_per_100k-township-v1-a5a5658a0b42",
           "period_start": "2026-10-06",
           "period_end": "2026-10-06",
           "dimensions": {}
@@ -3282,6 +3696,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「愛滋自我篩檢通路」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://hiva.cdc.gov.tw/selftest/Service_place.aspx",
@@ -3333,6 +3748,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「愛滋篩檢與指定醫療」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：疾管署網頁 unspecified；新北 124119/125549 OGDL-1.0-TW",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/gH7NyWhq3ulASakaq5DDIQ",
@@ -3384,6 +3800,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「愛滋篩檢與指定醫療」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：疾管署網頁 unspecified；新北 124119/125549 OGDL-1.0-TW",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/gH7NyWhq3ulASakaq5DDIQ",
@@ -3435,6 +3852,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「愛滋篩檢與指定醫療」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：疾管署網頁 unspecified；新北 124119/125549 OGDL-1.0-TW",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/gH7NyWhq3ulASakaq5DDIQ",
@@ -3486,6 +3904,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「愛滋篩檢與指定醫療」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：疾管署網頁 unspecified；新北 124119/125549 OGDL-1.0-TW",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/gH7NyWhq3ulASakaq5DDIQ",
@@ -3537,6 +3956,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「網路成癮服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4104-87269-107.html",
@@ -3588,6 +4008,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「網路成癮服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4104-87269-107.html",
@@ -3639,6 +4060,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「網路成癮服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4104-87269-107.html",
@@ -3690,6 +4112,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「網路成癮服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4104-87269-107.html",
@@ -3741,6 +4164,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -3792,6 +4216,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -3843,6 +4268,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -3894,6 +4320,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -3945,6 +4372,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -3996,6 +4424,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -4047,6 +4476,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -4098,6 +4528,215 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
+      "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_download_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsNeedleSitesTotalCounty",
+      "enabled": true,
+      "label": "清潔針具據點（三類任一）據點數",
+      "group": "needleSitesTotal",
+      "group_label": "清潔針具據點（三類任一）據點數",
+      "option_label": "縣市：據點數",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "needle_sites_total_count",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "處",
+      "aggregation": "sum",
+      "default_release_id": "2026-10-06-needle_sites_total_count-county-v1-179880d692a7",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-needle_sites_total_count-county-v1-179880d692a7",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          20,
+          35,
+          50,
+          75
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。衛教站、自動服務機、回收桶任一即算 1 處（同一地點不重複計），三類分開的圖層相加會大於本數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
+      "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_download_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsNeedleSitesTotalTownship",
+      "enabled": true,
+      "label": "清潔針具據點（三類任一）據點數",
+      "group": "needleSitesTotal",
+      "group_label": "清潔針具據點（三類任一）據點數",
+      "option_label": "鄉鎮：據點數",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "needle_sites_total_count",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "處",
+      "aggregation": "sum",
+      "default_release_id": "2026-10-06-needle_sites_total_count-township-v1-26e02b13d4fd",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-needle_sites_total_count-township-v1-26e02b13d4fd",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          3,
+          5
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。衛教站、自動服務機、回收桶任一即算 1 處（同一地點不重複計），三類分開的圖層相加會大於本數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
+      "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_download_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsNeedleSitesTotalPer100kCounty",
+      "enabled": true,
+      "label": "清潔針具據點（三類任一）每 10 萬人",
+      "group": "needleSitesTotal",
+      "group_label": "清潔針具據點（三類任一）據點數",
+      "option_label": "縣市：每 10 萬人",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "needle_sites_total_per_100k",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "處/10萬人",
+      "aggregation": "ratio",
+      "default_release_id": "2026-10-06-needle_sites_total_per_100k-county-v1-6427d16449a3",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-needle_sites_total_per_100k-county-v1-6427d16449a3",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          4,
+          5,
+          7,
+          9
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "pair_raw_key": "statsNeedleSitesTotalCounty",
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。衛教站、自動服務機、回收桶任一即算 1 處（同一地點不重複計），三類分開的圖層相加會大於本數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
+      "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_download_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsNeedleSitesTotalPer100kTownship",
+      "enabled": true,
+      "label": "清潔針具據點（三類任一）每 10 萬人",
+      "group": "needleSitesTotal",
+      "group_label": "清潔針具據點（三類任一）據點數",
+      "option_label": "鄉鎮：每 10 萬人",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "needle_sites_total_per_100k",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "處/10萬人",
+      "aggregation": "ratio",
+      "default_release_id": "2026-10-06-needle_sites_total_per_100k-township-v1-72ef8f5fcf4f",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-needle_sites_total_per_100k-township-v1-72ef8f5fcf4f",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          3,
+          5,
+          8,
+          15
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "pair_raw_key": "statsNeedleSitesTotalTownship",
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。衛教站、自動服務機、回收桶任一即算 1 處（同一地點不重複計），三類分開的圖層相加會大於本數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -4149,6 +4788,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -4200,6 +4840,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -4251,6 +4892,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -4302,6 +4944,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「清潔針具據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified (CDC page has no license statement)",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/BVGmgum1evkhTprNSeSjNQ",
@@ -4353,6 +4996,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「PrEP 服務據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/tXBKgpeVZ9l9929TEdZGJw",
@@ -4404,6 +5048,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「PrEP 服務據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/tXBKgpeVZ9l9929TEdZGJw",
@@ -4455,6 +5100,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「PrEP 服務據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/tXBKgpeVZ9l9929TEdZGJw",
@@ -4506,6 +5152,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「PrEP 服務據點」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：unspecified",
       "source_landing_url": "https://www.cdc.gov.tw/Category/MPage/tXBKgpeVZ9l9929TEdZGJw",
@@ -4557,6 +5204,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「戒菸服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：未標示（官網查詢匯出；政府公開資訊，再利用前待確認）",
       "source_landing_url": "https://ttc.hpa.gov.tw/Web/Agency.aspx",
@@ -4608,6 +5256,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。點位來源圖層：「戒菸服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：未標示（官網查詢匯出；政府公開資訊，再利用前待確認）",
       "source_landing_url": "https://ttc.hpa.gov.tw/Web/Agency.aspx",
@@ -4659,6 +5308,7 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「戒菸服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：未標示（官網查詢匯出；政府公開資訊，再利用前待確認）",
       "source_landing_url": "https://ttc.hpa.gov.tw/Web/Agency.aspx",
@@ -4710,10 +5360,219 @@
       "derived": true,
       "location_semantics": "服務據點所在行政區（名冊快照）",
       "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。點位來源圖層：「戒菸服務」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
       "license": "衍生計數；點位來源授權：未標示（官網查詢匯出；政府公開資訊，再利用前待確認）",
       "source_landing_url": "https://ttc.hpa.gov.tw/Web/Agency.aspx",
       "source_download_url": "https://ttc.hpa.gov.tw/Web/Agency.aspx",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsSubstitutionTreatmentSitesCounty",
+      "enabled": true,
+      "label": "替代治療執行機構據點數",
+      "group": "substitutionTreatmentSites",
+      "group_label": "替代治療執行機構據點數",
+      "option_label": "縣市：據點數",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "substitution_treatment_sites_count",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "處",
+      "aggregation": "sum",
+      "default_release_id": "2026-10-06-substitution_treatment_sites_count-county-v1-d4a7c2e1e266",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-substitution_treatment_sites_count-county-v1-d4a7c2e1e266",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          2,
+          5,
+          8,
+          12
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。只計替代治療執行機構（美沙冬／丁基原啡因），不含 29 處衛星給藥點與只辦藥癮戒治的指定機構。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
+      "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
+      "source_download_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsSubstitutionTreatmentSitesTownship",
+      "enabled": true,
+      "label": "替代治療執行機構據點數",
+      "group": "substitutionTreatmentSites",
+      "group_label": "替代治療執行機構據點數",
+      "option_label": "鄉鎮：據點數",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "substitution_treatment_sites_count",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "處",
+      "aggregation": "sum",
+      "default_release_id": "2026-10-06-substitution_treatment_sites_count-township-v1-7983257012c8",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-substitution_treatment_sites_count-township-v1-7983257012c8",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "pair_raw_key": null,
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。只計替代治療執行機構（美沙冬／丁基原啡因），不含 29 處衛星給藥點與只辦藥癮戒治的指定機構。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
+      "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
+      "source_download_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsSubstitutionTreatmentSitesPer100kCounty",
+      "enabled": true,
+      "label": "替代治療執行機構每 10 萬人",
+      "group": "substitutionTreatmentSites",
+      "group_label": "替代治療執行機構據點數",
+      "option_label": "縣市：每 10 萬人",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "substitution_treatment_sites_per_100k",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "處/10萬人",
+      "aggregation": "ratio",
+      "default_release_id": "2026-10-06-substitution_treatment_sites_per_100k-county-v1-648c5507604e",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-substitution_treatment_sites_per_100k-county-v1-648c5507604e",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          0.5,
+          0.75,
+          1,
+          1.25
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "pair_raw_key": "statsSubstitutionTreatmentSitesCounty",
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。只計替代治療執行機構（美沙冬／丁基原啡因），不含 29 處衛星給藥點與只辦藥癮戒治的指定機構。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
+      "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
+      "source_download_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
+      "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
+    },
+    {
+      "layer_key": "statsSubstitutionTreatmentSitesPer100kTownship",
+      "enabled": true,
+      "label": "替代治療執行機構每 10 萬人",
+      "group": "substitutionTreatmentSites",
+      "group_label": "替代治療執行機構據點數",
+      "option_label": "鄉鎮：每 10 萬人",
+      "subgroup": "服務據點",
+      "visual_theme": "health",
+      "dataset_id": "addiction_service_points",
+      "indicator_id": "substitution_treatment_sites_per_100k",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "處/10萬人",
+      "aggregation": "ratio",
+      "default_release_id": "2026-10-06-substitution_treatment_sites_per_100k-township-v1-d4c27ddd9417",
+      "release_options": [
+        {
+          "release_id": "2026-10-06-substitution_treatment_sites_per_100k-township-v1-d4c27ddd9417",
+          "period_start": "2026-10-06",
+          "period_end": "2026-10-06",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          3,
+          5,
+          10
+        ],
+        "zero_note": "最淺色含 0 處（名冊中該區沒有據點，不是無資料）。"
+      },
+      "status_labels": {
+        "missing": "無資料（不等於 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "pair_raw_key": "statsSubstitutionTreatmentSitesTownship",
+      "derived": true,
+      "location_semantics": "服務據點所在行政區（名冊快照）",
+      "disclosure": "名冊快照（2026-10-06）的據點數，由本專案減害點位圖層以點在參考行政區面內計數；0＝名冊中該區沒有據點（不是無資料）；不代表服務量、開放時間或使用人數。每 10 萬人＝據點數÷115 年 8 月底戶籍人口×100,000；分母日期與名冊快照日（2026-10-06）不同；比率不可加總。只計替代治療執行機構（美沙冬／丁基原啡因），不含 29 處衛星給藥點與只辦藥癮戒治的指定機構。點位來源圖層：「替代療法與藥癮戒治」。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
+      "publisher": "本專案彙整（點位來源見 provenance：衛福部、疾管署、法務部、縣市衛生局）",
+      "license": "衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified",
+      "source_landing_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
+      "source_download_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html",
       "source_title": "本專案減害點位圖層（名冊快照 2026-10-06）"
     },
     {
@@ -4773,6 +5632,7 @@
       "derived": false,
       "location_semantics": "受訪者現住縣市（抽樣調查）",
       "disclosure": "最近六個月曾經嚼食檳榔比率（102／106／110 年調查）；嚼檳榔調查不含金門、連江（無資料，不是 0）。抽樣調查值（每縣約數百至兩千樣本），縣市差距多在抽樣誤差內，不宜細排名次。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "衛生福利部心理健康司",
       "license": "政府資料開放授權條款-第1版",
       "source_landing_url": "https://data.gov.tw/dataset/173036",
@@ -4824,6 +5684,7 @@
       "derived": false,
       "location_semantics": "受訪者現住縣市（抽樣調查）",
       "disclosure": "113 年國人吸菸行為調查，兩性合計粗率（非標準化率）。抽樣調查值（每縣約數百至兩千樣本），縣市差距多在抽樣誤差內，不宜細排名次。缺值、不適用、隱私遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界、鄉鎮以同版鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "display_priority": null,
       "publisher": "行政院性別平等會（資料來源：衛生福利部國民健康署國人吸菸行為調查）",
       "license": "政府網站資料開放宣告（未逐字確認；上線前補查）",
       "source_landing_url": "https://www.gender.ey.gov.tw/GecDB/",

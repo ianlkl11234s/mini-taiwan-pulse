@@ -18,10 +18,10 @@ const asRelease = (recipe: typeof hiv, releaseId: string): StatisticsRelease => 
 const publicReleases = (recipe: typeof hiv) => recipe.release_options.map((option) => asRelease(recipe, option.release_id));
 
 describe("addiction statistics recipes", () => {
-  it("registers the 61 enabled recipes (280 selectors) and keeps 第二級毒品／毒防中心 disabled", () => {
-    expect(ADDICTION_STATISTICS_RECIPES).toHaveLength(65);
+  it("registers the 74 enabled recipes (313 selectors) and keeps 第二級毒品／毒防中心 disabled", () => {
+    expect(ADDICTION_STATISTICS_RECIPES).toHaveLength(78);
     expect(ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => recipe.layer_key)).toEqual([...ADDICTION_ENABLED_STATISTICS_KEYS]);
-    expect(ADDICTION_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + recipe.release_options.length, 0)).toBe(280);
+    expect(ADDICTION_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + recipe.release_options.length, 0)).toBe(313);
     expect(ADDICTION_STATISTICS_RECIPES.filter((recipe) => !recipe.enabled).map((recipe) => recipe.layer_key).sort()).toEqual([
       "statsDrugGrade2SuspectsCounty", "statsDrugGrade2SuspectsPer100kCounty", "statsDrugPreventionCentersCounty", "statsDrugPreventionCentersPer100kCounty",
     ]);
@@ -31,6 +31,21 @@ describe("addiction statistics recipes", () => {
       expect(STATISTICS_RECIPES[key].dimensions).toEqual({});
     }
     expect(STATISTICS_RECIPES.statsHivCasesTownship.level).toBe("township");
+    expect(STATISTICS_RECIPES.statsProsecutorDrugNewCasesDistrict.level).toBe("prosecutor_district");
+  });
+
+  it("wires the round-3 prosecutor districts and the corrected service-point releases", () => {
+    const district = ADDICTION_STATISTICS_RECIPES_BY_KEY.statsProsecutorDrugNewCasesDistrict;
+    expect(district).toMatchObject({ level: "prosecutor_district", boundary_version: "PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1", display_priority: "primary", unit: "人" });
+    expect(district.release_options).toHaveLength(5);
+    expect(district.disclosure).toContain("地檢署轄區不等於縣市");
+    expect(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsProsecutorDrugNewCasesCounty.display_priority).toBe("secondary");
+    // 改指同期更正版 release（舊 release 仍在 R2 但不在 whitelist）
+    expect(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsDrugTreatmentFacilitiesCounty.default_release_id).toBe("2026-10-06-drug_treatment_facilities_count-county-v1-d7a263cac9a8");
+    expect(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsDrugTreatmentFacilitiesCounty.release_options.map((option) => option.release_id)).not.toContain("2026-10-06-drug_treatment_facilities_count-county-v1-61efdcb25807");
+    expect(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsHivSelftestOutletsPer100kTownship.default_release_id).toBe("2026-10-06-hiv_selftest_outlets_per_100k-township-v1-a5a5658a0b42");
+    expect(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsNeedleSitesTotalCounty.disclosure).toContain("任一即算 1 處");
+    expect(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsSubstitutionTreatmentSitesTownship.disclosure).toContain("不含 29 處衛星給藥點");
   });
 
   it("defaults to the latest delivered period and refuses dimensions or unknown releases", () => {
@@ -45,7 +60,7 @@ describe("addiction statistics recipes", () => {
   });
 
   it("puts raw and ratio, county and township in one row per concept", () => {
-    expect(ADDICTION_STATISTICS_TOGGLE_GROUPS).toHaveLength(18);
+    expect(ADDICTION_STATISTICS_TOGGLE_GROUPS).toHaveLength(21);
     expect(getMedicalStatisticsGroup("statsNeedleEducationStationsPer100kTownship")?.options.map((option) => option.label)).toEqual([
       "縣市：據點數", "縣市：每 10 萬人", "鄉鎮：據點數", "鄉鎮：每 10 萬人",
     ]);
@@ -53,7 +68,19 @@ describe("addiction statistics recipes", () => {
     expect(getMedicalStatisticsGroup("statsHivPer100kCounty")?.options.map((option) => option.key)).toEqual(["statsHivNewCasesCounty", "statsHivPer100kCounty"]);
     // 縣市新通報（gecdb）與鄉鎮確定病例（NIDSS）口徑不同：分兩列，不在同一個選單互換。
     expect(getMedicalStatisticsGroup("statsHivCasesTownship")?.options.map((option) => option.key)).toEqual(["statsHivCasesTownship", "statsHivPer100kYearTownship"]);
+    // 地檢署：轄區層（primary）自成一列、排在縣市退化版（secondary，原列不變）前面。
     expect(getMedicalStatisticsGroup("statsProsecutorDeferredTreatmentCounty")?.optionLabel).toBe("指標");
+    const district = getMedicalStatisticsGroup("statsProsecutorDrugUseDistrict");
+    expect(district?.label).toContain("22 地檢署轄區");
+    expect(district?.options.map((option) => option.key)).toEqual([
+      "statsProsecutorDrugNewCasesDistrict", "statsProsecutorDrugUseDistrict", "statsProsecutorDrugGrade1District",
+      "statsProsecutorDrugGrade2District", "statsProsecutorDeferredTreatmentDistrict",
+    ]);
+    const groupKeys = ADDICTION_STATISTICS_TOGGLE_GROUPS.map((group) => group.key);
+    expect(groupKeys.indexOf("addiction:prosecutorDrugDistrict")).toBeLessThan(groupKeys.indexOf("addiction:prosecutorDrug"));
+    expect(getMedicalStatisticsGroup("statsNeedleSitesTotalTownship")?.options.map((option) => option.key)).toEqual([
+      "statsNeedleSitesTotalCounty", "statsNeedleSitesTotalPer100kCounty", "statsNeedleSitesTotalTownship", "statsNeedleSitesTotalPer100kTownship",
+    ]);
     expect(getMedicalStatisticsGroup("statsAdultSmokingRateCounty")).toBeUndefined();
   });
 
@@ -61,6 +88,7 @@ describe("addiction statistics recipes", () => {
     expect(addictionStatusLegendRows(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsProsecutorDrugNewCasesCounty)).toEqual([
       { kind: "not_applicable", hatch: "missing", label: expect.stringContaining("不適用") },
     ]);
+    expect(addictionStatusLegendRows(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsProsecutorDrugNewCasesDistrict).map((row) => row.kind)).not.toContain("not_applicable");
     expect(addictionStatusLegendRows(ADDICTION_STATISTICS_RECIPES_BY_KEY.statsAdultBetelRateCounty)).toEqual([
       { kind: "missing", hatch: "missing", label: expect.stringContaining("金門、連江") },
     ]);
@@ -87,6 +115,9 @@ describe("addiction statistics recipes", () => {
     expect(getStatisticsVisual("statsDrugSuspectsCounty").theme).toBe("治安");
     expect(getStatisticsVisual("statsDuiEnforcementPer100kCounty").theme).toBe("治安");
     expect(getStatisticsVisual("statsProsecutorDrugUseCounty").theme).toBe("治安");
+    expect(getStatisticsVisual("statsProsecutorDrugUseDistrict").theme).toBe("治安");
+    expect(getStatisticsVisual("statsNeedleSitesTotalPer100kTownship").theme).toBe("醫療");
+    expect(getStatisticsVisual("statsSubstitutionTreatmentSitesCounty").theme).toBe("醫療");
     expect(getStatisticsVisual("statsDrugSuspectsCounty").theme).toBe(getStatisticsVisual("statsDrugSuspectsPer100kCounty").theme);
   });
 
