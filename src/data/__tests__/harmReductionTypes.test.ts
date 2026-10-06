@@ -33,5 +33,7 @@ describe("harm reduction filters", () => {
     expect(isEstimatedPrecision("cached")).toBe(false);
     expect(harmReductionPrecisionLabel("google_approximate")).toContain("推估");
     expect(harmReductionPrecisionLabel("cached")).toContain("精度未另標");
+    expect(harmReductionPrecisionLabel("google_place_manual")).toContain("人工核對");
+    expect(isEstimatedPrecision("google_place_manual")).toBe(false);
   });
 });

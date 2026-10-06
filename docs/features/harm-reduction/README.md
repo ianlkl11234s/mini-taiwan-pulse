@@ -14,9 +14,9 @@
 
 | 名稱（layer key） | 類型 | 資料源 | 筆數 | 狀態 |
 |---|---|---|---:|---|
-| harmReductionNeedle | point | GeoJSON `public/harm_reduction/needle_points.geojson` | 988 | ✅ |
+| harmReductionNeedle | point | GeoJSON `public/harm_reduction/needle_points.geojson` | 990 | ✅ |
 | harmReductionTreatment | point | GeoJSON `drug_treatment_facilities.geojson` | 226 | ✅ |
-| harmReductionHivSelftest | point | GeoJSON `hiv_selftest_outlets.geojson` | 680 | ✅ |
+| harmReductionHivSelftest | point | GeoJSON `hiv_selftest_outlets.geojson` | 681 | ✅ |
 | harmReductionHivTesting | point | GeoJSON `hiv_testing_sites.geojson` | 694 | ✅ |
 | harmReductionPreventionCenters | point | GeoJSON `drug_prevention_centers.geojson` | 23 | ✅ |
 
@@ -34,6 +34,6 @@
 
 ## 注意
 
-- 座標多為地址 geocode；popup 對推估精度（approximate／interpolated）顯示「位置為推估」。
+- 座標多為地址 geocode；3 點（綠島鄉衛生所、連江縣衛生局、林森育安藥局）地址 geocode 失敗，改依機構名稱以 Google Places 查得並人工核對（analytics `manual_geocode_overrides.yaml`）；popup 對推估精度（approximate／interpolated）顯示「位置為推估」。
 - 疾管署／衛福部名單頁未標示授權，正式站發布前需確認。
 - 自我篩檢通路為 2026-10-06 快照，不含庫存。
