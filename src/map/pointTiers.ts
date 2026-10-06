@@ -311,6 +311,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   marineObservationIsohe: "M", // ISOHE 港區海氣象 ISOHE Port · src/hooks/useMarineObservationLayer.ts
   aqiMicroSensors: "B", // LASS 微型感測 Micro Sensor · src/hooks/useMicroSensorsLayer.ts
   powerPoles: "M", // 電桿 Power Poles (2.96M) · src/hooks/usePowerPolesLayer.ts
+  rail: "M", // 鐵道列車（R6 段 3 立體效果關的平面點） Rail · src/map/flatMovingLayers.ts
   rainGauge: "B", // 資料驅動半徑，2026-09-29 拍板 · 即時雨量 Rain Gauge · src/hooks/useRainGaugeLayer.ts
   riverLevel: "B", // 資料驅動半徑，2026-09-29 拍板 · 河川水位 River Level · src/hooks/useRiverLevelLayer.ts
   roadEvents: "M", // 即時路況 Road Events · src/hooks/useRoadEventsLayer.ts
@@ -336,6 +337,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   typhoonTracks: "M", // 颱風軌跡 Typhoon Track · src/hooks/useTyphoonTracksLayer.ts
   vesselWatch: "M", // 特殊船舶 Vessel Watch · src/hooks/useVesselWatchLayer.ts
   wasteCleaningSquads: "L", // 清潔隊 Squads · src/hooks/useWasteCleaningSquadLayer.ts
+  wasteTruck: "M", // 垃圾車 GPS（R6 段 3 立體效果關的平面點；停車／離線 S） Truck · src/map/flatMovingLayers.ts
   worldTrashDebris: "M", // 垃圾與殘骸觀測 Trash & Debris Observations · src/hooks/useWorldTrashDebrisLayer.ts
   agriCropSuitability: "M", // 作物適栽 Crop Suitability · src/map/agricultureLayerFactory.ts
   agriLeisureFarmZones: "M", // 休閒農業區 Leisure Farm Zones · src/map/agricultureLayerFactory.ts

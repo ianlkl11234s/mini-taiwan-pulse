@@ -13,6 +13,8 @@ import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
 import type { WasteTruckScene } from "../three/WasteTruckScene";
+import { pickFlatTrain, pickFlatWasteTruck, railTrainKey, setFlatMovingSelection } from "../map/flatMovingController";
+import { layerParamRefs } from "../state/layerParamRefs";
 import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
@@ -147,11 +149,16 @@ export function useMapInteraction(
       }
 
       // 先嘗試拾取列車（僅在 rail 圖層開啟時）
+      // R6 段 3：立體效果關時 RailScene 不再更新（位置是舊的），改從 Mapbox 平面層拾取；tooltip 相同
       if (vis?.rail) {
         const railScene = railSceneRef?.current;
-        if (railScene) {
-          const train = railScene.pickTrain(e.point.x, e.point.y, w, h);
+        const flat = !layerParamRefs.railTrain3D.current;
+        if (flat || railScene) {
+          const train = flat
+            ? pickFlatTrain(map, e.point.x, e.point.y)
+            : railScene!.pickTrain(e.point.x, e.point.y, w, h);
           if (train) {
+            setFlatMovingSelection("rail", railTrainKey(train));
             setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
             return;
@@ -182,9 +189,14 @@ export function useMapInteraction(
       // `ship` 分支。座標用點擊位置（pickTruck 只回 row，不回插值後的經緯）。
       if (vis?.wasteTruck) {
         const truckScene = wasteTruckSceneRef?.current;
-        if (truckScene) {
-          const row = truckScene.pickTruck(e.point.x, e.point.y, w, h);
+        // R6 段 3：立體效果關時改從 Mapbox 平面層拾取（Scene 不再更新）；featureInfo 相同
+        const flat = !layerParamRefs.wasteTruck3D.current;
+        if (flat || truckScene) {
+          const row = flat
+            ? pickFlatWasteTruck(map, e.point.x, e.point.y)
+            : truckScene!.pickTruck(e.point.x, e.point.y, w, h);
           if (row) {
+            setFlatMovingSelection("wasteTruck", row.vehicle_no);
             setFeatureInfo({
               layerType: "wasteTruck",
               properties: {
@@ -606,6 +618,14 @@ export function useMapInteraction(
     }
     // 點 hover 暫時移除：point 已改 WebGL CustomLayer，不支援 queryRenderedFeatures（待補 GPU/空間索引 picking）
   };
+
+  // R6 段 3：平面模式只替「點選中」的列車／垃圾車畫近段軌跡；tooltip／資訊卡關掉就清掉
+  useEffect(() => {
+    if (!trainTooltipInfo) setFlatMovingSelection("rail", null);
+  }, [trainTooltipInfo]);
+  useEffect(() => {
+    if (featureInfo?.layerType !== "wasteTruck") setFlatMovingSelection("wasteTruck", null);
+  }, [featureInfo]);
 
   // Esc 結束目前地圖選取。用 microtask 讓已開啟的 modal／FeatureInfoPanel 先攔截：
   // modal 優先於地圖狀態，避免關 modal 時意外連同底下的地圖選取清掉。

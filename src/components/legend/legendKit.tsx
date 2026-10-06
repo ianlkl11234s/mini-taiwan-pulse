@@ -120,6 +120,20 @@ export function SwatchSquare({ color, outline = false, opacity = 0.9, stroke }: 
   );
 }
 
+/**
+ * LG-6 icon：方向箭頭（R6 段 3 移動物件平面模式，與地圖 SDF 箭頭同形狀），14px，描邊同 P-2 底圖色。
+ * 尖端朝上＝北；地圖上依行進方向旋轉。
+ */
+export function SwatchArrow({ color }: { color: string }) {
+  const t = useLegendTheme();
+  const s = LEGEND_SWATCH.icon;
+  return (
+    <svg aria-hidden="true" width={s} height={s} viewBox="-1.2 -1.2 2.4 2.4" style={{ flexShrink: 0 }}>
+      <polygon points="0,-1 0.8,0.9 0,0.45 -0.8,0.9" fill={color} stroke={t.seam} strokeWidth={0.16} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /** LG-4 線型：20px 線段；dash 同地圖 line-dasharray（線寬倍數）。 */
 export function SwatchLine({ color, width = 2, dash, opacity = 1 }: { color: string; width?: number; dash?: readonly number[]; opacity?: number }) {
   const w = Math.max(LEGEND_SWATCH.line.minHeight, width);

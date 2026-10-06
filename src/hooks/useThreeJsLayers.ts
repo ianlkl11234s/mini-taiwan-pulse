@@ -28,6 +28,7 @@ import { installLayerChunkPrewarm } from "../lib/prewarmLayerChunks";
 import { layerParamsStore } from "../state/layerParamsStore";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { subscribeThreeRepaint } from "../state/threeRepaintSignal";
+import { createFlatMovingController } from "../map/flatMovingController";
 
 // ── C1：three.js 相關 chunk 按需載入 ──
 // 這 13 個 custom layer 不再於開站時掛上；第一次有 3D 圖層可見才 import + 加入。
@@ -53,6 +54,8 @@ export const THREE_LAYERS_ANCHOR_ID = "three-layers-anchor";
 /**
  * R6 段 1：非移動物件圖層的「立體效果」開關（參數名沿用既有，見 layerParamsSpec）。
  * 關閉時該層的 Three.js 不畫、不 repaint，也不會因它觸發 3D bundle 下載。
+ * R6 段 3：移動物件（列車、垃圾車 GPS）也加入；它們預設開。列車另有軌道 2D／3D（railTrack3D），
+ * 兩者都會讓 rail-3d 這個 Three 圖層有東西畫。
  */
 export interface ThreeStereoToggles {
   fireStations3D: boolean;
@@ -64,6 +67,10 @@ export interface ThreeStereoToggles {
   portPillarVisible: boolean;
   tempExtruded: boolean;
   wfMonitoring3D: boolean;
+  railTrainVisible: boolean;
+  railTrain3D: boolean;
+  railTrack3D: boolean;
+  wasteTruck3D: boolean;
 }
 
 /** 目前 paramRefs 的立體開關快照。 */
@@ -78,14 +85,22 @@ export function stereoTogglesFromRefs(): ThreeStereoToggles {
     portPillarVisible: paramRefs.portPillarVisible.current,
     tempExtruded: paramRefs.tempExtruded.current,
     wfMonitoring3D: paramRefs.wfMonitoring3D.current,
+    railTrainVisible: paramRefs.railTrainVisible.current,
+    railTrain3D: paramRefs.railTrain3D.current,
+    railTrack3D: paramRefs.railTrackMode.current === "3d",
+    wasteTruck3D: paramRefs.wasteTruck3D.current,
   };
 }
 
+/** rail-3d 有東西畫：3D 軌道，或列車顯示且立體效果開（R6 段 3）。 */
+export const railThreeVisible = (railOn: boolean, t: Pick<ThreeStereoToggles, "railTrainVisible" | "railTrain3D" | "railTrack3D">) =>
+  railOn && (t.railTrack3D || (t.railTrainVisible && t.railTrain3D));
+
 /** 任一 3D custom layer 會畫東西（對應各 layer 的 getIsVisible）。 */
 export function anyThreeLayerVisible(vis: LayerVisibility, t: ThreeStereoToggles): boolean {
-  return vis.flights || vis.ships || vis.rail
+  return vis.flights || vis.ships || railThreeVisible(vis.rail, t)
     || vis.busLive || vis.busIntercityLive || vis.touristShuttleLive
-    || vis.wasteTruck || vis.wasteSchedule || vis.wasteScheduleNote
+    || (vis.wasteTruck && t.wasteTruck3D) || vis.wasteSchedule || vis.wasteScheduleNote
     || vis.wfIncinerator || vis.wfLandfill || vis.wfLandfillCoastal || vis.wfTransfer || vis.wfMedical
     || (vis.wfMonitoring && t.wfMonitoring3D)
     || (vis.lighthouses && t.beamVisible)
@@ -155,6 +170,22 @@ export function useThreeJsLayers({
   // Mapbox 會把同一幀內多次 triggerRepaint 合併，多叫一次只多畫一幀。
   const mapInstanceRef = useRef<MapboxMap | null>(null);
   const repaint = () => mapInstanceRef.current?.triggerRepaint();
+
+  // R6 段 3：列車／垃圾車「立體效果」關時的 Mapbox 平面版（自帶 timeStore 節流訂閱，見 flatMovingController）
+  const flatMovingRef = useRef<ReturnType<typeof createFlatMovingController> | null>(null);
+  useEffect(() => {
+    const ctrl = createFlatMovingController({
+      getTrains: () => activeTrainsRef.current ?? [],
+      getWasteTrails: () => wasteTrailsRef.current ?? [],
+      getIsDark: () => isDarkThemeRef.current ?? true,
+      // 直接讀 store（不是 App render 才更新的 ref）：store 通知當下就要看到新開關
+      getVisibility: () => layerVisibilityStore.getAll(),
+    });
+    flatMovingRef.current = ctrl;
+    if (mapInstanceRef.current) ctrl.attach(mapInstanceRef.current);
+    return () => { ctrl.dispose(); flatMovingRef.current = null; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     // 參數／可見性變動：重畫一次；若因此第一次有 3D 圖層可見 → 載入 three chunk 並加圖層
@@ -231,8 +262,9 @@ export function useThreeJsLayers({
       getTrackOpacity: () => paramRefs.railTrackOpacity.current,
       getRailAltOffset: () => paramRefs.railAltOffset.current,
       getTrackFeatures: () => railDataRef.current?.allTracks ?? null,
-      getIsVisible: () => layerVisibilityRef.current.rail,
-      getTrainVisible: () => paramRefs.railTrainVisible.current,
+      // R6 段 3：列車立體效果關 → Three 只剩 3D 軌道（railTrackMode=3d 時，行為不變）；兩者都沒有就不畫
+      getIsVisible: () => railThreeVisible(layerVisibilityRef.current.rail, stereoTogglesFromRefs()),
+      getTrainVisible: () => paramRefs.railTrainVisible.current && paramRefs.railTrain3D.current,
       getTrackMode: () => paramRefs.railTrackMode.current,
       onSceneReady: (scene) => { railSceneRef.current = scene; },
     });
@@ -321,10 +353,11 @@ export function useThreeJsLayers({
       getIsDarkTheme: () => isDarkThemeRef.current,
       // base 0.000020，可由 slider 0.3~4 倍乘
       getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
-      getIsVisible: () => layerVisibilityRef.current.wasteTruck,
+      // R6 段 3：立體效果關 → 光球與音符都不畫（平面版由 flatMovingController 負責，音符不顯示）
+      getIsVisible: () => layerVisibilityRef.current.wasteTruck && paramRefs.wasteTruck3D.current,
       getAltOffset: () => 0,
       getOpacity: () => paramRefs.wasteTruckOpacity.current,
-      getMusicNoteEnabled: () => layerVisibilityRef.current.wasteTruck,
+      getMusicNoteEnabled: () => layerVisibilityRef.current.wasteTruck && paramRefs.wasteTruck3D.current,
       getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
       getMusicNoteZOffset: () => paramRefs.wasteNoteZOffset.current ?? 70,
       onSceneReady: (truckScene, noteScene) => {
@@ -537,6 +570,7 @@ export function useThreeJsLayers({
     }
     if (threeBundle) addThreeLayersBeforeAnchor(map);
     else ensureThreeLayersIfNeeded();
+    flatMovingRef.current?.attach(map);
   };
 
   return {

@@ -3482,6 +3482,12 @@ export const LAYER_PARAMS_SPEC = {
   ],
   rail: [
     { kind: "toggle", name: "railTrainVisible", label: "列車", default: true, out: null },
+    // R6 段 3（2026-10-06）：列車的立體效果（Three.js 光球＋3 分鐘拖尾）；關＝Mapbox 平面點、拉近換方向箭頭。
+    // 移動物件預設立體（G-1 2026-10-05 修訂）。與下方「軌道」2D／3D 各自獨立：本開關只管列車，不動軌道。
+    {
+      kind: "toggle", name: "railTrain3D", label: "立體效果", default: true, out: null,
+      showWhen: { param: "railTrainVisible", equals: true },
+    },
     {
       kind: "select", name: "railTrackMode", label: "軌道", default: "3d",
       options: [{ label: "2D", value: "2d" }, { label: "3D", value: "3d" }],
@@ -3770,7 +3776,13 @@ export const LAYER_PARAMS_SPEC = {
   // ══════════ D 桶群3：廢棄物（巢狀 Record ＋ 分組 checkbox）══════════
   // 垃圾車 GPS（wasteTruck）與表定路線（wasteSchedule）視覺風格統一 → 共用 3 支 slider；
   // 8 區分組 checkbox 只有表定那層有（GPS 固定高雄＋台南）。
-  wasteTruck: [...wasteOrbSliders(), opacitySlider("wasteTruckOpacity", 1)],
+  wasteTruck: [
+    // 音符兩支滑桿與 wasteSchedule 共用（sharedGroup 規格須逐字相同），平面模式下不隱藏、只是不起作用
+    ...wasteOrbSliders(),
+    opacitySlider("wasteTruckOpacity", 1),
+    // 移動物件預設立體（Three.js 光球＋音符）；關＝Mapbox 平面點、拉近換方向箭頭，音符不顯示
+    { kind: "toggle", name: "wasteTruck3D", label: "立體效果", default: true, out: null },
+  ],
   wasteSchedule: [
     ...busGroupToggles("wasteScheduleGroup", {
       TaipeiMetro: true, KeelungYilan: true, TaoyuanHsinchuMiaoli: true, CentralTaiwan: true,

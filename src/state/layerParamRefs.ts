@@ -130,6 +130,8 @@ export const layerParamRefs = {
   shipOrbScale: ref(0), shipTrailOpacity: ref(0),
   railAltOffset: ref(0), railOrbScale: ref(0), railTrackOpacity: ref(0),
   railTrainVisible: ref(false), railTrackMode: ref<string>("3d"),
+  // R6 段 3：移動物件的「立體效果」，預設開（關＝Mapbox 平面點／箭頭）
+  railTrain3D: ref(true), wasteTruck3D: ref(true),
   busOrbScale: ref(0), busColorMode: ref<string>("route"), busAltOffset: ref(0), busOpacity: ref(1),
   busIntercityOrbScale: ref(0), busIntercityColorMode: ref<string>("route"),
   busIntercityAltOffset: ref(0), busIntercityOpacity: ref(1),
@@ -173,6 +175,7 @@ function sync(): void {
   r.railTrackOpacity.current = rNum(a, "rail", "railTrackOpacity");
   r.railTrainVisible.current = rBool(a, "rail", "railTrainVisible");
   r.railTrackMode.current = rOneOf(rStr(a, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d");
+  r.railTrain3D.current = rBool(a, "rail", "railTrain3D");
 
   r.beamVisible.current = rBool(a, "lighthouses", "beamVisible");
   r.beamDistance.current = rNum(a, "lighthouses", "beamDistance");
@@ -223,6 +226,7 @@ function sync(): void {
   r.wasteNoteSize.current = rNum(a, "wasteTruck", "wasteNoteSize");
   r.wasteNoteZOffset.current = rNum(a, "wasteTruck", "wasteNoteZOffset");
   r.wasteTruckOpacity.current = rFiniteNum(a, "wasteTruck", "wasteTruckOpacity", 1);
+  r.wasteTruck3D.current = rBool(a, "wasteTruck", "wasteTruck3D");
   r.wasteScheduleOpacity.current = rFiniteNum(a, "wasteSchedule", "wasteScheduleOpacity", 1);
 
   r.wasteSubParams.current = buildWasteSubParams(a);

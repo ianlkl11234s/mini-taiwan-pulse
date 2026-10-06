@@ -5,7 +5,7 @@
 
 import type { RailTrain, RailStationTime, TraData, TraSchedule } from "../types";
 import { getTrainColor } from "../constants/traTrainTypes";
-import { timeToSeconds, unixToExtendedDaySeconds, interpolateOnLineString } from "./railUtils";
+import { timeToSeconds, unixToExtendedDaySeconds, interpolateWithBearingOnLineString, directedBearing } from "./railUtils";
 
 const TERMINAL_DWELL_TIME = 60;
 const ORIGIN_EARLY_APPEAR_TIME = 120;
@@ -289,13 +289,13 @@ export class TraTrainEngine {
         const fromProgress = fromStationId ? (trackProgress[fromStationId] ?? 0) : 0;
         const toProgress = toStationId ? (trackProgress[toStationId] ?? 1) : 1;
 
-        let position: [number, number];
-        if (isWaitingAtOrigin || displayStatus === "stopped") {
-          position = interpolateOnLineString(coords, fromProgress);
-        } else {
-          const actualProgress = fromProgress + (toProgress - fromProgress) * seg.segmentProgress;
-          position = interpolateOnLineString(coords, actualProgress);
-        }
+        // R6 段 3：位置與行進方向一次算（停站時朝下一站）
+        const progress = isWaitingAtOrigin || displayStatus === "stopped"
+          ? fromProgress
+          : fromProgress + (toProgress - fromProgress) * seg.segmentProgress;
+        const located = interpolateWithBearingOnLineString(coords, progress);
+        const position = located.position;
+        const bearing = directedBearing(located.bearing, toProgress < fromProgress);
 
         trains.push({
           trainId: departure.train_id,
@@ -305,6 +305,7 @@ export class TraTrainEngine {
           color: getTrainColor(departure.train_type_code),
           status: displayStatus,
           trainTypeCode: departure.train_type_code,
+          bearing,
         });
       }
     }

@@ -3,6 +3,8 @@ import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 
 const SOURCE_ID = "rail-tracks";
 const LAYER_ID = "rail-tracks-line";
+/** R6 段 3：平面列車要疊在 2D 軌道之上（flatMovingController 用）。 */
+export const RAIL_TRACKS_LAYER_ID = LAYER_ID;
 const sourceData = new WeakMap<GeoJSONSource, GeoJSON.FeatureCollection>();
 
 /**

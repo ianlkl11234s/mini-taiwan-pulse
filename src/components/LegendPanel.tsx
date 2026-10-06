@@ -17,7 +17,7 @@ import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALL
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchArrow, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
 import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR, BRIDGE_RESILIENCE_UNVALIDATED_TEXT, BRIDGE_WEIGHTINGS, DECAY_RAMP, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
 import { useBridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_V5_LINE_COLORS } from "../data/bssBridgeTypes";
@@ -81,6 +81,8 @@ import {
 } from "../data/urbanHeatTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { isobathLegendRows, ISOBATH_ATTRIBUTION } from "../data/isobathTypes";
+import { WASTE_STATUS_COLORS } from "../data/wasteLoader";
+import { FLAT_ARROW_MIN_ZOOM } from "../map/flatMovingLayers";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLayerFactory";
 import { DIVERGING_STOPS } from "../data/temperatureWavePalette";
@@ -493,6 +495,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "flights", render: () => <FlightsLegend /> },
   { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
+  { id: "wasteTruck", render: () => <WasteTruckLegend /> },
   { id: "railRoutes", render: () => <RailRoutesLegend /> },
   { id: "stationsMetro", render: () => <MetroStationsLegend /> },
   { id: "ports", render: () => <PortsLegend /> },
@@ -949,6 +952,10 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
     showTra ? "灰線為軌道" : null,
   ].filter(Boolean).join("｜");
 
+  // R6 段 3：列車立體效果關（平面點）時，拉近改畫方向箭頭 → 補 LG-6 箭頭列；顏色兩種模式相同
+  const railValues = useLayerParams("rail");
+  const trainsFlat = paramBool(railValues, "rail", "railTrainVisible") && !paramBool(railValues, "rail", "railTrain3D");
+
   return (
     <div>
       {showTra && (
@@ -966,9 +973,37 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
           )}
         </>
       )}
+      {trainsFlat && <FlatArrowRow />}
       {note && (
         <LegendNote style={{ marginTop: 3 }}>{note}</LegendNote>
       )}
+    </div>
+  );
+}
+
+/** R6 段 3：移動物件平面模式的箭頭說明（LG-6，與地圖同形狀）。 */
+function FlatArrowRow() {
+  const t = useLegendTheme();
+  return (
+    <div style={{ marginTop: 4 }}>
+      <LegendRow swatch={<SwatchArrow color={t.textMuted} />}>拉近（z ≥ {FLAT_ARROW_MIN_ZOOM}）以箭頭表示行進方向</LegendRow>
+    </div>
+  );
+}
+
+/**
+ * 垃圾車 GPS（R6 段 3 補，LG-1）：所有狀態同一色（WASTE_STATUS_COLORS），只有停車／離線點較小。
+ * 立體效果開＝光球＋收運中飄音符；關＝平面點，拉近換方向箭頭、不顯示音符。
+ */
+function WasteTruckLegend() {
+  const values = useLayerParams("wasteTruck");
+  const stereo = paramBool(values, "wasteTruck", "wasteTruck3D");
+  return (
+    <div>
+      <LegendTitle zh="垃圾車" en="Truck" />
+      <LegendRow swatch={<SwatchDot color={WASTE_STATUS_COLORS.collecting} />}>垃圾車（GPS 即時位置）</LegendRow>
+      {!stereo && <FlatArrowRow />}
+      <LegendNote>{stereo ? "停車／離線的點較小；收運中的車會飄出音符" : "停車／離線的點較小"}</LegendNote>
     </div>
   );
 }
