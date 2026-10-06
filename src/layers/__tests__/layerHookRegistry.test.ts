@@ -190,6 +190,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "harmReductionNeedle", "harmReductionTreatment", "harmReductionHivSelftest",
   "harmReductionHivTesting", "harmReductionPreventionCenters",
   "harmReductionAlcohol", "harmReductionPrep", "harmReductionInternetAddiction", "harmReductionAftercare", "harmReductionSmokingCessation", "harmReductionAntiDrugPharmacies", "harmReductionCondomOutlets", "harmReductionTherapeuticCommunities", "harmReductionDuiCrashes",
+  // 崩塌：純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "landslideDodAreas", "landslideDodImpact", "highwayDisasterHistory", "landslideAnnual",
   // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
   "railRoutes",
 

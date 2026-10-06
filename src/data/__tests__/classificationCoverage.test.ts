@@ -24,6 +24,7 @@ import {
   CONDOM_OUTLET_VALUES, HIV_TESTING_CATEGORY_VALUES, INTERNET_SERVICE_TYPE_VALUES, SELFTEST_CHANNEL_VALUES,
   SMOKING_FACILITY_VALUES, TREATMENT_CATEGORY_VALUES,
 } from "../harmReductionTypes";
+import { DOD_RISK_VALUES } from "../landslideTypes";
 
 function distinctValues(rel: string, field: string): string[] {
   const data = JSON.parse(readFileSync(`public/${rel}`, "utf8")) as GeoJSON.FeatureCollection;
@@ -173,6 +174,10 @@ const CASES: Case[] = [
     covered: [...CONDOM_OUTLET_VALUES],
     ssot: "src/data/harmReductionTypes.ts CONDOM_OUTLET_OPTIONS",
   },
+  // ── 崩塌：大規模崩塌潛勢區／影響範圍 risk 分色（漏值會落成中性灰）；省道歷史災情走 PMTiles，
+  //    category_group 的完整性改由 scripts/preprocess/build-landslide-public.py 遇未知 category_sub 即中止守住。──
+  { file: "hazards/landslide_dod_areas.geojson", field: "risk", covered: [...DOD_RISK_VALUES], ssot: "src/data/landslideTypes.ts DOD_RISK_OPTIONS" },
+  { file: "hazards/landslide_dod_impact.geojson", field: "risk", covered: [...DOD_RISK_VALUES], ssot: "src/data/landslideTypes.ts DOD_RISK_OPTIONS" },
 ];
 
 describe("分類表覆蓋資料實際值", () => {

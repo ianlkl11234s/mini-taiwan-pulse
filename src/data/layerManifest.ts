@@ -144,6 +144,7 @@ import { NOISE_LAYER_COLORS } from "./noiseTypes";
 import { ENVIRONMENT_LAYER_COLORS } from "./environmentLayerTypes";
 import { PUBLIC_LIFE_COLORS } from "./publicLifePalette";
 import { HARM_REDUCTION_COLORS } from "./harmReductionTypes";
+import { LANDSLIDE_LAYER_COLORS } from "./landslideTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -6599,6 +6600,44 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "山域意外事故救援案件點（可依年份篩選，圓徑依受困人數）",
     topics: ["災害", "山域", "救援"],
+  },
+
+  // ══════════ 崩塌 Landslide（農水署大規模崩塌 111–115 年版、公路局省道歷史災情、農水署年度全島崩塌地）══════════
+  landslideDodAreas: {
+    key: "landslideDodAreas", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌潛勢區", alt: "Large-scale Landslide Areas" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.landslideDodAreas, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_dod_areas", confidence: "HIGH" }], note: "農業部農村發展及水土保持署大規模崩塌潛勢區 111–115 年版（data.gov.tw 152081 等 5 筆）；322 面，逐年處數不同（36→94），跨年比較用 lslno_old。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "landslide-dod-areas", url: "./hazards/landslide_dod_areas.geojson" },
+    legend: "landslideDodAreas", popup: "landslideDodArea", params: { count: 2, kinds: ["select", "slider"] },
+    description: "大規模崩塌潛勢區（依年度版本切換，預設 115 年版；依來源風險等級上色，點開看保全住戶與聚落）",
+    topics: ["災害", "崩塌", "大規模崩塌", "保全戶"],
+  },
+  landslideDodImpact: {
+    key: "landslideDodImpact", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌影響範圍", alt: "Landslide Impact Zones" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.landslideDodImpact, icon: House,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_dod_impact", confidence: "HIGH" }], note: "農業部農村發展及水土保持署大規模崩塌影響範圍 111–115 年版（data.gov.tw 159098 等 5 筆）；322 面。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "landslide-dod-impact", url: "./hazards/landslide_dod_impact.geojson" },
+    legend: "landslideDodImpact", popup: "landslideDodImpact", params: { count: 2, kinds: ["select", "slider"] },
+    description: "大規模崩塌影響範圍（與潛勢區共用年度版本選單；點開看保全戶數）",
+    topics: ["災害", "崩塌", "大規模崩塌", "保全戶"],
+  },
+  highwayDisasterHistory: {
+    key: "highwayDisasterHistory", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "省道歷史災情", alt: "Highway Disaster History" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.highwayDisasterHistory, icon: Route,
+    upstream: { status: "verified", datasets: [{ datasetId: "highway_disaster_history", confidence: "HIGH" }], note: "交通部公路局道路（橋梁）歷史災情（data.gov.tw 31020）；通報 2014-01-13～2026-10-04 共 16,163 點（292 筆無座標未畫）。2018 年起通報筆數暴增約 10 倍，疑為通報制度改變。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "highway-disaster-history", url: "./hazards/highway_disaster_history.pmtiles", sourceLayer: "highway_disaster_history", minzoom: 5, maxzoom: 12 },
+    legend: "highwayDisasterHistory", popup: "highwayDisaster", params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
+    description: "省道落石、坍方、土石流、預警性封閉等歷史災情點（可依類別與通報年份篩選）；2018 年起筆數暴增約 10 倍疑為通報制度改變，不代表災害增加。",
+    topics: ["災害", "崩塌", "落石", "道路"],
+  },
+  landslideAnnual: {
+    key: "landslideAnnual", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "年度全島崩塌地", alt: "Annual Landslide Inventory" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.landslideAnnual, icon: Layers,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_annual_swcb", confidence: "HIGH" }], note: "農業部農村發展及水土保持署年度全島崩塌地（衛星影像判釋）；只有 2017、2018、2023、2024 四年共 143,511 面，2019–2022 未納入、2016 以前為林業署另一口徑未納入；2024 為 V2 版（影像 2024-12～2025-05）。107MB PMTiles 走 S3 deploy-assets/hazards/；z<10 切片會遺漏小面，圖層 z10 起顯示。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "landslide-annual", url: "./hazards/landslide_annual_swcb_20261006.pmtiles", sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
+    legend: "landslideAnnual", popup: "landslideAnnual", params: { count: 2, kinds: ["select", "slider"] },
+    description: "年度全島崩塌地範圍（只有 2017、2018、2023、2024 四年；放大到 10 級以上才顯示）",
+    topics: ["災害", "崩塌", "衛星判釋"],
   },
 
   // popup `nuclearStation` 與 key **完全無關**（不是單複數差異）——

@@ -120,6 +120,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
+  | "landslideDodAreas" | "landslideDodImpact" | "highwayDisasterHistory" | "landslideAnnual"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -819,6 +820,7 @@ export interface FeatureInfo {
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "mountainHut" | "mountainRescueIncident"
+    | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1178,6 +1180,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   earthquakeReplay: boolean;
   /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */
   mountainRescueIncidents: boolean;
+  /** 崩塌：大規模崩塌潛勢區／影響範圍（111–115 年版）、省道歷史災情 16,163 點、年度全島崩塌地（4 年） */
+  landslideDodAreas: boolean;
+  landslideDodImpact: boolean;
+  highwayDisasterHistory: boolean;
+  landslideAnnual: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）

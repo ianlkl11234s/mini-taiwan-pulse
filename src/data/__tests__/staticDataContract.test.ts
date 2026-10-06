@@ -499,6 +499,17 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "service_modes", type: "string" },
     { field: "is_therapeutic_community", type: "boolean" },
   ],
+  // ⛰️ 崩塌（2026-10-06）：年度版本篩選 `["==", ["get","year_roc"], 115]` 靠數字型別，漂成字串整層空白。
+  "hazards/landslide_dod_areas.geojson": [
+    { field: "year_roc", type: "number" },
+    { field: "risk", type: "string" },
+    { field: "dwelling_count", type: "number", nullable: true },
+  ],
+  "hazards/landslide_dod_impact.geojson": [
+    { field: "year_roc", type: "number" },
+    { field: "risk", type: "string" },
+    { field: "total_res", type: "number", nullable: true },
+  ],
 };
 
 /**

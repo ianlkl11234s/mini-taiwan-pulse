@@ -173,7 +173,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-06: +61 成癮與減害 Statistics 圖層（HIV 4、執法 15、行為調查 2、服務據點 40；第二級毒品／毒防中心不接）。
     // 2026-10-06: +13 成癮與減害第三輪（地檢署轄區 5、清潔針具三類任一 4、替代治療執行機構 4）。
     // 2026-10-06: +4 崩塌與水土保持 Statistics 圖層（崩塌筆數／面積、治山防災工程總經費、水土保持災害總損失；崩塌地處理面積不接）。
-    expect(keys.length).toBe(1074);
+    // 2026-10-06: +4 崩塌（大規模崩塌潛勢區／影響範圍、省道歷史災情、年度全島崩塌地）。
+    expect(keys.length).toBe(1078);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

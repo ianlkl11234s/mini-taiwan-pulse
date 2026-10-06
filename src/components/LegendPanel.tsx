@@ -250,6 +250,7 @@ import {
   HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend,
 } from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
+import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -368,6 +369,10 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "landslideDodAreas", render: () => <LandslideDodAreasLegend /> },
+  { id: "landslideDodImpact", render: () => <LandslideDodImpactLegend /> },
+  { id: "highwayDisasterHistory", render: () => <HighwayDisasterHistoryLegend /> },
+  { id: "landslideAnnual", render: () => <LandslideAnnualLegend /> },
   { id: "harmReductionNeedle", render: () => <HarmReductionNeedleLegend /> },
   { id: "harmReductionTreatment", render: () => <HarmReductionTreatmentLegend /> },
   { id: "harmReductionHivSelftest", render: () => <HarmReductionHivSelftestLegend /> },

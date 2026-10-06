@@ -1397,6 +1397,16 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        // 崩塌：大規模崩塌潛勢區＋影響範圍（同一年度版本選單）、省道歷史災情、年度全島崩塌地
+        title: "崩塌 Landslide",
+        layers: [
+          fromManifest("landslideDodAreas"),
+          fromManifest("landslideDodImpact"),
+          fromManifest("highwayDisasterHistory"),
+          fromManifest("landslideAnnual"),
+        ],
+      },
+      {
         // 山域事故：與「🌲 林業」的步道 / 通訊點 / 山屋 疊圖 = 登山安全敘事
         title: "山域事故 Mountain Rescue",
         layers: [

@@ -161,6 +161,7 @@ import {
   HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel,
   HarmReductionAlcoholPanel, HarmReductionPrepPanel, HarmReductionInternetAddictionPanel, HarmReductionAftercarePanel, HarmReductionSmokingCessationPanel, HarmReductionAntiDrugPharmacyPanel, HarmReductionCondomOutletPanel, HarmReductionTherapeuticCommunityPanel, HarmReductionDuiCrashPanel,
 } from "./harmReductionPanels";
+import { HighwayDisasterPanel, LandslideAnnualPanel, LandslideDodAreaPanel, LandslideDodImpactPanel } from "./landslidePanels";
 import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
@@ -320,6 +321,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   forestryPOI: ForestryGenericPanel,
   mountainHut: MountainHutPanel,
   mountainRescueIncident: MountainRescuePanel,
+  landslideDodArea: LandslideDodAreaPanel,
+  landslideDodImpact: LandslideDodImpactPanel,
+  highwayDisaster: HighwayDisasterPanel,
+  landslideAnnual: LandslideAnnualPanel,
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
@@ -778,6 +783,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   forestryPOI: "林業點位 (POI)",
   mountainHut: "山屋・高山營地",
   mountainRescueIncident: "山域事故",
+  landslideDodArea: "大規模崩塌潛勢區",
+  landslideDodImpact: "大規模崩塌影響範圍",
+  highwayDisaster: "省道歷史災情",
+  landslideAnnual: "年度崩塌地",
   hikingTrails: "步道",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
