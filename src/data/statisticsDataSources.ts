@@ -4,6 +4,7 @@ import { isStatisticsLayer, STATISTICS_RECIPES, statisticsBaseKey } from "./regi
 import { getSocialRecipe } from "./socialStatisticsRecipes";
 import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
 import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
+import { getAddictionRecipe } from "./addictionStatisticsRecipes";
 import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
@@ -126,6 +127,26 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       sourceUrl: environment.source_landing_url,
       provider: environment.publisher,
       license: environment.license,
+    };
+  }
+
+  const addiction = getAddictionRecipe(key);
+  if (addiction) {
+    const raw = addiction.pair_raw_key ? getAddictionRecipe(addiction.pair_raw_key) : undefined;
+    const points = addiction.dataset_id === "addiction_service_points";
+    return {
+      kind: addiction.derived ? "derived" : "source",
+      datasetIds: [addiction.dataset_id],
+      label: points ? "衍生據點計數（本專案減害點位圖層）" : addiction.derived ? "衍生成癮與減害統計比例" : "原始成癮與減害統計快照",
+      metricLabel: addiction.label,
+      unit: addiction.unit,
+      level: addiction.level,
+      period: periodLabel(addiction.release_options),
+      contract: `只接受 ${addiction.release_options.length} 個已交付 exact release selector；${raw ? `分子為「${raw.label}」同期。` : points ? "點在參考行政區面內計數。" : "數值保留來源值，不重算。"}不適用、無資料、隱私遮蔽皆不補 0。`,
+      disclosure: `位置口徑：${addiction.location_semantics} ${addiction.disclosure}`,
+      sourceUrl: addiction.source_landing_url,
+      provider: addiction.publisher,
+      license: addiction.license,
     };
   }
 

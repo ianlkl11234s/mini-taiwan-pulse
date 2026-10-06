@@ -4,6 +4,7 @@ import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
 import { SOCIAL_STATISTICS_RECIPES_BY_KEY, getSocialRecipe, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { ENVIRONMENT_STATISTICS_RECIPES_BY_KEY, environmentDefaultDimensions, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
+import { ADDICTION_STATISTICS_RECIPES_BY_KEY, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY, demographicsDisplayLabel, demographicsLatestOption, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
@@ -466,6 +467,30 @@ export const STATISTICS_RECIPES = {
     breaks: recipe.legend.breaks,
     colors: statisticsVisualColors(key, demographicsDisplayLabel(recipe), recipe.legend.breaks),
   }])) as Record<DemographicsStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  // 成癮與減害：不放 releaseId，loader 由 exact whitelist 取最新公開期別（本家族無 dimensions）。
+  ...Object.fromEntries(Object.entries(ADDICTION_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => {
+    const only = recipe.release_options[0];
+    return [key, {
+      dataset_id: recipe.dataset_id,
+      indicator_id: recipe.indicator_id,
+      level: recipe.level as StatisticsLevel,
+      label: recipe.label,
+      unit: recipe.unit,
+      frequency: recipe.release_options.length > 1 ? `${recipe.release_options.length} 個已交付期別` : `${only?.period_start ?? "已公開"} 至 ${only?.period_end ?? ""}`,
+      dimensions: {},
+      includeHealth: true,
+      provenance: {
+        boundaryVersion: recipe.boundary_version,
+        locationSemantics: recipe.location_semantics,
+        disclosure: recipe.disclosure,
+      },
+      breaks: recipe.legend.breaks,
+      colors: statisticsVisualColors(key, recipe.label, recipe.legend.breaks),
+    }];
+  })) as Record<AddictionStatisticsLayerKey, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
   }>,

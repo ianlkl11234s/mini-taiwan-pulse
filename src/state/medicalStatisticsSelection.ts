@@ -4,6 +4,7 @@ import { getAgriRecipe, getAgriRecipeDetails } from '../data/agriStatisticsRecip
 import { ensureStatisticsRecipeDetails, statisticsRecipeDetailsLoaded, type StatisticsRecipeFamily } from '../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEnvironmentRecipe } from '../data/environmentStatisticsRecipes';
+import { getAddictionRecipe } from '../data/addictionStatisticsRecipes';
 import { demographicsVillageOnlyPeriod, getDemographicsRecipe } from '../data/demographicsStatisticsRecipes';
 import { STATISTICS_RECIPES } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
@@ -46,7 +47,7 @@ function recipeDetailsFamilies(...keys: string[]): StatisticsRecipeFamily[] {
 }
 
 function recipe(key: string): Recipe {
-  return getSocialRecipeDetails(key) ?? getAgriRecipeDetails(key) ?? getComparisonRecipe(key) ?? getEnvironmentRecipe(key) ?? getDemographicsRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
+  return getSocialRecipeDetails(key) ?? getAgriRecipeDetails(key) ?? getComparisonRecipe(key) ?? getEnvironmentRecipe(key) ?? getDemographicsRecipe(key) ?? getAddictionRecipe(key) ?? STATISTICS_RECIPES[key as keyof typeof STATISTICS_RECIPES];
 }
 
 function releaseOptions(key: string, source: NonNullable<Recipe>): ReleaseOption[] {

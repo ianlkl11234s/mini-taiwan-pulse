@@ -1,5 +1,15 @@
 import {
   Baby,
+  Cigarette,
+  HandHeart,
+  Leaf,
+  MapPin,
+  Pill,
+  Ribbon,
+  Smartphone,
+  Syringe,
+  TestTube,
+  Wine,
   Briefcase,
   CalendarClock,
   BedDouble,
@@ -159,6 +169,34 @@ const ENVIRONMENT_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> 
 };
 
 /**
+ * 成癮與減害統計（addictionStatisticsRecipes）以 key 明確指定，避免「酒駕」「HIV」「據點」落入
+ * 交通或 fallback 分支。疾病／行為調查／服務據點＝醫療 BuGn；執法（警政、地檢署）＝既有治安 Reds
+ * （同犯罪統計，色相只是主題提示，不表示好壞）。不新增色票；刻意不 import recipe。
+ */
+const ADDICTION_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> = [
+  [/^statsHiv(?:NewCases|Per100k|Cases|Per100kYear)(?:County|Township)$/, 'health', Ribbon],
+  [/^statsDrug(?:Use|Grade1|Grade2)?SuspectsCounty$|^statsDrug(?:Use|Grade1|Grade2)?SuspectsPer100kCounty$/, 'security', Pill],
+  [/^statsDui(?:Cases|Rate|Enforcement|EnforcementPer100k)County$/, 'security', Wine],
+  [/^statsProsecutor/, 'security', Gavel],
+  [/^statsAdultSmokingRateCounty$/, 'health', Cigarette],
+  [/^statsAdultBetelRateCounty$/, 'health', Leaf],
+  [/^statsNeedle(?:EducationStations|VendingMachines|ReturnBins)/, 'health', Syringe],
+  [/^statsDrugTreatmentFacilities/, 'health', Pill],
+  [/^statsAlcoholTreatmentFacilities/, 'health', Wine],
+  [/^statsHivTestingSites/, 'health', TestTube],
+  [/^statsHivSelftestOutlets/, 'health', TestTube],
+  [/^statsPrepServiceSites/, 'health', HandHeart],
+  [/^statsSmokingCessationProviders/, 'health', Cigarette],
+  [/^statsInternetAddictionServices/, 'health', Smartphone],
+  [/^statsDrugPreventionCenters/, 'health', MapPin],
+];
+
+function addictionVisual(key: string): StatisticsVisual | undefined {
+  const match = ADDICTION_KEY_ICONS.find(([pattern]) => pattern.test(key));
+  return match ? visual(THEMES[match[1]], match[2]) : undefined;
+}
+
+/**
  * 人口統計（demographicsStatisticsRecipes）以 key 前綴 `statsDemographics` 明確指定，避免未來
  * 「出生」「死亡」等標籤落入出生登記（公用事業）分支；icon 依 key 的指標段。
  * 可正可負的指標（自然增加、淨遷徙及其率；recipe 門檻對稱於 0）由 statisticsVisualColors 走 PuOr 雙向色階。
@@ -196,6 +234,8 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
   if (environment) return visual(THEMES[environment[0]], environment[1]);
   const demographics = demographicsVisual(key);
   if (demographics) return demographics;
+  const addiction = addictionVisual(key);
+  if (addiction) return addiction;
   const text = textFor(key, label, group);
 
   if (has(text, ['教育', 'education', '學校', '學院', '幼兒園', '國小', '國中', '高中'])) {

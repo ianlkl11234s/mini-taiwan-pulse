@@ -10,6 +10,7 @@ import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -449,6 +450,22 @@ const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS
   }];
 })) as Record<DemographicsStatisticsLayerKey, LayerManifestEntry>;
 
+/** Addiction recipes（HIV、毒品／酒駕／地檢署、吸菸檳榔調查、服務據點；縣市＋鄉鎮）share the dynamic Statistics renderer. */
+const ADDICTION_LEVEL_QUALIFIERS: Partial<Record<string, string>> = { county: "縣市", township: "鄉鎮市區" };
+const ADDICTION_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: ADDICTION_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: ADDICTION_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
+    description: recipe.disclosure,
+    topics: ["統計", "成癮", "減害", recipe.subgroup.replace(/（[^）]*）$/, ""), ADDICTION_LEVEL_QUALIFIERS[recipe.level] ?? "縣市"],
+  }];
+})) as Record<AddictionStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -544,6 +561,7 @@ export const LAYER_MANIFEST = {
   ...LABOR_STATISTICS_MANIFEST_ENTRIES,
   ...ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES,
   ...DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES,
+  ...ADDICTION_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
