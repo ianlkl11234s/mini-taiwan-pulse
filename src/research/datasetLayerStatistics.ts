@@ -44,13 +44,31 @@ export async function describeDatasetLayerStatistics(layerKey: string, locked: R
   };
 }
 
+/** Release-scoped (statistics) datasets require an exact releaseId: use the caller's, else the registered release with the latest observedAt. */
+export function releaseParameters(descriptor: DatasetDescriptor, requested: unknown): Record<string, Scalar> | undefined {
+  const spec = descriptor.parameters?.find(parameter => parameter.name === "releaseId");
+  if (!spec) return undefined;
+  const options = (spec.options ?? []).filter((option): option is string => typeof option === "string");
+  if (requested !== undefined) {
+    if (typeof requested !== "string" || !options.includes(requested)) throw new Error("RELEASE_NOT_ALLOWED");
+    return { releaseId: requested };
+  }
+  if (!spec.required) return undefined;
+  const observed = new Map(descriptor.versions.map(version => [version.versionId, version.observedAt ?? ""]));
+  const latest = [...options].sort((a, b) => (observed.get(a) ?? "").localeCompare(observed.get(b) ?? ""))[options.length - 1];
+  if (!latest) throw new Error("RELEASE_NOT_ALLOWED");
+  return { releaseId: latest };
+}
+
 export async function summarizeDatasetLayer(input: LayerSummaryInput, locked: ReadonlySet<string>): Promise<Record<string, unknown>> {
   const descriptor = await datasetForLayer(input.layerKey, locked); assertAggregateReady(descriptor);
   const fields = fieldNames(descriptor); const filterable = new Set(descriptor.access.query.filters);
   const filters = input.filters ?? []; const groupBy = input.groupBy ?? [];
   if (filters.some(filter => !fields.has(filter.field) || !filterable.has(filter.field)) || groupBy.some(field => !fields.has(field) || field === "geometry")) throw new Error("INVALID_STATISTICS_INPUT");
+  const parameters = releaseParameters(descriptor, input.releaseId);
   const execution = await queryRecordsDetailed({
     datasetId: descriptor.datasetId,
+    ...(parameters ? { parameters } : {}),
     select: [...new Set([...groupBy, "geometry"].filter(field => fields.has(field)))],
     filters: filters.map(filter => ({ field: filter.field, op: "eq" as const, value: filter.value as Scalar })),
     limit: 1,
