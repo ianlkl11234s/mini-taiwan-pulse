@@ -275,7 +275,17 @@ export type AnalysisResultPresentation = {
   /** Legend source line from the rows' own `_wh_source` dataset titles (warehouse nearby results);
    *  absent when no row carries one. Never a dataset id. */
   sourceLabel?: string;
+  /** Upstream dataset ids recorded in a warehouse import's lineage (`warehouseDatasets`); ids only —
+   *  callers resolve them to human labels and must drop the ones they cannot name. */
+  sourceDatasets?: readonly string[];
 };
+
+/** Resolves lineage dataset ids to a legend source line with `describe`; unresolved ids are dropped (never shown raw). */
+export function warehouseDatasetsSourceLabel(datasets: readonly string[] | undefined, describe: (datasetId: string) => string | null | undefined): string | undefined {
+  const titles = [...new Set((datasets ?? []).map(datasetId => { try { return describe(datasetId)?.trim() ?? ""; } catch { return ""; } }).filter(Boolean))];
+  if (!titles.length) return undefined;
+  return titles.length > 3 ? `${titles.slice(0, 3).join("、")} 等 ${titles.length} 份` : titles.join("、");
+}
 
 /** Unique `_wh_source` titles in row order -> 「A、B、C」, or 「A、B、C 等 N 份」 when more than three. */
 export function warehouseSourceLabel(rows: readonly Record<string, unknown>[]): string | undefined {
@@ -576,6 +586,7 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
     ...(countLegend ? { countLegend } : {}),
     ...(numericLegend ? { numericLegend } : {}),
     ...(sourceLabel ? { sourceLabel } : {}),
+    ...(result.sourceDatasets?.length ? { sourceDatasets: result.sourceDatasets } : {}),
   };
 }
 

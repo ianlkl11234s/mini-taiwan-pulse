@@ -34,7 +34,7 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender, waitForValue } from "./sceneReadiness";
-import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, warehouseDatasetsSourceLabel, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
 import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
@@ -687,7 +687,16 @@ export function MainMapConnection(props: Props) {
       latest.current.onAnalysisResultFeature?.(researchResultPanelProperties(
         overlaps,
         resultId => presentedAnalysisRef.current.find(result => result.resultId === resultId),
-        datasetId => describeDataset(datasetId, latest.current.locked).label,
+        datasetId => {
+          try { return describeDataset(datasetId, latest.current.locked).label; }
+          catch (error) {
+            // warehouse:<id> 不在前端 descriptor：以匯入 lineage 的上游資料集名稱代替。
+            const sources = presentedAnalysisRef.current.find(result => result.datasetId === datasetId)?.sourceDatasets;
+            const label = warehouseDatasetsSourceLabel(sources, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]);
+            if (label) return label;
+            throw error;
+          }
+        },
         trendFor,
       ));
     };
@@ -751,14 +760,16 @@ export function MainMapConnection(props: Props) {
   useEffect(() => {
     publishAnalysisLegend({
       // Source line = the dataset descriptor's name (not the result title, which is often the same text).
-      entries: analysisLegendEntries(presentedAnalysis, datasetId => {
+      entries: analysisLegendEntries(presentedAnalysis, (datasetId, _displayLabel, sourceDatasets) => {
         const label = researchResultDatasetLabel(datasetId, null, id => describeDataset(id, latest.current.locked).label);
-        return label === UNNAMED_DATASET_LABEL ? null : label;
-      }, analysisPlaybackFor),
+        if (label !== UNNAMED_DATASET_LABEL) return label;
+        // warehouse:<id> 不在前端 descriptor：改用匯入 lineage 的上游資料集，解析不出名稱的不顯示。
+        return warehouseDatasetsSourceLabel(sourceDatasets, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]) ?? null;
+      }, analysisPlaybackFor, availableAnalysis),
       compact: !!props.analysisResultSelected,
     });
     // playbackVersion: republishes on every tick/scrub so the bar's index/playing stay live.
-  }, [presentedAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
+  }, [presentedAnalysis, availableAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
   useEffect(() => () => publishAnalysisLegend({ entries: [], compact: false }), []);
   // I2: closing the docked panel, or selecting another layer's feature, restores every result.
   useEffect(() => {

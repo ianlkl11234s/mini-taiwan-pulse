@@ -9,7 +9,7 @@ import type { WalkingIsochroneExecution } from "./networkProvider";
 import { loadWarehouseResult, validateWarehouseImportArgs, type WarehouseResultFetcher } from "./warehouseResultImport";
 
 export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "compare_regions" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
-export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation" | "resultStyle"> & { displayLabel?: string; units?: StoredDataResult["units"] };
+export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation" | "resultStyle"> & { displayLabel?: string; units?: StoredDataResult["units"]; sourceDatasets?: readonly string[] };
 
 /**
  * Presentation is a collection, rather than a domain-specific single result.
@@ -181,6 +181,13 @@ function uniqueByResultId(values: Record<string, unknown>[]): Record<string, unk
 
 function uniqueSourceRefs(inputs: readonly StoredDataResult[]): StoredDataResult["sourceRefs"] {
   return inputs.flatMap(input => input.sourceRefs).filter((source, index, all) => all.findIndex(other => other.sourceId === source.sourceId && other.version === source.version && other.checksumSha256 === source.checksumSha256 && other.reference === source.reference && other.acquiredAt === source.acquiredAt) === index);
+}
+
+/** Upstream dataset ids a warehouse import recorded in its lineage (empty/absent for every other result). */
+function warehouseLineageDatasets(result: StoredDataResult): string[] | undefined {
+  const datasets = (result.lineage as Record<string, unknown> | undefined)?.warehouseDatasets;
+  const ids = Array.isArray(datasets) ? datasets.filter((value): value is string => typeof value === "string" && value.length > 0) : [];
+  return ids.length ? ids : undefined;
 }
 
 function assertBoundedLineage(sourceInputs: Record<string, unknown>[], operationTrail: Record<string, unknown>[]): void {
@@ -523,7 +530,7 @@ export class ResearchAnalysisSession {
       return { result, metrics };
     });
     assertResultCollectionBudget(prepared.map(item => item.metrics));
-    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, displayLabel: resultDisplayLabel(result), rows: result.rows, geometry: result.geometry, presentation: result.presentation, units: result.units, ...(result.resultStyle ? { resultStyle: result.resultStyle } : {}) }));
+    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, displayLabel: resultDisplayLabel(result), rows: result.rows, geometry: result.geometry, presentation: result.presentation, units: result.units, ...(result.resultStyle ? { resultStyle: result.resultStyle } : {}), ...(warehouseLineageDatasets(result) ? { sourceDatasets: warehouseLineageDatasets(result)! } : {}) }));
   }
 
   bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number; featureCount: number; vertexCount: number } {
