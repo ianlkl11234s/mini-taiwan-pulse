@@ -68,7 +68,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["accessible-park-facilities-circle", "accessible-park-facilities-glow"], type: "accessibleParkFacilities" },
   { layers: ["bicycle-support-circle", "bicycle-support-glow"], type: "bicycleSupport" },
   { layers: ["visitor-centres-circle", "visitor-centres-glow"], type: "visitorCentres" },
-  { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
   { layers: ["road-congestion-hit"], type: "roadCongestion" },
   // 🚗 國道壅塞（W2）：同樣是「透明加寬命中層」的細線層，緊接省道排在最前段。
   //    兩層地理上不重疊（國道 vs 省道），先後順序對彼此無影響；
@@ -667,6 +666,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
+  // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。
+  { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
