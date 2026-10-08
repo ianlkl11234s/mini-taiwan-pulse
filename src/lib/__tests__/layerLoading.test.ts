@@ -28,4 +28,10 @@ describe("圖層列載入轉圈：loadingRegistry 任務對回圖層（P1，盡�
     loadingRegistry.end("gfw-dark-vessels:render");
     expect(isLayerLoading("gfwDarkVessels")).toBe(false);
   });
+
+  it("冒號後的 sourceId（sourceId 與 layerKey 不同名）也能對回圖層", () => {
+    expect(isLoadingTaskForLayer("overlay-hydrate:religion-churches", "religionChurches")).toBe(true);
+    expect(isLoadingTaskForLayer("overlay-hydrate:religion-churches-x", "religionChurches")).toBe(true);
+    expect(isLoadingTaskForLayer("overlay-hydrate:religionchurches2", "religionChurches")).toBe(false);
+  });
 });
