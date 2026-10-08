@@ -155,6 +155,8 @@ export function MainMapConnection(props: Props) {
   const availableResultRowsRef = useRef<PresentableResult[]>([]);
   /** I2: rows behind the open docked panel; re-applied after every install (feature-state is per source). */
   const analysisSelectionRef = useRef<AnalysisSelection[]>([]);
+  /** Rebuilds the open docked popup payload (playback sync); null when no timed-choropleth popup is open. */
+  const openPanelRef = useRef<{ rebuild: () => AnalysisResultPanelProperties } | null>(null);
   /** S1: when each result last became visible (LRU for the 3-result cap) and which area results lost the fill slot. */
   const analysisActivationsRef = useRef<Map<string, number>>(new Map());
   const analysisOutlineOnlyRef = useRef<string[]>([]);
@@ -675,6 +677,23 @@ export function MainMapConnection(props: Props) {
       });
       return { points, caption: `近 ${style.periods.length} 期`, markerIndex: playback?.index ?? style.periods.length - 1 };
     };
+    // The docked popup's value comes from the feature's latest-period styleFactValue; for a timed
+    // choropleth re-derive it from the row at the *current* playback period so it matches the map.
+    const timedStyleFor = (properties: Record<string, unknown>) => {
+      const resultId = properties.resultId;
+      const style = typeof resultId === "string" ? presentedAnalysisRef.current.find(result => result.resultId === resultId)?.resultStyle : undefined;
+      return style && style.kind === "choropleth" && isTimedChoropleth(style) ? { resultId: resultId as string, style } : null;
+    };
+    const periodSyncedFeature = <T extends { properties?: Record<string, unknown> | null }>(feature: T): T => {
+      const properties = feature.properties ?? {};
+      const timed = timedStyleFor(properties);
+      const fid = properties[FEATURE_ID_PROPERTY];
+      if (!timed || typeof fid !== "number") return feature;
+      const row = availableResultRowsRef.current.find(result => result.resultId === timed.resultId)?.rows[fid] as Record<string, unknown> | undefined;
+      if (!row) return feature;
+      const fact = warehouseChoroplethPeriodFact(timed.style, row, getAnalysisPlaybackState(timed.resultId)?.index ?? timed.style.periods.length - 1);
+      return { ...feature, properties: { ...properties, styleFactLabel: fact.label, styleFactValue: fact.value } };
+    };
     const click = (event: MapMouseEvent) => {
       const layers = analysisResultInteractiveLayerIds(map, presentedAnalysisRef.current.length);
       const overlaps = researchResultPopupOverlaps(layers.length ? map.queryRenderedFeatures(event.point, { layers }) : []);
@@ -684,8 +703,8 @@ export function MainMapConnection(props: Props) {
       applyAnalysisSelection();
       // Registered after useMapInteraction's click listener (map is only passed once prepared),
       // so within one batched click this panel wins over its synchronous "blank click" clear.
-      latest.current.onAnalysisResultFeature?.(researchResultPanelProperties(
-        overlaps,
+      const build = () => researchResultPanelProperties(
+        { ...overlaps, features: overlaps.features.map(periodSyncedFeature) },
         resultId => presentedAnalysisRef.current.find(result => result.resultId === resultId),
         datasetId => {
           try { return describeDataset(datasetId, latest.current.locked).label; }
@@ -698,7 +717,10 @@ export function MainMapConnection(props: Props) {
           }
         },
         trendFor,
-      ));
+      );
+      // 開著的 popup 要跟著播放／拖曳更新（markerIndex 與目前期別的值）；只有含 timed choropleth 的 popup 需要。
+      openPanelRef.current = overlaps.features.some(feature => timedStyleFor(feature.properties ?? {})) ? { rebuild: build } : null;
+      latest.current.onAnalysisResultFeature?.(build());
     };
     let cancelStyleRestore: (() => void) | null = null;
     const redrawAfterStyleLoad = () => {
@@ -717,6 +739,7 @@ export function MainMapConnection(props: Props) {
     return () => {
       cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click);
       if (hoverTip) { map.off("mousemove", hover); map.off("mouseout", endHover); map.off("movestart", endHover); endHover(); hoverTip.destroy(); }
+      openPanelRef.current = null;
       latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
       clearAnalysisPlayback();
     };
@@ -725,6 +748,10 @@ export function MainMapConnection(props: Props) {
   // this panel — both to re-paint the map (the effect below) and to republish the legend's playback
   // bar (index/playing) live.
   const playbackVersion = useSyncExternalStore(subscribeAnalysisPlayback, getAnalysisPlaybackVersion, getAnalysisPlaybackVersion);
+  // F118: keep an open timed-choropleth popup in step with the playback (tick/scrub).
+  useEffect(() => {
+    if (props.analysisResultSelected && openPanelRef.current) latest.current.onAnalysisResultFeature?.(openPanelRef.current.rebuild());
+  }, [playbackVersion, props.analysisResultSelected]);
   // T2 A2: re-paints every installed timed choropleth to its own stored period on every tick/scrub,
   // and again whenever a fresh install (Agent command, basemap switch) lands — so a scrubbed period
   // survives `style.load`'s source/layer rebuild (spec: "切換底圖...後保留目前期別").
