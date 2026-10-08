@@ -516,6 +516,8 @@ export function MainMapConnection(props: Props) {
         case "walking_isochrone": {
           if (!networkProvider.current) throw new Error("NETWORK_PROVIDER_UNAVAILABLE");
           const outcome = await networkProvider.current.walkingIsochrone(request.args);
+          // 撤銷／換 session 期間回來的舊結果不得寫進新的 analysis session。
+          if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
           if (outcome.status === "READY" && "contours" in outcome) {
             if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
             result = analysis.current.storeWalkingIsochrone(outcome);
@@ -768,7 +770,7 @@ export function MainMapConnection(props: Props) {
     const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];
     if (!resultIds.length) return;
     const timer = window.setInterval(() => {
-      if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasResult(resultId))) {
+      if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasAccessibleResult(resultId))) {
         clearAnalysisPresentation(true);
         setMessage("分析結果已過期、移除或失去授權；舊 overlay 已清除。");
         setActivity({ phase: "complete", title: "已清除過期結果", detail: "可重新執行分析以取得目前版本。" });

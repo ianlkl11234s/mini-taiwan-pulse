@@ -471,6 +471,12 @@ export class ResearchAnalysisSession {
 
   hasResult(resultId: string): boolean { return this.store.has(resultId); }
 
+  /** hasResult + the same access gate as presentable(): false once the result expired, was evicted, or its dataset became locked. */
+  hasAccessibleResult(resultId: string): boolean {
+    if (!this.store.has(resultId)) return false;
+    try { this.assertResultAccess(resultId); return true; } catch { return false; }
+  }
+
   /** True when the stored result (if any) has an actual map-drawable geometry. read_series/
    *  compare_series output (recordGrain "series", geometry "none") is analysis-only — never eligible,
    *  and never thrown for; callers use this to keep a non-spatial result out of a `presentable()`
