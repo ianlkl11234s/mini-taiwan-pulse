@@ -35,6 +35,12 @@
   line-height: 1.45;
 }
 
+/* 舊版樣式：同一棵樹但不產生盒子，內容照舊直接排進格子 */
+.mtp-mcard--bare,
+.mtp-mcard--bare > .mtp-mcard__body {
+  display: contents;
+}
+
 .mtp-mcard__head {
   display: flex;
   flex-wrap: wrap;
