@@ -410,9 +410,15 @@ export function useCwaImageryLayer({
 
   // 透明度：只改 paint（handle 已存在才套用；新建 handle 時 reconcile 會帶入最新值）
   useEffect(() => {
-    try { cloudRef.current.handle?.setOpacity(cloudOpacity); } catch { /* style 轉換中，下次 reconcile 補上 */ }
-    try { radarRef.current.handle?.setOpacity(radarOpacity); } catch { /* 同上 */ }
-  }, [cloudOpacity, radarOpacity, mapTick]);
+    // 隱藏中的 raster 不寫 paint（hidden layer 不重算 transition，會讓 hasTransitions 長期為真而持續重繪）；
+    // 最新值留在 opacityRef，下次 reconcile 顯示時帶入。
+    if (cloudVisible) {
+      try { cloudRef.current.handle?.setOpacity(cloudOpacity); } catch { /* style 轉換中，下次 reconcile 補上 */ }
+    }
+    if (radarVisible) {
+      try { radarRef.current.handle?.setOpacity(radarOpacity); } catch { /* 同上 */ }
+    }
+  }, [cloudOpacity, radarOpacity, cloudVisible, radarVisible, mapTick]);
 
   // 注：原本獨立的 preloadDays effect 已不需要 — window 變動會由 subscribeWindowDateKeys
   // 觸發 ensureFresh，evict 邏輯在那裡執行（保護視窗內所有日）。
