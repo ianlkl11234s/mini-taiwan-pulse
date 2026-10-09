@@ -169,6 +169,7 @@ export function useFireLatestLayer(
         ensureLayer(map, st.isDarkTheme);
         updatePaint(map, st.isDarkTheme, st.opacity, st.scale);
         if (eventsRef.current) setData(map, eventsRef.current);
+        setVisible(map, visible); // 重建後預設可見；圖層關閉時要維持隱藏
       } catch { /* style 尚未就緒 */ }
     };
     map.on("style.load", onStyleLoad);

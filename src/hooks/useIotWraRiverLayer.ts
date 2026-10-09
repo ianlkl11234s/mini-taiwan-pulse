@@ -4,7 +4,6 @@ import type {
   Map as MapboxMap,
   CircleLayer,
   ExpressionSpecification,
-  GeoJSONSource,
 } from "mapbox-gl";
 import {
   fetchIotWraRiverDay,
@@ -17,7 +16,6 @@ import {
 } from "./factories/timelineSliceLayer";
 import { paramDefault } from "../data/layerParamsSpec";
 import { pointStrokePaint } from "../map/mapStyleScale";
-import { timeStore } from "../state/timeStore";
 
 /**
  * IoT 河川水位（補強既有 riverLevel；migration 063 預聚合表）
@@ -217,8 +215,6 @@ export function useIotWraRiverLayer(
   // 主題／大小／透明度只走 ref + 下方樣式 effect，不進 controller effect 的 deps（避免重抓／重訂閱）
   const styleRef = useRef({ isDark, scale, opacity });
   styleRef.current = { isDark, scale, opacity };
-  // 最近一次載入的資料快取，換底圖後重畫用（不重抓）
-  const dataRef = useRef<Map<string, StationSeries> | null>(null);
 
   // showMeasured / showForecast 會進 loadDay 的 filter（且在 deps 內觸發重載），
   // CONFIG 無法是純模組常數 → 在 effect 內組 config，編排仍走 factory controller
@@ -229,15 +225,14 @@ export function useIotWraRiverLayer(
     const config: TimelineSliceLayerConfig<Map<string, StationSeries>> = {
       ...BASE_CONFIG,
       loadDay: async (dateKey) => {
-        const built = buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast);
-        dataRef.current = built;
-        return built;
+        return buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast);
       },
     };
     const st = styleRef.current;
     const dispose = startTimelineSliceController(map, config, st.isDark, st.scale, st.opacity);
 
-    // 換底圖（setStyle）會清掉自訂 source/layer：重建後用已快取資料重畫，不重新抓
+    // 換底圖（setStyle）會清掉自訂 source/layer：這裡只補圖層與樣式；資料由 factory controller
+    // 依它自己的「目前請求」快取重畫（不在此寫 stale 的日期／篩選切片）
     const onStyleLoad = () => {
       try {
         const cur = styleRef.current;
@@ -246,8 +241,6 @@ export function useIotWraRiverLayer(
         for (const id of BASE_CONFIG.layerIds) {
           if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
         }
-        const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-        if (src && dataRef.current) src.setData(buildFC(dataRef.current, timeStore.getTime()));
       } catch { /* style 尚未就緒，下次 style.load 再試 */ }
     };
     map.on("style.load", onStyleLoad);
