@@ -86,6 +86,7 @@ const BOX_STYLE: React.CSSProperties = {
 
 export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Props) {
   const decision = useMemo(() => decide(streamUrl, imageUrl), [streamUrl, imageUrl]);
+  const imageOnly = !!imageUrl && streamUrl === imageUrl;
 
   const [stage, setStage] = useState<Stage>(() => initialStage(decision, source));
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -101,10 +102,10 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
   useEffect(() => {
     if (stage !== "img" || imgLoaded) return;
     const t = window.setTimeout(() => {
-      setStage(decision.iframeBlocked ? "text" : "iframe");
+      setStage(imageOnly || decision.iframeBlocked ? "text" : "iframe");
     }, 6000);
     return () => window.clearTimeout(t);
-  }, [stage, imgLoaded, decision.iframeBlocked]);
+  }, [stage, imgLoaded, imageOnly, decision.iframeBlocked]);
 
   // lifecycle 清理：unmount 時切斷 MJPEG 長連線（清空 src）
   useEffect(() => {
@@ -135,7 +136,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
         wordBreak: "break-all",
       }}
     >
-      在新分頁開啟原始串流 ↗
+      在新分頁開啟原始{imageOnly ? "影像" : "串流"} ↗
     </a>
   );
 
@@ -218,7 +219,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
           onError={() => {
             setImgLoaded(false);
             // img 失敗 → 若 host 在黑名單則直接 text，否則試 iframe
-            setStage(decision.iframeBlocked ? "text" : "iframe");
+            setStage(imageOnly || decision.iframeBlocked ? "text" : "iframe");
           }}
           style={{
             maxWidth: "100%",
