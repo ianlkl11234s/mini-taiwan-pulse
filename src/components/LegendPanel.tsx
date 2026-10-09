@@ -3040,7 +3040,7 @@ function MountainRescueLegend() {
       </div>
       <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
-          <SwatchDot color={"transparent"} />
+          <SwatchDot color={"transparent"} stroke="#ff2d2d" strokeWidth={1.5} />
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>紅框 = 有死亡</span>
         </div>
         <LegendNote style={{ lineHeight: 1.4 }}>
@@ -3770,7 +3770,7 @@ function TyphoonTrackLegend() {
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>預測軌跡 Forecast（藍虛線 / 空心點）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <SwatchDot color={"transparent"} />
+          <SwatchDot color={"transparent"} stroke="#fde047" strokeWidth={1.5} glow="#f0abfc" />
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>現在位置 Current（黃圈，click 看詳情）</span>
         </div>
       </div>
