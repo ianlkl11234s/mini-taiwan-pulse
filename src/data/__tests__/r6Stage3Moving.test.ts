@@ -2,7 +2,7 @@
  * R6 段 3（2026-10-06）：小量移動物件（台鐵／高鐵列車、垃圾車 GPS）加「立體效果」toggle（預設開），
  * 關閉時改畫 Mapbox 平面點、拉近換方向箭頭；插值抽成不依賴 three 的純函式，立體與平面共用。
  */
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { getParamsSpec, paramControlCategory, type LayerParamSpec } from "../layerParamsSpec";
 import { anyThreeLayerVisible, railThreeVisible, type ThreeStereoToggles } from "../../hooks/useThreeJsLayers";
 import { bearingDeg, directedBearing, interpolateOnLineString, interpolateWithBearingOnLineString } from "../../engines/railUtils";
@@ -20,6 +20,9 @@ import {
 } from "../../map/flatMovingController";
 import { LAYER_MANIFEST } from "../layerManifest";
 import { describeLayerControls } from "../../research/layerControls";
+import { effectiveRailTrackMode } from "../../map/railTracks";
+import { layerParamsStore } from "../../state/layerParamsStore";
+import { visibleControlSpecs } from "../../state/layerParamsControls";
 import type { LayerVisibility, RailTrain } from "../../types";
 
 const findSpec = (key: string, name: string): LayerParamSpec | undefined =>
@@ -39,15 +42,26 @@ describe("R6 段 3：立體效果 toggle（預設開）", () => {
     expect((getParamsSpec(key) ?? []).filter((s) => s.kind === "toggle" && s.label === "立體效果")).toHaveLength(1);
   });
 
-  it("列車立體效果只在「列車」顯示時出現；軌道 2D／3D select 不變", () => {
+  it("列車立體效果只在「列車」顯示時出現；軌道 select 預設 3D、3D 選項依列車立體效果停用", () => {
     expect(findSpec("rail", "railTrain3D")?.showWhen).toEqual({ param: "railTrainVisible", equals: true });
-    expect(findSpec("rail", "railTrackMode")).toMatchObject({ kind: "select", default: "3d" });
+    expect(findSpec("rail", "railTrackMode")).toMatchObject({
+      kind: "select", default: "3d",
+      disableRule: { option: "3d", param: "railTrain3D", enabledWhenIn: ["true"] },
+    });
   });
 
-  it("音符滑桿與 wasteSchedule 共用（sharedGroup 規格須相同），不加 showWhen", () => {
+  it("音符滑桿與 wasteSchedule 共用值；只有 wasteTruck 掛 showWhen（立體效果開才顯示）", () => {
     for (const name of ["wasteNoteSize", "wasteNoteZOffset"]) {
-      expect(findSpec("wasteTruck", name)).toEqual(findSpec("wasteSchedule", name));
+      const truck = findSpec("wasteTruck", name)!;
+      const sched = findSpec("wasteSchedule", name)!;
+      expect(truck.showWhen).toEqual({ param: "wasteTruck3D", equals: true });
+      expect(sched.showWhen).toBeUndefined();
+      const { showWhen: _s, ...truckRest } = truck;
+      expect(truckRest).toEqual(sched);
+      expect(truck.sharedGroup).toBe(name);
     }
+    // 光點大小平面模式仍有作用（平面點大小），不收起
+    expect(findSpec("wasteTruck", "wasteOrbScale")?.showWhen).toBeUndefined();
   });
 
   it("Agent 讀圖層控制看得到立體效果 toggle（layerControls 由規格自動帶出）", () => {
@@ -64,6 +78,57 @@ describe("R6 段 3：立體效果 toggle（預設開）", () => {
   });
 });
 
+// ── 1b. 2026-10-09 決議：列車平面時軌道自動 2D ／ 平面垃圾車收起音符滑桿 ──
+
+describe("R6 段 3 決議：effectiveRailTrackMode", () => {
+  it("立體開 → 照使用者設定；立體關 → 一律 2D", () => {
+    expect(effectiveRailTrackMode(true, "3d")).toBe("3d");
+    expect(effectiveRailTrackMode(true, "2d")).toBe("2d");
+    expect(effectiveRailTrackMode(false, "3d")).toBe("2d");
+    expect(effectiveRailTrackMode(false, "2d")).toBe("2d");
+  });
+});
+
+describe("R6 段 3 決議：面板與 Agent 控制一致", () => {
+  beforeEach(() => layerParamsStore.reset());
+
+  const trackCtl = () => describeLayerControls("rail", new Set()).controls.find((c) => c.controlId === "railTrackMode")!;
+
+  it("列車平面：軌道 3D 選項停用並附原因，存值不被改寫；立體開回原設定", () => {
+    expect(trackCtl().options.find((o) => o.value === "3d")).toEqual({ label: "3D", value: "3d", disabled: false });
+    layerParamsStore.setParam("rail", "railTrain3D", false);
+    expect(trackCtl().options.find((o) => o.value === "3d")).toEqual({ label: "3D（列車平面時用 2D）", value: "3d", disabled: true });
+    expect(trackCtl().options.find((o) => o.value === "2d")?.disabled).toBe(false);
+    expect(layerParamsStore.getParam("rail", "railTrackMode")).toBe("3d");
+    layerParamsStore.setParam("rail", "railTrain3D", true);
+    expect(trackCtl().options.find((o) => o.value === "3d")?.disabled).toBe(false);
+    expect(layerParamsStore.getParam("rail", "railTrackMode")).toBe("3d");
+  });
+
+  it("垃圾車平面：音符兩支滑桿收起（面板與 Agent 都看到 hidden）；立體開恢復", () => {
+    const names = () => visibleControlSpecs("wasteTruck").map((s) => s.name);
+    expect(names()).toEqual(expect.arrayContaining(["wasteNoteSize", "wasteNoteZOffset"]));
+    layerParamsStore.setParam("wasteTruck", "wasteTruck3D", false);
+    expect(names()).not.toContain("wasteNoteSize");
+    expect(names()).not.toContain("wasteNoteZOffset");
+    expect(names()).toContain("wasteOrbScale");
+    const ctls = describeLayerControls("wasteTruck", new Set()).controls;
+    expect(ctls.find((c) => c.controlId === "wasteNoteSize")).toMatchObject({ hidden: true, showWhen: { param: "wasteTruck3D", equals: true } });
+    layerParamsStore.setParam("wasteTruck", "wasteTruck3D", true);
+    expect(names()).toContain("wasteNoteSize");
+  });
+
+  it("wasteSchedule 不受影響：音符滑桿常駐，值仍與 wasteTruck 同步（含垃圾車平面時）", () => {
+    layerParamsStore.setParam("wasteTruck", "wasteTruck3D", false);
+    const names = visibleControlSpecs("wasteSchedule").map((s) => s.name);
+    expect(names).toEqual(expect.arrayContaining(["wasteNoteSize", "wasteNoteZOffset"]));
+    layerParamsStore.setParam("wasteSchedule", "wasteNoteSize", 1.2);
+    expect(layerParamsStore.getParam("wasteTruck", "wasteNoteSize")).toBe(1.2);
+    expect(describeLayerControls("wasteSchedule", new Set()).controls.find((c) => c.controlId === "wasteNoteSize"))
+      .toMatchObject({ hidden: false, value: 1.2 });
+  });
+});
+
 // ── 2. Three 圖層可見判斷 ───────────────────────────────────
 
 const OFF: ThreeStereoToggles = {
@@ -77,8 +142,11 @@ describe("R6 段 3：立體關時 Three 不因列車／垃圾車而載入或重�
   it("rail：軌道 2D＋列車立體關 → false；任一需要 Three 的設定 → true", () => {
     expect(anyThreeLayerVisible(visOf({ rail: true }), OFF)).toBe(false);
     expect(anyThreeLayerVisible(visOf({ rail: true }), { ...OFF, railTrain3D: true })).toBe(true);
-    // 軌道 3D 行為不變：列車改平面時 Three 仍畫 3D 軌道
-    expect(anyThreeLayerVisible(visOf({ rail: true }), { ...OFF, railTrack3D: true })).toBe(true);
+    // railTrack3D 是有效值：列車立體開＋軌道 3D 時才為 true
+    expect(anyThreeLayerVisible(visOf({ rail: true }), { ...OFF, railTrain3D: true, railTrack3D: true })).toBe(true);
+    // 2026-10-09 決議：列車平面時即使存值是 3D，有效軌道為 2D → 不觸發 Three
+    const flatWith3dSaved = { ...OFF, railTrack3D: effectiveRailTrackMode(false, "3d") === "3d" };
+    expect(anyThreeLayerVisible(visOf({ rail: true }), flatWith3dSaved)).toBe(false);
     // 列車隱藏時立體效果不算數
     expect(anyThreeLayerVisible(visOf({ rail: true }), { ...OFF, railTrainVisible: false, railTrain3D: true })).toBe(false);
     expect(railThreeVisible(false, { railTrainVisible: true, railTrain3D: true, railTrack3D: true })).toBe(false);

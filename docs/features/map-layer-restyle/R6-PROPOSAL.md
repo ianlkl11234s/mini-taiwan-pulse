@@ -41,7 +41,7 @@
 | 項目 | 做法 |
 |---|---|
 | 開關 | `rail.railTrain3D`、`wasteTruck.wasteTruck3D`，label「立體效果」，**預設開**（移動物件預設立體），`out: null`。列車的開關只在「列車」顯示時出現（`showWhen railTrainVisible`）。 |
-| 與「軌道」2D／3D 的關係 | 兩者獨立：`railTrackMode` 只管軌道線（不改既有行為，預設 3D），`railTrain3D` 只管列車。`rail-3d` 這個 Three 圖層在「3D 軌道」或「列車立體」任一成立時才畫（`railThreeVisible`）；兩者都關（軌道 2D＋列車平面）時 Three 不畫、不 repaint，也不因 rail 觸發 3D bundle 下載。 |
+| 與「軌道」2D／3D 的關係 | 2026-10-09 決議改為連動：列車平面（`railTrain3D=false`）時軌道有效值一律 2D（`effectiveRailTrackMode()`，`src/map/railTracks.ts`），立體開時照 `railTrackMode`；存值不改寫，面板以 `disableRule` 停用 3D 選項並顯示「3D（列車平面時用 2D）」。`rail-3d` 這個 Three 圖層在「3D 軌道」或「列車立體」任一成立時才畫（`railThreeVisible`）；兩者都關（軌道 2D＋列車平面）時 Three 不畫、不 repaint，也不因 rail 觸發 3D bundle 下載。 |
 | 插值抽取 | 垃圾車：`WasteTruckScene` 內的 GPS 三種插值、matched polyline progress、live 落後 5 分鐘原樣搬到 three-free 的 `src/data/wasteTruckFrames.ts`（`computeWasteTruckFrames`），Scene 與平面共用；另加純函式方位角（前後 20 秒取樣）與點選近段軌跡。列車：位置本來就在 `RailEngine`／`TraTrainEngine`（three-free）算，新增 `interpolateWithBearingOnLineString`（位置與原函式逐字相同、同一次走訪），引擎輸出 `bearing`（依行進方向，停站時朝下一站），暫停或拖時間軸時方向也正確。 |
 | 平面畫法 | `src/map/flatMovingLayers.ts`：circle 點三階（M 4.5px；垃圾車停車／離線 S 3px，對應立體 ×0.6）、P-2 底圖色描邊、主體 0.85；色＝立體版同一來源（`train.color`、`WASTE_STATUS_COLORS`）；大小滑桿（光點）與垃圾車透明度滑桿兩模式共用。**z ≥ 12** 有方向的物件換 SDF 導航箭頭（P-5 L 階 13px、`icon-rotate`＝方位角、貼地、不避讓、halo 1px 描邊），算不出方向（停著）的維持圓點。不畫拖尾；只有點選的物件畫近段軌跡（列車：平面模式下累積的 3 分鐘位置；垃圾車：往前 10 分鐘插值取樣）。音符在平面模式不顯示。 |
 | 更新節流 | `src/map/flatMovingController.ts`：`timeStore.subscribeThrottled(40ms)`（約 25fps）→ RAF 合併 → `setData`；暫停＝不更新、頁面隱藏＝RAF 不跑。參數／可見性／資料／主題各自 store 訂閱觸發一次。不把 currentTime 放進任何 deps。換底圖後自動重建圖層與箭頭圖。 |
@@ -50,8 +50,8 @@
 | Agent | `research/layerControls` 由規格自動帶出「立體效果」toggle（測試鎖住）。 |
 
 待使用者決定：
-1. **軌道離地 110m 與平面列車的位移**：軌道預設 3D、`railAltOffset` 110m，平面列車貼地，拉近時箭頭與軌道線錯開（對照頁有圖）；切「軌道 2D」就對齊。本段未改軌道行為，是否在列車平面時建議／自動用 2D 軌道？
-2. **音符滑桿**：與 `wasteSchedule` 共用（`sharedGroup` 規格須逐字相同），平面模式下仍顯示但不起作用。
+1. ~~軌道離地 110m 與平面列車的位移~~ → **2026-10-09 決議**：列車平面時軌道自動 2D（有效值推導、不改寫存值；Three 判斷同用有效值，列車平面時不因 rail 觸發 3D bundle）。邊角：列車隱藏時「立體效果」toggle 被收起，但它若是關的，軌道仍走 2D（與面板停用規則一致）。
+2. ~~音符滑桿~~ → **2026-10-09 決議**：wasteTruck 的音符兩支滑桿掛 `showWhen: wasteTruck3D=true`，平面模式收起；值仍與 `wasteSchedule` 共用（sharedGroup 守門改為比對時剔除只管渲染的 `showWhen`），表定那層照常顯示。
 3. **點選軌跡隨 tooltip 消失**：train tooltip 既有行為是地圖一移動就關閉，平面模式的列車軌跡跟著清掉；列車軌跡只在播放時累積（剛點選、暫停中只有目前位置）。
 
 段 3 子代理自行決定（請確認）：

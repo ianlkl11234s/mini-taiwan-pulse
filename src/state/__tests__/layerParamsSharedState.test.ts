@@ -64,9 +64,14 @@ describe("共用 slot 的宣告", () => {
     for (const [id, members] of SHARED_PARAM_GROUPS) {
       expect(members.length, `sharedGroup "${id}" 只有一個成員（多半是打錯 id）`)
         .toBeGreaterThan(1);
-      const specs = members.map(({ key, name }) =>
-        (LAYER_PARAMS_SPEC[key] as LayerParamSpec[]).find((s) => s.name === name),
-      );
+      // `showWhen` 只管該 key 的面板渲染、不碰值（且只准參照同 key 參數，本來就可能各 key 不同），
+      // 比對時剔除；其餘欄位（label / default / min-max-step…）仍須逐字相同。
+      const specs = members.map(({ key, name }) => {
+        const s = (LAYER_PARAMS_SPEC[key] as LayerParamSpec[]).find((x) => x.name === name);
+        if (!s) return s;
+        const { showWhen: _showWhen, ...rest } = s;
+        return rest;
+      });
       for (const s of specs) {
         expect(s, `sharedGroup "${id}" 有成員查無規格`).toBeDefined();
         expect(s, `sharedGroup "${id}" 的成員規格不一致（共用的是同一份值，` +

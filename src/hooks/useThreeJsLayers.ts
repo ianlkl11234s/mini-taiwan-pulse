@@ -14,6 +14,7 @@ import type { StationPillarData } from "../three/StationPillarScene";
 // AR-22 P4：參數鏡像改吃模組級 ref（由 layerParamsStore 的訂閱者維護），
 // 不再由 App 經 props 傳入 —— Three.js 的 RAF 迴圈本來就不需要 render 才拿得到新值。
 import { layerParamRefs as paramRefs } from "../state/layerParamRefs";
+import { effectiveRailTrackMode } from "../map/railTracks";
 import type {
   createWasteFacilityLayer,
   WasteFacility3DScenes,
@@ -55,7 +56,7 @@ export const THREE_LAYERS_ANCHOR_ID = "three-layers-anchor";
  * R6 段 1：非移動物件圖層的「立體效果」開關（參數名沿用既有，見 layerParamsSpec）。
  * 關閉時該層的 Three.js 不畫、不 repaint，也不會因它觸發 3D bundle 下載。
  * R6 段 3：移動物件（列車、垃圾車 GPS）也加入；它們預設開。列車另有軌道 2D／3D（railTrack3D），
- * 兩者都會讓 rail-3d 這個 Three 圖層有東西畫。
+ * 兩者都會讓 rail-3d 這個 Three 圖層有東西畫。railTrack3D 吃有效值（列車平面時一律 2D，2026-10-09）。
  */
 export interface ThreeStereoToggles {
   fireStations3D: boolean;
@@ -87,7 +88,7 @@ export function stereoTogglesFromRefs(): ThreeStereoToggles {
     wfMonitoring3D: paramRefs.wfMonitoring3D.current,
     railTrainVisible: paramRefs.railTrainVisible.current,
     railTrain3D: paramRefs.railTrain3D.current,
-    railTrack3D: paramRefs.railTrackMode.current === "3d",
+    railTrack3D: effectiveRailTrackMode(paramRefs.railTrain3D.current, paramRefs.railTrackMode.current) === "3d",
     wasteTruck3D: paramRefs.wasteTruck3D.current,
   };
 }
@@ -262,10 +263,10 @@ export function useThreeJsLayers({
       getTrackOpacity: () => paramRefs.railTrackOpacity.current,
       getRailAltOffset: () => paramRefs.railAltOffset.current,
       getTrackFeatures: () => railDataRef.current?.allTracks ?? null,
-      // R6 段 3：列車立體效果關 → Three 只剩 3D 軌道（railTrackMode=3d 時，行為不變）；兩者都沒有就不畫
+      // R6 段 3：列車立體效果關 → 軌道有效值為 2D（2026-10-09 決議）→ Three 不畫 rail；開時照 railTrackMode
       getIsVisible: () => railThreeVisible(layerVisibilityRef.current.rail, stereoTogglesFromRefs()),
       getTrainVisible: () => paramRefs.railTrainVisible.current && paramRefs.railTrain3D.current,
-      getTrackMode: () => paramRefs.railTrackMode.current,
+      getTrackMode: () => effectiveRailTrackMode(paramRefs.railTrain3D.current, paramRefs.railTrackMode.current),
       onSceneReady: (scene) => { railSceneRef.current = scene; },
     });
     map.addLayer(layer, beforeId);

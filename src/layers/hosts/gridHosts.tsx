@@ -21,7 +21,7 @@ import {
   ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer,
   ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer,
 } from "../../map/demographicsLayerFactory";
-import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "../../map/railTracks";
+import { updateRailTracks, removeRailTracks, setRailTracksVisible, effectiveRailTrackMode } from "../../map/railTracks";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import {
   oneOfParam, paramBool, paramNum, paramStr, useLayerParams,
@@ -68,8 +68,10 @@ function useGridStyleRehydration(
 export const RailTracksHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("railTracks");
   const values = useLayerParams("rail");
-  const railTrackMode = oneOfParam(
-    paramStr(values, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d",
+  // R6 段 3 決議：列車平面時軌道用 2D（有效值，不改寫使用者存的 railTrackMode）
+  const railTrackMode = effectiveRailTrackMode(
+    paramBool(values, "rail", "railTrain3D"),
+    oneOfParam(paramStr(values, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d"),
   );
   const { mapRef, railData, isDarkTheme } = deps;
   const railVisible = deps.layerVisibility.rail;

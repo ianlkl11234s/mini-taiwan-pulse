@@ -77986,10 +77986,12 @@
         "label": "軌道",
         "options": [
           {
+            "disabled": false,
             "label": "2D",
             "value": "2d"
           },
           {
+            "disabled": false,
             "label": "3D",
             "value": "3d"
           }

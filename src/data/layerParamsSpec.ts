@@ -378,8 +378,9 @@ interface SelectParamSpecBase extends SharedSlotField, ConditionalField, Cascade
   };
   /**
    * 某個選項在**別的參數**取特定值時不可選（`SelectConfig.disabled`）。
-   * 全 repo 只有一處：`propertyValueGrid` 的「人均市值」在 150m 尺度沒有 `pop`
-   * 屬性可算 —— 不自動跳尺度，而是停用該選項並在 label 講明原因。
+   * 用例：`propertyValueGrid` 的「人均市值」在 150m 尺度沒有 `pop`
+   * 屬性可算 —— 不自動跳尺度，而是停用該選項並在 label 講明原因；
+   * `rail.railTrackMode` 的 3D 在列車平面（railTrain3D=false）時停用（R6 段 3，2026-10-09）。
    *
    * 為什麼不能用現有欄位：`options` 是靜態陣列，這裡的 `disabled` 與 label
    * 都取決於**另一個參數當下的值**，靜態表達不了。
@@ -743,7 +744,8 @@ function livestockFarm(key: keyof typeof FARM_HIGHLIGHT_OPTIONS, opacity = 0.85)
  * 5 / 16 個 `case` fall-through 共用），且值不進 overlayParams —— 兩層都是
  * Three.js / CustomLayer 直接吃 hook 回傳的欄位。
  *
- * ⚠️ 每次呼叫回**新物件**：`sharedGroup` 的成員規格必須逐欄位相同（閘 1 用 toEqual 驗），
+ * ⚠️ 每次呼叫回**新物件**：`sharedGroup` 的成員規格必須逐欄位相同（閘 1 用 toEqual 驗；
+ * 唯一例外是只管渲染的 `showWhen`，可各 key 自訂，見 layerParamsSharedState.test.ts），
  * 共用同一個物件 reference 反而會讓「誰改到誰」變得看不出來。
  */
 function sharedReturnOpacity(name: string, group: string, def: number): SliderParamSpec {
@@ -3483,7 +3485,8 @@ export const LAYER_PARAMS_SPEC = {
   rail: [
     { kind: "toggle", name: "railTrainVisible", label: "列車", default: true, out: null },
     // R6 段 3（2026-10-06）：列車的立體效果（Three.js 光球＋3 分鐘拖尾）；關＝Mapbox 平面點、拉近換方向箭頭。
-    // 移動物件預設立體（G-1 2026-10-05 修訂）。與下方「軌道」2D／3D 各自獨立：本開關只管列車，不動軌道。
+    // 移動物件預設立體（G-1 2026-10-05 修訂）。2026-10-09 決議：列車平面時軌道有效值一律 2D
+    // （箭頭與 Mapbox 軌道線對齊），不改寫下方 railTrackMode 的存值；立體開時恢復使用者原設定。
     {
       kind: "toggle", name: "railTrain3D", label: "立體效果", default: true, out: null,
       showWhen: { param: "railTrainVisible", equals: true },
@@ -3491,6 +3494,9 @@ export const LAYER_PARAMS_SPEC = {
     {
       kind: "select", name: "railTrackMode", label: "軌道", default: "3d",
       options: [{ label: "2D", value: "2d" }, { label: "3D", value: "3d" }],
+      // 列車平面時 3D 停用並附原因（存值為 3d 時選單顯示「3D（列車平面時用 2D）」）；
+      // 實際畫法由 effectiveRailTrackMode() 推導，兩邊同一條規則
+      disableRule: { option: "3d", param: "railTrain3D", enabledWhenIn: ["true"], reason: "（列車平面時用 2D）" },
       out: null,
     },
     {
@@ -3777,8 +3783,10 @@ export const LAYER_PARAMS_SPEC = {
   // 垃圾車 GPS（wasteTruck）與表定路線（wasteSchedule）視覺風格統一 → 共用 3 支 slider；
   // 8 區分組 checkbox 只有表定那層有（GPS 固定高雄＋台南）。
   wasteTruck: [
-    // 音符兩支滑桿與 wasteSchedule 共用（sharedGroup 規格須逐字相同），平面模式下不隱藏、只是不起作用
-    ...wasteOrbSliders(),
+    // 音符兩支滑桿與 wasteSchedule 共用同一份值；平面模式沒有音符 → 本 key 掛 showWhen 收起
+    // （2026-10-09 決議）。showWhen 只管渲染，wasteSchedule 那份不掛、值照樣兩邊同步。
+    ...wasteOrbSliders().map((s) => (s.name === "wasteOrbScale" ? s
+      : { ...s, showWhen: { param: "wasteTruck3D", equals: true } })),
     opacitySlider("wasteTruckOpacity", 1),
     // 移動物件預設立體（Three.js 光球＋音符）；關＝Mapbox 平面點、拉近換方向箭頭，音符不顯示
     { kind: "toggle", name: "wasteTruck3D", label: "立體效果", default: true, out: null },
