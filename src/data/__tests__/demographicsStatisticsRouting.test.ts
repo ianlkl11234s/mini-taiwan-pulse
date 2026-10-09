@@ -63,3 +63,10 @@ it("fails closed when the preview flag is off or the app is not in DEV", async (
   vi.stubEnv("VITE_DEMOGRAPHICS_STATISTICS_PREVIEW", "true");
   await expect(firstRequest(probe("statsDemographicsCountyPopulationTotal"))).resolves.toBe("https://production-cdn.test/statistics/current.json");
 });
+
+it("keeps village demographics recipes off the preview route (preview manifest has no village releases)", async () => {
+  vi.stubEnv("VITE_DEMOGRAPHICS_STATISTICS_PREVIEW", "true");
+  vi.stubEnv("VITE_STATISTICS_CDN_BASE", "https://production-cdn.test/statistics");
+  await expect(firstRequest(probe("statsDemographicsVillagePopulationTotal")))
+    .resolves.toBe("https://production-cdn.test/statistics/current.json");
+});

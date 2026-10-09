@@ -1,4 +1,5 @@
 import { LAYER_MANIFEST, type LayerSource } from "../data/layerManifest";
+import { OVERLAY_REGISTRY } from "../map/overlayRegistry";
 import { layerDataProviderFor, type DataRanked, type LayerDataProvider } from "./layerDataSummary";
 
 /**
@@ -66,12 +67,28 @@ const CUSTOM_RENDERED_SOURCES: Record<string, string[]> = {
 };
 
 type SourcesFor = (layerKey: string) => LayerSource[] | null;
-export type VisibleSummaryOptions = { labelFor?: (layerKey: string) => string; sourcesFor?: SourcesFor; dataProviderFor?: (layerKey: string) => LayerDataProvider | null; now?: () => number };
+export type VisibleSummaryOptions = { labelFor?: (layerKey: string) => string; sourcesFor?: SourcesFor; dataProviderFor?: (layerKey: string) => LayerDataProvider | null; now?: () => number;
+  /** Style-layer ids owned by one logical layer key (null = unknown, fall back to source-only matching). */
+  styleLayerIdsFor?: (layerKey: string) => ReadonlySet<string> | null };
 
 function manifestSources(layerKey: string): LayerSource[] | null {
   const entry = (LAYER_MANIFEST as Record<string, { source: LayerSource | LayerSource[] } | undefined>)[layerKey];
   if (!entry) return null;
   return Array.isArray(entry.source) ? entry.source : [entry.source];
+}
+
+/**
+ * Sibling layer keys (edu-schools ×7, sports-venues ×5) share one source but own distinct style layers
+ * (`${sourceId}-${suffix}`, each with its own config.filter). Resolve a key's own style-layer ids from
+ * the overlay registry so one sibling's summary never absorbs another's features.
+ */
+function registryStyleLayerIds(layerKey: string): ReadonlySet<string> | null {
+  const ids = new Set<string>();
+  for (const config of OVERLAY_REGISTRY) {
+    if (config.id !== layerKey) continue;
+    for (const spec of config.layers) ids.add(`${config.sourceId}-${spec.suffix}`);
+  }
+  return ids.size ? ids : null;
 }
 
 const round5 = (value: number) => Math.round(value * 1e5) / 1e5;
@@ -160,6 +177,7 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
   const sourcesFor = options.sourcesFor ?? manifestSources;
   const labelFor = options.labelFor ?? ((key: string) => key);
   const dataProviderFor = options.dataProviderFor ?? layerDataProviderFor;
+  const styleLayerIdsFor = options.styleLayerIdsFor ?? registryStyleLayerIds;
   const started = now();
   let bounds: [number, number, number, number] | null = null;
   try { bounds = viewportBounds(map); } catch { bounds = null; }
@@ -182,9 +200,10 @@ export function summarizeVisibleLayers(map: VisibleSummaryMap, visibleLayerKeys:
       else layers.push({ layerKey, label, basis: "layer_data", ...digest });
       continue;
     }
+    const ownLayerIds = styleLayerIdsFor(layerKey);
     const candidates = styleLayers.filter(layer => {
       const sourceId = styleSourceId(layer);
-      return sourceId !== null && sourceIds.has(sourceId) && layer.layout?.visibility !== "none" && map.getLayer(layer.id) !== undefined;
+      return sourceId !== null && sourceIds.has(sourceId) && (!ownLayerIds || ownLayerIds.has(layer.id)) && layer.layout?.visibility !== "none" && map.getLayer(layer.id) !== undefined;
     });
     if (!candidates.length) { layers.push({ layerKey, status: "not_applicable", reason: "no_style_layer" }); continue; }
     const vector = candidates.filter(layer => layer.type !== "raster" && layer.type !== "hillshade");

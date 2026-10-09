@@ -21,6 +21,20 @@ describe("research analysis session", () => {
     expect(session.presentable(["unknown-comparison"])[0]?.displayLabel).toBe("fixture-left＋fixture-right 比較");
   });
 
+  it("hasAccessibleResult turns false once the result's layer becomes locked (not only on expiry)", () => {
+    let locked = new Set<string>();
+    const session = new ResearchAnalysisSession(() => locked);
+    (session as unknown as { store: { put: (value: object) => void } }).store.put({
+      resultId: "layer-result", datasetId: "layer:schools", recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] } }], sourceRefs: [], coverage: "fixture", freshness: "current", units: {},
+    });
+    expect(session.hasAccessibleResult("layer-result")).toBe(true);
+    locked = new Set(["schools"]);
+    expect(session.hasResult("layer-result")).toBe(true);
+    expect(session.hasAccessibleResult("layer-result")).toBe(false);
+    expect(session.hasAccessibleResult("missing")).toBe(false);
+  });
+
   it("keeps raw and normalized units on the session presentation contract", () => {
     const session = new ResearchAnalysisSession();
     (session as unknown as { store: { put: (value: object) => void } }).store.put({

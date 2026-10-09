@@ -23,7 +23,7 @@ export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_s
 const AVAILABILITY_LABELS: Record<string, string> = {
   CURRENT: 'CURRENT（最新期別）',
   STALE: 'STALE（歷史期別：已有較新期別，數值本身不受影響）',
-  PARTIAL: 'PARTIAL（部分地區缺值，未補 0）',
+  PARTIAL: 'PARTIAL（部分覆蓋：缺值或未分配項目不補 0，詳見來源說明）',
 };
 export function statisticsAvailabilityLabel(value: string): string {
   return AVAILABILITY_LABELS[value] ?? value;
