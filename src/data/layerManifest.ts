@@ -7625,7 +7625,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "river_rpi_segments", confidence: "MED" }],
-      processing: "全台 54 個有 RPI 測站的流域、311 站→301 河段；測站代表其下游至下一站（推估，非實測內插）；測站河名與 OSM 河線同名者直接對應，其餘 61 站依位置改派 200 m 內同流域最近河線；跨流域以水利署流域範圍面判定；中心線與流向取自 OSM（ODbL）",
+      processing: "全台 54 個有 RPI 測站的流域、311 站→301 河段（10 站未成段：8 站找不到 200 m 內同流域河線僅留點位、2 站河段長度為 0 不畫）；測站代表其下游至下一站（推估，非實測內插）；測站河名與 OSM 河線同名者直接對應，其餘 61 站依位置改派 200 m 內同流域最近河線；跨流域以水利署流域範圍面判定；中心線與流向取自 OSM（ODbL）",
       note: "推估河段；僅有測站的河川著色；感潮只在淡水河／高屏溪標示，其餘近河口段可能感潮；部分河段帶待複核事項（popup 白話揭露）",
     },
     dataClass: "A",

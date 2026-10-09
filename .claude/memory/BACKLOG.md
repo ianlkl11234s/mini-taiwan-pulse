@@ -169,6 +169,21 @@
 | R5-2 | P2 | verifying | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | **程式已合併（PR #543，v2.6.0 已發布）；尚缺瀏覽器目視。** 在正式站打開 `pollutionPenalty*`，確認不改參數就只顯示預設年份。 | 瀏覽器目視：打開即只顯示預設年份；點數與改參數後一致。 |
 | DS-COLOR | P3 | ready | 定義逐層顏色契約：代表色、分類色、主題、色階各以誰為準。 | AU-1（2026-10-05 結案）查證：manifest→側欄已由 `layerManifest.test.ts:88` 逐 key 驗證，地圖↔圖例由 `legendAlignment.test.ts` R4 12 組守門；`docs/design-system/map-layers.md:345` 明定多類別／序列代表色不必出現在 paint。剩下的缺口是「各類顏色的權威來源」未定義，先定契約再擴大守門。 | 每層顏色類型與權威來源有文件；新增守門能抓出違反契約的定義。分析：`docs/research/contract-guards-20261005.md`（PR #539）。 |
 
+## Code review follow-ups (2026-10-09)
+
+> Source: Codex code review 2026-10-09 (`.gis-agent-system/reports/code-review/2026-10-09/`); Fid = finding id in that report. Items below were confirmed still valid but need product/contract decisions or cross-repo work, so they were not fixed in the review PRs. Trigger = when to pick it up; owner = repo that does the work.
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| RV-1 | P3 | ready | RPI river segments show no stale marker (mini F246). | Trigger: next river_rpi_segments asset refresh. Owner: taipei-gis-analytics + mini. First action: add a `stale` property to the asset (station last-sample age) and render it in `riverRpiSegments` paint/popup. | Segments with outdated samples are visually and textually distinguished; golden fixture regenerated. |
+| RV-2 | P3 | ready | Extrusion layers cannot fade unselected features on selection (mini F100). | Trigger: next 3D/extrusion UX pass. Owner: mini. First action: split each affected extrusion into `selected` / `unselected` layers so opacity can differ. | Selecting a feature fades the rest; opacity slider still applies to both. |
+| RV-3 | P2 | ready | Isochrone popup lacks area and in-range count (mini F102). | Trigger: next isochrone/agent-readback change. Owner: mini (+ MCP readback contract). First action: extend the readback contract with area and in-range count, then show both in the popup. | Popup shows area (km²) and count with scope; contract test covers the new fields. |
+| RV-4 | P3 | ready | Design guard misses fonts declared across multiple JSX lines (mini F068). | Trigger: next `designSystemGuard` touch. Owner: mini. First action: make the font scan parse multi-line JSX attributes/style objects; do not raise the baseline to hide hits. | Multi-line violations are detected; baseline only decreases. |
+| RV-5 | P3 | ready | Hotspot multiplier only covers the top 50 (mini F243). | Trigger: next hotspot/analysis recipe change. Owner: analytics (upstream aggregation) then mini. First action: aggregate the multiplier upstream for all units instead of clipping at top 50. | Multiplier is available for every ranked unit or the UI states the top-50 scope. |
+| RV-6 | P2 | ready | Warehouse results that fail transiently are treated as deleted (mini F261). | Trigger: next warehouse-result reference work. Owner: mini (research). First action: on transient failure keep the reference and retry with backoff; only mark deleted on a definitive not-found. | A transient 5xx/network error keeps the reference and recovers on retry; test covers both paths. |
+| RV-7 | P2 | blocked | Harm-reduction loader rolls back the whole batch when upstream removes a point (gis-platform F021). | Blocked on decision: reconcile-delete removed points, or validate only the PK set. Owner: gis-platform (+ data-collectors if it feeds the loader). First action: owner picks the policy, then adjust the loader. | Upstream removal of one point no longer fails the whole load; behavior matches the chosen policy. |
+| RV-8 | P2 | ready | Geological-survey district R2 registry file exposes `district_code` but consumers need `area_code` (gis-platform F028). | Trigger: before the next release that ships this layer. Owner: gis-platform / analytics. First action: produce a derived file with `area_code`, leaving the registered original untouched. | Derived file with `area_code` is published and referenced; release checklist item checked. |
+
 ## Weekly audit findings
 
 > Appended by the `weekly-audit` skill. One `WA-*` ID per finding that needs cross-week tracking;
