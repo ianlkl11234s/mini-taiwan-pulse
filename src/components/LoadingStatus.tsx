@@ -20,11 +20,14 @@ export function LoadingStatus({
   top = 60,
   isDarkTheme = true,
   playing = false,
+  hidden = false,
 }: {
   rightOffset?: string;
   top?: number;
   isDarkTheme?: boolean;
   playing?: boolean;
+  /** 拍攝模式：保持掛載（才不會丟掉進行中任務的 start 事件），只是不顯示 */
+  hidden?: boolean;
 }) {
   const [view, setView] = useState<LoadingStatusView>(HIDDEN_LOADING_STATUS);
   const controllerRef = useRef<ReturnType<typeof createLoadingStatusController> | null>(null);
@@ -53,7 +56,7 @@ export function LoadingStatus({
   ].filter(Boolean).join(" ");
 
   return (
-    <div className={className} style={{ top, right: rightOffset }} role="status" aria-live="polite" aria-hidden={!view.visible}>
+    <div className={className} style={{ top, right: rightOffset, ...(hidden ? { display: "none" } : null) }} role="status" aria-live="polite" aria-hidden={hidden || !view.visible}>
       <span className="loading-status__icon" aria-hidden="true">
         {view.phase === "loading" && <span className="loading-status__ring" />}
         {view.phase === "done" && (
