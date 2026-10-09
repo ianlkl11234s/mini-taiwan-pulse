@@ -3,16 +3,16 @@
 > 由 `scripts/research/build-layer-status.mjs` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
-- 圖層總數：**982**；L1 可操作：**982/982**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**795/982**（81.0%）
+- 圖層總數：**1078**；L1 可操作：**1078/1078**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**891/1078**（82.7%）
 - 只有舊瀏覽器 reader：6；尚不可分析：176
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 620 | 298 | 199 | 2 | 5 | 112 | 4 |
-| 統計 | 277 | 1 | 268 | 3 | 0 | 5 | 0 |
+| 臺灣圖層 | 638 | 316 | 199 | 2 | 5 | 112 | 4 |
+| 統計 | 355 | 1 | 346 | 3 | 0 | 5 | 0 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 | 0 |
 | 日本 | 60 | 15 | 0 | 2 | 0 | 42 | 1 |
 
@@ -91,10 +91,10 @@
 
 | precision_class | 圖層數 |
 |---|---|
-| official | 135 |
-| unknown | 81 |
-| address_geocode | 72 |
-| google_geocode | 21 |
+| official | 139 |
+| address_geocode | 84 |
+| unknown | 82 |
+| google_geocode | 22 |
 | address_geocode+official | 6 |
 | unknown+official | 3 |
 | village_centroid | 2 |
@@ -104,12 +104,12 @@
 
 | 涵蓋 | 圖層數 |
 |---|---|
-| national | 177 |
-| 19 counties | 33 |
+| national | 187 |
+| 19 counties | 34 |
 | unknown | 19 |
-| 2 counties | 15 |
-| 18 counties | 11 |
-| 17 counties | 9 |
+| 2 counties | 16 |
+| 18 counties | 12 |
+| 17 counties | 10 |
 | 13 counties | 8 |
 | 3 counties | 7 |
 

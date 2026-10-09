@@ -423,6 +423,93 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     //    契約若漏寫 nullable，minCoverage 預設 1 會直接紅燈提醒（也提醒別把 null 當 0）。
     { field: "students_total", type: "number", nullable: true },
   ],
+  // 💉 減害服務 5 檔（2026-10-06）：清潔針具的服務類型篩選全靠 3 個 boolean flag，
+  //    型別若漂成字串，`== true` 全不成立 → 篩選後整層空白；`*_is_24h` 上游誠實保留 null。
+  "harm_reduction/needle_points.geojson": [
+    { field: "name", type: "string" },
+    { field: "has_education_station", type: "boolean" },
+    { field: "has_vending_machine", type: "boolean" },
+    { field: "has_return_bin", type: "boolean" },
+    { field: "education_is_24h", type: "boolean", nullable: true },
+    { field: "vending_is_24h", type: "boolean", nullable: true },
+    { field: "return_bin_is_24h", type: "boolean", nullable: true },
+    { field: "geocode_precision", type: "string" },
+  ],
+  "harm_reduction/drug_treatment_facilities.geojson": [
+    { field: "name", type: "string" },
+    { field: "category", type: "string" },
+    { field: "has_methadone", type: "boolean" },
+    { field: "has_buprenorphine", type: "boolean" },
+    // 第二批：月報服藥人數（130/226 有值）；無月報＝null，不可當 0
+    { field: "maintenance_month", type: "string", nullable: true },
+    { field: "methadone_patients", type: "number", nullable: true },
+    { field: "buprenorphine_patients", type: "number", nullable: true },
+  ],
+  "harm_reduction/hiv_selftest_outlets.geojson": [
+    { field: "name", type: "string" },
+    { field: "channel", type: "string" },
+  ],
+  "harm_reduction/hiv_testing_sites.geojson": [
+    { field: "name", type: "string" },
+    { field: "category", type: "string" },
+  ],
+  "harm_reduction/drug_prevention_centers.geojson": [
+    { field: "name", type: "string" },
+    { field: "address", type: "string" },
+  ],
+  // 💉 減害服務第二批（2026-10-06）：flag 篩選欄位型別漂成字串 → `== true` 全不成立 → 整層空白
+  "harm_reduction/alcohol_treatment_facilities.geojson": [
+    { field: "name", type: "string" },
+    { field: "is_alcohol_designated", type: "boolean" },
+    { field: "in_subsidy_program", type: "boolean" },
+    { field: "is_dui_assessment", type: "boolean" },
+    { field: "also_drug_treatment", type: "boolean" },
+  ],
+  "harm_reduction/prep_service_sites.geojson": [
+    { field: "name", type: "string" },
+    { field: "public_funded", type: "boolean" },
+    { field: "self_paid", type: "boolean" },
+  ],
+  "harm_reduction/internet_addiction_services.geojson": [
+    { field: "name", type: "string" },
+    { field: "service_type", type: "string" },
+    { field: "special_clinic", type: "boolean" },
+  ],
+  "harm_reduction/offender_aftercare_offices.geojson": [
+    { field: "name", type: "string" },
+    { field: "office_type", type: "string" },
+  ],
+  "harm_reduction/smoking_cessation_providers.geojson": [
+    { field: "name", type: "string" },
+    { field: "facility_type", type: "string" },
+    { field: "service_clinic", type: "boolean" },
+    { field: "service_counseling", type: "boolean" },
+  ],
+  "harm_reduction/anti_drug_pharmacies.geojson": [
+    { field: "name", type: "string" },
+    { field: "program", type: "string" },
+  ],
+  "harm_reduction/condom_outlets.geojson": [
+    { field: "name", type: "string" },
+    { field: "outlet_type", type: "string" },
+    { field: "item_confirmed", type: "boolean" },
+  ],
+  "harm_reduction/therapeutic_communities.geojson": [
+    { field: "name", type: "string" },
+    { field: "service_modes", type: "string" },
+    { field: "is_therapeutic_community", type: "boolean" },
+  ],
+  // ⛰️ 崩塌（2026-10-06）：年度版本篩選 `["==", ["get","year_roc"], 115]` 靠數字型別，漂成字串整層空白。
+  "hazards/landslide_dod_areas.geojson": [
+    { field: "year_roc", type: "number" },
+    { field: "risk", type: "string" },
+    { field: "dwelling_count", type: "number", nullable: true },
+  ],
+  "hazards/landslide_dod_impact.geojson": [
+    { field: "year_roc", type: "number" },
+    { field: "risk", type: "string" },
+    { field: "total_res", type: "number", nullable: true },
+  ],
 };
 
 /**

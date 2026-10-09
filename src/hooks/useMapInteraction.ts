@@ -15,7 +15,7 @@ import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteSched
 import type { WasteTruckScene } from "../three/WasteTruckScene";
 import { pickFlatTrain, pickFlatWasteTruck, railTrainKey, setFlatMovingSelection } from "../map/flatMovingController";
 import { layerParamRefs } from "../state/layerParamRefs";
-import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
+import { reservoirFeatureProps } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
@@ -307,23 +307,15 @@ export function useMapInteraction(
         }
       }
 
-      // 嘗試拾取水庫 3D 水位計（僅在 waterReservoirs 圖層開啟時）
-      if (vis?.waterReservoirs) {
+      // 嘗試拾取水庫 3D 水位計（waterReservoirs 開且立體效果開；R6 段 2：關掉立體後 scene 仍在，
+      // 隱形水位計不可攔截點擊 —— 平面圓點由下方 GIS_LAYERS 的 water-reservoir-status-circle 接手）
+      if (vis?.waterReservoirs && layerParamRefs.waterReservoirs3D.current) {
         const reservoirScene = reservoirSceneRef?.current;
         if (reservoirScene) {
           const hit = reservoirScene.pickReservoir(e.point.x, e.point.y, w, h);
           if (hit) {
-            const compareId = compareIdFromReservoirId(hit.reservoir_id);
-            setFeatureInfo({
-              layerType: "waterDam",
-              properties: {
-                kind: "reservoir",
-                name: hit.name,
-                compare_id: compareId,
-                capacity_m3: (hit.effective_capacity_wan ?? 0) * 10000,
-                is_reservoir: true,
-              },
-            });
+            // 與平面圓點同一組欄位（容量用萬 m³ 原值，舊版 ×10000 後被面板標成萬 m³）
+            setFeatureInfo({ layerType: "waterDam", properties: reservoirFeatureProps(hit) });
             setTooltipInfo(null);
             setTrainTooltipInfo(null);
             setBusTooltipInfo(null);

@@ -1,6 +1,8 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
+import { ADDICTION_ENABLED_STATISTICS_KEYS, type AddictionStatisticsLayerKey } from './addictionStatisticsRecipes';
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } from './landslideStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
 // ══════════════════════════════════════════════════════════════════
@@ -83,6 +85,7 @@ import { JP_ACCOMMODATION_DENSITY_SCALES, JP_RAMSAR_GEOMETRY_FILTERS } from "./j
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
+import { ANNUAL_DEFAULT_YEAR, ANNUAL_YEAR_OPTIONS, DOD_DEFAULT_YEAR, DOD_YEAR_OPTIONS, HIGHWAY_CATEGORY_GROUPS, HIGHWAY_YEAR_OPTIONS } from "./landslideTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -116,6 +119,11 @@ import { RIVER_RPI_FILTER_OPTIONS, RIVER_RPI_SEGMENT_MODES, WATER_QUALITY_STATIO
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
+import {
+  ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
+  HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
+  SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
+} from "./harmReductionTypes";
 import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
   BICYCLE_SUPPORT_SERVICE_OPTIONS, DISASTER_SHELTER_TYPE_OPTIONS,
@@ -907,6 +915,11 @@ function wasteSubSliders(key: string, size: number, opacity: number): SliderPara
   ];
 }
 
+/** R6 段 2：廢棄物設施的「立體效果」開關（只走 Three.js ref，預設平面）。 */
+function wasteStereoToggle(key: string): ToggleParamSpec {
+  return { kind: "toggle", name: `${key}3D`, label: "立體效果", default: false, out: null };
+}
+
 // ── 網格類（H3 / SEGIS / YouBike）四支同構 slider ──────────────────
 // 控件組慣例：Opacity → Contrast → 3D → Height，六個子物件層共用同一組形狀。
 function gridOpacitySlider(name: string, def: number): SliderParamSpec {
@@ -1068,6 +1081,10 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(ENVIRONMENT_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<EnvironmentStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   // 人口統計 32 層同上：期別由 recipe exact whitelist 提供。
   ...Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<DemographicsStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 成癮與減害 61 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(ADDICTION_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<AddictionStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 崩塌與水土保持 4 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(LANDSLIDE_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<LandslideStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
   statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
   statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],
@@ -2001,7 +2018,13 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "waterProtectionZoneOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
   ],
   waterReservoirs: [
-    { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：即時水情預設畫 Mapbox 平面圓點（色＝警示等級、大小＝有效容量）；
+    // 「立體效果」開啟才疊 Three.js 水位計，水位計高度只對它有意義
+    { kind: "toggle", name: "waterReservoirs3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1,
+      showWhen: { param: "waterReservoirs3D", equals: true },
+    },
     opacitySlider("waterReservoirsOpacity", 1),
     scaleSlider("waterReservoirsScale", 1),
   ],
@@ -2193,7 +2216,13 @@ export const LAYER_PARAMS_SPEC = {
   powerPlants: [scaleSlider("powerPlantsScale", 0.5), opacitySlider("powerPlantsOpacity", 0.95)],
   aviationRestrictedGlow: [opacitySlider("aviationRestrictedGlowOpacity", 0.85)],
   powerGenerationUnit: [
-    { kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：預設畫 Mapbox 平面圓點（色＝燃料、大小＝即時出力 MW）；
+    // 「立體效果」開啟才疊 Three.js 出力光柱，柱高只對光柱有意義
+    { kind: "toggle", name: "powerGenerationUnit3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1,
+      showWhen: { param: "powerGenerationUnit3D", equals: true },
+    },
     opacitySlider("powerGenerationOpacity", 0.7),
     scaleSlider("powerGenerationScale", 1),
   ],
@@ -2520,6 +2549,100 @@ export const LAYER_PARAMS_SPEC = {
   visitorCentres: [opacitySlider("visitorCentresOpacity", 0.85), scaleSlider("visitorCentresScale", 1)],
   publicLifeOsmCoverage: [opacitySlider("publicLifeOsmCoverageOpacity", 0.55)],
 
+  // ══════════ 減害服務 Harm Reduction 5 層 ══════════
+  harmReductionNeedle: [
+    {
+      kind: "multiSelect", name: "harmReductionNeedleService", label: "服務類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(NEEDLE_SERVICE_OPTIONS), out: "harmReductionNeedleServiceMask",
+    },
+    { kind: "toggle", name: "harmReductionNeedleOnly24h", label: "只看 24 小時服務", default: false, category: "data" },
+    opacitySlider("harmReductionNeedleOpacity", 0.85), scaleSlider("harmReductionNeedleScale", 1),
+  ],
+  harmReductionTreatment: [
+    {
+      kind: "multiSelect", name: "harmReductionTreatmentCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(TREATMENT_CATEGORY_OPTIONS), out: "harmReductionTreatmentCategoryMask",
+    },
+    opacitySlider("harmReductionTreatmentOpacity", 0.85), scaleSlider("harmReductionTreatmentScale", 1),
+  ],
+  harmReductionHivSelftest: [
+    {
+      kind: "multiSelect", name: "harmReductionHivSelftestChannel", label: "通路類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(SELFTEST_CHANNEL_OPTIONS), out: "harmReductionHivSelftestChannelMask",
+    },
+    opacitySlider("harmReductionHivSelftestOpacity", 0.85), scaleSlider("harmReductionHivSelftestScale", 1),
+  ],
+  harmReductionHivTesting: [
+    {
+      kind: "multiSelect", name: "harmReductionHivTestingCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(HIV_TESTING_CATEGORY_OPTIONS), out: "harmReductionHivTestingCategoryMask",
+    },
+    opacitySlider("harmReductionHivTestingOpacity", 0.85), scaleSlider("harmReductionHivTestingScale", 1),
+  ],
+  harmReductionPreventionCenters: [
+    opacitySlider("harmReductionPreventionCentersOpacity", 0.9), scaleSlider("harmReductionPreventionCentersScale", 1),
+  ],
+  // ── 減害服務第二批（2026-10-06）──
+  harmReductionAlcohol: [
+    {
+      kind: "multiSelect", name: "harmReductionAlcoholService", label: "機構身分", default: MULTI_SELECT_ALL,
+      options: toParamOptions(ALCOHOL_SERVICE_OPTIONS), out: "harmReductionAlcoholServiceMask",
+    },
+    opacitySlider("harmReductionAlcoholOpacity", 0.85), scaleSlider("harmReductionAlcoholScale", 1),
+  ],
+  harmReductionSmokingCessation: [
+    {
+      kind: "multiSelect", name: "harmReductionSmokingCessationFacility", label: "機構類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(SMOKING_FACILITY_OPTIONS), out: "harmReductionSmokingCessationFacilityMask",
+    },
+    opacitySlider("harmReductionSmokingCessationOpacity", 0.8), scaleSlider("harmReductionSmokingCessationScale", 1),
+  ],
+  harmReductionInternetAddiction: [
+    {
+      kind: "multiSelect", name: "harmReductionInternetAddictionServiceType", label: "機構類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(INTERNET_SERVICE_TYPE_OPTIONS), out: "harmReductionInternetAddictionServiceTypeMask",
+    },
+    opacitySlider("harmReductionInternetAddictionOpacity", 0.85), scaleSlider("harmReductionInternetAddictionScale", 1),
+  ],
+  harmReductionPrep: [
+    {
+      kind: "multiSelect", name: "harmReductionPrepFunding", label: "PrEP 給付", default: MULTI_SELECT_ALL,
+      options: toParamOptions(PREP_FUNDING_OPTIONS), out: "harmReductionPrepFundingMask",
+    },
+    opacitySlider("harmReductionPrepOpacity", 0.85), scaleSlider("harmReductionPrepScale", 1),
+  ],
+  harmReductionCondomOutlets: [
+    {
+      kind: "multiSelect", name: "harmReductionCondomOutletsOutletType", label: "販售類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(CONDOM_OUTLET_OPTIONS), out: "harmReductionCondomOutletsOutletTypeMask",
+    },
+    opacitySlider("harmReductionCondomOutletsOpacity", 0.85), scaleSlider("harmReductionCondomOutletsScale", 1),
+  ],
+  harmReductionAntiDrugPharmacies: [
+    opacitySlider("harmReductionAntiDrugPharmaciesOpacity", 0.85), scaleSlider("harmReductionAntiDrugPharmaciesScale", 1),
+  ],
+  harmReductionTherapeuticCommunities: [
+    opacitySlider("harmReductionTherapeuticCommunitiesOpacity", 0.9), scaleSlider("harmReductionTherapeuticCommunitiesScale", 1),
+  ],
+  harmReductionAftercare: [
+    opacitySlider("harmReductionAftercareOpacity", 0.9), scaleSlider("harmReductionAftercareScale", 1),
+  ],
+  harmReductionDuiCrashes: [
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesClass", label: "事故類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_CLASS_OPTIONS), out: "harmReductionDuiCrashesClassMask",
+    },
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesYear", label: "年份", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_YEAR_OPTIONS), out: "harmReductionDuiCrashesYearMask",
+    },
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesBasis", label: "酒駕判定", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_BASIS_OPTIONS), out: "harmReductionDuiCrashesBasisMask",
+    },
+    opacitySlider("harmReductionDuiCrashesOpacity", 0.75), scaleSlider("harmReductionDuiCrashesScale", 1),
+  ],
+
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
   busStationsCity: [
     { kind: "slider", name: "busScale", labelPrefix: "大小", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
@@ -2674,6 +2797,41 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "industrialPowerPlantOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialPowerPlantOutline", label: "顯示外框線", default: true },
     scaleSlider("industrialPowerPlantScale", 1),
+  ],
+  // ══════════ 崩塌 Landslide 4 層 ══════════
+  // 潛勢區與影響範圍共用同一個年度版本選單（sharedGroup：切一個，兩層一起換），預設最新 115 年版。
+  landslideDodAreas: [
+    {
+      kind: "select", name: "landslideDodYear", label: "年度版本", default: String(DOD_DEFAULT_YEAR), sharedGroup: "landslideDodYear", category: "data",
+      options: DOD_YEAR_OPTIONS, out: "landslideDodYearIdx", encode: DOD_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideDodAreasOpacity", 0.55),
+  ],
+  landslideDodImpact: [
+    {
+      kind: "select", name: "landslideDodYear", label: "年度版本", default: String(DOD_DEFAULT_YEAR), sharedGroup: "landslideDodYear", category: "data",
+      options: DOD_YEAR_OPTIONS, out: "landslideDodYearIdx", encode: DOD_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideDodImpactOpacity", 0.35),
+  ],
+  highwayDisasterHistory: [
+    {
+      kind: "multiSelect", name: "highwayDisasterHistoryCategory", label: "災情類別", default: MULTI_SELECT_ALL,
+      options: HIGHWAY_CATEGORY_GROUPS.map(({ value, label }) => ({ value, label })), out: "highwayDisasterHistoryCategoryMask",
+    },
+    {
+      kind: "multiSelect", name: "highwayDisasterHistoryYear", label: "通報年份", default: MULTI_SELECT_ALL,
+      options: HIGHWAY_YEAR_OPTIONS, out: "highwayDisasterHistoryYearMask",
+    },
+    opacitySlider("highwayDisasterHistoryOpacity", densePointOpacity(16_163)), scaleSlider("highwayDisasterHistoryScale", 1),
+  ],
+  // 年度全島崩塌地：只有 4 年（缺年在圖例與說明標示），預設 2024（V2 版）。
+  landslideAnnual: [
+    {
+      kind: "select", name: "landslideAnnualYear", label: "年份", default: String(ANNUAL_DEFAULT_YEAR),
+      options: ANNUAL_YEAR_OPTIONS, out: "landslideAnnualYearIdx", encode: ANNUAL_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideAnnualOpacity", 0.55),
   ],
   mountainRescueIncidents: [
     {
@@ -3802,18 +3960,21 @@ export const LAYER_PARAMS_SPEC = {
   // 13 個廢棄物子層：值進 hook 的 `wasteSubParams` 巢狀 Record（＋同名 ref）。
   // 參數名一律 `${key}Size` / `${key}Opacity` / `${key}Altitude` —— 參數名全域唯一，
   // 不能沿用巢狀物件裡的 `size` / `opacity` / `altitude`。
+  // R6 段 2（2026-10-06）：五類設施預設畫 Mapbox 平面圓點（類別色），「立體效果」開啟才疊 Three.js 造型
   wfIncinerator: [
     ...wasteSubSliders("wfIncinerator", 1.0, 0.85),
-    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
+    wasteStereoToggle("wfIncinerator"),
+    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示；只畫在 Three.js 裡）
     {
       kind: "slider", name: "wfIncineratorRingSize", labelPrefix: "底圈", digits: 2,
       default: 1.0, min: 0, max: 4, step: 0.1, out: null,
+      showWhen: { param: "wfIncinerator3D", equals: true },
     },
   ],
-  wfLandfill: wasteSubSliders("wfLandfill", 1.0, 0.45),
-  wfLandfillCoastal: wasteSubSliders("wfLandfillCoastal", 1.0, 0.55),
-  wfTransfer: wasteSubSliders("wfTransfer", 1.0, 0.85),
-  wfMedical: wasteSubSliders("wfMedical", 1.0, 0.85),
+  wfLandfill: [...wasteSubSliders("wfLandfill", 1.0, 0.45), wasteStereoToggle("wfLandfill")],
+  wfLandfillCoastal: [...wasteSubSliders("wfLandfillCoastal", 1.0, 0.55), wasteStereoToggle("wfLandfillCoastal")],
+  wfTransfer: [...wasteSubSliders("wfTransfer", 1.0, 0.85), wasteStereoToggle("wfTransfer")],
+  wfMedical: [...wasteSubSliders("wfMedical", 1.0, 0.85), wasteStereoToggle("wfMedical")],
   // R6 段 1（2026-10-05）：Three.js 監測井改為選配，預設只畫 Mapbox 點（其他 5 類設施不動）
   wfMonitoring: [
     ...wasteSubSliders("wfMonitoring", 1.0, 0.7),

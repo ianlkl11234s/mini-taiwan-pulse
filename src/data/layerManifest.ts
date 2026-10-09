@@ -5,11 +5,14 @@ import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from '.
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -111,6 +114,10 @@ import {
   Sun, Bed,
   // 🚢 情勢／軍事：特殊船舶 Vessel Watch（Ship 已被 `ships` 佔用，改用 Radar）
   Radar, Volume2,
+  // 💉 減害服務（Pill / Stethoscope / HeartHandshake 已在上方 import 復用）
+  Syringe, TestTube, ShieldPlus,
+  // 💉 減害服務第二批（HeartPulse / ShieldCheck 已在上方 import 復用）
+  Wine, MonitorSmartphone, Handshake, CigaretteOff, Package, House, CarFront,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -137,6 +144,8 @@ import { COMPANY_DEMOGRAPHICS_SCALES } from "./businessDemographicsTypes";
 import { NOISE_LAYER_COLORS } from "./noiseTypes";
 import { ENVIRONMENT_LAYER_COLORS } from "./environmentLayerTypes";
 import { PUBLIC_LIFE_COLORS } from "./publicLifePalette";
+import { HARM_REDUCTION_COLORS } from "./harmReductionTypes";
+import { LANDSLIDE_LAYER_COLORS } from "./landslideTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -444,6 +453,37 @@ const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS
   }];
 })) as Record<DemographicsStatisticsLayerKey, LayerManifestEntry>;
 
+/** Addiction recipes（HIV、毒品／酒駕／地檢署、吸菸檳榔調查、服務據點；縣市＋鄉鎮）share the dynamic Statistics renderer. */
+const ADDICTION_LEVEL_QUALIFIERS: Partial<Record<string, string>> = { county: "縣市", township: "鄉鎮市區", prosecutor_district: "地檢署轄區" };
+const ADDICTION_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: ADDICTION_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: ADDICTION_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
+    description: recipe.disclosure,
+    topics: ["統計", "成癮", "減害", recipe.subgroup.replace(/（[^）]*）$/, ""), ADDICTION_LEVEL_QUALIFIERS[recipe.level] ?? "縣市"],
+  }];
+})) as Record<AddictionStatisticsLayerKey, LayerManifestEntry>;
+
+/** Landslide recipes（崩塌筆數／面積、治山防災工程經費、水土保持災害損失；縣市）share the dynamic Statistics renderer. */
+const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: LANDSLIDE_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
+    description: recipe.disclosure,
+    topics: ["統計", "災害", "崩塌", "水土保持", recipe.subgroup, "縣市"],
+  }];
+})) as Record<LandslideStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -539,6 +579,8 @@ export const LAYER_MANIFEST = {
   ...LABOR_STATISTICS_MANIFEST_ENTRIES,
   ...ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES,
   ...DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES,
+  ...ADDICTION_STATISTICS_MANIFEST_ENTRIES,
+  ...LANDSLIDE_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
@@ -6561,6 +6603,44 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "山域", "救援"],
   },
 
+  // ══════════ 崩塌 Landslide（農水署大規模崩塌 111–115 年版、公路局省道歷史災情、農水署年度全島崩塌地）══════════
+  landslideDodAreas: {
+    key: "landslideDodAreas", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌潛勢區", alt: "Large-scale Landslide Areas" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.landslideDodAreas, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_dod_areas", confidence: "HIGH" }], note: "農業部農村發展及水土保持署大規模崩塌潛勢區 111–115 年版（data.gov.tw 152081 等 5 筆）；322 面，逐年處數不同（36→94），跨年比較用 lslno_old。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "landslide-dod-areas", url: "./hazards/landslide_dod_areas.geojson" },
+    legend: "landslideDodAreas", popup: "landslideDodArea", params: { count: 2, kinds: ["select", "slider"] },
+    description: "大規模崩塌潛勢區（依年度版本切換，預設 115 年版；依來源風險等級上色，點開看保全住戶與聚落）",
+    topics: ["災害", "崩塌", "大規模崩塌", "保全戶"],
+  },
+  landslideDodImpact: {
+    key: "landslideDodImpact", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌影響範圍", alt: "Landslide Impact Zones" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.landslideDodImpact, icon: House,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_dod_impact", confidence: "HIGH" }], note: "農業部農村發展及水土保持署大規模崩塌影響範圍 111–115 年版（data.gov.tw 159098 等 5 筆）；322 面。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "landslide-dod-impact", url: "./hazards/landslide_dod_impact.geojson" },
+    legend: "landslideDodImpact", popup: "landslideDodImpact", params: { count: 2, kinds: ["select", "slider"] },
+    description: "大規模崩塌影響範圍（與潛勢區共用年度版本選單；點開看保全戶數）",
+    topics: ["災害", "崩塌", "大規模崩塌", "保全戶"],
+  },
+  highwayDisasterHistory: {
+    key: "highwayDisasterHistory", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "省道歷史災情", alt: "Highway Disaster History" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.highwayDisasterHistory, icon: Route,
+    upstream: { status: "verified", datasets: [{ datasetId: "highway_disaster_history", confidence: "HIGH" }], note: "交通部公路局道路（橋梁）歷史災情（data.gov.tw 31020）；通報 2014-01-13～2026-10-04 共 16,163 點（292 筆無座標未畫）。2018 年起通報筆數暴增約 10 倍，疑為通報制度改變。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "highway-disaster-history", url: "./hazards/highway_disaster_history.pmtiles", sourceLayer: "highway_disaster_history", minzoom: 5, maxzoom: 12 },
+    legend: "highwayDisasterHistory", popup: "highwayDisaster", params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
+    description: "省道落石、坍方、土石流、預警性封閉等歷史災情點（可依類別與通報年份篩選）；2018 年起筆數暴增約 10 倍疑為通報制度改變，不代表災害增加。",
+    topics: ["災害", "崩塌", "落石", "道路"],
+  },
+  landslideAnnual: {
+    key: "landslideAnnual", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "年度全島崩塌地", alt: "Annual Landslide Inventory" }), expandable: true,
+    color: LANDSLIDE_LAYER_COLORS.landslideAnnual, icon: Layers,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_annual_swcb", confidence: "HIGH" }], note: "農業部農村發展及水土保持署年度全島崩塌地（衛星影像判釋）；只有 2017、2018、2023、2024 四年共 143,511 面，2019–2022 未納入、2016 以前為林業署另一口徑未納入；2024 為 V2 版（影像 2024-12～2025-05）。107MB PMTiles 走 S3 deploy-assets/hazards/；z<10 切片會遺漏小面，圖層 z10 起顯示。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "landslide-annual", url: "./hazards/landslide_annual_swcb_20261006.pmtiles", sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
+    legend: "landslideAnnual", popup: "landslideAnnual", params: { count: 2, kinds: ["select", "slider"] },
+    description: "年度全島崩塌地範圍（只有 2017、2018、2023、2024 四年；放大到 10 級以上才顯示）",
+    topics: ["災害", "崩塌", "衛星判釋"],
+  },
+
   // popup `nuclearStation` 與 key **完全無關**（不是單複數差異）——
   // 同批 1 legend 的 `civilDefenseShelter → policeStation`，只有逐 key 反查 layer id
   // （hazard-nuclear-core / -halo）才看得出來。
@@ -7994,11 +8074,17 @@ export const LAYER_MANIFEST = {
         sourceId: "water-reservoir-dams",
         url: "./geo/water_dams.geojson",
       },
+      // R6 段 2：即時水情平面圓點（useReservoirStatusLayer 依時間軸 setData）
+      {
+        kind: "supabase",
+        sourceId: "water-reservoir-status",
+        fallbackUrl: "./geo/_empty.geojson",
+      },
     ],
-    legend: null,
+    legend: "waterReservoirs",
     popup: ["waterDam", "waterReservoirPoly"],
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
-    description: "全台水庫蓄水範圍面 + 壩體點位（點擊看即時蓄水率）",
+    params: { count: 3, kinds: ["toggle", "slider", "slider"] },
+    description: "全台水庫蓄水範圍面 + 壩體點位 + 即時水情圓點（色＝警示等級、大小＝有效容量，點擊看蓄水率；立體效果開啟為 3D 水位計）",
     topics: ["水資源", "水庫"],
   },
 
@@ -8600,6 +8686,10 @@ export const LAYER_MANIFEST = {
   // **facility_type / point_type-keyed**（餵 wasteMapboxLayers 的 circle-color），
   // 不是 layer-key-keyed，`LAYER_COLORS` 從未 import 它們 → 寫字面 hex。
   // hex 逐一相同是巧合（同批 5 SATELLITE_COLORS 的判準）。
+  // ⚠️ 2026-10-09 例外（R6 段 2 決議）：五類設施（wfIncinerator／wfLandfill／
+  // wfLandfillCoastal／wfTransfer／wfMedical）有平面圓點＋共用類別圖例，識別色必須＝
+  // paint＝圖例 → WASTE_FACILITY_COLORS 搬到零 import 的 `wasteFacilityColors.ts`，
+  // 這五層的 color 改**引用**（r6Stage2.test.ts 守門）。其餘 wf*／wd* 照舊字面。
 
   wasteTruck: {
     key: "wasteTruck",
@@ -8840,7 +8930,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "焚化爐", alt: "Incinerator" }),
     expandable: true,
-    color: "#ef4444",
+    color: WASTE_FACILITY_COLORS.incinerator!,
     icon: Flame,
     upstream: {
       status: "verified",
@@ -8849,12 +8939,13 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useWasteFacilityLayer 一次抓全量 4,609 筆（Supabase RPC）依 facility_type 分群 → wasteFacilityCustomLayer 的 WasteIncineratorScene（Three.js，含底圈標示）；popup 由 App.tsx 的 map click raycast 產生 —— 非 OVERLAY_REGISTRY",
+      note: "useWasteFacilityLayer 一次抓全量 4,609 筆（Supabase RPC）依 facility_type 分群 → wasteFacilityCustomLayer 的 WasteIncineratorScene（Three.js，含底圈標示，立體效果開時）＋ wasteMapboxLayers 的 waste-wfIncinerator-src circle（預設平面，R6 段 2）；popup：平面走 circle click、立體走 App.tsx 的 map click raycast —— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    // R6 段 2：五類設施共用一份類別圖例（LG-1），家族首 key＝本層
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
-    description: "全台焚化爐（30 座，3D 煙囪＋地面底圈）",
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
+    description: "全台焚化爐（預設平面點；立體效果開啟為 3D 煙囪＋地面底圈）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
 
@@ -8863,7 +8954,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "衛生掩埋場", alt: "Landfill" }),
     expandable: true,
-    color: "#92400e",
+    color: WASTE_FACILITY_COLORS.landfill!,
     icon: Mountain,
     upstream: {
       status: "verified",
@@ -8872,11 +8963,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill）→ WasteLandfillScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill）→ WasteLandfillScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "全台衛生掩埋場（154 處）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
@@ -8886,7 +8977,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "濱海掩埋場", alt: "Coastal" }),
     expandable: true,
-    color: "#0891b2",
+    color: WASTE_FACILITY_COLORS.landfill_coastal!,
     icon: Waves,
     upstream: {
       status: "verified",
@@ -8895,11 +8986,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill_coastal）→ WasteLandfillCoastalScene（Three.js，同 Landfill 換深青）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill_coastal）→ WasteLandfillCoastalScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2，同 Landfill 換深青）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "臨海掩埋場（23 處，含離海距離欄位）",
     topics: ["廢棄物", "處理設施", "海岸"],
   },
@@ -8909,7 +9000,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "轉運站", alt: "Transfer" }),
     expandable: true,
-    color: "#a855f7",
+    color: WASTE_FACILITY_COLORS.transfer_station!,
     icon: Truck,
     upstream: {
       status: "verified",
@@ -8918,11 +9009,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=transfer_station）→ WasteTransferScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=transfer_station）→ WasteTransferScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "垃圾轉運站（28 處）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
@@ -8932,7 +9023,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "醫療廢棄物", alt: "Medical" }),
     expandable: true,
-    color: "#ec4899",
+    color: WASTE_FACILITY_COLORS.medical_waste!,
     icon: AlertTriangle,
     upstream: {
       status: "verified",
@@ -8941,11 +9032,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=medical_waste）→ WasteMedicalScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=medical_waste）→ WasteMedicalScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "醫療廢棄物處理設施（40 處）",
     topics: ["廢棄物", "處理設施", "醫療"],
   },
@@ -10846,8 +10937,8 @@ export const LAYER_MANIFEST = {
     //    → policeStation 的同款，只是這次首 key 是 orphan）。
     legend: "powerPlants",
     popup: "powerPlant",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
-    description: "台電機組即時出力（高 ∝ MW 的 3D 光柱，透明層負責點擊）",
+    params: { count: 3, kinds: ["toggle", "slider", "slider"] },
+    description: "台電機組即時出力（預設平面圓點：色＝燃料、大小＝出力 MW；立體效果開啟疊 3D 光柱）",
     topics: ["能源", "電力", "即時"],
   },
 
@@ -12002,6 +12093,23 @@ export const LAYER_MANIFEST = {
   nationalParks: { key: "nationalParks", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "national-parks", url: "./public_life/national_parks.pmtiles", sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, legend: "nationalParks", popup: "nationalParks", params: { count: 1, kinds: ["slider"] }, description: "9 座國家公園 + 1 座國家自然公園的官方計畫邊界。", topics: ["環境", "保護區", "政府開放資料"] },
   visitorCentres: { key: "visitorCentres", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "遊客中心", alt: "Visitor Centres" }), expandable: true, color: PUBLIC_LIFE_COLORS.visitorCentres, icon: MapPinned, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "visitor-centres", url: "./public_life/visitor_centres.geojson" }, legend: "visitorCentres", popup: "visitorCentres", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊客中心 snapshot exploration，非完整官方清冊。", topics: ["觀光", "公共生活", "OSM"] },
   publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
+
+  // ══════════ 減害服務 Harm Reduction（官方名冊；座標由地址定位，少數為推估）══════════
+  harmReductionNeedle: { key: "harmReductionNeedle", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "清潔針具據點", alt: "Needle & Syringe Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionNeedle, icon: Syringe, upstream: { status: "verified", datasets: [{ datasetId: "harm_reduction_needle_points", confidence: "HIGH" }], note: "疾管署清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單；990 點全數定位（綠島鄉衛生所、連江縣衛生局 2 點依機構名稱人工核對）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-needle", url: "./harm_reduction/needle_points.geojson" }, legend: "harmReductionNeedle", popup: "harmReductionNeedle", params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] }, description: "清潔針具衛教諮詢站、針具自動服務機與回收桶，一個據點可同時提供多類服務。", topics: ["醫療", "減害", "公共衛生"] },
+  harmReductionTreatment: { key: "harmReductionTreatment", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "替代療法與藥癮戒治", alt: "Substitution & Addiction Treatment" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTreatment, icon: Pill, upstream: { status: "verified", datasets: [{ datasetId: "drug_treatment_facilities", confidence: "HIGH" }], note: "衛福部指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353；226 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-treatment", url: "./harm_reduction/drug_treatment_facilities.geojson" }, legend: "harmReductionTreatment", popup: "harmReductionTreatment", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "替代治療、指定藥癮戒治機構與衛星給藥點，可看美沙冬／丁基原啡因供應。", topics: ["醫療", "減害", "藥癮治療"] },
+  harmReductionHivSelftest: { key: "harmReductionHivSelftest", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "愛滋自我篩檢通路", alt: "HIV Self-test Outlets" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionHivSelftest, icon: TestTube, upstream: { status: "verified", datasets: [{ datasetId: "hiv_selftest_outlets", confidence: "HIGH" }], note: "疾管署愛滋自我篩檢通路（快照 2026-10-06）；681 點全數定位（1 點來源無地址，依名稱人工核對）；不含庫存。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-hiv-selftest", url: "./harm_reduction/hiv_selftest_outlets.geojson" }, legend: "harmReductionHivSelftest", popup: "harmReductionHivSelftest", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "可取得愛滋自我篩檢試劑的自動服務機與實體通路（衛生局所、藥局、醫療院所等）。", topics: ["醫療", "減害", "愛滋"] },
+  harmReductionHivTesting: { key: "harmReductionHivTesting", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "愛滋篩檢與指定醫療", alt: "HIV Testing & Care" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionHivTesting, icon: Stethoscope, upstream: { status: "verified", datasets: [{ datasetId: "hiv_testing_sites", confidence: "HIGH" }], note: "疾管署匿名篩檢（2026-09-22／07-22）、指定醫事機構與藥局（2026-07-15）、多元性別健康中心（2026-06-12）；694 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-hiv-testing", url: "./harm_reduction/hiv_testing_sites.geojson" }, legend: "harmReductionHivTesting", popup: "harmReductionHivTesting", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "匿名篩檢院所、愛滋指定醫事機構與藥局、多元性別健康中心。", topics: ["醫療", "減害", "愛滋"] },
+  harmReductionPreventionCenters: { key: "harmReductionPreventionCenters", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "毒品危害防制中心", alt: "Drug Abuse Prevention Centers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionPreventionCenters, icon: ShieldPlus, upstream: { status: "verified", datasets: [{ datasetId: "drug_prevention_centers", confidence: "HIGH" }], note: "法務部 data.gov.tw 13717（2024-02-01）＋10091；23 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-prevention-centers", url: "./harm_reduction/drug_prevention_centers.geojson" }, legend: "harmReductionPreventionCenters", popup: "harmReductionPreventionCenters", params: { count: 2, kinds: ["slider", "slider"] }, description: "各縣市毒品危害防制中心，提供個案追蹤輔導與轉介。", topics: ["醫療", "減害", "毒品防制"] },
+  // ── 第二批（2026-10-06）：治療 → 預防／減害 → 社會復歸；酒駕事故掛「執法治安 › 治安態勢」──
+  harmReductionAlcohol: { key: "harmReductionAlcohol", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "酒癮治療與酒駕酒癮評估", alt: "Alcohol Treatment & DUI Assessment" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAlcohol, icon: Wine, upstream: { status: "verified", datasets: [{ datasetId: "alcohol_treatment_facilities", confidence: "HIGH" }], note: "衛福部心理健康司酒癮治療費用補助方案及酒駕酒癮評估機構名單（2026-08-07）；135 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-alcohol", url: "./harm_reduction/alcohol_treatment_facilities.geojson" }, legend: "harmReductionAlcohol", popup: "harmReductionAlcohol", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "酒癮治療指定機構、酒癮治療費用補助方案與酒駕酒癮評估機構；popup 註明是否也提供藥癮治療。", topics: ["醫療", "減害", "酒癮"] },
+  harmReductionSmokingCessation: { key: "harmReductionSmokingCessation", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "戒菸服務機構", alt: "Smoking Cessation Providers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionSmokingCessation, icon: CigaretteOff, upstream: { status: "verified", datasets: [{ datasetId: "smoking_cessation_providers", confidence: "HIGH" }], note: "國健署戒菸服務合約機構（2026-10-06 官網匯出，來源無版本日）；2,277 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-smoking-cessation", url: "./harm_reduction/smoking_cessation_providers.geojson" }, legend: "harmReductionSmokingCessation", popup: "harmReductionSmokingCessation", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "提供戒菸門診（給藥）或戒菸衛教的醫院、診所、藥局與衛生所。", topics: ["醫療", "減害", "戒菸"] },
+  harmReductionInternetAddiction: { key: "harmReductionInternetAddiction", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "網路成癮治療資源", alt: "Internet Addiction Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionInternetAddiction, icon: MonitorSmartphone, upstream: { status: "verified", datasets: [{ datasetId: "internet_addiction_services", confidence: "HIGH" }], note: "衛福部各縣市網路成癮治療服務資源表（2026-07-28）；455 點，不含連江縣；機構類型依名稱歸類。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-internet-addiction", url: "./harm_reduction/internet_addiction_services.geojson" }, legend: "harmReductionInternetAddiction", popup: "harmReductionInternetAddiction", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "各縣市網路成癮治療的醫療院所與心理諮商所。", topics: ["醫療", "減害", "心理健康"] },
+  harmReductionPrep: { key: "harmReductionPrep", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "PrEP 服務醫院", alt: "HIV PrEP Providers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionPrep, icon: HeartPulse, upstream: { status: "verified", datasets: [{ datasetId: "prep_service_sites", confidence: "HIGH" }], note: "疾管署 PrEP 服務醫院名單（2026-09-02）；178 點可定位（1 點無地址未畫）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-prep", url: "./harm_reduction/prep_service_sites.geojson" }, legend: "harmReductionPrep", popup: "harmReductionPrep", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "提供公費或自費愛滋暴露前預防性投藥（PrEP）的醫院與診所。", topics: ["醫療", "減害", "愛滋"] },
+  harmReductionCondomOutlets: { key: "harmReductionCondomOutlets", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "保險套販售點", alt: "Condom Outlets" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionCondomOutlets, icon: Package, upstream: { status: "verified", datasets: [{ datasetId: "condom_outlets", confidence: "HIGH" }], note: "高雄、新竹市、屏東、嘉義市 data.gov.tw（2023-08～2026-08）；74 點，僅 4 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-condom-outlets", url: "./harm_reduction/condom_outlets.geojson" }, legend: "harmReductionCondomOutlets", popup: "harmReductionCondomOutlets", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "保險套自動販賣機與平價保險套藥局；僅高雄、新竹市、屏東、嘉義市有開放名冊。", topics: ["醫療", "減害", "性健康"] },
+  harmReductionAntiDrugPharmacies: { key: "harmReductionAntiDrugPharmacies", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "社區藥局反毒站", alt: "Community Anti-drug Pharmacies" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, icon: ShieldCheck, upstream: { status: "verified", datasets: [{ datasetId: "anti_drug_pharmacies", confidence: "HIGH" }], note: "新北 data.gov.tw 125302（2026-08-07）＋高雄 107877 的 113 年清冊；436 點，僅 2 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-anti-drug-pharmacies", url: "./harm_reduction/anti_drug_pharmacies.geojson" }, legend: "harmReductionAntiDrugPharmacies", popup: "harmReductionAntiDrugPharmacies", params: { count: 2, kinds: ["slider", "slider"] }, description: "提供藥物濫用與戒癮資源諮詢的社區藥局；僅新北、高雄有開放名冊。", topics: ["醫療", "減害", "毒品防制"] },
+  harmReductionTherapeuticCommunities: { key: "harmReductionTherapeuticCommunities", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "治療性社區與中途之家", alt: "Therapeutic Communities & Halfway Houses" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, icon: House, upstream: { status: "verified", datasets: [{ datasetId: "therapeutic_communities", confidence: "HIGH" }], note: "衛福部藥癮治療性社區／社區復健方案承辦機構（2025-07-29）；17 點可定位（2 點查無位置未畫），座標為機構辦公處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-therapeutic-communities", url: "./harm_reduction/therapeutic_communities.geojson" }, legend: "harmReductionTherapeuticCommunities", popup: "harmReductionTherapeuticCommunities", params: { count: 2, kinds: ["slider", "slider"] }, description: "衛福部藥癮治療性社區與社區復健方案（中途之家、自立方案）承辦機構；座標為辦公處而非安置地點。", topics: ["醫療", "減害", "藥癮治療"] },
+  harmReductionAftercare: { key: "harmReductionAftercare", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "更生保護會", alt: "Offender Aftercare Offices" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAftercare, icon: Handshake, upstream: { status: "verified", datasets: [{ datasetId: "offender_aftercare_offices", confidence: "HIGH" }], note: "法務部 data.gov.tw 10060（2023-06-05，3 年未更新）；22 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-aftercare", url: "./harm_reduction/offender_aftercare_offices.geojson" }, legend: "harmReductionAftercare", popup: "harmReductionAftercare", params: { count: 2, kinds: ["slider", "slider"] }, description: "臺灣更生保護會總會、各地分會與福建更生保護會（資料為 2023-06 版）。", topics: ["醫療", "減害", "社會復歸"] },
+  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", section: { theme: "執法治安 Law & Order", group: "治安態勢" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
 
   medICUBeds: {
     key: "medICUBeds",

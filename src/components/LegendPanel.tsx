@@ -17,7 +17,7 @@ import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALL
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchArrow, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendSizeRow, LegendThemeCtx, LegendTitle, SwatchArrow, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
 import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR, BRIDGE_RESILIENCE_UNVALIDATED_TEXT, BRIDGE_WEIGHTINGS, DECAY_RAMP, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
 import { useBridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_V5_LINE_COLORS } from "../data/bssBridgeTypes";
@@ -62,6 +62,8 @@ import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES } from "../data/environmentStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_RECIPES } from "../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES } from "../data/landslideStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES } from "../data/demographicsStatisticsRecipes";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
@@ -212,7 +214,17 @@ import {
   CAPACITY_BREAKS,
   CAPACITY_RADIUS,
 } from "../data/energyLoader";
+import {
+  POWER_OUTPUT_LEGEND_MW,
+  powerOutputRadius,
+  RESERVOIR_ALERT_LEGEND,
+  RESERVOIR_CAPACITY_LEGEND_WAN,
+  RESERVOIR_WATER_COLOR,
+  reservoirAlertCss,
+  reservoirCapacityRadius,
+} from "../map/r6FlatEncodings";
 import { LIGHTNING_TYPE_COLORS } from "../data/lightningLoader";
+import { WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS } from "../data/wasteLoader";
 import {
   NUCLEAR_DOSE_THRESHOLDS,
   NUCLEAR_LEVEL_COLORS,
@@ -244,7 +256,13 @@ import {
   SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
   IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend,
 } from "./legend/environmentLegends";
+import {
+  HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend,
+  HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend,
+  HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend,
+} from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
+import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -363,6 +381,24 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "landslideDodAreas", render: () => <LandslideDodAreasLegend /> },
+  { id: "landslideDodImpact", render: () => <LandslideDodImpactLegend /> },
+  { id: "highwayDisasterHistory", render: () => <HighwayDisasterHistoryLegend /> },
+  { id: "landslideAnnual", render: () => <LandslideAnnualLegend /> },
+  { id: "harmReductionNeedle", render: () => <HarmReductionNeedleLegend /> },
+  { id: "harmReductionTreatment", render: () => <HarmReductionTreatmentLegend /> },
+  { id: "harmReductionHivSelftest", render: () => <HarmReductionHivSelftestLegend /> },
+  { id: "harmReductionHivTesting", render: () => <HarmReductionHivTestingLegend /> },
+  { id: "harmReductionPreventionCenters", render: () => <HarmReductionPreventionCentersLegend /> },
+  { id: "harmReductionAlcohol", render: () => <HarmReductionAlcoholLegend /> },
+  { id: "harmReductionPrep", render: () => <HarmReductionPrepLegend /> },
+  { id: "harmReductionInternetAddiction", render: () => <HarmReductionInternetAddictionLegend /> },
+  { id: "harmReductionAftercare", render: () => <HarmReductionAftercareLegend /> },
+  { id: "harmReductionSmokingCessation", render: () => <HarmReductionSmokingCessationLegend /> },
+  { id: "harmReductionAntiDrugPharmacies", render: () => <HarmReductionAntiDrugPharmaciesLegend /> },
+  { id: "harmReductionCondomOutlets", render: () => <HarmReductionCondomOutletsLegend /> },
+  { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
+  { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
   { id: "drinkingWaterPoints", render: () => <PublicLifeOsmLegend label="飲水點" color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: () => <PublicLifeOsmLegend label="公共垃圾桶" color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: () => <PublicLifeOsmLegend label="資源回收點" color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra="僅代表來源明列的材料；未標註不推論可回收材料。" /> },
@@ -391,6 +427,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
   ...DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...LANDSLIDE_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
@@ -613,6 +657,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
             : overlayParams.ooklaFixedTaiwanPalette
     } isDark={isDark} taiwanOnly={!visibility.ooklaMobilePerformance && !visibility.ooklaFixedPerformance} />,
   },
+  // R6 段 2：水庫即時水情平面圓點（警示等級色＋容量大小）
+  { id: "waterReservoirs", render: () => <ReservoirStatusLegend /> },
   { id: "waterCanals", render: ({ isDark }) => <WaterCanalLegend isDark={isDark} /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -633,7 +679,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "erHospital", render: () => <ErCongestionLegend /> },
   { id: "parkingOnstreet", render: ({ visibility }) => <ParkingLegend visibility={visibility} /> },
   { id: "floodSensor", render: () => <FloodSensorLegend /> },
-  { id: "powerPlants", render: () => <EnergyFuelLegend /> },
+  // R6 段 2：五類廢棄物處理設施平面圓點（LG-1 類別色）
+  { id: "wfIncinerator", render: ({ visibility }) => <WasteFacilityLegend visibility={visibility} /> },
+  { id: "powerPlants", render: ({ visibility }) => <EnergyFuelLegend visibility={visibility} /> },
   { id: "powerRegionDemand", render: () => <EnergyReserveLegend /> },
   { id: "osmPowerLines", render: ({ visibility }) => <PowerGridLegend visibility={visibility} /> },
   { id: "powerPoles", render: () => <PowerPolesLegend /> },
@@ -5260,8 +5308,11 @@ const FUEL_LEGEND_ROWS: { label: string; key: string }[] = [
   { label: "生質 Biomass/Biogas", key: "biomass" },
 ];
 
-function EnergyFuelLegend() {
+function EnergyFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
+  // 同一份燃料色圖例給 legacy 電廠總圖（容量分級）與機組即時出力（R6 段 2：平面圓點大小＝出力 MW）
+  const showCapacity = visibility.powerPlants;
+  const showOutput = visibility.powerGenerationUnit;
   return (
     <div>
       <LegendTitle zh="發電燃料" en="Fuel" />
@@ -5271,36 +5322,88 @@ function EnergyFuelLegend() {
           <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{row.label}</span>
         </div>
       ))}
-      <div style={{ marginTop: 6 }}>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
-          Capacity (MW)
+      {showCapacity && (
+        <div style={{ marginTop: 6 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            Capacity (MW)
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {[
+              { label: `<${CAPACITY_BREAKS.small}`, r: CAPACITY_RADIUS.tiny },
+              { label: `<${CAPACITY_BREAKS.medium}`, r: CAPACITY_RADIUS.small },
+              { label: `<${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.medium },
+              { label: `≥${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.large },
+            ].map((x) => (
+              <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <div
+                  style={{
+                    width: x.r * 2,
+                    height: x.r * 2,
+                    borderRadius: RADIUS.full,
+                    background: FUEL_FALLBACK_COLOR,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{x.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {[
-            { label: `<${CAPACITY_BREAKS.small}`, r: CAPACITY_RADIUS.tiny },
-            { label: `<${CAPACITY_BREAKS.medium}`, r: CAPACITY_RADIUS.small },
-            { label: `<${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.medium },
-            { label: `≥${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.large },
-          ].map((x) => (
-            <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-              <div
-                style={{
-                  width: x.r * 2,
-                  height: x.r * 2,
-                  borderRadius: RADIUS.full,
-                  background: FUEL_FALLBACK_COLOR,
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{x.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
+      {showOutput && (
+        <LegendSizeRow
+          fill={FUEL_FALLBACK_COLOR}
+          title="即時出力（機組圓點大小）"
+          items={POWER_OUTPUT_LEGEND_MW.map((mw) => ({ r: powerOutputRadius(mw), label: `${mw.toLocaleString()} MW` }))}
+        />
+      )}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
-        ● 光柱（Layer 4）= 機組即時出力 / 裝置容量<br />
+        {showOutput && <>● 機組即時出力：面積 ∝ 出力 MW，隨時間軸更新；開「立體效果」另疊光柱（柱高 ∝ 出力／裝置容量）<br /></>}
         ● 14 台電廠有 output；OSM/IPP 等暫無
       </LegendNote>
+    </div>
+  );
+}
+
+/** R6 段 2：水庫即時水情平面圓點（色＝警示等級，同 3D 水位計水柱色；大小＝有效容量，圖例用水庫水系色空心圈，2026-10-09） */
+function ReservoirStatusLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <LegendTitle zh="水庫即時水情" en="Reservoir Status" />
+      {RESERVOIR_ALERT_LEGEND.map((row) => (
+        <LegendRow key={row.key} swatch={<SwatchDot color={reservoirAlertCss(row.key)} />}>{row.label}</LegendRow>
+      ))}
+      <LegendSizeRow
+        ring={t.isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light}
+        title="有效容量（圓點大小）"
+        items={RESERVOIR_CAPACITY_LEGEND_WAN.map((wan) => ({ r: reservoirCapacityRadius(wan), label: `${(wan / 10_000).toLocaleString()} 億 m³` }))}
+      />
+      <LegendNote>圓點下方數字＝蓄水率；隨時間軸更新。開「立體效果」另疊 3D 水位計（水柱高＝蓄水率）。</LegendNote>
+    </div>
+  );
+}
+
+/** R6 段 2：五類廢棄物處理設施平面圓點（LG-1，色號＝WASTE_FACILITY_COLORS，與地圖同一常數） */
+const WASTE_FACILITY_LEGEND_ROWS: ReadonlyArray<{ key: keyof LayerVisibility; type: string }> = [
+  { key: "wfIncinerator", type: "incinerator" },
+  { key: "wfLandfill", type: "landfill" },
+  { key: "wfLandfillCoastal", type: "landfill_coastal" },
+  { key: "wfTransfer", type: "transfer_station" },
+  { key: "wfMedical", type: "medical_waste" },
+];
+
+function WasteFacilityLegend({ visibility }: { visibility: LayerVisibility }) {
+  const rows = WASTE_FACILITY_LEGEND_ROWS.filter((r) => visibility[r.key]);
+  return (
+    <div>
+      <LegendTitle zh="垃圾處理設施" en="Waste Facilities" />
+      {rows.map((r) => (
+        <LegendRow key={r.key} swatch={<SwatchDot color={WASTE_FACILITY_COLORS[r.type]!} />}>
+          {WASTE_FACILITY_LABELS[r.type] ?? r.type}
+        </LegendRow>
+      ))}
+      <LegendNote>開「立體效果」另疊 3D 造型（煙囪、穹頂、雷達等）。</LegendNote>
     </div>
   );
 }

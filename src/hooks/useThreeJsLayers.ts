@@ -72,7 +72,23 @@ export interface ThreeStereoToggles {
   railTrain3D: boolean;
   railTrack3D: boolean;
   wasteTruck3D: boolean;
+  // R6 段 2：五類廢棄物設施
+  wfIncinerator3D: boolean;
+  wfLandfill3D: boolean;
+  wfLandfillCoastal3D: boolean;
+  wfTransfer3D: boolean;
+  wfMedical3D: boolean;
 }
+
+/** R6 段 2：五類設施 → 立體效果參數名（Three.js 子場景只在開啟時畫，平面由 wasteMapboxLayers 負責） */
+export const WASTE_FACILITY_STEREO_KEYS = {
+  wfIncinerator: "wfIncinerator3D",
+  wfLandfill: "wfLandfill3D",
+  wfLandfillCoastal: "wfLandfillCoastal3D",
+  wfTransfer: "wfTransfer3D",
+  wfMedical: "wfMedical3D",
+  wfMonitoring: "wfMonitoring3D",
+} as const satisfies Record<WasteFacility3DKey, keyof ThreeStereoToggles>;
 
 /** 目前 paramRefs 的立體開關快照。 */
 export function stereoTogglesFromRefs(): ThreeStereoToggles {
@@ -90,6 +106,11 @@ export function stereoTogglesFromRefs(): ThreeStereoToggles {
     railTrain3D: paramRefs.railTrain3D.current,
     railTrack3D: effectiveRailTrackMode(paramRefs.railTrain3D.current, paramRefs.railTrackMode.current) === "3d",
     wasteTruck3D: paramRefs.wasteTruck3D.current,
+    wfIncinerator3D: paramRefs.wfIncinerator3D.current,
+    wfLandfill3D: paramRefs.wfLandfill3D.current,
+    wfLandfillCoastal3D: paramRefs.wfLandfillCoastal3D.current,
+    wfTransfer3D: paramRefs.wfTransfer3D.current,
+    wfMedical3D: paramRefs.wfMedical3D.current,
   };
 }
 
@@ -102,8 +123,9 @@ export function anyThreeLayerVisible(vis: LayerVisibility, t: ThreeStereoToggles
   return vis.flights || vis.ships || railThreeVisible(vis.rail, t)
     || vis.busLive || vis.busIntercityLive || vis.touristShuttleLive
     || (vis.wasteTruck && t.wasteTruck3D) || vis.wasteSchedule || vis.wasteScheduleNote
-    || vis.wfIncinerator || vis.wfLandfill || vis.wfLandfillCoastal || vis.wfTransfer || vis.wfMedical
-    || (vis.wfMonitoring && t.wfMonitoring3D)
+    || (vis.wfIncinerator && t.wfIncinerator3D) || (vis.wfLandfill && t.wfLandfill3D)
+    || (vis.wfLandfillCoastal && t.wfLandfillCoastal3D) || (vis.wfTransfer && t.wfTransfer3D)
+    || (vis.wfMedical && t.wfMedical3D) || (vis.wfMonitoring && t.wfMonitoring3D)
     || (vis.lighthouses && t.beamVisible)
     || (vis.stationsTHSR && t.thsrPillarVisible) || (vis.stationsTRA && t.traPillarVisible)
     || (vis.stationsMetro && t.metroPillarVisible) || (vis.airports && t.airportPillarVisible)
@@ -411,9 +433,8 @@ export function useThreeJsLayers({
           wfIncinerator: false, wfLandfill: false, wfLandfillCoastal: false,
           wfTransfer: false, wfMedical: false, wfMonitoring: false,
         };
-        for (const k of FACILITY_KEYS) out[k] = !!vis[k];
-        // R6 段 1：監測井的 Three.js 只在「立體效果」開啟時畫（平面由 wasteMapboxLayers 負責）
-        out.wfMonitoring = out.wfMonitoring && paramRefs.wfMonitoring3D.current;
+        // R6 段 1／2：每類 Three.js 子場景只在該層「立體效果」開啟時畫（平面由 wasteMapboxLayers 負責）
+        for (const k of FACILITY_KEYS) out[k] = !!vis[k] && paramRefs[WASTE_FACILITY_STEREO_KEYS[k]].current;
         return out;
       },
       getParams: () => {

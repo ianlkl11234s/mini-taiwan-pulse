@@ -72,6 +72,8 @@ const ALL_OFF: ThreeStereoToggles = {
   tempExtruded: false, wfMonitoring3D: false,
   // R6 段 3 的移動物件開關（列車顯示中但軌道 2D、兩層立體效果關）
   railTrainVisible: true, railTrain3D: false, railTrack3D: false, wasteTruck3D: false,
+  // R6 段 2
+  wfIncinerator3D: false, wfLandfill3D: false, wfLandfillCoastal3D: false, wfTransfer3D: false, wfMedical3D: false,
 };
 /** 完整的 LayerVisibility：只有指定 key 為 true，其餘一律 false */
 const visOf = (on: Partial<Record<keyof LayerVisibility, boolean>>) =>
@@ -101,8 +103,8 @@ describe("R6 段 1：anyThreeLayerVisible 看各層立體效果", () => {
     expect(anyThreeLayerVisible(visOf({}), allOn)).toBe(false);
   });
 
-  it("段 3 未納入的移動物件與其他廢棄物設施不受影響（照舊觸發 bundle）", () => {
-    for (const key of ["flights", "ships", "busLive", "wfIncinerator", "wfMedical"] as const) {
+  it("段 2／3 未納入的移動物件不受影響（照舊觸發 bundle）；廢棄物設施、列車、垃圾車看立體效果（見 r6Stage2／r6Stage3Moving）", () => {
+    for (const key of ["flights", "ships", "busLive"] as const) {
       expect(anyThreeLayerVisible(visOnly(key), ALL_OFF), key).toBe(true);
     }
   });
@@ -134,7 +136,7 @@ describe("R6 段 1：溫度波平面改用 Mapbox 溫度網格", () => {
 describe("R6 段 1：立體模組不背景預載", () => {
   afterEach(() => { vi.restoreAllMocks(); });
 
-  it("背景預載清單不會載入夜景 bloom／輸電線 glow／地震漣漪模組", async () => {
+  it("背景預載清單不會載入立體效果模組（段 1：夜景 bloom／輸電線 glow／地震漣漪；段 2：機組光柱／水庫水位計）", async () => {
     const all = [
       lazy.reservoirLayerModule, lazy.realEstatePointsModule, lazy.gfwV4TrackLayerModule,
       lazy.historicalFlightTrailsModule, lazy.buildingsNightBloomModule, lazy.powerRegionBarsModule,
@@ -149,6 +151,7 @@ describe("R6 段 1：立體模組不背景預載", () => {
     for (const m of rest) expect(spies.get(m)).toHaveBeenCalledTimes(1);
     expect(lazy.R6_STEREO_ON_DEMAND_MODULES).toEqual([
       lazy.buildingsNightBloomModule, lazy.osmPowerLinesGlowModule, lazy.earthquakeRippleModule,
+      lazy.powerGenerationBeamModule, lazy.reservoirLayerModule,
     ]);
   });
 });

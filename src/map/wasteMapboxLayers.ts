@@ -6,8 +6,10 @@
  *   - 不需要 3D 戲劇感（焚化爐/掩埋場/轉運站/醫療用 Three.js scene 處理）
  *   - Mapbox 原生 circle event 處理 click 比 Three.js picking 快又穩
  *
- * 8 個 sub-layer：
+ * 13 個 sub-layer：
  *   facility:  wfRecycling / wfMonitoring / wfScrapYard / wfOther
+ *              wfIncinerator / wfLandfill / wfLandfillCoastal / wfTransfer / wfMedical
+ *              （R6 段 2，2026-10-06：五類設施的平面版，預設顯示；「立體效果」開啟時 Three.js 造型疊在上面）
  *   disposal:  wdClothes / wdMixed / wdRecyclingContainer / wdBattery
  *
  * Z 軸 slider 對 Mapbox circle 為偽 3D（circle-translate Y 像素偏移），
@@ -26,6 +28,7 @@ import { pointRadius, pointStrokePaint } from "./mapStyleScale";
 
 export type WasteMapboxLayerKey =
   | "wfRecycling" | "wfMonitoring" | "wfScrapYard" | "wfOther"
+  | "wfIncinerator" | "wfLandfill" | "wfLandfillCoastal" | "wfTransfer" | "wfMedical"
   | "wdClothes" | "wdMixed" | "wdRecyclingContainer" | "wdBattery";
 
 /** sub-toggle key → facility_type 過濾 */
@@ -34,7 +37,18 @@ const FACILITY_TYPES_BY_KEY: Record<string, string[]> = {
   wfMonitoring: ["monitoring_well"],
   wfScrapYard: ["scrap_yard"],
   wfOther: ["other", "food_waste_processing", "repair_shop"],
+  wfIncinerator: ["incinerator"],
+  wfLandfill: ["landfill"],
+  wfLandfillCoastal: ["landfill_coastal"],
+  wfTransfer: ["transfer_station"],
+  wfMedical: ["medical_waste"],
 };
+
+/** R6 段 2：五類設施的平面圓點（類別色＝WASTE_FACILITY_COLORS，與圖例同一常數） */
+export const WASTE_FACILITY_FLAT_KEYS = [
+  "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical",
+] as const;
+const FLAT_KEY_SET: ReadonlySet<string> = new Set(WASTE_FACILITY_FLAT_KEYS);
 
 /** sub-toggle key → point_type 過濾 */
 const DISPOSAL_TYPES_BY_KEY: Record<string, string[]> = {
@@ -50,6 +64,11 @@ const SIZE_DEFAULTS: Record<WasteMapboxLayerKey, number> = {
   wfMonitoring: 1,
   wfScrapYard: 1,
   wfOther: 1,
+  wfIncinerator: 1,
+  wfLandfill: 1,
+  wfLandfillCoastal: 1,
+  wfTransfer: 1,
+  wfMedical: 1,
   wdClothes: 1,
   wdMixed: 1,
   wdRecyclingContainer: 1,
@@ -62,6 +81,12 @@ const OPACITY_DEFAULTS: Record<WasteMapboxLayerKey, number> = {
   wfMonitoring: 0.7,
   wfScrapYard: 0.85,
   wfOther: 0.7,
+  // R6 段 2：五類設施的預設值沿用 Three.js 調校（layerParamsSpec wasteSubSliders），平面以此正規化成 P-3 0.85
+  wfIncinerator: 0.85,
+  wfLandfill: 0.45,
+  wfLandfillCoastal: 0.55,
+  wfTransfer: 0.85,
+  wfMedical: 0.85,
   wdClothes: 0.7,
   wdMixed: 0.7,
   wdRecyclingContainer: 0.85,
@@ -74,6 +99,11 @@ const LAYER_COLOR: Record<WasteMapboxLayerKey, string> = {
   wfMonitoring: WASTE_FACILITY_COLORS.monitoring_well!,
   wfScrapYard: WASTE_FACILITY_COLORS.scrap_yard!,
   wfOther: WASTE_FACILITY_COLORS.other!,
+  wfIncinerator: WASTE_FACILITY_COLORS.incinerator!,
+  wfLandfill: WASTE_FACILITY_COLORS.landfill!,
+  wfLandfillCoastal: WASTE_FACILITY_COLORS.landfill_coastal!,
+  wfTransfer: WASTE_FACILITY_COLORS.transfer_station!,
+  wfMedical: WASTE_FACILITY_COLORS.medical_waste!,
   wdClothes: WASTE_DISPOSAL_COLORS.clothes_box!,
   wdMixed: WASTE_DISPOSAL_COLORS.mixed!,
   wdRecyclingContainer: WASTE_DISPOSAL_COLORS.recycling_container!,
@@ -82,6 +112,7 @@ const LAYER_COLOR: Record<WasteMapboxLayerKey, string> = {
 
 const ALL_KEYS: WasteMapboxLayerKey[] = [
   "wfRecycling", "wfMonitoring", "wfScrapYard", "wfOther",
+  ...WASTE_FACILITY_FLAT_KEYS,
   "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
 ];
 
@@ -148,6 +179,9 @@ function rowsToFeatures(
             status: r.status,
             start_year: r.start_year,
             source_url: r.source_url,
+            // 與 Three.js 點選（facilityRowToFeatureInfo）同欄位，兩種模式 popup 一致
+            is_coastal: r.is_coastal,
+            distance_to_sea_m: r.distance_to_sea_m,
           },
         });
       }
@@ -364,7 +398,7 @@ export function syncWasteMapboxParams(
     }
     if (map.getLayer(coreLayerId(k))) {
       map.setPaintProperty(coreLayerId(k), "circle-radius", pointRadius("M", sizeMul));
-      map.setPaintProperty(coreLayerId(k), "circle-opacity", 0.85 * opacity);
+      map.setPaintProperty(coreLayerId(k), "circle-opacity", wasteFlatOpacity(k, opacity));
       map.setPaintProperty(
         coreLayerId(k),
         "circle-stroke-opacity",
@@ -373,6 +407,14 @@ export function syncWasteMapboxParams(
       map.setPaintProperty(coreLayerId(k), "circle-translate", [0, altitudePx]);
     }
   }
+}
+
+/**
+ * 主體點透明度。R6 段 2 的五類設施以滑桿預設值正規化（預設＝P-3 0.85）；
+ * 其餘 8 類維持既有「0.85 × 滑桿值」。
+ */
+export function wasteFlatOpacity(k: WasteMapboxLayerKey, opacity: number): number {
+  return FLAT_KEY_SET.has(k) ? Math.min(1, 0.85 * (opacity / OPACITY_DEFAULTS[k])) : 0.85 * opacity;
 }
 
 /** 切換 dark / light 樣式 */

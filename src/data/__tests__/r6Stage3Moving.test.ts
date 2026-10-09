@@ -136,6 +136,7 @@ const OFF: ThreeStereoToggles = {
   metroPillarVisible: false, airportPillarVisible: false, portPillarVisible: false,
   tempExtruded: false, wfMonitoring3D: false,
   railTrainVisible: true, railTrain3D: false, railTrack3D: false, wasteTruck3D: false,
+  wfIncinerator3D: false, wfLandfill3D: false, wfLandfillCoastal3D: false, wfTransfer3D: false, wfMedical3D: false,
 };
 
 describe("R6 段 3：立體關時 Three 不因列車／垃圾車而載入或重畫", () => {

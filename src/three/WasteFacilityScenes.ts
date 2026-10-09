@@ -22,6 +22,10 @@
 import * as THREE from "three";
 import { toMercator, metersPerUnit } from "../utils/coordinates";
 import type { WasteFacilityRow } from "../data/wasteLoader";
+import { WASTE_FACILITY_COLORS } from "../data/wasteFacilityColors";
+
+/** 焚化爐識別橘：底圈＋火苗與平面圓點／圖例／側欄同一常數（2026-10-09） */
+const INCINERATOR_COLOR = WASTE_FACILITY_COLORS.incinerator!;
 
 // ═══════════════════════════════════════════════════════════════
 // 共用基底 — 處理 init / pick / render boilerplate
@@ -168,7 +172,7 @@ export class WasteIncineratorScene extends WasteFacilitySceneBase {
       if (this.groundRingScale > 0) {
         const ringGeo = new THREE.RingGeometry(ringInnerR, ringOuterR, 48);
         const ringMat = new THREE.MeshBasicMaterial({
-          color: 0xff6b1a,
+          color: INCINERATOR_COLOR,
           transparent: true,
           opacity: 0.55 * this.opacityMul,
           side: THREE.DoubleSide,
@@ -199,7 +203,7 @@ export class WasteIncineratorScene extends WasteFacilitySceneBase {
       // 火苗（頂端球，加性混合）
       const flameGeo = new THREE.SphereGeometry(stackRadius * 1.6, 8, 8);
       const flameMat = new THREE.MeshBasicMaterial({
-        color: 0xff6b1a,
+        color: INCINERATOR_COLOR,
         transparent: true,
         opacity: 0.85 * this.opacityMul,
         blending: THREE.AdditiveBlending,
