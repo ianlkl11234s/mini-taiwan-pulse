@@ -714,6 +714,9 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     // doubled edge.
     const outlineColor = outlineOnly ? TRANSPARENT : isochrone ? TRANSPARENT : styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
     const lineColor: string | ExpressionSpecification = styleColor ?? COLORS[index]!;
+    // F098: hover/selected LineString results get the 2px accent (flow keeps its data-driven width; see flow layers).
+    const plainLineColor = ["case", EMPHASIZED, accent, lineColor] as unknown as ExpressionSpecification;
+    const plainLineWidth = ["case", EMPHASIZED, ANALYSIS_EMPHASIS_WIDTH_PX + 1, 3] as unknown as ExpressionSpecification;
     const heatmapPalette = heatmap ? (heatmap.palette ? heatmap.palette[theme] : heatmap.colors) : null;
     const circleColor: string | ExpressionSpecification = styleColor ? styleColor : proportionalColor ? proportionalColor : heatmapPalette ? heatmapPalette[heatmapPalette.length - 1]! : nearbyCategoryColor ? nearbyCategoryColor : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
     const circleRadius: ExpressionSpecification = (proportional ? ["get", proportional.sizeRadiusProperty] : scopeCenter ? ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12] : ["interpolate", ["linear"], ["zoom"], 5, 3, 12, 6, 16, 9]) as unknown as ExpressionSpecification;
@@ -772,7 +775,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
         "line-color": lineColor, "line-width": ["get", flow.widthProperty], "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration },
       } });
     } else if (line) {
-      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": lineColor, "line-width": 3, "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration } } });
+      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": plainLineColor, "line-width": plainLineWidth, "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration } } });
     } else if (heatmap) {
       const filter = warehouseHeatmapFilter(heatmap);
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "heatmap", source: sourceId(index), ...(filter ? { filter } : {}), paint: warehouseHeatmapPaint(heatmap, reveal ? 0 : resultOpacity, theme) as never });
@@ -803,8 +806,8 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       map.setPaintProperty(layerId(index), "line-width", ["get", flow.widthProperty]);
       map.setFilter(layerId(index), warehouseFlowWidthFilter(flow));
     } else if (line) {
-      map.setPaintProperty(layerId(index), "line-color", lineColor);
-      map.setPaintProperty(layerId(index), "line-width", 3);
+      map.setPaintProperty(layerId(index), "line-color", plainLineColor);
+      map.setPaintProperty(layerId(index), "line-width", plainLineWidth);
       map.setFilter(layerId(index), null);
     } else if (heatmap) {
       const paint = warehouseHeatmapPaint(heatmap, resultOpacity, theme);
@@ -1034,9 +1037,10 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       if (grid && map.getLayer(gridGapLayerId(index))) map.setPaintProperty(gridGapLayerId(index), "line-opacity", dimmable(map, index, resultOpacity));
       if (isochrone && map.getLayer(isochroneOutlineLayerId(index))) map.setPaintProperty(isochroneOutlineLayerId(index), "line-opacity", resultOpacity);
       if (flow) {
-        if (map.getLayer(flowOutlineLayerId(index))) map.setPaintProperty(flowOutlineLayerId(index), "line-opacity", resultOpacity);
-        if (map.getLayer(flowEndpointLayerId(index))) { map.setPaintProperty(flowEndpointLayerId(index), "circle-opacity", resultOpacity); map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-opacity", resultOpacity); }
-        if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", flow.dotOpacity * resultOpacity);
+        // Same-source layers read feature-state; the endpoint source mirrors the selection (setAnalysisSelection).
+        if (map.getLayer(flowOutlineLayerId(index))) map.setPaintProperty(flowOutlineLayerId(index), "line-opacity", dimmable(map, index, resultOpacity));
+        if (map.getLayer(flowEndpointLayerId(index))) { map.setPaintProperty(flowEndpointLayerId(index), "circle-opacity", dimmable(map, index, resultOpacity)); map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-opacity", dimmable(map, index, resultOpacity)); }
+        if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", dimmable(map, index, flow.dotOpacity * resultOpacity));
       }
     };
     if (reveal && nearbyStaged) {
@@ -1233,9 +1237,9 @@ function applyResultOpacity(map: Map, index: number, result: AnalysisResultPrese
   if (map.getLayer(nullHatchLayerId(index))) map.setPaintProperty(nullHatchLayerId(index), "fill-opacity", dimmable(map, index, opacity));
   if (map.getLayer(gridGapLayerId(index))) map.setPaintProperty(gridGapLayerId(index), "line-opacity", dimmable(map, index, opacity));
   if (map.getLayer(isochroneOutlineLayerId(index))) map.setPaintProperty(isochroneOutlineLayerId(index), "line-opacity", opacity);
-  if (map.getLayer(flowOutlineLayerId(index))) map.setPaintProperty(flowOutlineLayerId(index), "line-opacity", opacity);
-  if (map.getLayer(flowEndpointLayerId(index))) { map.setPaintProperty(flowEndpointLayerId(index), "circle-opacity", opacity); map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-opacity", opacity); }
-  if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", opacity * (result.flowDotOpacityRatio ?? 1));
+  if (map.getLayer(flowOutlineLayerId(index))) map.setPaintProperty(flowOutlineLayerId(index), "line-opacity", dimmable(map, index, opacity));
+  if (map.getLayer(flowEndpointLayerId(index))) { map.setPaintProperty(flowEndpointLayerId(index), "circle-opacity", dimmable(map, index, opacity)); map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-opacity", dimmable(map, index, opacity)); }
+  if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", dimmable(map, index, opacity * (result.flowDotOpacityRatio ?? 1)));
   if (map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", opacity);
   if (map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", dimmable(map, index, opacity));
   if (map.getLayer(scopeRingLayerId(index))) { map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity); map.setPaintProperty(scopeRingLayerId(index), "line-width", SCOPE_RING_WIDTH); }
@@ -1271,6 +1275,7 @@ export function setAnalysisSelection(map: Map, results: readonly AnalysisResultP
     nextDimmed.add(index);
     targets.push({ source: sourceId(index), id: fid });
     if (map.getSource(bivariateSizeSourceId(index))) targets.push({ source: bivariateSizeSourceId(index), id: fid });
+    if (map.getSource(flowEndpointSourceId(index))) targets.push({ source: flowEndpointSourceId(index), id: fid });
   }
   for (const target of targets) setState(map, target, { selected: true });
   selectedTargets.set(map, targets);

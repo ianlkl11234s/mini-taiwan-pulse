@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
 import { ensureStatisticsResearchDatasets, registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
 import { panelForExplorationLayers } from "../../src/research/explorationNavigation.ts";
+import { layerAlias, sharedTableWarning } from "./layer-status-helpers.mjs";
 
 // PF-7: statistics-recipe datasets register after their lazily imported details load.
 await ensureStatisticsResearchDatasets();
@@ -55,6 +56,19 @@ for (const entry of catalog) {
   byDatasetId.set(entry.dataset_id, list);
 }
 const USABLE = new Set(["OK", "WARN"]);
+// 哪些圖層會讀同一張倉庫表（不含明確指定 rowFilter 的圖層）；供共用表守門使用。
+const tableUsers = new Map();
+for (const key of MANIFEST_KEYS) {
+  const entry = LAYER_MANIFEST[key];
+  const declared = (entry.upstream?.datasets ?? []).map(dataset => dataset.datasetId);
+  const alias = layerAlias(aliases.byLayer, key);
+  const ids = new Set([...declared, ...declared.flatMap(id => aliases.byUpstream?.[id] ?? []), ...alias.datasets]);
+  for (const id of ids) for (const item of byDatasetId.get(id) ?? []) {
+    if (!USABLE.has(item.status) || alias.rowFilter) continue;
+    if (!tableUsers.has(item.table)) tableUsers.set(item.table, new Set());
+    tableUsers.get(item.table).add(key);
+  }
+}
 const PANEL_LABEL = { layers: "臺灣圖層", statistics: "統計", world: "世界", japan: "日本" };
 
 function sourceKinds(entry) {
@@ -73,7 +87,8 @@ function coverageLabel(tables) {
 function classify(key) {
   const entry = LAYER_MANIFEST[key];
   const declaredIds = (entry.upstream?.datasets ?? []).map(dataset => dataset.datasetId);
-  const upstreamIds = [...new Set([...declaredIds, ...declaredIds.flatMap(id => aliases.byUpstream?.[id] ?? []), ...(aliases.byLayer?.[key] ?? [])])];
+  const layerAliasEntry = layerAlias(aliases.byLayer, key);
+  const upstreamIds = [...new Set([...declaredIds, ...declaredIds.flatMap(id => aliases.byUpstream?.[id] ?? []), ...layerAliasEntry.datasets])];
   const derivedIds = entry.upstream?.derivedFromDatasets ?? [];
   const warehouseEntries = upstreamIds.flatMap(id => byDatasetId.get(id) ?? []);
   const usable = warehouseEntries.filter(item => USABLE.has(item.status));
@@ -108,8 +123,10 @@ function classify(key) {
     l2 = override.l2; blocker = override.note ? `override: ${override.note}` : "override";
   }
 
+  const sharedWarning = sharedTableWarning({ spatial, rowFilter: layerAliasEntry.rowFilter, tableUsers });
+  if (sharedWarning && l2 === "spatial") blocker = sharedWarning;
   const precision = [...new Set(spatial.map(item => item.precision_class ?? "unknown"))].join("+");
-  const geometry = [...new Set(spatial.map(item => String(item.geometry_type)))].join("+");
+  const geometry = layerAliasEntry.geometry || [...new Set(spatial.map(item => String(item.geometry_type)))].join("+");
   const updated = [
     ...usable.map(item => item.last_updated ?? item.fetched_at).filter(Boolean),
     ...stats.map(id => extras.statsDatasets[id].lastPeriod),
@@ -123,6 +140,7 @@ function classify(key) {
     source_kind: sourceKinds(entry),
     upstream_status: entry.upstream?.status ?? "",
     dataset_ids: upstreamIds.join(" "),
+    row_filter: layerAliasEntry.rowFilter,
     warehouse_tables: [...new Set(usable.map(item => item.table))].join(" "),
     geometry,
     updated: String(updated).slice(0, 10),
@@ -156,7 +174,8 @@ const panelRows = panels.map(panel => {
   return [panel, subset.length, ...l2Present.map(l2 => counts[l2] ?? 0)];
 });
 const totals = count(rows, "l2_analysis");
-const analysable = rows.filter(row => ["spatial", "statistics", "attribute"].includes(row.l2_analysis)).length;
+const analysable = rows.filter(row => ["spatial", "statistics", "attribute"].includes(row.l2_analysis) && row.blocker !== "unfiltered_shared_table").length;
+const unfilteredShared = rows.filter(row => row.blocker === "unfiltered_shared_table").length;
 const blockers = Object.entries(count(rows.filter(row => row.blocker), "blocker")).sort((a, b) => b[1] - a[1]);
 const precision = Object.entries(count(rows.filter(row => row.l3_precision), "l3_precision")).sort((a, b) => b[1] - a[1]);
 const coverage = Object.entries(count(rows.filter(row => row.coverage), "coverage")).sort((a, b) => b[1] - a[1]).slice(0, 8);
@@ -168,6 +187,7 @@ const summary = `# 圖層總表摘要
 
 - 圖層總數：**${rows.length}**；L1 可操作：**${rows.length}/${rows.length}**
 - L2 倉庫可分析（spatial＋statistics＋attribute）：**${analysable}/${rows.length}**（${(analysable / rows.length * 100).toFixed(1)}%）
+- 共用混合幾何表但缺逐層 rowFilter（不計入上列）：${unfilteredShared}
 - 只有舊瀏覽器 reader：${totals.browser_reader ?? 0}；尚不可分析：${totals.none ?? 0}
 
 ## 各面板 L2 狀態
