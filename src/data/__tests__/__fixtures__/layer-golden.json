@@ -164,13 +164,6 @@
     },
     {
       "layers": [
-        "national-parks-fill",
-        "national-parks-outline"
-      ],
-      "type": "nationalParks"
-    },
-    {
-      "layers": [
         "road-congestion-hit"
       ],
       "type": "roadCongestion"
@@ -3469,6 +3462,13 @@
     },
     {
       "layers": [
+        "national-parks-fill",
+        "national-parks-outline"
+      ],
+      "type": "nationalParks"
+    },
+    {
+      "layers": [
         "agri-ftw-fields-fill"
       ],
       "type": "agricultureField"
@@ -3722,8 +3722,24 @@
                 "#04121f",
                 "#04121f"
               ],
-              "line-opacity": 0.8,
-              "line-width": 1
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.4,
+                8,
+                0.7,
+                12,
+                1.4,
+                15,
+                2.2
+              ]
             },
             "light": {
               "line-color": [
@@ -3756,8 +3772,24 @@
                 "#04121f",
                 "#04121f"
               ],
-              "line-opacity": 0.8,
-              "line-width": 1
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.4,
+                8,
+                0.7,
+                12,
+                1.4,
+                15,
+                2.2
+              ]
             }
           },
           "suffix": "line",
@@ -17400,7 +17432,21 @@
                   ]
                 ]
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             },
             "light": {
               "fill-color": [
@@ -19405,7 +19451,21 @@
                   ]
                 ]
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             }
           },
           "suffix": "companyIndustryDistribution-demographics-fill",
@@ -23601,7 +23661,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             },
             "light": {
               "fill-color": [
@@ -23724,7 +23798,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             }
           },
           "suffix": "companyAgeStructure-demographics-fill",
@@ -24918,7 +25006,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             },
             "light": {
               "fill-color": [
@@ -24967,7 +25069,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             }
           },
           "suffix": "fill",
@@ -25163,7 +25279,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             },
             "light": {
               "fill-color": [
@@ -25212,7 +25342,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             }
           },
           "suffix": "fill",
@@ -25408,7 +25552,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             },
             "light": {
               "fill-color": [
@@ -25457,7 +25615,21 @@
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.7,
+                9.999,
+                0.7,
+                10,
+                0
+              ]
             }
           },
           "suffix": "fill",
@@ -28993,7 +29165,53 @@
                 "#90a4ae",
                 "#cfd8dc"
               ],
-              "line-opacity": 0.8,
+              "line-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                0.5,
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                0.5,
+                0.5
+              ],
               "line-width": 1
             },
             "light": {
@@ -29044,7 +29262,53 @@
                 "#90a4ae",
                 "#cfd8dc"
               ],
-              "line-opacity": 0.8,
+              "line-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "in_osm"
+                    ],
+                    true
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "nlsc_code"
+                    ],
+                    "0102"
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "solar_symbiotic"
+                    ],
+                    true
+                  ]
+                ],
+                0.5,
+                [
+                  "in",
+                  [
+                    "get",
+                    "nlsc_code"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "0402",
+                      "0104"
+                    ]
+                  ]
+                ],
+                0.5,
+                0.5
+              ],
               "line-width": 1
             }
           },
@@ -33324,7 +33588,7 @@
                   "不對外"
                 ],
                 0.20999999999999996,
-                0.5249999999999999
+                0.8
               ],
               "circle-stroke-width": 1
             },
@@ -33457,7 +33721,7 @@
                   "不對外"
                 ],
                 0.20999999999999996,
-                0.5249999999999999
+                0.9
               ],
               "circle-stroke-width": 1
             }
@@ -33617,7 +33881,7 @@
                   "不對外"
                 ],
                 0.22399999999999998,
-                0.5599999999999999
+                0.8
               ],
               "circle-stroke-width": 1
             },
@@ -33750,7 +34014,7 @@
                   "不對外"
                 ],
                 0.22399999999999998,
-                0.5599999999999999
+                0.9
               ],
               "circle-stroke-width": 1
             }
@@ -33910,7 +34174,7 @@
                   "不對外"
                 ],
                 0.22399999999999998,
-                0.5599999999999999
+                0.8
               ],
               "circle-stroke-width": 1
             },
@@ -34043,7 +34307,7 @@
                   "不對外"
                 ],
                 0.22399999999999998,
-                0.5599999999999999
+                0.9
               ],
               "circle-stroke-width": 1
             }
@@ -34203,7 +34467,7 @@
                   "不對外"
                 ],
                 0.22399999999999998,
-                0.5599999999999999
+                0.8
               ],
               "circle-stroke-width": 1
             },
@@ -34336,7 +34600,7 @@
                   "不對外"
                 ],
                 0.22399999999999998,
-                0.5599999999999999
+                0.9
               ],
               "circle-stroke-width": 1
             }
@@ -34496,7 +34760,7 @@
                   "不對外"
                 ],
                 0.238,
-                0.595
+                0.8
               ],
               "circle-stroke-width": 1
             },
@@ -34629,7 +34893,7 @@
                   "不對外"
                 ],
                 0.238,
-                0.595
+                0.9
               ],
               "circle-stroke-width": 1
             }
@@ -39451,7 +39715,7 @@
                   0
                 ],
                 "#ff2d2d",
-                "rgba(0,0,0,0.55)"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
@@ -39478,7 +39742,7 @@
                     0
                   ],
                   0.8,
-                  0.3
+                  1
                 ],
                 14,
                 [
@@ -39713,7 +39977,7 @@
                   0
                 ],
                 "#ff2d2d",
-                "rgba(255,255,255,0.75)"
+                "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": [
@@ -39740,7 +40004,7 @@
                     0
                   ],
                   0.8,
-                  0.3
+                  1
                 ],
                 14,
                 [
@@ -39932,7 +40196,7 @@
                 ],
                 "stale",
                 "#9ca3af",
-                "#3B82F6"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": [
                 "*",
@@ -39954,7 +40218,7 @@
                 ],
                 "stale",
                 1.5,
-                0.8
+                1
               ]
             },
             "light": {
@@ -40019,7 +40283,7 @@
                 ],
                 "stale",
                 1.5,
-                0.8
+                1
               ]
             }
           },
@@ -40074,7 +40338,7 @@
                 ],
                 1,
                 "#ffffff",
-                "rgba(255,255,255,0.35)"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
@@ -40085,7 +40349,7 @@
                 ],
                 1,
                 2.2,
-                0.8
+                1
               ]
             },
             "light": {
@@ -40117,7 +40381,7 @@
                 ],
                 1,
                 "#ffffff",
-                "rgba(0,0,0,0.3)"
+                "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": [
@@ -40128,7 +40392,7 @@
                 ],
                 1,
                 2.2,
-                0.8
+                1
               ]
             }
           },
@@ -40560,7 +40824,7 @@
                 "#38bdf8",
                 "freeway_service_area",
                 "#f59e0b",
-                "rgba(255,255,255,0.35)"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": 1
@@ -40678,7 +40942,7 @@
                 "#38bdf8",
                 "freeway_service_area",
                 "#f59e0b",
-                "rgba(255,255,255,0.35)"
+                "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
@@ -41028,7 +41292,7 @@
                   true
                 ],
                 "#ffffff",
-                "#0f172a"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
@@ -41510,7 +41774,7 @@
                 "#00d4ff",
                 "announced",
                 "#a5b4fc",
-                "#a5b4fc"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": 1
@@ -41623,7 +41887,7 @@
                 "#00d4ff",
                 "announced",
                 "#a5b4fc",
-                "#a5b4fc"
+                "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
@@ -45341,7 +45605,7 @@
                 1,
                 "precinct",
                 0.8,
-                0.5
+                1
               ]
             },
             "light": {
@@ -45484,7 +45748,7 @@
                 1,
                 "precinct",
                 0.8,
-                0.5
+                1
               ]
             }
           },
@@ -46048,7 +46312,7 @@
                 1.4,
                 "high",
                 1.1,
-                0.8
+                1
               ]
             },
             "light": {
@@ -46181,7 +46445,7 @@
                 1.4,
                 "high",
                 1.1,
-                0.8
+                1
               ]
             }
           },
@@ -46313,7 +46577,7 @@
                 1.4,
                 "high",
                 1,
-                0.7
+                1
               ]
             },
             "light": {
@@ -46422,7 +46686,7 @@
                 1.4,
                 "high",
                 1,
-                0.7
+                1
               ]
             }
           },
@@ -46570,7 +46834,7 @@
                 1.2,
                 "detention",
                 1,
-                0.7
+                1
               ]
             },
             "light": {
@@ -46695,7 +46959,7 @@
                 1.2,
                 "detention",
                 1,
-                0.7
+                1
               ]
             }
           },
@@ -47958,7 +48222,7 @@
                   "處"
                 ],
                 1.1,
-                0.7
+                1
               ]
             },
             "light": {
@@ -48084,7 +48348,7 @@
                   "處"
                 ],
                 1.1,
-                0.7
+                1
               ]
             }
           },
@@ -48206,7 +48470,7 @@
                 ],
                 "central",
                 1,
-                0.5
+                1
               ]
             },
             "light": {
@@ -48305,7 +48569,7 @@
                 ],
                 "central",
                 1,
-                0.5
+                1
               ]
             }
           },
@@ -48466,7 +48730,7 @@
                 ],
                 "ocean_pier",
                 1.1,
-                0.4
+                1
               ]
             },
             "light": {
@@ -48565,7 +48829,7 @@
                 ],
                 "ocean_pier",
                 1.1,
-                0.4
+                1
               ]
             }
           },
@@ -50326,7 +50590,7 @@
                   "critical"
                 ],
                 "#7f1d1d",
-                "#fed7aa"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
@@ -50340,7 +50604,7 @@
                   "critical"
                 ],
                 1.3,
-                0.5
+                1
               ]
             },
             "light": {
@@ -50500,7 +50764,7 @@
                   "critical"
                 ],
                 "#7f1d1d",
-                "#fed7aa"
+                "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": [
@@ -50514,7 +50778,7 @@
                   "critical"
                 ],
                 1.3,
-                0.5
+                1
               ]
             }
           },
@@ -50636,7 +50900,7 @@
                   "unavailable"
                 ],
                 "#94a3b8",
-                "#0f172a"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": [
                 "case",
@@ -50658,7 +50922,7 @@
                   "historical"
                 ],
                 0.49500000000000005,
-                0.9
+                0.8
               ],
               "circle-stroke-width": [
                 "case",
@@ -50878,7 +51142,7 @@
                 1,
                 "road_segment",
                 0.7,
-                0.5
+                1
               ]
             },
             "light": {
@@ -50923,7 +51187,7 @@
                 1,
                 "road_segment",
                 0.7,
-                0.5
+                1
               ]
             }
           },
@@ -51002,9 +51266,9 @@
                   "#b45309",
                   "reservoir",
                   "#7c3aed",
-                  "#94a3b8"
+                  "#0a0a14"
                 ],
-                "#0f172a"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
@@ -51072,7 +51336,7 @@
                   "#b45309",
                   "reservoir",
                   "#7c3aed",
-                  "#94a3b8"
+                  "#ffffff"
                 ],
                 "#ffffff"
               ],
@@ -51170,7 +51434,7 @@
                   null
                 ],
                 "#94a3b8",
-                "#0f172a"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
@@ -51320,7 +51584,7 @@
                   ]
                 ],
                 "#14b8a6",
-                "#0f172a"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
@@ -53962,7 +54226,7 @@
                   3
                 ],
                 0.8,
-                0
+                1
               ]
             },
             "light": {
@@ -54116,7 +54380,7 @@
                   3
                 ],
                 0.8,
-                0
+                1
               ]
             }
           },
@@ -54479,7 +54743,7 @@
                   ]
                 ],
                 1.2,
-                0.7
+                1
               ]
             },
             "light": {
@@ -54678,7 +54942,7 @@
                   ]
                 ],
                 1.2,
-                0.7
+                1
               ]
             }
           },
@@ -55319,7 +55583,7 @@
                   1
                 ],
                 "#fecaca",
-                "#9ca3af"
+                "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": 1
@@ -55366,7 +55630,7 @@
                   1
                 ],
                 "#fecaca",
-                "#9ca3af"
+                "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
@@ -56858,7 +57122,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -56943,7 +57207,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -57166,7 +57430,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -57361,7 +57625,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -57455,7 +57719,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -57521,7 +57785,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -57632,7 +57896,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -57715,7 +57979,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -57896,7 +58160,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58049,7 +58313,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58143,7 +58407,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58209,7 +58473,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58431,7 +58695,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58625,7 +58889,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58719,7 +58983,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58785,7 +59049,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58900,7 +59164,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
@@ -58987,7 +59251,7 @@
                   "zoom"
                 ],
                 6,
-                0.3,
+                1,
                 14,
                 1,
                 15,
