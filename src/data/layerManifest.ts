@@ -5755,7 +5755,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "earthquakesGlobal",
     popup: "earthquakeGlobal",
-    params: { count: 2, kinds: ["select", "slider"] },
+    params: { count: 3, kinds: ["select", "slider", "toggle"] },
     description: "USGS 全球地震（規模分大小、深度分色，回溯天數可選，跟時間軸播放並跑震波擴散圈）",
     topics: ["全球氣候", "地震", "即時"],
   },
@@ -7124,7 +7124,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "temperatureWave",
     popup: null,
-    params: { count: 5, kinds: ["toggle", "slider", "slider", "slider", "toggle"] },
+    params: { count: 2, kinds: ["toggle", "slider"] },
     description: "全台氣溫場的 3D 起伏波形（高度＝溫度，隨時間軸變形）",
     topics: ["環境", "氣象", "溫度", "3D"],
   },
@@ -7148,7 +7148,7 @@ export const LAYER_MANIFEST = {
     legend: "temperatureGrid",
     popup: "temperatureGrid",
     params: { count: 1, kinds: ["slider"] },
-    description: "全台氣溫場的 2D 方格色階（11 級 step 分色，點擊讀該格溫度）",
+    description: "全台氣溫場的 2D 方格色階（10 級 step 分色，點擊讀該格溫度）",
     topics: ["環境", "氣象", "溫度"],
   },
 
@@ -9049,7 +9049,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "掩埋場周邊地下水監測井（574 口）",
     topics: ["廢棄物", "監測", "地下水"],
   },
@@ -9987,7 +9987,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "lighthouses", url: "./geo/lighthouse.geojson" },
     legend: null,
     popup: "lighthouse",
-    params: { count: 4, kinds: ["slider", "toggle", "slider", "slider"] },
+    params: { count: 2, kinds: ["slider", "toggle"] },
     // ⚠️ 有 registry entry（→ A）但**同時**有 Three.js `LighthouseScene` 的旋轉光束
     //    （Beam toggle 控制它）。兩套渲染並存不改變體質判準：有 entry 就派生得動。
     //    同批 6 `waterDam`（GIS_LAYERS 條目與 raycast 並存）的鏡像。
@@ -11051,7 +11051,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "osmPowerLines",
     popup: "osmPowerLine",
-    params: { count: 2, kinds: ["slider", "slider"] },
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
     description: "OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）",
     topics: ["能源", "電網", "輸電線"],
   },

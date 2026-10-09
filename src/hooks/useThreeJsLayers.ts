@@ -50,16 +50,50 @@ export function loadThreeLayerBundle(): Promise<ThreeLayerBundle> {
 
 export const THREE_LAYERS_ANCHOR_ID = "three-layers-anchor";
 
+/**
+ * R6 段 1：非移動物件圖層的「立體效果」開關（參數名沿用既有，見 layerParamsSpec）。
+ * 關閉時該層的 Three.js 不畫、不 repaint，也不會因它觸發 3D bundle 下載。
+ */
+export interface ThreeStereoToggles {
+  fireStations3D: boolean;
+  beamVisible: boolean;
+  thsrPillarVisible: boolean;
+  traPillarVisible: boolean;
+  metroPillarVisible: boolean;
+  airportPillarVisible: boolean;
+  portPillarVisible: boolean;
+  tempExtruded: boolean;
+  wfMonitoring3D: boolean;
+}
+
+/** 目前 paramRefs 的立體開關快照。 */
+export function stereoTogglesFromRefs(): ThreeStereoToggles {
+  return {
+    fireStations3D: paramRefs.fireStations3D.current,
+    beamVisible: paramRefs.beamVisible.current,
+    thsrPillarVisible: paramRefs.thsrPillarVisible.current,
+    traPillarVisible: paramRefs.traPillarVisible.current,
+    metroPillarVisible: paramRefs.metroPillarVisible.current,
+    airportPillarVisible: paramRefs.airportPillarVisible.current,
+    portPillarVisible: paramRefs.portPillarVisible.current,
+    tempExtruded: paramRefs.tempExtruded.current,
+    wfMonitoring3D: paramRefs.wfMonitoring3D.current,
+  };
+}
+
 /** 任一 3D custom layer 會畫東西（對應各 layer 的 getIsVisible）。 */
-export function anyThreeLayerVisible(vis: LayerVisibility, fireStations3D: boolean): boolean {
+export function anyThreeLayerVisible(vis: LayerVisibility, t: ThreeStereoToggles): boolean {
   return vis.flights || vis.ships || vis.rail
     || vis.busLive || vis.busIntercityLive || vis.touristShuttleLive
     || vis.wasteTruck || vis.wasteSchedule || vis.wasteScheduleNote
-    || vis.wfIncinerator || vis.wfLandfill || vis.wfLandfillCoastal || vis.wfTransfer || vis.wfMedical || vis.wfMonitoring
-    || vis.lighthouses
-    || vis.stationsTHSR || vis.stationsTRA || vis.stationsMetro || vis.airports || vis.ports
-    || vis.temperatureWave
-    || (vis.fireStations && fireStations3D);
+    || vis.wfIncinerator || vis.wfLandfill || vis.wfLandfillCoastal || vis.wfTransfer || vis.wfMedical
+    || (vis.wfMonitoring && t.wfMonitoring3D)
+    || (vis.lighthouses && t.beamVisible)
+    || (vis.stationsTHSR && t.thsrPillarVisible) || (vis.stationsTRA && t.traPillarVisible)
+    || (vis.stationsMetro && t.metroPillarVisible) || (vis.airports && t.airportPillarVisible)
+    || (vis.ports && t.portPillarVisible)
+    || (vis.temperatureWave && t.tempExtruded)
+    || (vis.fireStations && t.fireStations3D);
 }
 
 interface UseThreeJsLayersArgs {
@@ -213,7 +247,8 @@ export function useThreeJsLayers({
       getPositions: () => lighthousePositionsRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
       getIsPlaying: () => playingRef.current,
-      getIsVisible: () => layerVisibilityRef.current.lighthouses,
+      // R6：燈塔 Three.js 只有光束 → 立體效果關時整層不畫（也停掉每幀 repaint）
+      getIsVisible: () => layerVisibilityRef.current.lighthouses && paramRefs.beamVisible.current,
       getBeamVisible: () => paramRefs.beamVisible.current,
       getBeamDistance: () => paramRefs.beamDistance.current,
       getBeamOpacity: () => paramRefs.beamOpacity.current,
@@ -343,6 +378,8 @@ export function useThreeJsLayers({
           wfTransfer: false, wfMedical: false, wfMonitoring: false,
         };
         for (const k of FACILITY_KEYS) out[k] = !!vis[k];
+        // R6 段 1：監測井的 Three.js 只在「立體效果」開啟時畫（平面由 wasteMapboxLayers 負責）
+        out.wfMonitoring = out.wfMonitoring && paramRefs.wfMonitoring3D.current;
         return out;
       },
       getParams: () => {
@@ -370,7 +407,8 @@ export function useThreeJsLayers({
     if (map.getLayer(id)) map.removeLayer(id);
     const layer = bundle.createTemperatureWaveLayer({
       getData: () => temperatureDataRef.current,
-      getIsVisible: () => layerVisibilityRef.current.temperatureWave,
+      // R6 段 1：立體效果關 → 改由 TemperatureGridHost 畫 Mapbox 溫度網格，Three.js 不畫
+      getIsVisible: () => layerVisibilityRef.current.temperatureWave && paramRefs.tempExtruded.current,
       getHeightScale: () => paramRefs.tempHeight.current,
       getZOffset: () => paramRefs.tempZOffset.current,
       getExtruded: () => paramRefs.tempExtruded.current,
@@ -396,7 +434,7 @@ export function useThreeJsLayers({
           getPillarVisible: () => paramRefs.thsrPillarVisible.current,
           getPillarHeight: () => paramRefs.thsrPillarHeight.current,
           getOpacity: () => paramRefs.thsrOpacity.current,
-          getIsVisible: () => layerVisibilityRef.current.stationsTHSR,
+          getIsVisible: () => layerVisibilityRef.current.stationsTHSR && paramRefs.thsrPillarVisible.current,
         },
         tra: {
           pillarColor: { dark: 0xfff5e0, light: 0xb8a070 },
@@ -404,7 +442,7 @@ export function useThreeJsLayers({
           getPillarVisible: () => paramRefs.traPillarVisible.current,
           getPillarHeight: () => paramRefs.traPillarHeight.current,
           getOpacity: () => paramRefs.traOpacity.current,
-          getIsVisible: () => layerVisibilityRef.current.stationsTRA,
+          getIsVisible: () => layerVisibilityRef.current.stationsTRA && paramRefs.traPillarVisible.current,
         },
         metro: {
           pillarColor: { dark: 0xffffff, light: 0xe0e0e0 }, // 白色
@@ -412,14 +450,14 @@ export function useThreeJsLayers({
           getPillarVisible: () => paramRefs.metroPillarVisible.current,
           getPillarHeight: () => paramRefs.metroPillarHeight.current,
           getOpacity: () => paramRefs.metroOpacity.current,
-          getIsVisible: () => layerVisibilityRef.current.stationsMetro,
+          getIsVisible: () => layerVisibilityRef.current.stationsMetro && paramRefs.metroPillarVisible.current,
         },
         airport: {
           pillarColor: { dark: 0xffd54f, light: 0xc8a030 }, // yellow
           getPositions: () => airportPillarDataRef.current,
           getPillarVisible: () => paramRefs.airportPillarVisible.current,
           getPillarHeight: () => paramRefs.airportPillarHeight.current,
-          getIsVisible: () => layerVisibilityRef.current.airports,
+          getIsVisible: () => layerVisibilityRef.current.airports && paramRefs.airportPillarVisible.current,
         },
         port: {
           pillarColor: { dark: 0x64b5f6, light: 0x2979b0 }, // blue
@@ -427,7 +465,7 @@ export function useThreeJsLayers({
           getPillarVisible: () => paramRefs.portPillarVisible.current,
           getPillarHeight: () => paramRefs.portPillarHeight.current,
           getOpacity: () => paramRefs.portOpacity.current,
-          getIsVisible: () => layerVisibilityRef.current.ports,
+          getIsVisible: () => layerVisibilityRef.current.ports && paramRefs.portPillarVisible.current,
         },
       },
     });
@@ -472,7 +510,7 @@ export function useThreeJsLayers({
   const ensureThreeLayersIfNeeded = () => {
     const map = mapInstanceRef.current;
     if (!map || !map.getLayer(THREE_LAYERS_ANCHOR_ID) || map.getLayer("flight-3d")) return;
-    if (!anyThreeLayerVisible(layerVisibilityStore.getAll(), paramRefs.fireStations3D.current)) return;
+    if (!anyThreeLayerVisible(layerVisibilityStore.getAll(), stereoTogglesFromRefs())) return;
     if (threeEnsurePendingRef.current) return; // 載入中：參數／可見性連續變動不重複掛 loading
     threeEnsurePendingRef.current = true;
     const pending = threeBundle ? Promise.resolve(threeBundle) : withLoading("three-layers", "3D 圖層工具", loadThreeLayerBundle());

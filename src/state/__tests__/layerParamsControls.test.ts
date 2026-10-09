@@ -276,8 +276,10 @@ describe("buildParamControls", () => {
     expect(buildParamControls("buildingsGba") ?? []).toHaveLength(3);
     byLabel<SelectConfig>("buildingsGba", "顯示模式").onChange("3");
     const after = buildParamControls("buildingsGba") ?? [];
-    expect(after).toHaveLength(4);
-    expect(after[3]).toMatchObject({ label: "Bloom 高樓門檻 ≥ 100 m" });
+    // R6 段 1：夜景模式另多一個「立體效果」toggle（顏色組，排在透明度之前，預設關）
+    expect(after).toHaveLength(5);
+    expect(after[1]).toMatchObject({ label: "立體效果", value: false });
+    expect(after[4]).toMatchObject({ label: "Bloom 高樓門檻 ≥ 100 m" });
     // 非夜景模式（"4" 估值）就要收回去
     byLabel<SelectConfig>("buildingsGba", "顯示模式").onChange("4");
     expect(buildParamControls("buildingsGba") ?? []).toHaveLength(3);

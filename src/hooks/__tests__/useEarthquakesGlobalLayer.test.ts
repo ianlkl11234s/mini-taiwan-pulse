@@ -135,12 +135,12 @@ function frame(ms = 50) {
   for (const cb of cbs) cb(clock.perf);
 }
 
-async function mount(visible = true, opacity = 0.9) {
+async function mount(visible = true, opacity = 0.9, ripple3D = true) {
   const state = createMap();
   const ref = { current: state.map as unknown as MapboxMap } as RefObject<MapboxMap | null>;
-  const render = (v = visible, o = opacity) => {
+  const render = (v = visible, o = opacity, r = ripple3D) => {
     harness.begin();
-    useEarthquakesGlobalLayer(ref, v, o, 1);
+    useEarthquakesGlobalLayer(ref, v, o, 1, r);
   };
   render();
   await Promise.resolve();
@@ -253,6 +253,31 @@ describe("useEarthquakesGlobalLayer ripple (Three.js)", () => {
     expect(layers.has("earthquakes-global-ripple-3d")).toBe(false);
     expect(map.removeLayer).toHaveBeenCalledWith("earthquakes-global-ripple-3d");
     expect(ripple.opts!.getIsAnimating()).toBe(false);
+  });
+
+  it("R6：立體效果關 → 只建平面圓點，不掛 Three 漣漪、不跑 RAF（即使有剛發生的地震）", async () => {
+    const { layers, map } = await mount(true, 0.9, false);
+    expect([...layers.keys()]).toEqual(["earthquakes-global-circle", "earthquakes-global-pre"]);
+    expect(ripple.creates).toBe(0);
+    expect(raf.queue.size).toBe(0);
+    clock.perf += 100;
+    harness.setTime(T0 + 30); // 時間軸在走、地震在窗口內
+    expect(raf.queue.size).toBe(0);
+    map.triggerRepaint.mockClear();
+    frame();
+    expect(map.triggerRepaint).not.toHaveBeenCalled();
+  });
+
+  it("R6：立體效果開 → 掛漣漪；再關 → 移除漣漪並停 RAF", async () => {
+    const { layers, map, render } = await mount(true, 0.9, false);
+    render(true, 0.9, true);
+    expect(layers.has("earthquakes-global-ripple-3d")).toBe(true);
+    expect(raf.queue.size).toBe(1);
+    render(true, 0.9, false);
+    expect(layers.has("earthquakes-global-ripple-3d")).toBe(false);
+    expect(map.removeLayer).toHaveBeenCalledWith("earthquakes-global-ripple-3d");
+    expect(raf.queue.size).toBe(0);
+    expect(layers.has("earthquakes-global-circle")).toBe(true);
   });
 
   it("the opacity slider reaches the ripple layer as well as the epicentre circles", async () => {

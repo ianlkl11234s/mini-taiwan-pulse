@@ -69308,6 +69308,11 @@
     ],
     "airports": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -69348,11 +69353,6 @@
         "step": 0.1,
         "value": 0.8,
         "valueText": "0.8"
-      },
-      {
-        "label": "光柱",
-        "type": "toggle",
-        "value": false
       },
       {
         "label": "高度 0.6",
@@ -69611,25 +69611,25 @@
             "label": "溫度",
             "legend": [
               {
-                "color": "#313695",
+                "color": "#4575b4",
                 "label": "< 0°C",
                 "max": 0,
                 "min": null
               },
               {
-                "color": "#4575b4",
+                "color": "#6a9fce",
                 "label": "0–5°C",
                 "max": 5,
                 "min": 0
               },
               {
-                "color": "#74add1",
+                "color": "#94c6df",
                 "label": "5–10°C",
                 "max": 10,
                 "min": 5
               },
               {
-                "color": "#abd9e9",
+                "color": "#bfe0ec",
                 "label": "10–15°C",
                 "max": 15,
                 "min": 10
@@ -69641,37 +69641,31 @@
                 "min": 15
               },
               {
-                "color": "#fdae61",
-                "label": "18–20°C",
-                "max": 20,
+                "color": "#fdb768",
+                "label": "18–22°C",
+                "max": 22,
                 "min": 18
               },
               {
-                "color": "#f46d43",
-                "label": "20–25°C",
-                "max": 25,
-                "min": 20
+                "color": "#f88b4c",
+                "label": "22–26°C",
+                "max": 26,
+                "min": 22
               },
               {
-                "color": "#d73027",
-                "label": "25–28°C",
-                "max": 28,
-                "min": 25
+                "color": "#ec5a37",
+                "label": "26–30°C",
+                "max": 30,
+                "min": 26
               },
               {
-                "color": "#b2182b",
-                "label": "28–31°C",
-                "max": 31,
-                "min": 28
-              },
-              {
-                "color": "#800026",
-                "label": "31–34°C",
+                "color": "#d02a28",
+                "label": "30–34°C",
                 "max": 34,
-                "min": 31
+                "min": 30
               },
               {
-                "color": "#4d0019",
+                "color": "#a50026",
                 "label": "≥ 34°C",
                 "max": null,
                 "min": 34
@@ -73093,6 +73087,11 @@
         "value": "14"
       },
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0,
@@ -74210,6 +74209,11 @@
     ],
     "fireStations": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -74229,11 +74233,6 @@
       },
       {
         "label": "散點",
-        "type": "toggle",
-        "value": true
-      },
-      {
-        "label": "3D 光柱波動",
         "type": "toggle",
         "value": true
       },
@@ -79355,13 +79354,9 @@
     ],
     "lighthouses": [
       {
-        "label": "光束透明度 0.10",
-        "max": 0.8,
-        "min": 0.05,
-        "name": "光束透明度",
-        "step": 0.05,
-        "value": 0.1,
-        "valueText": "0.10"
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
       },
       {
         "label": "大小 0.6",
@@ -79371,20 +79366,6 @@
         "step": 0.1,
         "value": 0.6,
         "valueText": "0.6"
-      },
-      {
-        "label": "光束",
-        "type": "toggle",
-        "value": true
-      },
-      {
-        "label": "光束距離 0.9",
-        "max": 3,
-        "min": 0.2,
-        "name": "光束距離",
-        "step": 0.1,
-        "value": 0.9,
-        "valueText": "0.9"
       }
     ],
     "lightning": [
@@ -81280,6 +81261,11 @@
     ],
     "osmPowerLines": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.40",
         "max": 1,
         "min": 0.1,
@@ -82829,6 +82815,11 @@
     ],
     "ports": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -82869,11 +82860,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "光柱",
-        "type": "toggle",
-        "value": false
       },
       {
         "label": "高度 0.3",
@@ -85603,6 +85589,11 @@
     ],
     "stationsMetro": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -85636,11 +85627,6 @@
         "value": "point"
       },
       {
-        "label": "光柱",
-        "type": "toggle",
-        "value": false
-      },
-      {
         "label": "高度 0.2",
         "max": 3,
         "min": 0.2,
@@ -85651,6 +85637,11 @@
       }
     ],
     "stationsTHSR": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -85683,11 +85674,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "光柱",
-        "type": "toggle",
-        "value": false
       },
       {
         "label": "高度 0.6",
@@ -85701,6 +85687,11 @@
     ],
     "stationsTRA": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -85732,11 +85723,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "光柱",
-        "type": "toggle",
-        "value": false
       },
       {
         "label": "高度 0.5",
@@ -111215,6 +111201,11 @@
     ],
     "temperatureWave": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -111222,34 +111213,6 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      },
-      {
-        "label": "3D",
-        "type": "toggle",
-        "value": true
-      },
-      {
-        "label": "高度 200",
-        "max": 400,
-        "min": 0,
-        "name": "高度",
-        "step": 20,
-        "value": 200,
-        "valueText": "200"
-      },
-      {
-        "label": "離地高度 300",
-        "max": 1000,
-        "min": 0,
-        "name": "離地高度",
-        "step": 50,
-        "value": 300,
-        "valueText": "300"
-      },
-      {
-        "label": "網格線",
-        "type": "toggle",
-        "value": false
       }
     ],
     "theftTaoyuan": [
@@ -113516,6 +113479,11 @@
       }
     ],
     "wfMonitoring": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": false
+      },
       {
         "label": "透明度 0.70",
         "max": 1,
