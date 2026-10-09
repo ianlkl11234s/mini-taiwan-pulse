@@ -29,7 +29,14 @@ S3_TOTAL_YELLOW_THRESHOLD_GB="50"  # 超過此量體 B4 初判 yellow，否則 g
 # rclone remote 名 r2: 已在本機 rclone.conf 設好憑證（非本腳本的 .env），本腳本只讀不寫。
 R2_KNOWN_BUCKET="mini-tw-pulse"
 
-export S3_RATE_USD_PER_GB_MONTH R2_RATE_USD_PER_GB_MONTH
+# R2 容量警示門檻（B5b；GB 皆為 1e9 bytes，與 Cloudflare 儀表板口徑一致）
+R2_WAREHOUSE_MAX_BUILDS="3"        # pulse-warehouse warehouse/<版本>/ 保留政策：只留最近 3 版
+R2_WAREHOUSE_YELLOW_GB="25"        # pulse-warehouse 總量警示
+R2_MINI_PULSE_YELLOW_GB="20"       # mini-tw-pulse 總量警示
+R2_ACCOUNT_YELLOW_GB="50"          # 整個 R2 帳號總量警示
+R2_BUCKETS_FALLBACK="mini-tw-pulse pulse-warehouse terrain-tiles"  # token 無 ListBuckets 權限時的已知清單
+
+export S3_RATE_USD_PER_GB_MONTH R2_RATE_USD_PER_GB_MONTH R2_WAREHOUSE_MAX_BUILDS R2_WAREHOUSE_YELLOW_GB R2_MINI_PULSE_YELLOW_GB R2_ACCOUNT_YELLOW_GB R2_BUCKETS_FALLBACK
 
 # =====================================================================
 # B4 — S3 deploy-assets/ 用量、前綴分佈、費用估算、重複物件偵測
@@ -346,6 +353,117 @@ PYEOF
           "見 errors.step=B5_rclone_size"
       fi
     fi
+  fi
+fi
+
+# =====================================================================
+# B5b — R2 全帳號容量檢查（boto3 唯讀 list；憑證 R2_ENDPOINT_URL/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY）
+# 憑證缺少 → 印「跳過」不影響整份稽核；輸出不含金鑰與 endpoint（帳號 ID 在 endpoint 裡）。
+# =====================================================================
+CURRENT_STEP="B5b_r2_capacity"
+
+if [ -z "${R2_ENDPOINT_URL:-}" ] || [ -z "${R2_ACCESS_KEY_ID:-}" ] || [ -z "${R2_SECRET_ACCESS_KEY:-}" ]; then
+  echo "B5b R2 容量檢查：跳過（R2_* 憑證未齊）" >&2
+  report_error_soft "R2 憑證未齊（R2_ENDPOINT_URL/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY 其一缺失），跳過 B5b"
+elif ! python3 -c 'import boto3' >/dev/null 2>&1; then
+  echo "B5b R2 容量檢查：跳過（boto3 未安裝）" >&2
+  report_error_soft "boto3 未安裝，跳過 B5b"
+else
+  R2C_RESULT="$(python3 <<'PYEOF'
+import json, os, re
+from collections import defaultdict
+
+result = {"ok": True, "metrics": {}, "findings": [], "errors": []}
+endpoint = os.environ.get("R2_ENDPOINT_URL", "")
+m = re.search(r"https?://([^./]+)\.", endpoint)
+account_id = m.group(1) if m else ""
+
+def scrub(s):
+    for v in (endpoint, account_id, os.environ.get("R2_ACCESS_KEY_ID", ""), os.environ.get("R2_SECRET_ACCESS_KEY", "")):
+        if v:
+            s = s.replace(v, "<REDACTED>")
+    return s
+
+G = 1e9
+MAX_BUILDS = int(os.environ["R2_WAREHOUSE_MAX_BUILDS"])
+WH_GB = float(os.environ["R2_WAREHOUSE_YELLOW_GB"])
+MP_GB = float(os.environ["R2_MINI_PULSE_YELLOW_GB"])
+ACC_GB = float(os.environ["R2_ACCOUNT_YELLOW_GB"])
+
+def add(level, title, detail="", evidence=""):
+    result["findings"].append({"id": "B5b", "level": level, "title": title, "detail": detail, "evidence": evidence})
+
+try:
+    import boto3
+    from botocore.config import Config
+    c = boto3.client(
+        "s3", endpoint_url=endpoint,
+        aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
+        region_name="auto", config=Config(retries={"max_attempts": 3}, read_timeout=30, connect_timeout=10),
+    )
+    try:
+        buckets = [b["Name"] for b in c.list_buckets()["Buckets"]]
+    except Exception:
+        buckets = os.environ["R2_BUCKETS_FALLBACK"].split()
+        result["metrics"]["r2_bucket_list_source"] = "fallback_known_list"
+
+    sizes, builds = {}, {}
+    for b in buckets:
+        tot = 0; n = 0; wh = defaultdict(int)
+        try:
+            for pg in c.get_paginator("list_objects_v2").paginate(Bucket=b):
+                for o in pg.get("Contents", []):
+                    tot += o["Size"]; n += 1
+                    parts = o["Key"].split("/")
+                    if b == "pulse-warehouse" and len(parts) > 2 and parts[0] == "warehouse":
+                        wh[parts[1]] += o["Size"]
+        except Exception as e:
+            code = getattr(e, "response", {}).get("Error", {}).get("Code", type(e).__name__)
+            result["errors"].append({"step": "B5b_list", "message": scrub(f"bucket {b} list 失敗: {code}")})
+            result["ok"] = False
+            continue
+        sizes[b] = (tot, n)
+        if b == "pulse-warehouse":
+            builds[b] = wh
+
+    result["metrics"]["r2_buckets"] = {b: {"bytes": t, "objects": n} for b, (t, n) in sizes.items()}
+    total = sum(t for t, _ in sizes.values())
+    result["metrics"]["r2_account_total_bytes"] = total
+    listing = "; ".join(f"{b}: {t/G:.2f}GB/{n}物件" for b, (t, n) in sizes.items())
+    add("green", f"R2 全帳號 {total/G:.2f} GB（{len(sizes)} 個 bucket）", "", listing)
+
+    if total / G > ACC_GB:
+        add("yellow", f"R2 帳號總量 {total/G:.1f} GB 超過門檻 {ACC_GB:g} GB", "", listing)
+    if "mini-tw-pulse" in sizes and sizes["mini-tw-pulse"][0] / G > MP_GB:
+        add("yellow", f"mini-tw-pulse {sizes['mini-tw-pulse'][0]/G:.1f} GB 超過門檻 {MP_GB:g} GB", "imagery/ 為主要成長來源", "")
+    if "pulse-warehouse" in sizes:
+        wsz = sizes["pulse-warehouse"][0] / G
+        wb = builds.get("pulse-warehouse", {})
+        result["metrics"]["r2_warehouse_build_count"] = len(wb)
+        if len(wb) > MAX_BUILDS:
+            add("yellow", f"pulse-warehouse 有 {len(wb)} 個 build 版本，超過保留政策 {MAX_BUILDS} 版",
+                "刪除前須先讀 warehouse/latest.json，確認其指向版本在保留範圍內；R2 無版本控制，刪除不可復原。",
+                "; ".join(f"{k}: {v/G:.2f}GB" for k, v in sorted(wb.items())))
+        if wsz > WH_GB:
+            add("yellow", f"pulse-warehouse {wsz:.1f} GB 超過門檻 {WH_GB:g} GB", "", f"build 數={len(wb)}")
+except Exception as e:
+    result["ok"] = False
+    result["errors"].append({"step": "B5b", "message": scrub(str(e))[:300]})
+
+print(scrub(json.dumps(result, ensure_ascii=False)))
+PYEOF
+)"
+  R2C_RC=$?
+  if [ $R2C_RC -ne 0 ] || ! echo "$R2C_RESULT" | jq -e . >/dev/null 2>&1; then
+    report_error_soft "python3 B5b 非正常結束（rc=${R2C_RC}），R2 容量本輪缺漏"
+  else
+    metrics_merge "$(echo "$R2C_RESULT" | jq -c '.metrics // {}')"
+    findings_merge "$(echo "$R2C_RESULT" | jq -c '.findings // []')"
+    # R2 容量為輔助檢查：失敗記 soft error，不拖累整體 ok
+    echo "$R2C_RESULT" | jq -c '.errors // [] | .[]' 2>/dev/null | while IFS= read -r e; do
+      echo "$e" >> "$ERRORS_FILE"
+    done
   fi
 fi
 
