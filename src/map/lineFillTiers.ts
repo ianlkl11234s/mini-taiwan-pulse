@@ -142,6 +142,9 @@ export const LINE_TIERS: Readonly<Record<string, LineTierSpec>> = {
 export type HookLineTierSpec = LineTierSpec & { outline?: FillTier };
 export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "agriculture/agri-ftw-fields-outline": {"width": "thin", "opacity": "reference"}, // src/map/agricultureLayerFactory.ts
+  "agriLeisureFarmZones/agri-leisure-farm-zones-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/map/agricultureLayerFactory.ts
+  "agriRuralRegen/agri-rural-regen-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/map/agricultureLayerFactory.ts
+  "agriSoil/agri-soil-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/map/agricultureLayerFactory.ts
   "animalShelterPressure/animal-shelter-pressure-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useAnimalShelterPressureLayer.ts
   "aviationControl/aviation-control-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useAviationAirspaceLayer.ts
   "aviationRestricted/aviation-restricted-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useAviationAirspaceLayer.ts
@@ -196,6 +199,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
   "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
   "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpRailwaysLayer.ts
+  "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpWaterLayers.ts
+  "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpWaterLayers.ts
   "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/hooks/useJpWaterLayers.ts
   "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
   "jpWildlifeSpecialProtectionDesignatedArea/jp-tourism-jp-wildlife-special-protection-designated-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts

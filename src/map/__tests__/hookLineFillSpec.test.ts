@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { hookFillPaint, hookLinePaint, valueAtZ14, withLineFillSpec } from "../lineFillSpec";
 import { HOOK_FILL_TIERS, HOOK_LINE_TIERS } from "../lineFillTiers";
-import { FILL_OPACITY, LINE_OPACITY, LINE_WIDTH, mapSeamColor } from "../mapStyleScale";
+import { BOUNDARY_GRAY, FILL_OPACITY, FILL_OUTLINE, LINE_OPACITY, LINE_WIDTH, mapSeamColor } from "../mapStyleScale";
 import type { OverlayConfig } from "../../types";
 
 const base = { "line-width": 2, "line-opacity": 0.5, "line-color": "#abc", "line-dasharray": [2, 1] };
@@ -58,6 +58,23 @@ describe("R3b hook line/fill contract", () => {
     }
     const missing = [...files].filter(file => !/hook(?:Line|Fill)/.test(readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8")));
     expect(missing).toEqual([]);
+  });
+  it("F-2 outlines for agriculture and JP water fills (review F202/F203)", () => {
+    const line = { "line-color": "#123456", "line-opacity": 0.3, "line-width": 1 };
+    for (const [key, id] of [["agriSoil", "agri-soil-outline"], ["agriLeisureFarmZones", "agri-leisure-farm-zones-outline"],
+      ["agriRuralRegen", "agri-rural-regen-outline"], ["jpWaterLakes", "jp-water-jpWaterLakes-outline"]] as const) {
+      const p = hookLinePaint(key, id, line, line);
+      expect(p["line-width"], id).toBe(FILL_OUTLINE.coverage.width);
+      expect(p["line-opacity"], id).toBeCloseTo(FILL_OUTLINE.coverage.opacity);
+      expect(p["line-color"], id).toBe("#123456");
+      expect(Number(hookLinePaint(key, id, { ...line, "line-opacity": 0.15 }, line)["line-opacity"]), id).toBeCloseTo(FILL_OUTLINE.coverage.opacity / 2);
+    }
+    for (const dark of [true, false]) {
+      const p = hookLinePaint("jpWaterSupplyAreas", "jp-water-jpWaterSupplyAreas-outline", line, line, dark);
+      expect(p["line-width"]).toBe(FILL_OUTLINE.background.width);
+      expect(p["line-color"]).toBe(BOUNDARY_GRAY[dark ? "dark" : "light"]);
+      expect(p["line-opacity"]).toBeCloseTo(FILL_OUTLINE.background.opacity);
+    }
   });
 
   it("F177：fill-opacity 的 zoom gate 只縮放輸出值、不被 z14 純量取代", () => {
