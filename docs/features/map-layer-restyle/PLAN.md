@@ -135,7 +135,9 @@ guard：禁用 `fill-outline-color`；暗淡分支不得改寬度或透明度。
 |---|---|
 | G-1 | 每個 Three.js／CustomLayer 圖層加一套 Mapbox 原生畫法（circle／line／fill，套用本規格數值），**預設用 Mapbox**；圖層控制項加一個切換，可改回 Three.js 立體版 |
 
-盤點列出的 Three.js 圖層 13 層：房價點 3 層（`realEstateSalePoint`、`realEstatePresalePoint`、`realEstateRentalPoint`）、廢棄物設施 5 層（`wf*`）、`powerPlantGlow`、`substationEhvGlow`、`powerRegionDemand`、`windField`、`oceanCurrents`。每層一個 commit；兩種模式都要符合四鐵則（透明度、圖例、popup）。
+盤點列出的 Three.js 圖層 14 層（原盤點 13 層漏列 `wfMonitoring`）：房價點 3 層（`realEstateSalePoint`、`realEstatePresalePoint`、`realEstateRentalPoint`）、廢棄物設施 6 層（`wf*`，含 `wfMonitoring`）、`powerPlantGlow`、`substationEhvGlow`、`powerRegionDemand`、`windField`、`oceanCurrents`。每層一個 commit；兩種模式都要符合四鐵則（透明度、圖例、popup）。
+
+**`wfMonitoring` 的雙 host 對齊**：它是 `wasteFacilityCustomLayer` 6 個 3D sub-scene 之一（`useThreeJsLayers.ts`），`App.tsx` 同時為同一個 visibility key 建了 Mapbox circle（見 `layerManifest.ts` wf* 區塊註解，兩套渲染都在）。目前沒有渲染模式開關，兩個 host 同時繪製；R6 實作時須讓兩個 host 依同一個模式值切換（預設只畫 Mapbox circle、切到 Three.js 時才畫 3D scene 並隱藏 circle），不可只改其中一邊。
 
 ## 待你確認
 
