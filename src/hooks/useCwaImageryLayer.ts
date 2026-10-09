@@ -276,6 +276,8 @@ export function useCwaImageryLayer({
     const unsubWindow = timeStore.subscribeWindowDateKeys(() => schedulePrefetch());
     return () => {
       if (prefetchTimer !== null) window.clearTimeout(prefetchTimer);
+      // 作廢進行中的串行 prefetch：下一輪 effect 會重置 disposedRef，只靠它擋不住舊迴圈
+      prefetchSeq++;
       unsubDate();
       unsubWindow();
     };

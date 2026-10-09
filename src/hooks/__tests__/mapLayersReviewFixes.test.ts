@@ -62,6 +62,12 @@ describe("其他生命週期守則", () => {
     expect(t).toContain("if (cloudVisible) {");
     expect(t).toContain("if (radarVisible) {");
   });
+  it("F304 effect cleanup 作廢進行中的 CWA prefetch 迴圈", () => {
+    const t = src("useCwaImageryLayer.ts");
+    const cleanup = t.slice(t.indexOf("return () => {\n      if (prefetchTimer"));
+    expect(cleanup.slice(0, 300)).toContain("prefetchSeq++;");
+    expect(t).toContain("if (disposedRef.current || mySeq !== prefetchSeq) return;");
+  });
 });
 
 describe("F234 火災稀疏子集", () => {
