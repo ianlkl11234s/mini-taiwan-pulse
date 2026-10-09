@@ -45,6 +45,21 @@ import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLa
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+  { layers: ["harm-reduction-prevention-centers-circle", "harm-reduction-prevention-centers-glow"], type: "harmReductionPreventionCenters" },
+  { layers: ["harm-reduction-needle-circle", "harm-reduction-needle-glow"], type: "harmReductionNeedle" },
+  { layers: ["harm-reduction-treatment-circle", "harm-reduction-treatment-glow"], type: "harmReductionTreatment" },
+  { layers: ["harm-reduction-hiv-testing-circle", "harm-reduction-hiv-testing-glow"], type: "harmReductionHivTesting" },
+  { layers: ["harm-reduction-hiv-selftest-circle", "harm-reduction-hiv-selftest-glow"], type: "harmReductionHivSelftest" },
+  { layers: ["harm-reduction-alcohol-circle", "harm-reduction-alcohol-glow"], type: "harmReductionAlcohol" },
+  { layers: ["harm-reduction-prep-circle", "harm-reduction-prep-glow"], type: "harmReductionPrep" },
+  { layers: ["harm-reduction-internet-addiction-circle", "harm-reduction-internet-addiction-glow"], type: "harmReductionInternetAddiction" },
+  { layers: ["harm-reduction-aftercare-circle", "harm-reduction-aftercare-glow"], type: "harmReductionAftercare" },
+  { layers: ["harm-reduction-smoking-cessation-circle", "harm-reduction-smoking-cessation-glow"], type: "harmReductionSmokingCessation" },
+  { layers: ["harm-reduction-anti-drug-pharmacies-circle", "harm-reduction-anti-drug-pharmacies-glow"], type: "harmReductionAntiDrugPharmacies" },
+  { layers: ["harm-reduction-condom-outlets-circle", "harm-reduction-condom-outlets-glow"], type: "harmReductionCondomOutlets" },
+  { layers: ["harm-reduction-therapeutic-communities-circle", "harm-reduction-therapeutic-communities-glow"], type: "harmReductionTherapeuticCommunities" },
+  // 酒駕事故 3.7 萬點（PMTiles）：排在減害據點之後，避免同位置時搶走服務據點的 popup
+  { layers: ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-glow"], type: "harmReductionDuiCrashes" },
   { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
   { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
   { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },
@@ -454,6 +469,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 登山安全：山屋 / 山域事故（小目標，排在林業大面積前）
   { layers: ["mountain-huts-circle"], type: "mountainHut" },
   { layers: ["mountain-rescue-incidents-circle"], type: "mountainRescueIncident" },
+  // 崩塌：省道歷史災情點（小目標）排在面層前
+  { layers: ["highway-disaster-history-circle", "highway-disaster-history-glow"], type: "highwayDisaster" },
   // FORESTRY — points / lines 先（小目標優先）
   { layers: ["forest-education-centers-circle"], type: "forestryPOI" },
   { layers: ["forest-trail-signs-circle"], type: "forestryPOI" },
@@ -582,6 +599,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   },
   { layers: ["pollution-facility-circle"], type: "pollutionFacility" },
   { layers: ["aviation-control-fill", "aviation-control-line"], type: "aviationControl" },
+  // 崩塌面層：年度崩塌地（多為小面）→ 潛勢區 → 影響範圍（潛勢區多半落在影響範圍內，先命中）；
+  //    排在坡度／坡向等全島 fill 之前。
+  { layers: ["landslide-annual-fill", "landslide-annual-outline"], type: "landslideAnnual" },
+  { layers: ["landslide-dod-areas-fill", "landslide-dod-areas-outline"], type: "landslideDodArea" },
+  { layers: ["landslide-dod-impact-fill", "landslide-dod-impact-outline"], type: "landslideDodImpact" },
   { layers: ["aviation-restricted-fill", "aviation-restricted-line"], type: "aviationRestricted" },
   { layers: ["drone-nfz-fill", "drone-nfz-line"], type: "droneNoFlyZone" },
   { layers: ["drone-restricted-fill", "drone-restricted-line"], type: "droneRestrictedZone" },

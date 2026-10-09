@@ -3,6 +3,8 @@ import { getAgriRecipe, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriSt
 import { getSocialRecipe } from '../../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSemantics } from '../../data/laborStatisticsRecipes';
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
+import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
+import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
 import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
@@ -84,6 +86,8 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
   const labor = getLaborRecipe(activeBaseKey);
   const environment = getEnvironmentRecipe(activeBaseKey);
   const demographics = getDemographicsRecipe(activeBaseKey);
+  const addiction = getAddictionRecipe(activeBaseKey);
+  const landslide = getLandslideRecipe(activeBaseKey);
   const demographicsNote = demographics ? demographicsIndicatorNote(demographics) : undefined;
   const selectedLaborMetric = getLaborStatisticsPresentationMetric(layerKey, state.selection?.indicatorId);
   const selectionSummary = statisticsDimensionSummary(state.selection?.dimensions, selectedRelease, recipe.dataset_id);
@@ -101,6 +105,10 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
     {environment && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(environment.location_semantics)}</p>}
     {environment && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(environment.disclosure)}</p>}
     {demographics && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(demographics.location_semantics)}</p>}
+    {addiction && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(addiction.location_semantics)}</p>}
+    {addiction && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(addiction.disclosure)}</p>}
+    {landslide && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(landslide.location_semantics)}</p>}
+    {landslide && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(landslide.disclosure)}</p>}
     {demographics && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(demographicsDisclosure(demographics))}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
     <details><summary>來源與處理紀錄</summary>
       <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
@@ -111,6 +119,9 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
         {labor && <span>顯示參考邊界：{boundaryVersionLabel(labor.boundary_version)}；{humanizeStatisticsText(labor.boundary_semantics)}</span>}
         {environment && <span>來源資料集：{environment.source_title ?? '未提供'}（{environment.publisher}）；顯示參考邊界：{boundaryVersionLabel(environment.boundary_version)}</span>}
         {environment?.derived && <span>衍生指標：分子與原始數同一期別、同一細項；分母說明見資料限制。</span>}
+        {addiction && <span>來源資料集：{addiction.source_title}（{addiction.publisher}）；授權：{addiction.license}；顯示參考邊界：{boundaryVersionLabel(addiction.boundary_version)}</span>}
+        {addiction?.derived && <span>衍生指標：{addiction.dataset_id === 'addiction_service_points' ? '由本專案減害點位圖層計數；' : '分子與原始數同一期別；'}分母說明見資料限制。</span>}
+        {landslide && <span>來源資料集：{landslide.source_title}（{landslide.publisher}）；授權：{landslide.license}；顯示參考邊界：{boundaryVersionLabel(landslide.boundary_version)}</span>}
         {demographics && <span>來源：{demographicsSource(demographics).provider}；授權：{demographicsSource(demographics).license}；顯示參考邊界：{boundaryVersionLabel(demographics.boundary_version)}；{humanizeStatisticsText(demographics.boundary_semantics)}</span>}
         {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>製造業是工業的子集；不得與工業加總。</span>}
         {selectedLaborMetric?.formula && <span>衍生方式：{selectedLaborMetric.formula}</span>}
@@ -123,6 +134,8 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
         {'interpretationNote' in recipe && <span>{String(recipe.interpretationNote)}</span>}
         {agri && state.data && <span>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</span>}
         {environment && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；缺值：{state.data.features.filter(f => f.properties?.status !== 'observed').length}。缺值以斜線表示，不等於 0。</span>}
+        {addiction && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；不適用：{state.data.features.filter(f => f.properties?.status === 'not_applicable').length}；無資料：{state.data.features.filter(f => f.properties?.status === 'missing').length}；隱私遮蔽：{state.data.features.filter(f => f.properties?.status === 'suppressed').length}。三者皆不是 0，以斜線表示。</span>}
+        {landslide && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；未列：{state.data.features.filter(f => f.properties?.status !== 'observed').length}。未列以斜線表示，不等於 0。</span>}
         {demographics && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；缺值：{state.data.features.filter(f => f.properties?.status !== 'observed').length}。缺值以斜線表示，不補 0。</span>}
         {labor && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；來源未涵蓋 source_not_covered：{state.data.features.filter(f => f.properties?.missing_reason === 'source_not_covered').length}；來源 join／時間不匹配 source_join_or_time_mismatch：{state.data.features.filter(f => f.properties?.missing_reason === 'source_join_or_time_mismatch').length}。三者不互相替代。</span>}
         {unparseableCount > 0 && <span role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇。</span>}
@@ -158,6 +171,8 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const labor = getLaborRecipe(baseKey);
   const environment = getEnvironmentRecipe(baseKey);
   const demographics = getDemographicsRecipe(baseKey);
+  const addiction = getAddictionRecipe(baseKey);
+  const landslide = getLandslideRecipe(baseKey);
   const t = useLegendTheme();
   // 二元圖例（自來水不合格：有／無）不是連續色階，不顯示「淺 → 深」通用說明。
   const environmentBinaryRows = environment ? environmentLegendRows(environment, recipe.colors) : null;
@@ -170,11 +185,19 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {state.health?.coverage_status && <span>{statisticsCoverageStatusLabel(Boolean(agri))}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     {!environmentBinaryRows && <span>{recipe.breaks.some(value => value < 0) ? '棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞' : '淺 → 深：數值低 → 高；請依本指標的數字區間比較'}</span>}
-    {(environmentBinaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
-    <LegendRow swatch={<SwatchHatch kind="missing" />}>{social || labor || environment || demographics ? '斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階' : '斜線：缺資料／未發布數值'}</LegendRow>
+    {(environmentBinaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
+    {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
+    {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
+    {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
+    {landslide?.legend.zero_note && <span>{landslide.legend.zero_note}</span>}
+    {landslide?.legend.display_note && <span>{landslide.legend.display_note}</span>}
+    {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>斜線：{landslide.status_labels.missing}</LegendRow>}
+    {!addiction && !landslide && <LegendRow swatch={<SwatchHatch kind="missing" />}>{social || labor || environment || demographics ? '斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階' : '斜線：缺資料／未發布數值'}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>交叉斜線：遮蔽 suppressed（*）</LegendRow>}
     {agri && <span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span>}
     {labor && <><span>位置口徑：{humanizeStatisticsText(laborLocationSemantics(labor))}</span><span>資料期與顯示邊界（{boundaryVersionLabel(labor.boundary_version)}）分開揭露</span></>}
     {demographics && <span>固定門檻（跨期可比，不依當期重算）；來源：{demographicsSource(demographics).provider}</span>}
+    {addiction && <span>固定門檻（跨期可比，不依當期重算）；位置口徑：{humanizeStatisticsText(addiction.location_semantics)}</span>}
+    {landslide && <span>固定門檻（跨期可比，不依當期重算）；年度數字不一定反映當年颱風或單一事件</span>}
   </div>;
 }

@@ -222,3 +222,6 @@ public/research/
 
 # 研究用分析 sidecar 一律放 ../runtime/research-public，DEV 以 /research/... 提供（ADR-0014 D5）
 /public/urban/urban_zoning_taipei.analysis.json
+
+# 災害：年度全島崩塌地 PMTiles（107MB，走 S3 deploy-assets/hazards/；其餘 hazards 小檔 git 管理）
+public/hazards/landslide_annual_swcb_*.pmtiles

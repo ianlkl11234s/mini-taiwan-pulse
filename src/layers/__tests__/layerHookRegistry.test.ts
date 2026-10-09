@@ -56,6 +56,8 @@ import { LAYER_HOOK_REGISTRY } from "../layerHookRegistry";
 import { AGRI_ENABLED_STATISTICS_KEYS } from "../../data/agriStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_KEYS } from "../../data/laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../data/environmentStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../data/landslideStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../data/demographicsStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
@@ -119,6 +121,10 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   ...LABOR_ENABLED_STATISTICS_KEYS,
   // Environment-statistics recipes share the same MapView dynamic runtime.
   ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
+  // Addiction-statistics recipes share the same MapView dynamic runtime.
+  ...ADDICTION_ENABLED_STATISTICS_KEYS,
+  // Landslide-statistics recipes share the same MapView dynamic runtime.
+  ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
   // Demographics-statistics recipes share the same MapView dynamic runtime.
   ...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS,
 ]);
@@ -180,6 +186,12 @@ const NO_HOOK_LEDGER = new Set<string>([
   "drinkingWaterPoints", "publicWasteBaskets", "materialRecyclingPoints", "disasterShelters",
   "playgrounds", "accessibleParkFacilities", "bicycleSupport", "nationalParks", "visitorCentres",
   "publicLifeOsmCoverage",
+  // 減害服務：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
+  "harmReductionNeedle", "harmReductionTreatment", "harmReductionHivSelftest",
+  "harmReductionHivTesting", "harmReductionPreventionCenters",
+  "harmReductionAlcohol", "harmReductionPrep", "harmReductionInternetAddiction", "harmReductionAftercare", "harmReductionSmokingCessation", "harmReductionAntiDrugPharmacies", "harmReductionCondomOutlets", "harmReductionTherapeuticCommunities", "harmReductionDuiCrashes",
+  // 崩塌：純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "landslideDodAreas", "landslideDodImpact", "highwayDisasterHistory", "landslideAnnual",
   // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
   "railRoutes",
 
