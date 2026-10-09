@@ -2056,3 +2056,31 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `INCIDENTS.md`：同名 agent-browser daemon 互卡。
 - `PRINCIPLES.md`：兩 Sidebar 規則改寫為共用面板元件；大量點位補 R5 熱區門檻。
 - `STATUS.md`：加一段設計系統／圖層面板現況（保留平行 session 的分析正式站內容）。
+
+## 2026-10-04 衛星情報面板改版（P-D、P1–P5）
+
+### What worked
+
+- **一頁選完全部段落**：P2–P5 做成同一頁比較頁（共用 kit＋每段一個 js 檔），點選即選、底部固定答案列＋「複製答案」＋唯讀文字框備援、localStorage 記住選擇；使用者一次貼回 21 個代號，實作沒有返工。
+- **代號全頁唯一並按段分字母**（P1 E/H/B/T/S/F、P2 N/G/K/M/L…），貼回的答案不會歧義。
+- **按檔案分工平行實作**：P2／P3／P4 擁有不同檔，禁改清單（tokens 只給 P2、不碰 CHANGELOG／README）寫進 prompt，三段零衝突；P5 碰全部檔，排在最後單獨跑。
+- 牽涉 migration 的選項（Z3）只起草在上游 worktree、不 push 不套用，前端先做過渡，使用者後來決定擱置也沒有浪費。
+
+### Friction / limits
+
+- 連續合併多個 PR 時，每個都加了 CHANGELOG Unreleased 一行、新圖層 PR 還會改 golden 圖層數，後合的必衝突；解法是合入 develop、兩邊條目都留、重跑 `dump-layer-golden.ts`。
+- `gh pr merge` 在剛 push merge commit 後會立刻顯示 CLEAN（CI 不是必要檢查），#532 沒等新 CI 就合；之後確認了 develop 合併後 CI 綠，但應在 push 後等 checks。
+- 全套測試中 research 的時間預算測試（companyPoints、pollutionPenalties、treePits）在高負載下會失敗，單獨重跑通過。
+- 淡色截圖：只帶 `?style=light` 會被 App 改回 dark；帶完整網址狀態 `?v=1&lng=…&lat=…&z=…&sm=single&style=light` 才生效。
+- 子代理實作完仍有漏網的內部用語（彈窗「bbox」），最後瀏覽器目視才抓到。
+
+### 下次
+
+- 多 PR 連續合併：依建立順序合，每合一個就檢查下一個 mergeable，衝突在獨立 worktree 解，push 後等 CI 再合。
+- 子代理實作 UI 後，主 agent 自己在瀏覽器暗淡各看一次再交付。
+
+### Memory output
+
+- `STATUS.md`：加一段衛星情報改版現況（保留平行工作線內容）。
+- `BACKLOG.md`：SAT-Z3 已隨 #533 合入（本次不再改）。
+

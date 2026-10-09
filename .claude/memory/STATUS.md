@@ -87,6 +87,15 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 
 設計系統進度以 `docs/design-system/README.md`「目前進度」為準：R1–R5、R7、R8 完成，只剩 R6（Three.js／Mapbox 切換，待使用者決定範圍）。
 
+### 衛星情報面板改版（2026-10-04，另一條工作線）
+
+- 盤點 → P1 比較頁 → P2–P5 一頁比較頁（可複製答案）→ 實作：P-D 資料狀態＋P1–P5 全部合併在 #533（develop `a7864dbb`，CI 綠）。決策與代號見 `docs/features/satellite-console-restyle/README.md`。
+- 上線：**develop → master 未做**（要使用者拍板），正式站部署與瀏覽器未驗；本機 3751 驗過暗色、淡色、歷史模式狀態列、對比彈窗（淡色）。未實機點過：popup「查看衛星百科」、手機寬度彈窗 sheet、低軌衛星前後軌跡疊圖。
+- 擱置：歷史模式變軌清單跟時間軸（BACKLOG SAT-Z3）；gis-platform 草稿 `feat/satellite-maneuvers-anchor`（worktree `.worktrees/sat-maneuver-anchor`，本機 commit `a0bc247`，未 push、未套用）。
+- 同場一般 merge：#389、#531、#532（#532 與 #531 衝突，已合入 develop 並重產 layer-golden，圖層 982）。#532 分支多了遠端 merge commit，`.worktrees/demographics-stats-20261004` 要先 pull。草稿 #425–#428 未動。
+- 可清：`.worktrees/satellite-restyle`（已合併）。
+- 下次入口：master 部署後在正式站切暗／淡看衛星面板，並點一次 popup「查看衛星百科」。
+
 ### 卡點與下一步
 
 **下一個 session 的入口（Agent／MCP 線）**：先讀 `docs/features/general-analysis/STATUS.md`「2026-10-04 現況」，再看 BACKLOG AG-10／AG-11（AG-6 已隨 #543 完成）。
@@ -96,5 +105,7 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 - 手動待驗：正式站重整還原、面板撤銷 token（AG-5 剩餘）。
 
 其餘待辦：AG-2～AG-4、AG-7、AG-10、AG-11。
+
+衛星情報線：等 develop→master 拍板後做正式站目視；SAT-Z3 擱置。
 
 設計系統線：下一步是 R6（先請使用者決定範圍與開關位置），或 backlog R5-2（只剩瀏覽器目視；R5-1、R8-2 已隨 #543 完成）；驗收照各項 backlog。
