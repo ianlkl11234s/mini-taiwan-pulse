@@ -15,12 +15,12 @@
 
 **R2 倉庫版本**：以 R2 `latest.json` 為準（本檔不再抄版本號，避免過時）；2026-10-06 時為 `20261006T060540Z`（減害／成癮入倉）。較早的回退點：`20261004T130110Z` → `20261004T020349Z` → `20261003T180623Z` → `20261003T173242Z` → `20261003T165705Z` → `20261003T031158Z`。上傳一律 `scripts/upload-store.mts plan` 檢查後再 `execute`。
 
-**下一步**：見 `.claude/memory/BACKLOG.md` AG-6（其他自繪圖層摘要）、AG-10（部署後舊分頁提示重新整理）、AG-11（公車總表標題誤寫「即時」）、AG-7（回歸測試重置殘留圖層）。手動待驗：正式站重整還原、面板撤銷 token。
+**下一步**：見 `.claude/memory/BACKLOG.md` AG-10（部署後舊分頁提示重新整理）、AG-11（公車總表標題誤寫「即時」）、AG-7（回歸測試重置殘留圖層）。手動待驗：正式站重整還原、面板撤銷 token。
 
 ## 從這裡開始
 
 **想用（讓 Agent 幫你分析）**
-1. 啟動本機環境：照 [PROD-HOME.md](./PROD-HOME.md)「啟動與停止」開 8794 gateway 與 3734 前端（已在跑就跳過；檢查：`lsof -iTCP:3734 -sTCP:LISTEN`）。
+1. 啟動本機環境：照 [PROD-HOME.md](./PROD-HOME.md)「啟動與停止」開 8794 gateway 與 3734 前端（兩個都在跑才跳過；檢查：`lsof -iTCP:3734 -sTCP:LISTEN` 與 `lsof -iTCP:8794 -sTCP:LISTEN` 都要有輸出，只有 3734 在跑時配對與分析 API 仍會失敗；也可用 PROD-HOME 的健康檢查）。
 2. 正式用法：開 `https://mini-taiwan-pulse.itsmigu.com` 登入，面板產生 token，`pbpaste | npm run token:save`（在 `analysis-prod/mcp`），Agent 第一次動地圖時自動接上分頁；多個分頁會請你選。本機測試改用測試身分（見 PROD-HOME），不用登入。
 3. 直接用白話問，例如「台北車站 800 公尺內有什麼」「各縣市 A1 事故率排名」「把這個做成卡片」。
 
@@ -37,7 +37,7 @@
 | 找資料 | `pulse_find_data`：跨資料集名稱、中文圖層標籤、欄位、統計指標與同義詞搜尋；Jev 判斷相關性 | 09-27（mcp #13、#14） |
 | 周邊生活機能／多點比較 | `pulse_nearby_profile`；多點比較表 | 09-27 |
 | 縣市／鄉鎮排名 | `pulse_region_rank`（統計指標 300 項） | 09-26 |
-| 任意查詢 | `pulse_sql`（唯讀 DuckDB，時間一律台灣時間分組） | 09-26／09-28 |
+| 任意查詢 | `pulse_sql`（唯讀 DuckDB，預期以台灣時間分組；已知例外：Q19／Q28 直接 `date_trunc`、輸入時區未查證，見 [viz-library/BACKLOG.md](../viz-library/BACKLOG.md)） | 09-26／09-28 |
 | 等時圈 | `pulse_isochrone`（自架 Valhalla，步行／自行車／開車，可一次要 10／15／20 分） | 09-27（mcp #11） |
 | 地圖呈現 10 種樣式 | 區域深淺（含時間播放）、熱力、比較、泡泡、雙指標、流向、格點（H3／方格）、立體柱、多層等時圈、時間序列 | 09-28（mcp #16–#20、mini #369–#388） |
 | 互動 | 滑過提示、點選淡化、最多疊 3 個結果、圖例併入圖例面板、popup 趨勢線、播放列 | 09-28（mini #376、#388） |
@@ -53,11 +53,11 @@
 
 | 指標 | 數值 | 出處 |
 |---|---|---|
-| 可分析圖層 | 605／794 | [layer-status-summary.md](./layer-status-summary.md) |
+| 可分析圖層 | 以 [layer-status-summary.md](./layer-status-summary.md) 為準（2026-10-05 倉庫覆蓋率 L2 795／982，見 `.claude/memory/STATUS.md`） | 同左 |
 | 問題庫 | 29 題 | mcp `src/warehouse/questionBank.ts` |
-| 倉庫版本 | store `20260926T200634Z`（正本在 R2 `pulse-warehouse`） | `pulse_wh_status` |
+| 倉庫版本 | 以 R2 `pulse-warehouse/warehouse/latest.json` 為準（見上方「R2 倉庫版本」，本表不抄版本號） | `pulse_wh_status` |
 | Agent 回歸測試（舊 20 題，sonnet，接真地圖） | **18/20**（10-03；歷次 3 → 10 → 14 → 15 → 16 → 18）；剩 A10（綜合指標算法分歧）、A18（已修路由，待複驗） | mcp `eval/agent-regression/README.md` |
-| 分層題庫（13 題，每題要上圖） | **12/13**；repeat 2 曾 26/26；上圖、動靜、語氣 100% | mcp `eval/agent-regression/questions-tiers.json` |
+| 分層題庫（13 題，每題要上圖） | **13/13**（2026-10-03 run `2026-10-03T14-06-22-320Z`，AG-1 驗收）；2026-10-06 題庫 ×2 重跑 25/26（唯一失敗為台／臺，MCP #47 已修）；上圖、動靜、語氣 100% | mcp `eval/agent-regression/questions-tiers.json` |
 | 分析卡白名單 | 141 個資料集可公開 | mcp `src/warehouse/publishAllowlist.json` |
 
 回歸測試：`cd mini-taiwan-pulse/.worktrees/analysis-prod/mcp && npm run eval:agent -- --model sonnet`（約 11 分鐘，走訂閱額度）。
