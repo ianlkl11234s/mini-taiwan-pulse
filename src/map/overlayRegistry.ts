@@ -10,7 +10,7 @@ import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RA
 import { paramDefault } from "../data/layerParamsSpec";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
@@ -1060,7 +1060,7 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
             "fill-extrusion-height": propertyValueGridHeightExpr(
               scaleIdx,
               p?.propertyValueGridContrast ?? 1.8,
-              (p?.propertyValueGridElevationScale ?? EXTRUSION.heightMultiplier) * EXTRUSION.propertyValueHeightBase,
+              propertyValueGridHeightScale(p?.propertyValueGridElevationScale) * EXTRUSION.propertyValueHeightBase,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ) as any,
             "fill-extrusion-base": 0,

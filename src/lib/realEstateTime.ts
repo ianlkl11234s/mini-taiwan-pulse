@@ -44,7 +44,7 @@ export function stepReCursor(ts: number, gran: ReGran, direction: 1 | -1): numbe
   const d = new Date(ts * 1000);
   const month = d.getUTCMonth() + direction * (gran === "quarter" ? 3 : 1);
   const lastDay = new Date(Date.UTC(d.getUTCFullYear(), month + 1, 0)).getUTCDate();
-  return Date.UTC(d.getUTCFullYear(), month, Math.min(d.getUTCDate(), lastDay), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()) / 1000;
+  return Date.UTC(d.getUTCFullYear(), month, Math.min(d.getUTCDate(), lastDay)) / 1000; // 正規化到日網格（00:00 UTC），避免時分秒讓 seek 吸附滾到下月
 }
 
 /** unix 秒 → YYYY-MM-DD（UTC） */
