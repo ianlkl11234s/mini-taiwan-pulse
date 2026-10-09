@@ -4,6 +4,7 @@ import {
   Briefcase, GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
   Recycle, Route, School, Shield, Ship, Stethoscope, Trash2, Trees, TriangleAlert,
   Volume2, Wheat, Zap, Users, HousePlus, CalendarClock,
+  Ribbon, Pill, Wine, Gavel, Cigarette, Leaf, Syringe, TestTube, Smartphone, Mountain, Construction,
 } from 'lucide-react';
 import { LAYER_MANIFEST } from '../layerManifest';
 import { STATISTICS_KEYS, STATISTICS_RECIPES, STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../regionalStatisticsRecipes';
@@ -44,6 +45,18 @@ describe('getStatisticsVisual', () => {
     ['道路', 'statsRoadLandAreaTownship', undefined, undefined, Route],
     ['噪音', 'statsTaichungRoadNoiseMonitoringStations', undefined, undefined, Volume2],
     ['治安', 'unknown', '犯罪率', '治安', Shield],
+    ['HIV', 'statsHivNewCasesCounty', undefined, undefined, Ribbon],
+    ['毒品嫌疑犯', 'statsDrugSuspectsPer100kCounty', undefined, undefined, Pill],
+    ['酒駕', 'statsDuiEnforcementCounty', undefined, undefined, Wine],
+    ['地檢署', 'statsProsecutorDrugNewCasesCounty', undefined, undefined, Gavel],
+    ['吸菸率', 'statsAdultSmokingRateCounty', undefined, undefined, Cigarette],
+    ['嚼檳榔率', 'statsAdultBetelRateCounty', undefined, undefined, Leaf],
+    ['清潔針具據點', 'statsNeedleEducationStationsTownship', undefined, undefined, Syringe],
+    ['HIV 篩檢點', 'statsHivTestingSitesPer100kCounty', undefined, undefined, TestTube],
+    ['網路成癮服務', 'statsInternetAddictionServicesCounty', undefined, undefined, Smartphone],
+    ['崩塌', 'statsLandslideAreaCounty', undefined, undefined, Mountain],
+    ['治山防災工程', 'statsSlopeWorksCostCounty', undefined, undefined, Construction],
+    ['水土保持災害損失', 'statsSwcDisasterLossCounty', undefined, undefined, TriangleAlert],
     ['fallback', 'unknown', undefined, undefined, ChartNoAxesCombined],
   ])('%s uses a semantic icon', (_name, key, label, group, icon) => {
     expect(getStatisticsVisual(key, label, group).icon).toBe(icon);
@@ -138,8 +151,11 @@ describe('getStatisticsVisual', () => {
     // 2026-10-04: +32 人口統計（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
     // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
     // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；只有 11508 一期）。
-    expect(STATISTICS_KEYS).toHaveLength(462);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(474);
+    // 2026-10-06: +61 成癮與減害（HIV 4＋執法 15＋行為調查 2＋服務據點 40）。
+    // 2026-10-06: +13 成癮與減害第三輪（地檢署轄區 5＋清潔針具三類任一 4＋替代治療執行機構 4）。
+    // 2026-10-06: +4 崩塌與水土保持（崩塌筆數／面積、治山防災工程總經費、水土保持災害總損失）。
+    expect(STATISTICS_KEYS).toHaveLength(540);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(552);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

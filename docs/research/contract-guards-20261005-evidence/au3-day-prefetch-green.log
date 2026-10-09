@@ -1,0 +1,9 @@
+Command: npm test -- src/lib/__tests__/dayPrefetchScope.test.ts
+Restoration: src/lib/dayPrefetch.ts restored MAX_CONCURRENT_PREFETCH from 3 to 2.
+
+Result: passed, 1 test file / 5 tests passed.
+Started: 2026-10-05 12:53:38 Asia/Taipei
+Duration: 4.46s
+
+This is a local targeted unit/structure check. It does not establish Supabase, browser,
+or production runtime acceptance.

@@ -17,13 +17,13 @@
 ### Schema 分工
 | Schema | 用途 | 前端可讀 |
 |---|---|---|
-| `realtime` | 高頻時序（ship/flight/freeway/temperature/disaster...） | ❌（要透過 public RPC） |
+| `live` | 高頻時序（ship/flight/freeway/temperature/disaster...；舊 `realtime` 已併入，ADR-0010／migration 312） | ❌（要透過 public RPC） |
 | `reference` | 低頻參考（daily_schedules, temperature_grid_cells） | ✅ 可 PostgREST 直讀 |
 | `spatial` | 空間分析（boundaries, h3_demographics） | ✅ |
 | `metadata` | 系統管理 | ❌ |
 | `public` | 所有對前端開放的 RPC wrapper | ✅ |
 
-**Rule**: 前端只用 `public.*` RPC 或 `reference.*` / `spatial.*` 直讀。不允許前端直接打 `realtime.*`。
+**Rule**: 前端只用 `public.*` RPC 或 `reference.*` / `spatial.*` 直讀。不允許前端直接打 `live.*`（舊 `realtime` schema 已併入 `live`，ADR-0010／migration 312）。
 
 ### 環境變數
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`（前端）

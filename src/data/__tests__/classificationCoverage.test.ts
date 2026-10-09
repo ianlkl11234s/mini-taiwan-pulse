@@ -20,6 +20,11 @@ import {
 import {
   SCHOOL_LEVEL_GROUPS, SCHOOL_LEVEL_ORDER, KINDERGARTEN_OWNERSHIP_COLORS,
 } from "../educationTypes";
+import {
+  CONDOM_OUTLET_VALUES, HIV_TESTING_CATEGORY_VALUES, INTERNET_SERVICE_TYPE_VALUES, SELFTEST_CHANNEL_VALUES,
+  SMOKING_FACILITY_VALUES, TREATMENT_CATEGORY_VALUES,
+} from "../harmReductionTypes";
+import { DOD_RISK_VALUES } from "../landslideTypes";
 
 function distinctValues(rel: string, field: string): string[] {
   const data = JSON.parse(readFileSync(`public/${rel}`, "utf8")) as GeoJSON.FeatureCollection;
@@ -131,6 +136,48 @@ const CASES: Case[] = [
   // cram_schools 同理走 PMTiles → `短期補習班類別` 14 類的覆蓋率在此守不到；
   // 靠 cramCategoryColorExpr() 的 CRAM_CATEGORY_COLORS.other fallback 兜底（不會消失，但會被
   // 誤歸「其他」）。上游是 daily 更新的源，新類別要靠上游 pipeline 或重跑快照時人工比對。
+  // ── 減害服務：3 個 match 分色欄位（漏值會落成中性灰）──
+  {
+    file: "harm_reduction/drug_treatment_facilities.geojson",
+    field: "category",
+    covered: [...TREATMENT_CATEGORY_VALUES],
+    ssot: "src/data/harmReductionTypes.ts TREATMENT_CATEGORY_OPTIONS",
+  },
+  {
+    file: "harm_reduction/hiv_selftest_outlets.geojson",
+    field: "channel",
+    covered: [...SELFTEST_CHANNEL_VALUES],
+    ssot: "src/data/harmReductionTypes.ts SELFTEST_CHANNEL_OPTIONS",
+  },
+  {
+    file: "harm_reduction/hiv_testing_sites.geojson",
+    field: "category",
+    covered: [...HIV_TESTING_CATEGORY_VALUES],
+    ssot: "src/data/harmReductionTypes.ts HIV_TESTING_CATEGORY_OPTIONS",
+  },
+  // 第二批（2026-10-06）
+  {
+    file: "harm_reduction/internet_addiction_services.geojson",
+    field: "service_type",
+    covered: [...INTERNET_SERVICE_TYPE_VALUES],
+    ssot: "src/data/harmReductionTypes.ts INTERNET_SERVICE_TYPE_OPTIONS",
+  },
+  {
+    file: "harm_reduction/smoking_cessation_providers.geojson",
+    field: "facility_type",
+    covered: [...SMOKING_FACILITY_VALUES],
+    ssot: "src/data/harmReductionTypes.ts SMOKING_FACILITY_OPTIONS",
+  },
+  {
+    file: "harm_reduction/condom_outlets.geojson",
+    field: "outlet_type",
+    covered: [...CONDOM_OUTLET_VALUES],
+    ssot: "src/data/harmReductionTypes.ts CONDOM_OUTLET_OPTIONS",
+  },
+  // ── 崩塌：大規模崩塌潛勢區／影響範圍 risk 分色（漏值會落成中性灰）；省道歷史災情走 PMTiles，
+  //    category_group 的完整性改由 scripts/preprocess/build-landslide-public.py 遇未知 category_sub 即中止守住。──
+  { file: "hazards/landslide_dod_areas.geojson", field: "risk", covered: [...DOD_RISK_VALUES], ssot: "src/data/landslideTypes.ts DOD_RISK_OPTIONS" },
+  { file: "hazards/landslide_dod_impact.geojson", field: "risk", covered: [...DOD_RISK_VALUES], ssot: "src/data/landslideTypes.ts DOD_RISK_OPTIONS" },
 ];
 
 describe("分類表覆蓋資料實際值", () => {

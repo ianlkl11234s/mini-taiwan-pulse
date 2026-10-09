@@ -1,0 +1,23 @@
+
+> mini-taiwan-pulse@2.5.0 test
+> vitest run --maxWorkers=2 src/map/__tests__/overlayManager.test.ts src/lib/__tests__/dayPrefetchScope.test.ts src/components/sidebar/__tests__/layerConsistency.test.ts src/styles/__tests__/designSystemGuard.test.ts
+
+
+ RUN  v3.2.6 /Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/contract-guards-20261005
+
+stderr | src/map/__tests__/overlayManager.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+stderr | src/components/sidebar/__tests__/layerConsistency.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ✓ src/map/__tests__/overlayManager.test.ts (371 tests) 691ms
+ ✓ src/components/sidebar/__tests__/layerConsistency.test.ts (21 tests) 170ms
+ ✓ src/lib/__tests__/dayPrefetchScope.test.ts (5 tests) 18ms
+ ✓ src/styles/__tests__/designSystemGuard.test.ts (15 tests) 21ms
+
+ Test Files  4 passed (4)
+      Tests  412 passed (412)
+   Start at  13:00:44
+   Duration  11.18s (transform 5.23s, setup 0ms, collect 14.72s, tests 900ms, environment 1ms, prepare 581ms)
+

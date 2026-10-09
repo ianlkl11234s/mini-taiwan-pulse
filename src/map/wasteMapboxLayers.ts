@@ -287,6 +287,27 @@ export function setupWasteMapboxLayers(
 }
 
 /**
+ * 換底圖（setStyle）會清掉所有自訂 source / layer，但 App 的 lazy-setup 旗標仍是 true、不會重建（G005）。
+ * style.load 後呼叫：冪等地重建 source / layer，並把目前資料、顯示、參數同步回去。
+ */
+export function rebuildWasteMapboxLayers(
+  map: MapboxMap,
+  opts: WasteMapboxOptions,
+  state: {
+    facilityByType: Map<string, WasteFacilityRow[]>;
+    disposalByType: Map<string, WasteDisposalPointRow[]>;
+    visibility: LayerVisibility;
+    params: Partial<Record<string, { size: number; opacity: number; altitude: number }>>;
+  },
+) {
+  setupWasteMapboxLayers(map, opts);
+  syncWasteMapboxData(map, state.facilityByType, state.disposalByType);
+  syncWasteMapboxVisibility(map, state.visibility);
+  syncWasteMapboxParams(map, state.params);
+  syncWasteMapboxTheme(map, opts.isDark);
+}
+
+/**
  * teardown：移除 8 個 source + 16 個 layer，並成對解綁 click / mouseenter / mouseleave listener。
  * 對 source/layer 用 `getLayer` / `getSource` 守門，listener 透過 boundHandlers 成對 `map.off`。
  */

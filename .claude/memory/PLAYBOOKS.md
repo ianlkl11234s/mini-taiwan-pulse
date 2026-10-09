@@ -153,8 +153,10 @@ npx tsc -b
 git status --short
 git log --oneline -5
 
-# push → Zeabur 自動 build + deploy
-git push origin master
+# 日常：開 PR 進 develop（base = develop），不要直接 push master
+git push -u origin <branch> && gh pr create --base develop
+# 正式部署：develop → master 發布 PR（版號 commit、annotated tag、GitHub Release），
+# 須使用者拍板，步驟見 docs/RELEASING.md；master 合併後 Zeabur 自動 build + deploy
 ```
 
 若改了 4 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / package.json）
@@ -755,8 +757,9 @@ docker run -d -p 8088:8080 -e S3_ACCESS_KEY=.. -e S3_SECRET_KEY=.. -e S3_REGION=
 # 2. 靜態大檔上 S3（gitignore 的；新增/改名後必跑 + 比對 aws s3 ls）
 bash scripts/deploy/upload-deploy-assets.sh
 # 3. 上線
-git checkout master && git merge --no-ff <feature> && npx tsc -b
-git push origin master            # Zeabur git-connected → 自動 build（從 git）
+# 不直接 push master：feature PR 進 develop，再依 docs/RELEASING.md 開 develop → master 發布 PR（須使用者拍板）
+npx tsc -b
+# master 合併後 Zeabur git-connected → 自動 build（從 git）
 # 4. 監測 + 驗證
 npx zeabur@latest deployment list --id <service-id> -i=false      # 等 8 碼 commit 對應 deployment RUNNING
 npx zeabur@latest deployment log --id <id> -t runtime -i=false    # 看 entrypoint 背景 pull
@@ -1121,7 +1124,7 @@ export const LiveWall = memo(function LiveWall() { /* ... */ });
   無限 re-render 炸線（INCIDENTS 2026-06-18）
 - ⚠️ tsc + 102/102 test 全綠 ≠ runtime 過：useSyncExternalStore 的 stale snapshot
   是 dev-only runtime 檢查，**push 前先 browser 跑一遍**
-- ⚠️ Wall mode 暫停地圖 engine 看似順手但會視覺凍結，留作 G011 backlog 不該硬塞進效能 PR
+- ⚠️ Wall mode 暫停地圖 engine 看似順手但會視覺凍結，留作 G023 backlog（舊編號 G011） 不該硬塞進效能 PR
 
 ---
 

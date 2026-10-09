@@ -17,7 +17,7 @@
 1. 先開 `docs/features/<slug>/` 資料夾（`cp -r docs/features/_TEMPLATE ...`）
 2. 若涉資料契約 → 先開 `taipei-gis-analytics/docs/handoff/<slug>.md`
 3. 若涉架構決策 → 開 ADR `taipei-gis-analytics/docs/adr/NNNN-*.md`
-4. 從 `develop` 開 `feat/<slug>` / `fix/<slug>` / `perf/<slug>`，PR base 為 `develop`（見 CLAUDE.md §Git Workflow、`docs/git-workflow.md`）
+4. 從 `develop` 開 `feat/<slug>` / `fix/<slug>` / `perf/<slug>`，PR base 為 `develop`（見 CLAUDE.md §Git Workflow、`docs/git-workflow.md`）。**例外**：正式站層級緊急事故（例如 layer 全消失）走 `hotfix/<slug>`：從 `master` 開、PR 到 `master`、再合回 `develop`（見 [`docs/git-workflow.md`](../../docs/git-workflow.md) §何時開 hotfix）
 
 **Why**：層層漏項是最常見 bug 根因（PMTiles keep_attrs / LAYER_COLORS / legend / popup / cross-repo drift）。
 **How to apply**：Session 開頭讀到本條 = 之後任何 layer 對話都先觸發 skill。
@@ -1222,7 +1222,7 @@ Cloudflare **預設**就會 negative-cache 404，最長 **4 小時**，且只對
 
 - 探測一律 `curl -I "<url>?cb=$(date +%s)"`
 - 代價不對稱是重點：本專案唯一的 purge 腳本是 `purge_everything`，
-  會連 297MB 底圖一起清，**沒有 scoped purge**（→ BACKLOG G020）
+  會連 297MB 底圖一起清，**沒有 scoped purge**（→ BACKLOG G017，舊編號 G020）
 - 內容雜湊 / 含日期的檔名讓「上線後」不必 purge，但**擋不住「上線前」自己種的 404**
 
 → 通則：只讀的探測看起來零風險，但**探測本身會改變 CDN 狀態**。對還沒存在的資源尤其如此。

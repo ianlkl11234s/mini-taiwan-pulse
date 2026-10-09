@@ -1,6 +1,8 @@
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
 import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';
+import type { AddictionStatisticsLayerKey } from '../data/addictionStatisticsRecipes';
+import type { LandslideStatisticsLayerKey } from '../data/landslideStatisticsRecipes';
 import type { DemographicsStatisticsLayerKey } from '../data/demographicsStatisticsRecipes';
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
@@ -108,6 +110,8 @@ export type ExpandableLayerKey =
   | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
+  | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
+  | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
   | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
   | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
@@ -116,6 +120,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
+  | "landslideDodAreas" | "landslideDodImpact" | "highwayDisasterHistory" | "landslideAnnual"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -391,7 +396,8 @@ export type ExpandableLayerKey =
   | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
-  | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km";
+  | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
+  | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -730,6 +736,8 @@ export interface FeatureInfo {
   layerType: "regionalStatistic" | "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
+    | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
+    | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
     | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
     | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
@@ -813,6 +821,7 @@ export interface FeatureInfo {
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "mountainHut" | "mountainRescueIncident"
+    | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -887,6 +896,8 @@ export interface FeatureInfo {
     | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
     | "jpPoliceFacilities" | "jpSchools"
+    // 日本氣象廳即時 4 層
+    | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
     | "jpPopulationMesh1km"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
@@ -906,7 +917,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1093,6 +1104,22 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   animalWelfarePoints: boolean;
   retailMarkets: boolean;
   publicToilets: boolean;
+  // 減害服務（清潔針具／替代療法與藥癮戒治／愛滋自我篩檢／愛滋篩檢與指定醫療／毒品危害防制中心）
+  harmReductionNeedle: boolean;
+  harmReductionTreatment: boolean;
+  harmReductionHivSelftest: boolean;
+  harmReductionHivTesting: boolean;
+  harmReductionPreventionCenters: boolean;
+  // 減害服務第二批（酒癮／PrEP／網路成癮／更生保護／戒菸／反毒藥局／保險套／治療性社區／酒駕事故）
+  harmReductionAlcohol: boolean;
+  harmReductionPrep: boolean;
+  harmReductionInternetAddiction: boolean;
+  harmReductionAftercare: boolean;
+  harmReductionSmokingCessation: boolean;
+  harmReductionAntiDrugPharmacies: boolean;
+  harmReductionCondomOutlets: boolean;
+  harmReductionTherapeuticCommunities: boolean;
+  harmReductionDuiCrashes: boolean;
   // 公共生活 OSM snapshot（非完整官方清冊；unknown 不等於 false）
   drinkingWaterPoints: boolean;
   publicWasteBaskets: boolean;
@@ -1156,6 +1183,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   earthquakeReplay: boolean;
   /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */
   mountainRescueIncidents: boolean;
+  /** 崩塌：大規模崩塌潛勢區／影響範圍（111–115 年版）、省道歷史災情 16,163 點、年度全島崩塌地（4 年） */
+  landslideDodAreas: boolean;
+  landslideDodImpact: boolean;
+  highwayDisasterHistory: boolean;
+  landslideAnnual: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
@@ -1582,6 +1614,10 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   changhuaTrafficSignals: boolean;
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
+  jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
+  jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
+  jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
+  jmaVolcanoes: boolean;  // 日本火山噴火警戒
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
   jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
   jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格

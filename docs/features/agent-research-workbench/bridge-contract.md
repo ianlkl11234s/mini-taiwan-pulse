@@ -13,6 +13,7 @@ Browser owner API（`Bearer <Supabase access token>`；本機測試身分為 `Be
 - POST `/studies`、`/studies/revoke`、`/browser/sync`（單次，recover／暫停用）、`/browser/status`、`/browser/manual`、`/browser/ack`、`/browser/report`、`/browser/pause`：語意同下方 Phase B。
 - POST `/browser/wait` `{studyId,tabId,...}`：取代舊 3 s sync 迴圈與 `/browser/query` 迴圈，long-poll 同時回狀態與待處理 query；事件發生時 wake。
 - POST `/browser/query-result`：回傳 query 結果（沿用）。
+- POST `/browser/network-provider` `{studyId,tabId,operation,args}`（`operation` 為 `route_distance` 或 `walking_isochrone`）：瀏覽器端 `BridgeClient.networkProvider`（`src/research/bridgeClient.ts`）呼叫，回 `{graph,payload}`；回應大小有上限（`MAX_NETWORK_PROVIDER_RESPONSE_BYTES`）。SPEC-prod-connect-p1-p3 §2 尚未收錄此端點，以程式為準。
 - POST `/browser/results/meta`、GET `/browser/results/{studyId}/{tabId}/{resultId}`：瀏覽器讀取結果通道的 meta 與檔案（sha256 驗證）。
 - POST `/agent-tokens/create` `{label}`、`/agent-tokens/list`、`/agent-tokens/revoke` `{tokenId}`：token 只在 create 回應出現一次；每帳號 active 最多 10 把，30 天到期；revoke 連帶撤銷該 token 建立的 session。
 

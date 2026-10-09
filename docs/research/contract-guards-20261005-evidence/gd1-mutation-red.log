@@ -1,0 +1,4835 @@
+
+> mini-taiwan-pulse@2.5.0 test
+> vitest run src/map/__tests__/overlayManager.test.ts
+
+
+ RUN  v3.2.6 /Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/contract-guards-20261005
+
+stderr | src/map/__tests__/overlayManager.test.ts
+[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — 請在部署平台設定環境變數（Vite 會在 build 時 inline，需於 build 階段存在）
+
+ ❯ src/map/__tests__/overlayManager.test.ts (371 tests | 202 failed) 86ms
+   ✓ serializePaintValue > serializes primitives and expressions deterministically 1ms
+   ✓ serializePaintValue > handles undefined without collapsing to missing key 0ms
+   ✓ diffPaint > returns all keys as changed when no previous snapshot 0ms
+   ✓ diffPaint > returns empty changed list when nothing changed 0ms
+   ✓ diffPaint > returns only the changed keys 0ms
+   ✓ diffPaint > detects changes inside expression arrays 0ms
+   ✓ applyLayerOpacity > preserves existing paint until the layer-level opacity parameter exists 0ms
+   ✓ applyLayerOpacity > multiplies numeric and expression opacity without changing non-opacity paint 0ms
+   ✓ applyLayerOpacity > covers all opacity paint keys, including symbol text 0ms
+   ✓ isJpHeightManagedOverlay > recognizes both registry templates and viewport-scoped runtime sources 0ms
+   ✓ paintSnapshotEquals > compares snapshots by content 0ms
+   ✓ paintSnapshotEquals > detects key count mismatch 0ms
+   ✓ geojsonSourceOptions > uses smaller buffer for pure line/fill sources 0ms
+   ✓ geojsonSourceOptions > keeps default buffer for circle/symbol sources 0ms
+   ✓ polygonFeaturesToCentroids > 把 polygon 轉成保留 properties 的代表點，非面幾何不假造 0ms
+   ✓ polygonFeaturesToCentroids > MultiPolygon 取最大部件，不把代表點放在兩塊面之間 0ms
+   ✓ updateOverlayTheme (diff-based) > skips setPaintProperty entirely when params unchanged 0ms
+   ✓ updateOverlayTheme (diff-based) > only updates the paint keys affected by the changed param 0ms
+   ✓ updateOverlayTheme (diff-based) > updates all theme-dependent keys when isDark flips 0ms
+   ✓ updateOverlayTheme (diff-based) > A0：隱藏 layer 的 paint 延後到重新顯示才寫入（避免 transition prior 卡住無限重畫） 0ms
+   ✓ updateAllOverlayThemes：隱藏圖層跳過、打開時補套（2026-10-01 效能） > 隱藏的 overlay 換主題／拖滑桿不算 paint，打開時用最新主題與參數補套一次 0ms
+   ✓ setOverlayVisible > 圖層重開時仍尊重模式 layout，不會同時露出 polygon 與 point 0ms
+   ✓ setOverlayVisible > 母圖層關閉時，params 更新不會讓 mode layout 穿透開關 0ms
+   ✓ 交通場站派生點位接線 > stationsTHSR 的點位模式只由原 Polygon 心點派生 0ms
+   ✓ 交通場站派生點位接線 > stationsTRA 的點位模式只由原 Polygon 心點派生 0ms
+   ✓ 交通場站派生點位接線 > ports 的點位模式只由原 Polygon 心點派生 0ms
+   ✓ 交通場站派生點位接線 > airports 的點位模式只由原 Polygon 心點派生 0ms
+   ✓ 交通場站派生點位接線 > 捷運：Mapbox 點位所有縮放都有點；實際範圍模式 z10 以下點、z10 以上範圍光暈 0ms
+   ✓ 交通場站派生點位接線 > 台鐵小站在 z10 以下有 overview，z10 以上保留原 detail layers 0ms
+   ✓ addOverlay (pmtiles) > adds a pmtile-source with min/max zoom instead of geojson 0ms
+   ✓ addOverlay (pmtiles) > attaches source-layer to every style layer 0ms
+   ✓ addOverlay (pmtiles) > shared sourceId 只 addSource 一次，但各自 layer 都會建立 0ms
+   ✓ addOverlay (pmtiles) > keeps plain geojson sources untouched (no source-layer) 0ms
+   ✓ Ookla static overlay 的 attribution / loading 契約 > global 與台灣 PMTiles 都把 attribution 交給 Mapbox source 0ms
+   ✓ Ookla static overlay 的 attribution / loading 契約 > global PMTiles 不再整包 fetch GeoJSON（hydrate 直接略過） 1ms
+   ✓ updateOverlayTheme (rebuildOnParamChange) > does not rebuild when paint unchanged 0ms
+   ✓ updateOverlayTheme (rebuildOnParamChange) > rebuilds when the rebuild-layer paint actually changed 0ms
+   ✓ updateOverlayTheme (rebuildOnParamChange) > buildingsGba only rebuilds for its height filter, not opacity, theme, or mode 1ms
+   ✓ updateOverlayTheme (rebuildOnParamChange) > restores a missing opt-in rebuild layer even when its height filter is unchanged 0ms
+   ✓ manifest overlay source specs > urbanHeat/urban-heat-lst has no undefined source fields 0ms
+   ✓ manifest overlay source specs > isobath/isobath has no undefined source fields 0ms
+   × manifest overlay source specs > stationsTHSR/station-polygons has no undefined source fields 5ms
+     → stationsTHSR source spec: expected [ 'station-polygons.attribution' ] to deeply equal []
+   × manifest overlay source specs > stationsTHSR/station-polygon-centroids has no undefined source fields 1ms
+     → stationsTHSR source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > stationsTRA/station-polygons has no undefined source fields 1ms
+     → stationsTRA source spec: expected [ 'station-polygons.attribution' ] to deeply equal []
+   × manifest overlay source specs > stationsTRA/station-polygon-centroids has no undefined source fields 0ms
+     → stationsTRA source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > stationsTRA/station-points has no undefined source fields 1ms
+     → stationsTRA source spec: expected [ 'station-points.attribution' ] to deeply equal []
+   × manifest overlay source specs > stationsMetro/station-points has no undefined source fields 1ms
+     → stationsMetro source spec: expected [ 'station-points.attribution' ] to deeply equal []
+   × manifest overlay source specs > ports/port-polygons has no undefined source fields 2ms
+     → ports source spec: expected [ 'port-polygons.attribution' ] to deeply equal []
+   × manifest overlay source specs > ports/port-centroids has no undefined source fields 0ms
+     → ports source spec: expected [ 'port-centroids.attribution' ] to deeply equal []
+   × manifest overlay source specs > lighthouses/lighthouses has no undefined source fields 1ms
+     → lighthouses source spec: expected [ 'lighthouses.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > highways/national-highways has no undefined source fields 0ms
+   ✓ manifest overlay source specs > provincialRoads/provincial-roads has no undefined source fields 0ms
+   × manifest overlay source specs > windPlan/wind-plan has no undefined source fields 0ms
+     → windPlan source spec: expected [ 'wind-plan.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > busStationsCity/bus-stations-city has no undefined source fields 0ms
+   × manifest overlay source specs > busStationsIntercity/bus-stations-intercity has no undefined source fields 0ms
+     → busStationsIntercity source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > bikeStations/bike-stations has no undefined source fields 0ms
+     → bikeStations source spec: expected [ 'bike-stations.attribution' ] to deeply equal []
+   × manifest overlay source specs > cyclingRoutes/cycling-routes has no undefined source fields 0ms
+     → cyclingRoutes source spec: expected [ 'cycling-routes.attribution' ] to deeply equal []
+   × manifest overlay source specs > weatherStations/weather-stations has no undefined source fields 0ms
+     → weatherStations source spec: expected [ 'weather-stations.attribution' ] to deeply equal []
+   × manifest overlay source specs > airports/airport-boundaries has no undefined source fields 0ms
+     → airports source spec: expected [ 'airport-boundaries.attribution' ] to deeply equal []
+   × manifest overlay source specs > airports/airport-centroids has no undefined source fields 0ms
+     → airports source spec: expected [ 'airport-centroids.attribution' ] to deeply equal []
+   × manifest overlay source specs > cctv/cctv has no undefined source fields 0ms
+     → cctv source spec: expected [ 'cctv.attribution' ] to deeply equal []
+   × manifest overlay source specs > fireStations/fire-stations has no undefined source fields 0ms
+     → fireStations source spec: expected [ 'fire-stations.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > fireHydrants/fire-hydrants has no undefined source fields 0ms
+   × manifest overlay source specs > etcGantry/etc-gantry has no undefined source fields 0ms
+     → etcGantry source spec: expected [ 'etc-gantry.attribution' ] to deeply equal []
+   × manifest overlay source specs > serviceArea/service-area has no undefined source fields 0ms
+     → serviceArea source spec: expected [ 'service-area.attribution' ] to deeply equal []
+   × manifest overlay source specs > serviceAreaPolygon/service-area-polygon has no undefined source fields 0ms
+     → serviceAreaPolygon source spec: expected [ 'service-area-polygon.attribution' ] to deeply equal []
+   × manifest overlay source specs > taxiStand/taxi-stand has no undefined source fields 0ms
+     → taxiStand source spec: expected [ 'taxi-stand.attribution' ] to deeply equal []
+   × manifest overlay source specs > submarineCables/submarine-cables has no undefined source fields 0ms
+     → submarineCables source spec: expected [ 'submarine-cables.attribution' ] to deeply equal []
+   × manifest overlay source specs > landingStations/landing-stations has no undefined source fields 0ms
+     → landingStations source spec: expected [ 'landing-stations.attribution' ] to deeply equal []
+   × manifest overlay source specs > internetExchangePoints/internet-exchange-points has no undefined source fields 0ms
+     → internetExchangePoints source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > anfrWirelessSites/anfr-wireless-sites has no undefined source fields 0ms
+     → anfrWirelessSites source spec: expected [ 'anfr-wireless-sites.attribution' ] to deeply equal []
+   × manifest overlay source specs > osmCommunicationSites/osm-communication-sites has no undefined source fields 0ms
+     → osmCommunicationSites source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > ripeAtlasProbes/ripe-atlas-probes has no undefined source fields 5ms
+     → ripeAtlasProbes source spec: expected [ 'ripe-atlas-probes.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > ooklaMobilePerformance/ookla-mobile-global has no undefined source fields 0ms
+   ✓ manifest overlay source specs > ooklaFixedPerformance/ookla-fixed-global has no undefined source fields 0ms
+   ✓ manifest overlay source specs > ooklaMobileTaiwan/ookla-tw-z14-mobile has no undefined source fields 0ms
+   ✓ manifest overlay source specs > ooklaMobileTaiwan/ookla-tw-z16-mobile has no undefined source fields 0ms
+   ✓ manifest overlay source specs > ooklaFixedTaiwan/ookla-tw-z14-fixed has no undefined source fields 0ms
+   ✓ manifest overlay source specs > ooklaFixedTaiwan/ookla-tw-z16-fixed has no undefined source fields 0ms
+   × manifest overlay source specs > schools/edu-schools has no undefined source fields 0ms
+     → schools source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+   × manifest overlay source specs > convenienceStores/convenience-stores has no undefined source fields 0ms
+     → convenienceStores source spec: expected [ 'convenience-stores.attribution' ] to deeply equal []
+   × manifest overlay source specs > postOffices/post-offices has no undefined source fields 0ms
+     → postOffices source spec: expected [ 'post-offices.attribution' ] to deeply equal []
+   × manifest overlay source specs > iPostBoxes/ipost-boxes has no undefined source fields 0ms
+     → iPostBoxes source spec: expected [ 'ipost-boxes.attribution' ] to deeply equal []
+   × manifest overlay source specs > communityCenters/community-centers has no undefined source fields 0ms
+     → communityCenters source spec: expected [ 'community-centers.attribution' ] to deeply equal []
+   × manifest overlay source specs > govServiceOffices/gov-service-offices has no undefined source fields 0ms
+     → govServiceOffices source spec: expected [ 'gov-service-offices.attribution' ] to deeply equal []
+   × manifest overlay source specs > publicLibraries/public-libraries has no undefined source fields 0ms
+     → publicLibraries source spec: expected [ 'public-libraries.attribution' ] to deeply equal []
+   × manifest overlay source specs > welfareCenters/welfare-centers has no undefined source fields 0ms
+     → welfareCenters source spec: expected [ 'welfare-centers.attribution' ] to deeply equal []
+   × manifest overlay source specs > retailMarkets/retail-markets has no undefined source fields 0ms
+     → retailMarkets source spec: expected [ 'retail-markets.attribution' ] to deeply equal []
+   × manifest overlay source specs > publicToilets/public-toilets has no undefined source fields 0ms
+     → publicToilets source spec: expected [ 'public-toilets.attribution' ] to deeply equal []
+   × manifest overlay source specs > medHospital/medical-hospitals has no undefined source fields 0ms
+     → medHospital source spec: expected [ 'medical-hospitals.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > medClinic/medical-clinics has no undefined source fields 0ms
+   ✓ manifest overlay source specs > medPharmacy/medical-pharmacies has no undefined source fields 0ms
+   ✓ manifest overlay source specs > medAED/medical-aed has no undefined source fields 0ms
+   ✓ manifest overlay source specs > medLTC/medical-ltc has no undefined source fields 0ms
+   × manifest overlay source specs > newsEvents/news-events has no undefined source fields 0ms
+     → newsEvents source spec: expected [ 'news-events.attribution' ] to deeply equal []
+   × manifest overlay source specs > activeFaults/active-faults has no undefined source fields 0ms
+     → activeFaults source spec: expected [ 'active-faults.attribution' ] to deeply equal []
+   × manifest overlay source specs > waterBasins/water-basins has no undefined source fields 0ms
+     → waterBasins source spec: expected [ 'water-basins.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > waterRivers/water-river-polygons has no undefined source fields 0ms
+   ✓ manifest overlay source specs > waterRivers/water-rivers has no undefined source fields 0ms
+   ✓ manifest overlay source specs > waterLevees/water-levees has no undefined source fields 0ms
+   ✓ manifest overlay source specs > waterCanals/water-canals has no undefined source fields 0ms
+   × manifest overlay source specs > waterProtectionZones/water-protection-zones has no undefined source fields 0ms
+     → waterProtectionZones source spec: expected [ Array(1) ] to deeply equal []
+   ✓ manifest overlay source specs > waterReservoirs/water-reservoir-poly has no undefined source fields 0ms
+   × manifest overlay source specs > waterReservoirs/water-reservoir-dams has no undefined source fields 0ms
+     → waterReservoirs source spec: expected [ 'water-reservoir-dams.attribution' ] to deeply equal []
+   × manifest overlay source specs > waterDetentionBasins/water-detention-basins has no undefined source fields 0ms
+     → waterDetentionBasins source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > waterFacilities/water-facilities has no undefined source fields 0ms
+     → waterFacilities source spec: expected [ 'water-facilities.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > waterFloodExtreme/water-flood-extreme has no undefined source fields 0ms
+   × manifest overlay source specs > waterMonitorStations/water-monitor-stations has no undefined source fields 0ms
+     → waterMonitorStations source spec: expected [ Array(1) ] to deeply equal []
+   ✓ manifest overlay source specs > lakesPondsOsm/lakes-ponds-osm has no undefined source fields 0ms
+   ✓ manifest overlay source specs > wasteStopsStatic/waste-stops-static has no undefined source fields 0ms
+   ✓ manifest overlay source specs > agriRetail/agri-retail has no undefined source fields 0ms
+   ✓ manifest overlay source specs > agriProduceWholesale/agri-produce-wholesale has no undefined source fields 0ms
+   × manifest overlay source specs > agriWholesaleMarket/agri-wholesale-market has no undefined source fields 0ms
+     → agriWholesaleMarket source spec: expected [ 'agri-wholesale-market.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > companyPoints/business-registry-company-capital-grid-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyPoints/business-registry-company-capital-grid-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyIndustryDistribution/business-registry-company-demographics-grid-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyIndustryDistribution/business-registry-company-demographics-grid-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyAgeStructure/business-registry-company-demographics-grid-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyAgeStructure/business-registry-company-demographics-grid-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyPoints/business-registry-company-points has no undefined source fields 0ms
+   ✓ manifest overlay source specs > manufacturingCompanyPoints/business-registry-manufacturing-company-points has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyCapitalGrid/business-registry-company-capital-grid-150 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyCapitalGrid/business-registry-company-capital-grid-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > companyCapitalGrid/business-registry-company-capital-grid-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > jpAccommodationDensity/jp-accommodation-density-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > jpAccommodationDensity/jp-accommodation-density-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > factoryDensityGrid/business-registry-factory-density-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > factoryDensityGrid/business-registry-factory-density-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > manufacturingCompanyDensityGrid/business-registry-manufacturing-company-density-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > manufacturingCompanyDensityGrid/business-registry-manufacturing-company-density-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > regulatedFacilityDensityGrid/business-registry-regulated-facility-density-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > regulatedFacilityDensityGrid/business-registry-regulated-facility-density-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > factoryLocations/business-registry-factory-locations has no undefined source fields 0ms
+   ✓ manifest overlay source specs > regulatedFacilities/business-registry-regulated-facilities has no undefined source fields 0ms
+   ✓ manifest overlay source specs > industrialParkBoundaries/industrial-zone-park-boundaries has no undefined source fields 0ms
+   ✓ manifest overlay source specs > industrialParkComparison/business-registry-industrial-park-comparison has no undefined source fields 0ms
+   × manifest overlay source specs > commonRegistrationAddresses/business-registry-common-registration-addresses has no undefined source fields 0ms
+     → commonRegistrationAddresses source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > livestockFarmPig/livestock-farms has no undefined source fields 0ms
+     → livestockFarmPig source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockFarmChicken/livestock-farms has no undefined source fields 0ms
+     → livestockFarmChicken source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockFarmCattle/livestock-farms has no undefined source fields 0ms
+     → livestockFarmCattle source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockFarmDuck/livestock-farms has no undefined source fields 0ms
+     → livestockFarmDuck source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockFarmGoose/livestock-farms has no undefined source fields 0ms
+     → livestockFarmGoose source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockFarmSheep/livestock-farms has no undefined source fields 0ms
+     → livestockFarmSheep source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockFarmOther/livestock-farms has no undefined source fields 0ms
+     → livestockFarmOther source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockSlaughter/livestock-slaughter has no undefined source fields 0ms
+     → livestockSlaughter source spec: expected [ 'livestock-slaughter.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockFeed/livestock-feed has no undefined source fields 0ms
+     → livestockFeed source spec: expected [ 'livestock-feed.attribution' ] to deeply equal []
+   × manifest overlay source specs > livestockMarket/livestock-market has no undefined source fields 0ms
+     → livestockMarket source spec: expected [ 'livestock-market.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > aquaculturePonds/aquaculture-ponds has no undefined source fields 0ms
+   × manifest overlay source specs > aquacultureZone/aquaculture-zone has no undefined source fields 0ms
+     → aquacultureZone source spec: expected [ 'aquaculture-zone.attribution' ] to deeply equal []
+   × manifest overlay source specs > aquacultureCageNet/aquaculture-cage-net has no undefined source fields 3ms
+     → aquacultureCageNet source spec: expected [ 'aquaculture-cage-net.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > aquacultureWaterSatellite/aquaculture-water-satellite has no undefined source fields 0ms
+   ✓ manifest overlay source specs > aquacultureIntegrated/aquaculture-integrated has no undefined source fields 0ms
+   ✓ manifest overlay source specs > aquacultureWaterSatelliteMoa/aquaculture-water-satellite-moa has no undefined source fields 0ms
+   ✓ manifest overlay source specs > aquacultureWaterUnion/aquaculture-water-satellite-union has no undefined source fields 0ms
+   ✓ manifest overlay source specs > streetTreesTaipeiDiff/street-trees-taipei-diff has no undefined source fields 0ms
+   × manifest overlay source specs > protectedTreesNational/protected-trees-national has no undefined source fields 0ms
+     → protectedTreesNational source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > riversideTreesTaipei/riverside-trees-taipei has no undefined source fields 1ms
+     → riversideTreesTaipei source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > parksTaipei/parks-taipei has no undefined source fields 0ms
+     → parksTaipei source spec: expected [ 'parks-taipei.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > streetTreesTaipei3epoch/street-trees-taipei-3epoch has no undefined source fields 0ms
+   ✓ manifest overlay source specs > streetTreesNational/street-trees-national has no undefined source fields 0ms
+   ✓ manifest overlay source specs > treePitsTaipei/tree-pits-taipei has no undefined source fields 0ms
+   ✓ manifest overlay source specs > buildingsGba/buildings-gba has no undefined source fields 0ms
+   ✓ manifest overlay source specs > jpBuildingHeight/jp-building-height-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > jpBuildingHeight/jp-building-height has no undefined source fields 0ms
+   ✓ manifest overlay source specs > propertyValueGrid/property-value-grid-150 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > propertyValueGrid/property-value-grid-450 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > propertyValueGrid/property-value-grid-1500 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > urbanFormGrid/urban-form-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > urbanZoningTaipei/urban-zoning-taipei has no undefined source fields 0ms
+   ✓ manifest overlay source specs > urbanZoningNewTaipei/urban-zoning-newtaipei has no undefined source fields 0ms
+   ✓ manifest overlay source specs > nonUrbanZoning/non-urban-zoning has no undefined source fields 0ms
+   × manifest overlay source specs > sportsSchool/sports-venues has no undefined source fields 0ms
+     → sportsSchool source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+   × manifest overlay source specs > sportsPublicOther/sports-venues has no undefined source fields 0ms
+     → sportsPublicOther source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+   × manifest overlay source specs > sportsPrivate/sports-venues has no undefined source fields 0ms
+     → sportsPrivate source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+   × manifest overlay source specs > sportsPark/sports-venues has no undefined source fields 0ms
+     → sportsPark source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+   × manifest overlay source specs > sportsCenter/sports-venues has no undefined source fields 0ms
+     → sportsCenter source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+   × manifest overlay source specs > culturalFacilities/culture-facilities has no undefined source fields 0ms
+     → culturalFacilities source spec: expected [ 'culture-facilities.attribution' ] to deeply equal []
+   × manifest overlay source specs > culturalMuseums/culture-museums has no undefined source fields 0ms
+     → culturalMuseums source spec: expected [ 'culture-museums.attribution' ] to deeply equal []
+   × manifest overlay source specs > artsEvents/culture-events has no undefined source fields 3ms
+     → artsEvents source spec: expected [ 'culture-events.attribution' ] to deeply equal []
+   × manifest overlay source specs > performingVenues/culture-venues has no undefined source fields 0ms
+     → performingVenues source spec: expected [ 'culture-venues.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > farmRoads/farm-roads has no undefined source fields 0ms
+   ✓ manifest overlay source specs > hikingTrails/hiking-trails has no undefined source fields 0ms
+   ✓ manifest overlay source specs > ecoNetworkZones/eco-network-zones has no undefined source fields 0ms
+   ✓ manifest overlay source specs > forestCompartments/forest-compartments has no undefined source fields 0ms
+   ✓ manifest overlay source specs > forestReserve/forest-reserve has no undefined source fields 0ms
+   × manifest overlay source specs > forestRecreation/forest-recreation has no undefined source fields 0ms
+     → forestRecreation source spec: expected [ 'forest-recreation.attribution' ] to deeply equal []
+   × manifest overlay source specs > forestTreatmentWorks/forest-treatment-works has no undefined source fields 0ms
+     → forestTreatmentWorks source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > forestFlatParks/forest-flat-parks has no undefined source fields 0ms
+     → forestFlatParks source spec: expected [ 'forest-flat-parks.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > canopyHeight/canopy-height has no undefined source fields 0ms
+   ✓ manifest overlay source specs > jpCanopyHeight/jp-canopy-height has no undefined source fields 0ms
+   × manifest overlay source specs > canopyGiants/canopy-giants has no undefined source fields 0ms
+     → canopyGiants source spec: expected [ 'canopy-giants.attribution' ] to deeply equal []
+   × manifest overlay source specs > forestDamLakes/forest-dam-lakes has no undefined source fields 0ms
+     → forestDamLakes source spec: expected [ 'forest-dam-lakes.attribution' ] to deeply equal []
+   × manifest overlay source specs > railRoutes/rail-routes has no undefined source fields 0ms
+     → railRoutes source spec: expected [ 'rail-routes.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > forestRoads/forest-roads has no undefined source fields 0ms
+   × manifest overlay source specs > forestAlishanRail/forest-alishan-rail has no undefined source fields 0ms
+     → forestAlishanRail source spec: expected [ 'forest-alishan-rail.attribution' ] to deeply equal []
+   × manifest overlay source specs > forestTrailSigns/forest-trail-signs has no undefined source fields 0ms
+     → forestTrailSigns source spec: expected [ 'forest-trail-signs.attribution' ] to deeply equal []
+   × manifest overlay source specs > forestSignalPoints/forest-signal-points has no undefined source fields 0ms
+     → forestSignalPoints source spec: expected [ 'forest-signal-points.attribution' ] to deeply equal []
+   × manifest overlay source specs > mountainHuts/mountain-huts has no undefined source fields 0ms
+     → mountainHuts source spec: expected [ 'mountain-huts.attribution' ] to deeply equal []
+   × manifest overlay source specs > forestEducationCenters/forest-education-centers has no undefined source fields 0ms
+     → forestEducationCenters source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > forestWildlife/forest-wildlife has no undefined source fields 0ms
+     → forestWildlife source spec: expected [ 'forest-wildlife.attribution' ] to deeply equal []
+   × manifest overlay source specs > powerPlants/energy-power-plants has no undefined source fields 0ms
+     → powerPlants source spec: expected [ 'energy-power-plants.attribution' ] to deeply equal []
+   × manifest overlay source specs > powerGenerationUnit/energy-power-generation-hit has no undefined source fields 0ms
+     → powerGenerationUnit source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > osmSubstationsEhv/energy-substations-ehv has no undefined source fields 0ms
+     → osmSubstationsEhv source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > osmSubstations/energy-substations has no undefined source fields 0ms
+     → osmSubstations source spec: expected [ 'energy-substations.attribution' ] to deeply equal []
+   × manifest overlay source specs > osmPowerLines/energy-power-lines has no undefined source fields 0ms
+     → osmPowerLines source spec: expected [ 'energy-power-lines.attribution' ] to deeply equal []
+   × manifest overlay source specs > osmPowerTowers/energy-power-towers has no undefined source fields 0ms
+     → osmPowerTowers source spec: expected [ 'energy-power-towers.attribution' ] to deeply equal []
+   × manifest overlay source specs > osmWindTurbines/energy-wind-turbines has no undefined source fields 0ms
+     → osmWindTurbines source spec: expected [ 'energy-wind-turbines.attribution' ] to deeply equal []
+   × manifest overlay source specs > osmSolarFarms/energy-solar-farms has no undefined source fields 0ms
+     → osmSolarFarms source spec: expected [ 'energy-solar-farms.attribution' ] to deeply equal []
+   × manifest overlay source specs > osmPowerPlantsStatic/energy-osm-power-plants-static has no undefined source fields 0ms
+     → osmPowerPlantsStatic source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > offshoreWindZones/energy-offshore-wind-zones has no undefined source fields 0ms
+     → offshoreWindZones source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > islandPowerGrid/energy-island-grid has no undefined source fields 0ms
+     → islandPowerGrid source spec: expected [ 'energy-island-grid.attribution' ] to deeply equal []
+   × manifest overlay source specs > fossilFuelInfra/energy-fossil-fuel has no undefined source fields 0ms
+     → fossilFuelInfra source spec: expected [ 'energy-fossil-fuel.attribution' ] to deeply equal []
+   × manifest overlay source specs > geothermalWells/energy-geothermal-wells has no undefined source fields 0ms
+     → geothermalWells source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > renewablePermitsTaipei/energy-taipei-re has no undefined source fields 0ms
+     → renewablePermitsTaipei source spec: expected [ 'energy-taipei-re.attribution' ] to deeply equal []
+   × manifest overlay source specs > evChargingStations/energy-ev-charging has no undefined source fields 0ms
+     → evChargingStations source spec: expected [ 'energy-ev-charging.attribution' ] to deeply equal []
+   × manifest overlay source specs > lightning/hazard-lightning has no undefined source fields 0ms
+     → lightning source spec: expected [ 'hazard-lightning.attribution' ] to deeply equal []
+   × manifest overlay source specs > lightningCwa/hazard-lightning-cwa has no undefined source fields 0ms
+     → lightningCwa source spec: expected [ 'hazard-lightning-cwa.attribution' ] to deeply equal []
+   × manifest overlay source specs > mountainRescueIncidents/mountain-rescue-incidents has no undefined source fields 0ms
+     → mountainRescueIncidents source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > nuclearRadiation/hazard-nuclear has no undefined source fields 0ms
+     → nuclearRadiation source spec: expected [ 'hazard-nuclear.attribution' ] to deeply equal []
+   × manifest overlay source specs > erHospital/er-hospital has no undefined source fields 0ms
+     → erHospital source spec: expected [ 'er-hospital.attribution' ] to deeply equal []
+   × manifest overlay source specs > librarySeats/library-seats has no undefined source fields 0ms
+     → librarySeats source spec: expected [ 'library-seats.attribution' ] to deeply equal []
+   × manifest overlay source specs > parkingOnstreet/parking-onstreet has no undefined source fields 0ms
+     → parkingOnstreet source spec: expected [ 'parking-onstreet.attribution' ] to deeply equal []
+   × manifest overlay source specs > parkingOffstreet/parking-offstreet has no undefined source fields 0ms
+     → parkingOffstreet source spec: expected [ 'parking-offstreet.attribution' ] to deeply equal []
+   × manifest overlay source specs > facPrimary/energy-fac-primary has no undefined source fields 0ms
+     → facPrimary source spec: expected [ 'energy-fac-primary.attribution' ] to deeply equal []
+   × manifest overlay source specs > facOffshore/energy-fac-offshore has no undefined source fields 0ms
+     → facOffshore source spec: expected [ 'energy-fac-offshore.attribution' ] to deeply equal []
+   × manifest overlay source specs > facPlanned/energy-fac-planned has no undefined source fields 0ms
+     → facPlanned source spec: expected [ 'energy-fac-planned.attribution' ] to deeply equal []
+   × manifest overlay source specs > facHistorical/energy-fac-historical has no undefined source fields 0ms
+     → facHistorical source spec: expected [ 'energy-fac-historical.attribution' ] to deeply equal []
+   × manifest overlay source specs > facSecondary/energy-fac-secondary has no undefined source fields 0ms
+     → facSecondary source spec: expected [ 'energy-fac-secondary.attribution' ] to deeply equal []
+   × manifest overlay source specs > facOsmSupplement/energy-fac-osm-supplement has no undefined source fields 0ms
+     → facOsmSupplement source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > gasStationCpc/fossil-gas-station-cpc has no undefined source fields 0ms
+     → gasStationCpc source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > gasStationFpcc/fossil-gas-station-fpcc has no undefined source fields 0ms
+     → gasStationFpcc source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > gasStationTaisugar/fossil-gas-station-taisugar has no undefined source fields 0ms
+     → gasStationTaisugar source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > gasStationOther/fossil-gas-station-other has no undefined source fields 0ms
+     → gasStationOther source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > gasStationCanonical/fossil-gas-station-canonical has no undefined source fields 0ms
+     → gasStationCanonical source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > lpgSubpackaging/fossil-lpg-subpackaging has no undefined source fields 0ms
+     → lpgSubpackaging source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > lpgRetailers/fossil-lpg-retailers has no undefined source fields 0ms
+     → lpgRetailers source spec: expected [ 'fossil-lpg-retailers.attribution' ] to deeply equal []
+   × manifest overlay source specs > lngTerminal/fossil-lng-terminal has no undefined source fields 0ms
+     → lngTerminal source spec: expected [ 'fossil-lng-terminal.attribution' ] to deeply equal []
+   × manifest overlay source specs > pipelineGas/fossil-pipeline-gas has no undefined source fields 0ms
+     → pipelineGas source spec: expected [ 'fossil-pipeline-gas.attribution' ] to deeply equal []
+   × manifest overlay source specs > pipelineOilGas/fossil-pipeline-oilgas has no undefined source fields 0ms
+     → pipelineOilGas source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > industrialRefinery/fossil-industrial-refinery has no undefined source fields 0ms
+     → industrialRefinery source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > industrialStorageTank/fossil-industrial-storage-tank has no undefined source fields 0ms
+     → industrialStorageTank source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > industrialPowerPlant/fossil-industrial-power-plant has no undefined source fields 0ms
+     → industrialPowerPlant source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > coalTerminal/fossil-coal-terminal has no undefined source fields 0ms
+     → coalTerminal source spec: expected [ 'fossil-coal-terminal.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > gasCoverageAll/coverage-gas-all has no undefined source fields 0ms
+   ✓ manifest overlay source specs > gasCoverageCpc/coverage-gas-cpc has no undefined source fields 0ms
+   ✓ manifest overlay source specs > gasCoverageFpcc/coverage-gas-fpcc has no undefined source fields 0ms
+   ✓ manifest overlay source specs > gasCoverageTaisugar/coverage-gas-taisugar has no undefined source fields 0ms
+   ✓ manifest overlay source specs > evIsland/coverage-ev-island has no undefined source fields 0ms
+   ✓ manifest overlay source specs > realEstateRentalGrid/re-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > realEstateSaleGrid/re-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > realEstatePresaleGrid/re-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > countyBoundary/base-county-boundary has no undefined source fields 0ms
+   ✓ manifest overlay source specs > townshipBoundary/base-township-boundary has no undefined source fields 0ms
+   ✓ manifest overlay source specs > villageBoundary/base-village-boundary has no undefined source fields 0ms
+   ✓ manifest overlay source specs > maritimeBoundary/base-maritime-boundary has no undefined source fields 0ms
+   ✓ manifest overlay source specs > contour25k/base-contour-25k has no undefined source fields 0ms
+   ✓ manifest overlay source specs > contourDtm20/base-contour-dtm20 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > osmExpressway/base-osm-expressway has no undefined source fields 0ms
+   ✓ manifest overlay source specs > osmRoadDrive/base-osm-road has no undefined source fields 0ms
+   × manifest overlay source specs > policeStation/police-station has no undefined source fields 0ms
+     → policeStation source spec: expected [ 'police-station.attribution' ] to deeply equal []
+   × manifest overlay source specs > womenChildWarning/women-child-warning has no undefined source fields 0ms
+     → womenChildWarning source spec: expected [ 'women-child-warning.attribution' ] to deeply equal []
+   × manifest overlay source specs > speedCamera/speed-camera has no undefined source fields 0ms
+     → speedCamera source spec: expected [ 'speed-camera.attribution' ] to deeply equal []
+   × manifest overlay source specs > speedZoneSegment/speed-zone-segment has no undefined source fields 0ms
+     → speedZoneSegment source spec: expected [ 'speed-zone-segment.attribution' ] to deeply equal []
+   × manifest overlay source specs > court/court has no undefined source fields 0ms
+     → court source spec: expected [ 'court.attribution' ] to deeply equal []
+   × manifest overlay source specs > prosecutorsOffice/prosecutors-office has no undefined source fields 0ms
+     → prosecutorsOffice source spec: expected [ 'prosecutors-office.attribution' ] to deeply equal []
+   × manifest overlay source specs > correctionalFacility/correctional-facility has no undefined source fields 2ms
+     → correctionalFacility source spec: expected [ 'correctional-facility.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > courtJurisdiction/court-jurisdiction has no undefined source fields 0ms
+   ✓ manifest overlay source specs > crimeAreaMonthly/crime-area-monthly has no undefined source fields 0ms
+   × manifest overlay source specs > theftTaoyuan/theft-taoyuan has no undefined source fields 0ms
+     → theftTaoyuan source spec: expected [ 'theft-taoyuan.attribution' ] to deeply equal []
+   × manifest overlay source specs > trafficAccidentYearly/traffic-accident-yearly has no undefined source fields 0ms
+     → trafficAccidentYearly source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > accidentTaipei/accident-taipei has no undefined source fields 0ms
+     → accidentTaipei source spec: expected [ 'accident-taipei.attribution' ] to deeply equal []
+   × manifest overlay source specs > a1AccidentRealtime/a1-accident-realtime has no undefined source fields 0ms
+     → a1AccidentRealtime source spec: expected [ 'a1-accident-realtime.attribution' ] to deeply equal []
+   × manifest overlay source specs > investigationBureau/investigation-bureau has no undefined source fields 0ms
+     → investigationBureau source spec: expected [ 'investigation-bureau.attribution' ] to deeply equal []
+   × manifest overlay source specs > antiCorruptionOffice/anti-corruption-office has no undefined source fields 0ms
+     → antiCorruptionOffice source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > immigrationOffice/immigration-office has no undefined source fields 0ms
+     → immigrationOffice source spec: expected [ 'immigration-office.attribution' ] to deeply equal []
+   × manifest overlay source specs > coastGuardStation/coast-guard-station has no undefined source fields 0ms
+     → coastGuardStation source spec: expected [ 'coast-guard-station.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > policeIsoSubstation/police-iso-substation has no undefined source fields 0ms
+   ✓ manifest overlay source specs > policeIsoPrecinct/police-iso-precinct has no undefined source fields 0ms
+   ✓ manifest overlay source specs > policeIsoCityDept/police-iso-city-dept has no undefined source fields 0ms
+   ✓ manifest overlay source specs > civilDefenseShelter/civil-defense-shelter has no undefined source fields 0ms
+   ✓ manifest overlay source specs > noiseControlZones/noise-control-zones has no undefined source fields 0ms
+   × manifest overlay source specs > aviationNoiseZones/aviation-noise-zones has no undefined source fields 0ms
+     → aviationNoiseZones source spec: expected [ 'aviation-noise-zones.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > noiseCaptureGrid/noise-capture-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > noiseCaptureGrid/noise-capture-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > noiseCaptureGrid/noise-capture-grid has no undefined source fields 0ms
+   ✓ manifest overlay source specs > noiseEnforcementEvents/pollution-penalty has no undefined source fields 0ms
+   × manifest overlay source specs > officialNoiseMonitoring/official-noise-monitoring has no undefined source fields 0ms
+     → officialNoiseMonitoring source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > soundCameraLocations/sound-camera-locations has no undefined source fields 0ms
+     → soundCameraLocations source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > waterQualityStations/water-quality-stations has no undefined source fields 0ms
+     → waterQualityStations source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > riverRpiStations/river-rpi-stations has no undefined source fields 0ms
+     → riverRpiStations source spec: expected [ 'river-rpi-stations.attribution' ] to deeply equal []
+   × manifest overlay source specs > sewageTreatmentPlants/sewage-treatment-plants has no undefined source fields 0ms
+     → sewageTreatmentPlants source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > drinkingWaterProtectionZones/drinking-water-protection-zones has no undefined source fields 0ms
+     → drinkingWaterProtectionZones source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > seaWaterQualityStations/sea-water-quality-stations has no undefined source fields 0ms
+     → seaWaterQualityStations source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > pm25ManualStations/pm25-manual-stations has no undefined source fields 0ms
+     → pm25ManualStations source spec: expected [ 'pm25-manual-stations.attribution' ] to deeply equal []
+   × manifest overlay source specs > dioxinStations/dioxin-stations has no undefined source fields 0ms
+     → dioxinStations source spec: expected [ 'dioxin-stations.attribution' ] to deeply equal []
+   × manifest overlay source specs > incineratorEmissions/incinerator-emissions has no undefined source fields 0ms
+     → incineratorEmissions source spec: expected [ 'incinerator-emissions.attribution' ] to deeply equal []
+   × manifest overlay source specs > nuscGammaRadiation/nusc-gamma-radiation has no undefined source fields 0ms
+     → nuscGammaRadiation source spec: expected [ 'nusc-gamma-radiation.attribution' ] to deeply equal []
+   × manifest overlay source specs > waterEffluentLive/water-effluent-live has no undefined source fields 0ms
+     → waterEffluentLive source spec: expected [ 'water-effluent-live.attribution' ] to deeply equal []
+   × manifest overlay source specs > cemsStackLive/cems-stack-live has no undefined source fields 0ms
+     → cemsStackLive source spec: expected [ 'cems-stack-live.attribution' ] to deeply equal []
+   × manifest overlay source specs > cwaUvDaily/cwa-uv-daily has no undefined source fields 0ms
+     → cwaUvDaily source spec: expected [ 'cwa-uv-daily.attribution' ] to deeply equal []
+   × manifest overlay source specs > riverRpiSegments/river-rpi-segments has no undefined source fields 0ms
+     → riverRpiSegments source spec: expected [ 'river-rpi-segments.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > pollutionFacility/pollution-facility has no undefined source fields 0ms
+   ✓ manifest overlay source specs > pollutionPenaltyCritical/pollution-penalty has no undefined source fields 0ms
+   ✓ manifest overlay source specs > pollutionPenaltyGeneral/pollution-penalty has no undefined source fields 0ms
+   ✓ manifest overlay source specs > pollutionPenaltyMobile/pollution-penalty has no undefined source fields 0ms
+   ✓ manifest overlay source specs > pollutionSite/pollution-site has no undefined source fields 0ms
+   × manifest overlay source specs > tourAttractions/tour-attractions has no undefined source fields 0ms
+     → tourAttractions source spec: expected [ 'tour-attractions.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourHotSprings/tour-hot-springs has no undefined source fields 0ms
+     → tourHotSprings source spec: expected [ 'tour-hot-springs.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourHotSpringZones/tour-hot-spring-zones has no undefined source fields 0ms
+     → tourHotSpringZones source spec: expected [ 'tour-hot-spring-zones.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourScenicAreas/tour-scenic-areas has no undefined source fields 0ms
+     → tourScenicAreas source spec: expected [ 'tour-scenic-areas.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourHeritage/tour-heritage has no undefined source fields 0ms
+     → tourHeritage source spec: expected [ 'tour-heritage.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > religionTemples/religion-temples has no undefined source fields 0ms
+   × manifest overlay source specs > religionChurches/religion-churches has no undefined source fields 0ms
+     → religionChurches source spec: expected [ 'religion-churches.attribution' ] to deeply equal []
+   × manifest overlay source specs > religionAncestralHalls/religion-ancestral-halls has no undefined source fields 0ms
+     → religionAncestralHalls source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > religionFoundations/religion-foundations has no undefined source fields 0ms
+     → religionFoundations source spec: expected [ 'religion-foundations.attribution' ] to deeply equal []
+   × manifest overlay source specs > religionOtherWorship/religion-other-worship has no undefined source fields 0ms
+     → religionOtherWorship source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > religionTop100/religion-top100 has no undefined source fields 0ms
+     → religionTop100 source spec: expected [ 'religion-top100.attribution' ] to deeply equal []
+   × manifest overlay source specs > funeralFacilities/funeral-facilities has no undefined source fields 0ms
+     → funeralFacilities source spec: expected [ 'funeral-facilities.attribution' ] to deeply equal []
+   × manifest overlay source specs > funeralOperators/funeral-operators has no undefined source fields 0ms
+     → funeralOperators source spec: expected [ 'funeral-operators.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > cemeteryOsm/cemetery-osm has no undefined source fields 0ms
+   × manifest overlay source specs > cemeteryZoning/cemetery-zoning has no undefined source fields 0ms
+     → cemeteryZoning source spec: expected [ 'cemetery-zoning.attribution' ] to deeply equal []
+   × manifest overlay source specs > welfareLtcInstitutions/welfare-ltc-institutions has no undefined source fields 0ms
+     → welfareLtcInstitutions source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > welfareNursingHomes/welfare-nursing-homes has no undefined source fields 0ms
+     → welfareNursingHomes source spec: expected [ 'welfare-nursing-homes.attribution' ] to deeply equal []
+   × manifest overlay source specs > welfareChildcare/welfare-childcare has no undefined source fields 0ms
+     → welfareChildcare source spec: expected [ 'welfare-childcare.attribution' ] to deeply equal []
+   × manifest overlay source specs > welfareChildServices/welfare-child-services has no undefined source fields 0ms
+     → welfareChildServices source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > welfareElderlyHomes/welfare-elderly-homes has no undefined source fields 0ms
+     → welfareElderlyHomes source spec: expected [ 'welfare-elderly-homes.attribution' ] to deeply equal []
+   × manifest overlay source specs > welfareSocialWorkOrgs/welfare-social-work-orgs has no undefined source fields 0ms
+     → welfareSocialWorkOrgs source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > welfareDisability/welfare-disability has no undefined source fields 0ms
+     → welfareDisability source spec: expected [ 'welfare-disability.attribution' ] to deeply equal []
+   × manifest overlay source specs > welfareGovOffices/welfare-gov-offices has no undefined source fields 0ms
+     → welfareGovOffices source spec: expected [ 'welfare-gov-offices.attribution' ] to deeply equal []
+   × manifest overlay source specs > welfareMentalHealth/welfare-mental-health has no undefined source fields 0ms
+     → welfareMentalHealth source spec: expected [ 'welfare-mental-health.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > eduCampusPolygon/edu-campus has no undefined source fields 0ms
+   ✓ manifest overlay source specs > eduCampusArea/edu-campus has no undefined source fields 0ms
+   ✓ manifest overlay source specs > eduDistrictElementary/edu-district-k12 has no undefined source fields 0ms
+   ✓ manifest overlay source specs > eduDistrictJunior/edu-district-k12 has no undefined source fields 0ms
+   × manifest overlay source specs > eduDistrictSenior/edu-district-senior has no undefined source fields 0ms
+     → eduDistrictSenior source spec: expected [ 'edu-district-senior.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduSchoolElementary/edu-schools has no undefined source fields 0ms
+     → eduSchoolElementary source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduSchoolJunior/edu-schools has no undefined source fields 0ms
+     → eduSchoolJunior source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduSchoolSenior/edu-schools has no undefined source fields 0ms
+     → eduSchoolSenior source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduSchoolUniversity/edu-schools has no undefined source fields 0ms
+     → eduSchoolUniversity source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduSchoolSpecial/edu-schools has no undefined source fields 0ms
+     → eduSchoolSpecial source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduRemoteSchools/edu-schools has no undefined source fields 0ms
+     → eduRemoteSchools source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduKindergarten/edu-kindergarten has no undefined source fields 0ms
+     → eduKindergarten source spec: expected [ 'edu-kindergarten.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > eduCramSchool/edu-cram has no undefined source fields 0ms
+   × manifest overlay source specs > eduAfterschoolCare/edu-afterschool has no undefined source fields 0ms
+     → eduAfterschoolCare source spec: expected [ 'edu-afterschool.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduMutualCare/edu-mutual-care has no undefined source fields 0ms
+     → eduMutualCare source spec: expected [ 'edu-mutual-care.attribution' ] to deeply equal []
+   × manifest overlay source specs > eduUniversityStudents/edu-university-students has no undefined source fields 0ms
+     → eduUniversityStudents source spec: expected [ Array(1) ] to deeply equal []
+   × manifest overlay source specs > tourEvents/tour-events has no undefined source fields 0ms
+     → tourEvents source spec: expected [ 'tour-events.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourFactories/tour-factories has no undefined source fields 0ms
+     → tourFactories source spec: expected [ 'tour-factories.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourAmusementParks/tour-amusement-parks has no undefined source fields 0ms
+     → tourAmusementParks source spec: expected [ 'tour-amusement-parks.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourCamping/tour-camping has no undefined source fields 0ms
+     → tourCamping source spec: expected [ 'tour-camping.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourHotels/tour-hotels has no undefined source fields 0ms
+     → tourHotels source spec: expected [ 'tour-hotels.attribution' ] to deeply equal []
+   × manifest overlay source specs > tourRestaurants/tour-restaurants has no undefined source fields 0ms
+     → tourRestaurants source spec: expected [ 'tour-restaurants.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > osmBridgeCarriers/osm-bridge-carriers has no undefined source fields 0ms
+   ✓ manifest overlay source specs > osmBridgeFootprints/osm-bridge-footprints has no undefined source fields 0ms
+   ✓ manifest overlay source specs > officialBridgesNewTaipei/official-bridges-new-taipei has no undefined source fields 0ms
+   ✓ manifest overlay source specs > bridgeComparisonNewTaipei/bridge-comparison-new-taipei has no undefined source fields 0ms
+   ✓ manifest overlay source specs > tainanBridgeInspections/tainan-bridge-inspections has no undefined source fields 0ms
+   ✓ manifest overlay source specs > officialBridgesHsinchu/official-bridges-hsinchu has no undefined source fields 0ms
+   ✓ manifest overlay source specs > taipeiRoadTunnels/taipei-road-tunnels has no undefined source fields 0ms
+   ✓ manifest overlay source specs > tainanRoadTunnels/tainan-road-tunnels has no undefined source fields 0ms
+   ✓ manifest overlay source specs > changhuaTrafficSignals/changhua-traffic-signals has no undefined source fields 0ms
+   ✓ manifest overlay source specs > drinkingWaterPoints/drinking-water-points has no undefined source fields 0ms
+   × manifest overlay source specs > publicWasteBaskets/public-waste-baskets has no undefined source fields 0ms
+     → publicWasteBaskets source spec: expected [ 'public-waste-baskets.attribution' ] to deeply equal []
+   × manifest overlay source specs > materialRecyclingPoints/material-recycling-points has no undefined source fields 0ms
+     → materialRecyclingPoints source spec: expected [ Array(1) ] to deeply equal []
+   ✓ manifest overlay source specs > disasterShelters/disaster-shelters has no undefined source fields 0ms
+   × manifest overlay source specs > playgrounds/playgrounds has no undefined source fields 0ms
+     → playgrounds source spec: expected [ 'playgrounds.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > accessibleParkFacilities/accessible-park-facilities has no undefined source fields 0ms
+   ✓ manifest overlay source specs > bicycleSupport/bicycle-support has no undefined source fields 0ms
+   ✓ manifest overlay source specs > nationalParks/national-parks has no undefined source fields 0ms
+   × manifest overlay source specs > visitorCentres/visitor-centres has no undefined source fields 0ms
+     → visitorCentres source spec: expected [ 'visitor-centres.attribution' ] to deeply equal []
+   ✓ manifest overlay source specs > publicLifeOsmCoverage/public-life-osm-coverage has no undefined source fields 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 202 ⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > stationsTHSR/station-polygons has no undefined source fields
+AssertionError: stationsTHSR source spec: expected [ 'station-polygons.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "station-polygons.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > stationsTHSR/station-polygon-centroids has no undefined source fields
+AssertionError: stationsTHSR source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "station-polygon-centroids.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > stationsTRA/station-polygons has no undefined source fields
+AssertionError: stationsTRA source spec: expected [ 'station-polygons.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "station-polygons.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > stationsTRA/station-polygon-centroids has no undefined source fields
+AssertionError: stationsTRA source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "station-polygon-centroids.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > stationsTRA/station-points has no undefined source fields
+AssertionError: stationsTRA source spec: expected [ 'station-points.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "station-points.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > stationsMetro/station-points has no undefined source fields
+AssertionError: stationsMetro source spec: expected [ 'station-points.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "station-points.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > ports/port-polygons has no undefined source fields
+AssertionError: ports source spec: expected [ 'port-polygons.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "port-polygons.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > ports/port-centroids has no undefined source fields
+AssertionError: ports source spec: expected [ 'port-centroids.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "port-centroids.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > lighthouses/lighthouses has no undefined source fields
+AssertionError: lighthouses source spec: expected [ 'lighthouses.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "lighthouses.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > windPlan/wind-plan has no undefined source fields
+AssertionError: windPlan source spec: expected [ 'wind-plan.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "wind-plan.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > busStationsIntercity/bus-stations-intercity has no undefined source fields
+AssertionError: busStationsIntercity source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "bus-stations-intercity.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > bikeStations/bike-stations has no undefined source fields
+AssertionError: bikeStations source spec: expected [ 'bike-stations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "bike-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > cyclingRoutes/cycling-routes has no undefined source fields
+AssertionError: cyclingRoutes source spec: expected [ 'cycling-routes.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "cycling-routes.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > weatherStations/weather-stations has no undefined source fields
+AssertionError: weatherStations source spec: expected [ 'weather-stations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "weather-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > airports/airport-boundaries has no undefined source fields
+AssertionError: airports source spec: expected [ 'airport-boundaries.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "airport-boundaries.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > airports/airport-centroids has no undefined source fields
+AssertionError: airports source spec: expected [ 'airport-centroids.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "airport-centroids.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > cctv/cctv has no undefined source fields
+AssertionError: cctv source spec: expected [ 'cctv.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "cctv.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > fireStations/fire-stations has no undefined source fields
+AssertionError: fireStations source spec: expected [ 'fire-stations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fire-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > etcGantry/etc-gantry has no undefined source fields
+AssertionError: etcGantry source spec: expected [ 'etc-gantry.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "etc-gantry.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > serviceArea/service-area has no undefined source fields
+AssertionError: serviceArea source spec: expected [ 'service-area.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "service-area.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > serviceAreaPolygon/service-area-polygon has no undefined source fields
+AssertionError: serviceAreaPolygon source spec: expected [ 'service-area-polygon.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "service-area-polygon.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > taxiStand/taxi-stand has no undefined source fields
+AssertionError: taxiStand source spec: expected [ 'taxi-stand.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "taxi-stand.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > submarineCables/submarine-cables has no undefined source fields
+AssertionError: submarineCables source spec: expected [ 'submarine-cables.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "submarine-cables.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > landingStations/landing-stations has no undefined source fields
+AssertionError: landingStations source spec: expected [ 'landing-stations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "landing-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > internetExchangePoints/internet-exchange-points has no undefined source fields
+AssertionError: internetExchangePoints source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "internet-exchange-points.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > anfrWirelessSites/anfr-wireless-sites has no undefined source fields
+AssertionError: anfrWirelessSites source spec: expected [ 'anfr-wireless-sites.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "anfr-wireless-sites.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmCommunicationSites/osm-communication-sites has no undefined source fields
+AssertionError: osmCommunicationSites source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "osm-communication-sites.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > ripeAtlasProbes/ripe-atlas-probes has no undefined source fields
+AssertionError: ripeAtlasProbes source spec: expected [ 'ripe-atlas-probes.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "ripe-atlas-probes.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > schools/edu-schools has no undefined source fields
+AssertionError: schools source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-schools.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > convenienceStores/convenience-stores has no undefined source fields
+AssertionError: convenienceStores source spec: expected [ 'convenience-stores.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "convenience-stores.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > postOffices/post-offices has no undefined source fields
+AssertionError: postOffices source spec: expected [ 'post-offices.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "post-offices.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > iPostBoxes/ipost-boxes has no undefined source fields
+AssertionError: iPostBoxes source spec: expected [ 'ipost-boxes.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "ipost-boxes.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > communityCenters/community-centers has no undefined source fields
+AssertionError: communityCenters source spec: expected [ 'community-centers.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "community-centers.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > govServiceOffices/gov-service-offices has no undefined source fields
+AssertionError: govServiceOffices source spec: expected [ 'gov-service-offices.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "gov-service-offices.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > publicLibraries/public-libraries has no undefined source fields
+AssertionError: publicLibraries source spec: expected [ 'public-libraries.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "public-libraries.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareCenters/welfare-centers has no undefined source fields
+AssertionError: welfareCenters source spec: expected [ 'welfare-centers.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-centers.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > retailMarkets/retail-markets has no undefined source fields
+AssertionError: retailMarkets source spec: expected [ 'retail-markets.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "retail-markets.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > publicToilets/public-toilets has no undefined source fields
+AssertionError: publicToilets source spec: expected [ 'public-toilets.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "public-toilets.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > medHospital/medical-hospitals has no undefined source fields
+AssertionError: medHospital source spec: expected [ 'medical-hospitals.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "medical-hospitals.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > newsEvents/news-events has no undefined source fields
+AssertionError: newsEvents source spec: expected [ 'news-events.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "news-events.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > activeFaults/active-faults has no undefined source fields
+AssertionError: activeFaults source spec: expected [ 'active-faults.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "active-faults.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterBasins/water-basins has no undefined source fields
+AssertionError: waterBasins source spec: expected [ 'water-basins.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-basins.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterProtectionZones/water-protection-zones has no undefined source fields
+AssertionError: waterProtectionZones source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-protection-zones.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterReservoirs/water-reservoir-dams has no undefined source fields
+AssertionError: waterReservoirs source spec: expected [ 'water-reservoir-dams.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-reservoir-dams.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterDetentionBasins/water-detention-basins has no undefined source fields
+AssertionError: waterDetentionBasins source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-detention-basins.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterFacilities/water-facilities has no undefined source fields
+AssertionError: waterFacilities source spec: expected [ 'water-facilities.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-facilities.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterMonitorStations/water-monitor-stations has no undefined source fields
+AssertionError: waterMonitorStations source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-monitor-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > agriWholesaleMarket/agri-wholesale-market has no undefined source fields
+AssertionError: agriWholesaleMarket source spec: expected [ 'agri-wholesale-market.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "agri-wholesale-market.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > commonRegistrationAddresses/business-registry-common-registration-addresses has no undefined source fields
+AssertionError: commonRegistrationAddresses source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "business-registry-common-registration-addresses.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFarmPig/livestock-farms has no undefined source fields
+AssertionError: livestockFarmPig source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFarmChicken/livestock-farms has no undefined source fields
+AssertionError: livestockFarmChicken source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFarmCattle/livestock-farms has no undefined source fields
+AssertionError: livestockFarmCattle source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFarmDuck/livestock-farms has no undefined source fields
+AssertionError: livestockFarmDuck source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFarmGoose/livestock-farms has no undefined source fields
+AssertionError: livestockFarmGoose source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFarmSheep/livestock-farms has no undefined source fields
+AssertionError: livestockFarmSheep source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFarmOther/livestock-farms has no undefined source fields
+AssertionError: livestockFarmOther source spec: expected [ 'livestock-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockSlaughter/livestock-slaughter has no undefined source fields
+AssertionError: livestockSlaughter source spec: expected [ 'livestock-slaughter.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-slaughter.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockFeed/livestock-feed has no undefined source fields
+AssertionError: livestockFeed source spec: expected [ 'livestock-feed.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-feed.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[58/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > livestockMarket/livestock-market has no undefined source fields
+AssertionError: livestockMarket source spec: expected [ 'livestock-market.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "livestock-market.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[59/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > aquacultureZone/aquaculture-zone has no undefined source fields
+AssertionError: aquacultureZone source spec: expected [ 'aquaculture-zone.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "aquaculture-zone.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[60/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > aquacultureCageNet/aquaculture-cage-net has no undefined source fields
+AssertionError: aquacultureCageNet source spec: expected [ 'aquaculture-cage-net.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "aquaculture-cage-net.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[61/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > protectedTreesNational/protected-trees-national has no undefined source fields
+AssertionError: protectedTreesNational source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "protected-trees-national.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[62/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > riversideTreesTaipei/riverside-trees-taipei has no undefined source fields
+AssertionError: riversideTreesTaipei source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "riverside-trees-taipei.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[63/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > parksTaipei/parks-taipei has no undefined source fields
+AssertionError: parksTaipei source spec: expected [ 'parks-taipei.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "parks-taipei.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[64/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > sportsSchool/sports-venues has no undefined source fields
+AssertionError: sportsSchool source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sports-venues.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[65/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > sportsPublicOther/sports-venues has no undefined source fields
+AssertionError: sportsPublicOther source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sports-venues.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[66/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > sportsPrivate/sports-venues has no undefined source fields
+AssertionError: sportsPrivate source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sports-venues.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[67/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > sportsPark/sports-venues has no undefined source fields
+AssertionError: sportsPark source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sports-venues.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[68/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > sportsCenter/sports-venues has no undefined source fields
+AssertionError: sportsCenter source spec: expected [ 'sports-venues.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sports-venues.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[69/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > culturalFacilities/culture-facilities has no undefined source fields
+AssertionError: culturalFacilities source spec: expected [ 'culture-facilities.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "culture-facilities.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[70/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > culturalMuseums/culture-museums has no undefined source fields
+AssertionError: culturalMuseums source spec: expected [ 'culture-museums.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "culture-museums.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[71/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > artsEvents/culture-events has no undefined source fields
+AssertionError: artsEvents source spec: expected [ 'culture-events.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "culture-events.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[72/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > performingVenues/culture-venues has no undefined source fields
+AssertionError: performingVenues source spec: expected [ 'culture-venues.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "culture-venues.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[73/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestRecreation/forest-recreation has no undefined source fields
+AssertionError: forestRecreation source spec: expected [ 'forest-recreation.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-recreation.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[74/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestTreatmentWorks/forest-treatment-works has no undefined source fields
+AssertionError: forestTreatmentWorks source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-treatment-works.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[75/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestFlatParks/forest-flat-parks has no undefined source fields
+AssertionError: forestFlatParks source spec: expected [ 'forest-flat-parks.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-flat-parks.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[76/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > canopyGiants/canopy-giants has no undefined source fields
+AssertionError: canopyGiants source spec: expected [ 'canopy-giants.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "canopy-giants.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[77/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestDamLakes/forest-dam-lakes has no undefined source fields
+AssertionError: forestDamLakes source spec: expected [ 'forest-dam-lakes.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-dam-lakes.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[78/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > railRoutes/rail-routes has no undefined source fields
+AssertionError: railRoutes source spec: expected [ 'rail-routes.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "rail-routes.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[79/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestAlishanRail/forest-alishan-rail has no undefined source fields
+AssertionError: forestAlishanRail source spec: expected [ 'forest-alishan-rail.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-alishan-rail.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[80/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestTrailSigns/forest-trail-signs has no undefined source fields
+AssertionError: forestTrailSigns source spec: expected [ 'forest-trail-signs.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-trail-signs.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[81/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestSignalPoints/forest-signal-points has no undefined source fields
+AssertionError: forestSignalPoints source spec: expected [ 'forest-signal-points.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-signal-points.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[82/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > mountainHuts/mountain-huts has no undefined source fields
+AssertionError: mountainHuts source spec: expected [ 'mountain-huts.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "mountain-huts.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[83/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestEducationCenters/forest-education-centers has no undefined source fields
+AssertionError: forestEducationCenters source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-education-centers.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[84/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > forestWildlife/forest-wildlife has no undefined source fields
+AssertionError: forestWildlife source spec: expected [ 'forest-wildlife.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "forest-wildlife.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[85/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > powerPlants/energy-power-plants has no undefined source fields
+AssertionError: powerPlants source spec: expected [ 'energy-power-plants.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-power-plants.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[86/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > powerGenerationUnit/energy-power-generation-hit has no undefined source fields
+AssertionError: powerGenerationUnit source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-power-generation-hit.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[87/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmSubstationsEhv/energy-substations-ehv has no undefined source fields
+AssertionError: osmSubstationsEhv source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-substations-ehv.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[88/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmSubstations/energy-substations has no undefined source fields
+AssertionError: osmSubstations source spec: expected [ 'energy-substations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-substations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[89/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmPowerLines/energy-power-lines has no undefined source fields
+AssertionError: osmPowerLines source spec: expected [ 'energy-power-lines.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-power-lines.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[90/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmPowerTowers/energy-power-towers has no undefined source fields
+AssertionError: osmPowerTowers source spec: expected [ 'energy-power-towers.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-power-towers.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[91/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmWindTurbines/energy-wind-turbines has no undefined source fields
+AssertionError: osmWindTurbines source spec: expected [ 'energy-wind-turbines.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-wind-turbines.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[92/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmSolarFarms/energy-solar-farms has no undefined source fields
+AssertionError: osmSolarFarms source spec: expected [ 'energy-solar-farms.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-solar-farms.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[93/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > osmPowerPlantsStatic/energy-osm-power-plants-static has no undefined source fields
+AssertionError: osmPowerPlantsStatic source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-osm-power-plants-static.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[94/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > offshoreWindZones/energy-offshore-wind-zones has no undefined source fields
+AssertionError: offshoreWindZones source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-offshore-wind-zones.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[95/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > islandPowerGrid/energy-island-grid has no undefined source fields
+AssertionError: islandPowerGrid source spec: expected [ 'energy-island-grid.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-island-grid.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[96/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > fossilFuelInfra/energy-fossil-fuel has no undefined source fields
+AssertionError: fossilFuelInfra source spec: expected [ 'energy-fossil-fuel.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-fossil-fuel.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[97/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > geothermalWells/energy-geothermal-wells has no undefined source fields
+AssertionError: geothermalWells source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-geothermal-wells.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[98/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > renewablePermitsTaipei/energy-taipei-re has no undefined source fields
+AssertionError: renewablePermitsTaipei source spec: expected [ 'energy-taipei-re.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-taipei-re.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[99/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > evChargingStations/energy-ev-charging has no undefined source fields
+AssertionError: evChargingStations source spec: expected [ 'energy-ev-charging.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-ev-charging.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[100/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > lightning/hazard-lightning has no undefined source fields
+AssertionError: lightning source spec: expected [ 'hazard-lightning.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "hazard-lightning.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[101/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > lightningCwa/hazard-lightning-cwa has no undefined source fields
+AssertionError: lightningCwa source spec: expected [ 'hazard-lightning-cwa.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "hazard-lightning-cwa.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[102/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > mountainRescueIncidents/mountain-rescue-incidents has no undefined source fields
+AssertionError: mountainRescueIncidents source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "mountain-rescue-incidents.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[103/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > nuclearRadiation/hazard-nuclear has no undefined source fields
+AssertionError: nuclearRadiation source spec: expected [ 'hazard-nuclear.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "hazard-nuclear.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[104/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > erHospital/er-hospital has no undefined source fields
+AssertionError: erHospital source spec: expected [ 'er-hospital.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "er-hospital.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[105/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > librarySeats/library-seats has no undefined source fields
+AssertionError: librarySeats source spec: expected [ 'library-seats.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "library-seats.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[106/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > parkingOnstreet/parking-onstreet has no undefined source fields
+AssertionError: parkingOnstreet source spec: expected [ 'parking-onstreet.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "parking-onstreet.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[107/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > parkingOffstreet/parking-offstreet has no undefined source fields
+AssertionError: parkingOffstreet source spec: expected [ 'parking-offstreet.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "parking-offstreet.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[108/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > facPrimary/energy-fac-primary has no undefined source fields
+AssertionError: facPrimary source spec: expected [ 'energy-fac-primary.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-fac-primary.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[109/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > facOffshore/energy-fac-offshore has no undefined source fields
+AssertionError: facOffshore source spec: expected [ 'energy-fac-offshore.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-fac-offshore.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[110/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > facPlanned/energy-fac-planned has no undefined source fields
+AssertionError: facPlanned source spec: expected [ 'energy-fac-planned.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-fac-planned.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[111/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > facHistorical/energy-fac-historical has no undefined source fields
+AssertionError: facHistorical source spec: expected [ 'energy-fac-historical.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-fac-historical.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[112/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > facSecondary/energy-fac-secondary has no undefined source fields
+AssertionError: facSecondary source spec: expected [ 'energy-fac-secondary.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-fac-secondary.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[113/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > facOsmSupplement/energy-fac-osm-supplement has no undefined source fields
+AssertionError: facOsmSupplement source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "energy-fac-osm-supplement.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[114/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > gasStationCpc/fossil-gas-station-cpc has no undefined source fields
+AssertionError: gasStationCpc source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-gas-station-cpc.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[115/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > gasStationFpcc/fossil-gas-station-fpcc has no undefined source fields
+AssertionError: gasStationFpcc source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-gas-station-fpcc.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[116/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > gasStationTaisugar/fossil-gas-station-taisugar has no undefined source fields
+AssertionError: gasStationTaisugar source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-gas-station-taisugar.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[117/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > gasStationOther/fossil-gas-station-other has no undefined source fields
+AssertionError: gasStationOther source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-gas-station-other.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[118/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > gasStationCanonical/fossil-gas-station-canonical has no undefined source fields
+AssertionError: gasStationCanonical source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-gas-station-canonical.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[119/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > lpgSubpackaging/fossil-lpg-subpackaging has no undefined source fields
+AssertionError: lpgSubpackaging source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-lpg-subpackaging.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[120/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > lpgRetailers/fossil-lpg-retailers has no undefined source fields
+AssertionError: lpgRetailers source spec: expected [ 'fossil-lpg-retailers.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-lpg-retailers.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[121/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > lngTerminal/fossil-lng-terminal has no undefined source fields
+AssertionError: lngTerminal source spec: expected [ 'fossil-lng-terminal.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-lng-terminal.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[122/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > pipelineGas/fossil-pipeline-gas has no undefined source fields
+AssertionError: pipelineGas source spec: expected [ 'fossil-pipeline-gas.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-pipeline-gas.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[123/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > pipelineOilGas/fossil-pipeline-oilgas has no undefined source fields
+AssertionError: pipelineOilGas source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-pipeline-oilgas.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[124/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > industrialRefinery/fossil-industrial-refinery has no undefined source fields
+AssertionError: industrialRefinery source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-industrial-refinery.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[125/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > industrialStorageTank/fossil-industrial-storage-tank has no undefined source fields
+AssertionError: industrialStorageTank source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-industrial-storage-tank.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[126/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > industrialPowerPlant/fossil-industrial-power-plant has no undefined source fields
+AssertionError: industrialPowerPlant source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-industrial-power-plant.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[127/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > coalTerminal/fossil-coal-terminal has no undefined source fields
+AssertionError: coalTerminal source spec: expected [ 'fossil-coal-terminal.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "fossil-coal-terminal.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[128/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > policeStation/police-station has no undefined source fields
+AssertionError: policeStation source spec: expected [ 'police-station.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "police-station.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[129/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > womenChildWarning/women-child-warning has no undefined source fields
+AssertionError: womenChildWarning source spec: expected [ 'women-child-warning.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "women-child-warning.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[130/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > speedCamera/speed-camera has no undefined source fields
+AssertionError: speedCamera source spec: expected [ 'speed-camera.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "speed-camera.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[131/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > speedZoneSegment/speed-zone-segment has no undefined source fields
+AssertionError: speedZoneSegment source spec: expected [ 'speed-zone-segment.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "speed-zone-segment.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[132/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > court/court has no undefined source fields
+AssertionError: court source spec: expected [ 'court.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "court.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[133/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > prosecutorsOffice/prosecutors-office has no undefined source fields
+AssertionError: prosecutorsOffice source spec: expected [ 'prosecutors-office.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "prosecutors-office.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[134/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > correctionalFacility/correctional-facility has no undefined source fields
+AssertionError: correctionalFacility source spec: expected [ 'correctional-facility.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "correctional-facility.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[135/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > theftTaoyuan/theft-taoyuan has no undefined source fields
+AssertionError: theftTaoyuan source spec: expected [ 'theft-taoyuan.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "theft-taoyuan.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[136/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > trafficAccidentYearly/traffic-accident-yearly has no undefined source fields
+AssertionError: trafficAccidentYearly source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "traffic-accident-yearly.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[137/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > accidentTaipei/accident-taipei has no undefined source fields
+AssertionError: accidentTaipei source spec: expected [ 'accident-taipei.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "accident-taipei.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[138/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > a1AccidentRealtime/a1-accident-realtime has no undefined source fields
+AssertionError: a1AccidentRealtime source spec: expected [ 'a1-accident-realtime.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "a1-accident-realtime.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[139/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > investigationBureau/investigation-bureau has no undefined source fields
+AssertionError: investigationBureau source spec: expected [ 'investigation-bureau.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "investigation-bureau.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[140/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > antiCorruptionOffice/anti-corruption-office has no undefined source fields
+AssertionError: antiCorruptionOffice source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "anti-corruption-office.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[141/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > immigrationOffice/immigration-office has no undefined source fields
+AssertionError: immigrationOffice source spec: expected [ 'immigration-office.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "immigration-office.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[142/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > coastGuardStation/coast-guard-station has no undefined source fields
+AssertionError: coastGuardStation source spec: expected [ 'coast-guard-station.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "coast-guard-station.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[143/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > aviationNoiseZones/aviation-noise-zones has no undefined source fields
+AssertionError: aviationNoiseZones source spec: expected [ 'aviation-noise-zones.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "aviation-noise-zones.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[144/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > officialNoiseMonitoring/official-noise-monitoring has no undefined source fields
+AssertionError: officialNoiseMonitoring source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "official-noise-monitoring.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[145/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > soundCameraLocations/sound-camera-locations has no undefined source fields
+AssertionError: soundCameraLocations source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sound-camera-locations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[146/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterQualityStations/water-quality-stations has no undefined source fields
+AssertionError: waterQualityStations source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-quality-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[147/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > riverRpiStations/river-rpi-stations has no undefined source fields
+AssertionError: riverRpiStations source spec: expected [ 'river-rpi-stations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "river-rpi-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[148/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > sewageTreatmentPlants/sewage-treatment-plants has no undefined source fields
+AssertionError: sewageTreatmentPlants source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sewage-treatment-plants.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[149/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > drinkingWaterProtectionZones/drinking-water-protection-zones has no undefined source fields
+AssertionError: drinkingWaterProtectionZones source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "drinking-water-protection-zones.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[150/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > seaWaterQualityStations/sea-water-quality-stations has no undefined source fields
+AssertionError: seaWaterQualityStations source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "sea-water-quality-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[151/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > pm25ManualStations/pm25-manual-stations has no undefined source fields
+AssertionError: pm25ManualStations source spec: expected [ 'pm25-manual-stations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "pm25-manual-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[152/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > dioxinStations/dioxin-stations has no undefined source fields
+AssertionError: dioxinStations source spec: expected [ 'dioxin-stations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "dioxin-stations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[153/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > incineratorEmissions/incinerator-emissions has no undefined source fields
+AssertionError: incineratorEmissions source spec: expected [ 'incinerator-emissions.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "incinerator-emissions.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[154/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > nuscGammaRadiation/nusc-gamma-radiation has no undefined source fields
+AssertionError: nuscGammaRadiation source spec: expected [ 'nusc-gamma-radiation.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "nusc-gamma-radiation.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[155/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > waterEffluentLive/water-effluent-live has no undefined source fields
+AssertionError: waterEffluentLive source spec: expected [ 'water-effluent-live.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "water-effluent-live.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[156/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > cemsStackLive/cems-stack-live has no undefined source fields
+AssertionError: cemsStackLive source spec: expected [ 'cems-stack-live.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "cems-stack-live.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[157/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > cwaUvDaily/cwa-uv-daily has no undefined source fields
+AssertionError: cwaUvDaily source spec: expected [ 'cwa-uv-daily.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "cwa-uv-daily.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[158/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > riverRpiSegments/river-rpi-segments has no undefined source fields
+AssertionError: riverRpiSegments source spec: expected [ 'river-rpi-segments.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "river-rpi-segments.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[159/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourAttractions/tour-attractions has no undefined source fields
+AssertionError: tourAttractions source spec: expected [ 'tour-attractions.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-attractions.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[160/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourHotSprings/tour-hot-springs has no undefined source fields
+AssertionError: tourHotSprings source spec: expected [ 'tour-hot-springs.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-hot-springs.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[161/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourHotSpringZones/tour-hot-spring-zones has no undefined source fields
+AssertionError: tourHotSpringZones source spec: expected [ 'tour-hot-spring-zones.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-hot-spring-zones.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[162/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourScenicAreas/tour-scenic-areas has no undefined source fields
+AssertionError: tourScenicAreas source spec: expected [ 'tour-scenic-areas.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-scenic-areas.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[163/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourHeritage/tour-heritage has no undefined source fields
+AssertionError: tourHeritage source spec: expected [ 'tour-heritage.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-heritage.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[164/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > religionChurches/religion-churches has no undefined source fields
+AssertionError: religionChurches source spec: expected [ 'religion-churches.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "religion-churches.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[165/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > religionAncestralHalls/religion-ancestral-halls has no undefined source fields
+AssertionError: religionAncestralHalls source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "religion-ancestral-halls.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[166/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > religionFoundations/religion-foundations has no undefined source fields
+AssertionError: religionFoundations source spec: expected [ 'religion-foundations.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "religion-foundations.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[167/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > religionOtherWorship/religion-other-worship has no undefined source fields
+AssertionError: religionOtherWorship source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "religion-other-worship.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[168/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > religionTop100/religion-top100 has no undefined source fields
+AssertionError: religionTop100 source spec: expected [ 'religion-top100.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "religion-top100.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[169/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > funeralFacilities/funeral-facilities has no undefined source fields
+AssertionError: funeralFacilities source spec: expected [ 'funeral-facilities.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "funeral-facilities.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[170/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > funeralOperators/funeral-operators has no undefined source fields
+AssertionError: funeralOperators source spec: expected [ 'funeral-operators.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "funeral-operators.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[171/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > cemeteryZoning/cemetery-zoning has no undefined source fields
+AssertionError: cemeteryZoning source spec: expected [ 'cemetery-zoning.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "cemetery-zoning.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[172/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareLtcInstitutions/welfare-ltc-institutions has no undefined source fields
+AssertionError: welfareLtcInstitutions source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-ltc-institutions.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[173/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareNursingHomes/welfare-nursing-homes has no undefined source fields
+AssertionError: welfareNursingHomes source spec: expected [ 'welfare-nursing-homes.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-nursing-homes.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[174/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareChildcare/welfare-childcare has no undefined source fields
+AssertionError: welfareChildcare source spec: expected [ 'welfare-childcare.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-childcare.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[175/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareChildServices/welfare-child-services has no undefined source fields
+AssertionError: welfareChildServices source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-child-services.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[176/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareElderlyHomes/welfare-elderly-homes has no undefined source fields
+AssertionError: welfareElderlyHomes source spec: expected [ 'welfare-elderly-homes.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-elderly-homes.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[177/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareSocialWorkOrgs/welfare-social-work-orgs has no undefined source fields
+AssertionError: welfareSocialWorkOrgs source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-social-work-orgs.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[178/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareDisability/welfare-disability has no undefined source fields
+AssertionError: welfareDisability source spec: expected [ 'welfare-disability.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-disability.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[179/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareGovOffices/welfare-gov-offices has no undefined source fields
+AssertionError: welfareGovOffices source spec: expected [ 'welfare-gov-offices.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-gov-offices.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[180/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > welfareMentalHealth/welfare-mental-health has no undefined source fields
+AssertionError: welfareMentalHealth source spec: expected [ 'welfare-mental-health.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welfare-mental-health.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[181/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduDistrictSenior/edu-district-senior has no undefined source fields
+AssertionError: eduDistrictSenior source spec: expected [ 'edu-district-senior.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-district-senior.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[182/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduSchoolElementary/edu-schools has no undefined source fields
+AssertionError: eduSchoolElementary source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-schools.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[183/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduSchoolJunior/edu-schools has no undefined source fields
+AssertionError: eduSchoolJunior source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-schools.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[184/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduSchoolSenior/edu-schools has no undefined source fields
+AssertionError: eduSchoolSenior source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-schools.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[185/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduSchoolUniversity/edu-schools has no undefined source fields
+AssertionError: eduSchoolUniversity source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-schools.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[186/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduSchoolSpecial/edu-schools has no undefined source fields
+AssertionError: eduSchoolSpecial source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-schools.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[187/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduRemoteSchools/edu-schools has no undefined source fields
+AssertionError: eduRemoteSchools source spec: expected [ 'edu-schools.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-schools.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[188/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduKindergarten/edu-kindergarten has no undefined source fields
+AssertionError: eduKindergarten source spec: expected [ 'edu-kindergarten.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-kindergarten.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[189/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduAfterschoolCare/edu-afterschool has no undefined source fields
+AssertionError: eduAfterschoolCare source spec: expected [ 'edu-afterschool.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-afterschool.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[190/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduMutualCare/edu-mutual-care has no undefined source fields
+AssertionError: eduMutualCare source spec: expected [ 'edu-mutual-care.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-mutual-care.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[191/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > eduUniversityStudents/edu-university-students has no undefined source fields
+AssertionError: eduUniversityStudents source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "edu-university-students.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[192/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourEvents/tour-events has no undefined source fields
+AssertionError: tourEvents source spec: expected [ 'tour-events.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-events.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[193/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourFactories/tour-factories has no undefined source fields
+AssertionError: tourFactories source spec: expected [ 'tour-factories.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-factories.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[194/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourAmusementParks/tour-amusement-parks has no undefined source fields
+AssertionError: tourAmusementParks source spec: expected [ 'tour-amusement-parks.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-amusement-parks.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[195/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourCamping/tour-camping has no undefined source fields
+AssertionError: tourCamping source spec: expected [ 'tour-camping.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-camping.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[196/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourHotels/tour-hotels has no undefined source fields
+AssertionError: tourHotels source spec: expected [ 'tour-hotels.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-hotels.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[197/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > tourRestaurants/tour-restaurants has no undefined source fields
+AssertionError: tourRestaurants source spec: expected [ 'tour-restaurants.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tour-restaurants.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[198/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > publicWasteBaskets/public-waste-baskets has no undefined source fields
+AssertionError: publicWasteBaskets source spec: expected [ 'public-waste-baskets.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "public-waste-baskets.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[199/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > materialRecyclingPoints/material-recycling-points has no undefined source fields
+AssertionError: materialRecyclingPoints source spec: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "material-recycling-points.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[200/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > playgrounds/playgrounds has no undefined source fields
+AssertionError: playgrounds source spec: expected [ 'playgrounds.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "playgrounds.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[201/202]⎯
+
+ FAIL  src/map/__tests__/overlayManager.test.ts > manifest overlay source specs > visitorCentres/visitor-centres has no undefined source fields
+AssertionError: visitorCentres source spec: expected [ 'visitor-centres.attribution' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "visitor-centres.attribution",
++ ]
+
+ ❯ src/map/__tests__/overlayManager.test.ts:624:57
+    622|       }
+    623|       inspect(spec, entry.sourceId);
+    624|       expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+       |                                                         ^
+    625|     });
+    626|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[202/202]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  202 failed | 169 passed (371)
+   Start at  12:43:41
+   Duration  2.31s (transform 1.21s, setup 0ms, collect 1.82s, tests 86ms, environment 0ms, prepare 79ms)
+

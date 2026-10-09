@@ -135,10 +135,12 @@ guard：禁用 `fill-outline-color`；暗淡分支不得改寬度或透明度。
 |---|---|
 | G-1 | 每個 Three.js／CustomLayer 圖層加一套 Mapbox 原生畫法（circle／line／fill，套用本規格數值），**預設用 Mapbox**；圖層控制項加一個切換，可改回 Three.js 立體版 |
 
-盤點列出的 Three.js 圖層 13 層：房價點 3 層（`realEstateSalePoint`、`realEstatePresalePoint`、`realEstateRentalPoint`）、廢棄物設施 5 層（`wf*`）、`powerPlantGlow`、`substationEhvGlow`、`powerRegionDemand`、`windField`、`oceanCurrents`。每層一個 commit；兩種模式都要符合四鐵則（透明度、圖例、popup）。
+盤點列出的 Three.js 圖層 14 層（原盤點 13 層漏列 `wfMonitoring`）：房價點 3 層（`realEstateSalePoint`、`realEstatePresalePoint`、`realEstateRentalPoint`）、廢棄物設施 6 層（`wf*`，含 `wfMonitoring`）、`powerPlantGlow`、`substationEhvGlow`、`powerRegionDemand`、`windField`、`oceanCurrents`。每層一個 commit；兩種模式都要符合四鐵則（透明度、圖例、popup）。
+
+**`wfMonitoring` 的雙 host 對齊**：它是 `wasteFacilityCustomLayer` 6 個 3D sub-scene 之一（`useThreeJsLayers.ts`），`App.tsx` 同時為同一個 visibility key 建了 Mapbox circle（見 `layerManifest.ts` wf* 區塊註解，兩套渲染都在）。目前沒有渲染模式開關，兩個 host 同時繪製；R6 實作時須讓兩個 host 依同一個模式值切換（預設只畫 Mapbox circle、切到 Three.js 時才畫 3D scene 並隱藏 circle），不可只改其中一邊。
 
 ## 待你確認
 
-1. **R6 範圍**：飛機、船、公車、台鐵這些由 App 掛載的 3D 即時圖層（`flights`、`ships`、`busLive`、`rail` 等）要不要也做「基本點線面」模式？還是只做上面 13 層？
+1. **R6 範圍**：飛機、船、公車、台鐵這些由 App 掛載的 3D 即時圖層（`flights`、`ships`、`busLive`、`rail` 等）要不要也做「基本點線面」模式？還是只做上面 14 層？
 2. **R6 切換放哪裡**：每個圖層的控制項各自一個「立體」開關（建議），還是全站一個總開關？
 3. **R2 分階表、R5 熱區候選清單**：做到那一步時會先給你確認，不需要現在決定。
