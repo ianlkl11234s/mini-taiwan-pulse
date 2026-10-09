@@ -124,6 +124,7 @@ import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
 import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
+import { JMA_LAYER_COLORS } from "./jmaTypes";
 import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
 import {
   JP_ACCOMMODATION_DENSITY_LAYER_COLOR,
@@ -2364,6 +2365,96 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "slider"] },
     description: "日本學校（56,807 點，学校分類 13 類分色）",
     topics: ["世界", "日本", "教育", "學校"],
+  },
+
+  // ── 日本氣象廳 JMA 即時 4 層（gis-platform migration 435；public view；當下快照，不接 timeStore）──
+  jmaAmedas: {
+    key: "jmaAmedas",
+    section: { theme: "氣象防災", group: "即時觀測" },
+    ...layerName({ zh: "AMeDAS 即時觀測", alt: "アメダス" }),
+    expandable: true,
+    color: JMA_LAYER_COLORS.jmaAmedas,
+    icon: Thermometer,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "public.jma_amedas_current（每站最新一筆，collector 每 10 分鐘）；前端 10 分鐘輪詢",
+      note: "出典：気象庁（公共データ利用規約1.0）；缺值保留 NULL（中空點），積雪只畫有積雪計的站",
+    },
+    dataClass: "C",
+    source: { kind: "supabase", sourceId: "jma-amedas", fallbackUrl: "./geo/_empty.geojson" },
+    legend: "jmaAmedas",
+    popup: "jmaAmedas",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "日本氣象廳 AMeDAS 約 1,300 站即時觀測：可切氣溫／前 1 小時雨量／積雪深／風速",
+    topics: ["世界", "日本", "氣象", "即時", "雨量", "積雪"],
+  },
+  jmaWarnings: {
+    key: "jmaWarnings",
+    section: { theme: "氣象防災", group: "即時觀測" },
+    ...layerName({ zh: "警報・注意報", alt: "警報・注意報" }),
+    expandable: true,
+    color: JMA_LAYER_COLORS.jmaWarnings,
+    icon: AlertTriangle,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "public.jma_warnings_current（最新一版 control_datetime；collector 每 5 分鐘）；class20 前 5 碼對市区町村界 admin_code，政令市分區以「縣碼＋市名」整市著色",
+      note: "界線沿用 jp_admin_boundaries.pmtiles；class10/15 等非市町村層級與對不到界線的區域只列在圖例",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJmaWarningsLayer 自建 mapbox-pmtiles source（市区町村界）＋Supabase view 5 分鐘輪詢，match 表達式著色",
+      staticAssets: ["./world/jp_admin_boundaries.pmtiles"],
+    },
+    legend: "jmaWarnings",
+    popup: "jmaWarnings",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本氣象廳警報・注意報（市町村別；特別警報／危険警報／警報／注意報分色）",
+    topics: ["世界", "日本", "氣象", "即時", "警報", "防災"],
+  },
+  jmaQuakes: {
+    key: "jmaQuakes",
+    section: { theme: "氣象防災", group: "地震與火山" },
+    ...layerName({ zh: "地震（近 7 天）", alt: "地震情報" }),
+    expandable: true,
+    color: JMA_LAYER_COLORS.jmaQuakes,
+    icon: Activity,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "public.jma_quake_latest（每事件最新一報）；前端只取 report_time 近 7 天、2 分鐘輪詢",
+      note: "震度速報階段尚無震源座標 → 不畫（圖例揭露筆數）；半徑依規模、顏色依最大震度",
+    },
+    dataClass: "C",
+    source: { kind: "supabase", sourceId: "jma-quakes", fallbackUrl: "./geo/_empty.geojson" },
+    legend: "jmaQuakes",
+    popup: "jmaQuakes",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "日本氣象廳地震情報（近 7 天）：半徑＝規模，顏色＝最大震度",
+    topics: ["世界", "日本", "地震", "即時", "防災"],
+  },
+  jmaVolcanoes: {
+    key: "jmaVolcanoes",
+    section: { theme: "氣象防災", group: "地震與火山" },
+    ...layerName({ zh: "火山警戒", alt: "噴火警戒レベル" }),
+    expandable: true,
+    color: JMA_LAYER_COLORS.jmaVolcanoes,
+    icon: Mountain,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "public.jma_volcano_current（每座火山最新一筆）；前端 10 分鐘輪詢",
+      note: "警戒レベル由 level_name 文字（レベルN）或 level_code 11–15 判讀；未導入レベル的火山另色",
+    },
+    dataClass: "C",
+    source: { kind: "supabase", sourceId: "jma-volcanoes", fallbackUrl: "./geo/_empty.geojson" },
+    legend: "jmaVolcanoes",
+    popup: "jmaVolcanoes",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "日本氣象廳噴火警報・予報：各火山最新噴火警戒レベル",
+    topics: ["世界", "日本", "火山", "即時", "防災"],
   },
 
   jpPopulationMesh1km: {

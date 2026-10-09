@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1078,
+    "keyCount": 1082,
     "sections": [
       "gisLayers",
       "overlays",
@@ -759,6 +759,24 @@
     },
     {
       "layers": [
+        "jma-volcanoes-circle"
+      ],
+      "type": "jmaVolcanoes"
+    },
+    {
+      "layers": [
+        "jma-amedas-circle"
+      ],
+      "type": "jmaAmedas"
+    },
+    {
+      "layers": [
+        "jma-quakes-circle"
+      ],
+      "type": "jmaQuakes"
+    },
+    {
+      "layers": [
         "jp-medical-facilities-hospital"
       ],
       "type": "jpMedicalHospitals"
@@ -972,6 +990,12 @@
         "jp-water-jpWaterRivers"
       ],
       "type": "jpWaterRivers"
+    },
+    {
+      "layers": [
+        "jma-warnings-fill"
+      ],
+      "type": "jmaWarnings"
     },
     {
       "layers": [
@@ -53478,6 +53502,543 @@
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaAmedas",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  -10,
+                  "#313695",
+                  0,
+                  "#4575b4",
+                  10,
+                  "#74add1",
+                  20,
+                  "#fee090",
+                  28,
+                  "#f46d43",
+                  35,
+                  "#a50026"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                1.6,
+                0.8
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  -10,
+                  "#313695",
+                  0,
+                  "#4575b4",
+                  10,
+                  "#74add1",
+                  20,
+                  "#fee090",
+                  28,
+                  "#f46d43",
+                  35,
+                  "#a50026"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "temp"
+                  ],
+                  null
+                ],
+                1.6,
+                0.8
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "jma-amedas",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaQuakes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 3,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "max_intensity"
+                ],
+                "1",
+                "#a3b8d6",
+                "2",
+                "#00aaff",
+                "3",
+                "#0041ff",
+                "4",
+                "#e6c84a",
+                "5-",
+                "#ffe600",
+                "5+",
+                "#ff9900",
+                "6-",
+                "#ff2800",
+                "6+",
+                "#a50021",
+                "7",
+                "#b40068",
+                "#94a3b8"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "max_intensity"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "magnitude"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.6375
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "magnitude"
+                  ],
+                  null
+                ],
+                4,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "get",
+                    "magnitude"
+                  ],
+                  2,
+                  3,
+                  4,
+                  6,
+                  6,
+                  13,
+                  8,
+                  24
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "max_intensity"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "magnitude"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "max_intensity"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "magnitude"
+                    ],
+                    null
+                  ]
+                ],
+                1.6,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "max_intensity"
+                ],
+                "1",
+                "#a3b8d6",
+                "2",
+                "#00aaff",
+                "3",
+                "#0041ff",
+                "4",
+                "#e6c84a",
+                "5-",
+                "#ffe600",
+                "5+",
+                "#ff9900",
+                "6-",
+                "#ff2800",
+                "6+",
+                "#a50021",
+                "7",
+                "#b40068",
+                "#94a3b8"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "max_intensity"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "magnitude"
+                    ],
+                    null
+                  ]
+                ],
+                0,
+                0.6375
+              ],
+              "circle-radius": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "magnitude"
+                  ],
+                  null
+                ],
+                4,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "get",
+                    "magnitude"
+                  ],
+                  2,
+                  3,
+                  4,
+                  6,
+                  6,
+                  13,
+                  8,
+                  24
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "max_intensity"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "magnitude"
+                    ],
+                    null
+                  ]
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "any",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "max_intensity"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "get",
+                      "magnitude"
+                    ],
+                    null
+                  ]
+                ],
+                1.6,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "jma-quakes",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaVolcanoes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 3,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "1",
+                "#84cc16",
+                "2",
+                "#facc15",
+                "3",
+                "#f97316",
+                "4",
+                "#ef4444",
+                "5",
+                "#7e22ce",
+                "none",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "1",
+                "#84cc16",
+                "2",
+                "#facc15",
+                "3",
+                "#f97316",
+                "4",
+                "#ef4444",
+                "5",
+                "#7e22ce",
+                "none",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "jma-volcanoes",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
       "dynamicData": null,
       "filter": null,
       "id": "riverRpiSegments",
@@ -76572,6 +77133,100 @@
         "step": 0.05,
         "value": 0.35,
         "valueText": "0.35"
+      }
+    ],
+    "jmaAmedas": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "氣溫",
+            "value": "temp"
+          },
+          {
+            "label": "前 1 小時雨量",
+            "value": "precip1h"
+          },
+          {
+            "label": "積雪深",
+            "value": "snow"
+          },
+          {
+            "label": "風速",
+            "value": "wind"
+          }
+        ],
+        "type": "select",
+        "value": "temp"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "jmaQuakes": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "jmaVolcanoes": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "jmaWarnings": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "jpAccommodationCanonical": [
