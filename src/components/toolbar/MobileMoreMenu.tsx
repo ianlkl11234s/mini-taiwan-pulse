@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { MoreHorizontal } from "lucide-react";
 import { COLORS, FONT_CJK, FONT_SIZE, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../../styles/designTokens";
 import { ToolbarButton } from "./ToolbarButton";
@@ -27,11 +28,20 @@ interface Props {
 export function MobileMoreMenu({ palette, isDarkTheme, items, buttonStyle }: Props) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  // 選單經 portal 掛到 body：標頭自成 stacking context（z 25），選單留在裡面會被 z 30–70 的左側面板／底部面板蓋住
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  useLayoutEffect(() => {
+    if (!open || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setPos({ top: rect.bottom + 6, right: Math.max(8, window.innerWidth - rect.right) });
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: MouseEvent | TouchEvent) => {
-      if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (!containerRef.current?.contains(t) && !menuRef.current?.contains(t)) setOpen(false);
     };
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -51,14 +61,16 @@ export function MobileMoreMenu({ palette, isDarkTheme, items, buttonStyle }: Pro
       <ToolbarButton palette={palette} icon title="更多" onClick={() => setOpen((v) => !v)} style={buttonStyle}>
         <MoreHorizontal size={16} />
       </ToolbarButton>
-      {open && (
+      {open && pos && createPortal(
         <div
+          ref={menuRef}
           role="menu"
           style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            right: 0,
-            zIndex: Z_INDEX.popover,
+            position: "fixed",
+            top: pos.top,
+            right: pos.right,
+            // 高於左側面板（最高 70）與底部面板；仍低於提示訊息（特例 3000）
+            zIndex: Z_INDEX.toast + 25,
             width: 190,
             padding: 4,
             background: isDarkTheme ? SURFACE.solid : LIGHT.surfaceSolid,
@@ -71,7 +83,8 @@ export function MobileMoreMenu({ palette, isDarkTheme, items, buttonStyle }: Pro
           {items.map((item) => (
             <MenuRow key={item.key} item={item} palette={palette} textColor={isDarkTheme ? COLORS.textDefault : LIGHT.textDefault} onDone={() => setOpen(false)} />
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

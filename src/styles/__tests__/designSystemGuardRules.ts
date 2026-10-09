@@ -97,7 +97,7 @@ export const RULES: readonly GuardRule[] = [
     count: (text) =>
       countMatches(
         stripBlockComments(text),
-        /fonts\.googleapis|@font-face|["']JetBrains Mono["']|\bInter\s*,|\bGeorgia\b|\bSongti\b/,
+        /fonts\.googleapis|@font-face|\bJetBrains Mono\b|["'`]Inter["'`]|\bInter\s*,|\bGeorgia\b|\bSongti\b/,
       ),
   },
   {

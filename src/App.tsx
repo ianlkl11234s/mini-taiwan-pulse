@@ -75,6 +75,7 @@ import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
+import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { IntelPanel } from "./components/intel/IntelPanel";
@@ -221,6 +222,8 @@ export default function App() {
   // Agent 面板：開發版全開；正式站只給站主（gateway 另有 email 白名單與研究登入）。
   const agentEnabled = import.meta.env.DEV || isOwner;
   const [memberOpen, setMemberOpen] = useState(false);
+  // 手機版資料來源瀏覽器（桌機在 IconRailSidebar 內；手機沒有 rail，從底部面板進入）
+  const [mobileDataSourceOpen, setMobileDataSourceOpen] = useState(false);
   const memberLibrary = useMemberLibrary();
   const privateViewRef = useRef(false);
   const [memberPlaceGeometry, setMemberPlaceGeometry] = useState<MemberPlaceGeometry | null>(null);
@@ -626,7 +629,11 @@ export default function App() {
   ]);
 
   // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
-  useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
+  useEffect(() => {
+    // 訂閱後立刻補讀：useTimeline 的 mount effect 可能已先 setTime，之後的訂閱不會收到舊事件
+    timeRef.current = timeStore.getTime();
+    return timeStore.subscribe((t) => { timeRef.current = t; });
+  }, []);
 
   const { activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
   const { activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
@@ -2377,6 +2384,7 @@ export default function App() {
               }}
               satelliteActive={satConsole.open}
               externalCloseEpoch={railCloseEpoch}
+              startClosed={earthquakeReplayOpen || intelOpen || satConsole.open || memberOpen || agentOpen}
               onMonitorSplitToggle={() => {
                 if (monitorOpen && monitorMode === "split") {
                   setMonitorOpen(false);
@@ -2728,11 +2736,41 @@ export default function App() {
                         }
                       }}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setMobileDataSourceOpen(true)}
+                      style={{
+                        alignSelf: "flex-start", padding: "6px 12px", borderRadius: RADIUS.md, cursor: "pointer",
+                        fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                        background: isDarkTheme ? "rgba(255,255,255,0.06)" : LIGHT.fillStrong,
+                        color: isDarkTheme ? COLORS.textDefault : LIGHT.textDefault,
+                        border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.12)" : LIGHT.border}`,
+                      }}
+                    >
+                      資料來源與授權
+                    </button>
                   </div>
                 )}
               </>
             )}
           </MobileBottomSheet>
+          {mobileDataSourceOpen && (
+            <div
+              role="dialog"
+              aria-label="資料來源"
+              style={{
+                position: "fixed", inset: 0, top: 44, zIndex: Z_INDEX.modal, overflowY: "auto",
+                background: isDarkTheme ? SURFACE.solid : LIGHT.surfaceSolid,
+              }}
+            >
+              <DataSourcePanel
+                isDarkTheme={isDarkTheme}
+                lockedKeys={lockedKeys}
+                onActivateLayer={(key) => { handleBulkSetVisibility([key], true); setMobileDataSourceOpen(false); }}
+                onClose={() => setMobileDataSourceOpen(false)}
+              />
+            </div>
+          )}
         </>
       )}
 
@@ -3052,9 +3090,9 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── 全域載入狀態條（§5.30）：工具列正下方；拍攝模式隱藏 ── */}
-      {!captureMode && (
+      {/* ── 全域載入狀態條（§5.30）：工具列正下方；拍攝模式只隱藏、不卸載（保留進行中任務） ── */}
         <LoadingStatus
+          hidden={captureMode}
           isDarkTheme={isDarkTheme}
           top={isMobile ? 52 : 60}
           playing={timeline.playing || eqReplayPlaying || historicalPlaying}
@@ -3062,7 +3100,6 @@ export default function App() {
             ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
             : isMobile ? "10px" : "16px"}
         />
-      )}
 
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel

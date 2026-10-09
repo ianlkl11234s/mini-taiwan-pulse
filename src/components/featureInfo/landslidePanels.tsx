@@ -1,11 +1,11 @@
-import { Row, Title } from "./shared";
+import { Row, SourceFooter, Title } from "./shared";
 import {
   ANNUAL_DTM_NODATA, ANNUAL_V2_NOTE, LANDSLIDE_LAYER_COLORS, dodRiskColor, highwayCategoryColor, highwayCategoryLabel,
 } from "../../data/landslideTypes";
 
 /**
  * 崩塌 4 層 popup。來源 footer 由 FeatureInfoPanel 統一掛（GeoJSON／省道 PMTiles 已帶
- * source_org / source_url / license / fetched_at）；年度崩塌地切片不帶來源欄，來源見圖例。
+ * source_org / source_url / license / fetched_at）；年度崩塌地切片不帶來源欄，由本 panel 自掛 SourceFooter（landslideAnnual 已列入 FOOTER_SELF_MANAGED）。
  */
 type Props = { props: Record<string, unknown> };
 
@@ -68,6 +68,12 @@ export function HighwayDisasterPanel({ props }: Props) {
   </>;
 }
 
+/** 圖例記載的年度崩塌地來源（tile 不帶來源欄） */
+const ANNUAL_SOURCE = {
+  source_org: "農業部農村發展及水土保持署（衛星影像判釋）",
+  license: "政府資料開放授權條款第1版",
+};
+
 export function LandslideAnnualPanel({ props }: Props) {
   const year = num(props.year);
   const dtm = num(props.min_dtm);
@@ -78,5 +84,6 @@ export function LandslideAnnualPanel({ props }: Props) {
     <Row label="最低高程（DTM）" value={dtm == null ? "" : dtm === ANNUAL_DTM_NODATA ? "缺（無高程值）" : fmt(dtm, 0, "公尺")} />
     <Row label="影像日期" value={str(props.image_date)} mono />
     {year === 2024 && <Row label="版本" value={ANNUAL_V2_NOTE} />}
+    <SourceFooter props={{ ...ANNUAL_SOURCE, fetched_at: year != null ? `${year} 年版` : "" }} />
   </>;
 }

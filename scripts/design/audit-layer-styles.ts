@@ -161,10 +161,14 @@ function normColor(s: string): string | null {
   let m = /^#([0-9a-f]{3,8})$/.exec(t);
   if (m) {
     let h = m[1];
+    // alpha 為 0（#rgba／#rrggbbaa 的最後一位／兩位全 0）＝看不見，不算可見色
+    if ((h.length === 4 && h[3] === "0") || (h.length === 8 && h.slice(6) === "00")) return "transparent";
     if (h.length === 3 || h.length === 4) h = h.slice(0, 3).split("").map((c) => c + c).join("");
     return `#${h.slice(0, 6)}`;
   }
-  m = /^rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)/.exec(t);
+  m = /^rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:\s*[ ,/]\s*([\d.]+)(%?))?/.exec(t);
+  // alpha 為 0 → transparent（nodata／無值停靠點不能被記成黑或灰）
+  if (m && m[4] !== undefined && Number(m[4]) === 0) return "transparent";
   if (m) return `#${[m[1], m[2], m[3]].map((v) => Math.round(Number(v)).toString(16).padStart(2, "0")).join("")}`;
   return null;
 }
@@ -876,7 +880,7 @@ for (const { sub } of runtimeSubs) for (const [p, c] of Object.entries(sub.color
 const textFonts: Record<string, number> = {};
 for (const { sub } of runtimeSubs) { const f = (sub.values as Record<string, unknown>)["text-font"]; if (f) textFonts[JSON.stringify(f)] = (textFonts[JSON.stringify(f)] ?? 0) + 1; }
 const lineCaps: Record<string, number> = {};
-for (const { sub } of runtimeSubs.filter((r) => r.sub.type === "line")) {
+for (const { sub } of runtimeSubs.filter((r) => r.sub.type === "line" && r.sub.role === "main")) {
   const v = sub.values as Record<string, unknown>;
   const k = `cap=${v["line-cap"] ?? "(預設 butt)"} join=${v["line-join"] ?? "(預設 miter)"}`;
   lineCaps[k] = (lineCaps[k] ?? 0) + 1;

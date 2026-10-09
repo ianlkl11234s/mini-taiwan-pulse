@@ -26,6 +26,7 @@ import "./featureInfo/featureInfo.css";
 const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "chatHighlight",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
+  "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
   "analysisResult", // Agent 暫時分析結果：面板自帶「暫時分析結果 · 非完整來源圖層」footer
   "publicToilet",
   "disasterShelters",
