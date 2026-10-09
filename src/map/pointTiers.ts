@@ -50,7 +50,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   livestockSlaughter: "L", // 屠宰場 Slaughterhouses
   lngTerminal: "L", // LNG 接收站 Terminal
   serviceArea: "L", // 國道服務區 Service Area
-  // ── 泡泡（依資料） · 43 層
+  // ── 泡泡（依資料） · 44 層
   a1AccidentRealtime: "B", // A1 即時事故 A1 Realtime
   antiCorruptionOffice: "B", // 廉政署 AAC
   coastGuardStation: "B", // 海巡 Coast Guard
@@ -82,6 +82,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   pollutionFacility: "B", // 資料驅動半徑（max_sev），2026-09-29 拍板改泡泡 · 污染潛勢設施 Facility
   pollutionPenaltyCritical: "B", // 重大裁處 Critical Penalty
   pollutionPenaltyGeneral: "B", // 資料驅動半徑（severity_event），2026-09-29 拍板改泡泡 · 一般裁處 General Penalty
+  powerGenerationUnit: "B", // 資料驅動半徑（即時出力 MW），R6 段 2 平面版 · 機組即時出力 Live Output
   powerPlants: "B", // 資料驅動半徑（radius），2026-09-29 拍板改泡泡 · 發電廠 Power Plants
   prosecutorsOffice: "B", // 檢察署 Prosecutors
   protectedTreesNational: "B", // 受保護樹木 Protected Trees
@@ -311,6 +312,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   marineObservationIsohe: "M", // ISOHE 港區海氣象 ISOHE Port · src/hooks/useMarineObservationLayer.ts
   aqiMicroSensors: "B", // LASS 微型感測 Micro Sensor · src/hooks/useMicroSensorsLayer.ts
   powerPoles: "M", // 電桿 Power Poles (2.96M) · src/hooks/usePowerPolesLayer.ts
+  rail: "M", // 鐵道列車（R6 段 3 立體效果關的平面點） Rail · src/map/flatMovingLayers.ts
   rainGauge: "B", // 資料驅動半徑，2026-09-29 拍板 · 即時雨量 Rain Gauge · src/hooks/useRainGaugeLayer.ts
   riverLevel: "B", // 資料驅動半徑，2026-09-29 拍板 · 河川水位 River Level · src/hooks/useRiverLevelLayer.ts
   roadEvents: "M", // 即時路況 Road Events · src/hooks/useRoadEventsLayer.ts
@@ -336,6 +338,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   typhoonTracks: "M", // 颱風軌跡 Typhoon Track · src/hooks/useTyphoonTracksLayer.ts
   vesselWatch: "M", // 特殊船舶 Vessel Watch · src/hooks/useVesselWatchLayer.ts
   wasteCleaningSquads: "L", // 清潔隊 Squads · src/hooks/useWasteCleaningSquadLayer.ts
+  wasteTruck: "M", // 垃圾車 GPS（R6 段 3 立體效果關的平面點；停車／離線 S） Truck · src/map/flatMovingLayers.ts
   worldTrashDebris: "M", // 垃圾與殘骸觀測 Trash & Debris Observations · src/hooks/useWorldTrashDebrisLayer.ts
   agriCropSuitability: "M", // 作物適栽 Crop Suitability · src/map/agricultureLayerFactory.ts
   agriLeisureFarmZones: "M", // 休閒農業區 Leisure Farm Zones · src/map/agricultureLayerFactory.ts
@@ -349,8 +352,13 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   wdClothes: "M", // 衣物回收箱 Clothes · src/map/wasteMapboxLayers.ts
   wdMixed: "M", // 混合投放點 Mixed · src/map/wasteMapboxLayers.ts
   wdRecyclingContainer: "M", // 街頭資收桶 Container · src/map/wasteMapboxLayers.ts
+  wfIncinerator: "M", // 焚化爐 Incinerator（R6 段 2 平面版） · src/map/wasteMapboxLayers.ts
+  wfLandfill: "M", // 衛生掩埋場 Landfill（R6 段 2 平面版） · src/map/wasteMapboxLayers.ts
+  wfLandfillCoastal: "M", // 濱海掩埋場 Coastal Landfill（R6 段 2 平面版） · src/map/wasteMapboxLayers.ts
+  wfMedical: "M", // 醫療廢棄物 Medical（R6 段 2 平面版） · src/map/wasteMapboxLayers.ts
   wfMonitoring: "M", // 地下水監測井 Monitor · src/map/wasteMapboxLayers.ts
   wfOther: "M", // 其他事廢設施 Other · src/map/wasteMapboxLayers.ts
   wfRecycling: "M", // 資源回收廠 Recycling · src/map/wasteMapboxLayers.ts
   wfScrapYard: "M", // 廢車 / 廢金屬 Scrap · src/map/wasteMapboxLayers.ts
+  wfTransfer: "M", // 轉運站 Transfer（R6 段 2 平面版） · src/map/wasteMapboxLayers.ts
 };

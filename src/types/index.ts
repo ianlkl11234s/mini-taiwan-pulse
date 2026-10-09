@@ -434,6 +434,8 @@ export interface RailTrain {
   color: string;
   status: "running" | "stopped";
   trainTypeCode?: string; // TRA 車種代碼 "PP" | "TC" | "CK" | "LC" 等
+  /** 行進方位角（度，正北 0 順時針；R6 段 3 平面箭頭用）。算不出時 null。 */
+  bearing?: number | null;
 }
 
 export interface RailSystem {

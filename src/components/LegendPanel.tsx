@@ -17,7 +17,7 @@ import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALL
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendSizeRow, LegendThemeCtx, LegendTitle, SwatchArrow, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
 import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR, BRIDGE_RESILIENCE_UNVALIDATED_TEXT, BRIDGE_WEIGHTINGS, DECAY_RAMP, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
 import { useBridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_V5_LINE_COLORS } from "../data/bssBridgeTypes";
@@ -28,7 +28,7 @@ import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
-import { oneOfParam, paramStr, useLayerParams, useOverlayParams } from "../layers/layerParamsAccess";
+import { oneOfParam, paramBool, paramStr, useLayerParams, useOverlayParams } from "../layers/layerParamsAccess";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES, medicalPoiColor } from "../data/medicalPOITypes";
@@ -83,6 +83,8 @@ import {
 } from "../data/urbanHeatTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { isobathLegendRows, ISOBATH_ATTRIBUTION } from "../data/isobathTypes";
+import { WASTE_STATUS_COLORS } from "../data/wasteLoader";
+import { FLAT_ARROW_MIN_ZOOM } from "../map/flatMovingLayers";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLayerFactory";
 import { DIVERGING_STOPS } from "../data/temperatureWavePalette";
@@ -212,7 +214,17 @@ import {
   CAPACITY_BREAKS,
   CAPACITY_RADIUS,
 } from "../data/energyLoader";
+import {
+  POWER_OUTPUT_LEGEND_MW,
+  powerOutputRadius,
+  RESERVOIR_ALERT_LEGEND,
+  RESERVOIR_CAPACITY_LEGEND_WAN,
+  RESERVOIR_WATER_COLOR,
+  reservoirAlertCss,
+  reservoirCapacityRadius,
+} from "../map/r6FlatEncodings";
 import { LIGHTNING_TYPE_COLORS } from "../data/lightningLoader";
+import { WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS } from "../data/wasteLoader";
 import {
   NUCLEAR_DOSE_THRESHOLDS,
   NUCLEAR_LEVEL_COLORS,
@@ -507,7 +519,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
   { id: "dustForecast", render: () => <DustForecastLegend /> },
   { id: "temperatureGrid", render: () => <TemperatureGridLegend /> },
-  { id: "temperatureWave", render: () => <TemperatureWaveLegend /> },
+  { id: "temperatureWave", render: ({ visibility }) => <TemperatureWaveLegend gridAlsoOn={!!visibility.temperatureGrid} /> },
   { id: "aqiMicroSensors", render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
   { id: "aqiImagery", render: () => <AqiLegend /> },
   { id: "urbanHeat", render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
@@ -527,6 +539,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "flights", render: () => <FlightsLegend /> },
   { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
+  { id: "wasteTruck", render: () => <WasteTruckLegend /> },
   { id: "railRoutes", render: () => <RailRoutesLegend /> },
   { id: "stationsMetro", render: () => <MetroStationsLegend /> },
   { id: "ports", render: () => <PortsLegend /> },
@@ -644,6 +657,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
             : overlayParams.ooklaFixedTaiwanPalette
     } isDark={isDark} taiwanOnly={!visibility.ooklaMobilePerformance && !visibility.ooklaFixedPerformance} />,
   },
+  // R6 段 2：水庫即時水情平面圓點（警示等級色＋容量大小）
+  { id: "waterReservoirs", render: () => <ReservoirStatusLegend /> },
   { id: "waterCanals", render: ({ isDark }) => <WaterCanalLegend isDark={isDark} /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -664,7 +679,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "erHospital", render: () => <ErCongestionLegend /> },
   { id: "parkingOnstreet", render: ({ visibility }) => <ParkingLegend visibility={visibility} /> },
   { id: "floodSensor", render: () => <FloodSensorLegend /> },
-  { id: "powerPlants", render: () => <EnergyFuelLegend /> },
+  // R6 段 2：五類廢棄物處理設施平面圓點（LG-1 類別色）
+  { id: "wfIncinerator", render: ({ visibility }) => <WasteFacilityLegend visibility={visibility} /> },
+  { id: "powerPlants", render: ({ visibility }) => <EnergyFuelLegend visibility={visibility} /> },
   { id: "powerRegionDemand", render: () => <EnergyReserveLegend /> },
   { id: "osmPowerLines", render: ({ visibility }) => <PowerGridLegend visibility={visibility} /> },
   { id: "powerPoles", render: () => <PowerPolesLegend /> },
@@ -983,6 +1000,10 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
     showTra ? "灰線為軌道" : null,
   ].filter(Boolean).join("｜");
 
+  // R6 段 3：列車立體效果關（平面點）時，拉近改畫方向箭頭 → 補 LG-6 箭頭列；顏色兩種模式相同
+  const railValues = useLayerParams("rail");
+  const trainsFlat = paramBool(railValues, "rail", "railTrainVisible") && !paramBool(railValues, "rail", "railTrain3D");
+
   return (
     <div>
       {showTra && (
@@ -1000,9 +1021,37 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
           )}
         </>
       )}
+      {trainsFlat && <FlatArrowRow />}
       {note && (
         <LegendNote style={{ marginTop: 3 }}>{note}</LegendNote>
       )}
+    </div>
+  );
+}
+
+/** R6 段 3：移動物件平面模式的箭頭說明（LG-6，與地圖同形狀）。 */
+function FlatArrowRow() {
+  const t = useLegendTheme();
+  return (
+    <div style={{ marginTop: 4 }}>
+      <LegendRow swatch={<SwatchArrow color={t.textMuted} />}>拉近（z ≥ {FLAT_ARROW_MIN_ZOOM}）以箭頭表示行進方向</LegendRow>
+    </div>
+  );
+}
+
+/**
+ * 垃圾車 GPS（R6 段 3 補，LG-1）：所有狀態同一色（WASTE_STATUS_COLORS），只有停車／離線點較小。
+ * 立體效果開＝光球＋收運中飄音符；關＝平面點，拉近換方向箭頭、不顯示音符。
+ */
+function WasteTruckLegend() {
+  const values = useLayerParams("wasteTruck");
+  const stereo = paramBool(values, "wasteTruck", "wasteTruck3D");
+  return (
+    <div>
+      <LegendTitle zh="垃圾車" en="Truck" />
+      <LegendRow swatch={<SwatchDot color={WASTE_STATUS_COLORS.collecting} />}>垃圾車（GPS 即時位置）</LegendRow>
+      {!stereo && <FlatArrowRow />}
+      <LegendNote>{stereo ? "停車／離線的點較小；收運中的車會飄出音符" : "停車／離線的點較小"}</LegendNote>
     </div>
   );
 }
@@ -3865,7 +3914,7 @@ function DustForecastLegend() {
   );
 }
 
-// 溫度網格 2D：11 級 step 色階（色票 SSOT = data/temperatureGridTypes.ts，
+// 溫度網格 2D：10 級 step 色階（色票 SSOT = data/temperatureGridTypes.ts，
 // 與 temperatureGridLayerFactory 的 fill-color step 表達式同源）。
 function TemperatureGridLegend() {
   const t = useLegendTheme();
@@ -4043,11 +4092,17 @@ function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
 }
 
 // ── 溫度波 3D：RdBu 發散色盤（TemperatureWaveScene 的 DIVERGING_STOPS）──
-// ⚠️ 與 2D 溫度網格（TemperatureGridLegend 的 11 級絕對 °C）不同：3D 波的顏色是
+// ⚠️ 與 2D 溫度網格（TemperatureGridLegend 的 10 級絕對 °C）不同：3D 波的顏色是
 //    (temp - tempMin) / (tempMax - tempMin)，**以當日資料範圍拉伸**，
 //    所以沒有固定的 °C 刻度，只能標兩端。硬標 -10/35°C 會在多數日子跟地圖對不上。
-function TemperatureWaveLegend() {
+function TemperatureWaveLegend({ gridAlsoOn }: { gridAlsoOn: boolean }) {
   const t = useLegendTheme();
+  // R6 段 1：立體效果關 → 地圖畫的是溫度網格（同 temperatureGrid），圖例跟著換；
+  // 溫度網格本身也開著時它已有同一份圖例，不重複
+  const values = useLayerParams("temperatureWave");
+  if (!paramBool(values, "temperatureWave", "tempExtruded")) {
+    return gridAlsoOn ? null : <TemperatureGridLegend />;
+  }
   const gradient = `linear-gradient(to right, ${DIVERGING_STOPS.map(
     (s) => `rgb(${Math.round(s.r * 255)},${Math.round(s.g * 255)},${Math.round(s.b * 255)}) ${(s.t * 100).toFixed(1)}%`,
   ).join(", ")})`;
@@ -5253,8 +5308,11 @@ const FUEL_LEGEND_ROWS: { label: string; key: string }[] = [
   { label: "生質 Biomass/Biogas", key: "biomass" },
 ];
 
-function EnergyFuelLegend() {
+function EnergyFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
+  // 同一份燃料色圖例給 legacy 電廠總圖（容量分級）與機組即時出力（R6 段 2：平面圓點大小＝出力 MW）
+  const showCapacity = visibility.powerPlants;
+  const showOutput = visibility.powerGenerationUnit;
   return (
     <div>
       <LegendTitle zh="發電燃料" en="Fuel" />
@@ -5264,36 +5322,88 @@ function EnergyFuelLegend() {
           <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{row.label}</span>
         </div>
       ))}
-      <div style={{ marginTop: 6 }}>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
-          Capacity (MW)
+      {showCapacity && (
+        <div style={{ marginTop: 6 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            Capacity (MW)
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {[
+              { label: `<${CAPACITY_BREAKS.small}`, r: CAPACITY_RADIUS.tiny },
+              { label: `<${CAPACITY_BREAKS.medium}`, r: CAPACITY_RADIUS.small },
+              { label: `<${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.medium },
+              { label: `≥${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.large },
+            ].map((x) => (
+              <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <div
+                  style={{
+                    width: x.r * 2,
+                    height: x.r * 2,
+                    borderRadius: RADIUS.full,
+                    background: FUEL_FALLBACK_COLOR,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{x.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {[
-            { label: `<${CAPACITY_BREAKS.small}`, r: CAPACITY_RADIUS.tiny },
-            { label: `<${CAPACITY_BREAKS.medium}`, r: CAPACITY_RADIUS.small },
-            { label: `<${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.medium },
-            { label: `≥${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.large },
-          ].map((x) => (
-            <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-              <div
-                style={{
-                  width: x.r * 2,
-                  height: x.r * 2,
-                  borderRadius: RADIUS.full,
-                  background: FUEL_FALLBACK_COLOR,
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{x.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
+      {showOutput && (
+        <LegendSizeRow
+          fill={FUEL_FALLBACK_COLOR}
+          title="即時出力（機組圓點大小）"
+          items={POWER_OUTPUT_LEGEND_MW.map((mw) => ({ r: powerOutputRadius(mw), label: `${mw.toLocaleString()} MW` }))}
+        />
+      )}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
-        ● 光柱（Layer 4）= 機組即時出力 / 裝置容量<br />
+        {showOutput && <>● 機組即時出力：面積 ∝ 出力 MW，隨時間軸更新；開「立體效果」另疊光柱（柱高 ∝ 出力／裝置容量）<br /></>}
         ● 14 台電廠有 output；OSM/IPP 等暫無
       </LegendNote>
+    </div>
+  );
+}
+
+/** R6 段 2：水庫即時水情平面圓點（色＝警示等級，同 3D 水位計水柱色；大小＝有效容量，圖例用水庫水系色空心圈，2026-10-09） */
+function ReservoirStatusLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <LegendTitle zh="水庫即時水情" en="Reservoir Status" />
+      {RESERVOIR_ALERT_LEGEND.map((row) => (
+        <LegendRow key={row.key} swatch={<SwatchDot color={reservoirAlertCss(row.key)} />}>{row.label}</LegendRow>
+      ))}
+      <LegendSizeRow
+        ring={t.isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light}
+        title="有效容量（圓點大小）"
+        items={RESERVOIR_CAPACITY_LEGEND_WAN.map((wan) => ({ r: reservoirCapacityRadius(wan), label: `${(wan / 10_000).toLocaleString()} 億 m³` }))}
+      />
+      <LegendNote>圓點下方數字＝蓄水率；隨時間軸更新。開「立體效果」另疊 3D 水位計（水柱高＝蓄水率）。</LegendNote>
+    </div>
+  );
+}
+
+/** R6 段 2：五類廢棄物處理設施平面圓點（LG-1，色號＝WASTE_FACILITY_COLORS，與地圖同一常數） */
+const WASTE_FACILITY_LEGEND_ROWS: ReadonlyArray<{ key: keyof LayerVisibility; type: string }> = [
+  { key: "wfIncinerator", type: "incinerator" },
+  { key: "wfLandfill", type: "landfill" },
+  { key: "wfLandfillCoastal", type: "landfill_coastal" },
+  { key: "wfTransfer", type: "transfer_station" },
+  { key: "wfMedical", type: "medical_waste" },
+];
+
+function WasteFacilityLegend({ visibility }: { visibility: LayerVisibility }) {
+  const rows = WASTE_FACILITY_LEGEND_ROWS.filter((r) => visibility[r.key]);
+  return (
+    <div>
+      <LegendTitle zh="垃圾處理設施" en="Waste Facilities" />
+      {rows.map((r) => (
+        <LegendRow key={r.key} swatch={<SwatchDot color={WASTE_FACILITY_COLORS[r.type]!} />}>
+          {WASTE_FACILITY_LABELS[r.type] ?? r.type}
+        </LegendRow>
+      ))}
+      <LegendNote>開「立體效果」另疊 3D 造型（煙囪、穹頂、雷達等）。</LegendNote>
     </div>
   );
 }

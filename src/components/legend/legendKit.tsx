@@ -120,6 +120,20 @@ export function SwatchSquare({ color, outline = false, opacity = 0.9, stroke }: 
   );
 }
 
+/**
+ * LG-6 icon：方向箭頭（R6 段 3 移動物件平面模式，與地圖 SDF 箭頭同形狀），14px，描邊同 P-2 底圖色。
+ * 尖端朝上＝北；地圖上依行進方向旋轉。
+ */
+export function SwatchArrow({ color }: { color: string }) {
+  const t = useLegendTheme();
+  const s = LEGEND_SWATCH.icon;
+  return (
+    <svg aria-hidden="true" width={s} height={s} viewBox="-1.2 -1.2 2.4 2.4" style={{ flexShrink: 0 }}>
+      <polygon points="0,-1 0.8,0.9 0,0.45 -0.8,0.9" fill={color} stroke={t.seam} strokeWidth={0.16} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /** LG-4 線型：20px 線段；dash 同地圖 line-dasharray（線寬倍數）。 */
 export function SwatchLine({ color, width = 2, dash, opacity = 1 }: { color: string; width?: number; dash?: readonly number[]; opacity?: number }) {
   const w = Math.max(LEGEND_SWATCH.line.minHeight, width);
@@ -170,4 +184,35 @@ export function SwatchHatch({ kind = "missing" }: { kind?: "missing" | "suppress
   const one = `repeating-linear-gradient(135deg, ${t.hatch} 0 1px, transparent 1px 5px)`;
   const background = kind === "suppressed" ? `${one}, repeating-linear-gradient(45deg, ${t.hatch} 0 1px, transparent 1px 5px)` : one;
   return <span aria-hidden="true" style={{ width: s.width, height: s.height, boxSizing: "border-box", border: `1px solid ${t.border}`, background, flexShrink: 0, display: "inline-block" }} />;
+}
+
+/**
+ * LG-5 大小：三個參考值的圓，直徑＝地圖實際直徑（R6 段 2 平面圓點固定 px、不隨縮放，任一縮放都對得上）。
+ * - 預設：`fill` 實心＋底圖色細縫（例：機組出力用中性灰，表示大小與燃料色無關）。
+ * - `ring`：空心圈，描邊＝傳入色（例：水庫容量用水庫面的水系色）。圖層另有灰色「無資料」類別時用這個，避免大小圈跟無資料撞色。
+ */
+export const LEGEND_SIZE_RING_WIDTH = 1.5;
+export function LegendSizeRow({ title, items, fill, ring }: { title: string; items: readonly { r: number; label: string }[]; fill?: string; ring?: string }) {
+  const t = useLegendTheme();
+  return (
+    <div style={{ marginTop: 6 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{title}</div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 10, flexWrap: "wrap" }}>
+        {items.map((x) => (
+          <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <span
+              aria-hidden="true"
+              style={{
+                width: x.r * 2, height: x.r * 2, borderRadius: RADIUS.full, boxSizing: "border-box", flexShrink: 0, display: "inline-block",
+                ...(ring
+                  ? { background: "transparent", border: `${LEGEND_SIZE_RING_WIDTH}px solid ${ring}` }
+                  : { background: fill, boxShadow: `0 0 0 1px ${t.seam}` }),
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}><LegendNum>{x.label}</LegendNum></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -7,9 +7,11 @@ import { FOSSIL_PAINT_COLORS } from "./layerPaintColors";
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { paramDefault } from "../data/layerParamsSpec";
+import { fireStationColorMatch } from "../data/fireTypes";
 import { withPointSpec } from "./pointSpec";
+import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
 
 /** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
@@ -2113,7 +2115,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 消防分隊 (全台 22 縣市，677 點) ──
-  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰
+  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰（色號 SSOT = data/fireTypes.ts FIRE_STATION_CATS）
   {
     id: "fireStations",
     sourceUrl: "./geo/fire_stations.geojson",
@@ -2139,13 +2141,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               7, catR(2 * scale), 11, catR(5 * scale), 14, catR(9 * scale), 17, catR(14 * scale),
             ] as unknown as number,
             "circle-blur": 1,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             // 散點 toggle 關閉 → opacity 0（仍可被 queryRenderedFeatures 命中 → popup 照常）
             "circle-opacity": (isDark ? 0.16 : 0.2) * opacity * (p?.fireStationsDots ?? 1),
             "circle-translate": [0, -z],
@@ -2171,13 +2167,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               7, catR(1 * scale), 11, catR(2.2 * scale), 14, catR(4 * scale), 17, catR(6.5 * scale),
             ] as unknown as number,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.9)",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3940,7 +3930,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (isDark) => ({
-          "fill-color": isDark ? "#06b6d4" : "#0891b2",
+          "fill-color": isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light,
           "fill-opacity": isDark ? 0.35 : 0.3,
         }),
       },
@@ -4014,6 +4004,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "circle-opacity": 1,
           };
         },
+      },
+    ],
+  },
+
+  // ── 水庫即時水情 Reservoir status（R6 段 2，2026-10-06：平面版，預設）──
+  // 資料由 useReservoirStatusLayer 依時間軸 setData（與 3D 水位計同一份 statuses）。
+  // 色＝警示等級（同 3D 水柱色，缺值為「無資料」灰）、大小＝有效容量立方根（同 3D 外殼），蓄水率 % 文字。
+  // 排在壩體之後＝疊在壩體點上；「立體效果」開時 Three.js 水位計疊在更上面，平面點保留當點選目標。
+  {
+    id: "waterReservoirs",
+    opacityParam: "waterReservoirsOpacity",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "water-reservoir-status",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => ({
+          "circle-radius": reservoirCapacityRadiusExpr(params?.waterReservoirsScale ?? 1),
+          "circle-color": reservoirAlertColorExpr(),
+          "circle-opacity": POINT_OPACITY.base,
+        }),
+      },
+      {
+        suffix: "label",
+        type: "symbol",
+        minzoom: 9,
+        layout: {
+          "text-field": reservoirPctLabelExpr(),
+          // T-2 計數徽章：11／13 Bold、可重疊、底圖色 halo
+          "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+          ...badgeLabelLayout(),
+          "text-anchor": "top",
+          "text-offset": [0, 0.9],
+        },
+        paint: (isDark) => ({
+          "text-color": isDark ? "#e5e7eb" : "#1f2937",
+          ...labelHaloPaint(isDark),
+        }),
       },
     ],
   },
@@ -6287,6 +6317,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: [],
     layers: [
+      // R6 段 2（2026-10-06）：平面版（預設）。色＝燃料（同 legend powerPlants 的 FUEL_COLORS，
+      // 由 hook 寫進 feature.color）、大小＝即時出力 MW（面積 ∝ 出力，不隨縮放）；描邊由 withPointSpec（B）套 P-2。
+      // 「立體效果」開時 Three.js 光柱疊在上面，平面圓點保留當柱底與點選目標。
+      {
+        suffix: "circle",
+        type: "circle",
+        layout: { "circle-sort-key": ["-", 0, ["coalesce", ["get", "output_mw"], 0]] },
+        paint: (_isDark, params) => ({
+          "circle-radius": powerOutputRadiusExpr(params?.powerGenerationScale ?? 1),
+          "circle-color": ["coalesce", ["get", "color"], "#9ca3af"], // 後備色＝FUEL_FALLBACK_COLOR（hook 已用 fuelColorOf 寫入）
+          "circle-opacity": params?.powerGenerationOpacity ?? 0.7,
+        }),
+      },
       {
         suffix: "hit",
         type: "circle",

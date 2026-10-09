@@ -202,7 +202,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | 表 | 範圍 | S | M | L | B | 合計 |
 |---|---|---|---|---|---|---|
 | `POINT_TIERS` | `OVERLAY_REGISTRY` 點圖層，由 `withPointSpec()` 集中套用（#392） | 25 | 119 | 10 | 38 | 192 |
-| `HOOK_POINT_TIERS` | hook／factory 自己畫的點，各 hook 用 `pointRadius()`（#396、#398） | 1 | 100 | 5 | 16 | 122 |
+| `HOOK_POINT_TIERS` | hook／factory 自己畫的點，各 hook 用 `pointRadius()`（#396、#398；R6 段 3 加列車、垃圾車平面點） | 2 | 102 | 6 | 16 | 126 |
 
 - **P-8**：hook 的 B 階 16 層中，**11 層是 2026-09-29 拍板改 B**（點大小代表資料數值）：`animalAdoption`、`earthquakes`、`earthquakesGlobal`、`floodSensor`、`gfwHourlyTracks`、`groundwater`、`iotWraRiver`、`iotWraStructure`、`rainGauge`、`riverLevel`、`earthquakeReplay`（只處理站點）。其餘 5 層（`fireEvents`、`fireLatest`、`gfwDarkVessels`、`gfwHourlyGrid`、`aqiMicroSensors`）原本就是 B。
 - 例外：`maritimeBoundary` 基準點跟著線寬控制縮放，不分階（`layerUxPolicy` 登記例外）；`globalEvents` 主體是 symbol icon，circle 不是主體點（`hookPointSpec.test.ts` `NOT_A_POINT_FILE`）。
@@ -321,6 +321,8 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 ### 3.4 3D／熱區／網格／影像
 
 - **G-1 Three.js／CustomLayer**：拍板加碼：每個 Three.js／CustomLayer 圖層都要有**「基本點線面」模式**，用 Mapbox 原生 circle／line／fill 畫同一份資料，並套用本檔 §3 的數值階；**預設是 Mapbox 模式**，Three.js 立體版保留為可切換的選項（圖層控制項加一個切換）。理由：點線面比較好理解，但不放棄立體效果。Three.js 模式本身的值在 shader／材質，不進數值階；透明度、圖例、popup 兩種模式都照四鐵則。13 層 `unresolved` 在 JSON 有檔案指標，實作時逐層讀值、補記到該層 `docs/features/<slug>/`。
+  - **2026-10-05 修訂（R6 段 1，使用者拍板）**：預設改為「**移動物件立體、其他平面**」；每個非移動物件圖層一個「立體效果」toggle（預設關、可在圖層設定開啟，參數名沿用既有）。電廠／變電所 Bloom 測試層（`powerPlantGlow`、`substationEhvGlow`）維持原樣、不加 toggle（使用者決定）。詳見 [`R6-PROPOSAL.md`](../features/map-layer-restyle/R6-PROPOSAL.md)。
+  - **R6 段 3（2026-10-06）**：移動物件台鐵／高鐵／捷運列車（`rail.railTrain3D`）、垃圾車 GPS（`wasteTruck.wasteTruck3D`）加「立體效果」toggle，**預設開**。關閉時用 Mapbox 畫：圓點 M 4.5px（垃圾車停車／離線 S 3px）、P-2 描邊、色同立體版；z ≥ 12 有行進方向的物件換 SDF 方向箭頭（P-5 L 13px、`icon-rotate`＝方位角、描邊＝halo 1px），停著的維持圓點；不畫拖尾，只畫點選物件的近段軌跡（L-1 標準線）。每幀位置由純函式插值、約 25fps setData（`src/map/flatMovingController.ts`）。圖例箭頭列為 LG-6（`SwatchArrow`）。
 - **G-2 熱區**：色階由**色盤庫**給（`src/map/palettes.ts`，17 組序列色階：magma、viridis、YlOrBr、PuBuGn、Burg、speed、batlow、BuPu、bilbao、YlGnBu、acton、tokyo、rocket、PuBu、turku、cividis、oslo；清單順序把太像的分開放）。每組**暗／淡兩版各 7 階**：暗底越密越亮、淡底越密越深（淡版方向反轉，兩版都讓低密度融進底圖）；色值沿用 `docs/features/layer-color-picker/ramp-validation.md` §5，dataviz 驗證器在四種陸地色通過（多色相組「單一色相」N/A），`palettes.test.ts` 鎖階數與方向。**預設全部熱區用新版 magma**（R7 Q4 A；舊版截取 magma 四種底圖都沒過驗證器，淡底最密處淡黃對白底 1.04:1）。熱區色＝密度 0 完全透明，0.05／0.15／0.3／0.45／0.6／0.8／1 七個密度節點對到 7 階，alpha 低密度淡入 min(1, d×2.2)（`heatmapColorExpr`）。使用者可在圖層設定「熱區顏色」換成色盤庫任一組（spec §5.36），只換熱區、**拉近後的點顏色不變**；顏色由 `state/layerPalette.ts` 解析器依圖層選色＋底圖給，registry 熱區（`denseHeatmapLayer`）與 9 個 hook 熱區都讀它，圖例 LG-8 同源。**多層熱區疊放（R7 Q6 B）**：同時開 ≥2 層可換色熱區時，每層熱區透明度再乘 `HEATMAP.stackedOpacity` 0.7，只剩一層時恢復；以圖層開關判定（不看當下縮放），自有色熱區（雨量、電桿）不計入也不降。其餘不變：`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8（× 滑桿 ÷ 預設 × 疊放倍率）；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoomOver10k`／`pointsFromZoomOver100k`（10／12），helper `densePointsFromZoom`／`heatmapPaint`。熱區 maxzoom 為出點縮放 +0.01（`heatmapMaxzoom`）；強度 `intensity` 為 z12 值、每拉遠一級減半，**每層目視校正**（0.01–5）；熱區與點共用 filter、不可點擊。可換色熱區 43 層（台灣 34、日本 8、全球 1；名單＝規格有 `heatmapPalette` 的 key，`layerPalette.test.ts` 鎖數量）；不開放：即時雨量（語意分級，K-3）、電桿（藍→紅經典熱區，另議）。
 - **G-3 網格**：建議面 0.7、格縫同 F-2；R3b 使用者確認 14 層全部維持現況。只有來源明確計數 0 才可視為空格，缺值／未涵蓋／遮蔽不可改成 0 或刪除；H3 解析度與方格尺寸照 viz-library M6。
   - **網格換色（R7）**：網格色改讀解析器（`gridRampFor`，色盤 7 階依該層級數重新取樣），設定多一列「網格顏色」。**預設沿用現行色系**在色盤庫裡的那一組：viridis（公司登記密度格、登記產業合計密度模式、生產中工廠／製造業公司／列管設施密度、不動產人均市值、日本醫療 5 層與照護 6 層低縮放格）、magma（公司資本額網格）、cividis（公司年齡結構）；YlOrRd／inferno／Oranges 不在庫內 → **YlOrBr**（不動產總市值 9 級〔原為 inferno 9〕、預售熱力圖 3 點、日本人口網格人口指標、日本旅宿密度 7 級〔原 Oranges〕）；租賃熱力圖（原青→橘 6 點）→ **batlow**（庫內唯一暗底「冷→暖」序列，淡底依庫規則反轉為橘→深藍），**只換網格、租賃 3D 點色表 `RE_PALETTES.rental` 不動**，圖例網格與 3D 點同時開時分兩條色帶。日本人口網格的高齡比指標在選單停在預設時用庫內 BuPu（兩種指標預設維持可區分），換色後兩種指標都用所選色盤。日本醫療 5 層、照護 6 層各共用一張聚合格，選單以 `sharedGroup` 共用一份值。淡色底圖用各色盤淡版（越高越深）。缺值／遮罩色（公司網格 `#64748b`、人均低人口 `#555`、人口網格遮罩灰）不換。可換色 23 個 key；不開放：買賣熱力圖（發散）、溫度、NoiseCapture（語意分級）、都市紋理網格（6 種模式各自色階、含 2 種發散，`showWhen` 只能比對單值，等 C 段連動選單）、人流模擬 H3（顏色烘進每格資料、無圖例，換色要走資料重建）。
@@ -406,7 +408,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | **LG-7 缺值／遮蔽** | 16×12 斜線，同地圖 pattern | 統計 suppressed、N1 缺值 |
 | **LG-8 熱區／影像漸層** | 漸層條＋兩端「低／高」＋單位；熱區漸層讀 `state/layerPalette.ts`（與地圖同一色盤、依底圖暗／淡），一個圖例管多層且色盤不同時各畫一條並標層名 | heatmap、raster |
 
-元件：`legendKit.tsx` 的 `LegendTitle`／`LegendRow`／`LegendNote`／`LegendNum`／`Swatch*`、`useLegendTheme`、`useLegendCompact`、尺寸常數 `LEGEND_SWATCH`（`spec.md` §5.32）。**LG-5 大小、LG-6 icon 尚無共用元件**（只有 `LEGEND_SWATCH.icon = 14`），逐層做時補。
+元件：`legendKit.tsx` 的 `LegendTitle`／`LegendRow`／`LegendNote`／`LegendNum`／`Swatch*`、`useLegendTheme`、`useLegendCompact`、尺寸常數 `LEGEND_SWATCH`（`spec.md` §5.32）。**LG-5 大小尚無共用元件**；LG-6 icon 目前只有方向箭頭 `SwatchArrow`（R6 段 3，`LEGEND_SWATCH.icon = 14`），其他 sprite 逐層做時補。
 
 **暗／淡**：色票色必須用**與地圖同一邊**的 hex（`LegendContext.isDark` 已提供）；文字色一律走 `useLegendTheme()`，不直接用 `COLORS.*`。
 
@@ -494,7 +496,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | **F-2** | 面外框 | 同意（統計 renderer 一起改，影響 320 層） | |
 | **F-3** | 缺值表示 | **A**：統一成 N1 透明底＋細斜線 | R1 完成；遮蔽改交叉斜線以與缺值區分（2026-09-28 使用者確認） |
 | **F-4** | 3D 擠出 | 同意 | |
-| **G-1** | Three.js 圖層 | 同意＋**新增「基本點線面」模式，預設 Mapbox，可切回 Three.js** | 「想要是 three.js 的圖層，都可以返璞歸真，還是要回到最基本的點 線 面，有這個切換選項……預設是 mapbox 的元件」 |
+| **G-1** | Three.js 圖層 | 同意＋**新增「基本點線面」模式，預設 Mapbox，可切回 Three.js**；**2026-10-05 修訂**：預設＝移動物件立體、其他平面，每層「立體效果」toggle；電廠／變電所 Bloom 測試層維持原樣 | 「想要是 three.js 的圖層，都可以返璞歸真，還是要回到最基本的點 線 面，有這個切換選項……預設是 mapbox 的元件」 |
 | **G-2** | 熱區 | 同意 | |
 | **G-3** | 網格 | 同意 | |
 | **G-4** | 影像 | 同意 | |

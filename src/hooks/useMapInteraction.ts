@@ -13,7 +13,9 @@ import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
 import type { WasteTruckScene } from "../three/WasteTruckScene";
-import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
+import { pickFlatTrain, pickFlatWasteTruck, railTrainKey, setFlatMovingSelection } from "../map/flatMovingController";
+import { layerParamRefs } from "../state/layerParamRefs";
+import { reservoirFeatureProps } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
@@ -147,11 +149,16 @@ export function useMapInteraction(
       }
 
       // 先嘗試拾取列車（僅在 rail 圖層開啟時）
+      // R6 段 3：立體效果關時 RailScene 不再更新（位置是舊的），改從 Mapbox 平面層拾取；tooltip 相同
       if (vis?.rail) {
         const railScene = railSceneRef?.current;
-        if (railScene) {
-          const train = railScene.pickTrain(e.point.x, e.point.y, w, h);
+        const flat = !layerParamRefs.railTrain3D.current;
+        if (flat || railScene) {
+          const train = flat
+            ? pickFlatTrain(map, e.point.x, e.point.y)
+            : railScene!.pickTrain(e.point.x, e.point.y, w, h);
           if (train) {
+            setFlatMovingSelection("rail", railTrainKey(train));
             setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
             return;
@@ -182,9 +189,14 @@ export function useMapInteraction(
       // `ship` 分支。座標用點擊位置（pickTruck 只回 row，不回插值後的經緯）。
       if (vis?.wasteTruck) {
         const truckScene = wasteTruckSceneRef?.current;
-        if (truckScene) {
-          const row = truckScene.pickTruck(e.point.x, e.point.y, w, h);
+        // R6 段 3：立體效果關時改從 Mapbox 平面層拾取（Scene 不再更新）；featureInfo 相同
+        const flat = !layerParamRefs.wasteTruck3D.current;
+        if (flat || truckScene) {
+          const row = flat
+            ? pickFlatWasteTruck(map, e.point.x, e.point.y)
+            : truckScene!.pickTruck(e.point.x, e.point.y, w, h);
           if (row) {
+            setFlatMovingSelection("wasteTruck", row.vehicle_no);
             setFeatureInfo({
               layerType: "wasteTruck",
               properties: {
@@ -295,23 +307,15 @@ export function useMapInteraction(
         }
       }
 
-      // 嘗試拾取水庫 3D 水位計（僅在 waterReservoirs 圖層開啟時）
-      if (vis?.waterReservoirs) {
+      // 嘗試拾取水庫 3D 水位計（waterReservoirs 開且立體效果開；R6 段 2：關掉立體後 scene 仍在，
+      // 隱形水位計不可攔截點擊 —— 平面圓點由下方 GIS_LAYERS 的 water-reservoir-status-circle 接手）
+      if (vis?.waterReservoirs && layerParamRefs.waterReservoirs3D.current) {
         const reservoirScene = reservoirSceneRef?.current;
         if (reservoirScene) {
           const hit = reservoirScene.pickReservoir(e.point.x, e.point.y, w, h);
           if (hit) {
-            const compareId = compareIdFromReservoirId(hit.reservoir_id);
-            setFeatureInfo({
-              layerType: "waterDam",
-              properties: {
-                kind: "reservoir",
-                name: hit.name,
-                compare_id: compareId,
-                capacity_m3: (hit.effective_capacity_wan ?? 0) * 10000,
-                is_reservoir: true,
-              },
-            });
+            // 與平面圓點同一組欄位（容量用萬 m³ 原值，舊版 ×10000 後被面板標成萬 m³）
+            setFeatureInfo({ layerType: "waterDam", properties: reservoirFeatureProps(hit) });
             setTooltipInfo(null);
             setTrainTooltipInfo(null);
             setBusTooltipInfo(null);
@@ -606,6 +610,14 @@ export function useMapInteraction(
     }
     // 點 hover 暫時移除：point 已改 WebGL CustomLayer，不支援 queryRenderedFeatures（待補 GPU/空間索引 picking）
   };
+
+  // R6 段 3：平面模式只替「點選中」的列車／垃圾車畫近段軌跡；tooltip／資訊卡關掉就清掉
+  useEffect(() => {
+    if (!trainTooltipInfo) setFlatMovingSelection("rail", null);
+  }, [trainTooltipInfo]);
+  useEffect(() => {
+    if (featureInfo?.layerType !== "wasteTruck") setFlatMovingSelection("wasteTruck", null);
+  }, [featureInfo]);
 
   // Esc 結束目前地圖選取。用 microtask 讓已開啟的 modal／FeatureInfoPanel 先攔截：
   // modal 優先於地圖狀態，避免關 modal 時意外連同底下的地圖選取清掉。

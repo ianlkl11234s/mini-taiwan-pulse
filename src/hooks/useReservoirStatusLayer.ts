@@ -3,6 +3,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import {
   fetchReservoirStatusDay,
   alertLevelFromPct,
+  reservoirStatusesToFC,
   type ReservoirStatus,
   type ReservoirDayRow,
 } from "../data/reservoirStatusLoader";
@@ -12,6 +13,7 @@ import { reservoirLayerModule } from "../map/lazyThreeLayers";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { feedDynamicSource } from "../map/dynamicSourceFeed";
 
 /**
  * 水庫 3D 水位計 hook — Timeline 驅動
@@ -26,10 +28,15 @@ import { useMapReadyTick } from "./useMapReadyTick";
  *   - timeStore.subscribeDate → 跨日換資料
  *   - timeStore.subscribeThrottled(500ms) → 依 currentTime 更新水位/顏色
  *   - scene.setStatuses 內含 fast path（站點組不變只改矩陣/顏色，不拆 GPU buffer）
+ *
+ * R6 段 2（2026-10-06）：`visible`＝圖層開 → 抓資料、餵平面圓點（registry source water-reservoir-status）；
+ * `stereo`＝立體效果 → 才下載 Three.js 模組、掛水位計。
  */
 
 const THROTTLE_MS = 500;
 const LAYER_ID = "reservoir-3d";
+/** 平面圓點的 dynamicData source（overlayRegistry 的 waterReservoirs 第 3 個 config） */
+const FLAT_SOURCE_ID = "water-reservoir-status";
 
 /** 一個水庫的當日時序（rows 按 snapshot_at ASC 排序） */
 interface ReservoirSeries {
@@ -127,11 +134,14 @@ export function useReservoirStatusLayer(
   sceneRef: React.RefObject<ReservoirScene | null>,
   statusesRef: React.RefObject<ReservoirStatus[]>,
   activeReservoirId: number | null,
+  stereo: boolean,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const visibleRef = useRef(visible);
+  /** Three.js 水位計是否畫：圖層開 且 立體效果開 */
+  const pillarOn = visible && stereo;
   const isDarkRef = useRef(isDark);
   const heightScaleRef = useRef(heightScale);
   const sizeScaleRef = useRef(sizeScale);
@@ -157,15 +167,15 @@ export function useReservoirStatusLayer(
     return () => { map.off("style.load", onStyleLoad); };
   }, [mapRef, sceneRef, mapTick]);
 
-  visibleRef.current = visible;
+  visibleRef.current = pillarOn;
   isDarkRef.current = isDark;
   heightScaleRef.current = heightScale;
   sizeScaleRef.current = sizeScale;
 
   // ── 首次 visible = true 時建 scene + 掛 custom layer ──
   useEffect(() => {
-    console.log("[Reservoir] mount effect", { visible, mounted: mountedRef.current, map: !!mapRef.current });
-    if (!visible) return;
+    console.log("[Reservoir] mount effect", { pillarOn, mounted: mountedRef.current, map: !!mapRef.current });
+    if (!pillarOn) return; // R6 段 2：立體效果關 → 不下載、不掛水位計
     if (mountedRef.current) return;
     const map = mapRef.current;
     if (!map) return;
@@ -235,7 +245,7 @@ export function useReservoirStatusLayer(
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
     };
-  }, [mapRef, visible, sceneRef, statusesRef, mapTick, layerModuleReady, styleEpoch]);
+  }, [mapRef, pillarOn, sceneRef, statusesRef, mapTick, layerModuleReady, styleEpoch]);
 
   // ── visible=true：fetch day + 訂閱 date/time ──
   useEffect(() => {
@@ -243,8 +253,10 @@ export function useReservoirStatusLayer(
     const map = mapRef.current;
     if (!map) return;
     let cancelled = false;
+    // 平面圓點：overlay 晚建或換底圖重建時補推最後一份資料（暫停時 timeStore 不會再觸發）
+    const feed = feedDynamicSource(map, FLAT_SOURCE_ID);
 
-    /** 依當下時間計算 statuses 並推給 scene */
+    /** 依當下時間計算 statuses 並推給 scene 與平面圓點 */
     const redraw = () => {
       if (cancelled) return;
       const t = timeStore.getTime();
@@ -252,6 +264,7 @@ export function useReservoirStatusLayer(
       statusesRef.current = list;
       const scene = sceneRef.current;
       if (scene) scene.setStatuses(list);
+      feed.set(reservoirStatusesToFC(list));
       map.triggerRepaint();
     };
 
@@ -292,6 +305,7 @@ export function useReservoirStatusLayer(
       cancelled = true;
       unsubDate();
       unsubTime();
+      feed.dispose();
     };
   }, [mapRef, sceneRef, statusesRef, visible, mapTick]);
 
@@ -300,7 +314,7 @@ export function useReservoirStatusLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (map) map.triggerRepaint();
-  }, [heightScale, sizeScale, isDark, visible, mapRef, mapTick]);
+  }, [heightScale, sizeScale, isDark, pillarOn, mapRef, mapTick]);
 
   // ── activeReservoirId：點選水庫後撈近 3 日進/出流量，推給 scene 畫雙柱 ──
   useEffect(() => {

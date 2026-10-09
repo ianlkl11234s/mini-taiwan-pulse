@@ -77,11 +77,19 @@ export const osmPowerLinesGlowModule = lazyModule("three:power-lines-glow", "輸
 export const powerGenerationBeamModule = lazyModule("three:power-beam", "機組出力 3D 工具", () => import("./powerGenerationBeamCustomLayer"));
 export const earthquakeRippleModule = lazyModule("three:quake-ripple", "地震漣漪 3D 工具", () => import("./earthquakeRippleCustomLayer"));
 
-/** 背景預載清單（prewarmLayerChunks 用）。 */
+/**
+ * 背景預載清單（prewarmLayerChunks 用）。
+ * R6 段 1（2026-10-05）：「立體效果」改為選配的三個模組（夜景 bloom、輸電線 glow、地震漣漪）
+ * 不預載 —— 使用者開啟立體效果時才下載（mountLazyCustomLayer 的 ensure() 會掛 loading UI）。
+ * R6 段 2（2026-10-06）：機組出力光柱、水庫水位計同樣改為開啟立體效果才下載。
+ */
+export const R6_STEREO_ON_DEMAND_MODULES: ReadonlyArray<LazyModule<unknown>> = [
+  buildingsNightBloomModule, osmPowerLinesGlowModule, earthquakeRippleModule,
+  powerGenerationBeamModule, reservoirLayerModule,
+];
 export const LAZY_THREE_LAYER_LOADERS: Array<() => Promise<unknown>> = [
-  reservoirLayerModule, realEstatePointsModule, gfwV4TrackLayerModule, historicalFlightTrailsModule,
-  buildingsNightBloomModule, powerRegionBarsModule, substationEhvGlowModule, powerPlantGlowModule,
-  osmPowerLinesGlowModule, powerGenerationBeamModule, earthquakeRippleModule,
+  realEstatePointsModule, gfwV4TrackLayerModule, historicalFlightTrailsModule,
+  powerRegionBarsModule, substationEhvGlowModule, powerPlantGlowModule,
 ].map((m) => () => m.load());
 
 export function lazyAnchorId(layerId: string): string {
