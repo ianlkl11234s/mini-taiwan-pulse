@@ -6,6 +6,8 @@
  * - 區域用電 powerRegionDemand：側欄無入口（orphan）→ 跳過，不加平面版
  * 每層一個「立體效果」toggle，預設關；關閉時 Three.js 不畫、不下載。
  */
+import { createElement, type ReactElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only evaluator.
 import { expression as styleExpression } from "mapbox-gl/dist/style-spec/index.cjs";
@@ -15,9 +17,10 @@ import { anyThreeLayerVisible, WASTE_FACILITY_STEREO_KEYS, type ThreeStereoToggl
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
+import { DARK_LEGEND, LEGEND_SIZE_RING_WIDTH, LegendThemeCtx, LIGHT_LEGEND } from "../../components/legend/legendKit";
 import {
   POWER_OUTPUT_RADIUS, powerOutputRadius, reservoirAlertCss, reservoirCapacityRadius, reservoirFlatAlert,
-  RESERVOIR_ALERT_LEGEND, RESERVOIR_NODATA_COLOR,
+  RESERVOIR_ALERT_LEGEND, RESERVOIR_NODATA_COLOR, RESERVOIR_WATER_COLOR,
 } from "../../map/r6FlatEncodings";
 import {
   ALERT_COLOR_HEX, alertLevelFromPct, reservoirFeatureProps, reservoirStatusesToFC, type ReservoirStatus,
@@ -213,8 +216,17 @@ describe("R6 段 2：五類廢棄物設施平面圓點", () => {
   it("wasteMapboxLayers 納入五類，色號＝WASTE_FACILITY_COLORS（圖例同一常數）", () => {
     for (const k of WASTE_FACILITY_FLAT_KEYS) expect(WASTE_MAPBOX_KEYS).toContain(k);
     expect(WASTE_FACILITY_COLORS).toMatchObject({
-      incinerator: "#ef4444", landfill: "#92400e", landfill_coastal: "#0891b2", transfer_station: "#a855f7", medical_waste: "#ec4899",
+      incinerator: "#ff6b1a", landfill: "#92400e", landfill_coastal: "#0891b2", transfer_station: "#a855f7", medical_waste: "#ec4899",
     });
+  });
+
+  it("2026-10-09：焚化爐橘＝3D 底圈／火苗色；側欄識別色（manifest color）＝paint＝圖例同一常數", () => {
+    const typeOf = { wfIncinerator: "incinerator", wfLandfill: "landfill", wfLandfillCoastal: "landfill_coastal", wfTransfer: "transfer_station", wfMedical: "medical_waste" } as const;
+    for (const k of WASTE_FACILITY_FLAT_KEYS) expect(LAYER_MANIFEST[k].color, k).toBe(WASTE_FACILITY_COLORS[typeOf[k]]);
+    expect(WASTE_FACILITY_COLORS.incinerator).toBe("#ff6b1a");
+    const five = WASTE_FACILITY_FLAT_KEYS.map((k) => WASTE_FACILITY_COLORS[typeOf[k]]);
+    expect(new Set(five).size).toBe(5);
+    expect(five).not.toContain("#ef4444"); // STATUS 錯誤紅不挪用（K-3）
   });
 
   it("透明度以滑桿預設正規化：預設＝0.85（P-3），既有 8 類公式不變", () => {
@@ -222,6 +234,31 @@ describe("R6 段 2：五類廢棄物設施平面圓點", () => {
     expect(wasteFlatOpacity("wfIncinerator", 0.85)).toBeCloseTo(0.85, 6);
     expect(wasteFlatOpacity("wfIncinerator", 1)).toBe(1);
     expect(wasteFlatOpacity("wfMonitoring", 0.7)).toBeCloseTo(0.595, 6);
+  });
+});
+
+describe("2026-10-09：水庫容量圖例改水系色空心圈", () => {
+  const legendHtml = (isDark: boolean) => {
+    const entry = LEGEND_REGISTRY.find((e) => e.id === "waterReservoirs")!;
+    const el = (entry.render as (...a: unknown[]) => ReactElement)({});
+    return renderToStaticMarkup(createElement(LegendThemeCtx.Provider, { value: isDark ? DARK_LEGEND : LIGHT_LEGEND }, el));
+  };
+
+  it("大小圈＝空心、描邊＝水庫面同色（暗／淡各自）；無資料維持灰實心點", () => {
+    for (const isDark of [true, false]) {
+      const html = legendHtml(isDark);
+      const water = isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light;
+      expect(html.match(new RegExp(`border:${LEGEND_SIZE_RING_WIDTH}px solid ${water}`, "g"))).toHaveLength(3);
+      expect(html.match(/background:transparent/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+      expect(html).toContain(`background:${RESERVOIR_NODATA_COLOR}`);
+    }
+  });
+
+  it("水系色＝水庫面 fill 同一常數", () => {
+    const { layer } = layerOf("waterReservoirs", "water-reservoir-poly", "fill");
+    expect(layer!.paint(true, {})["fill-color"]).toBe(RESERVOIR_WATER_COLOR.dark);
+    expect(layer!.paint(false, {})["fill-color"]).toBe(RESERVOIR_WATER_COLOR.light);
+    expect([RESERVOIR_WATER_COLOR.dark, RESERVOIR_WATER_COLOR.light]).not.toContain(RESERVOIR_NODATA_COLOR);
   });
 });
 

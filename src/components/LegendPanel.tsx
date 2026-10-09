@@ -17,7 +17,7 @@ import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALL
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore } from "react";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendSizeRow, LegendThemeCtx, LegendTitle, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legend/legendKit";
 import { BRIDGE_RESILIENCE_COLORS, BRIDGE_RESILIENCE_LIMITS_TEXT, BRIDGE_RESILIENCE_UNVALIDATED_OPACITY_FACTOR, BRIDGE_RESILIENCE_UNVALIDATED_TEXT, BRIDGE_WEIGHTINGS, DECAY_RAMP, BRIDGE_RESILIENCE_RAMP, DEST_MEAN_BREAKS, VILLAGE_METRICS, VILLAGE_METRIC_BREAKS, VILLAGE_METRIC_LABELS } from "../data/bridgeResilienceTypes";
 import { useBridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { BSS_BRIDGE_ACCESS_COLORS, BSS_BRIDGE_RIGHTS_TEXT, BSS_BRIDGE_V5_LINE_COLORS } from "../data/bssBridgeTypes";
@@ -215,6 +215,7 @@ import {
   powerOutputRadius,
   RESERVOIR_ALERT_LEGEND,
   RESERVOIR_CAPACITY_LEGEND_WAN,
+  RESERVOIR_WATER_COLOR,
   reservoirAlertCss,
   reservoirCapacityRadius,
 } from "../map/r6FlatEncodings";
@@ -5282,6 +5283,7 @@ function EnergyFuelLegend({ visibility }: { visibility: LayerVisibility }) {
       )}
       {showOutput && (
         <LegendSizeRow
+          fill={FUEL_FALLBACK_COLOR}
           title="即時出力（機組圓點大小）"
           items={POWER_OUTPUT_LEGEND_MW.map((mw) => ({ r: powerOutputRadius(mw), label: `${mw.toLocaleString()} MW` }))}
         />
@@ -5294,35 +5296,9 @@ function EnergyFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   );
 }
 
-/**
- * LG-5 大小：三個參考值的圓，直徑＝地圖實際直徑（R6 段 2 平面圓點固定 px、不隨縮放，所以任一縮放都對得上）。
- * 中性灰填色＋底圖色細縫，表示「大小」與類別色無關。
- */
-function LegendSizeRow({ title, items }: { title: string; items: { r: number; label: string }[] }) {
-  const t = useLegendTheme();
-  return (
-    <div style={{ marginTop: 6 }}>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{title}</div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 10, flexWrap: "wrap" }}>
-        {items.map((x) => (
-          <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <span
-              aria-hidden="true"
-              style={{
-                width: x.r * 2, height: x.r * 2, borderRadius: RADIUS.full, background: FUEL_FALLBACK_COLOR,
-                boxShadow: `0 0 0 1px ${t.seam}`, flexShrink: 0, display: "inline-block",
-              }}
-            />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}><LegendNum>{x.label}</LegendNum></span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/** R6 段 2：水庫即時水情平面圓點（色＝警示等級，同 3D 水位計水柱色；大小＝有效容量） */
+/** R6 段 2：水庫即時水情平面圓點（色＝警示等級，同 3D 水位計水柱色；大小＝有效容量，圖例用水庫水系色空心圈，2026-10-09） */
 function ReservoirStatusLegend() {
+  const t = useLegendTheme();
   return (
     <div>
       <LegendTitle zh="水庫即時水情" en="Reservoir Status" />
@@ -5330,6 +5306,7 @@ function ReservoirStatusLegend() {
         <LegendRow key={row.key} swatch={<SwatchDot color={reservoirAlertCss(row.key)} />}>{row.label}</LegendRow>
       ))}
       <LegendSizeRow
+        ring={t.isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light}
         title="有效容量（圓點大小）"
         items={RESERVOIR_CAPACITY_LEGEND_WAN.map((wan) => ({ r: reservoirCapacityRadius(wan), label: `${(wan / 10_000).toLocaleString()} 億 m³` }))}
       />

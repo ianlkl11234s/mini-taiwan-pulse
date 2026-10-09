@@ -432,19 +432,8 @@ export const WASTE_STATUS_LABELS: Record<WasteStatus, string> = {
   unknown: "未知",
 };
 
-export const WASTE_FACILITY_COLORS: Record<string, string> = {
-  incinerator: "#ef4444",          // 紅 — 焚化爐
-  landfill: "#92400e",             // 棕 — 掩埋場
-  landfill_coastal: "#0891b2",     // 深青 — 濱海掩埋場 🌊
-  transfer_station: "#a855f7",     // 紫 — 轉運站
-  recycling_plant: "#22c55e",      // 綠 — 回收廠
-  monitoring_well: "#3b82f6",      // 藍 — 地下水監測井
-  food_waste_processing: "#f59e0b",
-  scrap_yard: "#737373",
-  medical_waste: "#ec4899",        // 粉紅 — 醫療廢棄物（warning）
-  repair_shop: "#0ea5e9",
-  other: "#6b7280",
-};
+/** 類別色搬到零 import 的 wasteFacilityColors.ts（manifest 才能引用），這裡再匯出 */
+export { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 
 export const WASTE_FACILITY_LABELS: Record<string, string> = {
   incinerator: "焚化爐",

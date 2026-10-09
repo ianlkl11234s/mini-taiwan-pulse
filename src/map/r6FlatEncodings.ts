@@ -77,6 +77,12 @@ export function reservoirAlertColorExpr(): unknown[] {
   return ["match", ["get", "alert"], ...levels.flatMap((k) => [k, reservoirAlertCss(k)]), RESERVOIR_NODATA_COLOR];
 }
 
+/**
+ * 水庫水系色（2026-10-09 決議）：水庫面 fill（overlayRegistry water-reservoir-poly）與
+ * 圖例「有效容量」空心圈的描邊共用——大小級距用水庫自己的藍，不再借中性灰（灰＝無資料）。
+ */
+export const RESERVOIR_WATER_COLOR = { dark: "#06b6d4", light: "#0891b2" } as const;
+
 /** 有效容量（萬 m³）的立方根 → 半徑；cbrtRef ≈ 46,656 萬 m³（曾文水庫級）以上封頂 */
 export const RESERVOIR_CAPACITY_RADIUS = { rMin: 4, rMax: 16, cbrtRef: 36 } as const;
 /** 圖例 LG-5 的三個參考容量（萬 m³） */

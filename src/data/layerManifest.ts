@@ -5,6 +5,7 @@ import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from '.
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
@@ -8606,6 +8607,10 @@ export const LAYER_MANIFEST = {
   // **facility_type / point_type-keyed**（餵 wasteMapboxLayers 的 circle-color），
   // 不是 layer-key-keyed，`LAYER_COLORS` 從未 import 它們 → 寫字面 hex。
   // hex 逐一相同是巧合（同批 5 SATELLITE_COLORS 的判準）。
+  // ⚠️ 2026-10-09 例外（R6 段 2 決議）：五類設施（wfIncinerator／wfLandfill／
+  // wfLandfillCoastal／wfTransfer／wfMedical）有平面圓點＋共用類別圖例，識別色必須＝
+  // paint＝圖例 → WASTE_FACILITY_COLORS 搬到零 import 的 `wasteFacilityColors.ts`，
+  // 這五層的 color 改**引用**（r6Stage2.test.ts 守門）。其餘 wf*／wd* 照舊字面。
 
   wasteTruck: {
     key: "wasteTruck",
@@ -8845,7 +8850,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "焚化爐", alt: "Incinerator" }),
     expandable: true,
-    color: "#ef4444",
+    color: WASTE_FACILITY_COLORS.incinerator!,
     icon: Flame,
     upstream: {
       status: "verified",
@@ -8869,7 +8874,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "衛生掩埋場", alt: "Landfill" }),
     expandable: true,
-    color: "#92400e",
+    color: WASTE_FACILITY_COLORS.landfill!,
     icon: Mountain,
     upstream: {
       status: "verified",
@@ -8892,7 +8897,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "濱海掩埋場", alt: "Coastal" }),
     expandable: true,
-    color: "#0891b2",
+    color: WASTE_FACILITY_COLORS.landfill_coastal!,
     icon: Waves,
     upstream: {
       status: "verified",
@@ -8915,7 +8920,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "轉運站", alt: "Transfer" }),
     expandable: true,
-    color: "#a855f7",
+    color: WASTE_FACILITY_COLORS.transfer_station!,
     icon: Truck,
     upstream: {
       status: "verified",
@@ -8938,7 +8943,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "醫療廢棄物", alt: "Medical" }),
     expandable: true,
-    color: "#ec4899",
+    color: WASTE_FACILITY_COLORS.medical_waste!,
     icon: AlertTriangle,
     upstream: {
       status: "verified",

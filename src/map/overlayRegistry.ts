@@ -9,7 +9,7 @@ import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { paramDefault } from "../data/layerParamsSpec";
 import { fireStationColorMatch } from "../data/fireTypes";
 import { withPointSpec } from "./pointSpec";
-import { powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
+import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
 import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
 
@@ -3833,7 +3833,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (isDark) => ({
-          "fill-color": isDark ? "#06b6d4" : "#0891b2",
+          "fill-color": isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light,
           "fill-opacity": isDark ? 0.35 : 0.3,
         }),
       },
