@@ -157,7 +157,7 @@ describe("shared research query executor", () => {
     const reader = vi.fn().mockResolvedValue({ rows: [], source: source("schools", "v1"), coverage: "fixture" });
     const executor = new QueryExecutor([createPointDatasetAdapter(schools, reader)]);
     await executor.execute({ datasetId: "tw-schools", bbox: [121.4, 24.9, 121.7, 25.2] });
-    expect(reader).toHaveBeenCalledWith({}, undefined, { bbox: [121.4, 24.9, 121.7, 25.2] });
+    expect(reader).toHaveBeenCalledWith({}, expect.any(AbortSignal), { bbox: [121.4, 24.9, 121.7, 25.2] });
     await expect(executor.execute({ datasetId: "tw-schools", bbox: [122, 24, 121, 25] })).rejects.toThrow("BBOX_NOT_SUPPORTED");
     expect(reader).toHaveBeenCalledTimes(1);
   });
@@ -251,4 +251,26 @@ it("keeps complete surface geometry for analysis without returning it in default
   expect(result.envelope.method.parameters.select).toEqual(["id"]);
   expect(result.materializedRows[0]!.geometry).toEqual(geometry);
   await expect(executor.executeDetailed({ datasetId: "surface", select: ["id", "geometry"] })).rejects.toThrow("RESULT_BYTE_BUDGET_EXCEEDED");
+});
+
+describe("declared adapter timeout", () => {
+  it("aborts the adapter signal and rejects with QUERY_TIMEOUT once descriptor timeoutMs elapses", async () => {
+    let seen: AbortSignal | undefined;
+    const descriptor = base({
+      datasetId: "slow-ds", adapterId: "slow-adapter",
+      access: boundedAccess({ mode: "public", method: "static_asset", fields: ["id"], filters: ["id"], maxRowsPerQuery: 5, maxScanRows: 10, timeoutMs: 100 }),
+    });
+    const executor = new QueryExecutor([{ descriptor, allowedParameters: {}, read: (_params, signal) => { seen = signal; return new Promise(() => {}); } }]);
+    await expect(executor.execute({ datasetId: "slow-ds" })).rejects.toThrow("QUERY_TIMEOUT");
+    expect(seen?.aborted).toBe(true);
+  });
+
+  it("still forwards the caller's abort", async () => {
+    const descriptor = base({ datasetId: "slow-ds2", adapterId: "slow-adapter" });
+    const controller = new AbortController();
+    const executor = new QueryExecutor([{ descriptor, allowedParameters: {}, read: (_params, signal) => new Promise((_, reject) => signal?.addEventListener("abort", () => reject(new Error("CALLER_ABORT")))) }]);
+    const pending = executor.execute({ datasetId: "slow-ds2" }, controller.signal);
+    controller.abort();
+    await expect(pending).rejects.toThrow("CALLER_ABORT");
+  });
 });

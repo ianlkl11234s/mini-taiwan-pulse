@@ -73,3 +73,18 @@ describe("judgeFreshness", () => {
     expect(judgeFreshness(daily, NOW - 30 * DAY, NOW, { reason: "上游未更新" }).reason).toBe("上游未更新");
   });
 });
+
+import { diseaseFresh } from "../SituationCards";
+import type { CdcDisease } from "../../../../data/intelLoaders";
+
+describe("diseaseFresh 各疾病各自判斷", () => {
+  const NOW = Date.parse("2026-10-09T04:00:00Z"); // 約 ISO W41
+  const mk = (id: CdcDisease["id"], week?: number): CdcDisease => ({ id, label: id, en: id, value: "1", unit: "", spark: [], yoy: 0, note: "", color: "#fff", week });
+  it("同批資料中落後的疾病單獨被標過期，最新的不受影響", () => {
+    expect(diseaseFresh(mk("flu", 41), 41, NOW).muted).toBe(false);
+    expect(diseaseFresh(mk("dengue", 32), 41, NOW).muted).toBe(true);
+  });
+  it("沒有自己的 week 時沿用整批 week", () => {
+    expect(diseaseFresh(mk("entero"), 41, NOW).muted).toBe(false);
+  });
+});

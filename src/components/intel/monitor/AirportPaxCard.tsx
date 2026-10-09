@@ -63,6 +63,14 @@ export function AirportPaxCard({ open }: Props) {
     return [toSeries((r) => r.pax_in), toSeries((r) => r.pax_out)];
   }, [query.data]);
   const sumOrNull = (pts: SparklinePoint[]) => (pts.length ? pts.reduce((s, p) => s + p.v, 0) : null);
+  // 任一桶缺值（null／非數字）→ 小計只是下限，不能當 24 小時總數
+  const partialIn = query.data.some((r) => r.pax_in == null || !Number.isFinite(Number(r.pax_in)));
+  const partialOut = query.data.some((r) => r.pax_out == null || !Number.isFinite(Number(r.pax_out)));
+  // 兩條線共用 X 軸值域，出境點超出入境首尾時不被裁掉
+  const timeDomain = useMemo(() => {
+    const ts = [...inSeriesV2, ...outSeriesV2].map((p) => p.t);
+    return ts.length ? { from: Math.min(...ts), to: Math.max(...ts) } : undefined;
+  }, [inSeriesV2, outSeriesV2]);
 
   const sumIn = inSeries.reduce((s, p) => s + p.v, 0);
   const sumOut = outSeries.reduce((s, p) => s + p.v, 0);
@@ -78,7 +86,7 @@ export function AirportPaxCard({ open }: Props) {
   const outExtraV2 = useMemo(() => ({ data: outSeriesV2, color: OUT_COLOR, label: "出境" }), [outSeriesV2, OUT_COLOR]);
 
   if (v2) {
-    const fmt = (n: number | null) => (hasReadableData && n != null ? n.toLocaleString("zh-TW") : "—");
+    const fmt = (n: number | null, partial = false) => (hasReadableData && n != null ? `${partial ? "≥" : ""}${n.toLocaleString("zh-TW")}` : "—");
     const sumInV2 = sumOrNull(inSeriesV2);
     const sumOutV2 = sumOrNull(outSeriesV2);
     const loaded = query.status !== "unknown";
@@ -103,15 +111,15 @@ export function AirportPaxCard({ open }: Props) {
           ))}
         </div>
         <MonitorDataStatus label="機場旅客資料" query={query} />
-        <MonitorMetric value={fmt(sumInV2)} unit="人" color={IN_COLOR} muted={fresh.muted} />
-        <MonitorKpis items={[{ label: "24 小時出境", value: fmt(sumOutV2), unit: "人" }]} />
+        <MonitorMetric value={fmt(sumInV2, partialIn)} unit="人" color={IN_COLOR} muted={fresh.muted} />
+        <MonitorKpis items={[{ label: "24 小時出境", value: fmt(sumOutV2, partialOut), unit: "人" }]} />
         {query.status === "unknown" ? (
           <MonitorNote>載入中…</MonitorNote>
         ) : inSeriesV2.length === 0 ? null : (
           <>
             {/* gapSec 2h：相鄰快照缺 2 小時以上 → 斷線呈現（缺格 ≠ 低谷） */}
             <TimeseriesSparkline
-              data={inSeriesV2} unit="人" lineColor={IN_COLOR} heightTier="std"
+              data={inSeriesV2} timeDomain={timeDomain} unit="人" lineColor={IN_COLOR} heightTier="std"
               gapSec={2 * 3600} showTooltip seriesLabel="入境" extraSeries={outExtraV2}
               staleUntil={fresh.staleUntil}
             />

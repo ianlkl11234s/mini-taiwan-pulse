@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { LayerSource } from "../../data/layerManifest";
 import { firstGetField, summarizeVisibleLayers, viewportBounds, VISIBLE_SUMMARY_MAX_FEATURES, type VisibleSummaryFeature, type VisibleSummaryMap, type VisibleSummaryStyleLayer } from "../visibleSummary";
 import { validQueryResultData } from "../QueryResponder";
+import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 
 const SOURCES: Record<string, LayerSource[]> = {
   rain: [{ kind: "geojson", sourceId: "rain-src", url: "./rain.geojson" }],
@@ -25,6 +26,28 @@ function fakeMap(styleLayers: VisibleSummaryStyleLayer[], features: Record<strin
 const options = (extra: Partial<Parameters<typeof summarizeVisibleLayers>[2]> = {}) => ({ sourcesFor: (key: string) => SOURCES[key] ?? null, labelFor: (key: string) => `L-${key}`, ...extra });
 
 describe("visibleSummary (AG-1)", () => {
+  it("scopes each sibling layer key to its own style layers when siblings share a source", () => {
+    const sources: Record<string, LayerSource[]> = { a: [{ kind: "geojson", sourceId: "shared", url: "./s.geojson" }], b: [{ kind: "geojson", sourceId: "shared", url: "./s.geojson" }] };
+    const map = fakeMap(
+      [{ id: "shared-a", type: "circle", source: "shared" }, { id: "shared-b", type: "circle", source: "shared" }],
+      { "shared-a": [point(1, {}, [121.5, 25.0], "shared")], "shared-b": [point(2, {}, [121.6, 25.1], "shared"), point(3, {}, [121.7, 25.2], "shared")] },
+    );
+    const summary = summarizeVisibleLayers(map, ["a", "b"], { sourcesFor: key => sources[key] ?? null, styleLayerIdsFor: key => new Set([`shared-${key}`]) });
+    expect(summary.layers.map(layer => layer.status === "ok" ? layer.featureCount : null)).toEqual([1, 2]);
+    expect(map.queried).toEqual([["shared-a"], ["shared-b"]]);
+  });
+
+  it("resolves real sibling layers (sportsSchool vs sportsPublicOther) to disjoint style layers via the overlay registry", () => {
+    const idsOf = (key: string) => OVERLAY_REGISTRY.filter(config => config.id === key).flatMap(config => config.layers.map(spec => `${config.sourceId}-${spec.suffix}`));
+    const school = idsOf("sportsSchool"); const other = idsOf("sportsPublicOther");
+    expect(school.length).toBeGreaterThan(0);
+    expect(school.filter(id => other.includes(id))).toEqual([]);
+    const map = fakeMap([...school, ...other].map(id => ({ id, type: "circle", source: "sports-venues" })), {});
+    summarizeVisibleLayers(map, ["sportsSchool", "sportsPublicOther"]);
+    expect(map.queried[0]!.every(id => school.includes(id))).toBe(true);
+    expect(map.queried[1]!.every(id => other.includes(id))).toBe(true);
+  });
+
   it("rounds bounds to five decimals as [west,south,east,north]", () => {
     expect(viewportBounds(fakeMap([], {}))).toEqual([121.48012, 25.01025, 121.56031, 25.07111]);
   });

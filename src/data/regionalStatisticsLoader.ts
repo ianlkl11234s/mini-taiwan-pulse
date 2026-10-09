@@ -102,6 +102,7 @@ export function statisticsBoundaryFetchUrl(manifest: GeometryManifest, origin?: 
 function statisticsCdnBase(recipe?: StatisticsRecipe): string {
   const contractLayerKey = recipe?.sourceLayerKey ?? recipe?.layerKey;
   // This delivery is incremental. Only its exact registered datasets use the opt-in local origin.
+  // labor／demographics 預覽包不含村里 release（村里層讀正式 CDN），故村里 recipe 不走預覽路由。
   const social = contractLayerKey ? getSocialRecipe(contractLayerKey) : undefined;
   if (import.meta.env.DEV && import.meta.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true'
     && social?.enabled && social.dataset_id === recipe?.datasetId) {
@@ -109,13 +110,13 @@ function statisticsCdnBase(recipe?: StatisticsRecipe): string {
   }
   const labor = contractLayerKey ? getLaborRecipe(contractLayerKey) : undefined;
   if (import.meta.env.DEV && import.meta.env.VITE_LABOR_STATISTICS_PREVIEW === 'true'
-    && labor?.enabled && labor.dataset_id === recipe?.datasetId) {
+    && labor?.enabled && labor.level !== 'village' && labor.dataset_id === recipe?.datasetId) {
     return new URL('/__labor-statistics-cdn', window.location.origin).href;
   }
   // 人口統計本地預覽：analytics 合併的 demographics-statistics-preview（多個 dataset 的 incremental 交付）。
   const demographics = contractLayerKey ? getDemographicsRecipe(contractLayerKey) : undefined;
   if (import.meta.env.DEV && import.meta.env.VITE_DEMOGRAPHICS_STATISTICS_PREVIEW === 'true'
-    && demographics?.enabled && demographics.dataset_id === recipe?.datasetId) {
+    && demographics?.enabled && demographics.level !== 'village' && demographics.dataset_id === recipe?.datasetId) {
     return new URL('/__demographics-statistics-cdn', window.location.origin).href;
   }
   const configured = configuredStatisticsCdnBase();

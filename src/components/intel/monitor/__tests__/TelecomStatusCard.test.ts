@@ -10,6 +10,7 @@ import {
   TelecomStatusCardView,
   completeMaskFrom,
   isCompleteProbeCount,
+  resolveAtlasValue,
   hourlyCompleteSeries,
   toSparkline,
   type AtlasDaySummaries,
@@ -452,5 +453,23 @@ describe("isCompleteProbeCount expected probes", () => {
     const mask = completeMaskFrom(summary)!;
     expect(mask[4].has(T0)).toBe(false); // 70 < 80%×100
     expect(mask[6].has(T0)).toBe(true); // 70 ≥ 80%×39（退回寫死值）
+  });
+});
+
+describe("resolveAtlasValue 即時值需 fresh＋available", () => {
+  const m = (signal: string, over: Record<string, unknown> = {}) => ({
+    source_key: "ripe_atlas", dependency_group: "ripe_ncc", signal, address_family: 4, value: 0.9, unit: "ratio",
+    sample_count: 10_000, confidence: "high", confidence_score: 1, observed_at: null, source_updated_at: null,
+    age_seconds: 0, freshness: "fresh", state: "available", quality_state: "ready", ...over,
+  }) as unknown as Parameters<typeof resolveAtlasValue>[2][number];
+  it("fresh 且探針數達門檻才用即時值", () => {
+    const r = resolveAtlasValue("ping_success_ratio", 4, [m("ping_success_ratio_ipv4")], null, null);
+    expect(r.value).toBeCloseTo(90);
+  });
+  it("stale 或 partial 的殘留值不當即時值", () => {
+    for (const over of [{ freshness: "stale" }, { state: "partial" }]) {
+      const r = resolveAtlasValue("ping_success_ratio", 4, [m("ping_success_ratio_ipv4", over)], null, null);
+      expect(r.value).toBeNull();
+    }
   });
 });

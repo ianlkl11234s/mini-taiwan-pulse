@@ -137,7 +137,7 @@ UI chrome 統一完成後，下一步是逐一調整**地圖上**每個圖層的
 
 - 803 層現況盤點：`docs/design-system/layer-style-inventory.json`（`npm run design:audit-layers` 重產；每層有檔案行號、z10／z14 數值、暗淡差異、四鐵則、圖例問題）。
 - 40 個提案代號（P／L／F／G／T／K／LG）待使用者逐項拍板，拍板前不改 `src/`。
-- 逐層調整照該檔 §6 工作流；參考頁 `design-system-reference.html#map-layers`。
+- 逐層調整照該檔 §6 工作流；參考頁 `docs/design-system/reference.html#map-layers`。
 
 ## 6. 相關檔案路徑
 

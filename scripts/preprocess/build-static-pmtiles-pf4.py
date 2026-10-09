@@ -66,7 +66,9 @@ COMMON = ["--no-feature-limit", "--no-tile-size-limit", "-ai", "--force", "-q"]
 
 
 def build(name: str, cfg: dict) -> None:
-    src, out = ROOT / cfg["src"], ROOT / cfg["out"]
+    # 以 repo 相對路徑 + cwd=ROOT 呼叫：tippecanoe 會把 -o／輸入路徑寫進 PMTiles metadata
+    # （name／description／generator_options），絕對路徑會洩漏工作站路徑且讓產物不可重現（F187）。
+    src, out = cfg["src"], cfg["out"]
     cmd = ["tippecanoe", "-o", str(out), "-l", cfg["layer"], *cfg["args"], *COMMON, str(src)]
     print(f"[{name}] {' '.join(cmd[1:])}")
     subprocess.run(cmd, check=True, cwd=ROOT)

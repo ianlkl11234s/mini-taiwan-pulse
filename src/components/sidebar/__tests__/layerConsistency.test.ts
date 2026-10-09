@@ -536,8 +536,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(missing).toEqual([]);
   });
 
-  it("日本 14 個主題一律有日文副標，與中文同字也照樣顯示", () => {
-    expect(JAPAN_TAB_THEME_TITLES).toHaveLength(14);
+  it("日本 15 個主題一律有日文副標，與中文同字也照樣顯示", () => {
+    expect(JAPAN_TAB_THEME_TITLES).toHaveLength(15);
     for (const title of JAPAN_TAB_THEME_TITLES) {
       expect(themeName(title).sub, title).toBeTruthy();
     }

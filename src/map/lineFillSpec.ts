@@ -30,6 +30,8 @@ type Params = Record<string, number> | undefined;
 const BOUNDARY_KEYS: ReadonlySet<string> = new Set(["countyBoundary", "townshipBoundary", "villageBoundary"]);
 /** L-3：界線維持尖角（行政界、海域界、流域界）；其他主體線圓頭圓角。 */
 const SHARP_KEYS: ReadonlySet<string> = new Set([...BOUNDARY_KEYS, "maritimeBoundary", "waterBasins"]);
+/** 同 config 含 fill，但這條線是獨立要素（非面外框）：不走 outlineWrap。 */
+const OUTLINE_EXEMPT: ReadonlySet<string> = new Set(["isobath/line"]);
 const LINE_ROUND = { "line-cap": "round", "line-join": "round" } as const;
 const LINE_SHARP = { "line-cap": "butt", "line-join": "miter" } as const;
 
@@ -122,12 +124,35 @@ function lineWrap(tier: LineTierSpec): Wrap {
   };
 }
 
+/**
+ * zoom 的 interpolate／step 且輸出全是數字時，保留結構（zoom gate）只縮放輸出值，使「參考值」變成 target。
+ * 參考值取 z14 值；z14 為 0（例：高縮放淡出／3D 模式抑制）時取各輸出的最大值。其他形狀回 null。
+ */
+function scaleZoomExpr(v: unknown, target: number): unknown | null {
+  if (!Array.isArray(v) || isDataDriven(v)) return null;
+  const isZoom = (x: unknown) => Array.isArray(x) && x[0] === "zoom";
+  let outIdx: number[];
+  if (v[0] === "interpolate" && isZoom(v[2])) outIdx = v.map((_, i) => i).filter((i) => i >= 4 && i % 2 === 0);
+  else if (v[0] === "step" && isZoom(v[1])) outIdx = v.map((_, i) => i).filter((i) => i === 2 || (i >= 4 && i % 2 === 0));
+  else return null;
+  const outs = outIdx.map((i) => v[i]);
+  if (!outs.length || outs.some((x) => typeof x !== "number")) return null;
+  const z14 = valueAtZ14(v);
+  const ref = Number.isFinite(z14) && z14 > 0 ? z14 : Math.max(...(outs as number[]));
+  if (!(ref > 0)) return null;
+  const k = target / ref;
+  const next = [...v];
+  for (const i of outIdx) next[i] = clamp01((v[i] as number) * k);
+  return next;
+}
+
 /** 面（F-1）。 */
 function fillWrap(tier: FillTier): Wrap {
   return (base, def, _isDark, opDiv) => {
     const o = base["fill-opacity"];
     if (isDataDriven(o) || isHidden(def["fill-opacity"])) return base;
-    const out: Paint = { ...base, "fill-opacity": clamp01(FILL_OPACITY[tier] * ratio(o, def["fill-opacity"]) / opDiv) };
+    const target = clamp01(FILL_OPACITY[tier] * ratio(o, def["fill-opacity"]) / opDiv);
+    const out: Paint = { ...base, "fill-opacity": scaleZoomExpr(o, target) ?? target };
     delete out["fill-outline-color"];
     return out;
   };
@@ -144,19 +169,21 @@ function outlineWrap(tier: FillTier): Wrap {
     const wf = isDataDriven(w) ? 1 : ratio(w, def["line-width"]);
     const of = isDataDriven(o) ? 1 : ratio(o, def["line-opacity"]) / opDiv;
     if (isHidden(def["line-opacity"])) return out;
+    // 依資料的透明度（例：隱藏水庫／不確定面的 0 分支）＝資料編碼，不可被固定值蓋掉
+    const opacityOr = (fixed: number) => (isDataDriven(o) ? o : fixed);
     if (tier === "coverage") {
       out["line-width"] = FILL_OUTLINE.coverage.width * wf;
-      out["line-opacity"] = clamp01(FILL_OUTLINE.coverage.opacity * of);
+      out["line-opacity"] = opacityOr(clamp01(FILL_OUTLINE.coverage.opacity * of));
     } else if (tier === "background") {
       // 外框顏色依資料（例：離岸風場依狀態、港口依等級）＝資料編碼，保留
       if (!isDataDriven(base["line-color"])) out["line-color"] = BOUNDARY_GRAY[theme];
       out["line-width"] = FILL_OUTLINE.background.width * wf;
-      out["line-opacity"] = clamp01(FILL_OUTLINE.background.opacity * of);
+      out["line-opacity"] = opacityOr(clamp01(FILL_OUTLINE.background.opacity * of));
     } else {
       // 分級面、網格的底圖色細縫不綁透明度滑桿（同 R1 gradedSeamPaint）
       if (!isDataDriven(base["line-color"])) out["line-color"] = mapSeamColor(isDark);
       out["line-width"] = (tier === "grid" ? FILL_OUTLINE.gridSeamWidth : GRADED_SEAM.width) * wf;
-      out["line-opacity"] = GRADED_SEAM.opacity[theme];
+      out["line-opacity"] = opacityOr(GRADED_SEAM.opacity[theme]);
     }
     return out;
   };
@@ -188,6 +215,8 @@ export function withLineFillSpec(config: OverlayConfig): OverlayConfig {
         paint: wrapPaint(config, layer, lineWrap(lineTier)),
       };
     }
+    // 獨立 filter 的線（例：isobath/line 是等深線，不是 band 面的外框）不可當面外框正規化
+    if (OUTLINE_EXEMPT.has(`${config.id}/${layer.suffix}`)) return layer;
     if (hasFill && fillTier && fillTier !== "keep") return { ...layer, paint: wrapPaint(config, layer, outlineWrap(fillTier)) };
     if (hasFill && fillTier === "keep") return { ...layer, paint: wrapPaint(config, layer, dashOnlyWrap) };
     return layer;

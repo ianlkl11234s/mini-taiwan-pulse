@@ -37,6 +37,15 @@ describe("reduceManeuversResult / describeManeuversBanner", () => {
     expect(describeManeuversBanner(s).kind).toBe("empty");
   });
 
+  it("空結果後更新失敗（stale）→ 不能顯示「無變軌」，要提示資料可能過期", () => {
+    const good = reduceManeuversResult(MANEUVERS_INITIAL, ok([], 5000));
+    const s = reduceManeuversResult(good, fail());
+    expect(s.stale).toBe(true);
+    const b = describeManeuversBanner(s);
+    expect(b.kind).toBe("error");
+    expect((b as { text: string }).text).toContain("過期");
+  });
+
   it("成功有資料 → ok", () => {
     const s = reduceManeuversResult(MANEUVERS_INITIAL, ok([row]));
     expect(describeManeuversBanner(s).kind).toBe("ok");
