@@ -30,7 +30,7 @@
 | D4 | 瀏覽器長輪詢 `/browser/wait` 的 hold 為 20 s；agent 端 `waitMs` 上限 15 s、MCP 實送 ≤10 s | timeout 鏈見 §2.8 |
 | D5 | `/browser/sync` 保留（`StudyController.recover`、暫停按鈕用），**不再作為迴圈**；`/browser/query` 在清理階段刪 | 合併的是「迴圈」，單次讀取仍需要 |
 | D6 | P3 合併／部署順序例外：**gateway → mini → MCP** | MCP token 綁定需要「登入就自動建 study 並長輪詢」的分頁，這只有 mini P3 後才存在 |
-| D7 | session 撤銷帶原因；被其他 agent 接手（displaced）或站主中斷（owner_revoked）後 MCP **不自動搶回**，閒置過期才自動重綁 | 避免兩個 Claude Code session 互搶同一分頁 |
+| D7 | session 撤銷帶原因；被其他 agent 接手（displaced）或站主中斷（owner_revoked）後 MCP **不自動搶回**；被接手後須由使用者明確 `pulse_pair_session` 才重綁（§13 第 4 項拍板），過期清除紀錄也不例外 | 避免兩個 Claude Code session 互搶同一分頁 |
 | D8 | study 保留期：從未綁過 agent 的 study 2 小時、其餘最後活動後 24 小時（現行一律 7 天） | P3 每個登入分頁都會自動建 study，7 天會撐爆 4 MiB state |
 | D9 | 研究登入改 `localStorage`（storageKey 不變 `pulse-research-auth-v1`） | 見 §6 P3 取捨 |
 
@@ -201,13 +201,13 @@ MCP 端本地碼（不經 gateway）：`AGENT_TOKEN_MISSING`、`AGENT_TOKEN_FILE
 
 | 狀況 | code | MCP 行為 |
 |---|---|---|
-| credential 不存在（含已被 cleanup 刪掉的過期 session） | `SESSION_EXPIRED` 410 | 自動重綁（同 study 仍活躍則綁回同一個） |
+| credential 不存在（含已被 cleanup 刪掉的過期 session） | `SESSION_EXPIRED` 410 | 一般情況自動重綁（同 study 仍活躍則綁回同一個）；**但 MCP 程序已記住「被接手」（收過 `SESSION_DISPLACED`）時維持 suspended**，直到使用者明確 `pulse_pair_session`（§13 第 4 項） |
 | `revokedReason: displaced` | `SESSION_DISPLACED` 409 | 停用自動綁定（suspended），直到使用者呼叫 `pulse_pair_session` |
 | `owner_revoked`（面板「中斷 Agent」／`/studies/revoke`） | `SESSION_REVOKED` 401 | suspended |
 | `token_revoked` | `TOKEN_REVOKED` 401 | 停止，提示重新產生 token 並 `npm run token:save` |
 | `disconnect`（MCP 自己斷） | `SESSION_REVOKED` 401 | 不重綁 |
 
-撤銷的 session 紀錄保留到其 `expiresAt`（≤30 分），之後變成「不存在」→ 走 `SESSION_EXPIRED`。已知邊界：被接手的舊 Claude Code session 閒置 30 分後再被使用，會自動搶回分頁（§12）。
+撤銷的 session 紀錄保留到其 `expiresAt`（≤30 分），之後變成「不存在」→ 走 `SESSION_EXPIRED`。被接手的舊 Claude Code session 即使閒置 30 分後紀錄被清掉，也不會自動搶回分頁：MCP 程序內記住「已被接手」，直到 `pulse_pair_session`（§12 第 4 點的替代案，§13 已採用）。
 
 #### MCP 自動接上流程
 
@@ -591,7 +591,7 @@ MCP 回退：revert 合併 commit → pull＋build。mini 回退：revert merge 
 1. **P3 順序例外**（gateway → mini → MCP，且 mini P3 與 MCP P3 同日合併）。
 2. **同一把 token 的第二個 Claude Code session 會自動接手唯一分頁**：§2.5「1 個分頁就 bind」不分 `agent` 狀態，新 session 第一個工具呼叫就接手並刪掉舊 session 的結果檔。替代：只在 `agent:"none"` 時自動綁，已被綁（`self`／`other`）回 `CHOOSE_TAB`，要接手須明確 `pulse_pair_session`。
 3. **lease 綁 session 的後果**：新 Claude Code session 接手分頁（或 8 小時硬上限後重綁）會刪掉前一個 session 的結果檔；畫面上已匯入的結果仍在，但之後重整無法還原。替代：結果改綁 `(study, token)`。
-4. **被接手的舊 session 閒置 30 分後再使用會自動搶回**（`SESSION_EXPIRED` 自動重綁）。替代：MCP 程序內記住「曾被接手」直到 `pulse_pair_session`。
+4. **（已由 §13 第 4 項採替代案解決）** 原風險：被接手的舊 session 閒置 30 分後再使用會自動搶回（`SESSION_EXPIRED` 自動重綁）。採用的替代：MCP 程序內記住「曾被接手」直到 `pulse_pair_session`。
 5. **study 保留期縮短**（未綁 2 h、其餘 24 h；原 7 天）。
 6. **P1 保留 import query 往返**（每次上圖多一趟，正式站約 0.3–1 s，估）；之後可讓 scene 指令直接觸發匯入，但屬契約變更。
 7. **AG-1 前 5 名地區只靠圖徵屬性欄位**，沒有鄉鎮／縣市欄的圖層回 `topAreas:null`（不做反向地理編碼）。
