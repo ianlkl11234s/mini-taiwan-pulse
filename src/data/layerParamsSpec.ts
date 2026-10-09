@@ -620,6 +620,8 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
   // 顏色：配色方式（熱區／網格色盤是 palette 型別，不必列）
   ...Object.fromEntries([
     "配色", "染色模式", "上色", "著色", "著色模式", "著色依據", "上色模式", "村里色階（僅不分遠近）", "分級配色", "分帶填色",
+    // R6：「立體效果」開關排在資料篩選之後、透明度之前（spec.md §5.11）
+    "立體效果",
   ].map((label) => [label, "color" as const])),
   // 透明度：標籤不含「透明度」字樣的透明度滑桿
   "填色濃度": "opacity",
@@ -630,9 +632,9 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
   ].map((label) => [label, "size" as const])),
   // 其他外觀
   ...Object.fromEntries([
-    "高度", "高度 +", "高度倍率", "高度倍率 ×", "漂浮高度", "對比", "3D", "3D 立體", "顯示", "光柱", "邊框", "顯示外框線",
+    "高度", "高度 +", "高度倍率", "高度倍率 ×", "漂浮高度", "對比", "3D", "3D 立體", "顯示", "邊框", "顯示外框線",
     "光暈", "動畫速度", "粒子數", "全台顯示", "音符高度", "線條強度", "網格大小", "解析度", "顯示方式", "樣式", "呈現",
-    "水位計高度", "柱高", "熱區", "Bloom 高樓門檻 ≥", "列車", "軌道", "光束", "光束距離", "散點", "3D 光柱波動", "離地高度",
+    "水位計高度", "柱高", "熱區", "Bloom 高樓門檻 ≥", "列車", "軌道", "光束距離", "散點", "離地高度",
     "網格線", "漣漪", "網格", "高度依據",
   ].map((label) => [label, "look" as const])),
 };
@@ -909,6 +911,11 @@ function wasteSubSliders(key: string, size: number, opacity: number): SliderPara
       labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
   ];
+}
+
+/** R6 段 2：廢棄物設施的「立體效果」開關（只走 Three.js ref，預設平面）。 */
+function wasteStereoToggle(key: string): ToggleParamSpec {
+  return { kind: "toggle", name: `${key}3D`, label: "立體效果", default: false, out: null };
 }
 
 // ── 網格類（H3 / SEGIS / YouBike）四支同構 slider ──────────────────
@@ -1668,6 +1675,8 @@ export const LAYER_PARAMS_SPEC = {
       out: null,
     },
     { kind: "slider", name: "earthquakesGlobalOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(3_679), min: 0, max: 1, step: 0.05 },
+    // R6 段 1（2026-10-05）：Three.js 漣漪改為選配，預設平面
+    { kind: "toggle", name: "earthquakesGlobal3D", label: "立體效果", default: false, out: null },
   ],
   worldTrashDebris: [
     heatmapPalette("worldTrashDebris"),
@@ -2007,7 +2016,13 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "waterProtectionZoneOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
   ],
   waterReservoirs: [
-    { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：即時水情預設畫 Mapbox 平面圓點（色＝警示等級、大小＝有效容量）；
+    // 「立體效果」開啟才疊 Three.js 水位計，水位計高度只對它有意義
+    { kind: "toggle", name: "waterReservoirs3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1,
+      showWhen: { param: "waterReservoirs3D", equals: true },
+    },
     opacitySlider("waterReservoirsOpacity", 1),
     scaleSlider("waterReservoirsScale", 1),
   ],
@@ -2199,7 +2214,13 @@ export const LAYER_PARAMS_SPEC = {
   powerPlants: [scaleSlider("powerPlantsScale", 0.5), opacitySlider("powerPlantsOpacity", 0.95)],
   aviationRestrictedGlow: [opacitySlider("aviationRestrictedGlowOpacity", 0.85)],
   powerGenerationUnit: [
-    { kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：預設畫 Mapbox 平面圓點（色＝燃料、大小＝即時出力 MW）；
+    // 「立體效果」開啟才疊 Three.js 出力光柱，柱高只對光柱有意義
+    { kind: "toggle", name: "powerGenerationUnit3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1,
+      showWhen: { param: "powerGenerationUnit3D", equals: true },
+    },
     opacitySlider("powerGenerationOpacity", 0.7),
     scaleSlider("powerGenerationScale", 1),
   ],
@@ -2286,6 +2307,8 @@ export const LAYER_PARAMS_SPEC = {
   osmPowerLines: [
     { kind: "slider", name: "osmPowerLinesWidth", labelPrefix: "寬度", digits: 1, default: 0.7, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("osmPowerLinesOpacity", 0.4),
+    // R6 段 1（2026-10-05）：Three.js bloom 改為選配，預設只畫 Mapbox 線
+    { kind: "toggle", name: "osmPowerLines3D", label: "立體效果", default: false, out: null },
   ],
   osmPowerTowers: [
     scaleSlider("osmPowerTowersSize", 1),
@@ -3280,6 +3303,11 @@ export const LAYER_PARAMS_SPEC = {
       default: 100, min: 40, max: 200, step: 10,
       showWhen: { param: "buildingsGbaModeIdx", equals: "3" },
     },
+    // R6 段 1（2026-10-05）：夜景模式的 Three.js 高樓 bloom 改為選配（只在夜景模式出現）
+    {
+      kind: "toggle", name: "buildingsGbaBloom", label: "立體效果", default: false, out: null,
+      showWhen: { param: "buildingsGbaModeIdx", equals: "3" },
+    },
   ],
 
   // 控件組沿用人口網格（h3Population / popCount）：Opacity → Contrast → 3D → Height。
@@ -3679,14 +3707,17 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "lighthouseScale", labelPrefix: "大小", digits: 1,
       default: 0.6, min: 0.3, max: 3, step: 0.1,
     },
-    { kind: "toggle", name: "beamVisible", label: "光束", default: true, out: null },
+    // R6 段 1（2026-10-05）：參數名沿用（會員場景相容），label 統一、預設關
+    { kind: "toggle", name: "beamVisible", label: "立體效果", default: false, out: null },
     {
       kind: "slider", name: "beamDistance", labelPrefix: "光束距離", digits: 1,
       default: 0.9, min: 0.2, max: 3, step: 0.1, out: null,
+      showWhen: { param: "beamVisible", equals: true },
     },
     {
       kind: "slider", name: "beamOpacity", labelPrefix: "光束透明度", digits: 2,
       default: 0.1, min: 0.05, max: 0.8, step: 0.05, out: null,
+      showWhen: { param: "beamVisible", equals: true },
     },
   ],
   // 三個系統的站點大小共用一支 slider（跨 case 共用同一個 useState 的等價表達）
@@ -3694,14 +3725,14 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("thsrOpacity", 1),
     hubDisplayModeSelect("thsrDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "thsrPillarVisible", label: "光柱", default: false, out: null }, // 2026-09-28 使用者：預設關
+    { kind: "toggle", name: "thsrPillarVisible", label: "立體效果", default: false, out: null }, // 2026-09-28 使用者：預設關
     pillarHeightSlider("thsrPillarHeight", 0.6),
   ],
   stationsTRA: [
     opacitySlider("traOpacity", 1),
     hubDisplayModeSelect("traDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "traPillarVisible", label: "光柱", default: false, out: null }, // 2026-09-28 使用者：預設關
+    { kind: "toggle", name: "traPillarVisible", label: "立體效果", default: false, out: null }, // 2026-09-28 使用者：預設關
     pillarHeightSlider("traPillarHeight", 0.5),
   ],
   stationsMetro: [
@@ -3712,7 +3743,7 @@ export const LAYER_PARAMS_SPEC = {
     // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
     //    （與參數名不同名），Three.js 那側另外吃 ref。
     {
-      kind: "toggle", name: "metroPillarVisible", label: "光柱", default: false,
+      kind: "toggle", name: "metroPillarVisible", label: "立體效果", default: false,
       out: "metroPillar3d",
     },
     pillarHeightSlider("metroPillarHeight", 0.2),
@@ -3722,7 +3753,7 @@ export const LAYER_PARAMS_SPEC = {
     hubDisplayModeSelect("portDisplayMode"),
     scaleSlider("portScale", 1),
     { kind: "slider", name: "portGlow", labelPrefix: "光暈", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "portPillarVisible", label: "光柱", default: false, out: null },
+    { kind: "toggle", name: "portPillarVisible", label: "立體效果", default: false, out: null },
     pillarHeightSlider("portPillarHeight", 0.3),
   ],
   airports: [
@@ -3733,32 +3764,39 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "airportGlow", labelPrefix: "光暈", digits: 1,
       default: 0.8, min: 0, max: 2, step: 0.1,
     },
-    { kind: "toggle", name: "airportPillarVisible", label: "光柱", default: false, out: null },
+    { kind: "toggle", name: "airportPillarVisible", label: "立體效果", default: false, out: null },
     pillarHeightSlider("airportPillarHeight", 0.6),
   ],
   // 消防分隊：散點（Mapbox circle）與 3D 光柱（Three.js）各自開關 → 前者走 paint、後者走 ref
   fireStations: [
     { kind: "toggle", name: "fireStationsDots", label: "散點", default: true },
-    { kind: "toggle", name: "fireStations3D", label: "3D 光柱波動", default: true, out: null },
+    { kind: "toggle", name: "fireStations3D", label: "立體效果", default: false, out: null }, // R6 段 1：預設關
     scaleSlider("fireStationsScale", 1),
     opacitySlider("fireStationsOpacity", 0.85),
     zFloatSlider("fireStationsZ"),
   ],
   temperatureWave: [
-    { kind: "toggle", name: "tempExtruded", label: "3D", default: true, out: null },
+    // R6 段 1（2026-10-05）：關閉立體時改畫 Mapbox 溫度網格（同 temperatureGrid 的原生 fill），
+    // 開啟才是 Three.js 溫度波；高度／離地高度／網格線只對 Three.js 有意義
+    { kind: "toggle", name: "tempExtruded", label: "立體效果", default: false, out: null },
     {
       kind: "slider", name: "tempHeight", labelPrefix: "高度", digits: 0,
       default: 200, min: 0, max: 400, step: 20, out: null,
+      showWhen: { param: "tempExtruded", equals: true },
     },
     {
       kind: "slider", name: "tempZOffset", labelPrefix: "離地高度", digits: 0,
       default: 300, min: 0, max: 1000, step: 50, out: null,
+      showWhen: { param: "tempExtruded", equals: true },
     },
     {
       kind: "slider", name: "tempOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.85, min: 0.1, max: 1, step: 0.05, out: null,
     },
-    { kind: "toggle", name: "tempWireframe", label: "網格線", default: false, out: null },
+    {
+      kind: "toggle", name: "tempWireframe", label: "網格線", default: false, out: null,
+      showWhen: { param: "tempExtruded", equals: true },
+    },
   ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
@@ -3902,19 +3940,26 @@ export const LAYER_PARAMS_SPEC = {
   // 13 個廢棄物子層：值進 hook 的 `wasteSubParams` 巢狀 Record（＋同名 ref）。
   // 參數名一律 `${key}Size` / `${key}Opacity` / `${key}Altitude` —— 參數名全域唯一，
   // 不能沿用巢狀物件裡的 `size` / `opacity` / `altitude`。
+  // R6 段 2（2026-10-06）：五類設施預設畫 Mapbox 平面圓點（類別色），「立體效果」開啟才疊 Three.js 造型
   wfIncinerator: [
     ...wasteSubSliders("wfIncinerator", 1.0, 0.85),
-    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
+    wasteStereoToggle("wfIncinerator"),
+    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示；只畫在 Three.js 裡）
     {
       kind: "slider", name: "wfIncineratorRingSize", labelPrefix: "底圈", digits: 2,
       default: 1.0, min: 0, max: 4, step: 0.1, out: null,
+      showWhen: { param: "wfIncinerator3D", equals: true },
     },
   ],
-  wfLandfill: wasteSubSliders("wfLandfill", 1.0, 0.45),
-  wfLandfillCoastal: wasteSubSliders("wfLandfillCoastal", 1.0, 0.55),
-  wfTransfer: wasteSubSliders("wfTransfer", 1.0, 0.85),
-  wfMedical: wasteSubSliders("wfMedical", 1.0, 0.85),
-  wfMonitoring: wasteSubSliders("wfMonitoring", 1.0, 0.7),
+  wfLandfill: [...wasteSubSliders("wfLandfill", 1.0, 0.45), wasteStereoToggle("wfLandfill")],
+  wfLandfillCoastal: [...wasteSubSliders("wfLandfillCoastal", 1.0, 0.55), wasteStereoToggle("wfLandfillCoastal")],
+  wfTransfer: [...wasteSubSliders("wfTransfer", 1.0, 0.85), wasteStereoToggle("wfTransfer")],
+  wfMedical: [...wasteSubSliders("wfMedical", 1.0, 0.85), wasteStereoToggle("wfMedical")],
+  // R6 段 1（2026-10-05）：Three.js 監測井改為選配，預設只畫 Mapbox 點（其他 5 類設施不動）
+  wfMonitoring: [
+    ...wasteSubSliders("wfMonitoring", 1.0, 0.7),
+    { kind: "toggle", name: "wfMonitoring3D", label: "立體效果", default: false, out: null },
+  ],
   wfRecycling: wasteSubSliders("wfRecycling", 1.0, 0.85),
   wfScrapYard: wasteSubSliders("wfScrapYard", 1.0, 0.85),
   wfOther: wasteSubSliders("wfOther", 1.0, densePointOpacity(4_530)),

@@ -1,6 +1,6 @@
 # R6 交接：Three.js 圖層加「基本點線面」模式
 
-> 狀態：⏳ 未開始（2026-10-04 交接）。地圖改版 R1–R5、R7、R8 已全部合併（至 #523），R6 是最後一輪。
+> 狀態：🚧 段 1 完成，PR #547 待合（feat/map-restyle-r6）；段 2 完成（2026-10-06，對照頁 [`r6-s2-compare.html`](./r6-s2-compare.html)，疊在段 1 之上）；段 3 另軌進行（2026-10-04 交接）。地圖改版 R1–R5、R7、R8 已全部合併（至 #523），R6 是最後一輪。
 > 進度總表：[`docs/design-system/README.md`](../../design-system/README.md)「目前進度」。規格：[`map-layers.md`](../../design-system/map-layers.md) §3.4 **G-1**。
 
 ## 1. 要做什麼
@@ -42,7 +42,7 @@
 ## 5. 做法建議（依 R5／R7／R8 經驗）
 
 - 流程：盤點（唯讀子代理）→ 選擇頁（暗／淡、真實樣子、可一鍵複製答案）→ 寫提案 → 分段 PR（每段一支、一般 merge、CI 綠才合）→ 每段對照頁。
-- 新增「立體／平面」若做成控制項，照 R7 `palette`／R8 `linkedSelect` 的 6 個接點（spec 聯集型別、`layerParamsControls.ts`、`LayerParamControls.tsx`、manifest `params.kinds`、`research/layerControls.ts`、`memberSceneAdapter.ts`），並同步 MCP 工具說明（mini-pulse-gis-mcp）。
+- 新增「立體／平面」若做成控制項，照 R7 `palette`／R8 `linkedSelect` 的 6 個接點（spec 聯集型別、`src/state/layerParamsControls.ts`、`LayerParamControls.tsx`、manifest `params.kinds`、`research/layerControls.ts`、`src/lib/memberSceneAdapter.ts`），並同步 MCP 工具說明（mini-pulse-gis-mcp）。
 - 每層兩種模式的圖例要分別正確；Agent 讀圖層控制時要看得到模式。
 - 動態圖層不得把 `currentTime` 放進 deps（CLAUDE.md 規則 6）；切主題、拖透明度只改 paint、不重抓（#481）；換底圖用快取重建。
 - 活的元件頁（`src/design-system/`）有新元件就同時加一段，不要等收尾。

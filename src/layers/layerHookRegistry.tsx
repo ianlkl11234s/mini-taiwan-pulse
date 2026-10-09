@@ -329,7 +329,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useFreewayLayer", keys: ["freewayCongestion"], Host: FreewayHost },
   { id: "useRoadCongestionLayer", keys: ["roadCongestion"], Host: RoadCongestionHost },
   { id: "useFuneralDensityLayer", keys: ["funeralOperatorDensity"], Host: FuneralDensityHost },
-  { id: "useTemperatureGridLayer", keys: ["temperatureGrid"], Host: TemperatureGridHost },
+  // R6 段 1：溫度波「立體效果」關時的平面網格也由這支 host 畫（同一個 Mapbox 層 id）
+  { id: "useTemperatureGridLayer", keys: ["temperatureGrid", "temperatureWave"], Host: TemperatureGridHost },
 
   // ── AR-22 P4 新增：原本是 App.tsx 的 inline useEffect ──────────────
   // 它們吃 `transportParams.<xxx>Params`，留在 App 等於「拖任一 slider →

@@ -5,6 +5,7 @@ import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from '.
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
@@ -5755,7 +5756,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "earthquakesGlobal",
     popup: "earthquakeGlobal",
-    params: { count: 2, kinds: ["select", "slider"] },
+    params: { count: 3, kinds: ["select", "slider", "toggle"] },
     description: "USGS 全球地震（規模分大小、深度分色，回溯天數可選，跟時間軸播放並跑震波擴散圈）",
     topics: ["全球氣候", "地震", "即時"],
   },
@@ -7124,7 +7125,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "temperatureWave",
     popup: null,
-    params: { count: 5, kinds: ["toggle", "slider", "slider", "slider", "toggle"] },
+    params: { count: 2, kinds: ["toggle", "slider"] },
     description: "全台氣溫場的 3D 起伏波形（高度＝溫度，隨時間軸變形）",
     topics: ["環境", "氣象", "溫度", "3D"],
   },
@@ -7148,7 +7149,7 @@ export const LAYER_MANIFEST = {
     legend: "temperatureGrid",
     popup: "temperatureGrid",
     params: { count: 1, kinds: ["slider"] },
-    description: "全台氣溫場的 2D 方格色階（11 級 step 分色，點擊讀該格溫度）",
+    description: "全台氣溫場的 2D 方格色階（10 級 step 分色，點擊讀該格溫度）",
     topics: ["環境", "氣象", "溫度"],
   },
 
@@ -8073,11 +8074,17 @@ export const LAYER_MANIFEST = {
         sourceId: "water-reservoir-dams",
         url: "./geo/water_dams.geojson",
       },
+      // R6 段 2：即時水情平面圓點（useReservoirStatusLayer 依時間軸 setData）
+      {
+        kind: "supabase",
+        sourceId: "water-reservoir-status",
+        fallbackUrl: "./geo/_empty.geojson",
+      },
     ],
-    legend: null,
+    legend: "waterReservoirs",
     popup: ["waterDam", "waterReservoirPoly"],
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
-    description: "全台水庫蓄水範圍面 + 壩體點位（點擊看即時蓄水率）",
+    params: { count: 3, kinds: ["toggle", "slider", "slider"] },
+    description: "全台水庫蓄水範圍面 + 壩體點位 + 即時水情圓點（色＝警示等級、大小＝有效容量，點擊看蓄水率；立體效果開啟為 3D 水位計）",
     topics: ["水資源", "水庫"],
   },
 
@@ -8679,6 +8686,10 @@ export const LAYER_MANIFEST = {
   // **facility_type / point_type-keyed**（餵 wasteMapboxLayers 的 circle-color），
   // 不是 layer-key-keyed，`LAYER_COLORS` 從未 import 它們 → 寫字面 hex。
   // hex 逐一相同是巧合（同批 5 SATELLITE_COLORS 的判準）。
+  // ⚠️ 2026-10-09 例外（R6 段 2 決議）：五類設施（wfIncinerator／wfLandfill／
+  // wfLandfillCoastal／wfTransfer／wfMedical）有平面圓點＋共用類別圖例，識別色必須＝
+  // paint＝圖例 → WASTE_FACILITY_COLORS 搬到零 import 的 `wasteFacilityColors.ts`，
+  // 這五層的 color 改**引用**（r6Stage2.test.ts 守門）。其餘 wf*／wd* 照舊字面。
 
   wasteTruck: {
     key: "wasteTruck",
@@ -8918,7 +8929,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "焚化爐", alt: "Incinerator" }),
     expandable: true,
-    color: "#ef4444",
+    color: WASTE_FACILITY_COLORS.incinerator!,
     icon: Flame,
     upstream: {
       status: "verified",
@@ -8927,12 +8938,13 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useWasteFacilityLayer 一次抓全量 4,609 筆（Supabase RPC）依 facility_type 分群 → wasteFacilityCustomLayer 的 WasteIncineratorScene（Three.js，含底圈標示）；popup 由 App.tsx 的 map click raycast 產生 —— 非 OVERLAY_REGISTRY",
+      note: "useWasteFacilityLayer 一次抓全量 4,609 筆（Supabase RPC）依 facility_type 分群 → wasteFacilityCustomLayer 的 WasteIncineratorScene（Three.js，含底圈標示，立體效果開時）＋ wasteMapboxLayers 的 waste-wfIncinerator-src circle（預設平面，R6 段 2）；popup：平面走 circle click、立體走 App.tsx 的 map click raycast —— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    // R6 段 2：五類設施共用一份類別圖例（LG-1），家族首 key＝本層
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
-    description: "全台焚化爐（30 座，3D 煙囪＋地面底圈）",
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
+    description: "全台焚化爐（預設平面點；立體效果開啟為 3D 煙囪＋地面底圈）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
 
@@ -8941,7 +8953,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "衛生掩埋場", alt: "Landfill" }),
     expandable: true,
-    color: "#92400e",
+    color: WASTE_FACILITY_COLORS.landfill!,
     icon: Mountain,
     upstream: {
       status: "verified",
@@ -8950,11 +8962,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill）→ WasteLandfillScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill）→ WasteLandfillScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "全台衛生掩埋場（154 處）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
@@ -8964,7 +8976,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "濱海掩埋場", alt: "Coastal" }),
     expandable: true,
-    color: "#0891b2",
+    color: WASTE_FACILITY_COLORS.landfill_coastal!,
     icon: Waves,
     upstream: {
       status: "verified",
@@ -8973,11 +8985,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill_coastal）→ WasteLandfillCoastalScene（Three.js，同 Landfill 換深青）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill_coastal）→ WasteLandfillCoastalScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2，同 Landfill 換深青）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "臨海掩埋場（23 處，含離海距離欄位）",
     topics: ["廢棄物", "處理設施", "海岸"],
   },
@@ -8987,7 +8999,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "轉運站", alt: "Transfer" }),
     expandable: true,
-    color: "#a855f7",
+    color: WASTE_FACILITY_COLORS.transfer_station!,
     icon: Truck,
     upstream: {
       status: "verified",
@@ -8996,11 +9008,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=transfer_station）→ WasteTransferScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=transfer_station）→ WasteTransferScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "垃圾轉運站（28 處）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
@@ -9010,7 +9022,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "醫療廢棄物", alt: "Medical" }),
     expandable: true,
-    color: "#ec4899",
+    color: WASTE_FACILITY_COLORS.medical_waste!,
     icon: AlertTriangle,
     upstream: {
       status: "verified",
@@ -9019,11 +9031,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=medical_waste）→ WasteMedicalScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=medical_waste）→ WasteMedicalScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "醫療廢棄物處理設施（40 處）",
     topics: ["廢棄物", "處理設施", "醫療"],
   },
@@ -9049,7 +9061,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "掩埋場周邊地下水監測井（574 口）",
     topics: ["廢棄物", "監測", "地下水"],
   },
@@ -9987,7 +9999,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "lighthouses", url: "./geo/lighthouse.geojson" },
     legend: null,
     popup: "lighthouse",
-    params: { count: 4, kinds: ["slider", "toggle", "slider", "slider"] },
+    params: { count: 2, kinds: ["slider", "toggle"] },
     // ⚠️ 有 registry entry（→ A）但**同時**有 Three.js `LighthouseScene` 的旋轉光束
     //    （Beam toggle 控制它）。兩套渲染並存不改變體質判準：有 entry 就派生得動。
     //    同批 6 `waterDam`（GIS_LAYERS 條目與 raycast 並存）的鏡像。
@@ -10924,8 +10936,8 @@ export const LAYER_MANIFEST = {
     //    → policeStation 的同款，只是這次首 key 是 orphan）。
     legend: "powerPlants",
     popup: "powerPlant",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
-    description: "台電機組即時出力（高 ∝ MW 的 3D 光柱，透明層負責點擊）",
+    params: { count: 3, kinds: ["toggle", "slider", "slider"] },
+    description: "台電機組即時出力（預設平面圓點：色＝燃料、大小＝出力 MW；立體效果開啟疊 3D 光柱）",
     topics: ["能源", "電力", "即時"],
   },
 
@@ -11051,7 +11063,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "osmPowerLines",
     popup: "osmPowerLine",
-    params: { count: 2, kinds: ["slider", "slider"] },
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
     description: "OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）",
     topics: ["能源", "電網", "輸電線"],
   },

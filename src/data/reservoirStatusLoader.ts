@@ -1,6 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedByKey } from "../lib/loaderCache";
+import { RESERVOIR_ALERT_COLOR_HEX, reservoirAlertOf, reservoirFlatAlert } from "../map/r6FlatEncodings";
 
 /**
  * 水庫即時水情（for 3D 水位計 cylinder）
@@ -67,26 +68,52 @@ export function fetchReservoirStatusDay(dateKey: string): Promise<ReservoirDayRo
   return fetchReservoirStatusDayCached(dateKey);
 }
 
-/** 從 storage_ratio_pct 推算 alert_level（保持與 view 公式一致） */
+/** 從 storage_ratio_pct 推算 alert_level（保持與 view 公式一致；缺值沿用舊行為回 normal，平面版另用 reservoirFlatAlert） */
 export function alertLevelFromPct(pct: number | null | undefined): string {
   if (pct == null) return "normal";
-  if (pct < 15) return "critical";
-  if (pct < 30) return "warning";
-  if (pct > 90) return "high";
-  return "normal";
+  return reservoirAlertOf(pct);
 }
 
-/** 警示等級 → 水柱色（對齊 022_water_system.sql reservoir_situation_v 的 alert_level 輸出） */
-export const ALERT_COLOR_HEX: Record<string, number> = {
-  critical: 0xef4444, // 紅：<15%
-  warning:  0xf97316, // 橘：<30%
-  normal:   0x22d3ee, // 青：30~90%（預設）
-  high:     0x22c55e, // 綠：>90% 滿水
-};
+/** 警示等級 → 水柱色（對齊 022_water_system.sql reservoir_situation_v 的 alert_level 輸出；常數在 r6FlatEncodings） */
+export const ALERT_COLOR_HEX: Record<string, number> = RESERVOIR_ALERT_COLOR_HEX;
 
 /** 將 text 類型 reservoir_id 轉成 integer compare_id（40/40 都是數字字串） */
 export function compareIdFromReservoirId(rid: string): number | null {
   if (!/^\d+$/.test(rid)) return null;
   const n = parseInt(rid, 10);
   return n > 0 ? n : null;
+}
+
+/**
+ * R6 段 2：水庫即時水情的 popup 欄位（平面圓點的 feature properties 與 3D 水位計 raycast 共用，兩種模式欄位一致）。
+ * 容量給「萬 m³」原值（effective_capacity_wan）；compare_id 讓 FeatureInfoPanel 切到水庫 context 面板。
+ */
+export function reservoirFeatureProps(s: ReservoirStatus): Record<string, unknown> {
+  return {
+    kind: "reservoir",
+    reservoir_id: s.reservoir_id,
+    name: s.name,
+    compare_id: compareIdFromReservoirId(s.reservoir_id),
+    is_reservoir: true,
+    effective_capacity_wan: s.effective_capacity_wan,
+    storage_ratio_pct: s.storage_ratio_pct,
+    alert: reservoirFlatAlert(s.storage_ratio_pct),
+    water_level_m: s.water_level_m,
+    effective_storage_wan_m3: s.effective_storage_wan_m3,
+    snapshot_at: s.snapshot_at,
+  };
+}
+
+/** 平面圓點 GeoJSON（缺座標者略過） */
+export function reservoirStatusesToFC(list: ReservoirStatus[]): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: list
+      .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+      .map((s) => ({
+        type: "Feature" as const,
+        geometry: { type: "Point" as const, coordinates: [s.lng, s.lat] },
+        properties: reservoirFeatureProps(s),
+      })),
+  };
 }

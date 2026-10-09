@@ -26,10 +26,11 @@ import { LOADING_STATUS_TIMING, type LoadingStatusView } from "../../lib/loading
 import { GLOW_LINGER_MS, ResearchActivity } from "../../research/ResearchActivityCard";
 import type { Activity } from "../../research/researchActivity";
 import {
-  DARK_LEGEND, LEGEND_SWATCH, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendThemeCtx, LegendTitle,
+  DARK_LEGEND, LEGEND_SIZE_RING_WIDTH, LEGEND_SWATCH, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendSizeRow, LegendThemeCtx, LegendTitle,
   SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps,
 } from "../../components/legend/legendKit";
 import { LINE_DASH } from "../../map/mapStyleScale";
+import { POWER_OUTPUT_LEGEND_MW, powerOutputRadius, RESERVOIR_CAPACITY_LEGEND_WAN, RESERVOIR_NODATA_COLOR, RESERVOIR_WATER_COLOR, reservoirCapacityRadius } from "../../map/r6FlatEncodings";
 import { Kv, Pair, Section, Spec, Sub, Tag, objRows, type SectionDef } from "../kit";
 
 // ── §3 面板外殼＋H2 ────────────────────────────────────────
@@ -383,6 +384,18 @@ export function LegendSection() {
       </>} />
       <Sub title="LEGEND_SWATCH 尺寸" kind="real">
         <Kv rows={objRows("LEGEND_SWATCH", LEGEND_SWATCH)} />
+      </Sub>
+      <Sub title="LegendSizeRow 大小圈（LG-5）：實心 fill／空心 ring" kind="real">
+        <p className="ds-note">直徑＝地圖實際直徑（R6 平面圓點固定 px）。預設 <code>fill</code> 實心＋底圖色細縫（機組出力用中性灰：大小與燃料色無關）。圖層另有灰色「無資料」類別時改用 <code>ring</code> 空心圈、描邊 <span className="ds-mono">{LEGEND_SIZE_RING_WIDTH}px</span>，色取該圖層自己的系統色——水庫用水庫面的水系色 <span className="ds-mono">RESERVOIR_WATER_COLOR</span>（2026-10-09 決議：原中性灰實心圈會跟「無資料」撞色）。</p>
+        <Pair render={(isDark) => (
+          <LegendThemeCtx.Provider value={isDark ? DARK_LEGEND : LIGHT_LEGEND}>
+            <div style={{ width: 230, boxSizing: "border-box", padding: "8px 10px", fontFamily: FONT_CJK, background: isDark ? SURFACE.strong : LIGHT.surfacePanel, border: `1px solid ${isDark ? BORDER.panel : LIGHT.border}`, borderRadius: RADIUS.xl }}>
+              <LegendSizeRow fill={RESERVOIR_NODATA_COLOR} title="fill：即時出力（機組圓點大小）" items={POWER_OUTPUT_LEGEND_MW.map((mw) => ({ r: powerOutputRadius(mw), label: `${mw.toLocaleString()} MW` }))} />
+              <LegendSizeRow ring={isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light} title="ring：有效容量（水庫圓點大小）" items={RESERVOIR_CAPACITY_LEGEND_WAN.map((wan) => ({ r: reservoirCapacityRadius(wan), label: `${(wan / 10_000).toLocaleString()} 億 m³` }))} />
+              <LegendRow swatch={<SwatchDot color={RESERVOIR_NODATA_COLOR} />}>無資料（維持灰實心點）</LegendRow>
+            </div>
+          </LegendThemeCtx.Provider>
+        )} />
       </Sub>
     </Section>
   );
