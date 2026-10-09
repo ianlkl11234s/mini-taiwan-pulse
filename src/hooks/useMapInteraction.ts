@@ -22,6 +22,7 @@ import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
 import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
 import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
 import { bridgeResilienceOrigin } from "../data/bridgeResilienceStore";
+import { selectBridgeResilienceOrigin } from "../state/bridgeResilienceDestinationRetry";
 import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 
 interface TooltipInfo {
@@ -417,9 +418,16 @@ export function useMapInteraction(
           // v4 tile 沒有 observed_at，popup 一律以 dominant hour 去 hydrate，放非 dominant 的
           // feature 進來會 vessel_count 對不上而變成「驗證失敗」面板。dominant 為 null
           // （資料窗外已完全淡出）時視為沒命中，讓點擊落到下一個 GIS_LAYERS 條目。
-          const features = type === "gfwHourlyGrid"
+          let features = type === "gfwHourlyGrid"
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
+          if (type === "bridgeResilienceTwinCity") {
+            // 橋線用容差框；村里面是相鄰多邊形，容差框會混入鄰村（Mapbox 依繪製順序而非距離排序）→ 改以 e.point 精確查詢
+            const bridgeHits = queried.filter((feature) => feature.layer?.id !== BRIDGE_RESILIENCE_LAYER_IDS.villageFill);
+            features = bridgeHits.length > 0 || !existingIds.includes(BRIDGE_RESILIENCE_LAYER_IDS.villageFill)
+              ? bridgeHits
+              : map.queryRenderedFeatures(e.point, { layers: [BRIDGE_RESILIENCE_LAYER_IDS.villageFill] });
+          }
           if (features.length > 0) {
             // 橋梁韌性：橋線優先於村里面；命中村里面＝進入目的地視角，不換 popup、不取消選橋。
             const f = type === "bridgeResilienceTwinCity"
@@ -428,7 +436,7 @@ export function useMapInteraction(
             if (type === "bridgeResilienceTwinCity" && f.layer?.id === BRIDGE_RESILIENCE_LAYER_IDS.villageFill) {
               const code = String(f.properties?.VILLCODE ?? "");
               if (!code) continue;
-              bridgeResilienceOrigin.set(code);
+              selectBridgeResilienceOrigin(code);
               sessionTracker.log("feature_click", { layerType: "bridgeResilienceVillage" });
               found = true;
               break;

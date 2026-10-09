@@ -6,10 +6,11 @@ import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "./layerPaintC
 import { FOSSIL_PAINT_COLORS } from "./layerPaintColors";
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
+import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RADIUS_STOPS, JMA_VOLCANO_LEVELS, jmaAmedasColorExpr, jmaAmedasFilter, jmaAmedasMode, jmaIsNullExpr } from "../data/jmaTypes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
@@ -1059,7 +1060,7 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
             "fill-extrusion-height": propertyValueGridHeightExpr(
               scaleIdx,
               p?.propertyValueGridContrast ?? 1.8,
-              (p?.propertyValueGridElevationScale ?? EXTRUSION.heightMultiplier) * EXTRUSION.propertyValueHeightBase,
+              propertyValueGridHeightScale(p?.propertyValueGridElevationScale) * EXTRUSION.propertyValueHeightBase,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ) as any,
             "fill-extrusion-base": 0,
@@ -9736,6 +9737,79 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       envStatusColorExpr("status", CEMS_STATUSES), ["any", ["==", ["get", "status"], "stale"], ["==", ["get", "status"], "unknown"]], { dynamicData: true }),
     envPointOverlay("cwaUvDaily", "./geo/_empty.geojson", "cwa-uv-daily",
       envStatusColorExpr("uv_level", CWA_UV_LEVELS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "uv_level"], null]], { dynamicData: true }),
+    // ── 日本氣象廳即時 3 點層（dynamicData，資料由 useJmaLiveLayer setData；警報 choropleth 由 useJmaWarningsLayer 自建）──
+    // AMeDAS：NULL＝中空點（不經 to-number，避免 null 變 0）；雨量／積雪 0 與 >0 分色；積雪模式只畫有積雪計的站（filter → 重建）。
+    {
+      id: "jmaAmedas",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-amedas",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      rebuildOnParamChange: ["circle"],
+      rebuildOnParamKeys: ["jmaAmedasModeIdx"],
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 4, maxzoom: 22,
+        filter: (p) => jmaAmedasFilter(jmaAmedasMode(p?.jmaAmedasModeIdx)) ?? ["all"],
+        paint: (isDark, p) => {
+          const mode = jmaAmedasMode(p?.jmaAmedasModeIdx);
+          const hollow = jmaIsNullExpr(mode.field);
+          const op = p?.jmaAmedasOpacity ?? 0.9;
+          return {
+            "circle-color": jmaAmedasColorExpr(mode) as unknown as string,
+            "circle-opacity": ["case", hollow, 0, op] as unknown as number,
+            "circle-stroke-color": ["case", hollow, JMA_MISSING_COLOR, mapSeamColor(isDark)] as unknown as string,
+            "circle-stroke-width": ["case", hollow, 1.6, 0.8] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
+    // 地震：半徑＝規模（泡泡 B）、顏色＝最大震度；規模或震度 NULL → 中空。
+    {
+      id: "jmaQuakes",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-quakes",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+        paint: (isDark, p) => {
+          const op = p?.jmaQuakesOpacity ?? 0.85;
+          const s = p?.jmaQuakesScale ?? 1;
+          const hollow: unknown[] = ["any", ["==", ["get", "max_intensity"], null], ["==", ["get", "magnitude"], null]];
+          return {
+            "circle-radius": ["case", ["==", ["get", "magnitude"], null], 4 * s,
+              ["interpolate", ["linear"], ["get", "magnitude"], ...JMA_QUAKE_RADIUS_STOPS.flatMap(([m, px]) => [m, px * s])]] as unknown as number,
+            "circle-color": ["match", ["get", "max_intensity"], ...JMA_INTENSITY_CLASSES.flatMap((c) => [c.value, c.color]), JMA_MISSING_COLOR] as unknown as string,
+            "circle-opacity": ["case", hollow, 0, op * 0.75] as unknown as number,
+            "circle-stroke-color": ["case", hollow, JMA_MISSING_COLOR, mapSeamColor(isDark)] as unknown as string,
+            "circle-stroke-width": ["case", hollow, 1.6, 1] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
+    // 火山：噴火警戒レベル 1–5＋未導入レベル。
+    {
+      id: "jmaVolcanoes",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-volcanoes",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+        paint: (isDark, p) => {
+          const op = p?.jmaVolcanoesOpacity ?? 0.9;
+          return {
+            "circle-color": ["match", ["get", "level"], ...JMA_VOLCANO_LEVELS.flatMap((l) => [l.value, l.color]), JMA_MISSING_COLOR] as unknown as string,
+            "circle-opacity": op,
+            "circle-stroke-color": mapSeamColor(isDark),
+            "circle-stroke-width": 1,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
   ],
 
   // RPI 河段推估（全台 301 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線

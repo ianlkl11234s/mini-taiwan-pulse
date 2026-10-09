@@ -59,4 +59,40 @@ describe("R3b hook line/fill contract", () => {
     const missing = [...files].filter(file => !/hook(?:Line|Fill)/.test(readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8")));
     expect(missing).toEqual([]);
   });
+
+  it("F177：fill-opacity 的 zoom gate 只縮放輸出值、不被 z14 純量取代", () => {
+    const fade = ["interpolate", ["linear"], ["zoom"], 6, 0.5, 10, 0] as unknown;
+    const c = {
+      id: "aquacultureWaterSatellite",
+      layers: [{ suffix: "fill", type: "fill", paint: () => ({ "fill-opacity": fade }) }],
+    } as unknown as OverlayConfig;
+    const wrapped = withLineFillSpec(c).layers[0]!.paint(true, {})["fill-opacity"] as unknown[];
+    expect(wrapped.slice(0, 4)).toEqual(["interpolate", ["linear"], ["zoom"], 6]);
+    expect(wrapped[6]).toBe(0);
+    expect(typeof wrapped[4]).toBe("number");
+  });
+
+  it("F178：資料驅動的外框 line-opacity 保留，不被 coverage 固定值蓋掉", () => {
+    const op = ["case", ["==", ["get", "hidden"], 1], 0, 0.8];
+    const c = {
+      id: "aquacultureWaterSatellite",
+      layers: [
+        { suffix: "fill", type: "fill", paint: () => ({ "fill-opacity": 0.5 }) },
+        { suffix: "outline", type: "line", paint: () => ({ "line-width": 1, "line-opacity": op }) },
+      ],
+    } as unknown as OverlayConfig;
+    expect(withLineFillSpec(c).layers[1]!.paint(true, {})["line-opacity"]).toEqual(op);
+  });
+
+  it("F180／F184：isobath/line 不被當面外框正規化", () => {
+    const linePaint = { "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.4, 12, 2.2], "line-opacity": 0.85 };
+    const c = {
+      id: "isobath",
+      layers: [
+        { suffix: "fill", type: "fill", paint: () => ({ "fill-opacity": 0.35 }) },
+        { suffix: "line", type: "line", paint: () => linePaint },
+      ],
+    } as unknown as OverlayConfig;
+    expect(withLineFillSpec(c).layers[1]!.paint(true, {})).toEqual(linePaint);
+  });
 });

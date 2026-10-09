@@ -122,7 +122,7 @@ AG-1 只改 `MainMapConnection.tsx` 的 map_context 回傳與 pulse-layers skill
 
 ## P1–P3 進度（2026-10-03）
 
-P1 結果通道、P2 快路徑、P3 token 配對已上線；P4（正式站驗收）待使用者 token。AG-1 未達標。介面契約見 [SPEC-prod-connect-p1-p3.md](./SPEC-prod-connect-p1-p3.md)。
+P1 結果通道、P2 快路徑、P3 token 配對已上線；P4（正式站驗收）已於 2026-10-04 完成量測（見下）；AG-1 已達標（2026-10-04，見 §AG-1）。重整還原與面板撤銷 token 尚待使用者手動驗。介面契約見 [SPEC-prod-connect-p1-p3.md](./SPEC-prod-connect-p1-p3.md)。
 
 ### Release truth
 
@@ -133,10 +133,10 @@ P1 結果通道、P2 快路徑、P3 token 配對已上線；P4（正式站驗收
 | stage（本機 analysis-prod） | done | 三個 worktree 已切到上述版本；8794 改測試身分 |
 | deploy | done | Zeabur `research-gateway` 新 pod 2026-10-03 12:36:52Z；正式站以 `fd943f3e`（含 #512）部署，新 pod 12:43:09Z |
 | HTTP（正式站、未登入） | done | 新端點 401；`/pairings/claim` 404（已移除）；上傳路徑放行 2 MB（410）；一般路徑 100 KB 回 413 |
-| browser（正式站登入後） | not run | 待使用者在面板產生 token 並 `token:save` |
-| 正式站量測 | not run | 待 token；只有改版前 P0 數字 |
-| MCP 重連 | not run | Claude Code 需 `/mcp` 重連 |
-| AG-1 | 未達標 | 見下 |
+| browser（正式站登入後） | done（部分） | 2026-10-04 已用使用者 token 跑 `e2e-prod-connect.mjs prod`；重整還原、面板撤銷 token 未在正式站實測（需手動） |
+| 正式站量測 | done | 2026-10-04，見「正式站量測」 |
+| MCP 重連 | done | 已重連使用 |
+| AG-1 | 達標 | PR #517 合併，分層題庫 13/13，見下 |
 
 ### 數字（本機 e2e，改版前後同環境）
 
@@ -149,15 +149,26 @@ P1 結果通道、P2 快路徑、P3 token 配對已上線；P4（正式站驗收
 | 重整還原 | — | 5.5 s |
 | 18 MiB 上傳 | — | 151 ms |
 
-正式站 P0（改版前）：set_camera 4.7 s、map_context 0.96 s、set_layers 4.8 s。網路經 Cloudflare 新加坡節點，ping 150 ms，同連線請求 0.17–0.37 s。正式站改版後的數字尚未量。
+正式站 P0（改版前）：set_camera 4.7 s、map_context 0.96 s、set_layers 4.8 s。網路經 Cloudflare 新加坡節點，ping 150 ms，同連線請求 0.17–0.37 s。
+
+### 正式站量測（2026-10-04，`e2e-prod-connect.mjs prod`）
+
+| 動作 | 改版前（P0） | 改版後 |
+|---|---|---|
+| 接上分頁 | 手動配對 12.5 s | 0.93 s（免碼） |
+| set_camera | 4.7 s | 1.8 s（6/6 ready） |
+| set_layers | 4.8 s | 0.87 s |
+| map_context | 0.96 s | 0.45 s（含 AG-1 摘要） |
+| show_nearby 上圖 | 不可用 | p50 5.8 s |
 
 ### AG-1
 
-分層題庫（本機新版、sonnet、live-map，run `2026-10-03T14-06-22-320Z`）：13/13，上圖、動靜、語氣 100%，$3.04、555 s。但 AG-1 未達標：L01–L04 的圖層都是自繪（`visibleSummary` 回 `custom_renderer`），回答第二句只能說讀不到數字；L01、L03 鏡頭移動各一次 SCENE_ERROR。後續 PR `feat/ag1-layer-data-summary`（自繪圖層用圖層資料做摘要、修 SCENE_ERROR）進行中。
+首輪（2026-10-03）分層題庫（本機新版、sonnet、live-map，run `2026-10-03T14-06-22-320Z`）：13/13，上圖、動靜、語氣 100%，$3.04、555 s。當時 AG-1 未達標（歷史紀錄）：L01–L04 的圖層都是自繪（`visibleSummary` 回 `custom_renderer`），回答第二句只能說讀不到數字；L01、L03 鏡頭移動各一次 SCENE_ERROR。後續 PR #517（自繪圖層用圖層資料做摘要、修 SCENE_ERROR）已於 2026-10-04 合併，重跑分層題庫 13/13，AG-1 結案（進度見 `STATUS.md`）。
 
 ### 待辦
 
-1. 使用者在正式站面板產生 token，`pbpaste | npm run token:save`（在 `analysis-prod/mcp`）。
-2. 跑 `e2e-prod-connect.mjs prod` 與正式站量測，補上本節數字。
-3. Claude Code `/mcp` 重連 pulse-research。
-4. AG-1 PR 合併後，重跑分層題庫確認 L01–L04。
+1. ~~產生 token 並 `token:save`~~（2026-10-04 完成）。
+2. ~~跑 `e2e-prod-connect.mjs prod` 與正式站量測~~（完成，數字見上）。
+3. ~~Claude Code `/mcp` 重連~~（完成）。
+4. ~~AG-1 PR 合併後重跑分層題庫~~（完成，13/13）。
+5. 手動待驗：正式站重整還原、面板撤銷 token。

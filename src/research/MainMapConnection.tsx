@@ -34,7 +34,7 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender, waitForValue } from "./sceneReadiness";
-import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, warehouseDatasetsSourceLabel, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
 import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
@@ -155,6 +155,8 @@ export function MainMapConnection(props: Props) {
   const availableResultRowsRef = useRef<PresentableResult[]>([]);
   /** I2: rows behind the open docked panel; re-applied after every install (feature-state is per source). */
   const analysisSelectionRef = useRef<AnalysisSelection[]>([]);
+  /** Rebuilds the open docked popup payload (playback sync); null when no timed-choropleth popup is open. */
+  const openPanelRef = useRef<{ rebuild: () => AnalysisResultPanelProperties } | null>(null);
   /** S1: when each result last became visible (LRU for the 3-result cap) and which area results lost the fill slot. */
   const analysisActivationsRef = useRef<Map<string, number>>(new Map());
   const analysisOutlineOnlyRef = useRef<string[]>([]);
@@ -516,6 +518,8 @@ export function MainMapConnection(props: Props) {
         case "walking_isochrone": {
           if (!networkProvider.current) throw new Error("NETWORK_PROVIDER_UNAVAILABLE");
           const outcome = await networkProvider.current.walkingIsochrone(request.args);
+          // 撤銷／換 session 期間回來的舊結果不得寫進新的 analysis session。
+          if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
           if (outcome.status === "READY" && "contours" in outcome) {
             if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
             result = analysis.current.storeWalkingIsochrone(outcome);
@@ -673,6 +677,23 @@ export function MainMapConnection(props: Props) {
       });
       return { points, caption: `近 ${style.periods.length} 期`, markerIndex: playback?.index ?? style.periods.length - 1 };
     };
+    // The docked popup's value comes from the feature's latest-period styleFactValue; for a timed
+    // choropleth re-derive it from the row at the *current* playback period so it matches the map.
+    const timedStyleFor = (properties: Record<string, unknown>) => {
+      const resultId = properties.resultId;
+      const style = typeof resultId === "string" ? presentedAnalysisRef.current.find(result => result.resultId === resultId)?.resultStyle : undefined;
+      return style && style.kind === "choropleth" && isTimedChoropleth(style) ? { resultId: resultId as string, style } : null;
+    };
+    const periodSyncedFeature = <T extends { properties?: Record<string, unknown> | null }>(feature: T): T => {
+      const properties = feature.properties ?? {};
+      const timed = timedStyleFor(properties);
+      const fid = properties[FEATURE_ID_PROPERTY];
+      if (!timed || typeof fid !== "number") return feature;
+      const row = availableResultRowsRef.current.find(result => result.resultId === timed.resultId)?.rows[fid] as Record<string, unknown> | undefined;
+      if (!row) return feature;
+      const fact = warehouseChoroplethPeriodFact(timed.style, row, getAnalysisPlaybackState(timed.resultId)?.index ?? timed.style.periods.length - 1);
+      return { ...feature, properties: { ...properties, styleFactLabel: fact.label, styleFactValue: fact.value } };
+    };
     const click = (event: MapMouseEvent) => {
       const layers = analysisResultInteractiveLayerIds(map, presentedAnalysisRef.current.length);
       const overlaps = researchResultPopupOverlaps(layers.length ? map.queryRenderedFeatures(event.point, { layers }) : []);
@@ -682,12 +703,24 @@ export function MainMapConnection(props: Props) {
       applyAnalysisSelection();
       // Registered after useMapInteraction's click listener (map is only passed once prepared),
       // so within one batched click this panel wins over its synchronous "blank click" clear.
-      latest.current.onAnalysisResultFeature?.(researchResultPanelProperties(
-        overlaps,
+      const build = () => researchResultPanelProperties(
+        { ...overlaps, features: overlaps.features.map(periodSyncedFeature) },
         resultId => presentedAnalysisRef.current.find(result => result.resultId === resultId),
-        datasetId => describeDataset(datasetId, latest.current.locked).label,
+        datasetId => {
+          try { return describeDataset(datasetId, latest.current.locked).label; }
+          catch (error) {
+            // warehouse:<id> 不在前端 descriptor：以匯入 lineage 的上游資料集名稱代替。
+            const sources = presentedAnalysisRef.current.find(result => result.datasetId === datasetId)?.sourceDatasets;
+            const label = warehouseDatasetsSourceLabel(sources, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]);
+            if (label) return label;
+            throw error;
+          }
+        },
         trendFor,
-      ));
+      );
+      // 開著的 popup 要跟著播放／拖曳更新（markerIndex 與目前期別的值）；只有含 timed choropleth 的 popup 需要。
+      openPanelRef.current = overlaps.features.some(feature => timedStyleFor(feature.properties ?? {})) ? { rebuild: build } : null;
+      latest.current.onAnalysisResultFeature?.(build());
     };
     let cancelStyleRestore: (() => void) | null = null;
     const redrawAfterStyleLoad = () => {
@@ -706,6 +739,7 @@ export function MainMapConnection(props: Props) {
     return () => {
       cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click);
       if (hoverTip) { map.off("mousemove", hover); map.off("mouseout", endHover); map.off("movestart", endHover); endHover(); hoverTip.destroy(); }
+      openPanelRef.current = null;
       latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
       clearAnalysisPlayback();
     };
@@ -714,6 +748,10 @@ export function MainMapConnection(props: Props) {
   // this panel — both to re-paint the map (the effect below) and to republish the legend's playback
   // bar (index/playing) live.
   const playbackVersion = useSyncExternalStore(subscribeAnalysisPlayback, getAnalysisPlaybackVersion, getAnalysisPlaybackVersion);
+  // F118: keep an open timed-choropleth popup in step with the playback (tick/scrub).
+  useEffect(() => {
+    if (props.analysisResultSelected && openPanelRef.current) latest.current.onAnalysisResultFeature?.(openPanelRef.current.rebuild());
+  }, [playbackVersion, props.analysisResultSelected]);
   // T2 A2: re-paints every installed timed choropleth to its own stored period on every tick/scrub,
   // and again whenever a fresh install (Agent command, basemap switch) lands — so a scrubbed period
   // survives `style.load`'s source/layer rebuild (spec: "切換底圖...後保留目前期別").
@@ -749,14 +787,16 @@ export function MainMapConnection(props: Props) {
   useEffect(() => {
     publishAnalysisLegend({
       // Source line = the dataset descriptor's name (not the result title, which is often the same text).
-      entries: analysisLegendEntries(presentedAnalysis, datasetId => {
+      entries: analysisLegendEntries(presentedAnalysis, (datasetId, _displayLabel, sourceDatasets) => {
         const label = researchResultDatasetLabel(datasetId, null, id => describeDataset(id, latest.current.locked).label);
-        return label === UNNAMED_DATASET_LABEL ? null : label;
-      }, analysisPlaybackFor),
+        if (label !== UNNAMED_DATASET_LABEL) return label;
+        // warehouse:<id> 不在前端 descriptor：改用匯入 lineage 的上游資料集，解析不出名稱的不顯示。
+        return warehouseDatasetsSourceLabel(sourceDatasets, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]) ?? null;
+      }, analysisPlaybackFor, availableAnalysis),
       compact: !!props.analysisResultSelected,
     });
     // playbackVersion: republishes on every tick/scrub so the bar's index/playing stay live.
-  }, [presentedAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
+  }, [presentedAnalysis, availableAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
   useEffect(() => () => publishAnalysisLegend({ entries: [], compact: false }), []);
   // I2: closing the docked panel, or selecting another layer's feature, restores every result.
   useEffect(() => {
@@ -768,7 +808,7 @@ export function MainMapConnection(props: Props) {
     const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];
     if (!resultIds.length) return;
     const timer = window.setInterval(() => {
-      if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasResult(resultId))) {
+      if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasAccessibleResult(resultId))) {
         clearAnalysisPresentation(true);
         setMessage("分析結果已過期、移除或失去授權；舊 overlay 已清除。");
         setActivity({ phase: "complete", title: "已清除過期結果", detail: "可重新執行分析以取得目前版本。" });

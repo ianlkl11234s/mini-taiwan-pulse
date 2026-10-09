@@ -108,6 +108,30 @@ function fadesByAlpha(value: unknown): boolean {
   return isDataDriven(value) && JSON.stringify(value).includes('["get","alpha"]');
 }
 
+/**
+ * 混合 expression（zoom 的 interpolate／step 外殼 + 讀 feature 屬性的 case／match）逐分支正規化：
+ * 不讀資料的輸出（含 case／match 的最後 fallback）換成標準值；有條件的分支（資料編碼）保留。
+ * 其他形狀（例：`["*", x, ["get","alpha"]]`）原樣保留。
+ */
+export function normalizeMixedBranches(value: unknown, std: unknown): unknown {
+  if (!Array.isArray(value)) return std;
+  if (!isDataDriven(value)) return std;
+  const [op] = value;
+  const isZoom = (x: unknown) => Array.isArray(x) && x[0] === "zoom";
+  const idx = (pred: (i: number) => boolean) => value.map((_, i) => i).filter(pred);
+  let outs: number[] | null = null;
+  let fallback = -1;
+  if (op === "interpolate" && isZoom(value[2])) outs = idx((i) => i >= 4 && i % 2 === 0);
+  else if (op === "step" && isZoom(value[1])) outs = idx((i) => i === 2 || (i >= 4 && i % 2 === 0));
+  else if (op === "case" && value.length >= 4) { fallback = value.length - 1; outs = idx((i) => i >= 2 && i % 2 === 0 && i < fallback); }
+  else if (op === "match" && value.length >= 5) { fallback = value.length - 1; outs = idx((i) => i >= 3 && i % 2 === 1 && i < fallback); }
+  if (!outs) return value;
+  const next = [...value];
+  for (const i of outs) next[i] = isDataDriven(value[i]) ? normalizeMixedBranches(value[i], std) : op === "case" || op === "match" ? value[i] : std;
+  if (fallback >= 0) next[fallback] = isDataDriven(value[fallback]) ? normalizeMixedBranches(value[fallback], std) : std;
+  return next;
+}
+
 export function withPointSpec(config: OverlayConfig): OverlayConfig {
   const tier = POINT_TIERS[config.id];
   const hasDecoration = config.layers.some((l) => DECORATION_SUFFIX_RE.test(l.suffix));
@@ -135,14 +159,16 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
           : sliderFactor(opacitySpec, params);
         // 描邊依資料屬性變化＝資料編碼（spec：map-layers §3 P-2 例外），保留原值；固定描邊才換成底圖色細縫
         const keep = (prop: string) => isDataDriven(base[prop]);
+        const strokeOpacity = fadesByAlpha(base["circle-opacity"])
+          ? ["*", Math.min(1, POINT_STROKE.opacity[theme] * opacity), ["coalesce", ["get", "alpha"], 1]]
+          : Math.min(1, POINT_STROKE.opacity[theme] * opacity);
+        const stroke = (prop: string, std: unknown) => (keep(prop) ? normalizeMixedBranches(base[prop], std) : std);
         return {
           ...base,
           ...(tier === "B" ? {} : { "circle-radius": dense ? denseRadius(pointRadius(tier), sliderFactor(sizeSpec, params)) : pointRadius(tier, sliderFactor(sizeSpec, params)) }),
-          ...(keep("circle-stroke-color") ? {} : { "circle-stroke-color": mapSeamColor(isDark) }),
-          ...(keep("circle-stroke-width") ? {} : { "circle-stroke-width": dense ? denseStrokeWidth : POINT_STROKE.width }),
-          ...(keep("circle-stroke-opacity") ? {} : { "circle-stroke-opacity": fadesByAlpha(base["circle-opacity"])
-            ? ["*", Math.min(1, POINT_STROKE.opacity[theme] * opacity), ["coalesce", ["get", "alpha"], 1]]
-            : Math.min(1, POINT_STROKE.opacity[theme] * opacity) }),
+          "circle-stroke-color": stroke("circle-stroke-color", mapSeamColor(isDark)),
+          "circle-stroke-width": stroke("circle-stroke-width", dense ? denseStrokeWidth : POINT_STROKE.width),
+          "circle-stroke-opacity": stroke("circle-stroke-opacity", strokeOpacity),
         };
       },
     };

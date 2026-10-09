@@ -365,6 +365,7 @@ export function useTimeline({
     setTimeMode(mode);
     if (mode === "replay") {
       setPlaying(false);
+      userPausedRef.current = true; // live → replay 就是使用者按下暫停，autoPlay 不可在載入完成後又開始播
     }
     if (mode === "live") {
       setSelectedDateRaw(new Date());
