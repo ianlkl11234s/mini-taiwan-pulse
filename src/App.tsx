@@ -75,6 +75,7 @@ import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
+import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { IntelPanel } from "./components/intel/IntelPanel";
@@ -221,6 +222,8 @@ export default function App() {
   // Agent 面板：開發版全開；正式站只給站主（gateway 另有 email 白名單與研究登入）。
   const agentEnabled = import.meta.env.DEV || isOwner;
   const [memberOpen, setMemberOpen] = useState(false);
+  // 手機版資料來源瀏覽器（桌機在 IconRailSidebar 內；手機沒有 rail，從底部面板進入）
+  const [mobileDataSourceOpen, setMobileDataSourceOpen] = useState(false);
   const memberLibrary = useMemberLibrary();
   const privateViewRef = useRef(false);
   const [memberPlaceGeometry, setMemberPlaceGeometry] = useState<MemberPlaceGeometry | null>(null);
@@ -2733,11 +2736,41 @@ export default function App() {
                         }
                       }}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setMobileDataSourceOpen(true)}
+                      style={{
+                        alignSelf: "flex-start", padding: "6px 12px", borderRadius: RADIUS.md, cursor: "pointer",
+                        fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                        background: isDarkTheme ? "rgba(255,255,255,0.06)" : LIGHT.fillStrong,
+                        color: isDarkTheme ? COLORS.textDefault : LIGHT.textDefault,
+                        border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.12)" : LIGHT.border}`,
+                      }}
+                    >
+                      資料來源與授權
+                    </button>
                   </div>
                 )}
               </>
             )}
           </MobileBottomSheet>
+          {mobileDataSourceOpen && (
+            <div
+              role="dialog"
+              aria-label="資料來源"
+              style={{
+                position: "fixed", inset: 0, top: 44, zIndex: Z_INDEX.modal, overflowY: "auto",
+                background: isDarkTheme ? SURFACE.solid : LIGHT.surfaceSolid,
+              }}
+            >
+              <DataSourcePanel
+                isDarkTheme={isDarkTheme}
+                lockedKeys={lockedKeys}
+                onActivateLayer={(key) => { handleBulkSetVisibility([key], true); setMobileDataSourceOpen(false); }}
+                onClose={() => setMobileDataSourceOpen(false)}
+              />
+            </div>
+          )}
         </>
       )}
 
