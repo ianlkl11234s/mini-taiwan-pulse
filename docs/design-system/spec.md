@@ -699,6 +699,7 @@
 - **顏色**：`--accent`（淡色底圖由 `.research-activity-position--light` 換成 `--light-accent`）；內陰影 `inset 0 0 40px` 22%＋`inset 0 0 110px` 10%。不用白色（舊版在淡色底圖上是一圈白邊）。
 - **動態**：節點常駐，只切換 class：淡入 0.6 秒、淡出 0.9 秒；**不忙碌 1.5 秒後才熄**（`GLOW_LINGER_MS`），步驟之間短暫不忙碌時不會熄滅再亮起。不做無限循環的明暗閃動。`prefers-reduced-motion` 時不做過渡。
 - **實作**：`src/research/ResearchActivityCard.tsx`（`useLingeringFlag`）、`researchActivity.css`。
+- **Agent 自動鏡頭縮放上限**（2026-10-09 使用者決定維持）：Agent 自動 fit 範圍時縮放上限固定 16（`src/research/viewportFit.ts` 的 `CAMERA_MAX_ZOOM_CEILING`）；只限制自動 fit，不限制使用者手動縮放。
 
 ### 5.32 地圖圖例（legendKit）
 
@@ -775,6 +776,7 @@
 - **標題列（C3）**：13px bold 中文標題＋9px `textDim` 英文名（§6.1 小字附註）；右側資料時間 10px `FONT_DATA`（當日 `HH:MM`、跨日 `MM/DD`）；只有異常才在時間前加 `chipOutline` pill。窄格放不下時**先隱藏英文名**，中文標題、時間、pill 必留。不用英文大寫；面板標頭照 §5.1（`MONITOR`／`BETA`／`SITUATIONAL AWARENESS` 一併中文化）。
 - **數值列（D3）**：一格一個主數字＋其餘指標 KPI 列（標籤在上）＋副資訊。字級依 S13：主數字 24、KPI 19、標籤與副資訊 13（原提案 22／18／10 已由 S13 取代）。單位照 §6.2；漲跌色依領域（股市紅漲綠跌，其他依好壞）。
 - **走勢圖（E3）**：連續量（指數、比率、人數、MW）用折線＋淡面積＋最新點＋首尾日期；計數（次數、件數、架次）用柱。缺值：折線斷開並在缺段畫斜線帶（與地圖缺值斜線同語彙）／柱為灰色短樁；0＝底線。由擴充 `TimeseriesSparkline`＋`HazardTrendBars` 的同一個走勢元件出，不再手刻 SVG／CSS 柱。
+  - **時間軸（日曆軸）**：加權指數等交易資料的走勢用**日曆時間軸**，休市日不補點、長假（連假）在線上斷開，符合「不捏造日期」；不改成只排交易日的序列。
 - **共用數值列與走勢（P2b 實作）**：`MonitorMetric.tsx`（`MonitorMetric` 主數字／`MonitorKpis`／`MonitorSub`／`MonitorNote`，由 `HazardCards` 私有元件升格）；`monitorChart.ts` `MON_CHART_H`；`TimeseriesSparkline`、`HazardTrendBars` 的 `heightTier`（圖區高度，只在新版生效）。新版折線：缺口斜線帶、最新值圓點、上留白 10（有單位 18，單位字放留白裡）、Y 軸字最多底中頂三個（圖區 < 60 只留底頂）。資料是時段桶或只有序列、沒有時間戳時（警訊 24 小時、公衛週次）保留原圖，只對齊圖高、字級與首尾標籤，不捏造日期；類別堆疊（時間軸）與異常日區帶（食品）也保留原圖。
 - **多指標卡（F3＋雙主圖）**：
   - 主圖＋其餘小倍數列（名稱｜走勢｜最新值，同寬同高、共用時間軸、各自比例尺，不另放圖例）。

@@ -310,7 +310,7 @@ export const fetchMarketIndex = cachedOnce(_fetchMarketIndexRaw, TTL_FAST);
 
 /** 加權指數近 30 交易日日線 — public.get_market_index_daily（migration 325） */
 export interface MarketIndexDailyPoint {
-  trade_date: string;   // "2026-07-31"；週末/缺日無列，畫圖請用交易日序列而非日曆軸
+  trade_date: string;   // "2026-07-31"；週末/休市日無列，畫圖用日曆時間軸：不補點、長假斷線（spec §5.35 走勢圖）
   open: number;
   high: number;
   low: number;
