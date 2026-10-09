@@ -1,6 +1,6 @@
 # R6 交接：Three.js 圖層加「基本點線面」模式
 
-> 狀態：🚧 段 1 已在 feat/map-restyle-r6 實作；段 2 實作完成待使用者看對照頁（2026-10-06，[`r6-s2-compare.html`](./r6-s2-compare.html)）；段 3 另軌進行（2026-10-04 交接）。地圖改版 R1–R5、R7、R8 已全部合併（至 #523），R6 是最後一輪。
+> 狀態：🚧 段 1 完成，PR #547 待合（feat/map-restyle-r6）；段 2 完成（2026-10-06，對照頁 [`r6-s2-compare.html`](./r6-s2-compare.html)，疊在段 1 之上）；段 3 另軌進行（2026-10-04 交接）。地圖改版 R1–R5、R7、R8 已全部合併（至 #523），R6 是最後一輪。
 > 進度總表：[`docs/design-system/README.md`](../../design-system/README.md)「目前進度」。規格：[`map-layers.md`](../../design-system/map-layers.md) §3.4 **G-1**。
 
 ## 1. 要做什麼

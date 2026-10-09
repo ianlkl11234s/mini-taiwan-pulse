@@ -62,6 +62,8 @@ import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES } from "../data/environmentStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_RECIPES } from "../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES } from "../data/landslideStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES } from "../data/demographicsStatisticsRecipes";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
@@ -252,7 +254,13 @@ import {
   SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
   IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend,
 } from "./legend/environmentLegends";
+import {
+  HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend,
+  HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend,
+  HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend,
+} from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
+import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -371,6 +379,24 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "landslideDodAreas", render: () => <LandslideDodAreasLegend /> },
+  { id: "landslideDodImpact", render: () => <LandslideDodImpactLegend /> },
+  { id: "highwayDisasterHistory", render: () => <HighwayDisasterHistoryLegend /> },
+  { id: "landslideAnnual", render: () => <LandslideAnnualLegend /> },
+  { id: "harmReductionNeedle", render: () => <HarmReductionNeedleLegend /> },
+  { id: "harmReductionTreatment", render: () => <HarmReductionTreatmentLegend /> },
+  { id: "harmReductionHivSelftest", render: () => <HarmReductionHivSelftestLegend /> },
+  { id: "harmReductionHivTesting", render: () => <HarmReductionHivTestingLegend /> },
+  { id: "harmReductionPreventionCenters", render: () => <HarmReductionPreventionCentersLegend /> },
+  { id: "harmReductionAlcohol", render: () => <HarmReductionAlcoholLegend /> },
+  { id: "harmReductionPrep", render: () => <HarmReductionPrepLegend /> },
+  { id: "harmReductionInternetAddiction", render: () => <HarmReductionInternetAddictionLegend /> },
+  { id: "harmReductionAftercare", render: () => <HarmReductionAftercareLegend /> },
+  { id: "harmReductionSmokingCessation", render: () => <HarmReductionSmokingCessationLegend /> },
+  { id: "harmReductionAntiDrugPharmacies", render: () => <HarmReductionAntiDrugPharmaciesLegend /> },
+  { id: "harmReductionCondomOutlets", render: () => <HarmReductionCondomOutletsLegend /> },
+  { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
+  { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
   { id: "drinkingWaterPoints", render: () => <PublicLifeOsmLegend label="飲水點" color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: () => <PublicLifeOsmLegend label="公共垃圾桶" color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: () => <PublicLifeOsmLegend label="資源回收點" color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra="僅代表來源明列的材料；未標註不推論可回收材料。" /> },
@@ -399,6 +425,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
   ...DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...LANDSLIDE_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),

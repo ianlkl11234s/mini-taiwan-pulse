@@ -90,7 +90,7 @@ const snapshotPath = resolve(docsDir, "layer-freshness-live-snapshot.json");
 const snapshotDoc = readJson(snapshotPath, { queried_at: null, tables: {} });
 
 const recipes = new Map();
-for (const name of ["agriStatisticsRecipes", "socialStatisticsRecipes", "laborStatisticsRecipes", "environmentStatisticsRecipes", "demographicsStatisticsRecipes", "comparisonStatisticsRecipes"]) {
+for (const name of ["agriStatisticsRecipes", "socialStatisticsRecipes", "laborStatisticsRecipes", "environmentStatisticsRecipes", "demographicsStatisticsRecipes", "addictionStatisticsRecipes", "landslideStatisticsRecipes", "comparisonStatisticsRecipes"]) {
   const document = readJson(resolve(root, "src/data", `${name}.json`), []);
   for (const recipe of Array.isArray(document) ? document : document.recipes ?? []) recipes.set(recipe.layer_key, recipe);
 }

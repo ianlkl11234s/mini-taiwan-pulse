@@ -4,6 +4,8 @@ import { isStatisticsLayer, STATISTICS_RECIPES, statisticsBaseKey } from "./regi
 import { getSocialRecipe } from "./socialStatisticsRecipes";
 import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemantics } from "./laborStatisticsRecipes";
 import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
+import { getAddictionRecipe } from "./addictionStatisticsRecipes";
+import { getLandslideRecipe } from "./landslideStatisticsRecipes";
 import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
@@ -129,6 +131,44 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
     };
   }
 
+  const addiction = getAddictionRecipe(key);
+  if (addiction) {
+    const raw = addiction.pair_raw_key ? getAddictionRecipe(addiction.pair_raw_key) : undefined;
+    const points = addiction.dataset_id === "addiction_service_points";
+    return {
+      kind: addiction.derived ? "derived" : "source",
+      datasetIds: [addiction.dataset_id],
+      label: points ? "衍生據點計數（本專案減害點位圖層）" : addiction.derived ? "衍生成癮與減害統計比例" : "原始成癮與減害統計快照",
+      metricLabel: addiction.label,
+      unit: addiction.unit,
+      level: addiction.level,
+      period: periodLabel(addiction.release_options),
+      contract: `只接受 ${addiction.release_options.length} 個已交付 exact release selector；${raw ? `分子為「${raw.label}」同期。` : points ? "點在參考行政區面內計數。" : "數值保留來源值，不重算。"}不適用、無資料、隱私遮蔽皆不補 0。`,
+      disclosure: `位置口徑：${addiction.location_semantics} ${addiction.disclosure}`,
+      sourceUrl: addiction.source_landing_url,
+      provider: addiction.publisher,
+      license: addiction.license,
+    };
+  }
+
+  const landslide = getLandslideRecipe(key);
+  if (landslide) {
+    return {
+      kind: "source",
+      datasetIds: [landslide.dataset_id],
+      label: "原始崩塌與水土保持統計快照",
+      metricLabel: landslide.label,
+      unit: landslide.unit,
+      level: landslide.level,
+      period: periodLabel(landslide.release_options),
+      contract: `只接受 ${landslide.release_options.length} 個已交付 exact release selector；數值保留來源值，不重算。來源當年未列的縣市顯示「未列」，不補 0。`,
+      disclosure: `位置口徑：${landslide.location_semantics} ${landslide.disclosure}`,
+      sourceUrl: landslide.source_landing_url,
+      provider: landslide.publisher,
+      license: landslide.license,
+    };
+  }
+
   const demographics = getDemographicsRecipe(key);
   if (demographics) {
     // 人數／戶數是 RIS 村里計數的精確加總；其餘（占比、指數、戶量、密度、中位數）在本層級加總後計算。
@@ -198,7 +238,7 @@ export function isDataSourceBrowserVisible(key: string): boolean {
 }
 
 export function statisticsSourceLevelLabel(level: string): string {
-  return ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區" } as Record<string, string>)[level] ?? level;
+  return ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區" } as Record<string, string>)[level] ?? level;
 }
 
 export function statisticsIndicatorLabel(value: unknown, level: string): string {
