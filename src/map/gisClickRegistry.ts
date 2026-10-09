@@ -192,6 +192,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
+  // 日本氣象廳即時點層（火山／AMeDAS 小點排在地震大泡泡之前）
+  { layers: ["jma-volcanoes-circle"], type: "jmaVolcanoes" },
+  { layers: ["jma-amedas-circle"], type: "jmaAmedas" },
+  { layers: ["jma-quakes-circle"], type: "jmaQuakes" },
   { layers: ["jp-medical-facilities-hospital"], type: "jpMedicalHospitals" },
   { layers: ["jp-medical-facilities-clinic"], type: "jpMedicalClinics" },
   { layers: ["jp-medical-facilities-dental"], type: "jpMedicalDental" },
@@ -233,6 +237,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
   { layers: ["jp-water-jpWaterRivers"], type: "jpWaterRivers" },
+  { layers: ["jma-warnings-fill"], type: "jmaWarnings" },
   { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
   { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
   { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },

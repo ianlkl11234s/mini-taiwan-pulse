@@ -5,6 +5,7 @@ import { ADDICTION_ENABLED_STATISTICS_KEYS, type AddictionStatisticsLayerKey } f
 import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } from './landslideStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
+import { JMA_AMEDAS_MODES } from "./jmaTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -3528,6 +3529,18 @@ export const LAYER_PARAMS_SPEC = {
   waterEffluentLive: [opacitySlider("waterEffluentLiveOpacity", 0.9), scaleSlider("waterEffluentLiveScale", 1)],
   cemsStackLive: [opacitySlider("cemsStackLiveOpacity", 0.9), scaleSlider("cemsStackLiveScale", 1)],
   cwaUvDaily: [opacitySlider("cwaUvDailyOpacity", 0.9), scaleSlider("cwaUvDailyScale", 1)],
+  // ── 日本氣象廳即時 4 層：點層透明度＋大小；AMeDAS 可切觀測項目（積雪只畫有積雪計的站 → filter 需重建）──
+  jmaAmedas: [
+    opacitySlider("jmaAmedasOpacity", 0.9), scaleSlider("jmaAmedasScale", 1),
+    {
+      kind: "select", name: "jmaAmedasMode", label: "指標", default: "temp",
+      options: JMA_AMEDAS_MODES.map(({ label, value }) => ({ label, value })),
+      out: "jmaAmedasModeIdx", encode: JMA_AMEDAS_MODES.map((mode) => mode.value),
+    },
+  ],
+  jmaWarnings: [opacitySlider("jmaWarningsOpacity", 0.55)],
+  jmaQuakes: [opacitySlider("jmaQuakesOpacity", 0.85), scaleSlider("jmaQuakesScale", 1)],
+  jmaVolcanoes: [opacitySlider("jmaVolcanoesOpacity", 0.9), scaleSlider("jmaVolcanoesScale", 1)],
   riverRpiSegments: [
     opacitySlider("riverRpiSegmentsOpacity", 0.85),
     {
