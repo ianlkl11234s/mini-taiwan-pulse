@@ -215,7 +215,7 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
 // 2026-10-03 依日本面板的大分類（layerPanels.ts `JAPAN_MACRO_GROUPS`）重排：同一大分類的主題相鄰。
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "人口", "交通", "旅宿", "醫療設施", "長照服務", "醫療圈", "治安", "教育", "宗教", "自然保護", "世界遺產", "水資源", "高度與地表"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "人口", "交通", "旅宿", "醫療設施", "長照服務", "醫療圈", "治安", "教育", "宗教", "自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"];
 
 /** 環境統計依 recipe 的中分類／小分組派生；raw 在 ratio 前，toggle 群組只在第一個成員渲染。 */
 function environmentLayers(match: (recipe: EnvironmentRecipe) => boolean): LayerDef[] {
@@ -2109,6 +2109,14 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "日本高度（分區資料）", layers: [fromManifest("jpBuildingHeight"), fromManifest("jpCanopyHeight")] }],
   },
+  {
+    title: "氣象防災",
+    defaultCollapsed: true,
+    groups: [
+      { title: "即時觀測", layers: [fromManifest("jmaAmedas"), fromManifest("jmaWarnings")] },
+      { title: "地震與火山", layers: [fromManifest("jmaQuakes"), fromManifest("jmaVolcanoes")] },
+    ],
+  },
 
 ];
 
@@ -2201,12 +2209,13 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "醫療圈": "safety",
   "高度與地表": "environment",
   "水資源": "environment",
+  "氣象防災": "safety",
 };
 
 /**
  * 主題的顯示名稱（spec §5.5 LT1、layer-panel-unify P3）。`theme.title` 是識別字串（manifest
  * `section.theme`、大分類、各入口清單都拿它當 key），**不拆字**；畫面一律讀這張表。
- * - `sub`：副標小字。台灣、統計、世界用英文；日本 14 個主題用日文漢字（P3 B，與中文同字也照樣顯示）。
+ * - `sub`：副標小字。台灣、統計、世界用英文；日本 15 個主題用日文漢字（P3 B，與中文同字也照樣顯示）。
  * 新增主題時補一列；`layerCatalog` 測試會擋漏列。
  */
 export interface ThemeName {
@@ -2299,6 +2308,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "長照服務": { zh: "長照服務", sub: "介護サービス" },
   "醫療圈": { zh: "醫療圈", sub: "医療圏" },
   "高度與地表": { zh: "高度與地表", sub: "高さ・地表" },
+  "氣象防災": { zh: "氣象防災", sub: "気象・防災" },
   "水資源": { zh: "水資源", sub: "水資源" },
 };
 

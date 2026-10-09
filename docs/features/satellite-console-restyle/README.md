@@ -1,7 +1,7 @@
 # 衛星情報面板改版（satellite-console-restyle）
 
 > **Slug**：`satellite-console-restyle`
-> **狀態**：2026-10-04 盤點完成；同日使用者拍板（見下方「決策紀錄」），P-D 先行；P1 已實作（見決策 6）
+> **狀態**：2026-10-04 P-D、P1–P5 全部完成並合併（#533，develop）；正式站待 develop→master 部署後目視。歷史模式變軌清單（Z3）擱置，見 `.claude/memory/BACKLOG.md` SAT-Z3
 > **P-D 進度**：2026-10-04 已實作對照表 B 除「時間軸拉到過去，變軌清單仍抓現在」以外的 12 列（分支 `feat/satellite-console-restyle`）；該列待使用者決定作法，原樣保留（見文末「P-D 實作紀錄」）
 > **細節**：外殼與清單區 [`inventory-shell.md`](./inventory-shell.md)、卡片／彈窗／資料狀態 [`inventory-cards.md`](./inventory-cards.md)
 > **規格**：[`docs/design-system/spec.md`](../../design-system/spec.md)

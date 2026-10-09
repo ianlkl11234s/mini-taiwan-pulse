@@ -63,6 +63,8 @@ interface IconRailSidebarProps {
   satelliteActive?: boolean;
   /** 由外部觸發強制收起 rail panel（4-way panel mutex 用）— epoch 變動就收 */
   externalCloseEpoch?: number;
+  /** 掛載時已有外部左側面板開著（例如手機開了地震回放後 resize 到桌機）→ rail 不預設展開 Layers，維持互斥 */
+  startClosed?: boolean;
   /** 監測模式 Monitor split（右半邊）toggle */
   onMonitorSplitToggle?: () => void;
   monitorSplitActive?: boolean;
@@ -98,6 +100,7 @@ export function IconRailSidebar({
   onIntelToggle, intelActive,
   onSatelliteToggle, satelliteActive,
   externalCloseEpoch,
+  startClosed = false,
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
   onJapanOpen,
@@ -108,7 +111,7 @@ export function IconRailSidebar({
 }: IconRailSidebarProps) {
   const palette = railPalette(isDarkTheme);
   const { BG_RAIL, BORDER, BG_PANEL, PANEL_BORDER } = palette;
-  const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
+  const [activePanel, setActivePanel] = useState<PanelId | null>(startClosed ? null : "layers");
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   // 四個入口各自保留搜尋字（P9：各面板搜自己）

@@ -42,7 +42,9 @@ function layerPrefixes(layerKey: string): string[] {
 export function isLoadingTaskForLayer(taskId: string, layerKey: string): boolean {
   if (taskId.startsWith("research:")) return false;
   if (taskId.endsWith(`:${layerKey}`) || taskId.includes(`:${layerKey}:`)) return true;
-  return layerPrefixes(layerKey).some((prefix) => hasBoundaryPrefix(taskId, prefix));
+  // 前綴也要能出現在冒號之後（例 `overlay-hydrate:<sourceId>`，sourceId 與 layerKey 不同名）
+  const tails = [taskId, ...[...taskId.matchAll(/:/g)].map((m) => taskId.slice(m.index + 1))];
+  return layerPrefixes(layerKey).some((prefix) => tails.some((tail) => hasBoundaryPrefix(tail, prefix)));
 }
 
 export function isLayerLoading(layerKey: string): boolean {

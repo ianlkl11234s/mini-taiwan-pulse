@@ -9,7 +9,7 @@ import {
   type SatelliteCategory,
   type SatelliteRecord,
 } from "./satelliteTypes";
-import { isTleActive } from "./satelliteSGP4";
+import { isTleActive, parseTleEpoch } from "./satelliteSGP4";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -18,7 +18,10 @@ const CACHE_KEY = "satellite-layer-tle-v5-multi-country";
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 interface CacheBlob {
-  fetchedAt: number;
+  /** 寫入快取的時間（瀏覽器時間，只用於快取 TTL，不代表資料新鮮度） */
+  cachedAt: number;
+  /** 資料時間：這批 TLE 中最新的 epoch（epoch ms）；沒有有效 epoch 時為 null */
+  fetchedAt: number | null;
   records: SatelliteRecord[];
 }
 
@@ -36,16 +39,16 @@ function readCache(): CacheBlob | null {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const blob = JSON.parse(raw) as CacheBlob;
-    if (Date.now() - blob.fetchedAt > CACHE_TTL_MS) return null;
+    if (typeof blob.cachedAt !== "number" || Date.now() - blob.cachedAt > CACHE_TTL_MS) return null;
     return blob;
   } catch {
     return null;
   }
 }
 
-function writeCache(records: SatelliteRecord[], fetchedAt: number): void {
+function writeCache(records: SatelliteRecord[], fetchedAt: number | null): void {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt, records } satisfies CacheBlob));
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ cachedAt: Date.now(), fetchedAt, records } satisfies CacheBlob));
   } catch { /* ignore */ }
 }
 
@@ -99,15 +102,28 @@ async function fetchAll(): Promise<SatelliteRecord[]> {
   return out;
 }
 
-/** 載入結果：失敗與「0 顆」分開；fetchedAt = 這批 TLE 從 Supabase 抓取的時間（epoch ms） */
+/**
+ * 這批 TLE 的資料時間＝最新一筆 TLE epoch（epoch ms）；沒有任何有效 epoch 回 null。
+ * 不用瀏覽器抓取時間：上游同步停擺時，每次重抓都會把舊資料蓋成「剛更新」。
+ */
+export function latestTleEpochMs(records: readonly SatelliteRecord[]): number | null {
+  let max = 0;
+  for (const r of records) {
+    const t = parseTleEpoch(r.tleLine1);
+    if (t > max) max = t;
+  }
+  return max > 0 ? max : null;
+}
+
+/** 載入結果：失敗與「0 顆」分開；fetchedAt = 這批 TLE 的資料時間（最新 TLE epoch，epoch ms；無資料為 null） */
 export type SatelliteLoadResult =
-  | { ok: true; records: SatelliteRecord[]; fetchedAt: number }
+  | { ok: true; records: SatelliteRecord[]; fetchedAt: number | null }
   | { ok: false; message: string };
 
 let lastFetchedAt: number | null = null;
 let inFlight: Promise<SatelliteLoadResult> | null = null;
 
-/** 最近一次成功載入的 TLE 抓取時間（epoch ms）；尚未載入過回 null */
+/** 最近一次成功載入的 TLE 資料時間（最新 TLE epoch，epoch ms）；尚未載入或無資料回 null */
 export function getSatelliteTleFetchedAt(): number | null {
   return lastFetchedAt;
 }
@@ -122,7 +138,7 @@ export function loadSatellitesResult(): Promise<SatelliteLoadResult> {
   if (inFlight) return inFlight;
   const p: Promise<SatelliteLoadResult> = withLoading("satellite:tle", "衛星 TLE", fetchAll()).then(
     (records): SatelliteLoadResult => {
-      const fetchedAt = Date.now();
+      const fetchedAt = latestTleEpochMs(records);
       writeCache(records, fetchedAt);
       lastFetchedAt = fetchedAt;
       console.log(`[satellite] 載入 ${records.length} 顆衛星 (CN/TW)`);

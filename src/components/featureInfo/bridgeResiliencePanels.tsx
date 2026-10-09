@@ -283,13 +283,14 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
       {!entry && <div style={{ padding: "6px 0", color: t.textDim, fontSize: FONT_SIZE.sm }}>{data ? "此橋沒有模擬指標。" : "指標載入中…"}</div>}
       {entry && statusText && <Row label="模擬結果" value={statusText} />}
       {entry && !statusText && weighting === "decay" && <DecayRows decay={decay} mode={mode} />}
+      {entry && !statusText && !modeSummary && <Row label="模擬結果" value={`${BRIDGE_MODE_LABELS[mode]}模式未提供`} />}
       {entry && !statusText && weighting === "uniform" && modeSummary && <>
         <Row label="額外時間 p90" value={minutesText(modeSummary.p90_dT_s)} />
         <Row label="可及性損失" value={lossPercentText(modeSummary.accessibility_loss)} />
         <Row label="暴露人口" value={populationText(modeSummary.exposed_population_gt60s)} />
-        {typeof stranded === "number" && stranded > 0 && <Row label="孤立人口" value={populationText(stranded)} />}
+        {typeof stranded === "number" && <Row label="孤立人口" value={populationText(stranded)} />}
       </>}
-      {entry && !statusText && <Row label="替代橋" value={sameRiver?.length ? altBridgesText(sameRiver, 2) : `路徑上其他橋：${altBridgesText(otherOnRoute, 2)}`} />}
+      {entry && !statusText && modeSummary && <Row label="替代橋" value={sameRiver?.length ? altBridgesText(sameRiver, 2) : `路徑上其他橋：${altBridgesText(otherOnRoute, 2)}`} />}
       <FingerprintBlock fingerprint={data?.fingerprint} uid={uid} joint={joint} mode={mode} status={status} />
       <PopupDetails summary="四維怎麼算"><FingerprintDetailRows entry={fpEntry} mode={mode} /></PopupDetails>
       <PopupDetails summary="說明與限制">
@@ -297,14 +298,14 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
         <Row label="橋梁範圍" value="73 座：26 座人工複核＋47 座選橋 v7 自動選入（路段群組機器比對，尚未人工複核）" />
         {entry && <Row label="複核日期" value={review?.latest_review_date ?? ""} mono />}
         {weighting === "decay" && !statusText && <DecayDetailRows decay={decay} mode={mode} />}
-        {weighting === "uniform" && modeSummary && <Row label="平均多花時間" value={minutesText(modeSummary.mean_dT_s, "未提供")} />}
-        {entry && <Row label={`替代橋（同河 5 km・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(sameRiver)} />}
-        {entry && <Row label={`替代橋（路徑上其他橋・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(otherOnRoute)} />}
-        {modeSummary?.replacement_bridges?.basis && <Row label="替代橋依據" value={modeSummary.replacement_bridges.basis} />}
-        {weighting === "uniform" && dayNight?.day && <Row label="敏感度・日間人口" value={`p90 ${minutesText(dayNight.day.p90_dT_s)}；損失 ${lossPercentText(dayNight.day.accessibility_loss)}`} />}
-        {weighting === "uniform" && dayNight?.night && <Row label="敏感度・夜間人口" value={`p90 ${minutesText(dayNight.night.p90_dT_s)}；損失 ${lossPercentText(dayNight.night.accessibility_loss)}`} />}
-        {weighting === "uniform" && mode === "scooter" && ban && <Row label="敏感度・機車不走快速公路" value={`p90 ${minutesText(ban.p90_dT_s)}；損失 ${lossPercentText(ban.accessibility_loss)}（對照值，非主結果）`} />}
-        {entry && <Row label="替代路線" value="只畫戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的" />}
+        {weighting === "uniform" && modeSummary && !statusText && <Row label="平均多花時間" value={minutesText(modeSummary.mean_dT_s, "未提供")} />}
+        {entry && !statusText && <Row label={`替代橋（同河 5 km・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(sameRiver)} />}
+        {entry && !statusText && <Row label={`替代橋（路徑上其他橋・${BRIDGE_MODE_LABELS[mode]}）`} value={altBridgesText(otherOnRoute)} />}
+        {!statusText && modeSummary?.replacement_bridges?.basis && <Row label="替代橋依據" value={modeSummary.replacement_bridges.basis} />}
+        {weighting === "uniform" && !statusText && dayNight?.day && <Row label="敏感度・日間人口" value={`p90 ${minutesText(dayNight.day.p90_dT_s)}；損失 ${lossPercentText(dayNight.day.accessibility_loss)}`} />}
+        {weighting === "uniform" && !statusText && dayNight?.night && <Row label="敏感度・夜間人口" value={`p90 ${minutesText(dayNight.night.p90_dT_s)}；損失 ${lossPercentText(dayNight.night.accessibility_loss)}`} />}
+        {weighting === "uniform" && !statusText && mode === "scooter" && ban && <Row label="敏感度・機車不走快速公路" value={`p90 ${minutesText(ban.p90_dT_s)}；損失 ${lossPercentText(ban.accessibility_loss)}（對照值，非主結果）`} />}
+        {entry && !statusText && <Row label="替代路線" value="只畫戶籍權重最大的 3 組代表性起訖對，不一定是繞最遠的" />}
         {review?.notes?.map((note) => <Row key={note} label="複核備註" value={note} />)}
         {BRIDGE_RESILIENCE_LIMITS_TEXT.map((text, i) => <Row key={text} label={i === 0 ? "限制" : ""} value={text} />)}
       </PopupDetails>

@@ -33,6 +33,7 @@ import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
+import { filterClause, safeIdent, snapshotKey } from "./layer-freshness-helpers.mjs";
 
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const docsDir = resolve(root, "docs/features/general-analysis");
@@ -135,10 +136,10 @@ function psql(sql) {
   if (result.status !== 0) return { error: String(result.stderr || result.error?.message || "psql failed").split("\n")[0].replaceAll(url, "<REDACTED>").slice(0, 160) };
   return { out: result.stdout.trim() };
 }
-const safeIdent = value => /^[a-z_][a-z0-9_]*$/.test(value);
-
-function queryTable({ schema, table, time_column: column }) {
+function queryTable({ schema, table, time_column: column, filter }) {
   if (![schema, table, column].every(safeIdent)) return { status: "skipped", note: "unsafe_identifier" };
+  const where = filterClause(filter);
+  if (where === null) return { status: "skipped", note: "unsafe_filter" };
   const meta = psql(`select c.relkind::text || '|' || c.reltuples::bigint || '|' || coalesce((select string_agg(regexp_replace(i.indexdef, '^.*USING ', ''), ' ;; ') from pg_indexes i where i.schemaname='${schema}' and i.tablename='${table}'), '') from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='${schema}' and c.relname='${table}'`);
   if (meta.error) return { status: "skipped", note: `meta_failed:${meta.error}` };
   if (!meta.out) return { status: "skipped", note: "table_not_found" };
@@ -149,7 +150,7 @@ function queryTable({ schema, table, time_column: column }) {
   if (!leading && (!Number.isFinite(rows) || rows < 0 || rows >= BIG_TABLE_ROWS || kind !== "r")) {
     return { status: "skipped", note: `no_time_index(relkind=${kind},reltuples=${rows})` };
   }
-  const result = psql(`set statement_timeout=8000; select to_char(max(${column}) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') from ${schema}.${table}`);
+  const result = psql(`set statement_timeout=8000; select to_char(max(${column}) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') from ${schema}.${table}${where}`);
   if (result.error) return { status: "skipped", note: `query_failed:${result.error}` };
   const value = result.out.split("\n").filter(Boolean).at(-1) ?? "";
   if (!/^20\d{2}-\d{2}-\d{2}T/.test(value)) return { status: "skipped", note: "empty_or_non_timestamp" };
@@ -162,7 +163,7 @@ const onlineStats = { mode: offline ? "offline" : "online", tables: 0, ok: 0, sk
 if (!offline) {
   if (!process.env.SUPABASE_DB_URL) { console.error("SUPABASE_DB_URL is not set; use --offline or export it from .env."); process.exit(1); }
   const unique = new Map();
-  for (const spec of Object.values(liveMap)) unique.set(`${spec.schema}.${spec.table}.${spec.time_column}`, spec);
+  for (const spec of Object.values(liveMap)) unique.set(snapshotKey(spec), spec);
   snapshotTables = {};
   queriedAt = new Date().toISOString().replace(/\.\d+Z$/, "Z");
   for (const [id, spec] of [...unique].sort(([a], [b]) => a.localeCompare(b))) {
@@ -211,7 +212,7 @@ function buildRow(layerKey) {
   const lifecycles = [...new Set(entries.map(item => item.lifecycle).filter(Boolean))];
   let latest = ""; let basis = ""; let intervalMin = null; let intervalText = ""; let queryNote = "";
   if (live) {
-    const result = snapshotTables[`${live.schema}.${live.table}.${live.time_column}`];
+    const result = snapshotTables[snapshotKey(live)];
     intervalMin = Number(live.expected_interval_min); intervalText = `live:${live.expected_interval_min}min`;
     if (result?.status === "ok") { latest = result.max_time; basis = offline ? "db_snapshot" : "db_max"; }
     else queryNote = result ? `unqueried:${result.note}` : "not_in_snapshot";

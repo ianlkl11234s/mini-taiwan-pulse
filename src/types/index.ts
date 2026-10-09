@@ -396,7 +396,8 @@ export type ExpandableLayerKey =
   | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
-  | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km";
+  | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
+  | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -895,6 +896,8 @@ export interface FeatureInfo {
     | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
     | "jpPoliceFacilities" | "jpSchools"
+    // 日本氣象廳即時 4 層
+    | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
     | "jpPopulationMesh1km"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
@@ -1611,6 +1614,10 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   changhuaTrafficSignals: boolean;
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
+  jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
+  jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
+  jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
+  jmaVolcanoes: boolean;  // 日本火山噴火警戒
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
   jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
   jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格

@@ -5,7 +5,8 @@ build-waste-stops-chat.py — PF-14
 把 public/geo/waste_stops_static.geojson（22 MB、73,060 Point）轉成 AI 聊天工具
 （src/chat/tools/datasets.ts 的 wasteStopsStatic）用的精簡 columnar JSON。
 
-- 只留查詢描述提到的欄位：city、district、vehicle_type、routes_count（順序固定，
+- 只留查詢描述提到的欄位：city、district、vehicle_type、via（座標來源，混合幾何的 provenance）、
+  routes_count（順序固定，
   geojsonQuery 的 availableFields 取自首筆欄位順序）。
 - 座標四捨五入到小數 5 位（約 1 m）。
 - 字串欄位做字典編碼（dict 依首次出現順序，輸出可重現）；routes_count 保持數值。
@@ -26,9 +27,11 @@ ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "public/geo/waste_stops_static.geojson"
 DEFAULT_OUT = ROOT / "public/geo/waste_stops_chat_20261001.json"
 
-DICT_FIELDS = ["city", "district", "vehicle_type"]
+# via = 座標來源（waste_open_data 官方座標／tgos_batch_v2 門牌地理編碼／poi_* 與 legacy 為備援或舊點）。
+# 來源是混合幾何，保留它才分得出官方座標與 fallback，nearest 不會把參考點當實際停靠點（F200）。
+DICT_FIELDS = ["city", "district", "vehicle_type", "via"]
 NUM_FIELDS = ["routes_count"]
-FIELD_ORDER = ["city", "district", "vehicle_type", "routes_count"]
+FIELD_ORDER = ["city", "district", "vehicle_type", "via", "routes_count"]
 
 
 def dict_encode(values):
@@ -73,8 +76,10 @@ def main() -> None:
         "properties": properties,
     }
     text = json.dumps(out, ensure_ascii=False, separators=(",", ":"))
-    args.out.write_text(text + "\n", encoding="utf-8")
-    print(f"wrote {args.out.relative_to(ROOT)}: {len(features)} points, {len(text.encode()):,} bytes")
+    out_path = args.out.resolve()
+    out_path.write_text(text + "\n", encoding="utf-8")
+    shown = out_path.relative_to(ROOT) if out_path.is_relative_to(ROOT) else out_path
+    print(f"wrote {shown}: {len(features)} points, {len(text.encode()):,} bytes")
 
 
 if __name__ == "__main__":
