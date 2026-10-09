@@ -95,7 +95,12 @@ function classify(key) {
   const spatial = usable.filter(item => item.geometry_type && item.geometry_type !== "None" && Number(item.rows) > 0);
   const stats = upstreamIds.filter(id => extras.statsDatasets?.[id]);
   const recipe = comparisonRecipes.get(key);
-  if (recipe && extras.statsDatasets?.[recipe.dataset_id]?.indicators?.includes(recipe.indicator_id)) stats.push(recipe.dataset_id);
+  // F028: a recipe-only layer carries its recipe dataset into the emitted provenance (dataset_ids),
+  // and its period comes from the matching recipe releases rather than the dataset-wide lastPeriod.
+  const recipeMatched = Boolean(recipe && extras.statsDatasets?.[recipe.dataset_id]?.indicators?.includes(recipe.indicator_id));
+  if (recipeMatched) stats.push(recipe.dataset_id);
+  const recipePeriod = recipeMatched ? (recipe.release_options ?? []).map(option => option.period_end).filter(Boolean).sort().at(-1) ?? "" : "";
+  const provenanceIds = recipeMatched && !upstreamIds.includes(recipe.dataset_id) ? [...upstreamIds, recipe.dataset_id] : upstreamIds;
   const browser = registeredDatasetsForLayer(key);
   const override = overrides[key] ?? {};
 
@@ -129,7 +134,8 @@ function classify(key) {
   const geometry = layerAliasEntry.geometry || [...new Set(spatial.map(item => String(item.geometry_type)))].join("+");
   const updated = [
     ...usable.map(item => item.last_updated ?? item.fetched_at).filter(Boolean),
-    ...stats.map(id => extras.statsDatasets[id].lastPeriod),
+    ...stats.filter(id => !(recipeMatched && id === recipe.dataset_id)).map(id => extras.statsDatasets[id].lastPeriod),
+    recipePeriod,
   ].sort().at(-1) ?? "";
   const panel = panelForExplorationLayers([key]);
   return {
@@ -139,7 +145,7 @@ function classify(key) {
     theme: entry.section?.theme ?? "(orphan)",
     source_kind: sourceKinds(entry),
     upstream_status: entry.upstream?.status ?? "",
-    dataset_ids: upstreamIds.join(" "),
+    dataset_ids: provenanceIds.join(" "),
     row_filter: layerAliasEntry.rowFilter,
     warehouse_tables: [...new Set(usable.map(item => item.table))].join(" "),
     geometry,
