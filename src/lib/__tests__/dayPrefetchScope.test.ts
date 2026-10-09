@@ -46,19 +46,25 @@ describe("AU-3 day-prefetch scope", () => {
   it("共享 helper 以最多兩個並行預抓 window 的非前景日", async () => {
     const started: string[] = [];
     const release: Array<() => void> = [];
-    prefetchWindow((key) => new Promise<void>((resolve) => {
-      started.push(key);
-      release.push(resolve);
-    }), "[test]", "2026-10-05");
+    try {
+      prefetchWindow((key) => new Promise<void>((resolve) => {
+        started.push(key);
+        release.push(resolve);
+      }), "[test]", "2026-10-05");
 
-    expect(timeStore.getWindowDateKeys).toHaveBeenCalledOnce();
-    expect(started).toEqual(["2026-10-03", "2026-10-04"]);
-    expect(started).not.toContain("2026-10-05");
-    release.forEach((resolve) => resolve());
-    await vi.runAllTimersAsync();
-    expect(started).toEqual(["2026-10-03", "2026-10-04", "2026-10-06"]);
-    release[2]?.();
-    await vi.runAllTimersAsync();
+      expect(timeStore.getWindowDateKeys).toHaveBeenCalledOnce();
+      expect(started).toEqual(["2026-10-03", "2026-10-04"]);
+      expect(started).not.toContain("2026-10-05");
+      release.splice(0).forEach((resolve) => resolve());
+      await vi.runAllTimersAsync();
+      expect(started).toEqual(["2026-10-03", "2026-10-04", "2026-10-06"]);
+    } finally {
+      // 斷言失敗也要放行所有被暫停的預抓：queue／inflight 是 module 級，不放行會汙染後續測試（F300）。
+      for (let i = 0; i < 10 && release.length; i++) {
+        release.splice(0).forEach((resolve) => resolve());
+        await vi.runAllTimersAsync();
+      }
+    }
   });
 
   it("訂閱 window 和日期變更後，仍用 timeStore 的當前日略過 foreground", async () => {
