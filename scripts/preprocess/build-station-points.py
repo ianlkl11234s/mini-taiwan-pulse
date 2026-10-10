@@ -133,7 +133,9 @@ def enrich():
         p["transfer"] = False
     groups = {}
     for f in pts:
-        groups.setdefault((f["properties"]["system_id"], norm_name(f["properties"]["name"])), []).append(f)
+        # 只依正規化站名分組（不分 system_id）：跨營運商轉乘（KRTC 哈瑪星 KO1／KLRT 哈瑪星 C14）也要比對；
+        # 同名但相距 > TRANSFER_M 的站仍由距離門檻擋掉（F281）。
+        groups.setdefault(norm_name(f["properties"]["name"]), []).append(f)
     n_groups = 0
     for g in groups.values():
         if len(g) < 2:

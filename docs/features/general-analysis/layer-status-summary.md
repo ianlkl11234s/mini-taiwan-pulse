@@ -3,16 +3,17 @@
 > 由 `scripts/research/build-layer-status.mjs` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
-- 圖層總數：**982**；L1 可操作：**982/982**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**795/982**（81.0%）
-- 只有舊瀏覽器 reader：6；尚不可分析：176
+- 圖層總數：**1078**；L1 可操作：**1078/1078**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**862/1078**（80.0%）
+- 共用混合幾何表但缺逐層 rowFilter（不計入上列）：27
+- 只有舊瀏覽器 reader：6；尚不可分析：178
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 620 | 298 | 199 | 2 | 5 | 112 | 4 |
-| 統計 | 277 | 1 | 268 | 3 | 0 | 5 | 0 |
+| 臺灣圖層 | 638 | 314 | 199 | 2 | 5 | 114 | 4 |
+| 統計 | 355 | 1 | 346 | 3 | 0 | 5 | 0 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 | 0 |
 | 日本 | 60 | 15 | 0 | 2 | 0 | 42 | 1 |
 
@@ -20,7 +21,8 @@
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 89 |
+| dataset_not_in_warehouse | 91 |
+| unfiltered_shared_table | 27 |
 | warehouse_SKIPPED_FORMAT | 15 |
 | derived_layer | 9 |
 | warehouse_SKIPPED_DISPLAY_ONLY | 8 |
@@ -91,10 +93,10 @@
 
 | precision_class | 圖層數 |
 |---|---|
-| official | 135 |
-| unknown | 81 |
-| address_geocode | 72 |
-| google_geocode | 21 |
+| official | 137 |
+| address_geocode | 84 |
+| unknown | 82 |
+| google_geocode | 22 |
 | address_geocode+official | 6 |
 | unknown+official | 3 |
 | village_centroid | 2 |
@@ -104,13 +106,13 @@
 
 | 涵蓋 | 圖層數 |
 |---|---|
-| national | 177 |
+| national | 186 |
 | 19 counties | 33 |
 | unknown | 19 |
 | 2 counties | 15 |
-| 18 counties | 11 |
-| 17 counties | 9 |
-| 13 counties | 8 |
+| 18 counties | 12 |
+| 17 counties | 10 |
+| 13 counties | 9 |
 | 3 counties | 7 |
 
 「N counties」代表區域性資料集：跨地比較時，未涵蓋的縣市應標「未涵蓋」而非 0（引擎的 nearby_profile 已自動處理）。

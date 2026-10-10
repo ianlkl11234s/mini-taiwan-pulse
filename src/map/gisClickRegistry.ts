@@ -45,6 +45,21 @@ import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLa
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+  { layers: ["harm-reduction-prevention-centers-circle", "harm-reduction-prevention-centers-glow"], type: "harmReductionPreventionCenters" },
+  { layers: ["harm-reduction-needle-circle", "harm-reduction-needle-glow"], type: "harmReductionNeedle" },
+  { layers: ["harm-reduction-treatment-circle", "harm-reduction-treatment-glow"], type: "harmReductionTreatment" },
+  { layers: ["harm-reduction-hiv-testing-circle", "harm-reduction-hiv-testing-glow"], type: "harmReductionHivTesting" },
+  { layers: ["harm-reduction-hiv-selftest-circle", "harm-reduction-hiv-selftest-glow"], type: "harmReductionHivSelftest" },
+  { layers: ["harm-reduction-alcohol-circle", "harm-reduction-alcohol-glow"], type: "harmReductionAlcohol" },
+  { layers: ["harm-reduction-prep-circle", "harm-reduction-prep-glow"], type: "harmReductionPrep" },
+  { layers: ["harm-reduction-internet-addiction-circle", "harm-reduction-internet-addiction-glow"], type: "harmReductionInternetAddiction" },
+  { layers: ["harm-reduction-aftercare-circle", "harm-reduction-aftercare-glow"], type: "harmReductionAftercare" },
+  { layers: ["harm-reduction-smoking-cessation-circle", "harm-reduction-smoking-cessation-glow"], type: "harmReductionSmokingCessation" },
+  { layers: ["harm-reduction-anti-drug-pharmacies-circle", "harm-reduction-anti-drug-pharmacies-glow"], type: "harmReductionAntiDrugPharmacies" },
+  { layers: ["harm-reduction-condom-outlets-circle", "harm-reduction-condom-outlets-glow"], type: "harmReductionCondomOutlets" },
+  { layers: ["harm-reduction-therapeutic-communities-circle", "harm-reduction-therapeutic-communities-glow"], type: "harmReductionTherapeuticCommunities" },
+  // 酒駕事故 3.7 萬點（PMTiles）：排在減害據點之後，避免同位置時搶走服務據點的 popup
+  { layers: ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-glow"], type: "harmReductionDuiCrashes" },
   { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
   { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
   { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },
@@ -53,7 +68,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["accessible-park-facilities-circle", "accessible-park-facilities-glow"], type: "accessibleParkFacilities" },
   { layers: ["bicycle-support-circle", "bicycle-support-glow"], type: "bicycleSupport" },
   { layers: ["visitor-centres-circle", "visitor-centres-glow"], type: "visitorCentres" },
-  { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
   { layers: ["road-congestion-hit"], type: "roadCongestion" },
   // 🚗 國道壅塞（W2）：同樣是「透明加寬命中層」的細線層，緊接省道排在最前段。
   //    兩層地理上不重疊（國道 vs 省道），先後順序對彼此無影響；
@@ -177,6 +191,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
+  // 日本氣象廳即時點層（火山／AMeDAS 小點排在地震大泡泡之前）
+  { layers: ["jma-volcanoes-circle"], type: "jmaVolcanoes" },
+  { layers: ["jma-amedas-circle"], type: "jmaAmedas" },
+  { layers: ["jma-quakes-circle"], type: "jmaQuakes" },
   { layers: ["jp-medical-facilities-hospital"], type: "jpMedicalHospitals" },
   { layers: ["jp-medical-facilities-clinic"], type: "jpMedicalClinics" },
   { layers: ["jp-medical-facilities-dental"], type: "jpMedicalDental" },
@@ -218,6 +236,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
   { layers: ["jp-water-jpWaterRivers"], type: "jpWaterRivers" },
+  { layers: ["jma-warnings-fill"], type: "jmaWarnings" },
   { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
   { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
   { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
@@ -454,6 +473,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 登山安全：山屋 / 山域事故（小目標，排在林業大面積前）
   { layers: ["mountain-huts-circle"], type: "mountainHut" },
   { layers: ["mountain-rescue-incidents-circle"], type: "mountainRescueIncident" },
+  // 崩塌：省道歷史災情點（小目標）排在面層前
+  { layers: ["highway-disaster-history-circle", "highway-disaster-history-glow"], type: "highwayDisaster" },
   // FORESTRY — points / lines 先（小目標優先）
   { layers: ["forest-education-centers-circle"], type: "forestryPOI" },
   { layers: ["forest-trail-signs-circle"], type: "forestryPOI" },
@@ -582,6 +603,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   },
   { layers: ["pollution-facility-circle"], type: "pollutionFacility" },
   { layers: ["aviation-control-fill", "aviation-control-line"], type: "aviationControl" },
+  // 崩塌面層：年度崩塌地（多為小面）→ 潛勢區 → 影響範圍（潛勢區多半落在影響範圍內，先命中）；
+  //    排在坡度／坡向等全島 fill 之前。
+  { layers: ["landslide-annual-fill", "landslide-annual-outline"], type: "landslideAnnual" },
+  { layers: ["landslide-dod-areas-fill", "landslide-dod-areas-outline"], type: "landslideDodArea" },
+  { layers: ["landslide-dod-impact-fill", "landslide-dod-impact-outline"], type: "landslideDodImpact" },
   { layers: ["aviation-restricted-fill", "aviation-restricted-line"], type: "aviationRestricted" },
   { layers: ["drone-nfz-fill", "drone-nfz-line"], type: "droneNoFlyZone" },
   { layers: ["drone-restricted-fill", "drone-restricted-line"], type: "droneRestrictedZone" },
@@ -645,6 +671,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
+  // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。
+  { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。

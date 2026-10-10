@@ -1,12 +1,12 @@
 {
   "name": "mini-taiwan-pulse",
   "private": true,
-  "version": "2.6.0",
+  "version": "2.7.0",
   "type": "module",
   "packageManager": "npm@11.4.2",
   "scripts": {
     "dev": "vite",
-    "dev:private-research": "JP_WATER_PRIVATE_ROOT=../taipei-gis-analytics/output/jp_water_private_runtime PRIVATE_RESEARCH_STORAGE=local PRIVATE_RESEARCH_ORIGINS=http://127.0.0.1:3721,http://localhost:3721,http://127.0.0.1:3732 node --env-file=.env server/coral-private/coral-private-server.mjs",
+    "dev:private-research": "JP_WATER_PRIVATE_ROOT=../taipei-gis-analytics/output/jp_water_private_runtime PRIVATE_RESEARCH_STORAGE=local PRIVATE_RESEARCH_ORIGINS=http://127.0.0.1:3721,http://localhost:3721,http://127.0.0.1:3732 node --env-file=.env --env-file-if-exists=.env.local server/coral-private/coral-private-server.mjs",
     "dev:exploration": "PULSE_RESEARCH_GATEWAY_ORIGIN=http://127.0.0.1:8791 vite --host 127.0.0.1 --port 3732 --strictPort",
     "research:local:start": "node scripts/research/local-stack.mjs start",
     "research:local:stop": "node scripts/research/local-stack.mjs stop",

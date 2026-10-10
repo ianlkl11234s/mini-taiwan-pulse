@@ -159,12 +159,14 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   // 部分 loader（如 gfwFishingEffortLoader）以 attribution / attribution_href 帶來源，一併視為來源。
   const org = String(props.source_org ?? props.source ?? props.attribution ?? "");
-  const url = String(props.source_url ?? props.attribution_href ?? "");
+  // 下載頁與出處頁分開：attribution_href 是出處／供應商頁，不是「原始下載頁」
+  const url = String(props.source_url ?? "");
+  const attributionUrl = String(props.attribution_href ?? "");
   const license = String(props.license ?? "");
   const tier = props.source_tier;
   const fetched = String(props.fetched_at ?? "");
   const provenance = toProvenanceArray(props._provenance ?? props.provenance);
-  const hasSource = Boolean(org || url);
+  const hasSource = Boolean(org || url || attributionUrl);
 
   if (!hasSource) {
     return (
@@ -208,6 +210,19 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
               style={{ color: t.link, textDecoration: "none" }}
             >
               原始下載頁 ↗
+            </a>
+          </>
+        )}
+        {attributionUrl && attributionUrl !== url && (
+          <>
+            {firstLine.length > 0 || url ? " · " : ""}
+            <a
+              href={attributionUrl}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: t.link, textDecoration: "none" }}
+            >
+              資料來源 ↗
             </a>
           </>
         )}

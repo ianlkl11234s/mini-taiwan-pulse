@@ -1,3 +1,4 @@
+import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
@@ -157,6 +158,11 @@ import {
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
+import {
+  HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel,
+  HarmReductionAlcoholPanel, HarmReductionPrepPanel, HarmReductionInternetAddictionPanel, HarmReductionAftercarePanel, HarmReductionSmokingCessationPanel, HarmReductionAntiDrugPharmacyPanel, HarmReductionCondomOutletPanel, HarmReductionTherapeuticCommunityPanel, HarmReductionDuiCrashPanel,
+} from "./harmReductionPanels";
+import { HighwayDisasterPanel, LandslideAnnualPanel, LandslideDodAreaPanel, LandslideDodImpactPanel } from "./landslidePanels";
 import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
@@ -204,6 +210,20 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   animalWelfarePoints: AnimalWelfarePointsPanel,
   retailMarket: RetailMarketPanel,
   publicToilet: PublicToiletPanel,
+  harmReductionNeedle: HarmReductionNeedlePanel,
+  harmReductionTreatment: HarmReductionTreatmentPanel,
+  harmReductionHivSelftest: HarmReductionHivSelftestPanel,
+  harmReductionHivTesting: HarmReductionHivTestingPanel,
+  harmReductionPreventionCenters: HarmReductionPreventionCenterPanel,
+  harmReductionAlcohol: HarmReductionAlcoholPanel,
+  harmReductionPrep: HarmReductionPrepPanel,
+  harmReductionInternetAddiction: HarmReductionInternetAddictionPanel,
+  harmReductionAftercare: HarmReductionAftercarePanel,
+  harmReductionSmokingCessation: HarmReductionSmokingCessationPanel,
+  harmReductionAntiDrugPharmacies: HarmReductionAntiDrugPharmacyPanel,
+  harmReductionCondomOutlets: HarmReductionCondomOutletPanel,
+  harmReductionTherapeuticCommunities: HarmReductionTherapeuticCommunityPanel,
+  harmReductionDuiCrashes: HarmReductionDuiCrashPanel,
   drinkingWaterPoints: PublicLifeOsmPanel,
   publicWasteBaskets: PublicLifeOsmPanel,
   materialRecyclingPoints: PublicLifeOsmPanel,
@@ -302,6 +322,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   forestryPOI: ForestryGenericPanel,
   mountainHut: MountainHutPanel,
   mountainRescueIncident: MountainRescuePanel,
+  landslideDodArea: LandslideDodAreaPanel,
+  landslideDodImpact: LandslideDodImpactPanel,
+  highwayDisaster: HighwayDisasterPanel,
+  landslideAnnual: LandslideAnnualPanel,
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
@@ -397,6 +421,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
   jpPoliceFacilities: JpPoliceFacilitiesPanel,
+  jmaAmedas: JmaAmedasPanel,
+  jmaWarnings: JmaWarningsPanel,
+  jmaQuakes: JmaQuakesPanel,
+  jmaVolcanoes: JmaVolcanoesPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
   jpWaterLakes: JpWaterPanel,
@@ -643,6 +671,20 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   animalWelfarePoints: "動物福利服務據點",
   retailMarket: "公有市場",
   publicToilet: "公廁",
+  harmReductionNeedle: "清潔針具據點",
+  harmReductionTreatment: "替代療法與藥癮戒治",
+  harmReductionHivSelftest: "愛滋自我篩檢通路",
+  harmReductionHivTesting: "愛滋篩檢與指定醫療",
+  harmReductionPreventionCenters: "毒品危害防制中心",
+  harmReductionAlcohol: "酒癮治療與酒駕酒癮評估",
+  harmReductionPrep: "PrEP 服務醫院",
+  harmReductionInternetAddiction: "網路成癮治療資源",
+  harmReductionAftercare: "更生保護會",
+  harmReductionSmokingCessation: "戒菸服務機構",
+  harmReductionAntiDrugPharmacies: "社區藥局反毒站",
+  harmReductionCondomOutlets: "保險套販售點",
+  harmReductionTherapeuticCommunities: "治療性社區與中途之家",
+  harmReductionDuiCrashes: "酒駕肇事事故",
   drinkingWaterPoints: "飲水點",
   publicWasteBaskets: "公共垃圾桶",
   materialRecyclingPoints: "資源回收點",
@@ -746,6 +788,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   forestryPOI: "林業點位 (POI)",
   mountainHut: "山屋・高山營地",
   mountainRescueIncident: "山域事故",
+  landslideDodArea: "大規模崩塌潛勢區",
+  landslideDodImpact: "大規模崩塌影響範圍",
+  highwayDisaster: "省道歷史災情",
+  landslideAnnual: "年度崩塌地",
   hikingTrails: "步道",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
@@ -902,6 +948,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   historicalFlightTrails: "歷史航班軌跡（台灣）",
   jpHistoricalFlightTrails: "歷史航班軌跡（日本）",
   jpPoliceFacilities: "警察設施 警察施設",
+  jmaAmedas: "AMeDAS 即時觀測 アメダス",
+  jmaWarnings: "警報・注意報",
+  jmaQuakes: "地震 地震情報",
+  jmaVolcanoes: "火山警戒 噴火警戒レベル",
   jpSchools: "學校 学校",
   jpPopulationMesh1km: "人口網格 人口メッシュ",
   jpAccommodationCanonical: "旅宿去重總覽 宿泊施設の統合一覧",

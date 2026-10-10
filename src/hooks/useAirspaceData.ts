@@ -11,6 +11,7 @@ import {
 } from "../data/airspaceLoader";
 import type { AirspaceDateInfo } from "../data/airspaceLoader";
 import { liveCountStore } from "../state/liveCountStore";
+import { timeStore } from "../state/timeStore";
 
 /** LRU 快取上限（天數） */
 const CACHE_MAX = 7;
@@ -182,6 +183,9 @@ export function useAirspaceData(enabled: boolean): UseAirspaceDataReturn {
           `[Airspace] Initial: ${data.flights.length} aircraft, date=${dateStr}, ` +
           `available=${dates.length} days (${dates[0]?.date} ~ ${dates[dates.length - 1]?.date})`
         );
+        // 初始載入的是「最新可用日」；若使用者當下選的日期不同（例：關閉圖層期間切過日），改載選定日
+        const selected = timeStore.getDateKey();
+        if (selected && selected !== dateStr && dates.some((d) => d.date === selected)) loadDateData(selected);
       } catch (err) {
         if (!cancelled) console.warn("[Airspace] Pulse API unavailable:", err);
       }
@@ -189,7 +193,7 @@ export function useAirspaceData(enabled: boolean): UseAirspaceDataReturn {
     })();
 
     return () => { cancelled = true; };
-  }, [enabled]);
+  }, [enabled, loadDateData]);
 
   // 圖層關閉後不再因切日／預載而抓資料（App 的 subscribeDate 訂閱是常駐的）
   const enabledRef = useRef(enabled);

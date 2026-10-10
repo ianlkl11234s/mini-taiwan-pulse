@@ -26,6 +26,7 @@ import "./featureInfo/featureInfo.css";
 const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "chatHighlight",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
+  "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
   "analysisResult", // Agent 暫時分析結果：面板自帶「暫時分析結果 · 非完整來源圖層」footer
   "publicToilet",
   "disasterShelters",
@@ -49,6 +50,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 環境第二波 9 層：同上，panel 自掛人類可讀來源（即時層 feature 只有 RPC 欄位）。
   "seaWaterQualityStations", "riverRpiSegments", "pm25ManualStations", "dioxinStations", "incineratorEmissions",
   "nuscGammaRadiation", "waterEffluentLive", "cemsStackLive", "cwaUvDaily",
+  // 日本氣象廳即時 4 層：feature 只有 view 欄位，panel 自掛「気象庁・公共データ利用規約」出典。
+  "jmaAmedas", "jmaWarnings", "jmaQuakes", "jmaVolcanoes",
 ]);
 
 // layerKey → 主題中文名對照（供 header eyebrow「圖層群組 · 圖層名」使用）。

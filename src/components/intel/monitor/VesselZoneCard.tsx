@@ -162,7 +162,8 @@ function aggregateByDay(rows: VesselZoneDay[]): DayAgg[] {
       ships += clsShips; // 跨分類相加是安全的
     }
     out.push({
-      day, ships, unknown: (rowCount.get(day) ?? 0) > 0 && (knownCount.get(day) ?? 0) === 0,
+      day, ships, // 任一列 ships 缺值 → 當日總數不完整，視為未知（不把子集當完整總數）
+      unknown: (rowCount.get(day) ?? 0) > 0 && (knownCount.get(day) ?? 0) < (rowCount.get(day) ?? 0),
       level, deepestZone: deepest, minDistNm: minDist.get(day) ?? null, byClass, byZone,
     });
   }

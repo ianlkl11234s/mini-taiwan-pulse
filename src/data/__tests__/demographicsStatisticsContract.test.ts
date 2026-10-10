@@ -223,4 +223,6 @@ it("explains STALE as a historical period rather than wrong data (upstream healt
   expect(statisticsAvailabilityLabel("STALE")).toBe("STALE（歷史期別：已有較新期別，數值本身不受影響）");
   expect(statisticsAvailabilityLabel("CURRENT")).toContain("最新期別");
   expect(statisticsAvailabilityLabel("UNKNOWN_CODE")).toBe("UNKNOWN_CODE");
+  // PARTIAL 不斷言成因（可能是缺縣市列，也可能是「其他」未分配）。
+  expect(statisticsAvailabilityLabel("PARTIAL")).not.toContain("部分地區缺值");
 });

@@ -310,7 +310,7 @@ export const fetchMarketIndex = cachedOnce(_fetchMarketIndexRaw, TTL_FAST);
 
 /** 加權指數近 30 交易日日線 — public.get_market_index_daily（migration 325） */
 export interface MarketIndexDailyPoint {
-  trade_date: string;   // "2026-07-31"；週末/缺日無列，畫圖請用交易日序列而非日曆軸
+  trade_date: string;   // "2026-07-31"；週末/休市日無列，畫圖用日曆時間軸：不補點、長假斷線（spec §5.35 走勢圖）
   open: number;
   high: number;
   low: number;
@@ -446,6 +446,8 @@ export interface CdcDisease {
   yoy: number | null;
   note: string;
   color: string;
+  /** 該疾病自己的最新 ISO 週次（各疾病最新週可能不同）；沒有時沿用整批 week */
+  week?: number;
 }
 
 export interface PublicHealthWeek {
@@ -526,7 +528,9 @@ async function _fetchPublicHealthWeeklyRaw(): Promise<PublicHealthWeek> {
   }
   const rows = Array.isArray(data) ? data : data ? [data] : [];
   if (rows.length === 0) return EMPTY_HEALTH;
-  const week = Number(rows[0]?.week ?? 0);
+  const rowWeek = (r: { week?: unknown }) => { const w = Number(r?.week ?? 0); return Number.isFinite(w) ? w : 0; };
+  // 整批 week＝各疾病中最新的一週（不再取第一列，避免第一列剛好是落後的疾病）
+  const week = rows.reduce((m: number, r: { week?: unknown }) => Math.max(m, rowWeek(r)), 0);
   const diseases: CdcDisease[] = [];
   for (const r of rows) {
     const raw = String(r.id ?? "");
@@ -543,6 +547,7 @@ async function _fetchPublicHealthWeeklyRaw(): Promise<PublicHealthWeek> {
       yoy: requiredFiniteNumber(r.yoy),
       note: r.note ?? "",
       color: r.color ?? def.color,
+      week: rowWeek(r) || week,
     });
   }
   return { week, diseases };

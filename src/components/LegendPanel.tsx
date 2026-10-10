@@ -62,6 +62,8 @@ import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES } from "../data/laborStatisticsRecipes";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES } from "../data/environmentStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_RECIPES } from "../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES } from "../data/landslideStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES } from "../data/demographicsStatisticsRecipes";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
@@ -242,7 +244,14 @@ import {
   SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend,
   IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend,
 } from "./legend/environmentLegends";
+import {
+  HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend,
+  HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend,
+  HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend,
+} from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
+import { JmaAmedasLegend, JmaQuakesLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
+import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -361,6 +370,24 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "landslideDodAreas", render: () => <LandslideDodAreasLegend /> },
+  { id: "landslideDodImpact", render: () => <LandslideDodImpactLegend /> },
+  { id: "highwayDisasterHistory", render: () => <HighwayDisasterHistoryLegend /> },
+  { id: "landslideAnnual", render: () => <LandslideAnnualLegend /> },
+  { id: "harmReductionNeedle", render: () => <HarmReductionNeedleLegend /> },
+  { id: "harmReductionTreatment", render: () => <HarmReductionTreatmentLegend /> },
+  { id: "harmReductionHivSelftest", render: () => <HarmReductionHivSelftestLegend /> },
+  { id: "harmReductionHivTesting", render: () => <HarmReductionHivTestingLegend /> },
+  { id: "harmReductionPreventionCenters", render: () => <HarmReductionPreventionCentersLegend /> },
+  { id: "harmReductionAlcohol", render: () => <HarmReductionAlcoholLegend /> },
+  { id: "harmReductionPrep", render: () => <HarmReductionPrepLegend /> },
+  { id: "harmReductionInternetAddiction", render: () => <HarmReductionInternetAddictionLegend /> },
+  { id: "harmReductionAftercare", render: () => <HarmReductionAftercareLegend /> },
+  { id: "harmReductionSmokingCessation", render: () => <HarmReductionSmokingCessationLegend /> },
+  { id: "harmReductionAntiDrugPharmacies", render: () => <HarmReductionAntiDrugPharmaciesLegend /> },
+  { id: "harmReductionCondomOutlets", render: () => <HarmReductionCondomOutletsLegend /> },
+  { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
+  { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
   { id: "drinkingWaterPoints", render: () => <PublicLifeOsmLegend label="飲水點" color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: () => <PublicLifeOsmLegend label="公共垃圾桶" color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: () => <PublicLifeOsmLegend label="資源回收點" color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra="僅代表來源明列的材料；未標註不推論可回收材料。" /> },
@@ -389,6 +416,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
   ...DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...ADDICTION_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...LANDSLIDE_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
@@ -463,6 +498,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "bridgeResilienceTwinCity", render: ({ overlayParams }) => <BridgeResilienceLegend weightingIdx={overlayParams.bridgeResilienceWeightingIdx ?? 0} metricIdx={overlayParams.bridgeResilienceVillageMetricIdx ?? 0} showVillages={!!overlayParams.bridgeResilienceShowVillages} showRoutes={!!overlayParams.bridgeResilienceShowRoutes} /> },
   { id: "bridgeRainThresholds", render: () => <NetworkStructuresLegend title="橋梁參考雨量條件" rows={[{ label: "達表列雨量條件；非封橋判定", color: "#ef4444" }, { label: "未達已核對雨量門檻；非安全判定", color: "#3b82f6" }, { label: "缺測、過期或門檻待覆核", color: "#94a3b8" }]} /> },
   { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
+  { id: "jmaAmedas", render: () => <JmaAmedasLegend /> },
+  { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
+  { id: "jmaQuakes", render: () => <JmaQuakesLegend /> },
+  { id: "jmaVolcanoes", render: () => <JmaVolcanoesLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
   { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
   { id: "jpAccommodationCanonical", render: () => <JpAccommodationTypesLegend source="canonical" /> },
@@ -3006,7 +3045,7 @@ function MountainRescueLegend() {
       </div>
       <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
-          <SwatchDot color={"transparent"} />
+          <SwatchDot color={"transparent"} stroke="#ff2d2d" strokeWidth={1.5} />
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>紅框 = 有死亡</span>
         </div>
         <LegendNote style={{ lineHeight: 1.4 }}>
@@ -3736,7 +3775,7 @@ function TyphoonTrackLegend() {
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>預測軌跡 Forecast（藍虛線 / 空心點）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <SwatchDot color={"transparent"} />
+          <SwatchDot color={"transparent"} stroke="#fde047" strokeWidth={1.5} glow="#f0abfc" />
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>現在位置 Current（黃圈，click 看詳情）</span>
         </div>
       </div>

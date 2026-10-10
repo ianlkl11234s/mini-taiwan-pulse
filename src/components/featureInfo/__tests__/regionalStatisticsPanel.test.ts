@@ -36,4 +36,19 @@ describe('RegionalStatisticsPanel labor semantics', () => {
     expect(html).toContain('59.6');
     expect(html).toContain('40.4 %');
   });
+
+  it('labels prosecutor districts as 地檢署轄區, not as an administrative area', () => {
+    const html = renderToStaticMarkup(createElement(RegionalStatisticsPanel, { props: {
+      area_name: '臺灣士林地方檢察署', area_code: 'PD_SLK', counties: '新北市、臺北市', township_count: 10,
+      indicator_name: '地檢署毒品新收人數（轄區）', value: 812, status: 'observed', unit: '人',
+      boundary_version: 'PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1', publisher: '法務部',
+    }}));
+    expect(html).toContain('地檢署轄區');
+    expect(html).toContain('臺灣士林地方檢察署');
+    expect(html).toContain('新北市、臺北市（10 個鄉鎮市區）');
+    expect(html).toContain('地檢署轄區≠縣市');
+    expect(html).toContain('轄區代碼');
+    expect(html).not.toContain('行政區代碼');
+    expect(html).not.toContain('PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1');
+  });
 });

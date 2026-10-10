@@ -54,6 +54,8 @@ export function describeManeuversBanner(state: ManeuversState): ManeuversBanner 
       text: state.errorReason === "unconfigured" ? "資料讀取失敗 · 未設定資料來源" : "資料讀取失敗",
     };
   }
+  // 更新失敗時沿用的舊空結果不能當作「確認無變軌」：stale 優先於 empty
+  if (state.rows.length === 0 && state.stale) return { kind: "error", text: "資料更新失敗 · 以下「無變軌」可能已過期" };
   if (state.rows.length === 0) return { kind: "empty", text: "近 24h 無變軌偵測 · 監測中" };
   return { kind: "ok" };
 }

@@ -6,7 +6,7 @@
 import type { StatisticsLevel, StatisticsRelease } from './regionalStatisticsLoader';
 import { environmentDimensionLabel, environmentDimensionValueLabel } from './environmentStatisticsRecipes';
 
-export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
+export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區',prosecutor_district:'地檢署轄區'};
 
 export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>): string {
   const start = release.period_start, end = release.period_end;
@@ -23,7 +23,7 @@ export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_s
 const AVAILABILITY_LABELS: Record<string, string> = {
   CURRENT: 'CURRENT（最新期別）',
   STALE: 'STALE（歷史期別：已有較新期別，數值本身不受影響）',
-  PARTIAL: 'PARTIAL（部分地區缺值，未補 0）',
+  PARTIAL: 'PARTIAL（部分覆蓋：缺值或未分配項目不補 0，詳見來源說明）',
 };
 export function statisticsAvailabilityLabel(value: string): string {
   return AVAILABILITY_LABELS[value] ?? value;
@@ -148,8 +148,9 @@ const BOUNDARY_VERSION_LABELS: Record<string, string> = {
   township_reference_20260626_v1: '鄉鎮市區參考界（2026-06-26 第 1 版）',
   township_boundary_20260626_identity_only: '鄉鎮市區代碼對照（2026-06-26，只核對代碼）',
   county_identity_only: '縣市代碼對照（只核對代碼）',
+  PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1: '地檢署轄區界（以內政部 114 年 3 月 18 日版鄉鎮市區界依 115 年司法轄區合併；非縣市）',
 };
-const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only)\b/g;
+const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only|PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1)\b/g;
 
 /** 單一邊界版本代碼的中文描述；查無對照時不印代碼。 */
 export function boundaryVersionLabel(code: unknown): string {

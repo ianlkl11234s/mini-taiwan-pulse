@@ -57,6 +57,16 @@ for file in "${FILES[@]}"; do
   key="deploy-assets/world/$name"
   local_sha256=$(openssl dgst -sha256 "$file" | awk '{print $2}')
   local_bytes=$(wc -c < "$file" | tr -d ' ')
+  case "$name" in
+    *.pmtiles) content_type="application/vnd.pmtiles" ;;
+    *.geojson) content_type="application/geo+json" ;;
+    *) echo "ERROR: unsupported asset type: $name" >&2; exit 1 ;;
+  esac
+  # 與 nginx.conf / upload-deploy-assets.sh 同一政策：*_current.* 是可變指標，其餘帶日期檔名才 immutable。
+  case "$name" in
+    *_current.*) cache_control="public,max-age=300,must-revalidate" ;;
+    *) cache_control="public,max-age=31536000,immutable" ;;
+  esac
   head_json=$(mktemp)
 
   if aws s3api head-object --bucket "$BUCKET" --key "$key" --region "$AWS_REGION" >"$head_json" 2>/dev/null; then
@@ -67,8 +77,31 @@ for file in "${FILES[@]}"; do
       echo "ERROR: refusing to replace immutable world/$name (checksum or size differs)" >&2
       exit 1
     fi
+    remote_cache_control=$(sed -n 's/.*"CacheControl": "\([^"]*\)".*/\1/p' "$head_json")
     rm -f "$head_json"
-    echo "OK existing world/$name bytes=$local_bytes sha256=$local_sha256"
+    # 內容相同但 Cache-Control 不是目前政策（例如舊版把 *_current.* 寫成 immutable 一年）→ 就地改 metadata。
+    if [ "$remote_cache_control" != "$cache_control" ]; then
+      if [ "$UPLOAD" -ne 1 ]; then
+        echo "STALE-CACHE world/$name Cache-Control='$remote_cache_control' expected='$cache_control'（--upload 時改寫）"
+        continue
+      fi
+      echo "Rewriting Cache-Control for existing world/$name..."
+      aws s3api copy-object \
+        --bucket "$BUCKET" \
+        --key "$key" \
+        --copy-source "$BUCKET/$key" \
+        --metadata-directive REPLACE \
+        --content-type "$content_type" \
+        --cache-control "$cache_control" \
+        --metadata "sha256=$local_sha256" \
+        --region "$AWS_REGION" >/dev/null
+      remote_cache_control=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region "$AWS_REGION" --query 'CacheControl' --output text)
+      if [ "$remote_cache_control" != "$cache_control" ]; then
+        echo "ERROR: Cache-Control readback failed for world/$name ($remote_cache_control)" >&2
+        exit 1
+      fi
+    fi
+    echo "OK existing world/$name bytes=$local_bytes sha256=$local_sha256 cache-control=$cache_control"
     continue
   fi
   rm -f "$head_json"
@@ -77,18 +110,6 @@ for file in "${FILES[@]}"; do
     echo "MISSING world/$name bytes=$local_bytes sha256=$local_sha256"
     continue
   fi
-
-  case "$name" in
-    *.pmtiles) content_type="application/vnd.pmtiles" ;;
-    *.geojson) content_type="application/geo+json" ;;
-    *) echo "ERROR: unsupported asset type: $name" >&2; exit 1 ;;
-  esac
-
-  # 與 nginx.conf / upload-deploy-assets.sh 同一政策：*_current.* 是可變指標，其餘帶日期檔名才 immutable。
-  case "$name" in
-    *_current.*) cache_control="public,max-age=300,must-revalidate" ;;
-    *) cache_control="public,max-age=31536000,immutable" ;;
-  esac
 
   echo "Uploading immutable world/$name..."
   aws s3api put-object \

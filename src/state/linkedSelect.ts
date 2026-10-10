@@ -157,6 +157,11 @@ export function ensureLinkedSelects(layerKey: string): void {
   for (const id of ids) providers.get(id)?.ensure?.(layerKey);
 }
 
+/** provider 是否真的實作 retry（沒實作就不該給 UI 重試按鈕，否則按下去是 no-op）。 */
+export function canRetryLinkedSelect(providerId: string): boolean {
+  return typeof providers.get(providerId)?.retry === "function";
+}
+
 export function retryLinkedSelects(layerKey: string, providerId: string): void {
   providers.get(providerId)?.retry?.(layerKey);
 }

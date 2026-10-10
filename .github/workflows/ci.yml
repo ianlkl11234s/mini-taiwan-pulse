@@ -35,6 +35,16 @@ jobs:
       - name: Tests (vitest)
         run: npm test
 
+      # 圖層樣式盤點必須與程式同步（docs/design-system/map-layers.md §6）
+      - name: Design layer inventory up to date
+        run: |
+          npm run -s design:audit-layers
+          if ! git diff --quiet -- docs/design-system/layer-style-inventory.json; then
+            git diff --stat -- docs/design-system/layer-style-inventory.json
+            echo "::error::layer-style-inventory.json 與目前圖層樣式不一致。請執行 npm run design:audit-layers 並提交結果（確認差異只動到本次改的圖層）。"
+            exit 1
+          fi
+
       - name: Private coral backend tests
         run: |
           npm ci --prefix server/coral-private

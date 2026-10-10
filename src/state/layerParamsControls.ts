@@ -19,7 +19,7 @@ import {
 import { layerParamsStore } from "./layerParamsStore";
 import { paletteById } from "../map/palettes";
 import {
-  linkedSelectHiddenFor, linkedSelectSnapshot, retryLinkedSelects, setLinkedSelect, type LinkedSelectStatus,
+  canRetryLinkedSelect, linkedSelectHiddenFor, linkedSelectSnapshot, retryLinkedSelects, setLinkedSelect, type LinkedSelectStatus,
 } from "./linkedSelect";
 // provider 以 import 副作用註冊（統計＋統計群組）；控件、Agent、場景存檔都經本檔或 linkedSelect 讀取
 import "./statisticsLinkedSelect";
@@ -251,7 +251,7 @@ export function buildParamControls(
           status: snap.status,
           ...(statusText ? { statusText } : {}),
           onChange: (next: string) => setLinkedSelect(key, s, next),
-          ...(carrier && snap.status === "error" ? { onRetry: () => retryLinkedSelects(key, s.provider) } : {}),
+          ...(carrier && snap.status === "error" && canRetryLinkedSelect(s.provider) ? { onRetry: () => retryLinkedSelects(key, s.provider) } : {}),
         };
       }
     }

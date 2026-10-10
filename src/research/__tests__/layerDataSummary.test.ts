@@ -122,11 +122,18 @@ describe("typhoonTracks provider", () => {
   });
 
   it("distinguishes no active storm, active-but-outside, and respects the source filter", () => {
-    expect(ok(summarizeTyphoons(track, TAIWAN, t0 + 10 * 86_400))).toMatchObject({ featureCount: 0, max: null, note: "此時間點沒有活動中的颱風" });
+    expect(ok(summarizeTyphoons(track, TAIWAN, t0 - 3600))).toMatchObject({ featureCount: 0, max: null, note: "此時間點沒有活動中的颱風" });
     expect(ok(summarizeTyphoons(track, TAIPEI, t0 + 7 * 3600))).toMatchObject({ featureCount: 0, note: "畫面內沒有活動颱風；畫面外有：颱風A" });
     expect(ok(summarizeTyphoons(track, [118, 18, 126, 27], t0 + 7 * 3600, "jtwc"))).toMatchObject({ featureCount: 0, note: "此時間點沒有活動中的颱風" });
     expect(summarizeTyphoons([], TAIWAN, t0)).toEqual({ status: "data_not_loaded" });
     expect(ok(summarizeTyphoons([], TAIWAN, t0, "all", true))).toMatchObject({ featureCount: 0, note: "此時間點沒有活動中的颱風" });
+  });
+
+  it("counts storms whose tracks are still drawn after the 48h current-position window", () => {
+    const summary = ok(summarizeTyphoons(track, [118, 18, 126, 27], t0 + 10 * 86_400));
+    expect(summary.featureCount).toBe(1);
+    expect(summary.note).toContain("歷史軌跡");
+    expect(summary.ranked!.items).toHaveLength(0);
   });
 
   it("caps many simultaneous storms", () => {
@@ -136,6 +143,13 @@ describe("typhoonTracks provider", () => {
     expect(summary.ranked!.items).toHaveLength(5);
     expect(summary.ranked!.items[0]!.value).toBe(51);
     expect(wireSafe(summary)).toBe(true);
+  });
+});
+
+describe("summarizeAqiStations loaded flag", () => {
+  it("returns ok with zero features for a completed empty fetch, data_not_loaded only while pending", () => {
+    expect(summarizeAqiStations([], TAIWAN)).toEqual({ status: "data_not_loaded" });
+    expect(ok(summarizeAqiStations([], TAIWAN, true))).toMatchObject({ featureCount: 0 });
   });
 });
 

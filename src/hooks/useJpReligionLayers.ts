@@ -7,6 +7,7 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const GSI_SOURCE_ID = "jp-religion-gsi";
@@ -145,6 +146,8 @@ function usePmtilesLayer(
           maxzoom: 14,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
+        // PMTiles 表頭與可見 tile 為非同步取得：只在真的新增 source 時登記 loading，等地圖 idle
+        keepLoadingUntilMapIdle(map, `jp-religion-render:${sourceId}`, "日本宗教設施 渲染中", sourceId);
       }
       // 透明度滑桿按比例同時控制熱區（0.8 × 滑桿 ÷ 預設）。
       const heatScale = clampOpacity(opacity) / opacityDefault;

@@ -57,6 +57,7 @@ DB 端 1023 個 public function 但前端只用得到 158 個、有 RPC 平均�
 | B3 | **pg_cron 健康度**：71 個 job 近 7 天成功率、有沒有 job 停擺 | `cron.job_run_details` | ⚙️ |
 | B4 | **S3 用量與費用估算**：`deploy-assets/` 各子目錄大小＋總量 | `aws s3 ls --summarize --recursive` × 牌價 | ⚙️ |
 | B5 | **R2 用量與費用估算** | rclone `size`（需指定 bucket 名，見 §3 限制） | ⚙️ |
+| B5b | **R2 全帳號容量警示** | boto3 唯讀 list（pulse-warehouse build>3 或 >25GB、mini-tw-pulse >20GB、帳號 >50GB；門檻在 collect_storage.sh 頂端） | ⚙️ |
 | B6 | **CDN 快取有效性**：抽樣看 `cf-cache-status` 是 HIT 還是 MISS/DYNAMIC | `curl -I` 抽樣 10 個代表性資產 | ⚙️ |
 
 > 💰 成本是**牌價估算不是帳單**：AWS CLI 目前沒有預設 credentials（`aws sts` 失敗），

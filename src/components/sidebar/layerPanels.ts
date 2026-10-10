@@ -70,10 +70,10 @@ export const WORLD_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(WORLD_THE
  * `STATISTICS_TAB_THEMES` 已照這個順序排。
  */
 export const STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
-  { zh: "人口與社會", en: "Population & Society", themes: ["人口與教育 Population & Education", "醫療與長照 Health & Care", "犯罪與治安 Crime & Safety"] },
+  { zh: "人口與社會", en: "Population & Society", themes: ["人口與教育 Population & Education", "醫療與長照 Health & Care", "成癮與減害 Addiction & Harm Reduction", "犯罪與治安 Crime & Safety"] },
   { zh: "經濟與住宅", en: "Economy & Housing", themes: ["工作與所得 Work & Income", "住宅與不動產 Housing & Property"] },
   { zh: "交通", en: "Transport", themes: ["公共運輸 Public Transport", "道路與車輛 Roads & Vehicles", "交通用地 Transport Land"] },
-  { zh: "土地與環境", en: "Land & Environment", themes: ["農林漁牧 Agriculture, Forestry & Fisheries", "環境與資源 Environment & Resources"] },
+  { zh: "土地與環境", en: "Land & Environment", themes: ["農林漁牧 Agriculture, Forestry & Fisheries", "環境與資源 Environment & Resources", "崩塌與水土保持 Landslides & Soil Conservation"] },
   { zh: "基準", en: "Baseline", themes: ["地圖參考 Map Reference"] },
 ];
 
@@ -83,7 +83,7 @@ export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = [
   { zh: "交通與旅宿", themes: ["交通", "旅宿"] },
   { zh: "醫療與照護", themes: ["醫療設施", "長照服務", "醫療圈"] },
   { zh: "社會", themes: ["治安", "教育", "宗教"] },
-  { zh: "自然與環境", themes: ["自然保護", "世界遺產", "水資源", "高度與地表"] },
+  { zh: "自然與環境", themes: ["自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"] },
 ];
 
 /** 統計入口的「全部關閉」範圍：含只為相容舊網址存在的統計 render key。 */
