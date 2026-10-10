@@ -100,6 +100,8 @@ const STROKE_EXEMPT = new Set([
   "src/hooks/useGlobalEventsLayer.ts", // 同上：circle 非主體
   "src/hooks/useEarthquakeLayer.ts",
   "src/hooks/useEarthquakesGlobalLayer.ts",
+  // 移動物件平面點（列車、垃圾車 GPS）：對比描邊 movingPointStrokePaint（map-layers.md §3.1 P-2 例外，2026-10-10）
+  "src/map/flatMovingLayers.ts",
 ]);
 
 describe("hook point spec R2 ratchet", () => {

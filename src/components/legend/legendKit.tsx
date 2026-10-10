@@ -7,7 +7,7 @@
 
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS } from "../../styles/designTokens";
-import { MAP_SEAM, MISSING_HATCH } from "../../map/mapStyleScale";
+import { MAP_SEAM, MISSING_HATCH, MOVING_POINT } from "../../map/mapStyleScale";
 
 // ── 主題 ──────────────────────────────────────────────────
 export interface LegendPalette {
@@ -20,6 +20,8 @@ export interface LegendPalette {
   border: string;
   /** 色票描邊：同地圖點描邊的底圖色（P-2）。 */
   seam: string;
+  /** 移動物件平面點／箭頭的對比描邊（MOVING_POINT，P-2 例外）。 */
+  movingStroke: string;
   /** 缺值斜線色（F-3 A／viz-library N1）。 */
   hatch: string;
 }
@@ -32,6 +34,7 @@ export const DARK_LEGEND: LegendPalette = {
   bgSubtle: "rgba(255,255,255,0.05)",
   border: "rgba(255,255,255,0.10)",
   seam: MAP_SEAM.dark,
+  movingStroke: MOVING_POINT.stroke.color.dark,
   hatch: `rgba(${MISSING_HATCH.rgb.dark.join(",")},${MISSING_HATCH.alpha})`,
 };
 export const LIGHT_LEGEND: LegendPalette = {
@@ -43,6 +46,7 @@ export const LIGHT_LEGEND: LegendPalette = {
   bgSubtle: LIGHT.fillSubtle,
   border: LIGHT.border,
   seam: MAP_SEAM.light,
+  movingStroke: MOVING_POINT.stroke.color.light,
   hatch: `rgba(${MISSING_HATCH.rgb.light.join(",")},${MISSING_HATCH.alpha})`,
 };
 export const LegendThemeCtx = createContext<LegendPalette>(DARK_LEGEND);
@@ -121,7 +125,8 @@ export function SwatchSquare({ color, outline = false, opacity = 0.9, stroke }: 
 }
 
 /**
- * LG-6 icon：方向箭頭（R6 段 3 移動物件平面模式，與地圖 SDF 箭頭同形狀），14px，描邊同 P-2 底圖色。
+ * LG-6 icon：方向箭頭（R6 段 3 移動物件平面模式，與地圖 SDF 箭頭同形狀），14px，
+ * 描邊＝移動物件對比色（MOVING_POINT，同地圖 halo；P-2 例外）。
  * 尖端朝上＝北；地圖上依行進方向旋轉。
  */
 export function SwatchArrow({ color }: { color: string }) {
@@ -129,7 +134,7 @@ export function SwatchArrow({ color }: { color: string }) {
   const s = LEGEND_SWATCH.icon;
   return (
     <svg aria-hidden="true" width={s} height={s} viewBox="-1.2 -1.2 2.4 2.4" style={{ flexShrink: 0 }}>
-      <polygon points="0,-1 0.8,0.9 0,0.45 -0.8,0.9" fill={color} stroke={t.seam} strokeWidth={0.16} strokeLinejoin="round" />
+      <polygon points="0,-1 0.8,0.9 0,0.45 -0.8,0.9" fill={color} stroke={t.movingStroke} strokeWidth={0.2} strokeLinejoin="round" />
     </svg>
   );
 }

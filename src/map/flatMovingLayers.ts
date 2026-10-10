@@ -2,17 +2,18 @@
  * R6 段 3：移動物件的 Mapbox 平面模式（台鐵／高鐵列車、垃圾車 GPS）。
  *
  * 「立體效果」關閉時，同一份資料改用 Mapbox 原生圖層畫（map-layers.md §3.1）：
- *   - 拉遠：circle，點三階（P-1：一般 M 4.5px；垃圾車停車／離線 S 3px，對應立體版 ×0.6）、P-2 底圖色描邊
- *   - 拉近（z ≥ FLAT_ARROW_MIN_ZOOM）：有行進方向的物件改畫方向箭頭 icon（P-5，L 階 13px），依方位角旋轉；
+ *   - 拉遠：circle，行進中 L 6.5px、垃圾車停車／離線 M 4.5px；對比描邊（暗白／淡 #111827，1.5px）
+ *   - 拉近（z ≥ FLAT_ARROW_MIN_ZOOM）：有行進方向的物件改畫方向箭頭 icon（16px、對比色 halo），依方位角旋轉；
  *     算不出方向（停著）的物件維持圓點
  *   - 不畫拖尾；只有點選的物件畫近段軌跡線
  * 識別色沿用立體版：列車＝train.color（台鐵車種／高鐵／捷運線色），垃圾車＝WASTE_STATUS_COLORS。
+ * 大小與描邊是 P-2 例外（`MOVING_POINT`，2026-10-10 使用者回饋：底圖色細縫在暗底上看不出、箭頭和同色軌道線混在一起）。
  *
  * 本檔只放圖層規格與增刪；每幀資料與節流在 `flatMovingController.ts`。
  */
 import type { ExpressionSpecification, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import {
-  LINE_OPACITY, POINT_ICON_PX, POINT_OPACITY, lineWidthExpr, mapSeamColor, pointRadius, pointStrokePaint,
+  LINE_OPACITY, MOVING_POINT, POINT_OPACITY, lineWidthExpr, movingPointStrokePaint, movingStrokeColor, pointRadius,
 } from "./mapStyleScale";
 
 /** 拉近到這個 zoom 起，有方向的物件從圓點換成方向箭頭。 */
@@ -58,13 +59,13 @@ export const flatMovingPickLayers = (kind: FlatMovingKind): string[] => {
 };
 
 /**
- * feature properties：`key`（點選查回原物件）、`color`、`tier`（S／M）、`alpha`（淡入淡出／過期淡化）、
+ * feature properties：`key`（點選查回原物件）、`color`、`tier`（moving 行進／parked 停車或離線）、`alpha`（淡入淡出／過期淡化）、
  * `bearing`（度；算不出時不帶這個屬性 → 拉近仍畫圓點）。
  */
 export interface FlatMovingProps {
   key: string;
   color: string;
-  tier: "S" | "M";
+  tier: "moving" | "parked";
   alpha: number;
   bearing?: number;
 }
@@ -75,13 +76,13 @@ const hideWhenArrow = (value: ExpressionSpecification | number): ExpressionSpeci
 
 /**
  * circle paint。sizeScale＝大小滑桿 ÷ 預設；opacityScale＝透明度滑桿（rail 沒有整層透明度 → 1）。
- * 半徑固定不隨縮放（P-1），描邊 P-2；主體透明度 0.85（P-3，< 1k 點）。
+ * 半徑固定不隨縮放（P-1）：行進 L、停車／離線 M；描邊用對比色（MOVING_POINT，P-2 例外）；主體透明度 0.85（P-3，< 1k 點）。
  */
 export function flatMovingCirclePaint(isDark: boolean, sizeScale: number, opacityScale: number) {
-  const stroke = pointStrokePaint(isDark, opacityScale);
+  const stroke = movingPointStrokePaint(isDark, opacityScale);
   const fillOpacity = POINT_OPACITY.base * opacityScale;
   return {
-    "circle-radius": ["match", ["get", "tier"], "S", pointRadius("S", sizeScale), pointRadius("M", sizeScale)] as ExpressionSpecification,
+    "circle-radius": ["match", ["get", "tier"], "parked", pointRadius(MOVING_POINT.tier.parked, sizeScale), pointRadius(MOVING_POINT.tier.moving, sizeScale)] as ExpressionSpecification,
     "circle-color": ["get", "color"] as ExpressionSpecification,
     "circle-opacity": hideWhenArrow(["*", ["get", "alpha"], fillOpacity]),
     "circle-stroke-color": stroke["circle-stroke-color"],
@@ -90,11 +91,11 @@ export function flatMovingCirclePaint(isDark: boolean, sizeScale: number, opacit
   };
 }
 
-/** 箭頭 icon layout：P-5 L 階 13px（9px 看不清方向），固定大小乘大小滑桿；貼地旋轉、不避讓（避免 25Hz 更新時閃爍）。 */
+/** 箭頭 icon layout：16px（MOVING_POINT.arrowPx；13px 在暗底與同色軌道上看不清），固定大小乘大小滑桿；貼地旋轉、不避讓（避免 25Hz 更新時閃爍）。 */
 export function flatMovingArrowLayout(sizeScale: number) {
   return {
     "icon-image": FLAT_ARROW_IMAGE,
-    "icon-size": (POINT_ICON_PX.L / (ARROW_SHAPE_PX / ARROW_PIXEL_RATIO)) * sizeScale,
+    "icon-size": (MOVING_POINT.arrowPx / (ARROW_SHAPE_PX / ARROW_PIXEL_RATIO)) * sizeScale,
     "icon-rotate": ["get", "bearing"] as ExpressionSpecification,
     "icon-rotation-alignment": "map" as const,
     "icon-pitch-alignment": "map" as const,
@@ -103,13 +104,13 @@ export function flatMovingArrowLayout(sizeScale: number) {
   };
 }
 
-/** 箭頭 paint：色＝物件色；描邊（SDF halo 1px）同 P-2 底圖色。 */
+/** 箭頭 paint：色＝物件色；描邊＝SDF halo，對比色 1.5px（同圓點描邊，MOVING_POINT）。 */
 export function flatMovingArrowPaint(isDark: boolean, opacityScale: number) {
   return {
     "icon-color": ["get", "color"] as ExpressionSpecification,
     "icon-opacity": ["*", ["get", "alpha"], POINT_OPACITY.base * opacityScale] as ExpressionSpecification,
-    "icon-halo-color": mapSeamColor(isDark),
-    "icon-halo-width": 1,
+    "icon-halo-color": movingStrokeColor(isDark),
+    "icon-halo-width": MOVING_POINT.stroke.width,
   };
 }
 

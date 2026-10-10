@@ -39,6 +39,23 @@ export const POINT_ICON_PX = { M: POINT_RADIUS.M * 2, L: 13 } as const;
 /** useSubstationDiamondIcon：32px 方塊、icon-rotate 45°，對角寬 32√2。 */
 export const SUBSTATION_ICON_DIAGONAL_PX = 32 * Math.SQRT2;
 
+/**
+ * P-2 例外：移動物件平面點（R6 段 3 列車、垃圾車 GPS；2026-10-10 使用者回饋）。
+ * 底圖色細縫在暗底上等於沒邊、箭頭與同色軌道線也分不開 → 改用對比描邊（色號同 P-9：暗白／淡 #111827），
+ * 圓點升一階（行進中 L 6.5、停車／離線 M 4.5），箭頭 16px。paint 與圖例共用本常數。
+ */
+export const MOVING_POINT = {
+  stroke: { color: { dark: "#ffffff", light: "#111827" }, width: 1.5, opacity: 1 },
+  tier: { moving: "L", parked: "M" },
+  arrowPx: 16,
+} as const satisfies { tier: Record<string, PointTier>; [k: string]: unknown };
+export const movingStrokeColor = (isDark: boolean) => MOVING_POINT.stroke.color[themeOf(isDark)];
+export const movingPointStrokePaint = (isDark: boolean, opacityFactor = 1) => ({
+  "circle-stroke-color": movingStrokeColor(isDark),
+  "circle-stroke-width": MOVING_POINT.stroke.width,
+  "circle-stroke-opacity": Math.min(1, MOVING_POINT.stroke.opacity * opacityFactor),
+});
+
 /** P-3：主體不透明度，依全台點數。 */
 export const POINT_OPACITY = { base: 0.85, over1k: 0.8, over10k: 0.75, over100k: 0.6 } as const;
 

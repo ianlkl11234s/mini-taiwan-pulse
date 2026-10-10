@@ -21,6 +21,7 @@ import {
 import { LAYER_MANIFEST } from "../layerManifest";
 import { describeLayerControls } from "../../research/layerControls";
 import { effectiveRailTrackMode } from "../../map/railTracks";
+import { MOVING_POINT, movingPointStrokePaint } from "../../map/mapStyleScale";
 import { layerParamsStore } from "../../state/layerParamsStore";
 import { visibleControlSpecs } from "../../state/layerParamsControls";
 import type { LayerVisibility, RailTrain } from "../../types";
@@ -290,13 +291,23 @@ describe("R6 段 3：垃圾車 GPS 插值（時間邊界）", () => {
 // ── 5. 平面畫法（paint／icon／zoom）─────────────────────────
 
 describe("R6 段 3：平面 paint 與箭頭", () => {
-  it("圓點：M 4.5／S 3 固定半徑乘大小倍率、P-2 底圖色描邊", () => {
+  it("移動物件規格（2026-10-10 使用者回饋）：對比描邊 暗白／淡 #111827 1.5px、行進 L／停車 M、箭頭 16px", () => {
+    expect(MOVING_POINT).toEqual({
+      stroke: { color: { dark: "#ffffff", light: "#111827" }, width: 1.5, opacity: 1 },
+      tier: { moving: "L", parked: "M" },
+      arrowPx: 16,
+    });
+    expect(movingPointStrokePaint(true, 0.5)).toEqual({ "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5, "circle-stroke-opacity": 0.5 });
+  });
+
+  it("圓點：行進 L 6.5／停車 M 4.5 固定半徑乘大小倍率、對比描邊（P-2 例外）", () => {
     const dark = flatMovingCirclePaint(true, 1, 1);
-    expect(dark["circle-radius"]).toEqual(["match", ["get", "tier"], "S", 3, 4.5]);
-    expect(flatMovingCirclePaint(true, 2, 1)["circle-radius"]).toEqual(["match", ["get", "tier"], "S", 6, 9]);
-    expect(dark["circle-stroke-color"]).toBe("#0a0a14");
-    expect(flatMovingCirclePaint(false, 1, 1)["circle-stroke-color"]).toBe("#ffffff");
-    expect(dark["circle-stroke-width"]).toBe(1);
+    expect(dark["circle-radius"]).toEqual(["match", ["get", "tier"], "parked", 4.5, 6.5]);
+    expect(flatMovingCirclePaint(true, 2, 1)["circle-radius"]).toEqual(["match", ["get", "tier"], "parked", 9, 13]);
+    expect(dark["circle-stroke-color"]).toBe("#ffffff");
+    expect(flatMovingCirclePaint(false, 1, 1)["circle-stroke-color"]).toBe("#111827");
+    expect(dark["circle-stroke-width"]).toBe(1.5);
+    expect(dark["circle-stroke-opacity"]).toEqual(["step", ["zoom"], ["*", ["get", "alpha"], 1], 12, ["case", ["has", "bearing"], 0, ["*", ["get", "alpha"], 1]]]);
     expect(dark["circle-color"]).toEqual(["get", "color"]);
   });
 
@@ -309,15 +320,16 @@ describe("R6 段 3：平面 paint 與箭頭", () => {
     );
   });
 
-  it("箭頭：P-5 L 階 13px、依 bearing 旋轉、貼地、不避讓；色＝物件色、描邊同底圖色", () => {
+  it("箭頭：16px、依 bearing 旋轉、貼地、不避讓；色＝物件色、halo＝對比色 1.5px", () => {
     const layout = flatMovingArrowLayout(1);
-    expect(layout["icon-size"]).toBeCloseTo(13 / 16, 9);
-    expect(flatMovingArrowLayout(2)["icon-size"]).toBeCloseTo(26 / 16, 9);
+    expect(layout["icon-size"]).toBeCloseTo(1, 9);
+    expect(flatMovingArrowLayout(2)["icon-size"]).toBeCloseTo(2, 9);
     expect(layout).toMatchObject({
       "icon-rotate": ["get", "bearing"], "icon-rotation-alignment": "map",
       "icon-allow-overlap": true, "icon-ignore-placement": true,
     });
-    expect(flatMovingArrowPaint(false, 1)).toMatchObject({ "icon-color": ["get", "color"], "icon-halo-color": "#ffffff", "icon-halo-width": 1 });
+    expect(flatMovingArrowPaint(false, 1)).toMatchObject({ "icon-color": ["get", "color"], "icon-halo-color": "#111827", "icon-halo-width": 1.5 });
+    expect(flatMovingArrowPaint(true, 1)).toMatchObject({ "icon-halo-color": "#ffffff", "icon-halo-width": 1.5 });
   });
 
   it("SDF 箭頭：中心在形狀內（alpha > 邊緣 191）、角落在外（0）、尖端朝上", () => {
@@ -347,22 +359,22 @@ describe("R6 段 3：平面 GeoJSON", () => {
   const train = (id: string, position: [number, number], bearing?: number | null): RailTrain =>
     ({ trainId: id, trackId: "t", systemId: "tra", position, color: "#ff0000", status: "running", bearing });
 
-  it("列車：色＝train.color、M 階；無方向不帶 bearing；[0,0] 略過", () => {
+  it("列車：色＝train.color、行進（L 階）；無方向不帶 bearing；[0,0] 略過", () => {
     const fc = railFlatFeatures([train("1", [121, 24], 45), train("2", [121.1, 24], null), train("3", [0, 0], 10)]);
     expect(fc.features).toHaveLength(2);
-    expect(fc.features[0]!.properties).toEqual({ key: "tra-1", color: "#ff0000", tier: "M", alpha: 1, bearing: 45 });
+    expect(fc.features[0]!.properties).toEqual({ key: "tra-1", color: "#ff0000", tier: "moving", alpha: 1, bearing: 45 });
     expect("bearing" in fc.features[1]!.properties).toBe(false);
   });
 
-  it("垃圾車：停車／離線 S 階，alpha 沿用插值結果", () => {
+  it("垃圾車：停車／離線 parked（M 階），alpha 沿用插值結果", () => {
     const r = row([pt(0, 120.3, 22.6)]);
     const fc = wasteFlatFeatures([
       { row: r, frame: { lat: 22.6, lng: 120.3, status: "parked", alpha: 0.45, visible: true }, bearing: null },
       { row: r, frame: { lat: 22.6, lng: 120.3, status: "collecting", alpha: 1, visible: true }, bearing: 90 },
     ]);
-    expect(fc.features[0]!.properties).toMatchObject({ tier: "S", alpha: 0.45, color: "#fbbf24" });
+    expect(fc.features[0]!.properties).toMatchObject({ tier: "parked", alpha: 0.45, color: "#fbbf24" });
     expect("bearing" in fc.features[0]!.properties).toBe(false);
-    expect(fc.features[1]!.properties).toMatchObject({ tier: "M", bearing: 90 });
+    expect(fc.features[1]!.properties).toMatchObject({ tier: "moving", bearing: 90 });
   });
 
   it("RecentTrackHistory：0.5 秒取樣、超過視窗丟棄、時間跳轉清空、下線的車移除", () => {

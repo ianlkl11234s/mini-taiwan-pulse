@@ -1,5 +1,5 @@
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "../map/layerPaintColors";
-import { BOUNDARY_GRAY, mapSeamColor, rampLegendGradient } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
+import { BOUNDARY_GRAY, MOVING_POINT, mapSeamColor, rampLegendGradient } from "../map/mapStyleScale"; // R3a：分級面／網格外框＝底圖色細縫
 import { paletteById, paletteRamp } from "../map/palettes";
 import { useHeatmapLegendPalettes, usePaletteLabel, usePaletteRamp } from "../state/layerPalette";
 import { LAYER_MANIFEST } from "../data/layerManifest";
@@ -1046,10 +1046,11 @@ function FlatArrowRow() {
 function WasteTruckLegend() {
   const values = useLayerParams("wasteTruck");
   const stereo = paramBool(values, "wasteTruck", "wasteTruck3D");
+  const t = useLegendTheme();
   return (
     <div>
       <LegendTitle zh="垃圾車" en="Truck" />
-      <LegendRow swatch={<SwatchDot color={WASTE_STATUS_COLORS.collecting} />}>垃圾車（GPS 即時位置）</LegendRow>
+      <LegendRow swatch={<SwatchDot color={WASTE_STATUS_COLORS.collecting} {...(stereo ? {} : { stroke: t.movingStroke, strokeWidth: MOVING_POINT.stroke.width })} />}>垃圾車（GPS 即時位置）</LegendRow>
       {!stereo && <FlatArrowRow />}
       <LegendNote>{stereo ? "停車／離線的點較小；收運中的車會飄出音符" : "停車／離線的點較小"}</LegendNote>
     </div>

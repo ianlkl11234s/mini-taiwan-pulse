@@ -10,6 +10,7 @@ beforeAll(() => loadH3());
 
 import { bindGridStyleRehydration } from "../gridHosts";
 import { updateH3Layer } from "../../../map/h3LayerFactory";
+import { setRailTracksVisible, updateRailTracks } from "../../../map/railTracks";
 import {
   updateIndicatorsLayer, updatePopCountLayer, updateSocioLayer, updateSpatialLayer,
 } from "../../../map/demographicsLayerFactory";
@@ -72,5 +73,28 @@ describe("grid host style reload lifecycle", () => {
     state.resetStyle();
     state.emitStyleLoad();
     expect(state.source("h3-population-src")).toBeUndefined();
+  });
+
+  it("recreates the 2D rail tracks after style.load (2026-10-10: flat trains floated off-track after a basemap switch)", () => {
+    const state = styleMap();
+    const tracks: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: [{ type: "Feature", properties: { color: "#d90023" }, geometry: { type: "LineString", coordinates: [[121.5, 25], [121.52, 25.05]] } }],
+    };
+    const rehydrate = (map: never) => {
+      updateRailTracks(map, tracks, true);
+      setRailTracksVisible(map, true);
+    };
+    rehydrate(state.map as never);
+    const stop = bindGridStyleRehydration(state.map as never, rehydrate as never);
+    for (let cycle = 0; cycle < 3; cycle++) {
+      state.resetStyle();
+      expect(state.map.getLayer("rail-tracks-line")).toBeUndefined();
+      state.emitStyleLoad();
+      expect(state.source("rail-tracks")).toBeDefined();
+      expect(state.map.getLayer("rail-tracks-line")).toBeDefined();
+      expect(state.map.setLayoutProperty).toHaveBeenLastCalledWith("rail-tracks-line", "visibility", "visible");
+    }
+    stop();
   });
 });

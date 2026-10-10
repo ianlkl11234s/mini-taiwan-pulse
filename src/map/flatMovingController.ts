@@ -54,28 +54,28 @@ function pointFeature(lng: number, lat: number, props: FlatMovingProps): GeoJSON
   return { type: "Feature", geometry: { type: "Point", coordinates: [lng, lat] }, properties: props };
 }
 
-/** 列車 → GeoJSON（色＝train.color，M 階；位置 [0,0] 視為無效，同 RailScene）。 */
+/** 列車 → GeoJSON（色＝train.color，行進中；位置 [0,0] 視為無效，同 RailScene）。 */
 export function railFlatFeatures(trains: readonly RailTrain[]): GeoJSON.FeatureCollection<GeoJSON.Point, FlatMovingProps> {
   const features: GeoJSON.Feature<GeoJSON.Point, FlatMovingProps>[] = [];
   for (const t of trains) {
     const [lng, lat] = t.position;
     if (lng === 0 && lat === 0) continue;
     features.push(pointFeature(lng, lat, {
-      key: railTrainKey(t), color: t.color, tier: "M", alpha: 1,
+      key: railTrainKey(t), color: t.color, tier: "moving", alpha: 1,
       bearing: typeof t.bearing === "number" ? t.bearing : undefined,
     }));
   }
   return { type: "FeatureCollection", features };
 }
 
-/** 垃圾車 → GeoJSON（色＝WASTE_STATUS_COLORS；停車／離線 S 階，對應立體版 ×0.6；alpha＝淡入淡出／過期淡化）。 */
+/** 垃圾車 → GeoJSON（色＝WASTE_STATUS_COLORS；停車／離線較小（parked）；alpha＝淡入淡出／過期淡化）。 */
 export function wasteFlatFeatures(placements: readonly WasteTruckPlacement[]): GeoJSON.FeatureCollection<GeoJSON.Point, FlatMovingProps> {
   return {
     type: "FeatureCollection",
     features: placements.map(({ row, frame, bearing }) => pointFeature(frame.lng, frame.lat, {
       key: row.vehicle_no,
       color: WASTE_STATUS_COLORS[frame.status] ?? WASTE_STATUS_COLORS.unknown,
-      tier: frame.status === "parked" || frame.status === "offline" ? "S" : "M",
+      tier: frame.status === "parked" || frame.status === "offline" ? "parked" : "moving",
       alpha: frame.alpha,
       bearing: bearing ?? undefined,
     })),

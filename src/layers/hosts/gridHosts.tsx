@@ -75,16 +75,22 @@ export const RailTracksHost: LayerHostComponent = ({ deps }) => {
   );
   const { mapRef, railData, isDarkTheme } = deps;
   const railVisible = deps.layerVisibility.rail;
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+  // 2026-10-10 修正：原本用 isStyleLoaded()（圖磚載入中為 false）且沒有 style.load 重建，
+  // 換底圖後 2D 軌道就消失、平面列車浮在街區裡 → 改用 styleReady＋換底圖重建（同其他 grid host）。
+  const rehydrate = useCallback((map: MapboxMap) => {
     if (railData && railVisible) {
       updateRailTracks(map, railData.allTracks, isDarkTheme);
       setRailTracksVisible(map, railTrackMode === "2d");
     } else {
       removeRailTracks(map);
     }
-  }, [mapRef, railData, isDarkTheme, railVisible, railTrackMode]);
+  }, [railData, isDarkTheme, railVisible, railTrackMode]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map)) return;
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 
