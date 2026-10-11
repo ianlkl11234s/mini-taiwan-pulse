@@ -12,6 +12,7 @@ import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { humanizeStatisticsText } from "../../data/statisticsLabels";
 import { Search, Lock } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
+import { useLocale } from "../../state/localeStore";
 import { LayerNameLine, ListRow } from "./LayerRow";
 import { SubGroupLabel } from "./ThemeBanner";
 import { LAYER_ICONS } from "./layerIcons";
@@ -356,6 +357,7 @@ interface DataSourcePanelProps {
 export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onActivateLayer }: DataSourcePanelProps) {
   const p = isDarkTheme ? DARK_DS : LIGHT_DS;
   const rail = railPalette(isDarkTheme);
+  const { t } = useLocale();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [expandedKey, setExpandedKey] = useState<keyof LayerVisibility | null>(null);
@@ -407,7 +409,7 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
 
   return (
     <RailThemeContext.Provider value={rail}>
-      <PanelHeader title="資料來源" eyebrow="資料" onClose={onClose} borderColor={p.border} mutedColor={p.dim} textColor={p.text} />
+      <PanelHeader title={t("rail.datasource")} eyebrow="資料" onClose={onClose} borderColor={p.border} mutedColor={p.dim} textColor={p.text} />
 
       {/* 搜尋框：高 26、--control-* */}
       <div style={{ padding: "8px 12px 6px" }}>

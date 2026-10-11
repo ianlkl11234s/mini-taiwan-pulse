@@ -8,6 +8,7 @@ import { isStatisticsRenderLayer } from "../data/regionalStatisticsRecipes";
 import { LayersPanel } from "./sidebar/LayersPanel";
 import { LAYER_PANELS, layerPanelDef, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
 import { railPalette, RailThemeContext } from "./sidebar/railTheme";
+import { useLocale } from "../state/localeStore";
 
 /** 手機入口＝桌機入口：同一份 `LAYER_PANELS`。 */
 export const MOBILE_LAYER_PANELS = LAYER_PANELS;
@@ -75,6 +76,7 @@ export function LayerSidebar({
   onToggleFavorite,
 }: LayerSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const { t } = useLocale();
   const dimColor = isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.35)";
 
   const getCount = (key: keyof LayerVisibility): number | undefined => {
@@ -106,7 +108,7 @@ export function LayerSidebar({
     return (
       <button
         type="button"
-        aria-label="展開圖層側欄"
+        aria-label={t("sidebar.expand")}
         aria-expanded={false}
         onClick={() => setCollapsed(false)}
         style={{
@@ -224,6 +226,7 @@ function SidebarContent({
   onToggleFavorite?: (key: string) => void;
 }) {
   const palette = railPalette(isDarkTheme);
+  const { t } = useLocale();
   const { TEXT_STRONG, DIM, ROW_ACTIVE, ALLOFF_BG } = palette;
   const [tab, setTab] = useState<LayerPanelId>("layers");
   const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "" });
@@ -252,10 +255,10 @@ function SidebarContent({
         fontFamily: FONT_CJK,
       }}
     >
-      <div role="tablist" aria-label="圖層入口" style={{ display: "flex", gap: 4, margin: "0 12px 6px" }}>
+      <div role="tablist" aria-label={t("sidebar.tabsAria")} style={{ display: "flex", gap: 4, margin: "0 12px 6px" }}>
         {LAYER_PANELS.map((entry) => {
           const active = tab === entry.id;
-          return <button key={entry.id} type="button" role="tab" aria-selected={active} onClick={() => openTab(entry.id)} style={{ flex: 1, minWidth: 0, border: "none", borderRadius: RADIUS.lg, padding: "6px 4px", cursor: "pointer", background: active ? ROW_ACTIVE : "transparent", color: active ? TEXT_STRONG : DIM, fontSize: FONT_SIZE.md, fontWeight: 700, fontFamily: FONT_CJK }}>{entry.shortTitle}</button>;
+          return <button key={entry.id} type="button" role="tab" aria-selected={active} onClick={() => openTab(entry.id)} style={{ flex: 1, minWidth: 0, border: "none", borderRadius: RADIUS.lg, padding: "6px 4px", cursor: "pointer", background: active ? ROW_ACTIVE : "transparent", color: active ? TEXT_STRONG : DIM, fontSize: FONT_SIZE.md, fontWeight: 700, fontFamily: FONT_CJK }}>{t(`panel.${entry.id}.short`)}</button>;
         })}
       </div>
       {onMemberToggle && (
@@ -269,7 +272,7 @@ function SidebarContent({
             color: TEXT_STRONG, fontSize: FONT_SIZE.md, fontFamily: FONT_CJK,
           }}
         >
-          <User size={14} /> 我的
+          <User size={14} /> {t("sidebar.mine")}
         </button>
       )}
       <LayersPanel

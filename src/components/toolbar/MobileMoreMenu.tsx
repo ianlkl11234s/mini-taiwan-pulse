@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { MoreHorizontal } from "lucide-react";
+import { Languages, MoreHorizontal } from "lucide-react";
 import { COLORS, FONT_CJK, FONT_SIZE, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../../styles/designTokens";
+import { useLocale } from "../../state/localeStore";
+import { LanguageSegmented } from "./LanguageMenu";
 import { ToolbarButton } from "./ToolbarButton";
 import type { ToolbarPalette } from "./toolbarTheme";
 
@@ -26,6 +28,7 @@ interface Props {
 
 /** 手機標頭 M1 的「⋯ 更多」選單：向下靠右展開，點外面或 Esc 關閉。 */
 export function MobileMoreMenu({ palette, isDarkTheme, items, buttonStyle }: Props) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -58,7 +61,7 @@ export function MobileMoreMenu({ palette, isDarkTheme, items, buttonStyle }: Pro
 
   return (
     <div ref={containerRef} style={{ position: "relative", flexShrink: 0 }}>
-      <ToolbarButton palette={palette} icon title="更多" onClick={() => setOpen((v) => !v)} style={buttonStyle}>
+      <ToolbarButton palette={palette} icon title={t("toolbar.more")} onClick={() => setOpen((v) => !v)} style={buttonStyle}>
         <MoreHorizontal size={16} />
       </ToolbarButton>
       {open && pos && createPortal(
@@ -83,6 +86,14 @@ export function MobileMoreMenu({ palette, isDarkTheme, items, buttonStyle }: Pro
           {items.map((item) => (
             <MenuRow key={item.key} item={item} palette={palette} textColor={isDarkTheme ? COLORS.textDefault : LIGHT.textDefault} onDone={() => setOpen(false)} />
           ))}
+          {/* 語言（spec §5.29：新入口收進 ⋯）：標籤列＋三選一分段控制 */}
+          <div style={{ margin: "4px 4px 2px", paddingTop: 6, borderTop: `1px solid ${palette.borderPanel}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 4px 5px", fontSize: FONT_SIZE.md, color: isDarkTheme ? COLORS.textDefault : LIGHT.textDefault }}>
+              <Languages size={15} />
+              {t("language.label")}
+            </div>
+            <LanguageSegmented palette={palette} />
+          </div>
         </div>,
         document.body,
       )}

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { X } from "lucide-react";
 import { CHANGELOG } from "../data/changelog";
+import { localeStore, useLocale } from "../state/localeStore";
 import { RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, Z_INDEX } from "../styles/designTokens";
 
 type BottomTab = "guide" | "about" | "profile";
@@ -1012,7 +1013,10 @@ const PAGE_TITLES: Record<string, Record<Lang, string>> = {
 export function InfoModal({ open, onClose, isMobile, isDarkTheme = true }: InfoModalProps) {
   const [activeTab, setActiveTab] = useState<BottomTab>("guide");
   const [guidePage, setGuidePage] = useState<GuidePage>("getting-started");
-  const [lang, setLang] = useState<Lang>("zh");
+  // 語言跟全站 localeStore 走：zh-TW 顯示中文內容，其餘（en／ja）顯示既有英文內容
+  const { locale } = useLocale();
+  const lang: Lang = locale === "zh-TW" ? "zh" : "en";
+  const setLang = (next: Lang) => localeStore.set(next === "zh" ? "zh-TW" : "en");
   const c = isDarkTheme ? DARK : LIGHT;
 
   if (!open) return null;

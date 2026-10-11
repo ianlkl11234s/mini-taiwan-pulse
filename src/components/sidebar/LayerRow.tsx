@@ -5,6 +5,9 @@ import type { LayerName } from "../../data/layerManifest";
 import type { LayerVisibility } from "../../types";
 import { useLayerLiveCount } from "../../state/liveCountStore";
 import { useLayerLoading } from "../../lib/layerLoading";
+import { useLocale } from "../../state/localeStore";
+import { formatNumber } from "../../i18n/format";
+import { localizeLayerName } from "../../i18n/layerText";
 import { LayerToggleSwitch } from "./LayerToggleSwitch";
 import { useRailTheme } from "./railTheme";
 import "./layerRow.css";
@@ -19,16 +22,19 @@ export function RailToggle({ on, onChange, label }: { on: boolean; onChange: () 
  * 圖層名稱（layer-panel-unify P2 A）：同一行顯示中文主名＋外文小字＋來源標籤。
  * 空間不夠時只省略外文；中文不縮（比整列還長時才換行）；來源標籤不縮。
  */
-export function LayerNameLine({ name }: { name: LayerName }) {
+export function LayerNameLine({ name, layerKey }: { name: LayerName; layerKey?: string }) {
   const { DIM, BORDER } = useRailTheme();
+  const { active, t } = useLocale();
+  // 顯示層翻譯：有 layerKey 才翻（識別字、搜尋、aria 仍用原名）；zh-TW 輸出與原本相同
+  const shown = layerKey ? localizeLayerName(layerKey, name, active, t) : { primary: name.zh, secondary: name.alt, qualifier: name.qualifier };
   return (
     <span style={{ display: "flex", alignItems: "baseline", gap: 5, minWidth: 0 }}>
-      <span style={{ flex: "0 0 auto", maxWidth: "100%" }}>{name.zh}</span>
-      {name.alt && (
-        <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: DIM }}>{name.alt}</span>
+      <span style={{ flex: "0 0 auto", maxWidth: "100%" }}>{shown.primary}</span>
+      {shown.secondary && (
+        <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: DIM }}>{shown.secondary}</span>
       )}
-      {name.qualifier && (
-        <span style={{ flexShrink: 0, alignSelf: "center", padding: "0 4px", border: `1px solid ${BORDER}`, borderRadius: RADIUS.md, fontSize: FONT_SIZE.xs, lineHeight: "13px", color: DIM, whiteSpace: "nowrap" }}>{name.qualifier}</span>
+      {shown.qualifier && (
+        <span style={{ flexShrink: 0, alignSelf: "center", padding: "0 4px", border: `1px solid ${BORDER}`, borderRadius: RADIUS.md, fontSize: FONT_SIZE.xs, lineHeight: "13px", color: DIM, whiteSpace: "nowrap" }}>{shown.qualifier}</span>
       )}
     </span>
   );
@@ -78,6 +84,7 @@ export function ListRow({
   expandable = false, expanded = false, onClick, trailing, toggle, title,
 }: ListRowProps) {
   const { DIM, INACTIVE_TEXT, TEXT_STRONG, ROW_HOVER, COLOR_SCHEME } = useRailTheme();
+  const { active: loc, t } = useLocale();
   const showCount = !locked && !loading && count != null && count > 0;
   return (
     <div
@@ -99,7 +106,7 @@ export function ListRow({
         aria-expanded={expandable ? expanded : undefined}
         aria-pressed={!expandable && toggle ? toggle.on : undefined}
         onClick={onClick}
-        title={locked ? lockedTitle ?? "此圖層目前不可用" : title}
+        title={locked ? lockedTitle ?? t("layers.unavailable") : title}
         style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, padding: "5px 8px 5px 10px", border: 0, background: "transparent", cursor: onClick ? "pointer" : "default", color: "inherit", textAlign: "left", fontFamily: FONT_CJK }}
       >
         {icon}
@@ -109,10 +116,10 @@ export function ListRow({
           </span>
           {sub && <span style={{ fontSize: FONT_SIZE.sm, color: DIM, marginTop: 1 }}>{sub}</span>}
         </span>
-        {loading && !locked && <span className="lr-spin" role="status" aria-label="載入中" title="載入中" />}
+        {loading && !locked && <span className="lr-spin" role="status" aria-label={t("layers.loading")} title={t("layers.loading")} />}
         {showCount && (
           <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, marginRight: 4, color: active && accent ? (countColor ?? accent) : INACTIVE_TEXT }}>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontVariantNumeric: "tabular-nums" }}>{count.toLocaleString("zh-TW")}</span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontVariantNumeric: "tabular-nums" }}>{formatNumber(loc, count)}</span>
             {countUnit && <span style={{ fontSize: FONT_SIZE.sm }}>{countUnit}</span>}
           </span>
         )}
@@ -164,6 +171,7 @@ export const LayerRow = memo(function LayerRow({
   const count = useLayerLiveCount(layerKey) ?? staticCount;
   const loading = useLayerLoading(layerKey, active);
   const { DIM } = useRailTheme();
+  const { t } = useLocale();
   // locked：點整列一律走 onToggleVisibility → App 端 gate（未登入導登入 / 已登入顯示提示）
   const handleClick = () =>
     locked ? onToggleVisibility(layerKey)
@@ -171,7 +179,7 @@ export const LayerRow = memo(function LayerRow({
   return (
     <ListRow
       ariaLabel={label}
-      label={<LayerNameLine name={name} />}
+      label={<LayerNameLine name={name} layerKey={layerKey} />}
       sub={sub}
       icon={<Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />}
       count={count}
@@ -183,7 +191,7 @@ export const LayerRow = memo(function LayerRow({
       expanded={isExpanded}
       onClick={handleClick}
       trailing={trailing}
-      toggle={{ on: active, onChange: () => onToggleVisibility(layerKey), label: `${label} 顯示` }}
+      toggle={{ on: active, onChange: () => onToggleVisibility(layerKey), label: t("layers.toggleLabel", { name: label }) }}
     />
   );
 });

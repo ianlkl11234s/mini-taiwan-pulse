@@ -1,6 +1,7 @@
 import type { AppMode } from "../types";
 import { COLORS, FONT_CJK } from "../styles/designTokens";
 import { getToolbarPalette } from "./toolbar/toolbarTheme";
+import { useLocale } from "../state/localeStore";
 
 interface Props {
   appMode: AppMode;
@@ -13,6 +14,7 @@ export function ModeToggle({
   isDarkTheme = true,
   onAppModeChange,
 }: Props) {
+  const { t } = useLocale();
   const isHistorical = appMode === "historical";
   const p = getToolbarPalette(isDarkTheme);
 
@@ -47,7 +49,7 @@ export function ModeToggle({
       <button
         style={tab(!isHistorical)}
         onClick={() => onAppModeChange("realtime")}
-        title="即時 24 小時內動態"
+        title={t("toolbar.mode.realtimeTitle")}
       >
         <span
           style={{
@@ -58,14 +60,14 @@ export function ModeToggle({
             flexShrink: 0,
           }}
         />
-        即時
+        {t("toolbar.mode.realtime")}
       </button>
       <button
         style={tab(isHistorical)}
         onClick={() => onAppModeChange("historical")}
-        title="跨年度長時序資料"
+        title={t("toolbar.mode.historicalTitle")}
       >
-        歷史
+        {t("toolbar.mode.historical")}
       </button>
     </div>
   );
