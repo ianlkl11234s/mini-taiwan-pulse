@@ -169,6 +169,18 @@ export function useEarthquakeLayer(
     return layersReadyRef.current;
   }, []);
 
+  // 換底圖 setStyle() 會移除 source／layers；無漣漪時沒有 RAF 在檢查，這裡以 style.load 觸發重建
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible) return;
+    const onStyleLoad = () => {
+      layersReadyRef.current = false;
+      setDataTick((v) => v + 1);
+    };
+    map.on("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [visible, mapRef, mapTick]);
+
   // 更新 filter（訂閱 timeStore 節流 500ms，不走 React re-render）
   useEffect(() => {
     const map = mapRef.current;
@@ -293,5 +305,5 @@ export function useEarthquakeLayer(
     if (map.getLayer(LAYER_PRE)) {
       map.setPaintProperty(LAYER_PRE, "circle-stroke-opacity", 0.25 * o);
     }
-  }, [opacity, visible, mapRef, mapTick]);
+  }, [opacity, visible, mapRef, mapTick, dataTick]);
 }

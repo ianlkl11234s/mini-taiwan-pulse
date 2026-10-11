@@ -31,7 +31,7 @@
 ### 等使用者決定
 
 - **監看模式子指數（P6）**：2026-10-03 使用者決定先擱置（BACKLOG MON-P6）；重啟時 gis-platform migration 要使用者拍板，權重與基準期待提案。
-- **R6**：哪些 Three.js 圖層要能切回 Mapbox 畫法（飛機、船、公車、台鐵是否納入），切換開關放在哪（建議每層一個）。（交接：`docs/features/map-layer-restyle/handoff-r6.md`）
+- **R6**：已拍板（`map-layers.md` G-1）：每個 Three.js／CustomLayer 圖層都有點線面模式，預設 Mapbox，各層自己切換。實作進度：R6 段 1 為 PR #547，後續段落見 `docs/features/map-layer-restyle/R6-PROPOSAL.md`。（交接：`docs/features/map-layer-restyle/handoff-r6.md`）
 - **泡泡即時層光暈**（新聞事件、A1 即時事故）：要不要限制半徑（目前只限透明度，見 map-layers §3.1）。
 
 ### 已知未修

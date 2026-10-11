@@ -17,7 +17,7 @@
 ### Schema 分工
 | Schema | 用途 | 前端可讀 |
 |---|---|---|
-| `realtime` | 高頻時序（ship/flight/freeway/temperature/disaster...） | ❌（要透過 public RPC） |
+| `live` | 高頻時序（ship/flight/freeway/temperature/disaster...；舊 `realtime` 已併入，ADR-0010／migration 312） | ❌（要透過 public RPC） |
 | `reference` | 低頻參考（daily_schedules, temperature_grid_cells） | ✅ 可 PostgREST 直讀 |
 | `spatial` | 空間分析（boundaries, h3_demographics） | ✅ |
 | `metadata` | 系統管理 | ❌ |

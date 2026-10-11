@@ -324,12 +324,16 @@ registerLinkedSelectProvider(STATISTICS_VARIANT_PROVIDER, {
     variantPending.set(group.key, request);
     notifyVariant(group.key);
     let switched = false;
+    let stillCurrent = false;
     try {
       switched = await prepareMedicalStatisticsVariant(from, to, members, () => variantPending.get(group.key) === request && Boolean(layerVisibilityStore.getVisibility(from)));
+      // 在 finally 清掉 pending 之前判斷：被取代或群組已關閉＝取消，不是缺期別錯誤。
+      stillCurrent = variantPending.get(group.key) === request && Boolean(layerVisibilityStore.getVisibility(from));
     } finally {
       if (variantPending.get(group.key) === request) variantPending.delete(group.key);
     }
     if (!switched) {
+      if (!stillCurrent) { notifyVariant(group.key); return; }
       variantErrors.set(group.key, regionalStatisticsStore.getSnapshot(to).error ?? '此類型沒有相同期別的資料，請先調整年份。');
       notifyVariant(group.key);
       throw new Error(LINKED_SELECT_VALUE_INVALID);

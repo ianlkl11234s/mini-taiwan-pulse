@@ -51,15 +51,18 @@ export function useEnvironmentLiveLayer(
     if (!visible) return;
     let cancelled = false;
 
+    // 每次 load 一個世代號：輪詢重疊時，較舊的請求即使較晚回來也不可覆寫較新的結果
+    let generation = 0;
     const load = () => {
+      const mine = ++generation;
       fetchEnvLiveFC(key)
         .then((fc) => {
-          if (cancelled) return;
+          if (cancelled || mine !== generation) return;
           fcRef.current = fc;
           feed(true);
         })
         .catch((err) => {
-          if (cancelled) return;
+          if (cancelled || mine !== generation) return;
           console.warn(`[envLive/${key}] load failed:`, err);
           fcRef.current = null;
           feed();

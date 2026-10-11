@@ -68,3 +68,11 @@ it("fails closed when the preview flag is false or the app is not in DEV", async
   await expect(firstRequest({ layerKey: labor.layer_key, datasetId: labor.dataset_id, indicatorId: labor.indicator_id, level: labor.level, includeHealth: true }))
     .resolves.toBe("https://production-cdn.test/statistics/current.json");
 });
+
+it("keeps the village-income labor recipe off the labor preview route (preview bundle has no village release)", async () => {
+  vi.stubEnv("VITE_LABOR_STATISTICS_PREVIEW", "true");
+  vi.stubEnv("VITE_STATISTICS_CDN_BASE", "https://production-cdn.test/statistics");
+  const labor = LABOR_STATISTICS_RECIPES_BY_KEY.statsLaborVillageIncomeMedian;
+  await expect(firstRequest({ layerKey: labor.layer_key, datasetId: labor.dataset_id, indicatorId: labor.indicator_id, level: labor.level, includeHealth: true }))
+    .resolves.toBe("https://production-cdn.test/statistics/current.json");
+});

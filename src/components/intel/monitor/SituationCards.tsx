@@ -6,7 +6,8 @@ import { fs, MF } from "./monitorFont";
 import { MON_CHART_H } from "./monitorChart";
 import { MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { useMonitorTheme, type MonitorTheme } from "./monitorTheme";
-import { useMonitorFreshness } from "./monitorFreshness";
+import { judgeFreshness, useMonitorFreshness } from "./monitorFreshness";
+import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { isoWeekThursdayMs, type PublicHealthWeek, type CdcDisease } from "../../../data/intelLoaders";
 
 function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; muted?: boolean }) {
@@ -155,6 +156,12 @@ interface Props {
 
 // 共機已於 2026-08-03 拆成獨立的 plaBoard widget（PlaBoard.tsx）——
 // 這裡只剩 CDC 健康卡，標題與 grid 欄數同步縮減
+/** 每種疾病各自判斷新鮮度（各疾病最新週可能不同） */
+export function diseaseFresh(d: CdcDisease, batchWeek: number, nowMs: number = Date.now()) {
+  const wk = d.week ?? batchWeek;
+  return judgeFreshness(MONITOR_CARD_META.situationCards.fresh, wk > 0 ? isoWeekThursdayMs(wk, nowMs) : null, nowMs);
+}
+
 export function SituationCards({ health }: Props) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
@@ -163,6 +170,10 @@ export function SituationCards({ health }: Props) {
     timeText: health.week > 0 ? `W${health.week}` : null,
     dataMs: health.week > 0 ? isoWeekThursdayMs(health.week) : null,
   });
+  const staleNote = health.diseases
+    .filter((d) => diseaseFresh(d, health.week).muted)
+    .map((d) => `${d.label} 停在 W${d.week ?? health.week}`)
+    .join("、");
   return (
     <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
       {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -184,7 +195,7 @@ export function SituationCards({ health }: Props) {
           每格仍有 200px 以上讀得到 sparkline（固定 3 格在 split 的 w6 只剩 ~130px）。 */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
         {health.diseases.map((d) => (
-          <DiseaseCard key={d.id} d={d} week={health.week} muted={fresh.muted} />
+          <DiseaseCard key={d.id} d={d} week={d.week ?? health.week} muted={fresh.muted || diseaseFresh(d, health.week).muted} />
         ))}
         {health.diseases.length === 0 && (
           <>
@@ -196,6 +207,9 @@ export function SituationCards({ health }: Props) {
       </div>
       {v2 && fresh.reason && health.diseases.length > 0 && (
         <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+      )}
+      {v2 && !fresh.reason && staleNote && (
+        <MonitorNote tone="warn">部分疾病資料落後：{staleNote}</MonitorNote>
       )}
     </div>
   );

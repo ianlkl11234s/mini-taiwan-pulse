@@ -72,8 +72,9 @@ const iso = (unixSec: number) => new Date(unixSec * 1000).toISOString();
 
 // ── aqiStations ──────────────────────────────────────────────────────────
 /** Stations in view; max/ranked by AQI (worst first) with county; topAreas = station count per county. */
-export function summarizeAqiStations(stations: readonly AqiStation[], bounds: DataBounds): LayerDataSummary {
-  if (!stations.length) return { status: "data_not_loaded" };
+export function summarizeAqiStations(stations: readonly AqiStation[], bounds: DataBounds, loaded: boolean = stations.length > 0): LayerDataSummary {
+  // `loaded` = the fetch completed (even with zero rows, e.g. an old/future timeline hour); only an unfinished load is data_not_loaded.
+  if (!loaded) return { status: "data_not_loaded" };
   const inView = stations.filter(station => inBounds(bounds, station.lon, station.lat));
   const valued = inView.filter(station => finite(station.aqi)).sort((a, b) => b.aqi! - a.aqi!);
   const items = valued.slice(0, LAYER_DATA_TOP_N).map(station => ({
@@ -133,7 +134,7 @@ export function summarizeEarthquakes(events: readonly EarthquakeGlobalEvent[], b
 }
 
 // ── typhoonTracks ────────────────────────────────────────────────────────
-type ActiveStorm = { stormId: string; name: string | null; lng: number; lat: number; wind: number | null; pressure: number | null; validTs: number };
+type ActiveStorm = { stormId: string; ids: string[]; name: string | null; lng: number; lat: number; wind: number | null; pressure: number | null; validTs: number };
 /** Storms whose current position (the drawn yellow ring) covers `currentTime`; one row per storm. */
 export function activeTyphoons(points: readonly TyphoonPoint[], currentTime: number, sourceFilter: string): ActiveStorm[] {
   const byStorm = new Map<string, ActiveStorm>();
@@ -143,7 +144,7 @@ export function activeTyphoons(points: readonly TyphoonPoint[], currentTime: num
     if (!p || !finite(p.valid_ts) || !finite(p.valid_until) || p.valid_ts > currentTime || p.valid_until <= currentTime) continue;
     if (sourceFilter !== "all" && p.source !== sourceFilter) continue;
     const storm: ActiveStorm = {
-      stormId: String(p.storm_id), name: clipText(p.name_local) ?? clipText(p.name_en),
+      stormId: String(p.storm_id), ids: [String(p.storm_id)], name: clipText(p.name_local) ?? clipText(p.name_en),
       lng: coords[0]!, lat: coords[1]!, wind: finite(p.max_wind_kt) ? p.max_wind_kt : null, pressure: finite(p.center_pressure) ? p.center_pressure : null, validTs: p.valid_ts,
     };
     const seen = byStorm.get(storm.stormId);
@@ -156,6 +157,7 @@ export function activeTyphoons(points: readonly TyphoonPoint[], currentTime: num
   for (const storm of [...byStorm.values()].sort((a, b) => (b.wind ?? -1) - (a.wind ?? -1) || b.validTs - a.validTs)) {
     const twin = merged.find(other => roughKm(other, storm) <= SAME_STORM_KM);
     if (!twin) { merged.push({ ...storm }); continue; }
+    twin.ids.push(...storm.ids);
     twin.name ??= storm.name;
     if (storm.pressure !== null && (twin.pressure === null || storm.pressure < twin.pressure)) twin.pressure = storm.pressure;
   }
@@ -176,11 +178,23 @@ export function summarizeTyphoons(points: readonly TyphoonPoint[], bounds: DataB
     ...(storm.pressure !== null ? { detail: `中心氣壓 ${Math.round(storm.pressure)} hPa` } : {}),
   }));
   const top = inView.find(storm => storm.wind !== null) ?? null;
-  const note = !active.length ? "此時間點沒有活動中的颱風"
+  // Observed tracks/points stay drawn after a storm leaves its 48h current-position window, so the
+  // feature count follows the drawn tracks (storms with an observed point at or before currentTime in view).
+  const drawn = new Set<string>();
+  for (const p of points) {
+    if (p.point_type !== "observed" || p.valid_ts > currentTime || (sourceFilter !== "all" && p.source !== sourceFilter)) continue;
+    if (finite(p.center_lon) && finite(p.center_lat) && inBounds(bounds, p.center_lon, p.center_lat)) drawn.add(p.storm_id);
+  }
+  const activeIds = new Set(active.flatMap(storm => storm.ids));
+  const historyOnly = [...drawn].filter(id => !activeIds.has(id)).length;
+  const drawnCount = inView.length + historyOnly;
+  const note = historyOnly && !inView.length ? `畫面內有 ${historyOnly} 個颱風的歷史軌跡，但此時間點沒有活動中的颱風`
+    : historyOnly ? `另有 ${historyOnly} 個颱風只畫出歷史軌跡（已不活動）`
+    : !active.length ? "此時間點沒有活動中的颱風"
     : !inView.length ? `畫面內沒有活動颱風；畫面外有：${outside.join("、")}`.slice(0, MAX_TEXT)
     : outside.length ? `畫面外另有：${outside.join("、")}`.slice(0, MAX_TEXT) : undefined;
   return {
-    status: "ok", featureCount: inView.length, capped: false, topAreas: null,
+    status: "ok", featureCount: drawnCount, capped: false, topAreas: null,
     max: top ? { field: "max_wind_kt", value: top.wind!, name: top.name, lngLat: lngLat(top.lng, top.lat), at: iso(top.validTs) } : null,
     ranked: { field: "max_wind_kt", order: "desc", items },
     ...(note ? { note } : {}),

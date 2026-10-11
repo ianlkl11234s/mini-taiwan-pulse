@@ -9,6 +9,11 @@ import { getLandslideRecipe } from "./landslideStatisticsRecipes";
 import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
+/** 單位為人／戶、但由其他指標公式計算而得的人口統計指標（含年初累計）。 */
+const DEMOGRAPHICS_FORMULA_COUNT_INDICATORS: ReadonlySet<string> = new Set([
+  "natural_increase", "natural_increase_ytd", "net_migration", "net_migration_ytd",
+]);
+
 export type StatisticsSourceKind = "source" | "derived" | "presentation";
 
 export interface StatisticsDataSourceDefinition {
@@ -172,7 +177,8 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
   const demographics = getDemographicsRecipe(key);
   if (demographics) {
     // 人數／戶數是 RIS 村里計數的精確加總；其餘（占比、指數、戶量、密度、中位數）在本層級加總後計算。
-    const derived = demographics.unit !== "人" && demographics.unit !== "戶";
+    // 以 indicator 的公式衍生判斷（自然增加＝出生−死亡、淨遷徙＝遷入−遷出雖單位是「人」仍屬衍生）。
+    const derived = (demographics.unit !== "人" && demographics.unit !== "戶") || DEMOGRAPHICS_FORMULA_COUNT_INDICATORS.has(demographics.indicator_id);
     const note = demographicsIndicatorNote(demographics);
     const source = demographicsSource(demographics);
     const ytd = demographicsYtdLabel(demographics);

@@ -11,7 +11,7 @@ import { MON_CHART_H } from "../../components/intel/monitor/monitorChart";
 import { TimeseriesSparkline, type SparklinePoint } from "../../components/TimeseriesSparkline";
 import { HazardTrendBars, type HazardBar } from "../../components/intel/monitor/HazardTrendBars";
 import { Kv, Pair, Section, Spec, Sub, type SectionDef } from "../kit";
-import { IntelThemeProvider, getIntelPalette } from "../../components/intel/intelTheme";
+import { IntelThemeProvider, getIntelPalette, useIntelTheme } from "../../components/intel/intelTheme";
 import type { ReactNode } from "react";
 
 /** 監看面板底（暗＝app 底；淡＝S1 淡灰面板，白卡疊在上面） */
@@ -33,11 +33,12 @@ export const MONITOR_SECTION: SectionDef = { id: "monitor", no: "13", title: "�
 const HOUR_MS = 3600_000;
 
 function Demo({ title, en, slot, width, body }: { title: string; en: string; slot: MonitorCardHeaderSlot; width: number; body: string }) {
+  const p = useIntelTheme(); // 淡色預覽要吃淡色 palette，不能寫死暗色用的灰
   return (
     <div style={{ width, display: "flex" }}>
       <MonitorCardFrame title={title} en={en} widgetId="demo">
         <MonitorCardTime {...slot} />
-        <div style={{ fontSize: MF.body, color: COLORS.textMuted }}>{body}</div>
+        <div style={{ fontSize: MF.body, color: p.textMuted }}>{body}</div>
       </MonitorCardFrame>
     </div>
   );

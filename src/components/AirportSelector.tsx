@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ALL_PRESETS } from "../map/cameraPresets";
 import type { CameraPreset } from "../types";
-import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { COLORS, LIGHT, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 interface Props {
   isDarkTheme?: boolean;
@@ -70,9 +70,9 @@ export function LocationJump({ isDarkTheme = true, onJump, currentId }: Props) {
             left: 0,
             width: 320,
             zIndex: 100,
-            background: "rgba(14,14,22,0.95)",
+            background: isDarkTheme ? "rgba(14,14,22,0.95)" : LIGHT.surfaceStrong,
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255,255,255,0.12)",
+            border: isDarkTheme ? "1px solid rgba(255,255,255,0.12)" : `1px solid ${LIGHT.border}`,
             borderRadius: RADIUS.xl,
             padding: "12px 14px",
             fontFamily: FONT_DATA,
@@ -80,22 +80,22 @@ export function LocationJump({ isDarkTheme = true, onJump, currentId }: Props) {
         >
           {/* Overview */}
           {overviewPresets.map((p) => (
-            <Item key={p.id} preset={p} active={currentId === p.id} onSelect={handleSelect} />
+            <Item key={p.id} preset={p} active={currentId === p.id} onSelect={handleSelect} isDarkTheme={isDarkTheme} />
           ))}
 
-          <Divider />
-          <SectionTitle>CITY</SectionTitle>
+          <Divider isDarkTheme={isDarkTheme} />
+          <SectionTitle isDarkTheme={isDarkTheme}>CITY</SectionTitle>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4 }}>
             {cityPresets.map((p) => (
-              <Item key={p.id} preset={p} active={currentId === p.id} onSelect={handleSelect} compact />
+              <Item key={p.id} preset={p} active={currentId === p.id} onSelect={handleSelect} compact isDarkTheme={isDarkTheme} />
             ))}
           </div>
 
-          <Divider />
-          <SectionTitle>AIRPORT</SectionTitle>
+          <Divider isDarkTheme={isDarkTheme} />
+          <SectionTitle isDarkTheme={isDarkTheme}>AIRPORT</SectionTitle>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
             {airportPresets.map((p) => (
-              <Item key={p.id} preset={p} active={currentId === p.id} onSelect={handleSelect} airport />
+              <Item key={p.id} preset={p} active={currentId === p.id} onSelect={handleSelect} airport isDarkTheme={isDarkTheme} />
             ))}
           </div>
         </div>
@@ -106,11 +106,11 @@ export function LocationJump({ isDarkTheme = true, onJump, currentId }: Props) {
 
 // ── Sub-components ──
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children, isDarkTheme }: { children: React.ReactNode; isDarkTheme: boolean }) {
   return (
     <div
       style={{
-        color: COLORS.textDim,
+        color: isDarkTheme ? COLORS.textDim : LIGHT.textDim,
         fontSize: FONT_SIZE.base,
         letterSpacing: 2,
         marginBottom: 6,
@@ -122,8 +122,8 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Divider() {
-  return <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "8px 0" }} />;
+function Divider({ isDarkTheme }: { isDarkTheme: boolean }) {
+  return <div style={{ borderTop: isDarkTheme ? "1px solid rgba(255,255,255,0.08)" : `1px solid ${LIGHT.borderSoft}`, margin: "8px 0" }} />;
 }
 
 function Item({
@@ -132,12 +132,14 @@ function Item({
   onSelect,
   compact,
   airport,
+  isDarkTheme,
 }: {
   preset: CameraPreset;
   active: boolean;
   onSelect: (id: string) => void;
   compact?: boolean;
   airport?: boolean;
+  isDarkTheme: boolean;
 }) {
   const [hover, setHover] = useState(false);
 
@@ -168,9 +170,9 @@ function Item({
         background: active
           ? "rgba(100,170,255,0.15)"
           : hover
-            ? "rgba(255,255,255,0.08)"
+            ? (isDarkTheme ? "rgba(255,255,255,0.08)" : LIGHT.fillStrong)
             : "transparent",
-        color: active ? "#64aaff" : "#fff",
+        color: active ? (isDarkTheme ? "#64aaff" : "#1d6fd8") : (isDarkTheme ? "#fff" : LIGHT.textDefault),
         fontSize: compact ? FONT_SIZE.md : FONT_SIZE.lg,
         fontFamily: FONT_DATA,
         cursor: "pointer",
@@ -183,7 +185,7 @@ function Item({
         {preset.name}
       </span>
       {airport && iata && (
-        <span style={{ color: COLORS.textDim, fontSize: FONT_SIZE.base }}>{iata}</span>
+        <span style={{ color: isDarkTheme ? COLORS.textDim : LIGHT.textDim, fontSize: FONT_SIZE.base }}>{iata}</span>
       )}
     </button>
   );

@@ -19,7 +19,7 @@
 
 ### 做法
 
-1. **量測先行**：寫一支量測（瀏覽器 agent-browser 或單元測試皆可），對每個「有自己 hook 的圖層」：開圖層 → 等載完 → 切主題暗→淡→暗、拖透明度滑桿 min→max → 記錄期間的 `fetch`／Supabase RPC 次數、`source.setData` 次數、`addLayer`／`removeLayer` 次數。**全部應為 0**（純樣式）。把結果做成表：圖層｜切主題 fetch／setData／rebuild｜改透明度 fetch／setData／rebuild。
+1. **量測先行**：寫一支量測（瀏覽器 agent-browser 或單元測試皆可），對每個「有自己 hook 的圖層」：開圖層 → 等載完 → 切主題暗→淡→暗、拖透明度滑桿 min→max → 記錄期間的 `fetch`／Supabase RPC 次數、`source.setData` 次數、`addLayer`／`removeLayer` 次數。**分開量測、分開驗收**：(a) 純樣式變更（改透明度、同一底圖內的樣式切換）：fetch／setData／addLayer／removeLayer 全部應為 0；(b) 換底圖（暗→淡會 `setStyle` 換不同 style URL，自訂 source／layer 會被清掉）：網路 refetch 必須為 0，但允許在 `style.load` 後 `addLayer` 重建與用快取資料 `setData` 回填。把結果做成表：圖層｜換底圖 refetch／（允許的）重建與回填｜改透明度 fetch／setData／rebuild。
    - 包 `window.fetch`、`map.getSource(id).setData`、`map.addLayer`／`removeLayer` 計數即可（上一輪 R3b 報告有同類做法）。
    - 時間相關圖層（雨量、河川水位等）量測時**暫停時間軸**，避免把正常的時間推進算成重抓。
 2. **逐 hook 修**：把「抓資料／setData」的 effect 與「樣式」的 effect 拆開；`isDark`、`isDarkTheme`、透明度、顏色等只放在樣式 effect 的 deps，裡面只呼叫 `setPaintProperty`（或 `setLayoutProperty`）。抓資料 effect 的 deps 只留資料相關（可見性、時間視窗 dateKey、篩選條件）。
@@ -29,7 +29,7 @@
 
 ### 驗收
 
-- 量測表：修前／修後，修後全部 0（例外要寫原因，例如圖層本身依主題換資料檔）。
+- 量測表：修前／修後，修後純樣式變更全部 0、換底圖 refetch 為 0（重建與快取回填不計；其他例外要寫原因，例如圖層本身依主題換資料檔）。
 - 換底圖（暗↔淡↔衛星）後圖層仍正確顯示、資料不重抓（style 重載只重建，不重抓）。
 - `npx tsc -b`、`npx vitest run` 全套（research 類高負載逾時可單獨重跑）。
 

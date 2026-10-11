@@ -478,6 +478,12 @@ select.tl3-select option {
   pointer-events: none;
 }
 
+/* 手機：時間軸貼在 44px 工具列正下方，往上浮會落在不透明工具列後面看不到 → 改浮在時間下方（待目視：390 寬） */
+.tl3--mobile .tl3-colon > .tl3-warnchip {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
+
 .tl3-hint {
   font: 10px/1.4 var(--font-cjk);
   color: var(--tl-dim);

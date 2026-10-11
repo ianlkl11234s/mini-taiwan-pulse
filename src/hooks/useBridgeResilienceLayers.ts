@@ -18,6 +18,7 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle, withLoading } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { bridgeResiliencePrivateAccessToken, useBridgeResiliencePrivateAccess } from "./useBridgeResiliencePrivateAccess";
+import { useBridgeResilienceDestinationRetry } from "../state/bridgeResilienceDestinationRetry";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 
@@ -189,6 +190,7 @@ export function useBridgeResilienceLayers(
   const selected = useBridgeResilienceSelection();
   const origin = useBridgeResilienceOrigin();
   const destinations = useBridgeResilienceDestinations();
+  const destinationRetry = useBridgeResilienceDestinationRetry();
   const [mountRevision, setMountRevision] = useState(0);
   const [data, setData] = useState<BridgeResilienceData | null>(null);
   const scenarioUid = effectiveScenarioUid(selected, controls.joint);
@@ -234,7 +236,7 @@ export function useBridgeResilienceLayers(
       console.warn("[bridge-resilience] destinations load failed", error);
     });
     return () => { controller.abort(); if (!bridgeResilienceDestinationsStore.get()) bridgeResilienceDestinationStatus.set("idle"); };
-  }, [visible, access.allowed, access.userId, origin]);
+  }, [visible, access.allowed, access.userId, origin, destinationRetry]);
 
   // 私人 JSON：只有站主、圖層開著才下載；失去權限或關閉即清空（不留在記憶體給別的帳號）。
   useEffect(() => {

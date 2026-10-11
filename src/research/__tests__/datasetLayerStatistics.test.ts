@@ -1,6 +1,7 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
-import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "../datasetLayerStatistics";
+import { describeDatasetLayerStatistics, releaseParameters, summarizeDatasetLayer } from "../datasetLayerStatistics";
+import type { DatasetDescriptor } from "../dataContracts";
 
 afterEach(() => { clearPointDatasetCache(); vi.unstubAllGlobals(); });
 
@@ -39,4 +40,17 @@ it("keeps PMTiles without a sidecar fail-closed", async () => {
   // reader (see src/research/nhiMedicalOwnerDatasets.ts), so datasetForLayer now resolves it via
   // that registered descriptor instead of rejecting. contour25k has no such reader and stays PMTiles-only.
   await expect(describeDatasetLayerStatistics("contour25k", new Set())).rejects.toThrow("REGISTERED_LAYER_NOT_READABLE");
+});
+
+it("supplies a releaseId for release-scoped statistics datasets (explicit, else latest observed)", () => {
+  const descriptor = {
+    parameters: [{ name: "releaseId", type: "string", required: true, options: ["r-2023", "r-2025", "r-2024"] }],
+    versions: [
+      { versionId: "r-2023", observedAt: "2023-12-31" }, { versionId: "r-2025", observedAt: "2025-12-31" }, { versionId: "r-2024", observedAt: "2024-12-31" },
+    ],
+  } as unknown as DatasetDescriptor;
+  expect(releaseParameters(descriptor, undefined)).toEqual({ releaseId: "r-2025" });
+  expect(releaseParameters(descriptor, "r-2023")).toEqual({ releaseId: "r-2023" });
+  expect(() => releaseParameters(descriptor, "r-1999")).toThrow("RELEASE_NOT_ALLOWED");
+  expect(releaseParameters({ versions: [] } as unknown as DatasetDescriptor, undefined)).toBeUndefined();
 });

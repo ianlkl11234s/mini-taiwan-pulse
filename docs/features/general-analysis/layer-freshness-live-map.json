@@ -269,7 +269,11 @@
     "time_column": "collected_at",
     "expected_interval_min": 15,
     "evidence": "marineObservationLoader.ts:377 -> live.marine_observation_current (mig 378); CWA/ISOHE differ by source_network, same table",
-    "confidence": "high"
+    "confidence": "high",
+    "filter": {
+      "column": "source_network",
+      "value": "cwa"
+    }
   },
   "marineObservationIsohe": {
     "schema": "live",
@@ -277,7 +281,11 @@
     "time_column": "collected_at",
     "expected_interval_min": 15,
     "evidence": "marineObservationLoader.ts:377 -> live.marine_observation_current (mig 378); CWA/ISOHE differ by source_network, same table",
-    "confidence": "high"
+    "confidence": "high",
+    "filter": {
+      "column": "source_network",
+      "value": "isohe"
+    }
   },
   "groundwaterWells": {
     "schema": "live",

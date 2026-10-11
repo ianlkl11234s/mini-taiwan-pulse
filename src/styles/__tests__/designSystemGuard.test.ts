@@ -108,6 +108,13 @@ describe("design system guard — 規則樣本", () => {
     expect(hits("raw-z-index", `--z-toast: 50; z-index: 50;`, "src/styles/tokens.css")).toBe(0);
   });
 
+  it("web-font：單獨宣告與未加引號的字族名也要抓", () => {
+    expect(hits("web-font", `fontFamily: "Inter"`)).toBe(1);
+    expect(hits("web-font", "fontFamily: `Inter`")).toBe(1);
+    expect(hits("web-font", `font-family: JetBrains Mono, monospace;`, "src/components/x.css")).toBe(1);
+    expect(hits("web-font", `const internal = "Interval";`)).toBe(0);
+  });
+
   it("web-font：涵蓋 Inter 字族寫法", () => {
     expect(hits("web-font", `fontFamily: "Inter, system-ui, sans-serif"`)).toBe(1);
     expect(hits("web-font", `font-family: Inter, sans-serif;`, "src/components/x.css")).toBe(1);

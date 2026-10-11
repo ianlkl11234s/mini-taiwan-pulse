@@ -62,7 +62,9 @@ import {
   MonitorStyleContext, loadMonitorStyle, saveMonitorStyle, type MonitorStyle,
 } from "./monitorStyle";
 import { MonitorCardFrame } from "./MonitorCardFrame";
-import { MonitorFreshTime } from "./monitorFreshness";
+import { useMonitorFreshness } from "./monitorFreshness";
+import { maxSourceSuccessMs, newsFreshnessInput } from "./newsFreshness";
+import { MonitorNote } from "./MonitorMetric";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { MF } from "./monitorFont";
 import { IntelThemeProvider, getIntelPalette } from "../intelTheme";
@@ -78,8 +80,6 @@ const EMPTY_CLUSTERS: Cluster[] = [];
 /** P5 淡色面板（S1／W1）：淡灰 gray-100，白卡疊在上面才分得出層次；全屏用不透明 */
 const MON_LIGHT_PANEL = "rgba(243,244,246,0.95)";
 const MON_LIGHT_PANEL_SOLID = "#f3f4f6";
-/** 最新一則新聞超過這麼久，就不信彙整時間（彙整照跑不代表收集器活著） */
-const NEWS_QUIET_MAX_MS = 12 * 3600_000;
 const EMPTY_ALERT_SUMMARY: [] = [];
 
 const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
@@ -255,6 +255,13 @@ function renderMonitorNode(
       ))}
     </div>
   );
+}
+
+/** 新聞格的新鮮度：送標題列；showReason 時在卡片內顯示原因（停更說明） */
+function NewsFreshness({ widgetId, input, showReason }: { widgetId: MonitorWidgetId; input: ReturnType<typeof newsFreshnessInput>; showReason: boolean }) {
+  const fresh = useMonitorFreshness(widgetId, { time: input.time, dataMs: input.dataMs, reason: input.reason });
+  if (!showReason || !fresh.reason) return null;
+  return <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>;
 }
 
 /** Taipei 00:00 of a YYYY-MM-DD string → unix seconds */
@@ -630,14 +637,13 @@ export function MonitorPanel({
       && (newsAggregatedMs === null || c.aggregatedAt > newsAggregatedMs)) newsAggregatedMs = c.aggregatedAt;
   }
   const latestNewsMs = latestNewsTs != null ? latestNewsTs * 1000 : null;
-  const newsQuiet = latestNewsMs != null && now * 1000 - latestNewsMs > NEWS_QUIET_MAX_MS;
-  const newsDataMs = newsQuiet || newsAggregatedMs == null ? latestNewsMs : newsAggregatedMs;
-  const newsTime = (id: MonitorWidgetId) => (
-    <MonitorFreshTime
-      widgetId={id}
-      time={newsDataMs}
-      reason={newsQuiet ? "最新一則新聞已超過 12 小時，收集可能停了" : undefined}
-    />
+  // 收集器是否活著看未篩選的來源健康；clusters 是依日期＋篩選的結果，歷史日期或篩選後很舊都不代表停更
+  const newsFresh = newsFreshnessInput({
+    dayKey, nowMs: now * 1000, latestNewsMs, aggregatedMs: newsAggregatedMs,
+    healthMs: maxSourceSuccessMs(sourceHealth?.rows),
+  });
+  const newsTime = (id: MonitorWidgetId, showReason = false) => (
+    <NewsFreshness widgetId={id} input={newsFresh} showReason={showReason} />
   );
 
   // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
@@ -650,7 +656,7 @@ export function MonitorPanel({
   const widgets: Record<MonitorWidgetId, ReactNode> = {
     // 警訊整合不送資料時間：警報 RPC 只回計數、不帶警報時間（瀏覽器收到的時間不是資料時間）
     newsFeed: (
-      <>{newsTime("newsFeed")}<MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
+      <>{newsTime("newsFeed", true)}<MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
         events={flatEvents}
         cats={cats}
         onToggleCat={toggleCat}
@@ -748,17 +754,16 @@ export function MonitorPanel({
     lightning: <LightningCard open={open} nowTs={now} />,
   };
 
-  // v2：每格包進標準卡片殼（框＋標題列），各卡只畫內容
-  const cells = (v2
-    ? Object.fromEntries(
-        (Object.keys(widgets) as MonitorWidgetId[]).map((id) => [
-          id,
-          <MonitorCardFrame key={id} widgetId={id} title={MONITOR_CARD_META[id].title} en={MONITOR_CARD_META[id].en}>
-            {widgets[id]}
-          </MonitorCardFrame>,
-        ]),
-      )
-    : widgets) as Record<MonitorWidgetId, ReactNode>;
+  // 每格都包同一個卡片殼（樹結構固定，切換新舊版不會 remount 內容、不丟狀態）；
+  // v2 畫框＋標題列，舊版 bare（display: contents）
+  const cells = Object.fromEntries(
+    (Object.keys(widgets) as MonitorWidgetId[]).map((id) => [
+      id,
+      <MonitorCardFrame key={id} widgetId={id} title={MONITOR_CARD_META[id].title} en={MONITOR_CARD_META[id].en} bare={!v2}>
+        {widgets[id]}
+      </MonitorCardFrame>,
+    ]),
+  ) as Record<MonitorWidgetId, ReactNode>;
 
   const isWall = mode === "wall";
   const isSplit = mode === "split";
@@ -899,7 +904,7 @@ export function MonitorPanel({
                 onMouseDown={(e) => e.stopPropagation()}
                 style={{
                   padding: "3px 8px", borderRadius: 3, border: "none", cursor: "pointer",
-                  fontFamily: FONT_CJK, fontSize: MF.label, whiteSpace: "nowrap",
+                  fontFamily: FONT_CJK, fontSize: v2 ? MF.label : FONT_SIZE.sm, whiteSpace: "nowrap",
                   background: active ? themePalette.accentFaint : "transparent",
                   color: active ? themePalette.accent : themePalette.textMuted,
                 }}

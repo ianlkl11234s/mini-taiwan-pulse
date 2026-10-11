@@ -109,12 +109,14 @@ export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, vi
       apply();
     };
     apply();
+    // 換底圖 setStyle() 會移除自建 source／layer：style.load 立刻用快取重掛，不等下一次 10 分鐘 refresh
+    map.on("style.load", apply);
     if (visible) {
       void refresh();
       const timer = window.setInterval(() => { void refresh(); }, REFRESH_MS);
-      return () => { cancelled = true; window.clearInterval(timer); clearRetry(); };
+      return () => { cancelled = true; map.off("style.load", apply); window.clearInterval(timer); clearRetry(); };
     }
-    return () => { cancelled = true; clearRetry(); };
+    return () => { cancelled = true; map.off("style.load", apply); clearRetry(); };
   }, [mapRef, visible, mapTick]);
   useEffect(() => {
     const map = mapRef.current;

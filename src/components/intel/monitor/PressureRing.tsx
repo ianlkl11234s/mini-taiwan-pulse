@@ -209,7 +209,7 @@ export function TwseTicker({
             {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
           </MonitorNote>
         )}
-        {fresh.reason && (status === "ready" || status === "error") && (
+        {fresh.reason && (status === "ready" || status === "error" || status === "denied") && (
           <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
         )}
         {points.length >= 2 && (
@@ -274,9 +274,11 @@ export function TwseTicker({
             <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
               {up ? "▲" : "▼"} {up ? "+" : ""}{data.change.toLocaleString()}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
-              {up ? "+" : ""}{data.change_pct ?? 0}%
-            </span>
+            {data.change_pct != null && (
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
+                {up ? "+" : ""}{data.change_pct}%
+              </span>
+            )}
           </>
         )}
       </div>
@@ -286,8 +288,8 @@ export function TwseTicker({
           color: COLORS.textDim, ...(v2 ? { flexWrap: "wrap" as const } : { whiteSpace: "nowrap" as const }),
         }}
       >
-        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "高" : "H"} <b style={{ color: COLORS.textDefault }}>{has ? (data.high ?? 0).toLocaleString() : "—"}</b></span>
-        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "低" : "L"} <b style={{ color: COLORS.textDefault }}>{has ? (data.low ?? 0).toLocaleString() : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "高" : "H"} <b style={{ color: COLORS.textDefault }}>{has ? data.high != null ? data.high.toLocaleString() : "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "低" : "L"} <b style={{ color: COLORS.textDefault }}>{has ? data.low != null ? data.low.toLocaleString() : "—" : "—"}</b></span>
         <span style={{ whiteSpace: "nowrap" }}>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
       </div>
       {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted }}>

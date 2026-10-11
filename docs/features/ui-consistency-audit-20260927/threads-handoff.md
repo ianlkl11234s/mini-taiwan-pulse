@@ -18,9 +18,9 @@
 | 起因與盤點發現 | `docs/features/ui-consistency-audit-20260927/handoff.md` §1、§2 |
 | 五輪拍板與規格要點（每一項改了什麼） | 同檔 §4a |
 | 設計稿（多版並排、暗／淡並排、用代號挑） | 同資料夾：`mockup.html`、`popup-density-variants.html`、`ui-unification-sheet.html`、`ui-controls-sheet.html`、`timeline-sheet.html`、`round2-sheet.html`、`timeline-compact-sheet.html` |
-| 最後的規範 | `docs/design-system.md`（§5 元件規格、§7 禁止事項、§10 遷移狀態）、`docs/design-system-reference.html` |
+| 最後的規範 | `docs/design-system/spec.md`（§5 元件規格、§7 禁止事項、§10 遷移狀態）、`docs/design-system/reference.html` |
 | 自動檢查（ratchet guard） | `src/styles/__tests__/designSystemGuard.test.ts`、`designSystemGuardRules.ts` |
-| 地圖圖層盤點與拍板 | `docs/design-system-map-layers.md`（§2 現況數字、§7 拍板結果）、`docs/design-system/map-layer-picks.html`（真實底圖比較頁） |
+| 地圖圖層盤點與拍板 | `docs/design-system/map-layers.md`（§2 現況數字、§7 拍板結果）、`docs/design-system/map-layer-picks.html`（真實底圖比較頁） |
 | 地圖圖層後續計畫（尚未實作） | `docs/features/map-layer-restyle/PLAN.md`（若在 PR #387 尚未合併，用 `git show origin/docs/map-layer-restyle-plan:docs/features/map-layer-restyle/PLAN.md`） |
 | 每個 PR 的改動 | `gh pr view <號碼>`，UI 統一是 #357–#366、#368、#371、#372、#379–#383 |
 
@@ -73,7 +73,7 @@
    ```bash
    agent-browser --session-name threads --args "--enable-unsafe-swiftshader,--use-gl=angle,--use-angle=swiftshader,--ignore-gpu-blocklist,--enable-webgl" set viewport 1440 900
    ```
-   dev 模式下 `window.__map` 可以用：先等 `window.__map.loaded()`，再用 `jumpTo({center,zoom,pitch:0,bearing:0})` 讓前後兩張相機一致；換底圖用 `setStyle('mapbox://styles/mapbox/dark-v11')` 或 `light-v11`。
+   dev 模式下 `window.__map` 可以用：先等 `window.__map.loaded()`，再用 `jumpTo({center,zoom,pitch:0,bearing:0})` 讓前後兩張相機一致；**換底圖要用工具列「底圖」選單**（會更新 `mapStyleId`，`isDarkTheme` 與覆蓋層樣式才會一起切換）；不要直接呼叫 `window.__map.setStyle(...)`，否則底圖和 UI／覆蓋層主題不一致，前後對比截圖會失真。
 4. 拍單一圖層前先按側欄「All Off」清空，再只開要拍的圖層。
 5. 前後兩張用同一個 viewport、同一個相機、同一種底圖；拼圖或加標籤時，「前」「後」標清楚。
 6. 拍完關掉 agent-browser session 和自己起的 vite（用 port 找 PID 再 kill；**絕不 `pkill -f vite`**）。
