@@ -144,3 +144,9 @@
   --z-modal: 40;           /* 置中視窗 */
   --z-toast: 50;           /* 提示訊息 */
 }
+
+/* ── i18n：日文介面字型（只用各平台內建字，不載 web font；<html lang> 由 localeStore 寫入）──
+ * 繁中字族排前面時，日文漢字會被畫成繁中字形，所以日文改把日系內建字放前面。 */
+:root:lang(ja) {
+  --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", system-ui, sans-serif;
+}
