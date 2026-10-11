@@ -9,6 +9,7 @@ import { BRIDGE_TABLE_URL } from "../../data/bridgeRainThresholds";
 import type { ReservoirContext } from "../../data/reservoirContextLoader";
 import { Row, formatTaiwanTime } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { RESERVOIR_ALERT_LEGEND, reservoirAlertCss, reservoirFlatAlert } from "../../map/r6FlatEncodings";
 
 /** 水利設施類型對應色 / 標籤 */
 const WATER_FACILITY_TYPE: Record<string, { color: string; label: string }> = {
@@ -140,7 +141,7 @@ export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
   const kind = String(props.kind ?? "");
   const isDam = kind === "dam";
   const accentColor = isDam ? "#7dd3fc" : "#22d3ee";
-  const label = isDam ? "壩體工程位置（WRA 官方）" : "水庫代表點（基本資料）";
+  const label = isDam ? "壩體工程位置（WRA 官方）" : kind === "reservoir" ? "水庫即時水情（WRA）" : "水庫代表點（基本資料）";
   const capacity = props.capacity_m3 ?? props.effective_capacity_wan;
   const capacityStr = capacity
     ? isDam
@@ -163,11 +164,31 @@ export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="河川" value={String(props.river_name ?? "")} />
       <Row label="壩高" value={props.dam_height_m ? `${props.dam_height_m} m` : ""} />
       <Row label="容量" value={capacityStr} />
+      {/* R6 段 2：即時水情（平面圓點與 3D 水位計共用 reservoirFeatureProps；缺值不顯示該列） */}
+      {kind === "reservoir" && <ReservoirLiveRows props={props} />}
       {isDam && (
         <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: hintColor, lineHeight: 1.5 }}>
           ⓘ 此為壩體工程位置（壩牆出水口），與水庫水面中心點不重合屬正常
         </div>
       )}
+    </>
+  );
+}
+
+/** 水庫即時水情列：蓄水率（警示色）、警示等級、水位、有效蓄水量、資料時間 */
+function ReservoirLiveRows({ props }: { props: Record<string, unknown> }) {
+  const pct = typeof props.storage_ratio_pct === "number" ? props.storage_ratio_pct : null;
+  const alert = reservoirFlatAlert(pct);
+  const label = RESERVOIR_ALERT_LEGEND.find((r) => r.key === alert)?.label ?? "";
+  const level = typeof props.water_level_m === "number" ? props.water_level_m : null;
+  const storage = typeof props.effective_storage_wan_m3 === "number" ? props.effective_storage_wan_m3 : null;
+  return (
+    <>
+      <Row label="蓄水率" value={pct == null ? "無資料" : `${pct.toFixed(1)}%`} color={reservoirAlertCss(alert)} mono={pct != null} />
+      <Row label="水情" value={label} color={reservoirAlertCss(alert)} />
+      <Row label="水位" value={level == null ? "" : `${level.toFixed(2)} m`} mono />
+      <Row label="有效蓄水" value={storage == null ? "" : `${Math.round(storage).toLocaleString()} 萬 m³`} mono />
+      <Row label="資料時間" value={formatTaiwanTime(typeof props.snapshot_at === "string" ? props.snapshot_at : null)} />
     </>
   );
 }

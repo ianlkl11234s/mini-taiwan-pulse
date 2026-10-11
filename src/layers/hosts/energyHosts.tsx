@@ -207,16 +207,19 @@ export const PowerRegionBarsHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 機組發電光柱 */
+/** 機組即時出力：平面圓點的資料餵料＋（立體效果開時）Three.js 光柱 */
 export const PowerGenerationBeamHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("usePowerGenerationBeamLayer");
   const p = useKeyOverlayParams("powerGenerationUnit");
+  // R6 段 2：平面圓點由 registry 畫；Three.js 光柱只在「立體效果」開啟時下載／掛載
+  const values = useLayerParams("powerGenerationUnit");
   usePowerGenerationBeamLayer(
     deps.mapRef,
     deps.layerVisibility.powerGenerationUnit,
     p.powerGenerationOpacity ?? 0.7,
     p.powerGenerationHeight ?? 1,
     p.powerGenerationScale ?? 1,
+    paramBool(values, "powerGenerationUnit", "powerGenerationUnit3D"),
   );
   return null;
 };

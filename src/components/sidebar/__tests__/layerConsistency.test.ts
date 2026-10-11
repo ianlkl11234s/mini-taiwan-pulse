@@ -154,14 +154,16 @@ const NO_LEGEND_LEDGER = new Set([
   // 水庫（單色青面）／滯洪池（單色 #0284c7 點）：paint 無 match/step 分類。
   // 同組的 waterProtectionZones / waterFacilities / waterMonitorStations / waterFloodExtreme
   // 皆為屬性驅動多色，已接 LEGEND_REGISTRY。
-  "waterReservoirs", "waterDetentionBasins",
+  // R6 段 2：waterReservoirs 已有即時水情圖例（ReservoirStatusLegend），移出 ledger
+  "waterDetentionBasins",
   // groundwaterWells（靜態井位 backdrop，單色灰點）／precipRaster（IoW 上游已把色階
   // 燒進 PNG 的 image source）→ 鐵則 2 不適用。
   "groundwaterWells", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
   "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
   "wasteScheduleNote", "wasteCleaningSquads", "wasteRoute", "wasteStop",
-  "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
+  // R6 段 2：焚化爐／掩埋場／濱海掩埋／轉運站／醫療已有類別圖例（WasteFacilityLegend），移出 ledger
+  "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
   // Bloom 實驗層：單色光暈疊在既有 layer 上（發電廠/變電所/電線/航空管制），無分類
