@@ -1,8 +1,9 @@
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { SURFACE, LIGHT, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { SURFACE, LIGHT, ELEVATION, RADIUS, FONT_SIZE, Z_INDEX } from "../../../styles/designTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
 import { useMonitorV2 } from "./monitorStyle";
@@ -113,6 +114,9 @@ interface MenuProps {
 function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  // 選單經 portal 掛到 body（卡片殼 overflow:hidden 會裁掉向上展開的選單），位置由按鈕量測
+  const [pos, setPos] = useState<{ left: number; bottom: number } | null>(null);
   const cur = LIVE_CHANNELS.find((c) => c.id === value) ?? LIVE_CHANNELS[0]!;
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
@@ -120,11 +124,29 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (ref.current && !ref.current.contains(t) && !menuRef.current?.contains(t)) setOpen(false);
     };
+    const dismiss = () => setOpen(false);
+    const dismissOnScroll = (e: Event) => { if (!menuRef.current?.contains(e.target as Node)) setOpen(false); };
     document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    window.addEventListener("resize", dismiss);
+    window.addEventListener("scroll", dismissOnScroll, true);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      window.removeEventListener("resize", dismiss);
+      window.removeEventListener("scroll", dismissOnScroll, true);
+    };
   }, [open]);
+  useLayoutEffect(() => {
+    if (!open || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const w = v2 ? 264 : 232;
+    setPos({
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - w - 8)),
+      bottom: window.innerHeight - rect.top + 6,
+    });
+  }, [open, v2]);
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
@@ -161,11 +183,12 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
         </span>
       </button>
 
-      {open && (
+      {open && pos && createPortal(
         <div
+          ref={menuRef}
           style={{
-            position: "absolute", bottom: "calc(100% + 6px)", left: 0,
-            width: v2 ? 264 : 232, maxWidth: v2 ? "80vw" : undefined, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
+            position: "fixed", bottom: pos.bottom, left: pos.left,
+            width: v2 ? 264 : 232, maxWidth: v2 ? "80vw" : undefined, zIndex: Z_INDEX.modal, borderRadius: RADIUS.xl, overflow: "hidden",
             border: `1px solid ${theme.p.borderMid}`,
             background: theme.isDark ? SURFACE.solid : LIGHT.surfaceSolid,
             backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
@@ -309,7 +332,8 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
               );
             })}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

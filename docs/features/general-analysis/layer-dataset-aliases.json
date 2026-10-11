@@ -1,33 +1,110 @@
 {
-  "note": "Upstream dataset ids (or layer keys) in the layer manifest that map to differently named warehouse datasets. Keep small; prefer fixing the manifest upstream id when the mapping is permanent.",
+  "note": "Upstream dataset ids (or layer keys) in the layer manifest that map to differently named warehouse datasets. Keep small; prefer fixing the manifest upstream id when the mapping is permanent. byLayer 值可為陣列（倉庫 dataset id；空陣列＝刻意不對應倉庫表），或物件 {datasets, rowFilter?, geometry?}：共用同一張倉庫表的圖層必須用物件形式寫出逐層 rowFilter（SQL 述詞）；傘狀 upstream（osm_power／weather／renewable）已移除，一律逐層指定。",
   "byUpstream": {
-    "tourism.national_park_boundaries": ["national_park_boundaries"],
-    "real_estate": ["real_estate_points", "real_estate_grids"],
-    "company_points": ["company_points_analysis"],
-    "manufacturing_company_points": ["company_points_analysis"],
-    "pollution_source": ["pollution_penalties"],
-    "groundwater_wells": ["groundwater"],
-    "river_level_stations_wra": ["river_water_level_realtime"],
-    "road": ["road_network"],
-    "airspace_aip": ["airspace"],
-    "ftw_fields": ["ftw_fields_2025"],
-    "irrigation_canals": ["irrigation_canal"],
-    "river_basins_wra": ["river_infrastructure_wra"],
-    "river_levees_wra": ["river_infrastructure_wra"],
-    "river_polygons_wra": ["river_infrastructure_wra"],
-    "livestock_farms": ["livestock_ranch"],
-    "slaughterhouses": ["livestock_ranch"],
-    "feed_factories": ["livestock_ranch"],
-    "livestock_markets": ["livestock_ranch"],
-    "weather": ["temperature"],
-    "osm_power": ["osm_substations", "osm_power_plants", "osm_wind_turbines", "osm_solar_farms", "osm_power_towers", "osm_power_lines", "osm_charging_stations", "osm_transformers"],
-    "renewable": ["renewable_permits", "renewable_permits_taipei"]
+    "tourism.national_park_boundaries": [
+      "national_park_boundaries"
+    ],
+    "real_estate": [
+      "real_estate_points",
+      "real_estate_grids"
+    ],
+    "company_points": [
+      "company_points_analysis"
+    ],
+    "manufacturing_company_points": [
+      "company_points_analysis"
+    ],
+    "pollution_source": [
+      "pollution_penalties"
+    ],
+    "groundwater_wells": [
+      "groundwater"
+    ],
+    "river_level_stations_wra": [
+      "river_water_level_realtime"
+    ],
+    "road": [
+      "road_network"
+    ],
+    "airspace_aip": [
+      "airspace"
+    ],
+    "ftw_fields": [
+      "ftw_fields_2025"
+    ],
+    "irrigation_canals": [
+      "irrigation_canal"
+    ],
+    "river_basins_wra": [
+      "river_infrastructure_wra"
+    ],
+    "river_levees_wra": [
+      "river_infrastructure_wra"
+    ],
+    "river_polygons_wra": [
+      "river_infrastructure_wra"
+    ],
+    "livestock_farms": [
+      "livestock_ranch"
+    ],
+    "slaughterhouses": [
+      "livestock_ranch"
+    ],
+    "feed_factories": [
+      "livestock_ranch"
+    ],
+    "livestock_markets": [
+      "livestock_ranch"
+    ]
   },
   "byLayer": {
-    "newsEvents": ["news_events"],
-    "earthquakes": ["earthquake_events_cwa"],
-    "earthquakeReplay": ["earthquake_events_cwa"],
-    "waterProtectionZones": ["water_source_protection_areas"],
-    "vesselWatch": ["ccg_vessel_positions_sampled", "ccg_vessel_zone_daily"]
+    "newsEvents": [
+      "news_events"
+    ],
+    "earthquakes": [
+      "earthquake_events_cwa"
+    ],
+    "earthquakeReplay": [
+      "earthquake_events_cwa"
+    ],
+    "waterProtectionZones": [
+      "water_source_protection_areas"
+    ],
+    "vesselWatch": [
+      "ccg_vessel_positions_sampled",
+      "ccg_vessel_zone_daily"
+    ],
+    "weatherStations": [
+      "temperature"
+    ],
+    "temperatureWave": [
+      "temperature"
+    ],
+    "temperatureGrid": [],
+    "osmSubstations": [
+      "osm_substations"
+    ],
+    "osmSubstationsEhv": [
+      "osm_substations"
+    ],
+    "osmPowerLines": [
+      "osm_power_lines"
+    ],
+    "osmPowerTowers": [
+      "osm_power_towers"
+    ],
+    "osmWindTurbines": [
+      "osm_wind_turbines"
+    ],
+    "facOsmSupplement": [
+      "osm_power_plants",
+      "osm_solar_farms",
+      "osm_charging_stations",
+      "osm_transformers"
+    ],
+    "windPlan": [],
+    "renewablePermitsTaipei": [
+      "renewable_permits_taipei"
+    ]
   }
 }

@@ -52,7 +52,7 @@ for (const theme of THEMES) {
         layer_key: layer.key,
         theme: theme.title,
         section: group.title,
-        chinese_label: layer.label,
+        chinese_label: layer.name.zh,
         source_url: "",
         source_type: "",
         loader_file: "",

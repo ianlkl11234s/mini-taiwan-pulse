@@ -38,9 +38,16 @@ if (reset || !existsSync(baselinePath)) {
 const baseline = JSON.parse(readFileSync(baselinePath, "utf8")) as GuardCounts;
 const { increases, decreases } = compareCounts(current, baseline);
 
-if (increases.length > 0) {
+// 只有 enforce 規則的增加才擋；record-only 規則（enforce: false）只提示，不阻擋其他規則往下降
+const enforceOf = new Map(RULES.map((r) => [r.id, r.enforce]));
+const blocking = increases.filter((d) => enforceOf.get(d.rule) !== false);
+const advisory = increases.filter((d) => enforceOf.get(d.rule) === false);
+if (advisory.length > 0) {
+  console.warn(`[design:baseline] 只記錄不擋的規則有新增（不影響基準更新）：\n${advisory.map(formatIncrease).join("\n")}\n`);
+}
+if (blocking.length > 0) {
   console.error("[design:baseline] 發現新增違規，基準不更新。請修正程式碼：\n");
-  for (const d of increases) console.error(`${formatIncrease(d)}\n`);
+  for (const d of blocking) console.error(`${formatIncrease(d)}\n`);
   process.exit(1);
 }
 

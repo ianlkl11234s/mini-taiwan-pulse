@@ -1,6 +1,7 @@
 import { FONT_DATA } from "../../styles/designTokens";
 import { formatVizNumber, type VizNumberKind } from "../vizFormat";
 import { categoricalFor, type Theme } from "../vizSpec";
+import { barDomain, barFraction } from "./barScale";
 
 /**
  * Shared SVG chart (spec P1 = R1, docs/features/viz-library/DECISIONS.md §6): a horizontal ranked
@@ -56,7 +57,7 @@ function summaryLabel(display: readonly RankBarItem[], kind: VizNumberKind, unit
 
 export function RankBars({ items, theme, valueKind = "count", unit = null, title, maxItems = 10 }: RankBarsProps) {
   const display = rankBarsWithOther(items, theme, maxItems);
-  const maxValue = Math.max(1e-9, ...display.map(item => item.value ?? 0));
+  const domain = barDomain(display.map(item => item.value));
   const height = Math.max(ROW_HEIGHT, display.length * ROW_HEIGHT);
   const summary = summaryLabel(display, valueKind, unit, title);
   return (
@@ -65,7 +66,7 @@ export function RankBars({ items, theme, valueKind = "count", unit = null, title
       <svg role="img" aria-label={summary} viewBox={`0 0 ${CHART_WIDTH} ${height}`} width="100%" height={height} preserveAspectRatio="xMinYMin meet">
         {display.map((item, index) => {
           const y = index * ROW_HEIGHT;
-          const barWidth = item.value === null ? 0 : Math.max(0, (Math.max(0, item.value) / maxValue) * BAR_MAX_WIDTH);
+          const barWidth = barFraction(item.value, domain) * BAR_MAX_WIDTH;
           return (
             <g key={item.id} transform={`translate(0, ${y})`}>
               <text x={0} y={ROW_HEIGHT / 2} dy="0.32em" fontSize={9} fill="currentColor">{truncateLabel(item.label)}</text>

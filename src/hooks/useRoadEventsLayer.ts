@@ -255,8 +255,11 @@ export function useRoadEventsLayer(
 
       const key = activeSetKey(day, currentTime);
       if (key !== lastActiveSetRef.current) {
+        // 尚未畫過＝請求先完成、地圖晚就緒的延後路徑：此刻才 setData，渲染期間也要登記 loading
+        const firstRender = lastActiveSetRef.current === "";
         lastActiveSetRef.current = key;
         refreshSource(m, currentTime);
+        if (firstRender) keepLoadingUntilMapIdle(m, `road-events-render:${activeDateRef.current}`, "即時路況 渲染中", SOURCE_ID);
       }
     };
 

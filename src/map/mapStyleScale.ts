@@ -241,6 +241,18 @@ export const EXTRUSION = {
   youbikeHeightBase: 80,
 } as const;
 
+/**
+ * 房價格網 3D 高度倍率：滑桿現在是「倍率」（0.25–10，乘 propertyValueHeightBase）。
+ * 舊版 v1 嵌入網址的 `p.propertyValueGridElevationScale=40` 是直接當基準高度（單位＝基準本身），
+ * 超出滑桿範圍的值視為舊制，換算成倍率後夾回範圍，避免 3D 高度暴增約 40 倍。
+ */
+export function propertyValueGridHeightScale(raw: number | undefined): number {
+  const [min, max] = [0.25, 10];
+  if (raw === undefined || !Number.isFinite(raw)) return EXTRUSION.heightMultiplier;
+  const multiplier = raw > max ? raw / EXTRUSION.propertyValueHeightBase : raw;
+  return Math.min(max, Math.max(min, multiplier));
+}
+
 export const poiLabelLayout = () => ({
   "text-size": ["interpolate", ["linear"], ["zoom"], 10, LABEL.poi[0], 14, LABEL.poi[1]] as ExpressionSpecification,
   "text-allow-overlap": false,

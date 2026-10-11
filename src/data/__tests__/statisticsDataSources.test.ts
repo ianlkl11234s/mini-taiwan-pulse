@@ -41,6 +41,11 @@ describe("statistics data-source definitions", () => {
     expect(ratio.kind).toBe("derived");
     expect(ratio.datasetIds).toEqual(["population_age_structure"]);
   });
+
+  it("classifies formula-derived count indicators (natural increase, net migration) as derived", () => {
+    expect(getStatisticsDataSourceDefinition("statsDemographicsCountyNaturalIncrease")!.kind).toBe("derived");
+    expect(getStatisticsDataSourceDefinition("statsDemographicsCountyBirths")!.kind).toBe("source");
+  });
 });
 
 

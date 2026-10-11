@@ -18,7 +18,7 @@ describe("CWA earthquake replay research adapter", () => {
     const { fetcher, query } = executor();
     await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId })).rejects.toThrow("EARTHQUAKE_QUERY_SELECTOR_REQUIRED");
     await query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { eventId: "115064" }, limit: 2 });
-    expect(fetcher).toHaveBeenCalledWith("115064", undefined);
+    expect(fetcher).toHaveBeenCalledWith("115064", expect.any(AbortSignal));
   });
 
   it("requires an explicit bounded ISO window, keeps exact and window selectors exclusive, and orders the 50-row source window deterministically", async () => {
@@ -29,7 +29,7 @@ describe("CWA earthquake replay research adapter", () => {
     await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-29T00:00:00Z" } })).rejects.toThrow("INVALID_EARTHQUAKE_WINDOW");
     await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { eventId: "115064", occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" } })).rejects.toThrow("EARTHQUAKE_QUERY_SELECTOR_CONFLICT");
     const result = await query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" }, limit: 50 });
-    expect(window).toHaveBeenCalledWith({ occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z", limit: 51 }, undefined);
+    expect(window).toHaveBeenCalledWith({ occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z", limit: 51 }, expect.any(AbortSignal));
     expect(result.rows.map(row => row.event_id)).toEqual(["a", "b"]);
     expect(result).toMatchObject({ freshness: "unknown", sourceRefs: [expect.objectContaining({ acquiredAt: expect.any(String), version: expect.stringContaining("window:") })] });
   });

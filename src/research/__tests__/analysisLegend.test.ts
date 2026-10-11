@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { warehouseSourceLabel, type AnalysisResultPresentation } from "../analysisResultOverlay";
+import { warehouseDatasetsSourceLabel, warehouseSourceLabel, type AnalysisResultPresentation } from "../analysisResultOverlay";
 import { analysisLegendEntries, getAnalysisLegendSnapshot, publishAnalysisLegend, subscribeAnalysisLegend, type AnalysisLegendEntry, type AnalysisLegendPlayback } from "../analysisLegendStore";
 import { AnalysisLegendSection } from "../AnalysisLegendSection";
 import { WarehouseStyleLegendView } from "../WarehouseStyleLegend";
@@ -39,6 +39,23 @@ describe("G1 analysis legend store", () => {
     const html = renderToStaticMarkup(h(AnalysisLegendSection, { entries, compact: false, isDark: true }));
     expect(html).not.toContain("來源資訊待補");
     expect(html).not.toContain("warehouse:");
+  });
+
+  it("keeps the shared source when the source-bearing sibling is hidden (siblings arg)", () => {
+    const point = presented({ resultId: "wh-8:point", datasetId: "warehouse:wh-8", geometryType: "Point", sourceLabel: "醫療院所" });
+    const ring = presented({ resultId: "wh-8:polygon", datasetId: "warehouse:wh-8", scopeRing: { radiusM: 500 } });
+    const hiddenPoint = analysisLegendEntries([ring], () => null);
+    expect(hiddenPoint[0]!.source).toBeNull();
+    const withSiblings = analysisLegendEntries([ring], () => null, undefined, [point, ring]);
+    expect(withSiblings.map(entry => entry.source)).toEqual(["醫療院所"]);
+  });
+
+  it("falls back to the lineage's upstream datasets for a styled warehouse result, dropping unresolvable ids", () => {
+    const styled = presented({ resultId: "wh-9", datasetId: "warehouse:wh-9", styleLegend: choroplethLegend, sourceDatasets: ["schools", "mystery_internal_id"] });
+    const entries = analysisLegendEntries([styled], (_id, _label, sourceDatasets) => warehouseDatasetsSourceLabel(sourceDatasets, id => id === "schools" ? "全國各級學校" : null) ?? null);
+    expect(entries[0]!.source).toBe("全國各級學校");
+    expect(warehouseDatasetsSourceLabel(["x"], () => null)).toBeUndefined();
+    expect(warehouseDatasetsSourceLabel(["a", "b", "c", "d"], id => id.toUpperCase())).toBe("A、B、C 等 4 份");
   });
 
   it("formats the source line from row titles: unique, in order, first three + 等 N 份", () => {

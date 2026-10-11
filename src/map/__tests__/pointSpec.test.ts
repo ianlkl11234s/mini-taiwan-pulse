@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
-import { DECORATION_SUFFIX_RE, DENSE_POINT_OVERRIDES, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, isDataDriven, withPointSpec } from "../pointSpec";
+import { DECORATION_SUFFIX_RE, DENSE_POINT_OVERRIDES, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, isDataDriven, normalizeMixedBranches, withPointSpec } from "../pointSpec";
 import { POINT_TIERS } from "../pointTiers";
 import { POINT_RADIUS } from "../mapStyleScale";
 import { getParamsSpec } from "../../data/layerParamsSpec";
@@ -139,5 +139,18 @@ describe("R2 點圖層規格（pointSpec）", () => {
   it("沒有分階也沒有裝飾的 config 原樣返回", () => {
     const plain: OverlayConfig = { id: "countyBoundary", sourceUrl: "", sourceId: "x", layers: [{ suffix: "line", type: "line", paint: () => ({ "line-width": 1 }) }] };
     expect(withPointSpec(plain)).toBe(plain);
+  });
+});
+
+describe("F142：混合 stroke expression 逐分支正規化", () => {
+  const isApprox = ["==", ["coalesce", ["get", "coord_precision"], ""], "approximate"];
+  it("zoom 外殼的一般分支換標準值，只保留資料條件成立的分支", () => {
+    const wide = ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1, 15, ["case", isApprox, 1.8, 1]];
+    expect(normalizeMixedBranches(wide, 1)).toEqual(["interpolate", ["linear"], ["zoom"], 6, 1, 14, 1, 15, ["case", isApprox, 1.8, 1]]);
+  });
+  it("case 的 fallback 換標準值；非 case/match/zoom 形狀原樣保留", () => {
+    expect(normalizeMixedBranches(["case", isApprox, 0.4, 0.8], 0.9)).toEqual(["case", isApprox, 0.4, 0.9]);
+    const fade = ["*", 0.5, ["coalesce", ["get", "alpha"], 1]];
+    expect(normalizeMixedBranches(fade, 0.9)).toEqual(fade);
   });
 });

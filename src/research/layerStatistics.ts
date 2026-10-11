@@ -17,7 +17,7 @@ const matchesFilter = (row: Record<string, unknown>, filter: { field: string; va
 const scalar = (v: unknown): Value => v === null || v === undefined || v === "" ? null : typeof v === "string" ? normalize(v) || null : null;
 const outwardValue = (v: unknown): string | number | boolean | null => v === null || v === undefined ? null : typeof v === "string" ? v.slice(0, 120) : typeof v === "number" || typeof v === "boolean" ? v : null;
 const hasOwn = (o: object, k: string) => Object.prototype.hasOwnProperty.call(o, k);
-export interface LayerSummaryInput { layerKey: string; filters?: { field: string; value: Value }[]; groupBy?: string[]; order?: "count_desc" | "count_asc" | "key_asc"; offset?: number; limit?: number }
+export interface LayerSummaryInput { layerKey: string; filters?: { field: string; value: Value }[]; groupBy?: string[]; order?: "count_desc" | "count_asc" | "key_asc"; offset?: number; limit?: number; /** 統計圖層的 exact release selector；省略時自動選已登錄的最新 release。 */ releaseId?: string }
 
 function configFor(layerKey: string): { key: string; config: Config } {
   const key = layerKey === "policeStations" ? "policeStation" : layerKey;

@@ -6,7 +6,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  linkedSelectHiddenFor, linkedSelectSnapshot, linkedSelectSpecs, linkedSelectValues, resolveLinkedSelectChange,
+  canRetryLinkedSelect, linkedSelectHiddenFor, linkedSelectSnapshot, linkedSelectSpecs, linkedSelectValues, resolveLinkedSelectChange,
   restoreLinkedSelects, setLinkedSelect, type LinkedSelectTuple,
 } from '../linkedSelect';
 import { buildParamControls, visibleControlSpecs } from '../layerParamsControls';
@@ -252,5 +252,13 @@ describe('教育固定入口：換指標維持同一學年', () => {
       expect(regionalStatisticsStore.getSnapshot(VIEW).selection?.dimensions?.academic_year_roc).toBe('110');
     }
     regionalStatisticsStore.setSelection(VIEW, null);
+  });
+});
+
+describe('重試按鈕只在 provider 實作 retry 時提供', () => {
+  it('statisticsVariant 沒有 retry；statistics 有', () => {
+    expect(canRetryLinkedSelect('statisticsVariant')).toBe(false);
+    expect(canRetryLinkedSelect('statistics')).toBe(true);
+    expect(canRetryLinkedSelect('nope')).toBe(false);
   });
 });

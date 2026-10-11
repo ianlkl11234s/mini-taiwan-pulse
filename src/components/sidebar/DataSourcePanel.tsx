@@ -181,6 +181,8 @@ export function DataSourceCard({
       title: `${kindLabel} · ${statisticsSource.label}`,
       desc: humanizeStatisticsText([statisticsSource.metricLabel, statisticsSource.contract, statisticsSource.disclosure].filter(Boolean).join(" — ")),
       facts: facts(
+        // 橋接已接上 ≠ 原始來源逐一驗證：保留舊版免責，避免綠色「已接上」被讀成來源層級的驗證
+        status === "verified" ? { k: "說明", v: "僅橋接本地資料集，目錄尚未逐一驗證原始來源" } : null,
         statisticsSource.provider ? { k: "機關", v: statisticsSource.provider } : null,
         { k: "頻率", v: statisticsSource.period },
         statisticsSource.license ? { k: "授權", v: statisticsSource.license } : null,
@@ -218,7 +220,7 @@ export function DataSourceCard({
       ),
       docPath: null,
     };
-  }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, p]);
+  }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, status, p]);
 
   const baseBlocks: SourceBlock[] = useMemo(() => {
     const lineageBlock: SourceBlock = {

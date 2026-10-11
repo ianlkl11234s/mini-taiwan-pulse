@@ -324,19 +324,25 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const geom = useMemo(() => {
-    // indexVal 缺值（null）的日子排除（Number(null)=0 會被畫成假低點）
+    // indexVal 缺值（null）的日子不畫點（Number(null)=0 會被畫成假低點），但保留日期位置與斷線：
+    // slot 是原序列索引，X 軸依 slot 排，缺值日留空、折線不跨接。
+    const slotOf = new Map<FoodPriceDay, number>();
+    series.forEach((d, i) => slotOf.set(d, i));
     const pts = series.filter((d): d is FoodPriceDay & { indexVal: number } => d.indexVal != null && Number.isFinite(d.indexVal));
     if (pts.length < 2) return null;
     const vals = pts.map((d) => d.indexVal);
     const mn = Math.min(...vals), mx = Math.max(...vals);
     const rg = mx - mn || 1;
-    const x = (i: number) => (i / (pts.length - 1)) * 100;
+    const denom = Math.max(series.length - 1, 1);
+    const slot = (i: number) => slotOf.get(pts[i]!)!;
+    const x = (i: number) => (slot(i) / denom) * 100;
     const y = (v: number) => SPARK_H - 2 - ((v - mn) / rg) * (SPARK_H - 4);
 
     // ⚠️ low_coverage 折線斷開，不補值連過去
     let d = "";
     let pen = false;
     pts.forEach((p, i) => {
+      if (i > 0 && slot(i) - slot(i - 1) > 1) pen = false; // 中間有缺值日
       if (p.light === "low_coverage") { pen = false; return; }
       d += `${pen ? "L" : "M"}${x(i).toFixed(2)},${y(p.indexVal).toFixed(2)}`;
       pen = true;
@@ -360,7 +366,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
 
     const last = pts[pts.length - 1]!;
     return {
-      d, bands, lastX: x(pts.length - 1), lastY: y(last.indexVal), mn, mx, pts,
+      d, bands, slots: series.length, slotOf: (q: FoodPriceDay) => slotOf.get(q)!, lastX: x(pts.length - 1), lastY: y(last.indexVal), mn, mx, pts,
       firstDate: pts[0]!.tradeDate, lastDate: last.tradeDate,
     };
   }, [series]);
@@ -375,8 +381,9 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     const rect = e.currentTarget.getBoundingClientRect();
     if (rect.width === 0 || pts.length === 0) return;
     const xRatio = (e.clientX - rect.left) / rect.width;
-    const i = Math.max(0, Math.min(Math.round(xRatio * (pts.length - 1)), pts.length - 1));
-    const p = pts[i]!;
+    const target = xRatio * Math.max(geom!.slots - 1, 1);
+    let p = pts[0]!;
+    for (const q of pts) if (Math.abs(geom!.slotOf(q) - target) < Math.abs(geom!.slotOf(p) - target)) p = q;
     tip.show(e.clientX, e.clientY, {
       title: fmtTradeDate(p.tradeDate),
       rows: [

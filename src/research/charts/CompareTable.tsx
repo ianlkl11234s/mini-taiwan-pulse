@@ -1,6 +1,7 @@
 import { FONT_DATA } from "../../styles/designTokens";
 import { classifyVizNumberKind, formatVizNumber } from "../vizFormat";
 import { rampFor, type Theme } from "../vizSpec";
+import { barDomain, barFraction } from "./barScale";
 
 /**
  * Shared table chart (spec P2 = C1, docs/features/viz-library/DECISIONS.md §6): a field x point
@@ -39,8 +40,8 @@ function minibarColors(cells: readonly CompareTableCell[], colors: readonly stri
   return usable.map(value => value === null ? null : colors[Math.round(((value - min) / span) * (colors.length - 1))] ?? colors[colors.length - 1]!);
 }
 
-function minibarFraction(value: number | null, rowMax: number): number {
-  return value === null || rowMax <= 0 ? 0 : Math.max(0, Math.min(1, value / rowMax));
+export function minibarFraction(value: number | null, domain: { lo: number; hi: number }): number {
+  return barFraction(value, domain);
 }
 
 export function CompareTable({ columns, rows, theme, onSelectColumn }: CompareTableProps) {
@@ -62,7 +63,7 @@ export function CompareTable({ columns, rows, theme, onSelectColumn }: CompareTa
       <tbody>
         {rows.map(row => {
           const levels = minibarColors(row.cells, colors);
-          const rowMax = Math.max(0, ...row.cells.map(cell => cell.notCovered || cell.value === null ? 0 : cell.value));
+          const domain = barDomain(row.cells.map(cell => cell.notCovered ? null : cell.value));
           return (
             <tr key={row.id}>
               <th scope="row">{row.label}{row.unit ? `（${row.unit}）` : ""}</th>
@@ -75,7 +76,7 @@ export function CompareTable({ columns, rows, theme, onSelectColumn }: CompareTa
                       : <>
                         <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{formatVizNumber(cell.value, classifyVizNumberKind(cell.value, row.unit))}</span>
                         <span className="agent-compare-table__minibar" aria-hidden="true">
-                          <i style={{ width: `${Math.round(minibarFraction(cell.value, rowMax) * 100)}%`, background: levels[index] ?? undefined }} />
+                          <i style={{ width: `${Math.round(minibarFraction(cell.value, domain) * 100)}%`, background: levels[index] ?? undefined }} />
                         </span>
                       </>}
                 </td>

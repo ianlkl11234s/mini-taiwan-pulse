@@ -47,14 +47,19 @@ NEEDLE_SOURCES = {
 }
 COUNTY_PREFIX = {"tpe": "臺北市", "khh": "高雄市", "ptt": "屏東縣", "cyi": "嘉義市", "hsz": "新竹市"}
 
+MAINTENANCE_SOURCE_URL = "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html"
+
 TREATMENT_SOURCES = {
     "mohw_substance_use_designated_115": ("衛生福利部心理健康司（指定藥癮戒治及替代治療機構名單）",
                                           "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html", UNSPECIFIED, "2026-08-31"),
     "datagov_133353": ("地方政府衛生局（data.gov.tw 133353）", "https://data.gov.tw/dataset/133353", OGDL, "2025-12-12"),
-    # 第三輪：清海醫院（衛福部名單未列，依替代治療月報＋133353 保留；機關名／授權照上游 feature）
-    "mohw_maintenance_monthly_115|datagov_133353": ("衛生福利部心理健康司（替代治療月報）＋地方政府衛生局（data.gov.tw 133353 地址）",
-                                                    "https://data.gov.tw/dataset/133353", OGDL, "月報 115 年 1–8 月；地址 2025-12-12"),
+    # 第三輪：清海醫院（衛福部名單未列，依替代治療月報＋133353 保留）。複合來源：月報來源頁未標示授權，
+    # 整筆不得標 OGDL（F320）→ 授權 UNSPECIFIED、source_url 指向月報來源頁；133353（OGDL，僅提供地址）寫在機關名。
+    "mohw_maintenance_monthly_115|datagov_133353": ("衛生福利部心理健康司（替代治療月報）＋地方政府衛生局（data.gov.tw 133353 地址，https://data.gov.tw/dataset/133353）",
+                                                    MAINTENANCE_SOURCE_URL, UNSPECIFIED, "月報 115 年 1–8 月；地址 2025-12-12"),
 }
+# 月報服藥人數的獨立來源紀錄（F313）：不沿用名冊 feature 的 source_org／license。
+MAINTENANCE_SOURCE_ORG = "衛生福利部心理健康司（藥癮維持治療執行進度表月報）"
 SELFTEST_SOURCES = {
     "cdc_hiva_physical_outlet": ("衛生福利部疾病管制署（愛滋自我篩檢實體通路）",
                                  "https://hiva.cdc.gov.tw/selftest/Service_place.aspx", UNSPECIFIED, "2026-10-06"),
@@ -258,6 +263,16 @@ MAINTENANCE_FIELDS = ["maintenance_month", "maintenance_first_month", "methadone
                       "buprenorphine_patients", "buprenorphine_patients_mean"]
 
 
+def maintenance_provenance(rec: dict) -> dict:
+    """月報人數的獨立來源／授權欄；沒併入月報的點填 None（不是 0、也不沿用名冊授權）。"""
+    joined = bool(rec.get("maintenance_month"))
+    return {
+        "maintenance_source_org": MAINTENANCE_SOURCE_ORG if joined else None,
+        "maintenance_source_url": MAINTENANCE_SOURCE_URL if joined else None,
+        "maintenance_license": UNSPECIFIED if joined else None,
+    }
+
+
 def write_collection(path: Path, features: list[dict]) -> None:
     path.write_text(
         json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False, separators=(",", ":")),
@@ -294,6 +309,7 @@ def build(src_root: Path, date: str) -> None:
             if dataset_id == "drug_treatment_facilities":
                 rec = maintenance.get(props["id"], {})
                 props.update({key: rec.get(key) for key in MAINTENANCE_FIELDS})
+                props.update(maintenance_provenance(rec))
             features.append({
                 "type": "Feature",
                 "geometry": {"type": geom["type"], "coordinates": round_coords(geom["coordinates"])},
