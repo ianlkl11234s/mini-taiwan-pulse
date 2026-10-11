@@ -611,8 +611,14 @@ done
 # Rail 個別檔案（打包成 tar.gz 上傳）
 # 軌道路線靜態圖層（railRoutes）必備檔：由 scripts/preprocess/build-rail-routes.py 產生（進 git）。
 # 缺檔就中止，免得 rail.tar.gz 少了它、正式站該層 404。
+# 另要求 railLoader 依賴、被 gitignore 的核心 bundle 代表檔：乾淨 checkout 只有 git 追蹤的檔，
+# 若直接打包會覆蓋正式 rail.tar.gz、拿掉所有軌跡／時刻表／進度資產（F282）。
 RAIL_REQUIRED_FILES=(
   "public/rail/routes_static.geojson"
+  "public/rail/trtc/station_progress.json"
+  "public/rail/tra/master_schedule.json"
+  "public/rail/tra/station_progress.json"
+  "public/rail/thsr/station_progress.json"
 )
 for f in "${RAIL_REQUIRED_FILES[@]}"; do
   [ -f "$f" ] || { echo "ERROR: $f 不存在（先跑 python3 scripts/preprocess/build-rail-routes.py）"; exit 1; }

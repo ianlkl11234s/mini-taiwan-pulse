@@ -77,7 +77,7 @@ export function socialStatisticsDescriptor(recipe: SocialRecipe): DatasetDescrip
       mode: "public", method: "statistics_snapshot",
       fields: ["release_id", "dataset_id", "indicator_id", "layer_key", "level", "area_code", "area_name", "indicator_name", "unit", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version", "boundary_sha256", "boundary_resource", "geometry", "dimensions", "inputs"],
       filters: ["release_id", "dataset_id", "indicator_id", "layer_key", "level", "area_code", "status", "source_status", "boundary_version"],
-      timeFields: ["period_start", "period_end"], maxRowsPerQuery: 100, maxScanRows: 10_000, maxResponseBytes: 1024 * 1024,
+      timeFields: ["period_start", "period_end"], maxRowsPerQuery: 100, maxScanRows: 10_000, maxResponseBytes: 256 * 1024, // 對齊 QueryResponder 的 MAX_QUERY_RESULT_BYTES，不宣告 relay 會拒收的大小
     }),
     parameters: [{ name: "releaseId", type: "string", required: true, options: recipe.release_options.map(option => option.release_id) }],
     supportedOperations: ["query_records", "aggregate", "compare_regions"],

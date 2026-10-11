@@ -19,6 +19,27 @@ export interface QueryRecordsInput {
   parameters?: Readonly<Record<string, Scalar>>;
 }
 
+/**
+ * Enforces the descriptor's declared timeoutMs: the adapter gets a signal that aborts on the timeout (or the
+ * caller's own abort), and the read is also raced against the timer so an adapter that ignores the signal
+ * cannot hold a single-flight caller past the declared limit.
+ */
+async function readWithTimeout(adapter: QueryAdapter, parameters: Readonly<Record<string, Scalar>>, caller: AbortSignal | undefined, timeoutMs: number, context?: QueryReadContext): Promise<AdapterReadResult> {
+  const controller = new AbortController();
+  const onCallerAbort = () => controller.abort(caller?.reason);
+  if (caller?.aborted) controller.abort(caller.reason); else caller?.addEventListener("abort", onCallerAbort, { once: true });
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => { controller.abort(); reject(new Error("QUERY_TIMEOUT")); }, timeoutMs);
+  });
+  try {
+    return await Promise.race([adapter.read(parameters, controller.signal, context), timeout]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+    caller?.removeEventListener("abort", onCallerAbort);
+  }
+}
+
 export interface AdapterReadResult {
   rows: readonly Record<string, unknown>[];
   sourceRefs: readonly SourceReceipt[];
@@ -270,7 +291,7 @@ export class QueryExecutor {
       const expected = adapter.allowedParameters[name];
       if (!expected || value === null || typeof value !== expected) throw new Error("PARAMETER_NOT_ALLOWED");
     }
-    const read = await adapter.read(parameters, signal, bbox ? { bbox } : undefined);
+    const read = await readWithTimeout(adapter, parameters, signal, descriptor.access.limits.timeoutMs, bbox ? { bbox } : undefined);
     validateAdapterRead(descriptor, read);
     if (!Number.isInteger(read.rowsScanned) || read.rowsScanned < read.rows.length || read.rowsScanned > descriptor.access.limits.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
     if (read.bytesScanned !== null && descriptor.access.limits.maxSourceBytes !== null && read.bytesScanned > descriptor.access.limits.maxSourceBytes) throw new Error("SOURCE_BYTE_BUDGET_EXCEEDED");

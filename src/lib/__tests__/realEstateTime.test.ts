@@ -15,6 +15,11 @@ describe("stepReCursor（房地產游標鍵盤步進）", () => {
     expect(stepReCursor(ts(2024, 12, 15), "month", 1)).toBe(ts(2025, 1, 15));
   });
 
+  it("月：游標帶時分秒時先正規化到日網格，月末夾制不被吸附滾到下月", () => {
+    const withTime = ts(2025, 1, 31) + 18 * 3600;
+    expect(stepReCursor(withTime, "month", 1)).toBe(ts(2025, 2, 28));
+  });
+
   it("週：固定 ±7 天", () => {
     expect(stepReCursor(ts(2025, 3, 1), "week", 1)).toBe(ts(2025, 3, 8));
   });

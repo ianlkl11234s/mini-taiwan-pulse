@@ -131,6 +131,7 @@ export function useAnimalWelfarePointsLayer(
         ensureLayers(map, st.opacity, st.scale, st.isDark, st.pointTypeMask);
         updatePaint(map, st.opacity, st.scale, st.isDark, st.pointTypeMask);
         if (rowsRef.current) setData(map, rowsRef.current);
+        setVisible(map, visible); // 重建後預設可見；圖層關閉時要維持隱藏
       } catch { /* style 尚未就緒 */ }
     };
     map.on("style.load", onStyleLoad);

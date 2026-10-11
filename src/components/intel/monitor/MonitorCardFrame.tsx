@@ -63,20 +63,22 @@ export function formatMonitorTime(ms: number, nowMs: number = Date.now()): strin
 }
 
 export function MonitorCardFrame({
-  title, en, widgetId, children,
+  title, en, widgetId, children, bare = false,
 }: {
   title: string;
   en: string;
   widgetId: string;
   children: ReactNode;
+  /** 舊版樣式：保留同一棵 React 樹（切換樣式不 remount 內容），只是不畫框與標題列（display: contents） */
+  bare?: boolean;
 }) {
   const [slot, setSlot] = useState<MonitorCardHeaderSlot>({});
   const timeLabel = slot.timeText ?? (slot.time != null ? formatMonitorTime(slot.time) : null);
   const kind = slot.state?.kind;
   const pillLabel = kind && kind !== "delay" ? slot.state?.label : undefined;
   return (
-    <section className="mtp-mcard" data-widget={widgetId} aria-label={title}>
-      <header className="mtp-mcard__head">
+    <section className={bare ? "mtp-mcard mtp-mcard--bare" : "mtp-mcard"} data-widget={widgetId} aria-label={title}>
+      {!bare && <header className="mtp-mcard__head">
         <span className="mtp-mcard__title">
           <span className="mtp-mcard__zh">{title}</span>
           <span className="mtp-mcard__en">{en}</span>
@@ -89,7 +91,7 @@ export function MonitorCardFrame({
             )}
           </span>
         )}
-      </header>
+      </header>}
       <div className="mtp-mcard__body">
         <HeaderSlotContext.Provider value={setSlot}>{children}</HeaderSlotContext.Provider>
       </div>

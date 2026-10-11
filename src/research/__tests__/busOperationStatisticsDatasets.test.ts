@@ -51,7 +51,7 @@ describe("bus operation statistics datasets", () => {
     const release = electricRecipe.release_options[0]!;
     const result = await executor.execute({ datasetId: busOperationStatisticsDatasetId(electricRecipe), parameters: { releaseId: release.release_id }, select: ["area_code", "value", "status", "source_status", "source_token", "dimensions", "boundary_version"] });
 
-    expect(load).toHaveBeenCalledWith(expect.objectContaining({ datasetId: electricRecipe.dataset_id, indicatorId: electricRecipe.indicator_id, level: "county", dimensions: release.dimensions, releaseId: release.release_id, layerKey: electricRecipe.layer_key, allowReleaseFallback: false }), undefined);
+    expect(load).toHaveBeenCalledWith(expect.objectContaining({ datasetId: electricRecipe.dataset_id, indicatorId: electricRecipe.indicator_id, level: "county", dimensions: release.dimensions, releaseId: release.release_id, layerKey: electricRecipe.layer_key, allowReleaseFallback: false }), expect.any(AbortSignal));
     expect(result.rows).toEqual(expect.arrayContaining([
       expect.objectContaining({ area_code: "63000", value: 0, status: "observed" }),
       expect.objectContaining({ area_code: "65000", value: null, status: "missing", source_status: "missing", source_token: "null" }),

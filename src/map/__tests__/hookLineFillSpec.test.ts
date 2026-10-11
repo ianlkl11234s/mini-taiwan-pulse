@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { hookFillPaint, hookLinePaint, valueAtZ14, withLineFillSpec } from "../lineFillSpec";
 import { HOOK_FILL_TIERS, HOOK_LINE_TIERS } from "../lineFillTiers";
-import { FILL_OPACITY, LINE_OPACITY, LINE_WIDTH, mapSeamColor } from "../mapStyleScale";
+import { BOUNDARY_GRAY, FILL_OPACITY, FILL_OUTLINE, LINE_OPACITY, LINE_WIDTH, mapSeamColor } from "../mapStyleScale";
 import type { OverlayConfig } from "../../types";
 
 const base = { "line-width": 2, "line-opacity": 0.5, "line-color": "#abc", "line-dasharray": [2, 1] };
@@ -58,5 +58,58 @@ describe("R3b hook line/fill contract", () => {
     }
     const missing = [...files].filter(file => !/hook(?:Line|Fill)/.test(readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8")));
     expect(missing).toEqual([]);
+  });
+  it("F-2 outlines for agriculture and JP water fills (review F202/F203)", () => {
+    const line = { "line-color": "#123456", "line-opacity": 0.3, "line-width": 1 };
+    for (const [key, id] of [["agriSoil", "agri-soil-outline"], ["agriLeisureFarmZones", "agri-leisure-farm-zones-outline"],
+      ["agriRuralRegen", "agri-rural-regen-outline"], ["jpWaterLakes", "jp-water-jpWaterLakes-outline"]] as const) {
+      const p = hookLinePaint(key, id, line, line);
+      expect(p["line-width"], id).toBe(FILL_OUTLINE.coverage.width);
+      expect(p["line-opacity"], id).toBeCloseTo(FILL_OUTLINE.coverage.opacity);
+      expect(p["line-color"], id).toBe("#123456");
+      expect(Number(hookLinePaint(key, id, { ...line, "line-opacity": 0.15 }, line)["line-opacity"]), id).toBeCloseTo(FILL_OUTLINE.coverage.opacity / 2);
+    }
+    for (const dark of [true, false]) {
+      const p = hookLinePaint("jpWaterSupplyAreas", "jp-water-jpWaterSupplyAreas-outline", line, line, dark);
+      expect(p["line-width"]).toBe(FILL_OUTLINE.background.width);
+      expect(p["line-color"]).toBe(BOUNDARY_GRAY[dark ? "dark" : "light"]);
+      expect(p["line-opacity"]).toBeCloseTo(FILL_OUTLINE.background.opacity);
+    }
+  });
+
+  it("F177：fill-opacity 的 zoom gate 只縮放輸出值、不被 z14 純量取代", () => {
+    const fade = ["interpolate", ["linear"], ["zoom"], 6, 0.5, 10, 0] as unknown;
+    const c = {
+      id: "aquacultureWaterSatellite",
+      layers: [{ suffix: "fill", type: "fill", paint: () => ({ "fill-opacity": fade }) }],
+    } as unknown as OverlayConfig;
+    const wrapped = withLineFillSpec(c).layers[0]!.paint(true, {})["fill-opacity"] as unknown[];
+    expect(wrapped.slice(0, 4)).toEqual(["interpolate", ["linear"], ["zoom"], 6]);
+    expect(wrapped[6]).toBe(0);
+    expect(typeof wrapped[4]).toBe("number");
+  });
+
+  it("F178：資料驅動的外框 line-opacity 保留，不被 coverage 固定值蓋掉", () => {
+    const op = ["case", ["==", ["get", "hidden"], 1], 0, 0.8];
+    const c = {
+      id: "aquacultureWaterSatellite",
+      layers: [
+        { suffix: "fill", type: "fill", paint: () => ({ "fill-opacity": 0.5 }) },
+        { suffix: "outline", type: "line", paint: () => ({ "line-width": 1, "line-opacity": op }) },
+      ],
+    } as unknown as OverlayConfig;
+    expect(withLineFillSpec(c).layers[1]!.paint(true, {})["line-opacity"]).toEqual(op);
+  });
+
+  it("F180／F184：isobath/line 不被當面外框正規化", () => {
+    const linePaint = { "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.4, 12, 2.2], "line-opacity": 0.85 };
+    const c = {
+      id: "isobath",
+      layers: [
+        { suffix: "fill", type: "fill", paint: () => ({ "fill-opacity": 0.35 }) },
+        { suffix: "line", type: "line", paint: () => linePaint },
+      ],
+    } as unknown as OverlayConfig;
+    expect(withLineFillSpec(c).layers[1]!.paint(true, {})).toEqual(linePaint);
   });
 });

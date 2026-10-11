@@ -90,4 +90,10 @@ describe("BSS 橋梁研究 owner-only PMTiles 契約", () => {
     expect(passes(original, { geometry_role: "original_direction_line", facility_class_candidate: "road_elevated_or_expressway_review" })).toBe(true);
     expect(passes(original, { geometry_role: "original_direction_line", facility_class_candidate: "road_unresolved" })).toBe(false);
   });
+
+  it("所有保留的線 role（含 stage1 候選）都用 v5 分類配色，與圖例四色一致", () => {
+    const lines = buildBssBridgeLayers(STATE).filter((layer) => layer.type === "line");
+    expect(lines.length).toBeGreaterThan(0);
+    for (const layer of lines) expect((layer.paint as Record<string, unknown>)["line-color"], layer.id).toEqual(bssBridgeV5LineColorExpression);
+  });
 });

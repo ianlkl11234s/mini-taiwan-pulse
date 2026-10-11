@@ -79,14 +79,17 @@ export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
   const apo = catalog?.apogee_km != null ? Math.round(catalog.apogee_km) : null;
   const title = twLocale ? twLocale.zh : (catalog?.name || `衛星編號 ${norad}`);
 
+  const cardLeft = docked ? PANEL_LEFT + PANEL_WIDTH + CARD_GAP : PANEL_LEFT;
+
   return (
     <div
       style={{
         position: "fixed",
-        left: docked ? PANEL_LEFT + PANEL_WIDTH + CARD_GAP : PANEL_LEFT,
+        left: cardLeft,
         top: LAYOUT.leftDockTop,
         width: 380,
-        maxWidth: "calc(100vw - 16px)",
+        // 扣掉左緣偏移：窄螢幕（390px）卡片不會從右側溢出
+        maxWidth: `calc(100vw - ${cardLeft}px - 8px)`,
         maxHeight: "calc(100vh - 112px)",
         background: p.panelBg,
         backdropFilter: "blur(16px)",

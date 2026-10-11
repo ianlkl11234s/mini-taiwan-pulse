@@ -97,9 +97,18 @@ function setData(map: MapboxMap, events: FireEvent[]) {
   src.setData(fc);
 }
 
-function setVisible(map: MapboxMap, visible: boolean) {
-  if (map.getLayer(HEATMAP_LAYER_ID)) map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", visible ? "visible" : "none");
+/**
+ * sparse＝月／日粒度的子集：熱區強度是依全年校準的，少量點在 z<10 會只剩幾乎看不見的熱區，
+ * 所以稀疏子集全縮放都畫圓點、關掉熱區；全年才用「z<10 熱區、z≥10 點」。
+ */
+export function fireEventsSparse(granularity: HistoricalGranularity): boolean {
+  return granularity !== "year";
+}
+
+function setVisible(map: MapboxMap, visible: boolean, sparse = false) {
+  if (map.getLayer(HEATMAP_LAYER_ID)) map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", visible && !sparse ? "visible" : "none");
   if (!map.getLayer(LAYER_ID)) return;
+  map.setLayerZoomRange(LAYER_ID, sparse ? 0 : POINTS_FROM_ZOOM, 24);
   map.setLayoutProperty(LAYER_ID, "visibility", visible ? "visible" : "none");
 }
 
@@ -174,7 +183,7 @@ export function useFireEventsLayer(
         return;
       }
       if (!visible) {
-        setVisible(map, false);
+        setVisible(map, false, fireEventsSparse(granularity));
         return;
       }
       // 年份變才重抓；其餘粒度切換僅 re-filter 本機快取
@@ -186,18 +195,20 @@ export function useFireEventsLayer(
       }
       const filtered = filterByGranularity(yearEventsRef.current, granularity, month, day);
       setData(map, filtered);
-      setVisible(map, true);
+      setVisible(map, true, fireEventsSparse(granularity));
     };
     run();
 
     // 換底圖（setStyle）會清掉自訂 source/layer：用已快取資料重建，不重新抓
     const onStyleLoad = () => {
-      if (!visible || lastYearRef.current !== year) return;
+      if (!visible) return;
       try {
+        // 不論請求是否完成都先重建空圖層，等請求回來 setData／setVisible 才有 source 可寫
         ensureLayer(map, styleRef.current.isDarkTheme);
         updateOpacity(map, styleRef.current.isDarkTheme, styleRef.current.opacity);
+        if (lastYearRef.current !== year) return;
         setData(map, filterByGranularity(yearEventsRef.current, granularity, month, day));
-        setVisible(map, true);
+        setVisible(map, true, fireEventsSparse(granularity));
       } catch { /* style 尚未就緒，下次 style.load 再試 */ }
     };
     map.on("style.load", onStyleLoad);

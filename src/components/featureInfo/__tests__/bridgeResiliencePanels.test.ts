@@ -99,6 +99,25 @@ describe("雙北跨河橋梁韌性 popup（不分遠近）", () => {
     expect(html).toContain("屬上界");
     expect(html).toContain("交流道匝道一併移除");
   });
+  it("孤立人口實測 0 要顯示 0 人，不整列隱藏", () => {
+    bridgeResilienceDataStore.set(DATA);
+    expect(render("三鶯大橋")).toMatch(/孤立人口.*0 人/);
+  });
+  it("entry 缺所選模式摘要時顯示「未提供」，不輸出「路徑上其他橋：無」", () => {
+    bridgeResilienceDataStore.set(DATA);
+    layerParamsStore.setParam(BRIDGE_RESILIENCE_KEY, "bridgeResilienceMode", "scooter");
+    const html = render("平陽橋");
+    expect(html).toContain("模式未提供");
+    expect(html).not.toContain("路徑上其他橋：");
+  });
+  it("非 ok 模式（路網未收此橋）時，說明區不再列替代橋與平均多花時間", () => {
+    bridgeResilienceDataStore.set(DATA);
+    const html = render("華翠大橋");
+    expect(html).toContain("路網未收此橋");
+    expect(html).not.toContain("平均多花時間");
+    expect(html).not.toContain("替代橋（同河");
+    expect(html).not.toContain("只畫戶籍權重最大");
+  });
   it("替代橋前 3 名、空陣列回「無」", () => {
     expect(altBridgesText([])).toBe("無");
     expect(altBridgesText(undefined)).toBe("無");

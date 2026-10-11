@@ -518,7 +518,7 @@ type ResolvedAtlasValue = {
  * 即時值：`internet_health_current` 指向的常是還沒收完的桶。即時那一桶的回報探針數
  * 達門檻才用即時值，否則改用 24H 歷史裡最近一個完整桶；都沒有就留空，不拿殘缺值充數。
  */
-function resolveAtlasValue(
+export function resolveAtlasValue(
   metric: AtlasMetric,
   family: 4 | 6,
   atlas: InternetHealthMeasurement[],
@@ -528,7 +528,7 @@ function resolveAtlasValue(
   const measurement = atlas.find((item) => item.signal === `${metric}_ipv${family}`);
   const probeRow = atlas.find((item) => item.signal === `ping_success_ratio_ipv${family}`)
     ?? atlas.find((item) => item.signal === `probe_connectivity_ratio_ipv${family}`);
-  if (measurement?.value != null && probeRow && isCompleteProbeCount(family, probeRow.sample_count)) {
+  if (measurement?.value != null && measurement.freshness === "fresh" && measurement.state === "available" && probeRow && isCompleteProbeCount(family, probeRow.sample_count)) {
     return { value: measurement.unit === "ratio" ? measurement.value * 100 : measurement.value, completeAt: null, measurement };
   }
   const summary = day?.[metric];

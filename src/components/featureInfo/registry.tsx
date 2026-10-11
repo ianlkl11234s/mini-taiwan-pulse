@@ -1,3 +1,4 @@
+import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
@@ -420,6 +421,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
   jpPoliceFacilities: JpPoliceFacilitiesPanel,
+  jmaAmedas: JmaAmedasPanel,
+  jmaWarnings: JmaWarningsPanel,
+  jmaQuakes: JmaQuakesPanel,
+  jmaVolcanoes: JmaVolcanoesPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
   jpWaterLakes: JpWaterPanel,
@@ -943,6 +948,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   historicalFlightTrails: "歷史航班軌跡（台灣）",
   jpHistoricalFlightTrails: "歷史航班軌跡（日本）",
   jpPoliceFacilities: "警察設施 警察施設",
+  jmaAmedas: "AMeDAS 即時觀測 アメダス",
+  jmaWarnings: "警報・注意報",
+  jmaQuakes: "地震 地震情報",
+  jmaVolcanoes: "火山警戒 噴火警戒レベル",
   jpSchools: "學校 学校",
   jpPopulationMesh1km: "人口網格 人口メッシュ",
   jpAccommodationCanonical: "旅宿去重總覽 宿泊施設の統合一覧",

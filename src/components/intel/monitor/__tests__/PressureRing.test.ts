@@ -44,6 +44,18 @@ describe("TwseTicker stale presentation", () => {
   });
 });
 
+describe("TwseTicker 缺值", () => {
+  it("legacy：change_pct 為 null 時不顯示成 0%", () => {
+    const text = textOf(TwseTicker({ data: { ...market, change_pct: null }, status: "ready", lastSuccessAt: Date.now(), open: false }));
+    expect(text).toContain("22,000");
+    expect(text).not.toMatch(/\+?0%/);
+  });
+  it("legacy：high／low 為 null 顯示 —，不是 0", () => {
+    const text = textOf(TwseTicker({ data: { ...market, high: null, low: null }, status: "ready", lastSuccessAt: Date.now(), open: false }));
+    expect(text).not.toMatch(/H\s*0|L\s*0/);
+  });
+});
+
 describe("marketDataMs", () => {
   it("combines the history trade_date with the RPC HH:MM (Taipei), never today's date", () => {
     expect(marketDataMs("2026-09-30", "13:30")).toBe(Date.parse("2026-09-30T13:30:00+08:00"));

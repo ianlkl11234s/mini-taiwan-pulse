@@ -46,6 +46,27 @@ const LOCAL_HEATMAP: Partial<Record<typeof LOCAL_KEYS[number], { pointsFromZoom:
   jpWaterAgriculturalPonds: { pointsFromZoom: densePointsFromZoom(161_778), intensity: AGRI_HEATMAP_INTENSITY },
 };
 const heatmapLayerId = (key: JpWaterVisibleKey) => `jp-water-${key}-heatmap`;
+/** F-2 面外框（獨立 line 子圖層，不用 fill-outline-color）：湖＝覆蓋面同色；供水區域＝背景面中性灰。 */
+const OUTLINED_KEYS = ["jpWaterLakes", "jpWaterSupplyAreas"] as const;
+type OutlinedKey = typeof OUTLINED_KEYS[number];
+const outlineId = (key: OutlinedKey) => `jp-water-${key}-outline`;
+function outlinePaint(key: OutlinedKey, opacity: number, isDark: boolean) {
+  const color = key === "jpWaterLakes" ? RELEASED_COLORS.jpWaterLakes : LOCAL.jpWaterSupplyAreas.color;
+  const def = Number(paramDefault(key, `${key}Opacity`) ?? 1);
+  return hookLinePaint(key, outlineId(key), { "line-color": color, "line-opacity": clamp(opacity), "line-width": 1 }, { "line-color": color, "line-opacity": def, "line-width": 1 }, isDark);
+}
+/** 建立（來源已在）並同步外框的顯示與 paint；不可見且圖層不存在時什麼都不做。 */
+function syncOutline(map: MapboxMap, key: OutlinedKey, visible: boolean, opacity: number, isDark: boolean) {
+  const id = outlineId(key);
+  if (!visible) { if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none"); return; }
+  if (!map.getLayer(id)) {
+    const local = key === "jpWaterSupplyAreas" ? LOCAL[key] : null;
+    map.addLayer({ id, type: "line", source: local ? sourceId(local.archive) : geoSourceId("jpWaterLakes"), ...(local ? { "source-layer": local.sourceLayer } : {}), layout: { visibility: "none", ...hookLineLayout(key, id) }, paint: outlinePaint(key, opacity, isDark) } as LineLayer);
+  }
+  map.setLayoutProperty(id, "visibility", "visible");
+  const paint = outlinePaint(key, opacity, isDark);
+  for (const prop of ["line-color", "line-width", "line-opacity"] as const) map.setPaintProperty(id, prop, paint[prop] as never);
+}
 const HEAT_KEYS: readonly string[] = Object.keys(LOCAL_HEATMAP);
 const heatScale = (key: JpWaterVisibleKey, opacity: number) => clamp(opacity) / Number(paramDefault(key, `${key}Opacity`) ?? 1);
 /** G-2 熱區：與點同 source-layer，畫在出點縮放以下，不可點擊。 */
@@ -101,7 +122,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
     const map = mapRef.current; if (!map) return;
     const removeArchive = (archive: JpWaterLocalArchive) => {
       const archiveKeys = LOCAL_KEYS.filter((key) => LOCAL[key].archive === archive);
-      archiveKeys.forEach((key) => { for (const id of [layerId(key), heatmapLayerId(key)]) { try { if (map.getLayer(id)) map.removeLayer(id); } catch { /* style replaced */ } } });
+      archiveKeys.forEach((key) => { for (const id of [layerId(key), heatmapLayerId(key), `jp-water-${key}-outline`]) { try { if (map.getLayer(id)) map.removeLayer(id); } catch { /* style replaced */ } } });
       try { if (map.getSource(sourceId(archive))) map.removeSource(sourceId(archive)); } catch { /* style replaced */ }
     };
     const denyPrivateAccess = () => {
@@ -111,7 +132,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
     };
     const mount = () => {
       const isDark = isDarkTheme;
-      RELEASED_KEYS.forEach((key) => { const data = geoData.current[key]; if (!visibility[key] || !data) { if (map.getLayer(layerId(key))) map.setLayoutProperty(layerId(key), "visibility", "none"); return; } if (!map.getSource(geoSourceId(key))) map.addSource(geoSourceId(key), { type: "geojson", data }); if (!map.getLayer(layerId(key))) map.addLayer(releasedLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", "visible"); map.setPaintProperty(layerId(key), key === "jpWaterLakes" ? "fill-opacity" : "circle-opacity", key === "jpWaterLakes" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), Number(paramDefault(key, `${key}Opacity`) ?? 1)) : clamp(opacity[key])); if (key !== "jpWaterLakes") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
+      RELEASED_KEYS.forEach((key) => { const data = geoData.current[key]; if (!visibility[key] || !data) { if (map.getLayer(layerId(key))) map.setLayoutProperty(layerId(key), "visibility", "none"); if (key === "jpWaterLakes") syncOutline(map, key, false, opacity[key], isDark); return; } if (!map.getSource(geoSourceId(key))) map.addSource(geoSourceId(key), { type: "geojson", data }); if (!map.getLayer(layerId(key))) map.addLayer(releasedLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", "visible"); map.setPaintProperty(layerId(key), key === "jpWaterLakes" ? "fill-opacity" : "circle-opacity", key === "jpWaterLakes" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), Number(paramDefault(key, `${key}Opacity`) ?? 1)) : clamp(opacity[key])); if (key === "jpWaterLakes") syncOutline(map, key, true, opacity[key], isDark); if (key !== "jpWaterLakes") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
       (["water", "extra-water"] as const).forEach((archive) => {
         const archiveKeys = LOCAL_KEYS.filter((key) => LOCAL[key].archive === archive);
         const archiveVisible = archiveKeys.some((key) => visibility[key]);
@@ -144,7 +165,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
             map.setLayoutProperty(heat.id, "visibility", visibility[key] ? "visible" : "none");
             applyHeatmapStyle(map, heat.id, key, isDark, heatScale(key, opacity[key]));
           }
-          if (!map.getLayer(layerId(key))) map.addLayer(localLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", visibility[key] ? "visible" : "none"); const paint = LOCAL[key].kind === "line" ? "line-opacity" : LOCAL[key].kind === "fill" ? "fill-opacity" : "circle-opacity"; const def = Number(paramDefault(key, `${key}Opacity`) ?? 1); const value = LOCAL[key].kind === "line" ? hookLineOpacity(key, layerId(key), clamp(opacity[key]), def, isDark) : LOCAL[key].kind === "fill" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), def) : clamp(opacity[key]); map.setPaintProperty(layerId(key), paint, value); if (LOCAL[key].kind === "circle") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
+          if (!map.getLayer(layerId(key))) map.addLayer(localLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", visibility[key] ? "visible" : "none"); const paint = LOCAL[key].kind === "line" ? "line-opacity" : LOCAL[key].kind === "fill" ? "fill-opacity" : "circle-opacity"; const def = Number(paramDefault(key, `${key}Opacity`) ?? 1); const value = LOCAL[key].kind === "line" ? hookLineOpacity(key, layerId(key), clamp(opacity[key]), def, isDark) : LOCAL[key].kind === "fill" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), def) : clamp(opacity[key]); map.setPaintProperty(layerId(key), paint, value); if (key === "jpWaterSupplyAreas") syncOutline(map, key, visibility[key], opacity[key], isDark); if (LOCAL[key].kind === "circle") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
       });
       const floodSource = "jp-water-flood-hazard-source"; const floodLayer = layerId("jpWaterFloodHazard");
       const floodWasVisible = map.getLayer(floodLayer) && map.getLayoutProperty(floodLayer, "visibility") === "visible";

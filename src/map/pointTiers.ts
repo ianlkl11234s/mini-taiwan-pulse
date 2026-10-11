@@ -42,6 +42,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   // ── 大 L（半徑 6.5） · 10 層
   coalTerminal: "L", // 煤炭碼頭 Coal Terminal
   erHospital: "L", // 急診壅塞 ER
+  jmaVolcanoes: "L", // 火山警戒 噴火警戒レベル
   fossilFuelInfra: "L", // 石化能源設施 Fossil Fuel (legacy)
   gasStationCanonical: "L", // 加油站 SSOT 合併 Canonical
   gasStationOther: "L", // 加油站 其他 / 私營 Other
@@ -52,6 +53,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   serviceArea: "L", // 國道服務區 Service Area
   // ── 泡泡（依資料） · 43 層
   a1AccidentRealtime: "B", // A1 即時事故 A1 Realtime
+  jmaQuakes: "B", // 半徑＝規模 · 日本地震 地震情報
   antiCorruptionOffice: "B", // 廉政署 AAC
   coastGuardStation: "B", // 海巡 Coast Guard
   commonRegistrationAddresses: "B", // 共同登記地址 Shared Address
@@ -186,6 +188,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   pm25ManualStations: "M", // PM2.5 手動採樣站 PM2.5 Manual
   dioxinStations: "M", // 環境空氣戴奧辛測站 Dioxin
   incineratorEmissions: "M", // 焚化廠空污監測 Incinerators
+  jmaAmedas: "M", // AMeDAS 即時觀測 アメダス
   nuscGammaRadiation: "M", // 環境輻射（核安會） Gamma
   waterEffluentLive: "M", // 放流水連線監測 Effluent
   cemsStackLive: "M", // 煙道 CEMS 連線監測 CEMS
