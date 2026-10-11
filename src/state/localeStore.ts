@@ -1,7 +1,9 @@
 /**
  * 目前介面語系（i18n）。
  *
- * 決定順序：URL `?lang=` ＞ localStorage ＞ 瀏覽器語言 ＞ 預設 zh-TW。
+ * 決定順序：URL `?lang=` ＞ localStorage ＞ 預設 zh-TW。
+ * 試點期間**不看瀏覽器語言**：大部分畫面還是中文，自動切換會讓外文瀏覽器使用者看到
+ * 半中半外的介面。翻譯覆蓋夠了再決定要不要加回 navigator.languages。
  * URL 不受 urlState 的 `v=1` 版本閘門限制 —— `?lang=en` 單獨出現也要生效，
  * 方便直接分享英文／日文版連結。
  *
@@ -26,7 +28,13 @@ function mergeModules(modules: Record<string, Messages>): Messages {
 const loaded = new Map<Locale, Messages>([[DEFAULT_LOCALE, defaultMessages]]);
 const pending = new Map<Locale, Promise<void>>();
 
+/** 載入語系本身與它的回退語系（ja 缺字要能回退到 en，en 也得先載入）。 */
 function loadLocale(locale: Locale): Promise<void> {
+  const chain = [locale, ...LOCALES[locale].fallback].filter(isLocale);
+  return Promise.all(chain.map(loadOne)).then(() => undefined);
+}
+
+function loadOne(locale: Locale): Promise<void> {
   if (loaded.has(locale)) return Promise.resolve();
   const existing = pending.get(locale);
   if (existing) return existing;
@@ -50,12 +58,6 @@ function readInitialLocale(): Locale {
     const saved = typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (isLocale(saved)) return saved;
   } catch { /* private mode：忽略 */ }
-  if (typeof navigator !== "undefined") {
-    for (const tag of navigator.languages ?? [navigator.language]) {
-      const matched = matchLocale(tag);
-      if (matched) return matched;
-    }
-  }
   return DEFAULT_LOCALE;
 }
 
@@ -86,8 +88,9 @@ function publish(next: LocaleSnapshot) {
 }
 
 function activate(locale: Locale) {
-  publish(buildSnapshot(locale, loaded.has(locale) ? locale : snapshot.active));
-  if (loaded.has(locale)) return;
+  const ready = [locale, ...LOCALES[locale].fallback].filter(isLocale).every((code) => loaded.has(code));
+  publish(buildSnapshot(locale, ready ? locale : snapshot.active));
+  if (ready) return;
   void loadLocale(locale).then(
     () => { if (snapshot.locale === locale) publish(buildSnapshot(locale, locale)); },
     () => { /* 網路失敗：維持目前語系，下次切換再試 */ },
