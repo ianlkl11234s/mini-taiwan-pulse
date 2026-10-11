@@ -70,6 +70,8 @@ const ALL_OFF: ThreeStereoToggles = {
   thsrPillarVisible: false, traPillarVisible: false, metroPillarVisible: false,
   airportPillarVisible: false, portPillarVisible: false,
   tempExtruded: false, wfMonitoring3D: false,
+  // R6 段 3 的移動物件開關（列車顯示中但軌道 2D、兩層立體效果關）
+  railTrainVisible: true, railTrain3D: false, railTrack3D: false, wasteTruck3D: false,
   // R6 段 2
   wfIncinerator3D: false, wfLandfill3D: false, wfLandfillCoastal3D: false, wfTransfer3D: false, wfMedical3D: false,
 };
@@ -101,8 +103,8 @@ describe("R6 段 1：anyThreeLayerVisible 看各層立體效果", () => {
     expect(anyThreeLayerVisible(visOf({}), allOn)).toBe(false);
   });
 
-  it("移動物件不受影響（照舊觸發 bundle）；廢棄物設施段 2 起也看立體效果（見 r6Stage2.test.ts）", () => {
-    for (const key of ["flights", "ships", "rail", "busLive", "wasteTruck"] as const) {
+  it("段 2／3 未納入的移動物件不受影響（照舊觸發 bundle）；廢棄物設施、列車、垃圾車看立體效果（見 r6Stage2／r6Stage3Moving）", () => {
+    for (const key of ["flights", "ships", "busLive"] as const) {
       expect(anyThreeLayerVisible(visOnly(key), ALL_OFF), key).toBe(true);
     }
   });

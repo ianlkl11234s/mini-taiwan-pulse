@@ -1,5 +1,5 @@
 import type { RailSystem, RailTrain, RailStationTime } from "../types";
-import { timeToSeconds, unixToExtendedDaySeconds, interpolateOnLineString } from "./railUtils";
+import { timeToSeconds, unixToExtendedDaySeconds, interpolateWithBearingOnLineString, directedBearing } from "./railUtils";
 
 /**
  * 根據已過時間找到當前所在的區段
@@ -106,6 +106,7 @@ export class RailEngine {
 
           // 計算位置
           let position: [number, number];
+          let bearing: number | null;
           const curStation = dep.stations[seg.stationIndex];
           const nextStation = dep.stations[seg.nextStationIndex];
 
@@ -134,7 +135,13 @@ export class RailEngine {
             } else {
               p = totalStations > 1 ? seg.stationIndex / (totalStations - 1) : 0;
             }
-            position = interpolateOnLineString(coords, p);
+            // R6 段 3：停站時箭頭朝下一站方向
+            const nextP = nextStation
+              ? fixLoopProgress(getProgress(nextStation.station_id, seg.nextStationIndex), seg.nextStationIndex)
+              : p;
+            const r = interpolateWithBearingOnLineString(coords, p);
+            position = r.position;
+            bearing = directedBearing(r.bearing, nextP < p);
           } else {
             let fromP: number;
             if (curStation) {
@@ -151,7 +158,9 @@ export class RailEngine {
               toP = totalStations > 1 ? seg.nextStationIndex / (totalStations - 1) : 0;
             }
             const actualP = fromP + (toP - fromP) * seg.segmentProgress;
-            position = interpolateOnLineString(coords, actualP);
+            const r = interpolateWithBearingOnLineString(coords, actualP);
+            position = r.position;
+            bearing = directedBearing(r.bearing, toP < fromP);
           }
 
           trains.push({
@@ -161,6 +170,7 @@ export class RailEngine {
             position,
             color,
             status: displayStatus,
+            bearing,
           });
         }
       }

@@ -84764,6 +84764,11 @@
     ],
     "rail": [
       {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": true
+      },
+      {
         "label": "軌道透明度 0.35",
         "max": 1,
         "min": 0.05,
@@ -84790,10 +84795,12 @@
         "label": "軌道",
         "options": [
           {
+            "disabled": false,
             "label": "2D",
             "value": "2d"
           },
           {
+            "disabled": false,
             "label": "3D",
             "value": "3d"
           }
@@ -113597,6 +113604,11 @@
       }
     ],
     "wasteTruck": [
+      {
+        "label": "立體效果",
+        "type": "toggle",
+        "value": true
+      },
       {
         "label": "透明度 1.00",
         "max": 1,

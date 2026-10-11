@@ -160,7 +160,7 @@ const NO_LEGEND_LEDGER = new Set([
   // 燒進 PNG 的 image source）→ 鐵則 2 不適用。
   "groundwaterWells", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
-  "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
+  "agriRuralRegen", "farmRoads", "wasteSchedule", // wasteTruck：R6 段 3 補圖例，移出 ledger
   "wasteScheduleNote", "wasteCleaningSquads", "wasteRoute", "wasteStop",
   // R6 段 2：焚化爐／掩埋場／濱海掩埋／轉運站／醫療已有類別圖例（WasteFacilityLegend），移出 ledger
   "wfMonitoring",

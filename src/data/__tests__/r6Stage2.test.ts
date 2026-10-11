@@ -94,6 +94,7 @@ const ALL_OFF: ThreeStereoToggles = {
   airportPillarVisible: false, portPillarVisible: false,
   tempExtruded: false, wfMonitoring3D: false,
   wfIncinerator3D: false, wfLandfill3D: false, wfLandfillCoastal3D: false, wfTransfer3D: false, wfMedical3D: false,
+  railTrainVisible: false, railTrain3D: false, railTrack3D: false, wasteTruck3D: false,
 };
 const visOnly = (key: keyof LayerVisibility) =>
   new Proxy({ [key]: true }, { get: (t, k) => (t as Record<string | symbol, boolean>)[k] ?? false }) as unknown as LayerVisibility;

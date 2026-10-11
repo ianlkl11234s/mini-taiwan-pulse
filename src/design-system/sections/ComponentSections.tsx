@@ -27,7 +27,7 @@ import { GLOW_LINGER_MS, ResearchActivity } from "../../research/ResearchActivit
 import type { Activity } from "../../research/researchActivity";
 import {
   DARK_LEGEND, LEGEND_SIZE_RING_WIDTH, LEGEND_SWATCH, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendSizeRow, LegendThemeCtx, LegendTitle,
-  SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps,
+  SwatchArrow, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps,
 } from "../../components/legend/legendKit";
 import { LINE_DASH } from "../../map/mapStyleScale";
 import { POWER_OUTPUT_LEGEND_MW, powerOutputRadius, RESERVOIR_CAPACITY_LEGEND_WAN, RESERVOIR_NODATA_COLOR, RESERVOIR_WATER_COLOR, reservoirCapacityRadius } from "../../map/r6FlatEncodings";
@@ -348,6 +348,7 @@ function LegendDemo() {
     <LegendRow swatch={<SwatchLine color="#00897b" dash={LINE_DASH.boundary} />}>海域界（虛線 {LINE_DASH.boundary.join(",")}）</LegendRow>
     <LegendRow swatch={<SwatchHatch kind="missing" />}>缺值</LegendRow>
     <LegendRow swatch={<SwatchHatch kind="suppressed" />}>遮蔽</LegendRow>
+    <LegendRow swatch={<SwatchArrow color="#fbbf24" />}>行進方向箭頭（LG-6，移動物件平面模式拉近）</LegendRow>
     <div style={{ marginTop: 10 }}>
       <LegendTitle zh="人口密度" en="Population density" />
       <SwatchSteps colors={STEP_COLORS} breaks={["0", "500", "2k", "8k", "20k", "40k"]} />
