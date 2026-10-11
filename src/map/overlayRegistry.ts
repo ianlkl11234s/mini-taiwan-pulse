@@ -8,6 +8,7 @@ import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensit
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RADIUS_STOPS, JMA_VOLCANO_LEVELS, jmaAmedasColorExpr, jmaAmedasFilter, jmaAmedasMode, jmaIsNullExpr } from "../data/jmaTypes";
 import { paramDefault } from "../data/layerParamsSpec";
+import { fireStationColorMatch } from "../data/fireTypes";
 import { withPointSpec } from "./pointSpec";
 import { withLineFillSpec } from "./lineFillSpec";
 import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
@@ -2114,7 +2115,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 消防分隊 (全台 22 縣市，677 點) ──
-  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰
+  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰（色號 SSOT = data/fireTypes.ts FIRE_STATION_CATS）
   {
     id: "fireStations",
     sourceUrl: "./geo/fire_stations.geojson",
@@ -2140,13 +2141,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               7, catR(2 * scale), 11, catR(5 * scale), 14, catR(9 * scale), 17, catR(14 * scale),
             ] as unknown as number,
             "circle-blur": 1,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             // 散點 toggle 關閉 → opacity 0（仍可被 queryRenderedFeatures 命中 → popup 照常）
             "circle-opacity": (isDark ? 0.16 : 0.2) * opacity * (p?.fireStationsDots ?? 1),
             "circle-translate": [0, -z],
@@ -2172,13 +2167,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               7, catR(1 * scale), 11, catR(2.2 * scale), 14, catR(4 * scale), 17, catR(6.5 * scale),
             ] as unknown as number,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.9)",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],

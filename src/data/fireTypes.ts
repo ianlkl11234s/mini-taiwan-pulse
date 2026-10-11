@@ -62,5 +62,20 @@ export const fireIsochroneLabel = (minutes: number): string =>
 export const fireStationColor = (cat: string): string =>
   FIRE_STATION_CATS.find((c) => c.cat === cat)?.color ?? "#bdbdbd";
 
+/**
+ * 消防分隊 paint 的 circle-color match 表達式，由 FIRE_STATION_CATS 展開
+ * （map-layers.md LG-1：圖例色號與 paint 同一常數）。「其他」一級當 fallback。
+ */
+export function fireStationColorMatch(): unknown[] {
+  const expr: unknown[] = ["match", ["get", "cat"]];
+  let fallback = "#bdbdbd";
+  for (const c of FIRE_STATION_CATS) {
+    if (c.cat === "其他") fallback = c.color;
+    else expr.push(c.cat, c.color);
+  }
+  expr.push(fallback);
+  return expr;
+}
+
 export const fireHydrantColor = (cat: string): string =>
   FIRE_HYDRANT_CATS.find((c) => c.cat === cat)?.color ?? "#90a4ae";

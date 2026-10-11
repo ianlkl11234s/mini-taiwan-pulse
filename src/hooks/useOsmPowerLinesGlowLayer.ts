@@ -41,6 +41,8 @@ export function useOsmPowerLinesGlowLayer(
       return;
     }
     const tryMount = () => {
+      // R6 段 1：不可見（含「立體效果」關）時不掛 Three 層；cleanup 已在 visible 變動時移除
+      if (!visibleRef.current) return;
       if (map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) return;
       try {
         // C1b：three 模組第一次可見才載入；錨點佔住原位置

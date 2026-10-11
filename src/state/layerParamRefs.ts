@@ -139,6 +139,7 @@ export const layerParamRefs = {
   wasteTruckOpacity: ref(1), wasteScheduleOpacity: ref(1),
   fireStationsScale: ref(0), fireStationsOpacity: ref(0), fireStations3D: ref(false),
   wasteSubParams: ref<Record<string, WasteSubParams>>({}),
+  wfMonitoring3D: ref(false),
   beamVisible: ref(false), beamDistance: ref(0), beamOpacity: ref(0),
   thsrPillarVisible: ref(false), thsrPillarHeight: ref(0), thsrOpacity: ref(1),
   traPillarVisible: ref(false), traPillarHeight: ref(0), traOpacity: ref(1),
@@ -210,6 +211,7 @@ function sync(): void {
   r.fireStationsScale.current = rNum(a, "fireStations", "fireStationsScale");
   r.fireStationsOpacity.current = rNum(a, "fireStations", "fireStationsOpacity");
   r.fireStations3D.current = rBool(a, "fireStations", "fireStations3D");
+  r.wfMonitoring3D.current = rBool(a, "wfMonitoring", "wfMonitoring3D");
 
   r.tempHeight.current = rNum(a, "temperatureWave", "tempHeight");
   r.tempZOffset.current = rNum(a, "temperatureWave", "tempZOffset");

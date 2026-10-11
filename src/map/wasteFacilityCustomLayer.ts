@@ -150,7 +150,10 @@ export function createWasteFacilityLayer(opts: WasteFacilityLayerOptions): Custo
 
     pickFacility(sx, sy, vw, vh) {
       let best: { key: WasteFacility3DKey; row: WasteFacilityRow; dist: number } | null = null;
+      // 只 pick 目前有畫的子場景（R6：監測井立體效果關時，隱形 scene 不可攔截點擊）
+      const vis = opts.getVisibility();
       for (const k of ALL_KEYS) {
+        if (!vis[k]) continue;
         const row = scenes[k].pick(sx, sy, vw, vh);
         if (row) {
           // 用 threshold 內最近的（pick 內部已過濾）

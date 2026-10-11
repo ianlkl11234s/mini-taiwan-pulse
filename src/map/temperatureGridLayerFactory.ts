@@ -6,7 +6,7 @@ import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
  * 溫度網格 2D（temperatureGrid）— Mapbox 原生 fill 層。
  *
  * 與 3D 溫度波（temperatureWave / TemperatureWaveScene）共用同一份 RPC 資料，
- * 差別只在呈現：這裡把每個陸地 cell 畫成 0.03° 方格，用 11 級 step 色階染色。
+ * 差別只在呈現：這裡把每個陸地 cell 畫成 0.03° 方格，用 10 級 step 色階染色。
  *
  * ⚠️ 幾何只建一次（landIndices 不隨時間變），時間變化一律只走
  * `map.setFeatureState`，絕不重新 setData —— 8k 級 polygon 每幀重建會直接卡死。
@@ -17,6 +17,26 @@ import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
  */
 
 export const TEMPERATURE_GRID_SOURCE_ID = "temperature-grid-src";
+
+/**
+ * R6 段 1（2026-10-05）：溫度波（temperatureWave）「立體效果」關閉時，平面改畫這個 Mapbox 網格。
+ * 網格層 id 是全域唯一，所以由同一支 host 服務兩個 key：
+ * - temperatureGrid 開著 → 行為與以前完全相同（用 temperatureGrid 自己的透明度）
+ * - 只有溫度波開且立體效果關 → 顯示網格，透明度跟溫度波的「透明度」滑桿
+ */
+export function resolveTemperatureGridDisplay(input: {
+  gridOn: boolean;
+  waveOn: boolean;
+  tempExtruded: boolean;
+  gridOpacity: number;
+  waveOpacity: number;
+}): { visible: boolean; opacity: number } {
+  const { gridOn, waveOn, tempExtruded, gridOpacity, waveOpacity } = input;
+  return {
+    visible: gridOn || (waveOn && !tempExtruded),
+    opacity: gridOn ? gridOpacity : waveOpacity,
+  };
+}
 export const TEMPERATURE_GRID_FILL_LAYER_ID = "temperature-grid-fill";
 
 /** feature-state 未設定時的哨兵值（冷於任何實際觀測值） */
@@ -30,7 +50,7 @@ const TEMP_EXPR: ExpressionSpecification = [
 ] as unknown as ExpressionSpecification;
 
 /** ["step", temp, color0, break1, color1, ...] — 由 TEMPERATURE_GRID_BANDS 展開 */
-function buildColorExpr(): ExpressionSpecification {
+export function buildColorExpr(): ExpressionSpecification {
   const step: unknown[] = ["step", TEMP_EXPR, TEMPERATURE_GRID_BANDS[0]!.color];
   for (let i = 1; i < TEMPERATURE_GRID_BANDS.length; i++) {
     const band = TEMPERATURE_GRID_BANDS[i]!;
