@@ -2,7 +2,7 @@ import { Row, Title } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
-import { enumLabel } from "../../i18n/dataText";
+import { displayRocYear, enumLabel } from "../../i18n/dataText";
 import {
   schoolLevelGroupOf, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS,
   REGION_TYPE_COLORS, type RegionType, CAMPUS_LEVEL_COLORS,
@@ -275,7 +275,7 @@ export function EduKindergartenPanel({ props }: { props: Record<string, unknown>
       <Row field="address" value={stripBracketPrefix(props["地址"])} />
       <Row field="phone" value={str(props["電話"])} />
       <Row field="code" value={str(props["代碼"] ?? props["學校代碼"])} />
-      {academicYear ? <Row label={t("popup.education.academicYear")} value={t("popup.education.academicYearValue", { year: academicYear })} /> : null}
+      {academicYear ? <Row label={t("popup.education.academicYear")} value={t("popup.education.academicYearValue", { year: displayRocYear(academicYear, i18n) })} /> : null}
       <GeocodeRow precision={props.precision} />
     </>
   );
@@ -348,7 +348,8 @@ export function EduCramSchoolPanel({ props }: { props: Record<string, unknown> }
  *    並說明三種成因（進修學院／空大 10 歸母校、宗教研修學院 9 不在統計、停辦改名 2）。
  */
 export function EduUniversityStudentsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const total = typeof props.students_total === "number" ? props.students_total : null;
   const male = typeof props.students_male === "number" ? props.students_male : null;
   const female = typeof props.students_female === "number" ? props.students_female : null;
@@ -370,7 +371,7 @@ export function EduUniversityStudentsPanel({ props }: { props: Record<string, un
       <Row label={t("popup.education.schoolSystem")} value={str(props.school_level)} />
       <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
       <Row label={t("popup.education.studentCount")} value={totalLabel} color={accentColor} />
-      {academicYear ? <Row label={t("popup.education.academicYear")} value={t("popup.education.academicYearValue", { year: academicYear })} /> : null}
+      {academicYear ? <Row label={t("popup.education.academicYear")} value={t("popup.education.academicYearValue", { year: displayRocYear(academicYear, i18n) })} /> : null}
       {total == null ? (
         <Note>
           <Rich text={t("popup.education.noStudentNote")} />

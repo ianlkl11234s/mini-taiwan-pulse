@@ -4,7 +4,7 @@ import { BSS_BRIDGE_V5_CLASS_LABELS, BSS_BRIDGE_V5_LINE_COLORS } from "../../dat
 import { PopupDetails, PopupScroll, Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
-import { enumLabel } from "../../i18n/dataText";
+import { displayRocYear, enumLabel } from "../../i18n/dataText";
 
 type L = ReturnType<typeof useLocale>;
 
@@ -351,7 +351,7 @@ export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, 
   const numberText = numberTextWith(i18n);
   return <>
     <Title color="#a855f7">{text(props.name, t("popup.networkStructures.tnTitle"))}</Title>
-    <Row label={t("popup.networkStructures.inspectionYear")} value={isMissing(props.inspection_year_roc) ? t("popup.common.notProvided") : t("popup.networkStructures.inspectionYearValue", { year: text(props.inspection_year_roc) })} />
+    <Row label={t("popup.networkStructures.inspectionYear")} value={isMissing(props.inspection_year_roc) ? t("popup.common.notProvided") : t("popup.networkStructures.inspectionYearValue", { year: displayRocYear(text(props.inspection_year_roc), i18n) })} />
     <Row label={t("popup.networkStructures.inspectorComment")} value={text(props.inspection_comment)} />
     <Row field="district" value={text(props.town)} />
     <Row field="authority" value={text(props.competent_authority)} />

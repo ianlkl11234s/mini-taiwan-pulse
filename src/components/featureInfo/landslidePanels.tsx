@@ -3,7 +3,7 @@ import {
   ANNUAL_DTM_NODATA, ANNUAL_V2_NOTE, LANDSLIDE_LAYER_COLORS, dodRiskColor, highwayCategoryColor, highwayCategoryLabel,
 } from "../../data/landslideTypes";
 import { useLocale } from "../../state/localeStore";
-import { enumLabel } from "../../i18n/dataText";
+import { displayRocYear, enumLabel } from "../../i18n/dataText";
 import type { LocaleSnapshot } from "../../state/localeStore";
 
 /**
@@ -30,7 +30,7 @@ export function LandslideDodAreaPanel({ props }: Props) {
   const dwelling = num(props.dwelling_count);
   return <>
     <Title color={color}>{str(props.settlement_name) || str(props.lslno) || t("popup.landslide.dodAreaTitle")}</Title>
-    <Row label={t("popup.landslide.yearVersion")} value={str(props.year_roc) ? t("popup.landslide.yearEdition", { year: str(props.year_roc) }) : ""} mono />
+    <Row label={t("popup.landslide.yearVersion")} value={str(props.year_roc) ? t("popup.landslide.yearEdition", { year: displayRocYear(str(props.year_roc), i18n) }) : ""} mono />
     <Row label={t("popup.landslide.riskLevel")} value={risk(props.risk, i18n)} color={color} />
     <Row label={t("popup.landslide.residents")} value={[dwelling != null ? t("popup.landslide.households", { count: dwelling, value: formatNumber(dwelling) }) : "", str(props.res_class)].filter(Boolean).join("（") + (dwelling != null && str(props.res_class) ? "）" : "")} />
     <Row label={t("popup.landslide.type")} value={str(props.landslide_type)} />
@@ -50,7 +50,7 @@ export function LandslideDodImpactPanel({ props }: Props) {
   const color = dodRiskColor(props.risk);
   return <>
     <Title color={color}>{t("popup.landslide.dodImpactTitle", { code: str(props.lslno) }).trim()}</Title>
-    <Row label={t("popup.landslide.yearVersion")} value={str(props.year_roc) ? t("popup.landslide.yearEdition", { year: str(props.year_roc) }) : ""} mono />
+    <Row label={t("popup.landslide.yearVersion")} value={str(props.year_roc) ? t("popup.landslide.yearEdition", { year: displayRocYear(str(props.year_roc), i18n) }) : ""} mono />
     <Row label={t("popup.landslide.riskLevel")} value={risk(props.risk, i18n)} color={color} />
     <Row label={t("popup.landslide.householdsCount")} value={fmt(props.total_res, 0, t("popup.landslide.unitHousehold"), i18n)} />
     <Row label={t("popup.landslide.householdClass")} value={str(props.res_class)} />
@@ -95,6 +95,6 @@ export function LandslideAnnualPanel({ props }: Props) {
     <Row label={t("popup.landslide.minDtm")} value={dtm == null ? "" : dtm === ANNUAL_DTM_NODATA ? t("popup.landslide.dtmMissing") : fmt(dtm, 0, t("popup.landslide.unitMeter"), i18n)} />
     <Row label={t("popup.landslide.imageDate")} value={str(props.image_date)} mono />
     {year === 2024 && <Row field="version" value={enumLabel("landslideNote", "annualV2", ANNUAL_V2_NOTE, i18n)} />}
-    <SourceFooter props={{ source_org: enumLabel("landslideSource", "annualOrg", ANNUAL_SOURCE.source_org, i18n), license: enumLabel("landslideSource", "annualLicense", ANNUAL_SOURCE.license, i18n), fetched_at: year != null ? t("popup.landslide.yearEdition", { year }) : "" }} />
+    <SourceFooter props={{ source_org: enumLabel("landslideSource", "annualOrg", ANNUAL_SOURCE.source_org, i18n), license: enumLabel("landslideSource", "annualLicense", ANNUAL_SOURCE.license, i18n), fetched_at: year != null ? t("popup.landslide.yearEdition", { year: displayRocYear(year, i18n) }) : "" }} />
   </>;
 }
