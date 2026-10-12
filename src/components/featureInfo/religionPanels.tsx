@@ -61,10 +61,10 @@ export function TemplePanel({ props }: { props: Record<string, unknown> }) {
       <Row label={tr("popup.religion.mainDeity")} value={deity || familyLabel} color={color} />
       {deity ? <Row label={tr("popup.religion.deityFamily")} value={familyLabel} /> : null}
       <Row label={tr("popup.religion.religionType")} value={str(props.religion_type)} />
-      <Row label={tr("popup.religion.registrationType")} value={str(props.registration_type)} />
+      <Row field="registrationType" value={str(props.registration_type)} />
       <Row label={tr("popup.religion.registryStatus")} value={registryLabel(props.in_moi_registry, i18n)} />
-      {props.heritage_flag === true ? <Row label={tr("popup.religion.heritage")} value={tr("popup.religion.yes")} color="#d4a017" /> : null}
-      {props.is_top100 === true ? <Row label={tr("popup.religion.top100")} value={tr("popup.religion.yes")} color={RELIGION_LAYER_COLORS.religionTop100} /> : null}
+      {props.heritage_flag === true ? <Row label={tr("popup.religion.heritage")} value={tr("popup.common.yes")} color="#d4a017" /> : null}
+      {props.is_top100 === true ? <Row label={tr("popup.religion.top100")} value={tr("popup.common.yes")} color={RELIGION_LAYER_COLORS.religionTop100} /> : null}
       <Row field="county" value={str(props.county)} />
       <Row field="address" value={str(props.address)} />
       {precision && precisionCode !== "original" ? (
@@ -87,7 +87,7 @@ export function ChurchPanel({ props }: { props: Record<string, unknown> }) {
       <Title color={color}>{str(props.name) || tr("popup.religion.unnamedChurch")}</Title>
       {str(props.name_en) ? <Row field="englishName" value={str(props.name_en)} /> : null}
       <Row label={tr("popup.religion.registryStatus")} value={registryLabel(props.in_moi_registry, i18n)} />
-      {props.heritage_flag === true ? <Row label={tr("popup.religion.heritage")} value={tr("popup.religion.yes")} color="#d4a017" /> : null}
+      {props.heritage_flag === true ? <Row label={tr("popup.religion.heritage")} value={tr("popup.common.yes")} color="#d4a017" /> : null}
       <Row field="county" value={str(props.county)} />
       <Row field="address" value={str(props.address)} />
       <OdblNote props={props} />

@@ -17,7 +17,6 @@
   "popup.culture.areaList": "各閲覧エリア（{count}）",
   "popup.culture.trend24h": "24時間の空席推移",
   "popup.culture.closedSuffix": "（休館）",
-  "popup.culture.loading": "読み込み中…",
   "popup.culture.closedGap": "休館時間帯は表示しません",
   "popup.culture.librarySource": "台北市立図書館 · データは10分ごとに更新"
 }

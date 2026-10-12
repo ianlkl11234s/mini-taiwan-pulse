@@ -20,7 +20,7 @@ function inputValue(value: unknown, i18n: LocaleSnapshot): string {
     if (row.status === 'observed' && typeof row.value === 'number') return inputValue(row.value, i18n);
     if (row.status) return t('popup.regionalStatistics.notComputable', { value: String(row.source_token || row.status) });
   }
-  return String(value ?? t('popup.regionalStatistics.noData'));
+  return String(value ?? t('popup.common.noData'));
 }
 
 

@@ -27,6 +27,5 @@
   "popup.landslide.minDtm": "Minimum elevation (DTM)",
   "popup.landslide.dtmMissing": "Missing (no elevation value)",
   "popup.landslide.unitMeter": "m",
-  "popup.landslide.imageDate": "Image date",
-  "popup.landslide.version": "Version"
+  "popup.landslide.imageDate": "Image date"
 }

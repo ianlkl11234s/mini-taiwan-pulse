@@ -21,7 +21,7 @@ function twdWithSnapshot(value: unknown, i18n: I18n): string {
 }
 
 function missing({ t }: I18n): string {
-  return t("popup.businessRegistry.missing");
+  return t("popup.common.missingValue");
 }
 
 function companiesLabel(count: number, { t, formatNumber }: I18n): string {
@@ -50,7 +50,7 @@ export function CommonRegistrationAddressesPanel({ props }: { props: Record<stri
 }
 
 function flag(value: unknown, { t }: I18n): string {
-  return Number(value) === 1 ? t("popup.businessRegistry.yes") : Number(value) === 0 ? t("popup.businessRegistry.no") : "";
+  return Number(value) === 1 ? t("popup.common.yes") : Number(value) === 0 ? t("popup.common.no") : "";
 }
 
 export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }) {
@@ -68,7 +68,7 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
         <Row label={t("popup.businessRegistry.overviewScale")} value={gridScale.label} />
         <Row field="companyCount" value={companies == null ? missing(i18n) : countLabel(companies, i18n)} />
         <Row label={t("popup.businessRegistry.companyDensity")} value={density == null ? missing(i18n) : t("popup.businessRegistry.companyDensityValue", { value: i18n.formatNumber(density, { maximumFractionDigits: 1 }) })} />
-        <Row label={t("popup.businessRegistry.snapshot")} value={t("popup.businessRegistry.overviewNote")} />
+        <Row field="snapshot" value={t("popup.businessRegistry.overviewNote")} />
       </>
     );
   }
@@ -134,7 +134,7 @@ export function IndustrialDensityGridPanel({
     ? `${i18n.formatNumber(props.n_records)} ${recordUnit}`
     : missing(i18n);
   return <>
-    <Row label={t("popup.businessRegistry.gridId")} value={String(props.grid_id ?? "") || missing(i18n)} />
+    <Row field="gridId" value={String(props.grid_id ?? "") || missing(i18n)} />
     <Row field="gridScale" value={gridMeters(props.grid_size_m, i18n)} />
     <Row label={t("popup.businessRegistry.recordsInCell")} value={records} />
     <Row label={t("popup.businessRegistry.density")} value={densityValue(props.density_per_km2, recordUnit, i18n)} />
@@ -151,7 +151,7 @@ export function CompanyCapitalGridPanel({ props }: { props: Record<string, unkno
   return (
     <>
       <Row field="gridScale" value={scale} />
-      <Row label={t("popup.businessRegistry.gridId")} value={gridId} />
+      <Row field="gridId" value={gridId} />
       <Row field="companyCount" value={Number.isFinite(nCompanies) ? companiesLabel(nCompanies, i18n) : ""} />
       <Row label={t("popup.businessRegistry.capitalSum")} value={twdWithSnapshot(props.capital_sum, i18n)} />
       <Row label={t("popup.businessRegistry.capitalMedian")} value={twdWithSnapshot(props.capital_median, i18n) || missing(i18n)} />
@@ -179,7 +179,7 @@ export function CompanyIndustryDistributionPanel({ props }: { props: Record<stri
   const count = values.every((value) => value !== null) ? values.reduce((sum, value) => sum + value!, 0) : null;
   const scale = demographicsScale(props);
   const density = count === null ? null : count / companyGridAreaKm2(scale.areaScale);
-  const label = midCode ? COMPANY_INDUSTRY_MID_OPTIONS.find((option) => option.value === midCode)?.label ?? midCode : companyIndustryGroupLabels(mask).join(t("popup.businessRegistry.listSep")) || t("popup.businessRegistry.noneSelected");
+  const label = midCode ? COMPANY_INDUSTRY_MID_OPTIONS.find((option) => option.value === midCode)?.label ?? midCode : companyIndustryGroupLabels(mask).join(t("popup.common.listSeparator")) || t("popup.businessRegistry.noneSelected");
   const groupRows = midCode ? [] : COMPANY_INDUSTRY_GROUPS.map((group, index) => {
     if ((mask & (1 << index)) === 0) return null;
     const groupValues = companyIndustryFields(1 << index).map((field) => validCount(props[field]));
@@ -225,7 +225,7 @@ export function CompanyAgeStructurePanel({ props }: { props: Record<string, unkn
       return <Row key={field} label={label} value={count === null || known === null || known === 0 ? missing(i18n) : t("popup.businessRegistry.companyWithShare", { count, n: i18n.formatNumber(count), pct: (count / known * 100).toFixed(1) })} />;
     })}
     <Row label={t("popup.businessRegistry.missingInvalidYear")} value={t("popup.businessRegistry.pairSep", { a: validCount(props.age_missing) ?? missing(i18n), b: validCount(props.age_invalid) ?? missing(i18n) })} />
-    <Row label={t("popup.businessRegistry.snapshot")} value={t("popup.businessRegistry.ageNote")} />
+    <Row field="snapshot" value={t("popup.businessRegistry.ageNote")} />
   </>;
 }
 
@@ -266,18 +266,18 @@ export function RegulatedFacilitiesPanel({ props }: { props: Record<string, unkn
   const { t } = i18n;
   return (
     <>
-      <Row label={t("popup.businessRegistry.facilityName")} value={String(props.facility_name ?? "")} />
+      <Row field="facilityName" value={String(props.facility_name ?? "")} />
       <Row label={t("popup.businessRegistry.emsno")} value={String(props.emsno ?? "")} />
       <Row label={t("popup.businessRegistry.facilityAddress")} value={String(props.facility_address ?? "")} />
       <Row field="district" value={[props.county, props.township].filter(Boolean).join(" ")} />
       <Row label={t("popup.businessRegistry.industryArea")} value={String(props.industry_area_name ?? "")} />
-      <Row label={t("popup.businessRegistry.industry")} value={[props.industry_group, props.industry_name].filter(Boolean).join(" / ")} />
+      <Row field="industry" value={[props.industry_group, props.industry_name].filter(Boolean).join(" / ")} />
       <Row label={t("popup.businessRegistry.regAir")} value={flag(props.isair, i18n)} />
       <Row label={t("popup.businessRegistry.regWater")} value={flag(props.iswater, i18n)} />
       <Row label={t("popup.businessRegistry.regWaste")} value={flag(props.iswaste, i18n)} />
       <Row label={t("popup.businessRegistry.regToxic")} value={flag(props.istoxic, i18n)} />
       <Row label={t("popup.businessRegistry.regSoil")} value={flag(props.issoil, i18n)} />
-      <Row label={t("popup.businessRegistry.coordSource")} value={String(props.coord_source ?? "")} />
+      <Row field="coordSource" value={String(props.coord_source ?? "")} />
       <Row label={t("popup.businessRegistry.companyJoined")} value={flag(props.company_joined, i18n)} />
       <Row label={t("popup.businessRegistry.companyName")} value={String(props.company_name ?? "")} />
       <Row label={t("popup.businessRegistry.companyUniformNo")} value={String(props.uniform_no ?? "")} />
@@ -306,7 +306,7 @@ export function IndustrialParkBoundariesPanel({ props }: { props: Record<string,
       <Row label={t("popup.businessRegistry.zoneGrade")} value={String(props.zone_grade ?? "")} />
       <Row label={t("popup.businessRegistry.industryLoad")} value={String(props.industry_load ?? "")} />
       <Row field="area" value={Number.isFinite(area) ? t("popup.businessRegistry.hectares", { value: i18n.formatNumber(area) }) : ""} />
-      <Row label={t("popup.businessRegistry.coordSource")} value={String(props.coord_source ?? "")} />
+      <Row field="coordSource" value={String(props.coord_source ?? "")} />
       <Row field="sourceCount" value={String(props.n_sources ?? "")} />
       <Row label={t("popup.businessRegistry.officialParkId")} value={String(props.official_park_id_80190 ?? "")} />
     </>

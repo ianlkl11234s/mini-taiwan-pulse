@@ -87,7 +87,7 @@ export function TaipeiSewerPanel({ props }: { props: Record<string, unknown> }) 
         {tr("popup.taipeiWic.sewerTrend")}
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>{tr("popup.taipeiWic.loading")}</div>
+        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>{tr("popup.common.loading")}</div>
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor={color} height={120} />
       )}
@@ -172,7 +172,7 @@ export function TaipeiPumbPanel({ props }: { props: Record<string, unknown> }) {
         {tr("popup.taipeiWic.pumpTrend")}
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>{tr("popup.taipeiWic.loading")}</div>
+        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>{tr("popup.common.loading")}</div>
       ) : (
         <TimeseriesSparkline
           data={series}
@@ -198,7 +198,7 @@ export function TaipeiEvacuatePanel({ props }: { props: Record<string, unknown> 
   const obs = String(props.observed_at ?? "");
 
   const stateColor = state === "closed" ? "#ef4444" : state === "faulted" ? "#fbbf24" : state === "open" ? "#22c55e" : "#6b7280";
-  const stateLabel = state === "closed" ? tr("popup.taipeiWic.stateClosed") : state === "faulted" ? tr("popup.taipeiWic.stateFaulted") : state === "open" ? tr("popup.taipeiWic.stateOpen") : tr("popup.taipeiWic.stateUnknown");
+  const stateLabel = state === "closed" ? tr("popup.taipeiWic.stateClosed") : state === "faulted" ? tr("popup.taipeiWic.stateFaulted") : state === "open" ? tr("popup.taipeiWic.stateOpen") : tr("popup.common.unknown");
 
   const renderGate = (idx: 1 | 2) => {
     const fo = String(props[`fo0${idx}`] ?? "");
@@ -268,7 +268,7 @@ export function TaipeiEvacuatePanel({ props }: { props: Record<string, unknown> 
         {tr("popup.taipeiWic.stateChanges")}
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>{tr("popup.taipeiWic.loading")}</div>
+        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>{tr("popup.common.loading")}</div>
       ) : history.length === 0 ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>{tr("popup.taipeiWic.noStateChange")}</div>
       ) : (

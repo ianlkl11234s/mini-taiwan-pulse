@@ -17,7 +17,6 @@
   "popup.culture.areaList": "各閱覽區（{count}）",
   "popup.culture.trend24h": "24h 空位趨勢",
   "popup.culture.closedSuffix": "（休館）",
-  "popup.culture.loading": "載入中…",
   "popup.culture.closedGap": "閉館時段不顯示",
   "popup.culture.librarySource": "臺北市立圖書館 · 資料 10 分鐘更新"
 }

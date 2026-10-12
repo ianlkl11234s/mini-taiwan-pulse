@@ -10,7 +10,7 @@ type L = ReturnType<typeof useLocale>;
 
 function makeFmt(i18n: L) {
   const { t, formatNumber } = i18n;
-  const text = (value: unknown, fallback = t("popup.noise.notProvided")): string => {
+  const text = (value: unknown, fallback = t("popup.common.notProvided")): string => {
     if (value == null || value === "" || value === "null" || value === "undefined") return fallback;
     return String(value);
   };
@@ -20,7 +20,7 @@ function makeFmt(i18n: L) {
   };
   const count = (value: unknown, unit: string): string => {
     const parsed = number(value);
-    return parsed == null ? t("popup.noise.notProvided") : `${formatNumber(parsed)} ${unit}`;
+    return parsed == null ? t("popup.common.notProvided") : `${formatNumber(parsed)} ${unit}`;
   };
   const dateRange = (start: unknown, end: unknown, fallback = t("popup.noise.noVerified")): string => {
     if (start == null || start === "" || end == null || end === "") return fallback;
@@ -46,9 +46,9 @@ function SourceRows({ props }: PanelProps) {
   // 來源機關與原始資料頁由 FeatureInfoPanel 統一掛的 SourceFooter 顯示，這裡只留 footer 沒有的欄位
   return (
     <>
-      <Row label={t("popup.noise.sourceId")} value={text(props.source_dataset_id, t("popup.noise.notProvided"))} />
-      <Row label={t("popup.noise.sourceUpdated")} value={text(props.source_updated_at, t("popup.noise.notProvided"))} />
-      <Row field="license" value={text(props.source_license, t("popup.noise.notProvided"))} />
+      <Row field="sourceId" value={text(props.source_dataset_id, t("popup.common.notProvided"))} />
+      <Row label={t("popup.noise.sourceUpdated")} value={text(props.source_updated_at, t("popup.common.notProvided"))} />
+      <Row field="license" value={text(props.source_license, t("popup.common.notProvided"))} />
     </>
   );
 }
@@ -93,7 +93,7 @@ export function OfficialNoiseMonitoringPanel({ props }: PanelProps) {
   const windowDays = number(props.window_days);
   const ratio = number(props.active_day_ratio);
   const coverage = activeDays == null || windowDays == null
-    ? t("popup.noise.notProvided")
+    ? t("popup.common.notProvided")
     : ratio == null
       ? t("popup.noise.coverageDays", { active: activeDays, window: windowDays })
       : t("popup.noise.coverageDaysRatio", { active: activeDays, window: windowDays, ratio: (ratio * 100).toFixed(1) });
@@ -101,24 +101,24 @@ export function OfficialNoiseMonitoringPanel({ props }: PanelProps) {
 
   return (
     <div>
-      <Row label={t("popup.noise.station")} value={text(props.station_name)} />
+      <Row field="station" value={text(props.station_name)} />
       <Row label={t("popup.noise.stationId")} value={text(props.station_id)} />
       <Row field="county" value={text(props.county)} />
       <Row field="address" value={text(props.address)} />
       <Row label={t("popup.noise.stationType")} value={text(props.station_type)} />
-      <Row label={t("popup.noise.stationStatus")} value={text(props.station_status)} />
+      <Row field="stationStatus" value={text(props.station_status)} />
       <Row label={t("popup.noise.areaType")} value={text(props.area_type)} />
       <Row label={t("popup.noise.period")} value={enumLabel("noisePeriod", period, PERIOD_LABELS[period] ?? period, i18n)} />
       <Row label={t("popup.noise.laeqSample")} value={db(props.laeq_window_db)} color={number(props.laeq_window_db) == null ? "#94a3b8" : undefined} />
       <Row label={t("popup.noise.window")} value={dateRange(props.window_start, props.window_end)} />
       <Row label={t("popup.noise.latestObs")} value={text(props.latest_observation_date, t("popup.noise.noVerified"))} />
       <Row label={t("popup.noise.coverage")} value={coverage} />
-      <Row label={t("popup.noise.sampleCount")} value={count(props.sample_count, t("popup.noise.unitRecord"))} />
+      <Row field="sampleCount" value={count(props.sample_count, t("popup.noise.unitRecord"))} />
       <Row label={t("popup.noise.representedSeconds")} value={count(props.represented_seconds, t("popup.noise.unitSecond"))} />
       <Row label={t("popup.noise.freshness")} value={enumLabel("noiseFreshness", freshness, FRESHNESS_LABELS[freshness] ?? freshness, i18n)} />
       <Row label={t("popup.noise.sinceNow")} value={freshnessDays == null ? t("popup.noise.noVerified") : t("popup.noise.daysAgo", { days: freshnessDays })} />
       <Row label={t("popup.noise.spatialPrecision")} value={precisionLabel(text(props.spatial_precision, "unknown"))} />
-      <Row label={t("popup.noise.sourceId")} value={text(props.source_dataset_id)} />
+      <Row field="sourceId" value={text(props.source_dataset_id)} />
       <Row label={t("popup.noise.sourceUpdated")} value={text(props.source_updated_at)} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         {t("popup.noise.monitoringNote")}
@@ -141,18 +141,18 @@ export function NoiseCaptureGridPanel({ props }: PanelProps) {
       <Row label={t("popup.noise.laeqSample")} value={db(props.laeq_energy_db)} />
       <Row label={t("popup.noise.typicalTrack")} value={db(props.typical_track_laeq_db)} />
       <Row label="LA50" value={db(props.la50_db)} />
-      <Row label={t("popup.noise.scale")} value={scale == null ? t("popup.noise.notProvided") : `${i18n.formatNumber(scale)} m`} />
+      <Row label={t("popup.noise.scale")} value={scale == null ? t("popup.common.notProvided") : `${i18n.formatNumber(scale)} m`} />
       <Row label={t("popup.noise.measureTime")} value={count(props.measure_seconds, t("popup.noise.unitSecond"))} />
       <Row label={t("popup.noise.trackCount")} value={count(props.track_count, t("popup.noise.unitTrack"))} />
       <Row label={t("popup.noise.activeDays")} value={count(props.active_days, t("popup.noise.unitDay"))} />
       <Row label={t("popup.noise.daypartCount")} value={count(props.daypart_count, t("popup.noise.unitKind"))} />
-      <Row label={t("popup.noise.measureRange")} value={dateRange(props.measurement_start_date, props.measurement_end_date, t("popup.noise.notProvided"))} />
+      <Row label={t("popup.noise.measureRange")} value={dateRange(props.measurement_start_date, props.measurement_end_date, t("popup.common.notProvided"))} />
       <Row label={t("popup.noise.freshness")} value={text(props.freshness_class)} />
-      <Row label={t("popup.noise.sinceNow")} value={freshnessDays == null ? t("popup.noise.notProvided") : t("popup.noise.daysAgo", { days: freshnessDays })} />
+      <Row label={t("popup.noise.sinceNow")} value={freshnessDays == null ? t("popup.common.notProvided") : t("popup.noise.daysAgo", { days: freshnessDays })} />
       <Row label={t("popup.noise.qualityTier")} value={text(props.quality_tier)} />
-      <Row label="GPS P50" value={gpsAccuracy == null ? t("popup.noise.notProvided") : `${gpsAccuracy.toFixed(1)} m`} />
+      <Row label="GPS P50" value={gpsAccuracy == null ? t("popup.common.notProvided") : `${gpsAccuracy.toFixed(1)} m`} />
       <Row label={t("popup.noise.sourceKind")} value={text(props.source_kind)} />
-      <Row label={t("popup.noise.snapshotDate")} value={text(props.source_snapshot_at)} />
+      <Row field="snapshotDate" value={text(props.source_snapshot_at)} />
       <div style={{ marginTop: 7 }}>
         <Badge label={provisional ? t("popup.noise.provisional") : t("popup.noise.passedThreshold")} on={provisional} color="#f59e0b" />
       </div>
@@ -186,8 +186,8 @@ export function NoiseControlZonesPanel({ props }: PanelProps) {
       <Row label={t("popup.noise.announceYear")} value={text(props.effective_year, t("popup.noise.notStated"))} />
       <Row label={t("popup.noise.announceNo")} value={text(props.announcement_no, t("popup.noise.notStated"))} />
       <Row label={t("popup.noise.spatialPrecision")} value={text(props.spatial_precision)} />
-      <Row field="area" value={area == null ? t("popup.noise.notProvided") : `${area.toFixed(2)} km²`} />
-      <Row label={t("popup.noise.geometryRepaired")} value={repaired ? t("popup.noise.repairedYes") : t("popup.noise.no")} />
+      <Row field="area" value={area == null ? t("popup.common.notProvided") : `${area.toFixed(2)} km²`} />
+      <Row label={t("popup.noise.geometryRepaired")} value={repaired ? t("popup.noise.repairedYes") : t("popup.common.no")} />
       <SourceRows props={props} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         {t("popup.noise.zoneNote")}
@@ -205,7 +205,7 @@ export function AviationNoiseZonesPanel({ props }: PanelProps) {
   const measured = yes(props.is_measured_contour);
   return (
     <div>
-      <Row label={t("popup.noise.village")} value={`${text(props.county)} ${text(props.town)} ${text(props.village)}`} />
+      <Row field="village" value={`${text(props.county)} ${text(props.town)} ${text(props.village)}`} />
       <Row label={t("popup.noise.villageCode")} value={text(props.village_code)} />
       <Row label={t("popup.noise.displayLevel")} value={t("popup.noise.levelN", { level: text(props.display_zone_level) })} />
       <Row label={t("popup.noise.allLevels")} value={text(props.zone_levels)} />
@@ -215,8 +215,8 @@ export function AviationNoiseZonesPanel({ props }: PanelProps) {
       <Row label={t("popup.noise.effectiveDate")} value={text(props.effective_date, t("popup.noise.notStated"))} />
       <Row label={t("popup.noise.boundaryVersion")} value={text(props.boundary_version)} />
       <Row label={t("popup.noise.spatialPrecision")} value={precisionLabel(text(props.spatial_precision))} />
-      <Row label={t("popup.noise.measuredContour")} value={measured ? t("popup.noise.yes") : t("popup.noise.no")} />
-      <Row field="area" value={area == null ? t("popup.noise.notProvided") : `${area.toFixed(2)} km²`} />
+      <Row label={t("popup.noise.measuredContour")} value={measured ? t("popup.common.yes") : t("popup.common.no")} />
+      <Row field="area" value={area == null ? t("popup.common.notProvided") : `${area.toFixed(2)} km²`} />
       <SourceRows props={props} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         {t("popup.noise.aviationNote")}
@@ -237,16 +237,16 @@ export function NoiseEnforcementEventsPanel({ props }: PanelProps) {
     <div>
       <Row label={t("popup.noise.respondent")} value={text(props.fac_name)} />
       <Row field="county" value={text(props.county)} />
-      <Row label={t("popup.noise.penaltyDate")} value={text(props.penalty_date)} />
-      <Row label={t("popup.noise.penaltyType")} value={text(props.transgress_type)} />
-      <Row label={t("popup.noise.lawViolated")} value={text(props.transgress_law)} />
-      <Row label={t("popup.noise.factViolated")} value={text(props.violation_fact)} />
-      <Row label={t("popup.noise.fine")} value={money == null ? t("popup.noise.notProvided") : money > 0 ? `NT$ ${i18n.formatNumber(money)}` : t("popup.noise.noFine")} />
+      <Row field="penaltyDate" value={text(props.penalty_date)} />
+      <Row field="penaltyType" value={text(props.transgress_type)} />
+      <Row field="lawViolated" value={text(props.transgress_law)} />
+      <Row field="violationFact" value={text(props.violation_fact)} />
+      <Row field="fine" value={money == null ? t("popup.common.notProvided") : money > 0 ? `NT$ ${i18n.formatNumber(money)}` : t("popup.noise.noFine")} />
       <Row label={t("popup.noise.severityEvent")} value={enumLabel("pollutionPenaltySeverity", severity, PENALTY_SEVERITY_LABELS[severity] ?? severity, i18n)} />
-      <Row label={t("popup.noise.severityReason")} value={text(props.severity_reason)} />
+      <Row field="severityReason" value={text(props.severity_reason)} />
       <Row field="positionAccuracy" value={precisionLabel(precision)} />
       <Row label={t("popup.noise.documentNo")} value={text(props.document_no)} />
-      <Row label={t("popup.noise.eventId")} value={text(props.event_id)} />
+      <Row field="eventId" value={text(props.event_id)} />
       <Row label={t("popup.noise.dataKind")} value={text(props.source_kind)} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         {t("popup.noise.enforcementNote")}
@@ -267,17 +267,17 @@ export function SoundCameraLocationsPanel({ props }: PanelProps) {
     <div>
       <Row field="name" value={text(props.location_name)} />
       <Row field="county" value={text(props.county)} />
-      <Row label={t("popup.noise.expectedTown")} value={text(props.expected_town, t("popup.noise.notProvided"))} />
+      <Row label={t("popup.noise.expectedTown")} value={text(props.expected_town, t("popup.common.notProvided"))} />
       <Row label={t("popup.noise.rawLocation")} value={text(props.raw_location)} />
       <Row label={t("popup.noise.fullAddress")} value={text(props.full_address)} />
       <Row field="positionAccuracy" value={precisionLabel(precision)} />
-      <Row label={t("popup.noise.geocodeMethod")} value={text(props.geocode_method, t("popup.noise.notProvided"))} />
-      <Row label={t("popup.noise.geocodeReference")} value={text(props.geocode_reference, t("popup.noise.notProvided"))} />
+      <Row label={t("popup.noise.geocodeMethod")} value={text(props.geocode_method, t("popup.common.notProvided"))} />
+      <Row label={t("popup.noise.geocodeReference")} value={text(props.geocode_reference, t("popup.common.notProvided"))} />
       <Row label={t("popup.noise.spatialValidation")} value={text(props.spatial_validation_status)} />
-      <Row label={t("popup.noise.boundaryLocation")} value={[props.boundary_county, props.boundary_town, props.boundary_village].filter((v) => v != null && v !== "").join(" ") || t("popup.noise.notProvided")} />
+      <Row label={t("popup.noise.boundaryLocation")} value={[props.boundary_county, props.boundary_town, props.boundary_village].filter((v) => v != null && v !== "").join(" ") || t("popup.common.notProvided")} />
       <Row label={t("popup.noise.equipmentStatus")} value={equipmentStatus === "not_provided" ? t("popup.noise.equipmentNotProvided") : equipmentStatus} />
-      <Row label={t("popup.noise.renderable")} value={renderable ? t("popup.noise.yes") : t("popup.noise.renderableNo")} />
-      <Row label={t("popup.noise.listMeaning")} value={props.represents ? t("popup.noise.listMeaningValue") : t("popup.noise.notProvided")} />
+      <Row label={t("popup.noise.renderable")} value={renderable ? t("popup.common.yes") : t("popup.noise.renderableNo")} />
+      <Row label={t("popup.noise.listMeaning")} value={props.represents ? t("popup.noise.listMeaningValue") : t("popup.common.notProvided")} />
       <SourceRows props={props} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         {t("popup.noise.cameraNote")}

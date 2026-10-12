@@ -106,7 +106,7 @@ export function MountainRescuePanel({ props }: { props: Record<string, unknown> 
       {int0(props.sar_dog_times) > 0 ? <Row label={tr("popup.hazard.sarDog")} value={tr("popup.hazard.times", { count: int0(props.sar_dog_times) })} /> : null}
       {int0(props.drone_sorties) > 0 ? <Row label={tr("popup.hazard.drone")} value={tr("popup.hazard.sortiesValue", { count: int0(props.drone_sorties) })} /> : null}
       <Row label={tr("popup.hazard.rescued")} value={tr("popup.hazard.persons", { count: int0(props.rescued) })} />
-      {deaths > 0 ? <Row label={tr("popup.hazard.deaths")} value={tr("popup.hazard.persons", { count: deaths })} color="#ff2d2d" /> : null}
+      {deaths > 0 ? <Row field="deaths" value={tr("popup.hazard.persons", { count: deaths })} color="#ff2d2d" /> : null}
       {missing > 0 ? <Row label={tr("popup.hazard.missing")} value={tr("popup.hazard.persons", { count: missing })} color="#f97316" /> : null}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         {tr("popup.hazard.mountainSource")}
@@ -143,7 +143,7 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
   const color = nuclearDoseColor(dose, isStale);
   return (
     <div>
-      <Row label={tr("popup.hazard.stationName")} value={String(props.station_name ?? "—")} />
+      <Row field="stationName" value={String(props.station_name ?? "—")} />
       <Row field="stationNo" value={String(props.station_id ?? "—")} />
       <Row
         label={tr("popup.hazard.liveDose")}
@@ -215,7 +215,7 @@ export function EarthquakeReplayStationPanel({ props }: { props: Record<string, 
   const dist = typeof props.epicenter_distance_km === "number" ? props.epicenter_distance_km : null;
   return (
     <div>
-      <Row label={tr("popup.hazard.station")} value={String(props.station_id ?? "—")} />
+      <Row field="station" value={String(props.station_id ?? "—")} />
       <Row
         label={tr("popup.hazard.intensityLevel")}
         value={iv != null ? intensityLabel(iv) : "—"}

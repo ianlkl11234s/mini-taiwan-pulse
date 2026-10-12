@@ -1,10 +1,7 @@
 {
-  "popup.coralReef.notProvided": "未提供",
   "popup.coralReef.title": "珊瑚礁歷史分布 Historical Coral Reefs",
   "popup.coralReef.reefName": "礁名",
   "popup.coralReef.featureId": "Feature ID",
-  "popup.coralReef.dataset": "資料集",
-  "popup.coralReef.version": "版本",
   "popup.coralReef.observedYear": "觀測年",
   "popup.coralReef.sourceArea": "整筆來源面積",
   "popup.coralReef.geometryStatus": "幾何狀態",
@@ -20,6 +17,5 @@
   "popup.coralReef.dateType": "日期類型",
   "popup.coralReef.dataType": "資料類型",
   "popup.coralReef.sourceVerification": "來源驗證",
-  "popup.coralReef.sourceLayer": "來源圖層",
-  "popup.coralReef.attribution": "出典"
+  "popup.coralReef.sourceLayer": "來源圖層"
 }

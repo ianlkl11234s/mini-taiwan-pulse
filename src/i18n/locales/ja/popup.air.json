@@ -1,11 +1,9 @@
 {
   "popup.air.mainPollutant": "主な汚染物質",
-  "popup.air.windSpeed": "風速",
   "popup.air.deviceId": "デバイス ID",
   "popup.air.device": "デバイス",
   "popup.air.area": "地区",
   "popup.air.temperature": "気温",
-  "popup.air.humidity": "湿度",
   "popup.air.gridPoint": "格子点",
   "popup.air.gridSource": "CWA 0.03°毎時観測解析格子",
   "popup.air.heatIntensity": "ヒートアイランド強度",

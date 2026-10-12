@@ -2,7 +2,6 @@
   "popup.soilLiquefaction.siteCaveat": "個別の敷地の結果は予備評価用であり、工学的な安全判定ではありません。公式ポータルと現地ボーリングで確認してください。",
   "popup.soilLiquefaction.potentialTitle": "土壌液状化ポテンシャル：{label}",
   "popup.soilLiquefaction.notInvestigatedLabel": "未調査",
-  "popup.soilLiquefaction.noDataLabel": "データなし",
   "popup.soilLiquefaction.potentialClass": "ポテンシャル区分",
   "popup.soilLiquefaction.classMeaning": "区分の意味",
   "popup.soilLiquefaction.classMeaningText": "公式機関がボーリング、地下水位、設計地震、履歴資料を統合した区分で、測定値ではありません。PL 値や地下水位を逆算することはできません。",

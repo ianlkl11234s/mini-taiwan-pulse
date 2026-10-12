@@ -20,7 +20,7 @@ function area(value: unknown, na: string): string {
 export function AllenCoralAtlasPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const { t: tr } = useLocale();
-  const na = tr("popup.allenCoral.notProvided");
+  const na = tr("popup.common.notProvided");
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#ee6c83", flexShrink: 0 }} />
@@ -30,13 +30,13 @@ export function AllenCoralAtlasPanel({ props }: { props: Record<string, unknown>
     <Row label={tr("popup.allenCoral.region")} value={text(props.region, na)} />
     <Row label={tr("popup.allenCoral.window")} value={text(props.window_ids, na)} />
     <Row label={tr("popup.allenCoral.sourceArea")} value={area(props.source_area_sqkm, na)} />
-    <Row label={tr("popup.allenCoral.sourceVersion")} value={text(props.source_version, na)} />
+    <Row field="sourceVersion" value={text(props.source_version, na)} />
     <Row field="sourceYear" value={text(props.source_year, na)} />
     <Row label={tr("popup.allenCoral.resolution")} value={props.nominal_resolution_m == null ? na : `${text(props.nominal_resolution_m, na)} m`} />
     <Row label={tr("popup.allenCoral.geometryRole")} value={text(props.geometry_role, na)} />
     <Row label="Feature ID" value={text(props.feature_id, na)} />
     <div style={{ marginTop: 7, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45 }}>{tr("popup.allenCoral.warning")}</div>
     <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45 }}>{tr("popup.allenCoral.areaNote", { date: ALLEN_CORAL_ACQUIRED_AT.slice(0, 10) })}</div>
-    <Row label={tr("popup.allenCoral.attributionLabel")} value={tr("popup.allenCoral.attribution")} />
+    <Row field="attribution" value={tr("popup.allenCoral.attribution")} />
   </>;
 }

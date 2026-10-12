@@ -109,7 +109,7 @@ export function WelfareElderlyHomePanel({ props }: { props: Record<string, unkno
   return (
     <>
       <Title color={color}>{str(props.name) || tr("popup.welfare.elderlyHome")}</Title>
-      <Row label={tr("popup.welfare.publicPrivate")} value={elderlyAttrLabel(attr)} color={color} />
+      <Row field="publicPrivate" value={elderlyAttrLabel(attr)} color={color} />
       <Row
         label={tr("popup.welfare.approvedBeds")}
         value={hasBeds && Number.isFinite(beds) ? tr("popup.welfare.bedsCount", { count: formatNumber(beds) }) : tr("popup.welfare.notProvided")}
@@ -216,7 +216,7 @@ export function WelfareChildServicePanel({ props }: { props: Record<string, unkn
       {str(props.unit_type) ? <Row label={tr("popup.welfare.unitType")} value={str(props.unit_type)} /> : null}
       {str(props.service_mode) ? <Row label={tr("popup.welfare.serviceMode")} value={str(props.service_mode)} /> : null}
       {str(props.service_content) ? <Row label={tr("popup.welfare.serviceContent")} value={str(props.service_content)} /> : null}
-      {str(props.service_hours) ? <Row label={tr("popup.welfare.serviceHours")} value={str(props.service_hours)} /> : null}
+      {str(props.service_hours) ? <Row field="serviceHours" value={str(props.service_hours)} /> : null}
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       {cls === "child_dev" ? (

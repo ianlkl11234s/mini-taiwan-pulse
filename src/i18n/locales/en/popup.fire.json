@@ -1,7 +1,6 @@
 {
   "popup.fire.eventFallback": "Fire incident",
   "popup.fire.cause": "Cause of fire",
-  "popup.fire.deaths": "Deaths",
   "popup.fire.injuries": "Injuries",
   "popup.fire.stationFallback": "Fire station",
   "popup.fire.hydrant": "Fire hydrant",

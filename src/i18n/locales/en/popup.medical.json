@@ -6,7 +6,6 @@
   "popup.medical.aedLocation": "AED location",
   "popup.medical.emergencyPhone": "Emergency phone",
   "popup.medical.openBeds": "Open beds",
-  "popup.medical.serviceItems": "Services",
   "popup.medical.driveToNearest": "Drive to nearest major hospital",
   "popup.medical.minutes": "{value} min",
   "popup.medical.nearestHospital": "Nearest hospital",
@@ -19,7 +18,6 @@
   "popup.medical.waitIcu": "Waiting for ICU",
   "popup.medical.informFlag": "Notification flag (inform)",
   "popup.medical.trend": "24h trend: waiting for general bed",
-  "popup.medical.loading": "Loading…",
   "popup.medical.bedGap": "bed shortage",
   "popup.medical.severe": "Severe"
 }

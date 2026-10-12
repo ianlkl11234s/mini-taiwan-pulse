@@ -1,11 +1,9 @@
 {
   "popup.air.mainPollutant": "Main pollutant",
-  "popup.air.windSpeed": "Wind speed",
   "popup.air.deviceId": "Device ID",
   "popup.air.device": "Device",
   "popup.air.area": "Area",
   "popup.air.temperature": "Temperature",
-  "popup.air.humidity": "Humidity",
   "popup.air.gridPoint": "Grid point",
   "popup.air.gridSource": "CWA 0.03° hourly observation analysis grid",
   "popup.air.heatIntensity": "Heat island intensity",

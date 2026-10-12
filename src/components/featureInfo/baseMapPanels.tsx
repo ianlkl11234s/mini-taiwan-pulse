@@ -50,7 +50,7 @@ export function TownshipBoundaryPanel({ props }: { props: Record<string, unknown
     <div>
       <Row label={tr("popup.baseMap.township")} value={town} />
       <Row field="county" value={county} />
-      <Row label={tr("popup.baseMap.english")} value={eng} />
+      <Row field="englishShort" value={eng} />
       <Row label="TOWNID" value={id} />
       <Row field="source" value={tr("popup.baseMap.nlsc")} />
     </div>
@@ -67,10 +67,10 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
   const note = String(props.NOTE ?? "");
   return (
     <div>
-      <Row label={tr("popup.baseMap.village")} value={vill} />
+      <Row field="village" value={vill} />
       <Row label={tr("popup.baseMap.township")} value={town} />
       <Row field="county" value={county} />
-      <Row label={tr("popup.baseMap.english")} value={eng} />
+      <Row field="englishShort" value={eng} />
       <Row label="VILLCODE" value={code} />
       <Row field="remarks" value={note} />
       <Row field="source" value={tr("popup.baseMap.nlscShort")} />
@@ -140,7 +140,7 @@ export function SlopeVectorPanel({ props }: { props: Record<string, unknown> }) 
   const range = SLOPE_CLASS_RANGE[cls] ?? "";
   return (
     <div>
-      <Row label={tr("popup.baseMap.slopeClass")} value={cls ? tr("popup.baseMap.slopeValue", { cls, range }) : tr("popup.baseMap.noData")} />
+      <Row label={tr("popup.baseMap.slopeClass")} value={cls ? tr("popup.baseMap.slopeValue", { cls, range }) : tr("popup.common.noData")} />
       <Row field="source" value={tr("popup.baseMap.slopeSource")} />
     </div>
   );
@@ -159,7 +159,7 @@ export function AspectVectorPanel({ props }: { props: Record<string, unknown> })
   const name = ASPECT_CLASS_NAME[cls] ?? "";
   return (
     <div>
-      <Row label={tr("popup.baseMap.aspect")} value={cls ? enumLabel("baseMapAspect", cls, name, i18n) : tr("popup.baseMap.noData")} />
+      <Row label={tr("popup.baseMap.aspect")} value={cls ? enumLabel("baseMapAspect", cls, name, i18n) : tr("popup.common.noData")} />
       <Row field="source" value={tr("popup.baseMap.aspectSource")} />
     </div>
   );
@@ -207,8 +207,8 @@ export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> })
       <Row field="name" value={name} />
       <Row field="number" value={ref} />
       <Row field="level" value={highway ? enumLabel("baseMapHighway", highway, HIGHWAY_LABEL[highway] ?? highway, i18n) : ""} />
-      <Row label={tr("popup.baseMap.oneway")} value={oneway ? tr("popup.baseMap.yes") : ""} />
-      <Row label={tr("popup.baseMap.speedLimit")} value={maxspeed} />
+      <Row label={tr("popup.baseMap.oneway")} value={oneway ? tr("popup.common.yes") : ""} />
+      <Row field="speedLimit" value={maxspeed} />
       <Row label={tr("popup.baseMap.lanes")} value={lanes} />
       <Row label={tr("popup.baseMap.surface")} value={surface} />
       <Row label={tr("popup.baseMap.bridge")} value={bridge && bridge !== "no" ? bridge : ""} />

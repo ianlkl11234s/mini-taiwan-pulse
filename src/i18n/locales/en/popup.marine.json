@@ -4,8 +4,6 @@
   "popup.marine.networkUnlabeled": "Source network not labeled",
   "popup.marine.unknownNetwork": "Unknown source",
   "popup.marine.stationFallback": "Marine observation station",
-  "popup.marine.notProvided": "Not provided",
-  "popup.marine.missing": "Missing",
   "popup.marine.invalid": "Invalid",
   "popup.marine.noValidObs": "No valid observation yet",
   "popup.marine.ageSeconds": "{value} s",
@@ -26,9 +24,7 @@
   "popup.marine.distributionOrg": "Data distribution",
   "popup.marine.stationType": "Station type",
   "popup.marine.latestObs": "Latest observation",
-  "popup.marine.dataAge": "Data age",
   "popup.marine.freshness": "Freshness",
-  "popup.marine.unclassified": "Unclassified",
   "popup.marine.stationStatus": "Station status",
   "popup.marine.unlabeled": "Not labeled",
   "popup.marine.obsStatus": "Observation status",
@@ -40,7 +36,6 @@
   "popup.marine.historyLoading": "Loading historical observations…",
   "popup.marine.historyError": "Failed to load historical observations. Please try again later.",
   "popup.marine.datumConflict": "The history contains multiple vertical datums ({datums}); to avoid misleading comparisons, this chart does not merge them.",
-  "popup.marine.listSep": ", ",
   "popup.marine.noWindowData": "No valid values in this time window; missing/invalid values are not filled with 0.",
   "popup.marine.excluded": "{n} row(s) with missing, invalid or mismatched datum values were left out of the curve and not converted to 0."
 }

@@ -1,8 +1,5 @@
 {
-  "popup.historicalFlight.notProvided": "Not provided",
-  "popup.historicalFlight.listSeparator": ", ",
   "popup.historicalFlight.flightId": "Flight ID",
-  "popup.historicalFlight.callsign": "Callsign",
   "popup.historicalFlight.airline": "Airline",
   "popup.historicalFlight.aircraftType": "Aircraft type",
   "popup.historicalFlight.origin": "Origin",

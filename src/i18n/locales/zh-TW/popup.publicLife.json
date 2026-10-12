@@ -1,11 +1,9 @@
 {
-  "popup.publicLife.listSeparator": "、",
   "popup.publicLife.geometrySourcePoint": "原始點位",
   "popup.publicLife.geometryRepresentativePoint": "由原始線／面取內部代表點（僅供點圖層顯示）",
   "popup.publicLife.unnamedType": "未命名{type}",
   "popup.publicLife.unnamedOsm": "未命名 OSM 設施",
   "popup.publicLife.osmRole": "OSM 公共生活設施快照",
-  "popup.publicLife.featureType": "設施類型",
   "popup.publicLife.recyclingType": "據點型態",
   "popup.publicLife.accessibility": "無障礙",
   "popup.publicLife.accessibilityStatus": "無障礙狀態",
@@ -16,11 +14,9 @@
   "popup.publicLife.recyclingMaterials": "回收材料",
   "popup.publicLife.sourceGeometry": "原始幾何",
   "popup.publicLife.displayPosition": "顯示位置",
-  "popup.publicLife.coverageLimit": "涵蓋限制",
   "popup.publicLife.coverageDefault": "群眾標註且不完整；空白區域不代表沒有設施。",
   "popup.publicLife.unnamedShelter": "未命名收容處所",
   "popup.publicLife.shelterRole": "預定天災收容處所",
-  "popup.publicLife.countyTown": "縣市鄉鎮",
   "popup.publicLife.shelterCapacity": "預計容量",
   "popup.publicLife.disasterTypes": "適用災害",
   "popup.publicLife.indoorOutdoor": "室內 / 室外",
@@ -46,6 +42,5 @@
   "popup.publicLife.accessibilityTags": "無障礙 tags",
   "popup.publicLife.bicycleSpecific": "自行車專屬補給",
   "popup.publicLife.visitorCentre": "遊客中心",
-  "popup.publicLife.snapshotAt": "快照時間",
   "popup.publicLife.coverageNote": "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。"
 }

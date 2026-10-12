@@ -6,7 +6,6 @@
   "popup.medical.aedLocation": "AED 位置",
   "popup.medical.emergencyPhone": "緊急電話",
   "popup.medical.openBeds": "開放床位",
-  "popup.medical.serviceItems": "服務項目",
   "popup.medical.driveToNearest": "最近大醫院車程",
   "popup.medical.minutes": "{value} 分鐘",
   "popup.medical.nearestHospital": "最近醫院",
@@ -19,7 +18,6 @@
   "popup.medical.waitIcu": "等待加護病房 (ICU)",
   "popup.medical.informFlag": "通報旗標 (inform)",
   "popup.medical.trend": "24h 等一般病床趨勢",
-  "popup.medical.loading": "載入中…",
   "popup.medical.bedGap": "床位缺口",
   "popup.medical.severe": "嚴重"
 }

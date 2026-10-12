@@ -1,10 +1,7 @@
 {
   "popup.funeral.approxNote": "⚠️ 位置為概略值：{label}，非實際入口座標",
-  "popup.funeral.unclassified": "未分類",
-  "popup.funeral.operatorType": "公私別",
   "popup.funeral.ecoType": "環保葬類型",
   "popup.funeral.operatorTitle": "禮儀業者",
-  "popup.funeral.entityType": "登記別",
   "popup.funeral.bizStatus": "營業狀態",
   "popup.funeral.statusApproved": "核准設立",
   "popup.funeral.statusInactive": "已失效",

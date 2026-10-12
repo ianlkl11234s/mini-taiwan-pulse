@@ -44,13 +44,13 @@ export function FuneralFacilityPanel({ props }: { props: Record<string, unknown>
   const district = str(props.district);
   const i18n = useLocale();
   const { t } = i18n;
-  const typeLabel = type ? enumLabel("funeralFacilityType", type, facilityTypeLabel(type), i18n) : t("popup.funeral.unclassified");
+  const typeLabel = type ? enumLabel("funeralFacilityType", type, facilityTypeLabel(type), i18n) : t("popup.common.unclassified");
   const opType = str(props.operator_type);
   return (
     <>
       <Title color={color}>{str(props.name) || typeLabel}</Title>
       <Row field="type" value={typeLabel} color={color} />
-      <Row label={t("popup.funeral.operatorType")} value={enumLabel("funeralOperatorType", opType, operatorTypeLabel(opType), i18n)} />
+      <Row field="publicPrivate" value={enumLabel("funeralOperatorType", opType, operatorTypeLabel(opType), i18n)} />
       {str(props.eco_type) ? <Row label={t("popup.funeral.ecoType")} value={str(props.eco_type)} /> : null}
       <Row field="district" value={district ? `${str(props.county)}${district}` : str(props.county)} />
       <Row field="phone" value={str(props.phone)} />
@@ -73,7 +73,7 @@ export function FuneralOperatorPanel({ props }: { props: Record<string, unknown>
   return (
     <>
       <Title color={color}>{str(props.name) || t("popup.funeral.operatorTitle")}</Title>
-      <Row label={t("popup.funeral.entityType")} value={entity ? enumLabel("funeralOperatorEntity", entity, operatorEntityLabel(entity), i18n) : t("popup.funeral.unclassified")} color={color} />
+      <Row field="registrationType" value={entity ? enumLabel("funeralOperatorEntity", entity, operatorEntityLabel(entity), i18n) : t("popup.common.unclassified")} color={color} />
       <Row
         label={t("popup.funeral.bizStatus")}
         // status 幾乎必有值；fallback 用「已失效」不用「已歇業」——這桶含遷他縣市
@@ -145,7 +145,7 @@ export function CemeteryZoningPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color={color}>{zone || t("popup.funeral.zoningFallback")}</Title>
-      <Row label={t("popup.funeral.zoningGroup")} value={!zone ? t("popup.funeral.unclassified") : classValue ? enumLabel("funeralZoningClass", classValue, cemeteryZoningClassLabel(zone), i18n) : zone} color={color} />
+      <Row label={t("popup.funeral.zoningGroup")} value={!zone ? t("popup.common.unclassified") : classValue ? enumLabel("funeralZoningClass", classValue, cemeteryZoningClassLabel(zone), i18n) : zone} color={color} />
       {area != null ? <Row field="area" value={t("popup.funeral.hectare", { value: area.toFixed(2) })} /> : null}
       <Row field="county" value={str(props.county)} />
       <Row label={t("popup.funeral.zoningId")} value={str(props.zoning_id)} />

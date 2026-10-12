@@ -281,7 +281,7 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
       <Row field="tier" value={pv.tier_label ?? "—"} color={tierColor} />
       <Row label={tr("popup.energy.platform")} value={pv.source_platform ?? "—"} />
       {pv.source_dataset_name && (
-        <Row label={tr("popup.energy.dataset")} value={pv.source_dataset_name} />
+        <Row field="dataset" value={pv.source_dataset_name} />
       )}
       {pv.source_dataset_url && (
         <div style={{ marginTop: 3, fontSize: FONT_SIZE.xs, lineHeight: 1.4 }}>
@@ -322,7 +322,7 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
 export function OsmSubstationPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
   const cls = String(props.class ?? "OTHER");
-  const classLabel = String(props.class_label ?? t("popup.energy.unclassified"));
+  const classLabel = String(props.class_label ?? t("popup.common.unclassified"));
   const classColor = SUBSTATION_CLASS_COLORS[cls as keyof typeof SUBSTATION_CLASS_COLORS]
                   ?? SUBSTATION_CLASS_COLORS.OTHER;
   return (
@@ -462,7 +462,7 @@ export function IslandPowerFacilityPanel({ props }: { props: Record<string, unkn
     <div>
       <Row field="name" value={String(props.name || "—")} />
       <Row label={t("popup.energy.island")} value={String(props.island || "—")} />
-      <Row label={t("popup.energy.facilityType")} value={String(props.facility_type || "—")} />
+      <Row field="facilityType" value={String(props.facility_type || "—")} />
       <Row label={t("popup.energy.fuel")} value={String(props.fuel_type || "—")} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       <Row field="voltage" value={props.voltage_kv != null ? `${props.voltage_kv} kV` : "—"} />
@@ -541,7 +541,7 @@ export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, un
   const district = String(props.district || "") || districtFromAddr || "—";
   return (
     <div>
-      <Row label={tr("popup.energy.facilityName")} value={String(props.installation_name || "—")} />
+      <Row field="facilityName" value={String(props.installation_name || "—")} />
       <Row field="category" value={String(props.category || "—")} />
       <Row field="installedCapacity" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
       <Row field="district" value={district} />
@@ -557,7 +557,7 @@ export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
   return (
     <div>
-      <Row label={t("popup.energy.stationName")} value={String(props.name ?? "")} />
+      <Row field="stationName" value={String(props.name ?? "")} />
       <Row label={t("popup.energy.operatingEntity")} value={String(props.operator_name ?? "—")} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row label={t("popup.energy.chargingPoints")} value={String(props.charging_points ?? "—")} />
@@ -581,11 +581,10 @@ function joinBrand(b: unknown): string {
 }
 
 function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
-  const { t } = useLocale();
   return (
     <>
-      <Row label={t("popup.energy.stationName")} value={String(props.name ?? "—")} />
-      <Row label={t("popup.energy.brand")} value={joinBrand(props.brand) || "—"} />
+      <Row field="stationName" value={String(props.name ?? "—")} />
+      <Row field="brand" value={joinBrand(props.brand) || "—"} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
     </>
@@ -612,13 +611,13 @@ export function GasStationFpccPanel({ props }: { props: Record<string, unknown> 
 
 export function GasStationTaisugarPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
-  const yn = (v: unknown) => (v ? t("popup.energy.yes") : v === false ? t("popup.energy.no") : "—");
+  const yn = (v: unknown) => (v ? t("popup.common.yes") : v === false ? t("popup.common.no") : "—");
   return (
     <div>
       <GasStationCommonRows props={props} />
       <Row label={t("popup.energy.selfService")} value={yn(props.is_self_service)} />
       <Row label={t("popup.energy.open24h")} value={yn(props.is_24h)} />
-      <Row label={t("popup.energy.evCharging")} value={props.has_ev_charging ? t("popup.energy.has") : props.has_ev_charging === false ? t("popup.energy.none") : "—"} />
+      <Row label={t("popup.energy.evCharging")} value={props.has_ev_charging ? t("popup.energy.has") : props.has_ev_charging === false ? t("popup.common.none") : "—"} />
     </div>
   );
 }

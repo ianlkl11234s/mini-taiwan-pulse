@@ -1,8 +1,5 @@
 {
-  "popup.historicalFlight.notProvided": "未提供",
-  "popup.historicalFlight.listSeparator": "、",
   "popup.historicalFlight.flightId": "便ID",
-  "popup.historicalFlight.callsign": "コールサイン",
   "popup.historicalFlight.airline": "航空会社",
   "popup.historicalFlight.aircraftType": "機種",
   "popup.historicalFlight.origin": "出発地",

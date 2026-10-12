@@ -17,7 +17,6 @@
   "popup.culture.areaList": "Reading areas ({count})",
   "popup.culture.trend24h": "24h free-seat trend",
   "popup.culture.closedSuffix": " (closed)",
-  "popup.culture.loading": "Loading…",
   "popup.culture.closedGap": "Closed hours are not shown",
   "popup.culture.librarySource": "Taipei Public Library · Data refreshes every 10 minutes"
 }

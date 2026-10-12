@@ -180,7 +180,6 @@ export function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> 
 export function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const i18n = useLocale();
-  const tr = i18n.t;
   const poiType = String(props.poi_type ?? "");
   const typeDef = AGRI_POI_TYPES.find((x) => x.id === poiType);
   const meta = typeDef ? { color: typeDef.color, label: enumLabel("agriPoiType", poiType, typeDef.labelZh, i18n) } : { color: "#9e9e9e", label: poiType };
@@ -193,7 +192,7 @@ export function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
         </div>
       </div>
       <Row field="type" value={meta.label} color={meta.color} />
-      <Row label={tr("popup.agri.dataset")} value={String(props.source_dataset_id ?? "")} />
+      <Row field="dataset" value={String(props.source_dataset_id ?? "")} />
       <Row field="district" value={String(props.TOWNID ?? "")} />
       <Row field="latitude" value={typeof props.lat === "number" ? props.lat.toFixed(5) : String(props.lat ?? "")} />
       <Row field="longitude" value={typeof props.lon === "number" ? props.lon.toFixed(5) : String(props.lon ?? "")} />

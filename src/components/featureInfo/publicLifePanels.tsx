@@ -52,7 +52,7 @@ const translatedList = (value: unknown, domain: string, labels: Record<string, s
   const values = raw.startsWith("[")
     ? (() => { try { const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed.map(String) : [raw]; } catch { return [raw]; } })()
     : raw.split(",").map((item) => item.trim()).filter(Boolean);
-  return values.map((item) => (labels[item] ? enumLabel(domain, item, labels[item], i18n) : item)).join(i18n.t("popup.publicLife.listSeparator"));
+  return values.map((item) => (labels[item] ? enumLabel(domain, item, labels[item], i18n) : item)).join(i18n.t("popup.common.listSeparator"));
 };
 
 const displayGeometry = (value: unknown, tr: LocaleSnapshot["t"]) => value === "source_point_unchanged"
@@ -100,7 +100,7 @@ function PublicLifeOsmPanelContent({ props, accessibilityMode = false }: Props &
       color={accent}
     />
     <Row field="dataRole" value={tr("popup.publicLife.osmRole")} color={accent} />
-    <Row label={tr("popup.publicLife.featureType")} value={featureLabel} />
+    <Row field="facilityType" value={featureLabel} />
     <Row
       label={tr("popup.publicLife.recyclingType")}
       value={RECYCLING_TYPE_LABELS[recyclingType] ? enumLabel("publicLifeRecyclingType", recyclingType, RECYCLING_TYPE_LABELS[recyclingType], i18n) : recyclingType}
@@ -117,7 +117,7 @@ function PublicLifeOsmPanelContent({ props, accessibilityMode = false }: Props &
     <Row field="positionAccuracy" value={text(props.geometry_precision)} />
     <Row label={tr("popup.publicLife.sourceGeometry")} value={text(props.source_geometry_type)} />
     <Row label={tr("popup.publicLife.displayPosition")} value={displayGeometry(props.display_geometry_method, tr)} />
-    <Row label={tr("popup.publicLife.coverageLimit")} value={text(props.coverage_scope) || tr("popup.publicLife.coverageDefault")} />
+    <Row field="coverageLimit" value={text(props.coverage_scope) || tr("popup.publicLife.coverageDefault")} />
   </>;
 }
 
@@ -134,7 +134,7 @@ export function DisasterShelterPanel({ props }: Props) {
   return <>
     <PanelHeader title={text(props.name) || tr("popup.publicLife.unnamedShelter")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
     <Row field="dataRole" value={tr("popup.publicLife.shelterRole")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
-    <Row label={tr("popup.publicLife.countyTown")} value={text(props.county_town)} />
+    <Row field="countyTownship" value={text(props.county_town)} />
     <Row field="address" value={text(props.address)} />
     <Row label={tr("popup.publicLife.shelterCapacity")} value={text(props.capacity)} />
     <Row label={tr("popup.publicLife.disasterTypes")} value={text(props.disaster_types_text) || text(props.disaster_types)} />
@@ -174,7 +174,7 @@ export function PublicLifeOsmCoveragePanel({ props }: Props) {
     <Row label={tr("popup.publicLife.accessibilityTags")} value={text(props.accessibility_tag_count)} />
     <Row label={tr("popup.publicLife.bicycleSpecific")} value={text(props.bicycle_specific_count)} />
     <Row label={tr("popup.publicLife.visitorCentre")} value={text(props.visitor_centre_count)} />
-    <Row label={tr("popup.publicLife.snapshotAt")} value={text(props.snapshot_at)} />
+    <Row field="snapshotAt" value={text(props.snapshot_at)} />
     <Row label={tr("popup.publicLife.importantNote")} value={tr("popup.publicLife.coverageNote")} />
   </>;
 }

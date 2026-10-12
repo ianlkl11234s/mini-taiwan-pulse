@@ -1,6 +1,5 @@
 {
   "popup.regionalStatistics.notComputable": "無可計算數值（{value}）",
-  "popup.regionalStatistics.noData": "無資料",
   "popup.regionalStatistics.suppressed": "遮蔽 suppressed（*）",
   "popup.regionalStatistics.notReported": "未報告 not_reported（-）",
   "popup.regionalStatistics.missingData": "缺資料（{status}）",

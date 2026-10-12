@@ -1,11 +1,9 @@
 {
   "popup.air.mainPollutant": "主污染物",
-  "popup.air.windSpeed": "風速",
   "popup.air.deviceId": "裝置 ID",
   "popup.air.device": "裝置",
   "popup.air.area": "地區",
   "popup.air.temperature": "溫度",
-  "popup.air.humidity": "濕度",
   "popup.air.gridPoint": "格點",
   "popup.air.gridSource": "CWA 0.03° 逐時觀測分析格點",
   "popup.air.heatIntensity": "熱島強度",

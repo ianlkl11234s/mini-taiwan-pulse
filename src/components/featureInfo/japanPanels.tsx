@@ -61,9 +61,9 @@ export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <Title color="#0ea5e9">{title}</Title>
       <Row field="source" value={sources} />
-      <Row label={t("popup.japan.yearAsOf")} value={sourceYear || t("popup.japan.notProvided")} />
+      <Row label={t("popup.japan.yearAsOf")} value={sourceYear || t("popup.common.notProvided")} />
       <Row field="license" value={license || t("popup.japan.unverified")} />
-      <Row field="status" value={status || t("popup.japan.notProvided")} />
+      <Row field="status" value={status || t("popup.common.notProvided")} />
       <Row label="geometry precision" value={precision || t("popup.japan.sourceUnlabeled")} />
       <Row label="coverage" value={str(props.coverage_scope)} />
       <Row label="filter_layer_id" value={str(props.filter_layer_id)} />
@@ -86,7 +86,7 @@ export function JpAccommodationDensityPanel({ props }: { props: Record<string, u
       <Row field="gridScale" value={Number.isFinite(gridSize) ? `${formatNumber(gridSize)} m` : ""} />
       <Row label={t("popup.japan.lodgingInCell")} value={Number.isFinite(count) ? t("popup.japan.lodgingCount", { count: formatNumber(count) }) : ""} />
       <Row label={t("popup.japan.perKm2")} value={Number.isFinite(density) ? formatNumber(density, { maximumFractionDigits: 1 }) : ""} />
-      <Row label={t("popup.japan.gridId")} value={str(props.grid_id)} />
+      <Row field="gridId" value={str(props.grid_id)} />
       <Row label={t("popup.japan.countContract")} value={t("popup.japan.countContractValue")} />
     </>
   );
@@ -129,7 +129,7 @@ export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
     <Row field="sourceYear" value={!sourceYear || /^unknown\b/i.test(sourceYear) ? t("popup.japan.sourceYearNone") : sourceYear} />
     <Row field="source" value={source} />
     <Row field="license" value={str(props.license)} />
-    <Row label={t("popup.japan.coverageScope")} value={str(props.coverage)} />
+    <Row field="coverageScope" value={str(props.coverage)} />
     <Row label={t("popup.japan.sourceOperator")} value={str(props.operator) ? t("popup.japan.sourceOperatorValue", { value: str(props.operator) }) : ""} />
     <Row field="capacity" value={str(props.capacity)} />
     <Row label={t("popup.japan.sourceIdentity")} value={str(props.source_id) ? t("popup.japan.sourceIdentityValue", { value: str(props.source_id) }) : ""} />
@@ -222,7 +222,7 @@ export function JpStationsPanel({ props }: { props: Record<string, unknown> }) {
   }
   const passengerLabel = passenger
     ? t("popup.japan.passengersPerDay", { count: formatNumber(passenger.count), year: passenger.year })
-    : t("popup.japan.noData");
+    : t("popup.common.noData");
 
   return (
     <>
@@ -347,19 +347,19 @@ export function JpPoliceFacilitiesPanel({ props }: { props: Record<string, unkno
   const { t } = i18n;
   const facilityType = JP_POLICE_FACILITY_TYPES.find(ft => ft.value === props.facility_type);
   const precision: Record<string, string> = { mapped_poi: "地圖設施點", mapped_label: "地圖注記", address: "地址", block: "街區", chome: "丁目", town: "町域" };
-  const na = t("popup.japan.notProvided");
+  const na = t("popup.common.notProvided");
   const precisionKey = policeText(props.geom_precision);
   const sourceKey = props.geometry_source === "gsi_address" ? "gsi_address" : props.geometry_source === "gsi_optimal_bvmap" ? "gsi_optimal_bvmap" : "";
   return <>
     <Title color={facilityType?.color ?? JP_POLICE_LAYER_COLOR}>{policeText(props.name) || t("popup.japan.policeDefault")}</Title>
-    <Row label={t("popup.japan.facilityType")} value={facilityType ? enumLabel("jpPoliceFacility", facilityType.value, facilityType.label, i18n) : na} />
+    <Row field="facilityType" value={facilityType ? enumLabel("jpPoliceFacility", facilityType.value, facilityType.label, i18n) : na} />
     <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
     <Row field="address" value={policeText(props.address) || na} />
     <Row field="phone" value={policeText(props.phone) || na} />
     <Row label={t("popup.japan.dataAsOf")} value={policeText(props.source_as_of) || na} />
     {props.geom_status === "degraded" && <Row label={t("popup.japan.approxPosition")} value={t("popup.japan.approxPositionValue")} />}
-    <Row label={t("popup.japan.coordPrecision")} value={precision[precisionKey] ? enumLabel("jpGeomPrecision", precisionKey, precision[precisionKey], i18n) : na} />
+    <Row field="coordPrecision" value={precision[precisionKey] ? enumLabel("jpGeomPrecision", precisionKey, precision[precisionKey], i18n) : na} />
     <Row label={t("popup.japan.positionSource")} value={sourceKey ? enumLabel("jpGeometrySource", sourceKey, sourceKey === "gsi_address" ? "国土地理院 AddressSearch" : "国土地理院最適化ベクトルタイル", i18n) : na} />
-    <Row label={t("popup.japan.attribution")} value={JP_POLICE_ATTRIBUTION} />
+    <Row field="attribution" value={JP_POLICE_ATTRIBUTION} />
   </>;
 }

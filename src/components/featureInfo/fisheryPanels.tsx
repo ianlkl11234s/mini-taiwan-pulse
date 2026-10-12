@@ -116,7 +116,7 @@ export function AquacultureWaterSatelliteMoaPanel({ props }: { props: Record<str
   const i18n = useLocale();
   const { t: tr } = i18n;
   const moa = MOA_TIER[displayClass];
-  const tier = moa ? { color: moa.color, label: enumLabel("fisheryMoaTier", displayClass, moa.label, i18n) } : { color: "#9e9e9e", label: displayClass || tr("popup.fishery.unknown") };
+  const tier = moa ? { color: moa.color, label: enumLabel("fisheryMoaTier", displayClass, moa.label, i18n) } : { color: "#9e9e9e", label: displayClass || tr("popup.common.unknown") };
   const reason = moaReasonText(props, tr);
   return (
     <>
@@ -166,7 +166,7 @@ export function AquacultureWaterUnionPanel({ props }: { props: Record<string, un
   const i18n = useLocale();
   const { t: tr } = i18n;
   const union = UNION_TIER[unionClass];
-  const tier = union ? { color: union.color, label: enumLabel("fisheryUnionTier", unionClass, union.label, i18n) } : { color: "#9e9e9e", label: unionClass || tr("popup.fishery.unknown") };
+  const tier = union ? { color: union.color, label: enumLabel("fisheryUnionTier", unionClass, union.label, i18n) } : { color: "#9e9e9e", label: unionClass || tr("popup.common.unknown") };
   const reason = unionReasonText(props, tr);
   const sourceRaw = typeof props.source === "string" ? props.source : "";
   const sourceLabel = sourceRaw ? (UNION_SOURCE_LABEL[sourceRaw] ? enumLabel("fisheryUnionSource", sourceRaw, UNION_SOURCE_LABEL[sourceRaw], i18n) : sourceRaw) : "";
@@ -181,7 +181,7 @@ export function AquacultureWaterUnionPanel({ props }: { props: Record<string, un
       )}
       <Row field="area" value={areaHa(props.area_ha)} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row label={tr("popup.fishery.sourceVersion")} value={sourceLabel} />
+      <Row field="sourceVersion" value={sourceLabel} />
     </>
   );
 }
@@ -198,7 +198,7 @@ export function AquacultureIntegratedPanel({ props }: { props: Record<string, un
   const i18n = useLocale();
   const { t: tr } = i18n;
   const integ = INTEGRATED_SOURCE[src];
-  const tier = integ ? { label: enumLabel("fisheryIntegratedSource", src, integ.label, i18n), color: integ.color } : { label: src || tr("popup.fishery.unknown"), color: "#9e9e9e" };
+  const tier = integ ? { label: enumLabel("fisheryIntegratedSource", src, integ.label, i18n), color: integ.color } : { label: src || tr("popup.common.unknown"), color: "#9e9e9e" };
   return (
     <>
       <Title color={tier.color}>{tr("popup.fishery.integratedTitle")}</Title>

@@ -2,7 +2,6 @@
   "popup.soilLiquefaction.siteCaveat": "個別基地僅供初步評估，不構成工程安全判定；請以官方圖台與現地鑽探為準。",
   "popup.soilLiquefaction.potentialTitle": "土壤液化潛勢：{label}",
   "popup.soilLiquefaction.notInvestigatedLabel": "未調查",
-  "popup.soilLiquefaction.noDataLabel": "無資料",
   "popup.soilLiquefaction.potentialClass": "潛勢類別",
   "popup.soilLiquefaction.classMeaning": "類別意義",
   "popup.soilLiquefaction.classMeaningText": "官方整合鑽孔、地下水位、設計地震與歷史資料的綜合類別，不是量測值；不可回推 PL 或地下水位。",

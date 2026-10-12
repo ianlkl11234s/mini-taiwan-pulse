@@ -114,9 +114,9 @@ export function AnimalShelterPressurePanel({ props }: { props: Record<string, un
   return <>
     <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.county_name) || str(props["名稱"]) || tr("popup.animalWelfare.countyShelter")}</div>
     <Row label={tr("popup.animalWelfare.dataMonth")} value={period ? tr("popup.animalWelfare.officialMonthly", { period }) : tr("popup.animalWelfare.monthMissing")} />
-    <Row label={tr("popup.animalWelfare.utilization")} value={utilization == null ? tr("popup.animalWelfare.notProvided") : `${utilization.toFixed(1)}%`} color={utilization != null && utilization >= 100 ? "#dc2626" : "#f97316"} />
-    <Row label={tr("popup.animalWelfare.inShelter")} value={inShelter == null ? tr("popup.animalWelfare.notProvided") : tr("popup.animalWelfare.animals", { count: inShelter, value: formatNumber(inShelter) })} />
-    <Row label={tr("popup.animalWelfare.approvedCapacity")} value={capacity == null ? tr("popup.animalWelfare.notProvided") : tr("popup.animalWelfare.animals", { count: capacity, value: formatNumber(capacity) })} />
+    <Row label={tr("popup.animalWelfare.utilization")} value={utilization == null ? tr("popup.common.notProvided") : `${utilization.toFixed(1)}%`} color={utilization != null && utilization >= 100 ? "#dc2626" : "#f97316"} />
+    <Row label={tr("popup.animalWelfare.inShelter")} value={inShelter == null ? tr("popup.common.notProvided") : tr("popup.animalWelfare.animals", { count: inShelter, value: formatNumber(inShelter) })} />
+    <Row label={tr("popup.animalWelfare.approvedCapacity")} value={capacity == null ? tr("popup.common.notProvided") : tr("popup.animalWelfare.animals", { count: capacity, value: formatNumber(capacity) })} />
     <OutcomeTrend rows={outcomes} />
     <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 8 }}>
       {tr("popup.animalWelfare.asOfNote", { period: period || tr("popup.animalWelfare.officialMonthFallback") })}
@@ -162,7 +162,7 @@ export function AnimalWelfarePointsPanel({ props }: { props: Record<string, unkn
       .catch(() => { if (!cancelled) setHistory([]); });
     return () => { cancelled = true; };
   }, [sourceDatasetId, sourceRecordKey]);
-  const services = displayTags(props.service_tags, tr("popup.animalWelfare.listSeparator"));
+  const services = displayTags(props.service_tags, tr("popup.common.listSeparator"));
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: "50%", background: type.color }} />

@@ -27,6 +27,5 @@
   "popup.landslide.minDtm": "最低標高（DTM）",
   "popup.landslide.dtmMissing": "欠測（標高値なし）",
   "popup.landslide.unitMeter": "m",
-  "popup.landslide.imageDate": "画像の撮影日",
-  "popup.landslide.version": "バージョン"
+  "popup.landslide.imageDate": "画像の撮影日"
 }

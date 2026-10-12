@@ -1,13 +1,10 @@
 {
-  "popup.allenCoral.notProvided": "Not provided",
   "popup.allenCoral.region": "Study region",
   "popup.allenCoral.window": "Study window",
   "popup.allenCoral.sourceArea": "Full source feature area",
-  "popup.allenCoral.sourceVersion": "Source version",
   "popup.allenCoral.resolution": "Nominal resolution",
   "popup.allenCoral.geometryRole": "Geometry role",
   "popup.allenCoral.warning": "Coral/algae is a merged class and does not represent live coral cover, health or species. Kinmen and Matsu have no mapped features, which does not mean there is no coral. The acquisition date is not the observation date; the nominal 5 m resolution is not positional accuracy.",
   "popup.allenCoral.areaNote": "The full source feature area is not clipped and cannot be taken as the total coral area of the study region. Acquired on {date}, not the observation date.",
-  "popup.allenCoral.attributionLabel": "Attribution",
   "popup.allenCoral.attribution": "© Allen Coral Atlas Partnership / Arizona State University · CC BY 4.0 · Private, non-commercial research by the author"
 }

@@ -29,7 +29,7 @@ export function SoilLiquefactionPotentialPanel({ props }: { props: Record<string
   const raw = str(props.potential_class);
   const known = SOIL_POTENTIAL_CLASSES.find((item) => item.value === raw);
   const notInvestigated = raw === SOIL_POTENTIAL_NOT_INVESTIGATED;
-  const label = known ? enumLabel("soilPotentialClass", known.value, known.label, i18n) : notInvestigated ? t("popup.soilLiquefaction.notInvestigatedLabel") : t("popup.soilLiquefaction.noDataLabel");
+  const label = known ? enumLabel("soilPotentialClass", known.value, known.label, i18n) : notInvestigated ? t("popup.soilLiquefaction.notInvestigatedLabel") : t("popup.common.noData");
   return <>
     <Title color={known?.color ?? BOUNDARY_GRAY.dark}>{t("popup.soilLiquefaction.potentialTitle", { label })}</Title>
     <Row label={t("popup.soilLiquefaction.potentialClass")} value={label} />

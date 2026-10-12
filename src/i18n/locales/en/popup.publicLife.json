@@ -1,11 +1,9 @@
 {
-  "popup.publicLife.listSeparator": ", ",
   "popup.publicLife.geometrySourcePoint": "Original point",
   "popup.publicLife.geometryRepresentativePoint": "Representative interior point of the original line or polygon (for point-layer display only)",
   "popup.publicLife.unnamedType": "{type} (unnamed)",
   "popup.publicLife.unnamedOsm": "Unnamed OSM facility",
   "popup.publicLife.osmRole": "OSM public-life facilities snapshot",
-  "popup.publicLife.featureType": "Facility type",
   "popup.publicLife.recyclingType": "Site form",
   "popup.publicLife.accessibility": "Accessibility",
   "popup.publicLife.accessibilityStatus": "Accessibility status",
@@ -16,11 +14,9 @@
   "popup.publicLife.recyclingMaterials": "Recycled materials",
   "popup.publicLife.sourceGeometry": "Source geometry",
   "popup.publicLife.displayPosition": "Display position",
-  "popup.publicLife.coverageLimit": "Coverage limits",
   "popup.publicLife.coverageDefault": "Crowd-mapped and incomplete; blank areas do not mean no facilities.",
   "popup.publicLife.unnamedShelter": "Unnamed shelter",
   "popup.publicLife.shelterRole": "Designated disaster shelter",
-  "popup.publicLife.countyTown": "County/city and township",
   "popup.publicLife.shelterCapacity": "Planned capacity",
   "popup.publicLife.disasterTypes": "Applicable disasters",
   "popup.publicLife.indoorOutdoor": "Indoor / outdoor",
@@ -46,6 +42,5 @@
   "popup.publicLife.accessibilityTags": "Accessibility tags",
   "popup.publicLife.bicycleSpecific": "Cycling-specific support",
   "popup.publicLife.visitorCentre": "Visitor centres",
-  "popup.publicLife.snapshotAt": "Snapshot time",
   "popup.publicLife.coverageNote": "OSM mapping density; not service quality, population coverage or road accessibility."
 }

@@ -334,7 +334,7 @@ export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) 
   const t = useFeatureTheme();
   const { t: tr, formatDateTime } = useLocale();
   const color = String(props.class_color ?? "#fb7185");
-  const classLabel = String(props.class_label ?? tr("popup.event.unclassified"));
+  const classLabel = String(props.class_label ?? tr("popup.common.unclassified"));
   const shipName = String(props.ship_name ?? "").trim() || tr("popup.event.noShipName");
   const str = (v: unknown) => {
     const s = v === null || v === undefined ? "" : String(v).trim();
@@ -366,7 +366,7 @@ export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) 
       <Row label={tr("popup.event.basis")} value={confidenceLabel(props.confidence as string)} />
       <Row label="MMSI" value={str(props.mmsi)} />
       <Row label="IMO" value={str(props.imo)} />
-      <Row label={tr("popup.event.callSign")} value={str(props.call_sign)} />
+      <Row field="callSign" value={str(props.call_sign)} />
       <Row label={tr("popup.event.shipLength")} value={num(props.length_m, "m")} />
       {isTrail ? (
         <Row label={tr("popup.event.trailPoints")} value={num(props.point_count, tr("popup.event.pointUnit"))} />

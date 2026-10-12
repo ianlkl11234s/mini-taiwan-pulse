@@ -271,9 +271,9 @@ export function GfwVesselPresencePanel({ props }: { props: Record<string, unknow
       <Row label="Vessel ID" value={String(props.vessel_id ?? "—")} />
       <Row label={t("popup.globalClimate.mmsiFlag")} value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
       <Row label={t("popup.transport.vesselType")} value={String(props.vessel_type ?? "—")} />
-      <Row label={t("popup.globalClimate.snapshotDate")} value={String(props.source_snapshot_date ?? "—")} />
+      <Row field="snapshotDate" value={String(props.source_snapshot_date ?? "—")} />
       <Row field="observedAt" value={fmtMaritimeTime(props.observed_at, i18n)} />
-      <Row label={t("popup.globalClimate.dataAge")} value={props.age_hours == null ? "—" : t("popup.globalClimate.hoursValue", { value: Number(props.age_hours).toFixed(1) })} />
+      <Row field="dataAge" value={props.age_hours == null ? "—" : t("popup.globalClimate.hoursValue", { value: Number(props.age_hours).toFixed(1) })} />
       <Row field="dataSource" value={t("popup.globalClimate.gfwDaily")} />
     </div>
   );
@@ -292,7 +292,7 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
       {typeof props.dominant_observed_at === "string" && <Row label={tr("popup.globalClimate.dominantHour")} value={fmtMaritimeUtcTime(props.dominant_observed_at, i18n)} />}
       <Row label={tr("popup.globalClimate.vesselsInCell")} value={Number.isFinite(expectedCount) ? tr("popup.globalClimate.shipCount", { count: expectedCount }) : "—"} />
       <Row label={tr("popup.globalClimate.gridCenter")} value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
-      {typeof props.cell_id === "string" && <Row label={tr("popup.globalClimate.cellId")} value={props.cell_id} />}
+      {typeof props.cell_id === "string" && <Row field="gridId" value={props.cell_id} />}
       <Row label={tr("popup.globalClimate.geomSemantics")} value={tr(props.geometry_semantics === "globally_aligned_0_1_degree_cell" ? "popup.globalClimate.geomLocalAgg" : "popup.globalClimate.geomCenter")} />
       {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentInferred")} />}
       {props.geometry_semantics === "globally_aligned_0_1_degree_cell" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentAligned")} />}
@@ -401,13 +401,13 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
       facetCount = null;
     }
   }
-  const unavailable = (value: unknown): string => value == null || value === "" ? tr("popup.globalClimate.notProvided") : String(value);
+  const unavailable = (value: unknown): string => value == null || value === "" ? tr("popup.common.notProvided") : String(value);
   const attributionHref = typeof props.attribution_href === "string" && props.attribution_href ? props.attribution_href : null;
   return (
     <div>
       <Row label={tr("popup.globalClimate.selectedUtcDay")} value={unavailable(props.selected_utc_date ?? props.date)} />
-      <Row label={tr("popup.globalClimate.fishingActivity")} value={hours != null ? `${i18n.formatNumber(hours, { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : tr("popup.globalClimate.notProvided")} />
-      <Row label={tr("popup.globalClimate.components")} value={components != null ? i18n.formatNumber(components) : tr("popup.globalClimate.notProvided")} />
+      <Row label={tr("popup.globalClimate.fishingActivity")} value={hours != null ? `${i18n.formatNumber(hours, { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : tr("popup.common.notProvided")} />
+      <Row label={tr("popup.globalClimate.components")} value={components != null ? i18n.formatNumber(components) : tr("popup.common.notProvided")} />
       {facetCount != null && <Row label="Aggregation facets" value={tr("popup.globalClimate.facetsValue", { count: facetCount })} />}
       {facets.length > 0 && (
         <details style={{ marginTop: 7, color: t.textDim }}>
@@ -417,7 +417,7 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
           </pre>
         </details>
       )}
-      <Row label={tr("popup.globalClimate.datasetVersion")} value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
+      <Row field="dataVersion" value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
       <Row label={tr("popup.globalClimate.metric")} value={unavailable(props.metric_semantics ?? props.metric)} />
       <Row label={tr("popup.globalClimate.latestDate")} value={unavailable(props.latest_available_date)} />
       <Row label="Finalization" value={unavailable(props.finalization_status)} />
@@ -504,7 +504,7 @@ export function ClimateFieldPanel({ props }: { props: Record<string, unknown> })
     <div>
       {wind && (
         <>
-          <Row label={tr("popup.globalClimate.windSpeed")} value={tr("popup.globalClimate.windSpeedValue", { ms: wind.speed.toFixed(1), kmh: (wind.speed * 3.6).toFixed(0) })} />
+          <Row field="windSpeed" value={tr("popup.globalClimate.windSpeedValue", { ms: wind.speed.toFixed(1), kmh: (wind.speed * 3.6).toFixed(0) })} />
           <Row
             label={tr("popup.globalClimate.windDir")}
             value={tr("popup.globalClimate.windDirValue", { deg: windDirFrom(wind.u, wind.v).toFixed(0), dir: compassLabel(windDirFrom(wind.u, wind.v)) })}

@@ -27,6 +27,5 @@
   "popup.landslide.minDtm": "最低高程（DTM）",
   "popup.landslide.dtmMissing": "缺（無高程值）",
   "popup.landslide.unitMeter": "公尺",
-  "popup.landslide.imageDate": "影像日期",
-  "popup.landslide.version": "版本"
+  "popup.landslide.imageDate": "影像日期"
 }

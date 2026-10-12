@@ -64,7 +64,7 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
       <Row label={tr("popup.infra.owner")} value={String(props.owner ?? "")} />
       <Row label={tr("popup.infra.osmIdent")} value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
       <Row label={tr("popup.infra.lineQuality")} value={String(props.geometry_source ?? "")} />
-      <Row label={tr("popup.infra.coverageLimit")} value={tr("popup.infra.cableCoverage")} />
+      <Row field="coverageLimit" value={tr("popup.infra.cableCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
@@ -91,7 +91,7 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
       <Row label={tr("popup.infra.cableCount")} value={String(props.cable_count ?? "")} />
       <Row label={tr("popup.infra.cableNames")} value={String(props.cable_names ?? "")} />
       <Row label={tr("popup.infra.osmIdent")} value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
-      <Row label={tr("popup.infra.coverageLimit")} value={tr("popup.infra.landingCoverage")} />
+      <Row field="coverageLimit" value={tr("popup.infra.landingCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
@@ -118,7 +118,7 @@ export function InternetExchangePointPanel({ props }: { props: Record<string, un
       <Row label={tr("popup.infra.ixpContinent")} value={region} color={accentColor} />
       <Row label={tr("popup.infra.ixpParticipants")} value={participants ? tr("popup.infra.ixpParticipantsValue", { count: participants }) : ""} />
       <Row field="status" value={String(props.status ?? "")} />
-      <Row label={tr("popup.infra.dataUpdated")} value={updated && updated !== "0000-00-00" ? updated : tr("popup.infra.notProvided")} />
+      <Row label={tr("popup.infra.dataUpdated")} value={updated && updated !== "0000-00-00" ? updated : tr("popup.common.notProvided")} />
       <Row label={tr("popup.infra.coordQa")} value={String(props.coord_qc_status ?? "")} />
       <Row field="sourceLicense" value={`${String(props.source_org ?? "PCH")} · ${String(props.license ?? "")}`} />
     </>
@@ -204,13 +204,13 @@ export function RipeAtlasProbePanel({ props }: { props: Record<string, unknown> 
 
 function formatOoklaMbps(value: unknown, tr: LocaleSnapshot["t"]): string {
   const kbps = Number(value);
-  if (!Number.isFinite(kbps)) return tr("popup.infra.notProvided");
+  if (!Number.isFinite(kbps)) return tr("popup.common.notProvided");
   return `${(kbps / 1000).toFixed(kbps >= 100_000 ? 0 : 1)} Mbps`;
 }
 
 function formatOoklaLatency(value: unknown, tr: LocaleSnapshot["t"]): string {
   const latency = Number(value);
-  return Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : tr("popup.infra.notProvided");
+  return Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : tr("popup.common.notProvided");
 }
 
 /**
@@ -244,8 +244,8 @@ function OoklaGridPanel({ props, service }: { props: Record<string, unknown>; se
     <Row
       label={tr("popup.infra.ooklaTestsDevices")}
       value={`${tr("popup.infra.ooklaDevicesLine", {
-        tests: String(props.tests ?? tr("popup.infra.notProvided")),
-        devices: String(props.devices ?? tr("popup.infra.notProvided")),
+        tests: String(props.tests ?? tr("popup.common.notProvided")),
+        devices: String(props.devices ?? tr("popup.common.notProvided")),
         method: OOKLA_GRID_META.devicesMethod,
       })}${thin ? ` ${tr("popup.infra.ooklaLowSample")}` : ""}`}
     />
@@ -269,8 +269,6 @@ export function OoklaFixedGridPanel({ props }: { props: Record<string, unknown> 
 
 export function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const i18n = useLocale();
-  const { t: tr } = i18n;
   const brand = String(props.brand ?? "");
   const accentColor = BRAND_COLORS[brand] ?? "#26c6da";
 
@@ -282,7 +280,7 @@ export function ConvenienceStorePanel({ props }: { props: Record<string, unknown
           {String(props.name ?? "Unknown Store")}
         </div>
       </div>
-      <Row label={tr("popup.infra.brand")} value={brand} color={accentColor} />
+      <Row field="brand" value={brand} color={accentColor} />
       <Row field="address" value={String(props.addr ?? props.address ?? "")} />
     </>
   );
@@ -533,7 +531,7 @@ export function AirportPanel({ props }: { props: Record<string, unknown> }) {
           {String(props.name ?? "Unknown Airport")}
         </div>
       </div>
-      <Row label={tr("popup.infra.english")} value={String(props.name_en ?? "")} />
+      <Row field="englishShort" value={String(props.name_en ?? "")} />
       <Row label="ICAO" value={String(props.icao ?? "")} />
       <Row label="IATA" value={iata} />
 
@@ -544,7 +542,7 @@ export function AirportPanel({ props }: { props: Record<string, unknown> }) {
           </div>
           {loadingTs ? (
             <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-              {tr("popup.infra.loading")}
+              {tr("popup.common.loading")}
             </div>
           ) : !hasData ? (
             <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>

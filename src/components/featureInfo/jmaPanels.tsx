@@ -56,15 +56,15 @@ export function JmaAmedasPanel({ props }: PanelProps) {
   const dir = windDir(props.wind_dir, tr);
   return <>
     <Title color={JMA_LAYER_COLORS.jmaAmedas}>{text(props.station_name, tr("popup.jma.amedasStation"))}</Title>
-    <Row field="observedAt" value={formatJst(props.observed_at) || tr("popup.jma.noData")} mono />
+    <Row field="observedAt" value={formatJst(props.observed_at) || tr("popup.common.none")} mono />
     <Row label={tr("popup.jma.temp")} value={measure_(props.temp, "°C")} />
     <Row label={tr("popup.jma.precip10")} value={measure_(props.precip10m, "mm")} />
     <Row label={tr("popup.jma.precip1h")} value={measure_(props.precip1h, "mm")} />
     <Row label={tr("popup.jma.precip3h")} value={measure_(props.precip3h, "mm")} />
     <Row label={tr("popup.jma.precip24h")} value={measure_(props.precip24h, "mm")} />
-    <Row label={tr("popup.jma.wind")} value={dir && num(props.wind) != null ? `${wind}（${dir}）` : wind} />
+    <Row field="windSpeed" value={dir && num(props.wind) != null ? `${wind}（${dir}）` : wind} />
     <Row label={tr("popup.jma.gust")} value={measure_(props.gust, "m/s")} />
-    <Row label={tr("popup.jma.humidity")} value={measure_(props.humidity, "%", 0)} />
+    <Row field="humidity" value={measure_(props.humidity, "%", 0)} />
     <Row label={tr("popup.jma.pressure")} value={measure_(props.pressure, "hPa")} />
     <Row label={tr("popup.jma.sun1h")} value={measure_(props.sun1h, tr("popup.jma.hours"))} />
     {gauge ? <>
@@ -97,7 +97,7 @@ export function JmaWarningsPanel({ props }: PanelProps) {
   return <>
     <Title color={level?.color ?? JMA_LAYER_COLORS.jmaWarnings}>{place || tr("popup.jma.cityFallback")}</Title>
     {!area ? <Row field="status" value={tr("popup.jma.noWarningNow")} /> : <>
-      <Row label={tr("popup.jma.areaLevel")} value={level?.label ?? tr("popup.jma.unknown")} color={level?.color} />
+      <Row label={tr("popup.jma.areaLevel")} value={level?.label ?? tr("popup.common.unknown")} color={level?.color} />
       {area.areaName && <Row label={tr("popup.jma.jmaArea")} value={area.areaName} />}
       <PopupScroll>
         {area.rows.map((row, i) => {
@@ -108,10 +108,10 @@ export function JmaWarningsPanel({ props }: PanelProps) {
             color={lv?.color} />;
         })}
       </PopupScroll>
-      <Row label={tr("popup.jma.reportTime")} value={formatJst(first?.report_datetime) || tr("popup.jma.noData")} mono />
+      <Row label={tr("popup.jma.reportTime")} value={formatJst(first?.report_datetime) || tr("popup.common.none")} mono />
       {first?.office_name && <Row label={tr("popup.jma.office")} value={first.office_name} />}
     </>}
-    <PopupDetails summary={tr("popup.jma.detailsNotes")}>
+    <PopupDetails summary={tr("popup.common.notesAndLimits")}>
       <Row label={tr("popup.jma.mapping")} value={tr("popup.jma.mappingNote")} />
       <Row field="updated" value={tr("popup.jma.warningUpdated")} />
       <Row label={tr("popup.jma.cityCode")} value={text(props.admin_code)} mono />
@@ -134,11 +134,11 @@ export function JmaQuakesPanel({ props }: PanelProps) {
     <Row label={tr("popup.jma.depth")} value={depth == null ? tr("popup.jma.notIssued") : `${formatNumber(depth)} km`} />
     <Row label={tr("popup.jma.maxIntensity")} value={jmaIntensityLabel(intensity)} color={color} />
     <Row label={tr("popup.jma.infoType")} value={text(props.title)} />
-    <Row label={tr("popup.jma.reportTime")} value={formatJst(props.report_time) || tr("popup.jma.noData")} mono />
+    <Row label={tr("popup.jma.reportTime")} value={formatJst(props.report_time) || tr("popup.common.none")} mono />
     <PopupDetails summary={tr("popup.jma.detailsQuake")}>
       {byPref && <Row label={tr("popup.jma.intensityByPref")} value={byPref.length > 400 ? `${byPref.slice(0, 400)}…` : byPref} />}
       <Row field="description" value={tr("popup.jma.quakeNote")} />
-      <Row label={tr("popup.jma.eventId")} value={text(props.event_id)} mono />
+      <Row field="eventId" value={text(props.event_id)} mono />
     </PopupDetails>
     <Footer fetchedAt={props.report_time} />
   </>;
@@ -150,9 +150,9 @@ export function JmaVolcanoesPanel({ props }: PanelProps) {
   return <>
     <Title color={level.color}>{text(props.volcano_name, tr("popup.jma.volcano"))}</Title>
     <Row label={tr("popup.jma.volcanoAlert")} value={level.label} color={level.color} />
-    <Row label={tr("popup.jma.original")} value={text(props.level_name, tr("popup.jma.notProvided"))} />
+    <Row label={tr("popup.jma.original")} value={text(props.level_name, tr("popup.common.notProvided"))} />
     {text(props.warning_kind) && <Row label={tr("popup.jma.warningKind")} value={text(props.warning_kind)} />}
-    <Row label={tr("popup.jma.reportTime")} value={formatJst(props.report_time) || tr("popup.jma.noData")} mono />
+    <Row label={tr("popup.jma.reportTime")} value={formatJst(props.report_time) || tr("popup.common.none")} mono />
     <PopupDetails summary={tr("popup.jma.details")}>
       <Row label={tr("popup.jma.reading")} value={tr("popup.jma.volcanoNote")} />
       <Row label={tr("popup.jma.volcanoCode")} value={text(props.volcano_code)} mono />

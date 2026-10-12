@@ -9,9 +9,9 @@ import { enumLabel } from "../../i18n/dataText";
 type L = ReturnType<typeof useLocale>;
 
 const isMissing = (value: unknown) => value == null || value === "" || value === "null";
-const textWith = ({ t }: L) => (value: unknown, fallback: string = t("popup.networkStructures.notProvided")) => isMissing(value) ? fallback : String(value);
+const textWith = ({ t }: L) => (value: unknown, fallback: string = t("popup.common.notProvided")) => isMissing(value) ? fallback : String(value);
 
-const numberTextWith = ({ t, formatNumber }: L) => (value: unknown, unit = "", fallback: string = t("popup.networkStructures.notProvided")) => {
+const numberTextWith = ({ t, formatNumber }: L) => (value: unknown, unit = "", fallback: string = t("popup.common.notProvided")) => {
   if (isMissing(value)) return fallback;
   const number = Number(value);
   return Number.isFinite(number) ? `${formatNumber(number)}${unit}` : fallback;
@@ -53,21 +53,21 @@ const FACILITY_CLASS_LABELS: Record<string, string> = {
 function candidateWayIds(value: unknown, { t }: L): string {
   try {
     const ids: unknown = JSON.parse(String(value));
-    return Array.isArray(ids) && ids.every((id) => typeof id === "string") ? ids.join(t("popup.networkStructures.sepList")) : t("popup.networkStructures.notProvided");
+    return Array.isArray(ids) && ids.every((id) => typeof id === "string") ? ids.join(t("popup.common.listSeparator")) : t("popup.common.notProvided");
   } catch {
-    return t("popup.networkStructures.notProvided");
+    return t("popup.common.notProvided");
   }
 }
 
 function listItem(value: unknown, i18n: L): string {
   const { t } = i18n;
-  if (value == null) return t("popup.networkStructures.notProvided");
-  if (typeof value === "boolean") return value ? t("popup.networkStructures.yes") : t("popup.networkStructures.no");
-  if (Array.isArray(value)) return value.map((item) => listItem(item, i18n)).join(t("popup.networkStructures.sepList"));
+  if (value == null) return t("popup.common.notProvided");
+  if (typeof value === "boolean") return value ? t("popup.common.yes") : t("popup.common.no");
+  if (Array.isArray(value)) return value.map((item) => listItem(item, i18n)).join(t("popup.common.listSeparator"));
   if (typeof value === "object") {
     return Object.entries(value).map(([key, item]) =>
       t("popup.networkStructures.kv", { key: enumLabel("networkMetric", key, METRIC_LABELS[key] ?? key, i18n), value: listItem(item, i18n) }),
-    ).join(t("popup.networkStructures.sepFields"));
+    ).join(t("popup.common.semicolon"));
   }
   return String(value);
 }
@@ -94,8 +94,8 @@ function SourceRows({ props }: { props: Record<string, unknown> }) {
       : t("popup.networkStructures.dateMeaningOfficial");
   return <>
     <Row field="source" value={text(props.source_name)} />
-    <Row label={t("popup.networkStructures.sourceDate")} value={text(props.source_date)} />
-    <Row label={t("popup.networkStructures.dateMeaning")} value={isMissing(props.source_date) ? t("popup.networkStructures.notProvided") : dateMeaning} />
+    <Row field="dataDate" value={text(props.source_date)} />
+    <Row label={t("popup.networkStructures.dateMeaning")} value={isMissing(props.source_date) ? t("popup.common.notProvided") : dateMeaning} />
     <Row label={t("popup.networkStructures.retrievedAt")} value={text(props.retrieved_at)} />
     {sourceUrl && <div style={{ marginTop: 6 }}>
       <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
@@ -193,7 +193,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
   const v5Code = String(props.v5_class);
   const v5ClassText = BSS_BRIDGE_V5_CLASS_LABELS[v5Code]
     ? enumLabel("bssV5Class", v5Code, BSS_BRIDGE_V5_CLASS_LABELS[v5Code], i18n)
-    : t("popup.networkStructures.notProvided");
+    : t("popup.common.notProvided");
   const v5LineColor = isLine ? BSS_BRIDGE_V5_LINE_COLORS[String(props.v5_class) as keyof typeof BSS_BRIDGE_V5_LINE_COLORS] : undefined;
   return <>
     <Title color={v5LineColor ?? (isNoCrossingNearestRoute ? "#f472b6" : isNoWaterwayCarrierConsensus ? "#60a5fa" : isTiedRouteConsensus ? "#fb7185" : isMultiBridgeCrossing ? "#bef264" : isWaterwayCrossing ? "#e879f9" : isCurvedLocal ? "#2dd4bf" : isOrdinaryRoute ? "#a78bfa" : isOffset ? "#f97316" : isLine ? "#22d3ee" : "#facc15")}>{text(props.bss_name, t("popup.networkStructures.bssTitle"))}</Title>
@@ -217,7 +217,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         {!!props.stage1_source_reference && <Row label={t("popup.networkStructures.sourceReference")} value={text(props.stage1_source_reference)} />}
         {props.stage1_source_distance_m != null && <Row label={t("popup.networkStructures.sourceDistance")} value={t("popup.networkStructures.sourceDistanceValue", { distance: numberText(props.stage1_source_distance_m, " m") })} />}
         {!!props.stage1_source_release_id && <Row label={t("popup.networkStructures.sourceReleaseId")} value={shortId(props.stage1_source_release_id)} title={idTitle(props.stage1_source_release_id)} />}
-        <Row label={t("popup.networkStructures.accessScreen")} value={FACILITY_CLASS_LABELS[facilityCode] ? enumLabel("bssFacilityClass", facilityCode, FACILITY_CLASS_LABELS[facilityCode], i18n) : t("popup.networkStructures.unclassified")} />
+        <Row label={t("popup.networkStructures.accessScreen")} value={FACILITY_CLASS_LABELS[facilityCode] ? enumLabel("bssFacilityClass", facilityCode, FACILITY_CLASS_LABELS[facilityCode], i18n) : t("popup.common.unclassified")} />
         <Row label={t("popup.networkStructures.classReason")} value={text(props.classification_reason)} />
         {!!props.osm_highway_tag_for_class && <Row label={t("popup.networkStructures.osmHighwayHint")} value={text(props.osm_highway_tag_for_class)} />}
         <Row label={t("popup.networkStructures.identityReview")} value={text(props.identity_review_status, "not_reviewed")} />
@@ -247,7 +247,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         </>}
         {!isLine && showPointReason && <Row label={t("popup.networkStructures.directionTier")} value={pointTierText} />}
         {!isLine && props.ordinary_route_trial_outcome != null && <Row label={t("popup.networkStructures.ordinaryTrial")} value={text(props.ordinary_route_trial_outcome)} />}
-        {!isLine && props.supplemental_direction_available != null && <Row label={t("popup.networkStructures.supplementalDir")} value={props.supplemental_direction_available === true || props.supplemental_direction_available === "true" ? t("popup.networkStructures.supplementalYes") : t("popup.networkStructures.none")} />}
+        {!isLine && props.supplemental_direction_available != null && <Row label={t("popup.networkStructures.supplementalDir")} value={props.supplemental_direction_available === true || props.supplemental_direction_available === "true" ? t("popup.networkStructures.supplementalYes") : t("popup.common.none")} />}
         {!isLine && props.selected_osm_way_shared != null && <>
           <Row label={t("popup.networkStructures.sameWayCount")} value={text(props.selected_osm_way_record_count)} />
           <Row label={t("popup.networkStructures.sharedSource")} value={props.selected_osm_way_shared ? t("popup.networkStructures.sharedYes") : t("popup.networkStructures.sharedNo")} />
@@ -291,7 +291,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         {!!props.qa_reference_date && <Row label={t("popup.networkStructures.legacyQaDate")} value={text(props.qa_reference_date)} />}
         {!!props.qa_evidence_reference && <Row label={t("popup.networkStructures.legacyQaImagery")} value={text(props.qa_evidence_reference)} />}
       </PopupDetails>
-      <PopupDetails summary={t("popup.networkStructures.notesAndLimits")}>
+      <PopupDetails summary={t("popup.common.notesAndLimits")}>
         <Row label={t("popup.networkStructures.stage1Scope")} value={t("popup.networkStructures.stage1ScopeValue")} />
         <Row label={t("popup.networkStructures.stage1Overall")} value={t("popup.networkStructures.stage1OverallValue")} />
         <Row label={t("popup.networkStructures.networkEdgeStatus")} value={t("popup.networkStructures.networkEdgeStatusValue")} />
@@ -334,7 +334,7 @@ export function BridgeComparisonNewTaipeiPanel({ props }: { props: Record<string
     <Title color={status?.color ?? NETWORK_STRUCTURES_COLORS.notEvaluated}>{text(props.name, t("popup.networkStructures.cmpTitle"))}</Title>
     <Row label={t("popup.networkStructures.officialId")} value={text(props.official_id)} />
     <Row label={t("popup.networkStructures.matchStatus")} value={status ? enumLabel("networkMatchStatus", status.value, status.label, i18n) : text(props.match_status)} />
-    <Row label={t("popup.networkStructures.method")} value={text(props.match_method)} />
+    <Row field="method" value={text(props.match_method)} />
     <Row label={t("popup.networkStructures.reasons")} value={jsonList(props.match_reasons, i18n)} />
     <Row label="OSM way" value={jsonList(props.osm_way_ids, i18n)} />
     <Row label={t("popup.networkStructures.matchConfidence")} value={numberText(props.match_confidence, "", scoreMissing)} />
@@ -351,7 +351,7 @@ export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, 
   const numberText = numberTextWith(i18n);
   return <>
     <Title color="#a855f7">{text(props.name, t("popup.networkStructures.tnTitle"))}</Title>
-    <Row label={t("popup.networkStructures.inspectionYear")} value={isMissing(props.inspection_year_roc) ? t("popup.networkStructures.notProvided") : t("popup.networkStructures.inspectionYearValue", { year: text(props.inspection_year_roc) })} />
+    <Row label={t("popup.networkStructures.inspectionYear")} value={isMissing(props.inspection_year_roc) ? t("popup.common.notProvided") : t("popup.networkStructures.inspectionYearValue", { year: text(props.inspection_year_roc) })} />
     <Row label={t("popup.networkStructures.inspectorComment")} value={text(props.inspection_comment)} />
     <Row field="district" value={text(props.town)} />
     <Row field="authority" value={text(props.competent_authority)} />

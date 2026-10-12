@@ -1,11 +1,9 @@
 {
-  "popup.publicLife.listSeparator": "、",
   "popup.publicLife.geometrySourcePoint": "元の点位置",
   "popup.publicLife.geometryRepresentativePoint": "元の線／面の内部代表点（ポイントレイヤー表示用のみ）",
   "popup.publicLife.unnamedType": "名称不明の{type}",
   "popup.publicLife.unnamedOsm": "名称不明のOSM施設",
   "popup.publicLife.osmRole": "OSM 公共生活施設スナップショット",
-  "popup.publicLife.featureType": "施設の種類",
   "popup.publicLife.recyclingType": "拠点の形態",
   "popup.publicLife.accessibility": "バリアフリー",
   "popup.publicLife.accessibilityStatus": "バリアフリー状況",
@@ -16,11 +14,9 @@
   "popup.publicLife.recyclingMaterials": "回収品目",
   "popup.publicLife.sourceGeometry": "元のジオメトリ",
   "popup.publicLife.displayPosition": "表示位置",
-  "popup.publicLife.coverageLimit": "カバレッジの制約",
   "popup.publicLife.coverageDefault": "クラウド入力で不完全。空白の地域に施設がないとは限らない。",
   "popup.publicLife.unnamedShelter": "名称不明の収容施設",
   "popup.publicLife.shelterRole": "指定災害避難収容施設",
-  "popup.publicLife.countyTown": "県市・郷鎮",
   "popup.publicLife.shelterCapacity": "想定収容人数",
   "popup.publicLife.disasterTypes": "対象災害",
   "popup.publicLife.indoorOutdoor": "屋内／屋外",
@@ -46,6 +42,5 @@
   "popup.publicLife.accessibilityTags": "バリアフリータグ",
   "popup.publicLife.bicycleSpecific": "自転車専用サポート",
   "popup.publicLife.visitorCentre": "ビジターセンター",
-  "popup.publicLife.snapshotAt": "スナップショット時刻",
   "popup.publicLife.coverageNote": "OSMのマッピング密度であり、サービス品質・人口カバー・道路到達性ではない。"
 }

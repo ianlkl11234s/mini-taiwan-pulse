@@ -31,25 +31,24 @@ function colorOf(options: readonly { value: string; color: string }[], value: un
 function CommonRows({ props }: Props) {
   const t = useFeatureTheme();
   const i18n = useLocale();
-  const { t: tr } = i18n;
   const precision = props.geocode_precision;
   return <>
     <Row field="address" value={str(props.address)} />
     <Row field="phone" value={str(props.phone).replace(/\|/g, "、")} />
-    <Row label={tr("popup.harmReduction.serviceHours")} value={str(props.service_hours).replace(/\s*\n+\s*/g, "；")} />
+    <Row field="serviceHours" value={str(props.service_hours).replace(/\s*\n+\s*/g, "；")} />
     <Row
-      label={tr("popup.harmReduction.coordPrecision")}
+      field="coordPrecision"
       value={typeof precision === "string" ? enumLabel("harmReductionPrecision", precision, harmReductionPrecisionLabel(precision), i18n) : harmReductionPrecisionLabel(precision)}
       color={isEstimatedPrecision(precision) ? t.warn : undefined}
     />
-    <Row label={tr("popup.harmReduction.vintage")} value={str(props.vintage)} mono />
+    <Row field="dataDate" value={str(props.vintage)} mono />
   </>;
 }
 
 export function HarmReductionNeedlePanel({ props }: Props) {
   const i18n = useLocale();
   const { t: tr } = i18n;
-  const sep = tr("popup.harmReduction.listSeparator");
+  const sep = tr("popup.common.listSeparator");
   const services = NEEDLE_SERVICE_OPTIONS
     .filter((option) => props[option.flag] === true)
     .map((option) => `${enumLabel("harmReductionNeedleService", option.value, option.label, i18n)}${props[option.is24h] === true ? tr("popup.harmReduction.is24h") : ""}`);
@@ -67,7 +66,7 @@ function maintenanceText(props: Record<string, unknown>, suffix: "" | "_mean", t
   const parts = [[tr("popup.harmReduction.methadone"), props[`methadone_patients${suffix}`]], [tr("popup.harmReduction.buprenorphine"), props[`buprenorphine_patients${suffix}`]]]
     .filter(([, value]) => typeof value === "number")
     .map(([label, value]) => `${label} ${tr("popup.harmReduction.persons", { count: value as number })}`);
-  return parts.join(tr("popup.harmReduction.listSeparator"));
+  return parts.join(tr("popup.common.listSeparator"));
 }
 
 export function HarmReductionTreatmentPanel({ props }: Props) {
@@ -79,7 +78,7 @@ export function HarmReductionTreatmentPanel({ props }: Props) {
     <Title color={color}>{str(props.name) || tr("popup.harmReduction.treatmentTitle")}</Title>
     <Row field="category" value={coded("harmReductionTreatmentCategory", props.category, str(props.category_label), i18n)} color={color} />
     <Row label={tr("popup.harmReduction.facilityType")} value={str(props.facility_type_label)} />
-    <Row label={tr("popup.harmReduction.substitutionDrugs")} value={drugs.join(tr("popup.harmReduction.listSeparator"))} />
+    <Row label={tr("popup.harmReduction.substitutionDrugs")} value={drugs.join(tr("popup.common.listSeparator"))} />
     <Row label={tr("popup.harmReduction.designationValidTo")} value={str(props.designation_valid_to)} mono />
     <Row label={tr("popup.harmReduction.maintenancePatients", { month: str(props.maintenance_month) })} value={maintenanceText(props, "", tr)} />
     <Row
@@ -95,7 +94,7 @@ export function HarmReductionHivSelftestPanel({ props }: Props) {
   const i18n = useLocale();
   const { t: tr } = i18n;
   const color = colorOf(SELFTEST_CHANNEL_OPTIONS, props.channel, HARM_REDUCTION_COLORS.harmReductionHivSelftest);
-  const voucher = props.voucher_redeem === true ? tr("popup.harmReduction.can") : props.voucher_redeem === false ? tr("popup.harmReduction.cannot") : "";
+  const voucher = props.voucher_redeem === true ? tr("popup.harmReduction.can") : props.voucher_redeem === false ? tr("popup.common.no") : "";
   return <>
     <Title color={color}>{str(props.name) || tr("popup.harmReduction.selftestTitle")}</Title>
     <Row label={tr("popup.harmReduction.channelType")} value={coded("harmReductionSelftestChannel", props.channel, str(props.channel_label), i18n)} color={color} />
@@ -130,16 +129,16 @@ export function HarmReductionPreventionCenterPanel({ props }: Props) {
 // ══════════ 第二批（2026-10-06）══════════
 
 const yesNo = (v: unknown, tr: LocaleSnapshot["t"]): string =>
-  v === true ? tr("popup.harmReduction.yes") : v === false ? tr("popup.harmReduction.no") : "";
+  v === true ? tr("popup.common.yes") : v === false ? tr("popup.common.no") : "";
 
 export function HarmReductionAlcoholPanel({ props }: Props) {
   const i18n = useLocale();
   const { t: tr } = i18n;
   const services = str(props.service_type_label)
-    || ALCOHOL_SERVICE_OPTIONS.filter((option) => props[option.flag] === true).map((option) => enumLabel("harmReductionAlcoholService", option.value, option.label, i18n)).join(tr("popup.harmReduction.listSeparator"));
+    || ALCOHOL_SERVICE_OPTIONS.filter((option) => props[option.flag] === true).map((option) => enumLabel("harmReductionAlcoholService", option.value, option.label, i18n)).join(tr("popup.common.listSeparator"));
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionAlcohol}>{str(props.name) || tr("popup.harmReduction.alcoholTitle")}</Title>
-    <Row label={tr("popup.harmReduction.serviceItems")} value={services} color={HARM_REDUCTION_COLORS.harmReductionAlcohol} />
+    <Row field="serviceItems" value={services} color={HARM_REDUCTION_COLORS.harmReductionAlcohol} />
     <Row label={tr("popup.harmReduction.facilityType")} value={str(props.facility_type_label)} />
     <Row label={tr("popup.harmReduction.alsoDrugTreatment")} value={props.also_drug_treatment === true ? tr("popup.harmReduction.alsoDrugTreatmentYes") : yesNo(props.also_drug_treatment, tr)} />
     <CommonRows props={props} />
@@ -152,7 +151,7 @@ export function HarmReductionPrepPanel({ props }: Props) {
   const funding = PREP_FUNDING_OPTIONS.filter((option) => props[option.flag] === true).map((option) => enumLabel("harmReductionPrepFunding", option.value, option.label, i18n));
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionPrep}>{str(props.name) || tr("popup.harmReduction.prepTitle")}</Title>
-    <Row label={tr("popup.harmReduction.prepFunding")} value={funding.join(tr("popup.harmReduction.listSeparator"))} color={HARM_REDUCTION_COLORS.harmReductionPrep} />
+    <Row label={tr("popup.harmReduction.prepFunding")} value={funding.join(tr("popup.common.listSeparator"))} color={HARM_REDUCTION_COLORS.harmReductionPrep} />
     <Row label={tr("popup.harmReduction.facilityType")} value={str(props.facility_type_label)} />
     <CommonRows props={props} />
   </>;
@@ -177,7 +176,7 @@ export function HarmReductionAftercarePanel({ props }: Props) {
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionAftercare}>{str(props.name) || tr("popup.harmReduction.aftercareTitle")}</Title>
     <Row label={tr("popup.harmReduction.unit")} value={str(props.office_type_label)} />
-    <Row label={tr("popup.harmReduction.dataVersion")} value={tr("popup.harmReduction.aftercareVersion")} color={t.warn} />
+    <Row field="dataVersion" value={tr("popup.harmReduction.aftercareVersion")} color={t.warn} />
     <CommonRows props={props} />
   </>;
 }
@@ -199,7 +198,7 @@ export function HarmReductionAntiDrugPharmacyPanel({ props }: Props) {
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies}>{str(props.name) || tr("popup.harmReduction.pharmacyTitle")}</Title>
     <Row label={tr("popup.harmReduction.program")} value={str(props.program)} />
-    <Row label={tr("popup.harmReduction.scope")} value={tr("popup.harmReduction.pharmacyScope")} />
+    <Row field="coverageScope" value={tr("popup.harmReduction.pharmacyScope")} />
     <CommonRows props={props} />
   </>;
 }
@@ -214,7 +213,7 @@ export function HarmReductionCondomOutletPanel({ props }: Props) {
     <Row field="type" value={coded("harmReductionCondomOutlet", props.outlet_type, str(props.outlet_type_label), i18n)} color={color} />
     <Row label={tr("popup.harmReduction.itemNote")} value={str(props.item_note)} />
     {props.item_confirmed === false && <Row label={tr("popup.harmReduction.item")} value={tr("popup.harmReduction.itemUnconfirmed")} color={t.warn} />}
-    <Row label={tr("popup.harmReduction.scope")} value={tr("popup.harmReduction.condomScope")} />
+    <Row field="coverageScope" value={tr("popup.harmReduction.condomScope")} />
     <CommonRows props={props} />
   </>;
 }
@@ -239,7 +238,7 @@ export function HarmReductionDuiCrashPanel({ props }: Props) {
   const casualties = [
     typeof props.deaths === "number" ? tr("popup.harmReduction.deaths", { count: props.deaths }) : "",
     typeof props.injuries === "number" ? tr("popup.harmReduction.injuries", { count: props.injuries }) : "",
-  ].filter(Boolean).join(tr("popup.harmReduction.listSeparator"));
+  ].filter(Boolean).join(tr("popup.common.listSeparator"));
   return <>
     <Title color={color}>{tr("popup.harmReduction.duiTitle")}</Title>
     <Row field="category" value={coded("harmReductionDuiClass", props.accident_class, str(props.accident_class_label), i18n)} color={color} />
@@ -250,6 +249,6 @@ export function HarmReductionDuiCrashPanel({ props }: Props) {
     <Row label={tr("popup.harmReduction.duiBasis")} value={str(props.dui_cause_basis_label)} />
     <Row label={tr("popup.harmReduction.duiParties")} value={typeof props.n_dui_parties === "number" ? tr("popup.harmReduction.persons", { count: props.n_dui_parties }) : ""} />
     <Row label={tr("popup.common.coordinates")} value={tr("popup.harmReduction.policeCoords")} />
-    <Row label={tr("popup.harmReduction.vintage")} value={str(props.vintage)} mono />
+    <Row field="dataDate" value={str(props.vintage)} mono />
   </>;
 }

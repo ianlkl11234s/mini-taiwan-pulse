@@ -80,7 +80,7 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
           <Row field="phone" value={phone} />
           {props.service_items ? (
             <Row
-              label={tr("popup.medical.serviceItems")}
+              field="serviceItems"
               value={String(props.service_items).length > 60 ? String(props.service_items).slice(0, 60) + "…" : String(props.service_items)}
             />
           ) : null}
@@ -178,7 +178,7 @@ export function EmergencyHospitalPanel({ props }: { props: Record<string, unknow
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
-          {tr("popup.medical.loading")}
+          {tr("popup.common.loading")}
         </div>
       ) : (
         <TimeseriesSparkline

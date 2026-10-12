@@ -193,7 +193,7 @@ function ReservoirLiveRows({ props }: { props: Record<string, unknown> }) {
   const storage = typeof props.effective_storage_wan_m3 === "number" ? props.effective_storage_wan_m3 : null;
   return (
     <>
-      <Row label={i18n.t("popup.water.storageRatio")} value={pct == null ? i18n.t("popup.water.noData") : `${pct.toFixed(1)}%`} color={reservoirAlertCss(alert)} mono={pct != null} />
+      <Row label={i18n.t("popup.water.storageRatio")} value={pct == null ? i18n.t("popup.common.noData") : `${pct.toFixed(1)}%`} color={reservoirAlertCss(alert)} mono={pct != null} />
       <Row label={i18n.t("popup.water.waterStatus")} value={label} color={reservoirAlertCss(alert)} />
       <Row label={i18n.t("popup.water.waterLevel")} value={level == null ? "" : `${level.toFixed(2)} m`} mono />
       <Row label={i18n.t("popup.water.effectiveStorage")} value={storage == null ? "" : `${i18n.formatNumber(Math.round(storage))} ${i18n.t("popup.water.unitWanM3")}`} mono />
@@ -279,7 +279,7 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          {i18n.t("popup.water.loading")}
+          {i18n.t("popup.common.loading")}
         </div>
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor={color} height={120} />
@@ -351,7 +351,7 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          {i18n.t("popup.water.loading")}
+          {i18n.t("popup.common.loading")}
         </div>
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor="#38bdf8" height={120} />
@@ -432,7 +432,7 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          {i18n.t("popup.water.loading")}
+          {i18n.t("popup.common.loading")}
         </div>
       ) : (
         <TimeseriesSparkline
@@ -464,7 +464,7 @@ export function BridgeRainPanel({ props }: { props: Record<string, unknown> }) {
   return <div>
     <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{String(props.bridge_name ?? i18n.t("popup.water.bridgeDefault"))}</div>
     <Row field="roadSection" value={String(props.route ?? "")} />
-    <Row label={i18n.t("popup.water.rainJudgement")} value={String(props.status_label ?? i18n.t("popup.water.statusUnknown"))} color={color} />
+    <Row label={i18n.t("popup.water.rainJudgement")} value={String(props.status_label ?? i18n.t("popup.common.unknown"))} color={color} />
     <Row field="limits" value={String(props.status_reason ?? "")} />
     <Row label={i18n.t("popup.water.refStations")} value={String(props.station_ids ?? "")} />
     {readings.map((r) => <div key={r.id} style={{ marginTop: 8, padding: 8, border: `1px solid ${t.textMuted}`, borderRadius: 6, color: t.textStrong, fontSize: FONT_SIZE.sm }}>
@@ -572,7 +572,7 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          {i18n.t("popup.water.loading")}
+          {i18n.t("popup.common.loading")}
         </div>
       ) : (
         <TimeseriesSparkline

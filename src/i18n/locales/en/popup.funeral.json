@@ -1,10 +1,7 @@
 {
   "popup.funeral.approxNote": "⚠️ Approximate position: {label}; not the actual entrance coordinates",
-  "popup.funeral.unclassified": "Unclassified",
-  "popup.funeral.operatorType": "Public/private",
   "popup.funeral.ecoType": "Eco-burial type",
   "popup.funeral.operatorTitle": "Funeral service provider",
-  "popup.funeral.entityType": "Registration type",
   "popup.funeral.bizStatus": "Business status",
   "popup.funeral.statusApproved": "Approved",
   "popup.funeral.statusInactive": "No longer valid",

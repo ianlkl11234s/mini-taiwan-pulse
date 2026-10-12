@@ -29,7 +29,7 @@ export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
         </div>
       </div>
       <Row label={tr("popup.fire.cause")} value={String(props.cause ?? "")} color={accentColor} />
-      <Row label={tr("popup.fire.deaths")} value={String(deaths)} color={deaths > 0 ? "#ff1744" : undefined} />
+      <Row field="deaths" value={String(deaths)} color={deaths > 0 ? "#ff1744" : undefined} />
       <Row label={tr("popup.fire.injuries")} value={String(injuries)} color={injuries > 0 ? "#ffb300" : undefined} />
       <Row field="occurredAt" value={timeStr} />
     </>

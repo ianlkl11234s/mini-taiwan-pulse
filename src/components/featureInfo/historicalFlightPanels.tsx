@@ -30,8 +30,8 @@ export function HistoricalFlightTrailPanel({ props }: { props: Record<string, un
   const t = useFeatureTheme();
   const i18n = useLocale();
   const { t: tr } = i18n;
-  const na = tr("popup.historicalFlight.notProvided");
-  const sep = tr("popup.historicalFlight.listSeparator");
+  const na = tr("popup.common.notProvided");
+  const sep = tr("popup.common.listSeparator");
   const v = (value: unknown) => valueOf(value, na, sep);
   const ts = (value: unknown) => timestamp(value, timezone, na, i18n);
   const roles = (value: unknown): string => {
@@ -53,7 +53,7 @@ export function HistoricalFlightTrailPanel({ props }: { props: Record<string, un
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{title}</div>
       </div>
       <Row label={tr("popup.historicalFlight.flightId")} value={v(props.flight_id)} />
-      <Row label={tr("popup.historicalFlight.callsign")} value={v(props.callsign)} />
+      <Row field="callSign" value={v(props.callsign)} />
       <Row label={tr("popup.historicalFlight.airline")} value={v(props.operator)} />
       <Row label={tr("popup.historicalFlight.aircraftType")} value={v(props.aircraft_type)} />
       <Row label={tr("popup.historicalFlight.origin")} value={`${v(props.origin_icao)} / ${v(props.origin_iata)}`} />

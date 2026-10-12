@@ -36,7 +36,7 @@ const dimLabel = (dim: FingerprintDimension, i18n: I18n) => enumLabel("bridgeRes
 function formatters(i18n: I18n) {
   const { t, formatNumber } = i18n;
   const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
-  const notProvided = () => t("popup.bridgeResilience.notProvided");
+  const notProvided = () => t("popup.common.notProvided");
   return {
     seconds: (v: unknown, digits = 1) => finite(v)
       ? t("popup.bridgeResilience.unitSeconds", { value: formatNumber(v, { minimumFractionDigits: digits, maximumFractionDigits: digits }) }) : notProvided(),
@@ -54,8 +54,8 @@ function formatters(i18n: I18n) {
 
 /** 「名稱（占比%）」前 3 名；空陣列回「無」。占比是前 50 組受影響起訖對的權重占比，非流量預測。 */
 export function altBridgesText(items: BridgeAltCandidate[] | undefined, n: number = TOP_N, i18n: I18n = currentI18n()): string {
-  if (!items?.length) return i18n.t("popup.bridgeResilience.none");
-  return items.slice(0, n).map((item) => i18n.t("popup.bridgeResilience.altItem", { label: item.label, pct: (item.weight_share * 100).toFixed(1) })).join(i18n.t("popup.bridgeResilience.listSep"));
+  if (!items?.length) return i18n.t("popup.common.none");
+  return items.slice(0, n).map((item) => i18n.t("popup.bridgeResilience.altItem", { label: item.label, pct: (item.weight_share * 100).toFixed(1) })).join(i18n.t("popup.common.listSeparator"));
 }
 
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: readonly { value: T; label: string }[]; onChange: (v: T) => void }) {
@@ -85,11 +85,11 @@ export function decayTauRankText(m: DecayModeSummary): string {
 }
 /** 影響最大的前 3 個村里：「里名（區）+秒・人口」。 */
 export function decayTopVillagesText(m: DecayModeSummary | undefined, i18n: I18n = currentI18n()): string {
-  if (!m?.top5_villages?.length) return i18n.t("popup.bridgeResilience.notProvided");
+  if (!m?.top5_villages?.length) return i18n.t("popup.common.notProvided");
   const f = formatters(i18n);
   return m.top5_villages.slice(0, TOP_N).map((v) => i18n.t("popup.bridgeResilience.villageItem", {
     village: v.village, town: v.town, delta: v.decay_mean_dT_s === null ? "" : ` +${f.seconds(v.decay_mean_dT_s, 0)}`, pop: f.people(v.pop_hh),
-  })).join(i18n.t("popup.bridgeResilience.semiSep"));
+  })).join(i18n.t("popup.common.semicolon"));
 }
 
 /** 距離遞減版橋層級指標：主畫面只列目前交通模式的 3 項；其餘放「說明與限制」。 */
@@ -135,7 +135,7 @@ const FP_COLS = "56px 1fr 28px";
 export function fingerprintNullText(status: BridgeModeStatus | null | undefined, dim: FingerprintDimension, mode: BridgeMode, i18n: I18n = currentI18n()): string {
   if (status === "not_in_mode_graph" && dim !== "barrier") return i18n.t("popup.bridgeResilience.modeNotInGraph", { mode: modeLabel(mode, i18n) });
   if (status === "no_affected_od" && dim === "lack_of_redundancy") return i18n.t("popup.bridgeResilience.noAffectedPairs");
-  return i18n.t("popup.bridgeResilience.notProvided");
+  return i18n.t("popup.common.notProvided");
 }
 
 /**
@@ -153,8 +153,8 @@ export function FingerprintBlock({ fingerprint, uid, joint, mode, status }: {
   const note = (text: string) => <div style={{ color: t.textDim, fontSize: FONT_SIZE.sm, padding: "2px 0" }}>{text}</div>;
   return <div className="fi-fingerprint" style={{ borderTop: `1px solid ${t.borderSoft}`, marginTop: 4, paddingTop: 4 }}>
     <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.semibold, padding: "2px 0" }}>{tr("popup.bridgeResilience.fpTitle")}</div>
-    {!fingerprint ? note(tr("popup.bridgeResilience.loading"))
-      : !entry ? note(tr("popup.bridgeResilience.notProvided"))
+    {!fingerprint ? note(tr("popup.common.loading"))
+      : !entry ? note(tr("popup.common.notProvided"))
       : entry.is_joint ? note(tr("popup.bridgeResilience.jointNoRank"))
       : FINGERPRINT_DIMENSIONS.map((dim) => {
         const v = fingerprintValue(percentiles?.[dim]);
@@ -311,7 +311,7 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
   const sameRiver = modeSummary?.replacement_bridges?.same_river_within_5km;
   const otherOnRoute = modeSummary?.replacement_bridges?.other_bridges_on_route;
   const stranded = modeSummary?.stranded_population;
-  const grade = entry ? (review?.geometry_confidence ? geometryConfidenceText(review.geometry_confidence) : tr("popup.bridgeResilience.notProvided")) : "";
+  const grade = entry ? (review?.geometry_confidence ? geometryConfidenceText(review.geometry_confidence) : tr("popup.common.notProvided")) : "";
   const status = bridgeModeStatus(modeSummary, decay?.modes[mode]);
   const statusText = status && status !== "ok"
     ? (status === "not_in_mode_graph" ? tr("popup.bridgeResilience.modeNotInGraph", { mode: modeLabel(mode, i18n) }) : tr("popup.bridgeResilience.modelNoAffected"))
@@ -350,12 +350,12 @@ export function BridgeResiliencePanel({ props }: { props: Record<string, unknown
       {entry && !statusText && modeSummary && <Row label={tr("popup.bridgeResilience.altBridge")} value={sameRiver?.length ? altBridgesText(sameRiver, 2, i18n) : tr("popup.bridgeResilience.onRoute", { list: altBridgesText(otherOnRoute, 2, i18n) })} />}
       <FingerprintBlock fingerprint={data?.fingerprint} uid={uid} joint={joint} mode={mode} status={status} />
       <PopupDetails summary={tr("popup.bridgeResilience.fpDetailSummary")}><FingerprintDetailRows entry={fpEntry} mode={mode} /></PopupDetails>
-      <PopupDetails summary={tr("popup.bridgeResilience.limitsSummary")}>
+      <PopupDetails summary={tr("popup.common.notesAndLimits")}>
         <Row label={tr("popup.bridgeResilience.researchStatus")} value={tr("popup.bridgeResilience.researchStatusText")} />
         <Row label={tr("popup.bridgeResilience.bridgeScope")} value={tr("popup.bridgeResilience.bridgeScopeText")} />
         {entry && <Row label={tr("popup.bridgeResilience.reviewDate")} value={review?.latest_review_date ?? ""} mono />}
         {weighting === "decay" && !statusText && <DecayDetailRows decay={decay} mode={mode} />}
-        {weighting === "uniform" && modeSummary && !statusText && <Row label={tr("popup.bridgeResilience.meanExtra")} value={f.minutes(modeSummary.mean_dT_s, tr("popup.bridgeResilience.notProvided"))} />}
+        {weighting === "uniform" && modeSummary && !statusText && <Row label={tr("popup.bridgeResilience.meanExtra")} value={f.minutes(modeSummary.mean_dT_s, tr("popup.common.notProvided"))} />}
         {entry && !statusText && <Row label={tr("popup.bridgeResilience.altSameRiver", { mode: modeText })} value={altBridgesText(sameRiver, TOP_N, i18n)} />}
         {entry && !statusText && <Row label={tr("popup.bridgeResilience.altOnRouteLabel", { mode: modeText })} value={altBridgesText(otherOnRoute, TOP_N, i18n)} />}
         {!statusText && modeSummary?.replacement_bridges?.basis && <Row label={tr("popup.bridgeResilience.altBasis")} value={modeSummary.replacement_bridges.basis} />}

@@ -23,7 +23,7 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const i18n = useLocale();
   const { t: tr } = i18n;
-  const na = tr("popup.coralReef.notProvided");
+  const na = tr("popup.common.notProvided");
   const text_ = (value: unknown) => text(value, na);
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -32,8 +32,8 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
     </div>
     <Row label={tr("popup.coralReef.reefName")} value={text_(props.reef_name)} />
     <Row label={tr("popup.coralReef.featureId")} value={text_(props.feature_id)} />
-    <Row label={tr("popup.coralReef.dataset")} value={text_(props.source_dataset)} />
-    <Row label={tr("popup.coralReef.version")} value={text_(props.source_version)} />
+    <Row field="dataset" value={text_(props.source_dataset)} />
+    <Row field="version" value={text_(props.source_version)} />
     <Row label={tr("popup.coralReef.observedYear")} value={text_(props.source_year)} />
     <Row label={tr("popup.coralReef.sourceArea")} value={area(props.area_km2, na, i18n)} />
     <Row label={tr("popup.coralReef.geometryStatus")} value={text_(props.geometry_status)} />
@@ -55,6 +55,6 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
       <Row label={tr("popup.coralReef.sourceVerification")} value={text_(props.source_verification)} />
       <Row label={tr("popup.coralReef.sourceLayer")} value={text_(props.source_layer_name)} />
     </details>
-    <Row label={tr("popup.coralReef.attribution")} value={CORAL_REEF_ATTRIBUTION} />
+    <Row field="attribution" value={CORAL_REEF_ATTRIBUTION} />
   </>;
 }

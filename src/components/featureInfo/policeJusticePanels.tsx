@@ -186,7 +186,7 @@ export function CourtJurisdictionPanel({ props }: PanelProps) {
       <Row label={t("popup.policeJustice.ipCourt")} value={String(props.ipc_court ?? "")} />
       <Row label={t("popup.policeJustice.juvenileFamilyCourt")} value={String(props.juvenile_family_court ?? "")} />
       <Row label={t("popup.policeJustice.supremeCourt")} value={String(props.supreme_court ?? "")} />
-      <Row label={t("popup.policeJustice.legalBasis")} value={String(props.source_law ?? "")} />
+      <Row field="legalBasis" value={String(props.source_law ?? "")} />
     </>
   );
 }
@@ -270,7 +270,7 @@ export function TrafficAccidentYearlyPanel({ props }: PanelProps) {
       <Row label={t("popup.policeJustice.weather")} value={String(props.weather ?? "")} />
       <Row label={t("popup.policeJustice.lighting")} value={String(props.light ?? "")} />
       <Row label={t("popup.policeJustice.roadType")} value={String(props.road_type ?? "")} />
-      <Row label={t("popup.policeJustice.speedLimitAlt")} value={props.speed_limit ? `${props.speed_limit} km/h` : ""} />
+      <Row field="speedLimit" value={props.speed_limit ? `${props.speed_limit} km/h` : ""} />
     </>
   );
 }
@@ -471,7 +471,7 @@ const DRONE_COLOR: Record<string, string> = {
 export function DroneZonesPanel({ props }: PanelProps) {
   const i18n = useLocale();
   const { t } = i18n;
-  const zoneColor = String(props["空域顏色"] ?? t("popup.policeJustice.droneUnclassified"));
+  const zoneColor = String(props["空域顏色"] ?? t("popup.common.unclassified"));
   const headerColor = DRONE_COLOR[zoneColor] ?? "#6C757D";
   return (
     <>

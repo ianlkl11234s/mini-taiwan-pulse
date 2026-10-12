@@ -33,7 +33,7 @@ export function RoadCongestionPanel({ props }: { props: Record<string, unknown> 
         </div>
       </div>
       {sectionId && <Row label={tr("popup.road.sectionCode")} value={sectionId} />}
-      <Row label={tr("popup.road.congestionLevel")} value={level > 0 ? `${level}（${label}）` : tr("popup.road.noData")} />
+      <Row label={tr("popup.road.congestionLevel")} value={level > 0 ? `${level}（${label}）` : tr("popup.common.noData")} />
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         {tr("popup.road.congestionNote")}
       </div>
@@ -83,9 +83,9 @@ export function FreewayCongestionPanel({ props }: { props: Record<string, unknow
       {direction && <Row field="direction" value={direction} />}
       {/* 時速是開這層唯一想知道的數字：色帶只給等級區間 */}
       {speed != null && <Row label={tr("popup.road.avgSpeed")} value={`${Math.round(speed)} km/h`} color={color} />}
-      <Row label={tr("popup.road.congestionLevel")} value={level > 0 ? `${level}（${label}）` : tr("popup.road.noData")} />
+      <Row label={tr("popup.road.congestionLevel")} value={level > 0 ? `${level}（${label}）` : tr("popup.common.noData")} />
       {snapshotTs > 0 && (
-        <Row label={tr("popup.road.snapshotTime")} value={formatTaiwanTime(new Date(snapshotTs * 1000).toISOString())} />
+        <Row field="snapshotAt" value={formatTaiwanTime(new Date(snapshotTs * 1000).toISOString())} />
       )}
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         {tr("popup.road.freewayNote")}

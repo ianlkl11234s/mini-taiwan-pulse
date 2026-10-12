@@ -51,7 +51,7 @@ export function StreetTreesTaipeiDiffPanel({ props }: { props: Record<string, un
   const known = STATUS_TIER[status];
   const tier = known
     ? { label: enumLabel("urbanTreeDiff", status, known.label, i18n), color: known.color }
-    : { label: status || t("popup.urban.unknown"), color: "#9e9e9e" };
+    : { label: status || t("popup.common.unknown"), color: "#9e9e9e" };
   const renumberSuspect = props.renumber_suspect === true;
   // 路名（附行政區）：Region 為主，Dist 括號附註
   const region = String(props.Region ?? "");
@@ -121,7 +121,7 @@ export function RiversideTreesTaipeiPanel({ props }: { props: Record<string, unk
 /** 台北公園（2,917 點）：公園名 + 行政區 + 分類 + 面積（千分位）+ 兒童遊具有無 */
 export function ParksTaipeiPanel({ props }: { props: Record<string, unknown> }) {
   const { t, formatNumber } = useLocale();
-  const playground = props.has_playground === true ? t("popup.urban.has") : props.has_playground === false ? t("popup.urban.none") : "";
+  const playground = props.has_playground === true ? t("popup.urban.has") : props.has_playground === false ? t("popup.common.none") : "";
   return (
     <>
       <Title color="#7cb342">{String(props.name ?? t("popup.urban.park"))}</Title>
@@ -183,7 +183,7 @@ export function StreetTrees3epochPanel({ props }: { props: Record<string, unknow
   const region = String(props.region ?? "");
   const dist = String(props.dist ?? "");
   const roadValue = region && dist ? t("popup.urban.nameWithSub", { main: region, sub: dist }) : region || dist;
-  const isPark = props.is_park === 1 ? t("popup.urban.yes") : props.is_park === 0 ? t("popup.urban.no") : "";
+  const isPark = props.is_park === 1 ? t("popup.common.yes") : props.is_park === 0 ? t("popup.common.no") : "";
   const epochLabel = (v: unknown) => enumLabel("urbanTreeEpoch", String(v ?? ""), EPOCH_STATUS_LABEL[String(v ?? "")] ?? String(v ?? ""), i18n);
   // renumber_2224 / renumber_2426 為 0/1（PMTiles 屬性），任一為 1 → 疑似重編號警示
   const renumberEpochs = [
@@ -204,7 +204,7 @@ export function StreetTrees3epochPanel({ props }: { props: Record<string, unknow
       <Row label={t("popup.urban.parkTree")} value={isPark} />
       <Row field="surveyDate" value={String(props.survey_date ?? "")} />
       {renumberEpochs.length > 0 && (
-        <Row label={t("popup.urban.hint")} value={t("popup.urban.renumberSuspectEpoch", { epochs: renumberEpochs.join(t("popup.urban.listSeparator")) })} color="#fbbf24" />
+        <Row label={t("popup.urban.hint")} value={t("popup.urban.renumberSuspectEpoch", { epochs: renumberEpochs.join(t("popup.common.listSeparator")) })} color="#fbbf24" />
       )}
     </>
   );
@@ -315,7 +315,7 @@ export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> })
 /** PLATEAU 原始 height 欄位；null 不猜測高度，亦不顯示為 3D 建物。 */
 export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
-  const na = t("popup.urban.notProvided");
+  const na = t("popup.common.notProvided");
   const numeric = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
   const text = (value: unknown) => typeof value === "string" && value ? value : na;
   const attribution = text(props.attribution);

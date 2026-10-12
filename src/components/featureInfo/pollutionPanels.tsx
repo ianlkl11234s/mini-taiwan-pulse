@@ -43,7 +43,7 @@ export function PollutionFacilityPanel({ props }: PanelProps) {
     <div>
       <Row field="name" value={String(props.name ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row label={t("popup.pollution.industry")} value={String(props.industry_macro ?? "")} />
+      <Row field="industry" value={String(props.industry_macro ?? "")} />
       <Row label={t("popup.pollution.maxSeverity")} value={sevLabel(maxSev, i18n)} color={SEVERITY_BANDS.find((b) => b.sev === maxSev)?.color} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
         {FACILITY_MEDIA.map((m: PollutionMedium) => {
@@ -73,19 +73,19 @@ export function PollutionPenaltyPanel({ props }: PanelProps) {
     .split(",")
     .filter(Boolean)
     .map((r) => enumLabel("pollutionReason", r, REASON_LABELS[r] ?? r, i18n))
-    .join(t("popup.pollution.reasonJoiner"));
+    .join(t("popup.common.listSeparator"));
   return (
     <div>
       <Row label={t("popup.pollution.penalized")} value={String(props.fac_name ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
       <Row label={t("popup.pollution.medium")} value={enumLabel("pollutionMedium", medium, POLLUTION_MEDIUM_LABELS[medium] ?? medium, i18n)} color={POLLUTION_MEDIUM_COLORS[medium]} />
       <Row label={t("popup.pollution.tier")} value={enumLabel("pollutionPenaltySeverity", severity, PENALTY_SEVERITY_LABELS[severity] ?? severity, i18n)} color={PENALTY_SEVERITY_COLORS[severity]} />
-      {reason && <Row label={t("popup.pollution.tierReason")} value={reason} />}
-      <Row label={t("popup.pollution.penaltyType")} value={String(props.transgress_type ?? "")} />
-      <Row label={t("popup.pollution.violatedLaw")} value={String(props.transgress_law ?? "")} />
-      <Row label={t("popup.pollution.violationFact")} value={String(props.violation_fact ?? "")} />
-      <Row label={t("popup.pollution.penaltyDate")} value={String(props.penalty_date ?? "")} />
-      <Row label={t("popup.pollution.fine")} value={money > 0 ? `NT$ ${formatNumber(money)}` : "—"} />
+      {reason && <Row field="severityReason" value={reason} />}
+      <Row field="penaltyType" value={String(props.transgress_type ?? "")} />
+      <Row field="lawViolated" value={String(props.transgress_law ?? "")} />
+      <Row field="violationFact" value={String(props.violation_fact ?? "")} />
+      <Row field="penaltyDate" value={String(props.penalty_date ?? "")} />
+      <Row field="fine" value={money > 0 ? `NT$ ${formatNumber(money)}` : "—"} />
       {illegalMoney > 0 && <Row label={t("popup.pollution.illegalGain")} value={`NT$ ${formatNumber(illegalMoney)}`} />}
       {Number(props.is_continuous ?? 0) === 1 && (
         <div style={{ marginTop: 6 }}>

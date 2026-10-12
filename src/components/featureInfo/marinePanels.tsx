@@ -252,11 +252,11 @@ function isTideMetric(metricCode: string): boolean {
 }
 
 export function marineMetricDatumLabel(metricCode: string, verticalDatum: string, i18n: I18n = currentI18n()): string {
-  return verticalDatum || (isTideMetric(metricCode) ? i18n.t("popup.marine.notProvided") : "");
+  return verticalDatum || (isTideMetric(metricCode) ? i18n.t("popup.common.notProvided") : "");
 }
 
 function formatValue(metric: MarineMetricView, { t, formatNumber }: I18n): string {
-  if (metric.isMissing) return t("popup.marine.missing");
+  if (metric.isMissing) return t("popup.common.missingValue");
   if (!metric.isValid || metric.valueNumeric == null) return t("popup.marine.invalid");
   const digits = Math.abs(metric.valueNumeric) >= 100 ? 1 : 3;
   return formatNumber(metric.valueNumeric, { maximumFractionDigits: digits });
@@ -271,7 +271,7 @@ function formatAge(seconds: number | null, { t }: I18n): string {
 }
 
 function qualitySummary(metric: MarineMetricView, { t }: I18n): string {
-  if (metric.isMissing) return metric.missingReason ? t("popup.marine.missingWithReason", { reason: metric.missingReason }) : t("popup.marine.missing");
+  if (metric.isMissing) return metric.missingReason ? t("popup.marine.missingWithReason", { reason: metric.missingReason }) : t("popup.common.missingValue");
   if (!metric.isValid) return metric.missingReason ? t("popup.marine.invalidWithReason", { reason: metric.missingReason }) : t("popup.marine.invalid");
   const extra = Object.entries(metric.qualityFlags).flatMap(([key, value]) => {
     if (key === "valid" || key === "missing" || value === false || value == null || value === "") return [];
@@ -422,8 +422,8 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
       <Row label={tr("popup.marine.distributionOrg")} value={field(props, "distributionOrg", "distribution_org")} />
       <Row label={tr("popup.marine.stationType")} value={field(props, "stationType", "station_type")} />
       <Row label={tr("popup.marine.latestObs")} value={latestObservedAt ? formatTaiwanMinute(latestObservedAt) : tr("popup.marine.noValidObs")} />
-      <Row label={tr("popup.marine.dataAge")} value={formatAge(latestAgeSeconds, i18n)} />
-      <Row label={tr("popup.marine.freshness")} value={freshnessStatus || tr("popup.marine.unclassified")} />
+      <Row field="dataAge" value={formatAge(latestAgeSeconds, i18n)} />
+      <Row label={tr("popup.marine.freshness")} value={freshnessStatus || tr("popup.common.unclassified")} />
       <Row label={tr("popup.marine.stationStatus")} value={stationSourceStatus || tr("popup.marine.unlabeled")} />
       <Row label={tr("popup.marine.obsStatus")} value={latestSourceStatus || tr("popup.marine.unlabeled")} />
       <div style={{ marginTop: 7, color: t.textDim, fontSize: FONT_SIZE.xs, lineHeight: 1.45 }}>{tr(network.descriptionKey)}</div>
@@ -483,7 +483,7 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
             <div style={{ padding: "10px 4px", color: "#f97316", fontSize: FONT_SIZE.sm }}>{tr("popup.marine.historyError")}</div>
           ) : historyView.datumConflict ? (
             <div style={{ padding: "10px 4px", color: "#f97316", fontSize: FONT_SIZE.sm }}>
-              {tr("popup.marine.datumConflict", { datums: historyView.datums.join(tr("popup.marine.listSep")) })}
+              {tr("popup.marine.datumConflict", { datums: historyView.datums.join(tr("popup.common.listSeparator")) })}
             </div>
           ) : historyView.points.length === 0 ? (
             <div style={{ padding: "10px 4px", color: t.textDim, fontSize: FONT_SIZE.sm }}>{tr("popup.marine.noWindowData")}</div>

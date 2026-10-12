@@ -136,7 +136,7 @@ export function EduCampusPanel({ props }: { props: Record<string, unknown> }) {
       <Row label={t("popup.education.schoolSystem")} value={levelLabel} color={accentColor} />
       {areaHa != null ? <Row label={t("popup.education.campusArea")} value={t("popup.education.hectares", { value: areaHa.toFixed(2) })} /> : null}
       <Row field="county" value={str(props.county)} />
-      {isBranch ? <Row label={t("popup.education.branchCampus")} value={t("popup.education.yes")} /> : null}
+      {isBranch ? <Row label={t("popup.education.branchCampus")} value={t("popup.common.yes")} /> : null}
       <Note><Rich text={t("popup.education.campusNote")} /></Note>
     </>
   );

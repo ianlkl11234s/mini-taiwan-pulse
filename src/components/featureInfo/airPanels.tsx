@@ -55,7 +55,7 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="NO₂" value={formatNum(numOrNull(props.no2), "ppb", 1)} />
       <Row label="SO₂" value={formatNum(numOrNull(props.so2), "ppb", 2)} />
       <Row label="CO" value={formatNum(numOrNull(props.co), "ppm", 2)} />
-      <Row label={tr("popup.air.windSpeed")} value={formatNum(numOrNull(props.windSpeed), "m/s", 1)} />
+      <Row field="windSpeed" value={formatNum(numOrNull(props.windSpeed), "m/s", 1)} />
       <Row field="observedAt" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
     </>
   );
@@ -105,7 +105,7 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
       <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />
       <Row label="PM1" value={formatNum(numOrNull(props.pm1), "µg/m³")} />
       <Row label={tr("popup.air.temperature")} value={tempStr} />
-      <Row label={tr("popup.air.humidity")} value={formatNum(numOrNull(props.humidity), "%")} />
+      <Row field="humidity" value={formatNum(numOrNull(props.humidity), "%")} />
       <Row field="observedAt" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
     </>
   );

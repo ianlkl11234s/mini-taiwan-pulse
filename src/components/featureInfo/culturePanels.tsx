@@ -208,7 +208,7 @@ export function LibrarySeatsPanel({ props }: { props: Record<string, unknown> })
           </select>
           {loadingTs ? (
             <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
-              {tr("popup.culture.loading")}
+              {tr("popup.common.loading")}
             </div>
           ) : (
             <TimeseriesSparkline data={series} unit={tr("popup.culture.freeSeats")} lineColor={LIBRARY_SEATS_COLORS.full} height={120} />

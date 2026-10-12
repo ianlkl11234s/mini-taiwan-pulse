@@ -2,7 +2,6 @@
   "popup.soilLiquefaction.siteCaveat": "Site-level results are for preliminary assessment only and do not constitute an engineering safety determination; rely on the official map portal and on-site drilling.",
   "popup.soilLiquefaction.potentialTitle": "Soil liquefaction potential: {label}",
   "popup.soilLiquefaction.notInvestigatedLabel": "Not investigated",
-  "popup.soilLiquefaction.noDataLabel": "No data",
   "popup.soilLiquefaction.potentialClass": "Potential class",
   "popup.soilLiquefaction.classMeaning": "Meaning of class",
   "popup.soilLiquefaction.classMeaningText": "A composite class the authority derives from boreholes, groundwater level, design earthquake and historical records; it is not a measured value, and PL or groundwater level cannot be back-calculated from it.",

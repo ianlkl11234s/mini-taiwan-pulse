@@ -1,7 +1,6 @@
 {
   "popup.fire.eventFallback": "火災事案",
   "popup.fire.cause": "出火原因",
-  "popup.fire.deaths": "死者",
   "popup.fire.injuries": "負傷者",
   "popup.fire.stationFallback": "消防分隊",
   "popup.fire.hydrant": "消火栓",

@@ -1,10 +1,7 @@
 {
   "popup.funeral.approxNote": "⚠️ 位置は概略値：{label}、実際の入口座標ではありません",
-  "popup.funeral.unclassified": "未分類",
-  "popup.funeral.operatorType": "公私区分",
   "popup.funeral.ecoType": "環境配慮型葬法の種類",
   "popup.funeral.operatorTitle": "葬祭業者",
-  "popup.funeral.entityType": "登記区分",
   "popup.funeral.bizStatus": "営業状態",
   "popup.funeral.statusApproved": "設立認可",
   "popup.funeral.statusInactive": "失効",
