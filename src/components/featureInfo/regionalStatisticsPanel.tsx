@@ -35,7 +35,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
   return <>
     <Row label={prosecutorDistrict ? '地檢署轄區' : '區域'} value={String(props.area_name ?? props.area_code ?? '—')} />
     {prosecutorDistrict && <Row label="轄區涵蓋縣市" value={`${String(props.counties ?? '—')}${typeof props.township_count === 'number' ? `（${props.township_count} 個鄉鎮市區）` : ''}`} />}
-    {prosecutorDistrict && <Row label="注意" value="地檢署轄區≠縣市；歷年數值都畫在 115 年現行轄區上" />}
+    {prosecutorDistrict && <Row field="caution" value="地檢署轄區≠縣市；歷年數值都畫在 115 年現行轄區上" />}
     <Row label="統計指標" value={String(props.indicator_name ?? '—')} />
     <Row label="數值" value={observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit ?? ''}` : `${missingLabel}，不等於 0`} />
     {props.source_status != null && <Row label="來源狀態" value={String(props.source_status)} />}
@@ -43,7 +43,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.missing_reason != null && <Row label="缺值原因" value={String(props.missing_reason)} />}
     <Row label="資料期別" value={String(props.period_label ?? props.release_id ?? '—')} />
     {props.location_semantics != null && <Row label="位置口徑" value={humanizeStatisticsText(String(props.location_semantics))} />}
-    {props.disclosure != null && <Row label="資料限制" value={humanizeStatisticsText(String(props.disclosure))} />}
+    {props.disclosure != null && <Row field="dataLimits" value={humanizeStatisticsText(String(props.disclosure))} />}
     {props.comparison_formula != null && <Row label="計算方式" value={String(props.comparison_formula)} />}
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={INPUT_LABELS[key]!} value={inputValue(value)} />)}
     {props.interpretation != null && <Row label="如何理解" value={String(props.interpretation)} />}
@@ -57,6 +57,6 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.coverage_numerator != null && props.coverage_denominator != null && <Row label="覆蓋筆數" value={`${String(props.coverage_numerator)}／${String(props.coverage_denominator)}`} />}
     {props.method_version != null && <Row label="處理版本" value={String(props.method_version)} />}
     {props.raw_sha256 != null && <Row label="原始 SHA-256" value={String(props.raw_sha256)} />}
-    <Row label="來源" value={String(props.publisher ?? '—')} />
+    <Row field="source" value={String(props.publisher ?? '—')} />
   </>;
 }

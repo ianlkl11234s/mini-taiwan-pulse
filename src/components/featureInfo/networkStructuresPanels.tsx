@@ -72,7 +72,7 @@ function SourceRows({ props }: { props: Record<string, unknown> }) {
       ? "HTTP Last-Modified 檔案時間，非逐點巡檢日期"
       : "官方詮釋資料更新時間，非實測日期";
   return <>
-    <Row label="來源" value={text(props.source_name)} />
+    <Row field="source" value={text(props.source_name)} />
     <Row label="資料日期" value={text(props.source_date)} />
     <Row label="日期意義" value={isMissing(props.source_date) ? "未提供" : dateMeaning} />
     <Row label="擷取時間" value={text(props.retrieved_at)} />
@@ -92,14 +92,14 @@ function GeometryRow({ role }: { role: unknown }) {
 export function OsmBridgeCarrierPanel({ props }: { props: Record<string, unknown> }) {
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.carriers}>{text(props.name, "OSM 橋梁承載線")}</Title>
-    <Row label="OSM ID" value={`${text(props.osm_type)} / ${text(props.osm_id)}`} />
+    <Row field="osmId" value={`${text(props.osm_type)} / ${text(props.osm_id)}`} />
     <Row label="承載類型" value={CARRIER_KINDS.find((kind) => kind.value === props.carrier_kind)?.label ?? text(props.carrier_kind)} />
     <Row label="道路" value={text(props.highway)} />
     <Row label="鐵道" value={text(props.railway)} />
     <Row label="水道" value={text(props.waterway)} />
     <Row label="橋梁標記" value={text(props.bridge)} />
     <GeometryRow role={props.geometry_role} />
-    <Row label="注意" value="每筆是 OSM way 路段；同一座橋可能包含多筆。" />
+    <Row field="caution" value="每筆是 OSM way 路段；同一座橋可能包含多筆。" />
     <SourceRows props={props} />
   </>;
 }
@@ -107,9 +107,9 @@ export function OsmBridgeCarrierPanel({ props }: { props: Record<string, unknown
 export function OsmBridgeFootprintPanel({ props }: { props: Record<string, unknown> }) {
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.footprint}>{text(props.name, "OSM 橋梁輪廓")}</Title>
-    <Row label="OSM ID" value={`${text(props.osm_type)} / ${text(props.osm_id)}`} />
+    <Row field="osmId" value={`${text(props.osm_type)} / ${text(props.osm_id)}`} />
     <GeometryRow role={props.geometry_role} />
-    <Row label="注意" value="原生外框，未以緩衝區補全；沒有外框不代表沒有橋。" />
+    <Row field="caution" value="原生外框，未以緩衝區補全；沒有外框不代表沒有橋。" />
     <SourceRows props={props} />
   </>;
 }
@@ -163,10 +163,10 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
   return <>
     <Title color={v5LineColor ?? (isNoCrossingNearestRoute ? "#f472b6" : isNoWaterwayCarrierConsensus ? "#60a5fa" : isTiedRouteConsensus ? "#fb7185" : isMultiBridgeCrossing ? "#bef264" : isWaterwayCrossing ? "#e879f9" : isCurvedLocal ? "#2dd4bf" : isOrdinaryRoute ? "#a78bfa" : isOffset ? "#f97316" : isLine ? "#22d3ee" : "#facc15")}>{text(props.bss_name, "BSS 橋梁研究（進行中）")}</Title>
     <PopupScroll>
-      <Row label="狀態" value="進行中・站主限定；不是已確認橋身或路網" />
+      <Row field="status" value="進行中・站主限定；不是已確認橋身或路網" />
       <Row label="第一階段" value={stage1StatusText} />
       <Row label="行政區・類型" value={`${text(props.county_memberships)}・${text(props.bridge_type)}`} />
-      <Row label="長度" value={isLine ? `登錄 ${registeredLength}・繪製 ${drawnLength}` : `登錄 ${registeredLength}`} />
+      <Row field="length" value={isLine ? `登錄 ${registeredLength}・繪製 ${drawnLength}` : `登錄 ${registeredLength}`} />
       {isLine
         ? <Row label="線的來源依據" value={stage1SourceGroupText} />
         : showPointReason
@@ -236,7 +236,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
           <Row label="候選 OSM way ID（未選單一線）" value={candidateWayIds(isTiedRouteConsensus ? props.candidate_osm_way_ids_json : props.candidate_osm_carrier_ids_json)} />
           <Row label="共同方向角" value={numberText(props.axis_degrees_from_east_mod_180, "°（東向起算、無向軸）")} />
           <Row label="候選最大方向差" value={numberText(props.candidate_axis_spread_degrees, "°")} />
-          <Row label="限制" value="只作點位方向示意；未選定哪條路線或承載線、未核對同橋或高架形態，不能用於路網連通分析。" />
+          <Row field="limits" value="只作點位方向示意；未選定哪條路線或承載線、未核對同橋或高架形態，不能用於路網連通分析。" />
         </>}
         {isNoCrossingNearestRoute && <>
           <Row label="最近一般路線 OSM way" value={text(props.candidate_osm_way_id)} />
@@ -245,7 +245,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
           <Row label="方向角" value={numberText(props.axis_degrees_from_east_mod_180, "°（東向起算、無向軸）")} />
           <Row label="同一 OSM way 候選紀錄數" value={text(props.selected_way_trial_record_count)} />
           {!!props.shared_selected_way_needs_identity_review && <Row label="共用來源待核對" value="是；不能據此當成不同橋座" />}
-          <Row label="限制" value="最近路線僅供方向參考；未確認它就是橋身、橋頭尾或可通行邊。" />
+          <Row field="limits" value="最近路線僅供方向參考；未確認它就是橋身、橋頭尾或可通行邊。" />
         </>}
       </PopupDetails>
       <PopupDetails summary="舊綜合 QA">
@@ -261,7 +261,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         <Row label="第一階段整體（v4 抽驗）" value="正式 300：103 支持、2 負向、195 未定；3% 尚未證明，不能外推全臺；未對 v5 線重抽" />
         <Row label="路網邊狀態" value="未驗證，不能直接用於可及性計算" />
         {isLine && <Row label="長度語意" value={isFixedDirectionGlyph ? "以登錄點為中心的固定方向短線；不是橋身、端點或工程橋長" : isMultiBridgeCrossing ? "多候選 OSM 橋線在水系交會附近的短線；不代表同橋身份、端點或工程橋長" : isWaterwayCrossing ? "水系交會處的普通 OSM 路線短線，不代表橋身、端點或工程橋長" : isCurvedLocal ? "已標橋 OSM way 的局部短線，可能是引道；不代表橋身或工程橋長" : isOrdinaryRoute ? "普通 OSM 路線的局部短線，不代表橋身、端點或工程橋長" : isOsmEntityLine ? "OSM 橋實體成員路段總長（含各車道、未裁切到登錄範圍），不是 BSS 登錄或工程橋長" : "繪製方向候選，不是登錄、量測或工程橋長"} />}
-        <Row label="限制" value="v5 共 23,276 條線（OSM 橋實體整段 17,830、新北官方頭尾近似軸 206、路網推估 5,240）均不是已審核實體橋身；不可據此計算橋座數、橋長、道路連通或可通行性。" />
+        <Row field="limits" value="v5 共 23,276 條線（OSM 橋實體整段 17,830、新北官方頭尾近似軸 206、路網推估 5,240）均不是已審核實體橋身；不可據此計算橋座數、橋長、道路連通或可通行性。" />
         <Row label="BSS 來源" value={text(props.bss_source_url)} />
         <Row label="BSS 擷取時間" value={text(props.bss_retrieved_at_utc)} />
         <Row label="BSS 重用狀態" value={text(props.bss_source_license_status)} />
@@ -274,12 +274,12 @@ export function OfficialBridgeNewTaipeiPanel({ props }: { props: Record<string, 
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.official}>{text(props.name, "新北市轄管橋梁")}</Title>
     <Row label="官方 ID" value={text(props.official_id)} />
-    <Row label="行政區" value={text(props.town)} />
-    <Row label="等級" value={text(props.grade)} />
+    <Row field="district" value={text(props.town)} />
+    <Row field="level" value={text(props.grade)} />
     <Row label="登錄長度" value={numberText(props.official_length_m, " m")} />
     <GeometryRow role={props.geometry_role} />
     {props.geometry_role !== "coincident_endpoints" &&
-      <Row label="注意" value="端點連線為近似位置；登錄長度沿用官方數值。" />}
+      <Row field="caution" value="端點連線為近似位置；登錄長度沿用官方數值。" />}
     <SourceRows props={props} />
   </>;
 }
@@ -296,7 +296,7 @@ export function BridgeComparisonNewTaipeiPanel({ props }: { props: Record<string
     <Row label="OSM way" value={jsonList(props.osm_way_ids)} />
     <Row label="候選評分" value={numberText(props.match_confidence, "", scoreMissing)} />
     <GeometryRow role={props.geometry_role} />
-    <Row label="注意" value="候選比對，非權威配對；僅 OSM 表示此官方清冊未找到候選，不代表官方漏報。" />
+    <Row field="caution" value="候選比對，非權威配對；僅 OSM 表示此官方清冊未找到候選，不代表官方漏報。" />
     <SourceRows props={props} />
   </>;
 }
@@ -306,13 +306,13 @@ export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, 
     <Title color="#a855f7">{text(props.name, "臺南橋梁檢測紀錄")}</Title>
     <Row label="檢測年度" value={isMissing(props.inspection_year_roc) ? "未提供" : `民國 ${text(props.inspection_year_roc)} 年（未提供確切日期）`} />
     <Row label="檢測員意見" value={text(props.inspection_comment)} />
-    <Row label="行政區" value={text(props.town)} />
-    <Row label="主管機關" value={text(props.competent_authority)} />
+    <Row field="district" value={text(props.town)} />
+    <Row field="authority" value={text(props.competent_authority)} />
     <Row label="管理維護機關" value={text(props.maintenance_authority)} />
     <Row label="登錄總長" value={numberText(props.bridge_total_length_m, " m")} />
     <Row label="登錄淨寬" value={numberText(props.bridge_clear_width_m, " m")} />
     <GeometryRow role={props.geometry_role} />
-    <Row label="資料限制" value="這是歷史檢測紀錄，來源無橋梁系統 ID、分數或即時通行狀態；無法直接與其他橋梁清冊合併。" />
+    <Row field="dataLimits" value="這是歷史檢測紀錄，來源無橋梁系統 ID、分數或即時通行狀態；無法直接與其他橋梁清冊合併。" />
     <SourceRows props={props} />
   </>;
 }
@@ -320,11 +320,11 @@ export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, 
 export function OfficialBridgeHsinchuPanel({ props }: { props: Record<string, unknown> }) {
   return <>
     <Title color="#22d3ee">{text(props.name, "新竹市橋梁")}</Title>
-    <Row label="路線" value={text(props.route)} />
+    <Row field="route" value={text(props.route)} />
     <Row label="登錄長度" value={numberText(props.official_length_m, " m")} />
     <Row label="清冊 ID" value="來源未提供；地圖識別碼僅供本次資料重現" />
     <GeometryRow role={props.geometry_role} />
-    <Row label="資料限制" value="橋頭尾連線是近似位置，非實際橋身；未與檢測紀錄建立權威配對，也不表示結構安全狀態。" />
+    <Row field="dataLimits" value="橋頭尾連線是近似位置，非實際橋身；未與檢測紀錄建立權威配對，也不表示結構安全狀態。" />
     <SourceRows props={props} />
   </>;
 }
@@ -334,12 +334,12 @@ export function TaipeiRoadTunnelPanel({ props }: { props: Record<string, unknown
     <Title color="#f59e0b">{text(props.name, "臺北市道路隧道")}</Title>
     <Row label="官方隧道 ID" value={text(props.official_tunnel_id)} />
     <Row label="隧道類型" value={text(props.tunnel_kind)} />
-    <Row label="管理單位" value={text(props.manager)} />
-    <Row label="路線" value={text(props.route_description)} />
+    <Row field="managingAgency" value={text(props.manager)} />
+    <Row field="route" value={text(props.route_description)} />
     <Row label="方向明細" value={numberText(props.direction_count, " 筆")} />
     <Row label="方向登錄長度合計" value={numberText(props.directional_length_sum_m, " m")} />
     <GeometryRow role={props.geometry_role} />
-    <Row label="資料限制" value="僅顯示官方登錄點；方向長度為各方向合計，非隧道總長。部分端點距離與登錄長度不一致，未繪製假定隧道線。來源未提供資料日期或即時通行狀態。" />
+    <Row field="dataLimits" value="僅顯示官方登錄點；方向長度為各方向合計，非隧道總長。部分端點距離與登錄長度不一致，未繪製假定隧道線。來源未提供資料日期或即時通行狀態。" />
     <SourceRows props={props} />
   </>;
 }
@@ -348,7 +348,7 @@ export function TainanRoadTunnelPanel({ props }: { props: Record<string, unknown
   return <>
     <Title color="#fb923c">{text(props.name, "臺南市道路隧道")}</Title>
     <Row label="道路編號" value={text(props.route_ref)} />
-    <Row label="方向" value={text(props.directionality)} />
+    <Row field="direction" value={text(props.directionality)} />
     <Row label="登錄長度" value={numberText(props.official_length_m, " m")} />
     <Row label="登錄寬度" value={numberText(props.official_width_m, " m")} />
     <Row label="車道數" value={numberText(props.lane_count)} />
@@ -366,7 +366,7 @@ export function ChanghuaTrafficSignalPanel({ props }: { props: Record<string, un
     <Row label="權責單位" value={text(props.responsible_authority)} />
     <Row label="地區" value={text(props.district)} />
     <GeometryRow role={props.geometry_role} />
-    <Row label="資料限制" value="一筆是號誌清冊點，不等於獨立路口；無即時燈態、秒數或故障資訊。" />
+    <Row field="dataLimits" value="一筆是號誌清冊點，不等於獨立路口；無即時燈態、秒數或故障資訊。" />
     <SourceRows props={props} />
   </>;
 }

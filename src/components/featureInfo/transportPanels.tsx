@@ -1,5 +1,7 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row } from "./shared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { useFeatureTheme } from "./featureTheme";
 import { RAIL_ROUTES_FALLBACK_COLOR, RAIL_ROUTES_SYSTEM_LABELS } from "../../data/railRoutesTypes";
 
@@ -34,32 +36,35 @@ const RAIL_SYSTEM_INFO: Record<string, { name: string; color: string }> = {
 
 export function WeatherStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const stationType = String(props.station_type ?? "");
   const accentColor = WEATHER_TYPE_COLORS[stationType] ?? "#4dd0e1";
   const isActive = props.is_active;
-  const activeLabel = isActive === true || isActive === 1 || isActive === "true" ? "運作中" : isActive === false || isActive === 0 || isActive === "false" ? "已停用" : "";
+  const active = isActive === true || isActive === 1 || isActive === "true" ? true : isActive === false || isActive === 0 || isActive === "false" ? false : null;
+  const activeLabel = active == null ? "" : i18n.t(active ? "popup.transport.active" : "popup.transport.inactive");
 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.station_name ?? "Unknown Station")}
+          {String(props.station_name ?? i18n.t("popup.transport.unknownStation"))}
         </div>
       </div>
-      <Row label="類型" value={stationType} color={accentColor} />
-      <Row label="海拔" value={props.elevation_m != null ? `${props.elevation_m} m` : ""} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="啟用日" value={String(props.start_date ?? "")} />
-      <Row label="狀態" value={activeLabel} color={activeLabel === "運作中" ? "#66bb6a" : "#ef5350"} />
-      <Row label="備註" value={String(props.note ?? "")} />
+      <Row field="type" value={stationType ? enumLabel("weatherStationType", stationType, stationType, i18n) : ""} color={accentColor} />
+      <Row field="elevation" value={props.elevation_m != null ? `${props.elevation_m} m` : ""} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row label={i18n.t("popup.transport.startDate")} value={String(props.start_date ?? "")} />
+      <Row field="status" value={activeLabel} color={active ? "#66bb6a" : "#ef5350"} />
+      <Row field="remarks" value={String(props.note ?? "")} />
     </>
   );
 }
 
 export function BikeStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const serviceType = String(props.ServiceTypeName ?? "");
   const accentColor = BIKE_SERVICE_COLORS[serviceType] ?? "#ffca28";
 
@@ -68,19 +73,20 @@ export function BikeStationPanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.StationName ?? "Unknown Station")}
+          {String(props.StationName ?? tr("popup.transport.unknownStation"))}
         </div>
       </div>
-      <Row label="系統" value={serviceType} color={accentColor} />
-      <Row label="車柱數" value={String(props.BikesCapacity ?? "")} />
-      <Row label="城市" value={String(props.City ?? "")} />
-      <Row label="地址" value={String(props.StationAddress ?? "")} />
+      <Row field="system" value={serviceType} color={accentColor} />
+      <Row label={tr("popup.transport.docks")} value={String(props.BikesCapacity ?? "")} />
+      <Row field="city" value={String(props.City ?? "")} />
+      <Row field="address" value={String(props.StationAddress ?? "")} />
     </>
   );
 }
 
 export function BusStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const busType = String(props.bus_type ?? props.BusType ?? "");
   const isIntercity = busType === "intercity";
   const accentColor = isIntercity ? "#ab47bc" : "#66bb6a";
@@ -90,19 +96,20 @@ export function BusStationPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.StationName ?? "Unknown Station")}
+          {String(props.StationName ?? tr("popup.transport.unknownStation"))}
         </div>
       </div>
-      <Row label="類型" value={isIntercity ? "客運" : "市區公車"} color={accentColor} />
-      <Row label="路線數" value={String(props.Stops ?? "")} />
-      <Row label="城市" value={String(props.City ?? "")} />
-      <Row label="地址" value={String(props.StationAddress ?? "")} />
+      <Row field="type" value={tr(isIntercity ? "popup.transport.intercityBus" : "popup.transport.cityBus")} color={accentColor} />
+      <Row label={tr("popup.transport.routeCount")} value={String(props.Stops ?? "")} />
+      <Row field="city" value={String(props.City ?? "")} />
+      <Row field="address" value={String(props.StationAddress ?? "")} />
     </>
   );
 }
 
 export function RailStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const systemId = String(props.system_id ?? "");
   const info = RAIL_SYSTEM_INFO[systemId];
   const accentColor = String(props.line_color ?? props.color ?? info?.color ?? "#b8a080");
@@ -114,12 +121,12 @@ export function RailStationPanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "Unknown Station")}
+          {String(props.name ?? i18n.t("popup.transport.unknownStation"))}
         </div>
       </div>
-      <Row label="系統" value={info?.name ?? systemId} color={accentColor} />
-      {lineName && <Row label="路線" value={isTransfer ? `${lineName}（轉乘站）` : lineName} color={accentColor} />}
-      <Row label="站代碼" value={String(props.station_id ?? "")} />
+      <Row field="system" value={info ? enumLabel("railSystem", systemId, info.name, i18n) : systemId} color={accentColor} />
+      {lineName && <Row field="route" value={isTransfer ? i18n.t("popup.transport.transferStation", { line: lineName }) : lineName} color={accentColor} />}
+      <Row label={i18n.t("popup.transport.stationCode")} value={String(props.station_id ?? "")} />
     </>
   );
 }
@@ -127,6 +134,7 @@ export function RailStationPanel({ props }: { props: Record<string, unknown> }) 
 /** 軌道路線（railRoutes 靜態線）：線名 / 系統 / 來源；東延段另標 OSM 授權。 */
 export function RailRoutesPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const systemId = String(props.system ?? "");
   const accentColor = String(props.color ?? RAIL_ROUTES_FALLBACK_COLOR);
   return (
@@ -134,29 +142,31 @@ export function RailRoutesPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "軌道路線")}
+          {String(props.name ?? i18n.t("popup.transport.railRoute"))}
         </div>
       </div>
-      <Row label="系統" value={RAIL_ROUTES_SYSTEM_LABELS[systemId] ?? systemId} color={accentColor} />
+      <Row field="system" value={RAIL_ROUTES_SYSTEM_LABELS[systemId] ? enumLabel("railSystem", systemId, RAIL_ROUTES_SYSTEM_LABELS[systemId], i18n) : systemId} color={accentColor} />
     </>
   );
 }
 
-const SHIP_TYPE_INFO = (type: number): { label: string; color: string } => {
-  if (type >= 60 && type <= 69) return { label: "客船 Passenger", color: "#a78bfa" };
-  if (type >= 70 && type <= 79) return { label: "貨船 Cargo", color: "#38bdf8" };
-  if (type >= 80 && type <= 89) return { label: "油輪 Tanker", color: "#f97316" };
-  if (type >= 30 && type <= 39) return { label: "漁船 Fishing", color: "#22c55e" };
-  if (type >= 50 && type <= 59) return { label: "作業/拖船 Tug/Special", color: "#facc15" };
-  return { label: "未知 Unknown", color: "#67e8f9" };
+/** AIS 船舶類型碼區段 → 顯示用分類（文字在 popup.transport.ship.*） */
+const SHIP_TYPE_INFO = (type: number) => {
+  if (type >= 60 && type <= 69) return { key: "popup.transport.ship.passenger", color: "#a78bfa" } as const;
+  if (type >= 70 && type <= 79) return { key: "popup.transport.ship.cargo", color: "#38bdf8" } as const;
+  if (type >= 80 && type <= 89) return { key: "popup.transport.ship.tanker", color: "#f97316" } as const;
+  if (type >= 30 && type <= 39) return { key: "popup.transport.ship.fishing", color: "#22c55e" } as const;
+  if (type >= 50 && type <= 59) return { key: "popup.transport.ship.special", color: "#facc15" } as const;
+  return { key: "popup.transport.ship.unknown", color: "#67e8f9" } as const;
 };
 
 export function ShipPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr, formatDateTime } = useLocale();
   const vesselType = Number(props.vessel_type ?? 0);
   const info = SHIP_TYPE_INFO(vesselType);
   const ts = Number(props.timestamp ?? 0);
-  const time = ts > 0 ? new Date(ts * 1000).toLocaleString("zh-TW", { hour12: false }) : "—";
+  const time = ts > 0 ? formatDateTime(ts * 1000, { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }) : "—";
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -165,11 +175,11 @@ export function ShipPanel({ props }: { props: Record<string, unknown> }) {
           MMSI {String(props.mmsi ?? "—")}
         </div>
       </div>
-      <Row label="船舶類型" value={info.label} color={info.color} />
-      <Row label="AIS 類型碼" value={Number.isFinite(vesselType) ? String(vesselType) : "—"} />
-      <Row label="時間" value={time} />
-      <Row label="經度" value={props.lon != null ? Number(props.lon).toFixed(5) : "—"} />
-      <Row label="緯度" value={props.lat != null ? Number(props.lat).toFixed(5) : "—"} />
+      <Row label={tr("popup.transport.vesselType")} value={tr(info.key)} color={info.color} />
+      <Row label={tr("popup.transport.aisTypeCode")} value={Number.isFinite(vesselType) ? String(vesselType) : "—"} />
+      <Row field="time" value={time} />
+      <Row field="longitude" value={props.lon != null ? Number(props.lon).toFixed(5) : "—"} />
+      <Row field="latitude" value={props.lat != null ? Number(props.lat).toFixed(5) : "—"} />
     </>
   );
 }

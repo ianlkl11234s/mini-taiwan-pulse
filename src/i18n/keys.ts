@@ -8,8 +8,10 @@
  * 這些命名空間不會被「沒人用的 key」測試誤判。
  */
 import type common from "./locales/zh-TW/common.json";
+import type popup from "./locales/zh-TW/popup.json";
+import type popupTransport from "./locales/zh-TW/popup.transport.json";
 
-type ZhMessages = typeof common;
+type ZhMessages = typeof common & typeof popup & typeof popupTransport;
 
 type PluralSuffix = "zero" | "one" | "two" | "few" | "many" | "other";
 type StripPlural<K> = K extends `${infer Base}_${PluralSuffix}` ? Base : K;
@@ -23,6 +25,7 @@ export const DYNAMIC_NAMESPACES = [
   "panel", // 側欄面板（panel.<id>.title／short）
   "basemap", // 底圖名稱（basemap.<styleId>）
   "enum", // 資料類別代碼（enum.<domain>.<code>），見 dataText.ts
+  "popupHeader", // 說明框標題（popupHeader.<layerType>），popupHeaders.json；多數借用 layer.*，這裡只放對不到圖層的
 ] as const;
 
 export type DynamicNamespace = (typeof DYNAMIC_NAMESPACES)[number];
@@ -32,4 +35,4 @@ export type StaticMessageKey = StripPlural<keyof ZhMessages & string>;
 export type MessageKey = StaticMessageKey | `${DynamicNamespace}.${string}`;
 
 /** 測試用：哪些 zh-TW 檔已併進 `ZhMessages`。新增檔案時同步這裡。 */
-export const TYPED_MESSAGE_FILES = ["common.json"] as const;
+export const TYPED_MESSAGE_FILES = ["common.json", "popup.json", "popup.transport.json"] as const;

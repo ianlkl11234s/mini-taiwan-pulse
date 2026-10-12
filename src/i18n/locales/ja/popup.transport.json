@@ -1,0 +1,21 @@
+{
+  "popup.transport.unknownStation": "名称不明",
+  "popup.transport.active": "稼働中",
+  "popup.transport.inactive": "運用停止",
+  "popup.transport.startDate": "運用開始日",
+  "popup.transport.docks": "ラック数",
+  "popup.transport.intercityBus": "都市間バス",
+  "popup.transport.cityBus": "市内バス",
+  "popup.transport.routeCount": "路線数",
+  "popup.transport.transferStation": "{line}（乗換駅）",
+  "popup.transport.stationCode": "駅コード",
+  "popup.transport.railRoute": "鉄道路線",
+  "popup.transport.vesselType": "船種",
+  "popup.transport.aisTypeCode": "AIS 船種コード",
+  "popup.transport.ship.passenger": "旅客船",
+  "popup.transport.ship.cargo": "貨物船",
+  "popup.transport.ship.tanker": "タンカー",
+  "popup.transport.ship.fishing": "漁船",
+  "popup.transport.ship.special": "作業船・タグボート",
+  "popup.transport.ship.unknown": "不明"
+}

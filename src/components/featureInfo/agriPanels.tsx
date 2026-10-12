@@ -32,7 +32,7 @@ export function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="坡度相" value={slope} />
       <Row label="調查區" value={survey} />
       <Row label="圖幅" value={sheet === "-" ? "" : sheet} />
-      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+      <Row field="area" value={areaHa ? `${areaHa} 公頃` : ""} />
     </>
   );
 }
@@ -95,10 +95,10 @@ export function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unk
           {name || "休閒農業區"}
         </div>
       </div>
-      <Row label="代碼" value={keyCode} />
+      <Row field="code" value={keyCode} />
       <Row label="縣市碼" value={aa45} />
       <Row label="鄉鎮碼" value={aa46} />
-      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+      <Row field="area" value={areaHa ? `${areaHa} 公頃` : ""} />
     </>
   );
 }
@@ -128,7 +128,7 @@ export function AgriCropSuitabilityPanel({ props }: { props: Record<string, unkn
       </div>
       <Row label="適栽性" value={kindInfo.label} color={kindInfo.color} />
       <Row label="作物 EN" value={cropNameEn} />
-      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+      <Row field="area" value={areaHa ? `${areaHa} 公頃` : ""} />
     </>
   );
 }
@@ -152,13 +152,13 @@ export function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> 
           {community || "農村再生社區"}
         </div>
       </div>
-      <Row label="行政區" value={region} />
+      <Row field="district" value={region} />
       <Row label="計畫" value={plan} />
       <Row label="核定時" value={String(props["核定時"] ?? "")} />
       <Row label="計畫年" value={String(props["計畫年"] ?? "")} />
       <Row label="分署" value={String(props["分署"] ?? "")} />
-      <Row label="狀態" value={note} color={note === "已核定" ? "#7efcb0" : undefined} />
-      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+      <Row field="status" value={note} color={note === "已核定" ? "#7efcb0" : undefined} />
+      <Row field="area" value={areaHa ? `${areaHa} 公頃` : ""} />
     </>
   );
 }
@@ -176,9 +176,9 @@ export function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
           {String(props.poi_name ?? "Unknown")}
         </div>
       </div>
-      <Row label="類型" value={meta.label} color={meta.color} />
+      <Row field="type" value={meta.label} color={meta.color} />
       <Row label="資料集" value={String(props.source_dataset_id ?? "")} />
-      <Row label="行政區" value={String(props.TOWNID ?? "")} />
+      <Row field="district" value={String(props.TOWNID ?? "")} />
       <Row label="緯度" value={typeof props.lat === "number" ? props.lat.toFixed(5) : String(props.lat ?? "")} />
       <Row label="經度" value={typeof props.lon === "number" ? props.lon.toFixed(5) : String(props.lon ?? "")} />
     </>
@@ -199,12 +199,12 @@ export function AgriCompanyPanel({ props }: { props: Record<string, unknown> }) 
           {String(props["公司名稱"] ?? "Unknown")}
         </div>
       </div>
-      <Row label="類別" value={meta.label} color={meta.color} />
-      <Row label="統一編號" value={String(props["統一編號"] ?? "")} />
+      <Row field="category" value={meta.label} color={meta.color} />
+      <Row field="businessId" value={String(props["統一編號"] ?? "")} />
       <Row label="負責人" value={String(props["負責人"] ?? "")} />
-      <Row label="地址" value={String(props["公司地址"] ?? "")} />
-      {capital > 0 ? <Row label="資本額" value={`${capital.toLocaleString()} 元`} /> : null}
-      <Row label="狀態" value={String(props["公司狀態"] ?? "")} />
+      <Row field="address" value={String(props["公司地址"] ?? "")} />
+      {capital > 0 ? <Row field="capital" value={`${capital.toLocaleString()} 元`} /> : null}
+      <Row field="status" value={String(props["公司狀態"] ?? "")} />
     </>
   );
 }
@@ -220,9 +220,9 @@ export function FarmRoadsPanel({ props }: { props: Record<string, unknown> }) {
           {String(props.NAME ?? "農路")}
         </div>
       </div>
-      <Row label="縣市" value={String(props.County ?? "")} />
-      <Row label="鄉鎮" value={String(props.Town ?? "")} />
-      {Number.isFinite(len) ? <Row label="長度" value={`${len.toFixed(0)} m`} /> : null}
+      <Row field="county" value={String(props.County ?? "")} />
+      <Row field="township" value={String(props.Town ?? "")} />
+      {Number.isFinite(len) ? <Row field="length" value={`${len.toFixed(0)} m`} /> : null}
     </>
   );
 }
@@ -242,7 +242,7 @@ export function EcoNetworkZonesPanel({ props }: { props: Record<string, unknown>
         </div>
       </div>
       <Row label="分區" value={zt?.label ?? zone} color={color} />
-      {Number.isFinite(ha) ? <Row label="面積" value={`${Math.round(ha).toLocaleString()} 公頃`} /> : null}
+      {Number.isFinite(ha) ? <Row field="area" value={`${Math.round(ha).toLocaleString()} 公頃`} /> : null}
     </>
   );
 }

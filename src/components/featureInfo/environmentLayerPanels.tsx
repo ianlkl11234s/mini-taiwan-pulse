@@ -58,13 +58,13 @@ export function RiverRpiStationsPanel({ props }: PanelProps) {
     <Row label="懸浮固體 SS" value={measured(props.latest_ss, props.latest_ss_censored, "mg/L")} />
     <Row label="氨氮 NH3-N" value={measured(props.latest_nh3_n, props.latest_nh3_n_censored, "mg/L")} />
     <Row label="近 12 月平均" value={mean == null ? "無樣本（不代表乾淨）" : `${mean.toLocaleString("zh-TW", { maximumFractionDigits: 2 })}（${samples ?? 0} 次採樣）`} />
-    <Row label="河川" value={text(props.river)} />
-    <Row label="流域" value={text(props.basin)} />
+    <Row field="river" value={text(props.river)} />
+    <Row field="basin" value={text(props.basin)} />
     <Row label="縣市鄉鎮" value={place(props.county, props.township)} />
     <PopupDetails summary="說明與限制">
       <Row label="等級規則" value="RPI ≤2 未（稍）受污染；≤3 輕度；≤6 中度；>6 嚴重（環境部分級）" />
       {anyCensored && <Row label="「<」" value="低於偵測極限，數值為極限值而非實測值" />}
-      <Row label="更新" value="每月更新，約延遲 2 個月；測項與 RPI 取同一次採樣" />
+      <Row field="updated" value="每月更新，約延遲 2 個月；測項與 RPI 取同一次採樣" />
       <Row label="近 12 月窗" value={text(props.rpi_12m_window)} />
     </PopupDetails>
     <SourceFooter props={{ source_org: "環境部河川水質監測（WQX_P_01）", source_url: "https://data.gov.tw/dataset/6078", license: LICENSE, fetched_at: day(props.retrieved_at) }} />
@@ -77,12 +77,12 @@ export function WaterQualityStationsPanel({ props }: PanelProps) {
   const readings = number(props.n_readings);
   return <>
     <Title color={color}>{text(props.name, "水質監測站")}</Title>
-    <Row label="類型" value={WATER_QUALITY_STATION_TYPE_LABELS[type] ?? "未分類"} color={color} />
+    <Row field="type" value={WATER_QUALITY_STATION_TYPE_LABELS[type] ?? "未分類"} color={color} />
     <Row label="最新採樣" value={day(props.latest_sample_date) || "無讀值（不代表乾淨）"} />
     <Row label="讀值筆數" value={readings == null ? "" : `${readings.toLocaleString("zh-TW")} 筆`} />
     <Row label="站況" value={props.is_active === true ? "啟用" : props.is_active === false ? "停用／未啟用" : ""} />
     <Row label="管理機關" value={text(props.agency)} />
-    <Row label="河川" value={text(props.river)} />
+    <Row field="river" value={text(props.river)} />
     <Row label="流域／分區" value={text(props.basin)} />
     <Row label="縣市鄉鎮" value={place(props.county, props.township)} />
     <SourceFooter props={{ source_org: `${text(props.agency, "環境部、水利署")} 水質監測站`, license: LICENSE, fetched_at: day(props.retrieved_at) }} />
@@ -94,10 +94,10 @@ export function SewageTreatmentPlantsPanel({ props }: PanelProps) {
   const uncertain = (SEWAGE_UNCERTAIN_QUALITIES as readonly string[]).includes(quality);
   return <>
     <Title color={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants}>{text(props.name, "公共污水處理廠")}</Title>
-    {uncertain && <Row label="位置" value="位置不確定：地址只定位到區域中心或約略位置" color={RIVER_RPI_NO_DATA_COLOR} />}
-    <Row label="縣市" value={text(props.county)} />
-    <Row label="地址" value={text(props.address)} />
-    <Row label="定位精度" value={SEWAGE_GEOCODE_QUALITY_LABELS[quality] ?? "未提供"} />
+    {uncertain && <Row field="location" value="位置不確定：地址只定位到區域中心或約略位置" color={RIVER_RPI_NO_DATA_COLOR} />}
+    <Row field="county" value={text(props.county)} />
+    <Row field="address" value={text(props.address)} />
+    <Row field="positionAccuracy" value={SEWAGE_GEOCODE_QUALITY_LABELS[quality] ?? "未提供"} />
     <SourceFooter props={{ source_org: "內政部 公共污水處理廠（地址經 Google 定位）", source_url: "https://data.gov.tw/dataset/26496", license: LICENSE, fetched_at: day(props.retrieved_at) }} />
   </>;
 }
@@ -110,8 +110,8 @@ export function DrinkingWaterProtectionZonesPanel({ props }: PanelProps) {
     <Row label="劃設範圍" value={text(props.delineation)} />
     <Row label="水體分類" value={text(props.water_body_class)} />
     <Row label="取水口" value={text(props.intake_name)} />
-    <Row label="縣市" value={text(props.county)} />
-    <Row label="流域" value={text(props.basin)} />
+    <Row field="county" value={text(props.county)} />
+    <Row field="basin" value={text(props.basin)} />
     <Row label="法源" value={text(props.legal_basis)} />
     <Row label="提醒" value="環境部依飲用水管理條例公告；不同於水利署依自來水法劃設的自來水水質水量保護區。" />
     <SourceFooter props={{ source_org: "環境部 全國飲用水水源水質保護區範圍圖（GISEPA_P_13，2026-07-20 版）", source_url: "https://data.gov.tw/dataset/6377", license: LICENSE, fetched_at: day(props.retrieved_at) }} />
@@ -154,18 +154,18 @@ export function SeaWaterQualityStationsPanel({ props }: PanelProps) {
     <Row label="海域" value={text(props.sample_area)} />
     <Row label="海域分類" value={cls?.label ?? "未提供"} color={cls?.color} />
     <Row label="最新採樣" value={day(props.latest_sample_date) || "無採樣紀錄"} />
-    {stale && <Row label="狀態" value="最新採樣已過期或無採樣，顏色不代表現況" color={ENV_STALE_COLOR} />}
+    {stale && <Row field="status" value="最新採樣已過期或無採樣，顏色不代表現況" color={ENV_STALE_COLOR} />}
     <Row label="水溫" value={flagged(props.water_temp_c, props.water_temp_c_flag, "°C", 1)} />
     <Row label="pH" value={flagged(props.ph, props.ph_flag, "", 2)} />
     <Row label="溶氧 DO" value={flagged(props.do_ele_mgl, props.do_ele_mgl_flag, "mg/L")} title="電極法；滴定法測值目前全為空" />
     <Row label="懸浮固體 SS" value={flagged(props.ss_mgl, props.ss_mgl_flag, "mg/L")} />
     <Row label="氨氮 NH3-N" value={flagged(props.nh3_n_mgl, props.nh3_n_mgl_flag, "mg/L", 3)} />
-    <Row label="縣市" value={text(props.county)} />
+    <Row field="county" value={text(props.county)} />
     <PopupDetails summary="說明與限制">
-      <Row label="分類" value="甲乙丙為海域環境分類（依用途劃定），不是單次採樣好壞" />
-      <Row label="更新" value="約每季採樣；資料集約半年至一季更新" />
+      <Row field="classification" value="甲乙丙為海域環境分類（依用途劃定），不是單次採樣好壞" />
+      <Row field="updated" value="約每季採樣；資料集約半年至一季更新" />
       <Row label="採樣次數" value={number(props.n_samples) == null ? "" : `${fmt(number(props.n_samples)!, 0)} 次（自 ${day(props.first_sample_date)}）`} />
-      <Row label="站號" value={text(props.station_id)} mono />
+      <Row field="stationNo" value={text(props.station_id)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: "海洋委員會海洋保育署 國家海域水質測站", source_url: "https://data.gov.tw/dataset/155934", license: LICENSE }} />
   </>;
@@ -210,11 +210,11 @@ export function RiverRpiSegmentsPanel({ props }: PanelProps) {
     <Title color={latest?.color ?? RIVER_RPI_NO_DATA_COLOR}>{`${text(props.river_name, "河段")}（推估河段）`}</Title>
     <Row label="河段" value={`${text(props.from_station_name, "上游測站")} → ${rpiTarget(props)}`} />
     <Row label="河名" value={rpiAssignment(props)} />
-    <Row label="流域" value={text(props.basin)} />
+    <Row field="basin" value={text(props.basin)} />
     <Row label="最新 RPI" value={rpi == null ? "無資料（不代表乾淨）" : `${fmt(rpi)}（${latest?.label ?? "無等級"}）`} color={latest?.color} />
     <Row label="採樣日" value={day(props.rpi_latest_date)} />
     <Row label="近 12 月平均" value={rpiMean == null ? "無樣本（不代表乾淨）" : `${fmt(rpiMean)}（${mean?.label ?? "無等級"}，${fmt(number(props.n_samples_12m) ?? 0, 0)} 次）`} color={mean?.color} />
-    <Row label="長度" value={length == null ? "" : `${fmt(length)} 公里`} />
+    <Row field="length" value={length == null ? "" : `${fmt(length)} 公里`} />
     <Row label="感潮" value={RIVER_RPI_TIDAL_LABELS[text(props.tidal)] ?? "未判定"} />
     <Row label="流向" value={direction === "verified" ? "" : (RIVER_RPI_DIRECTION_LABELS[direction] ?? "未驗證")} />
     <Row label="待複核" value={reviewNotes.join("；")} />
@@ -242,8 +242,8 @@ export function Pm25ManualStationsPanel({ props }: PanelProps) {
     <Row label="有效樣本" value={nValid == null ? "" : `${fmt(nValid, 0)} 筆（${text(props.mean_12m_window)}）`} />
     <Row label="最近一筆" value={latest == null ? "無有效值" : `${fmt(latest, 1)} μg/m3（${day(props.latest_valid_date)}）`} />
     <Row label="站況" value={active === true ? "採樣中" : active === false ? "已停測（中空灰點）" : ""} color={active === false ? ENV_STALE_COLOR : undefined} />
-    <Row label="縣市" value={text(props.county)} />
-    <Row label="位置" value={text(props.location_note, "座標為同名空品自動站座標")} />
+    <Row field="county" value={text(props.county)} />
+    <Row field="location" value={text(props.location_note, "座標為同名空品自動站座標")} />
     <PopupDetails summary="說明與限制">
       <Row label="採樣" value={text(props.sampling_note, "手動採樣約每 3 天 1 筆日平均，非即時")} />
       <Row label="累計" value={number(props.n_records) == null ? "" : `${fmt(number(props.n_records)!, 0)} 筆（自 ${day(props.first_record_date)}）`} />
@@ -260,11 +260,11 @@ export function DioxinStationsPanel({ props }: PanelProps) {
     <Title color={stale ? ENV_STALE_COLOR : ENVIRONMENT_LAYER_COLORS.dioxinStations}>{text(props.station_name, "戴奧辛測站")}</Title>
     <Row label="最新濃度" value={teq == null ? "無有效值" : `${fmt(teq, 4)} pg I-TEQ/m3`} />
     <Row label="採樣日" value={day(props.latest_sample_date)} />
-    {stale && <Row label="狀態" value="最新採樣已過期（中空灰點），不代表現況" color={ENV_STALE_COLOR} />}
+    {stale && <Row field="status" value="最新採樣已過期（中空灰點），不代表現況" color={ENV_STALE_COLOR} />}
     <Row label="採樣地址" value={text(props.sample_address)} />
     <Row label="樣本數" value={number(props.n_samples) == null ? "" : `${fmt(number(props.n_samples)!, 0)} 次（自 ${day(props.first_sample_date)}）`} />
-    <Row label="縣市" value={text(props.county)} />
-    <Row label="位置" value={text(props.location_note)} />
+    <Row field="county" value={text(props.county)} />
+    <Row field="location" value={text(props.location_note)} />
     <PopupDetails summary="說明與限制">
       <Row label="採樣" value={text(props.sampling_note, "定期採樣，約每半年 1–2 次，非即時")} />
       <Row label="顏色" value="序列色只表相對高低，未與標準比對" />
@@ -298,11 +298,11 @@ export function IncineratorEmissionsPanel({ props }: PanelProps) {
     <Row label="戴奧辛（各爐最大）" value={max == null ? "無有效檢測" : `${fmt(max, 3)} ng-TEQ/Nm3`} />
     {incineratorFurnaces(props).map((row) => <Row key={row.no} label={`　${row.label}`} value={row.value} />)}
     {unusual != null && <Row label="異常排放申報" value={unusual ? "該月有申報" : "該月無"} color={unusual ? ENV_ALERT_COLOR : undefined} />}
-    <Row label="縣市" value={text(props.county)} />
+    <Row field="county" value={text(props.county)} />
     <PopupDetails summary="說明與限制">
-      <Row label="更新" value="每月（環境部月報，約延遲 1–2 個月）；戴奧辛為各爐最近一次有效檢測" />
+      <Row field="updated" value="每月（環境部月報，約延遲 1–2 個月）；戴奧辛為各爐最近一次有效檢測" />
       <Row label="比對" value="資料集未附排放標準，本圖不判定是否超標；顏色以 NOx 相對高低著色" />
-      <Row label="位置" value={text(props.location_note)} />
+      <Row field="location" value={text(props.location_note)} />
       <Row label="申報期間" value={number(props.n_months) == null ? "" : `${fmt(number(props.n_months)!, 0)} 個月（自 ${text(props.first_month)}）`} />
     </PopupDetails>
     <SourceFooter props={{ source_org: "環境部 焚化廠空污監測（fac_s_04）", source_url: "https://data.gov.tw/dataset/6368", license: LICENSE }} />
@@ -318,12 +318,12 @@ export function NuscGammaRadiationPanel({ props }: PanelProps) {
   return <>
     <Title color={stale ? ENV_STALE_COLOR : ENVIRONMENT_LAYER_COLORS.nuscGammaRadiation}>{text(props.station_name, "環境輻射監測站")}</Title>
     <Row label="劑量率" value={dose == null ? "無讀值" : `${fmt(dose, 3)} μSv/h`} color={high ? ENV_ALERT_COLOR : undefined} />
-    <Row label="觀測時間" value={formatTaiwanTime(text(props.observed_at) || null) || "無"} mono />
-    {stale && <Row label="狀態" value="超過 30 分鐘未更新（中空灰點），不是即時值" color={ENV_STALE_COLOR} />}
+    <Row field="observedAt" value={formatTaiwanTime(text(props.observed_at) || null) || "無"} mono />
+    {stale && <Row field="status" value="超過 30 分鐘未更新（中空灰點），不是即時值" color={ENV_STALE_COLOR} />}
     {high && <Row label="提醒" value="高於一般背景，請以核安會公告為準" color={ENV_ALERT_COLOR} />}
     <PopupDetails summary="說明與限制">
       <Row label="背景值" value="一般環境背景約 0.04–0.14 μSv/h（地質、海拔、降雨會影響）" />
-      <Row label="更新" value="每 15 分鐘；地圖每 15 分鐘重抓" />
+      <Row field="updated" value="每 15 分鐘；地圖每 15 分鐘重抓" />
       <Row label="區別" value="核安會全國環境輻射監測網；與台電核電廠周界監測（災害・核安）為不同測站網" />
       <Row label="站碼" value={text(props.station_id)} mono />
     </PopupDetails>
@@ -365,18 +365,18 @@ export function WaterEffluentLivePanel({ props }: PanelProps) {
   const normalItems = (items ?? []).filter((item) => !(item.is_exceed || (item.status && item.status !== "正常值")));
   return <>
     <Title color={status === "stale" ? ENV_STALE_COLOR : meta?.color ?? ENVIRONMENT_LAYER_COLORS.waterEffluentLive}>{text(props.facility_name, "放流水監測設施")}</Title>
-    <Row label="狀態" value={status === "stale" ? "資料逾時（超過 3 小時未更新）" : meta?.label ?? "未知"} color={status === "stale" ? ENV_STALE_COLOR : meta?.color} />
-    <Row label="觀測時間" value={formatTaiwanTime(text(props.observed_at) || null) || "無"} mono />
-    <Row label="測項" value={`${fmt(number(props.item_count) ?? 0, 0)} 項；超限 ${fmt(number(props.exceed_count) ?? 0, 0)}、異常 ${fmt(number(props.abnormal_count) ?? 0, 0)}`} />
-    <Row label="縣市" value={text(props.county)} />
+    <Row field="status" value={status === "stale" ? "資料逾時（超過 3 小時未更新）" : meta?.label ?? "未知"} color={status === "stale" ? ENV_STALE_COLOR : meta?.color} />
+    <Row field="observedAt" value={formatTaiwanTime(text(props.observed_at) || null) || "無"} mono />
+    <Row field="measurement" value={`${fmt(number(props.item_count) ?? 0, 0)} 項；超限 ${fmt(number(props.exceed_count) ?? 0, 0)}、異常 ${fmt(number(props.abnormal_count) ?? 0, 0)}`} />
+    <Row field="county" value={text(props.county)} />
     <Row label="座標來源" value={WATER_EFFLUENT_COORD_SOURCE_LABELS[text(props.coord_source)] ?? "未提供"} />
-    {error && <Row label="測項明細" value={error} color={ENV_ALERT_COLOR} />}
-    {!error && items == null && <Row label="測項明細" value="載入中…" />}
+    {error && <Row field="measurementDetails" value={error} color={ENV_ALERT_COLOR} />}
+    {!error && items == null && <Row field="measurementDetails" value="載入中…" />}
     {flaggedItems.map(effluentItemRow)}
     {normalItems.length > 0 && <PopupDetails summary={`其他 ${normalItems.length} 項（正常值）`}><PopupScroll>{normalItems.map(effluentItemRow)}</PopupScroll></PopupDetails>}
     <PopupDetails summary="說明與限制">
       <Row label="判定" value="超標以上游狀態「超限值」為準，不自行用標準值推算" />
-      <Row label="更新" value="每小時；地圖每小時重抓；部分縣市上游停更會顯示逾時" />
+      <Row field="updated" value="每小時；地圖每小時重抓；部分縣市上游停更會顯示逾時" />
       <Row label="管制編號" value={text(props.cno)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: "環境部 水量水質自動監測連線放流水即時資料", source_url: "https://data.gov.tw/dataset/35105", license: LICENSE }} />
@@ -404,15 +404,15 @@ export function CemsStackLivePanel({ props }: PanelProps) {
   const otherItems = (items ?? []).filter((item) => !item.is_exceed);
   return <>
     <Title color={status === "stale" ? ENV_STALE_COLOR : meta?.color ?? ENVIRONMENT_LAYER_COLORS.cemsStackLive}>{text(props.facility_name, "CEMS 監測設施")}</Title>
-    <Row label="狀態" value={status === "stale" ? "資料逾時（超過 6 小時未更新）" : status === "unknown" ? "運轉狀態未提供" : meta?.label ?? "未知"} color={status === "stale" || status === "unknown" ? ENV_STALE_COLOR : meta?.color} />
-    <Row label="觀測時間" value={formatTaiwanTime(text(props.observed_at) || null) || "無"} mono />
+    <Row field="status" value={status === "stale" ? "資料逾時（超過 6 小時未更新）" : status === "unknown" ? "運轉狀態未提供" : meta?.label ?? "未知"} color={status === "stale" || status === "unknown" ? ENV_STALE_COLOR : meta?.color} />
+    <Row field="observedAt" value={formatTaiwanTime(text(props.observed_at) || null) || "無"} mono />
     <Row label="延遲" value="上游約延遲 4–5 小時，觀測時間不是現在" />
     <Row label="運轉狀態" value={summary} />
-    <Row label="測項" value={`${fmt(number(props.item_count) ?? 0, 0)} 項；逾限 ${fmt(number(props.exceed_count) ?? 0, 0)}`} />
+    <Row field="measurement" value={`${fmt(number(props.item_count) ?? 0, 0)} 項；逾限 ${fmt(number(props.exceed_count) ?? 0, 0)}`} />
     <Row label="監測類別" value={text(props.sources).split("、").map((src) => CEMS_SOURCE_LABELS[src] ?? src).join("、")} />
-    <Row label="縣市" value={text(props.county)} />
-    {error && <Row label="測項明細" value={error} color={ENV_ALERT_COLOR} />}
-    {!error && items == null && <Row label="測項明細" value="載入中…" />}
+    <Row field="county" value={text(props.county)} />
+    {error && <Row field="measurementDetails" value={error} color={ENV_ALERT_COLOR} />}
+    {!error && items == null && <Row field="measurementDetails" value="載入中…" />}
     {exceedItems.map(cemsItemRow)}
     {otherItems.length > 0 && <PopupDetails summary={`其他 ${otherItems.length} 項`}><PopupScroll>{otherItems.map(cemsItemRow)}</PopupScroll></PopupDetails>}
     <PopupDetails summary="說明與限制">
@@ -431,14 +431,14 @@ export function CwaUvDailyPanel({ props }: PanelProps) {
   return <>
     <Title color={stale || !level ? ENV_STALE_COLOR : level.color}>{`${text(props.station_name, "紫外線測站")}（前一天最大值）`}</Title>
     <Row label="紫外線指數" value={uv == null ? "缺值" : fmt(uv, 1)} />
-    <Row label="等級" value={level?.label ?? "缺值"} color={level?.color} />
-    <Row label="日期" value={`${day(props.obs_date)}（前一天最大值，非即時）`} />
-    {stale && <Row label="狀態" value="資料超過 2 天未更新（中空灰點）" color={ENV_STALE_COLOR} />}
-    <Row label="縣市" value={text(props.county)} />
+    <Row field="level" value={level?.label ?? "缺值"} color={level?.color} />
+    <Row field="date" value={`${day(props.obs_date)}（前一天最大值，非即時）`} />
+    {stale && <Row field="status" value="資料超過 2 天未更新（中空灰點）" color={ENV_STALE_COLOR} />}
+    <Row field="county" value={text(props.county)} />
     <PopupDetails summary="說明與限制">
       <Row label="資料" value="氣象署每日公布各站前一天紫外線指數最大值，不是現在的紫外線" />
-      <Row label="更新" value="每日；地圖每 6 小時重抓" />
-      <Row label="站號" value={text(props.station_id)} mono />
+      <Row field="updated" value="每日；地圖每 6 小時重抓" />
+      <Row field="stationNo" value={text(props.station_id)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: "中央氣象署 紫外線指數（O-A0005-001）", source_url: "https://data.gov.tw/dataset/9039", license: LICENSE, fetched_at: formatTaiwanTime(text(props.collected_at) || null) }} />
   </>;

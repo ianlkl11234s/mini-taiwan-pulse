@@ -11,7 +11,7 @@ export function AquaculturePondsPanel({ props }: { props: Record<string, unknown
     <>
       <Title color="#26c6da">{String(props.name ?? "魚塭")}</Title>
       <Row label="養殖物" value={String(props.produce ?? "")} />
-      <Row label="面積" value={areaHa(props.area_ha)} />
+      <Row field="area" value={areaHa(props.area_ha)} />
     </>
   );
 }
@@ -20,9 +20,9 @@ export function AquacultureZonePanel({ props }: { props: Record<string, unknown>
   return (
     <>
       <Title color="#66bb6a">{String(props.zone_name ?? "養殖漁業生產區")}</Title>
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="鄉鎮" value={String(props.township ?? "")} />
-      <Row label="面積" value={areaHa(props.area_ha)} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="township" value={String(props.township ?? "")} />
+      <Row field="area" value={areaHa(props.area_ha)} />
     </>
   );
 }
@@ -31,8 +31,8 @@ export function AquacultureCageNetPanel({ props }: { props: Record<string, unkno
   return (
     <>
       <Title color="#5c6bc0">{String(props.public_no ?? "海上箱網")}</Title>
-      <Row label="鄉鎮" value={String(props.township ?? "")} />
-      <Row label="位置" value={String(props.location ?? "")} />
+      <Row field="township" value={String(props.township ?? "")} />
+      <Row field="location" value={String(props.location ?? "")} />
     </>
   );
 }
@@ -58,8 +58,8 @@ export function AquacultureWaterSatellitePanel({ props }: { props: Record<string
   return (
     <>
       <Title color={tier.color}>衛星偵測養殖水體</Title>
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="area" value={areaHa(props.area_ha)} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="信心" value={tier.label} color={tier.color} />
       <Row label="土地使用（NLSC 113年）" value={nlscLandUse(props)} />
       {solarSymbiotic && (
@@ -110,14 +110,14 @@ export function AquacultureWaterSatelliteMoaPanel({ props }: { props: Record<str
   return (
     <>
       <Title color={tier.color}>魚塭·官方標籤版</Title>
-      <Row label="分類" value={tier.label} color={tier.color} />
+      <Row field="classification" value={tier.label} color={tier.color} />
       {reason && (
         <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
           ⓘ {reason}
         </div>
       )}
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="area" value={areaHa(props.area_ha)} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="土地使用（NLSC）" value={nlscLandUse(props)} />
     </>
   );
@@ -159,14 +159,14 @@ export function AquacultureWaterUnionPanel({ props }: { props: Record<string, un
   return (
     <>
       <Title color={tier.color}>魚塭·整合對照版</Title>
-      <Row label="分類" value={tier.label} color={tier.color} />
+      <Row field="classification" value={tier.label} color={tier.color} />
       {reason && (
         <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
           ⓘ {reason}
         </div>
       )}
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="area" value={areaHa(props.area_ha)} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="來源版本" value={sourceLabel} />
     </>
   );
@@ -185,8 +185,8 @@ export function AquacultureIntegratedPanel({ props }: { props: Record<string, un
   return (
     <>
       <Title color={tier.color}>養殖漁業整合</Title>
-      <Row label="來源" value={tier.label} color={tier.color} />
-      <Row label="面積" value={areaHa(props.area_ha)} />
+      <Row field="source" value={tier.label} color={tier.color} />
+      <Row field="area" value={areaHa(props.area_ha)} />
     </>
   );
 }

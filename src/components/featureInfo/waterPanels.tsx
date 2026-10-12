@@ -66,10 +66,10 @@ export function WaterFacilityPanel({ props }: { props: Record<string, unknown> }
           {String(props.name ?? "(未命名設施)")}
         </div>
       </div>
-      <Row label="類型" value={meta.label} color={meta.color} />
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="type" value={meta.label} color={meta.color} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="管理者" value={String(props.operator ?? "")} />
-      <Row label="資料源" value={String(props.source ?? "")} />
+      <Row field="dataSource" value={String(props.source ?? "")} />
     </>
   );
 }
@@ -87,10 +87,10 @@ export function WaterMonitorPanel({ props }: { props: Record<string, unknown> })
           {String(props.name ?? "(未命名站)")}
         </div>
       </div>
-      <Row label="類型" value={meta.label} color={meta.color} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="資料源" value={String(props.source ?? "")} />
-      <Row label="狀態" value={isActive ? "啟用" : "停用"} color={isActive ? "#4ade80" : "#9ca3af"} />
+      <Row field="type" value={meta.label} color={meta.color} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="dataSource" value={String(props.source ?? "")} />
+      <Row field="status" value={isActive ? "啟用" : "停用"} color={isActive ? "#4ade80" : "#9ca3af"} />
     </>
   );
 }
@@ -115,14 +115,14 @@ export function WaterDetentionBasinPanel({ props }: { props: Record<string, unkn
           {String(props.name ?? "(未命名滯洪池)")}
         </div>
       </div>
-      <Row label="縣市" value={COUNTY_LABEL[county] ?? county} />
-      {props.township ? <Row label="鄉鎮" value={String(props.township)} /> : null}
-      {props.address ? <Row label="地址" value={String(props.address)} /> : null}
-      {props.agency ? <Row label="管理單位" value={String(props.agency)} /> : null}
+      <Row field="county" value={COUNTY_LABEL[county] ?? county} />
+      {props.township ? <Row field="township" value={String(props.township)} /> : null}
+      {props.address ? <Row field="address" value={String(props.address)} /> : null}
+      {props.agency ? <Row field="managingAgency" value={String(props.agency)} /> : null}
       {areaHa != null && Number.isFinite(areaHa)
-        ? <Row label="面積" value={`${areaHa.toLocaleString()} ha`} />
+        ? <Row field="area" value={`${areaHa.toLocaleString()} ha`} />
         : areaM2 != null && Number.isFinite(areaM2)
-          ? <Row label="面積" value={`${areaM2.toLocaleString()} m²`} />
+          ? <Row field="area" value={`${areaM2.toLocaleString()} m²`} />
           : null}
       {designed != null && Number.isFinite(designed)
         ? <Row label="設計容量" value={`${designed.toLocaleString()} m³`} />
@@ -130,8 +130,8 @@ export function WaterDetentionBasinPanel({ props }: { props: Record<string, unkn
       {depth != null && Number.isFinite(depth)
         ? <Row label="最大深度" value={`${depth} m`} />
         : null}
-      {props.status ? <Row label="狀態" value={String(props.status)} /> : null}
-      <Row label="資料源" value={String(props.source ?? "")} />
+      {props.status ? <Row field="status" value={String(props.status)} /> : null}
+      <Row field="dataSource" value={String(props.source ?? "")} />
     </>
   );
 }
@@ -159,11 +159,11 @@ export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
         </div>
       </div>
       {nameEn && <Row label="English" value={nameEn} />}
-      <Row label="類別" value={label} color={accentColor} />
-      <Row label="流域" value={String(props.basin_name ?? "")} />
-      <Row label="河川" value={String(props.river_name ?? "")} />
+      <Row field="category" value={label} color={accentColor} />
+      <Row field="basin" value={String(props.basin_name ?? "")} />
+      <Row field="river" value={String(props.river_name ?? "")} />
       <Row label="壩高" value={props.dam_height_m ? `${props.dam_height_m} m` : ""} />
-      <Row label="容量" value={capacityStr} />
+      <Row field="capacity" value={capacityStr} />
       {/* R6 段 2：即時水情（平面圓點與 3D 水位計共用 reservoirFeatureProps；缺值不顯示該列） */}
       {kind === "reservoir" && <ReservoirLiveRows props={props} />}
       {isDam && (
@@ -260,9 +260,9 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>m 水位</span>
       </div>
-      <Row label="縣市" value={String(props.county ?? "")} />
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <Row label="站號" value={String(props.station_id ?? "")} color={t.textDim} />
+      <Row field="county" value={String(props.county ?? "")} />
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
@@ -332,7 +332,7 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>m 地下水位（海拔）</span>
       </div>
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="井號" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
@@ -411,9 +411,9 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{unit} 淹水深度</span>
       </div>
-      {(county || town) && <Row label="區域" value={[county, town].filter(Boolean).join(" / ")} />}
-      {admin && <Row label="管理單位" value={admin} />}
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {(county || town) && <Row field="region" value={[county, town].filter(Boolean).join(" / ")} />}
+      {admin && <Row field="managingAgency" value={admin} />}
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
@@ -450,9 +450,9 @@ export function BridgeRainPanel({ props }: { props: Record<string, unknown> }) {
   const color = status === "triggered" ? "#ef4444" : status === "below" ? "#3b82f6" : "#94a3b8";
   return <div>
     <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{String(props.bridge_name ?? "監控橋梁")}</div>
-    <Row label="路段" value={String(props.route ?? "")} />
+    <Row field="roadSection" value={String(props.route ?? "")} />
     <Row label="雨量判讀" value={String(props.status_label ?? "未知")} color={color} />
-    <Row label="限制" value={String(props.status_reason ?? "")} />
+    <Row field="limits" value={String(props.status_reason ?? "")} />
     <Row label="參考站號" value={String(props.station_ids ?? "")} />
     {readings.map((r) => <div key={r.id} style={{ marginTop: 8, padding: 8, border: `1px solid ${t.textMuted}`, borderRadius: 6, color: t.textStrong, fontSize: FONT_SIZE.sm }}>
       <div>{r.name ?? r.id}（{r.id}）</div>
@@ -461,7 +461,7 @@ export function BridgeRainPanel({ props }: { props: Record<string, unknown> }) {
     </div>)}
     <Row label="表版本" value={String(props.table_version ?? "")} />
     <Row label="橋位" value={String(props.location_source ?? "")} />
-    <Row label="備註" value={String(props.note ?? "")} />
+    <Row field="remarks" value={String(props.note ?? "")} />
     <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm }}>
       <a href={BRIDGE_TABLE_URL} target="_blank" rel="noopener noreferrer">公路局監控橋梁表</a>
       {" · "}<a href={String(props.location_url ?? "#")} target="_blank" rel="noopener noreferrer">OSM 候選橋位</a>
@@ -549,9 +549,9 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       <Row label="1 小時累積" value={`${p1.toFixed(1)} mm`} />
       <Row label="3 小時累積" value={`${p3.toFixed(1)} mm`} />
       <Row label="24 小時累積" value={`${p24.toFixed(1)} mm`} />
-      <Row label="縣市" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <Row label="站號" value={String(props.station_id ?? "")} color={t.textDim} />
+      <Row field="county" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         24h 1 小時累積雨量
@@ -703,10 +703,10 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
 
       {/* 基本屬性 */}
       <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${t.border}` }}>
-        {r?.county && <Row label="縣市" value={r.county} />}
+        {r?.county && <Row field="county" value={r.county} />}
         {r?.org_mng && <Row label="管理" value={r.org_mng} />}
         {r?.dam_height_m != null && <Row label="壩高" value={`${r.dam_height_m} m`} />}
-        {r?.status && <Row label="狀態" value={r.status} />}
+        {r?.status && <Row field="status" value={r.status} />}
       </div>
     </>
   );
@@ -724,8 +724,8 @@ export function WaterReservoirPolyPanel({ props }: { props: Record<string, unkno
           {name}
         </div>
       </div>
-      <Row label="類別" value="蓄水水面範圍" color={accent} />
-      <Row label="資料源" value="WRA GIC reservoir_storage" />
+      <Row field="category" value="蓄水水面範圍" color={accent} />
+      <Row field="dataSource" value="WRA GIC reservoir_storage" />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
         ⓘ 此為水庫實際水面輪廓，部分水庫（如台電管的明潭、明湖下池）僅有面、無單獨點位
       </div>
@@ -746,8 +746,8 @@ export function LakesPondsPanel({ props }: { props: Record<string, unknown> }) {
           {name || meta.label}
         </div>
       </div>
-      <Row label="類別" value={meta.label} color={meta.color} />
-      <Row label="面積" value={areaHa(props.area_ha)} />
+      <Row field="category" value={meta.label} color={meta.color} />
+      <Row field="area" value={areaHa(props.area_ha)} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
         ⓘ OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）；已濾掉與魚塭圖層重疊者
       </div>
@@ -816,9 +816,9 @@ export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       <IotReadingBlock value={value} unit={unit} deltaLabel="較基準" delta={delta} color="#22d3ee" />
-      <Row label="測項" value={String(props.measurement_name ?? "")} />
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <Row label="站號" value={String(props.iow_station_id ?? "")} color={t.textDim} />
+      <Row field="measurement" value={String(props.measurement_name ?? "")} />
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -854,12 +854,12 @@ export function IotWraStructurePanel({ props }: { props: Record<string, unknown>
           {String(props.name ?? "(未命名站)")}
         </div>
       </div>
-      <Row label="類型" value={info?.label ?? type} color={color} />
+      <Row field="type" value={info?.label ?? type} color={color} />
       <IotReadingBlock value={value} unit={unit} deltaLabel="今日累計變化" delta={delta} color={color} />
-      <Row label="測項" value={String(props.measurement_name ?? "")} />
-      <Row label="縣市" value={String(props.county_name ?? "")} />
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <Row label="站號" value={String(props.iow_station_id ?? "")} color={t.textDim} />
+      <Row field="measurement" value={String(props.measurement_name ?? "")} />
+      <Row field="county" value={String(props.county_name ?? "")} />
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -940,11 +940,11 @@ export function WaterLeveesPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       <Row label="型式" value={String(props.levee_type ?? "")} />
-      <Row label="狀態" value={status} color={LEVEE_STATUS_COLOR[status]} />
-      <Row label="河川" value={String(props.river ?? "")} />
-      <Row label="流域" value={String(props.basin ?? "")} />
+      <Row field="status" value={status} color={LEVEE_STATUS_COLOR[status]} />
+      <Row field="river" value={String(props.river ?? "")} />
+      <Row field="basin" value={String(props.basin ?? "")} />
       <Row label="岸別" value={side ? `${side}岸` : ""} />
-      <Row label="縣市" value={String(props.county ?? "")} color={t.textDim} />
+      <Row field="county" value={String(props.county ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -1021,10 +1021,10 @@ export function WaterProtectionZonesPanel({ props }: { props: Record<string, unk
           {String(props.name ?? "(未命名管制區)")}
         </div>
       </div>
-      <Row label="類別" value={info?.label ?? kind} color={color} />
+      <Row field="category" value={info?.label ?? kind} color={color} />
       <Row label="分區" value={String(props.zone ?? "")} />
       <Row label="公告文號" value={String(props.law_ref ?? "")} />
-      <Row label="編號" value={String(props.zone_no ?? "")} color={t.textDim} />
+      <Row field="number" value={String(props.zone_no ?? "")} color={t.textDim} />
     </>
   );
 }

@@ -87,11 +87,11 @@ function PublicLifeOsmPanelContent({ props, accessibilityMode = false }: Props &
   const featureLabel = FEATURE_TYPE_LABELS[featureType] ?? featureType;
   return <>
     <PanelHeader title={text(props.name) || `未命名${featureLabel || " OSM 設施"}`} color={accent} />
-    <Row label="資料角色" value="OSM 公共生活設施快照" color={accent} />
+    <Row field="dataRole" value="OSM 公共生活設施快照" color={accent} />
     <Row label="設施類型" value={featureLabel} />
     <Row label="據點型態" value={RECYCLING_TYPE_LABELS[text(props.recycling_type)] ?? text(props.recycling_type)} />
-    <Row label="營運者" value={text(props.operator)} />
-    <Row label="開放時間" value={text(props.opening_hours)} />
+    <Row field="operator" value={text(props.operator)} />
+    <Row field="openingHours" value={text(props.opening_hours)} />
     <Row label="無障礙" value={(ACCESSIBILITY_LABELS[text(props.wheelchair)] ?? text(props.wheelchair)) || "未標註／未知（unknown，不等於 no）"} />
     <Row label="無障礙狀態" value={ACCESSIBILITY_LABELS[text(props.accessibility_status)] ?? text(props.accessibility_status)} />
     <Row label="無障礙公廁" value={text(props.toilets_wheelchair)} />
@@ -99,7 +99,7 @@ function PublicLifeOsmPanelContent({ props, accessibilityMode = false }: Props &
     <Row label="坡道" value={text(props.ramp)} />
     <Row label="單車補給" value={translatedList(props.categories_text || props.categories, BICYCLE_CATEGORY_LABELS)} />
     <Row label="回收材料" value={text(props.materials_text) || text(props.materials)} />
-    <Row label="定位精度" value={text(props.geometry_precision)} />
+    <Row field="positionAccuracy" value={text(props.geometry_precision)} />
     <Row label="原始幾何" value={text(props.source_geometry_type)} />
     <Row label="顯示位置" value={displayGeometry(props.display_geometry_method)} />
     <Row label="涵蓋限制" value={text(props.coverage_scope) || "群眾標註且不完整；空白區域不代表沒有設施。"} />
@@ -117,14 +117,14 @@ export function AccessibleParkFacilitiesPanel({ props }: Props) {
 export function DisasterShelterPanel({ props }: Props) {
   return <>
     <PanelHeader title={text(props.name) || "未命名收容處所"} color={PUBLIC_LIFE_COLORS.disasterShelters} />
-    <Row label="資料角色" value="預定天災收容處所" color={PUBLIC_LIFE_COLORS.disasterShelters} />
+    <Row field="dataRole" value="預定天災收容處所" color={PUBLIC_LIFE_COLORS.disasterShelters} />
     <Row label="縣市鄉鎮" value={text(props.county_town)} />
-    <Row label="地址" value={text(props.address)} />
+    <Row field="address" value={text(props.address)} />
     <Row label="預計容量" value={text(props.capacity)} />
     <Row label="適用災害" value={text(props.disaster_types_text) || text(props.disaster_types)} />
     <Row label="室內 / 室外" value={`${text(props.indoor) || "unknown"} / ${text(props.outdoor) || "unknown"}`} />
     <Row label="弱勢安置" value={text(props.vulnerable_services) || "unknown"} />
-    <Row label="定位精度" value={text(props.geometry_precision)} />
+    <Row field="positionAccuracy" value={text(props.geometry_precision)} />
     <Row label="顯示位置" value={displayGeometry(props.display_geometry_method)} />
     <Row label="重要提醒" value="預定收容處所，不代表目前已開設。" />
     <SourceFooter props={{ ...props, source_org: "內政部消防署 data.gov.tw 73242", license: props.license ?? "政府資料開放授權條款第1版" }} />
@@ -134,8 +134,8 @@ export function DisasterShelterPanel({ props }: Props) {
 export function NationalParkPanel({ props }: Props) {
   return <>
     <PanelHeader title={text(props.name) || "國家公園"} color="#15803d" />
-    <Row label="資料角色" value="官方計畫邊界" color="#15803d" />
-    <Row label="類型" value={text(props.type)} />
+    <Row field="dataRole" value="官方計畫邊界" color="#15803d" />
+    <Row field="type" value={text(props.type)} />
     <Row label="計畫版次" value={text(props.plan_revision)} />
     <Row label="覆蓋語意" value={text(props.coverage_mode)} />
     <Row label="幾何精度" value={text(props.geometry_precision)} />

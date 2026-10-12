@@ -28,6 +28,7 @@ t("toolbar.share")                         // 靜態 key：打錯字 tsc 會紅
 t("layers.found", { count: n })            // 複數：JSON 裡寫 layers.found_one／_other
 formatNumber(12345)                        // 依語系千分位
 localizeLayerName(key, entry.name, i18n)   // 名稱類 helper 傳整個 i18n，不要傳 t
+<Row field="address" value={…} />          // 說明框常用欄位：Row 自己翻譯（popup.field.*），面板不用 hook
 localizedField(props, { zh: "name", en: "name_en" }, i18n)
 enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 ```
@@ -45,6 +46,12 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 ## 常見工作
 
 **加一句介面字**：`zh-TW/<檔>.json` 加 key → `en/`、`ja/` 同名檔補翻譯 → 程式用 `t()`。
+
+**說明框（featureInfo）**：
+- 常用欄位名用 `<Row field="…">`，可用的名稱看 `zh-TW/popup.json` 的 `popup.field.*`（型別 `PopupField`）；同一個意思不要另開 key。
+- 面板專屬文字放 `popup.<domain>.json`（例 `popup.transport.json`），元件內 `const { t } = useLocale()`。
+- 資料值的類別（氣象站類型、鐵路系統）用 `enumLabel`，英日文寫在 `enums.json`。
+- 標題列自動借用圖層名；對不到圖層的才在 `popupHeaders.json` 補 `popupHeader.<layerType>`。
 
 **新增一個區塊檔**（例 `popup.json`）：
 1. 三個語系都建 `popup.json`，key 以 `popup.` 開頭。

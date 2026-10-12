@@ -42,6 +42,8 @@
 
 **第 3 輪：manifest 英文 alt 稽核**（2026-10-12）。alt 原本是中文旁的副標，英文介面變成主名後很多看不懂（例：濱海掩埋場「Coastal」、充電站最近距離「EV Island」）。逐筆檢查 426 個 alt，352 筆在 `en/layers.json` 補覆蓋（manifest 未改），74 筆原 alt 夠清楚、保留。覆蓋後再快速重讀一輪，修 11 筆。覆蓋原則：補上主體名詞（Coastal → Coastal Landfills）、展開縮寫（ER → Emergency Room Crowding）、點位類用複數、衛星類加國家（IGS / ALOS → Japan Satellites (IGS / ALOS)）、最近距離類寫 Distance to Nearest …；qualifier（台電、氣象署、10m 等）已由 `en/qualifiers.json` 顯示，名稱不重複。
 
+**說明框（P1）**（2026-10-12）：範圍加 `en/popup.json`、`en/popup.transport.json`、`en/enums.json`、`en/popupHeaders.json`（94 個標題）；校對兩輪（對照 zh-TW 原檔、從頭重讀），欄位名依 `field="…"` 實際用法選詞。
+
 **大小寫**：圖層名、主題名用 Title Case（和 manifest 既有 426 個英文 alt、主題「中文 English」的英文半段一致，混用會更亂）；`common.json` 介面字用 sentence case。
 
 ### 用語表（全部條目統一套用）
@@ -74,6 +76,24 @@
 | 共機（manifest alt） | PLA | 既有 alt「PLA Activity」中性，未動 |
 | 即時 | Real-Time（主題）；工具列模式維持 Live | |
 | and／& | 圖層名用 and，主題名用 & | |
+| 說明框標題（popupHeaders） | Title Case、複數（Fire Stations） | 和借用圖層名的標題一致；單一物件的標記（Map Marker、Analysis Result）用單數 |
+| 鄉鎮（欄位） | Township/District | 欄位用 sentence case |
+| 縣市區（欄位，值是「縣市 鄉鎮」） | Administrative area | |
+| 營運單位／營運者 | Operating entity／Operator | 兩個 key 不同字 |
+| 統一編號 | Unified Business No. | |
+| 資本額 | Registered capital | |
+| 注意（資料但書） | Caveat | 備註 = Remarks |
+| 更新（值是更新頻率） | Update frequency | |
+| 距現在 | Age | 值是「3 分鐘前」 |
+| 測項／測項明細 | Parameter／Parameter details | 環境監測用語 |
+| 胸徑 | Trunk diameter (DBH) | |
+| 資料角色 | Data type | |
+| 署屬有人站／署屬無人站／自動雨量站／農業站 | Staffed／Unstaffed CWA station／Automatic rain gauge station／Agrometeorological station | |
+| 臺鐵／高鐵／北捷／高捷／高雄輕軌／中捷 | Taiwan Railway／Taiwan High Speed Rail／Taipei Metro／Kaohsiung MRT／Kaohsiung Light Rail／Taichung MRT | 和既有圖層名一致（Taiwan Railway (TRA) Stations） |
+| 核安觀測站 | Radiation Monitoring Stations | 不是核電廠 |
+| 國道／省道 | National Freeways／Provincial Highways | |
+| 清潔隊 | Sanitation Squad | |
+| i郵箱 | i-Post Parcel Lockers | 中華郵政品牌，英文名待確認 |
 
 ### 原清單的處理結果（英文）
 
@@ -99,7 +119,7 @@
 
 ## 日本語
 
-**狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`。
+**狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
 第 1 輪逐筆對照中文原名，修正 352 筆（layers 306、themes 42、common 4）。第 2 輪從頭重讀，再修 29 筆，主要是用語統一和第 1 輪留下的問題。
 
 ### 用語表（全部條目統一套用）
@@ -131,6 +151,18 @@
 | 歷史（資料、軌跡） | 過去の… | 不用「歴史的」 |
 | 點位／線／面 | ポイント／ライン／ポリゴン | 子群標題 |
 | 共機 | 中国軍用機 | 依日文媒體慣用寫法，選比「中国軍機」中性的完整說法 |
+| 站號（popup 通用欄位） | 地点番号 | 同一欄位跨空品、水文、氣象，用中性說法 |
+| 層級（醫院層級、警察層級） | 区分 | |
+| 路段 | 道路区間 | |
+| 車柱數 | ラック数 | 公共自行車 |
+| 已停用／運作中 | 運用停止／稼働中 | 「廃止」語氣太重 |
+| 未命名站點 | 名称不明 | 氣象站、公車站共用，不用「駅」 |
+| 開放時間／營業時間 | 利用時間／営業時間 | |
+| 統一編號 | 統一編号 | 台灣事業者編號，保留原名 |
+| 台鐵／高鐵／台北捷運 | 台湾鉄道／台湾高速鉄道／台北メトロ | 高雄MRT、高雄ライトレール、台中MRT |
+| 署屬有人站／無人站 | 有人／無人気象観測所（気象署） | |
+| 等時圈 | 等時間圏 | |
+| 事件（全球重要事件） | 出来事 | 日文「事件」偏犯罪、意外 |
 
 ### 原清單的處理結果（日文）
 
@@ -154,3 +186,4 @@
 3. `wasteSchedule*` 的「音符」：直譯成「音符」。是否該改成「メロディ」（垃圾車音樂），要看畫面上實際的圖示。
 4. 地名、機關名（航港局、廉政署、海巡署、国家風景区、台湾好行、田媽媽）保留中文專有名詞，日本讀者可能需要說明。
 5. 縣市／鄉鎮類的 qualifier 目前以中文顯示（`layerText.ts` 不翻 qualifier），不在本次範圍。
+6. popup `popup.field.stationNo` 跨測定局與観測所共用，改中性的「地点番号」；`nuclearStation` 面板顯示即時輻射劑量，已定為「放射線監視局」（與英文 Radiation Monitoring Stations 一致）。

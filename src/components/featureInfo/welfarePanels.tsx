@@ -49,8 +49,8 @@ function CommonRows({ props }: { props: Record<string, unknown> }) {
   const nSrc = typeof props.n_src === "number" ? props.n_src : 0;
   return (
     <>
-      <Row label="地址" value={str(props.address)} />
-      {str(props.phone) ? <Row label="電話" value={str(props.phone)} /> : null}
+      <Row field="address" value={str(props.address)} />
+      {str(props.phone) ? <Row field="phone" value={str(props.phone)} /> : null}
       {nSrc > 1 ? <Row label="跨源比對" value={`${nSrc} 個來源名冊都有這筆`} /> : null}
     </>
   );
@@ -85,7 +85,7 @@ export function WelfareNursingHomePanel({ props }: { props: Record<string, unkno
       {accreditationDisplay(str(props.accreditation))
         ? <Row label="評鑑" value={accreditationDisplay(str(props.accreditation))} /> : null}
       {str(props.valid_until) ? <Row label="效期至" value={str(props.valid_until)} /> : null}
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -112,7 +112,7 @@ export function WelfareElderlyHomePanel({ props }: { props: Record<string, unkno
       {str(props.target) ? <Row label="收容對象" value={str(props.target)} /> : null}
       {str(props.licensed_at) ? <Row label="立案日期" value={str(props.licensed_at)} /> : null}
       {str(props.sub_code) ? <Row label="機構類別" value={welfareSubCodeLabel(str(props.sub_code))} /> : null}
-      <Row label="行政區" value={`${str(props.city)}${str(props.district)}`} />
+      <Row field="district" value={`${str(props.city)}${str(props.district)}`} />
       <CommonRows props={props} />
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -148,7 +148,7 @@ export function WelfareDisabilityPanel({ props }: { props: Record<string, unknow
       {accreditationDisplay(str(props.accreditation))
         ? <Row label="評鑑" value={accreditationDisplay(str(props.accreditation))} /> : null}
       {str(props.sub_code) ? <Row label="機構類別" value={welfareSubCodeLabel(str(props.sub_code))} /> : null}
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -165,8 +165,8 @@ export function WelfareLtcInstitutionPanel({ props }: { props: Record<string, un
     <>
       <Title color={WELFARE_LAYER_COLORS.welfareLtcInstitutions}>{str(props.name) || "長照服務機構"}</Title>
       <Row label="服務型態" value={welfareSubCodeLabel(sub)} />
-      <Row label="統一編號" value={str(props.uni_no)} />
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="businessId" value={str(props.uni_no)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
         ⓘ 這是《長期照顧服務法》<b>立案機構</b>，與醫療主題「長照機構」圖層的
@@ -182,9 +182,9 @@ export function WelfareChildcarePanel({ props }: { props: Record<string, unknown
   return (
     <>
       <Title color={WELFARE_LAYER_COLORS.welfareChildcare}>{str(props.name) || "托嬰中心"}</Title>
-      <Row label="類別" value={welfareClassLabel(str(props.welfare_class))} />
-      <Row label="統一編號" value={str(props.uni_no)} />
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="category" value={welfareClassLabel(str(props.welfare_class))} />
+      <Row field="businessId" value={str(props.uni_no)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
         ⚠️ 名單約 21 個月舊（上游檔 Last-Modified 停在 2024-11-12），托嬰中心異動頻繁，
@@ -205,12 +205,12 @@ export function WelfareChildServicePanel({ props }: { props: Record<string, unkn
   return (
     <>
       <Title color={color}>{str(props.name) || "兒少服務據點"}</Title>
-      <Row label="類別" value={welfareClassLabel(cls)} color={color} />
+      <Row field="category" value={welfareClassLabel(cls)} color={color} />
       {str(props.unit_type) ? <Row label="單位別" value={str(props.unit_type)} /> : null}
       {str(props.service_mode) ? <Row label="服務方式" value={str(props.service_mode)} /> : null}
       {str(props.service_content) ? <Row label="服務內容" value={str(props.service_content)} /> : null}
       {str(props.service_hours) ? <Row label="服務時間" value={str(props.service_hours)} /> : null}
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       {cls === "child_dev" ? (
         <Note>ⓘ 早期療育單位<b>含醫院／診所</b>（單位別可辨），要看「純社福早療」請先依單位別篩選。</Note>
@@ -229,8 +229,8 @@ export function WelfareGovOfficePanel({ props }: { props: Record<string, unknown
     <>
       <Title color={WELFARE_LAYER_COLORS.welfareGovOffices}>{str(props.name) || "公部門社福據點"}</Title>
       <Row label="單位類別" value={welfareSubCodeLabel(str(props.sub_code))} />
-      <Row label="統一編號" value={str(props.uni_no)} />
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="businessId" value={str(props.uni_no)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
         ⓘ 本層<b>不含</b>社會福利服務中心（162 處）—— 那批在「基礎建設 › 公共設施 › 社福中心」，
@@ -249,8 +249,8 @@ export function WelfareMentalHealthPanel({ props }: { props: Record<string, unkn
     <>
       <Title color={color}>{str(props.name) || "心理衛生機構"}</Title>
       <Row label="機構類別" value={welfareSubCodeLabel(sub)} color={color} />
-      <Row label="統一編號" value={str(props.uni_no)} />
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="businessId" value={str(props.uni_no)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -267,8 +267,8 @@ export function WelfareSocialWorkOrgPanel({ props }: { props: Record<string, unk
     <>
       <Title color={WELFARE_LAYER_COLORS.welfareSocialWorkOrgs}>{str(props.name) || "社福團體"}</Title>
       <Row label="組織類別" value={welfareSubCodeLabel(str(props.sub_code))} />
-      <Row label="統一編號" value={str(props.uni_no)} />
-      <Row label="縣市" value={str(props.city)} />
+      <Row field="businessId" value={str(props.uni_no)} />
+      <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
         ⚠️ 這是<b>登記組織</b>不是服務設施，地址多為<b>辦公室／立案地</b>，

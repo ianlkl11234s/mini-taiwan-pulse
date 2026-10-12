@@ -42,6 +42,8 @@ export const I18N_AREAS: I18nArea[] = [
       "src/components/IconRailSidebar.tsx", "src/components/LayerSidebar.tsx",
       "src/components/sidebar/LayerRow.tsx", "src/components/sidebar/LayersPanel.tsx", "src/components/sidebar/LayerToggleSwitch.tsx", "src/components/sidebar/PanelHeader.tsx",
       "src/components/sidebar/ThemeBanner.tsx", "src/components/sidebar/sectionText.ts", "src/components/sidebar/railTheme.ts", "src/components/sidebar/layerIcons.ts",
+      // P1 說明框（transportPanels 剩 4 行是氣象站類型的資料值，當顏色對照 key，不是介面字）
+      "src/components/FeatureInfoPanel.tsx", "src/components/featureInfo/shared.tsx", "src/components/featureInfo/featureTheme.tsx", "src/components/featureInfo/transportPanels.tsx",
     ],
   },
   { id: "shell", phase: "P0", label: "工具列、外框", kind: "ui", gate: "report", paths: ["src/App.tsx", "src/main.tsx", "src/components/toolbar/", "src/components/ModeToggle.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx", "src/components/InfoModal.tsx", "src/components/ShareModal.tsx", "src/components/MobileBottomSheet.tsx", "src/components/StyleSelector.tsx"] },

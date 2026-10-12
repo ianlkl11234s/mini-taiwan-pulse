@@ -48,7 +48,7 @@ export function HistoricalFlightTrailPanel({ props }: { props: Record<string, un
       <Row label="終點" value={`${valueOf(props.dest_icao)} / ${valueOf(props.dest_iata)}`} />
       <Row label="樣本日期" value={valueOf(props.sample_date)} />
       <Row label="時區" value={timezone} />
-      <Row label="來源" value="FlightRadar24" />
+      <Row field="source" value="FlightRadar24" />
       <Row label="起飛時間" value={timestamp(props.dep_time, timezone)} />
       <Row label="到達時間" value={timestamp(props.arr_time, timezone)} />
       <Row label="觀測起點" value={timestamp(props.observed_start, timezone)} />

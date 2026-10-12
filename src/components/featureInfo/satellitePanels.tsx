@@ -29,8 +29,8 @@ export function SatellitePanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
       <Title color={color}>{name || "衛星"}</Title>
-      <Row label="類別" value={catLabel} color={color} />
-      <Row label="編號" value={norad} mono title="NORAD 編號" />
+      <Row field="category" value={catLabel} color={color} />
+      <Row field="number" value={norad} mono title="NORAD 編號" />
       <Row label="高度" value={Number.isFinite(altKm) ? `${altKm.toLocaleString()} km` : ""} mono />
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textDim }}>
         足跡：內圈 <span style={mono}>50</span> km 掃描寬度、外圈 <span style={mono}>1,500</span> km 可見範圍（仰角 <span style={mono}>≥10°</span>）

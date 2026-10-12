@@ -28,7 +28,7 @@ export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="起火原因" value={String(props.cause ?? "")} color={accentColor} />
       <Row label="死亡" value={String(deaths)} color={deaths > 0 ? "#ff1744" : undefined} />
       <Row label="受傷" value={String(injuries)} color={injuries > 0 ? "#ffb300" : undefined} />
-      <Row label="發生時間" value={timeStr} />
+      <Row field="occurredAt" value={timeStr} />
     </>
   );
 }
@@ -45,11 +45,11 @@ export function FireStationPanel({ props }: { props: Record<string, unknown> }) 
           {String(props.name ?? "消防分隊")}
         </div>
       </div>
-      <Row label="類型" value={String(props.type ?? cat)} color={accentColor} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="type" value={String(props.type ?? cat)} color={accentColor} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
     </>
   );
 }
@@ -67,9 +67,9 @@ export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       <Row label="型式" value={String(props.type ?? cat)} color={accentColor} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="編號" value={String(props.id ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="number" value={String(props.id ?? "")} />
     </>
   );
 }
@@ -88,7 +88,7 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
           {fireIsochroneLabel(minutes)}
         </div>
       </div>
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="可達時間" value={`${minutes} 分鐘內`} color={accentColor} />
       <Row label="累積可達面積" value={cumulative} />
       <Row label="本級環帶面積" value={ring} />

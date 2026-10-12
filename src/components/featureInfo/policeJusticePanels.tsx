@@ -72,9 +72,9 @@ export function PoliceStationPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#1e40af" name={String(props.name ?? "警察機關")} />
-      <Row label="類型" value={POLICE_SUBTYPE_ZH[sub] ?? sub} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="type" value={POLICE_SUBTYPE_ZH[sub] ?? sub} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
     </>
   );
 }
@@ -83,10 +83,10 @@ export function WomenChildWarningPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#ec4899" name={String(props.name ?? "婦幼警示點")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row label="分局" value={String(props.branch ?? "")} />
       <Row label="承辦" value={String(props.contact ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
     </>
   );
 }
@@ -96,10 +96,10 @@ export function SpeedCameraPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#dc2626" name={SPEED_CAM_ZH[sub] ?? "測速照相"} />
-      <Row label="地點" value={String(props.address ?? "")} />
-      <Row label="方向" value={String(props.direction ?? "")} />
+      <Row field="place" value={String(props.address ?? "")} />
+      <Row field="direction" value={String(props.direction ?? "")} />
       <Row label="限速" value={props.limit_kph ? `${props.limit_kph} km/h` : ""} />
-      <Row label="縣市" value={`${String(props.city ?? "")} ${String(props.region ?? "")}`.trim()} />
+      <Row field="county" value={`${String(props.city ?? "")} ${String(props.region ?? "")}`.trim()} />
       <Row label="分局" value={String(props.branch ?? "")} />
     </>
   );
@@ -109,10 +109,10 @@ export function SpeedZoneSegmentPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#b91c1c" name="區間測速路段" />
-      <Row label="位置" value={String(props.location ?? "")} />
+      <Row field="location" value={String(props.location ?? "")} />
       <Row label="限速" value={String(props.limit_kph ?? "")} />
       <Row label="取締項目" value={String(props.enforcement_item ?? "")} />
-      <Row label="縣市" value={String(props.city ?? "")} />
+      <Row field="county" value={String(props.city ?? "")} />
     </>
   );
 }
@@ -123,10 +123,10 @@ export function CourtPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#7c3aed" name={String(props.name ?? "法院")} />
-      <Row label="類型" value={COURT_TYPE_ZH[ct] ?? ct} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
-      <Row label="官網" value={String(props.url ?? "")} />
+      <Row field="type" value={COURT_TYPE_ZH[ct] ?? ct} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
+      <Row field="website" value={String(props.url ?? "")} />
     </>
   );
 }
@@ -136,10 +136,10 @@ export function ProsecutorsOfficePanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#a855f7" name={String(props.name ?? "檢察署")} />
-      <Row label="類型" value={PROS_TYPE_ZH[pt] ?? pt} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
-      <Row label="官網" value={String(props.url ?? "")} />
+      <Row field="type" value={PROS_TYPE_ZH[pt] ?? pt} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
+      <Row field="website" value={String(props.url ?? "")} />
     </>
   );
 }
@@ -150,10 +150,10 @@ export function CorrectionalFacilityPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#374151" name={String(props.name ?? "矯正機關")} />
-      <Row label="類型" value={CORRECTIONAL_TYPE_ZH[ft] ?? String(props.nature_zh ?? ft)} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
-      <Row label="官網" value={String(props.url ?? "")} />
+      <Row field="type" value={CORRECTIONAL_TYPE_ZH[ft] ?? String(props.nature_zh ?? ft)} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
+      <Row field="website" value={String(props.url ?? "")} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
         ⓘ 全國在監人數請看右下 Monitor PrisonCard
       </div>
@@ -229,8 +229,8 @@ export function TheftTaoyuanPanel({ props }: PanelProps) {
         2014~2024 年累計（桃園）
       </div>
       <Row label="年度" value={String(props.year ?? "")} />
-      <Row label="日期" value={String(props.date ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
+      <Row field="date" value={String(props.date ?? "")} />
+      <Row field="district" value={String(props.district ?? "")} />
     </>
   );
 }
@@ -242,8 +242,8 @@ export function TrafficAccidentYearlyPanel({ props }: PanelProps) {
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#9f1239", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
         2025 年度年度累計
       </div>
-      <Row label="時間" value={`${String(props.date ?? "")} ${String(props.time ?? "")}`.trim()} />
-      <Row label="地點" value={String(props.location ?? "")} />
+      <Row field="time" value={`${String(props.date ?? "")} ${String(props.time ?? "")}`.trim()} />
+      <Row field="place" value={String(props.location ?? "")} />
       <Row label="處理單位" value={String(props.agency ?? "")} />
       <Row label="天氣" value={String(props.weather ?? "")} />
       <Row label="照明" value={String(props.light ?? "")} />
@@ -261,8 +261,8 @@ export function AccidentTaipeiPanel({ props }: PanelProps) {
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#9f1239", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
         2019~ 多年累計（北市）
       </div>
-      <Row label="時間" value={String(props.occurred_at ?? "")} />
-      <Row label="地點" value={String(props.location ?? "")} />
+      <Row field="time" value={String(props.occurred_at ?? "")} />
+      <Row field="place" value={String(props.location ?? "")} />
     </>
   );
 }
@@ -281,8 +281,8 @@ export function A1AccidentRealtimePanel({ props }: PanelProps) {
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: ageColor, color: "#fff", fontSize: FONT_SIZE.xs, fontWeight: 600, marginBottom: 6 }}>
         {ageLabel}
       </div>
-      <Row label="發生時間" value={String(props.occurred_at ?? "")} />
-      <Row label="地點" value={String(props.location ?? "")} />
+      <Row field="occurredAt" value={String(props.occurred_at ?? "")} />
+      <Row field="place" value={String(props.location ?? "")} />
       <Row label="處理單位" value={String(props.agency ?? "")} />
       <Row label="天氣" value={String(props.weather ?? "")} />
       <Row label="道路類別" value={String(props.road_type ?? "")} />
@@ -302,8 +302,8 @@ export function InvestigationBureauPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#0f766e" name={String(props.name ?? "調查局")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
     </>
   );
 }
@@ -313,8 +313,8 @@ export function AntiCorruptionOfficePanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#14b8a6" name={String(props.name ?? "廉政")} />
-      <Row label="層級" value={level === "central" ? "中央" : level === "local" ? "地方" : level} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="tier" value={level === "central" ? "中央" : level === "local" ? "地方" : level} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row label="檢舉電話" value={String(props.phone1 ?? props.phone ?? "")} />
       <Row label="檢舉專線" value={String(props.phone2 ?? "")} />
       <Row label="信箱" value={String(props.email ?? "")} />
@@ -327,11 +327,11 @@ export function ImmigrationOfficePanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#0ea5e9" name={String(props.name ?? "移民署服務站")} />
-      <Row label="英文名" value={String(props.name_en ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="englishName" value={String(props.name_en ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
       <Row label="傳真" value={String(props.fax ?? "")} />
-      <Row label="官網" value={String(props.url ?? "")} />
+      <Row field="website" value={String(props.url ?? "")} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim }}>
         資料來源：內政部移民署 opendata.immigration.gov.tw
       </div>
@@ -344,9 +344,9 @@ export function CoastGuardStationPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#0284c7" name={String(props.name ?? "海巡")} />
-      <Row label="類型" value={sub === "patrol_station" ? "巡防隊" : sub === "ocean_pier" ? "漁港" : sub} />
+      <Row field="type" value={sub === "patrol_station" ? "巡防隊" : sub === "ocean_pier" ? "漁港" : sub} />
       <Row label="所屬" value={String(props.area ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
     </>
   );
 }
@@ -365,9 +365,9 @@ function IsochronePanel({ props, title, color }: PanelProps & { title: string; c
       <div style={{ display: "inline-block", padding: "1px 8px", borderRadius: 4, background: color, color: "#fff", fontSize: FONT_SIZE.sm, fontWeight: 700, marginBottom: 8 }}>
         覆蓋站數 {cnt} · {lvl}
       </div>
-      <Row label="層級" value={tier === "substation" ? "派出所" : tier === "precinct" ? "分局" : "縣市警局"} />
+      <Row field="tier" value={tier === "substation" ? "派出所" : tier === "precinct" ? "分局" : "縣市警局"} />
       <Row label="模式" value={mode === "walk" ? "步行" : mode === "drive" ? "開車" : mode} />
-      <Row label="時間" value={`${mins} 分鐘`} />
+      <Row field="time" value={`${mins} 分鐘`} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
         重疊計數法（Overlap Count）：此處同時被 {cnt} 個{tier === "substation" ? "派出所" : tier === "precinct" ? "分局" : "縣市警局"}的 {mins} 分鐘{mode === "walk" ? "步行" : "開車"}圈包含。
       </div>
@@ -412,12 +412,12 @@ export function AviationAirspacePanel({ props }: PanelProps) {
   return (
     <>
       <Header color={color} name={name} />
-      <Row label="類別" value={layer ? `${layer}（${layerZh}）` : ""} />
-      <Row label="代碼" value={String(props.code ?? "")} />
+      <Row field="category" value={layer ? `${layer}（${layerZh}）` : ""} />
+      <Row field="code" value={String(props.code ?? "")} />
       <Row label="底高度 floor" value={fmtAlt(props.floor_m, props.floor_raw)} />
       <Row label="頂高度 ceiling" value={fmtAlt(props.ceiling_m, props.ceiling_raw)} />
       <Row label="airspace class" value={String(props.airspace_class ?? "")} />
-      <Row label="備註" value={String(props.remarks ?? "")} />
+      <Row field="remarks" value={String(props.remarks ?? "")} />
     </>
   );
 }
@@ -435,11 +435,11 @@ export function DroneZonesPanel({ props }: PanelProps) {
       <Header color={headerColor} name={String(props["空域名稱"] ?? "空域參考面")} />
       <Row label="空域顏色" value={zoneColor} />
       <Row label="空域類別" value={String(props["空域類別"] ?? "")} />
-      <Row label="主管機關" value={String(props["主管機關名稱"] ?? "")} />
+      <Row field="authority" value={String(props["主管機關名稱"] ?? "")} />
       <Row label="罰則" value={String(props["罰則"] ?? "")} />
       <Row label="聯絡方式" value={String(props["聯絡方式"] ?? "")} />
-      <Row label="說明" value={String(props["空域說明"] ?? "")} />
-      <Row label="縣市" value={String(props.countyname ?? "")} />
+      <Row field="description" value={String(props["空域說明"] ?? "")} />
+      <Row field="county" value={String(props.countyname ?? "")} />
       <Note>2026-06-30 歷史快照；切片未保留有效日期，不能據此判定當前可飛、禁飛或申請規則。</Note>
     </>
   );
@@ -470,10 +470,10 @@ export function CivilDefenseShelterPanel({ props }: PanelProps) {
   return (
     <>
       <Header color="#64748b" name={String(props.name ?? "防空避難所")} />
-      <Row label="類型" value={String(props.subtype ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="容量" value={props.capacity ? `${props.capacity} 人` : ""} />
-      <Row label="行政區" value={String(props.district ?? "")} />
+      <Row field="type" value={String(props.subtype ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="capacity" value={props.capacity ? `${props.capacity} 人` : ""} />
+      <Row field="district" value={String(props.district ?? "")} />
       <ShelterCoordNote props={props} />
     </>
   );

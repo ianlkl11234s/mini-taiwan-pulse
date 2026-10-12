@@ -53,12 +53,12 @@ export function StreetTreesTaipeiDiffPanel({ props }: { props: Record<string, un
   return (
     <>
       <Title color={tier.color}>{String(props.TreeType ?? "行道樹")}</Title>
-      <Row label="狀態" value={tier.label} color={tier.color} />
+      <Row field="status" value={tier.label} color={tier.color} />
       <Row label="路名" value={roadValue} />
       <Row label="TreeID" value={String(props.TreeID ?? "")} />
-      <Row label="胸徑" value={numUnit(props.Diameter, "cm")} />
-      <Row label="樹高" value={numUnit(props.TreeHeight, "m")} />
-      <Row label="調查日" value={String(props.SurveyDate ?? "")} />
+      <Row field="dbh" value={numUnit(props.Diameter, "cm")} />
+      <Row field="treeHeight" value={numUnit(props.TreeHeight, "m")} />
+      <Row field="surveyDate" value={String(props.SurveyDate ?? "")} />
       {renumberSuspect && (
         <Row label="提示" value="⚠️ 疑似重編號（同路名同樹種 10m 內配對，可能非真消失/新增）" color="#fbbf24" />
       )}
@@ -79,14 +79,14 @@ export function ProtectedTreesNationalPanel({ props }: { props: Record<string, u
     <>
       <Title color="#00695c">{String(props.species ?? "受保護樹木")}</Title>
       <ScientificName>{sci}</ScientificName>
-      <Row label="城市" value={cityValue} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="胸徑" value={numUnit(props.dbh_m, "m")} />
+      <Row field="city" value={cityValue} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="dbh" value={numUnit(props.dbh_m, "m")} />
       <Row label="胸圍" value={numUnit(props.girth_m, "m")} />
-      <Row label="樹高" value={numUnit(props.height_m, "m")} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
       <Row label="樹冠面積" value={numUnit(props.crown_area_m2, "m²")} />
       <Row label="推估樹齡" value={numUnit(props.estimated_age_years, "年")} />
-      <Row label="管理單位" value={String(props.manager ?? "")} />
+      <Row field="managingAgency" value={String(props.manager ?? "")} />
     </>
   );
 }
@@ -100,11 +100,11 @@ export function RiversideTreesTaipeiPanel({ props }: { props: Record<string, unk
       <Title color="#0288d1">{String(props.species ?? "河濱喬木")}</Title>
       <ScientificName>{family ? (sci ? `${sci}（${family}）` : family) : sci}</ScientificName>
       <Row label="河濱公園" value={String(props.park_name ?? "")} />
-      <Row label="樹高" value={numUnit(props.height_m, "m")} />
-      <Row label="胸徑" value={numUnit(props.dbh_cm, "cm")} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
+      <Row field="dbh" value={numUnit(props.dbh_cm, "cm")} />
       <Row label="樹冠面積" value={numUnit(props.crown_area_m2, "m²")} />
       <Row label="推估樹齡" value={numUnit(props.estimated_age_years, "年")} />
-      <Row label="調查日" value={String(props.survey_date ?? "")} />
+      <Row field="surveyDate" value={String(props.survey_date ?? "")} />
     </>
   );
 }
@@ -115,9 +115,9 @@ export function ParksTaipeiPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <Title color="#7cb342">{String(props.name ?? "公園")}</Title>
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="分類" value={String(props.category ?? "")} />
-      <Row label="面積" value={numUnit(props.area_sqm, "m²")} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="classification" value={String(props.category ?? "")} />
+      <Row field="area" value={numUnit(props.area_sqm, "m²")} />
       <Row label="兒童遊具" value={playground} />
     </>
   );
@@ -183,12 +183,12 @@ export function StreetTrees3epochPanel({ props }: { props: Record<string, unknow
       <Row label="軌跡" value={cat ? `${cat.label}（${traj}）` : traj} color={cat?.color} />
       <Row label="2022→2024" value={EPOCH_STATUS_LABEL[String(props.status_2224 ?? "")] ?? String(props.status_2224 ?? "")} />
       <Row label="2024→2026" value={EPOCH_STATUS_LABEL[String(props.status_2426 ?? "")] ?? String(props.status_2426 ?? "")} />
-      <Row label="路段" value={roadValue} />
+      <Row field="roadSection" value={roadValue} />
       <Row label="TreeID" value={String(props.tree_id ?? "")} />
-      <Row label="胸徑" value={numUnit(props.dbh_cm, "cm")} />
-      <Row label="樹高" value={numUnit(props.height_m, "m")} />
+      <Row field="dbh" value={numUnit(props.dbh_cm, "cm")} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
       <Row label="公園樹" value={isPark} />
-      <Row label="調查日" value={String(props.survey_date ?? "")} />
+      <Row field="surveyDate" value={String(props.survey_date ?? "")} />
       {renumberEpochs.length > 0 && (
         <Row label="提示" value={`⚠️ 疑似重編號（${renumberEpochs.join("、")}），可能非真消失/新增`} color="#fbbf24" />
       )}
@@ -211,12 +211,12 @@ export function StreetTreesNationalPanel({ props }: { props: Record<string, unkn
   return (
     <>
       <Title color={speciesColor}>{species || "行道樹"}</Title>
-      <Row label="城市" value={cityValue} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="city" value={cityValue} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row label="位置類型" value={String(props.location_type ?? "")} />
-      <Row label="胸徑" value={numUnit(props.dbh_cm, "cm")} />
-      <Row label="樹高" value={numUnit(props.height_m, "m")} />
-      <Row label="調查日" value={String(props.survey_date ?? "")} />
+      <Row field="dbh" value={numUnit(props.dbh_cm, "cm")} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
+      <Row field="surveyDate" value={String(props.survey_date ?? "")} />
       <Row label="資料來源" value={String(props.source ?? "")} />
     </>
   );
@@ -232,10 +232,10 @@ export function TreePitsTaipeiPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color={typeColor}>{pitType || "人行道樹穴"}</Title>
-      <Row label="類型" value={pitType} color={typeColor} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="面積" value={Number.isFinite(area) ? `${area.toFixed(2)} m²` : ""} />
-      <Row label="編號" value={String(props.pit_id ?? "")} />
+      <Row field="type" value={pitType} color={typeColor} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="area" value={Number.isFinite(area) ? `${area.toFixed(2)} m²` : ""} />
+      <Row field="number" value={String(props.pit_id ?? "")} />
     </>
   );
 }
@@ -304,15 +304,15 @@ export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown
     const missing = numeric(props.missing_height_count);
     return <>
       <Title color={jpBuildingHeightBandColor(median)}>建物高度網格摘要</Title>
-      <Row label="區域" value={region} />
-      <Row label="網格尺度" value={`${props.cell_size_m} m`} />
+      <Row field="region" value={region} />
+      <Row field="gridScale" value={`${props.cell_size_m} m`} />
       <Row label="高度中位數" value={median == null ? "未提供" : `${median.toFixed(1)} m`} />
       <Row label="高度 P90" value={p90 == null ? "未提供" : `${p90.toFixed(1)} m`} />
       <Row label="已取得輪廓數" value={count == null ? "未提供" : String(count)} />
       <Row label="有效高度筆數" value={String(props.valid_height_count ?? "未提供")} />
       <Row label="高度缺值" value={missing == null ? "未提供" : `${missing} 筆${count ? `（${(missing / count * 100).toFixed(1)}%）` : ""}`} />
-      <Row label="來源年份" value={String(props.source_year ?? "未提供")} />
-      <Row label="授權" value={`${license} · ${attribution}`} />
+      <Row field="sourceYear" value={String(props.source_year ?? "未提供")} />
+      <Row field="license" value={`${license} · ${attribution}`} />
       <div style={{ fontSize: FONT_SIZE.sm, lineHeight: 1.5, marginTop: 6 }}>
         僅統計已取得區域的建物，每棟依代表點歸格；不是整格完整建物數。放大至街區可看個別輪廓。
       </div>
@@ -323,11 +323,11 @@ export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown
   return <>
     <Title color={jpBuildingHeightBandColor(height)}>{roof ? "PLATEAU 建物屋頂輪廓" : "PLATEAU 建物輪廓"}</Title>
     <Row label="高度" value={height == null ? "未提供（維持 2D 平面）" : `${height.toFixed(1)} m`} />
-    <Row label="區域" value={region} />
-    <Row label="來源年份" value={String(props.source_year ?? "未提供")} />
+    <Row field="region" value={region} />
+    <Row field="sourceYear" value={String(props.source_year ?? "未提供")} />
     <Row label="高度方法" value={text(props.height_method)} />
     <Row label="輪廓方法" value={text(props.geometry_method)} />
-    <Row label="授權" value={`${license} · ${attribution}`} />
+    <Row field="license" value={`${license} · ${attribution}`} />
   </>;
 }
 
@@ -445,9 +445,9 @@ export function NonUrbanZoningPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color={color}>{title}</Title>
-      <Row label="代碼" value={code} color={color} />
-      <Row label="縣市" value={zoneText(props.county)} />
-      {town ? <Row label="鄉鎮" value={town} /> : null}
+      <Row field="code" value={code} color={color} />
+      <Row field="county" value={zoneText(props.county)} />
+      {town ? <Row field="township" value={town} /> : null}
       {/* zone_category（agricultural / slope_conservation…）是英文粗分類，跟 zone_name 資訊重複
           且未中文化，不入 popup —— 11 碼的中文名本身就是分類 */}
     </>
@@ -463,10 +463,10 @@ export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <Title color={color}>{title}</Title>
-      <Row label="分類" value={urbanZoningCategoryLabel(category)} color={color} />
+      <Row field="classification" value={urbanZoningCategoryLabel(category)} color={color} />
       <Row label="簡稱" value={zoneText(props.zone_short)} />
-      <Row label="代碼" value={zoneText(props.zone_code)} />
-      <Row label="城市" value={zoneText(props.city)} />
+      <Row field="code" value={zoneText(props.zone_code)} />
+      <Row field="city" value={zoneText(props.city)} />
       <Row label="計畫層級" value={zoneText(props.plan_level)} />
     </>
   );

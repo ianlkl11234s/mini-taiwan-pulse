@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
+import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { DEFAULT_LOCALE, LOCALES, SUPPORTED_LOCALES, matchLocale, type Locale } from "../locales";
 import { DYNAMIC_NAMESPACES, TYPED_MESSAGE_FILES } from "../keys";
 import { translate } from "../translate";
@@ -20,7 +21,7 @@ function readLocaleFile(locale: string, file: string): Record<string, string> {
 /** 介面字串檔：每個語系都必須有完全相同的 key（缺字或多字都紅） */
 const UI_FILES = readdirSync(join(LOCALES_DIR, DEFAULT_LOCALE)).filter((f) => f.endsWith(".json"));
 /** 名稱對照檔：只有非預設語系才有，預設語系的名稱就在 manifest */
-const NAME_FILES = ["layers.json", "themes.json", "qualifiers.json", "enums.json"];
+const NAME_FILES = ["layers.json", "themes.json", "qualifiers.json", "enums.json", "popupHeaders.json"];
 
 describe("locale parity", () => {
   it("每個支援語系都有資料夾", () => {
@@ -72,7 +73,9 @@ describe("locale parity", () => {
       for (const key of Object.keys(readLocaleFile(DEFAULT_LOCALE, file))) {
         const base = key.replace(/_(zero|one|two|few|many|other)$/, "");
         if (dynamic.some((p) => base.startsWith(p))) continue;
-        if (!code.includes(`"${base}"`) && !code.includes(`'${base}'`) && !code.includes(`\`${base}\``)) unused.add(base);
+        // popup.field.* 由 <Row field="x"> 間接使用（shared.tsx 的 Row 自己翻譯）
+        const fieldRef = base.startsWith("popup.field.") && code.includes(`field="${base.slice("popup.field.".length)}"`);
+        if (!fieldRef && !code.includes(`"${base}"`) && !code.includes(`'${base}'`) && !code.includes(`\`${base}\``)) unused.add(base);
       }
     }
     expect([...unused], "程式裡找不到的 key：刪掉，或改用動態命名空間").toEqual([]);
@@ -87,6 +90,14 @@ describe("locale parity", () => {
     for (const locale of SUPPORTED_LOCALES) {
       const unknown = Object.keys(readLocaleFile(locale, "layers.json")).filter((k) => !named.has(k));
       expect(unknown, `${locale}/layers.json 有不存在的圖層 key`).toEqual([]);
+    }
+  });
+
+  it("popupHeaders.json 只能用說明框有的 layerType", () => {
+    const types = new Set(Object.keys(HEADER_LABELS).map((k) => `popupHeader.${k}`));
+    for (const locale of SUPPORTED_LOCALES) {
+      const unknown = Object.keys(readLocaleFile(locale, "popupHeaders.json")).filter((k) => !types.has(k));
+      expect(unknown, `${locale}/popupHeaders.json 有不存在的 layerType`).toEqual([]);
     }
   });
 

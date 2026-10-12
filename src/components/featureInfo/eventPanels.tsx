@@ -42,9 +42,9 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
           </div>
         </div>
         <Row label="摘要" value={String(props.summary ?? "")} />
-        <Row label="地點" value={location} />
-        <Row label="分類" value={cat.label} color={cat.color} />
-        <Row label="時間" value={String(props.published ?? "")} />
+        <Row field="place" value={location} />
+        <Row field="classification" value={cat.label} color={cat.color} />
+        <Row field="time" value={String(props.published ?? "")} />
         {link && (
           <div style={{ marginTop: 6 }}>
             <a
@@ -214,11 +214,11 @@ export function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
           {EVENT_TYPE_LABELS[eventType] ?? "其他"}
         </div>
       </div>
-      {source && <Row label="來源" value={SOURCE_LABELS[source] ?? source} />}
-      {roadName && <Row label="路段" value={roadName + (direction ? ` ${direction}` : "")} />}
+      {source && <Row field="source" value={SOURCE_LABELS[source] ?? source} />}
+      {roadName && <Row field="roadSection" value={roadName + (direction ? ` ${direction}` : "")} />}
       {startKm > 0 && <Row label="里程" value={`${startKm.toFixed(1)} ~ ${endKm.toFixed(1)} km`} />}
       {description && description !== title && <Row label="描述" value={description} />}
-      {locationOther && locationOther !== description && <Row label="位置" value={locationOther} />}
+      {locationOther && locationOther !== description && <Row field="location" value={locationOther} />}
       {blockedLanes && <Row label="封閉車道" value={blockedLanes} />}
       <Row label="生效" value={fmt(startTs)} />
       {endTs > 0 && <Row label="失效" value={fmt(endTs)} />}
@@ -236,7 +236,7 @@ export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) 
           {String(props.fault_name ?? "Unknown Fault")}
         </div>
       </div>
-      <Row label="編號" value={String(props.fault_id ?? "")} />
+      <Row field="number" value={String(props.fault_id ?? "")} />
       <Row label="全稱" value={String(props.name ?? "")} />
     </>
   );
@@ -282,7 +282,7 @@ export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) 
           </div>
         )}
       </div>
-      <Row label="日期" value={reportDate} />
+      <Row field="date" value={reportDate} />
       <Row label="共機架次" value={show(sorties, "架次")} />
       <Row label="逾越中線" value={show(crossed, "架次")} />
       <Row label="共艦" value={show(vessels, "艘")} />
@@ -347,7 +347,7 @@ export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) 
           {shipName}
         </div>
       </div>
-      <Row label="分類" value={classLabel} />
+      <Row field="classification" value={classLabel} />
       {/* 可信度：讓使用者看得到「這艘為什麼被這樣分類」。
           rule_strong 不是猜的（MID×船名雙重印證），presumed 才是只憑船方自報。 */}
       <Row label="判定依據" value={confidenceLabel(props.confidence as string)} />

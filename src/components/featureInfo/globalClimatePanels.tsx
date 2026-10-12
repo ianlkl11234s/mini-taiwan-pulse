@@ -49,7 +49,7 @@ export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown
   const dColor = depth != null ? depthColor(depth) : t.textDim;
   return (
     <div>
-      <Row label="地點" value={String(props.place ?? "—")} />
+      <Row field="place" value={String(props.place ?? "—")} />
       <Row
         label="規模 (M)"
         value={mag != null ? `M ${mag.toFixed(1)}` : "—"}
@@ -61,7 +61,7 @@ export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown
         color={dColor}
       />
       <Row label="發生時刻" value={fmtTime(props.observed_ts)} />
-      <Row label="距現在" value={fmtAge(props.observed_ts)} />
+      <Row field="age" value={fmtAge(props.observed_ts)} />
       <Row label="USGS ID" value={String(props.event_id ?? "—")} />
     </div>
   );
@@ -82,13 +82,13 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
           props.name_local ? ` (${String(props.name_local)})` : ""
         }`}
       />
-      <Row label="編號" value={String(props.storm_id ?? "—")} />
+      <Row field="number" value={String(props.storm_id ?? "—")} />
       <Row
         label="類型"
         value={isFcst ? "預報位置 Forecast" : "觀測位置 Observed"}
         color={isFcst ? "#c084fc" : "#a855f7"}
       />
-      <Row label="資料源" value={sourceLabel} />
+      <Row field="dataSource" value={sourceLabel} />
       {adv != null && <Row label="Advisory" value={`#${adv}`} />}
       <Row
         label="近中心最大風"
@@ -101,7 +101,7 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
         color={pressure != null && pressure <= 970 ? "#ef4444" : undefined}
       />
       <Row label="位置時刻" value={fmtTime(props.valid_ts)} />
-      <Row label="距現在" value={fmtAge(props.valid_ts)} />
+      <Row field="age" value={fmtAge(props.valid_ts)} />
     </div>
   );
 }
@@ -114,7 +114,7 @@ export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown
       <Row label="區域 Region" value={String(props.region ?? "—")} />
       <Row label="ID" value={String(props.id ?? "—")} />
       <Row label="資料" value="Outerview（CC-BY-4.0）" />
-      <Row label="說明" value="點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈" />
+      <Row field="description" value="點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈" />
     </div>
   );
 }
@@ -176,7 +176,7 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       <Row label="分類／嚴重度" value={`${globalEventCategoryLabel(props.category)} · ${globalEventSeverityLabel(props.severity)}`} />
       <Row label="臺灣影響" value={String(props.taiwan_impact_zh_tw ?? "—")} />
       <Row label="判斷理由" value={String(props.reason_zh_tw ?? "—")} />
-      <Row label="地點" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
+      <Row field="place" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
       <Row label="落點語意" value={globalEventLocationLabel(props)} />
       {/* Candidate valid_from carries observed_at; formal valid_from is not a collection time. */}
       <Row label="來源收集時間" value={fmtGlobalEventTime(props.observed_at ?? (isInitial ? props.valid_from : null))} />
@@ -229,14 +229,14 @@ function GfwMemberDetails({ vessel }: { vessel: GfwHourlyGridVessel }) {
 export function AisstreamVesselPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <Row label="船名" value={String(props.ship_name ?? "—")} />
+      <Row field="vesselName" value={String(props.ship_name ?? "—")} />
       <Row label="MMSI" value={String(props.mmsi ?? "—")} />
       <Row label="船舶類型" value={String(props.ship_type ?? "—")} />
       <Row label="航速 / 航向" value={`${props.speed_knots ?? "—"} kt / ${props.course_over_ground ?? "—"}°`} />
       <Row label="目的地（自報）" value={String(props.destination ?? "—")} />
-      <Row label="觀測時間" value={fmtMaritimeTime(props.observed_at)} />
+      <Row field="observedAt" value={fmtMaritimeTime(props.observed_at)} />
       <Row label="訊息年齡" value={props.age_seconds == null ? "—" : `${Number(props.age_seconds).toFixed(0)} 秒`} />
-      <Row label="資料源" value="AISStream（AIS message feed）" />
+      <Row field="dataSource" value="AISStream（AIS message feed）" />
     </div>
   );
 }
@@ -244,14 +244,14 @@ export function AisstreamVesselPanel({ props }: { props: Record<string, unknown>
 export function GfwVesselPresencePanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <Row label="船名" value={String(props.ship_name ?? "—")} />
+      <Row field="vesselName" value={String(props.ship_name ?? "—")} />
       <Row label="Vessel ID" value={String(props.vessel_id ?? "—")} />
       <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
       <Row label="船舶類型" value={String(props.vessel_type ?? "—")} />
       <Row label="快照日期" value={String(props.source_snapshot_date ?? "—")} />
-      <Row label="觀測時間" value={fmtMaritimeTime(props.observed_at)} />
+      <Row field="observedAt" value={fmtMaritimeTime(props.observed_at)} />
       <Row label="資料年齡" value={props.age_hours == null ? "—" : `${Number(props.age_hours).toFixed(1)} 小時`} />
-      <Row label="資料源" value="Global Fishing Watch（daily vessel presence；非即時）" />
+      <Row field="dataSource" value="Global Fishing Watch（daily vessel presence；非即時）" />
     </div>
   );
 }
@@ -293,7 +293,7 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
           <div style={{ color: t.textDim, fontSize: 11, padding: "6px 0" }}>{detailStatus === "error" ? "不顯示未驗證的部分船舶" : "船舶清單無法解析"}</div>
         )}
       </div>
-      <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
+      <Row field="dataSource" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
       <div style={{ marginTop: 7, fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>
         非即時、格網中心近似資料 · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
       </div>
@@ -315,10 +315,10 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
   return (
     <div>
       {!grouped && (singleVessel ? <>
-        <Row label="船名" value={singleVessel.shipName || "（無船名）"} />
+        <Row field="vesselName" value={singleVessel.shipName || "（無船名）"} />
         <GfwMemberDetails vessel={singleVessel} />
       </> : <>
-        <Row label="船名" value={shipName || "（無船名）"} />
+        <Row field="vesselName" value={shipName || "（無船名）"} />
         <Row label="Vessel ID" value={vesselId} />
         <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
         <Row label="GFW 原始船種" value={String(props.vessel_type ?? "—")} />
@@ -332,7 +332,7 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
         value={`${fmtMaritimeUtcTime(props.selected_time)}${interpolated ? "（線性內插）" : "（實際觀測）"}`}
       />
       <Row label="拖尾點數" value={Number.isFinite(count) ? `${count} 點` : "—"} />
-      <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
+      <Row field="dataSource" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
       {Number(props.full_fidelity) === 1 && <Row label="完整性" value="已驗證 full fidelity" />}
       {detailStatus === "loading" && <Row label="航段詳情" value="正在驗證完整航段…" />}
       {detailStatus === "error" && <Row label="航段詳情" value={String(props.detail_error ?? "驗證失敗，未顯示部分詳情")} color="#f87171" />}
@@ -395,7 +395,7 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
       <Row label="最新可用日期" value={unavailable(props.latest_available_date)} />
       <Row label="Finalization" value={unavailable(props.finalization_status)} />
       <Row label="Revision" value={unavailable(props.revision_semantics)} />
-      <Row label="資料源" value={unavailable(props.attribution)} />
+      <Row field="dataSource" value={unavailable(props.attribution)} />
       <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.5, color: t.textDim }}>
         {unavailable(props.caveat)}
         {attributionHref && <> · <a href={attributionHref} target="_blank" rel="noreferrer" style={{ color: t.link }}>GFW attribution</a></>}
@@ -413,7 +413,7 @@ export function GfwDarkVesselPanel({ props }: { props: Record<string, unknown> }
       <Row label="SAR detections" value={Number.isFinite(detections) ? `${detections} 筆` : "—"} />
       <Row label="位置語意" value="GFW HIGH 格網中心（非精確 SAR 座標）" />
       <Row label="匹配狀態" value="SAR 偵測未與 AIS 匹配" />
-      <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "—")}`} />
+      <Row field="dataSource" value={`Global Fishing Watch ${String(props.source_dataset ?? "—")}`} />
       <div style={{ marginTop: 8, padding: "7px 8px", border: `1px solid ${t.border}`, borderRadius: 6, color: t.textDim, fontSize: 10, lineHeight: 1.5 }}>
         SAR 偵測未與 AIS 匹配，不代表違法、不是確認暗船，也不能據此認定船舶刻意關閉 AIS。
         {props.interpretation_note ? ` ${String(props.interpretation_note)}` : ""}

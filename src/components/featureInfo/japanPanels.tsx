@@ -57,15 +57,15 @@ export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color="#0ea5e9">{title}</Title>
-      <Row label="來源" value={sources} />
+      <Row field="source" value={sources} />
       <Row label="年份／截至" value={sourceYear || "未提供"} />
-      <Row label="授權" value={license || "未驗證"} />
-      <Row label="狀態" value={status || "未提供"} />
+      <Row field="license" value={license || "未驗證"} />
+      <Row field="status" value={status || "未提供"} />
       <Row label="geometry precision" value={precision || "來源未標示"} />
       <Row label="coverage" value={str(props.coverage_scope)} />
       <Row label="filter_layer_id" value={str(props.filter_layer_id)} />
       <Row label="顯示分類" value={str(props.facility_category)} />
-      <Row label="類型" value={str(props.facility_type) || str(props.registered_type) || str(props.park_class_name) || str(props.legal_class_label) || str(props.protection_class) || str(props.category)} />
+      <Row field="type" value={str(props.facility_type) || str(props.registered_type) || str(props.park_class_name) || str(props.legal_class_label) || str(props.protection_class) || str(props.category)} />
       <Row label="地址／位置" value={str(props.address) || str(props.location_ja) || str(props.prefecture)} />
       <Row label="相關網址" value={str(props.source_url) ? "" : str(props.leaflet_url) || str(props.area_detail_url)} />
     </>
@@ -79,7 +79,7 @@ export function JpAccommodationDensityPanel({ props }: { props: Record<string, u
   return (
     <>
       <Title color="#ea580c">旅宿密度網格 宿泊施設密度グリッド</Title>
-      <Row label="網格尺度" value={Number.isFinite(gridSize) ? `${gridSize.toLocaleString("zh-TW")} m` : ""} />
+      <Row field="gridScale" value={Number.isFinite(gridSize) ? `${gridSize.toLocaleString("zh-TW")} m` : ""} />
       <Row label="格內旅宿" value={Number.isFinite(count) ? `${count.toLocaleString("zh-TW")} 間` : ""} />
       <Row label="每平方公里" value={Number.isFinite(density) ? density.toLocaleString("zh-TW", { maximumFractionDigits: 1 }) : ""} />
       <Row label="網格 ID" value={str(props.grid_id)} />
@@ -115,20 +115,20 @@ export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
       : classificationBasis === "unclassified" ? "來源未提供一致細類，且名稱規則未命中" : "";
   return <>
     <Title color="#0ea5e9">{title}</Title>
-    <Row label="類型" value={role} />
+    <Row field="type" value={role} />
     <Row label="設施細類" value={str(props.facility_category_label) || category?.label || ""} />
     <Row label="分類依據" value={classification} />
     <Row label="事業／系統" value={str(props.water_system)} />
-    <Row label="來源年份" value={!sourceYear || /^unknown\b/i.test(sourceYear) ? "來源未註" : sourceYear} />
-    <Row label="來源" value={source} />
-    <Row label="授權" value={str(props.license)} />
+    <Row field="sourceYear" value={!sourceYear || /^unknown\b/i.test(sourceYear) ? "來源未註" : sourceYear} />
+    <Row field="source" value={source} />
+    <Row field="license" value={str(props.license)} />
     <Row label="涵蓋範圍" value={str(props.coverage)} />
     <Row label="來源欄位 operator" value={str(props.operator) ? `${str(props.operator)}（來源原值，未驗證為公司或營運者）` : ""} />
-    <Row label="容量" value={str(props.capacity)} />
+    <Row field="capacity" value={str(props.capacity)} />
     <Row label="來源識別" value={str(props.source_id) ? `${str(props.source_id)}（僅在此來源／版本內，不是跨源實體 ID）` : ""} />
     <Row label="選取識別" value={str(props.selection_identity)} />
-    <Row label="資料限制" value={caveat} />
-    {isQualityRegistry && <Row label="資料限制" value="此圖層是測定站名錄，不含水質濃度或趨勢。" />}
+    <Row field="dataLimits" value={caveat} />
+    {isQualityRegistry && <Row field="dataLimits" value="此圖層是測定站名錄，不含水質濃度或趨勢。" />}
     {isGroundwater && <Row label="覆蓋限制" value="實際僅24縣；年份未提供，視窗空白不代表全國無資料。" />}
     {isNilim && <Row label="覆蓋限制" value="實際46縣；年份未提供，與KSJ水壩獨立，不可直接相加。" />}
     {isAgri && <Row label="位置限制" value="MAFF來源 datum 未知，僅作位置候選；4,284筆同座標列保留，未自行合併。" />}
@@ -217,8 +217,8 @@ export function JpStationsPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color={STATION_COLOR}>{str(props.name) || "無名車站"}</Title>
-      <Row label="路線" value={lines.join(" / ")} />
-      <Row label="營運者" value={operators.join(" / ")} />
+      <Row field="route" value={lines.join(" / ")} />
+      <Row field="operator" value={operators.join(" / ")} />
       <Row label="種別" value={railwayCategories.join(" / ")} />
       <Row label="運量" value={passengerLabel} />
     </>
@@ -332,8 +332,8 @@ export function JpPoliceFacilitiesPanel({ props }: { props: Record<string, unkno
     <Title color={facilityType?.color ?? JP_POLICE_LAYER_COLOR}>{policeText(props.name) || "警察設施 警察施設"}</Title>
     <Row label="設施類型" value={facilityType?.label ?? "未提供"} />
     <Row label="都道府縣" value={policeText(props.prefecture) || "未提供"} />
-    <Row label="地址" value={policeText(props.address) || "未提供"} />
-    <Row label="電話" value={policeText(props.phone) || "未提供"} />
+    <Row field="address" value={policeText(props.address) || "未提供"} />
+    <Row field="phone" value={policeText(props.phone) || "未提供"} />
     <Row label="資料時點" value={policeText(props.source_as_of) || "未提供"} />
     {props.geom_status === "degraded" && <Row label="約略位置" value="地址僅解析到丁目／町域，非精確設施位置" />}
     <Row label="座標精度" value={precision[policeText(props.geom_precision)] ?? "未提供"} />

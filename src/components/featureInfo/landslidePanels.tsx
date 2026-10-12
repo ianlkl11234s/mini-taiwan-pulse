@@ -29,13 +29,13 @@ export function LandslideDodAreaPanel({ props }: Props) {
     <Row label="風險等級" value={risk(props.risk)} color={color} />
     <Row label="保全住戶" value={[dwelling != null ? `${dwelling.toLocaleString("zh-TW")} 戶` : "", str(props.res_class)].filter(Boolean).join("（") + (dwelling != null && str(props.res_class) ? "）" : "")} />
     <Row label="崩塌類型" value={str(props.landslide_type)} />
-    <Row label="行政區" value={admin(props)} />
+    <Row field="district" value={admin(props)} />
     <Row label="地標" value={str(props.landmark)} />
     <Row label="聯外道路" value={str(props.road_name)} />
-    <Row label="流域" value={[props.basin, props.sub_basin].map(str).filter(Boolean).join("／")} />
-    <Row label="面積" value={fmt(props.geom_area_ha, 2, "公頃")} />
-    <Row label="編號" value={str(props.lslno)} mono />
-    <Row label="主管機關" value={str(props.authority)} />
+    <Row field="basin" value={[props.basin, props.sub_basin].map(str).filter(Boolean).join("／")} />
+    <Row field="area" value={fmt(props.geom_area_ha, 2, "公頃")} />
+    <Row field="number" value={str(props.lslno)} mono />
+    <Row field="authority" value={str(props.authority)} />
   </>;
 }
 
@@ -47,9 +47,9 @@ export function LandslideDodImpactPanel({ props }: Props) {
     <Row label="風險等級" value={risk(props.risk)} color={color} />
     <Row label="保全戶數" value={fmt(props.total_res, 0, "戶")} />
     <Row label="戶數級距" value={str(props.res_class)} />
-    <Row label="行政區" value={admin(props)} />
-    <Row label="面積" value={fmt(props.geom_area_ha, 2, "公頃")} />
-    <Row label="主管機關" value={str(props.authority)} />
+    <Row field="district" value={admin(props)} />
+    <Row field="area" value={fmt(props.geom_area_ha, 2, "公頃")} />
+    <Row field="authority" value={str(props.authority)} />
   </>;
 }
 
@@ -57,8 +57,8 @@ export function HighwayDisasterPanel({ props }: Props) {
   const color = highwayCategoryColor(props.category_group);
   return <>
     <Title color={color}>{`${str(props.route)} ${str(props.category_sub) || highwayCategoryLabel(props.category_group)}`.trim()}</Title>
-    <Row label="類別" value={[props.category_main, props.category_sub].map(str).filter(Boolean).join("・")} color={color} />
-    <Row label="位置" value={str(props.location_text)} />
+    <Row field="category" value={[props.category_main, props.category_sub].map(str).filter(Boolean).join("・")} color={color} />
+    <Row field="location" value={str(props.location_text)} />
     <Row label="通報時間" value={localTime(props.reported_at)} mono />
     <Row label="解除時間" value={localTime(props.released_at)} mono />
     <Row label="通報性質" value={str(props.report_category)} />
@@ -79,7 +79,7 @@ export function LandslideAnnualPanel({ props }: Props) {
   const dtm = num(props.min_dtm);
   return <>
     <Title color={LANDSLIDE_LAYER_COLORS.landslideAnnual}>{year != null ? `${year} 年崩塌地` : "年度崩塌地"}</Title>
-    <Row label="面積" value={fmt(props.area_ha, 2, "公頃")} />
+    <Row field="area" value={fmt(props.area_ha, 2, "公頃")} />
     <Row label="坡度" value={fmt(props.slope, 1, "度")} />
     <Row label="最低高程（DTM）" value={dtm == null ? "" : dtm === ANNUAL_DTM_NODATA ? "缺（無高程值）" : fmt(dtm, 0, "公尺")} />
     <Row label="影像日期" value={str(props.image_date)} mono />

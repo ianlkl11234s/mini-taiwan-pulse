@@ -159,8 +159,8 @@ export function FingerprintDetailRows({ entry, mode }: { entry?: FingerprintBrid
     <Row label="路網" value="距離遞減（τ=20 分，假設值）下的總影響（人·秒）" />
     <Row label="人口" value="平均每次出行多花超過 30 秒的人口；多數橋是 0，同分取平均名次" />
     <Row label="缺乏替代" value="受影響起訖對沒改走同河 5 km 內替代橋的占比，加上平均繞行比；越高＝替代越差" />
-    <Row label="注意" value="關渡與淡江相距約 7 km，超出「同河 5 km」規則，互為替代卻都算 0%，兩者缺乏替代偏高有一半來自這條規則" />
-    <Row label="注意" value="新北大橋的水面跨距取自斜交的機車道，屬上界" />
+    <Row field="caution" value="關渡與淡江相距約 7 km，超出「同河 5 km」規則，互為替代卻都算 0%，兩者缺乏替代偏高有一半來自這條規則" />
+    <Row field="caution" value="新北大橋的水面跨距取自斜交的機車道，屬上界" />
     <Row label="變體" value="同河替代不限距離時，上游幾十公里外的橋也算替代，所以預設仍用同河 5 km；變體只作對照" />
     <Row label="讀法" value="四維各自在 73 座單橋內排名（26 座人工複核＋47 座自動選入），不加總、不合成總分；是失效後果，不是風險" />
   </>;

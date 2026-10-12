@@ -40,7 +40,7 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
       <summary style={{ cursor: "pointer" }}>詳細來源欄位</summary>
       <Row label="原始編纂" value={text(props.origin_org)} />
       <Row label="實際分發" value={text(props.distribution_org)} />
-      <Row label="授權" value={text(props.license)} />
+      <Row field="license" value={text(props.license)} />
       <Row label="Metadata ID" value={text(props.source_metadata_id)} />
       <Row label="開始日期" value={text(props.source_start_date)} />
       <Row label="結束日期" value={text(props.source_end_date)} />

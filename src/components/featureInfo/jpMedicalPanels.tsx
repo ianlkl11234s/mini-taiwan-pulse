@@ -10,10 +10,10 @@ export function JpMedicalFacilitiesPanel({ props }: { props: Record<string, unkn
   const category = jpMedicalCategory(props.record_kind);
   return <>
     <Title color={category?.color ?? "#94a3b8"}>{text(props.name)}</Title>
-    <Row label="類型" value={category?.label ?? text(props.record_kind)} color={category?.color} />
-    <Row label="地址" value={text(props.address)} />
+    <Row field="type" value={category?.label ?? text(props.record_kind)} color={category?.color} />
+    <Row field="address" value={text(props.address)} />
     <Row label="快照日期" value={date(props.snapshot_date)} />
-    <Row label="來源" value="厚生労働省 Navii" />
+    <Row field="source" value="厚生労働省 Navii" />
     <Row label="來源 ID" value={text(props.source_id)} />
   </>;
 }
@@ -26,8 +26,8 @@ export function JpMedicalCarePanel({ props }: { props: Record<string, unknown> }
     <Title color={group?.color ?? "#94a3b8"}>{text(props.name)}</Title>
     <Row label="上位分類" value={group?.label ?? "未分類"} color={group?.color} />
     <Row label="原始服務類型" value={text(props.service_type)} />
-    <Row label="地址" value={text(props.address)} />
-    <Row label="來源" value="厚生労働省 H17" />
+    <Row field="address" value={text(props.address)} />
+    <Row field="source" value="厚生労働省 H17" />
     <Row label="來源快照" value={date(props.source_snapshot_day)} />
     {coLocated.length > 1 && <details style={{ marginTop: 10, fontSize: FONT_SIZE.sm, color: theme.textStrong }}>
       <summary>同位置、目前篩選下 {coLocated.length} 筆服務登記</summary>
@@ -45,7 +45,7 @@ export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> 
   return <>
     <Title color="#f59e0b">醫療圈 · 2020 歷史版</Title>
     <Row label="資料狀態" value="STALE：2020 歷史版" color="#f59e0b" />
-    <Row label="來源" value="国土数値情報 医療圏データ（2020）" />
+    <Row field="source" value="国土数値情報 医療圏データ（2020）" />
     <Row label="用途" value="行政規劃邊界；不是設施服務範圍或即時就醫可達圈" />
     <Row label="幾何粒度" value="來源 polygon part；不可依此加總人口、面積或圈數" />
     <details style={{ marginTop: 8, color: theme.textStrong }}><summary>來源欄位</summary>

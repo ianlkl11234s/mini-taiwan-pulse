@@ -57,7 +57,7 @@ function licenseDateLabel(v: unknown): string {
 /** 四份中文欄位資料共用的 geocode 精度列（`interpolated` 那句本身已含 ⚠️） */
 function GeocodeRow({ precision }: { precision: unknown }) {
   const p = str(precision);
-  return <Row label="定位精度" value={GEOCODE_PRECISION_LABELS[p] ?? p} />;
+  return <Row field="positionAccuracy" value={GEOCODE_PRECISION_LABELS[p] ?? p} />;
 }
 
 /**
@@ -88,9 +88,9 @@ export function SchoolPanel({ props }: { props: Record<string, unknown> }) {
       {isRegionType(regionType) ? (
         <Row label="偏遠地區" value={regionType} color={REGION_TYPE_COLORS[regionType]} />
       ) : null}
-      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
-      <Row label="地址" value={str(props.address)} />
-      <Row label="電話" value={str(props.phone)} />
+      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="address" value={str(props.address)} />
+      <Row field="phone" value={str(props.phone)} />
       <Row label="網站" value={str(props.website)} />
     </>
   );
@@ -113,7 +113,7 @@ export function EduCampusPanel({ props }: { props: Record<string, unknown> }) {
       <Title color={accentColor}>{str(props.school_name) || "校地範圍"}</Title>
       <Row label="學制" value={levelZh} color={accentColor} />
       {areaHa != null ? <Row label="校地面積" value={`${areaHa.toFixed(2)} 公頃`} /> : null}
-      <Row label="縣市" value={str(props.county)} />
+      <Row field="county" value={str(props.county)} />
       {isBranch ? <Row label="分校／分部" value="是" /> : null}
       <Note>校地範圍為官方圖資，<b>澎湖／金門無資料</b></Note>
     </>
@@ -147,7 +147,7 @@ export function EduDistrictK12Panel({ props }: { props: Record<string, unknown> 
         value={level === "junior" ? "國中學區" : "國小學區"}
         color={accentColor}
       />
-      <Row label="縣市" value={county} />
+      <Row field="county" value={county} />
       {villageCount != null ? <Row label="涵蓋里數" value={`${villageCount} 里`} /> : null}
       <Row label="里名" value={str(props.villages)} />
       <Row
@@ -158,7 +158,7 @@ export function EduDistrictK12Panel({ props }: { props: Record<string, unknown> 
       {isShared ? (
         <Row label="共同學區" value="⚠️ 該里同時屬其他學校（共同學區）" color="#ffb74d" />
       ) : null}
-      {areaKm2 != null ? <Row label="面積" value={`${areaKm2.toFixed(2)} km²`} /> : null}
+      {areaKm2 != null ? <Row field="area" value={`${areaKm2.toFixed(2)} km²`} /> : null}
       <Note>{DISTRICT_DISCLAIMER}</Note>
       {county === "臺北市" ? <Note>臺北市資料為 110 學年度</Note> : null}
     </>
@@ -192,7 +192,7 @@ export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknow
         label="涵蓋縣市"
         value={counties && countyCount != null ? `${counties}（${countyCount} 縣市）` : counties}
       />
-      {areaKm2 != null ? <Row label="面積" value={`${areaKm2.toFixed(2)} km²`} /> : null}
+      {areaKm2 != null ? <Row field="area" value={`${areaKm2.toFixed(2)} km²`} /> : null}
       {rules ? (
         <>
           <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textMuted }}>跨區就讀規則</div>
@@ -240,10 +240,10 @@ export function EduKindergartenPanel({ props }: { props: Record<string, unknown>
     <>
       <Title color={accentColor}>{str(props["學校名稱"]) || "幼兒園"}</Title>
       {ownership ? <Row label="公私立" value={ownership} color={accentColor} /> : null}
-      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
-      <Row label="地址" value={stripBracketPrefix(props["地址"])} />
-      <Row label="電話" value={str(props["電話"])} />
-      <Row label="代碼" value={str(props["代碼"] ?? props["學校代碼"])} />
+      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="address" value={stripBracketPrefix(props["地址"])} />
+      <Row field="phone" value={str(props["電話"])} />
+      <Row field="code" value={str(props["代碼"] ?? props["學校代碼"])} />
       {academicYear ? <Row label="學年度" value={`${academicYear} 學年度`} /> : null}
       <GeocodeRow precision={props.precision} />
     </>
@@ -262,9 +262,9 @@ export function EduAfterschoolCarePanel({ props }: { props: Record<string, unkno
   return (
     <>
       <Title color={accentColor}>{str(props["名稱"]) || "課後照顧中心"}</Title>
-      <Row label="縣市" value={str(props["縣市"])} />
-      <Row label="地址" value={stripBracketPrefix(props["地址"])} />
-      <Row label="電話" value={str(props["電話"])} />
+      <Row field="county" value={str(props["縣市"])} />
+      <Row field="address" value={stripBracketPrefix(props["地址"])} />
+      <Row field="phone" value={str(props["電話"])} />
       <Row label="立案時間" value={licenseDateLabel(props["立案時間"])} />
       <GeocodeRow precision={props.precision} />
     </>
@@ -293,8 +293,8 @@ export function EduCramSchoolPanel({ props }: { props: Record<string, unknown> }
         value={group ? `${CRAM_CATEGORY_LABELS[group]}｜${category}` : category}
         color={accentColor}
       />
-      <Row label="縣市" value={str(props.county) || str(props["地區縣市"])} />
-      <Row label="地址" value={stripBracketPrefix(props["地址"])} />
+      <Row field="county" value={str(props.county) || str(props["地區縣市"])} />
+      <Row field="address" value={stripBracketPrefix(props["地址"])} />
       <Row label="立案時間" value={licenseDateLabel(props["立案時間"])} />
       <Row label="電子郵件" value={str(props["電子郵件"])} />
       <GeocodeRow precision={props.precision} />
@@ -331,7 +331,7 @@ export function EduUniversityStudentsPanel({ props }: { props: Record<string, un
     <>
       <Title color={accentColor}>{str(props.school_name) || "大專校院"}</Title>
       <Row label="學制" value={str(props.school_level)} />
-      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
       <Row label="學生數" value={totalLabel} color={accentColor} />
       {academicYear ? <Row label="學年度" value={`${academicYear} 學年度`} /> : null}
       {total == null ? (

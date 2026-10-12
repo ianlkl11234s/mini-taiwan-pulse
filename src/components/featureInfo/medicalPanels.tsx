@@ -33,10 +33,10 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       {medCat === "hospital" || medCat === "clinic" || medCat === "other_medical" ? (
         <>
-          <Row label="類型" value={String(props.category_label ?? "")} color={color} />
-          <Row label="縣市" value={county} />
-          <Row label="地址" value={address} />
-          <Row label="電話" value={phone} />
+          <Row field="type" value={String(props.category_label ?? "")} color={color} />
+          <Row field="county" value={county} />
+          <Row field="address" value={address} />
+          <Row field="phone" value={phone} />
           {specialties ? (
             <Row label="科別" value={specialties.length > 80 ? specialties.slice(0, 80) + "…" : specialties} />
           ) : null}
@@ -44,18 +44,18 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
       ) : null}
       {medCat === "pharmacy" ? (
         <>
-          <Row label="類型" value="健保特約藥局" color={color} />
-          <Row label="縣市" value={county} />
-          <Row label="地址" value={address} />
-          <Row label="電話" value={phone} />
+          <Row field="type" value="健保特約藥局" color={color} />
+          <Row field="county" value={county} />
+          <Row field="address" value={address} />
+          <Row field="phone" value={phone} />
         </>
       ) : null}
       {medCat === "aed" ? (
         <>
           <Row label="場所類型" value={String(props.place_type ?? "")} color={color} />
-          <Row label="縣市" value={county} />
-          <Row label="行政區" value={String(props.district ?? "")} />
-          <Row label="地址" value={address} />
+          <Row field="county" value={county} />
+          <Row field="district" value={String(props.district ?? "")} />
+          <Row field="address" value={address} />
           <Row label="AED 位置" value={String(props.aed_location ?? "")} />
           <Row label="緊急電話" value={phone} />
         </>
@@ -68,9 +68,9 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
             color={color}
           />
           {typeof props.open_beds === "number" ? <Row label="開放床位" value={`${props.open_beds}`} /> : null}
-          <Row label="縣市" value={county} />
-          <Row label="地址" value={address} />
-          <Row label="電話" value={phone} />
+          <Row field="county" value={county} />
+          <Row field="address" value={address} />
+          <Row field="phone" value={phone} />
           {props.service_items ? (
             <Row
               label="服務項目"
@@ -151,15 +151,15 @@ export function EmergencyHospitalPanel({ props }: { props: Record<string, unknow
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: levelColor, flexShrink: 0, boxShadow: `0 0 6px ${levelColor}` }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
       </div>
-      <Row label="縣市" value={area} />
-      <Row label="層級" value={levelName} />
+      <Row field="county" value={area} />
+      <Row field="tier" value={levelName} />
       <Row label="急診壅塞" value={`${ER_LEVEL_LABELS[level]}（等一般病床 ${fmt(waitGeneral)}）`} color={levelColor} />
       <Row label="等待看診" value={fmt(waitSee)} />
       <Row label="等待住院" value={fmt(waitBed)} />
       <Row label="等待加護病房 (ICU)" value={fmt(waitIcu)} color={waitIcu != null && waitIcu > 0 ? "#ffffff" : undefined} />
       {inform ? <Row label="通報旗標 (inform)" value={inform} /> : null}
       {obsTs != null && (
-        <Row label="觀測時間" value={new Date(obsTs * 1000).toLocaleString("zh-TW", { hour12: false }).slice(5, 16)} color="rgba(255,255,255,0.35)" />
+        <Row field="observedAt" value={new Date(obsTs * 1000).toLocaleString("zh-TW", { hour12: false }).slice(5, 16)} color="rgba(255,255,255,0.35)" />
       )}
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
