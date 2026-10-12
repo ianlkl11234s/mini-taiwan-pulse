@@ -11,17 +11,20 @@
  * 缺翻譯時回退到 manifest 既有的外文名或中文原名，不會出現空白。
  */
 import type { LayerName } from "../data/layerManifest";
+import type { MessageKey } from "./keys";
 import type { Locale } from "./locales";
 
-type T = (key: string) => string;
+/**
+ * 傳整個 `useLocale()` 進來（不是 `t`）：這些 helper 需要「找不到回 null」才能走 fallback，
+ * 傳 `t`（找不到回 key 字串）會靜默壞掉，所以參數型別直接要求 `lookup`。
+ */
+export interface I18nContext {
+  active: Locale;
+  lookup: (key: MessageKey) => string | null;
+}
 
 const HAS_KANA = /[぀-ヿ]/;
 const HAS_HAN = /[㐀-鿿]/;
-
-function lookup(t: T, key: string): string | null {
-  const value = t(key);
-  return value === key ? null : value;
-}
 
 export interface LocalizedLayerName {
   /** 主名（該語系） */
@@ -31,20 +34,20 @@ export interface LocalizedLayerName {
   qualifier?: string;
 }
 
-export function localizeLayerName(layerKey: string, name: LayerName, locale: Locale, t: T): LocalizedLayerName {
+export function localizeLayerName(layerKey: string, name: LayerName, { active: locale, lookup }: I18nContext): LocalizedLayerName {
   if (locale === "zh-TW") return { primary: name.zh, secondary: name.alt, qualifier: name.qualifier };
-  const translated = lookup(t, `layer.${layerKey}`);
+  const translated = lookup(`layer.${layerKey}`);
   // manifest 的 alt 是「原文外文名」：日本圖層是日文、其他多為英文
   const altFits = name.alt && (locale === "ja" ? HAS_KANA.test(name.alt) || HAS_HAN.test(name.alt) : !HAS_HAN.test(name.alt) && !HAS_KANA.test(name.alt));
   const primary = translated ?? (altFits ? name.alt! : name.zh);
-  const qualifier = name.qualifier ? lookup(t, `qualifier.${name.qualifier}`) ?? name.qualifier : undefined;
+  const qualifier = name.qualifier ? lookup(`qualifier.${name.qualifier}`) ?? name.qualifier : undefined;
   return { primary, secondary: primary === name.zh ? undefined : name.zh, qualifier };
 }
 
 /** 主題／子群標題。既有寫法是「中文 English」，英文介面可直接取後半。 */
-export function localizeSectionTitle(title: string, locale: Locale, t: T): string {
+export function localizeSectionTitle(title: string, { active: locale, lookup }: I18nContext): string {
   if (locale === "zh-TW") return title;
-  const translated = lookup(t, `theme.${title}`);
+  const translated = lookup(`theme.${title}`);
   if (translated) return translated;
   if (locale === "en") {
     const english = title.match(/^[^\sA-Za-z]+\s+([A-Za-z].*)$/)?.[1];

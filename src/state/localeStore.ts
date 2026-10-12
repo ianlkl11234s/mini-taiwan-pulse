@@ -12,7 +12,9 @@
  */
 import { useSyncExternalStore } from "react";
 import { DEFAULT_LOCALE, LOCALES, isLocale, matchLocale, type Locale } from "../i18n/locales";
-import { translate, type Messages, type TranslateVars } from "../i18n/translate";
+import { lookup, translate, type Messages, type TranslateVars } from "../i18n/translate";
+import type { MessageKey } from "../i18n/keys";
+import { formatDateTime, formatNumber } from "../i18n/format";
 
 const STORAGE_KEY = "mini-taiwan:locale:v1";
 
@@ -66,7 +68,14 @@ export interface LocaleSnapshot {
   locale: Locale;
   /** 訊息已載入、畫面實際使用的語系（lazy 載入期間仍是上一個） */
   active: Locale;
-  t: (key: string, vars?: TranslateVars) => string;
+  /** 型別檢查過的 key；找不到時回傳 key 本身 */
+  t: (key: MessageKey, vars?: TranslateVars) => string;
+  /** 動態 key（由資料組出來的）：找不到回 null，呼叫端自己決定 fallback */
+  lookup: (key: MessageKey, vars?: TranslateVars) => string | null;
+  /** 依目前語系格式化數字（千分位等） */
+  formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string;
+  /** 依目前語系格式化時間（固定台北時區） */
+  formatDateTime: (value: number | Date, options?: Intl.DateTimeFormatOptions) => string;
 }
 
 function buildSnapshot(locale: Locale, active: Locale): LocaleSnapshot {
@@ -75,7 +84,14 @@ function buildSnapshot(locale: Locale, active: Locale): LocaleSnapshot {
     .map((code) => loaded.get(code))
     .filter((messages): messages is Messages => messages != null);
   const intl = LOCALES[active].intl;
-  return { locale, active, t: (key, vars) => translate(chain, intl, key, vars) };
+  return {
+    locale,
+    active,
+    t: (key, vars) => translate(chain, intl, key, vars),
+    lookup: (key, vars) => lookup(chain, intl, key, vars),
+    formatNumber: (value, options) => formatNumber(active, value, options),
+    formatDateTime: (value, options) => formatDateTime(active, value, options),
+  };
 }
 
 let snapshot = buildSnapshot(DEFAULT_LOCALE, DEFAULT_LOCALE);

@@ -26,20 +26,30 @@ function interpolate(template: string, vars: TranslateVars | undefined): string 
 }
 
 /**
- * 依序在 `chain`（目前語系 → fallback 語系）找 key；全部找不到回傳 key 本身，
- * 讓缺字在畫面上一眼可見（parity 測試會在 CI 擋下）。
+ * 依序在 `chain`（目前語系 → fallback 語系）找 key；全部找不到回 null。
+ * 用於「有翻譯就用、沒有就走別的 fallback」的動態 key（圖層名、類別代碼…）。
  */
+export function lookup(
+  chain: readonly Messages[],
+  intlLocale: string,
+  key: string,
+  vars?: TranslateVars,
+): string | null {
+  const count = vars?.count;
+  const pluralKey = typeof count === "number" ? `${key}_${pluralCategory(intlLocale, count)}` : null;
+  for (const messages of chain) {
+    const hit = (pluralKey ? messages[pluralKey] : undefined) ?? messages[key] ?? (pluralKey ? messages[`${key}_other`] : undefined);
+    if (hit != null) return interpolate(hit, vars);
+  }
+  return null;
+}
+
+/** 同 `lookup`，但找不到時回傳 key 本身，讓缺字在畫面上一眼可見（parity 測試會在 CI 擋下）。 */
 export function translate(
   chain: readonly Messages[],
   intlLocale: string,
   key: string,
   vars?: TranslateVars,
 ): string {
-  const count = vars?.count;
-  const pluralKey = typeof count === "number" ? `${key}_${pluralCategory(intlLocale, count)}` : null;
-  for (const messages of chain) {
-    const hit = (pluralKey && messages[pluralKey]) ?? messages[key] ?? (pluralKey ? messages[`${key}_other`] : undefined);
-    if (hit != null) return interpolate(hit, vars);
-  }
-  return key;
+  return lookup(chain, intlLocale, key, vars) ?? key;
 }
