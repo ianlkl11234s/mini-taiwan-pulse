@@ -34,16 +34,12 @@ interface Props {
 
 /** T2 工具列的底圖控制（B3：純圖示 + 色點，展開為 7 格縮圖 + 顯示地名開關）。 */
 export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onToggleLabels }: Props) {
-  const { t } = useLocale();
+  const { t, lookup } = useLocale();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const palette = getToolbarPalette(isDarkTheme);
   const current = OPTIONS.find((o) => o.id === selected) ?? OPTIONS[0]!;
-  const labelOf = (o: (typeof OPTIONS)[number]) => {
-    const key = `basemap.${o.id}`;
-    const text = t(key);
-    return text === key ? o.fallbackLabel : text;
-  };
+  const labelOf = (o: (typeof OPTIONS)[number]) => lookup(`basemap.${o.id}`) ?? o.fallbackLabel;
 
   useEffect(() => {
     if (!open) return;

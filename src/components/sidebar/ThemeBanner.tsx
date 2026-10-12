@@ -22,8 +22,9 @@ export function ThemeBanner({
   const { DIM, BORDER, TEXT_STRONG, BANNER_BG } = useRailTheme();
   const someOn = onCount > 0;
   // LT1（design-system §5.5）：title 是識別字串，顯示名稱查 THEME_NAMES（副標：英文，日本主題用日文）。
-  const { active, t } = useLocale();
-  const { primary: zh, sub } = localizeThemeTitle(title, active, t);
+  const i18n = useLocale();
+  const { t } = i18n;
+  const { primary: zh, sub } = localizeThemeTitle(title, i18n);
   return (
     <div
       style={{

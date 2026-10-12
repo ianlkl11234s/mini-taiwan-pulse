@@ -24,9 +24,10 @@ export function RailToggle({ on, onChange, label }: { on: boolean; onChange: () 
  */
 export function LayerNameLine({ name, layerKey }: { name: LayerName; layerKey?: string }) {
   const { DIM, BORDER } = useRailTheme();
-  const { active, t } = useLocale();
+  const i18n = useLocale();
+  const { active } = i18n;
   // 顯示層翻譯：有 layerKey 才翻（識別字、搜尋、aria 仍用原名）；zh-TW 輸出與原本相同
-  const shown = layerKey ? localizeLayerName(layerKey, name, active, t) : { primary: name.zh, secondary: name.alt, qualifier: name.qualifier };
+  const shown = layerKey ? localizeLayerName(layerKey, name, i18n) : { primary: name.zh, secondary: name.alt, qualifier: name.qualifier };
   // spec §5.5：外文主名較長，最多換兩行，超過以 … 收尾並用 title 顯示全名；中文維持原行為
   const wrapPrimary = active !== "zh-TW";
   return (
