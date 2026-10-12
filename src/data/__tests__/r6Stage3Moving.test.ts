@@ -119,6 +119,18 @@ describe("R6 段 3 決議：面板與 Agent 控制一致", () => {
     expect(names()).toContain("wasteNoteSize");
   });
 
+  it("列車平面：軌道「高度」滑桿收起（光點大小保留，平面點也吃它）；立體開恢復", () => {
+    const names = () => visibleControlSpecs("rail").map((s) => s.name);
+    expect(names()).toContain("railAltOffset");
+    layerParamsStore.setParam("rail", "railTrain3D", false);
+    expect(names()).not.toContain("railAltOffset");
+    expect(names()).toContain("railOrbScale");
+    const ctls = describeLayerControls("rail", new Set()).controls;
+    expect(ctls.find((c) => c.controlId === "railAltOffset")).toMatchObject({ hidden: true, showWhen: { param: "railTrain3D", equals: true } });
+    layerParamsStore.setParam("rail", "railTrain3D", true);
+    expect(names()).toContain("railAltOffset");
+  });
+
   it("wasteSchedule 不受影響：音符滑桿常駐，值仍與 wasteTruck 同步（含垃圾車平面時）", () => {
     layerParamsStore.setParam("wasteTruck", "wasteTruck3D", false);
     const names = visibleControlSpecs("wasteSchedule").map((s) => s.name);

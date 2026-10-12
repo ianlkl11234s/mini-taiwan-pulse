@@ -168,6 +168,7 @@
 |---|---|---|---|---|---|
 | R5-2 | P2 | verifying | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | **程式已合併（PR #543，v2.6.0 已發布）；尚缺瀏覽器目視。** 在正式站打開 `pollutionPenalty*`，確認不改參數就只顯示預設年份。 | 瀏覽器目視：打開即只顯示預設年份；點數與改參數後一致。 |
 | DS-COLOR | P3 | ready | 定義逐層顏色契約：代表色、分類色、主題、色階各以誰為準。 | AU-1（2026-10-05 結案）查證：manifest→側欄已由 `layerManifest.test.ts:88` 逐 key 驗證，地圖↔圖例由 `legendAlignment.test.ts` R4 12 組守門；`docs/design-system/map-layers.md:345` 明定多類別／序列代表色不必出現在 paint。剩下的缺口是「各類顏色的權威來源」未定義，先定契約再擴大守門。 | 每層顏色類型與權威來源有文件；新增守門能抓出違反契約的定義。分析：`docs/research/contract-guards-20261005.md`（PR #539）。 |
+| R6-4 | P3 | conditional | R6 段 4：船（`ships`）、公車三層（`busLive`／`busIntercityLive` 等）、垃圾車班表（`wasteSchedule`）、漁船軌跡加「立體效果」開關與平面版（比照段 3 列車／垃圾車：預設立體、平面點＋拉近方向箭頭、對比描邊 `MOVING_POINT`）。飛機不動。 | **使用者 2026-10-12 決定暫不碰**；段 1–3 已合 develop（#547／#572／#573）。重啟時先照 R6 流程：盤點 → 對照頁 → 分段 PR。 | 每層平面／立體切換可用、面板與 Agent 控制一致、對照頁截圖；提案與段 3 做法見 [`R6-PROPOSAL.md`](../../docs/features/map-layer-restyle/R6-PROPOSAL.md)。 |
 
 ## Code review follow-ups (2026-10-09)
 
