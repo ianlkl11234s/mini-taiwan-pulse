@@ -44,7 +44,7 @@
   "legend.energy.gridNoteTowers": "● Towers appear at zoom ≥ 13",
   "legend.energy.gridNoteSource": "● Source: OSM (same as OpenInfraMap); about 60% of lines have no voltage tag",
   "legend.energy.ehvTitle": "Extra-high-voltage substations",
-  "legend.energy.ehvSwitching": "EHV switching station (345 kV switching)",
+  "legend.energy.ehvSwitching": "EHV switching station (345 kV)",
   "legend.energy.ehvSubstation": "EHV substation E/S (345→161 kV)",
   "legend.energy.ehvNote": "● A circular halo highlights nationwide backbone nodes",
   "legend.energy.localTitle": "Regional substations",

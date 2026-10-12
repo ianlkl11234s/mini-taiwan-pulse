@@ -26,7 +26,7 @@
   "legend.maritime.plaPending": "要確認（破線）",
   "legend.maritime.plaNote1": "複数日を重ねる場合、古いものは淡く新しいものは明るく表示します。重なりが濃いほど、その区域での出現頻度が高いことを示します",
   "legend.maritime.plaNote2": "国防部の概略図に基づく描画で、正確な航跡ではありません",
-  "legend.maritime.vwTitle": "要注意船舶",
+  "legend.maritime.vwTitle": "特殊船舶",
   "legend.maritime.vwNote1": "細線は軌跡です（AISの約15分間隔の断続的なサンプリングで、連続した航跡ではありません）",
   "legend.maritime.vwNote2": "分類は船名／MMSIのルールから推定しています。軍艦の多くは他国の通過船です（中国・台湾の海軍艦艇はAIS信号をほとんど発信しません）",
   "legend.maritime.aisTitle": "AISStream 船舶",

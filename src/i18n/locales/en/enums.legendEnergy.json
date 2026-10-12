@@ -34,7 +34,7 @@
   "enum.legendEnergyFossil.gasStationFpcc": "Gas stations: Formosa Plastics group (348)",
   "enum.legendEnergyFossil.gasStationTaisugar": "Gas stations: Taiwan Sugar (73)",
   "enum.legendEnergyFossil.gasStationOther": "Gas stations: other (1,179)",
-  "enum.legendEnergyFossil.gasStationCanonical": "Gas stations: SSOT (3,053)",
+  "enum.legendEnergyFossil.gasStationCanonical": "Gas stations: consolidated list (3,053)",
   "enum.legendEnergyFossil.lpgSubpackaging": "LPG repackaging / storage (113)",
   "enum.legendEnergyFossil.lpgRetailers": "LPG filling stations / gas dealers (1,292)",
   "enum.legendEnergyFossil.lngTerminal": "LNG terminals (7)",
@@ -47,5 +47,5 @@
   "enum.legendEnergyReserve.G": "Ample supply",
   "enum.legendEnergyReserve.Y": "Supply slightly tight",
   "enum.legendEnergyReserve.O": "Supply tight",
-  "enum.legendEnergyReserve.R": "Rationing alert"
+  "enum.legendEnergyReserve.R": "Power rationing alert"
 }

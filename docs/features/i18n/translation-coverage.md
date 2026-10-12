@@ -149,6 +149,22 @@
 3. 兩個公害陳情圖層的差異 repo 內查不到，英文名只是先區分。
 4. 警戒通報原文「AEC／原能會」已於 2026-10-12 依使用者決定，中英日三語一起改成新名稱「核安會／Nuclear Safety Commission／原子力安全委員会」。
 
+### P2 設定面板新增用語（2026-10-12，兩輪校對）
+- 漁電共生＝Fishery-solar co-location；淡江大橋＝Danjiang；肉羊／乳羊的「羊」一律 goat。
+- 梅＝Japanese apricot (mei)（避免與「李」Plum 混淆）。
+- 行業別同名中類（45／46 批發業、47／48 零售業）只靠代碼區分，不自加 (other)。
+- 統計：資料期別＝Data period、地理層級＝Geographic level、口徑＝Basis。
+
+### P2 仍不確定（英文）
+- 作物代碼 `bigatem`、`marush` 中文原文就是佔位代碼，保留代碼；梨瓜＝chayote、鐘麻＝Kenaf、亞麻(甘蔗) 依代碼推測。
+- 台北河濱公園名多為拼音，未查官方英文名。
+
+### P2 圖例新增用語（2026-10-12，兩輪校對）
+- 急診壅塞＝Normal／Slightly crowded／Crowded／Severe；弱層＝Weak-layer；移民署＝Immigration Agency。
+- 毒品危害防制中心＝Drug abuse prevention center；限電警戒＝Power rationing alert；冷門／幹線（接駁）＝Low-use／Main route。
+- 內政部實價登錄＝Ministry of the Interior actual price registration；億 m³＝× 10⁸ m³；萬元＝NT$10k。
+- 仍不確定：智財商業法院、少家法院、海巡海洋分署英文名；日本噴火警戒レベル 1–5 為直譯（JMA 官方英文另有說法）。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -259,3 +275,16 @@
 3. 「長期介護2.0」「海巡署」保留原名，日本讀者可能不懂。
 4. 「大規模崩壊潜在区域」無日本官方對應用語；「試験 Shiyan」假設代碼對應「試驗」系列衛星。
 5. 數字與單位之間是否空格（{n}社 vs {value} 社）各檔未統一。
+
+### P2 設定面板新增用語（2026-10-12，兩輪校對）
+- 嚴重度＝深刻度；肉羊／乳羊＝肉用ヤギ／乳用ヤギ；民眾洽公場所＝行政窓口施設；針具＝注射器具。
+- 河濱公園＝河川敷公園（各公園名保留中文）；環保葬＝環境配慮型埋葬地；橄欖＝カンラン（橄欖）。
+- 統計：資料期別＝データ期間、地理層級＝地理階層、口徑＝集計基準。
+
+### P2 仍不確定（日文）
+- 作物代碼 `bigatem`、`marush` 保留代碼；45／46、47／48 同名行業只靠代碼區分。
+
+### P2 圖例新增用語（2026-10-12，兩輪校對）
+- 檢察署＝検察署；罰鍰＝過料；公路客運站＝都市間バス停；風場＝風況；軟弱層（砂質土）＝軟弱砂質土層。
+- 毒品危害防制中心＝薬物乱用防止センター；電光黃／藍＝蛍光イエロー／ブルー；捷運＝MRT。
+- 仍不確定：樹種和名（コバノモモタマナ等）、雨量分級沿用漢字、OSM 道路等級直譯、公設民営、区間速度取締。

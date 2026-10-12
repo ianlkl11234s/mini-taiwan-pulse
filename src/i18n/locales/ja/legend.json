@@ -10,7 +10,7 @@
   "legend.common.densityZoomOut": "ズームアウト時は密度で表示",
   "legend.common.flatArrow": "ズームイン（z ≥ {zoom}）で進行方向を矢印で表示",
   "legend.common.sourceLicense": "出典・ライセンス：{source}",
-  "legend.rail.routesNote": "地下鉄各線は公式のラインカラーを使用。路線の形状のみで、列車の位置は「鉄道」レイヤーを参照。信義線東延伸区間の線形 © OpenStreetMap contributors (ODbL)",
+  "legend.rail.routesNote": "MRT各線は公式のラインカラーを使用。路線の形状のみで、列車の位置は「鉄道」レイヤーを参照。信義線東延伸区間の線形 © OpenStreetMap contributors (ODbL)",
   "legend.rail.metroTitle": "MRT駅",
   "legend.rail.transfer": "乗換駅",
   "legend.rail.metroNote": "駅の色は所属路線のラインカラー。同名で500 m以内の駅は乗換駅として扱います"

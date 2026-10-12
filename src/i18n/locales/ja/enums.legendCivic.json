@@ -30,7 +30,7 @@
   "enum.welfareChildService.parent_child_center": "親子館／子育て支援",
   "enum.welfareChildService.child_welfare": "児童・少年福祉と保護",
   "enum.welfareMentalHealth.T0105": "地域メンタルヘルスセンター",
-  "enum.welfareMentalHealth.T0106": "薬物被害防止センター",
+  "enum.welfareMentalHealth.T0106": "薬物乱用防止センター",
   "enum.welfareMentalHealth.T0503": "リカバリーホーム",
   "enum.welfareMentalHealth.T0504": "心理カウンセリング・治療所",
   "enum.welfareMentalHealth.T0502": "地域リハビリセンター",

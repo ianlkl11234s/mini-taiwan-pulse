@@ -49,7 +49,7 @@
   "legend.registry.unitRecords": "件",
   "legend.registry.regulatedDensityNote": "20260818時点で有効な規制対象施設。規制対象であることは汚染リスクを意味しません。",
   "legend.registry.busStationsCity": "市内バス停",
-  "legend.registry.busStationsIntercity": "高速・長距離バス停",
+  "legend.registry.busStationsIntercity": "都市間バス停",
   "legend.registry.convenienceStores": "コンビニ",
   "legend.registry.wasteStopsStatic": "全台の収集ポイント"
 }

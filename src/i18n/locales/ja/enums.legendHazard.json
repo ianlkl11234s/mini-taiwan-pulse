@@ -46,7 +46,7 @@
   "enum.alertTerm.海嘯": "津波",
   "enum.alertTerm.道路封閉": "道路通行止め",
   "enum.alertTerm.鐵路事故": "鉄道事故",
-  "enum.alertTerm.捷運營運": "地下鉄の運行",
+  "enum.alertTerm.捷運營運": "MRTの運行",
   "enum.alertTerm.高速公路路況事件": "高速道路の交通事象",
   "enum.alertTerm.火災": "火災",
   "enum.alertTerm.海洋污染": "海洋汚染",
