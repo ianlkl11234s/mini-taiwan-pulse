@@ -8,12 +8,20 @@ const baseline: Record<string, number> = JSON.parse(readFileSync(join(__dirname,
 
 describe("寫死中文防倒退（i18n ROADMAP）", () => {
   const now = scanHardcodedZh(root);
-  for (const area of I18N_AREAS) {
-    it(`${area.phase} ${area.label}：不得比基準多`, () => {
-      // 紅燈：新程式碼請用 t("key")，中文放 src/i18n/locales/zh-TW/*.json；不要調高基準
+  for (const area of I18N_AREAS.filter((a) => a.gate === "strict")) {
+    it(`${area.label}：不得比基準多`, () => {
+      // 紅燈：這些檔案已翻完，新文字請用 t("key")，中文放 src/i18n/locales/zh-TW/*.json；不要調高基準
       expect(now[area.id] ?? 0).toBeLessThanOrEqual(baseline[area.id] ?? 0);
     });
   }
+
+  it("未開工區塊只報告", () => {
+    for (const area of I18N_AREAS.filter((a) => a.gate === "report")) {
+      const diff = (now[area.id] ?? 0) - (baseline[area.id] ?? 0);
+      if (diff > 0) console.info(`[i18n] ${area.label} 寫死中文 +${diff}（未開工區塊，只報告）`);
+    }
+    expect(true).toBe(true);
+  });
 
   it("計數口徑：註解不算", () => {
     expect(countZhLines(`// 中文註解\nconst a = 1; /* 區塊\n註解 */\nconst b = "中文";`)).toBe(1);

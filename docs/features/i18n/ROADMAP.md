@@ -15,8 +15,9 @@ npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖�
 ```
 
 - **口徑**：去掉註解後還含中文的程式行數。這是近似值，只拿來比前後增減。
-- **防倒退**：`src/i18n/__tests__/hardcodedZh.test.ts` 會擋「比基準多」，所以新程式碼不能再寫死中文。
-- **只降不升**：基準存在 `hardcodedZh.baseline.json`。`--write` 遇到任何區塊變多會拒絕寫入。
+- **防倒退只擋已翻完的檔案**：`hardcodedZh.test.ts` 只擋「已翻完（嚴格）」區塊比基準多；其他區塊只印報告。
+  - 原因：新增圖層本來就要在 manifest 寫中文名，參數 `labelPrefix` 依 design guard 也必須是中文。若未開工的區塊也擋，每個新圖層 PR 都會紅。
+- **基準**：存在 `hardcodedZh.baseline.json`。`--write` 只在嚴格區塊變多時拒絕寫入。
 - **（資料）區塊不追求歸零**：`src/data/`、`src/research/` 裡的中文很多是識別字或資料標籤的正本（例：manifest 的中文圖層名），要在顯示層用對照表翻，不是刪掉。這兩區改看翻譯覆蓋率。
 
 ### 目前進度（2026-10-12 基準，共 13,546 行）
@@ -56,7 +57,8 @@ npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖�
    - `npx vitest run src/i18n` 通過（含 parity 與防倒退）。
    - 相關元件的測試通過。
    - 瀏覽器帶 `?lang=en`、`?lang=ja` 點幾個樣本，並確認不帶參數時中文畫面沒變。
-5. `npx tsx scripts/i18n/hardcoded-zh.ts --write` 鎖住新基準，跟程式一起 commit。
+5. 把這次翻完、寫死中文已歸零的檔案，加進 `src/i18n/__tests__/hardcodedZhScan.ts` 的 `translated` 區塊（嚴格）。
+6. `npx tsx scripts/i18n/hardcoded-zh.ts --write` 鎖住新基準，跟程式一起 commit。
 
 **收工**
 1. 在本檔「進度紀錄」加一列：日期、PR、區塊、前→後行數。
@@ -71,8 +73,8 @@ npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖�
 
 | 階段 | 範圍 | 做完能多看懂什麼 | 主要做法 | 要拍板的事 |
 |---|---|---|---|---|
-| **P1 點擊說明框** | `featureInfo/` 約 55 個面板：欄位名（「地址」「營業時間」）、標題、單位 | 點地圖跳出的資訊 | ① 欄位名改 `t("popup.field.address")`，同名欄位共用 key。② 資料已有外文欄位的（颱風 `name_en`、博物館 `name_eng`…）依語系優先顯示。③ 縣市鄉鎮英譯表（內政部官方，22＋368）。④ 自由文字（新聞、警報）加「原文」標記 | 無 |
-| **P2 圖例與設定** | `LegendPanel`、`legend/*`、約 300 個參數標籤、類別代碼對照（`*Types.ts`）、統計指標名與單位 | 顏色代表什麼、怎麼調圖層 | 參數 `labelPrefix` 改成 key（guard `english-control-label` 要一起改成檢查 key）；類別對照表加 en/ja 欄位；統計 `indicator_name` 依 layer key 查 | 設計 guard 規則怎麼改 |
+| **P1 點擊說明框** | `featureInfo/` 約 55 個面板：欄位名（「地址」「營業時間」）、標題、單位 | 點地圖跳出的資訊 | ⓪ 先改 `/new-layer`（layer-creator agent）產生的 popup 骨架，讓新面板一開始就用 `t()`。① 欄位名改 `t("popup.field.address")`，同名欄位共用 key。② 資料已有外文欄位的（颱風 `name_en`、博物館 `name_eng`…）依語系優先顯示。③ 縣市鄉鎮英譯表（內政部官方，22＋368）。④ 自由文字（新聞、警報）加「原文」標記 | 無 |
+| **P2 圖例與設定** | `LegendPanel`、`legend/*`、約 300 個參數標籤、類別代碼對照（`*Types.ts`）、統計指標名與單位 | 顏色代表什麼、怎麼調圖層 | 參數 `labelPrefix` 改成 key，guard `english-control-label` 要同步改成檢查 key，否則兩個 guard 會互相矛盾；`/new-layer` 骨架同步改；類別對照表加 en/ja 欄位；統計 `indicator_name` 依 layer key 查 | 設計 guard 規則怎麼改 |
 | **P3 進階模式** | 監測模式、衛星主控台、時間軸、會員、後台 | 使用進階模式 | 同 P1 | 後台（只有站主用）要不要翻 |
 | **P4 AI 與 Agent** | `chat/systemPrompt.ts` 寫死繁中、MCP「Answer in plain Chinese」、`research/*Dataset.ts` 描述 | 用英日文發問並得到同語言回答 | 把目前語系傳給 chat 與 MCP；跨 repo，MCP 先改 | 跨 repo 發布順序 |
 | **P5 資料內容** | 站名英文、新聞與警報機器翻譯 | 即時資料內容 | 先查 collector 有沒有存 TDX 英文站名；機器翻譯在 collector 做並標示 | 機器翻譯要不要做、花費多少 |
@@ -87,7 +89,7 @@ P1 從**交通類說明框**開始（`transportPanels.tsx` 等）。這類點擊
 
 > 架構、命名慣例與常見工作的步驟寫在 [`src/i18n/README.md`](../../../src/i18n/README.md)。
 
-- **新的介面文字一律用 `t("key")`**。寫死中文會讓防倒退測試變紅，請修程式，不要調高基準。
+- **新的介面文字一律用 `t("key")`**。已翻完的檔案寫死中文會讓測試變紅，請修程式，不要調高基準；未開工的區塊照舊可以寫中文，等該階段一起搬。
 - **識別字不翻**：`section.theme`、manifest `label`、URL 參數、元件狀態值都不翻。只在顯示層翻譯（見 `src/i18n/layerText.ts`）。
 - **新圖層**：中文名寫在 manifest。英日文名稱補在 `layers.json`，沒補時會回退到 manifest 的外文名或中文，不會擋上線。新圖層上線時順手補，校對規則同上。
 - **新語系**：見 `src/i18n/README.md`「新增一個語系」。可以先標 `partial` 邊翻邊合併。

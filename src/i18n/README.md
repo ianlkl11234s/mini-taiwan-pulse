@@ -39,7 +39,7 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 3. **檔名就是命名空間**：`popup.json` 裡的 key 一律以 `popup.` 開頭；只有 `common.json` 例外（放跨區塊的通用字）。
 4. **key 命名**：`<區塊>.<元件或主題>.<用途>`，全小寫 camelCase，例 `popup.transport.stationName`。同義欄位共用一個 key（例 `popup.field.address`），不要每個面板各寫一個。
 5. **動態 key 要登記**：key 由資料組出來時（`layer.${key}`），命名空間要列進 `keys.ts` 的 `DYNAMIC_NAMESPACES`，並用 `lookup()`（找不到回 null）自己處理 fallback。
-6. **不要寫死中文**：新介面文字寫死中文會被 `hardcodedZh` 防倒退測試擋下。
+6. **已翻完的不准倒退**：`hardcodedZh` 測試只擋「已翻完」區塊的檔案。未開工區塊只報告，所以新增圖層照舊能寫中文；每階段收工時把翻完的檔案加進嚴格區塊。
 7. **翻譯品質**：英日文各由子代理校對兩輪，用語照 `docs/features/i18n/translation-coverage.md` 的用語表；新用語補進用語表。
 
 ## 常見工作
@@ -63,7 +63,7 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 |---|---|
 | `tsc -b` + `keys.ts` | key 打錯字、用了不存在的 key |
 | `localeParity` | complete 語系缺字、多出預設語系沒有的 key、插值變數不一致、檔名與 key 前綴不符、新檔沒接型別、沒人用的 key、`layers.json` 用了不存在的圖層 |
-| `hardcodedZh` | 任何區塊寫死的中文比基準多 |
+| `hardcodedZh` | 已翻完（嚴格）區塊寫死的中文比基準多；其他區塊只報告 |
 | `localeStore` | 預設語系、回退語系一併載入 |
 | `dataText` | 外文欄位挑選、類別代碼回退 |
 

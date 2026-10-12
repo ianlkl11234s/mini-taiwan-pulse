@@ -13,19 +13,20 @@ const baselinePath = join(root, "src/i18n/__tests__/hardcodedZh.baseline.json");
 const baseline: Record<string, number> = JSON.parse(readFileSync(baselinePath, "utf8"));
 const now = scanHardcodedZh(root);
 
-console.log(["階段", "現在", "基準", "差", "區塊"].join("\t"));
+console.log(["階段", "關卡", "現在", "基準", "差", "區塊"].join("\t"));
 for (const area of I18N_AREAS) {
   const cur = now[area.id] ?? 0;
   const base = baseline[area.id] ?? cur;
   const diff = cur - base;
   const mark = diff > 0 ? "  ⚠️ 增加" : diff < 0 ? "  ✅ 減少" : "";
-  console.log([area.phase, cur, base, diff, `${area.label}${area.kind === "data" ? "（資料）" : ""}${mark}`].join("	"));
+  console.log([area.phase, area.gate === "strict" ? "擋" : "報告", cur, base, diff, `${area.label}${area.kind === "data" ? "（資料）" : ""}${mark}`].join("	"));
 }
 const total = Object.values(now).reduce((a, b) => a + b, 0);
 console.log(`合計 ${total}`);
 
 if (process.argv.includes("--write")) {
-  const increased = I18N_AREAS.filter((a) => (now[a.id] ?? 0) > (baseline[a.id] ?? Infinity));
+  // 只有 strict 區塊不准往上；report 區塊照實記錄（新圖層的中文名會讓它自然增加）
+  const increased = I18N_AREAS.filter((a) => a.gate === "strict" && (now[a.id] ?? 0) > (baseline[a.id] ?? Infinity));
   if (increased.length) {
     console.error(`拒絕寫入：${increased.map((a) => a.id).join(", ")} 比基準多。基準只能往下調。`);
     process.exit(1);

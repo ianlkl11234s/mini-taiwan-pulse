@@ -7,7 +7,11 @@
  * 用法：
  * - 看進度：`npx tsx scripts/i18n/hardcoded-zh.ts`
  * - 某區塊翻完、數字下降後鎖住新基準：`npx tsx scripts/i18n/hardcoded-zh.ts --write`
- * - `hardcodedZh.test.ts` 會擋「比基準多」（防倒退）；數字只能往下。
+ * - `hardcodedZh.test.ts`：`gate: "strict"` 的區塊比基準多就紅燈（防倒退）；`report` 只印出差異。
+ *
+ * 為什麼不是全部 strict：新增圖層本來就要在 manifest 寫中文名、參數 labelPrefix 依 design guard
+ * 也必須是中文，未開工的區塊若擋，每個新圖層 PR 都會紅。所以只擋「已翻完」的檔案；
+ * 每個階段收工時把翻完的檔案移進 `translated` 區塊。
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
@@ -24,24 +28,36 @@ export interface I18nArea {
    * `data`：中文是資料標籤或識別字的正本（例 manifest 圖層名），不以歸零為目標，改看翻譯覆蓋率。
    */
   kind: "ui" | "data";
+  /** strict：比基準多就紅燈；report：只報告。階段收工時把翻完的檔案搬進 strict 區塊 */
+  gate: "strict" | "report";
 }
 
 /** 順序即比對優先序：先列的區塊先認領檔案。 */
 export const I18N_AREAS: I18nArea[] = [
-  { id: "shell", phase: "P0", label: "工具列、外框", kind: "ui", paths: ["src/App.tsx", "src/main.tsx", "src/components/toolbar/", "src/components/ModeToggle.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx", "src/components/InfoModal.tsx", "src/components/ShareModal.tsx", "src/components/MobileBottomSheet.tsx", "src/components/StyleSelector.tsx"] },
-  { id: "sidebar", phase: "P0", label: "側欄", kind: "ui", paths: ["src/components/sidebar/", "src/components/IconRailSidebar.tsx", "src/components/LayerSidebar.tsx"] },
-  { id: "popup", phase: "P1", label: "點擊說明框", kind: "ui", paths: ["src/components/featureInfo/", "src/components/FeatureInfoPanel.tsx"] },
-  { id: "legend", phase: "P2", label: "圖例", kind: "ui", paths: ["src/components/LegendPanel.tsx", "src/components/legend/"] },
-  { id: "params", phase: "P2", label: "圖層設定面板", kind: "ui", paths: ["src/data/layerParamsSpec.ts", "src/state/layerParamsControls.ts", "src/components/controls/"] },
-  { id: "timeline", phase: "P3", label: "時間軸", kind: "ui", paths: ["src/components/timeline/", "src/components/TimelineControls.tsx", "src/components/HistoricalTimeline.tsx", "src/components/EarthquakeReplayPanel.tsx"] },
-  { id: "intel", phase: "P3", label: "監測模式", kind: "ui", paths: ["src/components/intel/"] },
-  { id: "satellite", phase: "P3", label: "衛星主控台", kind: "ui", paths: ["src/components/satelliteConsole/"] },
-  { id: "member", phase: "P3", label: "會員、登入、後台", kind: "ui", paths: ["src/components/member/", "src/components/auth/", "src/components/admin/"] },
-  { id: "chat", phase: "P4", label: "AI 對話", kind: "ui", paths: ["src/chat/", "src/components/chat/"] },
-  { id: "research", phase: "P4", label: "分析 Agent、資料描述", kind: "data", paths: ["src/research/"] },
-  { id: "data", phase: "P2/P5", label: "資料標籤（類別、單位、統計配方）", kind: "data", paths: ["src/data/"] },
-  { id: "map", phase: "P2", label: "地圖 hook／圖層文字", kind: "ui", paths: ["src/hooks/", "src/map/", "src/three/"] },
-  { id: "other", phase: "—", label: "其他", kind: "ui", paths: ["src/"] },
+  {
+    id: "translated", phase: "✓", label: "已翻完（嚴格）", kind: "ui", gate: "strict",
+    paths: [
+      "src/components/toolbar/BasemapMenu.tsx", "src/components/toolbar/LanguageMenu.tsx", "src/components/toolbar/MobileMoreMenu.tsx", "src/components/toolbar/ToolbarButton.tsx",
+      "src/components/ModeToggle.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx",
+      "src/components/IconRailSidebar.tsx", "src/components/LayerSidebar.tsx",
+      "src/components/sidebar/LayerRow.tsx", "src/components/sidebar/LayersPanel.tsx", "src/components/sidebar/LayerToggleSwitch.tsx", "src/components/sidebar/PanelHeader.tsx",
+      "src/components/sidebar/ThemeBanner.tsx", "src/components/sidebar/sectionText.ts", "src/components/sidebar/railTheme.ts", "src/components/sidebar/layerIcons.ts",
+    ],
+  },
+  { id: "shell", phase: "P0", label: "工具列、外框", kind: "ui", gate: "report", paths: ["src/App.tsx", "src/main.tsx", "src/components/toolbar/", "src/components/ModeToggle.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx", "src/components/InfoModal.tsx", "src/components/ShareModal.tsx", "src/components/MobileBottomSheet.tsx", "src/components/StyleSelector.tsx"] },
+  { id: "sidebar", phase: "P0", label: "側欄", kind: "ui", gate: "report", paths: ["src/components/sidebar/", "src/components/IconRailSidebar.tsx", "src/components/LayerSidebar.tsx"] },
+  { id: "popup", phase: "P1", label: "點擊說明框", kind: "ui", gate: "report", paths: ["src/components/featureInfo/", "src/components/FeatureInfoPanel.tsx"] },
+  { id: "legend", phase: "P2", label: "圖例", kind: "ui", gate: "report", paths: ["src/components/LegendPanel.tsx", "src/components/legend/"] },
+  { id: "params", phase: "P2", label: "圖層設定面板", kind: "ui", gate: "report", paths: ["src/data/layerParamsSpec.ts", "src/state/layerParamsControls.ts", "src/components/controls/"] },
+  { id: "timeline", phase: "P3", label: "時間軸", kind: "ui", gate: "report", paths: ["src/components/timeline/", "src/components/TimelineControls.tsx", "src/components/HistoricalTimeline.tsx", "src/components/EarthquakeReplayPanel.tsx"] },
+  { id: "intel", phase: "P3", label: "監測模式", kind: "ui", gate: "report", paths: ["src/components/intel/"] },
+  { id: "satellite", phase: "P3", label: "衛星主控台", kind: "ui", gate: "report", paths: ["src/components/satelliteConsole/"] },
+  { id: "member", phase: "P3", label: "會員、登入、後台", kind: "ui", gate: "report", paths: ["src/components/member/", "src/components/auth/", "src/components/admin/"] },
+  { id: "chat", phase: "P4", label: "AI 對話", kind: "ui", gate: "report", paths: ["src/chat/", "src/components/chat/"] },
+  { id: "research", phase: "P4", label: "分析 Agent、資料描述", kind: "data", gate: "report", paths: ["src/research/"] },
+  { id: "data", phase: "P2/P5", label: "資料標籤（類別、單位、統計配方）", kind: "data", gate: "report", paths: ["src/data/"] },
+  { id: "map", phase: "P2", label: "地圖 hook／圖層文字", kind: "ui", gate: "report", paths: ["src/hooks/", "src/map/", "src/three/"] },
+  { id: "other", phase: "—", label: "其他", kind: "ui", gate: "report", paths: ["src/"] },
 ];
 
 const HAN = /[㐀-鿿]/;
