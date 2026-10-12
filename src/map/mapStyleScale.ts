@@ -218,7 +218,8 @@ export function rampLegendGradient(ramp: readonly string[]): string {
 }
 
 // ── 文字（T-1／T-2／T-3）─────────────────────────────────
-/** T-1：地圖中文字用系統字（與 UI 同 stack）；英數仍由 text-font 的 DIN Pro 負責。 */
+/** T-1：地圖中文字用系統字（與 UI 同 stack）；英數仍由 text-font 的 DIN Pro 負責。
+ *  值為 CSS 變數；Mapbox 選項不能吃變數，建圖時改用 resolvedCjkFont()。 */
 export const MAP_LOCAL_IDEOGRAPH_FONT = FONT_CJK;
 export const LABEL = {
   poi: [10, 12],
