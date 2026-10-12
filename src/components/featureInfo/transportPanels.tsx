@@ -29,7 +29,7 @@ const RAIL_SYSTEM_INFO: Record<string, { name: string; color: string }> = {
   trtc: { name: "台北捷運", color: "#00bcd4" },
   krtc: { name: "高雄捷運", color: "#f57f17" },
   klrt: { name: "高雄輕軌", color: "#66bb6a" },
-  tmrt: { name: "桃園捷運", color: "#ab47bc" },
+  tmrt: { name: "台中捷運", color: "#ab47bc" },
 };
 
 export function WeatherStationPanel({ props }: { props: Record<string, unknown> }) {
