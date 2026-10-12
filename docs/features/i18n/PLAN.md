@@ -2,6 +2,7 @@
 
 > 分支 `feat/i18n-en-ja`（2026-10-12）。本檔回答五個問題，並記錄試點做到哪裡。
 > 翻譯覆蓋數字見 [`translation-coverage.md`](./translation-coverage.md)。
+> **長期執行與接手入口 → [`ROADMAP.md`](./ROADMAP.md)**（進度量測、每次開工／收工步驟、各階段做法）。
 
 **一句話**：語系切換放在工具列（手機放 ⋯ 選單）。翻譯檔放 `src/i18n/locales/<語系>/`。
 只在「畫到畫面上」那一刻翻譯，圖層 key、主題字串這類識別字不動。
@@ -110,9 +111,9 @@ src/i18n/
 
 加一個語系（例：韓文）只要三步：
 
-1. `src/i18n/locales.ts` 的 `LOCALES` 加 `ko: { label: "한국어", htmlLang: "ko", intl: "ko-KR", fallback: ["en", "zh-TW"] }`
-2. 複製 `locales/en/` 成 `locales/ko/` 並翻譯
-3. 跑 `npm test`：缺 key、多 key、插值變數對不上都會紅
+1. `src/i18n/locales.ts` 的 `LOCALES` 加 `ko: { label: "한국어", htmlLang: "ko", intl: "ko-KR", fallback: ["en", "zh-TW"], status: "partial" }`
+2. 建 `locales/ko/` 並翻譯；`partial` 期間缺字自動回退，可以分批合併
+3. 翻完改 `status: "complete"`；之後 `npm test` 會擋缺 key、多 key、插值變數對不上（詳見 `src/i18n/README.md`）
 
 其他已經準備好的：
 

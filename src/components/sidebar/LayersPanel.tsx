@@ -82,7 +82,8 @@ export function LayersPanel({
   panelId, onSearchInPanel,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
-  const { active, t } = useLocale();
+  const i18n = useLocale();
+  const { active, t } = i18n;
   const q = search.trim().toLowerCase();
   const themesToRender = themes ?? THEMES;
   const searchContext = useMemo(() => {
@@ -98,9 +99,9 @@ export function LayersPanel({
   const displayContext = useMemo(() => {
     const context = new Map<string, string>();
     for (const theme of themesToRender) {
-      const themeText = localizeThemeTitle(theme.title, active, t).primary;
+      const themeText = localizeThemeTitle(theme.title, i18n).primary;
       for (const group of theme.groups) {
-        const groupText = localizeSectionTitle(group.title, active, t);
+        const groupText = localizeSectionTitle(group.title, i18n);
         for (const layer of group.layers) context.set(layer.key, `${themeText}・${groupText}`);
       }
     }
@@ -288,7 +289,7 @@ export function LayersPanel({
 
           return (
             <div key={theme.title}>
-              {showMacroLabel && <MacroGroupLabel zh={localizeMacroTitle(macroGroup.zh, active, t)} />}
+              {showMacroLabel && <MacroGroupLabel zh={localizeMacroTitle(macroGroup.zh, i18n)} />}
               <ThemeBanner
                 title={theme.title}
                 isCollapsed={isCollapsed}
@@ -299,7 +300,7 @@ export function LayersPanel({
               />
               {!isCollapsed && theme.groups.map((group) => (
                 <div key={group.title}>
-                  <SubGroupLabel>{localizeSectionTitle(group.title, active, t)}</SubGroupLabel>
+                  <SubGroupLabel>{localizeSectionTitle(group.title, i18n)}</SubGroupLabel>
                   {group.layers.map(({ key, name, label, variant }) => {
                     // 群組變體（C 段）：只在 lead 成員的位置畫一列群組列
                     if (variant) {

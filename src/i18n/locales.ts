@@ -1,16 +1,17 @@
 /**
  * 支援語系登記簿（i18n 的單一真實來源）。
  *
- * 新增語系 = 這裡加一筆 + `src/i18n/locales/<code>/` 放同名 JSON；
- * `localeParity` 測試會擋「key 缺漏」與「多出來沒人用的 key」。
+ * 新增語系 = 這裡加一筆（`status: "partial"`）+ 建 `src/i18n/locales/<code>/` 資料夾。
+ * partial 語系可以邊翻邊合併：缺的 key 走 fallback，`localeParity` 只報告缺多少；
+ * 翻完改成 `"complete"`，之後缺任何一個 key 都會紅燈。
  * 預設語系（zh-TW）的訊息同步打包；其他語系切換時才 lazy 載入。
  */
 export const DEFAULT_LOCALE = "zh-TW" as const;
 
 export const LOCALES = {
-  "zh-TW": { label: "中文", htmlLang: "zh-Hant-TW", intl: "zh-TW", fallback: [] },
-  en: { label: "EN", htmlLang: "en", intl: "en-US", fallback: ["zh-TW"] },
-  ja: { label: "日本語", htmlLang: "ja", intl: "ja-JP", fallback: ["en", "zh-TW"] },
+  "zh-TW": { label: "中文", htmlLang: "zh-Hant-TW", intl: "zh-TW", fallback: [], status: "complete" },
+  en: { label: "EN", htmlLang: "en", intl: "en-US", fallback: ["zh-TW"], status: "complete" },
+  ja: { label: "日本語", htmlLang: "ja", intl: "ja-JP", fallback: ["en", "zh-TW"], status: "complete" },
 } as const satisfies Record<string, LocaleInfo>;
 
 interface LocaleInfo {
@@ -22,6 +23,8 @@ interface LocaleInfo {
   intl: string;
   /** 該語系缺字時依序回退；最後一定落到預設語系 */
   fallback: readonly string[];
+  /** complete：key 必須與預設語系完全一致；partial：翻譯中，缺字走 fallback */
+  status: "complete" | "partial";
 }
 
 export type Locale = keyof typeof LOCALES;
