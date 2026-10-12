@@ -11,6 +11,7 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown, RotateCcw } from "lucide-react";
 import type { PaletteConfig, PaletteOption } from "../../state/layerParamsControls";
 import { paletteById } from "../../map/palettes";
+import { useLocale } from "../../state/localeStore";
 import "./paletteControl.css";
 
 const GAP = 4;
@@ -70,6 +71,7 @@ function place(button: HTMLElement): Placement {
 }
 
 export function PaletteControl({ ctrl }: { ctrl: PaletteConfig }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<Placement | null>(null);
   const [light, setLight] = useState(false);
@@ -188,7 +190,7 @@ export function PaletteControl({ ctrl }: { ctrl: PaletteConfig }) {
                   <Ramp option={option} />
                   <span className="pal-opt-name">
                     {option.label}
-                    {option.value === ctrl.defaultValue && <span className="pal-opt-note">預設</span>}
+                    {option.value === ctrl.defaultValue && <span className="pal-opt-note">{t("paramsPanel.default")}</span>}
                   </span>
                   <span className="pal-opt-mark" aria-hidden="true">
                     {selected && <Check size={12} strokeWidth={2.25} />}
@@ -205,7 +207,7 @@ export function PaletteControl({ ctrl }: { ctrl: PaletteConfig }) {
               onClick={() => pick(ctrl.defaultValue)}
             >
               <RotateCcw size={12} strokeWidth={2} aria-hidden="true" />
-              還原預設
+              {t("paramsPanel.resetDefault")}
             </button>
           </div>
         </div>,

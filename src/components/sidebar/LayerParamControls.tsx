@@ -10,8 +10,11 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import type { LinkedSelectConfig, ParamControl, SliderConfig, ToggleConfig } from "../../state/layerParamsControls";
 import { Slider } from "../controls/Slider";
+import { useLocale } from "../../state/localeStore";
 import { PaletteControl } from "./PaletteControl";
 import "./layerParamControls.css";
+
+type Translate = ReturnType<typeof useLocale>["t"];
 
 /** 主題 class：暗色用 tokens.css 預設值，淡色改指 --light-*（與其他子系統同一套做法） */
 export function layerControlThemeClass(isDarkTheme: boolean): string {
@@ -94,6 +97,7 @@ function ToggleControl({ ctrl }: { ctrl: ToggleConfig }) {
  * 載入／錯誤文字只出現在 provider 第一個可見的那一列（`statusText`）。
  */
 function LinkedSelectControl({ ctrl }: { ctrl: LinkedSelectConfig }) {
+  const { t } = useLocale();
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const busy = pending || ctrl.status === "loading";
@@ -107,7 +111,7 @@ function LinkedSelectControl({ ctrl }: { ctrl: LinkedSelectConfig }) {
       (result as Promise<void>).catch(() => setFailed(true)).finally(() => setPending(false));
     }
   };
-  const valueText = pending ? "切換中…" : ctrl.statusText;
+  const valueText = pending ? t("paramsPanel.switching") : ctrl.statusText;
   return (
     <ControlRow label={ctrl.label} value={valueText ? <span className="lpc-status" role="status">{valueText}</span> : undefined}>
       <select
@@ -120,15 +124,15 @@ function LinkedSelectControl({ ctrl }: { ctrl: LinkedSelectConfig }) {
       >
         {hasOptions
           ? ctrl.options.map((opt) => <option key={opt.value} value={opt.value} disabled={opt.disabled}>{opt.label}</option>)
-          : <option value="">{ctrl.status === "error" ? "無法載入選項" : "載入中…"}</option>}
+          : <option value="">{ctrl.status === "error" ? t("paramsPanel.optionsLoadFailed") : t("paramsPanel.loading")}</option>}
       </select>
-      {ctrl.onRetry && <button type="button" className="lpc-link" onClick={ctrl.onRetry}>重試</button>}
-      {failed && !ctrl.onRetry && <span role="alert" className="lpc-note">這個選項目前無法套用，已保留原本的選擇。</span>}
+      {ctrl.onRetry && <button type="button" className="lpc-link" onClick={ctrl.onRetry}>{t("paramsPanel.retry")}</button>}
+      {failed && !ctrl.onRetry && <span role="alert" className="lpc-note">{t("paramsPanel.optionUnavailable")}</span>}
     </ControlRow>
   );
 }
 
-function renderControl(ctrl: ParamControl, key: string): ReactNode {
+function renderControl(ctrl: ParamControl, key: string, t: Translate): ReactNode {
   if (ctrl.type === "multiSelect") {
     const selected = new Set(ctrl.value);
     return (
@@ -138,8 +142,8 @@ function renderControl(ctrl: ParamControl, key: string): ReactNode {
           <span>{ctrl.label}</span>
           <span className="lpc-count">{selected.size}/{ctrl.options.length}</span>
           <span className="lpc-ms-act">
-            <button type="button" className="lpc-link" onClick={(e) => { e.preventDefault(); ctrl.onSelectAll(); }}>全選</button>
-            <button type="button" className="lpc-link" onClick={(e) => { e.preventDefault(); ctrl.onSelectNone(); }}>全關</button>
+            <button type="button" className="lpc-link" onClick={(e) => { e.preventDefault(); ctrl.onSelectAll(); }}>{t("paramsPanel.selectAll")}</button>
+            <button type="button" className="lpc-link" onClick={(e) => { e.preventDefault(); ctrl.onSelectNone(); }}>{t("paramsPanel.selectNone")}</button>
           </span>
         </summary>
         <div className="lpc-chk">
@@ -198,6 +202,7 @@ function renderControl(ctrl: ParamControl, key: string): ReactNode {
  * 拿 label 當 key 會在拖曳時整顆重掛）。連續 ≥3 個開關排成兩欄。
  */
 export function ParamControlList({ controls }: { controls: readonly ParamControl[] }) {
+  const { t } = useLocale();
   const out: ReactNode[] = [];
   for (let i = 0; i < controls.length;) {
     const ctrl = controls[i]!;
@@ -208,16 +213,16 @@ export function ParamControlList({ controls }: { controls: readonly ParamControl
       if (run.length >= 3) {
         out.push(
           <div key={`toggles-${i}`} className="lpc-toggle-grid">
-            {run.map((t, k) => <ToggleControl key={`t-${i + k}`} ctrl={t} />)}
+            {run.map((tg, k) => <ToggleControl key={`t-${i + k}`} ctrl={tg} />)}
           </div>,
         );
       } else {
-        run.forEach((t, k) => out.push(<ToggleControl key={`t-${i + k}`} ctrl={t} />));
+        run.forEach((tg, k) => out.push(<ToggleControl key={`t-${i + k}`} ctrl={tg} />));
       }
       i = j;
       continue;
     }
-    out.push(renderControl(ctrl, `${ctrl.type ?? "slider"}-${i}`));
+    out.push(renderControl(ctrl, `${ctrl.type ?? "slider"}-${i}`, t));
     i += 1;
   }
   return <>{out}</>;

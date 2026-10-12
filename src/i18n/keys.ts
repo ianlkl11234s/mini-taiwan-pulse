@@ -19,6 +19,7 @@ export const DYNAMIC_NAMESPACES = [
   "basemap", // 底圖名稱（basemap.<styleId>）
   "enum", // 資料類別代碼（enum.<domain>.<code>），見 dataText.ts
   "popupHeader", // 說明框標題（popupHeader.<layerType>），popupHeaders.json；多數借用 layer.*，這裡只放對不到圖層的
+  "param", // 圖層設定面板文字，params.json，key = 中文原文（param.透明度）或單一控件覆寫（param.<layerKey>.<參數名>），見 paramText.ts
 ] as const;
 
 export type DynamicNamespace = (typeof DYNAMIC_NAMESPACES)[number];
