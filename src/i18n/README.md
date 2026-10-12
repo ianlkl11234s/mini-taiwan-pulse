@@ -7,7 +7,7 @@
 ```
 src/i18n/
 ├── locales.ts      語系登記簿：label、<html lang>、Intl、回退順序、complete/partial
-├── keys.ts         key 型別：靜態 key 由 zh-TW JSON 推出；動態命名空間白名單
+├── keys.ts         key 型別：靜態 key（keys.generated.ts，腳本產生）＋動態命名空間白名單
 ├── translate.ts    t()／lookup()：插值 {name}、複數 _one/_other
 ├── format.ts       數字、時間（固定台北時區）
 ├── layerText.ts    圖層名、主題、限定詞的顯示層翻譯
@@ -45,7 +45,7 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 
 ## 常見工作
 
-**加一句介面字**：`zh-TW/<檔>.json` 加 key → `en/`、`ja/` 同名檔補翻譯 → 程式用 `t()`。
+**加一句介面字**：`zh-TW/<檔>.json` 加 key → `en/`、`ja/` 同名檔補翻譯 → `npx tsx scripts/i18n/gen-keys.ts` 更新型別 → 程式用 `t()`。
 
 **說明框（featureInfo）**：
 - 常用欄位名用 `<Row field="…">`，可用的名稱看 `zh-TW/popup.json` 的 `popup.field.*`（型別 `PopupField`）；同一個意思不要另開 key。
@@ -53,10 +53,10 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 - 資料值的類別（氣象站類型、鐵路系統）用 `enumLabel`，英日文寫在 `enums.json`。
 - 標題列自動借用圖層名；對不到圖層的才在 `popupHeaders.json` 補 `popupHeader.<layerType>`。
 
-**新增一個區塊檔**（例 `popup.json`）：
-1. 三個語系都建 `popup.json`，key 以 `popup.` 開頭。
-2. `keys.ts` 加 `import type popup from "./locales/zh-TW/popup.json"`，併進 `ZhMessages`（`typeof common & typeof popup`），並在 `TYPED_MESSAGE_FILES` 加上檔名。
-3. 不用改載入程式：同資料夾的 JSON 會自動合併。
+**新增一個區塊檔**（例 `popup.water.json`）：
+1. 三個語系都建同名檔，key 以檔名開頭（`popup.water.`）。
+2. 跑 `npx tsx scripts/i18n/gen-keys.ts` 更新 key 型別；不用改 `keys.ts`，也不用改載入程式。
+3. 主題專屬的類別代碼翻譯可放 `en/enums.<domain>.json`、`ja/enums.<domain>.json`（key 仍是 `enum.<domain>.<code>`）。
 
 **新增一個語系**（例 韓文）：
 1. `locales.ts` 加 `ko: { label: "한국어", htmlLang: "ko", intl: "ko-KR", fallback: ["en", "zh-TW"], status: "partial" }`。
@@ -68,8 +68,8 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 
 | 測試 | 擋什麼 |
 |---|---|
-| `tsc -b` + `keys.ts` | key 打錯字、用了不存在的 key |
-| `localeParity` | complete 語系缺字、多出預設語系沒有的 key、插值變數不一致、檔名與 key 前綴不符、新檔沒接型別、沒人用的 key、`layers.json` 用了不存在的圖層 |
+| `tsc -b` + `keys.generated.ts` | key 打錯字、用了不存在的 key |
+| `localeParity` | complete 語系缺字、多出預設語系沒有的 key、插值變數不一致、檔名與 key 前綴不符、key 型別檔過期、沒人用的 key、`layers.json` 用了不存在的圖層 |
 | `hardcodedZh` | 已翻完（嚴格）區塊寫死的中文比基準多；其他區塊只報告 |
 | `localeStore` | 預設語系、回退語系一併載入 |
 | `dataText` | 外文欄位挑選、類別代碼回退 |
