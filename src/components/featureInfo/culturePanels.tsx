@@ -23,9 +23,9 @@ export function CulturalFacilitiesPanel({ props }: { props: Record<string, unkno
   return (
     <>
       <Title color={color}>{String(props.name ?? "文化設施")}</Title>
-      <Row label="類型" value={type} color={color} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="type" value={type} color={color} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
     </>
   );
 }
@@ -37,10 +37,10 @@ export function CulturalMuseumsPanel({ props }: { props: Record<string, unknown>
   return (
     <>
       <Title color={color}>{String(props.name ?? "地方文化館")}</Title>
-      <Row label="類型" value={type} color={color} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="官網" value={String(props.website ?? "")} />
+      <Row field="type" value={type} color={color} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="website" value={String(props.website ?? "")} />
     </>
   );
 }
@@ -65,12 +65,12 @@ export function ArtsEventsPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color={statusColor}>{String(props.title ?? "藝文活動")}</Title>
-      <Row label="狀態" value={statusLabel} color={statusColor} />
+      <Row field="status" value={statusLabel} color={statusColor} />
       <Row label="類別代碼" value={category} />
-      <Row label="日期" value={dateRange} />
+      <Row field="date" value={dateRange} />
       <Row label="場次時間" value={String(props.show_time ?? "")} />
-      <Row label="地點" value={String(props.location_name ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="place" value={String(props.location_name ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
     </>
   );
 }
@@ -80,8 +80,8 @@ export function PerformingVenuesPanel({ props }: { props: Record<string, unknown
   return (
     <>
       <Title color={PERFORMING_VENUE_COLOR}>{String(props.venue_name ?? "表演場館")}</Title>
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row label="活動數" value={intOrEmpty(props.event_count)} />
       <Row label="場次數" value={intOrEmpty(props.show_count)} />
     </>
@@ -152,7 +152,7 @@ export function LibrarySeatsPanel({ props }: { props: Record<string, unknown> })
     <>
       <Title color={headerColor}>{branch}</Title>
       {allClosed ? (
-        <Row label="狀態" value="休館中" color={LIBRARY_SEATS_COLORS.closed} />
+        <Row field="status" value="休館中" color={LIBRARY_SEATS_COLORS.closed} />
       ) : (
         <>
           <Row label="開放區" value={`${openCount} / ${areaCount} 區`} color={headerColor} />

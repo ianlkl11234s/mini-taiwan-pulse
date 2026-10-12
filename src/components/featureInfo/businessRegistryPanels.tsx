@@ -19,7 +19,7 @@ export function CommonRegistrationAddressesPanel({ props }: { props: Record<stri
   const nCompanies = typeof props.n_companies === "number" ? props.n_companies : null;
   return (
     <>
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row
         label="共同登記公司數"
         value={nCompanies == null ? "" : `${nCompanies.toLocaleString("zh-TW")} 家`}
@@ -45,7 +45,7 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
     return (
       <>
         <Row label="概覽網格尺度" value={gridScale.label} />
-        <Row label="公司數" value={companies == null ? "缺值" : countLabel(companies)} />
+        <Row field="companyCount" value={companies == null ? "缺值" : countLabel(companies)} />
         <Row label="公司密度" value={density == null ? "缺值" : `${density.toLocaleString("zh-TW", { maximumFractionDigits: 1 })} 家／km²`} />
         <Row label="快照" value="202608；未套用篩選條件的公司密度概覽，缺值不視為 0。" />
       </>
@@ -54,7 +54,7 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
   if (props.n_companies != null || props.n_manufacturing != null) {
     return (
       <>
-        <Row label="公司數" value={countLabel(props.n_companies)} />
+        <Row field="companyCount" value={countLabel(props.n_companies)} />
         <Row label="製造業公司數" value={countLabel(props.n_manufacturing)} />
         <Row label="解讀" value="本格納入全部已定位 records；放大至 z12 可點擊個別公司。" />
       </>
@@ -67,8 +67,8 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
   return (
     <>
       <Row label="公司名稱" value={String(props.company_name ?? "")} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="資本額" value={formatTwd(props.capital_total) ? `${formatTwd(props.capital_total)}（202608 快照）` : ""} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="capital" value={formatTwd(props.capital_total) ? `${formatTwd(props.capital_total)}（202608 快照）` : ""} />
       <Row label="資本額分位" value={Number.isFinite(quantile) ? (quantile === 0 ? "缺值" : `Q${quantile}`) : ""} />
       <Row label="行業中類" value={industry ? industry.label : industryCode} />
       <Row label="設立年" value={Number.isFinite(year) ? String(year) : ""} />
@@ -112,7 +112,7 @@ export function IndustrialDensityGridPanel({
     : "缺值";
   return <>
     <Row label="網格 ID" value={String(props.grid_id ?? "") || "缺值"} />
-    <Row label="網格尺度" value={gridMeters(props.grid_size_m)} />
+    <Row field="gridScale" value={gridMeters(props.grid_size_m)} />
     <Row label="格內筆數" value={records} />
     <Row label="密度" value={densityValue(props.density_per_km2, recordUnit)} />
     <Row label="快照與粒度" value={`${snapshot}；${grain}。`} />
@@ -125,9 +125,9 @@ export function CompanyCapitalGridPanel({ props }: { props: Record<string, unkno
   const scale = gridId.startsWith("G1500_") ? "1.5 km" : gridId.startsWith("G450_") ? "450 m" : "150 m";
   return (
     <>
-      <Row label="網格尺度" value={scale} />
+      <Row field="gridScale" value={scale} />
       <Row label="網格 ID" value={gridId} />
-      <Row label="公司數" value={Number.isFinite(nCompanies) ? `${nCompanies.toLocaleString("zh-TW")} 家` : ""} />
+      <Row field="companyCount" value={Number.isFinite(nCompanies) ? `${nCompanies.toLocaleString("zh-TW")} 家` : ""} />
       <Row label="資本額總和" value={formatTwd(props.capital_sum) ? `${formatTwd(props.capital_sum)}（202608 快照）` : ""} />
       <Row label="資本額中位數" value={formatTwd(props.capital_median) ? `${formatTwd(props.capital_median)}（202608 快照）` : "缺值"} />
     </>
@@ -164,9 +164,9 @@ export function CompanyIndustryDistributionPanel({ props }: { props: Record<stri
     .sort((a, b) => (b.count ?? -1) - (a.count ?? -1));
   const topCount = groupRows[0]?.count ?? null;
   return <>
-    <Row label="網格尺度" value={scale.label} />
+    <Row field="gridScale" value={scale.label} />
     <Row label="選取分類" value={label} />
-    <Row label="公司數" value={count === null ? "缺值" : `${count.toLocaleString("zh-TW")} 家`} />
+    <Row field="companyCount" value={count === null ? "缺值" : `${count.toLocaleString("zh-TW")} 家`} />
     <Row label="公司密度" value={density === null ? "缺值" : `${density.toLocaleString("zh-TW", { maximumFractionDigits: 1 })} 家／km²`} />
     {groupRows.map(({ group, count: groupCount }) => {
       const isTop = topCount !== null && groupCount === topCount && groupCount > 0;
@@ -183,7 +183,7 @@ export function CompanyAgeStructurePanel({ props }: { props: Record<string, unkn
   const recentShare = known !== null && known > 0 && recent !== null ? recent / known : null;
   const median = typeof props.age_median === "number" && Number.isFinite(props.age_median) ? props.age_median : null;
   return <>
-    <Row label="網格尺度" value={demographicsScale(props).label} />
+    <Row field="gridScale" value={demographicsScale(props).label} />
     <Row label="已知設立年" value={known === null ? "缺值" : `${known.toLocaleString("zh-TW")} 家`} />
     <Row label="樣本提醒" value={known !== null && known < 20 ? "已知設立年少於 20 家，占比容易極端。" : ""} />
     <Row label="近 5 年設立" value={recentShare === null ? "缺值" : `${recent?.toLocaleString("zh-TW")} 家（${(recentShare * 100).toFixed(1)}%）`} />
@@ -212,12 +212,12 @@ export function FactoryLocationsPanel({ props }: { props: Record<string, unknown
       <Row label="工廠編號" value={String(props.factory_id ?? "")} />
       <Row label="統編" value={String(props.uniform_no ?? "")} />
       <Row label="工廠地址" value={String(props.factory_address ?? "")} />
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="組織型態" value={String(props.org_type ?? "")} />
       <Row label="登記核准日" value={String(props.registered_date ?? "")} />
       <Row label="產業類別" value={String(props.industry_categories ?? "")} />
       <Row label="主要產品" value={String(props.main_products ?? "")} />
-      <Row label="定位精度" value={String(props.geocode_precision ?? "")} />
+      <Row field="positionAccuracy" value={String(props.geocode_precision ?? "")} />
     </>
   );
 }
@@ -228,7 +228,7 @@ export function RegulatedFacilitiesPanel({ props }: { props: Record<string, unkn
       <Row label="設施名稱" value={String(props.facility_name ?? "")} />
       <Row label="列管編號" value={String(props.emsno ?? "")} />
       <Row label="設施地址" value={String(props.facility_address ?? "")} />
-      <Row label="行政區" value={[props.county, props.township].filter(Boolean).join(" ")} />
+      <Row field="district" value={[props.county, props.township].filter(Boolean).join(" ")} />
       <Row label="產業園區" value={String(props.industry_area_name ?? "")} />
       <Row label="行業" value={[props.industry_group, props.industry_name].filter(Boolean).join(" / ")} />
       <Row label="空氣列管" value={flag(props.isair)} />
@@ -257,14 +257,14 @@ export function IndustrialParkBoundariesPanel({ props }: { props: Record<string,
       <Row label="園區名稱" value={String(props.park_name ?? "")} />
       <Row label="英文名稱" value={String(props.park_name_en ?? "")} />
       <Row label="園區 ID" value={String(props.park_id ?? "")} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="管理單位" value={String(props.manage_unit ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="managingAgency" value={String(props.manage_unit ?? "")} />
       <Row label="開發狀態" value={String(props.dev_status ?? "")} />
       <Row label="用地類別" value={String(props.zone_grade ?? "")} />
       <Row label="產業負載" value={String(props.industry_load ?? "")} />
-      <Row label="面積" value={Number.isFinite(area) ? `${area.toLocaleString("zh-TW")} 公頃` : ""} />
+      <Row field="area" value={Number.isFinite(area) ? `${area.toLocaleString("zh-TW")} 公頃` : ""} />
       <Row label="座標來源" value={String(props.coord_source ?? "")} />
-      <Row label="來源數" value={String(props.n_sources ?? "")} />
+      <Row field="sourceCount" value={String(props.n_sources ?? "")} />
       <Row label="官方園區 ID" value={String(props.official_park_id_80190 ?? "")} />
     </>
   );
@@ -279,8 +279,8 @@ export function IndustrialParkComparisonPanel({ props }: { props: Record<string,
     <>
       <Row label="園區名稱" value={String(props.park_name ?? "")} />
       <Row label="園區 ID" value={String(props.park_id ?? "")} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="面積" value={Number.isFinite(area) ? `${area.toLocaleString("zh-TW")} 公頃` : ""} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="area" value={Number.isFinite(area) ? `${area.toLocaleString("zh-TW")} 公頃` : ""} />
       <Row label="觀測工廠數" value={Number.isFinite(factories) ? `${factories.toLocaleString("zh-TW")} 家` : ""} />
       <Row label="觀測公司數" value={Number.isFinite(companies) ? `${companies.toLocaleString("zh-TW")} 家` : ""} />
       <Row

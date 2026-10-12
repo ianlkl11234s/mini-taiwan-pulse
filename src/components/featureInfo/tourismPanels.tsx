@@ -28,11 +28,11 @@ export function AttractionsPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <Title color={info.color}>{String(props.name ?? "觀光景點")}</Title>
-      <Row label="類別" value={info.label} color={info.color} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="開放時間" value={String(props.open_time ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="category" value={info.label} color={info.color} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="openingHours" value={String(props.open_time ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
       <Row label="簡介" value={descShown} />
       <Row label="2024 遊客" value={visitorsRow(props)} />
     </>
@@ -44,10 +44,10 @@ export function HotSpringsPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color="#d81b60">{String(props.name ?? "溫泉露頭")}</Title>
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="區域" value={String(props.district ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="region" value={String(props.district ?? "")} />
       <Row label="泉質" value={String(props.quality ?? "")} />
-      <Row label="類型" value={String(props.type ?? "")} />
+      <Row field="type" value={String(props.type ?? "")} />
     </>
   );
 }
@@ -58,9 +58,9 @@ export function HotSpringZonesPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color="#880e4f">{String(props.name ?? "溫泉露頭區")}</Title>
-      <Row label="編號" value={props.zone_no == null ? "" : String(props.zone_no)} />
-      <Row label="面積" value={Number.isFinite(area) && area > 0 ? `${area.toLocaleString()} m²` : ""} />
-      <Row label="備註" value={String(props.remark ?? "")} />
+      <Row field="number" value={props.zone_no == null ? "" : String(props.zone_no)} />
+      <Row field="area" value={Number.isFinite(area) && area > 0 ? `${area.toLocaleString()} m²` : ""} />
+      <Row field="remarks" value={String(props.remark ?? "")} />
     </>
   );
 }
@@ -71,7 +71,7 @@ export function ScenicAreasPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <Title color="#00695c">{String(props.name ?? "國家風景區")}</Title>
-      <Row label="面積" value={Number.isFinite(area) && area > 0 ? `${area.toLocaleString()} km²` : ""} />
+      <Row field="area" value={Number.isFinite(area) && area > 0 ? `${area.toLocaleString()} km²` : ""} />
       <Row label="2024 遊客" value={visitorsRow(props)} />
     </>
   );
@@ -84,10 +84,10 @@ export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color={color}>{String(props.name ?? "文化資產")}</Title>
-      <Row label="類別" value={cat} color={color} />
+      <Row field="category" value={cat} color={color} />
       <Row label="級別" value={String(props.grade ?? "")} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
     </>
   );
 }
@@ -121,11 +121,11 @@ export function EventsPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color={statusColor}>{String(props.name ?? "觀光活動")}</Title>
-      <Row label="狀態" value={statusLabel} color={statusColor} />
-      <Row label="類別" value={String(props.event_class ?? "")} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="日期" value={dateRange} />
+      <Row field="status" value={statusLabel} color={statusColor} />
+      <Row field="category" value={String(props.event_class ?? "")} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="date" value={dateRange} />
       <Row label="費用" value={freeLabel} />
       <Row label="主辦" value={String(props.organizer ?? "")} />
     </>
@@ -139,11 +139,11 @@ export function FactoriesPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color="#546e7a">{String(props.name ?? "觀光工廠")}</Title>
-      <Row label="區域" value={String(props.region ?? "")} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
-      <Row label="定位精度" value={String(props.geocode_precision ?? "")} />
+      <Row field="region" value={String(props.region ?? "")} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
+      <Row field="positionAccuracy" value={String(props.geocode_precision ?? "")} />
       {website && website !== "null" && (
         <div style={{ marginTop: 4, fontSize: FONT_SIZE.base }}>
           <a href={website} target="_blank" rel="noreferrer" style={{ color: t.link, textDecoration: "none" }}>
@@ -164,10 +164,10 @@ export function AmusementParksPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color="#00acc1">{String(props.name ?? "民營遊樂園")}</Title>
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
-      <Row label="開放時間" value={String(props.open_hours ?? "")} />
+      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
+      <Row field="openingHours" value={String(props.open_hours ?? "")} />
       <Row label="檢查日期" value={String(props.inspection_date ?? "")} />
       <Row label="最新檢查" value={String(props.inspection_latest ?? "")} />
       <Row label="缺失項數" value={issuesStr} />
@@ -187,12 +187,12 @@ export function CampingPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color="#7cb342">{String(props.name ?? "露營場")}</Title>
-      <Row label="縣市" value={String(props.city ?? "")} />
-      <Row label="區域" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="狀態" value={String(props.status ?? "")} />
+      <Row field="county" value={String(props.city ?? "")} />
+      <Row field="region" value={String(props.district ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="status" value={String(props.status ?? "")} />
       <Row label="合法性" value={String(props.legal_status ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
       {website && website !== "null" && (
         <div style={{ marginTop: 4, fontSize: FONT_SIZE.base }}>
           <a href={website} target="_blank" rel="noreferrer" style={{ color: t.link, textDecoration: "none" }}>
@@ -222,9 +222,9 @@ export function HotelsPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color={info.color}>{String(props.hotel_name ?? "旅宿")}</Title>
-      <Row label="類別" value={info.label} color={info.color} />
-      <Row label="縣市區" value={cityTown} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="category" value={info.label} color={info.color} />
+      <Row field="countyDistrict" value={cityTown} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row label="星級" value={Number.isFinite(stars) && stars > 0 ? `${stars} 星` : ""} />
       <Row label="總房數" value={Number.isFinite(rooms) && rooms > 0 ? `${rooms.toLocaleString()} 間` : ""} />
       <Row label="房價" value={priceRow} />
@@ -238,10 +238,10 @@ export function RestaurantsPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <Title color="#c62828">{String(props.name ?? "觀光餐飲")}</Title>
-      <Row label="縣市區" value={cityTown} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="營業時間" value={String(props.service_time ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="countyDistrict" value={cityTown} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="businessHours" value={String(props.service_time ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
       <Row label="類別代碼" value={String(props.cuisine_class ?? "")} />
     </>
   );

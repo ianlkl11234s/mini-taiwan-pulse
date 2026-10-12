@@ -1,0 +1,21 @@
+{
+  "popup.transport.unknownStation": "Unnamed station",
+  "popup.transport.active": "Active",
+  "popup.transport.inactive": "Inactive",
+  "popup.transport.startDate": "Opened",
+  "popup.transport.docks": "Docks",
+  "popup.transport.intercityBus": "Intercity bus",
+  "popup.transport.cityBus": "City bus",
+  "popup.transport.routeCount": "Routes",
+  "popup.transport.transferStation": "{line} (transfer station)",
+  "popup.transport.stationCode": "Station code",
+  "popup.transport.railRoute": "Rail line",
+  "popup.transport.vesselType": "Vessel type",
+  "popup.transport.aisTypeCode": "AIS type code",
+  "popup.transport.ship.passenger": "Passenger",
+  "popup.transport.ship.cargo": "Cargo",
+  "popup.transport.ship.tanker": "Tanker",
+  "popup.transport.ship.fishing": "Fishing",
+  "popup.transport.ship.special": "Tug / special craft",
+  "popup.transport.ship.unknown": "Unknown"
+}

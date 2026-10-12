@@ -78,7 +78,7 @@ export function TaipeiSewerPanel({ props }: { props: Record<string, unknown> }) 
           </div>
         </div>
       </div>
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         24h 水位高程趨勢
       </div>
@@ -161,7 +161,7 @@ export function TaipeiPumbPanel({ props }: { props: Record<string, unknown> }) {
       {maxAllow != null && <Row label="警戒線" value={`${maxAllow.toFixed(2)} m`} />}
       <Row label="抽水機" value={pumbStatus || "—"} color={pumbStatus === "運轉" ? "#22d3ee" : undefined} />
       <Row label="閘門" value={doorStatus || "—"} />
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         24h 內池水位趨勢
       </div>
@@ -255,7 +255,7 @@ export function TaipeiEvacuatePanel({ props }: { props: Record<string, unknown> 
         {renderGate(1)}
         {gateNum >= 2 && renderGate(2)}
       </div>
-      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         24h 狀態變化
       </div>

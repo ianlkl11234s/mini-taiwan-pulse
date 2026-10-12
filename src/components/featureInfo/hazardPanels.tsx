@@ -90,7 +90,7 @@ export function MountainRescuePanel({ props }: { props: Record<string, unknown> 
       </div>
       <Row label="案件編號" value={String(props.case_id ?? "—")} />
       <Row label="年份" value={props.year == null ? "—" : String(props.year)} />
-      <Row label="縣市" value={String(props.city ?? "—")} />
+      <Row field="county" value={String(props.city ?? "—")} />
       {area ? <Row label="山域" value={area} /> : null}
       {entry ? <Row label="入山口" value={entry} /> : null}
       {dest ? <Row label="目的地" value={dest} /> : null}
@@ -117,14 +117,14 @@ export function LightningStrikePanel({ props }: { props: Record<string, unknown>
   const color = lightningTypeColor(t);
   return (
     <div>
-      <Row label="類型" value={t != null ? (LIGHTNING_TYPE_LABELS[t] ?? "—") : "—"} color={color} />
+      <Row field="type" value={t != null ? (LIGHTNING_TYPE_LABELS[t] ?? "—") : "—"} color={color} />
       <Row
         label="強度"
         value={intensity != null ? `${intensity.toFixed(1)} kA` : "—"}
         color={intensity != null && Math.abs(intensity) > 30 ? "#ef4444" : undefined}
       />
       <Row label="擊發時刻" value={fmtTime(props.strike_ts)} />
-      <Row label="距現在" value={fmtAge(props.strike_ts)} />
+      <Row field="age" value={fmtAge(props.strike_ts)} />
     </div>
   );
 }
@@ -138,15 +138,15 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
   return (
     <div>
       <Row label="站名" value={String(props.station_name ?? "—")} />
-      <Row label="站號" value={String(props.station_id ?? "—")} />
+      <Row field="stationNo" value={String(props.station_id ?? "—")} />
       <Row
         label="即時劑量"
         value={dose != null ? `${dose.toFixed(3)} µSv/h` : "—"}
         color={color}
       />
       <Row label="分級" value={NUCLEAR_LEVEL_LABELS[level]} color={color} />
-      <Row label="觀測時間" value={fmtTime(props.observed_ts)} />
-      <Row label="距現在" value={fmtAge(props.observed_ts)} />
+      <Row field="observedAt" value={fmtTime(props.observed_ts)} />
+      <Row field="age" value={fmtAge(props.observed_ts)} />
       {isStale && (
         <div
           style={{
@@ -190,7 +190,7 @@ export function EarthquakePanel({ props }: { props: Record<string, unknown> }) {
     <div>
       <Row label="規模 (M)" value={mag != null ? `M ${mag.toFixed(1)}` : "—"} color={magColor} />
       <Row label="深度" value={depth != null ? `${depth.toFixed(1)} km` : "—"} color={dColor} />
-      <Row label="發生時間" value={fmtTimeTaipei(props.occurred_ts)} />
+      <Row field="occurredAt" value={fmtTimeTaipei(props.occurred_ts)} />
       <Row label="震央位置" value={String(props.location_desc || "—")} />
       <Row label="報告類型" value={String(props.report_type || "—")} />
     </div>
@@ -232,13 +232,13 @@ export function EarthquakeReplayTownPanel({ props }: { props: Record<string, unk
   return (
     <div>
       <Row label="鄉鎮市區" value={String(props.TOWNNAME ?? "—")} />
-      <Row label="縣市" value={String(props.COUNTYNAME ?? "—")} />
+      <Row field="county" value={String(props.COUNTYNAME ?? "—")} />
       <Row
         label="震度"
         value={iv != null ? intensityLabel(iv) : "—"}
         color={iv != null ? intensityColor(iv) : undefined}
       />
-      <Row label="來源" value="CWA 鄉鎮震度報告" />
+      <Row field="source" value="CWA 鄉鎮震度報告" />
     </div>
   );
 }

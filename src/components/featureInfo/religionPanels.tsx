@@ -57,8 +57,8 @@ export function TemplePanel({ props }: { props: Record<string, unknown> }) {
       <Row label="登記狀態" value={registryLabel(props.in_moi_registry)} />
       {props.heritage_flag === true ? <Row label="文化資產" value="是" color="#d4a017" /> : null}
       {props.is_top100 === true ? <Row label="宗教百景" value="是" color={RELIGION_LAYER_COLORS.religionTop100} /> : null}
-      <Row label="縣市" value={str(props.county)} />
-      <Row label="地址" value={str(props.address)} />
+      <Row field="county" value={str(props.county)} />
+      <Row field="address" value={str(props.address)} />
       {precision && precision !== "原始座標" ? (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
           座標來源：{precision}（非原始座標，位置為推估）
@@ -75,11 +75,11 @@ export function ChurchPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color={color}>{str(props.name) || "無名教會"}</Title>
-      {str(props.name_en) ? <Row label="英文名" value={str(props.name_en)} /> : null}
+      {str(props.name_en) ? <Row field="englishName" value={str(props.name_en)} /> : null}
       <Row label="登記狀態" value={registryLabel(props.in_moi_registry)} />
       {props.heritage_flag === true ? <Row label="文化資產" value="是" color="#d4a017" /> : null}
-      <Row label="縣市" value={str(props.county)} />
-      <Row label="地址" value={str(props.address)} />
+      <Row field="county" value={str(props.county)} />
+      <Row field="address" value={str(props.address)} />
       <OdblNote props={props} />
     </>
   );
@@ -92,10 +92,10 @@ export function AncestralHallPanel({ props }: { props: Record<string, unknown> }
   return (
     <>
       <Title color={color}>{str(props.name) || "宗祠"}</Title>
-      <Row label="類型" value={ancestralHallTypeLabel(type)} color={color} />
+      <Row field="type" value={ancestralHallTypeLabel(type)} color={color} />
       {str(props.heritage_grade) ? <Row label="文資級別" value={str(props.heritage_grade)} /> : null}
-      <Row label="縣市" value={str(props.county)} />
-      <Row label="地址" value={str(props.address)} />
+      <Row field="county" value={str(props.county)} />
+      <Row field="address" value={str(props.address)} />
     </>
   );
 }
@@ -105,8 +105,8 @@ export function FoundationPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <Title color={RELIGION_LAYER_COLORS.religionFoundations}>{str(props.name) || "宗教基金會"}</Title>
-      <Row label="縣市" value={str(props.county)} />
-      <Row label="地址" value={str(props.address)} />
+      <Row field="county" value={str(props.county)} />
+      <Row field="address" value={str(props.address)} />
     </>
   );
 }
@@ -119,12 +119,12 @@ export function OtherWorshipPanel({ props }: { props: Record<string, unknown> })
   return (
     <>
       <Title color={RELIGION_LAYER_COLORS.religionOtherWorship}>{str(props.name) || "未命名宗教場所"}</Title>
-      {str(props.name_en) ? <Row label="英文名" value={str(props.name_en)} /> : null}
+      {str(props.name_en) ? <Row field="englishName" value={str(props.name_en)} /> : null}
       <Row label="宗教" value={str(props.religion_type)} />
       <Row label="教派" value={str(props.denomination)} />
-      <Row label="縣市" value={str(props.county)} />
-      <Row label="鄉鎮" value={str(props.town)} />
-      <Row label="地址" value={str(props.address)} />
+      <Row field="county" value={str(props.county)} />
+      <Row field="township" value={str(props.town)} />
+      <Row field="address" value={str(props.address)} />
       <OdblNote props={props} />
     </>
   );
@@ -138,10 +138,10 @@ export function ReligionTop100Panel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color={RELIGION_LAYER_COLORS.religionTop100}>{str(props.name) || "宗教景點"}</Title>
-      {str(props.name_en) ? <Row label="英文名" value={str(props.name_en)} /> : null}
-      <Row label="縣市" value={str(props.county)} />
-      <Row label="鄉鎮" value={str(props.town)} />
-      <Row label="地址" value={str(props.address)} />
+      {str(props.name_en) ? <Row field="englishName" value={str(props.name_en)} /> : null}
+      <Row field="county" value={str(props.county)} />
+      <Row field="township" value={str(props.town)} />
+      <Row field="address" value={str(props.address)} />
     </>
   );
 }
@@ -170,7 +170,7 @@ function JpReligionPanel({
   return (
     <>
       <Title color={color}>{name}</Title>
-      <Row label="類別" value={jpReligionLabel(religion)} color={color} />
+      <Row field="category" value={jpReligionLabel(religion)} color={color} />
       {source === "gsi" && !str(props.name) ? (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
           此點來自地圖符號，官方未提供名稱。
@@ -187,7 +187,7 @@ function JpReligionPanel({
           開啟 Wikidata ↗
         </a>
       ) : null}
-      <Row label="資料源" value={JP_RELIGION_SOURCE_LABEL[source]} />
+      <Row field="dataSource" value={JP_RELIGION_SOURCE_LABEL[source]} />
     </>
   );
 }

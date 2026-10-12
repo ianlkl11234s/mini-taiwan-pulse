@@ -13,6 +13,9 @@ import { WaterReservoirContextPanel } from "./featureInfo/waterPanels";
 import { DARK_FEATURE, LIGHT_FEATURE, FeatureThemeProvider } from "./featureInfo/featureTheme";
 import { SourceFooter } from "./featureInfo/shared";
 import { THEMES } from "./sidebar/layerCatalog";
+import { LAYER_MANIFEST, type LayerManifestEntry } from "../data/layerManifest";
+import { useLocale } from "../state/localeStore";
+import { localizeLayerName, localizeSectionTitle, type I18nContext } from "../i18n/layerText";
 import "./featureInfo/featureInfo.css";
 
 // layerType 白名單：這些 panel 已經有自己的溯源 UI，不需要（也不該疊加）中央 SourceFooter。
@@ -63,13 +66,26 @@ const LAYER_GROUP_TITLES: Record<string, string> = (() => {
   for (const theme of THEMES) {
     for (const group of theme.groups) {
       for (const layer of group.layers) {
-        // 用主題名（「宗教 Religion」→「宗教」）：子群組標題多半是「點位」「面」這類幾何分類，不適合當 eyebrow
-        map[layer.key] = theme.title.replace(/\s+[A-Za-z].*$/, "");
+        // 存原始主題字串（識別字）；顯示時中文取「宗教 Religion」→「宗教」，外文走 localizeSectionTitle
+        map[layer.key] = theme.title;
       }
     }
   }
   return map;
 })();
+
+/**
+ * 標題列的圖層名（顯示層）：中文用 HEADER_LABELS；外文先查 `popupHeader.<layerType>`，
+ * 再借用同名圖層已翻好的名稱（多數 layerType 就是 manifest key），最後回退中文。
+ */
+function localizeHeaderLabel(layerType: string, zh: string, i18n: I18nContext): string {
+  if (i18n.active === "zh-TW") return zh;
+  const own = i18n.lookup(`popupHeader.${layerType}`);
+  if (own) return own;
+  const entry = (LAYER_MANIFEST as Partial<Record<string, LayerManifestEntry>>)[layerType];
+  if (entry?.name) return localizeLayerName(layerType, entry.name, i18n).primary;
+  return zh;
+}
 
 interface Props {
   feature: FeatureInfo;
@@ -119,8 +135,13 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
       };
   // 內容子面板（各 domain *Panels）走 context 讀主題色
   const featurePalette = isDarkTheme ? DARK_FEATURE : LIGHT_FEATURE;
-  const groupTitle = LAYER_GROUP_TITLES[feature.layerType];
-  const headerLabel = HEADER_LABELS[feature.layerType];
+  const i18n = useLocale();
+  const groupTitleRaw = LAYER_GROUP_TITLES[feature.layerType];
+  // 主題名：子群組標題多半是「點位」「面」這類幾何分類，不適合當 eyebrow，所以用主題
+  const groupTitle = groupTitleRaw
+    ? i18n.active === "zh-TW" ? groupTitleRaw.replace(/\s+[A-Za-z].*$/, "") : localizeSectionTitle(groupTitleRaw, i18n)
+    : undefined;
+  const headerLabel = localizeHeaderLabel(feature.layerType, HEADER_LABELS[feature.layerType], i18n);
 
   // 水庫類：若點到的水庫有 compare_id 且 context 已載入，改顯示完整 context panel
   const isReservoir =
@@ -169,6 +190,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
     >
       {/* Close button */}
       <button
+        type="button"
+        aria-label={i18n.t("popup.common.close")}
+        title={i18n.t("popup.common.close")}
         onClick={onClose}
         style={{
           position: "absolute",

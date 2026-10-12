@@ -27,10 +27,10 @@ export function HikingTrailsPanel({ props }: { props: Record<string, unknown> })
         <div style={{ width: 14, height: 2, background: info.color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{name}</div>
       </div>
-      <Row label="來源" value={info.label} color={info.color} />
-      {region ? <Row label="管理單位" value={region} /> : null}
+      <Row field="source" value={info.label} color={info.color} />
+      {region ? <Row field="managingAgency" value={region} /> : null}
       {np ? <Row label="國家公園" value={np} /> : null}
-      {dup ? <Row label="備註" value="與 A 林業署路線重疊" /> : null}
+      {dup ? <Row field="remarks" value="與 A 林業署路線重疊" /> : null}
       {url ? (
         <div style={{ marginTop: 4 }}>
           <a href={url} target="_blank" rel="noreferrer" style={{ color: "#7ec4ff", textDecoration: "underline", fontSize: FONT_SIZE.base }}>
@@ -52,9 +52,9 @@ export function CanopyGiantsPanel({ props }: { props: Record<string, unknown> })
         <div style={{ width: 10, height: 10, borderRadius: 5, background: "#a50026", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>樹冠巨木</div>
       </div>
-      <Row label="樹高" value={fmt(props.height_m)} />
+      <Row field="treeHeight" value={fmt(props.height_m)} />
       <Row label="離最近道路/步道/林道" value={fmt(props.dist_access_m)} />
-      <Row label="海拔" value={fmt(props.elev_m)} />
+      <Row field="elevation" value={fmt(props.elev_m)} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         Meta/WRI 樹冠高度 10m × 可及性分析（≥ 45m）
       </div>
@@ -84,12 +84,12 @@ export function MountainHutPanel({ props }: { props: Record<string, unknown> }) 
         <div style={{ width: 10, height: 10, borderRadius: 5, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{name}</div>
       </div>
-      <Row label="類型" value={mountainHutTypeLabel(type)} color={color} />
-      {nameEn ? <Row label="英文名" value={nameEn} /> : null}
-      {ele ? <Row label="海拔" value={`${ele} m`} /> : null}
-      {capacity ? <Row label="容量" value={`${capacity} 人`} /> : null}
-      {manager ? <Row label="管理單位" value={manager} /> : null}
-      {props.in_yushan_official === true ? <Row label="來源" value="玉山國家公園官方 + OSM" /> : null}
+      <Row field="type" value={mountainHutTypeLabel(type)} color={color} />
+      {nameEn ? <Row field="englishName" value={nameEn} /> : null}
+      {ele ? <Row field="elevation" value={`${ele} m`} /> : null}
+      {capacity ? <Row field="capacity" value={`${capacity} 人`} /> : null}
+      {manager ? <Row field="managingAgency" value={manager} /> : null}
+      {props.in_yushan_official === true ? <Row field="source" value="玉山國家公園官方 + OSM" /> : null}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         ⓘ 含 OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）
       </div>

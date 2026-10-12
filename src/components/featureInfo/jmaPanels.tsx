@@ -45,7 +45,7 @@ export function JmaAmedasPanel({ props }: PanelProps) {
   const dir = windDir(props.wind_dir);
   return <>
     <Title color={JMA_LAYER_COLORS.jmaAmedas}>{text(props.station_name, "AMeDAS 觀測站")}</Title>
-    <Row label="觀測時間" value={formatJst(props.observed_at) || "無"} mono />
+    <Row field="observedAt" value={formatJst(props.observed_at) || "無"} mono />
     <Row label="氣溫" value={measure(props.temp, "°C")} />
     <Row label="前 10 分鐘雨量" value={measure(props.precip10m, "mm")} />
     <Row label="前 1 小時雨量" value={measure(props.precip1h, "mm")} />
@@ -62,9 +62,9 @@ export function JmaAmedasPanel({ props }: PanelProps) {
     </> : <Row label="積雪深" value="此站無積雪計" />}
     <PopupDetails summary="站點與說明">
       <Row label="站名（英）" value={text(props.station_name_en)} />
-      <Row label="站號" value={text(props.station_id)} mono />
-      <Row label="海拔" value={measure(props.alt_m, "m", 0)} />
-      <Row label="說明" value="「無觀測」＝該要素此站未觀測或品質碼缺，不是 0；每 10 分鐘更新" />
+      <Row field="stationNo" value={text(props.station_id)} mono />
+      <Row field="elevation" value={measure(props.alt_m, "m", 0)} />
+      <Row field="description" value="「無觀測」＝該要素此站未觀測或品質碼缺，不是 0；每 10 分鐘更新" />
     </PopupDetails>
     <Footer fetchedAt={props.observed_at} />
   </>;
@@ -84,7 +84,7 @@ export function JmaWarningsPanel({ props }: PanelProps) {
   const first = area?.rows[0];
   return <>
     <Title color={level?.color ?? JMA_LAYER_COLORS.jmaWarnings}>{place || "市区町村"}</Title>
-    {!area ? <Row label="狀態" value="目前快照沒有對到此區的發表中警報・注意報（可能剛解除，請重新開啟圖層）" /> : <>
+    {!area ? <Row field="status" value="目前快照沒有對到此區的發表中警報・注意報（可能剛解除，請重新開啟圖層）" /> : <>
       <Row label="最高級別" value={level?.label ?? "未知"} color={level?.color} />
       {area.areaName && <Row label="氣象廳區域" value={area.areaName} />}
       <PopupScroll>
@@ -101,7 +101,7 @@ export function JmaWarningsPanel({ props }: PanelProps) {
     </>}
     <PopupDetails summary="說明與限制">
       <Row label="對應" value="以氣象廳市町村等區域（class20）對市区町村界；政令市分區（如横浜市北部／南部）整市著色，popup 列出各分區" />
-      <Row label="更新" value="每 5 分鐘；以最新一版發表時刻（control_datetime）為準" />
+      <Row field="updated" value="每 5 分鐘；以最新一版發表時刻（control_datetime）為準" />
       <Row label="市区町村コード" value={text(props.admin_code)} mono />
     </PopupDetails>
     <Footer fetchedAt={first?.control_datetime} />
@@ -116,7 +116,7 @@ export function JmaQuakesPanel({ props }: PanelProps) {
   const byPref = text(props.intensity_by_pref);
   return <>
     <Title color={color}>{text(props.hypocenter_name, "震源未定")}</Title>
-    <Row label="發生時間" value={formatJst(props.origin_time) || "未發表"} mono />
+    <Row field="occurredAt" value={formatJst(props.origin_time) || "未發表"} mono />
     <Row label="規模" value={mag == null ? "未發表" : `M${mag.toFixed(1)}`} />
     <Row label="深度" value={depth == null ? "未發表" : `${depth.toLocaleString("zh-TW")} km`} />
     <Row label="最大震度" value={jmaIntensityLabel(intensity)} color={color} />
@@ -124,7 +124,7 @@ export function JmaQuakesPanel({ props }: PanelProps) {
     <Row label="發表時間" value={formatJst(props.report_time) || "無"} mono />
     <PopupDetails summary="各地震度與說明">
       {byPref && <Row label="各都道府縣震度（原始）" value={byPref.length > 400 ? `${byPref.slice(0, 400)}…` : byPref} />}
-      <Row label="說明" value="同一地震只顯示最新一報；震度速報階段尚無震源座標，不會畫在地圖上。近 7 天、每 2 分鐘更新" />
+      <Row field="description" value="同一地震只顯示最新一報；震度速報階段尚無震源座標，不會畫在地圖上。近 7 天、每 2 分鐘更新" />
       <Row label="事件 ID" value={text(props.event_id)} mono />
     </PopupDetails>
     <Footer fetchedAt={props.report_time} />

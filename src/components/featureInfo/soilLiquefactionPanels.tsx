@@ -32,7 +32,7 @@ export function SoilLiquefactionPotentialPanel({ props }: { props: Record<string
     <Row label="潛勢類別" value={label} />
     {known && <Row label="類別意義" value="官方整合鑽孔、地下水位、設計地震與歷史資料的綜合類別，不是量測值；不可回推 PL 或地下水位。" />}
     {notInvestigated && <Row label="未調查" value="官方未調查區（含山區、臺地、海埔新生地、河岸及零星小平地），不等於低潛勢。" />}
-    {!known && !notInvestigated && <Row label="資料限制" value="來源未提供潛勢類別（無資料）；不等於未調查，也不等於低潛勢。" />}
+    {!known && !notInvestigated && <Row field="dataLimits" value="來源未提供潛勢類別（無資料）；不等於未調查，也不等於低潛勢。" />}
     <Row label="評估年份" value={str(props.source_year)} mono />
     <Row label="使用限制" value={SITE_CAVEAT} />
     <SourceFooter props={footerProps(props)} />
@@ -80,7 +80,7 @@ export function LiquefactionMonitoringSitePanel({ props }: { props: Record<strin
     <Title color={LIQUEFACTION_SITE_COLOR}>{str(props.name) || "土壤液化監測站"}</Title>
     <Row label="運作狀態" value={LIQUEFACTION_SITE_STATUS_LABEL[status] ?? status} />
     <Row label="位置精度" value={LIQUEFACTION_SITE_PRECISION_LABEL[precision] ?? precision} />
-    <Row label="資料限制" value="只有站點位置與名稱，不是即時觀測值；監測數據請回官方頁面查詢。" />
+    <Row field="dataLimits" value="只有站點位置與名稱，不是即時觀測值；監測數據請回官方頁面查詢。" />
     <SourceFooter props={footerProps(props)} />
   </>;
 }

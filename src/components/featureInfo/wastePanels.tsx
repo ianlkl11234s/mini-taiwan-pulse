@@ -21,12 +21,12 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
           {String(props.facility_name ?? "(未命名設施)")}
         </div>
       </div>
-      <Row label="類型" value={label} color={color} />
-      <Row label="縣市" value={String(props.city ?? "")} />
-      <Row label="營運單位" value={String(props.operator ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="type" value={label} color={color} />
+      <Row field="county" value={String(props.city ?? "")} />
+      <Row field="operatorOrg" value={String(props.operator ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row label="處理量" value={props.capacity_tpd != null ? `${props.capacity_tpd} 噸/日` : ""} />
-      <Row label="狀態" value={String(props.status ?? "")} />
+      <Row field="status" value={String(props.status ?? "")} />
       <Row label="啟用年" value={props.start_year != null ? String(props.start_year) : ""} />
       {props.is_coastal === true && (
         <Row
@@ -55,10 +55,10 @@ export function WasteCleaningSquadPanel({ props }: { props: Record<string, unkno
           {String(props.squad_name ?? "(清潔隊)")}
         </div>
       </div>
-      <Row label="縣市" value={String(props.city ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      {phone && <Row label="電話" value={phone} color={t.link} />}
+      <Row field="county" value={String(props.city ?? "")} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      {phone && <Row field="phone" value={phone} color={t.link} />}
       <Row label="主管轄區" value={String(props.jurisdiction ?? "")} />
     </>
   );
@@ -88,10 +88,10 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
           {String(props.point_name ?? label)}
         </div>
       </div>
-      <Row label="類型" value={label} color={color} />
-      <Row label="縣市" value={String(props.city ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
+      <Row field="type" value={label} color={color} />
+      <Row field="county" value={String(props.city ?? "")} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
       <Row label="管理者" value={String(props.operator ?? "")} />
 
       {/* 來源權威度 badge */}
@@ -182,7 +182,7 @@ export function WasteStopsStaticPanel({ props }: { props: Record<string, unknown
           {stopName || "(未命名點位)"}
         </div>
       </div>
-      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
       <Row label="清運路線" value={routeName} />
       {Number.isFinite(routesCount) && routesCount > 0 && (
         <Row
@@ -219,7 +219,7 @@ export function WasteTruckPanel({ props }: { props: Record<string, unknown> }) {
         </div>
       </div>
       <Row label="車號" value={vehicleNo} />
-      <Row label="縣市" value={city} />
+      <Row field="county" value={city} />
       <Row label="路線代碼" value={routeId} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
         GPS 實跡車輛 · 位置隨時間軸插值

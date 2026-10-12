@@ -138,7 +138,7 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
     <div>
       <Row label="電廠" value={plantName} />
       <Row label="燃料" value={fuel || "—"} color={fuelColor} />
-      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       {isRetired && (
         <Row
           label="狀態"
@@ -152,7 +152,7 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
           <Row label="負載率" value={fmtPct01(props.output_load_rate)} />
         </>
       )}
-      <Row label="資料源" value={sourceTable || "—"} />
+      <Row field="dataSource" value={sourceTable || "—"} />
       {canShowSparkline && <PlantOutput24h plantName={plantName} color={fuelColor} />}
       <UnitDrillDownBlock facilityId={String(props.facility_id ?? "")} />
       <FacilityProvenanceBlock facilityId={String(props.facility_id ?? "")} />
@@ -271,7 +271,7 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         📋 資料來源
       </div>
-      <Row label="層級" value={pv.tier_label ?? "—"} color={tierColor} />
+      <Row field="tier" value={pv.tier_label ?? "—"} color={tierColor} />
       <Row label="平台" value={pv.source_platform ?? "—"} />
       {pv.source_dataset_name && (
         <Row label="資料集" value={pv.source_dataset_name} />
@@ -288,7 +288,7 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
           </a>
         </div>
       )}
-      <Row label="授權" value={pv.source_license ?? "—"} />
+      <Row field="license" value={pv.source_license ?? "—"} />
       <Row label="抓取日" value={fetched} />
       <Row label="更新頻率" value={cadence} />
       {pv.agent_intervention_count > 0 && (
@@ -319,12 +319,12 @@ export function OsmSubstationPanel({ props }: { props: Record<string, unknown> }
                   ?? SUBSTATION_CLASS_COLORS.OTHER;
   return (
     <div>
-      <Row label="名稱" value={String(props.name ?? "(無名)")} />
+      <Row field="name" value={String(props.name ?? "(無名)")} />
       <Row label="電網層級" value={classLabel} color={classColor} />
       <Row label="OSM type" value={String(props.substation_type ?? "—")} />
-      <Row label="電壓" value={fmtVoltageKv(String(props.voltage ?? ""))} />
-      <Row label="營運單位" value={String(props.operator ?? "—")} />
-      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+      <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
+      <Row field="operatorOrg" value={String(props.operator ?? "—")} />
+      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -346,13 +346,13 @@ export function OsmPowerLinePanel({ props }: { props: Record<string, unknown> })
     lineType === "line" ? "輸電線" : (lineType || "—");
   return (
     <div>
-      <Row label="類型" value={lineTypeLabel} />
-      <Row label="電壓" value={fmtVoltageKv(String(props.voltage ?? ""))} />
+      <Row field="type" value={lineTypeLabel} />
+      <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
       <Row label="迴路數" value={String(props.circuits ?? "—")} />
       <Row label="頻率" value={String(props.frequency ?? "—")} />
-      <Row label="位置" value={String(props.location ?? "—")} />
-      <Row label="營運單位" value={String(props.operator ?? "—")} />
-      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+      <Row field="location" value={String(props.location ?? "—")} />
+      <Row field="operatorOrg" value={String(props.operator ?? "—")} />
+      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -360,12 +360,12 @@ export function OsmPowerLinePanel({ props }: { props: Record<string, unknown> })
 export function OsmPowerTowerPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <Row label="編號" value={String(props.ref ?? "—")} />
-      <Row label="電壓" value={fmtVoltageKv(String(props.voltage ?? ""))} />
+      <Row field="number" value={String(props.ref ?? "—")} />
+      <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
       <Row label="材質" value={String(props.material ?? "—")} />
       <Row label="型式" value={String(props.design ?? "—")} />
-      <Row label="營運單位" value={String(props.operator ?? "—")} />
-      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+      <Row field="operatorOrg" value={String(props.operator ?? "—")} />
+      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -381,15 +381,15 @@ export function OsmWindTurbinePanel({ props }: { props: Record<string, unknown> 
   const offshoreLabel = offshore === true ? "離岸" : offshore === false ? "陸域" : "—";
   return (
     <div>
-      <Row label="名稱" value={String(props.name || "(無名)")} />
-      <Row label="類型" value={offshoreLabel} color={offshore === true ? "#67e8f9" : offshore === false ? "#2dd4bf" : undefined} />
-      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row field="name" value={String(props.name || "(無名)")} />
+      <Row field="type" value={offshoreLabel} color={offshore === true ? "#67e8f9" : offshore === false ? "#2dd4bf" : undefined} />
+      <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       <Row label="塔高" value={fmtM(props.height_m)} />
       <Row label="葉片直徑" value={fmtM(props.rotor_diameter_m)} />
       <Row label="製造商" value={String(props.manufacturer || "—")} />
       <Row label="型號" value={String(props.model || "—")} />
-      <Row label="營運單位" value={String(props.operator || "—")} />
-      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+      <Row field="operatorOrg" value={String(props.operator || "—")} />
+      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -397,13 +397,13 @@ export function OsmWindTurbinePanel({ props }: { props: Record<string, unknown> 
 export function OsmSolarFarmPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <Row label="名稱" value={String(props.name || "(無名)")} />
-      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row field="name" value={String(props.name || "(無名)")} />
+      <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       <Row label="模組數" value={String(props.modules ?? "—")} />
-      <Row label="面積" value={fmtM(props.area_m2, "m²")} />
+      <Row field="area" value={fmtM(props.area_m2, "m²")} />
       <Row label="方式" value={String(props.plant_method || "—")} />
-      <Row label="營運單位" value={String(props.operator || "—")} />
-      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+      <Row field="operatorOrg" value={String(props.operator || "—")} />
+      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -412,13 +412,13 @@ export function OsmPowerPlantStaticPanel({ props }: { props: Record<string, unkn
   const src = String(props.plant_source || "");
   return (
     <div>
-      <Row label="名稱" value={String(props.name || "(無名)")} />
+      <Row field="name" value={String(props.name || "(無名)")} />
       <Row label="燃料 / 來源" value={src || "—"} color={fuelColorOf(src)} />
       <Row label="方式" value={String(props.plant_method || "—")} />
       <Row label="發電機" value={String(props.generator_source || "—")} />
-      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
-      <Row label="營運單位" value={String(props.operator || "—")} />
-      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+      <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
+      <Row field="operatorOrg" value={String(props.operator || "—")} />
+      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -429,10 +429,10 @@ export function OffshoreWindZonePanel({ props }: { props: Record<string, unknown
   return (
     <div>
       <Row label="場址" value={String(props.zone_name || props.zone_code || "—")} />
-      <Row label="類型" value={String(props.zone_type || "—")} />
+      <Row field="type" value={String(props.zone_type || "—")} />
       <Row label="開發階段" value={String(props.phase || "—")} />
       <Row label="開發商" value={String(props.developer || "—")} />
-      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       <Row label="得標年" value={String(props.award_year ?? "—")} />
       <Row label="商轉年" value={String(props.cod_year ?? "—")} />
       <Row label="水深" value={depthLabel} />
@@ -444,16 +444,16 @@ export function OffshoreWindZonePanel({ props }: { props: Record<string, unknown
 export function IslandPowerFacilityPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <Row label="名稱" value={String(props.name || "—")} />
+      <Row field="name" value={String(props.name || "—")} />
       <Row label="島嶼" value={String(props.island || "—")} />
       <Row label="設施類型" value={String(props.facility_type || "—")} />
       <Row label="燃料" value={String(props.fuel_type || "—")} />
-      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
-      <Row label="電壓" value={props.voltage_kv != null ? `${props.voltage_kv} kV` : "—"} />
+      <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
+      <Row field="voltage" value={props.voltage_kv != null ? `${props.voltage_kv} kV` : "—"} />
       <Row label="商轉年" value={String(props.online_year ?? "—")} />
-      <Row label="營運單位" value={String(props.operator || "—")} />
-      <Row label="地址" value={String(props.address || "—")} />
-      <Row label="來源" value={String(props.source || "—")} />
+      <Row field="operatorOrg" value={String(props.operator || "—")} />
+      <Row field="address" value={String(props.address || "—")} />
+      <Row field="source" value={String(props.source || "—")} />
     </div>
   );
 }
@@ -466,8 +466,8 @@ export function FossilFuelFacilityPanel({ props }: { props: Record<string, unkno
     ft === "gas_power_plant" ? "燃氣電廠" : (ft || "—");
   return (
     <div>
-      <Row label="名稱" value={String(props.name || "—")} />
-      <Row label="類型" value={ftLabel} />
+      <Row field="name" value={String(props.name || "—")} />
+      <Row field="type" value={ftLabel} />
       <Row label="內容物" value={String(props.content || "—")} />
       {props.capacity_tonnes != null && (
         <Row label="容量（噸）" value={`${Number(props.capacity_tonnes).toLocaleString()}`} />
@@ -479,9 +479,9 @@ export function FossilFuelFacilityPanel({ props }: { props: Record<string, unkno
         <Row label="日處理量" value={`${Number(props.daily_throughput_kbpd).toLocaleString()} kbpd`} />
       )}
       <Row label="商轉年" value={String(props.online_year ?? "—")} />
-      <Row label="狀態" value={String(props.status || "—")} />
-      <Row label="營運單位" value={String(props.operator || "—")} />
-      <Row label="地址" value={String(props.address || "—")} />
+      <Row field="status" value={String(props.status || "—")} />
+      <Row field="operatorOrg" value={String(props.operator || "—")} />
+      <Row field="address" value={String(props.address || "—")} />
     </div>
   );
 }
@@ -494,7 +494,7 @@ export function GeothermalWellPanel({ props }: { props: Record<string, unknown> 
       <Row label="井名 / 區" value={String(props.geothermal_area || "—")} />
       <Row label="報告" value={String(props.report_name || "—")} />
       <Row label="圖件說明" value={String(props.figure_content || "—")} />
-      <Row label="縣市" value={String(props.county_code || "—")} />
+      <Row field="county" value={String(props.county_code || "—")} />
       {reportUrl && (
         <div style={{ marginTop: 6 }}>
           <a href={reportUrl} target="_blank" rel="noopener noreferrer"
@@ -522,10 +522,10 @@ export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, un
   return (
     <div>
       <Row label="設施名稱" value={String(props.installation_name || "—")} />
-      <Row label="類別" value={String(props.category || "—")} />
-      <Row label="裝置容量" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
-      <Row label="行政區" value={district} />
-      <Row label="地址" value={addr || "—"} />
+      <Row field="category" value={String(props.category || "—")} />
+      <Row field="installedCapacity" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
+      <Row field="district" value={district} />
+      <Row field="address" value={addr || "—"} />
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.4 }}>
         ⚠ 政府原始資料位置精度約 1km，呈網格狀；
         設置日 / 行政區欄位上游未提供
@@ -539,10 +539,10 @@ export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
     <div>
       <Row label="站名" value={String(props.name ?? "")} />
       <Row label="營運" value={String(props.operator_name ?? "—")} />
-      <Row label="地址" value={String(props.address ?? "—")} />
+      <Row field="address" value={String(props.address ?? "—")} />
       <Row label="充電位" value={String(props.charging_points ?? "—")} />
       <Row label="車位" value={String(props.spaces ?? "—")} />
-      <Row label="來源" value={String(props.source ?? "—")} />
+      <Row field="source" value={String(props.source ?? "—")} />
     </div>
   );
 }
@@ -565,8 +565,8 @@ function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
     <>
       <Row label="站名" value={String(props.name ?? "—")} />
       <Row label="品牌" value={joinBrand(props.brand) || "—"} />
-      <Row label="地址" value={String(props.address ?? "—")} />
-      <Row label="電話" value={String(props.telephone ?? "—")} />
+      <Row field="address" value={String(props.address ?? "—")} />
+      <Row field="phone" value={String(props.telephone ?? "—")} />
     </>
   );
 }
@@ -575,8 +575,8 @@ export function GasStationCpcPanel({ props }: { props: Record<string, unknown> }
   return (
     <div>
       <GasStationCommonRows props={props} />
-      <Row label="類別" value={String(props.category ?? "—")} />
-      <Row label="營業時間" value={String(props.service_time ?? "—")} />
+      <Row field="category" value={String(props.category ?? "—")} />
+      <Row field="businessHours" value={String(props.service_time ?? "—")} />
     </div>
   );
 }
@@ -605,7 +605,7 @@ export function GasStationOtherPanel({ props }: { props: Record<string, unknown>
     <div>
       <GasStationCommonRows props={props} />
       <Row label="統編" value={String(props.tax_id ?? "—")} />
-      <Row label="資本額" value={String(props.capital ?? "—")} />
+      <Row field="capital" value={String(props.capital ?? "—")} />
     </div>
   );
 }
@@ -615,7 +615,7 @@ export function GasStationCanonicalPanel({ props }: { props: Record<string, unkn
     <div>
       <GasStationCommonRows props={props} />
       <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
-      <Row label="來源數" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
 }
@@ -625,9 +625,9 @@ export function LpgSubpackagingPanel({ props }: { props: Record<string, unknown>
   return (
     <div>
       <Row label="場所名稱" value={String(props.name ?? "—")} />
-      <Row label="類型" value={kinds} />
-      <Row label="地址" value={String(props.address ?? "—")} />
-      <Row label="電話" value={String(props.telephone ?? "—")} />
+      <Row field="type" value={kinds} />
+      <Row field="address" value={String(props.address ?? "—")} />
+      <Row field="phone" value={String(props.telephone ?? "—")} />
     </div>
   );
 }
@@ -636,10 +636,10 @@ export function LpgRetailersPanel({ props }: { props: Record<string, unknown> })
   return (
     <div>
       <Row label="店家名稱" value={String(props.name ?? "—")} />
-      <Row label="地址" value={String(props.address ?? "—")} />
-      <Row label="電話" value={String(props.telephone ?? "—")} />
+      <Row field="address" value={String(props.address ?? "—")} />
+      <Row field="phone" value={String(props.telephone ?? "—")} />
       <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
-      <Row label="來源數" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
 }
@@ -648,12 +648,12 @@ export function LngTerminalPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div>
       <Row label="接收站" value={String(props.name ?? "—")} />
-      <Row label="英文名" value={String(props.name_en ?? "—")} />
-      <Row label="狀態" value={String(props.status ?? "—")} />
-      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <Row field="englishName" value={String(props.name_en ?? "—")} />
+      <Row field="status" value={String(props.status ?? "—")} />
+      <Row field="operator" value={String(props.owner ?? "—")} />
       <Row label="容量 (Mtpa)" value={String(props.capacity_mtpa ?? "—")} />
       <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
-      <Row label="來源數" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
 }
@@ -663,8 +663,8 @@ export function PipelineGasPanel({ props }: { props: Record<string, unknown> }) 
     <div>
       <Row label="管線名稱" value={String(props.pipeline_name ?? props.name ?? "—")} />
       <Row label="輸送物質" value={String(props.substance ?? "gas")} />
-      <Row label="狀態" value={String(props.status ?? "—")} />
-      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <Row field="status" value={String(props.status ?? "—")} />
+      <Row field="operator" value={String(props.owner ?? "—")} />
       <Row label="管徑（吋）" value={String(props.diameter_in ?? "—")} />
       <Row label="完工年" value={String(props.start_year ?? "—")} />
     </div>
@@ -676,8 +676,8 @@ export function PipelineOilGasPanel({ props }: { props: Record<string, unknown> 
     <div>
       <Row label="管線名稱" value={String(props.pipeline_name ?? props.name ?? "—")} />
       <Row label="輸送物質" value={String(props.substance ?? "—")} />
-      <Row label="狀態" value={String(props.status ?? "—")} />
-      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <Row field="status" value={String(props.status ?? "—")} />
+      <Row field="operator" value={String(props.owner ?? "—")} />
       <Row label="管徑（吋）" value={String(props.diameter_in ?? "—")} />
     </div>
   );
@@ -687,8 +687,8 @@ export function IndustrialRefineryPanel({ props }: { props: Record<string, unkno
   return (
     <div>
       <Row label="廠區名稱" value={String(props.name ?? "—")} />
-      <Row label="類型" value={String(props.industrial_type ?? "refinery")} />
-      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <Row field="type" value={String(props.industrial_type ?? "refinery")} />
+      <Row field="operatorOrg" value={String(props.operator ?? "—")} />
     </div>
   );
 }
@@ -697,8 +697,8 @@ export function IndustrialStorageTankPanel({ props }: { props: Record<string, un
   return (
     <div>
       <Row label="儲槽名稱" value={String(props.name ?? "—")} />
-      <Row label="類型" value={String(props.industrial_type ?? "storage_tank")} />
-      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <Row field="type" value={String(props.industrial_type ?? "storage_tank")} />
+      <Row field="operatorOrg" value={String(props.operator ?? "—")} />
     </div>
   );
 }
@@ -707,8 +707,8 @@ export function IndustrialPowerPlantPanel({ props }: { props: Record<string, unk
   return (
     <div>
       <Row label="廠區名稱" value={String(props.name ?? "—")} />
-      <Row label="類型" value={String(props.industrial_type ?? "power_plant")} />
-      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <Row field="type" value={String(props.industrial_type ?? "power_plant")} />
+      <Row field="operatorOrg" value={String(props.operator ?? "—")} />
     </div>
   );
 }
@@ -719,8 +719,8 @@ export function CoalTerminalPanel({ props }: { props: Record<string, unknown> })
       <Row label="碼頭名稱" value={String(props.terminal_name ?? props.name ?? "—")} />
       <Row label="所屬港" value={String(props.parent_port ?? "—")} />
       <Row label="容量 (Mt)" value={String(props.capacity_mt ?? "—")} />
-      <Row label="狀態" value={String(props.status ?? "—")} />
-      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <Row field="status" value={String(props.status ?? "—")} />
+      <Row field="operator" value={String(props.owner ?? "—")} />
     </div>
   );
 }

@@ -67,7 +67,7 @@ export function ParkingOnstreetPanel({ props }: { props: Record<string, unknown>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
       </div>
-      <Row label="類型" value="路邊停車格" />
+      <Row field="type" value="路邊停車格" />
       <Row label="總車格" value={fmt(total)} />
       {taipeiCapacityOnly ? (
         <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.75)", marginTop: 6, lineHeight: 1.4 }}>
@@ -105,7 +105,7 @@ export function ParkingOffstreetPanel({ props }: { props: Record<string, unknown
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
       </div>
-      <Row label="分類" value={subCat && subCat !== catLabel ? `${catLabel}（${subCat}）` : catLabel} />
+      <Row field="classification" value={subCat && subCat !== catLabel ? `${catLabel}（${subCat}）` : catLabel} />
       {rate == null ? (
         <>
           <Row label="總車位" value={fmt(total)} />
@@ -122,7 +122,7 @@ export function ParkingOffstreetPanel({ props }: { props: Record<string, unknown
       <SpaceTypeRows rows={spaceRows} />
       {carParkType && <Row label="型態" value={carParkType} />}
       {ev && <Row label="充電" value="有電動車充電" color="#22c55e" />}
-      {address && <Row label="地址" value={address} />}
+      {address && <Row field="address" value={address} />}
     </>
   );
 }

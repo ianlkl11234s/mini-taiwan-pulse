@@ -42,11 +42,11 @@ export function FuneralFacilityPanel({ props }: { props: Record<string, unknown>
   return (
     <>
       <Title color={color}>{str(props.name) || facilityTypeLabel(type)}</Title>
-      <Row label="類型" value={facilityTypeLabel(type)} color={color} />
+      <Row field="type" value={facilityTypeLabel(type)} color={color} />
       <Row label="公私別" value={operatorTypeLabel(str(props.operator_type))} />
       {str(props.eco_type) ? <Row label="環保葬類型" value={str(props.eco_type)} /> : null}
-      <Row label="行政區" value={district ? `${str(props.county)}${district}` : str(props.county)} />
-      <Row label="電話" value={str(props.phone)} />
+      <Row field="district" value={district ? `${str(props.county)}${district}` : str(props.county)} />
+      <Row field="phone" value={str(props.phone)} />
       <PrecisionNote precision={str(props.precision)} />
     </>
   );
@@ -71,9 +71,9 @@ export function FuneralOperatorPanel({ props }: { props: Record<string, unknown>
         value={str(props.status) || (active ? "核准設立" : "已失效")}
         color={active ? undefined : "#9e9e9e"}
       />
-      {capital != null ? <Row label="資本額" value={`${capital.toLocaleString()} 元`} /> : null}
-      <Row label="統一編號" value={str(props.uniform_id)} />
-      <Row label="行政區" value={`${str(props.county)}${str(props.district)}`} />
+      {capital != null ? <Row field="capital" value={`${capital.toLocaleString()} 元`} /> : null}
+      <Row field="businessId" value={str(props.uniform_id)} />
+      <Row field="district" value={`${str(props.county)}${str(props.district)}`} />
       <PrecisionNote precision={str(props.precision)} />
     </>
   );
@@ -111,9 +111,9 @@ export function CemeteryOsmPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <Title color={FUNERAL_LAYER_COLORS.cemeteryOsm}>{name || "未命名墓區"}</Title>
-      {area != null ? <Row label="面積" value={`${area.toFixed(2)} 公頃`} /> : null}
+      {area != null ? <Row field="area" value={`${area.toFixed(2)} 公頃`} /> : null}
       <Row label="OSM 標籤" value={str(props.landuse) || str(props.amenity)} />
-      <Row label="OSM ID" value={str(props.osm_id)} />
+      <Row field="osmId" value={str(props.osm_id)} />
       {name ? null : <Note>OSM 上約 65% 的墓區未標名稱，要名稱請疊「殯葬設施」層</Note>}
       <Note>ⓘ OpenStreetMap 群眾標註，{CEMETERY_OSM_ODBL_NOTE}</Note>
     </>
@@ -133,8 +133,8 @@ export function CemeteryZoningPanel({ props }: { props: Record<string, unknown> 
     <>
       <Title color={color}>{zone || "墓葬類用地"}</Title>
       <Row label="分區群組" value={cemeteryZoningClassLabel(zone)} color={color} />
-      {area != null ? <Row label="面積" value={`${area.toFixed(2)} 公頃`} /> : null}
-      <Row label="縣市" value={str(props.county)} />
+      {area != null ? <Row field="area" value={`${area.toFixed(2)} 公頃`} /> : null}
+      <Row field="county" value={str(props.county)} />
       <Row label="分區編號" value={str(props.zoning_id)} />
       <Note>ⓘ 都市計畫<b>法定劃設</b>（非實際使用範圍），目前僅臺北市與新北市有此資料</Note>
     </>

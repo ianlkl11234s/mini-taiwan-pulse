@@ -26,8 +26,8 @@ export function PollutionFacilityPanel({ props }: PanelProps) {
   const maxSev = Number(props.max_sev ?? 0);
   return (
     <div>
-      <Row label="名稱" value={String(props.name ?? "")} />
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="name" value={String(props.name ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="行業" value={String(props.industry_macro ?? "")} />
       <Row label="最高嚴重度" value={sevLabel(maxSev)} color={SEVERITY_BANDS.find((b) => b.sev === maxSev)?.color} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
@@ -68,7 +68,7 @@ export function PollutionPenaltyPanel({ props }: PanelProps) {
   return (
     <div>
       <Row label="受罰對象" value={String(props.fac_name ?? "")} />
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="介質" value={POLLUTION_MEDIUM_LABELS[medium] ?? medium} color={POLLUTION_MEDIUM_COLORS[medium]} />
       <Row label="分層" value={PENALTY_SEVERITY_LABELS[severity] ?? severity} color={PENALTY_SEVERITY_COLORS[severity]} />
       {reason && <Row label="分層原因" value={reason} />}
@@ -101,9 +101,9 @@ export function PollutionSitePanel({ props }: PanelProps) {
   return (
     <div>
       <Row label="場址名稱" value={String(props.site_name ?? "")} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="行政區" value={String(props.township ?? "")} />
-      <Row label="類型" value={String(props.site_type ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="district" value={String(props.township ?? "")} />
+      <Row field="type" value={String(props.site_type ?? "")} />
       <Row label="控制類別" value={String(props.controltype ?? "")} />
       <Row label="公告日期" value={String(props.anno_date ?? "")} />
       <Row label="污染物" value={String(props.pollutant_short ?? "")} />

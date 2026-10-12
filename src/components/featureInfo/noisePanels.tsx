@@ -40,7 +40,7 @@ function SourceRows({ props }: PanelProps) {
     <>
       <Row label="來源 ID" value={text(props.source_dataset_id, "未提供")} />
       <Row label="來源更新" value={text(props.source_updated_at, "未提供")} />
-      <Row label="授權" value={text(props.source_license, "未提供")} />
+      <Row field="license" value={text(props.source_license, "未提供")} />
     </>
   );
 }
@@ -89,8 +89,8 @@ export function OfficialNoiseMonitoringPanel({ props }: PanelProps) {
     <div>
       <Row label="測站" value={text(props.station_name)} />
       <Row label="測站 ID" value={text(props.station_id)} />
-      <Row label="縣市" value={text(props.county)} />
-      <Row label="地址" value={text(props.address)} />
+      <Row field="county" value={text(props.county)} />
+      <Row field="address" value={text(props.address)} />
       <Row label="站別" value={text(props.station_type)} />
       <Row label="站況" value={text(props.station_status)} />
       <Row label="管制類別" value={text(props.area_type)} />
@@ -159,14 +159,14 @@ export function NoiseControlZonesPanel({ props }: PanelProps) {
   return (
     <div>
       <Row label="管制區" value={text(props.zone_name)} />
-      <Row label="類別" value={zoneClassLabel} />
-      <Row label="縣市" value={text(props.county)} />
+      <Row field="category" value={zoneClassLabel} />
+      <Row field="county" value={text(props.county)} />
       <Row label="公告版本" value={text(props.legal_version)} />
       <Row label="公告年度" value={text(props.effective_year_roc, "來源未明載")} />
       <Row label="西元年度" value={text(props.effective_year, "來源未明載")} />
       <Row label="公告文號" value={text(props.announcement_no, "來源未明載")} />
       <Row label="空間精度" value={text(props.spatial_precision)} />
-      <Row label="面積" value={area == null ? "未提供" : `${area.toFixed(2)} km²`} />
+      <Row field="area" value={area == null ? "未提供" : `${area.toFixed(2)} km²`} />
       <Row label="幾何修復" value={repaired ? "是（原始官方幾何拓樸修復）" : "否"} />
       <SourceRows props={props} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
@@ -192,7 +192,7 @@ export function AviationNoiseZonesPanel({ props }: PanelProps) {
       <Row label="邊界版本" value={text(props.boundary_version)} />
       <Row label="空間精度" value={PRECISION_LABELS[text(props.spatial_precision)] ?? text(props.spatial_precision)} />
       <Row label="實測等值線" value={measured ? "是" : "否"} />
-      <Row label="面積" value={area == null ? "未提供" : `${area.toFixed(2)} km²`} />
+      <Row field="area" value={area == null ? "未提供" : `${area.toFixed(2)} km²`} />
       <SourceRows props={props} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         此圖是公告村里名單套疊行政界，不是 DNL 實測等噪音線，也不代表村里內每一處都有相同航空噪音。v1 只有桃園與高雄。
@@ -208,7 +208,7 @@ export function NoiseEnforcementEventsPanel({ props }: PanelProps) {
   return (
     <div>
       <Row label="受處分對象" value={text(props.fac_name)} />
-      <Row label="縣市" value={text(props.county)} />
+      <Row field="county" value={text(props.county)} />
       <Row label="裁處日期" value={text(props.penalty_date)} />
       <Row label="裁處類型" value={text(props.transgress_type)} />
       <Row label="違反法規" value={text(props.transgress_law)} />
@@ -216,7 +216,7 @@ export function NoiseEnforcementEventsPanel({ props }: PanelProps) {
       <Row label="罰鍰" value={money == null ? "未提供" : money > 0 ? `NT$ ${money.toLocaleString()}` : "未裁罰金額／0 元"} />
       <Row label="事件分層" value={PENALTY_SEVERITY_LABELS[severity] ?? severity} />
       <Row label="分層原因" value={text(props.severity_reason)} />
-      <Row label="定位精度" value={PRECISION_LABELS[precision] ?? precision} />
+      <Row field="positionAccuracy" value={PRECISION_LABELS[precision] ?? precision} />
       <Row label="公文號" value={text(props.document_no)} />
       <Row label="事件 ID" value={text(props.event_id)} />
       <Row label="資料型態" value={text(props.source_kind)} />
@@ -233,12 +233,12 @@ export function SoundCameraLocationsPanel({ props }: PanelProps) {
   const equipmentStatus = text(props.equipment_status, "not_provided");
   return (
     <div>
-      <Row label="名稱" value={text(props.location_name)} />
-      <Row label="縣市" value={text(props.county)} />
+      <Row field="name" value={text(props.location_name)} />
+      <Row field="county" value={text(props.county)} />
       <Row label="預期鄉鎮" value={text(props.expected_town, "未提供")} />
       <Row label="原始地址/路段" value={text(props.raw_location)} />
       <Row label="完整地址" value={text(props.full_address)} />
-      <Row label="定位精度" value={PRECISION_LABELS[precision] ?? precision} />
+      <Row field="positionAccuracy" value={PRECISION_LABELS[precision] ?? precision} />
       <Row label="定位方法" value={text(props.geocode_method, "未提供")} />
       <Row label="定位參照" value={text(props.geocode_reference, "未提供")} />
       <Row label="定位驗證" value={text(props.spatial_validation_status)} />

@@ -12,8 +12,8 @@ export function LivestockFarmPanel({ props }: { props: Record<string, unknown> }
       <Row label="主畜種" value={species} color={accent} />
       <Row label="總隻數" value={total.toLocaleString()} />
       <Row label="種類明細" value={String(props["種類明細"] ?? "")} />
-      <Row label="縣市" value={String(props["縣市"] ?? "")} />
-      {lowPrecision && <Row label="定位精度" value="低（僅段/村里中心，非精確場址）" color="#ffb300" />}
+      <Row field="county" value={String(props["縣市"] ?? "")} />
+      {lowPrecision && <Row field="positionAccuracy" value="低（僅段/村里中心，非精確場址）" color="#ffb300" />}
     </>
   );
 }
@@ -24,9 +24,9 @@ export function LivestockSlaughterPanel({ props }: { props: Record<string, unkno
   return (
     <>
       <Title color={accent}>{String(props["場名"] ?? "屠宰場")}</Title>
-      <Row label="類別" value={kind} color={accent} />
+      <Row field="category" value={kind} color={accent} />
       <Row label="種類" value={String(props["種類"] ?? "")} />
-      <Row label="地址" value={String(props["地址"] ?? "")} />
+      <Row field="address" value={String(props["地址"] ?? "")} />
     </>
   );
 }
@@ -36,7 +36,7 @@ export function LivestockFeedPanel({ props }: { props: Record<string, unknown> }
     <>
       <Title color={FEED_COLOR}>{String(props["廠名"] ?? "飼料廠")}</Title>
       <Row label="統編 BAN" value={String(props["BAN"] ?? "")} />
-      <Row label="地址" value={String(props["地址"] ?? "")} />
+      <Row field="address" value={String(props["地址"] ?? "")} />
     </>
   );
 }
@@ -46,7 +46,7 @@ export function LivestockMarketPanel({ props }: { props: Record<string, unknown>
     <>
       <Title color={MARKET_COLOR}>{String(props["場名"] ?? "拍賣/批發市場")}</Title>
       <Row label="種類" value={String(props["種類"] ?? "")} />
-      <Row label="地址" value={String(props["地址"] ?? "")} />
+      <Row field="address" value={String(props["地址"] ?? "")} />
     </>
   );
 }

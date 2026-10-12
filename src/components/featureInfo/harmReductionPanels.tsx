@@ -26,8 +26,8 @@ function CommonRows({ props }: Props) {
   const t = useFeatureTheme();
   const precision = props.geocode_precision;
   return <>
-    <Row label="地址" value={str(props.address)} />
-    <Row label="電話" value={str(props.phone).replace(/\|/g, "、")} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone).replace(/\|/g, "、")} />
     <Row label="服務時間" value={str(props.service_hours).replace(/\s*\n+\s*/g, "；")} />
     <Row
       label="座標精度"
@@ -64,7 +64,7 @@ export function HarmReductionTreatmentPanel({ props }: Props) {
   const drugs = [props.has_methadone === true && "美沙冬", props.has_buprenorphine === true && "丁基原啡因"].filter(Boolean);
   return <>
     <Title color={color}>{str(props.name) || "藥癮治療機構"}</Title>
-    <Row label="類別" value={str(props.category_label)} color={color} />
+    <Row field="category" value={str(props.category_label)} color={color} />
     <Row label="院所類型" value={str(props.facility_type_label)} />
     <Row label="替代治療藥物" value={drugs.join("、")} />
     <Row label="指定效期至" value={str(props.designation_valid_to)} mono />
@@ -95,7 +95,7 @@ export function HarmReductionHivTestingPanel({ props }: Props) {
   const color = colorOf(HIV_TESTING_CATEGORY_OPTIONS, props.category, HARM_REDUCTION_COLORS.harmReductionHivTesting);
   return <>
     <Title color={color}>{str(props.name) || "愛滋篩檢與醫療機構"}</Title>
-    <Row label="類別" value={str(props.category_label)} color={color} />
+    <Row field="category" value={str(props.category_label)} color={color} />
     <Row label="院所層級" value={str(props.subtype_label)} />
     <Row label="LINE 聯絡" value={str(props.contact_line)} />
     <CommonRows props={props} />
@@ -180,7 +180,7 @@ export function HarmReductionCondomOutletPanel({ props }: Props) {
   const color = colorOf(CONDOM_OUTLET_OPTIONS, props.outlet_type, HARM_REDUCTION_COLORS.harmReductionCondomOutlets);
   return <>
     <Title color={color}>{str(props.name) || "保險套販售點"}</Title>
-    <Row label="類型" value={str(props.outlet_type_label)} color={color} />
+    <Row field="type" value={str(props.outlet_type_label)} color={color} />
     <Row label="品項說明" value={str(props.item_note)} />
     {props.item_confirmed === false && <Row label="品項" value="品項待確認（來源未明確標示為保險套）" color={t.warn} />}
     <Row label="涵蓋範圍" value="本圖層僅含高雄市、新竹市、屏東縣、嘉義市" />
@@ -208,10 +208,10 @@ export function HarmReductionDuiCrashPanel({ props }: Props) {
   ].filter(Boolean).join("、");
   return <>
     <Title color={color}>酒駕肇事事故</Title>
-    <Row label="類別" value={str(props.accident_class_label)} color={color} />
-    <Row label="發生時間" value={`${str(props.accident_date)} ${str(props.accident_time)}`.trim()} mono />
+    <Row field="category" value={str(props.accident_class_label)} color={color} />
+    <Row field="occurredAt" value={`${str(props.accident_date)} ${str(props.accident_time)}`.trim()} mono />
     <Row label="傷亡" value={casualties} />
-    <Row label="地點" value={str(props.location)} />
+    <Row field="place" value={str(props.location)} />
     <Row label="主要肇因" value={str(props.cause_main)} />
     <Row label="酒駕判定" value={str(props.dui_cause_basis_label)} />
     <Row label="酒駕當事者" value={typeof props.n_dui_parties === "number" ? `${props.n_dui_parties} 人` : ""} />

@@ -1,0 +1,12 @@
+{
+  "enum.weatherStationType.署屬有人站": "Staffed CWA station",
+  "enum.weatherStationType.署屬無人站": "Unstaffed CWA station",
+  "enum.weatherStationType.自動雨量站": "Automatic rain gauge station",
+  "enum.weatherStationType.農業站": "Agrometeorological station",
+  "enum.railSystem.tra": "Taiwan Railway",
+  "enum.railSystem.thsr": "Taiwan High Speed Rail",
+  "enum.railSystem.trtc": "Taipei Metro",
+  "enum.railSystem.krtc": "Kaohsiung MRT",
+  "enum.railSystem.klrt": "Kaohsiung Light Rail",
+  "enum.railSystem.tmrt": "Taichung MRT"
+}

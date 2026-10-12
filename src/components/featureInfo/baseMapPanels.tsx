@@ -29,10 +29,10 @@ export function CountyBoundaryPanel({ props }: { props: Record<string, unknown> 
   const scale = String(props["比例尺分母"] ?? "");
   return (
     <div>
-      <Row label="縣市" value={name} />
+      <Row field="county" value={name} />
       <Row label="行政代碼" value={code} />
       <Row label="來源比例尺" value={scale ? `1:${scale}` : ""} />
-      <Row label="來源" value="內政部國土測繪中心" />
+      <Row field="source" value="內政部國土測繪中心" />
     </div>
   );
 }
@@ -45,10 +45,10 @@ export function TownshipBoundaryPanel({ props }: { props: Record<string, unknown
   return (
     <div>
       <Row label="鄉鎮市區" value={town} />
-      <Row label="縣市" value={county} />
+      <Row field="county" value={county} />
       <Row label="英文" value={eng} />
       <Row label="TOWNID" value={id} />
-      <Row label="來源" value="內政部國土測繪中心" />
+      <Row field="source" value="內政部國土測繪中心" />
     </div>
   );
 }
@@ -64,11 +64,11 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
     <div>
       <Row label="村里" value={vill} />
       <Row label="鄉鎮市區" value={town} />
-      <Row label="縣市" value={county} />
+      <Row field="county" value={county} />
       <Row label="英文" value={eng} />
       <Row label="VILLCODE" value={code} />
-      <Row label="備註" value={note} />
-      <Row label="來源" value="內政部國土測繪中心 NLSC" />
+      <Row field="remarks" value={note} />
+      <Row field="source" value="內政部國土測繪中心 NLSC" />
     </div>
   );
 }
@@ -86,13 +86,13 @@ export function MaritimeBoundaryPanel({ props }: { props: Record<string, unknown
   const isPoint = props.layer === "basepoint";
   return (
     <div>
-      <Row label="類型" value={kind} color={meta?.color} />
-      <Row label="區域" value={region} />
+      <Row field="type" value={kind} color={meta?.color} />
+      <Row field="region" value={region} />
       {isPoint && <Row label="基點名稱" value={String(props.name ?? "")} />}
       {isPoint && <Row label="基點編號" value={String(props.base_point_id ?? "")} />}
       {isPoint && <Row label="基點類型" value={String(props.type ?? "")} />}
       <Row label="法律意義" value={meta?.meaning ?? ""} />
-      <Row label="來源" value={MARITIME_BOUNDARY_SOURCE_NOTE} />
+      <Row field="source" value={MARITIME_BOUNDARY_SOURCE_NOTE} />
     </div>
   );
 }
@@ -103,10 +103,10 @@ export function Contour25kPanel({ props }: { props: Record<string, unknown> }) {
   const period = String(props.release_period ?? "");
   return (
     <div>
-      <Row label="海拔" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
+      <Row field="elevation" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
       <Row label="圖幅" value={sheet} />
       <Row label="期別" value={period} />
-      <Row label="來源" value="經建版 1:25000 地形圖（精度 10m）" />
+      <Row field="source" value="經建版 1:25000 地形圖（精度 10m）" />
     </div>
   );
 }
@@ -115,8 +115,8 @@ export function ContourDtm20Panel({ props }: { props: Record<string, unknown> })
   const elev = props.elev_m;
   return (
     <div>
-      <Row label="海拔" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
-      <Row label="來源" value="DTM 20m 等高線（gdal_contour，全臺）" />
+      <Row field="elevation" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
+      <Row field="source" value="DTM 20m 等高線（gdal_contour，全臺）" />
     </div>
   );
 }
@@ -132,7 +132,7 @@ export function SlopeVectorPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div>
       <Row label="坡度級別" value={cls ? `${cls}級坡 · ${range}（建管）` : "無資料"} />
-      <Row label="來源" value="建築技術規則六級坡分級（DTM 20m 計算）" />
+      <Row field="source" value="建築技術規則六級坡分級（DTM 20m 計算）" />
     </div>
   );
 }
@@ -149,7 +149,7 @@ export function AspectVectorPanel({ props }: { props: Record<string, unknown> })
   return (
     <div>
       <Row label="坡向" value={cls ? name : "無資料"} />
-      <Row label="來源" value="坡面朝向 8 方位分級（DTM 20m 計算）" />
+      <Row field="source" value="坡面朝向 8 方位分級（DTM 20m 計算）" />
     </div>
   );
 }
@@ -160,7 +160,7 @@ export function IsobathLinePanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div>
       <Row label="水深" value={depth ? `${Math.abs(depth).toLocaleString("zh-TW")} m` : ""} />
-      <Row label="來源" value={ISOBATH_ATTRIBUTION} />
+      <Row field="source" value={ISOBATH_ATTRIBUTION} />
     </div>
   );
 }
@@ -172,7 +172,7 @@ export function IsobathBandPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div>
       <Row label="深度區間" value={formatIsobathRange(dmin, dmax)} />
-      <Row label="來源" value={ISOBATH_ATTRIBUTION} />
+      <Row field="source" value={ISOBATH_ATTRIBUTION} />
     </div>
   );
 }
@@ -189,16 +189,16 @@ export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> })
   const tunnel = String(props.tunnel ?? "");
   return (
     <div>
-      <Row label="名稱" value={name} />
-      <Row label="編號" value={ref} />
-      <Row label="等級" value={HIGHWAY_LABEL[highway] ?? highway} />
+      <Row field="name" value={name} />
+      <Row field="number" value={ref} />
+      <Row field="level" value={HIGHWAY_LABEL[highway] ?? highway} />
       <Row label="單行道" value={oneway ? "是" : ""} />
       <Row label="速限" value={maxspeed} />
       <Row label="車道" value={lanes} />
       <Row label="路面" value={surface} />
       <Row label="橋梁" value={bridge && bridge !== "no" ? bridge : ""} />
       <Row label="隧道" value={tunnel && tunnel !== "no" ? tunnel : ""} />
-      <Row label="來源" value="OpenStreetMap" />
+      <Row field="source" value="OpenStreetMap" />
     </div>
   );
 }

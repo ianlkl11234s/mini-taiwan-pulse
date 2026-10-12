@@ -48,7 +48,7 @@ export function AnimalAdoptionPanel({ props }: { props: Record<string, unknown> 
     <Row label="待認領養" value={`${num(props.listed_count).toLocaleString()} 隻`} color="#f59e0b" />
     {dog > 0 ? <Row label="犬" value={`${dog.toLocaleString()} 隻`} color="#f59e0b" /> : null}
     {cat > 0 ? <Row label="貓" value={`${cat.toLocaleString()} 隻`} color="#a855f7" /> : null}
-    <Row label="縣市" value={str(props.county_name) || str(props.county_code)} />
+    <Row field="county" value={str(props.county_name) || str(props.county_code)} />
     <Row label="資料快照" value={latest || "尚未提供"} />
     <Trend rows={daily} />
     <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 6 }}>數量為每日快照中的掛牌數；不代表即時在所量。</div>
@@ -160,12 +160,12 @@ export function AnimalWelfarePointsPanel({ props }: { props: Record<string, unkn
       <div style={{ width: 10, height: 10, borderRadius: "50%", background: type.color }} />
       <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.name) || "動物服務點"}</div>
     </div>
-    <Row label="類型" value={type.label} color={type.color} />
+    <Row field="type" value={type.label} color={type.color} />
     {services ? <Row label="服務" value={services} /> : null}
-    {str(props.address) ? <Row label="地址" value={str(props.address)} /> : null}
-    {str(props.phone) ? <Row label="電話" value={str(props.phone)} /> : null}
-    {str(props.status) ? <Row label="狀態" value={str(props.status)} /> : null}
-    <Row label="來源" value={sourceDatasetId || "官方／地方公開名冊"} />
+    {str(props.address) ? <Row field="address" value={str(props.address)} /> : null}
+    {str(props.phone) ? <Row field="phone" value={str(props.phone)} /> : null}
+    {str(props.status) ? <Row field="status" value={str(props.status)} /> : null}
+    <Row field="source" value={sourceDatasetId || "官方／地方公開名冊"} />
     {str(props.last_seen_at) ? <Row label="最近出現" value={str(props.last_seen_at).slice(0, 10)} /> : null}
     <div style={{ color: t.textMuted, fontSize: FONT_SIZE.xs, marginTop: 8 }}>
       {history == null ? "載入此據點歷程…" : history.length ? `歷程 ${history.length.toLocaleString()} 筆（最多 400 筆）` : "尚無可顯示的據點歷程"}

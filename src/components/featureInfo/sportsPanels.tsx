@@ -22,13 +22,13 @@ export function SportsVenuePanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <Title color={accent}>{String(props["name"] ?? "運動場館")}</Title>
-      <Row label="類型" value={category} color={accent} />
+      <Row field="type" value={category} color={accent} />
       <Row label="隸屬" value={String(props["layer"] ?? "")} />
       {openStatus && <Row label="開放" value={openStatus} color={openStatusColor(openStatus)} />}
-      {Number.isFinite(area) && area > 0 && <Row label="面積" value={`${area.toLocaleString()} m²`} />}
-      <Row label="開放時間" value={String(props["open_hours"] ?? "")} />
-      <Row label="縣市區" value={cityDistrict} />
-      <Row label="地址" value={String(props["address"] ?? "")} />
+      {Number.isFinite(area) && area > 0 && <Row field="area" value={`${area.toLocaleString()} m²`} />}
+      <Row field="openingHours" value={String(props["open_hours"] ?? "")} />
+      <Row field="countyDistrict" value={cityDistrict} />
+      <Row field="address" value={String(props["address"] ?? "")} />
       <Row label="經營單位" value={String(props["owner_org"] ?? "")} />
       {website && website !== "null" && (
         <div style={{ marginTop: 4, fontSize: FONT_SIZE.base }}>

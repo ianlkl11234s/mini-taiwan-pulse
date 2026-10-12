@@ -73,8 +73,8 @@ export function FreewayCongestionPanel({ props }: { props: Record<string, unknow
           {label}
         </div>
       </div>
-      {sectionName && <Row label="路段" value={sectionName} />}
-      {direction && <Row label="方向" value={direction} />}
+      {sectionName && <Row field="roadSection" value={sectionName} />}
+      {direction && <Row field="direction" value={direction} />}
       {/* 時速是開這層唯一想知道的數字：色帶只給等級區間 */}
       {speed != null && <Row label="平均時速" value={`${Math.round(speed)} km/h`} color={color} />}
       <Row label="壅塞等級" value={level > 0 ? `${level}（${label}）` : "無資料"} />
@@ -181,7 +181,7 @@ function MoiRoadBody({ props, isHighway }: { props: Record<string, unknown>; isH
       {briTun && <Row label="橋梁／隧道" value={briTun} />}
       {class1 && <Row label="路線分類" value={ROADCLASS1_LABELS[class1] ?? class1} />}
       {num1 && <Row label="共線編號" value={num1} />}
-      {county && <Row label="縣市" value={county} />}
+      {county && <Row field="county" value={county} />}
       {surveyed && <Row label="測製年月" value={surveyed} />}
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         內政部通用電子地圖 道路中線
@@ -241,9 +241,9 @@ export function CyclingRoutePanel({ props }: { props: Record<string, unknown> })
       <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, marginBottom: 6 }}>
         {routeName || "自行車道"}
       </div>
-      {(city || town) && <Row label="行政區" value={[city, town].filter(Boolean).join(" ")} />}
+      {(city || town) && <Row field="district" value={[city, town].filter(Boolean).join(" ")} />}
       {(from || to) && <Row label="起訖路段" value={`${from || "—"} → ${to || "—"}`} />}
-      {lengthLabel && <Row label="長度" value={lengthLabel} />}
+      {lengthLabel && <Row field="length" value={lengthLabel} />}
       {direction && <Row label="通行方向" value={direction} />}
       {finished && <Row label="完工日期" value={finished} />}
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>

@@ -43,7 +43,7 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
           AQI {String(props.status ?? "")}
         </span>
       </div>
-      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
       <Row label="主污染物" value={String(props.pollutant ?? "")} />
       <Row label="PM2.5" value={formatNum(numOrNull(props.pm25), "µg/m³")} mono />
       <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />
@@ -52,7 +52,7 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="SO₂" value={formatNum(numOrNull(props.so2), "ppb", 2)} />
       <Row label="CO" value={formatNum(numOrNull(props.co), "ppm", 2)} />
       <Row label="風速" value={formatNum(numOrNull(props.windSpeed), "m/s", 1)} />
-      <Row label="觀測時間" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
+      <Row field="observedAt" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
     </>
   );
 }
@@ -94,14 +94,14 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       {/* 標題被站名佔走時，device_id 改用一列補回，避免資訊遺失 */}
       {siteName && <Row label="裝置 ID" value={String(props.deviceId ?? "")} />}
-      <Row label="來源" value={String(props.source ?? "")} />
+      <Row field="source" value={String(props.source ?? "")} />
       <Row label="裝置" value={String(props.app ?? "")} />
       <Row label="地區" value={String(props.area ?? "")} />
       <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />
       <Row label="PM1" value={formatNum(numOrNull(props.pm1), "µg/m³")} />
       <Row label="溫度" value={tempStr} />
       <Row label="濕度" value={formatNum(numOrNull(props.humidity), "%")} />
-      <Row label="觀測時間" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
+      <Row field="observedAt" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
     </>
   );
 }
@@ -143,12 +143,12 @@ export function TemperatureGridPanel({ props }: { props: Record<string, unknown>
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>°C</span>
       </div>
-      <Row label="時間" value={timeStr} />
+      <Row field="time" value={timeStr} />
       <Row
         label="格點"
         value={lng != null && lat != null ? `${lng.toFixed(3)}, ${lat.toFixed(3)}` : ""}
       />
-      <Row label="來源" value="CWA 0.03° 逐時觀測分析格點" />
+      <Row field="source" value="CWA 0.03° 逐時觀測分析格點" />
     </>
   );
 }
