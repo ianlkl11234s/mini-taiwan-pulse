@@ -6,6 +6,7 @@ import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, 
 import { ENVIRONMENT_STATISTICS_RECIPES_BY_KEY, environmentDefaultDimensions, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { ADDICTION_STATISTICS_RECIPES_BY_KEY, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { LANDSLIDE_STATISTICS_RECIPES_BY_KEY, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasDefaultDimensions, atlasRenderScale, getAtlasRecipe, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
 import { DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY, demographicsDisplayLabel, demographicsLatestOption, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
@@ -516,6 +517,28 @@ export const STATISTICS_RECIPES = {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
   }>,
+  // atlas 六家族（疾病與健康、財稅與消費、原民與農村、體育、災害風險、海洋）：不放 releaseId，loader 由 exact whitelist
+  // 取最新公開期別＋layer-plan 預設維度；門檻與色階方向依目前維度組合（statisticsRenderRecipe 第三參數）。
+  ...Object.fromEntries(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: `${new Set(recipe.release_options.map((option) => `${option.period_start}|${option.period_end}`)).size} 個已交付期別`,
+    dimensions: atlasDefaultDimensions(recipe),
+    includeHealth: true,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      locationSemantics: recipe.location_semantics,
+      disclosure: recipe.disclosure,
+    },
+    breaks: recipe.legend.breaks,
+    colors: statisticsVisualColors(recipe.layer_key, recipe.label, recipe.legend.breaks, recipe.legend.direction),
+  }])) as Record<AtlasStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;
 export const STATISTICS_KEYS = Object.keys(STATISTICS_RECIPES) as StatisticsLayerKey[];
@@ -536,9 +559,17 @@ function educationMetricInitial(key: StatisticsLayerKey, stage: string) {
   return getComparisonRecipe(key)?.release_options.filter(option => option.dimensions.education_stage === stage)
     .sort((a, b) => b.period_end.localeCompare(a.period_end) || b.period_start.localeCompare(a.period_start))[0];
 }
-export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string) {
+/**
+ * @param selectedDimensions 目前選擇的維度（atlas 家族用）：癌別、行業等量級差很大的組合各有固定門檻，
+ *   社會脆弱度子指標依正負號反轉色階；map 與圖例都經過這裡，確保兩者一致。其他家族忽略。
+ */
+export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string, selectedDimensions?: Record<string, unknown>) {
   const baseKey = statisticsBaseKey(key, selectedIndicator);
   const source = STATISTICS_RECIPES[baseKey];
+  const atlasScale = getAtlasRecipe(baseKey) ? atlasRenderScale(baseKey, selectedDimensions) : undefined;
+  if (atlasScale) {
+    return { ...source, breaks: atlasScale.breaks, colors: statisticsVisualColors(baseKey, source.label, atlasScale.breaks, atlasScale.direction) };
+  }
   const base = { ...source, colors: statisticsVisualColors(baseKey, source.label, source.breaks) };
   const laborMetric = getLaborStatisticsPresentationMetric(key, selectedIndicator);
   if (laborMetric?.valueTransform) {

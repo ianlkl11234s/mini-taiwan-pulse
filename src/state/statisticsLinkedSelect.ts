@@ -20,6 +20,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatistic
 import { getEnvironmentRecipe, resolveEnvironmentRelease } from '../data/environmentStatisticsRecipes';
 import { getAddictionRecipe, resolveAddictionRelease } from '../data/addictionStatisticsRecipes';
 import { getLandslideRecipe, resolveLandslideRelease } from '../data/landslideStatisticsRecipes';
+import { getAtlasRecipe, resolveAtlasRelease } from '../data/atlasStatisticsRecipes';
 import { demographicsPeriodLabel, getDemographicsRecipe, resolveDemographicsRelease } from '../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../data/statisticsPresentationViews';
@@ -107,6 +108,7 @@ function buildModel(key: string): StatisticsModel {
   const demographics = getDemographicsRecipe(activeBaseKey);
   const addiction = getAddictionRecipe(activeBaseKey);
   const landslide = getLandslideRecipe(activeBaseKey);
+  const atlas = getAtlasRecipe(activeBaseKey);
   const hasRelease = specs.some((spec) => spec.field === 'release');
   const hasDims = specs.some((spec) => spec.field.startsWith('dim:'));
 
@@ -124,7 +126,8 @@ function buildModel(key: string): StatisticsModel {
           : demographics ? (release ? resolveDemographicsRelease(activeBaseKey, release, option.dimensions) : null)
             : addiction ? (release ? resolveAddictionRelease(activeBaseKey, release, option.dimensions) : null)
               : landslide ? (release ? resolveLandslideRelease(activeBaseKey, release, option.dimensions) : null)
-                : option;
+                : atlas ? (release ? resolveAtlasRelease(activeBaseKey, release, option.dimensions) : null)
+                  : option;
     if (!resolved) return false;
     regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, indicator), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
@@ -140,8 +143,8 @@ function buildModel(key: string): StatisticsModel {
   let currentMetric: string | undefined;
   const metricLabels = new Map<string, string>();
 
-  // 環境／人口／成癮與減害統計的期別即 exact tuple（含 dimensions），必須走白名單分支，不可列原始 releases。
-  if (!hasDims && hasRelease && !environment && !demographics && !addiction && !landslide) {
+  // 環境／人口／成癮與減害／崩塌／atlas 統計的期別即 exact tuple（含 dimensions），必須走白名單分支，不可列原始 releases。
+  if (!hasDims && hasRelease && !environment && !demographics && !addiction && !landslide && !atlas) {
     // 沒有 exact tuple 維度的 recipe：直接列公開期別（舊版「資料期別」單選）。
     tuples = state.releases.map((release) => ({
       values: tupleValues(specs, { releaseId: release.release_id, dimensions: {} }),

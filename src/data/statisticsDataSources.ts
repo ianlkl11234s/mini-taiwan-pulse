@@ -6,6 +6,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationView, laborLocationSemant
 import { getEnvironmentRecipe } from "./environmentStatisticsRecipes";
 import { getAddictionRecipe } from "./addictionStatisticsRecipes";
 import { getLandslideRecipe } from "./landslideStatisticsRecipes";
+import { getAtlasRecipe } from "./atlasStatisticsRecipes";
 import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
@@ -171,6 +172,28 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       sourceUrl: landslide.source_landing_url,
       provider: landslide.publisher,
       license: landslide.license,
+    };
+  }
+
+  const atlas = getAtlasRecipe(key);
+  if (atlas) {
+    // 期別以「期間」計（癌症等有維度的指標，一期含多個維度組合 selector）。
+    const periods = [...new Map(atlas.release_options.map((option) => [`${option.period_start}|${option.period_end}`, option])).values()];
+    const dimensionText = atlas.dimensions.length ? `；維度：${atlas.dimensions.map((dimension) => `${dimension.label}（預設 ${dimension.options.find((option) => option.value === dimension.default)?.label ?? dimension.default}）`).join("、")}` : "";
+    const statusText = Object.values(atlas.status_labels).join("；");
+    return {
+      kind: atlas.derived ? "derived" : "source",
+      datasetIds: [atlas.dataset_id],
+      label: atlas.derived ? "衍生統計（同期分子÷分母）" : `原始${atlas.data_theme.split(" ")[0]}快照`,
+      metricLabel: atlas.label,
+      unit: atlas.unit,
+      level: atlas.level,
+      period: periodLabel(periods),
+      contract: `只接受 ${atlas.release_options.length} 個已交付 exact release selector${dimensionText}；數值保留來源值，不重算。${statusText ? `${statusText}。` : ""}`,
+      disclosure: `位置口徑：${atlas.location_semantics} ${atlas.disclosure}`,
+      sourceUrl: atlas.source_landing_url,
+      provider: atlas.publisher,
+      license: atlas.license,
     };
   }
 
