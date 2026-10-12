@@ -26,6 +26,7 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createElement, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { localeStore } from "../../src/state/localeStore";
 
 import { extractGolden } from "../../src/data/__tests__/layerGoldenExtract";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest";
@@ -606,8 +607,8 @@ for (const entry of LEGEND_REGISTRY) {
   ])];
   let html = ""; let htmlLight = ""; let resolution = "ssr"; let err = "";
   try {
-    html = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: true, railSystems: undefined } as never)));
-    htmlLight = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: false, railSystems: undefined } as never)));
+    html = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: true, railSystems: undefined, i18n: localeStore.getSnapshot() } as never)));
+    htmlLight = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: false, railSystems: undefined, i18n: localeStore.getSnapshot() } as never)));
   } catch (e) { resolution = "static"; err = e instanceof Error ? e.message.slice(0, 100) : String(e); }
   let feats: LegendFeatures;
   if (resolution === "ssr" && html.trim()) feats = featuresFromHtml(html);
