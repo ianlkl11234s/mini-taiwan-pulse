@@ -638,6 +638,14 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("osmRoadDrive"),
         ],
       },
+      {
+        // 內政部地名（PMTiles，不畫文字標籤）＋三角點
+        title: "地名 Gazetteer",
+        layers: [
+          fromManifest("placeNames"),
+          fromManifest("triangulationPoints"),
+        ],
+      },
     ],
   },
 
@@ -744,6 +752,42 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("parkingOnstreet"),
           fromManifest("parkingOffstreet"),
+        ],
+      },
+      {
+        // atlas 批次 2026-10：省道／國道標誌、里程牌、交流道、生態敏感路段、防救災監控路段、避車彎
+        title: "道路設施 Road Facilities",
+        layers: [
+          fromManifest("provincialRoadSigns"),
+          fromManifest("provincialRoadMileposts"),
+          fromManifest("freewayTrafficSigns"),
+          fromManifest("freewayInterchanges"),
+          fromManifest("freewayEcoSensitive"),
+          fromManifest("provincialRoadMonitored"),
+          fromManifest("provincialRoadEmergencyBays"),
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🏔️ 原民與農村（atlas 批次 2026-10）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "原民與農村 Indigenous & Rural",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "原住民族 Indigenous Peoples",
+        layers: [
+          fromManifest("indigenousTribes"),
+          fromManifest("indigenousIsolationRisk"),
+        ],
+      },
+      {
+        title: "農村 Rural",
+        layers: [
+          fromManifest("agriRuralCommunityVillages"),
         ],
       },
     ],
@@ -1422,6 +1466,14 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("landslideDodImpact"),
           fromManifest("highwayDisasterHistory"),
           fromManifest("landslideAnnual"),
+          fromManifest("swcbDisasterPhotoPoints"),
+        ],
+      },
+      {
+        title: "淹水 Flooding",
+        layers: [
+          fromManifest("floodDisasterPointsNcdr"),
+          fromManifest("taipeiWaterloggingHistory"),
         ],
       },
       {
@@ -1592,6 +1644,37 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🌊 海洋（atlas 批次 2026-10）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "海洋 Marine",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "擱淺 Strandings",
+        layers: [
+          fromManifest("cetaceanStrandings"),
+          fromManifest("seaTurtleStrandings"),
+        ],
+      },
+      {
+        title: "海域環境 Marine Environment",
+        layers: [
+          fromManifest("beachWaterQuality"),
+          fromManifest("marineMicroplastics"),
+          fromManifest("marinePollutionIncidents"),
+        ],
+      },
+      {
+        title: "調查站網 Survey Sites",
+        layers: [
+          fromManifest("namrEdnaSurveySites"),
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 💧 WATER 水資源
   // ───────────────────────────────────────────────────────────────
   {
@@ -1628,6 +1711,16 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("waterDetentionBasins"),
           fromManifest("groundwater"),
           fromManifest("lakesPondsOsm"),
+        ],
+      },
+      {
+        title: "水利設施 Water Facilities",
+        layers: [
+          fromManifest("wraFloodgatesCentral"),
+          fromManifest("wraCentralDrainage"),
+          fromManifest("iowStructureMonitoring"),
+          fromManifest("wraDredgingPoints"),
+          fromManifest("wraEcologySurveySites"),
         ],
       },
       {
@@ -2173,6 +2266,8 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "體育統計 Sports Statistics": "publicLife",
   "災害風險統計 Disaster Risk Statistics": "environment",
   "海洋統計 Marine Statistics": "environment",
+  "原民與農村 Indigenous & Rural": "city",
+  "海洋 Marine": "environment",
   "統計比較": "publicLife",
   "教育與少子化統計": "publicLife",
   "醫療與長照統計": "publicLife",
@@ -2264,6 +2359,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "體育運動 Sports": { zh: "體育運動", sub: "Sports" },
   "災害風險 Disaster Risk": { zh: "災害風險", sub: "Disaster Risk" },
   "海洋 Marine": { zh: "海洋", sub: "Marine" },
+  "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
   "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
   "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
   "農業統計": { zh: "農業統計" },

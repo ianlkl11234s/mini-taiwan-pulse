@@ -176,7 +176,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-06: +4 崩塌（大規模崩塌潛勢區／影響範圍、省道歷史災情、年度全島崩塌地）。
     // 2026-10-09: +4 日本氣象廳即時（AMeDAS、警報・注意報、地震、火山警戒）。
     // 2026-10-12: +66 atlas 批次 Statistics 圖層（疾病與健康 19、財稅與消費 22、原民與農村 3、體育 4、災害風險 8、海洋 10）。
-    expect(keys.length).toBe(1148);
+    // 2026-10-12: +26 atlas 批次點／線／面圖層（原民與農村 3、道路設施 7、淹水與災害照片 3、海洋 6、地名 2、水利設施 5）。
+    expect(keys.length).toBe(1174);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

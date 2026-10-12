@@ -30,6 +30,7 @@ import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmRedu
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 import { JmaAmedasLegend, JmaQuakesLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
+import { ATLAS_LEGENDS } from "./legend/atlasLegends";
 import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, LightningCwaLegend, LightningLegend, MicroSensorLegend, NoiseCaptureGridLegend, NoiseControlZonesLegend, NoiseEnforcementEventsLegend, OceanCurrentsLegend, OfficialNoiseMonitoringLegend, PollutionPenaltyLegend, PollutionSeverityLegend, SoundCameraLocationsLegend, TemperatureGridLegend, TemperatureWaveLegend, UrbanHeatLegend, WasteFacilityLegend, WasteTruckLegend, WindFieldLegend } from "./legend/environmentWeatherLegends";
 import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLegend, AquacultureLegend, AquacultureWaterSatelliteMoaLegend, AquacultureWaterUnionLegend, CoralReefDistributionLegend, GfwDarkVesselsLegend, GfwFishingEffortLegend, GfwHourlyGridLegend, GfwHourlyTracksLegend, GfwVesselPresenceLegend, IsobathLegend, MarineObservationLegend, MaritimeBoundaryLegend, PlaActivityLegend, ShipsLegend, VesselWatchLegend, WorldTrashDebrisLegend } from "./legend/maritimeLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend } from "./legend/transportLegends";
@@ -120,6 +121,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "landslideDodImpact", render: () => <LandslideDodImpactLegend /> },
   { id: "highwayDisasterHistory", render: () => <HighwayDisasterHistoryLegend /> },
   { id: "landslideAnnual", render: () => <LandslideAnnualLegend /> },
+  ...Object.entries(ATLAS_LEGENDS).map(([id, render]) => ({ id, render })),
   { id: "harmReductionNeedle", render: () => <HarmReductionNeedleLegend /> },
   { id: "harmReductionTreatment", render: () => <HarmReductionTreatmentLegend /> },
   { id: "harmReductionHivSelftest", render: () => <HarmReductionHivSelftestLegend /> },

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1148,
+    "keyCount": 1174,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2199,6 +2199,160 @@
     },
     {
       "layers": [
+        "indigenous-tribes-circle",
+        "indigenous-tribes-glow"
+      ],
+      "type": "indigenousTribes"
+    },
+    {
+      "layers": [
+        "indigenous-isolation-risk-circle",
+        "indigenous-isolation-risk-glow"
+      ],
+      "type": "indigenousIsolationRisk"
+    },
+    {
+      "layers": [
+        "provincial-road-signs-circle",
+        "provincial-road-signs-glow"
+      ],
+      "type": "provincialRoadSigns"
+    },
+    {
+      "layers": [
+        "provincial-road-mileposts-circle",
+        "provincial-road-mileposts-glow"
+      ],
+      "type": "provincialRoadMileposts"
+    },
+    {
+      "layers": [
+        "freeway-traffic-signs-circle",
+        "freeway-traffic-signs-glow"
+      ],
+      "type": "freewayTrafficSigns"
+    },
+    {
+      "layers": [
+        "freeway-interchanges-circle",
+        "freeway-interchanges-glow"
+      ],
+      "type": "freewayInterchanges"
+    },
+    {
+      "layers": [
+        "flood-disaster-points-ncdr-circle",
+        "flood-disaster-points-ncdr-glow"
+      ],
+      "type": "floodDisasterPointsNcdr"
+    },
+    {
+      "layers": [
+        "swcb-disaster-photo-points-circle",
+        "swcb-disaster-photo-points-glow"
+      ],
+      "type": "swcbDisasterPhotoPoints"
+    },
+    {
+      "layers": [
+        "cetacean-strandings-circle",
+        "cetacean-strandings-glow"
+      ],
+      "type": "cetaceanStrandings"
+    },
+    {
+      "layers": [
+        "sea-turtle-strandings-circle",
+        "sea-turtle-strandings-glow"
+      ],
+      "type": "seaTurtleStrandings"
+    },
+    {
+      "layers": [
+        "beach-water-quality-circle",
+        "beach-water-quality-glow"
+      ],
+      "type": "beachWaterQuality"
+    },
+    {
+      "layers": [
+        "marine-microplastics-circle",
+        "marine-microplastics-glow"
+      ],
+      "type": "marineMicroplastics"
+    },
+    {
+      "layers": [
+        "marine-pollution-incidents-circle",
+        "marine-pollution-incidents-glow"
+      ],
+      "type": "marinePollutionIncidents"
+    },
+    {
+      "layers": [
+        "namr-edna-survey-sites-circle",
+        "namr-edna-survey-sites-glow"
+      ],
+      "type": "namrEdnaSurveySites"
+    },
+    {
+      "layers": [
+        "place-names-moi-circle",
+        "place-names-moi-glow"
+      ],
+      "type": "placeNames"
+    },
+    {
+      "layers": [
+        "triangulation-points-moi-circle",
+        "triangulation-points-moi-glow"
+      ],
+      "type": "triangulationPoints"
+    },
+    {
+      "layers": [
+        "wra-floodgates-central-circle",
+        "wra-floodgates-central-glow"
+      ],
+      "type": "wraFloodgatesCentral"
+    },
+    {
+      "layers": [
+        "iow-structure-monitoring-circle",
+        "iow-structure-monitoring-glow"
+      ],
+      "type": "iowStructureMonitoring"
+    },
+    {
+      "layers": [
+        "wra-dredging-points-circle",
+        "wra-dredging-points-glow"
+      ],
+      "type": "wraDredgingPoints"
+    },
+    {
+      "layers": [
+        "wra-ecology-survey-sites-circle",
+        "wra-ecology-survey-sites-glow"
+      ],
+      "type": "wraEcologySurveySites"
+    },
+    {
+      "layers": [
+        "provincial-road-monitored-point",
+        "provincial-road-monitored-line"
+      ],
+      "type": "provincialRoadMonitored"
+    },
+    {
+      "layers": [
+        "provincial-road-emergency-bays-point",
+        "provincial-road-emergency-bays-line"
+      ],
+      "type": "provincialRoadEmergencyBays"
+    },
+    {
+      "layers": [
         "forest-education-centers-circle"
       ],
       "type": "forestryPOI"
@@ -3320,6 +3474,34 @@
         "landslide-dod-impact-outline"
       ],
       "type": "landslideDodImpact"
+    },
+    {
+      "layers": [
+        "taipei-waterlogging-history-fill",
+        "taipei-waterlogging-history-outline"
+      ],
+      "type": "taipeiWaterloggingHistory"
+    },
+    {
+      "layers": [
+        "freeway-eco-sensitive-fill",
+        "freeway-eco-sensitive-outline"
+      ],
+      "type": "freewayEcoSensitive"
+    },
+    {
+      "layers": [
+        "wra-central-drainage-fill",
+        "wra-central-drainage-outline"
+      ],
+      "type": "wraCentralDrainage"
+    },
+    {
+      "layers": [
+        "agri-rural-community-villages-fill",
+        "agri-rural-community-villages-outline"
+      ],
+      "type": "agriRuralCommunityVillages"
     },
     {
       "layers": [
@@ -69319,6 +69501,6441 @@
       ],
       "sourceId": "highway-disaster-history",
       "sourceUrl": "./hazards/highway_disaster_history.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousTribes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#64748b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#b45309",
+                  "阿美族",
+                  "#dc2626",
+                  "排灣族",
+                  "#7c3aed",
+                  "布農族",
+                  "#2563eb",
+                  "太魯閣族",
+                  "#0f766e",
+                  "賽夏族",
+                  "#db2777",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#9333ea",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#1d4ed8",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#64748b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#b45309",
+                  "阿美族",
+                  "#dc2626",
+                  "排灣族",
+                  "#7c3aed",
+                  "布農族",
+                  "#2563eb",
+                  "太魯閣族",
+                  "#0f766e",
+                  "賽夏族",
+                  "#db2777",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#9333ea",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#1d4ed8",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#64748b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#b45309",
+                  "阿美族",
+                  "#dc2626",
+                  "排灣族",
+                  "#7c3aed",
+                  "布農族",
+                  "#2563eb",
+                  "太魯閣族",
+                  "#0f766e",
+                  "賽夏族",
+                  "#db2777",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#9333ea",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#1d4ed8",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_current_approved_list"
+                  ],
+                  false
+                ],
+                "#64748b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "ethnic_group"
+                  ],
+                  "泰雅族",
+                  "#b45309",
+                  "阿美族",
+                  "#dc2626",
+                  "排灣族",
+                  "#7c3aed",
+                  "布農族",
+                  "#2563eb",
+                  "太魯閣族",
+                  "#0f766e",
+                  "賽夏族",
+                  "#db2777",
+                  "魯凱族",
+                  "#65a30d",
+                  "賽德克族",
+                  "#9333ea",
+                  "卑南族",
+                  "#ea580c",
+                  "鄒族",
+                  "#0891b2",
+                  "雅美族(達悟族)",
+                  "#1d4ed8",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "indigenous-tribes",
+      "sourceUrl": "./indigenous_rural/indigenous_tribes.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousIsolationRisk",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#7f1d1d",
+                "debris+road",
+                "#be123c",
+                "flood+road",
+                "#1d4ed8",
+                "debris+flood",
+                "#7c3aed",
+                "road",
+                "#ea580c",
+                "debris",
+                "#a16207",
+                "flood",
+                "#0284c7",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#7f1d1d",
+                "debris+road",
+                "#be123c",
+                "flood+road",
+                "#1d4ed8",
+                "debris+flood",
+                "#7c3aed",
+                "road",
+                "#ea580c",
+                "debris",
+                "#a16207",
+                "flood",
+                "#0284c7",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#7f1d1d",
+                "debris+road",
+                "#be123c",
+                "flood+road",
+                "#1d4ed8",
+                "debris+flood",
+                "#7c3aed",
+                "road",
+                "#ea580c",
+                "debris",
+                "#a16207",
+                "flood",
+                "#0284c7",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cause_combo"
+                ],
+                "debris+flood+road",
+                "#7f1d1d",
+                "debris+road",
+                "#be123c",
+                "flood+road",
+                "#1d4ed8",
+                "debris+flood",
+                "#7c3aed",
+                "road",
+                "#ea580c",
+                "debris",
+                "#a16207",
+                "flood",
+                "#0284c7",
+                "none",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "indigenous-isolation-risk",
+      "sourceUrl": "./indigenous_rural/indigenous_isolation_risk_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "agriRuralCommunityVillages",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "community_type"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "community_type"
+          ],
+          "layout": null,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "community_type"
+                ],
+                "平地社區",
+                "#84cc16",
+                "丘陵社區",
+                "#ca8a04",
+                "高山社區",
+                "#15803d",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 7,
+        "sourceLayer": "rural_community_villages"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "agri-rural-community-villages",
+      "sourceUrl": "./indigenous_rural/rural_community_villages.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "provincialRoadSigns",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "sign_series"
+          ],
+          "layout": null,
+          "maxzoom": 11.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "sign_series"
+          ],
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_series"
+                ],
+                "speed_limit",
+                "#2563eb",
+                "speed_enforcement",
+                "#dc2626",
+                "height_limit",
+                "#7c3aed",
+                "weight_limit",
+                "#9333ea",
+                "curve_warning",
+                "#ea580c",
+                "steep_slope",
+                "#a16207",
+                "pedestrian_warning",
+                "#db2777",
+                "children_warning",
+                "#e11d48",
+                "expressway_interchange_name",
+                "#16a34a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_series"
+                ],
+                "speed_limit",
+                "#2563eb",
+                "speed_enforcement",
+                "#dc2626",
+                "height_limit",
+                "#7c3aed",
+                "weight_limit",
+                "#9333ea",
+                "curve_warning",
+                "#ea580c",
+                "steep_slope",
+                "#a16207",
+                "pedestrian_warning",
+                "#db2777",
+                "children_warning",
+                "#e11d48",
+                "expressway_interchange_name",
+                "#16a34a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "sign_series"
+          ],
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_series"
+                ],
+                "speed_limit",
+                "#2563eb",
+                "speed_enforcement",
+                "#dc2626",
+                "height_limit",
+                "#7c3aed",
+                "weight_limit",
+                "#9333ea",
+                "curve_warning",
+                "#ea580c",
+                "steep_slope",
+                "#a16207",
+                "pedestrian_warning",
+                "#db2777",
+                "children_warning",
+                "#e11d48",
+                "expressway_interchange_name",
+                "#16a34a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_series"
+                ],
+                "speed_limit",
+                "#2563eb",
+                "speed_enforcement",
+                "#dc2626",
+                "height_limit",
+                "#7c3aed",
+                "weight_limit",
+                "#9333ea",
+                "curve_warning",
+                "#ea580c",
+                "steep_slope",
+                "#a16207",
+                "pedestrian_warning",
+                "#db2777",
+                "children_warning",
+                "#e11d48",
+                "expressway_interchange_name",
+                "#16a34a",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 9,
+        "sourceLayer": "provincial_road_signs"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "provincial-road-signs",
+      "sourceUrl": "./geo/provincial_road_signs.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "provincialRoadMileposts",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#0f766e",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#0f766e",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0f766e",
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#0f766e",
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 11,
+        "sourceLayer": "provincial_road_mileposts"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "provincial-road-mileposts",
+      "sourceUrl": "./geo/provincial_road_mileposts.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayTrafficSigns",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "sign_group"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_group"
+                ],
+                "milepost",
+                "#16a34a",
+                "other",
+                "#2563eb",
+                "unlabeled",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_group"
+                ],
+                "milepost",
+                "#16a34a",
+                "other",
+                "#2563eb",
+                "unlabeled",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "sign_group"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_group"
+                ],
+                "milepost",
+                "#16a34a",
+                "other",
+                "#2563eb",
+                "unlabeled",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sign_group"
+                ],
+                "milepost",
+                "#16a34a",
+                "other",
+                "#2563eb",
+                "unlabeled",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "freeway_traffic_signs"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "freeway-traffic-signs",
+      "sourceUrl": "./geo/freeway_traffic_signs.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayInterchanges",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "system_interchange",
+                "#b91c1c",
+                "interchange",
+                "#047857",
+                "connector",
+                "#7c3aed",
+                "terminus",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "system_interchange",
+                "#b91c1c",
+                "interchange",
+                "#047857",
+                "connector",
+                "#7c3aed",
+                "terminus",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "system_interchange",
+                "#b91c1c",
+                "interchange",
+                "#047857",
+                "connector",
+                "#7c3aed",
+                "terminus",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "system_interchange",
+                "#b91c1c",
+                "interchange",
+                "#047857",
+                "connector",
+                "#7c3aed",
+                "terminus",
+                "#475569",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "freeway-interchanges",
+      "sourceUrl": "./geo/freeway_interchanges.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayEcoSensitive",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "sensi_level"
+                  ]
+                ],
+                "1",
+                "#99f6e4",
+                "2",
+                "#2dd4bf",
+                "3",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "freeway-eco-sensitive",
+      "sourceUrl": "./geo/freeway_eco_sensitive_sections.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "provincialRoadMonitored",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "LineString"
+            ],
+            [
+              "has",
+              "monitor_series"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "monitor_series"
+                ],
+                "level1_section",
+                "#dc2626",
+                "level2_section",
+                "#f59e0b",
+                "level1_bridge",
+                "#7c3aed",
+                "flood_debris_prone",
+                "#0284c7",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                2,
+                14,
+                5
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "monitor_series"
+                ],
+                "level1_section",
+                "#dc2626",
+                "level2_section",
+                "#f59e0b",
+                "level1_bridge",
+                "#7c3aed",
+                "flood_debris_prone",
+                "#0284c7",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                2,
+                14,
+                5
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "geometry-type"
+              ],
+              "Point"
+            ],
+            [
+              "has",
+              "monitor_series"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "monitor_series"
+                ],
+                "level1_section",
+                "#dc2626",
+                "level2_section",
+                "#f59e0b",
+                "level1_bridge",
+                "#7c3aed",
+                "flood_debris_prone",
+                "#0284c7",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 5,
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "monitor_series"
+                ],
+                "level1_section",
+                "#dc2626",
+                "level2_section",
+                "#f59e0b",
+                "level1_bridge",
+                "#7c3aed",
+                "flood_debris_prone",
+                "#0284c7",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 5,
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 8,
+        "sourceLayer": "provincial_road_monitored_sections"
+      },
+      "rebuildOnParamChange": [
+        "line",
+        "point"
+      ],
+      "sourceId": "provincial-road-monitored",
+      "sourceUrl": "./geo/provincial_road_monitored_sections.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "provincialRoadEmergencyBays",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "geometry-type"
+            ],
+            "LineString"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_latest_list"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                "#a78bfa"
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                2,
+                14,
+                5
+              ]
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_latest_list"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                "#a78bfa"
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                2,
+                14,
+                5
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "geometry-type"
+            ],
+            "Point"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_latest_list"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                "#a78bfa"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                14,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "in_latest_list"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                "#a78bfa"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                14,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line",
+        "point"
+      ],
+      "sourceId": "provincial-road-emergency-bays",
+      "sourceUrl": "./geo/provincial_road_emergency_bays.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "floodDisasterPointsNcdr",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#0284c7",
+                "flood_sensor",
+                "#7c3aed",
+                "social_media",
+                "#db2777",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#0284c7",
+                "flood_sensor",
+                "#7c3aed",
+                "social_media",
+                "#db2777",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#0284c7",
+                "flood_sensor",
+                "#7c3aed",
+                "social_media",
+                "#db2777",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "info_source"
+                ],
+                "emic_report",
+                "#0284c7",
+                "flood_sensor",
+                "#7c3aed",
+                "social_media",
+                "#db2777",
+                "news_media",
+                "#ea580c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "flood_disaster_points_ncdr"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "flood-disaster-points-ncdr",
+      "sourceUrl": "./hazards/flood_disaster_points_ncdr.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "taipeiWaterloggingHistory",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#2563eb",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#2563eb",
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#2563eb",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "taipei-waterlogging-history",
+      "sourceUrl": "./hazards/taipei_waterlogging_history.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcbDisasterPhotoPoints",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "photo_category"
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "photo_category"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#a16207",
+                "media_report",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#a16207",
+                "media_report",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "photo_category"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#a16207",
+                "media_report",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "photo_category"
+                ],
+                "event_photo",
+                "#a16207",
+                "media_report",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "swcb_disaster_photo_points"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "swcb-disaster-photo-points",
+      "sourceUrl": "./hazards/swcb_disaster_photo_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "cetaceanStrandings",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#475569",
+                  "活體",
+                  "#0284c7",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#475569",
+                  "活體",
+                  "#0284c7",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#475569",
+                  "活體",
+                  "#0284c7",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "animal_status"
+                  ],
+                  "死亡",
+                  "#475569",
+                  "活體",
+                  "#0284c7",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "event_year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "cetacean-strandings",
+      "sourceUrl": "./marine/cetacean_strandings.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "seaTurtleStrandings",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#059669",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#b45309",
+                  "赤蠵龜",
+                  "#dc2626",
+                  "革龜",
+                  "#1f2937",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#059669",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#b45309",
+                  "赤蠵龜",
+                  "#dc2626",
+                  "革龜",
+                  "#1f2937",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "event_year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2020",
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025",
+                "2026"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#059669",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#b45309",
+                  "赤蠵龜",
+                  "#dc2626",
+                  "革龜",
+                  "#1f2937",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "coord_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "suspect_county_mismatch"
+                    ]
+                  ]
+                ],
+                "#f59e0b",
+                [
+                  "match",
+                  [
+                    "get",
+                    "species_zh"
+                  ],
+                  "綠蠵龜",
+                  "#059669",
+                  "欖蠵龜",
+                  "#65a30d",
+                  "玳瑁",
+                  "#b45309",
+                  "赤蠵龜",
+                  "#dc2626",
+                  "革龜",
+                  "#1f2937",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "event_year"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2020",
+                  "2021",
+                  "2022",
+                  "2023",
+                  "2024",
+                  "2025",
+                  "2026"
+                ]
+              ]
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "sea-turtle-strandings",
+      "sourceUrl": "./marine/sea_turtle_strandings.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "beachWaterQuality",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "latest_water_level_code"
+                ],
+                "excellent",
+                "#0891b2",
+                "fair",
+                "#f59e0b",
+                "unsuitable",
+                "#dc2626",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "beach-water-quality",
+      "sourceUrl": "./marine/beach_water_quality.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marineMicroplastics",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "!",
+                  [
+                    "has",
+                    "surface_mean_total_per_m3"
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#9333ea",
+                  1000,
+                  "#581c87"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "!",
+                  [
+                    "has",
+                    "surface_mean_total_per_m3"
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#9333ea",
+                  1000,
+                  "#581c87"
+                ]
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "!",
+                  [
+                    "has",
+                    "surface_mean_total_per_m3"
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#9333ea",
+                  1000,
+                  "#581c87"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "!",
+                  [
+                    "has",
+                    "surface_mean_total_per_m3"
+                  ]
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ],
+                    0
+                  ],
+                  "#e9d5ff",
+                  100,
+                  "#c084fc",
+                  300,
+                  "#9333ea",
+                  1000,
+                  "#581c87"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "marine-microplastics",
+      "sourceUrl": "./marine/marine_microplastics_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marinePollutionIncidents",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#64748b",
+                "2",
+                "#ea580c",
+                "3",
+                "#b91c1c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#64748b",
+                "2",
+                "#ea580c",
+                "3",
+                "#b91c1c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#64748b",
+                "2",
+                "#ea580c",
+                "3",
+                "#b91c1c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "case_level"
+                ],
+                "1",
+                "#64748b",
+                "2",
+                "#ea580c",
+                "3",
+                "#b91c1c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "marine-pollution-incidents",
+      "sourceUrl": "./marine/marine_pollution_incidents.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "namrEdnaSurveySites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#0e7490",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#0e7490",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0e7490",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#0e7490",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "namr-edna-survey-sites",
+      "sourceUrl": "./marine/namr_edna_survey_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "placeNames",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "natural",
+                "#15803d",
+                "admin",
+                "#7c3aed",
+                "settlement",
+                "#b45309",
+                "landmark",
+                "#0369a1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "natural",
+                "#15803d",
+                "admin",
+                "#7c3aed",
+                "settlement",
+                "#b45309",
+                "landmark",
+                "#0369a1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "natural",
+                "#15803d",
+                "admin",
+                "#7c3aed",
+                "settlement",
+                "#b45309",
+                "landmark",
+                "#0369a1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "natural",
+                "#15803d",
+                "admin",
+                "#7c3aed",
+                "settlement",
+                "#b45309",
+                "landmark",
+                "#0369a1",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 9,
+        "sourceLayer": "place_names_moi"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "place-names-moi",
+      "sourceUrl": "./geo/place_names_moi.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "triangulationPoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "grade"
+                  ]
+                ],
+                "1",
+                "#7f1d1d",
+                "2",
+                "#b45309",
+                "3",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "grade"
+                  ]
+                ],
+                "1",
+                "#7f1d1d",
+                "2",
+                "#b45309",
+                "3",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "grade"
+                  ]
+                ],
+                "1",
+                "#7f1d1d",
+                "2",
+                "#b45309",
+                "3",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "grade"
+                  ]
+                ],
+                "1",
+                "#7f1d1d",
+                "2",
+                "#b45309",
+                "3",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "triangulation-points-moi",
+      "sourceUrl": "./geo/triangulation_points_moi.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wraFloodgatesCentral",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "gate_kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "gate_kind"
+                ],
+                "floodgate",
+                "#1d4ed8",
+                "sluice_gate",
+                "#7c3aed",
+                "evacuation_gate",
+                "#ea580c",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "gate_kind"
+                ],
+                "floodgate",
+                "#1d4ed8",
+                "sluice_gate",
+                "#7c3aed",
+                "evacuation_gate",
+                "#ea580c",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "gate_kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "gate_kind"
+                ],
+                "floodgate",
+                "#1d4ed8",
+                "sluice_gate",
+                "#7c3aed",
+                "evacuation_gate",
+                "#ea580c",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "gate_kind"
+                ],
+                "floodgate",
+                "#1d4ed8",
+                "sluice_gate",
+                "#7c3aed",
+                "evacuation_gate",
+                "#ea580c",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "gate_kind"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "wra-floodgates-central",
+      "sourceUrl": "./geo/wra_floodgates_central.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wraCentralDrainage",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#0ea5e9",
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": "#0ea5e9",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#0ea5e9",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "wra-central-drainage",
+      "sourceUrl": "./geo/wra_central_drainage.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iowStructureMonitoring",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "structure_category"
+                ],
+                "levee_safety",
+                "#4338ca",
+                "gate",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "structure_category"
+                ],
+                "levee_safety",
+                "#4338ca",
+                "gate",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "structure_category"
+                ],
+                "levee_safety",
+                "#4338ca",
+                "gate",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "structure_category"
+                ],
+                "levee_safety",
+                "#4338ca",
+                "gate",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "iow-structure-monitoring",
+      "sourceUrl": "./geo/wra_iow_structure_monitoring.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wraDredgingPoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "in_progress",
+                "#a16207",
+                "completed",
+                "#15803d",
+                "preparing",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "in_progress",
+                "#a16207",
+                "completed",
+                "#15803d",
+                "preparing",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "in_progress",
+                "#a16207",
+                "completed",
+                "#15803d",
+                "preparing",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "in_progress",
+                "#a16207",
+                "completed",
+                "#15803d",
+                "preparing",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "wra-dredging-points",
+      "sourceUrl": "./geo/wra_dredging_points.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wraEcologySurveySites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "species_count"
+                  ],
+                  0
+                ],
+                "#bbf7d0",
+                10,
+                "#4ade80",
+                30,
+                "#16a34a",
+                80,
+                "#14532d"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "species_count"
+                  ],
+                  0
+                ],
+                "#bbf7d0",
+                10,
+                "#4ade80",
+                30,
+                "#16a34a",
+                80,
+                "#14532d"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "species_count"
+                  ],
+                  0
+                ],
+                "#bbf7d0",
+                10,
+                "#4ade80",
+                30,
+                "#16a34a",
+                80,
+                "#14532d"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "species_count"
+                  ],
+                  0
+                ],
+                "#bbf7d0",
+                10,
+                "#4ade80",
+                30,
+                "#16a34a",
+                80,
+                "#14532d"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "wra-ecology-survey-sites",
+      "sourceUrl": "./geo/wra_ecology_survey_sites.geojson"
     }
   ],
   "params": {
@@ -70374,6 +76991,40 @@
         "valueText": "1.00"
       }
     ],
+    "agriRuralCommunityVillages": [
+      {
+        "label": "社區類型",
+        "options": [
+          {
+            "label": "平地社區",
+            "value": "平地社區"
+          },
+          {
+            "label": "丘陵社區",
+            "value": "丘陵社區"
+          },
+          {
+            "label": "高山社區",
+            "value": "高山社區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "平地社區",
+          "丘陵社區",
+          "高山社區"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      }
+    ],
     "agriRuralRegen": [
       {
         "label": "透明度 1.00",
@@ -71136,6 +77787,26 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "beachWaterQuality": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "bicycleSupport": [
@@ -72067,6 +78738,69 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cetaceanStrandings": [
+      {
+        "label": "擱淺年份",
+        "options": [
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2026（不完整年度）",
+            "value": "2026"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",
@@ -75481,6 +82215,59 @@
         "valueText": "1.00"
       }
     ],
+    "floodDisasterPointsNcdr": [
+      {
+        "label": "事件年",
+        "options": [
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "floodSensor": [
       {
         "label": "透明度 1.00",
@@ -75802,6 +82589,80 @@
         "max": 3,
         "min": 0.3,
         "name": "線寬",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "freewayEcoSensitive": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "freewayInterchanges": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "freewayTrafficSigns": [
+      {
+        "label": "標誌類別",
+        "options": [
+          {
+            "label": "里程牌／匝道里程",
+            "value": "milepost"
+          },
+          {
+            "label": "其他標誌（速限、出口、告示…）",
+            "value": "other"
+          },
+          {
+            "label": "來源未給標誌代碼名稱",
+            "value": "unlabeled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "milepost",
+          "other",
+          "unlabeled"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
@@ -77464,6 +84325,46 @@
         "valueText": "1.00"
       }
     ],
+    "indigenousIsolationRisk": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "indigenousTribes": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "industrialParkBoundaries": [
       {
         "label": "透明度 0.24",
@@ -77693,6 +84594,26 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "iowStructureMonitoring": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "islandPowerGrid": [
@@ -81335,6 +88256,26 @@
         "valueText": "1.0"
       }
     ],
+    "marineMicroplastics": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "marineObservationCwa": [
       {
         "label": "透明度 0.90",
@@ -81355,6 +88296,26 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      }
+    ],
+    "marinePollutionIncidents": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "maritimeBoundary": [
@@ -81867,6 +88828,26 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "namrEdnaSurveySites": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "nationalParks": [
@@ -82999,6 +89980,54 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "placeNames": [
+      {
+        "label": "地名類別",
+        "options": [
+          {
+            "label": "自然地理實體（z9 起）",
+            "value": "natural"
+          },
+          {
+            "label": "行政區域（村里，z12 起）",
+            "value": "admin"
+          },
+          {
+            "label": "聚落（z12 起）",
+            "value": "settlement"
+          },
+          {
+            "label": "具有地標意義公共設施（z14 起）",
+            "value": "landmark"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "natural",
+          "admin",
+          "settlement",
+          "landmark"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "playgrounds": [
@@ -84586,6 +91615,167 @@
         "step": 0.25,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "provincialRoadEmergencyBays": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "provincialRoadMileposts": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "provincialRoadMonitored": [
+      {
+        "label": "監控類別",
+        "options": [
+          {
+            "label": "一級監控路段",
+            "value": "level1_section"
+          },
+          {
+            "label": "二級監控路段",
+            "value": "level2_section"
+          },
+          {
+            "label": "一級監控橋梁",
+            "value": "level1_bridge"
+          },
+          {
+            "label": "易淹水／土石流路段",
+            "value": "flood_debris_prone"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "level1_section",
+          "level2_section",
+          "level1_bridge",
+          "flood_debris_prone"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "provincialRoadSigns": [
+      {
+        "label": "標誌類別",
+        "options": [
+          {
+            "label": "速限標誌",
+            "value": "speed_limit"
+          },
+          {
+            "label": "測速取締警告標誌",
+            "value": "speed_enforcement"
+          },
+          {
+            "label": "車輛高度限制標誌",
+            "value": "height_limit"
+          },
+          {
+            "label": "車輛重量限制標誌",
+            "value": "weight_limit"
+          },
+          {
+            "label": "彎路警告標誌",
+            "value": "curve_warning"
+          },
+          {
+            "label": "險坡警告標誌",
+            "value": "steep_slope"
+          },
+          {
+            "label": "當心行人標誌",
+            "value": "pedestrian_warning"
+          },
+          {
+            "label": "當心兒童標誌",
+            "value": "children_warning"
+          },
+          {
+            "label": "快速公路交流道名稱標誌",
+            "value": "expressway_interchange_name"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "speed_limit",
+          "speed_enforcement",
+          "height_limit",
+          "weight_limit",
+          "curve_warning",
+          "steep_slope",
+          "pedestrian_warning",
+          "children_warning",
+          "expressway_interchange_name"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "provincialRoads": [
@@ -86341,6 +93531,69 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "seaTurtleStrandings": [
+      {
+        "label": "擱淺年份",
+        "options": [
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2026（不完整年度）",
+            "value": "2026"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -114684,6 +121937,44 @@
         "valueText": "1.00×"
       }
     ],
+    "swcbDisasterPhotoPoints": [
+      {
+        "label": "照片類別",
+        "options": [
+          {
+            "label": "土砂災害事件影像",
+            "value": "event_photo"
+          },
+          {
+            "label": "媒體報導",
+            "value": "media_report"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "event_photo",
+          "media_report"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "tainanBridgeInspections": [
       {
         "label": "透明度 0.80",
@@ -114802,6 +122093,17 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "taipeiWaterloggingHistory": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
       }
     ],
     "taxiStand": [
@@ -115347,6 +122649,26 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
+      }
+    ],
+    "triangulationPoints": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "typhoonTracks": [
@@ -117435,6 +124757,105 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      }
+    ],
+    "wraCentralDrainage": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      }
+    ],
+    "wraDredgingPoints": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "wraEcologySurveySites": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "wraFloodgatesCentral": [
+      {
+        "label": "設施類別",
+        "options": [
+          {
+            "label": "水門",
+            "value": "floodgate"
+          },
+          {
+            "label": "閘門",
+            "value": "sluice_gate"
+          },
+          {
+            "label": "疏散門",
+            "value": "evacuation_gate"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "floodgate",
+          "sluice_gate",
+          "evacuation_gate",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "youbikeFullness": [
