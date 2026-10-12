@@ -5,6 +5,7 @@
  * 文字色一律走 useLegendTheme()（暗／淡由 LegendPanel 的 Provider 決定）。
  */
 
+import { useLocale } from "../../state/localeStore";
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS } from "../../styles/designTokens";
 import { MAP_SEAM, MISSING_HATCH, MOVING_POINT } from "../../map/mapStyleScale";
@@ -69,8 +70,14 @@ export const LEGEND_SWATCH = {
 } as const;
 
 // ── 標題（LG-11：中文在前、英文小字在後、不轉大寫）─────
+/**
+ * 圖例標題。`zh` 傳目前語系的標題（`t("legend.<domain>.<id>")`，或用 `localizeLayerName` 借圖層名）；
+ * `en` 是中文介面附的英文小字，外文介面主標題已是譯文，不再重複顯示。
+ */
 export function LegendTitle({ zh, en, style }: { zh: ReactNode; en?: string; style?: CSSProperties }) {
   const t = useLegendTheme();
+  const { active } = useLocale();
+  if (active !== "zh-TW") en = undefined;
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 4, flexWrap: "wrap", marginBottom: 4, ...style }}>
       <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.semibold, color: t.textStrong }}>{zh}</span>

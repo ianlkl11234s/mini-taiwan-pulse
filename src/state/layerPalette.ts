@@ -16,6 +16,8 @@ import { paletteById, paletteRamp, resampleRamp } from "../map/palettes";
 import type { LayerVisibility } from "../types";
 import { layerParamsStore, useLayerParams } from "./layerParamsStore";
 import { layerVisibilityStore } from "./layerVisibilityStore";
+import { useLocale } from "./localeStore";
+import { paletteName } from "../i18n/paramText";
 
 /** 熱區預設色盤（Q4 A：全部熱區用驗證過的新版 magma） */
 export const DEFAULT_HEATMAP_PALETTE = "magma";
@@ -166,12 +168,14 @@ export function useHeatmapLegendPalettes(keys: readonly string[]): { key: string
   }), [sig]);
 }
 
-/** React：該層色盤的中文名（圖例副標用；沒有色盤選單回空字串） */
+/** React：該層色盤在目前語系的名稱（圖例副標用；沒有色盤選單回空字串） */
 export function usePaletteLabel(key: string, name?: string, whenDefault?: string): string {
   const values = useLayerParams(key);
+  const i18n = useLocale();
   const spec = paletteSpecOf(key, name);
   if (!spec) return "";
   const raw = values[spec.name];
   const current = typeof raw === "string" && spec.options.includes(raw) ? raw : spec.default;
-  return paletteById(whenDefault && current === spec.default ? whenDefault : current)?.zh ?? "";
+  const p = paletteById(whenDefault && current === spec.default ? whenDefault : current);
+  return p ? paletteName(p.id, p.zh, i18n) : "";
 }

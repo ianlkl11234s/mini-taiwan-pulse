@@ -6,6 +6,7 @@ import { humanizeStatisticsText } from "../../data/statisticsLabels";
 import type { LayerVisibility } from "../../types";
 import { DataSourceCard, dataSourcePalette } from "./DataSourcePanel";
 import { useRailTheme } from "./railTheme";
+import { useLocale } from "../../state/localeStore";
 
 /**
  * 圖層展開區最後一行「說明・來源」（layer-panel-unify P1）。
@@ -14,6 +15,7 @@ import { useRailTheme } from "./railTheme";
  * `children`（統計圖層，C 段）：以該層自己的來源與處理紀錄取代通用上游資料卡。
  */
 export function LayerInfoLine({ layerKey, children }: { layerKey: keyof LayerVisibility; children?: ReactNode }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const { DIM, INACTIVE_TEXT, COLOR_SCHEME } = useRailTheme();
   // 說明文字夾帶的參考邊界代碼換成中文（spec §6.3；統計 recipe 的說明會帶 COUNTY_MOI_… 這類代碼）
@@ -27,7 +29,7 @@ export function LayerInfoLine({ layerKey, children }: { layerKey: keyof LayerVis
         style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 0 2px", border: 0, background: "transparent", color: INACTIVE_TEXT, cursor: "pointer", fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}
       >
         <Info size={11} aria-hidden="true" />
-        說明・來源
+        {t("paramsPanel.infoSource")}
         <ChevronRight size={10} aria-hidden="true" style={{ transform: open ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
       </button>
       {open && (

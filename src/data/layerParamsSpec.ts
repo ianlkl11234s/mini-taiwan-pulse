@@ -4250,11 +4250,14 @@ export function orderedVisibleParamsSpec(
 export function resolveSelectOptions(
   spec: SelectParamSpec,
   resolved: LayerParamValues,
+  /** 顯示層翻譯（面板傳 `paramText`）；省略＝原中文，Agent 與黃金快照走這條 */
+  tx?: (zh: string) => string,
 ): ParamSelectOption[] {
   const dyn = spec.optionsByParam;
-  const options = dyn
+  const source = dyn
     ? (dyn.byValue[String(resolved[dyn.param] ?? "")] ?? dyn.byValue[dyn.fallback] ?? spec.options)
     : spec.options;
+  const options = tx ? source.map((o) => ({ ...o, label: tx(o.label) })) : source;
   const rule = spec.disableRule;
   if (!rule) return options;
   const enabled = rule.enabledWhenIn.includes(String(resolved[rule.param] ?? ""));
@@ -4262,7 +4265,7 @@ export function resolveSelectOptions(
   //    只在停用時才加這個 key 會讓黃金快照的 params section 紅。
   return options.map((o) => {
     const disabled = o.value === rule.option && !enabled;
-    return { label: disabled ? `${o.label}${rule.reason}` : o.label, value: o.value, disabled };
+    return { label: disabled ? `${o.label}${tx ? tx(rule.reason) : rule.reason}` : o.label, value: o.value, disabled };
   });
 }
 

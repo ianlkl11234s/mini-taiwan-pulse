@@ -1,0 +1,17 @@
+{
+  "enum.railLine.trtc-BR": "Wenhu Line",
+  "enum.railLine.trtc-R": "Tamsui–Xinyi Line",
+  "enum.railLine.trtc-G": "Songshan–Xindian Line",
+  "enum.railLine.trtc-O": "Zhonghe–Xinlu Line",
+  "enum.railLine.trtc-BL": "Bannan Line",
+  "enum.railLine.trtc-A": "Taoyuan Airport MRT",
+  "enum.railLine.trtc-Y": "Circular Line",
+  "enum.railLine.trtc-V": "Danhai Light Rail",
+  "enum.railLine.trtc-K": "Ankeng Light Rail",
+  "enum.railLine.trtc-LB": "Sanying Line",
+  "enum.railLine.trtc-MK": "Maokong Gondola",
+  "enum.railLine.krtc-R": "Kaohsiung MRT Red Line",
+  "enum.railLine.krtc-O": "Kaohsiung MRT Orange Line",
+  "enum.railLine.klrt-C": "Kaohsiung Circular Light Rail",
+  "enum.railLine.tmrt-G": "Taichung MRT Green Line"
+}

@@ -146,7 +146,7 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.get_xxx(...);
 | # | 鐵則 | 檢查 |
 |---|---|---|
 | 1 | 透明度 slider | `useTransportParams.ts` 有 opacity control？ |
-| 2 | 分類 ≥ 2 種必寫圖例 | `LEGEND_REGISTRY` 有加？`LegendPanel.tsx` sub-component 有寫？ |
+| 2 | 分類 ≥ 2 種必寫圖例 | `LEGEND_REGISTRY` 有加？`src/components/legend/<domain>Legends.tsx` sub-component 有寫？ |
 | 3 | 可選取物件必接 click popup | `useMapInteraction.ts` + `featureInfo/registry.tsx` 有加？ |
 | 4 | Select options ≥ 4 用原生 `<select>` | `ctrl.options.length > 3` 自動切 dropdown？ |
 

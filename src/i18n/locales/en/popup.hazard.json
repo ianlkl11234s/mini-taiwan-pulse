@@ -39,6 +39,6 @@
   "popup.hazard.staleC": ". A high value + stale means a sensor fault, ",
   "popup.hazard.staleD": "not a nuclear accident",
   "popup.hazard.staleE": ".",
-  "popup.hazard.alarmNote": "⚠️ Reached the AEC (now Nuclear Safety Commission) alert threshold (> {threshold} µSv/h); cross-check the commission's live page.",
+  "popup.hazard.alarmNote": "⚠️ Reached the Nuclear Safety Commission alert threshold (> {threshold} µSv/h); cross-check the commission's live page.",
   "popup.hazard.afterQuake": "{seconds} s after the quake"
 }

@@ -12,9 +12,10 @@ src/i18n/
 ├── format.ts       數字、時間（固定台北時區）
 ├── layerText.ts    圖層名、主題、限定詞的顯示層翻譯
 ├── dataText.ts     資料內容：外文欄位挑選、類別代碼翻譯
+├── paramText.ts    圖層設定面板：用中文原文查 params.json
 └── locales/<語系>/
     ├── common.json、<區塊>.json   介面字串（zh-TW 是正本）
-    ├── layers.json、themes.json、qualifiers.json、enums.json   名稱對照（只有外文語系有）
+    ├── layers.json、themes.json、qualifiers.json、enums.json、params.json   名稱對照（只有外文語系有）
 src/state/localeStore.ts   目前語系：?lang= ＞ 上次選擇 ＞ zh-TW；lazy 載入外文
 ```
 
@@ -53,6 +54,14 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 - 資料值的類別（氣象站類型、鐵路系統）用 `enumLabel`，英日文寫在 `enums.json`。
 - 標題列自動借用圖層名；對不到圖層的才在 `popupHeaders.json` 補 `popupHeader.<layerType>`。
 
+**圖層設定面板（layerParamsSpec.ts）**：
+- 規格檔的中文標籤**不改**：Agent、黃金快照、`english-control-label` guard 都讀中文。顯示時 `buildParamControls(key, values, i18n)` 才換語系，只有面板（`ExpandedControls`）傳 `i18n`。
+- 英日文寫在 `en/params.json`、`ja/params.json`，key 是中文原文：`"param.透明度": "Opacity"`。同一個字翻一次全部通用。
+- 某個圖層要不同譯法時，加 `param.<layerKey>.<參數名>` 覆寫。
+- 新圖層沿用既有標籤就自動有翻譯；新的字沒翻時顯示中文，不擋上線。列出還沒翻的字：`npx vite-node scripts/i18n/export-param-texts.ts en`。
+- 中文改字時，要把 `params.json` 的 key 一起改，否則測試會擋孤兒 key。
+- 色盤名用 `enum.palette.<id>`（`enums.palette.json`）。
+
 **新增一個區塊檔**（例 `popup.water.json`）：
 1. 三個語系都建同名檔，key 以檔名開頭（`popup.water.`）。
 2. 跑 `npx tsx scripts/i18n/gen-keys.ts` 更新 key 型別；不用改 `keys.ts`，也不用改載入程式。
@@ -69,10 +78,11 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 | 測試 | 擋什麼 |
 |---|---|
 | `tsc -b` + `keys.generated.ts` | key 打錯字、用了不存在的 key |
-| `localeParity` | complete 語系缺字、多出預設語系沒有的 key、插值變數不一致、檔名與 key 前綴不符、key 型別檔過期、沒人用的 key、`layers.json` 用了不存在的圖層 |
+| `localeParity` | complete 語系缺字、多出預設語系沒有的 key、插值變數不一致、檔名與 key 前綴不符、key 型別檔過期、沒人用的 key、`layers.json` 用了不存在的圖層、`params.json` 孤兒 key |
 | `hardcodedZh` | 已翻完（嚴格）區塊寫死的中文比基準多；其他區塊只報告 |
 | `localeStore` | 預設語系、回退語系一併載入 |
 | `dataText` | 外文欄位挑選、類別代碼回退 |
+| `paramText` | 設定面板：中文介面輸出不變、滑桿運算符號、停用原因分開翻 |
 
 ## 為什麼不用 i18next
 

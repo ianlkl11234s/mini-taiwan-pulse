@@ -864,7 +864,7 @@
 - 標題、按鈕、eyebrow、控制項標籤、狀態、空狀態：用目前介面語系（預設中文，§6.4）。以下規則以中文介面為準。
 - 英文代碼（資料集代號、機關英文縮寫、單位代碼）**只在必要時**以小字附註：`textDim`、比主文字小一階，放在中文之後（例 資料來源列的英文名、`RIPE` 這類專有名詞）。
 - 不用 `text-transform: uppercase`（guard `uppercase-eyebrow`）；eyebrow 用中文分類（「交通 · 公車」）。
-- 圖層控制項 `labelPrefix` 以中文開頭（guard `english-control-label`）。
+- 圖層控制項 `labelPrefix` 以中文開頭（guard `english-control-label`）。這是**原始碼**的規則：英日文介面在顯示時才換成 `params.json` 的譯文（`src/i18n/paramText.ts`），規格檔不寫外文。
 
 ### 6.2 數值與單位
 

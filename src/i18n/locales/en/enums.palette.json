@@ -1,0 +1,19 @@
+{
+  "enum.palette.magma": "Magma",
+  "enum.palette.viridis": "Viridis",
+  "enum.palette.YlOrBr": "Yellow–orange–brown",
+  "enum.palette.PuBuGn": "Purple–blue–green",
+  "enum.palette.Burg": "Burgundy",
+  "enum.palette.speed": "Speed",
+  "enum.palette.batlow": "Batlow",
+  "enum.palette.BuPu": "Blue–purple",
+  "enum.palette.bilbao": "Bilbao",
+  "enum.palette.YlGnBu": "Yellow–green–blue",
+  "enum.palette.acton": "Acton",
+  "enum.palette.tokyo": "Tokyo",
+  "enum.palette.rocket": "Rocket",
+  "enum.palette.PuBu": "Purple–blue",
+  "enum.palette.turku": "Turku",
+  "enum.palette.cividis": "Colorblind-friendly",
+  "enum.palette.oslo": "Oslo"
+}

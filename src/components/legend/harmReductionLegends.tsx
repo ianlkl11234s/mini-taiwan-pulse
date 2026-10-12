@@ -1,124 +1,146 @@
 // 減害服務圖層圖例（legendKit；色票與地圖 paint 同源，皆 import harmReductionTypes）。
+import { useLocale } from "../../state/localeStore";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
+import { enumLabel } from "../../i18n/dataText";
+import { localizeLayerName } from "../../i18n/layerText";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot } from "./legendKit";
 import {
   CONDOM_OUTLET_OPTIONS, DUI_CLASS_OPTIONS, HARM_REDUCTION_COLORS, HIV_TESTING_CATEGORY_OPTIONS,
   INTERNET_SERVICE_TYPE_OPTIONS, SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS,
 } from "../../data/harmReductionTypes";
 
-const PRECISION_NOTE = "座標由地址定位，少數為推估位置（popup 會標示）。";
-
-function CategoryRows({ options }: { options: readonly { value: string; label: string; color: string }[] }) {
-  return <>{options.map((option) => <LegendRow key={option.value} swatch={<SwatchDot color={option.color} />}>{option.label}</LegendRow>)}</>;
+function CategoryRows({ domain, options }: { domain: string; options: readonly { value: string; label: string; color: string }[] }) {
+  const i18n = useLocale();
+  return <>{options.map((option) => <LegendRow key={option.value} swatch={<SwatchDot color={option.color} />}>{enumLabel(domain, option.value, option.label, i18n)}</LegendRow>)}</>;
 }
 
 export function HarmReductionNeedleLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="清潔針具據點" en="Needle & Syringe Services" />
-    <LegendRow swatch={<SwatchDot color={HARM_REDUCTION_COLORS.harmReductionNeedle} />}>衛教諮詢站／針具自動服務機／回收桶</LegendRow>
-    <LegendNote>一個據點可同時提供多類服務；篩選時符合任一勾選類型即顯示。{PRECISION_NOTE}衛生福利部疾病管制署清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionNeedle", LAYER_MANIFEST.harmReductionNeedle.name, i18n).primary} en="Needle & Syringe Services" />
+    <LegendRow swatch={<SwatchDot color={HARM_REDUCTION_COLORS.harmReductionNeedle} />}>{i18n.t("legend.harmReduction.needleRow")}</LegendRow>
+    <LegendNote>{i18n.t("legend.harmReduction.needleNote", { precision: i18n.t("legend.harmReduction.precision") })}</LegendNote>
   </div>;
 }
 
 export function HarmReductionTreatmentLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="替代療法與藥癮戒治" en="Substitution & Addiction Treatment" />
-    <CategoryRows options={TREATMENT_CATEGORY_OPTIONS} />
-    <LegendNote>130 處附維持治療服藥人數（衛福部月報 2026-01–08）。{PRECISION_NOTE}衛生福利部指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionTreatment", LAYER_MANIFEST.harmReductionTreatment.name, i18n).primary} en="Substitution & Addiction Treatment" />
+    <CategoryRows domain="harmReductionTreatmentCategory" options={TREATMENT_CATEGORY_OPTIONS} />
+    <LegendNote>{i18n.t("legend.harmReduction.treatmentNote", { precision: i18n.t("legend.harmReduction.precision") })}</LegendNote>
   </div>;
 }
 
 export function HarmReductionHivSelftestLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="愛滋自我篩檢通路" en="HIV Self-test Outlets" />
-    <CategoryRows options={SELFTEST_CHANNEL_OPTIONS} />
-    <LegendNote>不含即時庫存，前往前請先電洽。{PRECISION_NOTE}衛生福利部疾病管制署愛滋自我篩檢通路（快照 2026-10-06）。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionHivSelftest", LAYER_MANIFEST.harmReductionHivSelftest.name, i18n).primary} en="HIV Self-test Outlets" />
+    <CategoryRows domain="harmReductionSelftestChannel" options={SELFTEST_CHANNEL_OPTIONS} />
+    <LegendNote>{i18n.t("legend.harmReduction.selftestNote", { precision: i18n.t("legend.harmReduction.precision") })}</LegendNote>
   </div>;
 }
 
 export function HarmReductionHivTestingLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="愛滋篩檢與指定醫療" en="HIV Testing & Care" />
-    <CategoryRows options={HIV_TESTING_CATEGORY_OPTIONS} />
-    <LegendNote>{PRECISION_NOTE}衛生福利部疾病管制署匿名篩檢院所（2026-09-22）、衛生局所（2026-07-22）、指定醫事機構與藥局（2026-07-15）；衛生福利部多元性別健康中心（2026-06-12）。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionHivTesting", LAYER_MANIFEST.harmReductionHivTesting.name, i18n).primary} en="HIV Testing & Care" />
+    <CategoryRows domain="harmReductionHivCategory" options={HIV_TESTING_CATEGORY_OPTIONS} />
+    <LegendNote>{i18n.t("legend.harmReduction.hivTestingNote", { precision: i18n.t("legend.harmReduction.precision") })}</LegendNote>
   </div>;
 }
 
 export function HarmReductionPreventionCentersLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="毒品危害防制中心" en="Drug Abuse Prevention Centers" />
-    <LegendRow swatch={<SwatchDot color={HARM_REDUCTION_COLORS.harmReductionPreventionCenters} />}>各縣市毒品危害防制中心</LegendRow>
-    <LegendNote>法務部 data.gov.tw 13717（2024-02-01）· 政府資料開放授權條款第1版。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionPreventionCenters", LAYER_MANIFEST.harmReductionPreventionCenters.name, i18n).primary} en="Drug Abuse Prevention Centers" />
+    <LegendRow swatch={<SwatchDot color={HARM_REDUCTION_COLORS.harmReductionPreventionCenters} />}>{i18n.t("legend.harmReduction.preventionRow")}</LegendRow>
+    <LegendNote>{i18n.t("legend.harmReduction.preventionNote")}</LegendNote>
   </div>;
 }
 
 // ══════════ 第二批（2026-10-06）══════════
 
-function SingleColorLegend({ zh, en, color, row, note }: { zh: string; en: string; color: string; row: string; note: string }) {
+function SingleColorLegend({ title, en, color, row, note }: { title: string; en: string; color: string; row: string; note: string }) {
   return <div>
-    <LegendTitle zh={zh} en={en} />
+    <LegendTitle zh={title} en={en} />
     <LegendRow swatch={<SwatchDot color={color} />}>{row}</LegendRow>
     <LegendNote>{note}</LegendNote>
   </div>;
 }
 
 export function HarmReductionAlcoholLegend() {
-  return <SingleColorLegend zh="酒癮治療與酒駕酒癮評估" en="Alcohol Treatment & DUI Assessment"
-    color={HARM_REDUCTION_COLORS.harmReductionAlcohol} row="酒癮治療指定／費用補助／酒駕酒癮評估機構"
-    note={`一機構可具多種身分，篩選時符合任一勾選項目即顯示。${PRECISION_NOTE}衛生福利部心理健康司名單（2026-08-07）。`} />;
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <SingleColorLegend title={localizeLayerName("harmReductionAlcohol", LAYER_MANIFEST.harmReductionAlcohol.name, i18n).primary} en="Alcohol Treatment & DUI Assessment"
+    color={HARM_REDUCTION_COLORS.harmReductionAlcohol} row={t("legend.harmReduction.alcoholRow")}
+    note={t("legend.harmReduction.alcoholNote", { precision: t("legend.harmReduction.precision") })} />;
 }
 
 export function HarmReductionPrepLegend() {
-  return <SingleColorLegend zh="PrEP 服務醫院" en="HIV PrEP Providers"
-    color={HARM_REDUCTION_COLORS.harmReductionPrep} row="提供公費或自費 PrEP 的醫院診所"
-    note={`${PRECISION_NOTE}衛生福利部疾病管制署 PrEP 服務醫院名單（2026-09-02）。`} />;
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <SingleColorLegend title={localizeLayerName("harmReductionPrep", LAYER_MANIFEST.harmReductionPrep.name, i18n).primary} en="HIV PrEP Providers"
+    color={HARM_REDUCTION_COLORS.harmReductionPrep} row={t("legend.harmReduction.prepRow")}
+    note={t("legend.harmReduction.prepNote", { precision: t("legend.harmReduction.precision") })} />;
 }
 
 export function HarmReductionInternetAddictionLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="網路成癮治療資源" en="Internet Addiction Services" />
-    <CategoryRows options={INTERNET_SERVICE_TYPE_OPTIONS} />
-    <LegendNote>機構類型依名稱歸類，非官方分類；來源不含連江縣。{PRECISION_NOTE}衛生福利部各縣市網路成癮治療服務資源表（2026-07-28）。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionInternetAddiction", LAYER_MANIFEST.harmReductionInternetAddiction.name, i18n).primary} en="Internet Addiction Services" />
+    <CategoryRows domain="harmReductionInternetType" options={INTERNET_SERVICE_TYPE_OPTIONS} />
+    <LegendNote>{i18n.t("legend.harmReduction.internetNote", { precision: i18n.t("legend.harmReduction.precision") })}</LegendNote>
   </div>;
 }
 
 export function HarmReductionAftercareLegend() {
-  return <SingleColorLegend zh="更生保護會" en="Offender Aftercare Offices"
-    color={HARM_REDUCTION_COLORS.harmReductionAftercare} row="臺灣更生保護會總會、分會與福建更生保護會"
-    note="資料為 2023-06 版（法務部 data.gov.tw 10060，3 年未更新）· 政府資料開放授權條款第1版。" />;
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <SingleColorLegend title={localizeLayerName("harmReductionAftercare", LAYER_MANIFEST.harmReductionAftercare.name, i18n).primary} en="Offender Aftercare Offices"
+    color={HARM_REDUCTION_COLORS.harmReductionAftercare} row={t("legend.harmReduction.aftercareRow")}
+    note={t("legend.harmReduction.aftercareNote")} />;
 }
 
 export function HarmReductionSmokingCessationLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="戒菸服務機構" en="Smoking Cessation Providers" />
-    <CategoryRows options={SMOKING_FACILITY_OPTIONS} />
-    <LegendNote>{PRECISION_NOTE}衛生福利部國民健康署戒菸服務合約機構（2026-10-06 官網匯出）。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionSmokingCessation", LAYER_MANIFEST.harmReductionSmokingCessation.name, i18n).primary} en="Smoking Cessation Providers" />
+    <CategoryRows domain="harmReductionSmokingFacility" options={SMOKING_FACILITY_OPTIONS} />
+    <LegendNote>{i18n.t("legend.harmReduction.smokingNote", { precision: i18n.t("legend.harmReduction.precision") })}</LegendNote>
   </div>;
 }
 
 export function HarmReductionAntiDrugPharmaciesLegend() {
-  return <SingleColorLegend zh="社區藥局反毒站" en="Community Anti-drug Pharmacies"
-    color={HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies} row="新北防毒保衛站／高雄社區毒品防制關懷站"
-    note="僅新北、高雄（其他縣市無開放名冊）。新北 data.gov.tw 125302（2026-08-07）；高雄 107877（113 年清冊）。" />;
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <SingleColorLegend title={localizeLayerName("harmReductionAntiDrugPharmacies", LAYER_MANIFEST.harmReductionAntiDrugPharmacies.name, i18n).primary} en="Community Anti-drug Pharmacies"
+    color={HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies} row={t("legend.harmReduction.pharmacyRow")}
+    note={t("legend.harmReduction.pharmacyNote")} />;
 }
 
 export function HarmReductionCondomOutletsLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="保險套販售點" en="Condom Outlets" />
-    <CategoryRows options={CONDOM_OUTLET_OPTIONS} />
-    <LegendNote>僅高雄、新竹市、屏東、嘉義市（其他縣市無開放名冊）；少數點品項待確認（popup 會標示）。各縣市 data.gov.tw（2023-08～2026-08）。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionCondomOutlets", LAYER_MANIFEST.harmReductionCondomOutlets.name, i18n).primary} en="Condom Outlets" />
+    <CategoryRows domain="harmReductionCondomOutlet" options={CONDOM_OUTLET_OPTIONS} />
+    <LegendNote>{i18n.t("legend.harmReduction.condomNote")}</LegendNote>
   </div>;
 }
 
 export function HarmReductionTherapeuticCommunitiesLegend() {
-  return <SingleColorLegend zh="治療性社區與中途之家" en="Therapeutic Communities & Halfway Houses"
-    color={HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities} row="衛福部藥癮治療性社區／社區復健方案承辦機構"
-    note="座標為機構辦公處，非安置地點；2 處查無位置未畫。衛生福利部心理健康司（2025-07-29）。" />;
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <SingleColorLegend title={localizeLayerName("harmReductionTherapeuticCommunities", LAYER_MANIFEST.harmReductionTherapeuticCommunities.name, i18n).primary} en="Therapeutic Communities & Halfway Houses"
+    color={HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities} row={t("legend.harmReduction.communityRow")}
+    note={t("legend.harmReduction.communityNote")} />;
 }
 
 export function HarmReductionDuiCrashesLegend() {
+  const i18n = useLocale();
   return <div>
-    <LegendTitle zh="酒駕肇事事故" en="Drunk-driving Crashes" />
-    <CategoryRows options={DUI_CLASS_OPTIONS} />
-    <LegendNote>107–114 年 A1＋A2 事故，任一當事者肇因為酒醉駕駛即收（一事故一點）；縮小時以熱區呈現。與減害服務群組的酒癮治療／酒駕酒癮評估機構可對照。內政部警政署 · 政府資料開放授權條款第1版。</LegendNote>
+    <LegendTitle zh={localizeLayerName("harmReductionDuiCrashes", LAYER_MANIFEST.harmReductionDuiCrashes.name, i18n).primary} en="Drunk-driving Crashes" />
+    <CategoryRows domain="harmReductionDuiClass" options={DUI_CLASS_OPTIONS} />
+    <LegendNote>{i18n.t("legend.harmReduction.duiNote")}</LegendNote>
   </div>;
 }

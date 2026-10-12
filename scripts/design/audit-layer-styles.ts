@@ -26,6 +26,7 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createElement, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { localeStore } from "../../src/state/localeStore";
 
 import { extractGolden } from "../../src/data/__tests__/layerGoldenExtract";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest";
@@ -495,7 +496,8 @@ function paramDefaults(key: string) {
 // ── 圖例（SSR 優先，失敗退回原始碼啟發式）──
 const legendPanelText = text("src/components/LegendPanel.tsx");
 function componentBody(name: string): string {
-  const files = ["src/components/LegendPanel.tsx", "src/components/sidebar/StatisticsDetails.tsx"];
+  const legendFiles = readdirSync(join(ROOT, "src/components/legend")).filter((n) => n.endsWith(".tsx")).sort().map((n) => `src/components/legend/${n}`);
+  const files = ["src/components/LegendPanel.tsx", ...legendFiles, "src/components/sidebar/StatisticsDetails.tsx"];
   for (const f of files) {
     const s = text(f);
     const m = new RegExp(`\\n(?:export\\s+)?function ${name}\\b`).exec(s);
@@ -605,8 +607,8 @@ for (const entry of LEGEND_REGISTRY) {
   ])];
   let html = ""; let htmlLight = ""; let resolution = "ssr"; let err = "";
   try {
-    html = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: true, railSystems: undefined } as never)));
-    htmlLight = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: false, railSystems: undefined } as never)));
+    html = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: true, railSystems: undefined, i18n: localeStore.getSnapshot() } as never)));
+    htmlLight = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility: vis as never, overlayParams, isDark: false, railSystems: undefined, i18n: localeStore.getSnapshot() } as never)));
   } catch (e) { resolution = "static"; err = e instanceof Error ? e.message.slice(0, 100) : String(e); }
   let feats: LegendFeatures;
   if (resolution === "ssr" && html.trim()) feats = featuresFromHtml(html);

@@ -39,6 +39,6 @@
   "popup.hazard.staleC": "。高值 + stale = 感測器故障，",
   "popup.hazard.staleD": "非核災",
   "popup.hazard.staleE": "。",
-  "popup.hazard.alarmNote": "⚠️ 已達 AEC 警戒閾值（> {threshold} µSv/h），建議交叉確認原能會即時頁面。",
+  "popup.hazard.alarmNote": "⚠️ 已達核安會警戒閾值（> {threshold} µSv/h），建議交叉確認核安會即時頁面。",
   "popup.hazard.afterQuake": "震後 {seconds} 秒"
 }
