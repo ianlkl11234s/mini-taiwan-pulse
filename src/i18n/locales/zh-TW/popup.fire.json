@@ -1,0 +1,15 @@
+{
+  "popup.fire.eventFallback": "火災事件",
+  "popup.fire.cause": "起火原因",
+  "popup.fire.deaths": "死亡",
+  "popup.fire.injuries": "受傷",
+  "popup.fire.stationFallback": "消防分隊",
+  "popup.fire.hydrant": "消防栓",
+  "popup.fire.hydrantType": "型式",
+  "popup.fire.minutesLabel": "{minutes} 分鐘",
+  "popup.fire.reachTime": "可達時間",
+  "popup.fire.withinMinutes": "{minutes} 分鐘內",
+  "popup.fire.cumulativeArea": "累積可達面積",
+  "popup.fire.ringArea": "本級環帶面積",
+  "popup.fire.isochroneNote": "⚠️ driving 路網保守估計，未計消防車優先路權"
+}

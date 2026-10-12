@@ -1,0 +1,13 @@
+{
+  "popup.allenCoral.notProvided": "未提供",
+  "popup.allenCoral.region": "研究区域",
+  "popup.allenCoral.window": "研究ウィンドウ",
+  "popup.allenCoral.sourceArea": "出典フィーチャー全体の面積",
+  "popup.allenCoral.sourceVersion": "出典バージョン",
+  "popup.allenCoral.resolution": "公称解像度",
+  "popup.allenCoral.geometryRole": "ジオメトリの役割",
+  "popup.allenCoral.warning": "サンゴ／藻類は統合された分類で、生きたサンゴの被度、健全性、種を表すものではありません。金門と馬祖には地図化された要素がありませんが、サンゴがないという意味ではありません。取得日は観測日ではなく、公称5m解像度は位置精度ではありません。",
+  "popup.allenCoral.areaNote": "出典フィーチャー全体の面積は切り取られておらず、研究区域のサンゴ総面積とはみなせません。取得日 {date}、観測日ではありません。",
+  "popup.allenCoral.attributionLabel": "出典",
+  "popup.allenCoral.attribution": "© Allen Coral Atlas Partnership / Arizona State University · CC BY 4.0 · 個人による非営利の研究目的"
+}

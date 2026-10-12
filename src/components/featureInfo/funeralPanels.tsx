@@ -1,11 +1,13 @@
 import { Row, Title } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import {
   facilityTypeColor, facilityTypeLabel, operatorTypeLabel,
   operatorEntityColor, operatorEntityLabel,
   precisionLabel, isApproxPrecision,
-  cemeteryZoningColor, cemeteryZoningClassLabel,
+  cemeteryZoningColor, cemeteryZoningClassLabel, CEMETERY_ZONING_CLASSES,
   CEMETERY_OSM_ODBL_NOTE, FUNERAL_LAYER_COLORS,
 } from "../../data/funeralTypes";
 
@@ -26,9 +28,10 @@ const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
  *    使用者若拿去導航會被誤導，故概略值一律明講；精確段位不佔版面。
  */
 function PrecisionNote({ precision }: { precision: string }) {
+  const i18n = useLocale();
   if (!precision) return null;
   if (!isApproxPrecision(precision)) return null;
-  return <Note>⚠️ 位置為概略值：{precisionLabel(precision)}，非實際入口座標</Note>;
+  return <Note>{i18n.t("popup.funeral.approxNote", { label: enumLabel("funeralPrecision", precision, precisionLabel(precision), i18n) })}</Note>;
 }
 
 /**
@@ -39,12 +42,16 @@ export function FuneralFacilityPanel({ props }: { props: Record<string, unknown>
   const type = str(props.facility_type);
   const color = facilityTypeColor(type);
   const district = str(props.district);
+  const i18n = useLocale();
+  const { t } = i18n;
+  const typeLabel = type ? enumLabel("funeralFacilityType", type, facilityTypeLabel(type), i18n) : t("popup.funeral.unclassified");
+  const opType = str(props.operator_type);
   return (
     <>
-      <Title color={color}>{str(props.name) || facilityTypeLabel(type)}</Title>
-      <Row field="type" value={facilityTypeLabel(type)} color={color} />
-      <Row label="公私別" value={operatorTypeLabel(str(props.operator_type))} />
-      {str(props.eco_type) ? <Row label="環保葬類型" value={str(props.eco_type)} /> : null}
+      <Title color={color}>{str(props.name) || typeLabel}</Title>
+      <Row field="type" value={typeLabel} color={color} />
+      <Row label={t("popup.funeral.operatorType")} value={enumLabel("funeralOperatorType", opType, operatorTypeLabel(opType), i18n)} />
+      {str(props.eco_type) ? <Row label={t("popup.funeral.ecoType")} value={str(props.eco_type)} /> : null}
       <Row field="district" value={district ? `${str(props.county)}${district}` : str(props.county)} />
       <Row field="phone" value={str(props.phone)} />
       <PrecisionNote precision={str(props.precision)} />
@@ -61,17 +68,19 @@ export function FuneralOperatorPanel({ props }: { props: Record<string, unknown>
   const color = operatorEntityColor(entity);
   const active = props.is_active === true;
   const capital = typeof props.capital === "number" ? props.capital : null;
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   return (
     <>
-      <Title color={color}>{str(props.name) || "禮儀業者"}</Title>
-      <Row label="登記別" value={operatorEntityLabel(entity)} color={color} />
+      <Title color={color}>{str(props.name) || t("popup.funeral.operatorTitle")}</Title>
+      <Row label={t("popup.funeral.entityType")} value={entity ? enumLabel("funeralOperatorEntity", entity, operatorEntityLabel(entity), i18n) : t("popup.funeral.unclassified")} color={color} />
       <Row
-        label="營業狀態"
+        label={t("popup.funeral.bizStatus")}
         // status 幾乎必有值；fallback 用「已失效」不用「已歇業」——這桶含遷他縣市
-        value={str(props.status) || (active ? "核准設立" : "已失效")}
+        value={str(props.status) || (active ? t("popup.funeral.statusApproved") : t("popup.funeral.statusInactive"))}
         color={active ? undefined : "#9e9e9e"}
       />
-      {capital != null ? <Row field="capital" value={`${capital.toLocaleString()} 元`} /> : null}
+      {capital != null ? <Row field="capital" value={t("popup.funeral.yuan", { value: formatNumber(capital) })} /> : null}
       <Row field="businessId" value={str(props.uniform_id)} />
       <Row field="district" value={`${str(props.county)}${str(props.district)}`} />
       <PrecisionNote precision={str(props.precision)} />
@@ -86,15 +95,15 @@ export function FuneralOperatorPanel({ props }: { props: Record<string, unknown>
  */
 export function FuneralOperatorDensityPanel({ props }: { props: Record<string, unknown> }) {
   const count = typeof props.operatorCount === "number" ? props.operatorCount : 0;
+  const { t, formatNumber } = useLocale();
   return (
     <>
       <Title color={FUNERAL_LAYER_COLORS.funeralOperatorDensity}>
-        {`${str(props.COUNTYNAME)}${str(props.TOWNNAME)}` || "鄉鎮市區"}
+        {`${str(props.COUNTYNAME)}${str(props.TOWNNAME)}` || t("popup.funeral.townFallback")}
       </Title>
-      <Row label="登記業者" value={`${count.toLocaleString()} 家`} />
+      <Row label={t("popup.funeral.registeredOperators")} value={t("popup.funeral.operatorCount", { count, value: formatNumber(count) })} />
       <Note>
-        ⓘ 這是業者「登記地」家數，<b>不是服務涵蓋率</b> —— 禮儀業者常跨區服務，
-        不可當可及性指標。
+        {t("popup.funeral.densityNote1")}<b>{t("popup.funeral.densityNoteBold")}</b>{t("popup.funeral.densityNote2")}
       </Note>
     </>
   );
@@ -108,14 +117,15 @@ export function FuneralOperatorDensityPanel({ props }: { props: Record<string, u
 export function CemeteryOsmPanel({ props }: { props: Record<string, unknown> }) {
   const name = str(props.name);
   const area = typeof props.area_ha === "number" ? props.area_ha : null;
+  const { t } = useLocale();
   return (
     <>
-      <Title color={FUNERAL_LAYER_COLORS.cemeteryOsm}>{name || "未命名墓區"}</Title>
-      {area != null ? <Row field="area" value={`${area.toFixed(2)} 公頃`} /> : null}
-      <Row label="OSM 標籤" value={str(props.landuse) || str(props.amenity)} />
+      <Title color={FUNERAL_LAYER_COLORS.cemeteryOsm}>{name || t("popup.funeral.unnamedCemetery")}</Title>
+      {area != null ? <Row field="area" value={t("popup.funeral.hectare", { value: area.toFixed(2) })} /> : null}
+      <Row label={t("popup.funeral.osmTag")} value={str(props.landuse) || str(props.amenity)} />
       <Row field="osmId" value={str(props.osm_id)} />
-      {name ? null : <Note>OSM 上約 65% 的墓區未標名稱，要名稱請疊「殯葬設施」層</Note>}
-      <Note>ⓘ OpenStreetMap 群眾標註，{CEMETERY_OSM_ODBL_NOTE}</Note>
+      {name ? null : <Note>{t("popup.funeral.osmNoName")}</Note>}
+      <Note>{t("popup.funeral.osmNote", { note: CEMETERY_OSM_ODBL_NOTE })}</Note>
     </>
   );
 }
@@ -129,14 +139,17 @@ export function CemeteryZoningPanel({ props }: { props: Record<string, unknown> 
   const zone = str(props.zone_label);
   const color = cemeteryZoningColor(zone);
   const area = typeof props.area_ha === "number" ? props.area_ha : null;
+  const i18n = useLocale();
+  const { t } = i18n;
+  const classValue = CEMETERY_ZONING_CLASSES.find((c) => c.raw.includes(zone))?.value;
   return (
     <>
-      <Title color={color}>{zone || "墓葬類用地"}</Title>
-      <Row label="分區群組" value={cemeteryZoningClassLabel(zone)} color={color} />
-      {area != null ? <Row field="area" value={`${area.toFixed(2)} 公頃`} /> : null}
+      <Title color={color}>{zone || t("popup.funeral.zoningFallback")}</Title>
+      <Row label={t("popup.funeral.zoningGroup")} value={!zone ? t("popup.funeral.unclassified") : classValue ? enumLabel("funeralZoningClass", classValue, cemeteryZoningClassLabel(zone), i18n) : zone} color={color} />
+      {area != null ? <Row field="area" value={t("popup.funeral.hectare", { value: area.toFixed(2) })} /> : null}
       <Row field="county" value={str(props.county)} />
-      <Row label="分區編號" value={str(props.zoning_id)} />
-      <Note>ⓘ 都市計畫<b>法定劃設</b>（非實際使用範圍），目前僅臺北市與新北市有此資料</Note>
+      <Row label={t("popup.funeral.zoningId")} value={str(props.zoning_id)} />
+      <Note>{t("popup.funeral.zoningNote1")}<b>{t("popup.funeral.zoningNoteBold")}</b>{t("popup.funeral.zoningNote2")}</Note>
     </>
   );
 }

@@ -1,0 +1,20 @@
+{
+  "popup.parking.onstreetFallback": "On-street parking",
+  "popup.parking.onstreetType": "On-street parking spaces",
+  "popup.parking.totalSpaces": "Total spaces",
+  "popup.parking.taipeiCapacityOnly": "⚠️ Taipei on-street parking provides capacity only, with no real-time availability",
+  "popup.parking.available": "Available spaces",
+  "popup.parking.availabilityRate": "Availability rate",
+  "popup.parking.lotFallback": "Parking lot",
+  "popup.parking.totalLotSpaces": "Total spaces",
+  "popup.parking.noRealtime": "⚠️ No real-time availability data for this lot",
+  "popup.parking.lotType": "Lot type",
+  "popup.parking.charging": "Charging",
+  "popup.parking.evCharging": "EV charging available",
+  "popup.parking.categoryWithSub": "{category} ({sub})",
+  "popup.parking.spaceRow": "{available} free of {total}",
+  "popup.parking.spaceCar": "Car",
+  "popup.parking.spaceMotorcycle": "Motorcycle",
+  "popup.parking.spaceDisabled": "Accessible",
+  "popup.parking.spaceOther": "Other (type {code})"
+}

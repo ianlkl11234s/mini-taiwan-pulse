@@ -1,0 +1,15 @@
+{
+  "enum.medicalLtc.A": "A 地域統合型",
+  "enum.medicalLtc.B": "B 複合型",
+  "enum.medicalLtc.C": "C 路地裏ケアステーション",
+  "enum.medicalIsochrone.le5": "5分以内",
+  "enum.medicalIsochrone.le10": "10分以内",
+  "enum.medicalIsochrone.le15": "15分以内",
+  "enum.medicalIsochrone.over15": "15分超（医療砂漠）",
+  "enum.medicalNote.isochrone": "自動車の道路網による推定（OSRM）。救急車の優先通行は考慮していません",
+  "enum.erLevel.smooth": "円滑",
+  "enum.erLevel.light": "やや混雑",
+  "enum.erLevel.congested": "混雑",
+  "enum.erLevel.severe": "深刻",
+  "enum.erLevel.nodata": "データなし"
+}

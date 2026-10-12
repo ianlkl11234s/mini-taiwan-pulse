@@ -1,0 +1,13 @@
+{
+  "popup.h3Metric.cellNote": "H3 六角形グリッドセル · 値はセルの集計値",
+  "popup.h3Metric.popCount": "人口グリッド",
+  "popup.h3Metric.dayNight": "昼夜間人口グリッド",
+  "popup.h3Metric.indicators": "人口指標グリッド",
+  "popup.h3Metric.socio": "社会経済指標グリッド",
+  "popup.h3Metric.spatial": "空間経済グリッド",
+  "popup.h3Metric.youbikeTitle": "YouBike 貸出可能率",
+  "popup.h3Metric.bikeAvailability": "貸出可能率",
+  "popup.h3Metric.avgRacks": "平均ラック数",
+  "popup.h3Metric.racksValue": "{value} 台分",
+  "popup.h3Metric.youbikeNote": "H3 六角形グリッドセル · セル内全ステーションの平均"
+}

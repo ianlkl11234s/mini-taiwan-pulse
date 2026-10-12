@@ -7,7 +7,7 @@ import { fetchGroundwaterTimeseries } from "../../data/groundwaterLoader";
 import { fetchRainGaugeTimeseries } from "../../data/rainGaugeLoader";
 import { BRIDGE_TABLE_URL } from "../../data/bridgeRainThresholds";
 import type { ReservoirContext } from "../../data/reservoirContextLoader";
-import { Row, formatTaiwanTime } from "./shared";
+import { Row, formatTaiwanTime, formatTaiwanMinute } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { useFeatureTheme } from "./featureTheme";
@@ -271,7 +271,7 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.levelUnit")}</span>
       </div>
       <Row field="county" value={String(props.county ?? "")} />
-      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
@@ -343,7 +343,7 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.groundwaterUnit")}</span>
       </div>
-      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row label={i18n.t("popup.water.wellNo")} value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
@@ -425,7 +425,7 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       {(county || town) && <Row field="region" value={[county, town].filter(Boolean).join(" / ")} />}
       {admin && <Row field="managingAgency" value={admin} />}
-      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
         {i18n.t("popup.water.trend24h")}
@@ -564,7 +564,7 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       <Row label={i18n.t("popup.water.accum3h")} value={`${p3.toFixed(1)} mm`} />
       <Row label={i18n.t("popup.water.accum24h")} value={`${p24.toFixed(1)} mm`} />
       <Row field="county" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
-      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
@@ -682,7 +682,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
         <Row label={i18n.t("popup.water.basinRainfall")} value={`${Number(s.basin_rainfall_mm).toFixed(1)} mm`} />
       )}
       {s?.snapshot_at && (
-        <Row label={i18n.t("popup.water.updatedAt")} value={formatTaiwanTime(s.snapshot_at).slice(0, 16)} />
+        <Row label={i18n.t("popup.water.updatedAt")} value={formatTaiwanMinute(s.snapshot_at)} />
       )}
 
       {/* 淤積 */}
@@ -837,7 +837,7 @@ export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       <IotReadingBlock value={value} unit={unit} deltaLabel={i18n.t("popup.water.vsBaseline")} delta={delta} color="#22d3ee" />
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
-      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
     </>
   );
@@ -879,7 +879,7 @@ export function IotWraStructurePanel({ props }: { props: Record<string, unknown>
       <IotReadingBlock value={value} unit={unit} deltaLabel={i18n.t("popup.water.dailyChange")} delta={delta} color={color} />
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
       <Row field="county" value={String(props.county_name ?? "")} />
-      {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
     </>
   );

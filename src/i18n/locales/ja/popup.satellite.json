@@ -1,0 +1,12 @@
+{
+  "popup.satellite.sourceOrg": "Space-Track（TLE）· UCS 衛星データベース（分類）",
+  "popup.satellite.fetchedAt": "{time}（台湾時間）",
+  "popup.satellite.fallback": "衛星",
+  "popup.satellite.noradTitle": "NORAD 番号",
+  "popup.satellite.altitude": "高度",
+  "popup.satellite.footprint1": "フットプリント：内側の円 ",
+  "popup.satellite.footprint2": " km の観測幅、外側の円 ",
+  "popup.satellite.footprint3": " km の可視範囲（仰角 ",
+  "popup.satellite.footprint4": "）",
+  "popup.satellite.encyclopedia": "衛星百科を見る"
+}

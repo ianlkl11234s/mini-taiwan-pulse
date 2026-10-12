@@ -1,0 +1,18 @@
+{
+  "enum.satelliteCategory.china_yaogan": "中国 Yaogan 遠隔探査",
+  "enum.satelliteCategory.china_jilin": "中国 Jilin 吉林",
+  "enum.satelliteCategory.china_gaofen": "中国 Gaofen 高分",
+  "enum.satelliteCategory.china_tjs": "TJS / TJSW 静止軌道情報衛星",
+  "enum.satelliteCategory.china_beidou": "北斗 BeiDou",
+  "enum.satelliteCategory.china_shiyan": "実践 Shiyan／その他",
+  "enum.satelliteCategory.taiwan": "台湾（FORMOSAT/TRITON）",
+  "enum.satelliteCategory.usa": "米国の偵察衛星",
+  "enum.satelliteCategory.japan": "日本 IGS",
+  "enum.satelliteCategory.russia": "ロシアの偵察衛星",
+  "enum.satelliteCategory.india": "インドのリモートセンシング",
+  "enum.satelliteCategory.korea": "韓国 KOMPSAT",
+  "enum.satelliteCategory.france": "フランス CSO/PLEIADES",
+  "enum.satelliteCategory.germany": "ドイツ SAR-Lupe",
+  "enum.satelliteCategory.italy": "イタリア COSMO-SkyMed",
+  "enum.satelliteCategory.israel": "イスラエル Ofeq"
+}

@@ -3,7 +3,7 @@ import { fetchMarineObservationHistory } from "../../data/marineObservationLoade
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
-import { Row, formatTaiwanTime } from "./shared";
+import { Row, formatTaiwanMinute } from "./shared";
 import { localeStore, useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import type { MessageKey } from "../../i18n/keys";
@@ -319,7 +319,7 @@ function MetricCard({
         )}
       </div>
       <div style={{ marginTop: 2, color: statusColor, fontSize: FONT_SIZE.xs }}>{qualitySummary(metric, i18n)}</div>
-      {metric.observedAt && <div style={{ marginTop: 2, color: t.textDim, fontSize: FONT_SIZE.xs }}>{tr("popup.marine.observed", { time: formatTaiwanTime(metric.observedAt).slice(0, 16) })}</div>}
+      {metric.observedAt && <div style={{ marginTop: 2, color: t.textDim, fontSize: FONT_SIZE.xs }}>{tr("popup.marine.observed", { time: formatTaiwanMinute(metric.observedAt) })}</div>}
       <button
         type="button"
         aria-pressed={selected}
@@ -421,7 +421,7 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
       <Row label={tr("popup.marine.originOrg")} value={field(props, "originOrg", "origin_org")} />
       <Row label={tr("popup.marine.distributionOrg")} value={field(props, "distributionOrg", "distribution_org")} />
       <Row label={tr("popup.marine.stationType")} value={field(props, "stationType", "station_type")} />
-      <Row label={tr("popup.marine.latestObs")} value={latestObservedAt ? formatTaiwanTime(latestObservedAt).slice(0, 16) : tr("popup.marine.noValidObs")} />
+      <Row label={tr("popup.marine.latestObs")} value={latestObservedAt ? formatTaiwanMinute(latestObservedAt) : tr("popup.marine.noValidObs")} />
       <Row label={tr("popup.marine.dataAge")} value={formatAge(latestAgeSeconds, i18n)} />
       <Row label={tr("popup.marine.freshness")} value={freshnessStatus || tr("popup.marine.unclassified")} />
       <Row label={tr("popup.marine.stationStatus")} value={stationSourceStatus || tr("popup.marine.unlabeled")} />

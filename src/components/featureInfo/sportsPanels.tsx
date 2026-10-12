@@ -2,6 +2,8 @@ import { FONT_SIZE } from "../../styles/designTokens";
 import { SPORTS_CATEGORY_COLOR, SPORTS_FALLBACK_COLOR } from "../../data/sportsTypes";
 import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 
 // open_status 顏色：可用（綠）/ 付費（琥珀）/ 不對外（紅）/ 其他（灰）
 function openStatusColor(s: string): string {
@@ -13,6 +15,8 @@ function openStatusColor(s: string): string {
 
 export function SportsVenuePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr, formatNumber } = i18n;
   const category = String(props["category"] ?? "");
   const accent = SPORTS_CATEGORY_COLOR[category] ?? SPORTS_FALLBACK_COLOR;
   const openStatus = String(props["open_status"] ?? "");
@@ -21,19 +25,19 @@ export function SportsVenuePanel({ props }: { props: Record<string, unknown> }) 
   const cityDistrict = `${String(props["city"] ?? "")}${String(props["district"] ?? "")}`;
   return (
     <>
-      <Title color={accent}>{String(props["name"] ?? "運動場館")}</Title>
-      <Row field="type" value={category} color={accent} />
-      <Row label="隸屬" value={String(props["layer"] ?? "")} />
-      {openStatus && <Row label="開放" value={openStatus} color={openStatusColor(openStatus)} />}
-      {Number.isFinite(area) && area > 0 && <Row field="area" value={`${area.toLocaleString()} m²`} />}
+      <Title color={accent}>{String(props["name"] ?? tr("popup.sports.venueFallback"))}</Title>
+      <Row field="type" value={enumLabel("sportsCategory", category, category, i18n)} color={accent} />
+      <Row label={tr("popup.sports.affiliation")} value={enumLabel("sportsLayer", String(props["layer"] ?? ""), String(props["layer"] ?? ""), i18n)} />
+      {openStatus && <Row label={tr("popup.sports.openStatus")} value={enumLabel("sportsOpenStatus", openStatus, openStatus, i18n)} color={openStatusColor(openStatus)} />}
+      {Number.isFinite(area) && area > 0 && <Row field="area" value={`${formatNumber(area)} m²`} />}
       <Row field="openingHours" value={String(props["open_hours"] ?? "")} />
       <Row field="countyDistrict" value={cityDistrict} />
       <Row field="address" value={String(props["address"] ?? "")} />
-      <Row label="經營單位" value={String(props["owner_org"] ?? "")} />
+      <Row label={tr("popup.sports.owner")} value={String(props["owner_org"] ?? "")} />
       {website && website !== "null" && (
         <div style={{ marginTop: 4, fontSize: FONT_SIZE.base }}>
           <a href={website} target="_blank" rel="noreferrer" style={{ color: t.link, textDecoration: "none" }}>
-            官方網站 ↗
+            {tr("popup.sports.website")}
           </a>
         </div>
       )}

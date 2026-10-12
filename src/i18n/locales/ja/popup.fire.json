@@ -1,0 +1,15 @@
+{
+  "popup.fire.eventFallback": "火災事案",
+  "popup.fire.cause": "出火原因",
+  "popup.fire.deaths": "死者",
+  "popup.fire.injuries": "負傷者",
+  "popup.fire.stationFallback": "消防分隊",
+  "popup.fire.hydrant": "消火栓",
+  "popup.fire.hydrantType": "型式",
+  "popup.fire.minutesLabel": "{minutes} 分",
+  "popup.fire.reachTime": "到達時間",
+  "popup.fire.withinMinutes": "{minutes} 分以内",
+  "popup.fire.cumulativeArea": "累積到達可能面積",
+  "popup.fire.ringArea": "この区分の帯の面積",
+  "popup.fire.isochroneNote": "⚠️ 自動車道路網による保守的な推定で、消防車の優先通行は考慮していません"
+}

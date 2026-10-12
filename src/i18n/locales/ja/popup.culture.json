@@ -1,0 +1,23 @@
+{
+  "popup.culture.branchFallback": "台北市立図書館",
+  "popup.culture.facilityFallback": "文化施設",
+  "popup.culture.museumFallback": "地方文化館",
+  "popup.culture.eventFallback": "芸術文化イベント",
+  "popup.culture.venueFallback": "公演会場",
+  "popup.culture.ongoing": "開催中",
+  "popup.culture.upcoming": "開始前",
+  "popup.culture.categoryCode": "カテゴリコード",
+  "popup.culture.showTime": "公演時間",
+  "popup.culture.eventCount": "イベント数",
+  "popup.culture.showCount": "公演数",
+  "popup.culture.openAreas": "開放エリア",
+  "popup.culture.areasValue": "{open} / {total} エリア",
+  "popup.culture.freeSeats": "空席",
+  "popup.culture.closed": "休館中",
+  "popup.culture.areaList": "各閲覧エリア（{count}）",
+  "popup.culture.trend24h": "24時間の空席推移",
+  "popup.culture.closedSuffix": "（休館）",
+  "popup.culture.loading": "読み込み中…",
+  "popup.culture.closedGap": "休館時間帯は表示しません",
+  "popup.culture.librarySource": "台北市立図書館 · データは10分ごとに更新"
+}

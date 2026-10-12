@@ -1,0 +1,19 @@
+{
+  "popup.air.mainPollutant": "Main pollutant",
+  "popup.air.windSpeed": "Wind speed",
+  "popup.air.deviceId": "Device ID",
+  "popup.air.device": "Device",
+  "popup.air.area": "Area",
+  "popup.air.temperature": "Temperature",
+  "popup.air.humidity": "Humidity",
+  "popup.air.gridPoint": "Grid point",
+  "popup.air.gridSource": "CWA 0.03° hourly observation analysis grid",
+  "popup.air.heatIntensity": "Heat island intensity",
+  "popup.air.surfaceTemp": "Land surface temperature",
+  "popup.air.landsatNote": "Landsat 8/9 land surface temperature · median composite of 2019–2025 warm-season morning overpasses (60 m)",
+  "popup.air.canopyHeight": "Canopy height",
+  "popup.air.meters": "{value} m",
+  "popup.air.canopyNote": "Meta / WRI global canopy height tile (the R channel is the height in meters)",
+  "popup.air.jpCanopyHeight": "Japan canopy height",
+  "popup.air.jpCanopyNote": "{source} estimate; {coverage}; resolution {resolution}; image dates vary by location"
+}

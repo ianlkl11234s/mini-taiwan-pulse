@@ -1,0 +1,13 @@
+{
+  "enum.jpMedicalCategory.hospital": "病院",
+  "enum.jpMedicalCategory.clinic": "診療所",
+  "enum.jpMedicalCategory.dental": "歯科",
+  "enum.jpMedicalCategory.maternity": "助産所",
+  "enum.jpMedicalCategory.pharmacy": "薬局",
+  "enum.jpMedicalCareGroup.jpCarePlanning": "介護の相談・ケアプラン",
+  "enum.jpMedicalCareGroup.jpCareHomeVisit": "自宅に訪問",
+  "enum.jpMedicalCareGroup.jpCareDayServices": "施設に通う",
+  "enum.jpMedicalCareGroup.jpCareResidential": "施設で生活・宿泊",
+  "enum.jpMedicalCareGroup.jpCareCombined": "訪問・通い・宿泊の組合せ",
+  "enum.jpMedicalCareGroup.jpCareEquipment": "福祉用具"
+}

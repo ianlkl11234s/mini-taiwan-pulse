@@ -1,0 +1,23 @@
+{
+  "popup.jpMedical.notProvided": "Not provided",
+  "popup.jpMedical.snapshotDate": "Snapshot date",
+  "popup.jpMedical.sourceNavii": "MHLW Navii",
+  "popup.jpMedical.sourceId": "Source ID",
+  "popup.jpMedical.parentGroup": "Parent group",
+  "popup.jpMedical.unclassified": "Unclassified",
+  "popup.jpMedical.rawServiceType": "Original service type",
+  "popup.jpMedical.sourceH17": "MHLW H17",
+  "popup.jpMedical.sourceSnapshot": "Source snapshot",
+  "popup.jpMedical.coLocated": "{count} service registrations at the same location under the current filter",
+  "popup.jpMedical.service": "Service",
+  "popup.jpMedical.snapshot": "Snapshot",
+  "popup.jpMedical.areasTitle": "Medical areas · 2020 historical version",
+  "popup.jpMedical.dataStatus": "Data status",
+  "popup.jpMedical.staleValue": "STALE: 2020 historical version",
+  "popup.jpMedical.sourceAreas": "National Land Numerical Information: Medical Area Data (2020)",
+  "popup.jpMedical.purpose": "Purpose",
+  "popup.jpMedical.purposeText": "Administrative planning boundaries; not facility service areas or real-time care-access zones",
+  "popup.jpMedical.geometryGrain": "Geometry granularity",
+  "popup.jpMedical.geometryGrainText": "Source polygon parts; do not sum population, area or number of areas from them",
+  "popup.jpMedical.sourceFields": "Source fields"
+}

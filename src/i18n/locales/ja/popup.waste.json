@@ -1,0 +1,22 @@
+{
+  "popup.waste.unnamedFacility": "(名称不明の施設)",
+  "popup.waste.capacity": "処理量",
+  "popup.waste.tonsPerDay": "{value} トン/日",
+  "popup.waste.startYear": "供用開始年",
+  "popup.waste.distanceToCoast": "海岸までの距離",
+  "popup.waste.squadFallback": "(清掃隊)",
+  "popup.waste.jurisdiction": "管轄区域",
+  "popup.waste.manager": "管理者",
+  "popup.waste.accepts": "投入可能品目",
+  "popup.waste.unnamedStop": "(名称不明の地点)",
+  "popup.waste.collectionRoute": "収集ルート",
+  "popup.waste.routesPassing": "通過ルート",
+  "popup.waste.routeCount_one": "{count} ルート",
+  "popup.waste.routeCount_other": "{count} ルート",
+  "popup.waste.vehicleType": "車種",
+  "popup.waste.positionSource": "位置の取得元",
+  "popup.waste.garbageTruck": "ごみ収集車",
+  "popup.waste.vehicleNo": "車両番号",
+  "popup.waste.routeCode": "ルートコード",
+  "popup.waste.truckNote": "GPS 実軌跡の車両 · 位置はタイムラインに沿って補間"
+}

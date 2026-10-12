@@ -1,0 +1,9 @@
+{
+  "popup.analysisResult.hereBefore": "At this location: ",
+  "popup.analysisResult.hereAfter": " records",
+  "popup.analysisResult.selectRecord": "Select an overlapping analysis record",
+  "popup.analysisResult.recordLabel": "Record",
+  "popup.analysisResult.recordValue": "Spatial record matched by this analysis",
+  "popup.analysisResult.footer": "Temporary analysis result · not a complete source layer",
+  "popup.analysisResult.omitted": " · {count} more overlapping records not listed"
+}

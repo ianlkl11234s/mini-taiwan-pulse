@@ -32,6 +32,9 @@ import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { layerParamsStore } from "../../state/layerParamsStore";
 import { getParamsSpec, resolveSelectOptions } from "../../data/layerParamsSpec";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import type { LocaleSnapshot } from "../../state/localeStore";
 
 type Fmt = "int" | "num2" | "pct" | "raw";
 
@@ -108,15 +111,15 @@ function specLabel(layerKey: string, metricParam: string, metric: string): strin
   return opts.find((o) => String(o.value) === metric)?.label ?? metric;
 }
 
-function formatValue(v: number, g: Gloss | undefined): string {
+function formatValue(v: number, g: Gloss | undefined, i18n: LocaleSnapshot): string {
   if (!Number.isFinite(v)) return "—";
   const fmt = g?.fmt ?? "raw";
   const base =
-    fmt === "int" ? Math.round(v).toLocaleString()
+    fmt === "int" ? i18n.formatNumber(Math.round(v))
     : fmt === "pct" ? `${(v * 100).toFixed(1)}%`
     : fmt === "num2" ? v.toFixed(2)
     : String(v);
-  return g?.unit ? `${base} ${g.unit}` : base;
+  return g?.unit ? `${base} ${enumLabel("h3MetricUnit", g.unit, g.unit, i18n)}` : base;
 }
 
 function H3CellBody({
@@ -129,13 +132,17 @@ function H3CellBody({
   accent: string;
 }) {
   const t = useFeatureTheme();
-  // ⚠️ deps 只有 props：指標在點擊當下凍結，跟著 value 一起定格
-  const shown = useMemo(() => {
+  const i18n = useLocale();
+  // ⚠️ deps 只有 props：指標在點擊當下凍結，跟著 value 一起定格（語系只影響下方顯示層的翻譯）
+  const frozen = useMemo(() => {
     const metric = currentMetric(layerKey);
     const gloss = GLOSS[layerKey]?.[metric];
-    const label = gloss?.label ?? specLabel(layerKey, metricParam, metric);
-    return { label, value: formatValue(Number(props.value), gloss) };
+    return { metric, gloss, fallbackLabel: gloss ? "" : specLabel(layerKey, metricParam, metric) };
   }, [props, layerKey, metricParam]);
+  const shown = {
+    label: frozen.gloss ? enumLabel("h3Metric", `${layerKey}.${frozen.metric}`, frozen.gloss.label, i18n) : frozen.fallbackLabel,
+    value: formatValue(Number(props.value), frozen.gloss, i18n),
+  };
 
   return (
     <>
@@ -147,30 +154,35 @@ function H3CellBody({
       </div>
       <Row label={shown.label} value={shown.value} color={accent} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
-        H3 六邊形網格單元 · 數值為該格聚合值
+        {i18n.t("popup.h3Metric.cellNote")}
       </div>
     </>
   );
 }
 
 export function PopCountCellPanel({ props }: { props: Record<string, unknown> }) {
-  return <H3CellBody props={props} layerKey="popCount" metricParam="" title="人口數網格" accent="#ff7043" />;
+  const { t: tr } = useLocale();
+  return <H3CellBody props={props} layerKey="popCount" metricParam="" title={tr("popup.h3Metric.popCount")} accent="#ff7043" />;
 }
 
 export function H3PopulationCellPanel({ props }: { props: Record<string, unknown> }) {
-  return <H3CellBody props={props} layerKey="h3Population" metricParam="h3Metric" title="日夜人口網格" accent="#42a5f5" />;
+  const { t: tr } = useLocale();
+  return <H3CellBody props={props} layerKey="h3Population" metricParam="h3Metric" title={tr("popup.h3Metric.dayNight")} accent="#42a5f5" />;
 }
 
 export function IndicatorsCellPanel({ props }: { props: Record<string, unknown> }) {
-  return <H3CellBody props={props} layerKey="indicators" metricParam="indMetric" title="人口指標網格" accent="#ab47bc" />;
+  const { t: tr } = useLocale();
+  return <H3CellBody props={props} layerKey="indicators" metricParam="indMetric" title={tr("popup.h3Metric.indicators")} accent="#ab47bc" />;
 }
 
 export function SocioeconomicCellPanel({ props }: { props: Record<string, unknown> }) {
-  return <H3CellBody props={props} layerKey="socioeconomic" metricParam="socioMetric" title="社經指標網格" accent="#26a69a" />;
+  const { t: tr } = useLocale();
+  return <H3CellBody props={props} layerKey="socioeconomic" metricParam="socioMetric" title={tr("popup.h3Metric.socio")} accent="#26a69a" />;
 }
 
 export function SpatialEconomyCellPanel({ props }: { props: Record<string, unknown> }) {
-  return <H3CellBody props={props} layerKey="spatialEconomy" metricParam="spatialMetric" title="空間經濟網格" accent="#ec407a" />;
+  const { t: tr } = useLocale();
+  return <H3CellBody props={props} layerKey="spatialEconomy" metricParam="spatialMetric" title={tr("popup.h3Metric.spatial")} accent="#ec407a" />;
 }
 
 /**
@@ -180,6 +192,7 @@ export function SpatialEconomyCellPanel({ props }: { props: Record<string, unkno
  */
 export function YoubikeFullnessCellPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr, formatNumber } = useLocale();
   const fr = Number(props.value);
   const capacity = Number(props.capacity);
   return (
@@ -187,13 +200,13 @@ export function YoubikeFullnessCellPanel({ props }: { props: Record<string, unkn
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#ffca28", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          YouBike 有車率
+          {tr("popup.h3Metric.youbikeTitle")}
         </div>
       </div>
-      {Number.isFinite(fr) && <Row label="有車率" value={`${(fr * 100).toFixed(1)}%`} color="#ffca28" />}
-      {Number.isFinite(capacity) && <Row label="平均車柱數" value={`${capacity.toFixed(1)} 柱`} />}
+      {Number.isFinite(fr) && <Row label={tr("popup.h3Metric.bikeAvailability")} value={`${(fr * 100).toFixed(1)}%`} color="#ffca28" />}
+      {Number.isFinite(capacity) && <Row label={tr("popup.h3Metric.avgRacks")} value={tr("popup.h3Metric.racksValue", { value: formatNumber(capacity, { minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: false }) })} />}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
-        H3 六邊形網格單元 · 該格所有站點平均
+        {tr("popup.h3Metric.youbikeNote")}
       </div>
     </>
   );

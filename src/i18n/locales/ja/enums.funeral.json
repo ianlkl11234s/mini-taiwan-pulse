@@ -1,0 +1,22 @@
+{
+  "enum.funeralFacilityType.cemetery": "墓地",
+  "enum.funeralFacilityType.columbarium": "納骨堂・納骨塔",
+  "enum.funeralFacilityType.eco_burial": "環境配慮型葬法",
+  "enum.funeralFacilityType.funeral_home": "葬儀場",
+  "enum.funeralFacilityType.crematorium": "火葬場",
+  "enum.funeralFacilityType.ritual_hall": "礼拝堂・霊堂",
+  "enum.funeralOperatorType.public": "公立",
+  "enum.funeralOperatorType.private": "私立",
+  "enum.funeralPrecision.source": "公式の元座標",
+  "enum.funeralPrecision.exact": "住所レベル（OSM／Google ROOFTOP）",
+  "enum.funeralPrecision.cached": "住所レベル（TGOS キャッシュ）",
+  "enum.funeralPrecision.tgos": "TGOS 公式照合",
+  "enum.funeralPrecision.interpolated": "同一路線区間内の補間",
+  "enum.funeralPrecision.parcel_centroid": "地籍範囲の中心（誤差 1.4–126 m）",
+  "enum.funeralPrecision.approximate": "郷鎮・路線区間の中心（数百 m ずれる可能性あり）",
+  "enum.funeralOperatorEntity.business": "個人事業・パートナーシップ",
+  "enum.funeralOperatorEntity.company": "法人（会社）",
+  "enum.funeralZoningClass.grave": "墓地・埋葬用地",
+  "enum.funeralZoningClass.facility": "葬祭施設用地",
+  "enum.funeralZoningClass.parlor": "葬儀場用地"
+}

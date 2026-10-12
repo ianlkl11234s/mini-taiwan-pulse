@@ -1,0 +1,15 @@
+{
+  "popup.fire.eventFallback": "Fire incident",
+  "popup.fire.cause": "Cause of fire",
+  "popup.fire.deaths": "Deaths",
+  "popup.fire.injuries": "Injuries",
+  "popup.fire.stationFallback": "Fire station",
+  "popup.fire.hydrant": "Fire hydrant",
+  "popup.fire.hydrantType": "Hydrant type",
+  "popup.fire.minutesLabel": "{minutes} min",
+  "popup.fire.reachTime": "Travel time",
+  "popup.fire.withinMinutes": "Within {minutes} min",
+  "popup.fire.cumulativeArea": "Cumulative reachable area",
+  "popup.fire.ringArea": "Area of this band",
+  "popup.fire.isochroneNote": "⚠️ Conservative estimate on the driving network; fire-engine right of way is not counted"
+}

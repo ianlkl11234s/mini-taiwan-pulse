@@ -1,0 +1,22 @@
+{
+  "popup.waste.unnamedFacility": "(Unnamed facility)",
+  "popup.waste.capacity": "Throughput",
+  "popup.waste.tonsPerDay": "{value} t/day",
+  "popup.waste.startYear": "Year opened",
+  "popup.waste.distanceToCoast": "Distance to coast",
+  "popup.waste.squadFallback": "(Cleaning squad)",
+  "popup.waste.jurisdiction": "Jurisdiction",
+  "popup.waste.manager": "Manager",
+  "popup.waste.accepts": "Accepted items",
+  "popup.waste.unnamedStop": "(Unnamed stop)",
+  "popup.waste.collectionRoute": "Collection route",
+  "popup.waste.routesPassing": "Routes passing",
+  "popup.waste.routeCount_one": "{count} route",
+  "popup.waste.routeCount_other": "{count} routes",
+  "popup.waste.vehicleType": "Vehicle type",
+  "popup.waste.positionSource": "Position source",
+  "popup.waste.garbageTruck": "Garbage truck",
+  "popup.waste.vehicleNo": "Vehicle no.",
+  "popup.waste.routeCode": "Route code",
+  "popup.waste.truckNote": "GPS-tracked vehicle · position interpolated along the timeline"
+}

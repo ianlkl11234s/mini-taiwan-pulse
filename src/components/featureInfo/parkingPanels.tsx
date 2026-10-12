@@ -3,15 +3,10 @@ import {
   parkingAvailabilityColor, AVAILABILITY_NULL_COLOR, SOURCE_CATEGORY_META,
 } from "../../data/parkingLoader";
 import { Row } from "./shared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 
-// 車格類型代碼 → 標籤（汽車 / 身障 / 其他）
-const SPACE_TYPE_LABEL: Record<number, string> = {
-  1: "汽車",
-  2: "機車",
-  3: "身障",
-};
-
-interface SpaceRow { label: string; total: number | null; available: number | null; }
+interface SpaceRow { code: number; total: number | null; available: number | null; }
 
 /**
  * space_types 兩種 schema 正規化：
@@ -26,26 +21,33 @@ function parseSpaceTypes(raw: unknown): SpaceRow[] {
     const total = o.total ?? o.NumberOfSpaces;
     const available = o.available ?? o.AvailableSpaces;
     return {
-      label: SPACE_TYPE_LABEL[code] ?? `其他 (類型 ${code})`,
+      code,
       total: total == null ? null : Number(total),
       available: available == null ? null : Number(available),
     };
   });
 }
 
-function fmt(v: number | null | undefined): string {
-  return v == null || v < 0 ? "—" : v.toLocaleString("zh-TW");
+type FormatNumber = (n: number) => string;
+function fmt(v: number | null | undefined, formatNumber: FormatNumber): string {
+  return v == null || v < 0 ? "—" : formatNumber(v);
 }
 function ratePct(rate: number | null): string {
   return rate == null ? "" : `${Math.round(rate * 100)}%`;
 }
 
 function SpaceTypeRows({ rows }: { rows: SpaceRow[] }) {
+  const { t, formatNumber } = useLocale();
   if (rows.length === 0) return null;
+  const spaceLabel = (code: number): string =>
+    code === 1 ? t("popup.parking.spaceCar")
+    : code === 2 ? t("popup.parking.spaceMotorcycle")
+    : code === 3 ? t("popup.parking.spaceDisabled")
+    : t("popup.parking.spaceOther", { code });
   return (
     <>
       {rows.map((r, i) => (
-        <Row key={i} label={r.label} value={`空 ${fmt(r.available)} / 共 ${fmt(r.total)}`} />
+        <Row key={i} label={spaceLabel(r.code)} value={t("popup.parking.spaceRow", { available: fmt(r.available, formatNumber), total: fmt(r.total, formatNumber) })} />
       ))}
     </>
   );
@@ -53,7 +55,8 @@ function SpaceTypeRows({ rows }: { rows: SpaceRow[] }) {
 
 /** 路邊停車 popup — 台北 polygon（僅容量）/ 新北台中 點（空位率） */
 export function ParkingOnstreetPanel({ props }: { props: Record<string, unknown> }) {
-  const title = String(props.segment_name || props.segment_id || "路邊停車");
+  const { t, formatNumber } = useLocale();
+  const title = String(props.segment_name || props.segment_id || t("popup.parking.onstreetFallback"));
   const rate = props.availability_rate == null ? null : Number(props.availability_rate);
   const total = props.total_spaces == null ? null : Number(props.total_spaces);
   const available = props.available_spaces == null ? null : Number(props.available_spaces);
@@ -67,16 +70,16 @@ export function ParkingOnstreetPanel({ props }: { props: Record<string, unknown>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
       </div>
-      <Row field="type" value="路邊停車格" />
-      <Row label="總車格" value={fmt(total)} />
+      <Row field="type" value={t("popup.parking.onstreetType")} />
+      <Row label={t("popup.parking.totalSpaces")} value={fmt(total, formatNumber)} />
       {taipeiCapacityOnly ? (
         <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.75)", marginTop: 6, lineHeight: 1.4 }}>
-          ⚠️ 台北路邊僅提供容量，無即時空位
+          {t("popup.parking.taipeiCapacityOnly")}
         </div>
       ) : (
         <>
-          <Row label="剩餘空位" value={fmt(available)} color={color} />
-          <Row label="空位率" value={ratePct(rate)} color={color} />
+          <Row label={t("popup.parking.available")} value={fmt(available, formatNumber)} color={color} />
+          <Row label={t("popup.parking.availabilityRate")} value={ratePct(rate)} color={color} />
         </>
       )}
       <SpaceTypeRows rows={spaceRows} />
@@ -86,13 +89,15 @@ export function ParkingOnstreetPanel({ props }: { props: Record<string, unknown>
 
 /** 場外停車場 popup — 空位率 + 容量 + 類型 / 地址 / 充電 */
 export function ParkingOffstreetPanel({ props }: { props: Record<string, unknown> }) {
-  const title = String(props.car_park_name || props.car_park_uid || "停車場");
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const title = String(props.car_park_name || props.car_park_uid || t("popup.parking.lotFallback"));
   const rate = props.availability_rate == null ? null : Number(props.availability_rate);
   const total = props.total_spaces == null ? null : Number(props.total_spaces);
   const available = props.available_spaces == null ? null : Number(props.available_spaces);
   const color = rate == null ? AVAILABILITY_NULL_COLOR : parkingAvailabilityColor(rate);
   const cat = String(props.source_category ?? "");
-  const catLabel = SOURCE_CATEGORY_META[cat]?.label ?? cat;
+  const catLabel = enumLabel("parkingSourceCategory", cat, SOURCE_CATEGORY_META[cat]?.label ?? cat, i18n);
   const subCat = String(props.sub_category ?? "");
   const address = String(props.address ?? "");
   const carParkType = String(props.car_park_type ?? "");
@@ -105,23 +110,23 @@ export function ParkingOffstreetPanel({ props }: { props: Record<string, unknown
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
       </div>
-      <Row field="classification" value={subCat && subCat !== catLabel ? `${catLabel}（${subCat}）` : catLabel} />
+      <Row field="classification" value={subCat && subCat !== catLabel ? t("popup.parking.categoryWithSub", { category: catLabel, sub: subCat }) : catLabel} />
       {rate == null ? (
         <>
-          <Row label="總車位" value={fmt(total)} />
+          <Row label={t("popup.parking.totalLotSpaces")} value={fmt(total, formatNumber)} />
           <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.75)", marginTop: 6, lineHeight: 1.4 }}>
-            ⚠️ 此場無即時空位資料
+            {t("popup.parking.noRealtime")}
           </div>
         </>
       ) : (
         <>
-          <Row label="剩餘空位" value={`${fmt(available)} / ${fmt(total)}`} color={color} />
-          <Row label="空位率" value={ratePct(rate)} color={color} />
+          <Row label={t("popup.parking.available")} value={`${fmt(available, formatNumber)} / ${fmt(total, formatNumber)}`} color={color} />
+          <Row label={t("popup.parking.availabilityRate")} value={ratePct(rate)} color={color} />
         </>
       )}
       <SpaceTypeRows rows={spaceRows} />
-      {carParkType && <Row label="型態" value={carParkType} />}
-      {ev && <Row label="充電" value="有電動車充電" color="#22c55e" />}
+      {carParkType && <Row label={t("popup.parking.lotType")} value={carParkType} />}
+      {ev && <Row label={t("popup.parking.charging")} value={t("popup.parking.evCharging")} color="#22c55e" />}
       {address && <Row field="address" value={address} />}
     </>
   );

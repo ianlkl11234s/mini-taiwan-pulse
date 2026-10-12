@@ -1,0 +1,22 @@
+{
+  "popup.waste.unnamedFacility": "(未命名設施)",
+  "popup.waste.capacity": "處理量",
+  "popup.waste.tonsPerDay": "{value} 噸/日",
+  "popup.waste.startYear": "啟用年",
+  "popup.waste.distanceToCoast": "距海岸",
+  "popup.waste.squadFallback": "(清潔隊)",
+  "popup.waste.jurisdiction": "主管轄區",
+  "popup.waste.manager": "管理者",
+  "popup.waste.accepts": "可投放",
+  "popup.waste.unnamedStop": "(未命名點位)",
+  "popup.waste.collectionRoute": "清運路線",
+  "popup.waste.routesPassing": "經過路線",
+  "popup.waste.routeCount_one": "{count} 條",
+  "popup.waste.routeCount_other": "{count} 條",
+  "popup.waste.vehicleType": "車種",
+  "popup.waste.positionSource": "定位來源",
+  "popup.waste.garbageTruck": "垃圾車",
+  "popup.waste.vehicleNo": "車號",
+  "popup.waste.routeCode": "路線代碼",
+  "popup.waste.truckNote": "GPS 實跡車輛 · 位置隨時間軸插值"
+}

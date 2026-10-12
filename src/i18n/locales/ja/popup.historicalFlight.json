@@ -1,0 +1,23 @@
+{
+  "popup.historicalFlight.notProvided": "未提供",
+  "popup.historicalFlight.listSeparator": "、",
+  "popup.historicalFlight.flightId": "便ID",
+  "popup.historicalFlight.callsign": "コールサイン",
+  "popup.historicalFlight.airline": "航空会社",
+  "popup.historicalFlight.aircraftType": "機種",
+  "popup.historicalFlight.origin": "出発地",
+  "popup.historicalFlight.destination": "到着地",
+  "popup.historicalFlight.sampleDate": "サンプル日",
+  "popup.historicalFlight.timezone": "タイムゾーン",
+  "popup.historicalFlight.departureTime": "出発時刻",
+  "popup.historicalFlight.arrivalTime": "到着時刻",
+  "popup.historicalFlight.observedStart": "観測開始",
+  "popup.historicalFlight.observedEnd": "観測終了",
+  "popup.historicalFlight.roles": "役割",
+  "popup.historicalFlight.routeScope": "路線の範囲",
+  "popup.historicalFlight.gapCount": "データ欠落",
+  "popup.historicalFlight.invalidPoints": "無効ポイント",
+  "popup.historicalFlight.nonMonotonicPoints": "非単調ポイント",
+  "popup.historicalFlight.sourcePoints": "元ポイント数",
+  "popup.historicalFlight.retainedPoints": "保持ポイント数"
+}

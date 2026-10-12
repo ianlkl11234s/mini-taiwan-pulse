@@ -1,0 +1,7 @@
+{
+  "enum.historicalFlightRole.departure": "Departure",
+  "enum.historicalFlightRole.arrival": "Arrival",
+  "enum.historicalFlightScope.domestic": "Domestic",
+  "enum.historicalFlightScope.cross_border": "Cross-border",
+  "enum.historicalFlightScope.unknown": "Unclassified"
+}

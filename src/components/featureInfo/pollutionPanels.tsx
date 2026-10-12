@@ -2,15 +2,18 @@
 // 語意紅線：EMS_S_01 列管 ≠ 污染源 → 標題與敘述皆用「污染潛勢設施」。
 import type { PanelProps } from "./registry";
 import { Row, Badge } from "./shared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import type { I18nContext } from "../../i18n/layerText";
 import {
   FACILITY_MEDIA, POLLUTION_MEDIUM_LABELS, POLLUTION_MEDIUM_COLORS,
   SEVERITY_BANDS, PENALTY_SEVERITY_LABELS, PENALTY_SEVERITY_COLORS,
   type PollutionMedium, type PollutionPenaltySeverity,
 } from "../../data/pollutionTypes";
 
-function sevLabel(sev: number): string {
+function sevLabel(sev: number, i18n: I18nContext): string {
   const b = SEVERITY_BANDS.find((x) => x.sev === sev);
-  return b ? b.label : `S${sev}`;
+  return b ? enumLabel("pollutionSeverity", b.sev, b.label, i18n) : `S${sev}`;
 }
 
 const PRECISION_LABELS: Record<string, string> = {
@@ -22,32 +25,46 @@ const PRECISION_LABELS: Record<string, string> = {
   unknown: "未知",
 };
 
+const REASON_LABELS: Record<string, string> = {
+  money_100k: "罰鍰 >= 10 萬",
+  important: "重大案件",
+  continuous: "連續處罰",
+  stop_order: "停工 / 停業 / 勒令 / 廢止",
+  illegal_money: "不法利得",
+  money_30k_100k: "罰鍰 3-10 萬",
+  mobile: "移動污染",
+};
+
 export function PollutionFacilityPanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const maxSev = Number(props.max_sev ?? 0);
   return (
     <div>
       <Row field="name" value={String(props.name ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row label="行業" value={String(props.industry_macro ?? "")} />
-      <Row label="最高嚴重度" value={sevLabel(maxSev)} color={SEVERITY_BANDS.find((b) => b.sev === maxSev)?.color} />
+      <Row label={t("popup.pollution.industry")} value={String(props.industry_macro ?? "")} />
+      <Row label={t("popup.pollution.maxSeverity")} value={sevLabel(maxSev, i18n)} color={SEVERITY_BANDS.find((b) => b.sev === maxSev)?.color} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
         {FACILITY_MEDIA.map((m: PollutionMedium) => {
           const raw = props[`sev_${m}`];
           if (raw == null) return null;
           const sev = Number(raw);
           return (
-            <Badge key={m} label={`${POLLUTION_MEDIUM_LABELS[m]} S${sev}`} on={sev > 0} color={POLLUTION_MEDIUM_COLORS[m]} />
+            <Badge key={m} label={`${enumLabel("pollutionMedium", m, POLLUTION_MEDIUM_LABELS[m], i18n)} S${sev}`} on={sev > 0} color={POLLUTION_MEDIUM_COLORS[m]} />
           );
         })}
       </div>
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
-        「環保列管對象」× 裁處紀錄推得之污染潛勢；列管 ≠ 污染。
+        {t("popup.pollution.facilityNote")}
       </div>
     </div>
   );
 }
 
 export function PollutionPenaltyPanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const medium = String(props.event_medium ?? "other") as PollutionMedium;
   const severity = String(props.severity_event ?? "normal") as PollutionPenaltySeverity;
   const money = Number(props.penalty_money ?? 0);
@@ -55,63 +72,56 @@ export function PollutionPenaltyPanel({ props }: PanelProps) {
   const reason = String(props.severity_reason ?? "")
     .split(",")
     .filter(Boolean)
-    .map((r) => ({
-      money_100k: "罰鍰 >= 10 萬",
-      important: "重大案件",
-      continuous: "連續處罰",
-      stop_order: "停工 / 停業 / 勒令 / 廢止",
-      illegal_money: "不法利得",
-      money_30k_100k: "罰鍰 3-10 萬",
-      mobile: "移動污染",
-    }[r] ?? r))
-    .join("、");
+    .map((r) => enumLabel("pollutionReason", r, REASON_LABELS[r] ?? r, i18n))
+    .join(t("popup.pollution.reasonJoiner"));
   return (
     <div>
-      <Row label="受罰對象" value={String(props.fac_name ?? "")} />
+      <Row label={t("popup.pollution.penalized")} value={String(props.fac_name ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row label="介質" value={POLLUTION_MEDIUM_LABELS[medium] ?? medium} color={POLLUTION_MEDIUM_COLORS[medium]} />
-      <Row label="分層" value={PENALTY_SEVERITY_LABELS[severity] ?? severity} color={PENALTY_SEVERITY_COLORS[severity]} />
-      {reason && <Row label="分層原因" value={reason} />}
-      <Row label="裁處類型" value={String(props.transgress_type ?? "")} />
-      <Row label="違反法規" value={String(props.transgress_law ?? "")} />
-      <Row label="違反事實" value={String(props.violation_fact ?? "")} />
-      <Row label="裁處日期" value={String(props.penalty_date ?? "")} />
-      <Row label="罰鍰" value={money > 0 ? `NT$ ${money.toLocaleString()}` : "—"} />
-      {illegalMoney > 0 && <Row label="不法利得" value={`NT$ ${illegalMoney.toLocaleString()}`} />}
+      <Row label={t("popup.pollution.medium")} value={enumLabel("pollutionMedium", medium, POLLUTION_MEDIUM_LABELS[medium] ?? medium, i18n)} color={POLLUTION_MEDIUM_COLORS[medium]} />
+      <Row label={t("popup.pollution.tier")} value={enumLabel("pollutionPenaltySeverity", severity, PENALTY_SEVERITY_LABELS[severity] ?? severity, i18n)} color={PENALTY_SEVERITY_COLORS[severity]} />
+      {reason && <Row label={t("popup.pollution.tierReason")} value={reason} />}
+      <Row label={t("popup.pollution.penaltyType")} value={String(props.transgress_type ?? "")} />
+      <Row label={t("popup.pollution.violatedLaw")} value={String(props.transgress_law ?? "")} />
+      <Row label={t("popup.pollution.violationFact")} value={String(props.violation_fact ?? "")} />
+      <Row label={t("popup.pollution.penaltyDate")} value={String(props.penalty_date ?? "")} />
+      <Row label={t("popup.pollution.fine")} value={money > 0 ? `NT$ ${formatNumber(money)}` : "—"} />
+      {illegalMoney > 0 && <Row label={t("popup.pollution.illegalGain")} value={`NT$ ${formatNumber(illegalMoney)}`} />}
       {Number(props.is_continuous ?? 0) === 1 && (
         <div style={{ marginTop: 6 }}>
-          <Badge label="連續處罰" on color="#dc2626" />
+          <Badge label={t("popup.pollution.continuous")} on color="#dc2626" />
         </div>
       )}
       {Number(props.is_stop_order ?? 0) === 1 && (
         <div style={{ marginTop: 6 }}>
-          <Badge label="停工/勒令等" on color="#ef4444" />
+          <Badge label={t("popup.pollution.stopOrder")} on color="#ef4444" />
         </div>
       )}
-      <Row label="改善狀態" value={String(props.is_improve ?? "")} />
+      <Row label={t("popup.pollution.improveStatus")} value={String(props.is_improve ?? "")} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
-        定位方式：{PRECISION_LABELS[String(props.geocode_precision ?? "unknown")] ?? String(props.geocode_precision ?? "")}
+        {t("popup.pollution.geocodeMethod", { value: enumLabel("pollutionPrecision", String(props.geocode_precision ?? "unknown"), PRECISION_LABELS[String(props.geocode_precision ?? "unknown")] ?? String(props.geocode_precision ?? ""), i18n) })}
       </div>
     </div>
   );
 }
 
 export function PollutionSitePanel({ props }: PanelProps) {
+  const { t } = useLocale();
   const active = Number(props.is_active ?? 0) === 1;
   return (
     <div>
-      <Row label="場址名稱" value={String(props.site_name ?? "")} />
+      <Row label={t("popup.pollution.siteName")} value={String(props.site_name ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
       <Row field="district" value={String(props.township ?? "")} />
       <Row field="type" value={String(props.site_type ?? "")} />
-      <Row label="控制類別" value={String(props.controltype ?? "")} />
-      <Row label="公告日期" value={String(props.anno_date ?? "")} />
-      <Row label="污染物" value={String(props.pollutant_short ?? "")} />
+      <Row label={t("popup.pollution.controlType")} value={String(props.controltype ?? "")} />
+      <Row label={t("popup.pollution.announceDate")} value={String(props.anno_date ?? "")} />
+      <Row label={t("popup.pollution.pollutant")} value={String(props.pollutant_short ?? "")} />
       <div style={{ marginTop: 6 }}>
-        <Badge label={active ? "仍列管中" : "已解除列管"} on={active} color="#dc2626" />
+        <Badge label={active ? t("popup.pollution.stillControlled") : t("popup.pollution.released")} on={active} color="#dc2626" />
       </div>
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
-        EMS_S_07 確認污染場址（嚴重度 S4）。
+        {t("popup.pollution.siteNote")}
       </div>
     </div>
   );

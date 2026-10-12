@@ -1,0 +1,8 @@
+{
+  "enum.airAqiStatus.良好": "Good",
+  "enum.airAqiStatus.普通": "Moderate",
+  "enum.airAqiStatus.對敏感族群不健康": "Unhealthy for sensitive groups",
+  "enum.airAqiStatus.對所有族群不健康": "Unhealthy",
+  "enum.airAqiStatus.非常不健康": "Very unhealthy",
+  "enum.airAqiStatus.危害": "Hazardous"
+}

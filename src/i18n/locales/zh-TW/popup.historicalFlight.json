@@ -1,0 +1,23 @@
+{
+  "popup.historicalFlight.notProvided": "未提供",
+  "popup.historicalFlight.listSeparator": "、",
+  "popup.historicalFlight.flightId": "航班 ID",
+  "popup.historicalFlight.callsign": "呼號",
+  "popup.historicalFlight.airline": "航空公司",
+  "popup.historicalFlight.aircraftType": "機型",
+  "popup.historicalFlight.origin": "起點",
+  "popup.historicalFlight.destination": "終點",
+  "popup.historicalFlight.sampleDate": "樣本日期",
+  "popup.historicalFlight.timezone": "時區",
+  "popup.historicalFlight.departureTime": "起飛時間",
+  "popup.historicalFlight.arrivalTime": "到達時間",
+  "popup.historicalFlight.observedStart": "觀測起點",
+  "popup.historicalFlight.observedEnd": "觀測終點",
+  "popup.historicalFlight.roles": "角色",
+  "popup.historicalFlight.routeScope": "航線範圍",
+  "popup.historicalFlight.gapCount": "資料缺口",
+  "popup.historicalFlight.invalidPoints": "無效點",
+  "popup.historicalFlight.nonMonotonicPoints": "非單調點",
+  "popup.historicalFlight.sourcePoints": "來源點",
+  "popup.historicalFlight.retainedPoints": "保留點"
+}

@@ -1,0 +1,20 @@
+{
+  "popup.parking.onstreetFallback": "路上駐車",
+  "popup.parking.onstreetType": "路上駐車スペース",
+  "popup.parking.totalSpaces": "総駐車枠数",
+  "popup.parking.taipeiCapacityOnly": "⚠️ 台北の路上駐車は容量のみで、リアルタイムの空き情報はありません",
+  "popup.parking.available": "空き台数",
+  "popup.parking.availabilityRate": "空き率",
+  "popup.parking.lotFallback": "駐車場",
+  "popup.parking.totalLotSpaces": "総駐車台数",
+  "popup.parking.noRealtime": "⚠️ この駐車場にはリアルタイムの空き情報がありません",
+  "popup.parking.lotType": "形態",
+  "popup.parking.charging": "充電",
+  "popup.parking.evCharging": "EV充電あり",
+  "popup.parking.categoryWithSub": "{category}（{sub}）",
+  "popup.parking.spaceRow": "空き {available} / 全 {total}",
+  "popup.parking.spaceCar": "自動車",
+  "popup.parking.spaceMotorcycle": "バイク",
+  "popup.parking.spaceDisabled": "身障者用",
+  "popup.parking.spaceOther": "その他（タイプ {code}）"
+}

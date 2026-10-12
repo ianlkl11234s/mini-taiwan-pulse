@@ -1,0 +1,9 @@
+{
+  "popup.analysisResult.hereBefore": "この位置の",
+  "popup.analysisResult.hereAfter": " 件の記録",
+  "popup.analysisResult.selectRecord": "重複する分析記録を選択",
+  "popup.analysisResult.recordLabel": "記録",
+  "popup.analysisResult.recordValue": "今回の分析で該当した空間記録",
+  "popup.analysisResult.footer": "一時的な分析結果 · 完全な出典レイヤーではありません",
+  "popup.analysisResult.omitted": " · 重複する記録がほかに {count} 件あり（未表示）"
+}

@@ -1,0 +1,18 @@
+{
+  "enum.satelliteCategory.china_yaogan": "China Yaogan remote sensing",
+  "enum.satelliteCategory.china_jilin": "China Jilin",
+  "enum.satelliteCategory.china_gaofen": "China Gaofen",
+  "enum.satelliteCategory.china_tjs": "TJS / TJSW GEO intelligence",
+  "enum.satelliteCategory.china_beidou": "BeiDou",
+  "enum.satelliteCategory.china_shiyan": "Shiyan / other",
+  "enum.satelliteCategory.taiwan": "Taiwan (FORMOSAT/TRITON)",
+  "enum.satelliteCategory.usa": "US reconnaissance",
+  "enum.satelliteCategory.japan": "Japan IGS",
+  "enum.satelliteCategory.russia": "Russian reconnaissance",
+  "enum.satelliteCategory.india": "Indian remote sensing",
+  "enum.satelliteCategory.korea": "South Korea KOMPSAT",
+  "enum.satelliteCategory.france": "France CSO/PLEIADES",
+  "enum.satelliteCategory.germany": "Germany SAR-Lupe",
+  "enum.satelliteCategory.italy": "Italy COSMO-SkyMed",
+  "enum.satelliteCategory.israel": "Israel Ofeq"
+}

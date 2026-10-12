@@ -9,6 +9,11 @@ import { fetchErHospital24h } from "../../data/erHospitalLoader";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+
+/** 等同 toLocaleString 預設的完整日期時間 */
+const DT_FULL: Intl.DateTimeFormatOptions = { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric", hour12: false };
 
 const LTC_ABC_LABEL: Record<string, string> = {
   A: "A 社區整合型",
@@ -18,9 +23,11 @@ const LTC_ABC_LABEL: Record<string, string> = {
 
 export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const medCat = String(props.med_cat ?? "");
   const color = medicalColorByCat(medCat);
-  const title = String(props.name ?? "醫療據點");
+  const title = String(props.name ?? tr("popup.medical.medicalSite"));
   const county = String(props.county ?? "");
   const address = String(props.address ?? "");
   const phone = String(props.phone ?? "");
@@ -38,13 +45,13 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />
           {specialties ? (
-            <Row label="科別" value={specialties.length > 80 ? specialties.slice(0, 80) + "…" : specialties} />
+            <Row label={tr("popup.medical.specialties")} value={specialties.length > 80 ? specialties.slice(0, 80) + "…" : specialties} />
           ) : null}
         </>
       ) : null}
       {medCat === "pharmacy" ? (
         <>
-          <Row field="type" value="健保特約藥局" color={color} />
+          <Row field="type" value={tr("popup.medical.nhiPharmacy")} color={color} />
           <Row field="county" value={county} />
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />
@@ -52,28 +59,28 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
       ) : null}
       {medCat === "aed" ? (
         <>
-          <Row label="場所類型" value={String(props.place_type ?? "")} color={color} />
+          <Row label={tr("popup.medical.placeType")} value={String(props.place_type ?? "")} color={color} />
           <Row field="county" value={county} />
           <Row field="district" value={String(props.district ?? "")} />
           <Row field="address" value={address} />
-          <Row label="AED 位置" value={String(props.aed_location ?? "")} />
-          <Row label="緊急電話" value={phone} />
+          <Row label={tr("popup.medical.aedLocation")} value={String(props.aed_location ?? "")} />
+          <Row label={tr("popup.medical.emergencyPhone")} value={phone} />
         </>
       ) : null}
       {medCat === "ltc" ? (
         <>
           <Row
-            label="類型"
-            value={LTC_ABC_LABEL[String(props.abc_type ?? "")] ?? String(props.abc_type ?? "")}
+            label={tr("popup.field.type")}
+            value={enumLabel("medicalLtc", String(props.abc_type ?? ""), LTC_ABC_LABEL[String(props.abc_type ?? "")] ?? String(props.abc_type ?? ""), i18n)}
             color={color}
           />
-          {typeof props.open_beds === "number" ? <Row label="開放床位" value={`${props.open_beds}`} /> : null}
+          {typeof props.open_beds === "number" ? <Row label={tr("popup.medical.openBeds")} value={`${props.open_beds}`} /> : null}
           <Row field="county" value={county} />
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />
           {props.service_items ? (
             <Row
-              label="服務項目"
+              label={tr("popup.medical.serviceItems")}
               value={String(props.service_items).length > 60 ? String(props.service_items).slice(0, 60) + "…" : String(props.service_items)}
             />
           ) : null}
@@ -85,6 +92,8 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
 
 export function MedicalIsochronePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const level = String(props.level ?? "");
   const minutes = props.min_minutes != null ? Number(props.min_minutes) : null;
   const accentColor = medIsochroneColor(level);
@@ -95,14 +104,14 @@ export function MedicalIsochronePanel({ props }: { props: Record<string, unknown
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {medIsochroneLabel(level)}
+          {enumLabel("medicalIsochrone", level, medIsochroneLabel(level), i18n)}
         </div>
       </div>
-      {minutes != null && <Row label="最近大醫院車程" value={`${minutes.toFixed(1)} 分鐘`} color={accentColor} />}
-      {nearest && <Row label="最近醫院" value={nearest} />}
-      {nearestCat && <Row label="醫院層級" value={nearestCat.replace("hospital_", "").replace("_", " ")} />}
+      {minutes != null && <Row label={tr("popup.medical.driveToNearest")} value={tr("popup.medical.minutes", { value: minutes.toFixed(1) })} color={accentColor} />}
+      {nearest && <Row label={tr("popup.medical.nearestHospital")} value={nearest} />}
+      {nearestCat && <Row label={tr("popup.medical.hospitalTier")} value={nearestCat.replace("hospital_", "").replace("_", " ")} />}
       <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
-        ⚠️ {MEDICAL_ISOCHRONE_NOTE}
+        ⚠️ {enumLabel("medicalNote", "isochrone", MEDICAL_ISOCHRONE_NOTE, i18n)}
       </div>
     </>
   );
@@ -110,8 +119,10 @@ export function MedicalIsochronePanel({ props }: { props: Record<string, unknown
 
 /** 急診壅塞 popup — 醫院量能 + 24h「等一般病床」折線（async 骨架比照 GroundwaterPanel） */
 export function EmergencyHospitalPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t: tr, formatNumber, formatDateTime } = i18n;
   const hospId = String(props.hosp_id ?? "");
-  const title = String(props.hosp_name ?? "急診醫院");
+  const title = String(props.hosp_name ?? tr("popup.medical.erHospital"));
   const area = String(props.area_name ?? "");
   const levelName = String(props.level_name ?? "");
   const inform = String(props.inform ?? "");
@@ -143,7 +154,7 @@ export function EmergencyHospitalPanel({ props }: { props: Record<string, unknow
     return () => { cancelled = true; };
   }, [hospId]);
 
-  const fmt = (v: number | null) => (v == null ? "—" : v.toLocaleString("zh-TW"));
+  const fmt = (v: number | null) => (v == null ? "—" : formatNumber(v));
 
   return (
     <>
@@ -153,29 +164,29 @@ export function EmergencyHospitalPanel({ props }: { props: Record<string, unknow
       </div>
       <Row field="county" value={area} />
       <Row field="tier" value={levelName} />
-      <Row label="急診壅塞" value={`${ER_LEVEL_LABELS[level]}（等一般病床 ${fmt(waitGeneral)}）`} color={levelColor} />
-      <Row label="等待看診" value={fmt(waitSee)} />
-      <Row label="等待住院" value={fmt(waitBed)} />
-      <Row label="等待加護病房 (ICU)" value={fmt(waitIcu)} color={waitIcu != null && waitIcu > 0 ? "#ffffff" : undefined} />
-      {inform ? <Row label="通報旗標 (inform)" value={inform} /> : null}
+      <Row label={tr("popup.medical.erCongestion")} value={tr("popup.medical.erCongestionValue", { level: enumLabel("erLevel", level, ER_LEVEL_LABELS[level], i18n), count: fmt(waitGeneral) })} color={levelColor} />
+      <Row label={tr("popup.medical.waitSee")} value={fmt(waitSee)} />
+      <Row label={tr("popup.medical.waitBed")} value={fmt(waitBed)} />
+      <Row label={tr("popup.medical.waitIcu")} value={fmt(waitIcu)} color={waitIcu != null && waitIcu > 0 ? "#ffffff" : undefined} />
+      {inform ? <Row label={tr("popup.medical.informFlag")} value={inform} /> : null}
       {obsTs != null && (
-        <Row field="observedAt" value={new Date(obsTs * 1000).toLocaleString("zh-TW", { hour12: false }).slice(5, 16)} color="rgba(255,255,255,0.35)" />
+        <Row field="observedAt" value={(i18n.active === "zh-TW" ? formatDateTime(new Date(obsTs * 1000), DT_FULL).slice(5, 16) : formatDateTime(new Date(obsTs * 1000), { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }))} color="rgba(255,255,255,0.35)" />
       )}
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
-        24h 等一般病床趨勢
+        {tr("popup.medical.trend")}
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
-          載入中…
+          {tr("popup.medical.loading")}
         </div>
       ) : (
         <TimeseriesSparkline
           data={series}
-          unit="床位缺口"
+          unit={tr("popup.medical.bedGap")}
           lineColor={levelColor}
           warningValue={ER_CONGESTION_THRESHOLDS.congested}
-          warningLabel="嚴重"
+          warningLabel={tr("popup.medical.severe")}
           height={120}
         />
       )}

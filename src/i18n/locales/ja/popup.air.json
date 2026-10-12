@@ -1,0 +1,19 @@
+{
+  "popup.air.mainPollutant": "主な汚染物質",
+  "popup.air.windSpeed": "風速",
+  "popup.air.deviceId": "デバイス ID",
+  "popup.air.device": "デバイス",
+  "popup.air.area": "地区",
+  "popup.air.temperature": "気温",
+  "popup.air.humidity": "湿度",
+  "popup.air.gridPoint": "格子点",
+  "popup.air.gridSource": "CWA 0.03°毎時観測解析格子",
+  "popup.air.heatIntensity": "ヒートアイランド強度",
+  "popup.air.surfaceTemp": "地表面温度",
+  "popup.air.landsatNote": "Landsat 8/9 地表面温度 · 2019–2025年暖季午前通過のメディアン合成（60m）",
+  "popup.air.canopyHeight": "樹冠高",
+  "popup.air.meters": "{value} m",
+  "popup.air.canopyNote": "Meta / WRI 全球樹冠高タイル（R チャンネルがメートル単位の高さ）",
+  "popup.air.jpCanopyHeight": "日本の樹冠高",
+  "popup.air.jpCanopyNote": "{source} 推定値；{coverage}；解像度 {resolution}；画像の日付は地点により異なる"
+}

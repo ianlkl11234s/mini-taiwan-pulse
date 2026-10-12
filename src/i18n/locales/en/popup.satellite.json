@@ -1,0 +1,12 @@
+{
+  "popup.satellite.sourceOrg": "Space-Track (TLE) · UCS Satellite Database (classification)",
+  "popup.satellite.fetchedAt": "{time} (Taiwan time)",
+  "popup.satellite.fallback": "Satellite",
+  "popup.satellite.noradTitle": "NORAD ID",
+  "popup.satellite.altitude": "Altitude",
+  "popup.satellite.footprint1": "Footprint: inner ring ",
+  "popup.satellite.footprint2": " km swath width, outer ring ",
+  "popup.satellite.footprint3": " km visibility range (elevation ",
+  "popup.satellite.footprint4": ")",
+  "popup.satellite.encyclopedia": "Open satellite encyclopedia"
+}

@@ -48,6 +48,23 @@ export function formatTaiwanTime(iso: string | null): string {
   }
 }
 
+function formatTaiwanParts(iso: string | null, options: Intl.DateTimeFormatOptions): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString(LOCALES[localeStore.getSnapshot().active].intl, { timeZone: "Asia/Taipei", hour12: false, ...options });
+}
+
+/** 日期＋時分（取代 `formatTaiwanTime(x).slice(0, 16)`，各語系格式正確） */
+export function formatTaiwanMinute(iso: string | null): string {
+  return formatTaiwanParts(iso, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+/** 月日＋時分（取代 `formatTaiwanTime(x).slice(5, 16)`） */
+export function formatTaiwanShort(iso: string | null): string {
+  return formatTaiwanParts(iso, { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
 /**
  * 欄位列。欄位名二擇一：
  * - `field="address"`：共用欄位（popup.field.*），Row 自己依語系翻譯，面板不必呼叫 useLocale

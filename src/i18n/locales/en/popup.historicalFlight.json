@@ -1,0 +1,23 @@
+{
+  "popup.historicalFlight.notProvided": "Not provided",
+  "popup.historicalFlight.listSeparator": ", ",
+  "popup.historicalFlight.flightId": "Flight ID",
+  "popup.historicalFlight.callsign": "Callsign",
+  "popup.historicalFlight.airline": "Airline",
+  "popup.historicalFlight.aircraftType": "Aircraft type",
+  "popup.historicalFlight.origin": "Origin",
+  "popup.historicalFlight.destination": "Destination",
+  "popup.historicalFlight.sampleDate": "Sample date",
+  "popup.historicalFlight.timezone": "Time zone",
+  "popup.historicalFlight.departureTime": "Departure time",
+  "popup.historicalFlight.arrivalTime": "Arrival time",
+  "popup.historicalFlight.observedStart": "Observation start",
+  "popup.historicalFlight.observedEnd": "Observation end",
+  "popup.historicalFlight.roles": "Role",
+  "popup.historicalFlight.routeScope": "Route scope",
+  "popup.historicalFlight.gapCount": "Data gaps",
+  "popup.historicalFlight.invalidPoints": "Invalid points",
+  "popup.historicalFlight.nonMonotonicPoints": "Non-monotonic points",
+  "popup.historicalFlight.sourcePoints": "Source points",
+  "popup.historicalFlight.retainedPoints": "Retained points"
+}
