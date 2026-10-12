@@ -29,7 +29,7 @@
   "enum.waterDetentionCounty.south_park": "Southern Taiwan Science Park",
   "enum.iotStructureType.cumulativeflow": "Cumulative flow",
   "enum.iotStructureType.watergate": "Gate",
-  "enum.iotStructureType.damstructure": "Levee safety",
+  "enum.iotStructureType.damstructure": "Levee structural safety",
   "enum.iotStructureType.erosiondepth": "Riverbed scour",
   "enum.iotStructureType.dustemission": "Dust emission",
   "enum.leveeStatus.已建": "Built",

@@ -12,9 +12,9 @@
   "popup.historicalFlight.observedEnd": "観測終了",
   "popup.historicalFlight.roles": "役割",
   "popup.historicalFlight.routeScope": "路線の範囲",
-  "popup.historicalFlight.gapCount": "データ欠落",
-  "popup.historicalFlight.invalidPoints": "無効ポイント",
-  "popup.historicalFlight.nonMonotonicPoints": "非単調ポイント",
+  "popup.historicalFlight.gapCount": "データ欠落数",
+  "popup.historicalFlight.invalidPoints": "無効ポイント数",
+  "popup.historicalFlight.nonMonotonicPoints": "非単調ポイント数",
   "popup.historicalFlight.sourcePoints": "元ポイント数",
   "popup.historicalFlight.retainedPoints": "保持ポイント数"
 }

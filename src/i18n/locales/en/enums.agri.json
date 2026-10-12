@@ -1,7 +1,7 @@
 {
   "enum.agriPoiType.leisure_farm": "Leisure farm",
-  "enum.agriPoiType.tian_mama": "Tian Mama (rural women's cooperative)",
-  "enum.agriPoiType.agritourism_certified": "Certified agritourism site",
+  "enum.agriPoiType.tian_mama": "Tian Mama (rural women's food business)",
+  "enum.agriPoiType.agritourism_certified": "Featured agritourism site",
   "enum.agriCompanyType.retail": "Farm produce retailer",
   "enum.agriCompanyType.produce_wholesale": "Fruit and vegetable wholesaler",
   "enum.agriCompanyType.wholesale_market": "Wholesale market",

@@ -1,6 +1,6 @@
 {
   "popup.pollution.maxSeverity": "Highest severity",
-  "popup.pollution.facilityNote": "Pollution potential inferred from \"EPA-regulated entities\" × penalty records; being regulated does not mean polluting.",
+  "popup.pollution.facilityNote": "Pollution potential inferred from \"environmentally regulated entities\" × penalty records; being regulated does not mean polluting.",
   "popup.pollution.penalized": "Penalized entity",
   "popup.pollution.medium": "Medium",
   "popup.pollution.tier": "Tier",
@@ -13,7 +13,7 @@
   "popup.pollution.controlType": "Control category",
   "popup.pollution.announceDate": "Announcement date",
   "popup.pollution.pollutant": "Pollutant",
-  "popup.pollution.stillControlled": "Still under control",
-  "popup.pollution.released": "Control lifted",
+  "popup.pollution.stillControlled": "Still listed",
+  "popup.pollution.released": "Delisted",
   "popup.pollution.siteNote": "EMS_S_07 confirmed contaminated site (severity S4)."
 }

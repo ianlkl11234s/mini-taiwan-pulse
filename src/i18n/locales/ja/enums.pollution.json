@@ -5,12 +5,12 @@
   "enum.pollutionPrecision.parcel": "地番による補完ポイント",
   "enum.pollutionPrecision.approx": "おおよその位置（補間）",
   "enum.pollutionPrecision.unknown": "不明",
-  "enum.pollutionReason.money_100k": "過料 10万元以上",
+  "enum.pollutionReason.money_100k": "過料 10万台湾ドル以上",
   "enum.pollutionReason.important": "重大案件",
   "enum.pollutionReason.continuous": "連続処分",
   "enum.pollutionReason.stop_order": "操業停止・営業停止・命令・取消",
   "enum.pollutionReason.illegal_money": "不法利得",
-  "enum.pollutionReason.money_30k_100k": "過料 3万〜10万元",
+  "enum.pollutionReason.money_30k_100k": "過料 3万〜10万台湾ドル",
   "enum.pollutionReason.mobile": "移動発生源汚染",
   "enum.pollutionMedium.air": "大気汚染",
   "enum.pollutionMedium.water": "水質汚染",
@@ -26,6 +26,6 @@
   "enum.pollutionSeverity.0": "S0 ポテンシャル（登録のみ・処分なし）",
   "enum.pollutionSeverity.1": "S1 違反歴あり（処分1回以上）",
   "enum.pollutionSeverity.2": "S2 常習（処分3回以上）",
-  "enum.pollutionSeverity.3": "S3 重大（連続／累計100万元以上）",
+  "enum.pollutionSeverity.3": "S3 重大（連続／累計100万台湾ドル以上）",
   "enum.pollutionSeverity.4": "S4 確認済み汚染サイト"
 }

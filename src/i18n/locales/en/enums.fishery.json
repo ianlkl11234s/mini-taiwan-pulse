@@ -1,9 +1,9 @@
 {
   "enum.fisheryMoaTier.confirmed": "Confirmed",
-  "enum.fisheryMoaTier.solar_symbiotic": "Solar symbiotic (fishery-solar)",
+  "enum.fisheryMoaTier.solar_symbiotic": "Fishery-solar co-location",
   "enum.fisheryMoaTier.unverified": "Unverified",
   "enum.fisheryMoaTier.ambiguous": "Ambiguous",
-  "enum.fisheryMoaTier.mountain_suspect": "Suspected mountain shadow",
+  "enum.fisheryMoaTier.mountain_suspect": "Suspected terrain shadow",
   "enum.fisheryUnionTier.both": "In both versions",
   "enum.fisheryUnionTier.moa_only": "Official-label version only",
   "enum.fisheryUnionTier.osm_only": "Old OSM version only",

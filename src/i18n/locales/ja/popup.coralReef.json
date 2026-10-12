@@ -8,7 +8,7 @@
   "popup.coralReef.geometryDefinition": "ジオメトリの定義",
   "popup.coralReef.builtAt": "作成日時",
   "popup.coralReef.note": "過去の基準データであり、現在の健康状態、生きたサンゴの被覆率、白化を示すものではありません。area_km2 は世界全体の元フィーチャーの面積で、台湾分の面積ではなく合算できません。この表示範囲との交差は行政界内のサンゴ礁面積とは一致しません。",
-  "popup.coralReef.sourceDetails": "ソースの詳細項目",
+  "popup.coralReef.sourceDetails": "出典の詳細項目",
   "popup.coralReef.originalCompiler": "原データの編纂者",
   "popup.coralReef.distributor": "実際の配布元",
   "popup.coralReef.metadataId": "Metadata ID",
@@ -16,6 +16,6 @@
   "popup.coralReef.endDate": "終了日",
   "popup.coralReef.dateType": "日付の種類",
   "popup.coralReef.dataType": "データの種類",
-  "popup.coralReef.sourceVerification": "ソースの検証",
+  "popup.coralReef.sourceVerification": "出典の検証",
   "popup.coralReef.sourceLayer": "元レイヤー"
 }

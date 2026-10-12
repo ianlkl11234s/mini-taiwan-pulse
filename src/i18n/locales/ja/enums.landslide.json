@@ -11,6 +11,6 @@
   "enum.landslideHighwayGroup.traffic_incident": "交通事故",
   "enum.landslideHighwayGroup.other": "その他",
   "enum.landslideNote.annualV2": "2024年はV2版（画像は2024年12月〜2025年5月）で、県市統計の2024年の数値とは一致しません。",
-  "enum.landslideSource.annualOrg": "農業部農村発展および水土保全署（衛星画像判読）",
+  "enum.landslideSource.annualOrg": "農業部農村発展・水土保全署（衛星画像判読）",
   "enum.landslideSource.annualLicense": "政府データオープンライセンス第1版"
 }

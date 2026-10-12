@@ -5,7 +5,7 @@
   "popup.agri.cropDefault": "Crop suitability",
   "popup.agri.regenDefault": "Rural regeneration community",
   "popup.agri.roadDefault": "Farm road",
-  "popup.agri.ecoDefault": "National Ecological Network zone",
+  "popup.agri.ecoDefault": "National Green Network zone",
   "popup.agri.fieldDefault": "Field parcel",
   "popup.agri.region": "Area",
   "popup.agri.soilClass": "Soil class",
@@ -17,12 +17,12 @@
   "popup.agri.hectares": "{value} ha",
   "popup.agri.organicMatter": "Organic matter (OM)",
   "popup.agri.zeroNote": "* A value of 0 means the item was not measured (most grids measure only pH / OM)",
-  "popup.agri.countyCode": "County code",
-  "popup.agri.townshipCode": "Township code",
+  "popup.agri.countyCode": "County/city code",
+  "popup.agri.townshipCode": "Township/district code",
   "popup.agri.suitability": "Suitability",
-  "popup.agri.cropEn": "Crop (EN)",
+  "popup.agri.cropEn": "Crop (English)",
   "popup.agri.plan": "Plan",
-  "popup.agri.approvedAt": "Approved at",
+  "popup.agri.approvedAt": "Approval date",
   "popup.agri.planYear": "Plan year",
   "popup.agri.branch": "Branch office",
   "popup.agri.manager": "Responsible person",
@@ -31,5 +31,5 @@
   "popup.agri.modelConfidence": "Model confidence",
   "popup.agri.confidenceValue": "{value} (range 0.5–0.6)",
   "popup.agri.sourceSheet": "Source map sheet",
-  "popup.agri.ftwNote": "Fields of The World satellite AI inference result, not a legal agricultural zoning; parks and regularly shaped vacant lots may be misclassified, so the area is overestimated."
+  "popup.agri.ftwNote": "Fields of The World satellite AI inference, not official agricultural zoning. Parks and regularly shaped vacant lots may be misclassified, so areas are overestimated."
 }

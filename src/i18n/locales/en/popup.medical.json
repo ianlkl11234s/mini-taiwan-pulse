@@ -12,12 +12,12 @@
   "popup.medical.hospitalTier": "Hospital tier",
   "popup.medical.erHospital": "Emergency hospital",
   "popup.medical.erCongestion": "ER congestion",
-  "popup.medical.erCongestionValue": "{level} (waiting for general bed: {count})",
+  "popup.medical.erCongestionValue": "{level} (waiting for a general bed: {count})",
   "popup.medical.waitSee": "Waiting to be seen",
   "popup.medical.waitBed": "Waiting for admission",
   "popup.medical.waitIcu": "Waiting for ICU",
   "popup.medical.informFlag": "Notification flag (inform)",
   "popup.medical.trend": "24h trend: waiting for general bed",
-  "popup.medical.bedGap": "bed shortage",
+  "popup.medical.bedGap": "beds short",
   "popup.medical.severe": "Severe"
 }

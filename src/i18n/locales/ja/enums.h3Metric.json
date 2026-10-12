@@ -23,7 +23,7 @@
   "enum.h3Metric.spatialEconomy.lm": "土地利用の混合度",
   "enum.h3MetricUnit.人": "人",
   "enum.h3MetricUnit.戶": "世帯",
-  "enum.h3MetricUnit.萬元": "万元",
-  "enum.h3MetricUnit.萬元/坪": "万元/坪",
+  "enum.h3MetricUnit.萬元": "万台湾ドル",
+  "enum.h3MetricUnit.萬元/坪": "万台湾ドル/坪",
   "enum.h3MetricUnit.處/千人": "か所/千人"
 }

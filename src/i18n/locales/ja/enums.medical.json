@@ -1,7 +1,7 @@
 {
   "enum.medicalLtc.A": "A 地域統合型",
   "enum.medicalLtc.B": "B 複合型",
-  "enum.medicalLtc.C": "C 路地裏ケアステーション",
+  "enum.medicalLtc.C": "C 近隣ケアステーション",
   "enum.medicalIsochrone.le5": "5分以内",
   "enum.medicalIsochrone.le10": "10分以内",
   "enum.medicalIsochrone.le15": "15分以内",

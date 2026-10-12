@@ -28,7 +28,7 @@
   "enum.envValueFlag.older_than_24m": "直近の検査から24か月を超過",
   "enum.envValueFlag.zero_reported": "0と申告（物理的にあり得ないため欠測扱い）",
   "enum.envValueFlag.no_valid_in_window": "直近12か月に有効なサンプルなし",
-  "enum.envValueFlag.same_siteid_air_station": "同一IDの大気質観測所の座標",
+  "enum.envValueFlag.same_siteid_air_station": "同一IDの大気質測定局の座標",
   "enum.envRpiTidal.yes": "感潮区間",
   "enum.envRpiTidal.partial_unverified": "一部感潮（未検証）",
   "enum.envRpiTidal.unknown": "未判定",
@@ -64,9 +64,9 @@
   "enum.envCemsLead.C": "着火期間",
   "enum.envCemsSource.stack_1h": "煙道",
   "enum.envCemsSource.flare_1h": "フレアスタック",
-  "enum.envUvLevel.低量級": "低 0–2",
-  "enum.envUvLevel.中量級": "中 3–5",
-  "enum.envUvLevel.高量級": "高 6–7",
-  "enum.envUvLevel.過量級": "非常に高い 8–10",
-  "enum.envUvLevel.危險級": "極端 ≥11"
+  "enum.envUvLevel.低量級": "弱い 0–2",
+  "enum.envUvLevel.中量級": "中程度 3–5",
+  "enum.envUvLevel.高量級": "強い 6–7",
+  "enum.envUvLevel.過量級": "非常に強い 8–10",
+  "enum.envUvLevel.危險級": "極端に強い ≥11"
 }

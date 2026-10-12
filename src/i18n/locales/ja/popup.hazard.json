@@ -5,7 +5,7 @@
   "popup.hazard.entryPoint": "入山口",
   "popup.hazard.destination": "目的地",
   "popup.hazard.reportedAt": "通報時刻",
-  "popup.hazard.closedAt": "終結時刻",
+  "popup.hazard.closedAt": "事案終了時刻",
   "popup.hazard.over48": "48時間超過",
   "popup.hazard.dispatched": "出動人数",
   "popup.hazard.helicopter": "ヘリコプター",

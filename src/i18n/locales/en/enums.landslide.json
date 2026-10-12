@@ -10,7 +10,7 @@
   "enum.landslideHighwayGroup.structure_damage": "Bridge / structure damage",
   "enum.landslideHighwayGroup.traffic_incident": "Traffic incident",
   "enum.landslideHighwayGroup.other": "Other",
-  "enum.landslideNote.annualV2": "2024 is the V2 edition (imagery Dec 2024 - May 2025) and does not match the 2024 figures in county/city statistics.",
+  "enum.landslideNote.annualV2": "2024 is the V2 edition (imagery Dec 2024–May 2025) and does not match the 2024 figures in county/city statistics.",
   "enum.landslideSource.annualOrg": "Agency of Rural Development and Soil and Water Conservation, Ministry of Agriculture (satellite image interpretation)",
   "enum.landslideSource.annualLicense": "Open Government Data License, version 1.0"
 }

@@ -1,5 +1,5 @@
 {
-  "popup.marine.networkCwa": "気象署の海洋固定観測所（上流データは約 1 時間ごとに更新）",
+  "popup.marine.networkCwa": "中央気象署の海洋固定観測所（上流データは約 1 時間ごとに更新）",
   "popup.marine.networkIsohe": "港湾の海気象固定観測所（上流データは約 10 分ごとに更新）",
   "popup.marine.networkUnlabeled": "データ元ネットワークの表示なし",
   "popup.marine.unknownNetwork": "不明なデータ元",

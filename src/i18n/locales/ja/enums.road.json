@@ -11,7 +11,7 @@
   "enum.roadStruct.2": "トンネル",
   "enum.roadStruct.3": "ランプ",
   "enum.roadStruct.4": "高架",
-  "enum.roadStruct.5": "冠水路",
+  "enum.roadStruct.5": "洗い越し",
   "enum.roadStruct.6": "地下区間",
   "enum.roadClass1.HW": "国道",
   "enum.roadClass1.HU": "国道付属道路（ランプ・サービスエリア）",

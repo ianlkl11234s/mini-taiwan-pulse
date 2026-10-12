@@ -8,6 +8,6 @@
   "popup.h3Metric.youbikeTitle": "YouBike 貸出可能率",
   "popup.h3Metric.bikeAvailability": "貸出可能率",
   "popup.h3Metric.avgRacks": "平均ラック数",
-  "popup.h3Metric.racksValue": "{value} 台分",
+  "popup.h3Metric.racksValue": "{value} ラック",
   "popup.h3Metric.youbikeNote": "H3 六角形グリッドセル · セル内全ステーションの平均"
 }

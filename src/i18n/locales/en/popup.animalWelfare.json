@@ -11,7 +11,7 @@
   "popup.animalWelfare.cat": "Cats",
   "popup.animalWelfare.snapshot": "Data snapshot",
   "popup.animalWelfare.notYetProvided": "Not yet provided",
-  "popup.animalWelfare.snapshotNote": "Counts are the number listed in the daily snapshot; they do not represent the live number in the shelter.",
+  "popup.animalWelfare.snapshotNote": "Counts are animals listed in the daily snapshot, not the live number in the shelter.",
   "popup.animalWelfare.noOutcomeField": "The official monthly report has no recognizable adoption outcome field.",
   "popup.animalWelfare.outcomeTitle": "Adoption outcomes in the official monthly report (missing values are not filled with 0)",
   "popup.animalWelfare.outcomeTrendAria": "Monthly adoption trend at shelters",

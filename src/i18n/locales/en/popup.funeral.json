@@ -6,7 +6,7 @@
   "popup.funeral.statusApproved": "Approved",
   "popup.funeral.statusInactive": "No longer valid",
   "popup.funeral.yuan": "NT${value}",
-  "popup.funeral.townFallback": "Township or district",
+  "popup.funeral.townFallback": "Township/District",
   "popup.funeral.registeredOperators": "Registered providers",
   "popup.funeral.operatorCount_one": "{value} provider",
   "popup.funeral.operatorCount_other": "{value} providers",

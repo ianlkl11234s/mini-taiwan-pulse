@@ -1,5 +1,5 @@
 {
-  "popup.publicLife.geometrySourcePoint": "元の点位置",
+  "popup.publicLife.geometrySourcePoint": "元のポイント",
   "popup.publicLife.geometryRepresentativePoint": "元の線／面の内部代表点（ポイントレイヤー表示用のみ）",
   "popup.publicLife.unnamedType": "名称不明の{type}",
   "popup.publicLife.unnamedOsm": "名称不明のOSM施設",
@@ -14,7 +14,7 @@
   "popup.publicLife.recyclingMaterials": "回収品目",
   "popup.publicLife.sourceGeometry": "元のジオメトリ",
   "popup.publicLife.displayPosition": "表示位置",
-  "popup.publicLife.coverageDefault": "クラウド入力で不完全。空白の地域に施設がないとは限らない。",
+  "popup.publicLife.coverageDefault": "クラウドソースのデータで不完全。空白の地域に施設がないとは限らない。",
   "popup.publicLife.unnamedShelter": "名称不明の収容施設",
   "popup.publicLife.shelterRole": "指定災害避難収容施設",
   "popup.publicLife.shelterCapacity": "想定収容人数",

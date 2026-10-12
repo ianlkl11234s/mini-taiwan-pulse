@@ -10,6 +10,6 @@
   "popup.forestry.unnamedHut": "名称なしの山小屋",
   "popup.forestry.hutSource": "玉山国立公園公式 + OSM",
   "popup.forestry.capacityPeople": "{value}人",
-  "popup.forestry.hutNote": "ⓘ OpenStreetMapの市民投稿による注記を含む。© OpenStreetMap contributors（ODbL）",
+  "popup.forestry.hutNote": "ⓘ OpenStreetMap のクラウドソーシングデータを含む。© OpenStreetMap contributors（ODbL）",
   "popup.forestry.noProps": "属性データなし"
 }

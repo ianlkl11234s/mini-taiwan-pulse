@@ -20,7 +20,7 @@
   "popup.education.linSpecs": "Neighborhoods (lin)",
   "popup.education.sharedDistrict": "Shared district",
   "popup.education.sharedDistrictValue": "⚠️ This village also belongs to other schools (shared district)",
-  "popup.education.taipei110": "Taipei City data is for academic year 2021 (ROC 110)",
+  "popup.education.taipei110": "Taipei City data is for the 2021–22 academic year (ROC 110)",
   "popup.education.seniorTitle": "{district} (District {no})",
   "popup.education.seniorDefault": "Senior high school district",
   "popup.education.coveredCounties": "Counties/cities covered",
@@ -30,7 +30,7 @@
   "popup.education.kindergartenDefault": "Kindergarten",
   "popup.education.ownership": "Public/private",
   "popup.education.academicYear": "Academic year",
-  "popup.education.academicYearValue": "Academic year {year}",
+  "popup.education.academicYearValue": "{year} academic year",
   "popup.education.afterschoolDefault": "After-school care center",
   "popup.education.licensedAt": "Licensed on",
   "popup.education.cramDefault": "Short-term cram school",
@@ -39,7 +39,7 @@
   "popup.education.universityDefault": "College or university",
   "popup.education.studentCount": "Students",
   "popup.education.noStudentStats": "No student statistics",
-  "popup.education.studentsWithGender": "{total} people (male {male} / female {female})",
-  "popup.education.studentsTotal": "{total} people",
+  "popup.education.studentsWithGender": "{total} students (male {male} / female {female})",
+  "popup.education.studentsTotal": "{total} students",
   "popup.education.noStudentNote": "<b>21 of the 159 schools nationwide have no student count</b>: 10 continuing-education colleges / the Open University (students counted under the parent school), 9 religious seminaries (outside Ministry of Education statistics), and 2 closed or renamed schools. <b>This does not mean 0 students.</b>"
 }

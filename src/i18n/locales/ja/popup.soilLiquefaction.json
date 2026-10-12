@@ -4,7 +4,7 @@
   "popup.soilLiquefaction.notInvestigatedLabel": "未調査",
   "popup.soilLiquefaction.potentialClass": "ポテンシャル区分",
   "popup.soilLiquefaction.classMeaning": "区分の意味",
-  "popup.soilLiquefaction.classMeaningText": "公式機関がボーリング、地下水位、設計地震、履歴資料を統合した区分で、測定値ではありません。PL 値や地下水位を逆算することはできません。",
+  "popup.soilLiquefaction.classMeaningText": "公式機関がボーリング、地下水位、設計地震、過去の資料を統合した区分で、測定値ではありません。PL 値や地下水位を逆算することはできません。",
   "popup.soilLiquefaction.notInvestigatedText": "公式に未調査の区域（山地、台地、埋立地、河岸、点在する小平地を含む）。低ポテンシャルを意味するものではありません。",
   "popup.soilLiquefaction.noDataText": "出典にポテンシャル区分がありません（データなし）。未調査でも低ポテンシャルでもありません。",
   "popup.soilLiquefaction.assessmentYear": "評価年",

@@ -19,8 +19,8 @@
   "popup.funeral.osmNoName": "OSM では墓地区域の約65%に名称がありません。名称は「葬祭施設」レイヤーを重ねて確認してください",
   "popup.funeral.osmNote": "ⓘ OpenStreetMap のクラウドソーシングデータ、{note}",
   "popup.funeral.zoningFallback": "墓地系用地",
-  "popup.funeral.zoningGroup": "区分グループ",
-  "popup.funeral.zoningId": "区分番号",
+  "popup.funeral.zoningGroup": "用途地域グループ",
+  "popup.funeral.zoningId": "用途地域番号",
   "popup.funeral.zoningNote1": "ⓘ 都市計画上の",
   "popup.funeral.zoningNoteBold": "法定指定",
   "popup.funeral.zoningNote2": "（実際の利用範囲ではありません）。現在は台北市と新北市のみデータがあります"

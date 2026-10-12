@@ -13,5 +13,5 @@
   "enum.regionalStatisticsInput.population": "分母人口",
   "enum.regionalStatisticsInput.heads": "飼養頭羽数",
   "enum.regionalStatisticsInput.farms": "飼養場数",
-  "enum.regionalStatisticsInput.source_participation_rate_pct": "ソースの労働力率（%）"
+  "enum.regionalStatisticsInput.source_participation_rate_pct": "出典の労働力率（%）"
 }

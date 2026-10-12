@@ -12,7 +12,7 @@
   "enum.h3Metric.indicators.ed": "Old-age dependency ratio",
   "enum.h3Metric.indicators.ai": "Aging index",
   "enum.h3Metric.socioeconomic.im": "Median income",
-  "enum.h3Metric.socioeconomic.iq": "Income interquartile ratio",
+  "enum.h3Metric.socioeconomic.iq": "Income interquartile range ratio",
   "enum.h3Metric.socioeconomic.sr": "Salary income share",
   "enum.h3Metric.socioeconomic.vs": "Population vitality score",
   "enum.h3Metric.socioeconomic.vl": "Vulnerability index",

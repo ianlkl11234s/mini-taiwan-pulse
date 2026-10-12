@@ -1,6 +1,6 @@
 {
-  "enum.fireIsochrone.5": "5分（黄金の救助時間）",
-  "enum.fireIsochrone.10": "10分（消防庁のKPI）",
+  "enum.fireIsochrone.5": "5分（救命のゴールデンタイム）",
+  "enum.fireIsochrone.10": "10分（消防署のKPI）",
   "enum.fireIsochrone.15": "15分（到達限界）",
   "enum.fireStationType.大隊": "大隊",
   "enum.fireStationType.分隊": "分隊",

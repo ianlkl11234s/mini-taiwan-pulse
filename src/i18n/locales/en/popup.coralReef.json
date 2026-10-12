@@ -6,7 +6,7 @@
   "popup.coralReef.sourceArea": "Full source feature area",
   "popup.coralReef.geometryStatus": "Geometry status",
   "popup.coralReef.geometryDefinition": "Geometry definition",
-  "popup.coralReef.builtAt": "Built at",
+  "popup.coralReef.builtAt": "Build time",
   "popup.coralReef.note": "Historical baseline, not current health, live coral cover, or bleaching. area_km2 is the area of the full global source feature, not the Taiwan subset, and must not be summed; intersecting this view does not equal reef area within an administrative boundary.",
   "popup.coralReef.sourceDetails": "Source details",
   "popup.coralReef.originalCompiler": "Original compiler",

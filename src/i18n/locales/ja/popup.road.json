@@ -20,7 +20,7 @@
   "popup.road.freewayNote": "データは10分間隔のスナップショットで、タイムラインに合わせて更新されます",
   "popup.road.freeway": "国道",
   "popup.road.provincialHighway": "省道",
-  "popup.road.moiSource": "内政部汎用電子地図 道路中心線",
+  "popup.road.moiSource": "内政部 台湾通用電子地図 道路中心線",
   "popup.road.kmValue": "{value} km",
   "popup.road.mValue": "{value} m",
   "popup.road.cyclingRoute": "自転車道",

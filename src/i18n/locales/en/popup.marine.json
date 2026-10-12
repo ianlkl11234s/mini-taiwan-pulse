@@ -1,6 +1,6 @@
 {
   "popup.marine.networkCwa": "CWA fixed marine stations (upstream updates about hourly)",
-  "popup.marine.networkIsohe": "Port-area fixed marine/weather stations (upstream updates about every 10 minutes)",
+  "popup.marine.networkIsohe": "Port fixed marine-meteorological stations (upstream updates about every 10 minutes)",
   "popup.marine.networkUnlabeled": "Source network not labeled",
   "popup.marine.unknownNetwork": "Unknown source",
   "popup.marine.stationFallback": "Marine observation station",
@@ -20,7 +20,7 @@
   "popup.marine.trendView": "View 24h trend",
   "popup.marine.stationCode": "Station code",
   "popup.marine.sourceNetwork": "Source network",
-  "popup.marine.originOrg": "Sensing / managing",
+  "popup.marine.originOrg": "Sensing / management",
   "popup.marine.distributionOrg": "Data distribution",
   "popup.marine.stationType": "Station type",
   "popup.marine.latestObs": "Latest observation",

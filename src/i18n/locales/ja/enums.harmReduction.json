@@ -34,7 +34,7 @@
   "enum.harmReductionSmokingFacility.hospital": "病院",
   "enum.harmReductionSmokingFacility.clinic": "診療所",
   "enum.harmReductionSmokingFacility.pharmacy": "薬局",
-  "enum.harmReductionSmokingFacility.health_center": "衛生所",
+  "enum.harmReductionSmokingFacility.health_center": "衛生所（保健所）",
   "enum.harmReductionCondomOutlet.vending_machine": "自動販売機",
   "enum.harmReductionCondomOutlet.pharmacy_retail": "薬局販売",
   "enum.harmReductionDuiClass.A1": "A1類（24時間以内死亡）",

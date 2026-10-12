@@ -16,7 +16,7 @@
   "enum.religionDeityFamily.unknown": "未表示",
   "enum.religionAncestralType.宗祠": "登録宗祠",
   "enum.religionAncestralType.宗祠基金會": "宗祠財団",
-  "enum.religionAncestralType.文資祠堂（未登記）": "文化財の祠堂",
+  "enum.religionAncestralType.文資祠堂（未登記）": "文化財の祠堂（未登録）",
   "enum.religionJp.shinto": "神道",
   "enum.religionJp.buddhist": "仏教",
   "enum.religionJp.christian": "キリスト教",

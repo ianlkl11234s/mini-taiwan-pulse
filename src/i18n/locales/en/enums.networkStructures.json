@@ -7,7 +7,7 @@
   "enum.networkGeometry.approximate_axis": "Official end-to-end line (approximate axis)",
   "enum.networkGeometry.coincident_endpoints": "Original coincident endpoints; no axis can be evaluated",
   "enum.networkMetric.distance_m": "Segment distance (m)",
-  "enum.networkMetric.bearing_difference_deg": "Bearing difference (deg)",
+  "enum.networkMetric.bearing_difference_deg": "Bearing difference (°)",
   "enum.networkMetric.carrier_length_m": "OSM segment length (m)",
   "enum.networkMetric.name_equal": "Name matches",
   "enum.networkMetric.reason": "Reason",

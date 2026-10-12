@@ -8,7 +8,7 @@
   "popup.baseMap.basepointType": "基点の種類",
   "popup.baseMap.legalMeaning": "法的意義",
   "popup.baseMap.sheet": "図幅",
-  "popup.baseMap.releasePeriod": "版次",
+  "popup.baseMap.releasePeriod": "期別",
   "popup.baseMap.contour25kSource": "経建版1:25000地形図（精度10m）",
   "popup.baseMap.contourDtmSource": "DTM 20m等高線（gdal_contour、台湾全域）",
   "popup.baseMap.slopeClass": "傾斜区分",

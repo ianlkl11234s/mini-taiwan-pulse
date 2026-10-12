@@ -16,7 +16,7 @@
   "enum.religionDeityFamily.unknown": "Not specified",
   "enum.religionAncestralType.宗祠": "Registered ancestral hall",
   "enum.religionAncestralType.宗祠基金會": "Ancestral hall foundation",
-  "enum.religionAncestralType.文資祠堂（未登記）": "Heritage ancestral hall",
+  "enum.religionAncestralType.文資祠堂（未登記）": "Heritage ancestral hall (unregistered)",
   "enum.religionJp.shinto": "Shinto",
   "enum.religionJp.buddhist": "Buddhist",
   "enum.religionJp.christian": "Christian",

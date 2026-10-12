@@ -111,7 +111,7 @@
   "popup.field.facilityType": "Facility type",
   "popup.field.stationName": "Station name",
   "popup.common.unclassified": "Unclassified",
-  "popup.field.countyTownship": "County / township",
+  "popup.field.countyTownship": "County/City and township/district",
   "popup.field.legalBasis": "Legal basis",
   "popup.field.method": "Method",
   "popup.field.sampleCount": "Number of samples",
@@ -138,6 +138,6 @@
   "popup.field.lawViolated": "Law violated",
   "popup.field.penaltyDate": "Penalty date",
   "popup.field.penaltyType": "Penalty type",
-  "popup.field.severityReason": "Tier reason",
+  "popup.field.severityReason": "Reason for tier",
   "popup.field.snapshotAt": "Snapshot time"
 }

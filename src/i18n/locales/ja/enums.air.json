@@ -1,8 +1,8 @@
 {
   "enum.airAqiStatus.良好": "良好",
   "enum.airAqiStatus.普通": "普通",
-  "enum.airAqiStatus.對敏感族群不健康": "敏感なグループに不健康",
-  "enum.airAqiStatus.對所有族群不健康": "全てのグループに不健康",
+  "enum.airAqiStatus.對敏感族群不健康": "敏感なグループにとって不健康",
+  "enum.airAqiStatus.對所有族群不健康": "すべての人にとって不健康",
   "enum.airAqiStatus.非常不健康": "非常に不健康",
   "enum.airAqiStatus.危害": "危険"
 }

@@ -11,7 +11,7 @@
   "enum.regionalStatisticsInput.national_admin_ha": "National administrative area (ha)",
   "enum.regionalStatisticsInput.denominator_population": "Denominator population",
   "enum.regionalStatisticsInput.population": "Denominator population",
-  "enum.regionalStatisticsInput.heads": "Livestock on farm (head)",
+  "enum.regionalStatisticsInput.heads": "Livestock headcount",
   "enum.regionalStatisticsInput.farms": "Number of farms",
   "enum.regionalStatisticsInput.source_participation_rate_pct": "Source labor force participation rate (%)"
 }

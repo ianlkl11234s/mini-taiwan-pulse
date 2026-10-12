@@ -1,5 +1,5 @@
 {
-  "enum.parkingSourceCategory.city": "County/city off-street",
+  "enum.parkingSourceCategory.city": "County/city off-street lot",
   "enum.parkingSourceCategory.tourism": "Tourist attraction",
   "enum.parkingSourceCategory.freeway_service_area": "Freeway service area"
 }

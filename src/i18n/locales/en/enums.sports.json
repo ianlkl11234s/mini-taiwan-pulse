@@ -1,6 +1,6 @@
 {
   "enum.sportsCategory.籃球場": "Basketball court",
-  "enum.sportsCategory.田徑場": "Track and field",
+  "enum.sportsCategory.田徑場": "Athletics track",
   "enum.sportsCategory.羽球場": "Badminton court",
   "enum.sportsCategory.排球場": "Volleyball court",
   "enum.sportsCategory.游泳池": "Swimming pool",
@@ -9,7 +9,7 @@
   "enum.sportsCategory.躲避球場": "Dodgeball court",
   "enum.sportsCategory.網球場": "Tennis court",
   "enum.sportsCategory.桌球場": "Table tennis venue",
-  "enum.sportsCategory.綜合體育館": "Gymnasium",
+  "enum.sportsCategory.綜合體育館": "Multi-purpose sports hall",
   "enum.sportsCategory.舞蹈教室": "Dance studio",
   "enum.sportsCategory.棒球場": "Baseball field",
   "enum.sportsCategory.棒壘打擊練習場": "Batting cage",
@@ -30,7 +30,7 @@
   "enum.sportsLayer.其他公共場館": "Other public venues",
   "enum.sportsLayer.民營場館": "Private venues",
   "enum.sportsLayer.運動公園/開放空間": "Sports parks / open spaces",
-  "enum.sportsLayer.國民運動中心": "National sports centers",
+  "enum.sportsLayer.國民運動中心": "Civil sports centers",
   "enum.sportsOpenStatus.免費開放": "Open, free",
   "enum.sportsOpenStatus.付費開放": "Open, paid",
   "enum.sportsOpenStatus.不對外": "Not open to the public"

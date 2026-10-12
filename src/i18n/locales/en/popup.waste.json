@@ -1,10 +1,10 @@
 {
   "popup.waste.unnamedFacility": "(Unnamed facility)",
-  "popup.waste.capacity": "Throughput",
+  "popup.waste.capacity": "Treatment capacity",
   "popup.waste.tonsPerDay": "{value} t/day",
   "popup.waste.startYear": "Year opened",
   "popup.waste.distanceToCoast": "Distance to coast",
-  "popup.waste.squadFallback": "(Cleaning squad)",
+  "popup.waste.squadFallback": "(Sanitation squad)",
   "popup.waste.jurisdiction": "Jurisdiction",
   "popup.waste.manager": "Manager",
   "popup.waste.accepts": "Accepted items",

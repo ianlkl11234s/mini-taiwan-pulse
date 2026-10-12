@@ -3,7 +3,7 @@
   "popup.livestock.mainSpecies": "主な畜種",
   "popup.livestock.totalHeads": "総頭羽数",
   "popup.livestock.speciesDetail": "畜種内訳",
-  "popup.livestock.lowPrecision": "低（地段・里の中心のみ、正確な場所ではありません）",
+  "popup.livestock.lowPrecision": "低（地段・村里の中心のみ、正確な場所ではありません）",
   "popup.livestock.slaughterFallback": "屠畜場",
   "popup.livestock.kind": "種類",
   "popup.livestock.feedFallback": "飼料工場",

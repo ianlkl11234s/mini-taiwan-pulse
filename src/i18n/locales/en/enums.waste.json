@@ -19,7 +19,7 @@
   "enum.wasteDisposal.huge_waste_dropoff": "Bulky waste drop-off",
   "enum.wasteSource.utmap": "Ministry of Environment (official)",
   "enum.wasteSource.moenv": "Ministry of Environment (official)",
-  "enum.wasteSource.tnepb_kml": "Tainan EPB",
+  "enum.wasteSource.tnepb_kml": "Tainan City Environmental Protection Bureau",
   "enum.wasteSource.city_gov": "City/county government",
   "enum.wasteSource.osm": "OpenStreetMap (crowdsourced)",
   "enum.wasteSource.other": "Other",
