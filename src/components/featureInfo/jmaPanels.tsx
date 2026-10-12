@@ -1,12 +1,15 @@
 // 日本氣象廳（JMA）即時 4 層 popup。時間一律顯示日本時間（JST）；null 寫「無觀測」，不當 0。
 // feature 只有 view 欄位、沒有來源欄位 → panel 自掛人類可讀出典的 SourceFooter。
 import type { PanelProps } from "./registry";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { PopupDetails, PopupScroll, Row, SourceFooter, Title } from "./shared";
 import {
   JMA_INTENSITY_CLASSES, JMA_LAYER_COLORS, JMA_LICENSE, JMA_MISSING_COLOR, JMA_SOURCE_URL, JMA_VOLCANO_LEVELS,
   JMA_WARNING_LEVELS, formatJst, jmaIntensityLabel,
 } from "../../data/jmaTypes";
 import { getLatestJmaWarnings, type JmaWarningArea } from "../../data/jmaLiveLoaders";
+
+type I18n = Pick<LocaleSnapshot, "t" | "formatNumber">;
 
 const ORG = "気象庁";
 
@@ -21,50 +24,58 @@ function num(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function measure(value: unknown, unit: string, digits = 1): string {
+function measure(value: unknown, unit: string, digits: number, { t: tr, formatNumber }: I18n): string {
   const n = num(value);
-  return n == null ? "無觀測" : `${n.toLocaleString("zh-TW", { maximumFractionDigits: digits })} ${unit}`;
+  return n == null ? tr("popup.jma.noObservation") : `${formatNumber(n, { maximumFractionDigits: digits })} ${unit}`;
 }
 
 /** AMeDAS 風向 16 方位（1＝北北東 … 16＝北，0＝靜穩）。 */
-const WIND_DIRS = ["靜穩", "北北東", "東北", "東北東", "東", "東南東", "東南", "南南東", "南", "南南西", "西南", "西南西", "西", "西北西", "西北", "北北西", "北"];
+const WIND_DIR_KEYS = [
+  "popup.jma.windCalm", "popup.jma.windNne", "popup.jma.windNe", "popup.jma.windEne", "popup.jma.windE", "popup.jma.windEse", "popup.jma.windSe", "popup.jma.windSse", "popup.jma.windS",
+  "popup.jma.windSsw", "popup.jma.windSw", "popup.jma.windWsw", "popup.jma.windW", "popup.jma.windWnw", "popup.jma.windNw", "popup.jma.windNnw", "popup.jma.windN",
+] as const;
 
-function windDir(value: unknown): string {
+function windDir(value: unknown, tr: I18n["t"]): string {
   const n = num(value);
   if (n == null) return "";
-  return WIND_DIRS[n] ?? String(n);
+  const key = WIND_DIR_KEYS[n];
+  return key ? tr(key) : String(n);
 }
 
 function Footer({ fetchedAt }: { fetchedAt?: unknown }) {
-  return <SourceFooter props={{ source_org: `${ORG}（防災情報 bosai JSON）`, source_url: JMA_SOURCE_URL, license: JMA_LICENSE, fetched_at: formatJst(fetchedAt) }} />;
+  const { t: tr } = useLocale();
+  return <SourceFooter props={{ source_org: tr("popup.jma.footerOrg", { org: ORG }), source_url: JMA_SOURCE_URL, license: JMA_LICENSE, fetched_at: formatJst(fetchedAt) }} />;
 }
 
 export function JmaAmedasPanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
+  const measure_ = (v: unknown, unit: string, digits = 1) => measure(v, unit, digits, i18n);
   const gauge = props.has_snow_gauge === true || props.has_snow_gauge === "true";
-  const wind = measure(props.wind, "m/s");
-  const dir = windDir(props.wind_dir);
+  const wind = measure_(props.wind, "m/s");
+  const dir = windDir(props.wind_dir, tr);
   return <>
-    <Title color={JMA_LAYER_COLORS.jmaAmedas}>{text(props.station_name, "AMeDAS 觀測站")}</Title>
-    <Row field="observedAt" value={formatJst(props.observed_at) || "無"} mono />
-    <Row label="氣溫" value={measure(props.temp, "°C")} />
-    <Row label="前 10 分鐘雨量" value={measure(props.precip10m, "mm")} />
-    <Row label="前 1 小時雨量" value={measure(props.precip1h, "mm")} />
-    <Row label="前 3 小時雨量" value={measure(props.precip3h, "mm")} />
-    <Row label="前 24 小時雨量" value={measure(props.precip24h, "mm")} />
-    <Row label="風速" value={dir && wind !== "無觀測" ? `${wind}（${dir}）` : wind} />
-    <Row label="最大瞬間風速" value={measure(props.gust, "m/s")} />
-    <Row label="濕度" value={measure(props.humidity, "%", 0)} />
-    <Row label="氣壓" value={measure(props.pressure, "hPa")} />
-    <Row label="前 1 小時日照" value={measure(props.sun1h, "小時")} />
+    <Title color={JMA_LAYER_COLORS.jmaAmedas}>{text(props.station_name, tr("popup.jma.amedasStation"))}</Title>
+    <Row field="observedAt" value={formatJst(props.observed_at) || tr("popup.common.none")} mono />
+    <Row label={tr("popup.jma.temp")} value={measure_(props.temp, "°C")} />
+    <Row label={tr("popup.jma.precip10")} value={measure_(props.precip10m, "mm")} />
+    <Row label={tr("popup.jma.precip1h")} value={measure_(props.precip1h, "mm")} />
+    <Row label={tr("popup.jma.precip3h")} value={measure_(props.precip3h, "mm")} />
+    <Row label={tr("popup.jma.precip24h")} value={measure_(props.precip24h, "mm")} />
+    <Row field="windSpeed" value={dir && num(props.wind) != null ? `${wind}（${dir}）` : wind} />
+    <Row label={tr("popup.jma.gust")} value={measure_(props.gust, "m/s")} />
+    <Row field="humidity" value={measure_(props.humidity, "%", 0)} />
+    <Row label={tr("popup.jma.pressure")} value={measure_(props.pressure, "hPa")} />
+    <Row label={tr("popup.jma.sun1h")} value={measure_(props.sun1h, tr("popup.jma.hours"))} />
     {gauge ? <>
-      <Row label="積雪深" value={measure(props.snow, "cm", 0)} color={num(props.snow) == null ? JMA_MISSING_COLOR : undefined} />
-      <Row label="降雪量 1／6／12／24 小時" value={[props.snow1h, props.snow6h, props.snow12h, props.snow24h].map((v) => measure(v, "cm", 0)).join("／")} />
-    </> : <Row label="積雪深" value="此站無積雪計" />}
-    <PopupDetails summary="站點與說明">
-      <Row label="站名（英）" value={text(props.station_name_en)} />
+      <Row label={tr("popup.jma.snowDepth")} value={measure_(props.snow, "cm", 0)} color={num(props.snow) == null ? JMA_MISSING_COLOR : undefined} />
+      <Row label={tr("popup.jma.snowfall")} value={[props.snow1h, props.snow6h, props.snow12h, props.snow24h].map((v) => measure_(v, "cm", 0)).join("／")} />
+    </> : <Row label={tr("popup.jma.snowDepth")} value={tr("popup.jma.noSnowGauge")} />}
+    <PopupDetails summary={tr("popup.jma.detailsStation")}>
+      <Row label={tr("popup.jma.stationNameEn")} value={text(props.station_name_en)} />
       <Row field="stationNo" value={text(props.station_id)} mono />
-      <Row field="elevation" value={measure(props.alt_m, "m", 0)} />
-      <Row field="description" value="「無觀測」＝該要素此站未觀測或品質碼缺，不是 0；每 10 分鐘更新" />
+      <Row field="elevation" value={measure_(props.alt_m, "m", 0)} />
+      <Row field="description" value={tr("popup.jma.amedasNote")} />
     </PopupDetails>
     <Footer fetchedAt={props.observed_at} />
   </>;
@@ -78,70 +89,73 @@ function areaFor(props: Record<string, unknown>): JmaWarningArea | null {
 }
 
 export function JmaWarningsPanel({ props }: PanelProps) {
+  const { t: tr } = useLocale();
   const area = areaFor(props);
   const place = [text(props.pref_name), text(props.city_name), text(props.ward_name)].filter(Boolean).join(" ");
   const level = JMA_WARNING_LEVELS.find((l) => l.value === area?.level);
   const first = area?.rows[0];
   return <>
-    <Title color={level?.color ?? JMA_LAYER_COLORS.jmaWarnings}>{place || "市区町村"}</Title>
-    {!area ? <Row field="status" value="目前快照沒有對到此區的發表中警報・注意報（可能剛解除，請重新開啟圖層）" /> : <>
-      <Row label="最高級別" value={level?.label ?? "未知"} color={level?.color} />
-      {area.areaName && <Row label="氣象廳區域" value={area.areaName} />}
+    <Title color={level?.color ?? JMA_LAYER_COLORS.jmaWarnings}>{place || tr("popup.jma.cityFallback")}</Title>
+    {!area ? <Row field="status" value={tr("popup.jma.noWarningNow")} /> : <>
+      <Row label={tr("popup.jma.areaLevel")} value={level?.label ?? tr("popup.common.unknown")} color={level?.color} />
+      {area.areaName && <Row label={tr("popup.jma.jmaArea")} value={area.areaName} />}
       <PopupScroll>
         {area.rows.map((row, i) => {
           const lv = JMA_WARNING_LEVELS.find((l) => l.value === row.level);
           return <Row key={`${row.area_code}-${row.kind_code}-${i}`}
-            label={row.kind_name ?? `種類代碼 ${row.kind_code ?? "?"}`}
+            label={row.kind_name ?? tr("popup.jma.kindCode", { code: row.kind_code ?? "?" })}
             value={`${row.status ?? ""}${row.area_name && row.area_name !== area.areaName ? `（${row.area_name}）` : ""}`}
             color={lv?.color} />;
         })}
       </PopupScroll>
-      <Row label="發表時間" value={formatJst(first?.report_datetime) || "無"} mono />
-      {first?.office_name && <Row label="發表官署" value={first.office_name} />}
+      <Row label={tr("popup.jma.reportTime")} value={formatJst(first?.report_datetime) || tr("popup.common.none")} mono />
+      {first?.office_name && <Row label={tr("popup.jma.office")} value={first.office_name} />}
     </>}
-    <PopupDetails summary="說明與限制">
-      <Row label="對應" value="以氣象廳市町村等區域（class20）對市区町村界；政令市分區（如横浜市北部／南部）整市著色，popup 列出各分區" />
-      <Row field="updated" value="每 5 分鐘；以最新一版發表時刻（control_datetime）為準" />
-      <Row label="市区町村コード" value={text(props.admin_code)} mono />
+    <PopupDetails summary={tr("popup.common.notesAndLimits")}>
+      <Row label={tr("popup.jma.mapping")} value={tr("popup.jma.mappingNote")} />
+      <Row field="updated" value={tr("popup.jma.warningUpdated")} />
+      <Row label={tr("popup.jma.cityCode")} value={text(props.admin_code)} mono />
     </PopupDetails>
     <Footer fetchedAt={first?.control_datetime} />
   </>;
 }
 
 export function JmaQuakesPanel({ props }: PanelProps) {
+  const { t: tr, formatNumber } = useLocale();
   const intensity = text(props.max_intensity) || null;
   const color = JMA_INTENSITY_CLASSES.find((c) => c.value === intensity)?.color ?? JMA_MISSING_COLOR;
   const mag = num(props.magnitude);
   const depth = num(props.depth_km);
   const byPref = text(props.intensity_by_pref);
   return <>
-    <Title color={color}>{text(props.hypocenter_name, "震源未定")}</Title>
-    <Row field="occurredAt" value={formatJst(props.origin_time) || "未發表"} mono />
-    <Row label="規模" value={mag == null ? "未發表" : `M${mag.toFixed(1)}`} />
-    <Row label="深度" value={depth == null ? "未發表" : `${depth.toLocaleString("zh-TW")} km`} />
-    <Row label="最大震度" value={jmaIntensityLabel(intensity)} color={color} />
-    <Row label="情報種類" value={text(props.title)} />
-    <Row label="發表時間" value={formatJst(props.report_time) || "無"} mono />
-    <PopupDetails summary="各地震度與說明">
-      {byPref && <Row label="各都道府縣震度（原始）" value={byPref.length > 400 ? `${byPref.slice(0, 400)}…` : byPref} />}
-      <Row field="description" value="同一地震只顯示最新一報；震度速報階段尚無震源座標，不會畫在地圖上。近 7 天、每 2 分鐘更新" />
-      <Row label="事件 ID" value={text(props.event_id)} mono />
+    <Title color={color}>{text(props.hypocenter_name, tr("popup.jma.hypocenterTbd"))}</Title>
+    <Row field="occurredAt" value={formatJst(props.origin_time) || tr("popup.jma.notIssued")} mono />
+    <Row label={tr("popup.jma.magnitude")} value={mag == null ? tr("popup.jma.notIssued") : `M${mag.toFixed(1)}`} />
+    <Row label={tr("popup.jma.depth")} value={depth == null ? tr("popup.jma.notIssued") : `${formatNumber(depth)} km`} />
+    <Row label={tr("popup.jma.maxIntensity")} value={jmaIntensityLabel(intensity)} color={color} />
+    <Row label={tr("popup.jma.infoType")} value={text(props.title)} />
+    <Row label={tr("popup.jma.reportTime")} value={formatJst(props.report_time) || tr("popup.common.none")} mono />
+    <PopupDetails summary={tr("popup.jma.detailsQuake")}>
+      {byPref && <Row label={tr("popup.jma.intensityByPref")} value={byPref.length > 400 ? `${byPref.slice(0, 400)}…` : byPref} />}
+      <Row field="description" value={tr("popup.jma.quakeNote")} />
+      <Row field="eventId" value={text(props.event_id)} mono />
     </PopupDetails>
     <Footer fetchedAt={props.report_time} />
   </>;
 }
 
 export function JmaVolcanoesPanel({ props }: PanelProps) {
+  const { t: tr } = useLocale();
   const level = JMA_VOLCANO_LEVELS.find((l) => l.value === text(props.level)) ?? JMA_VOLCANO_LEVELS[5];
   return <>
-    <Title color={level.color}>{text(props.volcano_name, "火山")}</Title>
-    <Row label="噴火警戒" value={level.label} color={level.color} />
-    <Row label="原文" value={text(props.level_name, "未提供")} />
-    {text(props.warning_kind) && <Row label="警報種類" value={text(props.warning_kind)} />}
-    <Row label="發表時間" value={formatJst(props.report_time) || "無"} mono />
-    <PopupDetails summary="說明">
-      <Row label="判讀" value="警戒レベル取自原文「レベルN」或代碼 11–15；未導入レベル的火山以警報原文為準" />
-      <Row label="火山代碼" value={text(props.volcano_code)} mono />
+    <Title color={level.color}>{text(props.volcano_name, tr("popup.jma.volcano"))}</Title>
+    <Row label={tr("popup.jma.volcanoAlert")} value={level.label} color={level.color} />
+    <Row label={tr("popup.jma.original")} value={text(props.level_name, tr("popup.common.notProvided"))} />
+    {text(props.warning_kind) && <Row label={tr("popup.jma.warningKind")} value={text(props.warning_kind)} />}
+    <Row label={tr("popup.jma.reportTime")} value={formatJst(props.report_time) || tr("popup.common.none")} mono />
+    <PopupDetails summary={tr("popup.jma.details")}>
+      <Row label={tr("popup.jma.reading")} value={tr("popup.jma.volcanoNote")} />
+      <Row label={tr("popup.jma.volcanoCode")} value={text(props.volcano_code)} mono />
     </PopupDetails>
     <Footer fetchedAt={props.report_time} />
   </>;

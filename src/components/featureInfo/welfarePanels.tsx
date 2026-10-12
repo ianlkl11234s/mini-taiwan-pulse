@@ -1,6 +1,7 @@
 import { Row, Title } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
 import {
   WELFARE_LAYER_COLORS,
   welfareClassLabel, welfareSubCodeLabel,
@@ -40,18 +41,20 @@ const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
  *    故概略值一律明講；其餘精度段位不佔版面。
  */
 function PrecisionNote({ precision }: { precision: string }) {
+  const { t: tr } = useLocale();
   if (!isApproxPrecision(precision)) return null;
-  return <Note>⚠️ 位置為概略值：{welfarePrecisionLabel(precision)}，非實際門牌座標</Note>;
+  return <Note>{tr("popup.welfare.approxPosition", { label: welfarePrecisionLabel(precision) })}</Note>;
 }
 
 /** 9 層共通的尾段：地址／電話／provenance。地址欄 100% 有值，city 極少數缺（child_services 5 筆）。 */
 function CommonRows({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const nSrc = typeof props.n_src === "number" ? props.n_src : 0;
   return (
     <>
       <Row field="address" value={str(props.address)} />
       {str(props.phone) ? <Row field="phone" value={str(props.phone)} /> : null}
-      {nSrc > 1 ? <Row label="跨源比對" value={`${nSrc} 個來源名冊都有這筆`} /> : null}
+      {nSrc > 1 ? <Row label={tr("popup.welfare.crossSource")} value={tr("popup.welfare.crossSourceValue", { count: nSrc })} /> : null}
     </>
   );
 }
@@ -62,29 +65,30 @@ function CommonRows({ props }: { props: Record<string, unknown> }) {
  *    居家護理所本來就沒有床，`總床數 0` 是事實不是缺漏，故分開講。
  */
 export function WelfareNursingHomePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr, formatNumber } = useLocale();
   const type = str(props.nh_type);
   const color = nursingTypeColor(type);
   const beds = nursingBeds(props);
-  const homecare = type === "居家護理所";
+  const homecare = type === "居家護理所"; // 資料值（nh_type）
   return (
     <>
-      <Title color={color}>{str(props.name) || "護理機構"}</Title>
-      <Row label="型別" value={nursingTypeLabel(type)} color={color} />
+      <Title color={color}>{str(props.name) || tr("popup.welfare.nursingHome")}</Title>
+      <Row label={tr("popup.welfare.nhType")} value={nursingTypeLabel(type)} color={color} />
       {!beds.hasData ? (
-        <Row label="床數" value="上游未提供" />
+        <Row label={tr("popup.welfare.beds")} value={tr("popup.welfare.notProvided")} />
       ) : homecare ? (
-        <Row label="床數" value="無床位（到宅服務）" />
+        <Row label={tr("popup.welfare.beds")} value={tr("popup.welfare.noBeds")} />
       ) : (
         <>
-          <Row label="總床數" value={`${beds.total.toLocaleString()} 床`} />
-          {beds.nh > 0 ? <Row label="・一般護理" value={`${beds.nh.toLocaleString()} 床`} /> : null}
-          {beds.postpartum > 0 ? <Row label="・產後護理" value={`${beds.postpartum.toLocaleString()} 床`} /> : null}
-          {beds.infant > 0 ? <Row label="・嬰兒室" value={`${beds.infant.toLocaleString()} 床`} /> : null}
+          <Row label={tr("popup.welfare.totalBeds")} value={tr("popup.welfare.bedsCount", { count: formatNumber(beds.total) })} />
+          {beds.nh > 0 ? <Row label={tr("popup.welfare.bedsGeneral")} value={tr("popup.welfare.bedsCount", { count: formatNumber(beds.nh) })} /> : null}
+          {beds.postpartum > 0 ? <Row label={tr("popup.welfare.bedsPostpartum")} value={tr("popup.welfare.bedsCount", { count: formatNumber(beds.postpartum) })} /> : null}
+          {beds.infant > 0 ? <Row label={tr("popup.welfare.bedsInfant")} value={tr("popup.welfare.bedsCount", { count: formatNumber(beds.infant) })} /> : null}
         </>
       )}
       {accreditationDisplay(str(props.accreditation))
-        ? <Row label="評鑑" value={accreditationDisplay(str(props.accreditation))} /> : null}
-      {str(props.valid_until) ? <Row label="效期至" value={str(props.valid_until)} /> : null}
+        ? <Row label={tr("popup.welfare.accreditation")} value={accreditationDisplay(str(props.accreditation))} /> : null}
+      {str(props.valid_until) ? <Row label={tr("popup.welfare.validUntil")} value={str(props.valid_until)} /> : null}
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <PrecisionNote precision={str(props.coord_precision)} />
@@ -97,21 +101,22 @@ export function WelfareNursingHomePanel({ props }: { props: Record<string, unkno
  * ⚠️ `beds_approved` 是字串；70 筆整組 key 不存在（只有骨幹基本欄）。
  */
 export function WelfareElderlyHomePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr, formatNumber } = useLocale();
   const attr = str(props.attr_type);
   const color = elderlyAttrColor(attr);
   const hasBeds = "beds_approved" in props;
   const beds = Number(props.beds_approved);
   return (
     <>
-      <Title color={color}>{str(props.name) || "老人住宿機構"}</Title>
-      <Row label="公私別" value={elderlyAttrLabel(attr)} color={color} />
+      <Title color={color}>{str(props.name) || tr("popup.welfare.elderlyHome")}</Title>
+      <Row field="publicPrivate" value={elderlyAttrLabel(attr)} color={color} />
       <Row
-        label="核定床數"
-        value={hasBeds && Number.isFinite(beds) ? `${beds.toLocaleString()} 床` : "上游未提供"}
+        label={tr("popup.welfare.approvedBeds")}
+        value={hasBeds && Number.isFinite(beds) ? tr("popup.welfare.bedsCount", { count: formatNumber(beds) }) : tr("popup.welfare.notProvided")}
       />
-      {str(props.target) ? <Row label="收容對象" value={str(props.target)} /> : null}
-      {str(props.licensed_at) ? <Row label="立案日期" value={str(props.licensed_at)} /> : null}
-      {str(props.sub_code) ? <Row label="機構類別" value={welfareSubCodeLabel(str(props.sub_code))} /> : null}
+      {str(props.target) ? <Row label={tr("popup.welfare.target")} value={str(props.target)} /> : null}
+      {str(props.licensed_at) ? <Row label={tr("popup.welfare.licensedAt")} value={str(props.licensed_at)} /> : null}
+      {str(props.sub_code) ? <Row label={tr("popup.welfare.instCategory")} value={welfareSubCodeLabel(str(props.sub_code))} /> : null}
       <Row field="district" value={`${str(props.city)}${str(props.district)}`} />
       <CommonRows props={props} />
       <PrecisionNote precision={str(props.coord_precision)} />
@@ -125,29 +130,30 @@ export function WelfareElderlyHomePanel({ props }: { props: Record<string, unkno
  *    一律顯示「無核定量資料」，**不可**當成使用率 0%。
  */
 export function WelfareDisabilityPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr, formatNumber } = useLocale();
   const usage = disabilityUsage(props);
   return (
     <>
-      <Title color={usage.color}>{str(props.name) || "身心障礙福利機構"}</Title>
-      {str(props.inst_type) ? <Row label="機構型態" value={str(props.inst_type)} /> : null}
+      <Title color={usage.color}>{str(props.name) || tr("popup.welfare.disability")}</Title>
+      {str(props.inst_type) ? <Row label={tr("popup.welfare.instType")} value={str(props.inst_type)} /> : null}
       {usage.hasData ? (
         <>
           <Row
-            label="使用率"
-            value={`${(usage.ratio * 100).toFixed(0)}%（${usage.actual.toLocaleString()} / ${usage.quota.toLocaleString()}）`}
+            label={tr("popup.welfare.usage")}
+            value={`${(usage.ratio * 100).toFixed(0)}%（${formatNumber(usage.actual)} / ${formatNumber(usage.quota)}）`}
             color={usage.color}
           />
-          <Row label="分級" value={usage.label} />
+          <Row label={tr("popup.welfare.grade")} value={usage.label} />
         </>
       ) : (
         <>
-          <Row label="使用率" value="無核定量資料" color={usage.color} />
-          <Note>ⓘ 上游未提供核定安置量（或核定量為 0，多為不收容的福利服務中心）—— 這不是使用率 0%。</Note>
+          <Row label={tr("popup.welfare.usage")} value={tr("popup.welfare.noQuota")} color={usage.color} />
+          <Note>{tr("popup.welfare.noQuotaNote")}</Note>
         </>
       )}
       {accreditationDisplay(str(props.accreditation))
-        ? <Row label="評鑑" value={accreditationDisplay(str(props.accreditation))} /> : null}
-      {str(props.sub_code) ? <Row label="機構類別" value={welfareSubCodeLabel(str(props.sub_code))} /> : null}
+        ? <Row label={tr("popup.welfare.accreditation")} value={accreditationDisplay(str(props.accreditation))} /> : null}
+      {str(props.sub_code) ? <Row label={tr("popup.welfare.instCategory")} value={welfareSubCodeLabel(str(props.sub_code))} /> : null}
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <PrecisionNote precision={str(props.coord_precision)} />
@@ -160,17 +166,17 @@ export function WelfareDisabilityPanel({ props }: { props: Record<string, unknow
  * 🔴 這是《長照服務法》**立案機構**，與醫療主題 medLTC 的**特約單位**是兩套體系。
  */
 export function WelfareLtcInstitutionPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const sub = str(props.sub_code);
   return (
     <>
-      <Title color={WELFARE_LAYER_COLORS.welfareLtcInstitutions}>{str(props.name) || "長照服務機構"}</Title>
-      <Row label="服務型態" value={welfareSubCodeLabel(sub)} />
+      <Title color={WELFARE_LAYER_COLORS.welfareLtcInstitutions}>{str(props.name) || tr("popup.welfare.ltc")}</Title>
+      <Row label={tr("popup.welfare.serviceForm")} value={welfareSubCodeLabel(sub)} />
       <Row field="businessId" value={str(props.uni_no)} />
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
-        ⓘ 這是《長期照顧服務法》<b>立案機構</b>，與醫療主題「長照機構」圖層的
-        長照 2.0 <b>特約單位</b>是兩套登記體系（名稱交集僅 2,365）—— 兩者不可相加。
+        {tr("popup.welfare.ltcNoteA")}<b>{tr("popup.welfare.ltcNoteB")}</b>{tr("popup.welfare.ltcNoteC")}<b>{tr("popup.welfare.ltcNoteD")}</b>{tr("popup.welfare.ltcNoteE")}
       </Note>
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -179,16 +185,16 @@ export function WelfareLtcInstitutionPanel({ props }: { props: Record<string, un
 
 /** 托嬰中心（1,578）。⚠️ 名單約 21 個月舊，且不含居家托育（保母）。 */
 export function WelfareChildcarePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   return (
     <>
-      <Title color={WELFARE_LAYER_COLORS.welfareChildcare}>{str(props.name) || "托嬰中心"}</Title>
+      <Title color={WELFARE_LAYER_COLORS.welfareChildcare}>{str(props.name) || tr("popup.welfare.childcare")}</Title>
       <Row field="category" value={welfareClassLabel(str(props.welfare_class))} />
       <Row field="businessId" value={str(props.uni_no)} />
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
-        ⚠️ 名單約 21 個月舊（上游檔 Last-Modified 停在 2024-11-12），托嬰中心異動頻繁，
-        開／停業請以主管機關公告為準。本層<b>不含</b>居家托育（保母），該類無全國資料源。
+        {tr("popup.welfare.childcareNoteA")}<b>{tr("popup.welfare.childcareNoteB")}</b>{tr("popup.welfare.childcareNoteC")}
       </Note>
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -200,20 +206,21 @@ export function WelfareChildcarePanel({ props }: { props: Record<string, unknown
  * ⚠️ 早療的 unit_type **含醫院／診所**，與醫療主題重疊。
  */
 export function WelfareChildServicePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const cls = str(props.welfare_class);
   const color = childServiceColor(cls);
   return (
     <>
-      <Title color={color}>{str(props.name) || "兒少服務據點"}</Title>
+      <Title color={color}>{str(props.name) || tr("popup.welfare.childService")}</Title>
       <Row field="category" value={welfareClassLabel(cls)} color={color} />
-      {str(props.unit_type) ? <Row label="單位別" value={str(props.unit_type)} /> : null}
-      {str(props.service_mode) ? <Row label="服務方式" value={str(props.service_mode)} /> : null}
-      {str(props.service_content) ? <Row label="服務內容" value={str(props.service_content)} /> : null}
-      {str(props.service_hours) ? <Row label="服務時間" value={str(props.service_hours)} /> : null}
+      {str(props.unit_type) ? <Row label={tr("popup.welfare.unitType")} value={str(props.unit_type)} /> : null}
+      {str(props.service_mode) ? <Row label={tr("popup.welfare.serviceMode")} value={str(props.service_mode)} /> : null}
+      {str(props.service_content) ? <Row label={tr("popup.welfare.serviceContent")} value={str(props.service_content)} /> : null}
+      {str(props.service_hours) ? <Row field="serviceHours" value={str(props.service_hours)} /> : null}
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       {cls === "child_dev" ? (
-        <Note>ⓘ 早期療育單位<b>含醫院／診所</b>（單位別可辨），要看「純社福早療」請先依單位別篩選。</Note>
+        <Note>{tr("popup.welfare.devNoteA")}<b>{tr("popup.welfare.devNoteB")}</b>{tr("popup.welfare.devNoteC")}</Note>
       ) : null}
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -225,16 +232,16 @@ export function WelfareChildServicePanel({ props }: { props: Record<string, unkn
  * ⚠️ 已排除 T0103 社福服務中心 —— 那 162 筆是基礎建設主題的 welfareCenters 圖層。
  */
 export function WelfareGovOfficePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   return (
     <>
-      <Title color={WELFARE_LAYER_COLORS.welfareGovOffices}>{str(props.name) || "公部門社福據點"}</Title>
-      <Row label="單位類別" value={welfareSubCodeLabel(str(props.sub_code))} />
+      <Title color={WELFARE_LAYER_COLORS.welfareGovOffices}>{str(props.name) || tr("popup.welfare.govOffice")}</Title>
+      <Row label={tr("popup.welfare.unitCategory")} value={welfareSubCodeLabel(str(props.sub_code))} />
       <Row field="businessId" value={str(props.uni_no)} />
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
-        ⓘ 本層<b>不含</b>社會福利服務中心（162 處）—— 那批在「基礎建設 › 公共設施 › 社福中心」，
-        兩層零重疊；要算全部公部門社福據點請把兩層相加。
+        {tr("popup.welfare.govNoteA")}<b>{tr("popup.welfare.govNoteB")}</b>{tr("popup.welfare.govNoteC")}
       </Note>
       <PrecisionNote precision={str(props.coord_precision)} />
     </>
@@ -243,12 +250,13 @@ export function WelfareGovOfficePanel({ props }: { props: Record<string, unknown
 
 /** 心理衛生機構（70）：sub_code 五類分色。 */
 export function WelfareMentalHealthPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const sub = str(props.sub_code);
   const color = mentalHealthColor(sub);
   return (
     <>
-      <Title color={color}>{str(props.name) || "心理衛生機構"}</Title>
-      <Row label="機構類別" value={welfareSubCodeLabel(sub)} color={color} />
+      <Title color={color}>{str(props.name) || tr("popup.welfare.mentalHealth")}</Title>
+      <Row label={tr("popup.welfare.instCategory")} value={welfareSubCodeLabel(sub)} color={color} />
       <Row field="businessId" value={str(props.uni_no)} />
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
@@ -263,16 +271,16 @@ export function WelfareMentalHealthPanel({ props }: { props: Record<string, unkn
  *    否則使用者會把它讀成「這裡有社福服務」。
  */
 export function WelfareSocialWorkOrgPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   return (
     <>
-      <Title color={WELFARE_LAYER_COLORS.welfareSocialWorkOrgs}>{str(props.name) || "社福團體"}</Title>
-      <Row label="組織類別" value={welfareSubCodeLabel(str(props.sub_code))} />
+      <Title color={WELFARE_LAYER_COLORS.welfareSocialWorkOrgs}>{str(props.name) || tr("popup.welfare.socialOrg")}</Title>
+      <Row label={tr("popup.welfare.orgCategory")} value={welfareSubCodeLabel(str(props.sub_code))} />
       <Row field="businessId" value={str(props.uni_no)} />
       <Row field="county" value={str(props.city)} />
       <CommonRows props={props} />
       <Note>
-        ⚠️ 這是<b>登記組織</b>不是服務設施，地址多為<b>辦公室／立案地</b>，
-        服務往往在別處發生 —— 不可當服務可近性指標。
+        {tr("popup.welfare.orgNoteA")}<b>{tr("popup.welfare.orgNoteB")}</b>{tr("popup.welfare.orgNoteC")}<b>{tr("popup.welfare.orgNoteD")}</b>{tr("popup.welfare.orgNoteE")}
       </Note>
       <PrecisionNote precision={str(props.coord_precision)} />
     </>

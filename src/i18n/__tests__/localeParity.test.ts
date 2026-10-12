@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { DEFAULT_LOCALE, LOCALES, SUPPORTED_LOCALES, matchLocale, type Locale } from "../locales";
-import { DYNAMIC_NAMESPACES, TYPED_MESSAGE_FILES } from "../keys";
+import { DYNAMIC_NAMESPACES } from "../keys";
+import { renderKeysModule } from "./keysCodegen";
 import { translate } from "../translate";
 import { localizeLayerName, localizeSectionTitle } from "../layerText";
 
@@ -22,6 +23,8 @@ function readLocaleFile(locale: string, file: string): Record<string, string> {
 const UI_FILES = readdirSync(join(LOCALES_DIR, DEFAULT_LOCALE)).filter((f) => f.endsWith(".json"));
 /** 名稱對照檔：只有非預設語系才有，預設語系的名稱就在 manifest */
 const NAME_FILES = ["layers.json", "themes.json", "qualifiers.json", "enums.json", "popupHeaders.json"];
+/** 名稱對照檔也可依主題拆：enums.<domain>.json（只在外文語系） */
+const isNameFile = (file: string) => NAME_FILES.includes(file) || /^enums\.[\w-]+\.json$/.test(file);
 
 describe("locale parity", () => {
   it("每個支援語系都有資料夾", () => {
@@ -52,8 +55,9 @@ describe("locale parity", () => {
     }
   });
 
-  it("每個 zh-TW 介面字串檔都接上 key 型別（src/i18n/keys.ts）", () => {
-    expect([...UI_FILES].sort()).toEqual([...TYPED_MESSAGE_FILES].sort());
+  it("keys.generated.ts 是最新的（改了 zh-TW JSON 請跑 npx tsx scripts/i18n/gen-keys.ts）", () => {
+    const root = join(__dirname, "..", "..", "..");
+    expect(readFileSync(join(root, "src/i18n/keys.generated.ts"), "utf8")).toBe(renderKeysModule(root));
   });
 
   it("沒有沒人用的 key（動態命名空間除外）", () => {
@@ -62,7 +66,8 @@ describe("locale parity", () => {
       for (const name of readdirSync(dir, { withFileTypes: true })) {
         const full = join(dir, name.name);
         if (name.isDirectory()) { if (name.name !== "locales") walk(full); }
-        else if (/\.(ts|tsx)$/.test(name.name) && !/\.test\.tsx?$/.test(name.name)) sources.push(readFileSync(full, "utf8"));
+        // keys.generated.ts 列出所有 key，算進去會讓每個 key 都像「有人用」
+        else if (/\.(ts|tsx)$/.test(name.name) && !/\.test\.tsx?$/.test(name.name) && name.name !== "keys.generated.ts") sources.push(readFileSync(full, "utf8"));
       }
     };
     walk(join(__dirname, "..", ".."));
@@ -82,7 +87,7 @@ describe("locale parity", () => {
   });
 
   it("預設語系不放名稱對照檔（中文名以 manifest 為準）", () => {
-    for (const file of NAME_FILES) expect(UI_FILES).not.toContain(file);
+    expect(UI_FILES.filter(isNameFile)).toEqual([]);
   });
 
   it("layers.json 只能用 manifest 上存在、有名稱的 key", () => {

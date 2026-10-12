@@ -1,0 +1,12 @@
+{
+  "enum.fireIsochrone.5": "5 minutes (golden rescue time)",
+  "enum.fireIsochrone.10": "10 minutes (Fire Agency KPI)",
+  "enum.fireIsochrone.15": "15 minutes (edge of reach)",
+  "enum.fireStationType.大隊": "Battalion",
+  "enum.fireStationType.分隊": "Fire company",
+  "enum.fireStationType.分駐所": "Substation",
+  "enum.fireStationType.其他": "Other",
+  "enum.fireHydrantType.地上式": "Above-ground",
+  "enum.fireHydrantType.地下式": "Underground",
+  "enum.fireHydrantType.其他": "Other"
+}

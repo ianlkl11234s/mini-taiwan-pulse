@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { RADIUS, FONT_SIZE, COLORS } from "../../styles/designTokens";
 import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES, CULTURE_MISSING_COLOR,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -11,18 +12,19 @@ import { fetchLibrarySeats24h, type LibrarySeatArea } from "../../data/librarySe
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 
 /** 整數場次數（非有限值回空字串，Row 對空值自動隱藏） */
-function intOrEmpty(v: unknown): string {
+function intOrEmpty(v: unknown, fmt: (n: number) => string): string {
   const n = Number(v);
-  return Number.isFinite(n) ? n.toLocaleString() : "";
+  return Number.isFinite(n) ? fmt(n) : "";
 }
 
 /** 文化設施（787 點）：名稱 + 類型（染色）+ 城市 + 地址 */
 export function CulturalFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const type = String(props.facility_type ?? "");
   const color = CULTURAL_FACILITY_TYPES.find((c) => c.name === type)?.color ?? CULTURE_MISSING_COLOR;
   return (
     <>
-      <Title color={color}>{String(props.name ?? "文化設施")}</Title>
+      <Title color={color}>{String(props.name ?? t("popup.culture.facilityFallback"))}</Title>
       <Row field="type" value={type} color={color} />
       <Row field="city" value={String(props.city ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
@@ -32,11 +34,12 @@ export function CulturalFacilitiesPanel({ props }: { props: Record<string, unkno
 
 /** 地方文化館（252 點）：名稱 + 類型（染色）+ 城市 + 地址 + 官網（純文字） */
 export function CulturalMuseumsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const type = String(props.type ?? "");
   const color = CULTURAL_MUSEUM_TYPES.find((c) => c.name === type)?.color ?? CULTURE_MISSING_COLOR;
   return (
     <>
-      <Title color={color}>{String(props.name ?? "地方文化館")}</Title>
+      <Title color={color}>{String(props.name ?? t("popup.culture.museumFallback"))}</Title>
       <Row field="type" value={type} color={color} />
       <Row field="city" value={String(props.city ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
@@ -55,20 +58,21 @@ function cultureTodayStr(): string {
  * category 為原始代碼字串（"1"-"19"，無官方名稱對照）→ 顯示「類別代碼 N」。
  */
 export function ArtsEventsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const startDate = String(props.start_date ?? "");
   const endDate = String(props.end_date ?? "");
   const ongoing = startDate !== "" && startDate <= cultureTodayStr();
-  const statusLabel = ongoing ? "進行中" : "未開始";
+  const statusLabel = ongoing ? t("popup.culture.ongoing") : t("popup.culture.upcoming");
   const statusColor = ongoing ? ARTS_EVENT_ONGOING_COLOR : ARTS_EVENT_UPCOMING_COLOR;
   const category = String(props.category ?? "");
   const dateRange = startDate && endDate ? `${startDate} ~ ${endDate}` : startDate || endDate;
   return (
     <>
-      <Title color={statusColor}>{String(props.title ?? "藝文活動")}</Title>
+      <Title color={statusColor}>{String(props.title ?? t("popup.culture.eventFallback"))}</Title>
       <Row field="status" value={statusLabel} color={statusColor} />
-      <Row label="類別代碼" value={category} />
+      <Row label={t("popup.culture.categoryCode")} value={category} />
       <Row field="date" value={dateRange} />
-      <Row label="場次時間" value={String(props.show_time ?? "")} />
+      <Row label={t("popup.culture.showTime")} value={String(props.show_time ?? "")} />
       <Row field="place" value={String(props.location_name ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
     </>
@@ -77,13 +81,14 @@ export function ArtsEventsPanel({ props }: { props: Record<string, unknown> }) {
 
 /** 表演場館（857 點）：場館名 + 城市 + 地址 + 活動數 + 場次數 */
 export function PerformingVenuesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
   return (
     <>
-      <Title color={PERFORMING_VENUE_COLOR}>{String(props.venue_name ?? "表演場館")}</Title>
+      <Title color={PERFORMING_VENUE_COLOR}>{String(props.venue_name ?? t("popup.culture.venueFallback"))}</Title>
       <Row field="city" value={String(props.city ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
-      <Row label="活動數" value={intOrEmpty(props.event_count)} />
-      <Row label="場次數" value={intOrEmpty(props.show_count)} />
+      <Row label={t("popup.culture.eventCount")} value={intOrEmpty(props.event_count, formatNumber)} />
+      <Row label={t("popup.culture.showCount")} value={intOrEmpty(props.show_count, formatNumber)} />
     </>
   );
 }
@@ -95,7 +100,8 @@ export function PerformingVenuesPanel({ props }: { props: Record<string, unknown
  */
 export function LibrarySeatsPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const branch = String(props.branch_name ?? "北市圖");
+  const { t: tr, formatDateTime } = useLocale();
+  const branch = String(props.branch_name ?? tr("popup.culture.branchFallback"));
   const allClosed = Number(props.all_closed ?? 0) === 1;
   const openFree = Number(props.open_free ?? 0);
   const openTotal = Number(props.open_total ?? 0);
@@ -152,29 +158,29 @@ export function LibrarySeatsPanel({ props }: { props: Record<string, unknown> })
     <>
       <Title color={headerColor}>{branch}</Title>
       {allClosed ? (
-        <Row field="status" value="休館中" color={LIBRARY_SEATS_COLORS.closed} />
+        <Row field="status" value={tr("popup.culture.closed")} color={LIBRARY_SEATS_COLORS.closed} />
       ) : (
         <>
-          <Row label="開放區" value={`${openCount} / ${areaCount} 區`} color={headerColor} />
-          <Row label="空位" value={`${openFree} / ${openTotal}`} color={headerColor} />
+          <Row label={tr("popup.culture.openAreas")} value={tr("popup.culture.areasValue", { open: openCount, total: areaCount })} color={headerColor} />
+          <Row label={tr("popup.culture.freeSeats")} value={`${openFree} / ${openTotal}`} color={headerColor} />
         </>
       )}
       {obsTs != null && (
         <Row
-          label="觀測時間"
-          value={new Date(obsTs * 1000).toLocaleString("zh-TW", { hour12: false }).slice(5, 16)}
+          field="observedAt"
+          value={formatDateTime(new Date(obsTs * 1000), { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })}
         />
       )}
 
       {/* 各閱覽區明細 */}
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-        各閱覽區（{areaCount}）
+        {tr("popup.culture.areaList", { count: areaCount })}
       </div>
       {areas.map((a) => (
         <Row
           key={a.area_id}
           label={areaLabel(a)}
-          value={a.is_closed ? "休館中" : `${a.free_count} / ${a.total_count}`}
+          value={a.is_closed ? tr("popup.culture.closed") : `${a.free_count} / ${a.total_count}`}
           color={a.is_closed ? LIBRARY_SEATS_COLORS.closed : undefined}
         />
       ))}
@@ -183,7 +189,7 @@ export function LibrarySeatsPanel({ props }: { props: Record<string, unknown> })
       {areas.length > 0 && (
         <>
           <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-            24h 空位趨勢
+            {tr("popup.culture.trend24h")}
           </div>
           <select
             value={selectedAreaId ?? ""}
@@ -196,27 +202,27 @@ export function LibrarySeatsPanel({ props }: { props: Record<string, unknown> })
           >
             {areas.map((a) => (
               <option key={a.area_id} value={a.area_id} style={{ background: "#1a1a1a" }}>
-                {areaLabel(a)}{a.is_closed ? "（休館）" : ""}
+                {areaLabel(a)}{a.is_closed ? tr("popup.culture.closedSuffix") : ""}
               </option>
             ))}
           </select>
           {loadingTs ? (
             <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
-              載入中…
+              {tr("popup.common.loading")}
             </div>
           ) : (
-            <TimeseriesSparkline data={series} unit="空位" lineColor={LIBRARY_SEATS_COLORS.full} height={120} />
+            <TimeseriesSparkline data={series} unit={tr("popup.culture.freeSeats")} lineColor={LIBRARY_SEATS_COLORS.full} height={120} />
           )}
           {hasClosedGap && (
             <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
-              閉館時段不顯示
+              {tr("popup.culture.closedGap")}
             </div>
           )}
         </>
       )}
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
-        臺北市立圖書館 · 資料 10 分鐘更新
+        {tr("popup.culture.librarySource")}
       </div>
     </>
   );

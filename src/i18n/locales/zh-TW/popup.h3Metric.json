@@ -1,0 +1,13 @@
+{
+  "popup.h3Metric.cellNote": "H3 六邊形網格單元 · 數值為該格聚合值",
+  "popup.h3Metric.popCount": "人口數網格",
+  "popup.h3Metric.dayNight": "日夜人口網格",
+  "popup.h3Metric.indicators": "人口指標網格",
+  "popup.h3Metric.socio": "社經指標網格",
+  "popup.h3Metric.spatial": "空間經濟網格",
+  "popup.h3Metric.youbikeTitle": "YouBike 有車率",
+  "popup.h3Metric.bikeAvailability": "有車率",
+  "popup.h3Metric.avgRacks": "平均車柱數",
+  "popup.h3Metric.racksValue": "{value} 柱",
+  "popup.h3Metric.youbikeNote": "H3 六邊形網格單元 · 該格所有站點平均"
+}

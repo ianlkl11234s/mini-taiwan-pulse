@@ -1,0 +1,21 @@
+{
+  "popup.religion.osmNote": "ⓘ Crowdsourced OpenStreetMap data, © OpenStreetMap contributors (ODbL)",
+  "popup.religion.unnamedTemple": "Unnamed temple",
+  "popup.religion.mainDeity": "Main deity",
+  "popup.religion.deityFamily": "Deity group",
+  "popup.religion.religionType": "Religion type",
+  "popup.religion.registryStatus": "Registration status",
+  "popup.religion.heritage": "Cultural heritage",
+  "popup.religion.top100": "Top 100 religious sites",
+  "popup.religion.coordSource": "Coordinate source: {value} (not original coordinates; location is estimated)",
+  "popup.religion.unnamedChurch": "Unnamed church",
+  "popup.religion.ancestralHall": "Ancestral hall",
+  "popup.religion.heritageGrade": "Heritage grade",
+  "popup.religion.foundation": "Religious foundation",
+  "popup.religion.unnamedWorship": "Unnamed place of worship",
+  "popup.religion.religion": "Religion",
+  "popup.religion.denomination": "Denomination",
+  "popup.religion.religiousSite": "Religious site",
+  "popup.religion.mapSymbolNote": "This point comes from a map symbol; no official name is provided.",
+  "popup.religion.openWikidata": "Open Wikidata ↗"
+}

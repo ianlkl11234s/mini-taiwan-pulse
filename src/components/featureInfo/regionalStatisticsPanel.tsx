@@ -1,4 +1,7 @@
 import { Row } from './shared';
+import { useLocale } from '../../state/localeStore';
+import { enumLabel } from '../../i18n/dataText';
+import type { LocaleSnapshot } from "../../state/localeStore";
 import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 
 const INPUT_LABELS: Record<string, string> = {
@@ -9,18 +12,21 @@ const INPUT_LABELS: Record<string, string> = {
   denominator_population: '分母人口', population: '分母人口', heads: '在養頭／隻數', farms: '飼養場數',
   source_participation_rate_pct: '來源勞動力參與率（%）',
 };
-function inputValue(value: unknown): string {
-  if (typeof value === 'number') return value.toLocaleString('zh-TW', {maximumFractionDigits: 4});
+function inputValue(value: unknown, i18n: LocaleSnapshot): string {
+  const { t, formatNumber } = i18n;
+  if (typeof value === 'number') return formatNumber(value, {maximumFractionDigits: 4});
   if (value && typeof value === 'object') {
     const row = value as Record<string, unknown>;
-    if (row.status === 'observed' && typeof row.value === 'number') return inputValue(row.value);
-    if (row.status) return `無可計算數值（${row.source_token || row.status}）`;
+    if (row.status === 'observed' && typeof row.value === 'number') return inputValue(row.value, i18n);
+    if (row.status) return t('popup.regionalStatistics.notComputable', { value: String(row.source_token || row.status) });
   }
-  return String(value ?? '無資料');
+  return String(value ?? t('popup.common.noData'));
 }
 
 
 export function RegionalStatisticsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   let format = props.format;
   if (typeof format === 'string') { try { format = JSON.parse(format); } catch { format = undefined; } }
   let inputs = props.inputs;
@@ -29,34 +35,34 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
   const observed = props.status === 'observed' && typeof props.value === 'number';
   // 地檢署轄區（area_code PD_xxx）不是行政區：名稱用地檢署全銜，另列涵蓋縣市，避免被讀成縣市。
   const prosecutorDistrict = typeof props.area_code === 'string' && props.area_code.startsWith('PD_');
-  const missingLabel = props.status === 'suppressed' ? '遮蔽 suppressed（*）'
-    : props.source_status === 'not_reported' ? '未報告 not_reported（-）'
-      : `缺資料（${props.status ?? 'missing'}）`;
+  const missingLabel = props.status === 'suppressed' ? t('popup.regionalStatistics.suppressed')
+    : props.source_status === 'not_reported' ? t('popup.regionalStatistics.notReported')
+      : t('popup.regionalStatistics.missingData', { status: String(props.status ?? 'missing') });
   return <>
-    <Row label={prosecutorDistrict ? '地檢署轄區' : '區域'} value={String(props.area_name ?? props.area_code ?? '—')} />
-    {prosecutorDistrict && <Row label="轄區涵蓋縣市" value={`${String(props.counties ?? '—')}${typeof props.township_count === 'number' ? `（${props.township_count} 個鄉鎮市區）` : ''}`} />}
-    {prosecutorDistrict && <Row field="caution" value="地檢署轄區≠縣市；歷年數值都畫在 115 年現行轄區上" />}
-    <Row label="統計指標" value={String(props.indicator_name ?? '—')} />
-    <Row label="數值" value={observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit ?? ''}` : `${missingLabel}，不等於 0`} />
-    {props.source_status != null && <Row label="來源狀態" value={String(props.source_status)} />}
-    {props.source_token != null && <Row label="來源原值" value={String(props.source_token)} />}
-    {props.missing_reason != null && <Row label="缺值原因" value={String(props.missing_reason)} />}
-    <Row label="資料期別" value={String(props.period_label ?? props.release_id ?? '—')} />
-    {props.location_semantics != null && <Row label="位置口徑" value={humanizeStatisticsText(String(props.location_semantics))} />}
+    <Row label={prosecutorDistrict ? t('popup.regionalStatistics.prosecutorDistrict') : t('popup.field.region')} value={String(props.area_name ?? props.area_code ?? '—')} />
+    {prosecutorDistrict && <Row label={t('popup.regionalStatistics.coveredCounties')} value={`${String(props.counties ?? '—')}${typeof props.township_count === 'number' ? t('popup.regionalStatistics.townshipCount', { count: props.township_count }) : ''}`} />}
+    {prosecutorDistrict && <Row field="caution" value={t('popup.regionalStatistics.prosecutorCaution')} />}
+    <Row label={t('popup.regionalStatistics.indicator')} value={String(props.indicator_name ?? '—')} />
+    <Row label={t('popup.regionalStatistics.value')} value={observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit ?? ''}` : t('popup.regionalStatistics.notZero', { label: missingLabel })} />
+    {props.source_status != null && <Row label={t('popup.regionalStatistics.sourceStatus')} value={String(props.source_status)} />}
+    {props.source_token != null && <Row label={t('popup.regionalStatistics.sourceToken')} value={String(props.source_token)} />}
+    {props.missing_reason != null && <Row label={t('popup.regionalStatistics.missingReason')} value={String(props.missing_reason)} />}
+    <Row label={t('popup.regionalStatistics.period')} value={String(props.period_label ?? props.release_id ?? '—')} />
+    {props.location_semantics != null && <Row label={t('popup.regionalStatistics.locationBasis')} value={humanizeStatisticsText(String(props.location_semantics))} />}
     {props.disclosure != null && <Row field="dataLimits" value={humanizeStatisticsText(String(props.disclosure))} />}
-    {props.comparison_formula != null && <Row label="計算方式" value={String(props.comparison_formula)} />}
-    {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={INPUT_LABELS[key]!} value={inputValue(value)} />)}
-    {props.interpretation != null && <Row label="如何理解" value={String(props.interpretation)} />}
-    {props.time_caveat != null && <Row label="時間口徑" value={String(props.time_caveat)} />}
-    <Row label={prosecutorDistrict ? '轄區代碼' : '行政區代碼'} value={String(props.area_code ?? '—')} />
-    <Row label="參考邊界" value={props.boundary_version == null ? '—' : boundaryVersionLabel(props.boundary_version)} />
-    {props.boundary_semantics != null && <Row label="邊界角色" value={humanizeStatisticsText(String(props.boundary_semantics))} />}
-    {props.source_statistical_boundary_version != null && <Row label="統計參考版" value={boundaryVersionLabel(props.source_statistical_boundary_version)} />}
-    {props.availability != null && <Row label="資料可用狀態" value={statisticsAvailabilityLabel(String(props.availability))} />}
-    {props.coverage_status != null && <Row label="覆蓋狀態" value={String(props.coverage_status)} />}
-    {props.coverage_numerator != null && props.coverage_denominator != null && <Row label="覆蓋筆數" value={`${String(props.coverage_numerator)}／${String(props.coverage_denominator)}`} />}
-    {props.method_version != null && <Row label="處理版本" value={String(props.method_version)} />}
-    {props.raw_sha256 != null && <Row label="原始 SHA-256" value={String(props.raw_sha256)} />}
+    {props.comparison_formula != null && <Row label={t('popup.regionalStatistics.formula')} value={String(props.comparison_formula)} />}
+    {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={enumLabel('regionalStatisticsInput', key, INPUT_LABELS[key]!, i18n)} value={inputValue(value, i18n)} />)}
+    {props.interpretation != null && <Row label={t('popup.regionalStatistics.interpretation')} value={String(props.interpretation)} />}
+    {props.time_caveat != null && <Row label={t('popup.regionalStatistics.timeBasis')} value={String(props.time_caveat)} />}
+    <Row label={prosecutorDistrict ? t('popup.regionalStatistics.prosecutorCode') : t('popup.regionalStatistics.districtCode')} value={String(props.area_code ?? '—')} />
+    <Row label={t('popup.regionalStatistics.refBoundary')} value={props.boundary_version == null ? '—' : boundaryVersionLabel(props.boundary_version)} />
+    {props.boundary_semantics != null && <Row label={t('popup.regionalStatistics.boundaryRole')} value={humanizeStatisticsText(String(props.boundary_semantics))} />}
+    {props.source_statistical_boundary_version != null && <Row label={t('popup.regionalStatistics.statRefVersion')} value={boundaryVersionLabel(props.source_statistical_boundary_version)} />}
+    {props.availability != null && <Row label={t('popup.regionalStatistics.availability')} value={statisticsAvailabilityLabel(String(props.availability))} />}
+    {props.coverage_status != null && <Row label={t('popup.regionalStatistics.coverageStatus')} value={String(props.coverage_status)} />}
+    {props.coverage_numerator != null && props.coverage_denominator != null && <Row label={t('popup.regionalStatistics.coverageCount')} value={`${String(props.coverage_numerator)}／${String(props.coverage_denominator)}`} />}
+    {props.method_version != null && <Row label={t('popup.regionalStatistics.methodVersion')} value={String(props.method_version)} />}
+    {props.raw_sha256 != null && <Row label={t('popup.regionalStatistics.rawSha')} value={String(props.raw_sha256)} />}
     <Row field="source" value={String(props.publisher ?? '—')} />
   </>;
 }

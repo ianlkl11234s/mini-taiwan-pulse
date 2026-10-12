@@ -2,6 +2,9 @@ import { Row, SourceFooter, Title } from "./shared";
 import {
   ANNUAL_DTM_NODATA, ANNUAL_V2_NOTE, LANDSLIDE_LAYER_COLORS, dodRiskColor, highwayCategoryColor, highwayCategoryLabel,
 } from "../../data/landslideTypes";
+import { useLocale } from "../../state/localeStore";
+import { displayRocYear, enumLabel } from "../../i18n/dataText";
+import type { LocaleSnapshot } from "../../state/localeStore";
 
 /**
  * 崩塌 4 層 popup。來源 footer 由 FeatureInfoPanel 統一掛（GeoJSON／省道 PMTiles 已帶
@@ -11,60 +14,66 @@ type Props = { props: Record<string, unknown> };
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
-const fmt = (v: unknown, digits = 0, unit = ""): string => {
+const fmt = (v: unknown, digits: number, unit: string, { formatNumber }: LocaleSnapshot): string => {
   const n = num(v);
-  return n == null ? "" : `${n.toLocaleString("zh-TW", { maximumFractionDigits: digits })}${unit ? ` ${unit}` : ""}`;
+  return n == null ? "" : `${formatNumber(n, { maximumFractionDigits: digits })}${unit ? ` ${unit}` : ""}`;
 };
 /** ISO（+08:00）→「2014-06-05 06:52」；不經瀏覽器時區轉換。 */
 const localTime = (v: unknown): string => str(v).replace("T", " ").slice(0, 16);
 const admin = (props: Record<string, unknown>) => [props.county, props.town, props.village].map(str).join("");
-const risk = (v: unknown) => (str(v) ? `${str(v)}風險` : "");
+const risk = (v: unknown, i18n: LocaleSnapshot) => (str(v) ? enumLabel("landslideRisk", str(v), `${str(v)}風險`, i18n) : "");
 
 export function LandslideDodAreaPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const color = dodRiskColor(props.risk);
   const dwelling = num(props.dwelling_count);
   return <>
-    <Title color={color}>{str(props.settlement_name) || str(props.lslno) || "大規模崩塌潛勢區"}</Title>
-    <Row label="年度版本" value={str(props.year_roc) ? `${str(props.year_roc)} 年版` : ""} mono />
-    <Row label="風險等級" value={risk(props.risk)} color={color} />
-    <Row label="保全住戶" value={[dwelling != null ? `${dwelling.toLocaleString("zh-TW")} 戶` : "", str(props.res_class)].filter(Boolean).join("（") + (dwelling != null && str(props.res_class) ? "）" : "")} />
-    <Row label="崩塌類型" value={str(props.landslide_type)} />
+    <Title color={color}>{str(props.settlement_name) || str(props.lslno) || t("popup.landslide.dodAreaTitle")}</Title>
+    <Row label={t("popup.landslide.yearVersion")} value={str(props.year_roc) ? t("popup.landslide.yearEdition", { year: displayRocYear(str(props.year_roc), i18n) }) : ""} mono />
+    <Row label={t("popup.landslide.riskLevel")} value={risk(props.risk, i18n)} color={color} />
+    <Row label={t("popup.landslide.residents")} value={[dwelling != null ? t("popup.landslide.households", { count: dwelling, value: formatNumber(dwelling) }) : "", str(props.res_class)].filter(Boolean).join("（") + (dwelling != null && str(props.res_class) ? "）" : "")} />
+    <Row label={t("popup.landslide.type")} value={str(props.landslide_type)} />
     <Row field="district" value={admin(props)} />
-    <Row label="地標" value={str(props.landmark)} />
-    <Row label="聯外道路" value={str(props.road_name)} />
+    <Row label={t("popup.landslide.landmark")} value={str(props.landmark)} />
+    <Row label={t("popup.landslide.accessRoad")} value={str(props.road_name)} />
     <Row field="basin" value={[props.basin, props.sub_basin].map(str).filter(Boolean).join("／")} />
-    <Row field="area" value={fmt(props.geom_area_ha, 2, "公頃")} />
+    <Row field="area" value={fmt(props.geom_area_ha, 2, t("popup.landslide.unitHectare"), i18n)} />
     <Row field="number" value={str(props.lslno)} mono />
     <Row field="authority" value={str(props.authority)} />
   </>;
 }
 
 export function LandslideDodImpactPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const color = dodRiskColor(props.risk);
   return <>
-    <Title color={color}>{`大規模崩塌影響範圍 ${str(props.lslno)}`.trim()}</Title>
-    <Row label="年度版本" value={str(props.year_roc) ? `${str(props.year_roc)} 年版` : ""} mono />
-    <Row label="風險等級" value={risk(props.risk)} color={color} />
-    <Row label="保全戶數" value={fmt(props.total_res, 0, "戶")} />
-    <Row label="戶數級距" value={str(props.res_class)} />
+    <Title color={color}>{t("popup.landslide.dodImpactTitle", { code: str(props.lslno) }).trim()}</Title>
+    <Row label={t("popup.landslide.yearVersion")} value={str(props.year_roc) ? t("popup.landslide.yearEdition", { year: displayRocYear(str(props.year_roc), i18n) }) : ""} mono />
+    <Row label={t("popup.landslide.riskLevel")} value={risk(props.risk, i18n)} color={color} />
+    <Row label={t("popup.landslide.householdsCount")} value={fmt(props.total_res, 0, t("popup.landslide.unitHousehold"), i18n)} />
+    <Row label={t("popup.landslide.householdClass")} value={str(props.res_class)} />
     <Row field="district" value={admin(props)} />
-    <Row field="area" value={fmt(props.geom_area_ha, 2, "公頃")} />
+    <Row field="area" value={fmt(props.geom_area_ha, 2, t("popup.landslide.unitHectare"), i18n)} />
     <Row field="authority" value={str(props.authority)} />
   </>;
 }
 
 export function HighwayDisasterPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const color = highwayCategoryColor(props.category_group);
   return <>
-    <Title color={color}>{`${str(props.route)} ${str(props.category_sub) || highwayCategoryLabel(props.category_group)}`.trim()}</Title>
+    <Title color={color}>{`${str(props.route)} ${str(props.category_sub) || enumLabel("landslideHighwayGroup", String(props.category_group ?? "other"), highwayCategoryLabel(props.category_group), i18n)}`.trim()}</Title>
     <Row field="category" value={[props.category_main, props.category_sub].map(str).filter(Boolean).join("・")} color={color} />
     <Row field="location" value={str(props.location_text)} />
-    <Row label="通報時間" value={localTime(props.reported_at)} mono />
-    <Row label="解除時間" value={localTime(props.released_at)} mono />
-    <Row label="通報性質" value={str(props.report_category)} />
-    <Row label="事件" value={str(props.event_name)} />
-    <Row label="原因" value={str(props.cause)} />
-    <Row label="養護單位" value={str(props.agency_section)} />
+    <Row label={t("popup.landslide.reportedAt")} value={localTime(props.reported_at)} mono />
+    <Row label={t("popup.landslide.releasedAt")} value={localTime(props.released_at)} mono />
+    <Row label={t("popup.landslide.reportCategory")} value={str(props.report_category)} />
+    <Row label={t("popup.landslide.event")} value={str(props.event_name)} />
+    <Row label={t("popup.landslide.cause")} value={str(props.cause)} />
+    <Row label={t("popup.landslide.maintenanceUnit")} value={str(props.agency_section)} />
   </>;
 }
 
@@ -75,15 +84,17 @@ const ANNUAL_SOURCE = {
 };
 
 export function LandslideAnnualPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const year = num(props.year);
   const dtm = num(props.min_dtm);
   return <>
-    <Title color={LANDSLIDE_LAYER_COLORS.landslideAnnual}>{year != null ? `${year} 年崩塌地` : "年度崩塌地"}</Title>
-    <Row field="area" value={fmt(props.area_ha, 2, "公頃")} />
-    <Row label="坡度" value={fmt(props.slope, 1, "度")} />
-    <Row label="最低高程（DTM）" value={dtm == null ? "" : dtm === ANNUAL_DTM_NODATA ? "缺（無高程值）" : fmt(dtm, 0, "公尺")} />
-    <Row label="影像日期" value={str(props.image_date)} mono />
-    {year === 2024 && <Row label="版本" value={ANNUAL_V2_NOTE} />}
-    <SourceFooter props={{ ...ANNUAL_SOURCE, fetched_at: year != null ? `${year} 年版` : "" }} />
+    <Title color={LANDSLIDE_LAYER_COLORS.landslideAnnual}>{year != null ? t("popup.landslide.annualTitleYear", { year }) : t("popup.landslide.annualTitle")}</Title>
+    <Row field="area" value={fmt(props.area_ha, 2, t("popup.landslide.unitHectare"), i18n)} />
+    <Row label={t("popup.landslide.slope")} value={fmt(props.slope, 1, t("popup.landslide.unitDegree"), i18n)} />
+    <Row label={t("popup.landslide.minDtm")} value={dtm == null ? "" : dtm === ANNUAL_DTM_NODATA ? t("popup.landslide.dtmMissing") : fmt(dtm, 0, t("popup.landslide.unitMeter"), i18n)} />
+    <Row label={t("popup.landslide.imageDate")} value={str(props.image_date)} mono />
+    {year === 2024 && <Row field="version" value={enumLabel("landslideNote", "annualV2", ANNUAL_V2_NOTE, i18n)} />}
+    <SourceFooter props={{ source_org: enumLabel("landslideSource", "annualOrg", ANNUAL_SOURCE.source_org, i18n), license: enumLabel("landslideSource", "annualLicense", ANNUAL_SOURCE.license, i18n), fetched_at: year != null ? t("popup.landslide.yearEdition", { year: displayRocYear(year, i18n) }) : "" }} />
   </>;
 }

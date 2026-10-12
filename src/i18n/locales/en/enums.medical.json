@@ -1,0 +1,15 @@
+{
+  "enum.medicalLtc.A": "A Community-integrated",
+  "enum.medicalLtc.B": "B Composite",
+  "enum.medicalLtc.C": "C Neighborhood care station",
+  "enum.medicalIsochrone.le5": "Within 5 min",
+  "enum.medicalIsochrone.le10": "Within 10 min",
+  "enum.medicalIsochrone.le15": "Within 15 min",
+  "enum.medicalIsochrone.over15": ">15 min (medical desert)",
+  "enum.medicalNote.isochrone": "Estimated on the driving road network (OSRM); ambulance right-of-way not included",
+  "enum.erLevel.smooth": "Normal",
+  "enum.erLevel.light": "Slightly crowded",
+  "enum.erLevel.congested": "Crowded",
+  "enum.erLevel.severe": "Severe",
+  "enum.erLevel.nodata": "No data"
+}

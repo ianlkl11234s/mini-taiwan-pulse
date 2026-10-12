@@ -1,0 +1,17 @@
+{
+  "enum.regionalStatisticsInput.official_complete_county_sum": "Sum of the 22 counties/cities in the same category",
+  "enum.regionalStatisticsInput.numerator": "Numerator",
+  "enum.regionalStatisticsInput.denominator": "Denominator",
+  "enum.regionalStatisticsInput.numerator_hectares": "Same-category area (ha)",
+  "enum.regionalStatisticsInput.denominator_hectares": "Administrative area (ha)",
+  "enum.regionalStatisticsInput.admin_area_km2": "Administrative area (km²)",
+  "enum.regionalStatisticsInput.local_category_ha": "Local same-category area (ha)",
+  "enum.regionalStatisticsInput.local_admin_ha": "Local administrative area (ha)",
+  "enum.regionalStatisticsInput.national_category_ha": "National same-category area (ha)",
+  "enum.regionalStatisticsInput.national_admin_ha": "National administrative area (ha)",
+  "enum.regionalStatisticsInput.denominator_population": "Denominator population",
+  "enum.regionalStatisticsInput.population": "Denominator population",
+  "enum.regionalStatisticsInput.heads": "Livestock headcount",
+  "enum.regionalStatisticsInput.farms": "Number of farms",
+  "enum.regionalStatisticsInput.source_participation_rate_pct": "Source labor force participation rate (%)"
+}

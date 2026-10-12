@@ -1,0 +1,19 @@
+{
+  "popup.pollution.maxSeverity": "最高嚴重度",
+  "popup.pollution.facilityNote": "「環保列管對象」× 裁處紀錄推得之污染潛勢；列管 ≠ 污染。",
+  "popup.pollution.penalized": "受罰對象",
+  "popup.pollution.medium": "介質",
+  "popup.pollution.tier": "分層",
+  "popup.pollution.illegalGain": "不法利得",
+  "popup.pollution.continuous": "連續處罰",
+  "popup.pollution.stopOrder": "停工/勒令等",
+  "popup.pollution.improveStatus": "改善狀態",
+  "popup.pollution.geocodeMethod": "定位方式：{value}",
+  "popup.pollution.siteName": "場址名稱",
+  "popup.pollution.controlType": "控制類別",
+  "popup.pollution.announceDate": "公告日期",
+  "popup.pollution.pollutant": "污染物",
+  "popup.pollution.stillControlled": "仍列管中",
+  "popup.pollution.released": "已解除列管",
+  "popup.pollution.siteNote": "EMS_S_07 確認污染場址（嚴重度 S4）。"
+}

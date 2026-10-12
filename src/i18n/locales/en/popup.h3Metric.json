@@ -1,0 +1,13 @@
+{
+  "popup.h3Metric.cellNote": "H3 hexagonal grid cell · value is the aggregate for the cell",
+  "popup.h3Metric.popCount": "Population grid",
+  "popup.h3Metric.dayNight": "Day/night population grid",
+  "popup.h3Metric.indicators": "Demographic indicator grid",
+  "popup.h3Metric.socio": "Socioeconomic indicator grid",
+  "popup.h3Metric.spatial": "Spatial economy grid",
+  "popup.h3Metric.youbikeTitle": "YouBike bike availability",
+  "popup.h3Metric.bikeAvailability": "Bike availability",
+  "popup.h3Metric.avgRacks": "Average rack count",
+  "popup.h3Metric.racksValue": "{value} racks",
+  "popup.h3Metric.youbikeNote": "H3 hexagonal grid cell · average of all stations in the cell"
+}

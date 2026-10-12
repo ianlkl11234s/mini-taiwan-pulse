@@ -1,0 +1,21 @@
+{
+  "popup.coralReef.title": "Historical coral reefs",
+  "popup.coralReef.reefName": "Reef name",
+  "popup.coralReef.featureId": "Feature ID",
+  "popup.coralReef.observedYear": "Observation year",
+  "popup.coralReef.sourceArea": "Full source feature area",
+  "popup.coralReef.geometryStatus": "Geometry status",
+  "popup.coralReef.geometryDefinition": "Geometry definition",
+  "popup.coralReef.builtAt": "Build time",
+  "popup.coralReef.note": "Historical baseline, not current health, live coral cover, or bleaching. area_km2 is the area of the full global source feature, not the Taiwan subset, and must not be summed; intersecting this view does not equal reef area within an administrative boundary.",
+  "popup.coralReef.sourceDetails": "Source details",
+  "popup.coralReef.originalCompiler": "Original compiler",
+  "popup.coralReef.distributor": "Distributed by",
+  "popup.coralReef.metadataId": "Metadata ID",
+  "popup.coralReef.startDate": "Start date",
+  "popup.coralReef.endDate": "End date",
+  "popup.coralReef.dateType": "Date type",
+  "popup.coralReef.dataType": "Data type",
+  "popup.coralReef.sourceVerification": "Source verification",
+  "popup.coralReef.sourceLayer": "Source layer"
+}

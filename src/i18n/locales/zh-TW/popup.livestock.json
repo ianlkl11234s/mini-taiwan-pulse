@@ -1,0 +1,12 @@
+{
+  "popup.livestock.farmFallback": "畜禽飼養場",
+  "popup.livestock.mainSpecies": "主畜種",
+  "popup.livestock.totalHeads": "總隻數",
+  "popup.livestock.speciesDetail": "種類明細",
+  "popup.livestock.lowPrecision": "低（僅段/村里中心，非精確場址）",
+  "popup.livestock.slaughterFallback": "屠宰場",
+  "popup.livestock.kind": "種類",
+  "popup.livestock.feedFallback": "飼料廠",
+  "popup.livestock.ban": "統編 BAN",
+  "popup.livestock.marketFallback": "拍賣/批發市場"
+}

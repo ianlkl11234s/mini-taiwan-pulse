@@ -1,6 +1,9 @@
 import { Row } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import type { StaticMessageKey } from "../../i18n/keys";
 
 type PanelProps = { props: Record<string, unknown> };
 
@@ -68,11 +71,13 @@ const SPEED_CAM_ZH: Record<string, string> = {
 
 // ── 警政 ──
 export function PoliceStationPanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const sub = String(props.facility_subtype ?? "");
   return (
     <>
-      <Header color="#1e40af" name={String(props.name ?? "警察機關")} />
-      <Row field="type" value={POLICE_SUBTYPE_ZH[sub] ?? sub} />
+      <Header color="#1e40af" name={String(props.name ?? t("popup.policeJustice.policeDefault"))} />
+      <Row field="type" value={POLICE_SUBTYPE_ZH[sub] ? enumLabel("policeSubtype", sub, POLICE_SUBTYPE_ZH[sub], i18n) : sub} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
     </>
@@ -80,38 +85,42 @@ export function PoliceStationPanel({ props }: PanelProps) {
 }
 
 export function WomenChildWarningPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   return (
     <>
-      <Header color="#ec4899" name={String(props.name ?? "婦幼警示點")} />
+      <Header color="#ec4899" name={String(props.name ?? t("popup.policeJustice.womenChildDefault"))} />
       <Row field="address" value={String(props.address ?? "")} />
-      <Row label="分局" value={String(props.branch ?? "")} />
-      <Row label="承辦" value={String(props.contact ?? "")} />
+      <Row label={t("popup.policeJustice.branch")} value={String(props.branch ?? "")} />
+      <Row label={t("popup.policeJustice.contact")} value={String(props.contact ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
     </>
   );
 }
 
 export function SpeedCameraPanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const sub = String(props.facility_subtype ?? "");
   return (
     <>
-      <Header color="#dc2626" name={SPEED_CAM_ZH[sub] ?? "測速照相"} />
+      <Header color="#dc2626" name={SPEED_CAM_ZH[sub] ? enumLabel("speedCamera", sub, SPEED_CAM_ZH[sub], i18n) : t("popup.policeJustice.speedCameraDefault")} />
       <Row field="place" value={String(props.address ?? "")} />
       <Row field="direction" value={String(props.direction ?? "")} />
-      <Row label="限速" value={props.limit_kph ? `${props.limit_kph} km/h` : ""} />
+      <Row label={t("popup.policeJustice.speedLimit")} value={props.limit_kph ? `${props.limit_kph} km/h` : ""} />
       <Row field="county" value={`${String(props.city ?? "")} ${String(props.region ?? "")}`.trim()} />
-      <Row label="分局" value={String(props.branch ?? "")} />
+      <Row label={t("popup.policeJustice.branch")} value={String(props.branch ?? "")} />
     </>
   );
 }
 
 export function SpeedZoneSegmentPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   return (
     <>
-      <Header color="#b91c1c" name="區間測速路段" />
+      <Header color="#b91c1c" name={t("popup.policeJustice.speedZoneTitle")} />
       <Row field="location" value={String(props.location ?? "")} />
-      <Row label="限速" value={String(props.limit_kph ?? "")} />
-      <Row label="取締項目" value={String(props.enforcement_item ?? "")} />
+      <Row label={t("popup.policeJustice.speedLimit")} value={String(props.limit_kph ?? "")} />
+      <Row label={t("popup.policeJustice.enforcementItem")} value={String(props.enforcement_item ?? "")} />
       <Row field="county" value={String(props.city ?? "")} />
     </>
   );
@@ -119,11 +128,13 @@ export function SpeedZoneSegmentPanel({ props }: PanelProps) {
 
 // ── 司法矯正 ──
 export function CourtPanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const ct = String(props.court_type ?? "");
   return (
     <>
-      <Header color="#7c3aed" name={String(props.name ?? "法院")} />
-      <Row field="type" value={COURT_TYPE_ZH[ct] ?? ct} />
+      <Header color="#7c3aed" name={String(props.name ?? t("popup.policeJustice.courtDefault"))} />
+      <Row field="type" value={COURT_TYPE_ZH[ct] ? enumLabel("courtType", ct, COURT_TYPE_ZH[ct], i18n) : ct} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
       <Row field="website" value={String(props.url ?? "")} />
@@ -132,11 +143,13 @@ export function CourtPanel({ props }: PanelProps) {
 }
 
 export function ProsecutorsOfficePanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const pt = String(props.pros_type ?? "");
   return (
     <>
-      <Header color="#a855f7" name={String(props.name ?? "檢察署")} />
-      <Row field="type" value={PROS_TYPE_ZH[pt] ?? pt} />
+      <Header color="#a855f7" name={String(props.name ?? t("popup.policeJustice.prosecutorDefault"))} />
+      <Row field="type" value={PROS_TYPE_ZH[pt] ? enumLabel("prosecutorType", pt, PROS_TYPE_ZH[pt], i18n) : pt} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
       <Row field="website" value={String(props.url ?? "")} />
@@ -146,32 +159,34 @@ export function ProsecutorsOfficePanel({ props }: PanelProps) {
 
 export function CorrectionalFacilityPanel({ props }: PanelProps) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const ft = String(props.facility_type ?? "");
   return (
     <>
-      <Header color="#374151" name={String(props.name ?? "矯正機關")} />
-      <Row field="type" value={CORRECTIONAL_TYPE_ZH[ft] ?? String(props.nature_zh ?? ft)} />
+      <Header color="#374151" name={String(props.name ?? i18n.t("popup.policeJustice.correctionalDefault"))} />
+      <Row field="type" value={CORRECTIONAL_TYPE_ZH[ft] ? enumLabel("correctionalType", ft, CORRECTIONAL_TYPE_ZH[ft], i18n) : String(props.nature_zh ?? ft)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
       <Row field="website" value={String(props.url ?? "")} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
-        ⓘ 全國在監人數請看右下 Monitor PrisonCard
+        {i18n.t("popup.policeJustice.correctionalNote")}
       </div>
     </>
   );
 }
 
 export function CourtJurisdictionPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   return (
     <>
-      <Header color="#7c3aed" name={`${String(props.county ?? "")} 法院管轄`} />
-      <Row label="地方法院" value={String(props.district_court ?? "")} />
-      <Row label="高等法院" value={String(props.high_court ?? "")} />
-      <Row label="行政法院" value={String(props.admin_court ?? "")} />
-      <Row label="智慧財產" value={String(props.ipc_court ?? "")} />
-      <Row label="少年家事" value={String(props.juvenile_family_court ?? "")} />
-      <Row label="最高法院" value={String(props.supreme_court ?? "")} />
-      <Row label="法源" value={String(props.source_law ?? "")} />
+      <Header color="#7c3aed" name={t("popup.policeJustice.jurisdictionTitle", { county: String(props.county ?? "") })} />
+      <Row label={t("popup.policeJustice.districtCourt")} value={String(props.district_court ?? "")} />
+      <Row label={t("popup.policeJustice.highCourt")} value={String(props.high_court ?? "")} />
+      <Row label={t("popup.policeJustice.adminCourt")} value={String(props.admin_court ?? "")} />
+      <Row label={t("popup.policeJustice.ipCourt")} value={String(props.ipc_court ?? "")} />
+      <Row label={t("popup.policeJustice.juvenileFamilyCourt")} value={String(props.juvenile_family_court ?? "")} />
+      <Row label={t("popup.policeJustice.supremeCourt")} value={String(props.supreme_court ?? "")} />
+      <Row field="legalBasis" value={String(props.source_law ?? "")} />
     </>
   );
 }
@@ -179,6 +194,7 @@ export function CourtJurisdictionPanel({ props }: PanelProps) {
 // ── 治安態勢 ──
 export function CrimeAreaMonthlyPanel({ props }: PanelProps) {
   const t = useFeatureTheme();
+  const { t: tr, active } = useLocale();
   const byType = (() => {
     try {
       const v = props.by_type;
@@ -199,36 +215,41 @@ export function CrimeAreaMonthlyPanel({ props }: PanelProps) {
     .sort(([, a], [, b]) => Number(b) - Number(a))
     .slice(0, 5);
   const years = Object.keys(byYear).map(Number).filter(Number.isFinite).sort();
-  const yrLabel = years.length > 0 ? `民國 ${years[0]} ~ ${years[years.length - 1]}（${years.length} 年累計）` : "";
+  // 年份是民國年；外文介面改西元（+1911）
+  const yrOffset = active === "zh-TW" ? 0 : 1911;
+  const yrLabel = years.length > 0
+    ? tr("popup.policeJustice.crimeYears", { from: years[0]! + yrOffset, to: years[years.length - 1]! + yrOffset, count: years.length })
+    : "";
   return (
     <>
       <Header color="#991b1b" name={`${String(props.county ?? "")} ${String(props.town ?? "")}`} />
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#7f1d1d", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
-        {yrLabel || "11 年累計"}
+        {yrLabel || tr("popup.policeJustice.crimeYearsDefault")}
       </div>
-      <Row label="總事件" value={String(props.total_events ?? "0")} />
+      <Row label={tr("popup.policeJustice.totalEvents")} value={String(props.total_events ?? "0")} />
       {topTypes.length > 0 && (
         <div style={{ marginTop: 6 }}>
-          <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, marginBottom: 2 }}>主要類型 Top 5</div>
+          <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, marginBottom: 2 }}>{tr("popup.policeJustice.topTypes")}</div>
           {topTypes.map(([k, v]) => <Row key={k} label={k} value={String(v)} />)}
         </div>
       )}
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim }}>
-        資料來源：警政署 nid 14200 鄉鎮犯罪資料表（民國 104~115）<br />
-        ⚠ 顯示為累計值，非即時／近期統計
+        {tr("popup.policeJustice.crimeSource")}<br />
+        {tr("popup.policeJustice.cumulativeWarn")}
       </div>
     </>
   );
 }
 
 export function TheftTaoyuanPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   return (
     <>
-      <Header color="#f59e0b" name={String(props.case_type ?? "竊盜事件")} />
+      <Header color="#f59e0b" name={String(props.case_type ?? t("popup.policeJustice.theftDefault"))} />
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#92400e", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
-        2014~2024 年累計（桃園）
+        {t("popup.policeJustice.theftRange")}
       </div>
-      <Row label="年度" value={String(props.year ?? "")} />
+      <Row label={t("popup.policeJustice.year")} value={String(props.year ?? "")} />
       <Row field="date" value={String(props.date ?? "")} />
       <Row field="district" value={String(props.district ?? "")} />
     </>
@@ -236,30 +257,32 @@ export function TheftTaoyuanPanel({ props }: PanelProps) {
 }
 
 export function TrafficAccidentYearlyPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   return (
     <>
-      <Header color="#fb7185" name="A1 死亡事故" />
+      <Header color="#fb7185" name={t("popup.policeJustice.a1Title")} />
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#9f1239", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
-        2025 年度年度累計
+        {t("popup.policeJustice.yearlyBadge")}
       </div>
       <Row field="time" value={`${String(props.date ?? "")} ${String(props.time ?? "")}`.trim()} />
       <Row field="place" value={String(props.location ?? "")} />
-      <Row label="處理單位" value={String(props.agency ?? "")} />
-      <Row label="天氣" value={String(props.weather ?? "")} />
-      <Row label="照明" value={String(props.light ?? "")} />
-      <Row label="道路類別" value={String(props.road_type ?? "")} />
-      <Row label="速限" value={props.speed_limit ? `${props.speed_limit} km/h` : ""} />
+      <Row label={t("popup.policeJustice.agency")} value={String(props.agency ?? "")} />
+      <Row label={t("popup.policeJustice.weather")} value={String(props.weather ?? "")} />
+      <Row label={t("popup.policeJustice.lighting")} value={String(props.light ?? "")} />
+      <Row label={t("popup.policeJustice.roadType")} value={String(props.road_type ?? "")} />
+      <Row field="speedLimit" value={props.speed_limit ? `${props.speed_limit} km/h` : ""} />
     </>
   );
 }
 
 export function AccidentTaipeiPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   const cls = String(props.case_class ?? "");
   return (
     <>
-      <Header color={cls === "1" ? "#dc2626" : "#fda4af"} name={cls === "1" ? "A1 死亡事故" : "A2 受傷事故"} />
+      <Header color={cls === "1" ? "#dc2626" : "#fda4af"} name={cls === "1" ? t("popup.policeJustice.a1Title") : t("popup.policeJustice.a2Title")} />
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#9f1239", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
-        2019~ 多年累計（北市）
+        {t("popup.policeJustice.taipeiBadge")}
       </div>
       <Row field="time" value={String(props.occurred_at ?? "")} />
       <Row field="place" value={String(props.location ?? "")} />
@@ -269,29 +292,30 @@ export function AccidentTaipeiPanel({ props }: PanelProps) {
 
 export function A1AccidentRealtimePanel({ props }: PanelProps) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const ageH = Number(props.age_hours ?? 0);
-  const ageLabel = ageH < 1 ? `${Math.round(ageH * 60)} 分鐘前`
-    : ageH < 24 ? `${ageH.toFixed(1)} 小時前 · 當天`
-    : ageH < 168 ? `${(ageH / 24).toFixed(1)} 天前 · 本週`
-    : `${(ageH / 24).toFixed(0)} 天前`;
+  const ageLabel = ageH < 1 ? tr("popup.policeJustice.ageMinutes", { value: Math.round(ageH * 60) })
+    : ageH < 24 ? tr("popup.policeJustice.ageHoursToday", { value: ageH.toFixed(1) })
+    : ageH < 168 ? tr("popup.policeJustice.ageDaysWeek", { value: (ageH / 24).toFixed(1) })
+    : tr("popup.policeJustice.ageDays", { value: (ageH / 24).toFixed(0) });
   const ageColor = ageH < 24 ? "#ef4444" : ageH < 168 ? "#dc2626" : "#7f1d1d";
   return (
     <>
-      <Header color={ageColor} name="A1 死亡事故" />
+      <Header color={ageColor} name={tr("popup.policeJustice.a1Title")} />
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: ageColor, color: "#fff", fontSize: FONT_SIZE.xs, fontWeight: 600, marginBottom: 6 }}>
         {ageLabel}
       </div>
       <Row field="occurredAt" value={String(props.occurred_at ?? "")} />
       <Row field="place" value={String(props.location ?? "")} />
-      <Row label="處理單位" value={String(props.agency ?? "")} />
-      <Row label="天氣" value={String(props.weather ?? "")} />
-      <Row label="道路類別" value={String(props.road_type ?? "")} />
-      <Row label="肇因大類" value={String(props.cause_main_major ?? "")} />
-      <Row label="肇因子類" value={String(props.cause_main_sub ?? "")} />
-      <Row label="死傷" value={String(props.death_injury ?? "")} />
+      <Row label={tr("popup.policeJustice.agency")} value={String(props.agency ?? "")} />
+      <Row label={tr("popup.policeJustice.weather")} value={String(props.weather ?? "")} />
+      <Row label={tr("popup.policeJustice.roadType")} value={String(props.road_type ?? "")} />
+      <Row label={tr("popup.policeJustice.causeMajor")} value={String(props.cause_main_major ?? "")} />
+      <Row label={tr("popup.policeJustice.causeSub")} value={String(props.cause_main_sub ?? "")} />
+      <Row label={tr("popup.policeJustice.casualties")} value={String(props.death_injury ?? "")} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
-        資料來源：警政署 nid 57023（每 12h 更新）<br />
-        畫面顯示過去 30 天滾動，當天/本週/30 天分桶呈現
+        {tr("popup.policeJustice.a1Source")}<br />
+        {tr("popup.policeJustice.a1Rolling")}
       </div>
     </>
   );
@@ -299,9 +323,10 @@ export function A1AccidentRealtimePanel({ props }: PanelProps) {
 
 // ── 廉政移民海巡 ──
 export function InvestigationBureauPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   return (
     <>
-      <Header color="#0f766e" name={String(props.name ?? "調查局")} />
+      <Header color="#0f766e" name={String(props.name ?? t("popup.policeJustice.investigationDefault"))} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
     </>
@@ -309,79 +334,93 @@ export function InvestigationBureauPanel({ props }: PanelProps) {
 }
 
 export function AntiCorruptionOfficePanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const level = String(props.level ?? "");
   return (
     <>
-      <Header color="#14b8a6" name={String(props.name ?? "廉政")} />
-      <Row field="tier" value={level === "central" ? "中央" : level === "local" ? "地方" : level} />
+      <Header color="#14b8a6" name={String(props.name ?? t("popup.policeJustice.anticorruptionDefault"))} />
+      <Row field="tier" value={level === "central" ? enumLabel("anticorruptionLevel", level, "中央", i18n) : level === "local" ? enumLabel("anticorruptionLevel", level, "地方", i18n) : level} />
       <Row field="address" value={String(props.address ?? "")} />
-      <Row label="檢舉電話" value={String(props.phone1 ?? props.phone ?? "")} />
-      <Row label="檢舉專線" value={String(props.phone2 ?? "")} />
-      <Row label="信箱" value={String(props.email ?? "")} />
+      <Row label={t("popup.policeJustice.reportPhone")} value={String(props.phone1 ?? props.phone ?? "")} />
+      <Row label={t("popup.policeJustice.reportHotline")} value={String(props.phone2 ?? "")} />
+      <Row label={t("popup.policeJustice.email")} value={String(props.email ?? "")} />
     </>
   );
 }
 
 export function ImmigrationOfficePanel({ props }: PanelProps) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   return (
     <>
-      <Header color="#0ea5e9" name={String(props.name ?? "移民署服務站")} />
+      <Header color="#0ea5e9" name={String(props.name ?? tr("popup.policeJustice.immigrationDefault"))} />
       <Row field="englishName" value={String(props.name_en ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
-      <Row label="傳真" value={String(props.fax ?? "")} />
+      <Row label={tr("popup.policeJustice.fax")} value={String(props.fax ?? "")} />
       <Row field="website" value={String(props.url ?? "")} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim }}>
-        資料來源：內政部移民署 opendata.immigration.gov.tw
+        {tr("popup.policeJustice.immigrationSource")}
       </div>
     </>
   );
 }
 
 export function CoastGuardStationPanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const sub = String(props.facility_subtype ?? "");
   return (
     <>
-      <Header color="#0284c7" name={String(props.name ?? "海巡")} />
-      <Row field="type" value={sub === "patrol_station" ? "巡防隊" : sub === "ocean_pier" ? "漁港" : sub} />
-      <Row label="所屬" value={String(props.area ?? "")} />
+      <Header color="#0284c7" name={String(props.name ?? t("popup.policeJustice.coastGuardDefault"))} />
+      <Row field="type" value={sub === "patrol_station" ? enumLabel("coastGuardType", sub, "巡防隊", i18n) : sub === "ocean_pier" ? enumLabel("coastGuardType", sub, "漁港", i18n) : sub} />
+      <Row label={t("popup.policeJustice.affiliation")} value={String(props.area ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
     </>
   );
 }
 
 // ── 警察覆蓋分析 isochrone（共用 panel） ──
-function IsochronePanel({ props, title, color }: PanelProps & { title: string; color: string }) {
+function IsochronePanel({ props, titleKey, color }: PanelProps & { titleKey: StaticMessageKey; color: string }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const cnt = Number(props.overlap_count ?? 0);
   const tier = String(props.tier ?? "");
   const mode = String(props.mode ?? "");
   const mins = String(props.minutes ?? "");
-  const lvl = cnt >= 20 ? "極多重保護" : cnt >= 12 ? "高度重疊" : cnt >= 5 ? "中度重疊" : cnt >= 2 ? "雙重保護" : "單一覆蓋";
+  const lvl = tr(
+    cnt >= 20 ? "popup.policeJustice.overlapExtreme"
+      : cnt >= 12 ? "popup.policeJustice.overlapHigh"
+      : cnt >= 5 ? "popup.policeJustice.overlapMid"
+      : cnt >= 2 ? "popup.policeJustice.overlapDouble"
+      : "popup.policeJustice.overlapSingle",
+  );
+  const tierLabel = tr(tier === "substation" ? "popup.policeJustice.tierSubstation" : tier === "precinct" ? "popup.policeJustice.tierPrecinct" : "popup.policeJustice.tierCityDept");
+  const modeShort = tr(mode === "walk" ? "popup.policeJustice.modeWalk" : "popup.policeJustice.modeDrive");
   return (
     <>
-      <Header color={color} name={title} />
+      <Header color={color} name={tr(titleKey)} />
       <div style={{ display: "inline-block", padding: "1px 8px", borderRadius: 4, background: color, color: "#fff", fontSize: FONT_SIZE.sm, fontWeight: 700, marginBottom: 8 }}>
-        覆蓋站數 {cnt} · {lvl}
+        {tr("popup.policeJustice.coverageCount", { count: cnt, level: lvl })}
       </div>
-      <Row field="tier" value={tier === "substation" ? "派出所" : tier === "precinct" ? "分局" : "縣市警局"} />
-      <Row label="模式" value={mode === "walk" ? "步行" : mode === "drive" ? "開車" : mode} />
-      <Row field="time" value={`${mins} 分鐘`} />
+      <Row field="tier" value={tierLabel} />
+      <Row label={tr("popup.policeJustice.mode")} value={mode === "walk" ? tr("popup.policeJustice.modeWalk") : mode === "drive" ? tr("popup.policeJustice.modeDrive") : mode} />
+      <Row field="time" value={tr("popup.policeJustice.minutesValue", { value: mins })} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
-        重疊計數法（Overlap Count）：此處同時被 {cnt} 個{tier === "substation" ? "派出所" : tier === "precinct" ? "分局" : "縣市警局"}的 {mins} 分鐘{mode === "walk" ? "步行" : "開車"}圈包含。
+        {tr("popup.policeJustice.overlapNote", { count: cnt, tier: tierLabel, minutes: mins, mode: modeShort })}
       </div>
     </>
   );
 }
 export function PoliceIsoSubstationPanel({ props }: PanelProps) {
-  return <IsochronePanel props={props} title="派出所等時圈" color="#1e40af" />;
+  return <IsochronePanel props={props} titleKey="popup.policeJustice.isoSubstation" color="#1e40af" />;
 }
 export function PoliceIsoPrecinctPanel({ props }: PanelProps) {
-  return <IsochronePanel props={props} title="分局等時圈" color="#3b82f6" />;
+  return <IsochronePanel props={props} titleKey="popup.policeJustice.isoPrecinct" color="#3b82f6" />;
 }
 export function PoliceIsoCityDeptPanel({ props }: PanelProps) {
-  return <IsochronePanel props={props} title="縣市警局等時圈" color="#60a5fa" />;
+  return <IsochronePanel props={props} titleKey="popup.policeJustice.isoCityDept" color="#60a5fa" />;
 }
 
 // ── 航空：航空器空域 eAIP ──
@@ -396,27 +435,29 @@ const AIRSPACE_LAYER_ZH: Record<string, string> = {
   CONTROL: "一般管制空域", SURFACE: "機場地面層",
   RCR: "限航區", DANGER: "危險區", ULZ: "超輕型活動區", CIRCUIT: "起降航線",
 };
-function fmtAlt(m: unknown, raw: unknown): string {
+function fmtAlt(m: unknown, raw: unknown, i18n: ReturnType<typeof useLocale>): string {
   if (raw && String(raw).trim()) return String(raw);
   const v = Number(m);
   if (!Number.isFinite(v)) return "";
-  if (v >= 99999) return "UNL（無上限）";
-  if (v <= 0) return "SFC（地表）";
-  return `${v.toLocaleString()} m`;
+  if (v >= 99999) return i18n.t("popup.policeJustice.altUnlimited");
+  if (v <= 0) return i18n.t("popup.policeJustice.altSurface");
+  return `${i18n.formatNumber(v)} m`;
 }
 export function AviationAirspacePanel({ props }: PanelProps) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const layer = String(props.layer ?? "");
   const color = AIRSPACE_LAYER_COLOR[layer] ?? "#94a3b8";
-  const layerZh = AIRSPACE_LAYER_ZH[layer] ?? layer;
-  const name = String(props.name_zh ?? props.name_en ?? props.code ?? "航空器空域");
+  const layerZh = AIRSPACE_LAYER_ZH[layer] ? enumLabel("airspaceLayer", layer, AIRSPACE_LAYER_ZH[layer], i18n) : layer;
+  const name = String(props.name_zh ?? props.name_en ?? props.code ?? t("popup.policeJustice.airspaceDefault"));
   return (
     <>
       <Header color={color} name={name} />
-      <Row field="category" value={layer ? `${layer}（${layerZh}）` : ""} />
+      <Row field="category" value={layer ? t("popup.policeJustice.layerWithName", { layer, name: layerZh }) : ""} />
       <Row field="code" value={String(props.code ?? "")} />
-      <Row label="底高度 floor" value={fmtAlt(props.floor_m, props.floor_raw)} />
-      <Row label="頂高度 ceiling" value={fmtAlt(props.ceiling_m, props.ceiling_raw)} />
-      <Row label="airspace class" value={String(props.airspace_class ?? "")} />
+      <Row label={t("popup.policeJustice.floor")} value={fmtAlt(props.floor_m, props.floor_raw, i18n)} />
+      <Row label={t("popup.policeJustice.ceiling")} value={fmtAlt(props.ceiling_m, props.ceiling_raw, i18n)} />
+      <Row label={t("popup.policeJustice.airspaceClass")} value={String(props.airspace_class ?? "")} />
       <Row field="remarks" value={String(props.remarks ?? "")} />
     </>
   );
@@ -428,19 +469,21 @@ const DRONE_COLOR: Record<string, string> = {
   "黃區": "#FFC107",
 };
 export function DroneZonesPanel({ props }: PanelProps) {
-  const zoneColor = String(props["空域顏色"] ?? "未分類");
+  const i18n = useLocale();
+  const { t } = i18n;
+  const zoneColor = String(props["空域顏色"] ?? t("popup.common.unclassified"));
   const headerColor = DRONE_COLOR[zoneColor] ?? "#6C757D";
   return (
     <>
-      <Header color={headerColor} name={String(props["空域名稱"] ?? "空域參考面")} />
-      <Row label="空域顏色" value={zoneColor} />
-      <Row label="空域類別" value={String(props["空域類別"] ?? "")} />
+      <Header color={headerColor} name={String(props["空域名稱"] ?? t("popup.policeJustice.droneDefault"))} />
+      <Row label={t("popup.policeJustice.droneColor")} value={DRONE_COLOR[zoneColor] ? enumLabel("droneZoneColor", zoneColor, zoneColor, i18n) : zoneColor} />
+      <Row label={t("popup.policeJustice.droneCategory")} value={String(props["空域類別"] ?? "")} />
       <Row field="authority" value={String(props["主管機關名稱"] ?? "")} />
-      <Row label="罰則" value={String(props["罰則"] ?? "")} />
-      <Row label="聯絡方式" value={String(props["聯絡方式"] ?? "")} />
+      <Row label={t("popup.policeJustice.penalty")} value={String(props["罰則"] ?? "")} />
+      <Row label={t("popup.policeJustice.contactInfo")} value={String(props["聯絡方式"] ?? "")} />
       <Row field="description" value={String(props["空域說明"] ?? "")} />
       <Row field="county" value={String(props.countyname ?? "")} />
-      <Note>2026-06-30 歷史快照；切片未保留有效日期，不能據此判定當前可飛、禁飛或申請規則。</Note>
+      <Note>{t("popup.policeJustice.droneNote")}</Note>
     </>
   );
 }
@@ -453,26 +496,28 @@ export function DroneZonesPanel({ props }: PanelProps) {
  *    coord_shared_n 只在 GeoJSON 有、未進 PMTiles，故不在此顯示。
  */
 function ShelterCoordNote({ props }: PanelProps) {
+  const { t } = useLocale();
   const precision = String(props.coord_precision ?? "");
   const suspect = props.coord_suspect === true;
   return (
     <>
-      {suspect && <Note>⚠️ 座標可疑：與標示行政區不符，位置僅供參考</Note>}
+      {suspect && <Note>{t("popup.policeJustice.shelterSuspect")}</Note>}
       {precision === "approximate" && (
-        <Note>⚠️ 位置為概略值：此座標由同路段多個門牌共用，非門牌精確位置</Note>
+        <Note>{t("popup.policeJustice.shelterApprox")}</Note>
       )}
-      {precision === "street_block" && <Note>⚠️ 位置為街區級概略值</Note>}
+      {precision === "street_block" && <Note>{t("popup.policeJustice.shelterBlock")}</Note>}
     </>
   );
 }
 
 export function CivilDefenseShelterPanel({ props }: PanelProps) {
+  const { t } = useLocale();
   return (
     <>
-      <Header color="#64748b" name={String(props.name ?? "防空避難所")} />
+      <Header color="#64748b" name={String(props.name ?? t("popup.policeJustice.shelterDefault"))} />
       <Row field="type" value={String(props.subtype ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
-      <Row field="capacity" value={props.capacity ? `${props.capacity} 人` : ""} />
+      <Row field="capacity" value={props.capacity ? t("popup.policeJustice.capacityPeople", { value: String(props.capacity) }) : ""} />
       <Row field="district" value={String(props.district ?? "")} />
       <ShelterCoordNote props={props} />
     </>

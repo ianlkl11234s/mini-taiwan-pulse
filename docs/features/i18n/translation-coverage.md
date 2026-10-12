@@ -117,6 +117,38 @@
 2. `statsComplaintsCounty` 與 PND 層：repo 只說兩者 110 年高雄差 1 件、建議只上架一層，實際差異來源不明；英文名只先區分開。
 3. 長名稱（例：Registered Residents of Foreign Origin (Originally Nationals without Household Registration)）在側欄會很長，已盡量縮短，仍待決策 #4（截斷或換行）。
 
+### P1 說明框新增用語（2026-10-12，兩輪校對）
+
+| 中文 | 英文 | 備註 |
+|---|---|---|
+| 政府資料開放授權條款第1版 | Open Government Data License, version 1.0 | 官方英文名 |
+| 統編 | Unified Business No. | |
+| 資本額 | Registered capital | |
+| 測項 | Parameter | 環境監測 |
+| 資料逾時 | Data stale | |
+| 震度／最大震度 | Seismic intensity／Maximum seismic intensity | 閃電強度另用 Intensity |
+| 噴火警戒 | Volcanic alert level | 氣象廳用語 |
+| 地檢署／檢察署 | (District/High/Supreme) Prosecutors' Office | 與 layers.json 一致 |
+| 急診順暢／略壅／壅塞 | Normal／Slightly crowded／Crowded | |
+| 過水路 | Low-water crossing | 原譯 Causeway 有誤 |
+| 環保列管 | Environmentally regulated | 不寫 EPA（已改制） |
+| 仍列管／已解除列管 | Still listed／Delisted | |
+| 上市櫃 | Listed (TWSE/TPEx) | |
+| 更生保護會 | After-Care Association | |
+| 觀光工廠 | Tourism factory | |
+| 綜合體育館 | Multi-purpose sports hall | |
+| 小型車費率 | Small vehicle rate | 國道收費 |
+| 貨幣 | NT${value} | |
+| 民國年 | 由程式換算西元（`displayRocYear`） | 翻譯檔不做算術 |
+| 拼字 | 一律美式（color、center、gray、meter、license） | |
+
+### P1 仍不確定（英文）
+
+1. 田媽媽 → Tian Mama (rural women's food business)、地方文化館 → Local cultural museum、國民運動中心 → Civil sports centers：未查到官方英文。
+2. 長照 A／B／C 據點、公廁評等（特優／優等／普通／不合格）：非官方英譯。
+3. 兩個公害陳情圖層的差異 repo 內查不到，英文名只是先區分。
+4. 警戒通報原文「AEC／原能會」英文寫成 AEC (now Nuclear Safety Commission)；中文原文是否同步更新待定。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -187,3 +219,43 @@
 4. 地名、機關名（航港局、廉政署、海巡署、国家風景区、台湾好行、田媽媽）保留中文專有名詞，日本讀者可能需要說明。
 5. 縣市／鄉鎮類的 qualifier 目前以中文顯示（`layerText.ts` 不翻 qualifier），不在本次範圍。
 6. popup `popup.field.stationNo` 跨測定局與観測所共用，改中性的「地点番号」；`nuclearStation` 面板顯示即時輻射劑量，已定為「放射線監視局」（與英文 Radiation Monitoring Stations 一致）。
+
+### P1 說明框新增用語（2026-10-12，兩輪校對）
+
+| 中文 | 日文 | 備註 |
+|---|---|---|
+| 元／萬元 | {value} 台湾ドル／万台湾ドル | |
+| 公頃 | {value} ha | |
+| 站名（共用） | ステーション名 | 充電站、加油站、輻射站共用 |
+| 站況（共用） | 稼働状況 | |
+| 測站（共用 field.station） | 地点 | |
+| 網格尺度 | グリッドサイズ | 日本地域網格例外用メッシュ |
+| 限制 | 制約 | |
+| 失效（橋梁） | 機能停止 | 「崩落」太重 |
+| 已除役 | 運転終了 | |
+| 機組 | 発電ユニット | |
+| 船長（長度） | 全長 | |
+| 暴露人口 | 曝露人口 | |
+| 上市櫃 | 上場・店頭登録 | |
+| 公立／私立（殯葬） | 公営／民営 | |
+| 保全住戶 | 保全対象世帯 | |
+| 內池／外池水位 | 内水位／外水位 | |
+| 過水路 | 洗い越し | |
+| 機場管制空域 CTR | 管制圏 | |
+| 測站氣壓 | 現地気圧 | |
+| 歷史版 | 過去データ | |
+| 人次 | 延べ{count}人 | |
+| 護理機構床數 | 床数 | 「病床」只用於醫院 |
+| 巷弄長照站 | 近隣ケアステーション | |
+| 來源 | 出典 | 不用「ソース」 |
+| 共機架次 | 中国軍用機の延べ機数 | |
+| 紫外線等級 | 弱い／中程度／強い／非常に強い／極端に強い | 氣象廳用語 |
+| 罰鍰分層 | 重大処分／高額の一般処分／一般処分／移動発生源汚染 | noise 與 pollution 共用 |
+
+### P1 仍不確定（日文）
+
+1. 水質站維持「観測所」，但日本公共水域慣用「測定地点」，與日本資料層不一致。
+2. 「台塑石化スタンド」「台湾糖業スタンド」、OSM 道路等級「二次道路」「連絡道路」為直譯。
+3. 「長期介護2.0」「海巡署」保留原名，日本讀者可能不懂。
+4. 「大規模崩壊潜在区域」無日本官方對應用語；「試験 Shiyan」假設代碼對應「試驗」系列衛星。
+5. 數字與單位之間是否空格（{n}社 vs {value} 社）各檔未統一。

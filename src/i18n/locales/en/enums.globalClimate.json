@@ -1,0 +1,15 @@
+{
+  "enum.globalEventCategory.disaster": "Disaster",
+  "enum.globalEventCategory.accident": "Accident",
+  "enum.globalEventCategory.health": "Health",
+  "enum.globalEventCategory.crime": "Public safety",
+  "enum.globalEventCategory.traffic": "Traffic",
+  "enum.globalEventCategory.policy": "Policy",
+  "enum.globalEventCategory.other": "Other",
+  "enum.globalEventCategory.unknown": "Uncategorized",
+  "enum.globalEventSeverity.0": "General",
+  "enum.globalEventSeverity.1": "Notable",
+  "enum.globalEventSeverity.2": "Major",
+  "enum.globalEventSeverity.3": "Severe",
+  "enum.globalEventSeverity.unknown": "Unknown"
+}

@@ -1,0 +1,15 @@
+{
+  "popup.forestry.unknownSource": "未知來源",
+  "popup.forestry.unnamedTrail": "(無名步道)",
+  "popup.forestry.nationalPark": "國家公園",
+  "popup.forestry.overlapA": "與 A 林業署路線重疊",
+  "popup.forestry.originalLink": "原始連結 ↗",
+  "popup.forestry.canopyGiants": "樹冠巨木",
+  "popup.forestry.accessDist": "離最近道路/步道/林道",
+  "popup.forestry.canopyNote": "Meta/WRI 樹冠高度 10m × 可及性分析（≥ 45m）",
+  "popup.forestry.unnamedHut": "無名山屋",
+  "popup.forestry.hutSource": "玉山國家公園官方 + OSM",
+  "popup.forestry.capacityPeople": "{value} 人",
+  "popup.forestry.hutNote": "ⓘ 含 OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）",
+  "popup.forestry.noProps": "無屬性資料"
+}

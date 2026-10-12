@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { enumLabel, localizedField } from "../dataText";
+import { displayRocYear, enumLabel, localizedField } from "../dataText";
 import type { Locale } from "../locales";
 
 const ctx = (active: Locale, dict: Record<string, string> = {}) => ({ active, lookup: (key: string) => dict[key] ?? null });
@@ -22,5 +22,15 @@ describe("enumLabel", () => {
     expect(enumLabel("news", "disaster", "災害", ctx("zh-TW", { "enum.news.disaster": "Disaster" }))).toBe("災害");
     expect(enumLabel("news", "disaster", "災害", ctx("en", { "enum.news.disaster": "Disaster" }))).toBe("Disaster");
     expect(enumLabel("news", "other", "其他", ctx("en"))).toBe("其他");
+  });
+});
+
+describe("displayRocYear", () => {
+  it("中文維持民國年，外文換算西元，非數字原樣", () => {
+    expect(displayRocYear("113", ctx("zh-TW"))).toBe("113");
+    expect(displayRocYear("113", ctx("en"))).toBe("2024");
+    expect(displayRocYear(110, ctx("ja"))).toBe("2021");
+    expect(displayRocYear("未知", ctx("en"))).toBe("未知");
+    expect(displayRocYear("", ctx("en"))).toBe("");
   });
 });

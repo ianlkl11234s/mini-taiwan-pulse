@@ -1,14 +1,31 @@
 import { Row } from "./shared";
+import { useLocale } from "../../state/localeStore";
 import { COMPANY_INDUSTRY_MID_OPTIONS, companyGridAreaKm2, COMPANY_GRID_SCALES } from "../../data/businessRegistryTypes";
 import {
   COMPANY_AGE_BINS, COMPANY_DEMOGRAPHICS_SCALES, COMPANY_INDUSTRY_GROUPS,
   companyIndustryFields, companyIndustryGroupLabels,
 } from "../../data/businessDemographicsTypes";
 
-function formatTwd(value: unknown): string {
+type I18n = ReturnType<typeof useLocale>;
+
+function formatTwd(value: unknown, { t, formatNumber }: I18n): string {
   return typeof value === "number" && Number.isFinite(value)
-    ? `${Math.round(value).toLocaleString("zh-TW")} 元`
+    ? t("popup.businessRegistry.yuan", { value: formatNumber(Math.round(value)) })
     : "";
+}
+
+/** 「{value}（202608 快照）」；金額為空時回傳空字串 */
+function twdWithSnapshot(value: unknown, i18n: I18n): string {
+  const twd = formatTwd(value, i18n);
+  return twd ? i18n.t("popup.businessRegistry.withSnapshot", { value: twd }) : "";
+}
+
+function missing({ t }: I18n): string {
+  return t("popup.common.missingValue");
+}
+
+function companiesLabel(count: number, { t, formatNumber }: I18n): string {
+  return t("popup.businessRegistry.companyCount", { count, n: formatNumber(count) });
 }
 
 /**
@@ -16,25 +33,29 @@ function formatTwd(value: unknown): string {
  * 公開契約為 address / n_companies / capital_sum / capital_median。
  */
 export function CommonRegistrationAddressesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const nCompanies = typeof props.n_companies === "number" ? props.n_companies : null;
   return (
     <>
       <Row field="address" value={String(props.address ?? "")} />
       <Row
-        label="共同登記公司數"
-        value={nCompanies == null ? "" : `${nCompanies.toLocaleString("zh-TW")} 家`}
+        label={t("popup.businessRegistry.sharedCompanies")}
+        value={nCompanies == null ? "" : companiesLabel(nCompanies, i18n)}
       />
-      <Row label="資本額總和" value={formatTwd(props.capital_sum)} />
-      <Row label="資本額中位數" value={formatTwd(props.capital_median)} />
+      <Row label={t("popup.businessRegistry.capitalSum")} value={formatTwd(props.capital_sum, i18n)} />
+      <Row label={t("popup.businessRegistry.capitalMedian")} value={formatTwd(props.capital_median, i18n)} />
     </>
   );
 }
 
-function flag(value: unknown): string {
-  return Number(value) === 1 ? "是" : Number(value) === 0 ? "否" : "";
+function flag(value: unknown, { t }: I18n): string {
+  return Number(value) === 1 ? t("popup.common.yes") : Number(value) === 0 ? t("popup.common.no") : "";
 }
 
 export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const gridId = String(props.grid_id ?? "");
   const gridScale = gridId.startsWith("G1500_") ? COMPANY_GRID_SCALES[2]
     : gridId.startsWith("G450_") ? COMPANY_GRID_SCALES[1] : null;
@@ -44,19 +65,19 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
     const density = companies == null ? null : companies / companyGridAreaKm2(gridScale);
     return (
       <>
-        <Row label="概覽網格尺度" value={gridScale.label} />
-        <Row field="companyCount" value={companies == null ? "缺值" : countLabel(companies)} />
-        <Row label="公司密度" value={density == null ? "缺值" : `${density.toLocaleString("zh-TW", { maximumFractionDigits: 1 })} 家／km²`} />
-        <Row label="快照" value="202608；未套用篩選條件的公司密度概覽，缺值不視為 0。" />
+        <Row label={t("popup.businessRegistry.overviewScale")} value={gridScale.label} />
+        <Row field="companyCount" value={companies == null ? missing(i18n) : countLabel(companies, i18n)} />
+        <Row label={t("popup.businessRegistry.companyDensity")} value={density == null ? missing(i18n) : t("popup.businessRegistry.companyDensityValue", { value: i18n.formatNumber(density, { maximumFractionDigits: 1 }) })} />
+        <Row field="snapshot" value={t("popup.businessRegistry.overviewNote")} />
       </>
     );
   }
   if (props.n_companies != null || props.n_manufacturing != null) {
     return (
       <>
-        <Row field="companyCount" value={countLabel(props.n_companies)} />
-        <Row label="製造業公司數" value={countLabel(props.n_manufacturing)} />
-        <Row label="解讀" value="本格納入全部已定位 records；放大至 z12 可點擊個別公司。" />
+        <Row field="companyCount" value={countLabel(props.n_companies, i18n)} />
+        <Row label={t("popup.businessRegistry.mfgCount")} value={countLabel(props.n_manufacturing, i18n)} />
+        <Row label={t("popup.businessRegistry.interpretation")} value={t("popup.businessRegistry.cellNoteCompany")} />
       </>
     );
   }
@@ -66,36 +87,36 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
   const quantile = Number(props.capital_q);
   return (
     <>
-      <Row label="公司名稱" value={String(props.company_name ?? "")} />
+      <Row label={t("popup.businessRegistry.companyName")} value={String(props.company_name ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row field="capital" value={formatTwd(props.capital_total) ? `${formatTwd(props.capital_total)}（202608 快照）` : ""} />
-      <Row label="資本額分位" value={Number.isFinite(quantile) ? (quantile === 0 ? "缺值" : `Q${quantile}`) : ""} />
-      <Row label="行業中類" value={industry ? industry.label : industryCode} />
-      <Row label="設立年" value={Number.isFinite(year) ? String(year) : ""} />
-      <Row label="來源群組" value={String(props.categories ?? "")} />
-      <Row label="製造業" value={flag(props.is_manufacturing)} />
-      <Row label="地址不一致" value={flag(props.addr_mismatch)} />
-      <Row label="上市櫃" value={flag(props.is_listed)} />
-      <Row label="有商標" value={flag(props.has_trademark)} />
+      <Row field="capital" value={twdWithSnapshot(props.capital_total, i18n)} />
+      <Row label={t("popup.businessRegistry.capitalQuantile")} value={Number.isFinite(quantile) ? (quantile === 0 ? missing(i18n) : `Q${quantile}`) : ""} />
+      <Row label={t("popup.businessRegistry.industryMid")} value={industry ? industry.label : industryCode} />
+      <Row label={t("popup.businessRegistry.setupYear")} value={Number.isFinite(year) ? String(year) : ""} />
+      <Row label={t("popup.businessRegistry.sourceGroup")} value={String(props.categories ?? "")} />
+      <Row label={t("popup.businessRegistry.manufacturing")} value={flag(props.is_manufacturing, i18n)} />
+      <Row label={t("popup.businessRegistry.addrMismatch")} value={flag(props.addr_mismatch, i18n)} />
+      <Row label={t("popup.businessRegistry.listed")} value={flag(props.is_listed, i18n)} />
+      <Row label={t("popup.businessRegistry.hasTrademark")} value={flag(props.has_trademark, i18n)} />
     </>
   );
 }
 
-function countLabel(value: unknown): string {
+function countLabel(value: unknown, i18n: I18n): string {
   const count = typeof value === "number" ? value : NaN;
-  return Number.isFinite(count) ? `${count.toLocaleString("zh-TW")} 家` : "";
+  return Number.isFinite(count) ? companiesLabel(count, i18n) : "";
 }
 
-function densityValue(value: unknown, unit: string): string {
+function densityValue(value: unknown, unit: string, i18n: I18n): string {
   const density = typeof value === "number" ? value : NaN;
   return Number.isFinite(density) && density >= 0
-    ? `${density.toLocaleString("zh-TW", { maximumFractionDigits: 1 })} ${unit}／km²`
-    : "缺值";
+    ? i18n.t("popup.businessRegistry.densityPerKm2", { value: i18n.formatNumber(density, { maximumFractionDigits: 1 }), unit })
+    : missing(i18n);
 }
 
-function gridMeters(value: unknown): string {
+function gridMeters(value: unknown, i18n: I18n): string {
   const meters = typeof value === "number" ? value : NaN;
-  return Number.isFinite(meters) && meters > 0 ? `${meters.toLocaleString("zh-TW")} m` : "缺值";
+  return Number.isFinite(meters) && meters > 0 ? `${i18n.formatNumber(meters)} m` : missing(i18n);
 }
 
 /** 三種工商密度格共用的欄位契約；快照與資料粒度由各圖層明確傳入。 */
@@ -107,29 +128,33 @@ export function IndustrialDensityGridPanel({
   grain: string;
   recordUnit: string;
 }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const records = typeof props.n_records === "number" && Number.isFinite(props.n_records) && props.n_records >= 0
-    ? `${props.n_records.toLocaleString("zh-TW")} ${recordUnit}`
-    : "缺值";
+    ? `${i18n.formatNumber(props.n_records)} ${recordUnit}`
+    : missing(i18n);
   return <>
-    <Row label="網格 ID" value={String(props.grid_id ?? "") || "缺值"} />
-    <Row field="gridScale" value={gridMeters(props.grid_size_m)} />
-    <Row label="格內筆數" value={records} />
-    <Row label="密度" value={densityValue(props.density_per_km2, recordUnit)} />
-    <Row label="快照與粒度" value={`${snapshot}；${grain}。`} />
+    <Row field="gridId" value={String(props.grid_id ?? "") || missing(i18n)} />
+    <Row field="gridScale" value={gridMeters(props.grid_size_m, i18n)} />
+    <Row label={t("popup.businessRegistry.recordsInCell")} value={records} />
+    <Row label={t("popup.businessRegistry.density")} value={densityValue(props.density_per_km2, recordUnit, i18n)} />
+    <Row label={t("popup.businessRegistry.snapshotGrain")} value={t("popup.businessRegistry.snapshotGrainValue", { snapshot, grain })} />
   </>;
 }
 
 export function CompanyCapitalGridPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const nCompanies = Number(props.n_companies);
   const gridId = String(props.grid_id ?? "");
   const scale = gridId.startsWith("G1500_") ? "1.5 km" : gridId.startsWith("G450_") ? "450 m" : "150 m";
   return (
     <>
       <Row field="gridScale" value={scale} />
-      <Row label="網格 ID" value={gridId} />
-      <Row field="companyCount" value={Number.isFinite(nCompanies) ? `${nCompanies.toLocaleString("zh-TW")} 家` : ""} />
-      <Row label="資本額總和" value={formatTwd(props.capital_sum) ? `${formatTwd(props.capital_sum)}（202608 快照）` : ""} />
-      <Row label="資本額中位數" value={formatTwd(props.capital_median) ? `${formatTwd(props.capital_median)}（202608 快照）` : "缺值"} />
+      <Row field="gridId" value={gridId} />
+      <Row field="companyCount" value={Number.isFinite(nCompanies) ? companiesLabel(nCompanies, i18n) : ""} />
+      <Row label={t("popup.businessRegistry.capitalSum")} value={twdWithSnapshot(props.capital_sum, i18n)} />
+      <Row label={t("popup.businessRegistry.capitalMedian")} value={twdWithSnapshot(props.capital_median, i18n) || missing(i18n)} />
     </>
   );
 }
@@ -143,6 +168,8 @@ function demographicsScale(props: Record<string, unknown>) {
 }
 
 export function CompanyIndustryDistributionPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const params = props.__demographics_params as Record<string, number> | undefined;
   const midIdx = params?.companyIndustryDistributionMidIdx ?? 0;
   const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
@@ -152,7 +179,7 @@ export function CompanyIndustryDistributionPanel({ props }: { props: Record<stri
   const count = values.every((value) => value !== null) ? values.reduce((sum, value) => sum + value!, 0) : null;
   const scale = demographicsScale(props);
   const density = count === null ? null : count / companyGridAreaKm2(scale.areaScale);
-  const label = midCode ? COMPANY_INDUSTRY_MID_OPTIONS.find((option) => option.value === midCode)?.label ?? midCode : companyIndustryGroupLabels(mask).join("、") || "未選分類";
+  const label = midCode ? COMPANY_INDUSTRY_MID_OPTIONS.find((option) => option.value === midCode)?.label ?? midCode : companyIndustryGroupLabels(mask).join(t("popup.common.listSeparator")) || t("popup.businessRegistry.noneSelected");
   const groupRows = midCode ? [] : COMPANY_INDUSTRY_GROUPS.map((group, index) => {
     if ((mask & (1 << index)) === 0) return null;
     const groupValues = companyIndustryFields(1 << index).map((field) => validCount(props[field]));
@@ -165,130 +192,148 @@ export function CompanyIndustryDistributionPanel({ props }: { props: Record<stri
   const topCount = groupRows[0]?.count ?? null;
   return <>
     <Row field="gridScale" value={scale.label} />
-    <Row label="選取分類" value={label} />
-    <Row field="companyCount" value={count === null ? "缺值" : `${count.toLocaleString("zh-TW")} 家`} />
-    <Row label="公司密度" value={density === null ? "缺值" : `${density.toLocaleString("zh-TW", { maximumFractionDigits: 1 })} 家／km²`} />
+    <Row label={t("popup.businessRegistry.selectedCategory")} value={label} />
+    <Row field="companyCount" value={count === null ? missing(i18n) : companiesLabel(count, i18n)} />
+    <Row label={t("popup.businessRegistry.companyDensity")} value={density === null ? missing(i18n) : t("popup.businessRegistry.companyDensityValue", { value: i18n.formatNumber(density, { maximumFractionDigits: 1 }) })} />
     {groupRows.map(({ group, count: groupCount }) => {
       const isTop = topCount !== null && groupCount === topCount && groupCount > 0;
-      const share = count !== null && groupCount !== null && count > 0 ? `（${(groupCount / count * 100).toFixed(1)}%）` : "";
-      return <Row key={group.value} label={isTop ? "最多（含並列）" : "產業群組"} color={group.color} value={`${group.label}：${groupCount === null ? "缺值" : `${groupCount.toLocaleString("zh-TW")} 家${share}`}`} />;
+      const groupText = groupCount === null ? missing(i18n)
+        : count !== null && count > 0
+          ? t("popup.businessRegistry.companyWithShare", { count: groupCount, n: i18n.formatNumber(groupCount), pct: (groupCount / count * 100).toFixed(1) })
+          : companiesLabel(groupCount, i18n);
+      return <Row key={group.value} label={t(isTop ? "popup.businessRegistry.mostTied" : "popup.businessRegistry.industryGroup")} color={group.color} value={t("popup.businessRegistry.groupLine", { group: group.label, value: groupText })} />;
     })}
-    <Row label="解讀" value={(params?.companyIndustryDisplayIdx ?? 0) === 1 ? "顏色表示所選產業合計密度；下列占比以所選公司合計為分母。聚焦中類優先於群組。" : midCode ? "已聚焦單一行業中類，固定使用所屬群組色，優先於產業群組多選。登記第一順位行業中類不代表實際主營產業；缺值不視為 0。" : "顏色為已選群組中筆數最多者；最多不一定過半；占比以所選公司合計為分母，不代表實際主營產業。同量、真實 0 與必要欄位缺失另行呈現。"} />
+    <Row label={t("popup.businessRegistry.interpretation")} value={t((params?.companyIndustryDisplayIdx ?? 0) === 1 ? "popup.businessRegistry.noteDisplayDensity" : midCode ? "popup.businessRegistry.noteMid" : "popup.businessRegistry.noteGroup")} />
   </>;
 }
 
 export function CompanyAgeStructurePanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const known = validCount(props.age_known);
   const recent = validCount(props.age_recent);
   const recentShare = known !== null && known > 0 && recent !== null ? recent / known : null;
   const median = typeof props.age_median === "number" && Number.isFinite(props.age_median) ? props.age_median : null;
   return <>
     <Row field="gridScale" value={demographicsScale(props).label} />
-    <Row label="已知設立年" value={known === null ? "缺值" : `${known.toLocaleString("zh-TW")} 家`} />
-    <Row label="樣本提醒" value={known !== null && known < 20 ? "已知設立年少於 20 家，占比容易極端。" : ""} />
-    <Row label="近 5 年設立" value={recentShare === null ? "缺值" : `${recent?.toLocaleString("zh-TW")} 家（${(recentShare * 100).toFixed(1)}%）`} />
-    <Row label="年齡中位數" value={median === null ? "缺值" : `${median.toFixed(1)} 年`} />
+    <Row label={t("popup.businessRegistry.knownSetup")} value={known === null ? missing(i18n) : companiesLabel(known, i18n)} />
+    <Row label={t("popup.businessRegistry.sampleWarn")} value={known !== null && known < 20 ? t("popup.businessRegistry.sampleWarnText") : ""} />
+    <Row label={t("popup.businessRegistry.recent5")} value={recentShare === null || recent === null ? missing(i18n) : t("popup.businessRegistry.companyWithShare", { count: recent, n: i18n.formatNumber(recent), pct: (recentShare * 100).toFixed(1) })} />
+    <Row label={t("popup.businessRegistry.medianAge")} value={median === null ? missing(i18n) : t("popup.businessRegistry.yearsValue", { value: median.toFixed(1) })} />
     {COMPANY_AGE_BINS.map(([field, label]) => {
       const count = validCount(props[field]);
-      return <Row key={field} label={label} value={count === null || known === null || known === 0 ? "缺值" : `${count.toLocaleString("zh-TW")} 家（${(count / known * 100).toFixed(1)}%）`} />;
+      return <Row key={field} label={label} value={count === null || known === null || known === 0 ? missing(i18n) : t("popup.businessRegistry.companyWithShare", { count, n: i18n.formatNumber(count), pct: (count / known * 100).toFixed(1) })} />;
     })}
-    <Row label="缺失／無效年" value={`${validCount(props.age_missing) ?? "缺值"} ／ ${validCount(props.age_invalid) ?? "缺值"}`} />
-    <Row label="快照" value="202608；年齡約為 2026 減設立年。近 5 年為 2022–2026，分母只含已知合法設立年。" />
+    <Row label={t("popup.businessRegistry.missingInvalidYear")} value={t("popup.businessRegistry.pairSep", { a: validCount(props.age_missing) ?? missing(i18n), b: validCount(props.age_invalid) ?? missing(i18n) })} />
+    <Row field="snapshot" value={t("popup.businessRegistry.ageNote")} />
   </>;
 }
 
+function factoryCountLabel(value: unknown, { t, formatNumber }: I18n): string {
+  const count = typeof value === "number" ? value : NaN;
+  return Number.isFinite(count) ? t("popup.businessRegistry.factoryCount", { count, n: formatNumber(count) }) : "";
+}
+
 export function FactoryLocationsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   if (props.n_factories != null) {
     return (
       <>
-        <Row label="已定位工廠數" value={countLabel(props.n_factories)} />
-        <Row label="解讀" value="本格納入全部已定位生產中工廠；放大至 z11 可點擊個別工廠。" />
+        <Row label={t("popup.businessRegistry.locatedFactories")} value={factoryCountLabel(props.n_factories, i18n)} />
+        <Row label={t("popup.businessRegistry.interpretation")} value={t("popup.businessRegistry.cellNoteFactory")} />
       </>
     );
   }
   return (
     <>
-      <Row label="工廠名稱" value={String(props.factory_name ?? "")} />
-      <Row label="工廠編號" value={String(props.factory_id ?? "")} />
-      <Row label="統編" value={String(props.uniform_no ?? "")} />
-      <Row label="工廠地址" value={String(props.factory_address ?? "")} />
+      <Row label={t("popup.businessRegistry.factoryName")} value={String(props.factory_name ?? "")} />
+      <Row label={t("popup.businessRegistry.factoryId")} value={String(props.factory_id ?? "")} />
+      <Row label={t("popup.businessRegistry.uniformNo")} value={String(props.uniform_no ?? "")} />
+      <Row label={t("popup.businessRegistry.factoryAddress")} value={String(props.factory_address ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row label="組織型態" value={String(props.org_type ?? "")} />
-      <Row label="登記核准日" value={String(props.registered_date ?? "")} />
-      <Row label="產業類別" value={String(props.industry_categories ?? "")} />
-      <Row label="主要產品" value={String(props.main_products ?? "")} />
+      <Row label={t("popup.businessRegistry.orgType")} value={String(props.org_type ?? "")} />
+      <Row label={t("popup.businessRegistry.registeredDate")} value={String(props.registered_date ?? "")} />
+      <Row label={t("popup.businessRegistry.industryCategories")} value={String(props.industry_categories ?? "")} />
+      <Row label={t("popup.businessRegistry.mainProducts")} value={String(props.main_products ?? "")} />
       <Row field="positionAccuracy" value={String(props.geocode_precision ?? "")} />
     </>
   );
 }
 
 export function RegulatedFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   return (
     <>
-      <Row label="設施名稱" value={String(props.facility_name ?? "")} />
-      <Row label="列管編號" value={String(props.emsno ?? "")} />
-      <Row label="設施地址" value={String(props.facility_address ?? "")} />
+      <Row field="facilityName" value={String(props.facility_name ?? "")} />
+      <Row label={t("popup.businessRegistry.emsno")} value={String(props.emsno ?? "")} />
+      <Row label={t("popup.businessRegistry.facilityAddress")} value={String(props.facility_address ?? "")} />
       <Row field="district" value={[props.county, props.township].filter(Boolean).join(" ")} />
-      <Row label="產業園區" value={String(props.industry_area_name ?? "")} />
-      <Row label="行業" value={[props.industry_group, props.industry_name].filter(Boolean).join(" / ")} />
-      <Row label="空氣列管" value={flag(props.isair)} />
-      <Row label="水列管" value={flag(props.iswater)} />
-      <Row label="廢棄物列管" value={flag(props.iswaste)} />
-      <Row label="毒化物列管" value={flag(props.istoxic)} />
-      <Row label="土壤列管" value={flag(props.issoil)} />
-      <Row label="座標來源" value={String(props.coord_source ?? "")} />
-      <Row label="公司串接" value={flag(props.company_joined)} />
-      <Row label="公司名稱" value={String(props.company_name ?? "")} />
-      <Row label="公司統編" value={String(props.uniform_no ?? "")} />
-      <Row label="公司群組" value={String(props.company_categories ?? "")} />
-      <Row label="公司行業碼" value={String(props.company_industry_code ?? "")} />
+      <Row label={t("popup.businessRegistry.industryArea")} value={String(props.industry_area_name ?? "")} />
+      <Row field="industry" value={[props.industry_group, props.industry_name].filter(Boolean).join(" / ")} />
+      <Row label={t("popup.businessRegistry.regAir")} value={flag(props.isair, i18n)} />
+      <Row label={t("popup.businessRegistry.regWater")} value={flag(props.iswater, i18n)} />
+      <Row label={t("popup.businessRegistry.regWaste")} value={flag(props.iswaste, i18n)} />
+      <Row label={t("popup.businessRegistry.regToxic")} value={flag(props.istoxic, i18n)} />
+      <Row label={t("popup.businessRegistry.regSoil")} value={flag(props.issoil, i18n)} />
+      <Row field="coordSource" value={String(props.coord_source ?? "")} />
+      <Row label={t("popup.businessRegistry.companyJoined")} value={flag(props.company_joined, i18n)} />
+      <Row label={t("popup.businessRegistry.companyName")} value={String(props.company_name ?? "")} />
+      <Row label={t("popup.businessRegistry.companyUniformNo")} value={String(props.uniform_no ?? "")} />
+      <Row label={t("popup.businessRegistry.companyGroup")} value={String(props.company_categories ?? "")} />
+      <Row label={t("popup.businessRegistry.companyIndustryCode")} value={String(props.company_industry_code ?? "")} />
       <Row
-        label="公司資本額"
-        value={formatTwd(props.company_capital_total) ? `${formatTwd(props.company_capital_total)}（202608 快照）` : ""}
+        label={t("popup.businessRegistry.companyCapital")}
+        value={twdWithSnapshot(props.company_capital_total, i18n)}
       />
     </>
   );
 }
 
 export function IndustrialParkBoundariesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const area = Number(props.area_ha);
   return (
     <>
-      <Row label="園區名稱" value={String(props.park_name ?? "")} />
-      <Row label="英文名稱" value={String(props.park_name_en ?? "")} />
-      <Row label="園區 ID" value={String(props.park_id ?? "")} />
+      <Row label={t("popup.businessRegistry.parkName")} value={String(props.park_name ?? "")} />
+      <Row label={t("popup.businessRegistry.parkNameEn")} value={String(props.park_name_en ?? "")} />
+      <Row label={t("popup.businessRegistry.parkId")} value={String(props.park_id ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
       <Row field="managingAgency" value={String(props.manage_unit ?? "")} />
-      <Row label="開發狀態" value={String(props.dev_status ?? "")} />
-      <Row label="用地類別" value={String(props.zone_grade ?? "")} />
-      <Row label="產業負載" value={String(props.industry_load ?? "")} />
-      <Row field="area" value={Number.isFinite(area) ? `${area.toLocaleString("zh-TW")} 公頃` : ""} />
-      <Row label="座標來源" value={String(props.coord_source ?? "")} />
+      <Row label={t("popup.businessRegistry.devStatus")} value={String(props.dev_status ?? "")} />
+      <Row label={t("popup.businessRegistry.zoneGrade")} value={String(props.zone_grade ?? "")} />
+      <Row label={t("popup.businessRegistry.industryLoad")} value={String(props.industry_load ?? "")} />
+      <Row field="area" value={Number.isFinite(area) ? t("popup.businessRegistry.hectares", { value: i18n.formatNumber(area) }) : ""} />
+      <Row field="coordSource" value={String(props.coord_source ?? "")} />
       <Row field="sourceCount" value={String(props.n_sources ?? "")} />
-      <Row label="官方園區 ID" value={String(props.official_park_id_80190 ?? "")} />
+      <Row label={t("popup.businessRegistry.officialParkId")} value={String(props.official_park_id_80190 ?? "")} />
     </>
   );
 }
 
 export function IndustrialParkComparisonPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const area = Number(props.area_ha);
   const factories = Number(props.factory_count);
   const companies = Number(props.company_count);
   const capitalRows = Number(props.company_capital_nonnull_count);
   return (
     <>
-      <Row label="園區名稱" value={String(props.park_name ?? "")} />
-      <Row label="園區 ID" value={String(props.park_id ?? "")} />
+      <Row label={t("popup.businessRegistry.parkName")} value={String(props.park_name ?? "")} />
+      <Row label={t("popup.businessRegistry.parkId")} value={String(props.park_id ?? "")} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row field="area" value={Number.isFinite(area) ? `${area.toLocaleString("zh-TW")} 公頃` : ""} />
-      <Row label="觀測工廠數" value={Number.isFinite(factories) ? `${factories.toLocaleString("zh-TW")} 家` : ""} />
-      <Row label="觀測公司數" value={Number.isFinite(companies) ? `${companies.toLocaleString("zh-TW")} 家` : ""} />
+      <Row field="area" value={Number.isFinite(area) ? t("popup.businessRegistry.hectares", { value: i18n.formatNumber(area) }) : ""} />
+      <Row label={t("popup.businessRegistry.observedFactories")} value={Number.isFinite(factories) ? t("popup.businessRegistry.factoryCount", { count: factories, n: i18n.formatNumber(factories) }) : ""} />
+      <Row label={t("popup.businessRegistry.observedCompanies")} value={Number.isFinite(companies) ? companiesLabel(companies, i18n) : ""} />
       <Row
-        label="公司資本額"
-        value={formatTwd(props.company_capital_total_sum) ? `${formatTwd(props.company_capital_total_sum)}（202608 快照）` : ""}
+        label={t("popup.businessRegistry.companyCapital")}
+        value={twdWithSnapshot(props.company_capital_total_sum, i18n)}
       />
-      <Row label="資本額有效筆數" value={Number.isFinite(capitalRows) ? capitalRows.toLocaleString("zh-TW") : ""} />
-      <Row label="觀測限制" value="0 僅表示沒有具有效座標且被指派至此 polygon 的觀測實體，不代表實際不存在。" />
+      <Row label={t("popup.businessRegistry.capitalValidRows")} value={Number.isFinite(capitalRows) ? i18n.formatNumber(capitalRows) : ""} />
+      <Row label={t("popup.businessRegistry.observationLimit")} value={t("popup.businessRegistry.observationLimitText")} />
     </>
   );
 }

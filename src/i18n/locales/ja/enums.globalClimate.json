@@ -1,0 +1,15 @@
+{
+  "enum.globalEventCategory.disaster": "災害",
+  "enum.globalEventCategory.accident": "事故",
+  "enum.globalEventCategory.health": "健康",
+  "enum.globalEventCategory.crime": "治安",
+  "enum.globalEventCategory.traffic": "交通",
+  "enum.globalEventCategory.policy": "政策",
+  "enum.globalEventCategory.other": "その他",
+  "enum.globalEventCategory.unknown": "未分類",
+  "enum.globalEventSeverity.0": "一般",
+  "enum.globalEventSeverity.1": "注目",
+  "enum.globalEventSeverity.2": "重大",
+  "enum.globalEventSeverity.3": "深刻",
+  "enum.globalEventSeverity.unknown": "不明"
+}

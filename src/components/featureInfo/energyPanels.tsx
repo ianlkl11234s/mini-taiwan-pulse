@@ -14,6 +14,9 @@ import {
 import { Sparkline } from "../intel/monitor/PressureRing";
 import { FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import type { StaticMessageKey } from "../../i18n/keys";
 
 /**
  * Format MW value:
@@ -48,6 +51,7 @@ function fmtHHmm(tsSec: number): string {
 /** 24h 機組出力時序 sparkline + 數據摘要 */
 function PlantOutput24h({ plantName, color }: { plantName: string; color: string }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const [points, setPoints] = useState<PlantOutputPoint[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,21 +68,21 @@ function PlantOutput24h({ plantName, color }: { plantName: string; color: string
   if (error) {
     return (
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>
-        24h 時序載入失敗
+        {tr("popup.energy.outputLoadFailed")}
       </div>
     );
   }
   if (!points) {
     return (
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>
-        24h 時序載入中…
+        {tr("popup.energy.outputLoading")}
       </div>
     );
   }
   if (points.length < 2) {
     return (
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>
-        24h 內無機組資料
+        {tr("popup.energy.outputNoData")}
       </div>
     );
   }
@@ -100,7 +104,7 @@ function PlantOutput24h({ plantName, color }: { plantName: string; color: string
           fontSize: FONT_SIZE.sm, color: t.textMuted, marginBottom: 4,
         }}
       >
-        <span>24h 出力（MW）</span>
+        <span>{tr("popup.energy.output24h")}</span>
         <span style={{ color: deltaColor, fontFamily: FONT_DATA }}>
           {deltaSign} {Math.abs(delta).toFixed(0)}
         </span>
@@ -116,7 +120,7 @@ function PlantOutput24h({ plantName, color }: { plantName: string; color: string
         }}
       >
         <span>{fmtHHmm(points[0]!.ts)}</span>
-        <span>min {min.toFixed(0)} / max {max.toFixed(0)}</span>
+        <span>{tr("popup.energy.minMax", { min: min.toFixed(0), max: max.toFixed(0) })}</span>
         <span>{fmtHHmm(points[points.length - 1]!.ts)}</span>
       </div>
     </div>
@@ -124,6 +128,7 @@ function PlantOutput24h({ plantName, color }: { plantName: string; color: string
 }
 
 export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const fuel = String(props.fuel_type ?? "");
   const fuelColor = fuel ? fuelColorOf(fuel) : FUEL_FALLBACK_COLOR;
   const sourceTable = String(props.source_table ?? "");
@@ -136,20 +141,20 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
   const canShowSparkline = !isRetired && plantName.length >= 2;
   return (
     <div>
-      <Row label="電廠" value={plantName} />
-      <Row label="燃料" value={fuel || "—"} color={fuelColor} />
+      <Row label={t("popup.energy.plant")} value={plantName} />
+      <Row label={t("popup.energy.fuel")} value={fuel || "—"} color={fuelColor} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       {isRetired && (
         <Row
-          label="狀態"
-          value={statusNote || "已除役"}
+          field="status"
+          value={statusNote || t("popup.energy.retired")}
           color="#ef4444"
         />
       )}
       {hasOutput && (
         <>
-          <Row label="即時出力" value={fmtMW(props.output_mw)} />
-          <Row label="負載率" value={fmtPct01(props.output_load_rate)} />
+          <Row label={t("popup.energy.liveOutput")} value={fmtMW(props.output_mw)} />
+          <Row label={t("popup.energy.loadRate")} value={fmtPct01(props.output_load_rate)} />
         </>
       )}
       <Row field="dataSource" value={sourceTable || "—"} />
@@ -163,6 +168,7 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
 // ── 機組 drill-down lazy fetch block（migration 239） ──────────
 function UnitDrillDownBlock({ facilityId }: { facilityId: string }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const [units, setUnits] = useState<FacilityUnit[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
@@ -176,7 +182,7 @@ function UnitDrillDownBlock({ facilityId }: { facilityId: string }) {
 
   if (!facilityId) return null;
   if (err) return (
-    <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: "#f87171" }}>機組: {err}</div>
+    <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: "#f87171" }}>{tr("popup.energy.unitError", { error: err })}</div>
   );
   if (!units || units.length === 0) return null;
 
@@ -190,7 +196,7 @@ function UnitDrillDownBlock({ facilityId }: { facilityId: string }) {
       }}
     >
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ⚙ 機組 ({units.length})
+        {tr("popup.energy.unitsHeader", { count: units.length })}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {units.map((u) => {
@@ -241,6 +247,7 @@ const TIER_COLOR: Record<number, string> = {
 
 function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const [pv, setPv] = useState<FacilityProvenance | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
@@ -269,12 +276,12 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
       }}
     >
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        📋 資料來源
+        {tr("popup.energy.sourceHeader")}
       </div>
       <Row field="tier" value={pv.tier_label ?? "—"} color={tierColor} />
-      <Row label="平台" value={pv.source_platform ?? "—"} />
+      <Row label={tr("popup.energy.platform")} value={pv.source_platform ?? "—"} />
       {pv.source_dataset_name && (
-        <Row label="資料集" value={pv.source_dataset_name} />
+        <Row field="dataset" value={pv.source_dataset_name} />
       )}
       {pv.source_dataset_url && (
         <div style={{ marginTop: 3, fontSize: FONT_SIZE.xs, lineHeight: 1.4 }}>
@@ -284,13 +291,13 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
             rel="noopener noreferrer"
             style={{ color: "#67e8f9", textDecoration: "underline" }}
           >
-            ↗ 開啟原始資料集
+            {tr("popup.energy.openDataset")}
           </a>
         </div>
       )}
       <Row field="license" value={pv.source_license ?? "—"} />
-      <Row label="抓取日" value={fetched} />
-      <Row label="更新頻率" value={cadence} />
+      <Row label={tr("popup.energy.fetchedDate")} value={fetched} />
+      <Row label={tr("popup.energy.updateFrequency")} value={cadence} />
       {pv.agent_intervention_count > 0 && (
         <div
           style={{
@@ -303,9 +310,9 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
             fontSize: FONT_SIZE.xs,
             color: "#c4b5fd",
           }}
-          title="Agent 校正中英名稱 / 配對核對 / 缺失盤點次數"
+          title={tr("popup.energy.agentBadgeTitle")}
         >
-          ⚙ Agent 校正 ×{pv.agent_intervention_count}
+          {tr("popup.energy.agentBadge", { count: pv.agent_intervention_count })}
         </div>
       )}
     </div>
@@ -313,14 +320,15 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
 }
 
 export function OsmSubstationPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const cls = String(props.class ?? "OTHER");
-  const classLabel = String(props.class_label ?? "未分類");
+  const classLabel = String(props.class_label ?? t("popup.common.unclassified"));
   const classColor = SUBSTATION_CLASS_COLORS[cls as keyof typeof SUBSTATION_CLASS_COLORS]
                   ?? SUBSTATION_CLASS_COLORS.OTHER;
   return (
     <div>
-      <Row field="name" value={String(props.name ?? "(無名)")} />
-      <Row label="電網層級" value={classLabel} color={classColor} />
+      <Row field="name" value={String(props.name ?? t("popup.energy.unnamed"))} />
+      <Row label={t("popup.energy.gridLevel")} value={classLabel} color={classColor} />
       <Row label="OSM type" value={String(props.substation_type ?? "—")} />
       <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
@@ -339,17 +347,19 @@ function fmtVoltageKv(voltage: string | null | undefined): string {
 }
 
 export function OsmPowerLinePanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const lineType = String(props.line_type ?? "");
   const lineTypeLabel =
-    lineType === "minor_line" ? "配電線" :
-    lineType === "cable" ? "地下電纜" :
-    lineType === "line" ? "輸電線" : (lineType || "—");
+    lineType === "minor_line" ? enumLabel("powerLineType", lineType, "配電線", i18n) :
+    lineType === "cable" ? enumLabel("powerLineType", lineType, "地下電纜", i18n) :
+    lineType === "line" ? enumLabel("powerLineType", lineType, "輸電線", i18n) : (lineType || "—");
   return (
     <div>
       <Row field="type" value={lineTypeLabel} />
       <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
-      <Row label="迴路數" value={String(props.circuits ?? "—")} />
-      <Row label="頻率" value={String(props.frequency ?? "—")} />
+      <Row label={t("popup.energy.circuits")} value={String(props.circuits ?? "—")} />
+      <Row label={t("popup.energy.frequency")} value={String(props.frequency ?? "—")} />
       <Row field="location" value={String(props.location ?? "—")} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
       <Row field="osmId" value={String(props.osm_id ?? "")} />
@@ -358,12 +368,13 @@ export function OsmPowerLinePanel({ props }: { props: Record<string, unknown> })
 }
 
 export function OsmPowerTowerPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
       <Row field="number" value={String(props.ref ?? "—")} />
       <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
-      <Row label="材質" value={String(props.material ?? "—")} />
-      <Row label="型式" value={String(props.design ?? "—")} />
+      <Row label={t("popup.energy.material")} value={String(props.material ?? "—")} />
+      <Row label={t("popup.energy.design")} value={String(props.design ?? "—")} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
       <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
@@ -377,17 +388,18 @@ function fmtM(v: unknown, unit = "m"): string {
 }
 
 export function OsmWindTurbinePanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const offshore = props.is_offshore;
-  const offshoreLabel = offshore === true ? "離岸" : offshore === false ? "陸域" : "—";
+  const offshoreLabel = offshore === true ? t("popup.energy.offshore") : offshore === false ? t("popup.energy.onshore") : "—";
   return (
     <div>
-      <Row field="name" value={String(props.name || "(無名)")} />
+      <Row field="name" value={String(props.name || t("popup.energy.unnamed"))} />
       <Row field="type" value={offshoreLabel} color={offshore === true ? "#67e8f9" : offshore === false ? "#2dd4bf" : undefined} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
-      <Row label="塔高" value={fmtM(props.height_m)} />
-      <Row label="葉片直徑" value={fmtM(props.rotor_diameter_m)} />
-      <Row label="製造商" value={String(props.manufacturer || "—")} />
-      <Row label="型號" value={String(props.model || "—")} />
+      <Row label={t("popup.energy.towerHeight")} value={fmtM(props.height_m)} />
+      <Row label={t("popup.energy.rotorDiameter")} value={fmtM(props.rotor_diameter_m)} />
+      <Row label={t("popup.energy.manufacturer")} value={String(props.manufacturer || "—")} />
+      <Row label={t("popup.energy.model")} value={String(props.model || "—")} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
       <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
@@ -395,13 +407,14 @@ export function OsmWindTurbinePanel({ props }: { props: Record<string, unknown> 
 }
 
 export function OsmSolarFarmPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row field="name" value={String(props.name || "(無名)")} />
+      <Row field="name" value={String(props.name || t("popup.energy.unnamed"))} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
-      <Row label="模組數" value={String(props.modules ?? "—")} />
+      <Row label={t("popup.energy.modules")} value={String(props.modules ?? "—")} />
       <Row field="area" value={fmtM(props.area_m2, "m²")} />
-      <Row label="方式" value={String(props.plant_method || "—")} />
+      <Row label={t("popup.energy.method")} value={String(props.plant_method || "—")} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
       <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
@@ -409,13 +422,14 @@ export function OsmSolarFarmPanel({ props }: { props: Record<string, unknown> })
 }
 
 export function OsmPowerPlantStaticPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const src = String(props.plant_source || "");
   return (
     <div>
-      <Row field="name" value={String(props.name || "(無名)")} />
-      <Row label="燃料 / 來源" value={src || "—"} color={fuelColorOf(src)} />
-      <Row label="方式" value={String(props.plant_method || "—")} />
-      <Row label="發電機" value={String(props.generator_source || "—")} />
+      <Row field="name" value={String(props.name || t("popup.energy.unnamed"))} />
+      <Row label={t("popup.energy.fuelSource")} value={src || "—"} color={fuelColorOf(src)} />
+      <Row label={t("popup.energy.method")} value={String(props.plant_method || "—")} />
+      <Row label={t("popup.energy.generator")} value={String(props.generator_source || "—")} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
       <Row field="osmId" value={String(props.osm_id ?? "")} />
@@ -424,33 +438,35 @@ export function OsmPowerPlantStaticPanel({ props }: { props: Record<string, unkn
 }
 
 export function OffshoreWindZonePanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const dMin = props.depth_min_m, dMax = props.depth_max_m;
   const depthLabel = dMin != null && dMax != null ? `${Number(dMin).toFixed(0)} ~ ${Number(dMax).toFixed(0)} m` : "—";
   return (
     <div>
-      <Row label="場址" value={String(props.zone_name || props.zone_code || "—")} />
+      <Row label={t("popup.energy.zone")} value={String(props.zone_name || props.zone_code || "—")} />
       <Row field="type" value={String(props.zone_type || "—")} />
-      <Row label="開發階段" value={String(props.phase || "—")} />
-      <Row label="開發商" value={String(props.developer || "—")} />
+      <Row label={t("popup.energy.phase")} value={String(props.phase || "—")} />
+      <Row label={t("popup.energy.developer")} value={String(props.developer || "—")} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
-      <Row label="得標年" value={String(props.award_year ?? "—")} />
-      <Row label="商轉年" value={String(props.cod_year ?? "—")} />
-      <Row label="水深" value={depthLabel} />
-      <Row label="離岸距離" value={props.distance_km != null ? `${Number(props.distance_km).toFixed(1)} km` : "—"} />
+      <Row label={t("popup.energy.awardYear")} value={String(props.award_year ?? "—")} />
+      <Row label={t("popup.energy.onlineYear")} value={String(props.cod_year ?? "—")} />
+      <Row label={t("popup.energy.depth")} value={depthLabel} />
+      <Row label={t("popup.energy.distanceOffshore")} value={props.distance_km != null ? `${Number(props.distance_km).toFixed(1)} km` : "—"} />
     </div>
   );
 }
 
 export function IslandPowerFacilityPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
       <Row field="name" value={String(props.name || "—")} />
-      <Row label="島嶼" value={String(props.island || "—")} />
-      <Row label="設施類型" value={String(props.facility_type || "—")} />
-      <Row label="燃料" value={String(props.fuel_type || "—")} />
+      <Row label={t("popup.energy.island")} value={String(props.island || "—")} />
+      <Row field="facilityType" value={String(props.facility_type || "—")} />
+      <Row label={t("popup.energy.fuel")} value={String(props.fuel_type || "—")} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       <Row field="voltage" value={props.voltage_kv != null ? `${props.voltage_kv} kV` : "—"} />
-      <Row label="商轉年" value={String(props.online_year ?? "—")} />
+      <Row label={t("popup.energy.onlineYear")} value={String(props.online_year ?? "—")} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
       <Row field="address" value={String(props.address || "—")} />
       <Row field="source" value={String(props.source || "—")} />
@@ -459,26 +475,28 @@ export function IslandPowerFacilityPanel({ props }: { props: Record<string, unkn
 }
 
 export function FossilFuelFacilityPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const ft = String(props.facility_type || "");
   const ftLabel =
-    ft === "lng_terminal" ? "LNG 接收站" :
-    ft === "oil_refinery" ? "煉油廠" :
-    ft === "gas_power_plant" ? "燃氣電廠" : (ft || "—");
+    ft === "lng_terminal" ? enumLabel("fossilFacilityType", ft, "LNG 接收站", i18n) :
+    ft === "oil_refinery" ? enumLabel("fossilFacilityType", ft, "煉油廠", i18n) :
+    ft === "gas_power_plant" ? enumLabel("fossilFacilityType", ft, "燃氣電廠", i18n) : (ft || "—");
   return (
     <div>
       <Row field="name" value={String(props.name || "—")} />
       <Row field="type" value={ftLabel} />
-      <Row label="內容物" value={String(props.content || "—")} />
+      <Row label={t("popup.energy.content")} value={String(props.content || "—")} />
       {props.capacity_tonnes != null && (
-        <Row label="容量（噸）" value={`${Number(props.capacity_tonnes).toLocaleString()}`} />
+        <Row label={t("popup.energy.capacityTonnes")} value={formatNumber(Number(props.capacity_tonnes))} />
       )}
       {props.capacity_kl != null && (
-        <Row label="容量（公秉）" value={`${Number(props.capacity_kl).toLocaleString()}`} />
+        <Row label={t("popup.energy.capacityKl")} value={formatNumber(Number(props.capacity_kl))} />
       )}
       {props.daily_throughput_kbpd != null && (
-        <Row label="日處理量" value={`${Number(props.daily_throughput_kbpd).toLocaleString()} kbpd`} />
+        <Row label={t("popup.energy.dailyThroughput")} value={`${formatNumber(Number(props.daily_throughput_kbpd))} kbpd`} />
       )}
-      <Row label="商轉年" value={String(props.online_year ?? "—")} />
+      <Row label={t("popup.energy.onlineYear")} value={String(props.online_year ?? "—")} />
       <Row field="status" value={String(props.status || "—")} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
       <Row field="address" value={String(props.address || "—")} />
@@ -487,24 +505,25 @@ export function FossilFuelFacilityPanel({ props }: { props: Record<string, unkno
 }
 
 export function GeothermalWellPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const reportUrl = String(props.report_url || "");
   const figureUrl = String(props.figure_url || "");
   return (
     <div>
-      <Row label="井名 / 區" value={String(props.geothermal_area || "—")} />
-      <Row label="報告" value={String(props.report_name || "—")} />
-      <Row label="圖件說明" value={String(props.figure_content || "—")} />
+      <Row label={t("popup.energy.wellArea")} value={String(props.geothermal_area || "—")} />
+      <Row label={t("popup.energy.report")} value={String(props.report_name || "—")} />
+      <Row label={t("popup.energy.figureDesc")} value={String(props.figure_content || "—")} />
       <Row field="county" value={String(props.county_code || "—")} />
       {reportUrl && (
         <div style={{ marginTop: 6 }}>
           <a href={reportUrl} target="_blank" rel="noopener noreferrer"
             style={{ color: "#22d3ee", fontSize: FONT_SIZE.sm, textDecoration: "underline" }}>
-            開報告 ↗
+            {t("popup.energy.openReport")}
           </a>
           {figureUrl && (
             <a href={figureUrl} target="_blank" rel="noopener noreferrer"
               style={{ marginLeft: 12, color: "#22d3ee", fontSize: FONT_SIZE.sm, textDecoration: "underline" }}>
-              開圖件 ↗
+              {t("popup.energy.openFigure")}
             </a>
           )}
         </div>
@@ -515,33 +534,34 @@ export function GeothermalWellPanel({ props }: { props: Record<string, unknown> 
 
 export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   // 政府原始資料未提供 district / installed_at；district 從 address regex 抓 XX區
   const addr = String(props.address || "");
   const districtFromAddr = addr.match(/[一-龥]{1,3}區/)?.[0] ?? "";
   const district = String(props.district || "") || districtFromAddr || "—";
   return (
     <div>
-      <Row label="設施名稱" value={String(props.installation_name || "—")} />
+      <Row field="facilityName" value={String(props.installation_name || "—")} />
       <Row field="category" value={String(props.category || "—")} />
       <Row field="installedCapacity" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
       <Row field="district" value={district} />
       <Row field="address" value={addr || "—"} />
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.4 }}>
-        ⚠ 政府原始資料位置精度約 1km，呈網格狀；
-        設置日 / 行政區欄位上游未提供
+        {tr("popup.energy.permitNote")}
       </div>
     </div>
   );
 }
 
 export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="站名" value={String(props.name ?? "")} />
-      <Row label="營運" value={String(props.operator_name ?? "—")} />
+      <Row field="stationName" value={String(props.name ?? "")} />
+      <Row label={t("popup.energy.operatingEntity")} value={String(props.operator_name ?? "—")} />
       <Row field="address" value={String(props.address ?? "—")} />
-      <Row label="充電位" value={String(props.charging_points ?? "—")} />
-      <Row label="車位" value={String(props.spaces ?? "—")} />
+      <Row label={t("popup.energy.chargingPoints")} value={String(props.charging_points ?? "—")} />
+      <Row label={t("popup.energy.spaces")} value={String(props.spaces ?? "—")} />
       <Row field="source" value={String(props.source ?? "—")} />
     </div>
   );
@@ -563,8 +583,8 @@ function joinBrand(b: unknown): string {
 function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
   return (
     <>
-      <Row label="站名" value={String(props.name ?? "—")} />
-      <Row label="品牌" value={joinBrand(props.brand) || "—"} />
+      <Row field="stationName" value={String(props.name ?? "—")} />
+      <Row field="brand" value={joinBrand(props.brand) || "—"} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
     </>
@@ -590,41 +610,46 @@ export function GasStationFpccPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function GasStationTaisugarPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const yn = (v: unknown) => (v ? t("popup.common.yes") : v === false ? t("popup.common.no") : "—");
   return (
     <div>
       <GasStationCommonRows props={props} />
-      <Row label="自助加油" value={props.is_self_service ? "是" : props.is_self_service === false ? "否" : "—"} />
-      <Row label="24h 營業" value={props.is_24h ? "是" : props.is_24h === false ? "否" : "—"} />
-      <Row label="充電設施" value={props.has_ev_charging ? "有" : props.has_ev_charging === false ? "無" : "—"} />
+      <Row label={t("popup.energy.selfService")} value={yn(props.is_self_service)} />
+      <Row label={t("popup.energy.open24h")} value={yn(props.is_24h)} />
+      <Row label={t("popup.energy.evCharging")} value={props.has_ev_charging ? t("popup.energy.has") : props.has_ev_charging === false ? t("popup.common.none") : "—"} />
     </div>
   );
 }
 
 export function GasStationOtherPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
       <GasStationCommonRows props={props} />
-      <Row label="統編" value={String(props.tax_id ?? "—")} />
+      <Row label={t("popup.energy.taxId")} value={String(props.tax_id ?? "—")} />
       <Row field="capital" value={String(props.capital ?? "—")} />
     </div>
   );
 }
 
 export function GasStationCanonicalPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
       <GasStationCommonRows props={props} />
-      <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
       <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
 }
 
 export function LpgSubpackagingPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const kinds = Array.isArray(props.facility_kinds) ? props.facility_kinds.join(", ") : "—";
   return (
     <div>
-      <Row label="場所名稱" value={String(props.name ?? "—")} />
+      <Row label={t("popup.energy.lpgSite")} value={String(props.name ?? "—")} />
       <Row field="type" value={kinds} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
@@ -633,60 +658,65 @@ export function LpgSubpackagingPanel({ props }: { props: Record<string, unknown>
 }
 
 export function LpgRetailersPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="店家名稱" value={String(props.name ?? "—")} />
+      <Row label={t("popup.energy.lpgShop")} value={String(props.name ?? "—")} />
       <Row field="address" value={String(props.address ?? "—")} />
       <Row field="phone" value={String(props.telephone ?? "—")} />
-      <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
       <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
 }
 
 export function LngTerminalPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="接收站" value={String(props.name ?? "—")} />
+      <Row label={t("popup.energy.terminal")} value={String(props.name ?? "—")} />
       <Row field="englishName" value={String(props.name_en ?? "—")} />
       <Row field="status" value={String(props.status ?? "—")} />
       <Row field="operator" value={String(props.owner ?? "—")} />
-      <Row label="容量 (Mtpa)" value={String(props.capacity_mtpa ?? "—")} />
-      <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label={t("popup.energy.capacityMtpa")} value={String(props.capacity_mtpa ?? "—")} />
+      <Row label={t("popup.energy.confidence")} value={props.confidence != null ? String(props.confidence) : "—"} />
       <Row field="sourceCount" value={props.n_sources != null ? String(props.n_sources) : "—"} />
     </div>
   );
 }
 
 export function PipelineGasPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="管線名稱" value={String(props.pipeline_name ?? props.name ?? "—")} />
-      <Row label="輸送物質" value={String(props.substance ?? "gas")} />
+      <Row label={t("popup.energy.pipelineName")} value={String(props.pipeline_name ?? props.name ?? "—")} />
+      <Row label={t("popup.energy.substance")} value={String(props.substance ?? "gas")} />
       <Row field="status" value={String(props.status ?? "—")} />
       <Row field="operator" value={String(props.owner ?? "—")} />
-      <Row label="管徑（吋）" value={String(props.diameter_in ?? "—")} />
-      <Row label="完工年" value={String(props.start_year ?? "—")} />
+      <Row label={t("popup.energy.diameterIn")} value={String(props.diameter_in ?? "—")} />
+      <Row label={t("popup.energy.completionYear")} value={String(props.start_year ?? "—")} />
     </div>
   );
 }
 
 export function PipelineOilGasPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="管線名稱" value={String(props.pipeline_name ?? props.name ?? "—")} />
-      <Row label="輸送物質" value={String(props.substance ?? "—")} />
+      <Row label={t("popup.energy.pipelineName")} value={String(props.pipeline_name ?? props.name ?? "—")} />
+      <Row label={t("popup.energy.substance")} value={String(props.substance ?? "—")} />
       <Row field="status" value={String(props.status ?? "—")} />
       <Row field="operator" value={String(props.owner ?? "—")} />
-      <Row label="管徑（吋）" value={String(props.diameter_in ?? "—")} />
+      <Row label={t("popup.energy.diameterIn")} value={String(props.diameter_in ?? "—")} />
     </div>
   );
 }
 
 export function IndustrialRefineryPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="廠區名稱" value={String(props.name ?? "—")} />
+      <Row label={t("popup.energy.industrialSiteName")} value={String(props.name ?? "—")} />
       <Row field="type" value={String(props.industrial_type ?? "refinery")} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
     </div>
@@ -694,9 +724,10 @@ export function IndustrialRefineryPanel({ props }: { props: Record<string, unkno
 }
 
 export function IndustrialStorageTankPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="儲槽名稱" value={String(props.name ?? "—")} />
+      <Row label={t("popup.energy.tankName")} value={String(props.name ?? "—")} />
       <Row field="type" value={String(props.industrial_type ?? "storage_tank")} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
     </div>
@@ -704,9 +735,10 @@ export function IndustrialStorageTankPanel({ props }: { props: Record<string, un
 }
 
 export function IndustrialPowerPlantPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="廠區名稱" value={String(props.name ?? "—")} />
+      <Row label={t("popup.energy.industrialSiteName")} value={String(props.name ?? "—")} />
       <Row field="type" value={String(props.industrial_type ?? "power_plant")} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
     </div>
@@ -714,11 +746,12 @@ export function IndustrialPowerPlantPanel({ props }: { props: Record<string, unk
 }
 
 export function CoalTerminalPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="碼頭名稱" value={String(props.terminal_name ?? props.name ?? "—")} />
-      <Row label="所屬港" value={String(props.parent_port ?? "—")} />
-      <Row label="容量 (Mt)" value={String(props.capacity_mt ?? "—")} />
+      <Row label={t("popup.energy.terminalName")} value={String(props.terminal_name ?? props.name ?? "—")} />
+      <Row label={t("popup.energy.parentPort")} value={String(props.parent_port ?? "—")} />
+      <Row label={t("popup.energy.capacityMt")} value={String(props.capacity_mt ?? "—")} />
       <Row field="status" value={String(props.status ?? "—")} />
       <Row field="operator" value={String(props.owner ?? "—")} />
     </div>
@@ -731,9 +764,10 @@ export function CoalTerminalPanel({ props }: { props: Record<string, unknown> })
 
 function CoveragePocFooter() {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   return (
     <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
-      資料來源：本專案 osmnx + multi-source dijkstra（全台主要路網 motorway/trunk/primary/secondary/tertiary × 5 級色階）
+      {tr("popup.energy.coverageFooter")}
     </div>
   );
 }
@@ -744,12 +778,13 @@ function formatDist(distM: unknown): string {
   return m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m)} m`;
 }
 
-function CoverageNearestRows({ props, sourceLabel }: { props: Record<string, unknown>; sourceLabel: string }) {
+function CoverageNearestRows({ props, sourceKey }: { props: Record<string, unknown>; sourceKey: StaticMessageKey }) {
+  const { t } = useLocale();
   return (
     <>
-      <Row label="最近距離" value={formatDist(props.dist_m)} />
-      <Row label="分級" value={String(props.band ?? "—")} />
-      <Row label="量度方式" value={sourceLabel} />
+      <Row label={t("popup.energy.nearestDistance")} value={formatDist(props.dist_m)} />
+      <Row label={t("popup.energy.band")} value={String(props.band ?? "—")} />
+      <Row label={t("popup.energy.measureMethod")} value={t(sourceKey)} />
     </>
   );
 }
@@ -757,7 +792,7 @@ function CoverageNearestRows({ props, sourceLabel }: { props: Record<string, unk
 export function GasCoverageAllPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <CoverageNearestRows props={props} sourceLabel="這條路到最近加油站的路網距離" />
+      <CoverageNearestRows props={props} sourceKey="popup.energy.nearestGas" />
       <CoveragePocFooter />
     </div>
   );
@@ -766,7 +801,7 @@ export function GasCoverageAllPanel({ props }: { props: Record<string, unknown> 
 export function GasCoverageCpcPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <CoverageNearestRows props={props} sourceLabel="這條路到最近中油站的路網距離" />
+      <CoverageNearestRows props={props} sourceKey="popup.energy.nearestCpc" />
       <CoveragePocFooter />
     </div>
   );
@@ -775,7 +810,7 @@ export function GasCoverageCpcPanel({ props }: { props: Record<string, unknown> 
 export function GasCoverageFpccPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <CoverageNearestRows props={props} sourceLabel="這條路到最近台塑站的路網距離" />
+      <CoverageNearestRows props={props} sourceKey="popup.energy.nearestFpcc" />
       <CoveragePocFooter />
     </div>
   );
@@ -784,25 +819,26 @@ export function GasCoverageFpccPanel({ props }: { props: Record<string, unknown>
 export function GasCoverageTaisugarPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
-      <CoverageNearestRows props={props} sourceLabel="這條路到最近台糖站的路網距離" />
+      <CoverageNearestRows props={props} sourceKey="popup.energy.nearestTaisugar" />
       <CoveragePocFooter />
     </div>
   );
 }
 
 export function EvIslandPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const distM = Number(props.dist_m);
   const isFar = Number.isFinite(distM) && distM >= 30000;
   return (
     <div>
-      <CoverageNearestRows props={props} sourceLabel="這條路到最近充電站的路網距離" />
+      <CoverageNearestRows props={props} sourceKey="popup.energy.nearestCharger" />
       {isFar && (
         <div style={{
           marginTop: 8, padding: "6px 8px",
           background: "rgba(242,53,53,0.12)", border: "1px solid rgba(242,53,53,0.4)",
           borderRadius: 4, color: "#F23535", fontSize: FONT_SIZE.sm, lineHeight: 1.4,
         }}>
-          此處離最近充電站 30 km 以上 — 充電孤島
+          {t("popup.energy.chargingIsland")}
         </div>
       )}
       <CoveragePocFooter />

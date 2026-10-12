@@ -52,3 +52,13 @@ export function enumLabel(domain: string, code: string | number, zhLabel: string
   if (active === "zh-TW") return zhLabel;
   return lookup(`enum.${domain}.${code}`) ?? zhLabel;
 }
+
+/**
+ * 資料給的民國年 → 目前語系要顯示的年份：中文維持民國年，外文換算西元（+1911）。
+ * 翻譯檔裡沒辦法做算術，所以年份一律在程式端換好再傳進 `t()`。非數字原樣回傳。
+ */
+export function displayRocYear(rocYear: string | number, { active }: Pick<I18nContext, "active">): string {
+  const n = Number(String(rocYear).trim());
+  if (active === "zh-TW" || !Number.isFinite(n) || String(rocYear).trim() === "") return String(rocYear);
+  return String(n + 1911);
+}

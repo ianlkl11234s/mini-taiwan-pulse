@@ -9,6 +9,7 @@ import type { AnalysisResultPanelProperties, AnalysisResultPanelRecord, Analysis
 import { TrendLine } from "../../research/charts/TrendLine";
 import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
 
 const FALLBACK_DOT = "#64aaff";
 
@@ -38,6 +39,7 @@ function readPanelProperties(props: Record<string, unknown>): AnalysisResultPane
 
 export function AnalysisResultPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const { records, total, omitted } = readPanelProperties(props);
   // FeatureInfoPanel 不以 feature 當 key：換一組重疊紀錄就把選擇器歸零，
   // 但同一組紀錄在 App 重繪（properties 物件換手）時保留使用者的選擇。
@@ -51,9 +53,9 @@ export function AnalysisResultPanel({ props }: { props: Record<string, unknown> 
     <div style={{ fontFamily: FONT_CJK }}>
       {records.length > 1 && (
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontSize: FONT_SIZE.sm, color: t.textDim }}>
-          <span style={{ flex: "1 1 auto" }}>本位置 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{total}</span> 筆紀錄</span>
+          <span style={{ flex: "1 1 auto" }}>{tr("popup.analysisResult.hereBefore")}<span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{total}</span>{tr("popup.analysisResult.hereAfter")}</span>
           <select
-            aria-label="選擇重疊分析紀錄"
+            aria-label={tr("popup.analysisResult.selectRecord")}
             value={String(index)}
             onChange={(event) => setIndex(Number(event.target.value))}
             style={{ minWidth: 0, maxWidth: 160, border: `1px solid ${t.border}`, borderRadius: RADIUS.sm, background: t.bgSubtle, color: t.textStrong, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base }}
@@ -78,10 +80,10 @@ export function AnalysisResultPanel({ props }: { props: Record<string, unknown> 
           )}
         </>
       ) : (
-        <Row label="紀錄" value="本次分析命中的空間紀錄" />
+        <Row label={tr("popup.analysisResult.recordLabel")} value={tr("popup.analysisResult.recordValue")} />
       )}
       <div style={{ marginTop: 8, paddingTop: 6, borderTop: `1px solid ${t.border}`, fontSize: FONT_SIZE.xs, lineHeight: 1.55, color: t.textDim }}>
-        暫時分析結果 · 非完整來源圖層{omitted ? ` · 另有 ${omitted} 筆重疊紀錄未列出` : ""}
+        {tr("popup.analysisResult.footer")}{omitted ? tr("popup.analysisResult.omitted", { count: omitted }) : ""}
       </div>
     </div>
   );
