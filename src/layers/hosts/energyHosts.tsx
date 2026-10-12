@@ -88,9 +88,11 @@ export const SubstationDiamondIconHost: LayerHostComponent = ({ deps }) => {
 export const OsmPowerLinesGlowHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useOsmPowerLinesGlowLayer");
   const p = useKeyOverlayParams("osmPowerLines");
+  // R6 段 1：Three.js bloom 只在「立體效果」開啟時掛（關閉時 glow hook 不 fetch、不 mount）
+  const values = useLayerParams("osmPowerLines");
   useOsmPowerLinesGlowLayer(
     deps.mapRef,
-    deps.layerVisibility.osmPowerLines,
+    deps.layerVisibility.osmPowerLines && paramBool(values, "osmPowerLines", "osmPowerLines3D"),
     p.osmPowerLinesOpacity ?? 0.4,
     p.osmPowerLinesWidth ?? 1,
   );
@@ -205,16 +207,19 @@ export const PowerRegionBarsHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 機組發電光柱 */
+/** 機組即時出力：平面圓點的資料餵料＋（立體效果開時）Three.js 光柱 */
 export const PowerGenerationBeamHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("usePowerGenerationBeamLayer");
   const p = useKeyOverlayParams("powerGenerationUnit");
+  // R6 段 2：平面圓點由 registry 畫；Three.js 光柱只在「立體效果」開啟時下載／掛載
+  const values = useLayerParams("powerGenerationUnit");
   usePowerGenerationBeamLayer(
     deps.mapRef,
     deps.layerVisibility.powerGenerationUnit,
     p.powerGenerationOpacity ?? 0.7,
     p.powerGenerationHeight ?? 1,
     p.powerGenerationScale ?? 1,
+    paramBool(values, "powerGenerationUnit", "powerGenerationUnit3D"),
   );
   return null;
 };
@@ -236,9 +241,12 @@ export const PowerPlantGlowHost: LayerHostComponent = ({ deps }) => {
 export const BuildingsNightBloomHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useBuildingsNightBloomLayer");
   const p = useKeyOverlayParams("buildingsGba");
+  // R6 段 1：夜景模式的 Three.js bloom 另需「立體效果」開啟（Mapbox 夜光配色不受影響）
+  const values = useLayerParams("buildingsGba");
   useBuildingsNightBloomLayer(
     deps.mapRef,
-    deps.layerVisibility.buildingsGba && (p.buildingsGbaModeIdx ?? 0) === 3,
+    deps.layerVisibility.buildingsGba && (p.buildingsGbaModeIdx ?? 0) === 3
+      && paramBool(values, "buildingsGba", "buildingsGbaBloom"),
     p.buildingsGbaOpacity ?? 0.75,
     p.buildingsGbaBloomMinHeight ?? 100,
   );

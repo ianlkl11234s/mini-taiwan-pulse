@@ -16,13 +16,17 @@ import { useGroundwaterLayer } from "../../hooks/useGroundwaterLayer";
 import { useIotWraRiverLayer } from "../../hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "../../hooks/useIotWraStructureLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { paramBool, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 import { RASTER } from "../../map/mapStyleScale";
 
-/** 水庫 3D 水位計（Three.js cylinder：外殼 = 容量、內水位 = 蓄水率） */
+/**
+ * 水庫即時水情：平面圓點（registry，預設）的資料餵料＋（立體效果開時）Three.js 水位計
+ * （cylinder：外殼 = 容量、內水位 = 蓄水率）。
+ */
 export const ReservoirStatusHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useReservoirStatusLayer");
   const p = useKeyOverlayParams("waterReservoirs");
+  const values = useLayerParams("waterReservoirs");
   useReservoirStatusLayer(
     deps.mapRef,
     deps.layerVisibility.waterReservoirs,
@@ -32,6 +36,7 @@ export const ReservoirStatusHost: LayerHostComponent = ({ deps }) => {
     deps.reservoirSceneRef,
     deps.reservoirStatusesRef,
     deps.activeReservoirId,
+    paramBool(values, "waterReservoirs", "waterReservoirs3D"),
   );
   return null;
 };

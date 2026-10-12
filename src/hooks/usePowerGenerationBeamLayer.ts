@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
+import type { Map as MapboxMap } from "mapbox-gl";
 import {
   POWER_GENERATION_BEAM_LAYER_ID,
   powerGenerationBeamModule,
@@ -15,12 +15,16 @@ import {
   type PowerGenerationRow,
 } from "../data/energyLoader";
 import { timeStore } from "../state/timeStore";
+import { feedDynamicSource } from "../map/dynamicSourceFeed";
 import { useMapReadyTick } from "./useMapReadyTick";
 
-/** 透明 hit-test source — 提供「點 beam 也會出 PowerPlantPanel」 */
+/**
+ * 平面圓點＋透明 hit-test 共用的 source（R6 段 2：registry `circle` 子層把它畫成可見的平面版）。
+ * 立體效果開時 Three.js 光柱疊在上面；點選一律走這個 source 的 Mapbox 層。
+ */
 const HIT_SOURCE_ID = "energy-power-generation-hit";
 
-function plantsToHitFC(rows: PowerGenerationRow[]): GeoJSON.FeatureCollection {
+export function plantsToHitFC(rows: PowerGenerationRow[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
     features: rows.map((r) => ({
@@ -51,6 +55,7 @@ function plantsToHitFC(rows: PowerGenerationRow[]): GeoJSON.FeatureCollection {
  * - 一次拉 24h × ~23 廠（14 台電 + 6 離岸 + 3 離島；SSOT RPC 238），scrub 走 client binary search
  * - 每 10min 自動 invalidate + refetch（拿新一輪 cron 結果）
  * - 歷史超過 24h 範圍時走 beam 高度歸 0
+ * - R6 段 2：`visible`＝圖層開（抓資料、餵平面圓點）；`stereo`＝立體效果（才下載／掛 Three.js 光柱）
  */
 export function usePowerGenerationBeamLayer(
   mapRef: React.RefObject<MapboxMap | null>,
@@ -58,12 +63,17 @@ export function usePowerGenerationBeamLayer(
   opacity: number,
   heightScale: number,
   sizeScale: number,
+  stereo: boolean,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
+  /** Three.js 光柱是否畫：圖層開 且 立體效果開 */
+  const beamOn = visible && stereo;
+  const beamOnRef = useRef(beamOn);
+  beamOnRef.current = beamOn;
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
   const heightScaleRef = useRef(heightScale);
@@ -75,7 +85,7 @@ export function usePowerGenerationBeamLayer(
   // Slider 值走 ref 給 CustomLayer；值變動仍需主動要求 Mapbox 再 render 一幀。
   useEffect(() => {
     mapRef.current?.triggerRepaint();
-  }, [mapRef, visible, opacity, heightScale, sizeScale, mapTick]);
+  }, [mapRef, beamOn, opacity, heightScale, sizeScale, mapTick]);
 
   // Mount layer — toggle ON 時保證 effect 重跑（mapRef.current 初始可能 null）
   //
@@ -84,7 +94,8 @@ export function usePowerGenerationBeamLayer(
   // 因為 isStyleLoaded() 在 toggle 瞬間 racily 回 false，style 已 load 過不會再 fire
   // → CustomLayer 永遠沒 addLayer，14 廠 fetch 成功但畫面沒柱。修法走 try/catch + idle retry
   useEffect(() => {
-    console.log("[PowerBeam] mount effect run; visible=", visible, "mapReady=", !!mapRef.current);
+    console.log("[PowerBeam] mount effect run; beamOn=", beamOn, "mapReady=", !!mapRef.current);
+    if (!beamOn) return; // R6 段 2：立體效果關 → 不下載、不掛光柱
     const map = mapRef.current;
     if (!map) {
       console.log("[PowerBeam] mount: mapRef.current=null，等下次 deps 改變");
@@ -96,12 +107,12 @@ export function usePowerGenerationBeamLayer(
       try {
         // C1b：three 模組第一次可見才載入；錨點佔住原位置
         mountLazyCustomLayer(map, POWER_GENERATION_BEAM_LAYER_ID, powerGenerationBeamModule, (m) => m.createPowerGenerationBeamLayer({
-          getIsVisible: () => visibleRef.current,
+          getIsVisible: () => beamOnRef.current,
           getOpacity: () => opacityRef.current,
           getHeightScale: () => heightScaleRef.current,
           getSizeScale: () => sizeScaleRef.current,
           getPlants: () => plantsRef.current,
-        }), () => visibleRef.current);
+        }), () => beamOnRef.current);
       } catch (e) {
         console.log("[PowerBeam] addLayer 失敗（style 還在 load）→ idle 後重試", e);
         map.once("idle", tryMount);
@@ -114,7 +125,7 @@ export function usePowerGenerationBeamLayer(
     return () => {
       map.off("style.load", tryMount);
     };
-  }, [mapRef, visible, mapTick]);
+  }, [mapRef, beamOn, mapTick]);
 
   // 24h preload + 跟隨 timeStore（client binary search 解析）
   useEffect(() => {
@@ -122,6 +133,9 @@ export function usePowerGenerationBeamLayer(
     if (!visible) return;
     let cancelled = false;
     let dayRef: PowerGenerationDay | null = null;
+    const map0 = mapRef.current;
+    // 平面圓點的 source：overlay 晚建或換底圖重建時補推最後一份資料（暫停時 timeStore 不會再觸發）
+    const feed = map0 ? feedDynamicSource(map0, HIT_SOURCE_ID) : null;
 
     const applyTime = (tsSec: number) => {
       if (!dayRef) return;
@@ -132,12 +146,8 @@ export function usePowerGenerationBeamLayer(
         );
       }
       plantsRef.current = rows;
-      const map = mapRef.current;
-      if (map) {
-        const src = map.getSource(HIT_SOURCE_ID) as GeoJSONSource | undefined;
-        if (src) src.setData(plantsToHitFC(rows));
-        map.triggerRepaint();
-      }
+      feed?.set(plantsToHitFC(rows));
+      mapRef.current?.triggerRepaint();
     };
 
     const load = () => {
@@ -164,6 +174,7 @@ export function usePowerGenerationBeamLayer(
       cancelled = true;
       unsub();
       window.clearInterval(poll);
+      feed?.dispose();
     };
   }, [visible, mapRef, mapTick]);
 }

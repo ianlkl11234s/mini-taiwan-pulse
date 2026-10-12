@@ -180,6 +180,8 @@ export function useEarthquakesGlobalLayer(
   visible: boolean,
   opacity: number = 0.9,
   lookbackDays: number = EARTHQUAKE_GLOBAL_DAYS_DEFAULT,
+  /** R6 段 1：「立體效果」—— false 時只畫 Mapbox 點，不掛 Three 漣漪、不跑漣漪 RAF（host 傳入，預設關） */
+  ripple3D: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -190,6 +192,8 @@ export function useEarthquakesGlobalLayer(
   // Three 漣漪圖層每幀讀這些 ref（不走 React deps）
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
+  const rippleOnRef = useRef(visible && ripple3D);
+  rippleOnRef.current = visible && ripple3D;
   const opacityRef = useRef(Math.max(0, Math.min(1, opacity)));
   opacityRef.current = Math.max(0, Math.min(1, opacity));
   const ripplesRef = useRef<EarthquakeRippleSnapshot>({ version: 0, items: [] });
@@ -310,16 +314,22 @@ export function useEarthquakesGlobalLayer(
       removeLazyCustomLayer(map, EARTHQUAKE_RIPPLE_LAYER_ID);
       return;
     }
+    if (!ripple3D) {
+      // 立體效果關 → 不掛 Three 漣漪（已掛的移除、釋放 GPU 資源），也不啟動漣漪 RAF
+      animatingRef.current = false;
+      removeLazyCustomLayer(map, EARTHQUAKE_RIPPLE_LAYER_ID);
+    }
 
     const mountRipple = (m: MapboxMap) => {
+      if (!ripple3D) return;
       try {
         mountLazyCustomLayer(m, EARTHQUAKE_RIPPLE_LAYER_ID, earthquakeRippleModule, (mod) =>
           mod.createEarthquakeRippleLayer({
-            getIsVisible: () => visibleRef.current,
+            getIsVisible: () => rippleOnRef.current,
             getIsAnimating: () => animatingRef.current,
             getOpacity: () => opacityRef.current,
             getRipples: () => ripplesRef.current,
-          }), () => visibleRef.current);
+          }), () => rippleOnRef.current);
       } catch (err) {
         console.warn("[EarthquakesGlobal] ripple layer mount failed:", err);
       }
@@ -353,6 +363,7 @@ export function useEarthquakesGlobalLayer(
       m.triggerRepaint();
     };
     const startRipple = () => {
+      if (!ripple3D) return;
       if (!cancelRaf) cancelRaf = startThrottledRaf(rippleTick);
     };
 
@@ -436,7 +447,7 @@ export function useEarthquakesGlobalLayer(
       map.off("style.load", onStyleLoad);
       stopRipple();
     };
-  }, [visible, lookbackDays, ensureSource, mapRef, mapTick, dataTick]);
+  }, [visible, lookbackDays, ripple3D, ensureSource, mapRef, mapTick, dataTick]);
 
   // Agent 畫面摘要（AG-1）：點位走自建 source、漣漪走 Three，rendered features 讀不到 →
   // 直接用已抓的事件 + 與 post 層相同的時間窗統計。currentTime 在呼叫當下讀 timeStore（不進 deps）。

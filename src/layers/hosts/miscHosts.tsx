@@ -10,8 +10,9 @@ import { useFreewayLayer } from "../../hooks/useFreewayLayer";
 import { useRoadCongestionLayer } from "../../hooks/useRoadCongestionLayer";
 import { useFuneralDensityLayer } from "../../hooks/useFuneralDensityLayer";
 import { useTemperatureGridLayer } from "../../hooks/useTemperatureGridLayer";
+import { resolveTemperatureGridDisplay } from "../../map/temperatureGridLayerFactory";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { paramNum, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
+import { paramBool, paramNum, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 
 /**
  * 衛星圖層（Supabase satellite_classified + SGP4 即時計算）。
@@ -144,15 +145,26 @@ export const FuneralDensityHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 溫度網格 2D（Mapbox fill + feature-state 染色，與 3D 溫度波共用資料） */
+/**
+ * 溫度網格 2D（Mapbox fill + feature-state 染色，與 3D 溫度波共用資料）。
+ * R6 段 1：溫度波「立體效果」關閉時也由這裡畫平面網格（見 resolveTemperatureGridDisplay）。
+ */
 export const TemperatureGridHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useTemperatureGridLayer");
   const values = useLayerParams("temperatureGrid");
+  const waveValues = useLayerParams("temperatureWave");
+  const display = resolveTemperatureGridDisplay({
+    gridOn: deps.layerVisibility.temperatureGrid,
+    waveOn: deps.layerVisibility.temperatureWave,
+    tempExtruded: paramBool(waveValues, "temperatureWave", "tempExtruded"),
+    gridOpacity: paramNum(values, "temperatureGrid", "tempGridOpacity"),
+    waveOpacity: paramNum(waveValues, "temperatureWave", "tempOpacity"),
+  });
   useTemperatureGridLayer(
     deps.mapRef,
     deps.temperatureData,
-    deps.layerVisibility.temperatureGrid,
-    paramNum(values, "temperatureGrid", "tempGridOpacity"),
+    display.visible,
+    display.opacity,
   );
   return null;
 };

@@ -30,9 +30,17 @@ describe("EMBED_ALLOWED 白名單", () => {
   });
 
   it("💰 dynamicData 圖層只有『已 CDN 化』的例外能進（Supabase egress 仍為零）", () => {
-    const dynamic = OVERLAY_REGISTRY.filter((o) => o.dynamicData).map((o) => o.id);
-    const leaked = dynamic.filter((id) => EMBED_ALLOWED.has(id) && !(id in EMBED_CDN_LAYERS));
+    // 以 config 為單位比對：同一個 key 可同時有靜態與 dynamicData config（R6 段 2 waterReservoirs：
+    // 蓄水範圍面＋壩體點是靜態、即時水情圓點是 dynamicData）—— embed 只收靜態那兩個，動態那個不進。
+    const allowed = new Set(EMBED_ALLOWED_CONFIGS);
+    const leaked = OVERLAY_REGISTRY
+      .filter((o) => o.dynamicData && allowed.has(o) && !(o.id in EMBED_CDN_LAYERS))
+      .map((o) => `${o.id}(${o.sourceId})`);
     expect(leaked, `未經 CDN 化的動態圖層外流：${leaked.join(", ")}`).toEqual([]);
+    // 純動態 key（沒有任何靜態 config）連 key 都不能出現在白名單
+    const staticIds = new Set(OVERLAY_REGISTRY.filter((o) => !o.dynamicData).map((o) => o.id));
+    const dynamicOnly = OVERLAY_REGISTRY.filter((o) => o.dynamicData && !staticIds.has(o.id)).map((o) => o.id);
+    expect(dynamicOnly.filter((id) => EMBED_ALLOWED.has(id) && !(id in EMBED_CDN_LAYERS))).toEqual([]);
   });
 
   // 這兩道守門擋的是同一個坑（gasStation）：loader 改用了 staticRpc，但

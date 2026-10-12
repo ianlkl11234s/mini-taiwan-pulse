@@ -33,6 +33,7 @@ export const EarthquakesGlobalHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.earthquakesGlobal,
     p.earthquakesGlobalOpacity ?? 0.8,
     paramNum(values, "earthquakesGlobal", "earthquakesGlobalDays"),
+    paramBool(values, "earthquakesGlobal", "earthquakesGlobal3D"),
   );
   return null;
 };
