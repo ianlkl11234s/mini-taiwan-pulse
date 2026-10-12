@@ -505,11 +505,12 @@
 
 - **位置**：右上，單一底板；左上為品牌字標＋座標 HUD（§5.18）。
 - **底板**：`SURFACE.strong`（淡 `LIGHT.surfacePanel`）、`1px BORDER.panel`、`borderRadius 7`、padding 3、gap 4、`ELEVATION.lg`；窄寬度整條換行並維持靠右（`marginLeft: auto`）。
-- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 帳號。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
+- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
+- **語言**（2026-10-12）：lucide `Languages` 13px 圖示按鈕，點開 popover 列出「中文／EN／日本語」，目前語系用 accentFaint 底、accent 字標示；popover 樣式同底圖選單（§5.19）。手機不放工具列，收在 ⋯ 選單（§5.29）。實作 `src/components/toolbar/LanguageMenu.tsx`。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
 - **項目**：高 26、圓角 4、icon 13px（§5.7）。
 - **拿掉的東西**：Monitor BETA 按鈕（左側 rail「監測模式」保留）、第二排、計數列「flights · ships · 台灣好行」；操作提示移進「說明」。
 - **禁止**：在工具列加新的一排或浮動按鈕；把新功能塞成第二個主要按鈕。
-- **實作**：`src/App.tsx`（組成）、`src/components/toolbar/{ToolbarButton.tsx,toolbarTheme.ts}`、`src/components/ModeToggle.tsx`、`src/components/auth/UserAvatar.tsx`。
+- **實作**：`src/App.tsx`（組成）、`src/components/toolbar/{ToolbarButton.tsx,toolbarTheme.ts,LanguageMenu.tsx}`、`src/components/ModeToggle.tsx`、`src/components/auth/UserAvatar.tsx`。
 
 ### 5.18 品牌字標與座標 HUD
 
@@ -878,7 +879,7 @@
 - **語系**：中文（預設）、EN、日本語，登記在 `src/i18n/locales.ts`。決定順序：網址 `?lang=` ＞ 使用者上次選擇 ＞ 中文；**不依瀏覽器語言自動切換**，等主要畫面翻譯完成再評估。
 - **字串**：介面文字寫在 `src/i18n/locales/<語系>/common.json`，程式用 `t("key")`；中文原文是 `zh-TW/common.json`，不在元件裡寫死。
 - **只在顯示層翻譯**：`section.theme`、manifest `label` 等識別字不翻（§5.5）。
-- **切換器**：桌機在工具列（§5.17），手機在 ⋯ 選單（§5.29）；選項文字用各自語言寫法「中文／EN／日本語」。
+- **切換器**：桌機在工具列帳號左側（§5.17），手機在 ⋯ 選單（§5.29）；選項文字用各自語言寫法「中文／EN／日本語」。
 - **缺字**：回退到下一個語系（日文 → 英文 → 中文），不顯示空白。
 
 ### 6.3 不印內部識別碼

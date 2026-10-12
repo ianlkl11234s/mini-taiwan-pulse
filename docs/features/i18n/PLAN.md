@@ -167,7 +167,7 @@ src/i18n/
 |---|---|---|---|
 | 1 | 依瀏覽器語言自動切換 | 乙：只靠網址 `?lang=` 或手動切換 | `localeStore.ts`；spec §6.4 |
 | 2 | §1「中文優先」 | 乙：改成「目前語系優先，中文原名可放小字」 | spec §1、§6.1、§6.4 |
-| 3 | 語言鈕在工具列的位置 | 待定：已做[對照網頁](https://claude.ai/artifact/8fSnhNjZRYhFo8ih9eNEQr)供選擇（試點暫放帳號左側） | 選定後補 spec §5.17 |
+| 3 | 語言鈕在工具列的位置 | 乙：補進固定順序「…拍攝模式 ｜ 語言、帳號」（看過[對照網頁](https://claude.ai/artifact/8fSnhNjZRYhFo8ih9eNEQr)後決定） | spec §5.17 |
 | 4 | 外文圖層名太長 | 丙：主名最多換兩行，超過以 … 收尾、滑鼠移上顯示全名 | `LayerRow.tsx`；spec §5.5 |
 | 5 | `FONT_CJK` 改 CSS 變數 | 乙：已改，Mapbox 地名字型另以實際字型字串帶入 | `intelTokens.ts`；spec §4.1 |
 
