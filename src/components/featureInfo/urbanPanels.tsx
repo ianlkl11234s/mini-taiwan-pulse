@@ -1,4 +1,6 @@
 import { FONT_SIZE } from "../../styles/designTokens";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { Row, Title } from "./shared";
 import { DARK_FEATURE, useFeatureTheme } from "./featureTheme";
 import { usePaletteRamp } from "../../state/layerPalette";
@@ -19,9 +21,9 @@ import { nonUrbanZoningCodeLabel, nonUrbanZoningCodeColor } from "../../data/non
 import { formatPropertyValueTwd } from "../../data/propertyValueAdminTypes";
 
 /** 數值 + 單位；非有限值回空字串（Row 對空值自動隱藏） */
-function numUnit(v: unknown, unit: string): string {
+function numUnit(v: unknown, unit: string, formatNumber: (n: number, o?: Intl.NumberFormatOptions) => string): string {
   const n = Number(v);
-  return Number.isFinite(n) ? `${n.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${unit}` : "";
+  return Number.isFinite(n) ? `${formatNumber(n, { maximumFractionDigits: 1 })} ${unit}` : "";
 }
 
 /** 學名斜體副標（Title 下方一行；空值不渲染） */
@@ -35,7 +37,7 @@ function ScientificName({ children }: { children: string }) {
   );
 }
 
-/** status 三值 → 中文標籤 + 代表色（存續 綠 / 消失 紅 / 新增 淺綠） */
+/** status 三值 → 中文標籤（enumLabel 的中文正本）+ 代表色（存續 綠 / 消失 紅 / 新增 淺綠） */
 const STATUS_TIER: Record<string, { label: string; color: string }> = {
   persisted: { label: "存續（2024→現在）", color: "#2e7d32" },
   disappeared: { label: "消失（2024 有、現在無）", color: "#e53935" },
@@ -43,27 +45,32 @@ const STATUS_TIER: Record<string, { label: string; color: string }> = {
 };
 
 export function StreetTreesTaipeiDiffPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const status = typeof props.status === "string" ? props.status : "";
-  const tier = STATUS_TIER[status] ?? { label: status || "未知", color: "#9e9e9e" };
+  const known = STATUS_TIER[status];
+  const tier = known
+    ? { label: enumLabel("urbanTreeDiff", status, known.label, i18n), color: known.color }
+    : { label: status || t("popup.urban.unknown"), color: "#9e9e9e" };
   const renumberSuspect = props.renumber_suspect === true;
   // 路名（附行政區）：Region 為主，Dist 括號附註
   const region = String(props.Region ?? "");
   const dist = String(props.Dist ?? "");
-  const roadValue = region && dist ? `${region}（${dist}）` : region || dist;
+  const roadValue = region && dist ? t("popup.urban.nameWithSub", { main: region, sub: dist }) : region || dist;
   return (
     <>
-      <Title color={tier.color}>{String(props.TreeType ?? "行道樹")}</Title>
+      <Title color={tier.color}>{String(props.TreeType ?? t("popup.urban.streetTree"))}</Title>
       <Row field="status" value={tier.label} color={tier.color} />
-      <Row label="路名" value={roadValue} />
+      <Row label={t("popup.urban.roadName")} value={roadValue} />
       <Row label="TreeID" value={String(props.TreeID ?? "")} />
-      <Row field="dbh" value={numUnit(props.Diameter, "cm")} />
-      <Row field="treeHeight" value={numUnit(props.TreeHeight, "m")} />
+      <Row field="dbh" value={numUnit(props.Diameter, "cm", formatNumber)} />
+      <Row field="treeHeight" value={numUnit(props.TreeHeight, "m", formatNumber)} />
       <Row field="surveyDate" value={String(props.SurveyDate ?? "")} />
       {renumberSuspect && (
-        <Row label="提示" value="⚠️ 疑似重編號（同路名同樹種 10m 內配對，可能非真消失/新增）" color="#fbbf24" />
+        <Row label={t("popup.urban.hint")} value={t("popup.urban.renumberSuspectDiff")} color="#fbbf24" />
       )}
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
-        ⓘ TreeID 消失≠砍除；2024 基準取自 Wayback，含颱風後清運滯後
+        {t("popup.urban.diffNote")}
       </div>
     </>
   );
@@ -71,21 +78,22 @@ export function StreetTreesTaipeiDiffPanel({ props }: { props: Record<string, un
 
 /** 受保護樹木（全國 6,544 點）：樹種 + 學名斜體 + 城市/地址 + 尺寸 + 推估樹齡 + 管理單位 */
 export function ProtectedTreesNationalPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
   const sci = typeof props.species_scientific === "string" ? props.species_scientific : "";
   const city = String(props.city ?? "");
   const district = String(props.district ?? "");
-  const cityValue = city && district ? `${city}（${district}）` : city || district;
+  const cityValue = city && district ? t("popup.urban.nameWithSub", { main: city, sub: district }) : city || district;
   return (
     <>
-      <Title color="#00695c">{String(props.species ?? "受保護樹木")}</Title>
+      <Title color="#00695c">{String(props.species ?? t("popup.urban.protectedTree"))}</Title>
       <ScientificName>{sci}</ScientificName>
       <Row field="city" value={cityValue} />
       <Row field="address" value={String(props.address ?? "")} />
-      <Row field="dbh" value={numUnit(props.dbh_m, "m")} />
-      <Row label="胸圍" value={numUnit(props.girth_m, "m")} />
-      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
-      <Row label="樹冠面積" value={numUnit(props.crown_area_m2, "m²")} />
-      <Row label="推估樹齡" value={numUnit(props.estimated_age_years, "年")} />
+      <Row field="dbh" value={numUnit(props.dbh_m, "m", formatNumber)} />
+      <Row label={t("popup.urban.girth")} value={numUnit(props.girth_m, "m", formatNumber)} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m", formatNumber)} />
+      <Row label={t("popup.urban.crownArea")} value={numUnit(props.crown_area_m2, "m²", formatNumber)} />
+      <Row label={t("popup.urban.estimatedAge")} value={numUnit(props.estimated_age_years, t("popup.urban.unitYear"), formatNumber)} />
       <Row field="managingAgency" value={String(props.manager ?? "")} />
     </>
   );
@@ -93,17 +101,18 @@ export function ProtectedTreesNationalPanel({ props }: { props: Record<string, u
 
 /** 台北河濱喬木（10,917 點）：樹種 + 學名/科別 + 河濱公園 + 尺寸 + 推估樹齡 + 調查日期 */
 export function RiversideTreesTaipeiPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
   const sci = typeof props.species_scientific === "string" ? props.species_scientific : "";
   const family = String(props.family ?? "");
   return (
     <>
-      <Title color="#0288d1">{String(props.species ?? "河濱喬木")}</Title>
-      <ScientificName>{family ? (sci ? `${sci}（${family}）` : family) : sci}</ScientificName>
-      <Row label="河濱公園" value={String(props.park_name ?? "")} />
-      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
-      <Row field="dbh" value={numUnit(props.dbh_cm, "cm")} />
-      <Row label="樹冠面積" value={numUnit(props.crown_area_m2, "m²")} />
-      <Row label="推估樹齡" value={numUnit(props.estimated_age_years, "年")} />
+      <Title color="#0288d1">{String(props.species ?? t("popup.urban.riversideTree"))}</Title>
+      <ScientificName>{family ? (sci ? t("popup.urban.nameWithSub", { main: sci, sub: family }) : family) : sci}</ScientificName>
+      <Row label={t("popup.urban.riversidePark")} value={String(props.park_name ?? "")} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m", formatNumber)} />
+      <Row field="dbh" value={numUnit(props.dbh_cm, "cm", formatNumber)} />
+      <Row label={t("popup.urban.crownArea")} value={numUnit(props.crown_area_m2, "m²", formatNumber)} />
+      <Row label={t("popup.urban.estimatedAge")} value={numUnit(props.estimated_age_years, t("popup.urban.unitYear"), formatNumber)} />
       <Row field="surveyDate" value={String(props.survey_date ?? "")} />
     </>
   );
@@ -111,14 +120,15 @@ export function RiversideTreesTaipeiPanel({ props }: { props: Record<string, unk
 
 /** 台北公園（2,917 點）：公園名 + 行政區 + 分類 + 面積（千分位）+ 兒童遊具有無 */
 export function ParksTaipeiPanel({ props }: { props: Record<string, unknown> }) {
-  const playground = props.has_playground === true ? "有" : props.has_playground === false ? "無" : "";
+  const { t, formatNumber } = useLocale();
+  const playground = props.has_playground === true ? t("popup.urban.has") : props.has_playground === false ? t("popup.urban.none") : "";
   return (
     <>
-      <Title color="#7cb342">{String(props.name ?? "公園")}</Title>
+      <Title color="#7cb342">{String(props.name ?? t("popup.urban.park"))}</Title>
       <Row field="district" value={String(props.district ?? "")} />
       <Row field="classification" value={String(props.category ?? "")} />
-      <Row field="area" value={numUnit(props.area_sqm, "m²")} />
-      <Row label="兒童遊具" value={playground} />
+      <Row field="area" value={numUnit(props.area_sqm, "m²", formatNumber)} />
+      <Row label={t("popup.urban.playground")} value={playground} />
     </>
   );
 }
@@ -127,6 +137,7 @@ export function ParksTaipeiPanel({ props }: { props: Record<string, unknown> }) 
 
 /** traj badge：2022→2024→2026 三格存在/消失視覺（1=存在 綠框、0=無 灰框） */
 function TrajBadge({ traj }: { traj: string }) {
+  const { t } = useLocale();
   if (traj.length !== 3) return null;
   const years = ["2022", "2024", "2026"];
   return (
@@ -143,7 +154,7 @@ function TrajBadge({ traj }: { traj: string }) {
               color: present ? "#7cc47f" : "#9e9e9e",
             }}
           >
-            {y} {present ? "存在" : "消失"}
+            {y} {present ? t("popup.urban.trajPresent") : t("popup.urban.trajGone")}
           </div>
         );
       })}
@@ -164,13 +175,16 @@ const EPOCH_STATUS_LABEL: Record<string, string> = {
  * traj 7 類標籤/色票 SSOT = urbanOpenSpaceTypes.ts（與 overlayRegistry / Legend 同源）。
  */
 export function StreetTrees3epochPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const traj = typeof props.traj === "string" ? props.traj : "";
   const cat = STREET_TREE_3EPOCH_TRAJ.find((c) => c.code === traj);
   // 路段（附行政區）：region 為主，dist 括號附註（同 diff 層 Region/Dist 寫法）
   const region = String(props.region ?? "");
   const dist = String(props.dist ?? "");
-  const roadValue = region && dist ? `${region}（${dist}）` : region || dist;
-  const isPark = props.is_park === 1 ? "是" : props.is_park === 0 ? "否" : "";
+  const roadValue = region && dist ? t("popup.urban.nameWithSub", { main: region, sub: dist }) : region || dist;
+  const isPark = props.is_park === 1 ? t("popup.urban.yes") : props.is_park === 0 ? t("popup.urban.no") : "";
+  const epochLabel = (v: unknown) => enumLabel("urbanTreeEpoch", String(v ?? ""), EPOCH_STATUS_LABEL[String(v ?? "")] ?? String(v ?? ""), i18n);
   // renumber_2224 / renumber_2426 為 0/1（PMTiles 屬性），任一為 1 → 疑似重編號警示
   const renumberEpochs = [
     props.renumber_2224 === 1 ? "2022→2024" : null,
@@ -178,19 +192,19 @@ export function StreetTrees3epochPanel({ props }: { props: Record<string, unknow
   ].filter((s): s is string => s !== null);
   return (
     <>
-      <Title color={cat?.color ?? "#558b2f"}>{String(props.species ?? "行道樹")}</Title>
+      <Title color={cat?.color ?? "#558b2f"}>{String(props.species ?? t("popup.urban.streetTree"))}</Title>
       <TrajBadge traj={traj} />
-      <Row label="軌跡" value={cat ? `${cat.label}（${traj}）` : traj} color={cat?.color} />
-      <Row label="2022→2024" value={EPOCH_STATUS_LABEL[String(props.status_2224 ?? "")] ?? String(props.status_2224 ?? "")} />
-      <Row label="2024→2026" value={EPOCH_STATUS_LABEL[String(props.status_2426 ?? "")] ?? String(props.status_2426 ?? "")} />
+      <Row label={t("popup.urban.trajectory")} value={cat ? t("popup.urban.nameWithCode", { label: enumLabel("urbanTreeTraj", cat.code, cat.label, i18n), code: traj }) : traj} color={cat?.color} />
+      <Row label="2022→2024" value={epochLabel(props.status_2224)} />
+      <Row label="2024→2026" value={epochLabel(props.status_2426)} />
       <Row field="roadSection" value={roadValue} />
       <Row label="TreeID" value={String(props.tree_id ?? "")} />
-      <Row field="dbh" value={numUnit(props.dbh_cm, "cm")} />
-      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
-      <Row label="公園樹" value={isPark} />
+      <Row field="dbh" value={numUnit(props.dbh_cm, "cm", formatNumber)} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m", formatNumber)} />
+      <Row label={t("popup.urban.parkTree")} value={isPark} />
       <Row field="surveyDate" value={String(props.survey_date ?? "")} />
       {renumberEpochs.length > 0 && (
-        <Row label="提示" value={`⚠️ 疑似重編號（${renumberEpochs.join("、")}），可能非真消失/新增`} color="#fbbf24" />
+        <Row label={t("popup.urban.hint")} value={t("popup.urban.renumberSuspectEpoch", { epochs: renumberEpochs.join(t("popup.urban.listSeparator")) })} color="#fbbf24" />
       )}
     </>
   );
@@ -203,21 +217,24 @@ export function StreetTrees3epochPanel({ props }: { props: Record<string, unknow
  * + 地址 + 位置類型 + 尺寸 + 調查日 + 資料來源。city 欄位值 taipei/taichung → 中文顯示。
  */
 export function StreetTreesNationalPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const species = String(props.species ?? "");
   const speciesColor = STREET_TREE_NATIONAL_SPECIES.find((s) => s.names.includes(species))?.color ?? "#43a047";
-  const cityLabel = STREET_TREE_NATIONAL_CITIES.find((c) => c.value === props.city)?.label ?? String(props.city ?? "");
+  const cityEntry = STREET_TREE_NATIONAL_CITIES.find((c) => c.value === props.city);
+  const cityLabel = cityEntry ? enumLabel("streetTreeCity", cityEntry.value, cityEntry.label, i18n) : String(props.city ?? "");
   const district = String(props.district ?? "");
-  const cityValue = cityLabel && district ? `${cityLabel}（${district}）` : cityLabel || district;
+  const cityValue = cityLabel && district ? t("popup.urban.nameWithSub", { main: cityLabel, sub: district }) : cityLabel || district;
   return (
     <>
-      <Title color={speciesColor}>{species || "行道樹"}</Title>
+      <Title color={speciesColor}>{species || t("popup.urban.streetTree")}</Title>
       <Row field="city" value={cityValue} />
       <Row field="address" value={String(props.address ?? "")} />
-      <Row label="位置類型" value={String(props.location_type ?? "")} />
-      <Row field="dbh" value={numUnit(props.dbh_cm, "cm")} />
-      <Row field="treeHeight" value={numUnit(props.height_m, "m")} />
+      <Row label={t("popup.urban.locationType")} value={String(props.location_type ?? "")} />
+      <Row field="dbh" value={numUnit(props.dbh_cm, "cm", formatNumber)} />
+      <Row field="treeHeight" value={numUnit(props.height_m, "m", formatNumber)} />
       <Row field="surveyDate" value={String(props.survey_date ?? "")} />
-      <Row label="資料來源" value={String(props.source ?? "")} />
+      <Row label={t("popup.common.sourceLabel")} value={String(props.source ?? "")} />
     </>
   );
 }
@@ -226,12 +243,15 @@ export function StreetTreesNationalPanel({ props }: { props: Record<string, unkn
 
 /** 人行道樹穴：類型帶色（樹穴綠 / 花圃黃，色票 SSOT = urbanOpenSpaceTypes.ts）+ 行政區 + 面積（兩位小數）+ 編號 */
 export function TreePitsTaipeiPanel({ props }: { props: Record<string, unknown> }) {
-  const pitType = String(props.pit_type ?? "");
-  const typeColor = TREE_PIT_TYPES.find((t) => t.name === pitType)?.color ?? "#8d6e63";
+  const i18n = useLocale();
+  const { t } = i18n;
+  const pitTypeRaw = String(props.pit_type ?? "");
+  const pitType = pitTypeRaw ? enumLabel("urbanPitType", pitTypeRaw, pitTypeRaw, i18n) : "";
+  const typeColor = TREE_PIT_TYPES.find((p) => p.name === pitTypeRaw)?.color ?? "#8d6e63";
   const area = Number(props.area_m2);
   return (
     <>
-      <Title color={typeColor}>{pitType || "人行道樹穴"}</Title>
+      <Title color={typeColor}>{pitType || t("popup.urban.treePit")}</Title>
       <Row field="type" value={pitType} color={typeColor} />
       <Row field="district" value={String(props.district ?? "")} />
       <Row field="area" value={Number.isFinite(area) ? `${area.toFixed(2)} m²` : ""} />
@@ -251,9 +271,11 @@ export function TreePitsTaipeiPanel({ props }: { props: Record<string, unknown> 
  * ps=t/c 代表該棟所在網格無實價成交、是用鄉鎮/縣市中位價推的，必須讓使用者看到。
  */
 export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const height = Number(props.h);
   const src = String(props.src ?? "");
-  const sourceLabel = src === "osm" ? "OpenStreetMap" : "GBA AI 推估";
+  const sourceLabel = src === "osm" ? "OpenStreetMap" : t("popup.urban.sourceGba");
   const floorsRaw = Number(props.f);
   const floors = Number.isFinite(floorsRaw) && floorsRaw > 0
     ? floorsRaw
@@ -266,20 +288,20 @@ export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> })
     : Number.isFinite(height) ? buildingHeightBandColor(height) : "#78909c";
   return (
     <>
-      <Title color={color}>建物</Title>
-      <Row label="高度" value={Number.isFinite(height) ? `${height.toFixed(1)} m` : ""} />
-      <Row label="估算樓層" value={floors != null ? `≈ ${floors} 層` : ""} />
+      <Title color={color}>{t("popup.urban.building")}</Title>
+      <Row label={t("popup.urban.height")} value={Number.isFinite(height) ? `${height.toFixed(1)} m` : ""} />
+      <Row label={t("popup.urban.estimatedFloors")} value={floors != null ? t("popup.urban.floorsValue", { floors }) : ""} />
       <Row
-        label="估值"
-        value={nonMarket ? "未估值（非市場建物）" : hasValue ? formatWanTwd(value) : ""}
+        label={t("popup.urban.valuation")}
+        value={nonMarket ? t("popup.urban.nonMarketValue") : hasValue ? formatWanTwd(value) : ""}
         color={nonMarket ? BUILDING_VALUE_NON_MARKET_COLOR : undefined}
       />
       {!nonMarket && hasValue && (
-        <Row label="價格來源" value={priceSourceLabel(props.ps)} />
+        <Row label={t("popup.urban.priceSource")} value={enumLabel("propertyPriceSource", String(props.ps ?? ""), priceSourceLabel(props.ps), i18n)} />
       )}
-      <Row label="資料來源" value={sourceLabel} />
+      <Row label={t("popup.common.sourceLabel")} value={sourceLabel} />
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
-        ⓘ 高度為 AI 推估（RMSE ≈ 5.9m），超高層建物可能被低估
+        {t("popup.urban.heightNote")}
       </div>
       {!nonMarket && hasValue && (
         <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
@@ -292,8 +314,10 @@ export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> })
 
 /** PLATEAU 原始 height 欄位；null 不猜測高度，亦不顯示為 3D 建物。 */
 export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const na = t("popup.urban.notProvided");
   const numeric = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
-  const text = (value: unknown) => typeof value === "string" && value ? value : "未提供";
+  const text = (value: unknown) => typeof value === "string" && value ? value : na;
   const attribution = text(props.attribution);
   const license = text(props.license);
   const region = text(props.jp_region_label);
@@ -303,30 +327,30 @@ export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown
     const count = numeric(props.building_count);
     const missing = numeric(props.missing_height_count);
     return <>
-      <Title color={jpBuildingHeightBandColor(median)}>建物高度網格摘要</Title>
+      <Title color={jpBuildingHeightBandColor(median)}>{t("popup.urban.gridSummaryTitle")}</Title>
       <Row field="region" value={region} />
       <Row field="gridScale" value={`${props.cell_size_m} m`} />
-      <Row label="高度中位數" value={median == null ? "未提供" : `${median.toFixed(1)} m`} />
-      <Row label="高度 P90" value={p90 == null ? "未提供" : `${p90.toFixed(1)} m`} />
-      <Row label="已取得輪廓數" value={count == null ? "未提供" : String(count)} />
-      <Row label="有效高度筆數" value={String(props.valid_height_count ?? "未提供")} />
-      <Row label="高度缺值" value={missing == null ? "未提供" : `${missing} 筆${count ? `（${(missing / count * 100).toFixed(1)}%）` : ""}`} />
-      <Row field="sourceYear" value={String(props.source_year ?? "未提供")} />
+      <Row label={t("popup.urban.heightMedian")} value={median == null ? na : `${median.toFixed(1)} m`} />
+      <Row label={t("popup.urban.heightP90")} value={p90 == null ? na : `${p90.toFixed(1)} m`} />
+      <Row label={t("popup.urban.outlineCount")} value={count == null ? na : String(count)} />
+      <Row label={t("popup.urban.validHeightCount")} value={String(props.valid_height_count ?? na)} />
+      <Row label={t("popup.urban.heightMissing")} value={missing == null ? na : count ? t("popup.urban.missingCountPct", { count: missing, pct: (missing / count * 100).toFixed(1) }) : t("popup.urban.missingCount", { count: missing })} />
+      <Row field="sourceYear" value={String(props.source_year ?? na)} />
       <Row field="license" value={`${license} · ${attribution}`} />
       <div style={{ fontSize: FONT_SIZE.sm, lineHeight: 1.5, marginTop: 6 }}>
-        僅統計已取得區域的建物，每棟依代表點歸格；不是整格完整建物數。放大至街區可看個別輪廓。
+        {t("popup.urban.gridSummaryNote")}
       </div>
     </>;
   }
   const height = numeric(props.height);
   const roof = text(props.geometry_method).toLowerCase().includes("roof");
   return <>
-    <Title color={jpBuildingHeightBandColor(height)}>{roof ? "PLATEAU 建物屋頂輪廓" : "PLATEAU 建物輪廓"}</Title>
-    <Row label="高度" value={height == null ? "未提供（維持 2D 平面）" : `${height.toFixed(1)} m`} />
+    <Title color={jpBuildingHeightBandColor(height)}>{roof ? t("popup.urban.plateauRoof") : t("popup.urban.plateauOutline")}</Title>
+    <Row label={t("popup.urban.height")} value={height == null ? t("popup.urban.heightNaFlat") : `${height.toFixed(1)} m`} />
     <Row field="region" value={region} />
-    <Row field="sourceYear" value={String(props.source_year ?? "未提供")} />
-    <Row label="高度方法" value={text(props.height_method)} />
-    <Row label="輪廓方法" value={text(props.geometry_method)} />
+    <Row field="sourceYear" value={String(props.source_year ?? na)} />
+    <Row label={t("popup.urban.heightMethod")} value={text(props.height_method)} />
+    <Row label={t("popup.urban.outlineMethod")} value={text(props.geometry_method)} />
     <Row field="license" value={`${license} · ${attribution}`} />
   </>;
 }
@@ -343,25 +367,28 @@ export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown
  *    相減沒有意義（上游 admin_value.json meta.field_notes 明文警告）。
  */
 export function PropertyValueAdminPanel({ props }: { props: Record<string, unknown> }) {
-  const level = props.admin_level === "township" ? "鄉鎮市區" : "縣市";
+  const { t, formatNumber } = useLocale();
+  const level = props.admin_level === "township" ? t("popup.urban.levelTownship") : t("popup.urban.levelCounty");
   const value = Number(props.value_market_corrected);
   return (
     <>
-      <Title color="#ec7014">{String(props.admin_name ?? "不動產總市值")}</Title>
-      <Row label="行政層級" value={level} />
-      {props.county_name && props.county_name !== props.admin_name ? <Row label="所屬縣市" value={String(props.county_name)} /> : null}
-      <Row label="總市值" value={formatPropertyValueTwd(value)} color="#ec7014" />
-      <Row label="估值建物" value={numUnit(props.n_buildings, "棟")} />
-      <Row label="總樓地板面積" value={numUnit(props.gfa_m2, "m²")} />
-      <Row label="行政區代碼" value={String(props.admin_code ?? "")} />
+      <Title color="#ec7014">{String(props.admin_name ?? t("popup.urban.propertyValueDefault"))}</Title>
+      <Row label={t("popup.urban.adminLevel")} value={level} />
+      {props.county_name && props.county_name !== props.admin_name ? <Row label={t("popup.urban.ownCounty")} value={String(props.county_name)} /> : null}
+      <Row label={t("popup.urban.totalMarketValue")} value={formatPropertyValueTwd(value)} color="#ec7014" />
+      <Row label={t("popup.urban.valuedBuildings")} value={numUnit(props.n_buildings, t("popup.urban.unitBuilding"), formatNumber)} />
+      <Row label={t("popup.urban.totalFloorArea")} value={numUnit(props.gfa_m2, "m²", formatNumber)} />
+      <Row label={t("popup.urban.adminCode")} value={String(props.admin_code ?? "")} />
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
-        ⓘ 市場交易建物模型估值聚合；不是公告地價、稅基或逐筆鑑價。缺值不當作 0。
+        {t("popup.urban.adminNote")}
       </div>
     </>
   );
 }
 
 export function PropertyValueGridPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const vMkt = Number(props.v_mkt);
   const scale = scaleFromGridId(props.grid_id);
   // R7：標題色跟地圖同一個色盤選單（總市值 9 階）
@@ -370,25 +397,25 @@ export function PropertyValueGridPanel({ props }: { props: Record<string, unknow
   const pop = Number(props.pop);
   const hasPop = scale.hasPop && Number.isFinite(pop);
   const perCapitaValue = !hasPop ? ""
-    : pop < PROPERTY_VALUE_PER_CAPITA_MIN_POP ? `樣本不足（人口 < ${PROPERTY_VALUE_PER_CAPITA_MIN_POP}）`
-    : vMkt > 0 ? `${formatWanTwd(vMkt / pop)}/人`
+    : pop < PROPERTY_VALUE_PER_CAPITA_MIN_POP ? t("popup.urban.insufficientSample", { min: PROPERTY_VALUE_PER_CAPITA_MIN_POP })
+    : vMkt > 0 ? t("popup.urban.perPerson", { value: formatWanTwd(vMkt / pop) })
     : "0";
   return (
     <>
-      <Title color={color}>{`不動產總市值網格 ${scale.shortLabel}`}</Title>
-      <Row label="總市值" value={Number.isFinite(vMkt) && vMkt > 0 ? formatWanTwd(vMkt) : "0（格內僅非市場建物）"} />
+      <Title color={color}>{t("popup.urban.gridTitle", { scale: scale.shortLabel })}</Title>
+      <Row label={t("popup.urban.totalMarketValue")} value={Number.isFinite(vMkt) && vMkt > 0 ? formatWanTwd(vMkt) : t("popup.urban.zeroNonMarketOnly")} />
       {hasPop && (
         <>
-          <Row label="人口" value={pop > 0 ? `≈ ${Math.round(pop).toLocaleString()} 人` : "0（無人口資料或無人）"} />
-          <Row label="人均市值" value={perCapitaValue} />
+          <Row label={t("popup.urban.population")} value={pop > 0 ? t("popup.urban.popApprox", { count: formatNumber(Math.round(pop)) }) : t("popup.urban.popZero")} />
+          <Row label={t("popup.urban.perCapitaValue")} value={perCapitaValue} />
         </>
       )}
-      <Row label="建物棟數" value={numUnit(props.n_bld, "棟")} />
-      <Row label="總樓地板面積" value={numUnit(props.gfa, "m²")} />
-      <Row label="主要價格來源" value={priceSourceLabel(props.ps_dom)} />
-      <Row label="網格編號" value={String(props.grid_id ?? "")} />
+      <Row label={t("popup.urban.buildingCount")} value={numUnit(props.n_bld, t("popup.urban.unitBuilding"), formatNumber)} />
+      <Row label={t("popup.urban.totalFloorArea")} value={numUnit(props.gfa, "m²", formatNumber)} />
+      <Row label={t("popup.urban.mainPriceSource")} value={enumLabel("propertyPriceSource", String(props.ps_dom ?? ""), priceSourceLabel(props.ps_dom), i18n)} />
+      <Row label={t("popup.urban.gridId")} value={String(props.grid_id ?? "")} />
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
-        ⓘ 這是 {scale.shortLabel} 格內的「總市值」（總量），不是單價 —— 單價看房地產買賣熱力圖
+        {t("popup.urban.gridNote", { scale: scale.shortLabel })}
       </div>
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
         ⓘ {PROPERTY_VALUE_APPROX_NOTE}
@@ -401,17 +428,18 @@ export function PropertyValueGridPanel({ props }: { props: Record<string, unknow
 
 /** 都市紋理：棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六值全列；Title 依 gg_index 上色。 */
 export function UrbanFormGridPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
   const ggIndex = Number(props.gg_index);
   const color = Number.isFinite(ggIndex) ? gridBandColor(GG_INDEX_BANDS, ggIndex) : "#8d9c6b";
   return (
     <>
-      <Title color={color}>都市紋理網格</Title>
-      <Row label="棟數" value={numUnit(props.bld_count, "棟")} />
-      <Row label="平均高度" value={numUnit(props.avg_height, "m")} />
-      <Row label="總量體" value={numUnit(props.total_vol, "萬m³")} />
-      <Row label="建蔽率" value={numUnit(props.built_pct, "%")} />
-      <Row label="樹冠覆蓋" value={numUnit(props.canopy_pct, "%")} />
-      <Row label="灰綠指數" value={Number.isFinite(ggIndex) ? ggIndex.toFixed(1) : ""} />
+      <Title color={color}>{t("popup.urban.urbanFormGrid")}</Title>
+      <Row label={t("popup.urban.buildingsCount")} value={numUnit(props.bld_count, t("popup.urban.unitBuilding"), formatNumber)} />
+      <Row label={t("popup.urban.avgHeight")} value={numUnit(props.avg_height, "m", formatNumber)} />
+      <Row label={t("popup.urban.totalVolume")} value={numUnit(props.total_vol, t("popup.urban.unitWanM3"), formatNumber)} />
+      <Row label={t("popup.urban.builtRatio")} value={numUnit(props.built_pct, "%", formatNumber)} />
+      <Row label={t("popup.urban.canopyCover")} value={numUnit(props.canopy_pct, "%", formatNumber)} />
+      <Row label={t("popup.urban.ggIndex")} value={Number.isFinite(ggIndex) ? ggIndex.toFixed(1) : ""} />
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ {URBAN_FORM_GRID_APPROX_NOTE}
       </div>
@@ -438,9 +466,13 @@ const zoneText = (v: unknown): string => {
  * 沒有都計分區的 zone_short / plan_level / city。
  */
 export function NonUrbanZoningPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const code = zoneText(props.zone_code);
   const color = nonUrbanZoningCodeColor(code);
-  const title = zoneText(props.zone_name) || nonUrbanZoningCodeLabel(code) || "非都市土地使用分區";
+  const title = zoneText(props.zone_name)
+    || (code ? enumLabel("nonUrbanZoningCode", code, nonUrbanZoningCodeLabel(code), i18n) : nonUrbanZoningCodeLabel(code))
+    || t("popup.urban.nonUrbanZoningDefault");
   const town = zoneText(props.town);
   return (
     <>
@@ -455,19 +487,22 @@ export function NonUrbanZoningPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const category = String(props.zone_category ?? "");
   const color = urbanZoningCategoryColor(category);
+  const categoryLabel = category ? enumLabel("urbanZoningCategory", category, urbanZoningCategoryLabel(category), i18n) : urbanZoningCategoryLabel(category);
   const title =
     zoneText(props.zone_name) || zoneText(props.zone_raw) || zoneText(props.zone_short) ||
-    urbanZoningCategoryLabel(category) || "土地使用分區";
+    categoryLabel || t("popup.urban.zoningDefault");
   return (
     <>
       <Title color={color}>{title}</Title>
-      <Row field="classification" value={urbanZoningCategoryLabel(category)} color={color} />
-      <Row label="簡稱" value={zoneText(props.zone_short)} />
+      <Row field="classification" value={categoryLabel} color={color} />
+      <Row label={t("popup.urban.shortName")} value={zoneText(props.zone_short)} />
       <Row field="code" value={zoneText(props.zone_code)} />
       <Row field="city" value={zoneText(props.city)} />
-      <Row label="計畫層級" value={zoneText(props.plan_level)} />
+      <Row label={t("popup.urban.planLevel")} value={zoneText(props.plan_level)} />
     </>
   );
 }

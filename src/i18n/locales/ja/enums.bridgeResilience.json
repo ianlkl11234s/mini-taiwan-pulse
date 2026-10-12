@@ -1,0 +1,14 @@
+{
+  "enum.bridgeResilienceMode.car": "自動車",
+  "enum.bridgeResilienceMode.scooter": "二輪車",
+  "enum.bridgeResilienceWeighting.decay": "距離減衰（平均所要 20 分）",
+  "enum.bridgeResilienceWeighting.uniform": "距離を問わない",
+  "enum.bridgeResilienceDim.barrier": "分断",
+  "enum.bridgeResilienceDim.network": "道路網",
+  "enum.bridgeResilienceDim.population": "人口",
+  "enum.bridgeResilienceDim.lack_of_redundancy": "代替の乏しさ",
+  "enum.bridgeResilienceMisc.unvalidated": "自動選定・人手確認前",
+  "enum.bridgeResilienceLimit.0": "自由流モデルの時間で、渋滞は含みません。単独橋の崩落時の影響であり、リスク（災害確率）ではありません。",
+  "enum.bridgeResilienceLimit.1": "人口は戸籍人口で、実際の移動回数とは一致しません。昼夜間人口はシミュレーションデータで、比較用です。",
+  "enum.bridgeResilienceLimit.2": "淡江大橋のインターチェンジのランプも一緒に除去（橋体に含めるか要確認）しているため、指標は上限値です。"
+}

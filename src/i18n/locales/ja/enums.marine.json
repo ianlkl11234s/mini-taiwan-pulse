@@ -1,0 +1,16 @@
+{
+  "enum.marineMetric.tide_height": "潮位",
+  "enum.marineMetric.tide_twvd": "潮位",
+  "enum.marineMetric.tide_cdl": "潮位",
+  "enum.marineMetric.tide_ref": "潮位",
+  "enum.marineMetric.wave_height": "有義波高",
+  "enum.marineMetric.wave_period": "波の周期",
+  "enum.marineMetric.wave_direction_deg": "波向",
+  "enum.marineMetric.sea_temperature": "海水温",
+  "enum.marineMetric.station_pressure": "観測所気圧",
+  "enum.marineMetric.wind_speed": "風速",
+  "enum.marineMetric.wind_direction_deg": "風向",
+  "enum.marineMetric.max_wind_speed": "最大風速",
+  "enum.marineMetric.current_speed": "流速",
+  "enum.marineMetric.current_direction_deg": "流向"
+}

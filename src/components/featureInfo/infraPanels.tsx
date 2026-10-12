@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { CctvStreamView } from "../CctvStreamView";
 import { Row, SourceFooter } from "./shared";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
@@ -44,6 +46,8 @@ const CCTV_SOURCE: Record<string, { color: string; label: string }> = {
 
 export function SubmarineCablePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#26c6da";
 
   return (
@@ -54,13 +58,13 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Cable")}
         </div>
       </div>
-      <Row field="dataRole" value="OSM crowd 通訊海纜概覽" color={accentColor} />
+      <Row field="dataRole" value={tr("popup.infra.cableRole")} color={accentColor} />
       <Row field="status" value={String(props.status ?? "")} />
       <Row field="operator" value={String(props.operator ?? "")} />
-      <Row label="所有者" value={String(props.owner ?? "")} />
-      <Row label="OSM 識別" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
-      <Row label="線位品質" value={String(props.geometry_source ?? "")} />
-      <Row label="涵蓋限制" value="群眾標註且不完整；非工程級精確路由" />
+      <Row label={tr("popup.infra.owner")} value={String(props.owner ?? "")} />
+      <Row label={tr("popup.infra.osmIdent")} value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+      <Row label={tr("popup.infra.lineQuality")} value={String(props.geometry_source ?? "")} />
+      <Row label={tr("popup.infra.coverageLimit")} value={tr("popup.infra.cableCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
@@ -68,6 +72,8 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
 
 export function LandingStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#ffb74d";
 
   return (
@@ -78,14 +84,14 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Station")}
         </div>
       </div>
-      <Row field="dataRole" value="OSM crowd 海纜登陸站" color={accentColor} />
+      <Row field="dataRole" value={tr("popup.infra.landingRole")} color={accentColor} />
       <Row field="operator" value={String(props.operator ?? "")} />
-      <Row label="所有者" value={String(props.owner ?? "")} />
+      <Row label={tr("popup.infra.owner")} value={String(props.owner ?? "")} />
       <Row field="status" value={String(props.status ?? "")} />
-      <Row label="電纜數" value={String(props.cable_count ?? "")} />
-      <Row label="電纜清單" value={String(props.cable_names ?? "")} />
-      <Row label="OSM 識別" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
-      <Row label="涵蓋限制" value="群眾標註且不完整；空白區域不代表沒有設施" />
+      <Row label={tr("popup.infra.cableCount")} value={String(props.cable_count ?? "")} />
+      <Row label={tr("popup.infra.cableNames")} value={String(props.cable_names ?? "")} />
+      <Row label={tr("popup.infra.osmIdent")} value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+      <Row label={tr("popup.infra.coverageLimit")} value={tr("popup.infra.landingCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
@@ -93,6 +99,8 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
 
 export function InternetExchangePointPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const region = String(props.region ?? "");
   const accentColor = ixpRegionColor(region);
   const participants = String(props.participants ?? "");
@@ -106,12 +114,12 @@ export function InternetExchangePointPanel({ props }: { props: Record<string, un
           {String(props.name ?? "Unknown IXP")}
         </div>
       </div>
-      <Row label="城市／國家" value={[props.city, props.country].filter(Boolean).map(String).join(" · ")} />
-      <Row label="洲區" value={region} color={accentColor} />
-      <Row label="參與者" value={participants ? `${participants} networks` : ""} />
+      <Row label={tr("popup.infra.ixpCityCountry")} value={[props.city, props.country].filter(Boolean).map(String).join(" · ")} />
+      <Row label={tr("popup.infra.ixpContinent")} value={region} color={accentColor} />
+      <Row label={tr("popup.infra.ixpParticipants")} value={participants ? tr("popup.infra.ixpParticipantsValue", { count: participants }) : ""} />
       <Row field="status" value={String(props.status ?? "")} />
-      <Row label="資料更新" value={updated && updated !== "0000-00-00" ? updated : "未提供"} />
-      <Row label="座標 QA" value={String(props.coord_qc_status ?? "")} />
+      <Row label={tr("popup.infra.dataUpdated")} value={updated && updated !== "0000-00-00" ? updated : tr("popup.infra.notProvided")} />
+      <Row label={tr("popup.infra.coordQa")} value={String(props.coord_qc_status ?? "")} />
       <Row field="sourceLicense" value={`${String(props.source_org ?? "PCH")} · ${String(props.license ?? "")}`} />
     </>
   );
@@ -119,25 +127,29 @@ export function InternetExchangePointPanel({ props }: { props: Record<string, un
 
 export function AnfrWirelessSitePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const operators = Array.isArray(props.operators) ? props.operators.map(String) : [];
   const primary = operators[0] ?? "other";
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: anfrOperatorColor(primary) }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>ANFR 5G 3500 無線站點</div>
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{tr("popup.infra.anfrTitle")}</div>
     </div>
     <Row label="SUP ID" value={String(props.sup_id ?? "")} />
-    <Row label="營運商" value={operators.join(" · ")} color={anfrOperatorColor(primary)} />
-    <Row label="技術／系統" value={`${String((props.technologies as string[] | undefined)?.join(" · ") ?? "")} · ${String((props.systems as string[] | undefined)?.join(" · ") ?? "")}`} />
+    <Row label={tr("popup.infra.anfrOperator")} value={operators.join(" · ")} color={anfrOperatorColor(primary)} />
+    <Row label={tr("popup.infra.anfrTechSystem")} value={`${String((props.technologies as string[] | undefined)?.join(" · ") ?? "")} · ${String((props.systems as string[] | undefined)?.join(" · ") ?? "")}`} />
     <Row field="status" value={String((props.statuses as string[] | undefined)?.join(" · ") ?? "")} />
-    <Row label="紀錄數" value={String(props.record_count ?? "")} />
-    <Row field="source" value="ANFR Cartoradio · 8,000／33,761 概覽抽樣" />
+    <Row label={tr("popup.infra.recordCount")} value={String(props.record_count ?? "")} />
+    <Row field="source" value={tr("popup.infra.anfrSource")} />
     <Row field="license" value={String(props.license ?? "Licence Ouverte 2.0")} />
   </>;
 }
 
 export function OsmCommunicationSitePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const rawKinds = props.communication_types;
   let kinds: string[];
   if (Array.isArray(rawKinds)) {
@@ -153,100 +165,112 @@ export function OsmCommunicationSitePanel({ props }: { props: Record<string, unk
   }
   return <>
     <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, marginBottom: 6 }}>
-      OSM 通訊候選點
+      {tr("popup.infra.osmCommTitle")}
     </div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
-      sampled OSM mapped candidate · 非官方／非完整清冊
+      {tr("popup.infra.osmCommSubtitle")}
     </div>
     <Row field="osmId" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
-    <Row label="名稱／營運商" value={[props.name, props.operator].filter(Boolean).map(String).join(" · ")} />
-    <Row label="通訊類型" value={kinds.join(" · ")} />
-    <Row label="站點類型／相關性" value={`${String(props.site_kind ?? "general")} · ${String(props.relevance ?? "")}`} />
-    <Row label="區域抽樣" value={String(props.query_region ?? "")} />
-    <Row label="高度／Ref" value={[props.height, props.ref].filter(Boolean).map(String).join(" · ")} />
+    <Row label={tr("popup.infra.osmCommNameOperator")} value={[props.name, props.operator].filter(Boolean).map(String).join(" · ")} />
+    <Row label={tr("popup.infra.osmCommTypes")} value={kinds.join(" · ")} />
+    <Row label={tr("popup.infra.osmCommSiteKind")} value={`${String(props.site_kind ?? "general")} · ${String(props.relevance ?? "")}`} />
+    <Row label={tr("popup.infra.osmCommRegion")} value={String(props.query_region ?? "")} />
+    <Row label={tr("popup.infra.osmCommHeightRef")} value={[props.height, props.ref].filter(Boolean).map(String).join(" · ")} />
     <Row field="sourceLicense" value={`OpenStreetMap · ${String(props.license ?? "ODbL")}`} />
-    <Row label="資料時間" value={String(props.fetched_at ?? "")} />
+    <Row label={tr("popup.infra.fetchedTime")} value={String(props.fetched_at ?? "")} />
   </>;
 }
 
 export function RipeAtlasProbePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const isAnchor = props.is_anchor === true || props.is_anchor === 1 || props.is_anchor === "true" || props.is_anchor === "1";
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: ripeAtlasNodeColor(props.is_anchor) }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>RIPE Atlas 量測節點</div>
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{tr("popup.infra.ripeTitle")}</div>
     </div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>Connected probe · 座標已模糊化，非精確位置</div>
-    <Row label="Probe ID／國家" value={[props.probe_id, props.country_code, props.country_name].filter(Boolean).map(String).join(" · ")} />
-    <Row label="類型／狀態" value={`${isAnchor ? "Anchor" : "Probe"} · ${String(props.status_name ?? props.status_id ?? "")}`} color={ripeAtlasNodeColor(props.is_anchor)} />
-    <Row label="連線時間" value={[props.last_connected, props.status_since].filter(Boolean).map(String).join(" · ")} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>{tr("popup.infra.ripeSubtitle")}</div>
+    <Row label={tr("popup.infra.ripeProbeCountry")} value={[props.probe_id, props.country_code, props.country_name].filter(Boolean).map(String).join(" · ")} />
+    <Row label={tr("popup.infra.ripeTypeStatus")} value={`${isAnchor ? "Anchor" : "Probe"} · ${String(props.status_name ?? props.status_id ?? "")}`} color={ripeAtlasNodeColor(props.is_anchor)} />
+    <Row label={tr("popup.infra.ripeConnected")} value={[props.last_connected, props.status_since].filter(Boolean).map(String).join(" · ")} />
     <Row label="Uptime" value={String(props.total_uptime ?? "")} />
-    <Row label="座標品質" value={`${String(props.coord_qc_status ?? "obfuscated")} · ${String(props.location_obfuscation_m ?? "80–400")}m`} />
-    <Row label="研究用途" value="Volunteer bias；research use only，商業使用需另取許可" />
+    <Row label={tr("popup.infra.ripeCoordQuality")} value={`${String(props.coord_qc_status ?? "obfuscated")} · ${String(props.location_obfuscation_m ?? "80–400")}m`} />
+    <Row label={tr("popup.infra.ripeUse")} value={tr("popup.infra.ripeUseValue")} />
     <Row field="sourceLicense" value="RIPE NCC · © RIPE NCC" />
   </>;
 }
 
-function formatOoklaMbps(value: unknown): string {
+function formatOoklaMbps(value: unknown, tr: LocaleSnapshot["t"]): string {
   const kbps = Number(value);
-  if (!Number.isFinite(kbps)) return "未提供";
+  if (!Number.isFinite(kbps)) return tr("popup.infra.notProvided");
   return `${(kbps / 1000).toFixed(kbps >= 100_000 ? 0 : 1)} Mbps`;
 }
 
-function formatOoklaLatency(value: unknown): string {
+function formatOoklaLatency(value: unknown, tr: LocaleSnapshot["t"]): string {
   const latency = Number(value);
-  return Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : "未提供";
+  return Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : tr("popup.infra.notProvided");
 }
 
 /**
  * 格級描述 —— `--slim` 產物不再逐格帶 coarse_zoom：
  *   全球層有 `z`（6／10）、台灣 z14 層有 tile_count、z16 原生層兩者皆無。
  */
-function ooklaGridScale(props: Record<string, unknown>): string {
+function ooklaGridScale(props: Record<string, unknown>, tr: LocaleSnapshot["t"]): string {
   const z = Number(props.z);
-  if (z === 6) return "全球 z6 格（約 500 km）";
-  if (z === 10) return "全球 z10 格（約 78 km）";
+  if (z === 6) return tr("popup.infra.ooklaScaleZ6");
+  if (z === 10) return tr("popup.infra.ooklaScaleZ10");
   const tiles = props.tile_count;
-  if (tiles === undefined || tiles === null) return "台灣 z16 原生格（約 610 m）";
-  return `台灣 z14 格（約 2.4 km）· 聚合 ${String(tiles)} 個 z16 tile`;
+  if (tiles === undefined || tiles === null) return tr("popup.infra.ooklaScaleZ16");
+  return tr("popup.infra.ooklaScaleZ14", { count: String(tiles) });
 }
 
 function OoklaGridPanel({ props, service }: { props: Record<string, unknown>; service: string }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const tests = Number(props.tests);
   const thin = Number.isFinite(tests) && tests < 10;
   return <>
     <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, marginBottom: 6 }}>
-      Ookla 網路效能格網
+      {tr("popup.infra.ooklaTitle")}
     </div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
-      {service} · 使用者量測樣本，不代表覆蓋範圍
+      {tr("popup.infra.ooklaSubtitle", { service })}
     </div>
-    <Row label="下載／上傳" value={`${formatOoklaMbps(props.avg_d_kbps)} · ${formatOoklaMbps(props.avg_u_kbps)}`} />
-    <Row label="延遲" value={formatOoklaLatency(props.avg_lat_ms)} />
+    <Row label={tr("popup.infra.ooklaDownUp")} value={`${formatOoklaMbps(props.avg_d_kbps, tr)} · ${formatOoklaMbps(props.avg_u_kbps, tr)}`} />
+    <Row label={tr("popup.infra.ooklaLatency")} value={formatOoklaLatency(props.avg_lat_ms, tr)} />
     <Row
-      label="測試／裝置"
-      value={`${String(props.tests ?? "未提供")} · ${String(props.devices ?? "未提供")}（${OOKLA_GRID_META.devicesMethod}）${thin ? " ⚠️ 樣本極少" : ""}`}
+      label={tr("popup.infra.ooklaTestsDevices")}
+      value={`${tr("popup.infra.ooklaDevicesLine", {
+        tests: String(props.tests ?? tr("popup.infra.notProvided")),
+        devices: String(props.devices ?? tr("popup.infra.notProvided")),
+        method: OOKLA_GRID_META.devicesMethod,
+      })}${thin ? ` ${tr("popup.infra.ooklaLowSample")}` : ""}`}
     />
-    <Row label="格級" value={ooklaGridScale(props)} />
-    <Row label="期間" value={OOKLA_GRID_META.period} />
+    <Row label={tr("popup.infra.ooklaGridLevel")} value={ooklaGridScale(props, tr)} />
+    <Row label={tr("popup.infra.ooklaPeriod")} value={OOKLA_GRID_META.period} />
     <Row field="limits" value={OOKLA_GRID_META.coverageCaveat} />
-    <Row label="樣本偏差" value={OOKLA_GRID_META.sampleBias} />
+    <Row label={tr("popup.infra.ooklaSampleBias")} value={OOKLA_GRID_META.sampleBias} />
     <Row field="sourceLicense" value={OOKLA_GRID_META.attribution} />
   </>;
 }
 
 export function OoklaMobileGridPanel({ props }: { props: Record<string, unknown> }) {
-  return <OoklaGridPanel props={props} service="行動 Mobile（蜂巢 4G／5G）" />;
+  const { t: tr } = useLocale();
+  return <OoklaGridPanel props={props} service={tr("popup.infra.ooklaMobile")} />;
 }
 
 export function OoklaFixedGridPanel({ props }: { props: Record<string, unknown> }) {
-  return <OoklaGridPanel props={props} service="固定 Fixed（WiFi／乙太）" />;
+  const { t: tr } = useLocale();
+  return <OoklaGridPanel props={props} service={tr("popup.infra.ooklaFixed")} />;
 }
 
 export function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const brand = String(props.brand ?? "");
   const accentColor = BRAND_COLORS[brand] ?? "#26c6da";
 
@@ -258,7 +282,7 @@ export function ConvenienceStorePanel({ props }: { props: Record<string, unknown
           {String(props.name ?? "Unknown Store")}
         </div>
       </div>
-      <Row label="品牌" value={brand} color={accentColor} />
+      <Row label={tr("popup.infra.brand")} value={brand} color={accentColor} />
       <Row field="address" value={String(props.addr ?? props.address ?? "")} />
     </>
   );
@@ -266,6 +290,8 @@ export function ConvenienceStorePanel({ props }: { props: Record<string, unknown
 
 export function PostOfficePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#d32f2f";
   const flag = (v: unknown) => (v === true || v === "true" || v === 1 ? "✓" : "✗");
   const city = String(props.city ?? "");
@@ -281,16 +307,18 @@ export function PostOfficePanel({ props }: { props: Record<string, unknown> }) {
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
       <Row field="countyDistrict" value={[city, district].filter(Boolean).join(" ")} />
-      <Row label="平日營業" value={flag(props.weekday_service)} color={accentColor} />
-      <Row label="平日延時" value={flag(props.weekday_extended_service)} />
-      <Row label="週六營業" value={flag(props.saturday_service)} />
-      <Row label="週日營業" value={flag(props.sunday_service)} />
+      <Row label={tr("popup.infra.weekdayService")} value={flag(props.weekday_service)} color={accentColor} />
+      <Row label={tr("popup.infra.weekdayExtended")} value={flag(props.weekday_extended_service)} />
+      <Row label={tr("popup.infra.saturdayService")} value={flag(props.saturday_service)} />
+      <Row label={tr("popup.infra.sundayService")} value={flag(props.sunday_service)} />
     </>
   );
 }
 
 export function IPostBoxPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#ef6c00";
   const lockerCount = props.locker_count != null ? String(props.locker_count) : "";
   return (
@@ -302,10 +330,10 @@ export function IPostBoxPanel({ props }: { props: Record<string, unknown> }) {
         </div>
       </div>
       <Row field="address" value={String(props.address ?? "")} />
-      <Row label="相對位置" value={String(props.relative_location ?? "")} />
+      <Row label={tr("popup.infra.relativeLocation")} value={String(props.relative_location ?? "")} />
       <Row field="businessHours" value={String(props.business_hours ?? "")} color={accentColor} />
-      <Row label="格數" value={lockerCount ? `${lockerCount} 格` : ""} />
-      <Row label="櫃型" value={String(props.cabinet_type ?? "")} />
+      <Row label={tr("popup.infra.lockers")} value={lockerCount ? tr("popup.infra.lockerCount", { count: Number(lockerCount) || 0 }) : ""} />
+      <Row label={tr("popup.infra.cabinetType")} value={String(props.cabinet_type ?? "")} />
     </>
   );
 }
@@ -331,6 +359,8 @@ export function CommunityCenterPanel({ props }: { props: Record<string, unknown>
 
 export function GovServiceOfficePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const type = String(props.type ?? "");
   const info = GOV_OFFICE_TYPE[type] ?? { color: "#8d6e63", label: type };
   return (
@@ -341,9 +371,9 @@ export function GovServiceOfficePanel({ props }: { props: Record<string, unknown
           {String(props.name ?? "Unknown Office")}
         </div>
       </div>
-      <Row field="type" value={info.label} color={info.color} />
+      <Row field="type" value={enumLabel("infraGovOffice", type, info.label, i18n)} color={info.color} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row label="轄區" value={String(props.jurisdiction ?? "")} />
+      <Row label={tr("popup.infra.jurisdiction")} value={String(props.jurisdiction ?? "")} />
     </>
   );
 }
@@ -367,6 +397,8 @@ export function PublicLibraryPanel({ props }: { props: Record<string, unknown> }
 
 export function WelfareCenterPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#ec407a";
   return (
     <>
@@ -377,9 +409,9 @@ export function WelfareCenterPanel({ props }: { props: Record<string, unknown> }
         </div>
       </div>
       <Row field="county" value={String(props.county ?? "")} color={accentColor} />
-      <Row label="服務區" value={String(props.service_area ?? "")} />
+      <Row label={tr("popup.infra.serviceArea")} value={String(props.service_area ?? "")} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
-        資料時點 2023-04
+        {tr("popup.infra.welfareVintage")}
       </div>
     </>
   );
@@ -404,6 +436,8 @@ export function RetailMarketPanel({ props }: { props: Record<string, unknown> })
 
 export function PublicToiletPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const grade = String(props.grade ?? "");
   const gradeColor = TOILET_GRADE_COLOR[grade] ?? "#9e9e9e";
   return (
@@ -411,18 +445,18 @@ export function PublicToiletPanel({ props }: { props: Record<string, unknown> })
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: gradeColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "未命名公廁")}
+          {String(props.name ?? tr("popup.infra.unnamedToilet"))}
         </div>
       </div>
-      <Row field="dataRole" value="環境部列管公廁（同址聚合）" color={gradeColor} />
+      <Row field="dataRole" value={tr("popup.infra.toiletRole")} color={gradeColor} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row field="level" value={grade} color={gradeColor} />
+      <Row field="level" value={grade ? enumLabel("infraToiletGrade", grade, grade, i18n) : ""} color={gradeColor} />
       <Row field="category" value={String(props.type2 ?? "")} />
       <SourceFooter props={{
         ...props,
-        source_org: "環境部環境資料開放平台",
+        source_org: tr("popup.infra.toiletSourceOrg"),
         source_url: "https://data.moenv.gov.tw/api/v2/fac_p_07",
-        license: "政府資料開放授權條款 OGDL-Taiwan-1.0",
+        license: tr("popup.infra.toiletLicense"),
         fetched_at: props.fetched_at ?? "2026-07-17",
       }} />
     </>
@@ -439,8 +473,8 @@ export function LighthousePanel({ props }: { props: Record<string, unknown> }) {
           {String(props.Name ?? "Unknown Lighthouse")}
         </div>
       </div>
-      <Row label="緯度" value={String(props.Lat ?? "")} />
-      <Row label="經度" value={String(props.Lon ?? "")} />
+      <Row field="latitude" value={String(props.Lat ?? "")} />
+      <Row field="longitude" value={String(props.Lon ?? "")} />
     </>
   );
 }
@@ -467,6 +501,8 @@ export function PortPanel({ props }: { props: Record<string, unknown> }) {
 
 export function AirportPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const iata = String(props.iata ?? "");
   const [series, setSeries] = useState<{ inSeries: SparklinePoint[]; outSeries: SparklinePoint[] }>({ inSeries: [], outSeries: [] });
   const [loadingTs, setLoadingTs] = useState(true);
@@ -497,30 +533,30 @@ export function AirportPanel({ props }: { props: Record<string, unknown> }) {
           {String(props.name ?? "Unknown Airport")}
         </div>
       </div>
-      <Row label="英文" value={String(props.name_en ?? "")} />
+      <Row label={tr("popup.infra.english")} value={String(props.name_en ?? "")} />
       <Row label="ICAO" value={String(props.icao ?? "")} />
       <Row label="IATA" value={iata} />
 
       {iata && (
         <>
           <div style={{ marginTop: 10, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-            24h 入境人次（每小時）
+            {tr("popup.infra.airportIn24h")}
           </div>
           {loadingTs ? (
             <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-              載入中…
+              {tr("popup.infra.loading")}
             </div>
           ) : !hasData ? (
             <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-              無資料（border_airport_snapshot collector 未涵蓋此機場）
+              {tr("popup.infra.airportNoData")}
             </div>
           ) : (
             <>
-              <TimeseriesSparkline data={series.inSeries} unit="人" lineColor="#10b981" height={80} />
+              <TimeseriesSparkline data={series.inSeries} unit={tr("popup.infra.unitPerson")} lineColor="#10b981" height={80} />
               <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-                24h 出境人次
+                {tr("popup.infra.airportOut24h")}
               </div>
-              <TimeseriesSparkline data={series.outSeries} unit="人" lineColor="#fb7185" height={80} />
+              <TimeseriesSparkline data={series.outSeries} unit={tr("popup.infra.unitPerson")} lineColor="#fb7185" height={80} />
             </>
           )}
         </>
@@ -531,6 +567,8 @@ export function AirportPanel({ props }: { props: Record<string, unknown> }) {
 
 export function CctvPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const source = String(props.source ?? "");
   const info = CCTV_SOURCE[source] ?? { color: "#26c6da", label: source };
   const streamUrl = String(props.VideoStreamURL ?? "");
@@ -546,7 +584,7 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
           {String(props.RoadName ?? props.CCTVID ?? "CCTV")}
         </div>
       </div>
-      <Row field="source" value={info.label} color={info.color} />
+      <Row field="source" value={source ? enumLabel("infraCctvSource", source, info.label, i18n) : ""} color={info.color} />
       <Row field="direction" value={String(props.RoadDirection ?? "")} />
       <Row label="ID" value={String(props.CCTVID ?? "")} />
       {streamUrl ? (
@@ -559,7 +597,7 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
         />
       ) : (
         <div style={{ marginTop: 8, fontSize: FONT_SIZE.base, color: t.textMuted }}>
-          此攝影機未提供串流網址
+          {tr("popup.infra.streamMissing")}
         </div>
       )}
     </>
@@ -568,6 +606,8 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
 
 export function EtcGantryPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#f06292";
   const start = String(props.StartInterchange ?? "");
   const end = String(props.EndInterchange ?? "");
@@ -581,17 +621,19 @@ export function EtcGantryPanel({ props }: { props: Record<string, unknown> }) {
           {String(props.GantryID ?? "ETC Gantry")}
         </div>
       </div>
-      <Row label="國道" value={String(props.Freeway ?? "")} color={accentColor} />
+      <Row label={tr("popup.infra.freeway")} value={String(props.Freeway ?? "")} color={accentColor} />
       <Row field="direction" value={String(props.Direction ?? "")} />
-      <Row label="區間" value={segment} />
-      <Row label="里程" value={props.TollMile ? `${String(props.TollMile)} km` : ""} />
-      <Row label="小型車費率" value={fareSmall ? `${fareSmall} 元/km` : ""} color={accentColor} />
+      <Row label={tr("popup.infra.segment")} value={segment} />
+      <Row label={tr("popup.infra.mileage")} value={props.TollMile ? `${String(props.TollMile)} km` : ""} />
+      <Row label={tr("popup.infra.smallCarRate")} value={fareSmall ? tr("popup.infra.smallCarRateValue", { fare: fareSmall }) : ""} color={accentColor} />
     </>
   );
 }
 
 export function ServiceAreaPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#4db6ac";
   return (
     <>
@@ -601,18 +643,20 @@ export function ServiceAreaPanel({ props }: { props: Record<string, unknown> }) 
           {String(props.Name ?? "Service Area")}
         </div>
       </div>
-      <Row label="國道" value={String(props.Freeway ?? "")} color={accentColor} />
+      <Row label={tr("popup.infra.freeway")} value={String(props.Freeway ?? "")} color={accentColor} />
       <Row field="location" value={String(props.Location ?? "")} />
       <Row field="direction" value={String(props.Direction ?? "")} />
-      <Row label="經營者" value={String(props.Operator ?? "")} />
+      <Row label={tr("popup.infra.operatorCompany")} value={String(props.Operator ?? "")} />
       <Row field="address" value={String(props.Address ?? "")} />
-      <Row label="主題" value={String(props.Theme ?? "")} />
+      <Row label={tr("popup.infra.theme")} value={String(props.Theme ?? "")} />
     </>
   );
 }
 
 export function ServiceAreaPolygonPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#4db6ac";
   const areaHa = typeof props.area_ha === "number"
     ? props.area_ha.toFixed(2)
@@ -625,16 +669,18 @@ export function ServiceAreaPolygonPanel({ props }: { props: Record<string, unkno
           {String(props.Name ?? "Service Area")}
         </div>
       </div>
-      <Row label="經營者" value={String(props.Operator ?? "")} color={accentColor} />
-      <Row label="主題" value={String(props.Theme ?? "")} />
-      <Row label="國道" value={String(props.Freeway ?? "")} />
-      <Row field="area" value={areaHa ? `${areaHa} 公頃` : ""} />
+      <Row label={tr("popup.infra.operatorCompany")} value={String(props.Operator ?? "")} color={accentColor} />
+      <Row label={tr("popup.infra.theme")} value={String(props.Theme ?? "")} />
+      <Row label={tr("popup.infra.freeway")} value={String(props.Freeway ?? "")} />
+      <Row field="area" value={areaHa ? tr("popup.infra.areaHa", { value: areaHa }) : ""} />
     </>
   );
 }
 
 export function TaxiStandPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accentColor = "#f9a825";
   return (
     <>
@@ -646,8 +692,8 @@ export function TaxiStandPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       <Row field="district" value={String(props.District ?? "")} color={accentColor} />
       <Row field="location" value={String(props.StreetName ?? "")} />
-      <Row label="格位" value={props.Slots ? `${String(props.Slots)} 格` : ""} />
-      <Row label="時段" value={String(props.Schedule ?? "")} />
+      <Row label={tr("popup.infra.slots")} value={props.Slots ? tr("popup.infra.slotCount", { count: Number(props.Slots) || 0 }) : ""} />
+      <Row label={tr("popup.infra.schedule")} value={String(props.Schedule ?? "")} />
       <Row field="city" value={String(props.city ?? "")} />
     </>
   );

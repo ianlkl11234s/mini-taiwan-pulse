@@ -1,23 +1,27 @@
 import { Row } from "./shared";
+import { localeStore, useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { useFeatureTheme } from "./featureTheme";
 import { parseGfwHourlyGridVessels, type GfwHourlyGridVessel } from "../../data/gfwHourlyGridTypes";
-import { globalEventCategoryLabel, globalEventSeverityLabel } from "../../data/globalEventsTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES, globalEventCategoryLabel, globalEventSeverityLabel } from "../../data/globalEventsTypes";
 import { FONT_SIZE } from "../../styles/designTokens";
 
-function fmtAge(ts: unknown): string {
+type I18n = ReturnType<typeof useLocale>;
+
+function fmtAge(ts: unknown, { t }: I18n): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
   const now = Math.floor(Date.now() / 1000);
   const dt = now - ts;
-  if (dt < 60) return `${dt}s 前`;
-  if (dt < 3600) return `${Math.floor(dt / 60)} 分鐘前`;
-  if (dt < 86400) return `${Math.floor(dt / 3600)} 小時前`;
-  return `${Math.floor(dt / 86400)} 天前`;
+  if (dt < 60) return t("popup.globalClimate.ageSeconds", { value: dt });
+  if (dt < 3600) return t("popup.globalClimate.ageMinutes", { value: Math.floor(dt / 60) });
+  if (dt < 86400) return t("popup.globalClimate.ageHours", { value: Math.floor(dt / 3600) });
+  return t("popup.globalClimate.ageDays", { value: Math.floor(dt / 86400) });
 }
 
-function fmtTime(ts: unknown): string {
+function fmtTime(ts: unknown, { formatDateTime }: I18n): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
   const d = new Date(ts * 1000);
-  return d.toLocaleString("zh-TW", {
+  return formatDateTime(d, {
     year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit",
     hour12: false,
@@ -43,6 +47,7 @@ function magBadgeColor(mag: number): string {
 
 export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const mag = typeof props.mag === "number" ? props.mag : null;
   const depth = typeof props.depth_km === "number" ? props.depth_km : null;
   const magColor = mag != null ? magBadgeColor(mag) : t.textDim;
@@ -51,23 +56,24 @@ export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown
     <div>
       <Row field="place" value={String(props.place ?? "—")} />
       <Row
-        label="規模 (M)"
+        label={i18n.t("popup.globalClimate.magnitude")}
         value={mag != null ? `M ${mag.toFixed(1)}` : "—"}
         color={magColor}
       />
       <Row
-        label="深度"
+        label={i18n.t("popup.globalClimate.depth")}
         value={depth != null ? `${depth.toFixed(1)} km` : "—"}
         color={dColor}
       />
-      <Row label="發生時刻" value={fmtTime(props.observed_ts)} />
-      <Row field="age" value={fmtAge(props.observed_ts)} />
+      <Row label={i18n.t("popup.globalClimate.occurredTime")} value={fmtTime(props.observed_ts, i18n)} />
+      <Row field="age" value={fmtAge(props.observed_ts, i18n)} />
       <Row label="USGS ID" value={String(props.event_id ?? "—")} />
     </div>
   );
 }
 
 export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
   const pointType = String(props.point_type ?? "");
   const isFcst = pointType === "forecast";
   const wind = typeof props.max_wind_kt === "number" ? props.max_wind_kt : null;
@@ -77,31 +83,31 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
   return (
     <div>
       <Row
-        label="名稱"
+        field="name"
         value={`${String(props.name_en ?? "")}${
           props.name_local ? ` (${String(props.name_local)})` : ""
         }`}
       />
       <Row field="number" value={String(props.storm_id ?? "—")} />
       <Row
-        label="類型"
-        value={isFcst ? "預報位置 Forecast" : "觀測位置 Observed"}
+        field="type"
+        value={i18n.t(isFcst ? "popup.globalClimate.typhoonForecast" : "popup.globalClimate.typhoonObserved")}
         color={isFcst ? "#c084fc" : "#a855f7"}
       />
       <Row field="dataSource" value={sourceLabel} />
       {adv != null && <Row label="Advisory" value={`#${adv}`} />}
       <Row
-        label="近中心最大風"
-        value={wind != null ? `${wind.toFixed(0)} kt（約 ${(wind * 1.852).toFixed(0)} km/h）` : "—"}
+        label={i18n.t("popup.globalClimate.maxWind")}
+        value={wind != null ? i18n.t("popup.globalClimate.maxWindValue", { kt: wind.toFixed(0), kmh: (wind * 1.852).toFixed(0) }) : "—"}
         color={wind != null && wind >= 64 ? "#dc2626" : undefined}
       />
       <Row
-        label="中心氣壓"
+        label={i18n.t("popup.globalClimate.centerPressure")}
         value={pressure != null ? `${pressure.toFixed(0)} hPa` : "—"}
         color={pressure != null && pressure <= 970 ? "#ef4444" : undefined}
       />
-      <Row label="位置時刻" value={fmtTime(props.valid_ts)} />
-      <Row field="age" value={fmtAge(props.valid_ts)} />
+      <Row label={i18n.t("popup.globalClimate.positionTime")} value={fmtTime(props.valid_ts, i18n)} />
+      <Row field="age" value={fmtAge(props.valid_ts, i18n)} />
     </div>
   );
 }
@@ -109,45 +115,57 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
 // ── 🌍 世界 World：全球垃圾殘骸（Outerview）──
 
 export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   return (
     <div>
-      <Row label="區域 Region" value={String(props.region ?? "—")} />
+      <Row label={t("popup.globalClimate.region")} value={String(props.region ?? "—")} />
       <Row label="ID" value={String(props.id ?? "—")} />
-      <Row label="資料" value="Outerview（CC-BY-4.0）" />
-      <Row field="description" value="點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈" />
+      <Row label={t("popup.globalClimate.dataset")} value="Outerview（CC-BY-4.0）" />
+      <Row field="description" value={t("popup.globalClimate.trashNote")} />
     </div>
   );
 }
 
-function fmtGlobalEventTime(value: unknown): string {
+function fmtGlobalEventTime(value: unknown, { formatDateTime }: I18n): string {
   if (typeof value !== "string" || !value) return "—";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("zh-TW", {
+  return Number.isNaN(date.getTime()) ? value : formatDateTime(date, {
     year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", hour12: false,
   });
 }
 
-export function globalEventLocationLabel(props: Record<string, unknown>): string {
-  if (props.source_kind === "gdelt_metadata_mention") return "新聞地理提及的概略位置，未核實精確發生地";
-  if (props.source_kind === "headline_gazetteer") return "標題提及國家／城市的概略位置，未核實精確發生地";
+export function globalEventLocationLabel(props: Record<string, unknown>, t: I18n["t"] = localeStore.getSnapshot().t): string {
+  if (props.source_kind === "gdelt_metadata_mention") return t("popup.globalClimate.loc.mention");
+  if (props.source_kind === "headline_gazetteer") return t("popup.globalClimate.loc.headline");
   if (props.research_status === "ai_assessed" && (props.location_kind === "country_center" || props.location_kind === "city_center")) {
-    return "新聞相關國家／城市概略位置，未確認精確發生地";
+    return t("popup.globalClimate.loc.related");
   }
-  if (props.location_kind === "event_point") return "精確事件位置（來源直接支持）";
-  if (props.location_kind === "city_center") return "城市代表點（非事件精確座標）";
-  if (props.location_kind === "country_center") return "國家代表點（非事件精確座標）";
+  if (props.location_kind === "event_point") return t("popup.globalClimate.loc.eventPoint");
+  if (props.location_kind === "city_center") return t("popup.globalClimate.loc.cityCenter");
+  if (props.location_kind === "country_center") return t("popup.globalClimate.loc.countryCenter");
   if (props.is_proxy === true && props.representative_precision === "city") {
-    return "城市代表點（非事件精確座標）";
+    return t("popup.globalClimate.loc.cityCenter");
   }
   if (props.is_proxy === true && props.representative_precision === "country") {
-    return "國家代表點（非事件精確座標）";
+    return t("popup.globalClimate.loc.countryCenter");
   }
-  return "事件位置";
+  return t("popup.globalClimate.loc.default");
+}
+
+function globalEventCategoryText(category: unknown, i18n: I18n): string {
+  const code = GLOBAL_EVENT_CATEGORIES.some((item) => item.value === category) ? String(category) : "unknown";
+  return enumLabel("globalEventCategory", code, globalEventCategoryLabel(category), i18n);
+}
+
+function globalEventSeverityText(severity: unknown, i18n: I18n): string {
+  const code = GLOBAL_EVENT_SEVERITIES.some((item) => item.value === severity) ? String(severity) : "unknown";
+  return enumLabel("globalEventSeverity", code, globalEventSeverityLabel(severity), i18n);
 }
 
 export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const isInitial = props.research_status === "ai_assessed";
   let locationUrl: URL | null = null;
   if (typeof props.location_source === "string") {
@@ -162,26 +180,26 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
   )];
   return (
     <div data-testid="global-event-popup" style={{ color: t.textDefault }}>
-      <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base, marginBottom: 3 }}>事件</div>
+      <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base, marginBottom: 3 }}>{i18n.t("popup.globalClimate.event")}</div>
       <h3 style={{ color: t.textStrong, fontSize: FONT_SIZE.xl, fontWeight: 600, lineHeight: 1.45, margin: "0 0 10px", overflowWrap: "anywhere" }}>
         {String(props.title_zh_tw ?? "—")}
       </h3>
-      <Row label="查證狀態" value={isInitial ? (props.assessment_status === "pending" ? "待 AI 判斷（尚未研究確認）" : "AI 初判（尚未研究確認）") : "已研究並正式發布"} />
+      <Row label={i18n.t("popup.globalClimate.verification")} value={i18n.t(isInitial ? (props.assessment_status === "pending" ? "popup.globalClimate.verifyPending" : "popup.globalClimate.verifyInitial") : "popup.globalClimate.verifyPublished")} />
       <div style={{ marginTop: 10 }}>
-        <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base }}>摘要</div>
+        <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base }}>{i18n.t("popup.globalClimate.summary")}</div>
         <p style={{ color: t.textStrong, fontSize: FONT_SIZE.md, lineHeight: 1.65, margin: "3px 0 10px", overflowWrap: "anywhere" }}>
           {String(props.summary_zh_tw ?? "—")}
         </p>
       </div>
-      <Row label="分類／嚴重度" value={`${globalEventCategoryLabel(props.category)} · ${globalEventSeverityLabel(props.severity)}`} />
-      <Row label="臺灣影響" value={String(props.taiwan_impact_zh_tw ?? "—")} />
-      <Row label="判斷理由" value={String(props.reason_zh_tw ?? "—")} />
+      <Row label={i18n.t("popup.globalClimate.categorySeverity")} value={`${globalEventCategoryText(props.category, i18n)} · ${globalEventSeverityText(props.severity, i18n)}`} />
+      <Row label={i18n.t("popup.globalClimate.taiwanImpact")} value={String(props.taiwan_impact_zh_tw ?? "—")} />
+      <Row label={i18n.t("popup.globalClimate.reason")} value={String(props.reason_zh_tw ?? "—")} />
       <Row field="place" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
-      <Row label="落點語意" value={globalEventLocationLabel(props)} />
+      <Row label={i18n.t("popup.globalClimate.locationSemantics")} value={globalEventLocationLabel(props, i18n.t)} />
       {/* Candidate valid_from carries observed_at; formal valid_from is not a collection time. */}
-      <Row label="來源收集時間" value={fmtGlobalEventTime(props.observed_at ?? (isInitial ? props.valid_from : null))} />
+      <Row label={i18n.t("popup.globalClimate.collectedAt")} value={fmtGlobalEventTime(props.observed_at ?? (isInitial ? props.valid_from : null), i18n)} />
       <div style={{ display: "flex", gap: 8, marginTop: 8, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
-        <span style={{ color: t.textMuted, flexShrink: 0 }}>位置來源</span>
+        <span style={{ color: t.textMuted, flexShrink: 0 }}>{i18n.t("popup.globalClimate.locationSource")}</span>
         {locationUrl ? <a href={String(props.location_source)} target="_blank" rel="noopener noreferrer"
           style={{ color: t.link, overflowWrap: "anywhere" }}>{locationUrl.hostname}</a> : <span style={{ color: t.textStrong }}>—</span>}
       </div>
@@ -189,16 +207,16 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
   );
 }
 
-function fmtMaritimeTime(value: unknown): string {
+function fmtMaritimeTime(value: unknown, { formatDateTime }: I18n): string {
   if (typeof value !== "string" || !value) return "—";
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString("zh-TW", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+  return Number.isNaN(d.getTime()) ? value : formatDateTime(d, { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
-function fmtMaritimeUtcTime(value: unknown): string {
+function fmtMaritimeUtcTime(value: unknown, { formatDateTime }: I18n): string {
   if (typeof value !== "string" || !value) return "—";
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString("zh-TW", {
+  return Number.isNaN(d.getTime()) ? value : formatDateTime(d, {
     timeZone: "UTC",
     month: "2-digit",
     day: "2-digit",
@@ -210,72 +228,79 @@ function fmtMaritimeUtcTime(value: unknown): string {
 
 function GfwMemberDetails({ vessel }: { vessel: GfwHourlyGridVessel }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const hasFullDetail = vessel.hours !== undefined;
   return (
     <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.5 }}>
       ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
-      {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
+      {vessel.vesselType ?? i18n.t("popup.globalClimate.typeUnknown")} · {vessel.flag ?? i18n.t("popup.globalClimate.flagUnknown")}
       {hasFullDetail && <>
         <br />IMO {vessel.imo ?? "—"} · Callsign {vessel.callsign ?? "—"}
         <br />Gear {vessel.geartype ?? "—"} · Dataset {vessel.dataset ?? "—"}
-        <br />格內小時 {vessel.hours?.toLocaleString("zh-TW", { maximumFractionDigits: 4 }) ?? "—"}
-        <br />進入 {fmtMaritimeUtcTime(vessel.entryTimestamp)} · 離開 {fmtMaritimeUtcTime(vessel.exitTimestamp)}
-        <br />首傳 {fmtMaritimeUtcTime(vessel.firstTransmissionDate)} · 末傳 {fmtMaritimeUtcTime(vessel.lastTransmissionDate)}
+        <br />{i18n.t("popup.globalClimate.hoursInCell")} {vessel.hours != null ? i18n.formatNumber(vessel.hours, { maximumFractionDigits: 4 }) : "—"}
+        <br />{i18n.t("popup.globalClimate.entry")} {fmtMaritimeUtcTime(vessel.entryTimestamp, i18n)} · {i18n.t("popup.globalClimate.exit")} {fmtMaritimeUtcTime(vessel.exitTimestamp, i18n)}
+        <br />{i18n.t("popup.globalClimate.firstTx")} {fmtMaritimeUtcTime(vessel.firstTransmissionDate, i18n)} · {i18n.t("popup.globalClimate.lastTx")} {fmtMaritimeUtcTime(vessel.lastTransmissionDate, i18n)}
       </>}
     </div>
   );
 }
 
 export function AisstreamVesselPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   return (
     <div>
       <Row field="vesselName" value={String(props.ship_name ?? "—")} />
       <Row label="MMSI" value={String(props.mmsi ?? "—")} />
-      <Row label="船舶類型" value={String(props.ship_type ?? "—")} />
-      <Row label="航速 / 航向" value={`${props.speed_knots ?? "—"} kt / ${props.course_over_ground ?? "—"}°`} />
-      <Row label="目的地（自報）" value={String(props.destination ?? "—")} />
-      <Row field="observedAt" value={fmtMaritimeTime(props.observed_at)} />
-      <Row label="訊息年齡" value={props.age_seconds == null ? "—" : `${Number(props.age_seconds).toFixed(0)} 秒`} />
+      <Row label={t("popup.transport.vesselType")} value={String(props.ship_type ?? "—")} />
+      <Row label={t("popup.globalClimate.speedCourse")} value={`${props.speed_knots ?? "—"} kt / ${props.course_over_ground ?? "—"}°`} />
+      <Row label={t("popup.globalClimate.destination")} value={String(props.destination ?? "—")} />
+      <Row field="observedAt" value={fmtMaritimeTime(props.observed_at, i18n)} />
+      <Row label={t("popup.globalClimate.messageAge")} value={props.age_seconds == null ? "—" : t("popup.globalClimate.secondsValue", { value: Number(props.age_seconds).toFixed(0) })} />
       <Row field="dataSource" value="AISStream（AIS message feed）" />
     </div>
   );
 }
 
 export function GfwVesselPresencePanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   return (
     <div>
       <Row field="vesselName" value={String(props.ship_name ?? "—")} />
       <Row label="Vessel ID" value={String(props.vessel_id ?? "—")} />
-      <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
-      <Row label="船舶類型" value={String(props.vessel_type ?? "—")} />
-      <Row label="快照日期" value={String(props.source_snapshot_date ?? "—")} />
-      <Row field="observedAt" value={fmtMaritimeTime(props.observed_at)} />
-      <Row label="資料年齡" value={props.age_hours == null ? "—" : `${Number(props.age_hours).toFixed(1)} 小時`} />
-      <Row field="dataSource" value="Global Fishing Watch（daily vessel presence；非即時）" />
+      <Row label={t("popup.globalClimate.mmsiFlag")} value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
+      <Row label={t("popup.transport.vesselType")} value={String(props.vessel_type ?? "—")} />
+      <Row label={t("popup.globalClimate.snapshotDate")} value={String(props.source_snapshot_date ?? "—")} />
+      <Row field="observedAt" value={fmtMaritimeTime(props.observed_at, i18n)} />
+      <Row label={t("popup.globalClimate.dataAge")} value={props.age_hours == null ? "—" : t("popup.globalClimate.hoursValue", { value: Number(props.age_hours).toFixed(1) })} />
+      <Row field="dataSource" value={t("popup.globalClimate.gfwDaily")} />
     </div>
   );
 }
 
 export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const tr = i18n.t;
   const vessels = parseGfwHourlyGridVessels(props.vessels_json) ?? [];
   const expectedCount = Number(props.vessel_count);
   const detailStatus = props.detail_status;
   return (
     <div>
-      <Row label="UTC 小時" value={fmtMaritimeUtcTime(props.observed_at)} />
-      {typeof props.dominant_observed_at === "string" && <Row label="點擊主導小時" value={fmtMaritimeUtcTime(props.dominant_observed_at)} />}
-      <Row label="格內船數" value={Number.isFinite(expectedCount) ? `${expectedCount} 艘` : "—"} />
-      <Row label="格網中心" value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
-      {typeof props.cell_id === "string" && <Row label="網格 ID" value={props.cell_id} />}
-      <Row label="位置語意" value={props.geometry_semantics === "globally_aligned_0_1_degree_cell" ? "GFW HIGH 本地聚合 0.1° 格網" : "GFW HIGH 格網中心（非原始 AIS 精確座標）"} />
-      {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label="幾何範圍" value="推定 0.01° 格網 footprint" />}
-      {props.geometry_semantics === "globally_aligned_0_1_degree_cell" && <Row label="幾何範圍" value="全球對齊 0.1° 格網 footprint（非原始 AIS 精確位置）" />}
-      {Number(props.full_fidelity) === 1 && <Row label="完整性" value="已驗證 full fidelity" />}
-      {detailStatus === "loading" && <Row label="完整清單" value="正在驗證並載入全部船舶…" />}
-      {detailStatus === "error" && <Row label="完整清單" value={String(props.detail_error ?? "驗證失敗，未顯示部分清單")} color="#f87171" />}
+      <Row label={tr("popup.globalClimate.utcHour")} value={fmtMaritimeUtcTime(props.observed_at, i18n)} />
+      {typeof props.dominant_observed_at === "string" && <Row label={tr("popup.globalClimate.dominantHour")} value={fmtMaritimeUtcTime(props.dominant_observed_at, i18n)} />}
+      <Row label={tr("popup.globalClimate.vesselsInCell")} value={Number.isFinite(expectedCount) ? tr("popup.globalClimate.shipCount", { count: expectedCount }) : "—"} />
+      <Row label={tr("popup.globalClimate.gridCenter")} value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
+      {typeof props.cell_id === "string" && <Row label={tr("popup.globalClimate.cellId")} value={props.cell_id} />}
+      <Row label={tr("popup.globalClimate.geomSemantics")} value={tr(props.geometry_semantics === "globally_aligned_0_1_degree_cell" ? "popup.globalClimate.geomLocalAgg" : "popup.globalClimate.geomCenter")} />
+      {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentInferred")} />}
+      {props.geometry_semantics === "globally_aligned_0_1_degree_cell" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentAligned")} />}
+      {Number(props.full_fidelity) === 1 && <Row label={tr("popup.globalClimate.integrity")} value={tr("popup.globalClimate.fullFidelity")} />}
+      {detailStatus === "loading" && <Row label={tr("popup.globalClimate.fullList")} value={tr("popup.globalClimate.listLoading")} />}
+      {detailStatus === "error" && <Row label={tr("popup.globalClimate.fullList")} value={String(props.detail_error ?? tr("popup.globalClimate.listError"))} color="#f87171" />}
       <div style={{ marginTop: 8, fontSize: 11, color: t.textDim, letterSpacing: 0.6 }}>
-        格內船舶 {vessels.length.toLocaleString()} 艘
+        {tr("popup.globalClimate.shipsInCell", { count: vessels.length })}
       </div>
       <div style={{ maxHeight: 220, overflowY: "auto", marginTop: 4, paddingRight: 4 }}>
         {vessels.map((vessel, index) => (
@@ -290,12 +315,12 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
           </div>
         ))}
         {vessels.length === 0 && detailStatus !== "loading" && (
-          <div style={{ color: t.textDim, fontSize: 11, padding: "6px 0" }}>{detailStatus === "error" ? "不顯示未驗證的部分船舶" : "船舶清單無法解析"}</div>
+          <div style={{ color: t.textDim, fontSize: 11, padding: "6px 0" }}>{detailStatus === "error" ? tr("popup.globalClimate.unverifiedHidden") : tr("popup.globalClimate.listUnparsable")}</div>
         )}
       </div>
       <Row field="dataSource" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
       <div style={{ marginTop: 7, fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>
-        非即時、格網中心近似資料 · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
+        {tr("popup.globalClimate.approxGrid")} · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
       </div>
     </div>
   );
@@ -303,6 +328,8 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
 
 export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const tr = i18n.t;
   const vessels = parseGfwHourlyGridVessels(props.vessels_json);
   const shipName = String(props.ship_name ?? "").trim();
   const vesselId = String(props.vessel_id ?? "—");
@@ -315,27 +342,27 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
   return (
     <div>
       {!grouped && (singleVessel ? <>
-        <Row field="vesselName" value={singleVessel.shipName || "（無船名）"} />
+        <Row field="vesselName" value={singleVessel.shipName || tr("popup.globalClimate.noShipName")} />
         <GfwMemberDetails vessel={singleVessel} />
       </> : <>
-        <Row field="vesselName" value={shipName || "（無船名）"} />
+        <Row field="vesselName" value={shipName || tr("popup.globalClimate.noShipName")} />
         <Row label="Vessel ID" value={vesselId} />
-        <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
-        <Row label="GFW 原始船種" value={String(props.vessel_type ?? "—")} />
+        <Row label={tr("popup.globalClimate.mmsiFlag")} value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
+        <Row label={tr("popup.globalClimate.gfwOriginalType")} value={String(props.vessel_type ?? "—")} />
       </>)}
-      <Row label={grouped ? "同座標船舶" : "視覺分類"} value={grouped && Number.isFinite(vesselCount) ? `${vesselCount} 艘` : String(props.ship_type_label ?? "其他 Other")} />
-      {Number(props.mixed_type) === 1 && <Row label="船種" value="混合船種 Mixed" />}
-      <Row label="拖尾起點（UTC）" value={fmtMaritimeUtcTime(props.start_at)} />
-      <Row label="拖尾終點（UTC）" value={fmtMaritimeUtcTime(props.end_at)} />
+      <Row label={tr(grouped ? "popup.globalClimate.sameCoordVessels" : "popup.globalClimate.visualClass")} value={grouped && Number.isFinite(vesselCount) ? tr("popup.globalClimate.shipCount", { count: vesselCount }) : String(props.ship_type_label ?? tr("popup.globalClimate.otherShip"))} />
+      {Number(props.mixed_type) === 1 && <Row label={tr("popup.globalClimate.shipType")} value={tr("popup.globalClimate.mixedShip")} />}
+      <Row label={tr("popup.globalClimate.trailStart")} value={fmtMaritimeUtcTime(props.start_at, i18n)} />
+      <Row label={tr("popup.globalClimate.trailEnd")} value={fmtMaritimeUtcTime(props.end_at, i18n)} />
       <Row
-        label="時間軸位置（UTC）"
-        value={`${fmtMaritimeUtcTime(props.selected_time)}${interpolated ? "（線性內插）" : "（實際觀測）"}`}
+        label={tr("popup.globalClimate.timelinePos")}
+        value={tr(interpolated ? "popup.globalClimate.timelineInterp" : "popup.globalClimate.timelineObserved", { time: fmtMaritimeUtcTime(props.selected_time, i18n) })}
       />
-      <Row label="拖尾點數" value={Number.isFinite(count) ? `${count} 點` : "—"} />
+      <Row label={tr("popup.globalClimate.trailPoints")} value={Number.isFinite(count) ? tr("popup.globalClimate.pointsValue", { count }) : "—"} />
       <Row field="dataSource" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
-      {Number(props.full_fidelity) === 1 && <Row label="完整性" value="已驗證 full fidelity" />}
-      {detailStatus === "loading" && <Row label="航段詳情" value="正在驗證完整航段…" />}
-      {detailStatus === "error" && <Row label="航段詳情" value={String(props.detail_error ?? "驗證失敗，未顯示部分詳情")} color="#f87171" />}
+      {Number(props.full_fidelity) === 1 && <Row label={tr("popup.globalClimate.integrity")} value={tr("popup.globalClimate.fullFidelity")} />}
+      {detailStatus === "loading" && <Row label={tr("popup.globalClimate.segmentDetail")} value={tr("popup.globalClimate.segLoading")} />}
+      {detailStatus === "error" && <Row label={tr("popup.globalClimate.segmentDetail")} value={String(props.detail_error ?? tr("popup.globalClimate.segError"))} color="#f87171" />}
       {grouped && (
         <div style={{ maxHeight: 220, overflowY: "auto", marginTop: 6, paddingRight: 4 }}>
           {(vessels ?? []).map((vessel, index) => (
@@ -347,10 +374,8 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
         </div>
       )}
       <div style={{ marginTop: 7, fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>
-        每個頂點代表該船每小時所在的 GFW HIGH 格網中心，不是原始 AIS 精確位置；
-        時間軸位置只在同一 segment 的相鄰觀測間做線性內插。
-        缺訊與不合理跳點已由上游切段，前端不跨段補線。
-        {" "}非即時近似資料 · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
+        {tr("popup.globalClimate.trackNote")}
+        {" "}{tr("popup.globalClimate.approxShort")} · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
       </div>
     </div>
   );
@@ -358,6 +383,8 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
 
 export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const tr = i18n.t;
   const hours = typeof props.apparent_fishing_hours === "number" && Number.isFinite(props.apparent_fishing_hours) && props.apparent_fishing_hours >= 0
     ? props.apparent_fishing_hours : null;
   const components = typeof props.component_count === "number" && Number.isInteger(props.component_count) && props.component_count >= 1
@@ -374,25 +401,25 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
       facetCount = null;
     }
   }
-  const unavailable = (value: unknown): string => value == null || value === "" ? "未提供" : String(value);
+  const unavailable = (value: unknown): string => value == null || value === "" ? tr("popup.globalClimate.notProvided") : String(value);
   const attributionHref = typeof props.attribution_href === "string" && props.attribution_href ? props.attribution_href : null;
   return (
     <div>
-      <Row label="選定 UTC 日" value={unavailable(props.selected_utc_date ?? props.date)} />
-      <Row label="捕撈活動" value={hours != null ? `${hours.toLocaleString("zh-TW", { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : "未提供"} />
-      <Row label="彙整 components" value={components != null ? components.toLocaleString("zh-TW") : "未提供"} />
-      {facetCount != null && <Row label="Aggregation facets" value={`${facetCount.toLocaleString("zh-TW")} 組`} />}
+      <Row label={tr("popup.globalClimate.selectedUtcDay")} value={unavailable(props.selected_utc_date ?? props.date)} />
+      <Row label={tr("popup.globalClimate.fishingActivity")} value={hours != null ? `${i18n.formatNumber(hours, { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : tr("popup.globalClimate.notProvided")} />
+      <Row label={tr("popup.globalClimate.components")} value={components != null ? i18n.formatNumber(components) : tr("popup.globalClimate.notProvided")} />
+      {facetCount != null && <Row label="Aggregation facets" value={tr("popup.globalClimate.facetsValue", { count: facetCount })} />}
       {facets.length > 0 && (
         <details style={{ marginTop: 7, color: t.textDim }}>
-          <summary style={{ cursor: "pointer", fontSize: 10 }}>查看完整 aggregation facets</summary>
+          <summary style={{ cursor: "pointer", fontSize: 10 }}>{tr("popup.globalClimate.viewFacets")}</summary>
           <pre style={{ maxHeight: 180, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 9, lineHeight: 1.35 }}>
             {JSON.stringify(facets, null, 2)}
           </pre>
         </details>
       )}
-      <Row label="資料版本" value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
-      <Row label="指標" value={unavailable(props.metric_semantics ?? props.metric)} />
-      <Row label="最新可用日期" value={unavailable(props.latest_available_date)} />
+      <Row label={tr("popup.globalClimate.datasetVersion")} value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
+      <Row label={tr("popup.globalClimate.metric")} value={unavailable(props.metric_semantics ?? props.metric)} />
+      <Row label={tr("popup.globalClimate.latestDate")} value={unavailable(props.latest_available_date)} />
       <Row label="Finalization" value={unavailable(props.finalization_status)} />
       <Row label="Revision" value={unavailable(props.revision_semantics)} />
       <Row field="dataSource" value={unavailable(props.attribution)} />
@@ -406,16 +433,18 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
 
 export function GfwDarkVesselPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const tr = i18n.t;
   const detections = Number(props.detections);
   return (
     <div>
-      <Row label="觀測時間（UTC）" value={fmtMaritimeUtcTime(props.observed_at)} />
-      <Row label="SAR detections" value={Number.isFinite(detections) ? `${detections} 筆` : "—"} />
-      <Row label="位置語意" value="GFW HIGH 格網中心（非精確 SAR 座標）" />
-      <Row label="匹配狀態" value="SAR 偵測未與 AIS 匹配" />
+      <Row label={tr("popup.globalClimate.obsTimeUtc")} value={fmtMaritimeUtcTime(props.observed_at, i18n)} />
+      <Row label="SAR detections" value={Number.isFinite(detections) ? tr("popup.globalClimate.detectionsValue", { count: detections }) : "—"} />
+      <Row label={tr("popup.globalClimate.geomSemantics")} value={tr("popup.globalClimate.sarGeom")} />
+      <Row label={tr("popup.globalClimate.matchStatus")} value={tr("popup.globalClimate.sarUnmatched")} />
       <Row field="dataSource" value={`Global Fishing Watch ${String(props.source_dataset ?? "—")}`} />
       <div style={{ marginTop: 8, padding: "7px 8px", border: `1px solid ${t.border}`, borderRadius: 6, color: t.textDim, fontSize: 10, lineHeight: 1.5 }}>
-        SAR 偵測未與 AIS 匹配，不代表違法、不是確認暗船，也不能據此認定船舶刻意關閉 AIS。
+        {tr("popup.globalClimate.darkNote")}
         {props.interpretation_note ? ` ${String(props.interpretation_note)}` : ""}
       </div>
     </div>
@@ -443,11 +472,11 @@ function currentDirTo(u: number, v: number): number {
   return ((Math.atan2(u, v) * 180) / Math.PI + 360) % 360;
 }
 
-function fmtValidAt(validAt: unknown): string {
+function fmtValidAt(validAt: unknown, { formatDateTime }: I18n): string {
   if (typeof validAt !== "string" || !validAt) return "—";
   const d = new Date(validAt);
   if (Number.isNaN(d.getTime())) return validAt;
-  return d.toLocaleString("zh-TW", {
+  return formatDateTime(d, {
     month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false,
   });
 }
@@ -467,28 +496,30 @@ function asFieldSample(raw: unknown): FieldSampleProps | null {
 }
 
 export function ClimateFieldPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const tr = i18n.t;
   const wind = asFieldSample(props.wind);
   const currents = asFieldSample(props.currents);
   return (
     <div>
       {wind && (
         <>
-          <Row label="風速" value={`${wind.speed.toFixed(1)} m/s（${(wind.speed * 3.6).toFixed(0)} km/h）`} />
+          <Row label={tr("popup.globalClimate.windSpeed")} value={tr("popup.globalClimate.windSpeedValue", { ms: wind.speed.toFixed(1), kmh: (wind.speed * 3.6).toFixed(0) })} />
           <Row
-            label="風向"
-            value={`${windDirFrom(wind.u, wind.v).toFixed(0)}°（${compassLabel(windDirFrom(wind.u, wind.v))} 來風）`}
+            label={tr("popup.globalClimate.windDir")}
+            value={tr("popup.globalClimate.windDirValue", { deg: windDirFrom(wind.u, wind.v).toFixed(0), dir: compassLabel(windDirFrom(wind.u, wind.v)) })}
           />
-          <Row label="風場時刻" value={fmtValidAt(wind.valid_at)} />
+          <Row label={tr("popup.globalClimate.windTime")} value={fmtValidAt(wind.valid_at, i18n)} />
         </>
       )}
       {currents && (
         <>
-          <Row label="流速" value={`${currents.speed.toFixed(2)} m/s（${(currents.speed * 1.944).toFixed(1)} kt）`} />
+          <Row label={tr("popup.globalClimate.currentSpeed")} value={tr("popup.globalClimate.currentSpeedValue", { ms: currents.speed.toFixed(2), kt: (currents.speed * 1.944).toFixed(1) })} />
           <Row
-            label="流向"
-            value={`${currentDirTo(currents.u, currents.v).toFixed(0)}°（往 ${compassLabel(currentDirTo(currents.u, currents.v))}）`}
+            label={tr("popup.globalClimate.currentDir")}
+            value={tr("popup.globalClimate.currentDirValue", { deg: currentDirTo(currents.u, currents.v).toFixed(0), dir: compassLabel(currentDirTo(currents.u, currents.v)) })}
           />
-          <Row label="海流時刻" value={fmtValidAt(currents.valid_at)} />
+          <Row label={tr("popup.globalClimate.currentTime")} value={fmtValidAt(currents.valid_at, i18n)} />
         </>
       )}
     </div>

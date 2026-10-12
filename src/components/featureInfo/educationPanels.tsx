@@ -1,11 +1,13 @@
 import { Row, Title } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import {
   schoolLevelGroupOf, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS,
   REGION_TYPE_COLORS, type RegionType, CAMPUS_LEVEL_COLORS,
   DISTRICT_COLORS, DISTRICT_SENIOR_CYCLE_COLORS, DISTRICT_DISCLAIMER,
-  linSpecsLabel, type DistrictK12Level,
+  type DistrictK12Level,
   KINDERGARTEN_OWNERSHIP_COLORS, cramCategoryGroupOf,
   CRAM_CATEGORY_COLORS, CRAM_CATEGORY_LABELS,
   GEOCODE_PRECISION_LABELS, UNIVERSITY_BUBBLE_COLOR, UNIVERSITY_NO_DATA_COLOR,
@@ -18,6 +20,17 @@ function Note({ children }: { children: React.ReactNode }) {
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
       {children}
     </div>
+  );
+}
+
+/** 翻譯字串內的 `<b>…</b>` 轉成粗體（說明框備註用；字串來自 JSON，不含使用者輸入） */
+function Rich({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(<b>.*?<\/b>)/).map((part, i) =>
+        part.startsWith("<b>") ? <b key={i}>{part.slice(3, -4)}</b> : part,
+      )}
+    </>
   );
 }
 
@@ -56,8 +69,9 @@ function licenseDateLabel(v: unknown): string {
 
 /** 四份中文欄位資料共用的 geocode 精度列（`interpolated` 那句本身已含 ⚠️） */
 function GeocodeRow({ precision }: { precision: unknown }) {
+  const i18n = useLocale();
   const p = str(precision);
-  return <Row field="positionAccuracy" value={GEOCODE_PRECISION_LABELS[p] ?? p} />;
+  return <Row field="positionAccuracy" value={p ? enumLabel("educationGeocode", p, GEOCODE_PRECISION_LABELS[p] ?? p, i18n) : ""} />;
 }
 
 /**
@@ -66,6 +80,8 @@ function GeocodeRow({ precision }: { precision: unknown }) {
  * 未知值回 null（不硬塞顏色，走 fallback 藍）。
  */
 export function SchoolPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const level = str(props.school_level);
   const group = schoolLevelGroupOf(level);
   const accentColor = group ? SCHOOL_LEVEL_COLORS[group] : "#42a5f5";
@@ -78,20 +94,22 @@ export function SchoolPanel({ props }: { props: Record<string, unknown> }) {
 
   return (
     <>
-      <Title color={accentColor}>{str(props.school_name) || "學校"}</Title>
+      <Title color={accentColor}>{str(props.school_name) || t("popup.education.school")}</Title>
       <Row
-        label="學制"
-        value={group ? `${SCHOOL_LEVEL_LABELS[group]}｜${level}` : level}
+        label={t("popup.education.schoolSystem")}
+        value={group
+          ? `${enumLabel("educationSchoolGroup", group, SCHOOL_LEVEL_LABELS[group], i18n)}｜${enumLabel("educationSchoolLevel", level, level, i18n)}`
+          : level ? enumLabel("educationSchoolLevel", level, level, i18n) : ""}
         color={accentColor}
       />
-      {str(props.system_type) ? <Row label="體系" value={str(props.system_type)} /> : null}
+      {str(props.system_type) ? <Row label={t("popup.education.systemType")} value={str(props.system_type)} /> : null}
       {isRegionType(regionType) ? (
-        <Row label="偏遠地區" value={regionType} color={REGION_TYPE_COLORS[regionType]} />
+        <Row label={t("popup.education.remoteArea")} value={enumLabel("educationRegionType", regionType, regionType, i18n)} color={REGION_TYPE_COLORS[regionType]} />
       ) : null}
       <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
       <Row field="address" value={str(props.address)} />
       <Row field="phone" value={str(props.phone)} />
-      <Row label="網站" value={str(props.website)} />
+      <Row label={t("popup.education.website")} value={str(props.website)} />
     </>
   );
 }
@@ -103,19 +121,23 @@ export function SchoolPanel({ props }: { props: Record<string, unknown> }) {
  *    顯示則直接用上游備好的 `school_level_zh`。
  */
 export function EduCampusPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const levelCode = str(props.school_level);
   const levelZh = str(props.school_level_zh);
+  const levelLabel = levelCode && levelZh ? enumLabel("educationCampusLevel", levelCode, levelZh, i18n) : levelZh;
   const accentColor = CAMPUS_LEVEL_COLORS[str(props.school_level)] ?? "#90a4ae";
   const areaHa = typeof props.area_ha === "number" ? props.area_ha : null;
   const isBranch = props.is_branch === true || props.is_branch === "true" || props.is_branch === 1;
 
   return (
     <>
-      <Title color={accentColor}>{str(props.school_name) || "校地範圍"}</Title>
-      <Row label="學制" value={levelZh} color={accentColor} />
-      {areaHa != null ? <Row label="校地面積" value={`${areaHa.toFixed(2)} 公頃`} /> : null}
+      <Title color={accentColor}>{str(props.school_name) || t("popup.education.campusDefault")}</Title>
+      <Row label={t("popup.education.schoolSystem")} value={levelLabel} color={accentColor} />
+      {areaHa != null ? <Row label={t("popup.education.campusArea")} value={t("popup.education.hectares", { value: areaHa.toFixed(2) })} /> : null}
       <Row field="county" value={str(props.county)} />
-      {isBranch ? <Row label="分校／分部" value="是" /> : null}
-      <Note>校地範圍為官方圖資，<b>澎湖／金門無資料</b></Note>
+      {isBranch ? <Row label={t("popup.education.branchCampus")} value={t("popup.education.yes")} /> : null}
+      <Note><Rich text={t("popup.education.campusNote")} /></Note>
     </>
   );
 }
@@ -130,6 +152,8 @@ export function EduCampusPanel({ props }: { props: Record<string, unknown> }) {
  *    → DISTRICT_DISCLAIMER 為上游明確要求的必顯欄位。
  */
 export function EduDistrictK12Panel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const level: DistrictK12Level = props.level === "junior" ? "junior" : "elementary";
   const accentColor = DISTRICT_COLORS[level].full;
   const county = str(props.county);
@@ -138,29 +162,32 @@ export function EduDistrictK12Panel({ props }: { props: Record<string, unknown> 
   const areaKm2 = typeof props.area_km2 === "number" ? props.area_km2 : null;
   // ⚠️ PMTiles 的 boolean 多半原樣保留，但照 EduCampusPanel 的 is_branch 前例做三態容錯
   const isShared = props.is_shared === true || props.is_shared === "true" || props.is_shared === 1;
+  // 鄰別：只有 village_partial 有值；village_full 是空字串 → 顯示「整里皆屬本校」（同 linSpecsLabel 的規則）
+  const linSpecs = typeof props.lin_specs === "string" ? props.lin_specs.trim() : "";
+  const linLabel = linSpecs || (props.precision === "village_full" ? t("popup.education.wholeVillageThis") : "—");
 
   return (
     <>
-      <Title color={accentColor}>{str(props.school) || "學區"}</Title>
+      <Title color={accentColor}>{str(props.school) || t("popup.education.districtDefault")}</Title>
       <Row
-        label="學制"
-        value={level === "junior" ? "國中學區" : "國小學區"}
+        label={t("popup.education.schoolSystem")}
+        value={level === "junior" ? t("popup.education.juniorDistrict") : t("popup.education.elementaryDistrict")}
         color={accentColor}
       />
       <Row field="county" value={county} />
-      {villageCount != null ? <Row label="涵蓋里數" value={`${villageCount} 里`} /> : null}
-      <Row label="里名" value={str(props.villages)} />
+      {villageCount != null ? <Row label={t("popup.education.villageCoverage")} value={t("popup.education.villageCount", { count: villageCount })} /> : null}
+      <Row label={t("popup.education.villageNames")} value={str(props.villages)} />
       <Row
-        label="邊界精度"
-        value={precision === "village_full" ? "整里皆屬" : precision === "village_partial" ? "部分鄰屬" : precision}
+        label={t("popup.education.boundaryPrecision")}
+        value={precision === "village_full" || precision === "village_partial" ? enumLabel("educationDistrictPrecision", precision, precision === "village_full" ? "整里皆屬" : "部分鄰屬", i18n) : precision}
       />
-      <Row label="鄰別" value={linSpecsLabel(props.lin_specs, props.precision)} />
+      <Row label={t("popup.education.linSpecs")} value={linLabel} />
       {isShared ? (
-        <Row label="共同學區" value="⚠️ 該里同時屬其他學校（共同學區）" color="#ffb74d" />
+        <Row label={t("popup.education.sharedDistrict")} value={t("popup.education.sharedDistrictValue")} color="#ffb74d" />
       ) : null}
       {areaKm2 != null ? <Row field="area" value={`${areaKm2.toFixed(2)} km²`} /> : null}
-      <Note>{DISTRICT_DISCLAIMER}</Note>
-      {county === "臺北市" ? <Note>臺北市資料為 110 學年度</Note> : null}
+      <Note>{enumLabel("educationNote", "districtDisclaimer", DISTRICT_DISCLAIMER, i18n)}</Note>
+      {county === "臺北市" ? <Note>{t("popup.education.taipei110")}</Note> : null}
     </>
   );
 }
@@ -173,7 +200,9 @@ export function EduDistrictK12Panel({ props }: { props: Record<string, unknown> 
  * `cross_district_rules` 最長 685 字 → 小字 + 捲動容器，避免撐爆面板。
  */
 export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknown> }) {
-  const t = useFeatureTheme();
+  const theme = useFeatureTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const no = Number(props.district_no);
   const accentColor = Number.isFinite(no)
     ? DISTRICT_SENIOR_CYCLE_COLORS[no % DISTRICT_SENIOR_CYCLE_COLORS.length]!
@@ -186,16 +215,16 @@ export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknow
   return (
     <>
       <Title color={accentColor}>
-        {Number.isFinite(no) ? `${str(props.district)}（第 ${no} 區）` : str(props.district) || "高中就學區"}
+        {Number.isFinite(no) ? t("popup.education.seniorTitle", { district: str(props.district), no }) : str(props.district) || t("popup.education.seniorDefault")}
       </Title>
       <Row
-        label="涵蓋縣市"
-        value={counties && countyCount != null ? `${counties}（${countyCount} 縣市）` : counties}
+        label={t("popup.education.coveredCounties")}
+        value={counties && countyCount != null ? t("popup.education.countiesWithCount", { counties, count: countyCount }) : counties}
       />
       {areaKm2 != null ? <Row field="area" value={`${areaKm2.toFixed(2)} km²`} /> : null}
       {rules ? (
         <>
-          <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textMuted }}>跨區就讀規則</div>
+          <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textMuted }}>{t("popup.education.crossDistrictRules")}</div>
           <div
             style={{
               marginTop: 2,
@@ -203,7 +232,7 @@ export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknow
               overflowY: "auto",
               fontSize: FONT_SIZE.xs,
               lineHeight: 1.6,
-              color: t.textStrong,
+              color: theme.textStrong,
               wordBreak: "break-word",
             }}
           >
@@ -211,8 +240,8 @@ export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknow
           </div>
         </>
       ) : null}
-      <Note>{DISTRICT_DISCLAIMER}</Note>
-      <Note>本層為 <b>縣市級</b>就學區（全國 15 區），與國中小學區的<b>里級</b>粒度不同。</Note>
+      <Note>{enumLabel("educationNote", "districtDisclaimer", DISTRICT_DISCLAIMER, i18n)}</Note>
+      <Note><Rich text={t("popup.education.seniorNote")} /></Note>
     </>
   );
 }
@@ -226,6 +255,8 @@ export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknow
  * ⚠️ kindergartens 的 `縣市名稱`／`地址` 全數帶 `[NN]` 前綴 → 顯示前走 stripBracketPrefix()。
  */
 export function EduKindergartenPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const ownership = str(props["公/私立"]);
   const isOwnership = (v: string): v is keyof typeof KINDERGARTEN_OWNERSHIP_COLORS =>
     v in KINDERGARTEN_OWNERSHIP_COLORS;
@@ -238,13 +269,13 @@ export function EduKindergartenPanel({ props }: { props: Record<string, unknown>
 
   return (
     <>
-      <Title color={accentColor}>{str(props["學校名稱"]) || "幼兒園"}</Title>
-      {ownership ? <Row label="公私立" value={ownership} color={accentColor} /> : null}
+      <Title color={accentColor}>{str(props["學校名稱"]) || t("popup.education.kindergartenDefault")}</Title>
+      {ownership ? <Row label={t("popup.education.ownership")} value={enumLabel("educationOwnership", ownership, ownership, i18n)} color={accentColor} /> : null}
       <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
       <Row field="address" value={stripBracketPrefix(props["地址"])} />
       <Row field="phone" value={str(props["電話"])} />
       <Row field="code" value={str(props["代碼"] ?? props["學校代碼"])} />
-      {academicYear ? <Row label="學年度" value={`${academicYear} 學年度`} /> : null}
+      {academicYear ? <Row label={t("popup.education.academicYear")} value={t("popup.education.academicYearValue", { year: academicYear })} /> : null}
       <GeocodeRow precision={props.precision} />
     </>
   );
@@ -257,15 +288,16 @@ export function EduKindergartenPanel({ props }: { props: Record<string, unknown>
  * ⚠️ `立案時間` 是 6-7 位**民國** YYYMMDD 數字 → 走 licenseDateLabel()。
  */
 export function EduAfterschoolCarePanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const accentColor = EDUCATION_LAYER_COLORS.eduAfterschoolCare;
 
   return (
     <>
-      <Title color={accentColor}>{str(props["名稱"]) || "課後照顧中心"}</Title>
+      <Title color={accentColor}>{str(props["名稱"]) || t("popup.education.afterschoolDefault")}</Title>
       <Row field="county" value={str(props["縣市"])} />
       <Row field="address" value={stripBracketPrefix(props["地址"])} />
       <Row field="phone" value={str(props["電話"])} />
-      <Row label="立案時間" value={licenseDateLabel(props["立案時間"])} />
+      <Row label={t("popup.education.licensedAt")} value={licenseDateLabel(props["立案時間"])} />
       <GeocodeRow precision={props.precision} />
     </>
   );
@@ -281,24 +313,28 @@ export function EduAfterschoolCarePanel({ props }: { props: Record<string, unkno
  * ⚠️ `立案時間` 是 8 位**西元** YYYYMMDD（與課後照顧的民國紀年不同）→ 走 licenseDateLabel()。
  */
 export function EduCramSchoolPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const category = str(props["短期補習班類別"]);
   const group = cramCategoryGroupOf(category);
   const accentColor = group ? CRAM_CATEGORY_COLORS[group] : CRAM_CATEGORY_COLORS.other;
 
   return (
     <>
-      <Title color={accentColor}>{str(props["短期補習班名稱"]) || "短期補習班"}</Title>
+      <Title color={accentColor}>{str(props["短期補習班名稱"]) || t("popup.education.cramDefault")}</Title>
       <Row
-        label="類別"
-        value={group ? `${CRAM_CATEGORY_LABELS[group]}｜${category}` : category}
+        field="category"
+        value={group
+          ? `${enumLabel("educationCramGroup", group, CRAM_CATEGORY_LABELS[group], i18n)}｜${enumLabel("educationCramCategory", category, category, i18n)}`
+          : category ? enumLabel("educationCramCategory", category, category, i18n) : ""}
         color={accentColor}
       />
       <Row field="county" value={str(props.county) || str(props["地區縣市"])} />
       <Row field="address" value={stripBracketPrefix(props["地址"])} />
-      <Row label="立案時間" value={licenseDateLabel(props["立案時間"])} />
-      <Row label="電子郵件" value={str(props["電子郵件"])} />
+      <Row label={t("popup.education.licensedAt")} value={licenseDateLabel(props["立案時間"])} />
+      <Row label={t("popup.education.email")} value={str(props["電子郵件"])} />
       <GeocodeRow precision={props.precision} />
-      <Note>短期補習班為每日更新的資料源，此為 2026-08-07 快照</Note>
+      <Note>{t("popup.education.cramNote")}</Note>
     </>
   );
 }
@@ -312,6 +348,7 @@ export function EduCramSchoolPanel({ props }: { props: Record<string, unknown> }
  *    並說明三種成因（進修學院／空大 10 歸母校、宗教研修學院 9 不在統計、停辦改名 2）。
  */
 export function EduUniversityStudentsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
   const total = typeof props.students_total === "number" ? props.students_total : null;
   const male = typeof props.students_male === "number" ? props.students_male : null;
   const female = typeof props.students_female === "number" ? props.students_female : null;
@@ -322,22 +359,21 @@ export function EduUniversityStudentsPanel({ props }: { props: Record<string, un
   // 上游是 float（16784.0）→ 四捨五入再千分位，避免印出「16784.0 人」
   const totalLabel =
     total == null
-      ? "無學生數統計"
+      ? t("popup.education.noStudentStats")
       : male != null && female != null
-        ? `${Math.round(total).toLocaleString()} 人（男 ${Math.round(male).toLocaleString()}／女 ${Math.round(female).toLocaleString()}）`
-        : `${Math.round(total).toLocaleString()} 人`;
+        ? t("popup.education.studentsWithGender", { total: formatNumber(Math.round(total)), male: formatNumber(Math.round(male)), female: formatNumber(Math.round(female)) })
+        : t("popup.education.studentsTotal", { total: formatNumber(Math.round(total)) });
 
   return (
     <>
-      <Title color={accentColor}>{str(props.school_name) || "大專校院"}</Title>
-      <Row label="學制" value={str(props.school_level)} />
+      <Title color={accentColor}>{str(props.school_name) || t("popup.education.universityDefault")}</Title>
+      <Row label={t("popup.education.schoolSystem")} value={str(props.school_level)} />
       <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
-      <Row label="學生數" value={totalLabel} color={accentColor} />
-      {academicYear ? <Row label="學年度" value={`${academicYear} 學年度`} /> : null}
+      <Row label={t("popup.education.studentCount")} value={totalLabel} color={accentColor} />
+      {academicYear ? <Row label={t("popup.education.academicYear")} value={t("popup.education.academicYearValue", { year: academicYear })} /> : null}
       {total == null ? (
         <Note>
-          全國 159 校中有 <b>21 校無學生數</b>：進修學院／空大 10 校（學生數歸母校統計）、
-          宗教研修學院 9 校（不在教育部統計範圍）、停辦或改名 2 校。<b>不是 0 人。</b>
+          <Rich text={t("popup.education.noStudentNote")} />
         </Note>
       ) : null}
     </>

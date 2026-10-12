@@ -1,6 +1,8 @@
 import { Row, SourceFooter } from "./shared";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import {
   ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS, PUBLIC_LIFE_COLORS,
 } from "../../data/publicLifePalette";
@@ -44,19 +46,19 @@ const BICYCLE_CATEGORY_LABELS: Record<string, string> = {
   toilet: "公廁",
 };
 
-const translatedList = (value: unknown, labels: Record<string, string>): string => {
+const translatedList = (value: unknown, domain: string, labels: Record<string, string>, i18n: LocaleSnapshot): string => {
   const raw = text(value).trim();
   if (!raw) return "";
   const values = raw.startsWith("[")
     ? (() => { try { const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed.map(String) : [raw]; } catch { return [raw]; } })()
     : raw.split(",").map((item) => item.trim()).filter(Boolean);
-  return values.map((item) => labels[item] ?? item).join("、");
+  return values.map((item) => (labels[item] ? enumLabel(domain, item, labels[item], i18n) : item)).join(i18n.t("popup.publicLife.listSeparator"));
 };
 
-const displayGeometry = (value: unknown) => value === "source_point_unchanged"
-  ? "原始點位"
+const displayGeometry = (value: unknown, tr: LocaleSnapshot["t"]) => value === "source_point_unchanged"
+  ? tr("popup.publicLife.geometrySourcePoint")
   : value === "representative_point_for_point_layer"
-    ? "由原始線／面取內部代表點（僅供點圖層顯示）"
+    ? tr("popup.publicLife.geometryRepresentativePoint")
     : text(value);
 
 function PanelHeader({ title, color }: { title: string; color: string }) {
@@ -82,27 +84,40 @@ function osmAccent(props: Record<string, unknown>, accessibilityMode = false): s
 }
 
 function PublicLifeOsmPanelContent({ props, accessibilityMode = false }: Props & { accessibilityMode?: boolean }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const accent = osmAccent(props, accessibilityMode);
   const featureType = text(props.feature_type);
-  const featureLabel = FEATURE_TYPE_LABELS[featureType] ?? featureType;
+  const featureLabel = FEATURE_TYPE_LABELS[featureType]
+    ? enumLabel("publicLifeFeatureType", featureType, FEATURE_TYPE_LABELS[featureType], i18n)
+    : featureType;
+  const recyclingType = text(props.recycling_type);
+  const accessLabel = (code: string) =>
+    ACCESSIBILITY_LABELS[code] ? enumLabel("publicLifeAccessibility", code, ACCESSIBILITY_LABELS[code], i18n) : code;
   return <>
-    <PanelHeader title={text(props.name) || `未命名${featureLabel || " OSM 設施"}`} color={accent} />
-    <Row field="dataRole" value="OSM 公共生活設施快照" color={accent} />
-    <Row label="設施類型" value={featureLabel} />
-    <Row label="據點型態" value={RECYCLING_TYPE_LABELS[text(props.recycling_type)] ?? text(props.recycling_type)} />
+    <PanelHeader
+      title={text(props.name) || (featureLabel ? tr("popup.publicLife.unnamedType", { type: featureLabel }) : tr("popup.publicLife.unnamedOsm"))}
+      color={accent}
+    />
+    <Row field="dataRole" value={tr("popup.publicLife.osmRole")} color={accent} />
+    <Row label={tr("popup.publicLife.featureType")} value={featureLabel} />
+    <Row
+      label={tr("popup.publicLife.recyclingType")}
+      value={RECYCLING_TYPE_LABELS[recyclingType] ? enumLabel("publicLifeRecyclingType", recyclingType, RECYCLING_TYPE_LABELS[recyclingType], i18n) : recyclingType}
+    />
     <Row field="operator" value={text(props.operator)} />
     <Row field="openingHours" value={text(props.opening_hours)} />
-    <Row label="無障礙" value={(ACCESSIBILITY_LABELS[text(props.wheelchair)] ?? text(props.wheelchair)) || "未標註／未知（unknown，不等於 no）"} />
-    <Row label="無障礙狀態" value={ACCESSIBILITY_LABELS[text(props.accessibility_status)] ?? text(props.accessibility_status)} />
-    <Row label="無障礙公廁" value={text(props.toilets_wheelchair)} />
-    <Row label="觸覺鋪面" value={text(props.tactile_paving)} />
-    <Row label="坡道" value={text(props.ramp)} />
-    <Row label="單車補給" value={translatedList(props.categories_text || props.categories, BICYCLE_CATEGORY_LABELS)} />
-    <Row label="回收材料" value={text(props.materials_text) || text(props.materials)} />
+    <Row label={tr("popup.publicLife.accessibility")} value={accessLabel(text(props.wheelchair)) || accessLabel("unknown")} />
+    <Row label={tr("popup.publicLife.accessibilityStatus")} value={accessLabel(text(props.accessibility_status))} />
+    <Row label={tr("popup.publicLife.accessibleToilet")} value={text(props.toilets_wheelchair)} />
+    <Row label={tr("popup.publicLife.tactilePaving")} value={text(props.tactile_paving)} />
+    <Row label={tr("popup.publicLife.ramp")} value={text(props.ramp)} />
+    <Row label={tr("popup.publicLife.bicycleSupply")} value={translatedList(props.categories_text || props.categories, "publicLifeBicycleCategory", BICYCLE_CATEGORY_LABELS, i18n)} />
+    <Row label={tr("popup.publicLife.recyclingMaterials")} value={text(props.materials_text) || text(props.materials)} />
     <Row field="positionAccuracy" value={text(props.geometry_precision)} />
-    <Row label="原始幾何" value={text(props.source_geometry_type)} />
-    <Row label="顯示位置" value={displayGeometry(props.display_geometry_method)} />
-    <Row label="涵蓋限制" value={text(props.coverage_scope) || "群眾標註且不完整；空白區域不代表沒有設施。"} />
+    <Row label={tr("popup.publicLife.sourceGeometry")} value={text(props.source_geometry_type)} />
+    <Row label={tr("popup.publicLife.displayPosition")} value={displayGeometry(props.display_geometry_method, tr)} />
+    <Row label={tr("popup.publicLife.coverageLimit")} value={text(props.coverage_scope) || tr("popup.publicLife.coverageDefault")} />
   </>;
 }
 
@@ -115,48 +130,51 @@ export function AccessibleParkFacilitiesPanel({ props }: Props) {
 }
 
 export function DisasterShelterPanel({ props }: Props) {
+  const { t: tr } = useLocale();
   return <>
-    <PanelHeader title={text(props.name) || "未命名收容處所"} color={PUBLIC_LIFE_COLORS.disasterShelters} />
-    <Row field="dataRole" value="預定天災收容處所" color={PUBLIC_LIFE_COLORS.disasterShelters} />
-    <Row label="縣市鄉鎮" value={text(props.county_town)} />
+    <PanelHeader title={text(props.name) || tr("popup.publicLife.unnamedShelter")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
+    <Row field="dataRole" value={tr("popup.publicLife.shelterRole")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
+    <Row label={tr("popup.publicLife.countyTown")} value={text(props.county_town)} />
     <Row field="address" value={text(props.address)} />
-    <Row label="預計容量" value={text(props.capacity)} />
-    <Row label="適用災害" value={text(props.disaster_types_text) || text(props.disaster_types)} />
-    <Row label="室內 / 室外" value={`${text(props.indoor) || "unknown"} / ${text(props.outdoor) || "unknown"}`} />
-    <Row label="弱勢安置" value={text(props.vulnerable_services) || "unknown"} />
+    <Row label={tr("popup.publicLife.shelterCapacity")} value={text(props.capacity)} />
+    <Row label={tr("popup.publicLife.disasterTypes")} value={text(props.disaster_types_text) || text(props.disaster_types)} />
+    <Row label={tr("popup.publicLife.indoorOutdoor")} value={`${text(props.indoor) || "unknown"} / ${text(props.outdoor) || "unknown"}`} />
+    <Row label={tr("popup.publicLife.vulnerableServices")} value={text(props.vulnerable_services) || "unknown"} />
     <Row field="positionAccuracy" value={text(props.geometry_precision)} />
-    <Row label="顯示位置" value={displayGeometry(props.display_geometry_method)} />
-    <Row label="重要提醒" value="預定收容處所，不代表目前已開設。" />
-    <SourceFooter props={{ ...props, source_org: "內政部消防署 data.gov.tw 73242", license: props.license ?? "政府資料開放授權條款第1版" }} />
+    <Row label={tr("popup.publicLife.displayPosition")} value={displayGeometry(props.display_geometry_method, tr)} />
+    <Row label={tr("popup.publicLife.importantNote")} value={tr("popup.publicLife.shelterNote")} />
+    <SourceFooter props={{ ...props, source_org: tr("popup.publicLife.shelterSourceOrg"), license: props.license ?? tr("popup.publicLife.shelterLicense") }} />
   </>;
 }
 
 export function NationalParkPanel({ props }: Props) {
+  const { t: tr } = useLocale();
   return <>
-    <PanelHeader title={text(props.name) || "國家公園"} color="#15803d" />
-    <Row field="dataRole" value="官方計畫邊界" color="#15803d" />
+    <PanelHeader title={text(props.name) || tr("popup.publicLife.nationalPark")} color="#15803d" />
+    <Row field="dataRole" value={tr("popup.publicLife.parkRole")} color="#15803d" />
     <Row field="type" value={text(props.type)} />
-    <Row label="計畫版次" value={text(props.plan_revision)} />
-    <Row label="覆蓋語意" value={text(props.coverage_mode)} />
-    <Row label="幾何精度" value={text(props.geometry_precision)} />
-    <Row label="重要提醒" value="官方計畫邊界；不代表即時開放、封閉或遊客管制狀態。" />
-    <SourceFooter props={{ ...props, source_org: "國家公園署 / 海洋國家公園管理處 / TGOS" }} />
+    <Row label={tr("popup.publicLife.planRevision")} value={text(props.plan_revision)} />
+    <Row label={tr("popup.publicLife.coverageMode")} value={text(props.coverage_mode)} />
+    <Row label={tr("popup.publicLife.geometryPrecision")} value={text(props.geometry_precision)} />
+    <Row label={tr("popup.publicLife.importantNote")} value={tr("popup.publicLife.parkNote")} />
+    <SourceFooter props={{ ...props, source_org: tr("popup.publicLife.parkSourceOrg") }} />
   </>;
 }
 
 export function PublicLifeOsmCoveragePanel({ props }: Props) {
+  const { t: tr } = useLocale();
   return <>
-    <PanelHeader title="公共生活 OSM 映射密度" color="#2563eb" />
-    <Row label="觀測總數" value={text(props.observed_count)} />
-    <Row label="資料集數" value={text(props.dataset_count)} />
-    <Row label="飲水點" value={text(props.drinking_count)} />
-    <Row label="垃圾桶" value={text(props.waste_basket_count)} />
-    <Row label="回收點" value={text(props.recycling_count)} />
-    <Row label="遊戲場" value={text(props.playground_count)} />
-    <Row label="無障礙 tags" value={text(props.accessibility_tag_count)} />
-    <Row label="自行車專屬補給" value={text(props.bicycle_specific_count)} />
-    <Row label="遊客中心" value={text(props.visitor_centre_count)} />
-    <Row label="快照時間" value={text(props.snapshot_at)} />
-    <Row label="重要提醒" value="OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" />
+    <PanelHeader title={tr("popup.publicLife.coverageTitle")} color="#2563eb" />
+    <Row label={tr("popup.publicLife.observedTotal")} value={text(props.observed_count)} />
+    <Row label={tr("popup.publicLife.datasetCount")} value={text(props.dataset_count)} />
+    <Row label={tr("popup.publicLife.drinking")} value={text(props.drinking_count)} />
+    <Row label={tr("popup.publicLife.wasteBasket")} value={text(props.waste_basket_count)} />
+    <Row label={tr("popup.publicLife.recyclingPoint")} value={text(props.recycling_count)} />
+    <Row label={tr("popup.publicLife.playground")} value={text(props.playground_count)} />
+    <Row label={tr("popup.publicLife.accessibilityTags")} value={text(props.accessibility_tag_count)} />
+    <Row label={tr("popup.publicLife.bicycleSpecific")} value={text(props.bicycle_specific_count)} />
+    <Row label={tr("popup.publicLife.visitorCentre")} value={text(props.visitor_centre_count)} />
+    <Row label={tr("popup.publicLife.snapshotAt")} value={text(props.snapshot_at)} />
+    <Row label={tr("popup.publicLife.importantNote")} value={tr("popup.publicLife.coverageNote")} />
   </>;
 }

@@ -1,0 +1,14 @@
+{
+  "enum.bridgeResilienceMode.car": "Car",
+  "enum.bridgeResilienceMode.scooter": "Motorcycle",
+  "enum.bridgeResilienceWeighting.decay": "Distance-decayed (mean trip 20 min)",
+  "enum.bridgeResilienceWeighting.uniform": "Unweighted by distance",
+  "enum.bridgeResilienceDim.barrier": "Barrier",
+  "enum.bridgeResilienceDim.network": "Network",
+  "enum.bridgeResilienceDim.population": "Population",
+  "enum.bridgeResilienceDim.lack_of_redundancy": "Lack of alternatives",
+  "enum.bridgeResilienceMisc.unvalidated": "Auto-selected, not yet manually reviewed",
+  "enum.bridgeResilienceLimit.0": "Free-flow model time, excluding congestion. These are single-bridge failure consequences, not risk (no hazard probability).",
+  "enum.bridgeResilienceLimit.1": "Population is registered population, not actual trips. Day/night populations are simulated and for comparison only.",
+  "enum.bridgeResilienceLimit.2": "Danjiang Bridge's interchange ramps are removed together (whether they count as part of the bridge is to be confirmed), so the metrics are an upper bound."
+}
