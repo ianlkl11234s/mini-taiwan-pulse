@@ -111,9 +111,9 @@ src/i18n/
 
 加一個語系（例：韓文）只要三步：
 
-1. `src/i18n/locales.ts` 的 `LOCALES` 加 `ko: { label: "한국어", htmlLang: "ko", intl: "ko-KR", fallback: ["en", "zh-TW"] }`
-2. 複製 `locales/en/` 成 `locales/ko/` 並翻譯
-3. 跑 `npm test`：缺 key、多 key、插值變數對不上都會紅
+1. `src/i18n/locales.ts` 的 `LOCALES` 加 `ko: { label: "한국어", htmlLang: "ko", intl: "ko-KR", fallback: ["en", "zh-TW"], status: "partial" }`
+2. 建 `locales/ko/` 並翻譯；`partial` 期間缺字自動回退，可以分批合併
+3. 翻完改 `status: "complete"`；之後 `npm test` 會擋缺 key、多 key、插值變數對不上（詳見 `src/i18n/README.md`）
 
 其他已經準備好的：
 

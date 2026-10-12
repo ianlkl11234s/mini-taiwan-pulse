@@ -48,7 +48,7 @@ npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖�
 3. 看本檔「下一步」與該階段的「做法」。
 
 **做一個區塊**
-1. 把寫死的中文搬到 `src/i18n/locales/zh-TW/<檔>.json`，**逐字照搬**，確保中文畫面不變。程式改用 `t("key")`。
+1. 把寫死的中文搬到 `src/i18n/locales/zh-TW/<區塊>.json`，**逐字照搬**，確保中文畫面不變。程式改用 `t("key")`。新區塊檔照 `src/i18n/README.md`「新增一個區塊檔」接上型別。資料的外文欄位用 `localizedField`，類別代碼用 `enumLabel`。
 2. 同一批 key 補 `en/`、`ja/` 翻譯，用語照 `translation-coverage.md` 的用語表。
 3. **校對兩輪**：英、日各派一個子代理。第一輪逐筆對照中文修正，第二輪重讀檢查用語一致。新用語補進用語表。
 4. 驗證：
@@ -85,10 +85,12 @@ P1 從**交通類說明框**開始（`transportPanels.tsx` 等）。這類點擊
 
 ## 4. 長期規則（已生效）
 
+> 架構、命名慣例與常見工作的步驟寫在 [`src/i18n/README.md`](../../../src/i18n/README.md)。
+
 - **新的介面文字一律用 `t("key")`**。寫死中文會讓防倒退測試變紅，請修程式，不要調高基準。
 - **識別字不翻**：`section.theme`、manifest `label`、URL 參數、元件狀態值都不翻。只在顯示層翻譯（見 `src/i18n/layerText.ts`）。
 - **新圖層**：中文名寫在 manifest。英日文名稱補在 `layers.json`，沒補時會回退到 manifest 的外文名或中文，不會擋上線。新圖層上線時順手補，校對規則同上。
-- **新語系**：見 `PLAN.md` §5，三步驟。
+- **新語系**：見 `src/i18n/README.md`「新增一個語系」。可以先標 `partial` 邊翻邊合併。
 - **翻譯品質**：使用者不諳英日文，由 Claude 各校對兩輪，不確定的項目記進 `translation-coverage.md`。
 
 ---
