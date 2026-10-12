@@ -1,0 +1,8 @@
+{
+  "enum.powerLineType.minor_line": "Distribution line",
+  "enum.powerLineType.cable": "Underground cable",
+  "enum.powerLineType.line": "Transmission line",
+  "enum.fossilFacilityType.lng_terminal": "LNG terminal",
+  "enum.fossilFacilityType.oil_refinery": "Oil refinery",
+  "enum.fossilFacilityType.gas_power_plant": "Gas-fired power plant"
+}

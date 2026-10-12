@@ -1,0 +1,15 @@
+{
+  "popup.forestry.unknownSource": "出典不明",
+  "popup.forestry.unnamedTrail": "（名称なしの歩道）",
+  "popup.forestry.nationalPark": "国立公園",
+  "popup.forestry.overlapA": "A 林業署のルートと重複",
+  "popup.forestry.originalLink": "元のリンク ↗",
+  "popup.forestry.canopyGiants": "樹冠の巨木",
+  "popup.forestry.accessDist": "最寄りの道路・歩道・林道までの距離",
+  "popup.forestry.canopyNote": "Meta/WRI樹冠高10 m × アクセス性分析（45 m以上）",
+  "popup.forestry.unnamedHut": "名称なしの山小屋",
+  "popup.forestry.hutSource": "玉山国立公園公式 + OSM",
+  "popup.forestry.capacityPeople": "{value}人",
+  "popup.forestry.hutNote": "ⓘ OpenStreetMapの市民投稿による注記を含む。© OpenStreetMap contributors（ODbL）",
+  "popup.forestry.noProps": "属性データなし"
+}

@@ -1,4 +1,6 @@
 import { Row } from "./shared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { mountainHutTypeColor, mountainHutTypeLabel } from "../../data/mountainSafetyTypes";
@@ -13,10 +15,13 @@ const HIKING_TRAIL_SOURCE_INFO: Record<string, { color: string; label: string }>
 };
 
 export function HikingTrailsPanel({ props }: { props: Record<string, unknown> }) {
-  const t = useFeatureTheme();
+  const theme = useFeatureTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const src = String(props.source ?? "");
-  const info = HIKING_TRAIL_SOURCE_INFO[src] ?? { color: "#888", label: src || "未知來源" };
-  const name = String(props.name ?? "(無名步道)");
+  const known = HIKING_TRAIL_SOURCE_INFO[src];
+  const info = known ? { color: known.color, label: enumLabel("hikingTrailSource", src, known.label, i18n) } : { color: "#888", label: src || t("popup.forestry.unknownSource") };
+  const name = String(props.name ?? t("popup.forestry.unnamedTrail"));
   const region = String(props.region ?? "");
   const np = String(props.in_national_park ?? "");
   const url = String(props.url ?? "");
@@ -25,16 +30,16 @@ export function HikingTrailsPanel({ props }: { props: Record<string, unknown> })
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 14, height: 2, background: info.color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{name}</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: theme.textStrong, letterSpacing: 0.5 }}>{name}</div>
       </div>
       <Row field="source" value={info.label} color={info.color} />
       {region ? <Row field="managingAgency" value={region} /> : null}
-      {np ? <Row label="國家公園" value={np} /> : null}
-      {dup ? <Row field="remarks" value="與 A 林業署路線重疊" /> : null}
+      {np ? <Row label={t("popup.forestry.nationalPark")} value={np} /> : null}
+      {dup ? <Row field="remarks" value={t("popup.forestry.overlapA")} /> : null}
       {url ? (
         <div style={{ marginTop: 4 }}>
           <a href={url} target="_blank" rel="noreferrer" style={{ color: "#7ec4ff", textDecoration: "underline", fontSize: FONT_SIZE.base }}>
-            原始連結 ↗
+            {t("popup.forestry.originalLink")}
           </a>
         </div>
       ) : null}
@@ -44,19 +49,21 @@ export function HikingTrailsPanel({ props }: { props: Record<string, unknown> })
 
 // 樹冠巨木 popup：樹高 / 離最近可及線 / 海拔。
 export function CanopyGiantsPanel({ props }: { props: Record<string, unknown> }) {
-  const t = useFeatureTheme();
+  const theme = useFeatureTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const fmt = (v: unknown) => (v == null ? "—" : `${v} m`);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: 5, background: "#a50026", flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>樹冠巨木</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: theme.textStrong, letterSpacing: 0.5 }}>{t("popup.forestry.canopyGiants")}</div>
       </div>
       <Row field="treeHeight" value={fmt(props.height_m)} />
-      <Row label="離最近道路/步道/林道" value={fmt(props.dist_access_m)} />
+      <Row label={t("popup.forestry.accessDist")} value={fmt(props.dist_access_m)} />
       <Row field="elevation" value={fmt(props.elev_m)} />
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
-        Meta/WRI 樹冠高度 10m × 可及性分析（≥ 45m）
+      <div style={{ fontSize: FONT_SIZE.xs, color: theme.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        {t("popup.forestry.canopyNote")}
       </div>
     </>
   );
@@ -68,11 +75,13 @@ export function CanopyGiantsPanel({ props }: { props: Record<string, unknown> })
  * ele / capacity / name_en 多來自 OSM 抬升 → 面板底部標 ODbL。
  */
 export function MountainHutPanel({ props }: { props: Record<string, unknown> }) {
-  const t = useFeatureTheme();
+  const theme = useFeatureTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const type = props.facility_type == null ? null : String(props.facility_type);
   const color = mountainHutTypeColor(type);
   const str = (v: unknown) => (v == null || v === "" ? null : String(v));
-  const name = str(props.name) ?? "無名山屋";
+  const name = str(props.name) ?? t("popup.forestry.unnamedHut");
   const nameEn = str(props.name_en);
   // ⚠️ ele / capacity 上游是 OSM tag 原樣的**字串**（"2588"），不是 number —— 別用 typeof 判
   const ele = str(props.ele);
@@ -82,16 +91,16 @@ export function MountainHutPanel({ props }: { props: Record<string, unknown> }) 
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: 5, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{name}</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: theme.textStrong, letterSpacing: 0.5 }}>{name}</div>
       </div>
-      <Row field="type" value={mountainHutTypeLabel(type)} color={color} />
+      <Row field="type" value={enumLabel("mountainHutType", type ?? "unclassified", mountainHutTypeLabel(type), i18n)} color={color} />
       {nameEn ? <Row field="englishName" value={nameEn} /> : null}
       {ele ? <Row field="elevation" value={`${ele} m`} /> : null}
-      {capacity ? <Row field="capacity" value={`${capacity} 人`} /> : null}
+      {capacity ? <Row field="capacity" value={t("popup.forestry.capacityPeople", { value: capacity })} /> : null}
       {manager ? <Row field="managingAgency" value={manager} /> : null}
-      {props.in_yushan_official === true ? <Row field="source" value="玉山國家公園官方 + OSM" /> : null}
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
-        ⓘ 含 OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）
+      {props.in_yushan_official === true ? <Row field="source" value={t("popup.forestry.hutSource")} /> : null}
+      <div style={{ fontSize: FONT_SIZE.xs, color: theme.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        {t("popup.forestry.hutNote")}
       </div>
     </>
   );
@@ -111,15 +120,17 @@ const FORESTRY_PROP_LABELS: Record<string, string> = {
 };
 
 export function ForestryGenericPanel({ props }: { props: Record<string, unknown> }) {
-  const t = useFeatureTheme();
+  const theme = useFeatureTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const entries = Object.entries(props).slice(0, 8);
   return (
     <>
       {entries.length === 0 && (
-        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim }}>無屬性資料</div>
+        <div style={{ fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("popup.forestry.noProps")}</div>
       )}
       {entries.map(([k, v]) => {
-        const label = FORESTRY_PROP_LABELS[k] ?? k;
+        const label = FORESTRY_PROP_LABELS[k] ? enumLabel("forestryProp", k, FORESTRY_PROP_LABELS[k], i18n) : k;
         const val = v == null ? "" : typeof v === "number" ? String(v) : String(v);
         if (!val) return null;
         return <Row key={k} label={label} value={val.length > 40 ? `${val.slice(0, 40)}…` : val} />;

@@ -8,6 +8,8 @@ import { fetchRainGaugeTimeseries } from "../../data/rainGaugeLoader";
 import { BRIDGE_TABLE_URL } from "../../data/bridgeRainThresholds";
 import type { ReservoirContext } from "../../data/reservoirContextLoader";
 import { Row, formatTaiwanTime } from "./shared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { useFeatureTheme } from "./featureTheme";
 import { RESERVOIR_ALERT_LEGEND, reservoirAlertCss, reservoirFlatAlert } from "../../map/r6FlatEncodings";
 
@@ -34,9 +36,9 @@ const LAKES_PONDS_TYPE: Record<string, { color: string; label: string }> = {
   basin: { color: "#7e57c2", label: "水池 Basin" },
 };
 
-function areaHa(v: unknown): string {
+function areaHa(v: unknown, formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string): string {
   const n = Number(v);
-  return Number.isFinite(n) ? `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })} ha` : "";
+  return Number.isFinite(n) ? `${formatNumber(n, { maximumFractionDigits: 2 })} ha` : "";
 }
 
 /** 警示燈號顏色（對齊 reservoir_situation_v 的 alert_level 輸出） */
@@ -56,6 +58,7 @@ const ALERT_LABELS: Record<string, string> = {
 
 export function WaterFacilityPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const type = String(props.facility_type ?? "");
   const meta = WATER_FACILITY_TYPE[type] ?? { color: "#9ca3af", label: type };
   return (
@@ -63,12 +66,12 @@ export function WaterFacilityPanel({ props }: { props: Record<string, unknown> }
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名設施)")}
+          {String(props.name ?? i18n.t("popup.water.unnamedFacility"))}
         </div>
       </div>
-      <Row field="type" value={meta.label} color={meta.color} />
+      <Row field="type" value={enumLabel("waterFacilityType", type, meta.label, i18n)} color={meta.color} />
       <Row field="county" value={String(props.county ?? "")} />
-      <Row label="管理者" value={String(props.operator ?? "")} />
+      <Row label={i18n.t("popup.water.operator")} value={String(props.operator ?? "")} />
       <Row field="dataSource" value={String(props.source ?? "")} />
     </>
   );
@@ -76,6 +79,7 @@ export function WaterFacilityPanel({ props }: { props: Record<string, unknown> }
 
 export function WaterMonitorPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const type = String(props.station_type ?? "");
   const meta = WATER_MONITOR_TYPE[type] ?? { color: "#9ca3af", label: type };
   const isActive = props.is_active === true || props.is_active === "true";
@@ -84,19 +88,21 @@ export function WaterMonitorPanel({ props }: { props: Record<string, unknown> })
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名站)")}
+          {String(props.name ?? i18n.t("popup.water.unnamedStation"))}
         </div>
       </div>
-      <Row field="type" value={meta.label} color={meta.color} />
+      <Row field="type" value={enumLabel("waterMonitorType", type, meta.label, i18n)} color={meta.color} />
       <Row field="county" value={String(props.county ?? "")} />
       <Row field="dataSource" value={String(props.source ?? "")} />
-      <Row field="status" value={isActive ? "啟用" : "停用"} color={isActive ? "#4ade80" : "#9ca3af"} />
+      <Row field="status" value={i18n.t(isActive ? "popup.water.enabled" : "popup.water.disabled")} color={isActive ? "#4ade80" : "#9ca3af"} />
     </>
   );
 }
 
 export function WaterDetentionBasinPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { formatNumber } = i18n;
   const COUNTY_LABEL: Record<string, string> = {
     tainan: "台南", taoyuan: "桃園", taipei: "台北", kaohsiung: "高雄",
     taichung: "台中", hsinchu_park: "新竹科學園區",
@@ -112,23 +118,23 @@ export function WaterDetentionBasinPanel({ props }: { props: Record<string, unkn
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0284c7", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名滯洪池)")}
+          {String(props.name ?? i18n.t("popup.water.unnamedDetention"))}
         </div>
       </div>
-      <Row field="county" value={COUNTY_LABEL[county] ?? county} />
+      <Row field="county" value={enumLabel("waterDetentionCounty", county, COUNTY_LABEL[county] ?? county, i18n)} />
       {props.township ? <Row field="township" value={String(props.township)} /> : null}
       {props.address ? <Row field="address" value={String(props.address)} /> : null}
       {props.agency ? <Row field="managingAgency" value={String(props.agency)} /> : null}
       {areaHa != null && Number.isFinite(areaHa)
-        ? <Row field="area" value={`${areaHa.toLocaleString()} ha`} />
+        ? <Row field="area" value={`${formatNumber(areaHa)} ha`} />
         : areaM2 != null && Number.isFinite(areaM2)
-          ? <Row field="area" value={`${areaM2.toLocaleString()} m²`} />
+          ? <Row field="area" value={`${formatNumber(areaM2)} m²`} />
           : null}
       {designed != null && Number.isFinite(designed)
-        ? <Row label="設計容量" value={`${designed.toLocaleString()} m³`} />
+        ? <Row label={i18n.t("popup.water.designedVolume")} value={`${formatNumber(designed)} m³`} />
         : null}
       {depth != null && Number.isFinite(depth)
-        ? <Row label="最大深度" value={`${depth} m`} />
+        ? <Row label={i18n.t("popup.water.maxDepth")} value={`${depth} m`} />
         : null}
       {props.status ? <Row field="status" value={String(props.status)} /> : null}
       <Row field="dataSource" value={String(props.source ?? "")} />
@@ -138,15 +144,17 @@ export function WaterDetentionBasinPanel({ props }: { props: Record<string, unkn
 
 export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { formatNumber } = i18n;
   const kind = String(props.kind ?? "");
   const isDam = kind === "dam";
   const accentColor = isDam ? "#7dd3fc" : "#22d3ee";
-  const label = isDam ? "壩體工程位置（WRA 官方）" : kind === "reservoir" ? "水庫即時水情（WRA）" : "水庫代表點（基本資料）";
+  const label = i18n.t(isDam ? "popup.water.damLabel" : kind === "reservoir" ? "popup.water.reservoirLiveLabel" : "popup.water.reservoirPointLabel");
   const capacity = props.capacity_m3 ?? props.effective_capacity_wan;
   const capacityStr = capacity
     ? isDam
-      ? `${Number(capacity).toLocaleString()} m³`
-      : `${Number(capacity).toLocaleString()} 萬 m³`
+      ? `${formatNumber(Number(capacity))} m³`
+      : `${formatNumber(Number(capacity))} ${i18n.t("popup.water.unitWanM3")}`
     : "";
   const nameEn = String(props.name_en ?? "");
   const hintColor = "rgba(255,170,80,0.65)";
@@ -155,20 +163,20 @@ export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名)")}
+          {String(props.name ?? i18n.t("popup.water.unnamed"))}
         </div>
       </div>
       {nameEn && <Row label="English" value={nameEn} />}
       <Row field="category" value={label} color={accentColor} />
       <Row field="basin" value={String(props.basin_name ?? "")} />
       <Row field="river" value={String(props.river_name ?? "")} />
-      <Row label="壩高" value={props.dam_height_m ? `${props.dam_height_m} m` : ""} />
+      <Row label={i18n.t("popup.water.damHeight")} value={props.dam_height_m ? `${props.dam_height_m} m` : ""} />
       <Row field="capacity" value={capacityStr} />
       {/* R6 段 2：即時水情（平面圓點與 3D 水位計共用 reservoirFeatureProps；缺值不顯示該列） */}
       {kind === "reservoir" && <ReservoirLiveRows props={props} />}
       {isDam && (
         <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: hintColor, lineHeight: 1.5 }}>
-          ⓘ 此為壩體工程位置（壩牆出水口），與水庫水面中心點不重合屬正常
+          {i18n.t("popup.water.damHint")}
         </div>
       )}
     </>
@@ -177,24 +185,26 @@ export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
 
 /** 水庫即時水情列：蓄水率（警示色）、警示等級、水位、有效蓄水量、資料時間 */
 function ReservoirLiveRows({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
   const pct = typeof props.storage_ratio_pct === "number" ? props.storage_ratio_pct : null;
   const alert = reservoirFlatAlert(pct);
-  const label = RESERVOIR_ALERT_LEGEND.find((r) => r.key === alert)?.label ?? "";
+  const label = enumLabel("reservoirFlatAlert", alert, RESERVOIR_ALERT_LEGEND.find((r) => r.key === alert)?.label ?? "", i18n);
   const level = typeof props.water_level_m === "number" ? props.water_level_m : null;
   const storage = typeof props.effective_storage_wan_m3 === "number" ? props.effective_storage_wan_m3 : null;
   return (
     <>
-      <Row label="蓄水率" value={pct == null ? "無資料" : `${pct.toFixed(1)}%`} color={reservoirAlertCss(alert)} mono={pct != null} />
-      <Row label="水情" value={label} color={reservoirAlertCss(alert)} />
-      <Row label="水位" value={level == null ? "" : `${level.toFixed(2)} m`} mono />
-      <Row label="有效蓄水" value={storage == null ? "" : `${Math.round(storage).toLocaleString()} 萬 m³`} mono />
-      <Row label="資料時間" value={formatTaiwanTime(typeof props.snapshot_at === "string" ? props.snapshot_at : null)} />
+      <Row label={i18n.t("popup.water.storageRatio")} value={pct == null ? i18n.t("popup.water.noData") : `${pct.toFixed(1)}%`} color={reservoirAlertCss(alert)} mono={pct != null} />
+      <Row label={i18n.t("popup.water.waterStatus")} value={label} color={reservoirAlertCss(alert)} />
+      <Row label={i18n.t("popup.water.waterLevel")} value={level == null ? "" : `${level.toFixed(2)} m`} mono />
+      <Row label={i18n.t("popup.water.effectiveStorage")} value={storage == null ? "" : `${i18n.formatNumber(Math.round(storage))} ${i18n.t("popup.water.unitWanM3")}`} mono />
+      <Row label={i18n.t("popup.water.dataTime")} value={formatTaiwanTime(typeof props.snapshot_at === "string" ? props.snapshot_at : null)} />
     </>
   );
 }
 
 export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const stationId = String(props.station_id ?? "");
   const level = Number(props.water_level_m) || 0;
   const check = Number(props.check_result);
@@ -226,7 +236,7 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.station_name ?? "(未命名站)")}
+          {String(props.station_name ?? i18n.t("popup.water.unnamedStation"))}
         </div>
         {abnormal && (
           <div
@@ -240,7 +250,7 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
               fontWeight: 600,
             }}
           >
-            異常
+            {i18n.t("popup.water.abnormal")}
           </div>
         )}
       </div>
@@ -258,25 +268,25 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
         <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color }}>
           {level.toFixed(2)}
         </span>
-        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>m 水位</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.levelUnit")}</span>
       </div>
       <Row field="county" value={String(props.county ?? "")} />
       {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-        24h 趨勢
+        {i18n.t("popup.water.trend24h")}
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          載入中…
+          {i18n.t("popup.water.loading")}
         </div>
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor={color} height={120} />
       )}
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
-        ⓘ 警戒水位資料（三級警戒）待上游 seed 補齊後加入
+        {i18n.t("popup.water.alertHint")}
       </div>
     </>
   );
@@ -284,6 +294,7 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
 
 export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const stationId = String(props.station_id ?? "");
   const levelRaw = props.water_level_m;
   const level = levelRaw == null ? null : Number(levelRaw);
@@ -313,7 +324,7 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0ea5e9", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.well_name ?? "(未命名井)")}
+          {String(props.well_name ?? i18n.t("popup.water.unnamedWell"))}
         </div>
       </div>
       <div
@@ -330,17 +341,17 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color: "#38bdf8" }}>
           {level != null ? level.toFixed(2) : "—"}
         </span>
-        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>m 地下水位（海拔）</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.groundwaterUnit")}</span>
       </div>
       {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <Row label="井號" value={String(props.station_id ?? "")} color={t.textDim} />
+      <Row label={i18n.t("popup.water.wellNo")} value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-        24h 趨勢
+        {i18n.t("popup.water.trend24h")}
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          載入中…
+          {i18n.t("popup.water.loading")}
         </div>
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor="#38bdf8" height={120} />
@@ -351,8 +362,9 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
 
 export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const stationId = String(props.iow_station_id ?? "");
-  const name = String(props.name ?? "(未命名站)");
+  const name = String(props.name ?? i18n.t("popup.water.unnamedStation"));
   const depthCm = Number(props.depth_cm) || 0;
   const unit = String(props.si_unit ?? "cm");
   const obs = String(props.observed_at ?? "");
@@ -361,11 +373,11 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
   const admin = String(props.admin_name ?? "");
 
   let color = "#404040";
-  let level = "無淹水";
-  if (depthCm >= 30) { color = "#7f1d1d"; level = "極嚴重 ≥30cm"; }
-  else if (depthCm >= 15) { color = "#ef4444"; level = "嚴重 ≥15cm"; }
-  else if (depthCm >= 5)  { color = "#fb923c"; level = "中度 ≥5cm"; }
-  else if (depthCm > 0)   { color = "#fde047"; level = "輕度 <5cm"; }
+  let level = i18n.t("popup.water.floodNone");
+  if (depthCm >= 30) { color = "#7f1d1d"; level = i18n.t("popup.water.floodExtreme"); }
+  else if (depthCm >= 15) { color = "#ef4444"; level = i18n.t("popup.water.floodSevere"); }
+  else if (depthCm >= 5)  { color = "#fb923c"; level = i18n.t("popup.water.floodModerate"); }
+  else if (depthCm > 0)   { color = "#fde047"; level = i18n.t("popup.water.floodMild"); }
 
   const [series, setSeries] = useState<SparklinePoint[]>([]);
   const [loadingTs, setLoadingTs] = useState(true);
@@ -409,25 +421,25 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color }}>
           {depthCm.toFixed(1)}
         </span>
-        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{unit} 淹水深度</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.floodUnit", { unit })}</span>
       </div>
       {(county || town) && <Row field="region" value={[county, town].filter(Boolean).join(" / ")} />}
       {admin && <Row field="managingAgency" value={admin} />}
       {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-        24h 趨勢
+        {i18n.t("popup.water.trend24h")}
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          載入中…
+          {i18n.t("popup.water.loading")}
         </div>
       ) : (
         <TimeseriesSparkline
           data={series}
           unit={unit}
           warningValue={depthCm >= 5 ? 5 : null}
-          warningLabel="積水"
+          warningLabel={i18n.t("popup.water.ponding")}
           lineColor={color}
           height={120}
         />
@@ -443,35 +455,37 @@ interface BridgeRainReading {
 
 export function BridgeRainPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   let readings: BridgeRainReading[] = [];
   try { readings = JSON.parse(String(props.readings_json ?? "[]")) as BridgeRainReading[]; } catch { /* unknown data stays empty */ }
-  const mm = (value: number | null) => value == null ? "缺測" : `${value} mm`;
+  const mm = (value: number | null) => value == null ? i18n.t("popup.water.bridgeMissing") : `${value} mm`;
   const status = String(props.status ?? "unknown");
   const color = status === "triggered" ? "#ef4444" : status === "below" ? "#3b82f6" : "#94a3b8";
   return <div>
-    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{String(props.bridge_name ?? "監控橋梁")}</div>
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{String(props.bridge_name ?? i18n.t("popup.water.bridgeDefault"))}</div>
     <Row field="roadSection" value={String(props.route ?? "")} />
-    <Row label="雨量判讀" value={String(props.status_label ?? "未知")} color={color} />
+    <Row label={i18n.t("popup.water.rainJudgement")} value={String(props.status_label ?? i18n.t("popup.water.statusUnknown"))} color={color} />
     <Row field="limits" value={String(props.status_reason ?? "")} />
-    <Row label="參考站號" value={String(props.station_ids ?? "")} />
+    <Row label={i18n.t("popup.water.refStations")} value={String(props.station_ids ?? "")} />
     {readings.map((r) => <div key={r.id} style={{ marginTop: 8, padding: 8, border: `1px solid ${t.textMuted}`, borderRadius: 6, color: t.textStrong, fontSize: FONT_SIZE.sm }}>
       <div>{r.name ?? r.id}（{r.id}）</div>
       <div>1h {mm(r.p1)}｜3h {mm(r.p3)}｜6h {mm(r.p6)}｜24h {mm(r.p24)}</div>
-      <div>觀測：{formatTaiwanTime(r.observed_at)}</div>
+      <div>{i18n.t("popup.water.observedColon", { time: formatTaiwanTime(r.observed_at) })}</div>
     </div>)}
-    <Row label="表版本" value={String(props.table_version ?? "")} />
-    <Row label="橋位" value={String(props.location_source ?? "")} />
+    <Row label={i18n.t("popup.water.tableVersion")} value={String(props.table_version ?? "")} />
+    <Row label={i18n.t("popup.water.bridgePosition")} value={String(props.location_source ?? "")} />
     <Row field="remarks" value={String(props.note ?? "")} />
     <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm }}>
-      <a href={BRIDGE_TABLE_URL} target="_blank" rel="noopener noreferrer">公路局監控橋梁表</a>
-      {" · "}<a href={String(props.location_url ?? "#")} target="_blank" rel="noopener noreferrer">OSM 候選橋位</a>
+      <a href={BRIDGE_TABLE_URL} target="_blank" rel="noopener noreferrer">{i18n.t("popup.water.bridgeTableLink")}</a>
+      {" · "}<a href={String(props.location_url ?? "#")} target="_blank" rel="noopener noreferrer">{i18n.t("popup.water.osmBridge")}</a>
     </div>
-    <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>這是雨量條件資訊，沒有判定橋梁通行、封閉或結構安全。</div>
+    <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>{i18n.t("popup.water.bridgeDisclaimer")}</div>
   </div>;
 }
 
 export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const stationId = String(props.station_id ?? "");
   const p10 = Number(props.precipitation_10min) || 0;
   const p1 = Number(props.precipitation_1hr) || 0;
@@ -501,20 +515,20 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
 
   // CWA 分級（依 1hr）
   const level =
-    p1 >= 200 ? { label: "超大豪雨", color: "#ef4444" } :
-    p1 >= 80  ? { label: "大豪雨", color: "#f97316" } :
-    p1 >= 40  ? { label: "豪雨", color: "#fbbf24" } :
-    p1 >= 15  ? { label: "大雨", color: "#22c55e" } :
-    p1 >= 2.5 ? { label: "中雨", color: "#3b82f6" } :
-    p1 > 0    ? { label: "小雨", color: "#93c5fd" } :
-                { label: "無雨", color: "#6b7280" };
+    p1 >= 200 ? { label: i18n.t("popup.water.rainExtreme"), color: "#ef4444" } :
+    p1 >= 80  ? { label: i18n.t("popup.water.rainTorrential"), color: "#f97316" } :
+    p1 >= 40  ? { label: i18n.t("popup.water.rainVeryHeavy"), color: "#fbbf24" } :
+    p1 >= 15  ? { label: i18n.t("popup.water.rainHeavy"), color: "#22c55e" } :
+    p1 >= 2.5 ? { label: i18n.t("popup.water.rainModerate"), color: "#3b82f6" } :
+    p1 > 0    ? { label: i18n.t("popup.water.rainLight"), color: "#93c5fd" } :
+                { label: i18n.t("popup.water.rainNone"), color: "#6b7280" };
 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: level.color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.station_name ?? "(未命名站)")}
+          {String(props.station_name ?? i18n.t("popup.water.unnamedStation"))}
         </div>
         <div
           style={{
@@ -546,26 +560,26 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>mm / 10 min</span>
       </div>
-      <Row label="1 小時累積" value={`${p1.toFixed(1)} mm`} />
-      <Row label="3 小時累積" value={`${p3.toFixed(1)} mm`} />
-      <Row label="24 小時累積" value={`${p24.toFixed(1)} mm`} />
+      <Row label={i18n.t("popup.water.accum1h")} value={`${p1.toFixed(1)} mm`} />
+      <Row label={i18n.t("popup.water.accum3h")} value={`${p3.toFixed(1)} mm`} />
+      <Row label={i18n.t("popup.water.accum24h")} value={`${p24.toFixed(1)} mm`} />
       <Row field="county" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
       {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
-        24h 1 小時累積雨量
+        {i18n.t("popup.water.rainTrend")}
       </div>
       {loadingTs ? (
         <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
-          載入中…
+          {i18n.t("popup.water.loading")}
         </div>
       ) : (
         <TimeseriesSparkline
           data={series}
           unit="mm"
           warningValue={15}
-          warningLabel="大雨"
+          warningLabel={i18n.t("popup.water.rainHeavy")}
           lineColor={level.color}
           height={120}
         />
@@ -576,6 +590,8 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
 
 export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { formatNumber } = i18n;
   const r = ctx.reservoir;
   const s = ctx.latest_status;
   const w = ctx.watershed;
@@ -585,7 +601,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
   const storageRatio = s?.storage_ratio_pct ?? null;
   const alert = s?.alert_level ?? "";
   const alertColor = ALERT_COLORS[alert] ?? "#94a3b8";
-  const alertLabel = ALERT_LABELS[alert] ?? alert;
+  const alertLabel = enumLabel("reservoirAlertLevel", alert, ALERT_LABELS[alert] ?? alert, i18n);
   const accent = "#22d3ee";
 
   const capacityWan = r?.capacity_effective_m3 != null
@@ -598,7 +614,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accent, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {r?.res_name ?? "(未命名水庫)"}
+          {r?.res_name ?? i18n.t("popup.water.unnamedReservoir")}
         </div>
         {r?.compare_id != null && (
           <div
@@ -630,7 +646,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
           <span style={{ fontSize: 26, fontWeight: 700, color: accent, lineHeight: 1 }}>
             {storageRatio.toFixed(1)}
           </span>
-          <span style={{ fontSize: FONT_SIZE.base, color: t.textDefault }}>% 蓄水率</span>
+          <span style={{ fontSize: FONT_SIZE.base, color: t.textDefault }}>{i18n.t("popup.water.storageRatioUnit")}</span>
           {alert && (
             <span
               style={{
@@ -651,29 +667,29 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
 
       {/* 水情 */}
       {storageWanM3 != null && capacityWan && (
-        <Row label="蓄水量" value={`${Number(storageWanM3).toLocaleString()} / ${Number(capacityWan).toLocaleString()} 萬 m³`} />
+        <Row label={i18n.t("popup.water.storageVolume")} value={`${formatNumber(Number(storageWanM3))} / ${formatNumber(Number(capacityWan))} ${i18n.t("popup.water.unitWanM3")}`} />
       )}
       {s?.water_level_m != null && (
-        <Row label="水位" value={`${Number(s.water_level_m).toFixed(2)} m`} />
+        <Row label={i18n.t("popup.water.waterLevel")} value={`${Number(s.water_level_m).toFixed(2)} m`} />
       )}
       {s?.inflow_cms != null && (
-        <Row label="入流" value={`${Number(s.inflow_cms).toFixed(1)} cms`} />
+        <Row label={i18n.t("popup.water.inflow")} value={`${Number(s.inflow_cms).toFixed(1)} cms`} />
       )}
       {s?.total_outflow_cms != null && (
-        <Row label="總出流" value={`${Number(s.total_outflow_cms).toFixed(1)} cms`} />
+        <Row label={i18n.t("popup.water.totalOutflow")} value={`${Number(s.total_outflow_cms).toFixed(1)} cms`} />
       )}
       {s?.basin_rainfall_mm != null && (
-        <Row label="集水區雨量" value={`${Number(s.basin_rainfall_mm).toFixed(1)} mm`} />
+        <Row label={i18n.t("popup.water.basinRainfall")} value={`${Number(s.basin_rainfall_mm).toFixed(1)} mm`} />
       )}
       {s?.snapshot_at && (
-        <Row label="更新時間" value={formatTaiwanTime(s.snapshot_at).slice(0, 16)} />
+        <Row label={i18n.t("popup.water.updatedAt")} value={formatTaiwanTime(s.snapshot_at).slice(0, 16)} />
       )}
 
       {/* 淤積 */}
       {r?.silt_ratio_pct != null && (
         <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${t.border}` }}>
           <Row
-            label="淤積率"
+            label={i18n.t("popup.water.siltRatio")}
             value={`${r.silt_ratio_pct.toFixed(1)}% (${r.latest_measured_at ?? "—"})`}
             color={r.silt_ratio_pct > 30 ? "#f97316" : "#94a3b8"}
           />
@@ -684,18 +700,18 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
       <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${t.border}` }}>
         {w?.area_km2 != null && (
           <Row
-            label="集水區"
-            value={`${Number(w.area_km2).toLocaleString()} km²${w.unit ? ` · ${w.unit}` : ""}`}
+            label={i18n.t("popup.water.catchment")}
+            value={`${formatNumber(Number(w.area_km2))} km²${w.unit ? ` · ${w.unit}` : ""}`}
             color={accent}
           />
         )}
         {b?.basin_name && (
-          <Row label="所在流域" value={b.basin_name} color="#a78bfa" />
+          <Row label={i18n.t("popup.water.inBasin")} value={b.basin_name} color="#a78bfa" />
         )}
         {nr?.river_name && nr.dist_m != null && (
           <Row
-            label="最近河川"
-            value={`${nr.river_name} (${Number(nr.dist_m).toLocaleString()} m)`}
+            label={i18n.t("popup.water.nearestRiver")}
+            value={`${nr.river_name} (${formatNumber(Number(nr.dist_m))} m)`}
             color="#38bdf8"
           />
         )}
@@ -704,8 +720,8 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
       {/* 基本屬性 */}
       <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${t.border}` }}>
         {r?.county && <Row field="county" value={r.county} />}
-        {r?.org_mng && <Row label="管理" value={r.org_mng} />}
-        {r?.dam_height_m != null && <Row label="壩高" value={`${r.dam_height_m} m`} />}
+        {r?.org_mng && <Row label={i18n.t("popup.water.management")} value={r.org_mng} />}
+        {r?.dam_height_m != null && <Row label={i18n.t("popup.water.damHeight")} value={`${r.dam_height_m} m`} />}
         {r?.status && <Row field="status" value={r.status} />}
       </div>
     </>
@@ -714,7 +730,8 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
 
 export function WaterReservoirPolyPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const name = String(props.name ?? "(未命名水庫)");
+  const i18n = useLocale();
+  const name = String(props.name ?? i18n.t("popup.water.unnamedReservoir"));
   const accent = "#22d3ee";
   return (
     <>
@@ -724,10 +741,10 @@ export function WaterReservoirPolyPanel({ props }: { props: Record<string, unkno
           {name}
         </div>
       </div>
-      <Row field="category" value="蓄水水面範圍" color={accent} />
+      <Row field="category" value={i18n.t("popup.water.storageSurface")} color={accent} />
       <Row field="dataSource" value="WRA GIC reservoir_storage" />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
-        ⓘ 此為水庫實際水面輪廓，部分水庫（如台電管的明潭、明湖下池）僅有面、無單獨點位
+        {i18n.t("popup.water.polyHint")}
       </div>
     </>
   );
@@ -735,21 +752,23 @@ export function WaterReservoirPolyPanel({ props }: { props: Record<string, unkno
 
 export function LakesPondsPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { formatNumber } = i18n;
   const type = String(props.water ?? "");
-  const meta = LAKES_PONDS_TYPE[type] ?? { color: "#4fc3f7", label: type || "湖泊/埤塘" };
+  const meta = LAKES_PONDS_TYPE[type] ?? { color: "#4fc3f7", label: type || i18n.t("popup.water.lakesDefault") };
   const name = String(props.name ?? "");
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: meta.color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {name || meta.label}
+          {name || enumLabel("lakesPondsType", type, meta.label, i18n)}
         </div>
       </div>
-      <Row field="category" value={meta.label} color={meta.color} />
-      <Row field="area" value={areaHa(props.area_ha)} />
+      <Row field="category" value={enumLabel("lakesPondsType", type, meta.label, i18n)} color={meta.color} />
+      <Row field="area" value={areaHa(props.area_ha, formatNumber)} />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
-        ⓘ OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）；已濾掉與魚塭圖層重疊者
+        {i18n.t("popup.water.lakesHint")}
       </div>
     </>
   );
@@ -803,6 +822,7 @@ function IotReadingBlock({
  */
 export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const value = props.value == null ? null : Number(props.value);
   const delta = props.delta_m == null ? null : Number(props.delta_m);
   const unit = String(props.si_unit ?? "m");
@@ -812,10 +832,10 @@ export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22d3ee", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名站)")}
+          {String(props.name ?? i18n.t("popup.water.unnamedStation"))}
         </div>
       </div>
-      <IotReadingBlock value={value} unit={unit} deltaLabel="較基準" delta={delta} color="#22d3ee" />
+      <IotReadingBlock value={value} unit={unit} deltaLabel={i18n.t("popup.water.vsBaseline")} delta={delta} color="#22d3ee" />
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
       {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
@@ -839,6 +859,7 @@ const IOT_STRUCTURE_TYPE: Record<string, { color: string; label: string }> = {
 
 export function IotWraStructurePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const type = String(props.station_type ?? "");
   const info = IOT_STRUCTURE_TYPE[type];
   const color = info?.color ?? "#94a3b8";
@@ -851,11 +872,11 @@ export function IotWraStructurePanel({ props }: { props: Record<string, unknown>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名站)")}
+          {String(props.name ?? i18n.t("popup.water.unnamedStation"))}
         </div>
       </div>
-      <Row field="type" value={info?.label ?? type} color={color} />
-      <IotReadingBlock value={value} unit={unit} deltaLabel="今日累計變化" delta={delta} color={color} />
+      <Row field="type" value={enumLabel("iotStructureType", type, info?.label ?? type, i18n)} color={color} />
+      <IotReadingBlock value={value} unit={unit} deltaLabel={i18n.t("popup.water.dailyChange")} delta={delta} color={color} />
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
       <Row field="county" value={String(props.county_name ?? "")} />
       {obs && <Row field="observedAt" value={formatTaiwanTime(obs).slice(0, 16)} />}
@@ -873,19 +894,21 @@ export function IotWraStructurePanel({ props }: { props: Record<string, unknown>
  */
 export function WaterBasinsPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { formatNumber } = i18n;
   const areaM2 = Number(props.area_km2);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0891b2", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.basin_name ?? "(未命名流域)")}
+          {String(props.basin_name ?? i18n.t("popup.water.unnamedBasin"))}
         </div>
       </div>
       {Number.isFinite(areaM2) && areaM2 > 0 && (
-        <Row label="集水面積" value={`${(areaM2 / 1e6).toLocaleString("zh-TW", { maximumFractionDigits: 1 })} km²`} />
+        <Row label={i18n.t("popup.water.catchmentArea")} value={`${formatNumber(areaM2 / 1e6, { maximumFractionDigits: 1 })} km²`} />
       )}
-      <Row label="流域代號" value={String(props.basin_no ?? "")} color={t.textDim} />
+      <Row label={i18n.t("popup.water.basinCode")} value={String(props.basin_no ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -900,17 +923,18 @@ export function WaterBasinsPanel({ props }: { props: Record<string, unknown> }) 
  */
 export function WaterRiversPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const type = String(props.river_type ?? "");
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0284c7", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.river_name ?? "(未命名河段)")}
+          {String(props.river_name ?? i18n.t("popup.water.unnamedRiver"))}
         </div>
       </div>
-      <Row label="分類代碼" value={type} color={t.textDim} />
-      <Row label="河川代碼" value={String(props.river_code ?? "")} color={t.textDim} />
+      <Row label={i18n.t("popup.water.classCode")} value={type} color={t.textDim} />
+      <Row label={i18n.t("popup.water.riverCode")} value={String(props.river_code ?? "")} color={t.textDim} />
     </>
   );
 }
@@ -929,6 +953,7 @@ const LEVEE_STATUS_COLOR: Record<string, string> = {
 
 export function WaterLeveesPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const status = String(props.status ?? "");
   const side = String(props.side ?? "");
   return (
@@ -936,14 +961,14 @@ export function WaterLeveesPanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#f59e0b", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名堤防)")}
+          {String(props.name ?? i18n.t("popup.water.unnamedLevee"))}
         </div>
       </div>
-      <Row label="型式" value={String(props.levee_type ?? "")} />
-      <Row field="status" value={status} color={LEVEE_STATUS_COLOR[status]} />
+      <Row label={i18n.t("popup.water.leveeType")} value={String(props.levee_type ?? "")} />
+      <Row field="status" value={enumLabel("leveeStatus", status, status, i18n)} color={LEVEE_STATUS_COLOR[status]} />
       <Row field="river" value={String(props.river ?? "")} />
       <Row field="basin" value={String(props.basin ?? "")} />
-      <Row label="岸別" value={side ? `${side}岸` : ""} />
+      <Row label={i18n.t("popup.water.side")} value={side ? i18n.t("popup.water.sideBank", { side: enumLabel("leveeSide", side, side, i18n) }) : ""} />
       <Row field="county" value={String(props.county ?? "")} color={t.textDim} />
     </>
   );
@@ -971,6 +996,7 @@ const CANAL_SRC_LABELS: Record<string, string> = {
 
 export function WaterCanalsPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const name = String(props.n ?? "");
   const office = String(props.o ?? "");
   const attr = String(props.t ?? "");
@@ -985,12 +1011,12 @@ export function WaterCanalsPanel({ props }: { props: Record<string, unknown> }) 
           }}
         />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {name || (office ? `${office}（渠道名從缺）` : "(未命名渠道)")}
+          {name || (office ? i18n.t("popup.water.canalMissingName", { office }) : i18n.t("popup.water.unnamedCanal"))}
         </div>
       </div>
-      <Row label="管理處" value={office ? `${office}管理處` : ""} />
-      <Row label="屬性" value={attr} color={CANAL_ATTR_COLOR[attr]} />
-      <Row label="資料來源" value={CANAL_SRC_LABELS[src] ?? src} color={t.textDim} />
+      <Row label={i18n.t("popup.water.managementOffice")} value={office ? i18n.t("popup.water.officeValue", { office }) : ""} />
+      <Row label={i18n.t("popup.water.attribute")} value={attr ? enumLabel("canalAttr", attr, attr, i18n) : ""} color={CANAL_ATTR_COLOR[attr]} />
+      <Row label={i18n.t("popup.common.sourceLabel")} value={enumLabel("canalSource", src, CANAL_SRC_LABELS[src] ?? src, i18n)} color={t.textDim} />
     </>
   );
 }
@@ -1010,6 +1036,7 @@ const PROTECTION_ZONE_KIND: Record<string, { color: string; label: string }> = {
 
 export function WaterProtectionZonesPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const kind = String(props.zone_kind ?? "");
   const info = PROTECTION_ZONE_KIND[kind];
   const color = info?.color ?? "#94a3b8";
@@ -1018,12 +1045,12 @@ export function WaterProtectionZonesPanel({ props }: { props: Record<string, unk
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "(未命名管制區)")}
+          {String(props.name ?? i18n.t("popup.water.unnamedZone"))}
         </div>
       </div>
-      <Row field="category" value={info?.label ?? kind} color={color} />
-      <Row label="分區" value={String(props.zone ?? "")} />
-      <Row label="公告文號" value={String(props.law_ref ?? "")} />
+      <Row field="category" value={enumLabel("waterProtectionZone", kind, info?.label ?? kind, i18n)} color={color} />
+      <Row label={i18n.t("popup.water.zoneDivision")} value={String(props.zone ?? "")} />
+      <Row label={i18n.t("popup.water.lawRef")} value={String(props.law_ref ?? "")} />
       <Row field="number" value={String(props.zone_no ?? "")} color={t.textDim} />
     </>
   );
