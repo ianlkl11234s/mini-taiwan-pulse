@@ -9,6 +9,7 @@
  * 資料載入前就固定：
  *   - 教育固定入口／勞動顯示切換：`metric` 在最前
  *   - 環境統計：`release`（資料期別）＋ recipe 宣告的單一細項維度
+ *   - atlas 六家族：`release`（資料期別）＋ recipe 宣告的維度（依 `dimensions[]` 順序，例如癌症 性別→癌別）
  *   - 人口統計：只有 `release`（資料期別）；每期恰一組 {roc_year, month}，不拆成年／月兩列串連
  *   - 農業／社會：catalog `release_summary.first.dimensions` 的鍵順序（＝完整明細每一列的順序，已驗證一致）
  *   - 勞動／比較：`release_options[0].dimensions` 的鍵順序
@@ -23,6 +24,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationView } from './laborStati
 import { getEnvironmentRecipe } from './environmentStatisticsRecipes';
 import { getAddictionRecipe } from './addictionStatisticsRecipes';
 import { getLandslideRecipe } from './landslideStatisticsRecipes';
+import { getAtlasRecipe } from './atlasStatisticsRecipes';
 import { getDemographicsRecipe } from './demographicsStatisticsRecipes';
 import { getComparisonRecipe } from './comparisonStatisticsRecipes';
 import { getEducationPresentationView } from './statisticsPresentationViews';
@@ -79,6 +81,8 @@ function statisticsFieldPlan(key: string): FieldPlan[] {
     if (environment.dimension?.key) plan.push(...dims([environment.dimension.key]));
     return plan;
   }
+  const atlas = getAtlasRecipe(key);
+  if (atlas) return [{ field: 'release', label: '資料期別', suffix: 'Period' }, ...dims(atlas.dimensions.map((dimension) => dimension.key))];
   if (getDemographicsRecipe(key) || getAddictionRecipe(key) || getLandslideRecipe(key)) return [{ field: 'release', label: '資料期別', suffix: 'Period' }];
   const keys = statisticsDimensionKeys(key);
   return keys.length ? dims(keys) : [{ field: 'release', label: '資料期別', suffix: 'Period' }];

@@ -5,6 +5,7 @@
  */
 import type { StatisticsLevel, StatisticsRelease } from './regionalStatisticsLoader';
 import { environmentDimensionLabel, environmentDimensionValueLabel } from './environmentStatisticsRecipes';
+import { atlasDimensionLabel, atlasDimensionValueLabel } from './atlasStatisticsRecipes';
 
 export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區',prosecutor_district:'地檢署轄區'};
 
@@ -95,7 +96,7 @@ const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
 export function statisticsDimensionLabel(key: string): string {
   if (key === 'roc_year') return '年度';
   if (key === 'month') return '月份';
-  return DIMENSION_LABELS[key] ?? environmentDimensionLabel(key) ?? key;
+  return DIMENSION_LABELS[key] ?? environmentDimensionLabel(key) ?? atlasDimensionLabel(key) ?? key;
 }
 
 const BICYCLE_SOURCE_FIELD_LABELS: Record<string, string> = { COLUMN1: '市區租借站數', COLUMN3: '市區年租借次數', COLUMN5: '河濱租借站數', COLUMN6: '河濱自行車數', COLUMN7: '河濱年租借次數' };
@@ -111,6 +112,9 @@ export function statisticsDimensionValueLabel(key: string, value: string, datase
       : BICYCLE_SOURCE_FIELD_LABELS;
     return labels[value] ?? value;
   }
+  // atlas 家族的維度值以 dataset 為範圍（例如 sex=all＝全部、site=lung＝肺、支氣管及氣管），優先於通用表。
+  const atlas = datasetId ? atlasDimensionValueLabel(datasetId, key, value) : undefined;
+  if (atlas) return atlas;
   return DIMENSION_VALUE_LABELS[key]?.[value] ?? environmentDimensionValueLabel(key, value) ?? value;
 }
 

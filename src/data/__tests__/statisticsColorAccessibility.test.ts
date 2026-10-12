@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import { STATISTICS_KEYS, STATISTICS_RECIPES, statisticsRenderRecipe } from '../regionalStatisticsRecipes';
+import { ATLAS_ENABLED_STATISTICS_RECIPES, getAtlasRecipe } from '../atlasStatisticsRecipes';
 
 // Machado et al. 2009, severity 100, linear RGB. Numeric supplementary data:
 // https://github.com/njsmith/colorspacious/blob/master/colorspacious/cvd.py
@@ -23,7 +24,11 @@ for (const [vision,matrix] of Object.entries(matrices)) {
       expect(recipe.breaks).toEqual(source.breaks);
       expect(recipe.colors.length).toBe(recipe.breaks.length+1);
       const values = recipe.colors.map(color=>lightness(color,matrix));
-      if (recipe.breaks.some(v=>v<0)) {
+      const declared = getAtlasRecipe(key)?.legend.direction;
+      if (declared) {
+        // atlas 宣告方向（社會脆弱度 Z 分數）：不論正負都是序列色；descending 為反轉（值越低越深）。
+        for (let i=1;i<values.length;i++) expect(declared === 'descending' ? values[i]! - values[i-1]! : values[i-1]! - values[i]!, key).toBeGreaterThan(5);
+      } else if (recipe.breaks.some(v=>v<0)) {
         // Signed palettes become lighter towards zero, then darker away from zero.
         const zeroIndex = (recipe.breaks as readonly number[]).indexOf(0);
         expect(zeroIndex).toBeGreaterThanOrEqual(0);
@@ -40,6 +45,21 @@ for (const [vision,matrix] of Object.entries(matrices)) {
     }
   });
 }
+
+it('atlas per-dimension scales keep a monotonic lightness order in every vision simulation', () => {
+  for (const atlas of ATLAS_ENABLED_STATISTICS_RECIPES) {
+    for (const [tuple, scale] of Object.entries(atlas.legend.by_dimension ?? {})) {
+      const dimensions = Object.fromEntries(atlas.dimensions.map((dimension, index) => [dimension.key, tuple.split('|')[index]!]));
+      const recipe = statisticsRenderRecipe(atlas.layer_key as typeof STATISTICS_KEYS[number], undefined, dimensions);
+      expect(recipe.breaks, `${atlas.layer_key}:${tuple}`).toEqual(scale.breaks);
+      expect(recipe.colors.length).toBe(recipe.breaks.length + 1);
+      for (const matrix of Object.values(matrices)) {
+        const values = recipe.colors.map(color => lightness(color, matrix));
+        for (let i = 1; i < values.length; i++) expect(scale.direction === 'descending' ? values[i]! - values[i - 1]! : values[i - 1]! - values[i]!, `${atlas.layer_key}:${tuple}`).toBeGreaterThan(5);
+      }
+    }
+  }
+});
 
 it('covers the signed demographics PuOr scales (natural increase / net migration) in every vision simulation', () => {
   for (const key of ['statsDemographicsCountyNaturalIncrease', 'statsDemographicsTownshipNaturalIncreaseRate', 'statsDemographicsCountyNetMigration', 'statsDemographicsTownshipNetMigrationYtd'] as const) {

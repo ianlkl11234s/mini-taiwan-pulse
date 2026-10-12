@@ -1,4 +1,17 @@
 import {
+  Activity,
+  Anchor,
+  Brain,
+  CloudRain,
+  CreditCard,
+  Dumbbell,
+  Landmark,
+  Microscope,
+  PiggyBank,
+  Receipt,
+  ShieldAlert,
+  Sprout,
+  Turtle,
   Baby,
   Construction,
   Mountain,
@@ -209,6 +222,44 @@ const LANDSLIDE_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = 
 };
 
 /**
+ * atlas 批次六家族（atlasStatisticsRecipes）以 key 明確指定，避免「出生」「所得」「水」等字詞落入其他分支。
+ * 不新增色票：疾病與健康＝醫療 BuGn；財稅與消費＝工作與所得；原住民保留地＝人口 RdPu；農村再生＝農業 YlGn；
+ * 體育＝教育 Purples（公共生活）；土石流與社會脆弱度＝環境 BuPu（同崩塌）；海洋＝漁業 PuBu。刻意不 import recipe。
+ */
+const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> = [
+  [/^statsHealthTb/, 'health', Microscope],
+  [/^statsHealthCancer/, 'health', Ribbon],
+  [/^statsHealth(?:Breast|Cervical|Colorectal)Screening/, 'health', ClipboardCheck],
+  [/^statsHealth(?:LiveBirths|LowBirthWeight|BirthSexRatio)/, 'health', Baby],
+  [/^statsHealthImmunization/, 'health', Syringe],
+  [/^statsHealthMentalOutpatient/, 'health', Brain],
+  [/^statsHealthOutpatientVisit/, 'health', Stethoscope],
+  [/^statsHealthHospitalAlos$/, 'health', BedDouble],
+  [/^statsFiscalLocal/, 'labor', Landmark],
+  [/^statsIncomeTax/, 'labor', Briefcase],
+  [/^statsVat/, 'labor', Receipt],
+  [/^statsCreditCard/, 'labor', CreditCard],
+  [/^statsEinvoice/, 'labor', Receipt],
+  [/^statsCensus/, 'labor', Factory],
+  [/^statsBank(?:Deposits|Loans)$/, 'labor', PiggyBank],
+  [/^statsIndigenousReservedLand/, 'population', Feather],
+  [/^statsRuralRegenTraining$/, 'agriculture', Sprout],
+  [/^statsSportsBudget/, 'education', Dumbbell],
+  [/^statsExerciseParticipationRate$|^statsRegularExerciseRate$/, 'education', Activity],
+  [/^statsDebrisFlow/, 'environment', CloudRain],
+  [/^statsSocialVulnerability/, 'environment', ShieldAlert],
+  [/^statsCetaceanStranded/, 'fishery', Fish],
+  [/^statsSeaTurtleStranded/, 'fishery', Turtle],
+  [/^statsMarineDebrisFishingGear/, 'fishery', Anchor],
+  [/^statsMarineDebris/, 'fishery', Waves],
+];
+
+function atlasVisual(key: string): StatisticsVisual | undefined {
+  const match = ATLAS_KEY_ICONS.find(([pattern]) => pattern.test(key));
+  return match ? visual(THEMES[match[1]], match[2]) : undefined;
+}
+
+/**
  * 人口統計（demographicsStatisticsRecipes）以 key 前綴 `statsDemographics` 明確指定，避免未來
  * 「出生」「死亡」等標籤落入出生登記（公用事業）分支；icon 依 key 的指標段。
  * 可正可負的指標（自然增加、淨遷徙及其率；recipe 門檻對稱於 0）由 statisticsVisualColors 走 PuOr 雙向色階。
@@ -250,6 +301,8 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
   if (addiction) return addiction;
   const landslide = LANDSLIDE_KEY_VISUALS[key];
   if (landslide) return visual(THEMES[landslide[0]], landslide[1]);
+  const atlas = atlasVisual(key);
+  if (atlas) return atlas;
   const text = textFor(key, label, group);
 
   if (has(text, ['教育', 'education', '學校', '學院', '幼兒園', '國小', '國中', '高中'])) {
@@ -305,8 +358,15 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
  * Returns one colour per Mapbox step interval. Negative-valued metrics use the
  * six-class ColorBrewer PuOr diverging scheme; zero remains the break between
  * adjacent classes, rather than an invented neutral class.
+ *
+ * `direction`（只有 recipe 明確宣告方向時才傳，例如社會脆弱度 Z 分數）：不論正負都用主題序列色；
+ * `descending` 反轉（值越低越深＝能力構面越弱越深）。圖例必須同時寫出反轉，不可只靠顏色。
  */
-export function statisticsVisualColors(key: string, label: string, breaks: readonly number[]): string[] {
+export function statisticsVisualColors(key: string, label: string, breaks: readonly number[], direction?: 'ascending' | 'descending'): string[] {
+  if (direction) {
+    const sequential = resample(getStatisticsVisual(key, label).colors, breaks.length + 1);
+    return direction === 'descending' ? sequential.reverse() : sequential;
+  }
   const palette = breaks.some(value => value < 0) ? PU_OR_6 : getStatisticsVisual(key, label).colors;
   return resample(palette, breaks.length + 1);
 }

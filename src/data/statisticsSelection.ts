@@ -9,6 +9,7 @@ import { getLaborRecipe, laborReleaseOptions } from './laborStatisticsRecipes';
 import { environmentReleaseOptions, getEnvironmentRecipe } from './environmentStatisticsRecipes';
 import { addictionReleaseOptions, getAddictionRecipe } from './addictionStatisticsRecipes';
 import { landslideReleaseOptions, getLandslideRecipe } from './landslideStatisticsRecipes';
+import { atlasReleaseOptions, getAtlasRecipe } from './atlasStatisticsRecipes';
 import { demographicsReleaseOptions, getDemographicsRecipe } from './demographicsStatisticsRecipes';
 import { getComparisonRecipe, comparisonReleaseOptions } from './comparisonStatisticsRecipes';
 import { getEducationPresentationView } from './statisticsPresentationViews';
@@ -46,6 +47,7 @@ export function statisticsReleaseOptions(key: StatisticsRenderKey, releases: Sta
   if (getDemographicsRecipe(baseKey)) return demographicsReleaseOptions(baseKey, releases);
   if (getAddictionRecipe(baseKey)) return addictionReleaseOptions(baseKey, releases);
   if (getLandslideRecipe(baseKey)) return landslideReleaseOptions(baseKey, releases);
+  if (getAtlasRecipe(baseKey)) return atlasReleaseOptions(baseKey, releases);
   const recipe = STATISTICS_RECIPES[baseKey];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return [];
   return restrictToViewStage(releases.flatMap(release => {
@@ -74,7 +76,7 @@ export function unparseableStatisticsReleaseCount(key: StatisticsRenderKey, rele
     const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
     return compatible.filter(release => !allowed.has(release.release_id)).length;
   }
-  if (getLaborRecipe(baseKey) || getEnvironmentRecipe(baseKey) || getDemographicsRecipe(baseKey) || getAddictionRecipe(baseKey) || getLandslideRecipe(baseKey)) {
+  if (getLaborRecipe(baseKey) || getEnvironmentRecipe(baseKey) || getDemographicsRecipe(baseKey) || getAddictionRecipe(baseKey) || getLandslideRecipe(baseKey) || getAtlasRecipe(baseKey)) {
     const allowed = new Set(statisticsReleaseOptions(key, compatible, selectedIndicator).map(option => option.releaseId));
     return compatible.filter(release => !allowed.has(release.release_id)).length;
   }
