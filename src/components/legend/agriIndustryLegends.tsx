@@ -15,6 +15,19 @@ import { COMPANY_AGE_MEDIAN_STOPS, COMPANY_AGE_RECENT_STOPS, COMPANY_INDUSTRY_GR
 import { MOUNTAIN_HUT_TYPES } from "../../data/mountainSafetyTypes";
 import { SOIL_FERTILITY_METRICS, SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../../data/agriSoilFertilityMetrics";
 import { DenseHeatmapLegendRow, FireCatRows, Swatch } from "./legendShared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { localizeLayerName } from "../../i18n/layerText";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
+import type { LayerName } from "../../data/layerManifest";
+
+/** 圖層名（manifest）在目前語系的顯示名，給標題與圖層名相同的圖例借用 */
+type I18n = ReturnType<typeof useLocale>;
+
+function layerTitle(key: string, i18n: I18n): string {
+  const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[key]?.name;
+  return name ? localizeLayerName(key, name, i18n).primary : key;
+}
 
 // ── 作物適栽 4 級 kind ──（與 agricultureLayerFactory.ts CROP_KIND_COLOR_EXPR 對齊）
 const CROP_KIND_ITEMS = [
@@ -25,32 +38,35 @@ const CROP_KIND_ITEMS = [
 ];
 
 export function LivestockFarmLegend() {
+  const i18n = useLocale();
+  const speciesLabel = (key: string, label: string) => enumLabel("legendAgriSpecies", key, label, i18n);
   return (
     <div>
-      <LegendTitle zh="畜禽飼養場 主畜種" />
-      <FireCatRows cats={FARM_SPECIES.filter((s) => s.key !== "其他").map((s) => ({ ...s, color: `linear-gradient(90deg,${FARM_COLOR_RAMP[s.key]!.join(",")})` }))} />
+      <LegendTitle zh={i18n.t("legend.agri.livestockFarmTitle")} />
+      <FireCatRows cats={FARM_SPECIES.filter((s) => s.key !== "其他").map((s) => ({ ...s, label: speciesLabel(s.key, s.label), color: `linear-gradient(90deg,${FARM_COLOR_RAMP[s.key]!.join(",")})` }))} />
       <LegendNote style={{ marginTop: 4, marginBottom: 2 }}>
-        其他（各物種）
+        {i18n.t("legend.agri.livestockOtherSpecies")}
       </LegendNote>
-      <FireCatRows cats={OTHER_SPECIES_LEGEND.map((s) => ({ ...s, color: `linear-gradient(90deg,${OTHER_SPECIES_COLOR_RAMP[s.key]!.join(",")})` }))} />
+      <FireCatRows cats={OTHER_SPECIES_LEGEND.map((s) => ({ ...s, label: speciesLabel(s.key, s.label), color: `linear-gradient(90deg,${OTHER_SPECIES_COLOR_RAMP[s.key]!.join(",")})` }))} />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
-        大小＋深淺 = 總隻數（越多越大越深；各畜種層內相對，跨畜種不可比）
+        {i18n.t("legend.agri.livestockSizeNote")}
       </LegendNote>
     </div>
   );
 }
 
 export function LivestockFacilityLegend() {
+  const i18n = useLocale();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <div>
-        <LegendTitle zh="屠宰場" en="Slaughter" />
-        <FireCatRows cats={SLAUGHTER_CATS} />
+        <LegendTitle zh={layerTitle("livestockSlaughter", i18n)} en="Slaughter" />
+        <FireCatRows cats={SLAUGHTER_CATS.map((c) => ({ ...c, label: enumLabel("legendAgriSlaughter", c.key, c.label, i18n) }))} />
       </div>
       <FireCatRows
         cats={[
-          { color: FEED_COLOR, label: "飼料廠 Feed Factory" },
-          { color: MARKET_COLOR, label: "拍賣/批發市場 Market" },
+          { color: FEED_COLOR, label: i18n.t("legend.agri.feedFactory") },
+          { color: MARKET_COLOR, label: i18n.t("legend.agri.auctionMarket") },
         ]}
       />
     </div>
@@ -76,25 +92,26 @@ const FORESTRY_LEGEND_ROWS: { key: keyof LayerVisibility; color: string; label: 
   { key: "hikingTrails", color: HIKING_TRAIL_PAINT_COLORS.A_forest, label: "全台步道 Hiking Trails", shape: "line" },
 ];
 
-const HIKING_TRAIL_SOURCES: { color: string; label: string }[] = [
-  { color: HIKING_TRAIL_PAINT_COLORS.A_forest, label: "A 林業署國家步道" },
-  { color: HIKING_TRAIL_PAINT_COLORS.B_osm, label: "B OpenStreetMap" },
-  { color: HIKING_TRAIL_PAINT_COLORS.C_np_sheipa, label: "C 雪霸國家公園 SHP" },
-  { color: HIKING_TRAIL_PAINT_COLORS.C_np_kinmen, label: "C 金門國家公園 KML" },
-  { color: HIKING_TRAIL_PAINT_COLORS.D_taipei_grand, label: "D 臺北大縱走" },
-  { color: HIKING_TRAIL_PAINT_COLORS.D_newtaipei, label: "D 新北市觀光局" },
+const HIKING_TRAIL_SOURCES: { id: string; color: string; label: string }[] = [
+  { id: "A_forest", color: HIKING_TRAIL_PAINT_COLORS.A_forest, label: "A 林業署國家步道" },
+  { id: "B_osm", color: HIKING_TRAIL_PAINT_COLORS.B_osm, label: "B OpenStreetMap" },
+  { id: "C_np_sheipa", color: HIKING_TRAIL_PAINT_COLORS.C_np_sheipa, label: "C 雪霸國家公園 SHP" },
+  { id: "C_np_kinmen", color: HIKING_TRAIL_PAINT_COLORS.C_np_kinmen, label: "C 金門國家公園 KML" },
+  { id: "D_taipei_grand", color: HIKING_TRAIL_PAINT_COLORS.D_taipei_grand, label: "D 臺北大縱走" },
+  { id: "D_newtaipei", color: HIKING_TRAIL_PAINT_COLORS.D_newtaipei, label: "D 新北市觀光局" },
 ];
 
 function HikingTrailsSourcesLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>步道來源 source</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>{i18n.t("legend.agri.trailSources")}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {HIKING_TRAIL_SOURCES.map((it) => (
-          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <SwatchLine color={it.color} width={2} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{enumLabel("hikingTrailSource", it.id, it.label, i18n)}</span>
           </div>
         ))}
       </div>
@@ -105,19 +122,20 @@ function HikingTrailsSourcesLegend() {
 // 山屋 facility_type 4 類子圖例 + ODbL 標示（OSM 126 / 官方玉山 30 trust chain 合併）
 function MountainHutTypesLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>設施類型 facility_type</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>{i18n.t("legend.agri.hutFacilityType")}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {MOUNTAIN_HUT_TYPES.map((it) => (
           <div key={it.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <SwatchDot color={it.color} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{enumLabel("mountainHutType", it.value, it.label, i18n)}</span>
           </div>
         ))}
       </div>
       <LegendNote style={{ marginTop: 3, lineHeight: 1.4 }}>
-        含 OSM 來源 © OpenStreetMap contributors（ODbL）
+        {i18n.t("legend.agri.hutOsmNote")}
       </LegendNote>
     </div>
   );
@@ -125,14 +143,15 @@ function MountainHutTypesLegend() {
 
 function ForestReserveTypesLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>保安林種類</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>{i18n.t("legend.agri.reserveTypes")}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {FOREST_RESERVE_TYPES.map((it) => (
           <div key={it.key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <SwatchSquare color={it.color} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{enumLabel("legendAgriReserve", it.key, it.label, i18n)}</span>
           </div>
         ))}
       </div>
@@ -142,16 +161,17 @@ function ForestReserveTypesLegend() {
 
 export function ForestryLegend({ isDark = true, visibility }: { isDark?: boolean; visibility: LayerVisibility }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const rows = FORESTRY_LEGEND_ROWS.filter((r) => visibility[r.key]);
   if (rows.length === 0) return null;
   return (
     <div>
-      <LegendTitle zh="林業" en="Forestry" />
+      <LegendTitle zh={i18n.t("legend.agri.forestryTitle")} en="Forestry" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((r) => (
           <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {r.shape === "line" ? <SwatchLine color={r.color} /> : r.shape === "circle" ? <SwatchDot color={r.color} /> : <SwatchSquare color={r.color} stroke={r.key === "forestCompartments" ? THEMED_PAINT_COLORS.forestCompartmentsOutline[isDark ? "dark" : "light"] : r.key === "forestRecreation" ? THEMED_PAINT_COLORS.forestRecreationOutline[isDark ? "dark" : "light"] : r.key === "forestReserve" ? THEMED_PAINT_COLORS.forestReserveOutline[isDark ? "dark" : "light"] : undefined} />}
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{r.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{enumLabel("legendAgriForestry", r.key, r.label, i18n)}</span>
           </div>
         ))}
       </div>
@@ -166,19 +186,20 @@ export function ForestryLegend({ isDark = true, visibility }: { isDark?: boolean
 
 export function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const metricId = (SOIL_FERTILITY_METRIC_OPTIONS[metricIdx]?.value ?? "health") as SoilFertilityMetric;
   const meta = SOIL_FERTILITY_METRICS[metricId];
   return (
     <div>
-      <LegendTitle zh="土壤肥力" en="Soil Fertility" />
+      <LegendTitle zh={layerTitle("agriSoilFertility", i18n)} en="Soil Fertility" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
-        {meta.label}{meta.unit ? ` (${meta.unit})` : ""}
+        {enumLabel("legendAgriSoilMetric", metricId, meta.label, i18n)}{meta.unit ? ` (${meta.unit})` : ""}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {meta.legendStops.map((s) => (
+        {meta.legendStops.map((s, i) => (
           <div key={`${s.color}-${s.label}`} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <SwatchSquare color={s.color} opacity={0.9} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{s.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{enumLabel("legendAgriSoilStop", `${metricId}.${i}`, s.label, i18n)}</span>
           </div>
         ))}
       </div>
@@ -190,16 +211,17 @@ export function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
 
 export function AgriPOILegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="休農場／田媽媽／特色農旅" en="Agriculture POI" />
+      <LegendTitle zh={i18n.t("legend.agri.agriPoiTitle")} en="Agriculture POI" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {AGRI_POI_TYPES.map((it) => (
           <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <SwatchDot color={it.color} opacity={0.9} />
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-              {it.labelZh}
-              <span style={{ color: t.textDim, marginLeft: 4 }}>{it.labelEn}</span>
+              {enumLabel("agriPoiType", it.id, it.labelZh, i18n)}
+              {i18n.active === "zh-TW" && <span style={{ color: t.textDim, marginLeft: 4 }}>{it.labelEn}</span>}
             </span>
           </div>
         ))}
@@ -208,41 +230,49 @@ export function AgriPOILegend() {
   );
 }
 
+/** 密度色階一格的文字：`a–<b`，最後一格 `a 以上` */
+function densityStopText(stop: number, next: number | undefined, i18n: I18n): string {
+  return next === undefined
+    ? i18n.t("legend.agri.rangeOpen", { n: i18n.formatNumber(stop) })
+    : i18n.t("legend.agri.rangeLt", { lo: i18n.formatNumber(stop), hi: i18n.formatNumber(next) });
+}
+
 export function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: boolean; overlayParams?: Record<string, number> }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const filtersActive = !manufacturing && companyPointFiltersActive(overlayParams);
   const gridColors = usePaletteRamp("companyPoints", t.isDark, 7);
   const gridPaletteName = usePaletteLabel("companyPoints");
   return (
     <div>
-      <LegendTitle zh={manufacturing ? "製造業公司登記" : "公司登記分布"} en={manufacturing ? "Manufacturing" : "Company Registry"} style={{ marginBottom: 5 }} />
+      <LegendTitle zh={manufacturing ? i18n.t("legend.agri.manufacturingTitle") : layerTitle("companyPoints", i18n)} en={manufacturing ? "Manufacturing" : "Company Registry"} style={{ marginBottom: 5 }} />
       {!manufacturing && !filtersActive && <>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）· {gridPaletteName}</div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{i18n.t("legend.agri.companyOverview", { palette: gridPaletteName })}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px", marginBottom: 6 }}>
           {COMPANY_DENSITY_STOPS.map((stop, i) => (
             <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <Swatch color={gridColors[i]!} round={false} />
-              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{densityStopText(stop, COMPANY_DENSITY_STOPS[i + 1], i18n)}</span>
             </div>
           ))}
         </div>
       </>}
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>個別公司：資本額分位</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{i18n.t("legend.agri.capitalQuantile")}</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {COMPANY_CAPITAL_Q_BANDS.map((band) => (
           <div key={band.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Swatch color={band.color} round />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.value === 0 ? i18n.t("legend.agri.capitalMissing") : band.label}</span>
           </div>
         ))}
       </div>
       {manufacturing && <DenseHeatmapLegendRow layers={["manufacturingCompanyPoints"]} />}
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
         {manufacturing
-          ? "202608 登記快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。184,944 筆有座標；點位是公司登記地址，不是工廠實際營運地址。"
+          ? i18n.t("legend.agri.manufacturingNote")
           : filtersActive
-            ? "已設定篩選條件；未篩選概覽格已隱藏，請放大至 z12 查看篩選後的個別公司。"
-            : "202608 登記快照；z4–9 為 1.5km、z10–11 為 450m 網格密度，z12+ 顯示可點擊個別公司。"}
+            ? i18n.t("legend.agri.filtersNote")
+            : i18n.t("legend.agri.overviewNote")}
       </LegendNote>
     </div>
   );
@@ -250,16 +280,17 @@ export function CompanyPointsLegend({ manufacturing, overlayParams }: { manufact
 
 export function FactoryLocationsLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="生產中工廠登記" en="Factory Locations" style={{ marginBottom: 5 }} />
+      <LegendTitle zh={layerTitle("factoryLocations", i18n)} en="Factory Locations" style={{ marginBottom: 5 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <Swatch color={FACTORY_LOCATION_COLOR} round />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.factoryDot")}</span>
       </div>
       <DenseHeatmapLegendRow layers={["factoryLocations"]} />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-        202606 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。90,652 / 100,624 筆可定位。
+        {i18n.t("legend.agri.factoryNote")}
       </LegendNote>
     </div>
   );
@@ -267,16 +298,17 @@ export function FactoryLocationsLegend() {
 
 export function RegulatedFacilitiesLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="列管設施" en="Regulated Facilities" style={{ marginBottom: 5 }} />
+      <LegendTitle zh={layerTitle("regulatedFacilities", i18n)} en="Regulated Facilities" style={{ marginBottom: 5 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <Swatch color={REGULATED_FACILITY_COLOR} round />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>環境部 active 列管設施</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.regulatedDot")}</span>
       </div>
       <DenseHeatmapLegendRow layers={["regulatedFacilities"]} />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-        20260818 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
+        {i18n.t("legend.agri.regulatedNote")}
       </LegendNote>
     </div>
   );
@@ -284,34 +316,36 @@ export function RegulatedFacilitiesLegend() {
 
 export function IndustrialDensityGridLegend({ layer, title, titleEn, unit, note }: { layer: string; title: string; titleEn?: string; unit: string; note: string }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const colors = usePaletteRamp(layer, t.isDark, 7);
-  const paletteName = usePaletteLabel(layer);
+  const paletteLabel = usePaletteLabel(layer);
   return <div>
-    <LegendTitle zh={title} en={titleEn} style={{ marginBottom: 5 }} />
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>密度（{unit}／km²）· {paletteName}</div>
+    <LegendTitle zh={enumLabel("legendAgriDensity", `${layer}.title`, title, i18n)} en={titleEn} style={{ marginBottom: 5 }} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{i18n.t("legend.agri.densityLabel", { unit: enumLabel("legendAgriDensity", `${layer}.unit`, unit, i18n), palette: paletteLabel })}</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {COMPANY_DENSITY_STOPS.map((stop, i) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
         <Swatch color={colors[i]!} round={false} />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{densityStopText(stop, COMPANY_DENSITY_STOPS[i + 1], i18n)}</span>
       </div>)}
     </div>
     <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-      {note} z4–&lt;10 使用 1,500m、z10+ 使用 450m 網格，隨縮放自動切換。
+      {enumLabel("legendAgriDensity", `${layer}.note`, note, i18n)} {i18n.t("legend.agri.densityGridNote")}
     </LegendNote>
   </div>;
 }
 
 export function IndustrialParkBoundariesLegend({ isDark = true }: { isDark?: boolean }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="產業園區邊界" en="Industrial Parks" style={{ marginBottom: 5 }} />
+      <LegendTitle zh={layerTitle("industrialParkBoundaries", i18n)} en="Industrial Parks" style={{ marginBottom: 5 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <Swatch color={INDUSTRIAL_PARK_COLOR} round={false} stroke={THEMED_PAINT_COLORS.industrialParkOutline[isDark ? "dark" : "light"]} />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>215 個產業園區 polygon</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.parkPolygon")}</span>
       </div>
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-        v1 明確不含科學園區；A3 會員名冊不具 geometry，不混入或推測園區邊界。
+        {i18n.t("legend.agri.parkNote")}
       </LegendNote>
     </div>
   );
@@ -319,35 +353,37 @@ export function IndustrialParkBoundariesLegend({ isDark = true }: { isDark?: boo
 
 export function IndustrialParkComparisonLegend({ isDark = true, modeIdx }: { isDark?: boolean; modeIdx: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
   const mode = INDUSTRIAL_PARK_COMPARISON_MODES[safeMode]!;
   const stops = INDUSTRIAL_PARK_COMPARISON_STOPS[safeMode]!;
   return (
     <div>
-      <LegendTitle zh={`園區商工比較 · ${mode.label}`} style={{ marginBottom: 5 }} />
+      <LegendTitle zh={i18n.t("legend.agri.parkComparisonTitle", { mode: enumLabel("legendAgriParkMode", mode.value, mode.label, i18n) })} style={{ marginBottom: 5 }} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <Swatch color={INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR} round={false} stroke={THEMED_PAINT_COLORS.industrialComparisonOutline[isDark ? "dark" : "light"]} />
-          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>觀測值 0</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.observedZero")}</span>
         </div>
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Swatch color={INDUSTRIAL_PARK_COMPARISON_COLORS[i]!} round={false} stroke={THEMED_PAINT_COLORS.industrialComparisonOutline[isDark ? "dark" : "light"]} />
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-              ≥ {formatGridStop(stop, safeMode < 2)}
+              ≥ {formatGridStop(stop, safeMode < 2, i18n)}
             </span>
           </div>
         ))}
       </div>
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-        僅計入具有效座標並被指派至園區 polygon 的觀測實體；A1 為 90,652 / 100,624，製造業公司為 184,944 / 186,054。
-        0 不代表實際不存在。科學園區 membership 不混入本比較。
+        {i18n.t("legend.agri.parkComparisonNote")}
       </LegendNote>
     </div>
   );
 }
 
-function formatGridStop(value: number, isCount: boolean): string {
+function formatGridStop(value: number, isCount: boolean, i18n: I18n): string {
+  // 外文介面：家數只顯示數字（單位已在模式名稱裡），金額用 NT$ 加壓縮記法（1M／100万）
+  if (i18n.active !== "zh-TW") return isCount ? i18n.formatNumber(value) : `NT$${i18n.formatNumber(value, { notation: "compact" })}`;
   if (isCount) return `${value.toLocaleString("zh-TW")} 家`;
   if (value >= 100_000_000) return `${value / 100_000_000} 億元`;
   if (value >= 10_000) return `${value / 10_000} 萬元`;
@@ -356,6 +392,7 @@ function formatGridStop(value: number, isCount: boolean): string {
 
 export function CompanyCapitalGridLegend({ isDark = true, modeIdx, scaleIdx }: { isDark?: boolean; modeIdx: number; scaleIdx: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
   const safeScale = Math.min(Math.max(Math.round(scaleIdx), 0), COMPANY_GRID_SCALES.length - 1);
   const mode = COMPANY_GRID_MODES[safeMode]!;
@@ -364,23 +401,25 @@ export function CompanyCapitalGridLegend({ isDark = true, modeIdx, scaleIdx }: {
   const colors = usePaletteRamp("companyCapitalGrid", t.isDark, 7);
   return (
     <div>
-      <LegendTitle zh={`公司網格 · ${scale.shortLabel} · ${mode.label}`} en="Company Grid" style={{ marginBottom: 5 }} />
+      <LegendTitle zh={i18n.t("legend.agri.gridTitle", { scale: scale.shortLabel, mode: enumLabel("legendAgriGridMode", mode.value, mode.label, i18n) })} en="Company Grid" style={{ marginBottom: 5 }} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Swatch color={colors[i]!} round={false} stroke={mapSeamColor(isDark)} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{formatGridStop(stop, safeMode === 1)}{i < stops.length - 1 ? `–<${formatGridStop(stops[i + 1]!, safeMode === 1)}` : " 以上"}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stops[i + 1] === undefined || i >= stops.length - 1
+              ? i18n.t("legend.agri.rangeOpen", { n: formatGridStop(stop, safeMode === 1, i18n) })
+              : i18n.t("legend.agri.rangeLt", { lo: formatGridStop(stop, safeMode === 1, i18n), hi: formatGridStop(stops[i + 1]!, safeMode === 1, i18n) })}</span>
           </div>
         ))}
         {safeMode === 2 && (
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Swatch color={COMPANY_GRID_NULL_COLOR} round={false} stroke={mapSeamColor(isDark)} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.missingValue")}</span>
           </div>
         )}
       </div>
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-        {scale.label} 非空網格，202608 登記快照；色階由低階至高階＝數值由低至高；採各尺度固定非線性級距。
+        {i18n.t("legend.agri.gridNote", { scale: scale.label })}
       </LegendNote>
     </div>
   );
@@ -388,72 +427,83 @@ export function CompanyCapitalGridLegend({ isDark = true, modeIdx, scaleIdx }: {
 
 export function CompanyIndustryDistributionLegend({ mask, midIdx, modeIdx }: { mask: number; midIdx: number; modeIdx: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
+  const groupLabel = (group: { value: string; label: string }) => enumLabel("legendAgriIndustryGroup", group.value, group.label, i18n);
   const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
   const midGroup = midCode === undefined ? undefined : COMPANY_INDUSTRY_GROUPS.find((group) => (group.codes as readonly string[]).includes(midCode));
   const selected = COMPANY_INDUSTRY_GROUPS.filter((_, index) => (mask & (1 << index)) !== 0);
   const densityColors = usePaletteRamp("companyIndustryDistribution", t.isDark, 7);
   if (modeIdx === 1) return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>登記產業合計密度（家／km²）</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.indTotalDensity")}</div>
     {COMPANY_DENSITY_STOPS.map((stop, index) => <div key={stop} style={{ display: "flex", gap: 5, fontSize: FONT_SIZE.xs }}>
-      <Swatch color={densityColors[index]!} round={false} /><span>≥ {stop.toLocaleString("zh-TW")}</span>
+      <Swatch color={densityColors[index]!} round={false} /><span>≥ {i18n.formatNumber(stop)}</span>
     </div>)}
-    <div style={{ display: "flex", gap: 5, fontSize: FONT_SIZE.xs }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} />必要欄位缺失</div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>202608；所選產業合計，每家公司計一次。{midIdx > 0 ? "聚焦中類優先於群組。" : mask === 0 ? "未選分類，圖層已隱藏。" : ""}</div>
+    <div style={{ display: "flex", gap: 5, fontSize: FONT_SIZE.xs }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} />{i18n.t("legend.agri.indRequiredMissing")}</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{midIdx > 0 ? i18n.t("legend.agri.indTotalNoteFocus") : mask === 0 ? i18n.t("legend.agri.indTotalNoteNone") : i18n.t("legend.agri.indTotalNote")}</div>
   </div>;
 
   return <div>
-    <LegendTitle zh="登記產業分布" en="Company Industry" style={{ marginBottom: 5 }} />
+    <LegendTitle zh={layerTitle("companyIndustryDistribution", i18n)} en="Company Industry" style={{ marginBottom: 5 }} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {midGroup ? <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <Swatch color={midGroup.color} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{midGroup.label}（聚焦中類）</span>
+        <Swatch color={midGroup.color} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.indFocusLabel", { label: groupLabel(midGroup) })}</span>
       </div> : selected.map((group) => <div key={group.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <Swatch color={group.color} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{group.label}</span>
+        <Swatch color={group.color} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{groupLabel(group)}</span>
       </div>)}
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_TIE_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>最多筆數同量</span></div>
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_MISSING_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>必要欄位缺失</span></div>
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_ZERO_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>選取群組皆為 0（透明）</span></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_TIE_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.indTie")}</span></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_MISSING_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.indRequiredMissing")}</span></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_ZERO_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.indZero")}</span></div>
     </div>
-    <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>{midIdx > 0 ? "已聚焦單一行業中類，固定使用其所屬群組色；優先於群組多選。" : mask === 0 ? "未選分類，圖層已隱藏。" : "顏色＝所選群組中家數最多者，最多不一定過半；並列另標示。202608 登記快照，非實際主營產業。"}</LegendNote>
+    <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>{midIdx > 0 ? i18n.t("legend.agri.indNoteFocus") : mask === 0 ? i18n.t("legend.agri.indNoteNone") : i18n.t("legend.agri.indNoteMain")}</LegendNote>
   </div>;
+}
+
+/** 公司年齡色階一格：中位數是年，近 5 年占比是 %（stop 為 0–1 小數） */
+function ageStopText(stop: number, next: number | undefined, median: boolean, i18n: I18n): string {
+  const fmt = (v: number) => (median ? `${v}` : (v * 100).toFixed(0));
+  if (next === undefined) return i18n.t(median ? "legend.agri.ageOpenYears" : "legend.agri.ageOpenPct", { lo: fmt(stop) });
+  return i18n.t(median ? "legend.agri.ageLtYears" : "legend.agri.ageLtPct", { lo: fmt(stop), hi: fmt(next) });
 }
 
 export function CompanyAgeStructureLegend({ modeIdx }: { modeIdx: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const median = modeIdx === 1;
   const stops = median ? COMPANY_AGE_MEDIAN_STOPS : COMPANY_AGE_RECENT_STOPS;
   const colors = usePaletteRamp("companyAgeStructure", t.isDark, 7);
-  const paletteName = usePaletteLabel("companyAgeStructure");
+  const paletteLabel = usePaletteLabel("companyAgeStructure");
   return <div>
-    <LegendTitle zh={`公司年齡結構 · ${median ? "年齡中位數（年）" : "近 5 年設立占比（%）"}`} style={{ marginBottom: 5 }} />
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>{paletteName} · 越往高階＝{median ? "年齡越高" : "近期設立占比越高"}</div>
+    <LegendTitle zh={i18n.t("legend.agri.ageTitle", { metric: median ? i18n.t("legend.agri.ageMetricMedian") : i18n.t("legend.agri.ageMetricRecent") })} style={{ marginBottom: 5 }} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>{median ? i18n.t("legend.agri.ageHintMedian", { palette: paletteLabel }) : i18n.t("legend.agri.ageHintRecent", { palette: paletteLabel })}</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {stops.map((stop, index) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <Swatch color={colors[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{median ? `${stop}` : `${(stop * 100).toFixed(0)}`}{index < stops.length - 1 ? `–<${median ? stops[index + 1] : (stops[index + 1]! * 100).toFixed(0)}` : " 以上"}{median ? " 年" : "%"}</span>
+        <Swatch color={colors[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{ageStopText(stop, stops[index + 1], median, i18n)}</span>
       </div>)}
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值／無已知設立年</span></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.ageMissing")}</span></div>
     </div>
-    <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>{median ? "202608 snapshot；設立年齡中位數約為 2026 減設立年。" : "202608 snapshot；近 5 年（2022–2026）設立占比，分母只含已知合法設立年。已知設立年少於 20 家時，占比容易極端。"}</LegendNote>
+    <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>{median ? i18n.t("legend.agri.ageNoteMedian") : i18n.t("legend.agri.ageNoteRecent")}</LegendNote>
   </div>;
 }
 
 export function CommonRegistrationAddressesLegend({ minCompanies }: { minCompanies: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="共同登記地址" en="Shared Registration" style={{ marginBottom: 5 }} />
+      <LegendTitle zh={layerTitle("commonRegistrationAddresses", i18n)} en="Shared Registration" style={{ marginBottom: 5 }} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
-        顏色＝資本額中位數
+        {i18n.t("legend.agri.commonCapitalMedian")}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {COMMON_REGISTRATION_CAPITAL_BANDS.map((band) => (
           <div key={band.min} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <SwatchDot color={band.color} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{enumLabel("legendAgriCapBand", band.min, band.label, i18n)}</span>
           </div>
         ))}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 7, marginBottom: 3 }}>
-        大小＝共同登記公司數
+        {i18n.t("legend.agri.commonSize")}
       </div>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 14, minHeight: 24 }}>
         {COMMON_REGISTRATION_LEGEND_COUNTS.map((count) => {
@@ -465,14 +515,14 @@ export function CommonRegistrationAddressesLegend({ minCompanies }: { minCompani
                 background: COMMON_REGISTRATION_BASE_COLOR,
                 border: "1px solid rgba(255,255,255,0.7)", flexShrink: 0,
               }} />
-              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{count} 家</span>
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.agri.companyCount", { count })}</span>
             </div>
           );
         })}
       </div>
       <DenseHeatmapLegendRow layers={["commonRegistrationAddresses"]} />
       <LegendNote style={{ lineHeight: 1.45, marginTop: 6 }}>
-        目前顯示共同登記 ≥ {Math.round(minCompanies).toLocaleString("zh-TW")} 家的門牌；點擊可查資本額總和與中位數。
+        {i18n.t("legend.agri.commonNote", { n: i18n.formatNumber(Math.round(minCompanies)) })}
       </LegendNote>
     </div>
   );
@@ -480,17 +530,18 @@ export function CommonRegistrationAddressesLegend({ minCompanies }: { minCompani
 
 export function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const rows = AGRI_COMPANY_TYPES.filter((it) => visibility[it.key]);
   return (
     <div>
-      <LegendTitle zh="農企業登記" en="Agri Business" />
+      <LegendTitle zh={i18n.t("legend.agri.agriCompanyTitle")} en="Agri Business" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
           <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <SwatchDot color={it.color} opacity={0.9} />
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-              {it.labelZh}
-              <span style={{ color: t.textDim, marginLeft: 4 }}>{it.labelEn}</span>
+              {enumLabel("agriCompanyType", it.id, it.labelZh, i18n)}
+              {i18n.active === "zh-TW" && <span style={{ color: t.textDim, marginLeft: 4 }}>{it.labelEn}</span>}
             </span>
           </div>
         ))}
@@ -504,11 +555,13 @@ export function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility 
 
 export function CropSuitabilityLegend({ cropId }: { cropId: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const crop = CROP_SUITABILITY_CROPS.find((c) => c.id === cropId);
-  const cropLabel = crop ? `${crop.nameZh} (${crop.nameEn})` : `#${cropId}`;
+  // 英文介面只顯示資料自帶的英文名；中文、日文維持「中文名 (英文名)」
+  const cropLabel = crop ? (i18n.active === "en" ? crop.nameEn : `${crop.nameZh} (${crop.nameEn})`) : `#${cropId}`;
   return (
     <div>
-      <LegendTitle zh="作物適栽" en="Crop Suitability" />
+      <LegendTitle zh={layerTitle("agriCropSuitability", i18n)} en="Crop Suitability" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
         {cropLabel}
       </div>
@@ -516,7 +569,7 @@ export function CropSuitabilityLegend({ cropId }: { cropId: number }) {
         {CROP_KIND_ITEMS.map((s) => (
           <div key={s.kind} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <SwatchSquare color={s.color} opacity={0.85} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{s.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{enumLabel("legendAgriCropKind", s.kind, s.label, i18n)}</span>
           </div>
         ))}
       </div>

@@ -2,17 +2,21 @@
 import { rampLegendGradient } from "../../map/mapStyleScale";
 import { paletteById, paletteRamp } from "../../map/palettes";
 import { useHeatmapLegendPalettes } from "../../state/layerPalette";
-import { LAYER_MANIFEST } from "../../data/layerManifest";
+import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { LegendNote, LegendRow, LegendTitle, SwatchArrow, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { FLAT_ARROW_MIN_ZOOM } from "../../map/flatMovingLayers";
+import { useLocale } from "../../state/localeStore";
+import { paletteName } from "../../i18n/paramText";
+import { localizeLayerName } from "../../i18n/layerText";
 
 /** R6 段 3：移動物件平面模式的箭頭說明（LG-6，與地圖同形狀）。 */
 export function FlatArrowRow() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div style={{ marginTop: 4 }}>
-      <LegendRow swatch={<SwatchArrow color={t.textMuted} />}>拉近（z ≥ {FLAT_ARROW_MIN_ZOOM}）以箭頭表示行進方向</LegendRow>
+      <LegendRow swatch={<SwatchArrow color={t.textMuted} />}>{i18n.t("legend.common.flatArrow", { zoom: FLAT_ARROW_MIN_ZOOM })}</LegendRow>
     </div>
   );
 }
@@ -40,26 +44,29 @@ export function UrbanDotRow({ color, label, square = false }: { color: string; l
  */
 export function DenseHeatmapLegendRow({ layers }: { layers: readonly string[] }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const entries = useHeatmapLegendPalettes(layers);
   const distinct = [...new Set(entries.map((e) => e.paletteId))];
   return (
     <div style={{ marginTop: 6 }}>
       {distinct.length === 1
-        ? <SwatchGradient gradient={rampLegendGradient(paletteRamp(distinct[0]!, t.isDark)!)} labels={["低", "高"]} />
+        ? <SwatchGradient gradient={rampLegendGradient(paletteRamp(distinct[0]!, t.isDark)!)} labels={[i18n.t("legend.common.low"), i18n.t("legend.common.high")]} />
         : entries.map((e) => (
           <div key={e.key} style={{ marginBottom: 2 }}>
-            <LegendNote>{legendLayerName(e.key)}・{paletteById(e.paletteId)?.zh}</LegendNote>
-            <SwatchGradient gradient={rampLegendGradient(paletteRamp(e.paletteId, t.isDark)!)} labels={["低", "高"]} />
+            <LegendNote>{legendLayerName(e.key, i18n)}・{paletteName(e.paletteId, paletteById(e.paletteId)?.zh ?? "", i18n)}</LegendNote>
+            <SwatchGradient gradient={rampLegendGradient(paletteRamp(e.paletteId, t.isDark)!)} labels={[i18n.t("legend.common.low"), i18n.t("legend.common.high")]} />
           </div>
         ))}
-      <LegendNote style={{ marginTop: 2 }}>拉遠時顯示密度</LegendNote>
+      <LegendNote style={{ marginTop: 2 }}>{i18n.t("legend.common.densityZoomOut")}</LegendNote>
     </div>
   );
 }
 
 /** 圖例裡標層名用：manifest 名稱去掉英文副名 */
-function legendLayerName(key: string): string {
-  const label = (LAYER_MANIFEST as Record<string, { label?: string }>)[key]?.label ?? key;
+function legendLayerName(key: string, i18n: ReturnType<typeof useLocale>): string {
+  const entry = (LAYER_MANIFEST as Record<string, { label?: string; name?: LayerName }>)[key];
+  if (i18n.active !== "zh-TW" && entry?.name) return localizeLayerName(key, entry.name, i18n).primary;
+  const label = entry?.label ?? key;
   return label.replace(/\s+[A-Za-z(（].*$/u, "");
 }
 
@@ -111,10 +118,11 @@ export function NoiseLegendRows({ rows, outline = false, dot = false }: {
 }
 
 export function NoiseLegendNote({ children, source }: { children: React.ReactNode; source?: string }) {
+  const i18n = useLocale();
   return (
     <>
       <LegendNote style={{ marginTop: 5, lineHeight: 1.45 }}>{children}</LegendNote>
-      {source && <LegendNote style={{ lineHeight: 1.35 }}>來源／授權：{source}</LegendNote>}
+      {source && <LegendNote style={{ lineHeight: 1.35 }}>{i18n.t("legend.common.sourceLicense", { source })}</LegendNote>}
     </>
   );
 }

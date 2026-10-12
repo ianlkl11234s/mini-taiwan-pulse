@@ -2,6 +2,7 @@ import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes"
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { Fragment, memo, useEffect, useState } from "react";
+import { useLocale, type LocaleSnapshot } from "../state/localeStore";
 import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendThemeCtx } from "./legend/legendKit";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BORDER, COLORS, ELEVATION, LIGHT, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -88,6 +89,8 @@ export interface LegendContext {
   isDark: boolean;
   /** 見 LegendPanelProps.railSystems。只有 RailLegend 消費。 */
   railSystems?: readonly string[];
+  /** 目前語系（render 不是元件，不能呼叫 hook；registry 裡 inline 傳入的文字用它翻譯）。 */
+  i18n: LocaleSnapshot;
 }
 
 export interface LegendEntry {
@@ -131,15 +134,15 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "harmReductionCondomOutlets", render: () => <HarmReductionCondomOutletsLegend /> },
   { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
   { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
-  { id: "drinkingWaterPoints", render: () => <PublicLifeOsmLegend label="飲水點" color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
-  { id: "publicWasteBaskets", render: () => <PublicLifeOsmLegend label="公共垃圾桶" color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
-  { id: "materialRecyclingPoints", render: () => <PublicLifeOsmLegend label="資源回收點" color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra="僅代表來源明列的材料；未標註不推論可回收材料。" /> },
-  { id: "disasterShelters", render: () => <GovernmentLifeLegend label="預定收容處所" color={PUBLIC_LIFE_COLORS.disasterShelters} source="內政部消防署 data.gov.tw 73242" extra="預定收容處所，不代表目前已開設。" /> },
-  { id: "playgrounds", render: () => <PublicLifeOsmLegend label="遊戲場" color={PUBLIC_LIFE_COLORS.playgrounds} /> },
+  { id: "drinkingWaterPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.drinkingWater")} color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
+  { id: "publicWasteBaskets", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.wasteBaskets")} color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
+  { id: "materialRecyclingPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.recyclingPoints")} color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra={i18n.t("legend.registry.recyclingExtra")} /> },
+  { id: "disasterShelters", render: ({ i18n }) => <GovernmentLifeLegend label={i18n.t("legend.registry.disasterShelters")} color={PUBLIC_LIFE_COLORS.disasterShelters} source={i18n.t("legend.registry.disasterSheltersSource")} extra={i18n.t("legend.registry.disasterSheltersExtra")} /> },
+  { id: "playgrounds", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.playgrounds")} color={PUBLIC_LIFE_COLORS.playgrounds} /> },
   { id: "accessibleParkFacilities", render: () => <AccessibleParkLegend /> },
   { id: "bicycleSupport", render: () => <BicycleSupportLegend /> },
-  { id: "nationalParks", render: () => <GovernmentLifeLegend label="國家（自然）公園" color="#15803d" source="國家公園署 / 海洋國家公園管理處 / TGOS" extra="各園計畫版次不同；不代表即時開放或管制狀態。" /> },
-  { id: "visitorCentres", render: () => <PublicLifeOsmLegend label="遊客中心" color={PUBLIC_LIFE_COLORS.visitorCentres} /> },
+  { id: "nationalParks", render: ({ i18n }) => <GovernmentLifeLegend label={i18n.t("legend.registry.nationalParks")} color="#15803d" source={i18n.t("legend.registry.nationalParksSource")} extra={i18n.t("legend.registry.nationalParksExtra")} /> },
+  { id: "visitorCentres", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.visitorCentres")} color={PUBLIC_LIFE_COLORS.visitorCentres} /> },
   { id: "publicLifeOsmCoverage", render: () => <PublicLifeCoverageLegend /> },
   ...AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
@@ -231,19 +234,19 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpWaterLocalFacilities", render: () => <JpWaterLegend layerKey="jpWaterLocalFacilities" /> },
   { id: "jpWaterQualityStations", render: () => <JpWaterLegend layerKey="jpWaterQualityStations" /> },
   { id: "jpWaterLevelStations", render: () => <JpWaterLegend layerKey="jpWaterLevelStations" /> },
-  { id: "osmBridgeCarriers", render: () => <NetworkStructuresLegend title="橋梁承載類型" rows={CARRIER_KINDS} line /> },
-  { id: "osmBridgeFootprints", render: () => <NetworkStructuresLegend title="OSM 原生橋梁輪廓" rows={[{ label: "原生 outline（可能不完整）", color: NETWORK_STRUCTURES_COLORS.footprint }]} /> },
-  { id: "officialBridgesNewTaipei", render: () => <NetworkStructuresLegend title="新北市轄管橋梁" rows={[{ label: "近似軸線；非登錄長度", color: NETWORK_STRUCTURES_COLORS.official }, { label: "圓點：原始重合端點，無可評估軸線", color: NETWORK_STRUCTURES_COLORS.official }]} /> },
-  { id: "bridgeComparisonNewTaipei", render: () => <NetworkStructuresLegend title="OSM × 官方候選比對" rows={MATCH_STATUSES} /> },
-  { id: "tainanBridgeInspections", render: () => <NetworkStructuresLegend title="臺南橋梁檢測紀錄" rows={[{ label: "官方檢測紀錄位置；非即時安全狀態", color: "#a855f7" }]} /> },
-  { id: "officialBridgesHsinchu", render: () => <NetworkStructuresLegend title="新竹市橋梁清冊" rows={[{ label: "橋頭尾近似連線；非橋身", color: "#22d3ee" }]} /> },
-  { id: "taipeiRoadTunnels", render: () => <NetworkStructuresLegend title="臺北市道路隧道" rows={[{ label: "官方登錄點；非隧道路廊", color: "#f59e0b" }]} /> },
-  { id: "tainanRoadTunnels", render: () => <NetworkStructuresLegend title="臺南市道路隧道" rows={[{ label: "官方登錄點；CRS 推定", color: "#fb923c" }]} /> },
-  { id: "changhuaTrafficSignals", render: () => <NetworkStructuresLegend title="彰化縣道路號誌" rows={[{ label: "號誌清冊點；非即時燈態", color: "#84cc16" }]} /> },
+  { id: "osmBridgeCarriers", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeCarriers")} rows={CARRIER_KINDS} line /> },
+  { id: "osmBridgeFootprints", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeFootprints")} rows={[{ label: i18n.t("legend.registry.bridgeFootprintsRow"), color: NETWORK_STRUCTURES_COLORS.footprint }]} /> },
+  { id: "officialBridgesNewTaipei", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.newTaipeiBridges")} rows={[{ label: i18n.t("legend.registry.newTaipeiBridgesRow1"), color: NETWORK_STRUCTURES_COLORS.official }, { label: i18n.t("legend.registry.newTaipeiBridgesRow2"), color: NETWORK_STRUCTURES_COLORS.official }]} /> },
+  { id: "bridgeComparisonNewTaipei", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeComparison")} rows={MATCH_STATUSES} /> },
+  { id: "tainanBridgeInspections", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.tainanInspections")} rows={[{ label: i18n.t("legend.registry.tainanInspectionsRow"), color: "#a855f7" }]} /> },
+  { id: "officialBridgesHsinchu", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.hsinchuBridges")} rows={[{ label: i18n.t("legend.registry.hsinchuBridgesRow"), color: "#22d3ee" }]} /> },
+  { id: "taipeiRoadTunnels", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.taipeiTunnels")} rows={[{ label: i18n.t("legend.registry.taipeiTunnelsRow"), color: "#f59e0b" }]} /> },
+  { id: "tainanRoadTunnels", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.tainanTunnels")} rows={[{ label: i18n.t("legend.registry.tainanTunnelsRow"), color: "#fb923c" }]} /> },
+  { id: "changhuaTrafficSignals", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.changhuaSignals")} rows={[{ label: i18n.t("legend.registry.changhuaSignalsRow"), color: "#84cc16" }]} /> },
   { id: "bssNationalBridgePreview", render: () => <BssBridgeLineLegend /> },
   { id: "bssNationalBridgePointsPreview", render: () => <BssBridgePointLegend /> },
   { id: "bridgeResilienceTwinCity", render: ({ overlayParams }) => <BridgeResilienceLegend weightingIdx={overlayParams.bridgeResilienceWeightingIdx ?? 0} metricIdx={overlayParams.bridgeResilienceVillageMetricIdx ?? 0} showVillages={!!overlayParams.bridgeResilienceShowVillages} showRoutes={!!overlayParams.bridgeResilienceShowRoutes} /> },
-  { id: "bridgeRainThresholds", render: () => <NetworkStructuresLegend title="橋梁參考雨量條件" rows={[{ label: "達表列雨量條件；非封橋判定", color: "#ef4444" }, { label: "未達已核對雨量門檻；非安全判定", color: "#3b82f6" }, { label: "缺測、過期或門檻待覆核", color: "#94a3b8" }]} /> },
+  { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },
   { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
   { id: "jmaAmedas", render: () => <JmaAmedasLegend /> },
   { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
@@ -269,10 +272,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "freewayCongestion", render: () => <FreewayCongestionLegend /> },
   { id: "cctv", render: () => <CctvLegend /> },
   // 人口 / 社經 H3 網格：色階由 demographicsLayerFactory 預烤進 properties.color
-  { id: "popCount", render: () => <H3RampLegend title="人口數" titleEn="Population" ramp={INFERNO} note="每格人口數（log 正規化）" /> },
-  { id: "indicators", render: () => <H3RampLegend title="人口指標" titleEn="Indicators" ramp={INFERNO} note="所選指標值" /> },
-  { id: "socioeconomic", render: () => <H3RampLegend title="社經面貌" titleEn="Socio-Econ" ramp={VIRIDIS} note="所選社經指標值" /> },
-  { id: "spatialEconomy", render: () => <H3RampLegend title="空間經濟" titleEn="Spatial-Econ" ramp={MAGMA} note="所選房市指標值" /> },
+  { id: "popCount", render: ({ i18n }) => <H3RampLegend title={i18n.t("legend.registry.popCount")} titleEn="Population" ramp={INFERNO} note={i18n.t("legend.registry.popCountNote")} /> },
+  { id: "indicators", render: ({ i18n }) => <H3RampLegend title={i18n.t("legend.registry.indicators")} titleEn="Indicators" ramp={INFERNO} note={i18n.t("legend.registry.indicatorsNote")} /> },
+  { id: "socioeconomic", render: ({ i18n }) => <H3RampLegend title={i18n.t("legend.registry.socioeconomic")} titleEn="Socio-Econ" ramp={VIRIDIS} note={i18n.t("legend.registry.socioeconomicNote")} /> },
+  { id: "spatialEconomy", render: ({ i18n }) => <H3RampLegend title={i18n.t("legend.registry.spatialEconomy")} titleEn="Spatial-Econ" ramp={MAGMA} note={i18n.t("legend.registry.spatialEconomyNote")} /> },
   { id: "touristShuttleLive", render: () => <TouristShuttleLegend /> },
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { id: "ships", render: () => <ShipsLegend /> },
@@ -303,12 +306,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "companyCapitalGrid", render: ({ overlayParams, isDark }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} scaleIdx={overlayParams.companyGridScaleIdx ?? 0} isDark={isDark} /> },
   { id: "companyIndustryDistribution", render: ({ overlayParams }) => <CompanyIndustryDistributionLegend modeIdx={overlayParams.companyIndustryDisplayIdx ?? 0} mask={overlayParams.companyIndustryGroupsMask ?? 2047} midIdx={overlayParams.companyIndustryDistributionMidIdx ?? 0} /> },
   { id: "companyAgeStructure", render: ({ overlayParams }) => <CompanyAgeStructureLegend modeIdx={overlayParams.companyAgeStructureModeIdx ?? 0} /> },
-  { id: "factoryDensityGrid", render: () => <IndustrialDensityGridLegend layer="factoryDensityGrid" title="生產中工廠密度" titleEn="Factory Density" unit="家" note="202606 生產中工廠登記；僅含有座標的工廠。" /> },
-  { id: "manufacturingCompanyDensityGrid", render: () => <IndustrialDensityGridLegend layer="manufacturingCompanyDensityGrid" title="製造業公司登記地址密度" unit="家" note="202608 製造業公司登記地址；不是工廠實際營運地址。" /> },
+  { id: "factoryDensityGrid", render: ({ i18n }) => <IndustrialDensityGridLegend layer="factoryDensityGrid" title={i18n.t("legend.registry.factoryDensity")} titleEn="Factory Density" unit={i18n.t("legend.registry.unitFirms")} note={i18n.t("legend.registry.factoryDensityNote")} /> },
+  { id: "manufacturingCompanyDensityGrid", render: ({ i18n }) => <IndustrialDensityGridLegend layer="manufacturingCompanyDensityGrid" title={i18n.t("legend.registry.manufacturingDensity")} unit={i18n.t("legend.registry.unitFirms")} note={i18n.t("legend.registry.manufacturingDensityNote")} /> },
   { id: "factoryLocations", render: () => <FactoryLocationsLegend /> },
   { id: "industrialParkBoundaries", render: ({ isDark }) => <IndustrialParkBoundariesLegend isDark={isDark} /> },
   { id: "regulatedFacilities", render: () => <RegulatedFacilitiesLegend /> },
-  { id: "regulatedFacilityDensityGrid", render: () => <IndustrialDensityGridLegend layer="regulatedFacilityDensityGrid" title="列管設施密度" titleEn="Regulated Facility Density" unit="筆" note="20260818 active 列管設施；列管身分不是污染風險。" /> },
+  { id: "regulatedFacilityDensityGrid", render: ({ i18n }) => <IndustrialDensityGridLegend layer="regulatedFacilityDensityGrid" title={i18n.t("legend.registry.regulatedDensity")} titleEn="Regulated Facility Density" unit={i18n.t("legend.registry.unitRecords")} note={i18n.t("legend.registry.regulatedDensityNote")} /> },
   { id: "industrialParkComparison", render: ({ overlayParams, isDark }) => <IndustrialParkComparisonLegend modeIdx={overlayParams.industrialParkComparisonModeIdx ?? 0} isDark={isDark} /> },
   { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { id: "fireEvents", render: () => <FireEventLegend /> },
@@ -316,10 +319,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "fireStations", render: () => <FireStationLegend /> },
   { id: "fireHydrants", render: () => <FireHydrantLegend /> },
   // R5：單色密集點拉遠改熱區，補圖例說明熱區色階（點色與 overlayRegistry 同）
-  { id: "busStationsCity", render: ({ isDark }) => <DenseSingleColorLegend layer="busStationsCity" label="市區公車站" color={isDark ? "#66bb6a" : "#388e3c"} /> },
-  { id: "busStationsIntercity", render: ({ isDark }) => <DenseSingleColorLegend layer="busStationsIntercity" label="公路客運站" color={isDark ? "#ab47bc" : "#7b1fa2"} /> },
-  { id: "convenienceStores", render: ({ isDark }) => <DenseSingleColorLegend layer="convenienceStores" label="超商" color={isDark ? "#26c6da" : "#00838f"} /> },
-  { id: "wasteStopsStatic", render: ({ isDark }) => <DenseSingleColorLegend layer="wasteStopsStatic" label="全台清運點位" color={isDark ? "#fbbf24" : "#d97706"} /> },
+  { id: "busStationsCity", render: ({ isDark, i18n }) => <DenseSingleColorLegend layer="busStationsCity" label={i18n.t("legend.registry.busStationsCity")} color={isDark ? "#66bb6a" : "#388e3c"} /> },
+  { id: "busStationsIntercity", render: ({ isDark, i18n }) => <DenseSingleColorLegend layer="busStationsIntercity" label={i18n.t("legend.registry.busStationsIntercity")} color={isDark ? "#ab47bc" : "#7b1fa2"} /> },
+  { id: "convenienceStores", render: ({ isDark, i18n }) => <DenseSingleColorLegend layer="convenienceStores" label={i18n.t("legend.registry.convenienceStores")} color={isDark ? "#26c6da" : "#00838f"} /> },
+  { id: "wasteStopsStatic", render: ({ isDark, i18n }) => <DenseSingleColorLegend layer="wasteStopsStatic" label={i18n.t("legend.registry.wasteStopsStatic")} color={isDark ? "#fbbf24" : "#d97706"} /> },
   { id: "fireIsochrone", render: () => <FireIsochroneLegend /> },
   { id: "livestockFarmPig", render: () => <LivestockFarmLegend /> },
   { id: "livestockSlaughter", render: () => <LivestockFacilityLegend /> },
@@ -500,6 +503,7 @@ export const LegendPanel = memo(function LegendPanel({
   visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems, compact = false,
 }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
+  const i18n = useLocale();
 
   // AR-21：主站走 store 訂閱、embed 走 prop。hook 無條件呼叫（embed 情境下
   // 這份訂閱是惰性的 —— embed 從不寫 store，永遠拿到預設全關的快照）。
@@ -549,6 +553,8 @@ export const LegendPanel = memo(function LegendPanel({
       {/* Header (always visible) */}
       <button
         onClick={() => setExpanded((p) => !p)}
+        aria-label={i18n.t(expanded ? "legend.panel.collapse" : "legend.panel.expand")}
+        aria-expanded={expanded}
         style={{
           width: "100%",
           display: "flex",
@@ -566,7 +572,7 @@ export const LegendPanel = memo(function LegendPanel({
         {expanded
           ? <ChevronDown size={12} style={{ flexShrink: 0 }} />
           : <ChevronRight size={12} style={{ flexShrink: 0 }} />}
-        <span>圖例</span>
+        <span>{i18n.t("legend.panel.title")}</span>
       </button>
 
       {/* Content — registry 驅動，順序即 LEGEND_REGISTRY 順序 */}
@@ -575,7 +581,7 @@ export const LegendPanel = memo(function LegendPanel({
           <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
           {active.map((entry) => (
             <Fragment key={entry.id}>
-              {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems })}
+              {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, i18n })}
             </Fragment>
           ))}
         </div>

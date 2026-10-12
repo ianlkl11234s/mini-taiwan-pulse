@@ -56,10 +56,12 @@ describe("LegendPanel 收斂 ratchet", () => {
   it("R4 A 類圖例以對應 geometry 的 legendKit 色票渲染", () => {
     const source = legendPanelSource();
     expect(source).toContain('<FireCatRows cats={OSM_ROAD_DRIVE_CATS} line />');
-    expect(source).toContain('<NetworkStructuresLegend title="橋梁承載類型" rows={CARRIER_KINDS} line />');
-    expect(source).toContain('<FireCatRows cats={FIRE_HYDRANT_CATS} />');
+    expect(source).toContain('<NetworkStructuresLegend title={i18n.t("legend.registry.bridgeCarriers")} rows={CARRIER_KINDS} line />');
+    // 消火栓＝點色票（不帶 square／line）；標籤經 enumLabel 翻譯，所以只比對開頭與結尾
+    expect(source).toMatch(/<FireCatRows cats=\{FIRE_HYDRANT_CATS[^\n]*\)\)\} \/>/);
     expect(source).toContain('<NoiseLegendRows rows={rows} dot />');
-    expect(source).toContain('<NoiseLegendRows rows={Object.values(SOUND_CAMERA_PRECISION_META)} dot />');
+    // 聲音照相：類別標籤經 enumLabel 翻譯後組成 cameraRows，仍以點色票渲染
+    expect(source).toContain('<NoiseLegendRows rows={cameraRows} dot />');
     expect(source).toContain('square ? <SwatchSquare color={color} /> : <SwatchDot color={color} />');
   });
 

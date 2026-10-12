@@ -1,0 +1,17 @@
+{
+  "legend.panel.title": "Legend",
+  "legend.panel.expand": "Expand legend",
+  "legend.panel.collapse": "Collapse legend",
+  "legend.common.low": "Low",
+  "legend.common.high": "High",
+  "legend.common.other": "Other",
+  "legend.common.notProvided": "Not provided",
+  "legend.common.noData": "No data",
+  "legend.common.densityZoomOut": "Density shown when zoomed out",
+  "legend.common.flatArrow": "Zoom in (z ≥ {zoom}) to show direction of travel with arrows",
+  "legend.common.sourceLicense": "Source / license: {source}",
+  "legend.rail.routesNote": "Metro lines use their official colors. Route geometry only; for train positions see the \"Trains\" layer. Xinyi Line eastern extension geometry © OpenStreetMap contributors (ODbL)",
+  "legend.rail.metroTitle": "Metro stations",
+  "legend.rail.transfer": "Transfer station",
+  "legend.rail.metroNote": "Station color follows its line; stations with the same name within 500 m are treated as transfer stations"
+}

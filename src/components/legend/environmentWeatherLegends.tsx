@@ -6,7 +6,7 @@ import { type LayerVisibility } from "../../types";
 import { paramBool, useLayerParams } from "../../layers/layerParamsAccess";
 import { TEMPERATURE_GRID_BANDS } from "../../data/temperatureGridTypes";
 import { resolveMicroSensorMode, MICRO_SENSOR_NO_DATA_COLOR } from "../../data/microSensorTypes";
-import { resolveUrbanHeatMode, urbanHeatLegendGradient, urbanHeatStopPercent, URBAN_HEAT_CREDIT, URBAN_HEAT_COVERAGE_NOTE } from "../../data/urbanHeatTypes";
+import { resolveUrbanHeatMode, urbanHeatLegendGradient, urbanHeatStopPercent } from "../../data/urbanHeatTypes";
 import { WASTE_STATUS_COLORS, WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS } from "../../data/wasteLoader";
 import { h3RampGradient } from "../../map/demographicsLayerFactory";
 import { DIVERGING_STOPS } from "../../data/temperatureWavePalette";
@@ -17,7 +17,21 @@ import { useClimateFrameStatus, type ClimateFrameStatusKey } from "../../state/c
 import { LIGHTNING_TYPE_COLORS } from "../../data/lightningLoader";
 import { SEVERITY_BANDS, POLLUTION_MEDIUM_COLORS, POLLUTION_MEDIUM_LABELS, PENALTY_MEDIA, PENALTY_SEVERITY_COLORS, PENALTY_SEVERITY_LABELS, type PollutionMedium, type PollutionPenaltySeverity } from "../../data/pollutionTypes";
 import { OFFICIAL_NOISE_FRESHNESS, OFFICIAL_NOISE_COLOR_EXPR, NOISE_CONTROL_ZONE_META, AVIATION_NOISE_ZONE_META, SOUND_CAMERA_PRECISION_META, NOISE_CAPTURE_ATTRIBUTION } from "../../data/noiseTypes";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { localizeLayerName } from "../../i18n/layerText";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
+import type { LayerName } from "../../data/layerManifest";
+import type { MessageKey } from "../../i18n/keys";
 import { ClimateGradientBar, DenseHeatmapLegendRow, FireCatRows, FlatArrowRow, NoiseLegendNote, NoiseLegendRows, NoiseLegendTitle } from "./legendShared";
+
+type I18n = ReturnType<typeof useLocale>;
+
+/** 標題與圖層名相同時，借 manifest 名稱在目前語系的顯示名 */
+function layerTitle(key: string, i18n: I18n): string {
+  const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[key]?.name;
+  return name ? localizeLayerName(key, name, i18n).primary : key;
+}
 
 /**
  * 圖例色票有暗／淡兩套畫法時，保留目前底圖分支給各 entry。
@@ -26,16 +40,17 @@ import { ClimateGradientBar, DenseHeatmapLegendRow, FireCatRows, FlatArrowRow, N
 
 // ── 環境污染：嚴重度（設施 + 場址共用）──
 export function PollutionSeverityLegend({ visibility }: { visibility: LayerVisibility }) {
+  const i18n = useLocale();
   const bands = visibility.pollutionSite && !visibility.pollutionFacility
     ? SEVERITY_BANDS.filter((b) => b.sev === 4)
     : SEVERITY_BANDS;
   return (
     <div>
-      <LegendTitle zh="污染嚴重度" en="Severity" />
-      <FireCatRows cats={bands.map((b) => ({ color: b.color, label: b.label }))} />
+      <LegendTitle zh={i18n.t("legend.environment.pollSeverityTitle")} en="Severity" />
+      <FireCatRows cats={bands.map((b) => ({ color: b.color, label: enumLabel("pollutionSeverity", b.sev, b.label, i18n) }))} />
       {visibility.pollutionFacility && <DenseHeatmapLegendRow layers={["pollutionFacility"]} />}
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
-        列管 ≠ 污染｜設施色 = 最高嚴重度
+        {i18n.t("legend.environment.pollSeverityNote")}
       </LegendNote>
     </div>
   );
@@ -43,6 +58,7 @@ export function PollutionSeverityLegend({ visibility }: { visibility: LayerVisib
 
 // ── 環境污染：裁處事件介質 ──
 export function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility }) {
+  const i18n = useLocale();
   const severityKeys: PollutionPenaltySeverity[] = [
     ...(visibility.pollutionPenaltyCritical ? ["critical" as const] : []),
     ...(visibility.pollutionPenaltyGeneral ? (["high", "normal"] as const) : []),
@@ -50,21 +66,21 @@ export function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibi
   ];
   const severityCats = severityKeys.map((k) => ({
     color: PENALTY_SEVERITY_COLORS[k],
-    label: PENALTY_SEVERITY_LABELS[k],
+    label: enumLabel("pollutionPenaltySeverity", k, PENALTY_SEVERITY_LABELS[k], i18n),
   }));
   const mediumCats = PENALTY_MEDIA.map((m: PollutionMedium) => ({
     color: POLLUTION_MEDIUM_COLORS[m],
-    label: POLLUTION_MEDIUM_LABELS[m],
+    label: enumLabel("pollutionMedium", m, POLLUTION_MEDIUM_LABELS[m], i18n),
   }));
   return (
     <div>
-      <LegendTitle zh="裁處分層" en="Penalty" />
+      <LegendTitle zh={i18n.t("legend.environment.penaltyTierTitle")} en="Penalty" />
       {severityCats.map((c, i) => <LegendRow key={c.label} swatch={severityKeys[i] === "mobile" ? <SwatchDot color={c.color} /> : null}>{c.label}</LegendRow>)}
-      <LegendTitle zh="介質" en="Medium" style={{ marginTop: 8 }} />
+      <LegendTitle zh={i18n.t("legend.environment.mediumTitle")} en="Medium" style={{ marginTop: 8 }} />
       <FireCatRows cats={mediumCats} />
       <DenseHeatmapLegendRow layers={["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"]} />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
-        重大點大小 ∝ 罰鍰｜白框 = 連續 / 停工等｜可年份播放
+        {i18n.t("legend.environment.penaltyNote")}
       </LegendNote>
     </div>
   );
@@ -78,12 +94,13 @@ export function WasteTruckLegend() {
   const values = useLayerParams("wasteTruck");
   const stereo = paramBool(values, "wasteTruck", "wasteTruck3D");
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="垃圾車" en="Truck" />
-      <LegendRow swatch={<SwatchDot color={WASTE_STATUS_COLORS.collecting} {...(stereo ? {} : { stroke: t.movingStroke, strokeWidth: MOVING_POINT.stroke.width })} />}>垃圾車（GPS 即時位置）</LegendRow>
+      <LegendTitle zh={i18n.t("legend.environment.truckTitle")} en="Truck" />
+      <LegendRow swatch={<SwatchDot color={WASTE_STATUS_COLORS.collecting} {...(stereo ? {} : { stroke: t.movingStroke, strokeWidth: MOVING_POINT.stroke.width })} />}>{i18n.t("legend.environment.truckLabel")}</LegendRow>
       {!stereo && <FlatArrowRow />}
-      <LegendNote>{stereo ? "停車／離線的點較小；收運中的車會飄出音符" : "停車／離線的點較小"}</LegendNote>
+      <LegendNote>{i18n.t(stereo ? "legend.environment.truckNote3d" : "legend.environment.truckNoteFlat")}</LegendNote>
     </div>
   );
 }
@@ -103,29 +120,31 @@ function formatClimateFrameTime(iso: string): string {
 
 function ClimateFrameStamp({ statusKey }: { statusKey: ClimateFrameStatusKey }) {
   const frame = useClimateFrameStatus(statusKey);
+  const i18n = useLocale();
   if (!frame.validAt) return null;
   return (
     <LegendNote style={{ marginTop: 4 }}>
-      {frame.kind === "forecast" ? "預報" : "實況"} · {formatClimateFrameTime(frame.validAt)}
+      {i18n.t(frame.kind === "forecast" ? "legend.environment.kindForecast" : "legend.environment.kindLive")} · {formatClimateFrameTime(frame.validAt)}
     </LegendNote>
   );
 }
 
 export function WindFieldLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="風場 10m" en="NOAA GFS" />
+      <LegendTitle zh={i18n.t("legend.environment.windTitle")} en="NOAA GFS" />
       <ClimateFrameStamp statusKey="windField" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
-        風速 Wind speed (m/s)
+        {i18n.t("legend.environment.windSub")}
       </div>
       <ClimateGradientBar
         gradient={rampToGradient(WIND_FIELD_RAMP)}
         labels={["0", "10", "20", `${WIND_SPEED_MAX}+`]}
       />
       <LegendNote style={{ marginTop: 4 }}>
-        click 地圖任一點讀風速/風向
+        {i18n.t("legend.environment.windClick")}
       </LegendNote>
     </div>
   );
@@ -133,19 +152,20 @@ export function WindFieldLegend() {
 
 export function OceanCurrentsLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="海流" en="CMEMS" />
+      <LegendTitle zh={layerTitle("oceanCurrents", i18n)} en="CMEMS" />
       <ClimateFrameStamp statusKey="oceanCurrents" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
-        流速 Current speed (m/s)
+        {i18n.t("legend.environment.oceanSub")}
       </div>
       <ClimateGradientBar
         gradient={rampToGradient(OCEAN_CURRENTS_RAMP)}
         labels={["0", "0.6", "1.2", `${OCEAN_SPEED_MAX.toFixed(1)}+`]}
       />
       <LegendNote style={{ marginTop: 4 }}>
-        click 海面任一點讀流速/流向
+        {i18n.t("legend.environment.oceanClick")}
       </LegendNote>
     </div>
   );
@@ -153,17 +173,18 @@ export function OceanCurrentsLegend() {
 
 export function DustForecastLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="沙塵光學厚度 550nm" en="CAMS" />
+      <LegendTitle zh={i18n.t("legend.environment.dustTitle")} en="CAMS" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         {/* 上游 climate_bake 已從 per-file normalize 改為固定 sqrt 色階（t = √(AOD/1.0)），
             跨幀可比 —— 文案須與上游同時上線，否則會描述錯誤的色階語意。 */}
-        沙塵光學厚度 AOD 0–1 固定色階（跨時間可比，透明 = 無沙塵）
+        {i18n.t("legend.environment.dustSub")}
       </div>
       <ClimateGradientBar
         gradient={`linear-gradient(to right, ${DUST_BAKE_STOPS.map((s) => `${s.color} ${(s.t * 100).toFixed(0)}%`).join(", ")})`}
-        labels={["低 Low", "高 High"]}
+        labels={[i18n.t("legend.environment.lowEn"), i18n.t("legend.environment.highEn")]}
       />
     </div>
   );
@@ -173,9 +194,10 @@ export function DustForecastLegend() {
 // 與 temperatureGridLayerFactory 的 fill-color step 表達式同源）。
 export function TemperatureGridLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="溫度網格" en="Temperature Grid" />
+      <LegendTitle zh={layerTitle("temperatureGrid", i18n)} en="Temperature Grid" />
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {TEMPERATURE_GRID_BANDS.map((band) => (
           <div key={band.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -185,7 +207,7 @@ export function TemperatureGridLegend() {
         ))}
       </div>
       <LegendNote style={{ marginTop: 3, lineHeight: 1.4 }}>
-        CWA 0.03° 逐時觀測分析格點
+        {i18n.t("legend.environment.gridNote")}
       </LegendNote>
     </div>
   );
@@ -201,8 +223,14 @@ export function TemperatureGridLegend() {
  * 只拔掉自己的面板外殼（背景/模糊/圓角）改用 LegendPanel 的容器。
  * header 的 loading 狀態沿用（aqi-* / micro-sensors 任務）。
  */
+const AQI_DESC_KEYS: MessageKey[] = [
+  "legend.environment.aqiDesc0", "legend.environment.aqiDesc1", "legend.environment.aqiDesc2",
+  "legend.environment.aqiDesc3", "legend.environment.aqiDesc4", "legend.environment.aqiDesc5",
+];
+
 export function AqiLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const allTasks = useLoadingTasks();
   const aqiTasks = allTasks.filter(
     (task) =>
@@ -238,19 +266,19 @@ export function AqiLegend() {
           display: "flex", alignItems: "center", gap: 6,
         }}
       >
-        <LegendTitle zh="空氣品質指標" en="AQI" style={{ marginBottom: 0 }} />
+        <LegendTitle zh={i18n.t("legend.environment.aqiTitle")} en="AQI" style={{ marginBottom: 0 }} />
         {loadingLabel && (
           <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#93c5fd" }}>
             <span className="aqi-spin" />
-            <span style={{ fontSize: FONT_SIZE.xs }}>載入中…</span>
+            <span style={{ fontSize: FONT_SIZE.xs }}>{i18n.t("legend.environment.loading")}</span>
           </span>
         )}
       </div>
       <div style={{ display: "flex", height: 12, borderRadius: RADIUS.sm, overflow: "hidden" }}>
-        {AQI_LEVELS.map((lv) => (
+        {AQI_LEVELS.map((lv, i) => (
           <div
             key={lv.label}
-            title={`${lv.label} — ${lv.description}`}
+            title={`${enumLabel("airAqiStatus", lv.label, lv.label, i18n)} — ${i18n.t(AQI_DESC_KEYS[i]!)}`}
             style={{ flex: 1, background: lv.color }}
           />
         ))}
@@ -272,27 +300,41 @@ export function AqiLegend() {
 // LASS 微型感測：三模式共用同一份圖例框，依當前顯示模式換色階列
 // （色票 SSOT = data/microSensorTypes.ts，與 loader 預烤進 properties 的顏色同源；
 //  溫度模式直接吃 TEMPERATURE_GRID_BANDS，與溫度網格 2D 跨圖層一致）。
+const MICRO_HUMIDITY_KEYS: Record<string, MessageKey> = {
+  "< 40%（極乾）": "legend.environment.humDry",
+  "40–50%（乾燥）": "legend.environment.humArid",
+  "50–60%（稍乾）": "legend.environment.humSlightlyDry",
+  "60–70%（舒適）": "legend.environment.humComfort",
+  "70–80%（濕潤）": "legend.environment.humMoist",
+  "80–90%（潮濕）": "legend.environment.humDamp",
+  "≥ 90%（極濕）": "legend.environment.humVeryDamp",
+};
+const MICRO_NOTE_KEYS: Record<string, MessageKey> = {
+  "0": "legend.environment.microNote0", "1": "legend.environment.microNote1", "2": "legend.environment.microNote2",
+};
+
 export function MicroSensorLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const mode = resolveMicroSensorMode(modeIdx);
   return (
     <div>
-      <LegendTitle zh="微型感測" en="LASS AirBox" />
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{mode.note}</div>
+      <LegendTitle zh={i18n.t("legend.environment.microTitle")} en="LASS AirBox" />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{MICRO_NOTE_KEYS[mode.value] ? i18n.t(MICRO_NOTE_KEYS[mode.value]!) : mode.note}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {mode.legend.map((band) => (
           <div key={band.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <SwatchDot color={band.color} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{MICRO_HUMIDITY_KEYS[band.label] ? i18n.t(MICRO_HUMIDITY_KEYS[band.label]!) : band.label}</span>
           </div>
         ))}
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <SwatchDot color={MICRO_SENSOR_NO_DATA_COLOR} />
-          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>無資料</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.common.noData")}</span>
         </div>
       </div>
       <LegendNote style={{ marginTop: 3, lineHeight: 1.4 }}>
-        LASS AirBox / 環境部微感測 · 最新 15 分鐘快照
+        {i18n.t("legend.environment.microFoot")}
       </LegendNote>
     </div>
   );
@@ -303,12 +345,13 @@ export function MicroSensorLegend({ modeIdx = 0 }: { modeIdx?: number }) {
 //  刻度位置照物理值等比換算，所以 ΔT 的 0K 白點會落在正確位置而非視覺置中）。
 export function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   const mode = resolveUrbanHeatMode(modeIdx);
   return (
     <div>
-      <LegendTitle zh="都市熱島" en="Urban Heat" />
+      <LegendTitle zh={layerTitle("urbanHeat", i18n)} en="Urban Heat" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
-        {mode.label}（{mode.unit}）
+        {i18n.t("legend.environment.urbanHeatHeader", { label: mode.value === "0" ? i18n.t("legend.environment.urbanLabel0") : mode.value === "1" ? i18n.t("legend.environment.urbanLabel1") : mode.label, unit: mode.unit })}
       </div>
       <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${urbanHeatLegendGradient(mode)})` }} />
       <div style={{ position: "relative", height: 12, marginTop: 2 }}>
@@ -334,13 +377,13 @@ export function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
         })}
       </div>
       <LegendNote style={{ marginTop: 2, lineHeight: 1.4 }}>
-        {mode.note}
+        {mode.value === "0" ? i18n.t("legend.environment.urbanNote0") : mode.value === "1" ? i18n.t("legend.environment.urbanNote1") : mode.note}
       </LegendNote>
       <LegendNote style={{ marginTop: 2, lineHeight: 1.4 }}>
-        {URBAN_HEAT_CREDIT}
+        {i18n.t("legend.environment.urbanCredit")}
       </LegendNote>
       <LegendNote style={{ marginTop: 2, lineHeight: 1.4 }}>
-        {URBAN_HEAT_COVERAGE_NOTE}
+        {i18n.t("legend.environment.urbanCoverage")}
       </LegendNote>
     </div>
   );
@@ -352,6 +395,7 @@ export function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
 //    所以沒有固定的 °C 刻度，只能標兩端。硬標 -10/35°C 會在多數日子跟地圖對不上。
 export function TemperatureWaveLegend({ gridAlsoOn }: { gridAlsoOn: boolean }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   // R6 段 1：立體效果關 → 地圖畫的是溫度網格（同 temperatureGrid），圖例跟著換；
   // 溫度網格本身也開著時它已有同一份圖例，不重複
   const values = useLayerParams("temperatureWave");
@@ -363,13 +407,13 @@ export function TemperatureWaveLegend({ gridAlsoOn }: { gridAlsoOn: boolean }) {
   ).join(", ")})`;
   return (
     <div>
-      <LegendTitle zh="溫度波" en="Temperature Wave" />
+      <LegendTitle zh={layerTitle("temperatureWave", i18n)} en="Temperature Wave" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
-        氣溫（拉伸至當日觀測範圍）
+        {i18n.t("legend.environment.waveSub")}
       </div>
-      <ClimateGradientBar gradient={gradient} labels={["當日最低", "當日最高"]} />
+      <ClimateGradientBar gradient={gradient} labels={[i18n.t("legend.environment.waveMin"), i18n.t("legend.environment.waveMax")]} />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
-        波高同步溫度｜要看絕對 °C 分級請開溫度網格 2D
+        {i18n.t("legend.environment.waveNote")}
       </LegendNote>
     </div>
   );
@@ -385,13 +429,14 @@ export function H3RampLegend({
   title, titleEn, ramp, note,
 }: { title: string; titleEn?: string; ramp: [number, number, number][]; note: string }) {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
       <LegendTitle zh={title} en={titleEn} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>{note}</div>
-      <ClimateGradientBar gradient={h3RampGradient(ramp)} labels={["低 Low", "高 High"]} />
+      <ClimateGradientBar gradient={h3RampGradient(ramp)} labels={[i18n.t("legend.environment.lowEn"), i18n.t("legend.environment.highEn")]} />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
-        相對色階（以畫面資料最大值為 100%）｜對比滑桿會改變分布
+        {i18n.t("legend.environment.h3Note")}
       </LegendNote>
     </div>
   );
@@ -407,16 +452,17 @@ const WASTE_FACILITY_LEGEND_ROWS: ReadonlyArray<{ key: keyof LayerVisibility; ty
 ];
 
 export function WasteFacilityLegend({ visibility }: { visibility: LayerVisibility }) {
+  const i18n = useLocale();
   const rows = WASTE_FACILITY_LEGEND_ROWS.filter((r) => visibility[r.key]);
   return (
     <div>
-      <LegendTitle zh="垃圾處理設施" en="Waste Facilities" />
+      <LegendTitle zh={i18n.t("legend.environment.wasteFacTitle")} en="Waste Facilities" />
       {rows.map((r) => (
         <LegendRow key={r.key} swatch={<SwatchDot color={WASTE_FACILITY_COLORS[r.type]!} />}>
-          {WASTE_FACILITY_LABELS[r.type] ?? r.type}
+          {enumLabel("wasteFacility", r.type, WASTE_FACILITY_LABELS[r.type] ?? r.type, i18n)}
         </LegendRow>
       ))}
-      <LegendNote>開「立體效果」另疊 3D 造型（煙囪、穹頂、雷達等）。</LegendNote>
+      <LegendNote>{i18n.t("legend.environment.wasteFacNote")}</LegendNote>
     </div>
   );
 }
@@ -425,12 +471,13 @@ export function WasteFacilityLegend({ visibility }: { visibility: LayerVisibilit
 
 export function LightningLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="落雷類型" />
+      <LegendTitle zh={i18n.t("legend.environment.lightningTitle")} />
       {[
-        { label: "雲對地 CG（高傷害）", color: LIGHTNING_TYPE_COLORS[0]! },
-        { label: "雲中 IC", color: LIGHTNING_TYPE_COLORS[1]! },
+        { label: i18n.t("legend.environment.lightningCg"), color: LIGHTNING_TYPE_COLORS[0]! },
+        { label: i18n.t("legend.environment.lightningIc"), color: LIGHTNING_TYPE_COLORS[1]! },
       ].map((row) => (
         <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <SwatchDot color={row.color} />
@@ -438,8 +485,8 @@ export function LightningLegend() {
         </div>
       ))}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
-        ● zoom &lt; 10 自動 cluster<br />
-        ● 預設 60 min 視窗
+        ● {i18n.t("legend.environment.lightningNote1")}<br />
+        ● {i18n.t("legend.environment.lightningNote2")}
       </LegendNote>
     </div>
   );
@@ -448,12 +495,13 @@ export function LightningLegend() {
 /** 氣象署源：同樣分雲對地／雲中，但色相與台電源錯開，兩層疊著仍分得出誰是誰。 */
 export function LightningCwaLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh="落雷類型（氣象署）" />
+      <LegendTitle zh={i18n.t("legend.environment.lightningCwaTitle")} />
       {[
-        { label: "對地 CG（高傷害）", color: "#a78bfa" },
-        { label: "雲間 IC", color: "#4ade80" },
+        { label: i18n.t("legend.environment.lightningCwaCg"), color: "#a78bfa" },
+        { label: i18n.t("legend.environment.lightningCwaIc"), color: "#4ade80" },
       ].map((row) => (
         <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <SwatchDot color={row.color} />
@@ -461,9 +509,9 @@ export function LightningCwaLegend() {
         </div>
       ))}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
-        ● 來源 O-A0039-001，每 5 分更新<br />
-        ● 時間僅到分鐘、無電流強度<br />
-        ● 與台電源並行，可互相對照
+        ● {i18n.t("legend.environment.lightningCwaNote1")}<br />
+        ● {i18n.t("legend.environment.lightningCwaNote2")}<br />
+        ● {i18n.t("legend.environment.lightningCwaNote3")}
       </LegendNote>
     </div>
   );
@@ -471,9 +519,10 @@ export function LightningCwaLegend() {
 
 export function OfficialNoiseMonitoringLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <NoiseLegendTitle>官方測站 · 樣本 LAeq</NoiseLegendTitle>
+      <NoiseLegendTitle>{i18n.t("legend.environment.noiseOfficialTitle")}</NoiseLegendTitle>
       <div style={{
         height: 8,
         borderRadius: RADIUS.sm,
@@ -484,11 +533,11 @@ export function OfficialNoiseMonitoringLegend() {
       </div>
       <div style={{ marginTop: 4 }}>
         {Object.entries(OFFICIAL_NOISE_FRESHNESS).map(([key, row]) => (
-          <LegendRow key={key} swatch={<SwatchDot color={key === "unavailable" ? "transparent" : `linear-gradient(90deg,${OFFICIAL_NOISE_COLOR_EXPR.filter((v) => typeof v === "string" && v.startsWith("#")).join(",")})`} opacity={key === "historical" ? 0.45 : 0.9} stroke={key === "unavailable" ? row.color : undefined} />}>{row.label}</LegendRow>
+          <LegendRow key={key} swatch={<SwatchDot color={key === "unavailable" ? "transparent" : `linear-gradient(90deg,${OFFICIAL_NOISE_COLOR_EXPR.filter((v) => typeof v === "string" && v.startsWith("#")).join(",")})`} opacity={key === "historical" ? 0.45 : 0.9} stroke={key === "unavailable" ? row.color : undefined} />}>{enumLabel("noiseFreshness", key, row.label, i18n)}</LegendRow>
         ))}
       </div>
-      <NoiseLegendNote source="環境部資料集 28185 與地方噪音觀測來源">
-        各來源最近可用 30 日窗內「實際回報樣本」的聲能平均；請搭配 popup 的 active-day coverage。不是完整連續月均值或法規達標判定。無已驗 dB 的測站仍保留，中空點不代表安靜或 0 dB。
+      <NoiseLegendNote source={i18n.t("legend.environment.noiseOfficialSource")}>
+        {i18n.t("legend.environment.noiseOfficialNote")}
       </NoiseLegendNote>
     </div>
   );
@@ -496,9 +545,10 @@ export function OfficialNoiseMonitoringLegend() {
 
 export function NoiseCaptureGridLegend() {
   const t = useLegendTheme();
+  const i18n = useLocale();
   return (
     <div>
-      <NoiseLegendTitle>NoiseCapture · 近 365 天滾動</NoiseLegendTitle>
+      <NoiseLegendTitle>{i18n.t("legend.environment.noiseCaptureTitle")}</NoiseLegendTitle>
       <div style={{
         height: 8,
         borderRadius: RADIUS.sm,
@@ -508,64 +558,69 @@ export function NoiseCaptureGridLegend() {
         <span>45 dB</span><span>85 dB</span>
       </div>
       <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: "#f59e0b", fontWeight: 700 }}>
-        全部 provisional
+        {i18n.t("legend.environment.provisional")}
       </div>
       <NoiseLegendNote source={NOISE_CAPTURE_ATTRIBUTION}>
-        公民科學觀測，非法定噪音量測。z7–10 為 1 km（1 格）、z11–12 為 500 m（1 格）、z13–15 為 250 m（3 格），三尺度互斥且高度稀疏。留白不代表安靜或 0 dB；品質門檻未放寬。
+        {i18n.t("legend.environment.noiseCaptureNote")}
       </NoiseLegendNote>
     </div>
   );
 }
 
 export function NoiseControlZonesLegend() {
+  const i18n = useLocale();
   return (
     <div>
-      <NoiseLegendTitle>法定噪音管制區</NoiseLegendTitle>
-      <NoiseLegendRows rows={Object.values(NOISE_CONTROL_ZONE_META)} />
-      <NoiseLegendNote source="臺中市政府環境保護局 · 政府資料開放授權條款第 1 版">
-        第一類至第四類是法定管制分類，不是實測聲音大小。v1 只有臺中 113 年官方 polygon；臺中以外留白不代表沒有管制區。部分官方幾何經拓樸修復，未改畫或推估法定邊界。
+      <NoiseLegendTitle>{i18n.t("legend.environment.noiseControlTitle")}</NoiseLegendTitle>
+      <NoiseLegendRows rows={Object.entries(NOISE_CONTROL_ZONE_META).map(([code, row]) => ({ color: row.color, label: enumLabel("noiseZoneClass", code, row.label, i18n) }))} />
+      <NoiseLegendNote source={i18n.t("legend.environment.noiseControlSource")}>
+        {i18n.t("legend.environment.noiseControlNote")}
       </NoiseLegendNote>
     </div>
   );
 }
 
 export function AviationNoiseZonesLegend() {
+  const i18n = useLocale();
   return (
     <div>
-      <NoiseLegendTitle>航空噪音法定里別</NoiseLegendTitle>
-      <NoiseLegendRows rows={Object.values(AVIATION_NOISE_ZONE_META)} />
-      <NoiseLegendNote source="桃園／高雄市政府公告名單 + NLSC 2026-06-26 村里界">
-        法定村里 membership 的行政界套疊，不是 DNL 實測等噪音線，也不代表村里內每一處噪音相同。v1 只有桃園／高雄；來源未明載生效日時不自行推估。
+      <NoiseLegendTitle>{layerTitle("aviationNoiseZones", i18n)}</NoiseLegendTitle>
+      <NoiseLegendRows rows={Object.entries(AVIATION_NOISE_ZONE_META).map(([code, row]) => ({ color: row.color, label: enumLabel("aviationNoiseZone", code, row.label, i18n) }))} />
+      <NoiseLegendNote source={i18n.t("legend.environment.aviationSource")}>
+        {i18n.t("legend.environment.aviationNote")}
       </NoiseLegendNote>
     </div>
   );
 }
 
 export function NoiseEnforcementEventsLegend() {
+  const i18n = useLocale();
   const rows: { label: string; color: string }[] = (["critical", "high", "normal", "mobile"] as PollutionPenaltySeverity[])
     .map((severity) => ({
-      label: PENALTY_SEVERITY_LABELS[severity],
+      label: enumLabel("pollutionPenaltySeverity", severity, PENALTY_SEVERITY_LABELS[severity], i18n),
       color: PENALTY_SEVERITY_COLORS[severity],
     }));
   return (
     <div>
-      <NoiseLegendTitle>噪音裁處事件／罰鍰</NoiseLegendTitle>
+      <NoiseLegendTitle>{i18n.t("legend.environment.enforceTitle")}</NoiseLegendTitle>
       <NoiseLegendRows rows={rows} dot />
       <DenseHeatmapLegendRow layers={["noiseEnforcementEvents"]} />
-      <NoiseLegendNote source="環境部 EMS_P_46 污染裁處資料">
-        顏色表示裁處嚴重度，點大小可反映罰鍰；不是 dB 觀測或聲音強度。定位精度混合，資料沿用既有 pollution_penalties PMTiles，不是即時告發流。
+      <NoiseLegendNote source={i18n.t("legend.environment.enforceSource")}>
+        {i18n.t("legend.environment.enforceNote")}
       </NoiseLegendNote>
     </div>
   );
 }
 
 export function SoundCameraLocationsLegend() {
+  const i18n = useLocale();
+  const cameraRows = Object.entries(SOUND_CAMERA_PRECISION_META).map(([code, row]) => ({ color: row.color, label: enumLabel("noisePrecision", code, row.label, i18n) }));
   return (
     <div>
-      <NoiseLegendTitle>聲音照相設備／路段</NoiseLegendTitle>
-      <NoiseLegendRows rows={Object.values(SOUND_CAMERA_PRECISION_META)} dot />
-      <NoiseLegendNote source="臺南市／彰化縣環保局官方清單 · 政府資料開放授權條款第 1 版">
-        333 筆清單中只有 267 筆可畫；66 筆 pending 未以行政區中心補位。位置可能是地址、路段或模糊定位；清單不代表即時運作、違規事件位置或 dB。v1 只涵蓋臺南與彰化。
+      <NoiseLegendTitle>{i18n.t("legend.environment.cameraTitle")}</NoiseLegendTitle>
+      <NoiseLegendRows rows={cameraRows} dot />
+      <NoiseLegendNote source={i18n.t("legend.environment.cameraSource")}>
+        {i18n.t("legend.environment.cameraNote")}
       </NoiseLegendNote>
     </div>
   );

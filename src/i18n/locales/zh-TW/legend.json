@@ -1,0 +1,17 @@
+{
+  "legend.panel.title": "圖例",
+  "legend.panel.expand": "展開圖例",
+  "legend.panel.collapse": "收合圖例",
+  "legend.common.low": "低",
+  "legend.common.high": "高",
+  "legend.common.other": "其他",
+  "legend.common.notProvided": "未提供",
+  "legend.common.noData": "無資料",
+  "legend.common.densityZoomOut": "拉遠時顯示密度",
+  "legend.common.flatArrow": "拉近（z ≥ {zoom}）以箭頭表示行進方向",
+  "legend.common.sourceLicense": "來源／授權：{source}",
+  "legend.rail.routesNote": "捷運各線沿用官方線色；僅路線幾何，列車位置見「鐵道」圖層。信義線東延段線形 © OpenStreetMap contributors (ODbL)",
+  "legend.rail.metroTitle": "捷運站",
+  "legend.rail.transfer": "轉乘站",
+  "legend.rail.metroNote": "站點顏色為所屬路線線色；同名且相距 500 m 內的站視為轉乘站"
+}
