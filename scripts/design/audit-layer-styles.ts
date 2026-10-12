@@ -495,7 +495,8 @@ function paramDefaults(key: string) {
 // ── 圖例（SSR 優先，失敗退回原始碼啟發式）──
 const legendPanelText = text("src/components/LegendPanel.tsx");
 function componentBody(name: string): string {
-  const files = ["src/components/LegendPanel.tsx", "src/components/sidebar/StatisticsDetails.tsx"];
+  const legendFiles = readdirSync(join(ROOT, "src/components/legend")).filter((n) => n.endsWith(".tsx")).sort().map((n) => `src/components/legend/${n}`);
+  const files = ["src/components/LegendPanel.tsx", ...legendFiles, "src/components/sidebar/StatisticsDetails.tsx"];
   for (const f of files) {
     const s = text(f);
     const m = new RegExp(`\\n(?:export\\s+)?function ${name}\\b`).exec(s);

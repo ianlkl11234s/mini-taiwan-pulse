@@ -67,7 +67,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
     **只有新 key 那幾行該動**；既有層出現 diff 就是回歸，回去修程式
 
 **條件觸點**（不是每層都要，判斷不了就問用戶）：
-分類 ≥ 2 色 → `LegendPanel.tsx` sub-component ＋ `LEGEND_REGISTRY`；
+分類 ≥ 2 色 → `src/components/legend/<domain>Legends.tsx` 寫 sub-component（依主題挑檔）＋ `LegendPanel.tsx` 的 `LEGEND_REGISTRY`；
 可點選 → `featureInfo/<domain>Panels.tsx` ＋ `registry.tsx` 的 `PANEL_REGISTRY`/`HEADER_LABELS`（**i18n**：常用欄位用 `<Row field="address" …/>`（`popup.field.*`，見 `src/i18n/locales/zh-TW/popup.json`）；面板專屬文字放 `popup.<domain>.json` 用 `t()`，不要寫死中文。規則見 `src/i18n/README.md`）
 ＋ `src/map/gisClickRegistry.ts` 的 `GIS_LAYERS`（4b 起模組級；first-hit-wins，小範圍排前）；
 PMTiles → `nginx.conf` ＋ 兩支 deploy 腳本清單。

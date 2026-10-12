@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -7,7 +7,12 @@ import { LEGEND_SWATCH, LegendCompactCtx, LegendNote, LegendThemeCtx, LegendTitl
 import { hatchImageData } from "../../../map/mapStyleScale";
 import { MEDICAL_POI_TYPES, MEDICAL_POI_PAINT_COLORS, medicalPoiColor } from "../../../data/medicalPOITypes";
 
-const legendPanelSource = () => readFileSync(fileURLToPath(new URL("../../LegendPanel.tsx", import.meta.url)), "utf8");
+// 圖例子元件已依主題拆到 legend/*Legends.tsx；原始碼斷言讀「面板 + 全部 legend/*.tsx」。
+const legendPanelSource = () => {
+  const legendDir = fileURLToPath(new URL("..", import.meta.url));
+  const files = readdirSync(legendDir).filter((n) => n.endsWith(".tsx") && n !== "legendKit.tsx").map((n) => legendDir + n);
+  return [fileURLToPath(new URL("../../LegendPanel.tsx", import.meta.url)), ...files].map((p) => readFileSync(p, "utf8")).join("\n");
+};
 
 describe("legendKit", () => {
   it("LG-11：標題中文在前、英文小字在後，不轉大寫", () => {

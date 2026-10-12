@@ -131,7 +131,7 @@ $1: [
 
 | 條件 | 要動 |
 |---|---|
-| 分類 ≥ 2 色（鐵則 2） | `LegendPanel.tsx` 寫 sub-component ＋ 同檔 `LEGEND_REGISTRY` 加一行 `{ id, render }`（**keys 不用寫**——4b 起由 manifest `legend` 欄位反查派生）；manifest `legend` 填該 id |
+| 分類 ≥ 2 色（鐵則 2） | `src/components/legend/<domain>Legends.tsx`（依主題挑檔）寫 sub-component ＋ `LegendPanel.tsx` 的 `LEGEND_REGISTRY` 加一行 `{ id, render }`（**keys 不用寫**——4b 起由 manifest `legend` 欄位反查派生）；manifest `legend` 填該 id |
 | 可點選（鐵則 3） | `featureInfo/<domain>Panels.tsx` 寫 panel（**i18n**：常用欄位用 `<Row field="address" …/>`（`popup.field.*`，見 `src/i18n/locales/zh-TW/popup.json`）；面板專屬文字放 `popup.<domain>.json` 用 `t()`，不要寫死中文。規則見 `src/i18n/README.md`） ＋ `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 ＋ **`src/map/gisClickRegistry.ts`**（4b 起自 useMapInteraction 升格模組級）的 `GIS_LAYERS` 加條目（**first-hit-wins**：小範圍排前、大面積背景排後）；manifest `popup` 填該 layerType |
 | 分類色票要三邊共用 | 抽 `src/data/$1Types.ts` 供 factory / featureInfo / legend 三邊 import |
 | PMTiles / 大型靜態檔 | `nginx.conf` location ＋ `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` 清單（⚠️ PT-1 曾漏此步導致 13 層全站 404） |
