@@ -163,6 +163,7 @@ import {
   HarmReductionAlcoholPanel, HarmReductionPrepPanel, HarmReductionInternetAddictionPanel, HarmReductionAftercarePanel, HarmReductionSmokingCessationPanel, HarmReductionAntiDrugPharmacyPanel, HarmReductionCondomOutletPanel, HarmReductionTherapeuticCommunityPanel, HarmReductionDuiCrashPanel,
 } from "./harmReductionPanels";
 import { HighwayDisasterPanel, LandslideAnnualPanel, LandslideDodAreaPanel, LandslideDodImpactPanel } from "./landslidePanels";
+import { ATLAS_HEADER_LABELS, ATLAS_PANELS } from "./atlasPanels";
 import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
@@ -326,6 +327,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   landslideDodImpact: LandslideDodImpactPanel,
   highwayDisaster: HighwayDisasterPanel,
   landslideAnnual: LandslideAnnualPanel,
+  ...ATLAS_PANELS,
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
@@ -792,6 +794,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   landslideDodImpact: "大規模崩塌影響範圍",
   highwayDisaster: "省道歷史災情",
   landslideAnnual: "年度崩塌地",
+  ...ATLAS_HEADER_LABELS,
   hikingTrails: "步道",
   fireEvent: "火災事件",
   fireStation: "消防分隊",

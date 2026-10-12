@@ -89,6 +89,10 @@ import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
 import { ANNUAL_DEFAULT_YEAR, ANNUAL_YEAR_OPTIONS, DOD_DEFAULT_YEAR, DOD_YEAR_OPTIONS, HIGHWAY_CATEGORY_GROUPS, HIGHWAY_YEAR_OPTIONS } from "./landslideTypes";
 import {
+  FLOOD_YEAR_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
+  RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, type AtlasOption,
+} from "./atlasLayerTypes";
+import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "./urbanOpenSpaceTypes";
@@ -676,6 +680,11 @@ function opacitySlider(name: string, def: number): SliderParamSpec {
 }
 
 /** 「大小 x.x」滑桿 —— 點層專用（面層沒有） */
+/** atlas 圖層的分類選項（色票只給地圖／圖例用，控件只要 value／label） */
+function atlasParamOptions(options: readonly { value: string; label: string }[] | readonly AtlasOption[]) {
+  return options.map(({ value, label }) => ({ value, label }));
+}
+
 function scaleSlider(name: string, def: number): SliderParamSpec {
   return {
     kind: "slider", name, labelPrefix: "大小", digits: 1,
@@ -2836,6 +2845,125 @@ export const LAYER_PARAMS_SPEC = {
       options: ANNUAL_YEAR_OPTIONS, out: "landslideAnnualYearIdx", encode: ANNUAL_YEAR_OPTIONS.map((option) => option.value),
     },
     opacitySlider("landslideAnnualOpacity", 0.55),
+  ],
+  // ══════════ atlas 批次 2026-10：26 層點／線／面 ══════════
+  indigenousTribes: [
+    opacitySlider("indigenousTribesOpacity", densePointOpacity(735)), scaleSlider("indigenousTribesScale", 1),
+  ],
+  indigenousIsolationRisk: [
+    opacitySlider("indigenousIsolationRiskOpacity", densePointOpacity(168)), scaleSlider("indigenousIsolationRiskScale", 1),
+  ],
+  agriRuralCommunityVillages: [
+    {
+      kind: "multiSelect", name: "agriRuralCommunityVillagesType", label: "社區類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(RURAL_COMMUNITY_OPTIONS), out: "agriRuralCommunityVillagesTypeMask",
+    },
+    opacitySlider("agriRuralCommunityVillagesOpacity", 0.45),
+  ],
+  provincialRoadSigns: [
+    {
+      kind: "multiSelect", name: "provincialRoadSignsSeries", label: "標誌類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(ROAD_SIGN_SERIES_OPTIONS), out: "provincialRoadSignsSeriesMask",
+    },
+    opacitySlider("provincialRoadSignsOpacity", densePointOpacity(22_522)), scaleSlider("provincialRoadSignsScale", 1),
+  ],
+  provincialRoadMileposts: [
+    opacitySlider("provincialRoadMilepostsOpacity", densePointOpacity(30_098)), scaleSlider("provincialRoadMilepostsScale", 1),
+  ],
+  freewayTrafficSigns: [
+    {
+      kind: "multiSelect", name: "freewayTrafficSignsGroup", label: "標誌類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FREEWAY_SIGN_GROUP_OPTIONS), out: "freewayTrafficSignsGroupMask",
+    },
+    opacitySlider("freewayTrafficSignsOpacity", densePointOpacity(51_405)), scaleSlider("freewayTrafficSignsScale", 1),
+  ],
+  freewayInterchanges: [
+    opacitySlider("freewayInterchangesOpacity", densePointOpacity(207)), scaleSlider("freewayInterchangesScale", 1),
+  ],
+  freewayEcoSensitive: [
+    opacitySlider("freewayEcoSensitiveOpacity", 0.5),
+  ],
+  provincialRoadMonitored: [
+    {
+      kind: "multiSelect", name: "provincialRoadMonitoredSeries", label: "監控類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(MONITOR_SERIES_OPTIONS), out: "provincialRoadMonitoredSeriesMask",
+    },
+    opacitySlider("provincialRoadMonitoredOpacity", 0.85), scaleSlider("provincialRoadMonitoredScale", 1),
+  ],
+  provincialRoadEmergencyBays: [
+    opacitySlider("provincialRoadEmergencyBaysOpacity", 0.9), scaleSlider("provincialRoadEmergencyBaysScale", 1),
+  ],
+  floodDisasterPointsNcdr: [
+    {
+      kind: "multiSelect", name: "floodDisasterPointsNcdrYear", label: "事件年", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FLOOD_YEAR_OPTIONS), out: "floodDisasterPointsNcdrYearMask",
+    },
+    opacitySlider("floodDisasterPointsNcdrOpacity", densePointOpacity(8_646)), scaleSlider("floodDisasterPointsNcdrScale", 1),
+  ],
+  taipeiWaterloggingHistory: [
+    opacitySlider("taipeiWaterloggingHistoryOpacity", 0.5),
+  ],
+  swcbDisasterPhotoPoints: [
+    {
+      kind: "multiSelect", name: "swcbDisasterPhotoPointsCategory", label: "照片類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(SWCB_PHOTO_CATEGORY_OPTIONS), out: "swcbDisasterPhotoPointsCategoryMask",
+    },
+    opacitySlider("swcbDisasterPhotoPointsOpacity", densePointOpacity(34_419)), scaleSlider("swcbDisasterPhotoPointsScale", 1),
+  ],
+  cetaceanStrandings: [
+    {
+      kind: "multiSelect", name: "cetaceanStrandingsYear", label: "擱淺年份", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STRANDING_YEAR_OPTIONS), out: "cetaceanStrandingsYearMask",
+    },
+    opacitySlider("cetaceanStrandingsOpacity", densePointOpacity(936)), scaleSlider("cetaceanStrandingsScale", 1),
+  ],
+  seaTurtleStrandings: [
+    {
+      kind: "multiSelect", name: "seaTurtleStrandingsYear", label: "擱淺年份", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STRANDING_YEAR_OPTIONS), out: "seaTurtleStrandingsYearMask",
+    },
+    opacitySlider("seaTurtleStrandingsOpacity", densePointOpacity(1_719)), scaleSlider("seaTurtleStrandingsScale", 1),
+  ],
+  beachWaterQuality: [
+    opacitySlider("beachWaterQualityOpacity", densePointOpacity(20)), scaleSlider("beachWaterQualityScale", 1),
+  ],
+  marineMicroplastics: [
+    opacitySlider("marineMicroplasticsOpacity", densePointOpacity(25)), scaleSlider("marineMicroplasticsScale", 1),
+  ],
+  marinePollutionIncidents: [
+    opacitySlider("marinePollutionIncidentsOpacity", densePointOpacity(1_759)), scaleSlider("marinePollutionIncidentsScale", 1),
+  ],
+  namrEdnaSurveySites: [
+    opacitySlider("namrEdnaSurveySitesOpacity", densePointOpacity(119)), scaleSlider("namrEdnaSurveySitesScale", 1),
+  ],
+  placeNames: [
+    {
+      kind: "multiSelect", name: "placeNamesCategory", label: "地名類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(PLACE_CATEGORY_OPTIONS), out: "placeNamesCategoryMask",
+    },
+    opacitySlider("placeNamesOpacity", densePointOpacity(36_431)), scaleSlider("placeNamesScale", 1),
+  ],
+  triangulationPoints: [
+    opacitySlider("triangulationPointsOpacity", densePointOpacity(2_658)), scaleSlider("triangulationPointsScale", 1),
+  ],
+  wraFloodgatesCentral: [
+    {
+      kind: "multiSelect", name: "wraFloodgatesCentralKind", label: "設施類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(GATE_KIND_OPTIONS), out: "wraFloodgatesCentralKindMask",
+    },
+    opacitySlider("wraFloodgatesCentralOpacity", densePointOpacity(808)), scaleSlider("wraFloodgatesCentralScale", 1),
+  ],
+  wraCentralDrainage: [
+    opacitySlider("wraCentralDrainageOpacity", 0.35),
+  ],
+  iowStructureMonitoring: [
+    opacitySlider("iowStructureMonitoringOpacity", densePointOpacity(102)), scaleSlider("iowStructureMonitoringScale", 1),
+  ],
+  wraDredgingPoints: [
+    opacitySlider("wraDredgingPointsOpacity", densePointOpacity(137)), scaleSlider("wraDredgingPointsScale", 1),
+  ],
+  wraEcologySurveySites: [
+    opacitySlider("wraEcologySurveySitesOpacity", densePointOpacity(1_195)), scaleSlider("wraEcologySurveySitesScale", 1),
   ],
   mountainRescueIncidents: [
     {
