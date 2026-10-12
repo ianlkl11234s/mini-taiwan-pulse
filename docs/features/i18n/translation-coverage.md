@@ -147,7 +147,7 @@
 1. 田媽媽 → Tian Mama (rural women's food business)、地方文化館 → Local cultural museum、國民運動中心 → Civil sports centers：未查到官方英文。
 2. 長照 A／B／C 據點、公廁評等（特優／優等／普通／不合格）：非官方英譯。
 3. 兩個公害陳情圖層的差異 repo 內查不到，英文名只是先區分。
-4. 警戒通報原文「AEC／原能會」英文寫成 AEC (now Nuclear Safety Commission)；中文原文是否同步更新待定。
+4. 警戒通報原文「AEC／原能會」已於 2026-10-12 依使用者決定，中英日三語一起改成新名稱「核安會／Nuclear Safety Commission／原子力安全委員会」。
 
 ## 日本語
 

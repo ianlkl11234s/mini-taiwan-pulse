@@ -39,6 +39,6 @@
   "popup.hazard.staleC": "。高い値＋staleはセンサーの故障を示し、",
   "popup.hazard.staleD": "原子力災害ではありません",
   "popup.hazard.staleE": "。",
-  "popup.hazard.alarmNote": "⚠️ 原子力委員会（AEC）の警戒しきい値（> {threshold} µSv/h）に達しました。原子力安全委員会のリアルタイムページで確認してください。",
+  "popup.hazard.alarmNote": "⚠️ 原子力安全委員会の警戒しきい値（> {threshold} µSv/h）に達しました。同委員会のリアルタイムページで確認してください。",
   "popup.hazard.afterQuake": "地震後 {seconds}秒"
 }
