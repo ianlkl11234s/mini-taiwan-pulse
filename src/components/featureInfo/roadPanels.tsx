@@ -1,13 +1,18 @@
+import { enumLabel } from "../../i18n/dataText";
 import { Row, formatTaiwanTime } from "./shared";
 import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { ROAD_CONGESTION_COLORS, ROAD_CONGESTION_LABELS } from "../../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../../data/freewayLoader";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
+
+type I18n = Pick<LocaleSnapshot, "t">;
 
 /**
  * 省道路況 popup。level 由 feature-state 合成（見 useMapInteraction 把 f.state
  * 併入 properties）。速度不在 timeline，v1 不顯示。
  */
 export function RoadCongestionPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const level = Number(props.level ?? 0);
   const sectionId = String(props.section_id ?? props.section_uid ?? "");
   const color = ROAD_CONGESTION_COLORS[level] ?? ROAD_CONGESTION_COLORS[0]!;
@@ -18,7 +23,7 @@ export function RoadCongestionPanel({ props }: { props: Record<string, unknown> 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
-          省道路段
+          {tr("popup.road.provincialSection")}
         </div>
         <div style={{
           marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
@@ -27,10 +32,10 @@ export function RoadCongestionPanel({ props }: { props: Record<string, unknown> 
           {label}
         </div>
       </div>
-      {sectionId && <Row label="路段代碼" value={sectionId} />}
-      <Row label="壅塞等級" value={level > 0 ? `${level}（${label}）` : "無資料"} />
+      {sectionId && <Row label={tr("popup.road.sectionCode")} value={sectionId} />}
+      <Row label={tr("popup.road.congestionLevel")} value={level > 0 ? `${level}（${label}）` : tr("popup.road.noData")} />
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
-        v1 僅省道 highway；無路名／速度資料
+        {tr("popup.road.congestionNote")}
       </div>
     </>
   );
@@ -49,6 +54,7 @@ export function RoadCongestionPanel({ props }: { props: Record<string, unknown> 
  * `speed` 是該 snapshot 的路段平均時速（km/h），上游可能給 null → 不顯示該列。
  */
 export function FreewayCongestionPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const level = Number(props.level ?? 0);
   const color = CONGESTION_COLORS[level] ?? CONGESTION_COLORS[0]!;
   const label = CONGESTION_LABELS[level] ?? CONGESTION_LABELS[0]!;
@@ -64,7 +70,7 @@ export function FreewayCongestionPanel({ props }: { props: Record<string, unknow
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
-          {roadName || "國道路段"}
+          {roadName || tr("popup.road.freewaySection")}
         </div>
         <div style={{
           marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
@@ -76,13 +82,13 @@ export function FreewayCongestionPanel({ props }: { props: Record<string, unknow
       {sectionName && <Row field="roadSection" value={sectionName} />}
       {direction && <Row field="direction" value={direction} />}
       {/* 時速是開這層唯一想知道的數字：色帶只給等級區間 */}
-      {speed != null && <Row label="平均時速" value={`${Math.round(speed)} km/h`} color={color} />}
-      <Row label="壅塞等級" value={level > 0 ? `${level}（${label}）` : "無資料"} />
+      {speed != null && <Row label={tr("popup.road.avgSpeed")} value={`${Math.round(speed)} km/h`} color={color} />}
+      <Row label={tr("popup.road.congestionLevel")} value={level > 0 ? `${level}（${label}）` : tr("popup.road.noData")} />
       {snapshotTs > 0 && (
-        <Row label="快照時間" value={formatTaiwanTime(new Date(snapshotTs * 1000).toISOString())} />
+        <Row label={tr("popup.road.snapshotTime")} value={formatTaiwanTime(new Date(snapshotTs * 1000).toISOString())} />
       )}
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
-        資料為 10 分鐘粒度快照，隨時間軸更新
+        {tr("popup.road.freewayNote")}
       </div>
     </>
   );
@@ -138,10 +144,10 @@ const ROADCLASS1_LABELS: Record<string, string> = {
 };
 
 /** MDATE 是「測製年月」，格式固定 YYYYMM（規格書：2008年3月 → 200803） */
-function formatSurveyMonth(raw: unknown): string {
+function formatSurveyMonth(raw: unknown, tr: I18n["t"]): string {
   const s = String(raw ?? "");
   if (!/^\d{6}$/.test(s)) return "";
-  return `${s.slice(0, 4)} 年 ${s.slice(4, 6)} 月`;
+  return tr("popup.road.surveyMonthValue", { year: s.slice(0, 4), month: s.slice(4, 6) });
 }
 
 /** MVT 會逐 feature 丟掉 null 屬性 → 一律經此取值，不可假設 key 存在 */
@@ -151,40 +157,42 @@ function str(props: Record<string, unknown>, key: string): string {
 }
 
 function MoiRoadBody({ props, isHighway }: { props: Record<string, unknown>; isHighway: boolean }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const roadNum = str(props, "ROADNUM");
   const alias = str(props, "ROADALIAS");
   const name = str(props, "ROADNAME");
   const sect = str(props, "RDNAMESECT");
   const fullName = name ? `${name}${sect}` : "";
   const struct = str(props, "ROADSTRUCT");
-  const structLabel = ROADSTRUCT_LABELS[struct] ?? "";
+  const structLabel = struct && ROADSTRUCT_LABELS[struct] ? enumLabel("roadStruct", struct, ROADSTRUCT_LABELS[struct], i18n) : "";
   const briTun = str(props, "BRITUNNAME");
   const class1 = str(props, "ROADCLASS1");
   const class2 = str(props, "ROADCLASS2");
   const county = str(props, "COUNTY");
-  const surveyed = formatSurveyMonth(props.MDATE);
+  const surveyed = formatSurveyMonth(props.MDATE, tr);
   const num1 = str(props, "ROADNUM1");
 
   return (
     <>
       <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, marginBottom: 6 }}>
-        {roadNum || alias || fullName || (isHighway ? "國道" : "省道")}
+        {roadNum || alias || fullName || (isHighway ? tr("popup.road.freeway") : tr("popup.road.provincialHighway"))}
       </div>
       {/* 國道：ROADALIAS 0% 空（中山高／福爾摩沙…）是最穩定的可讀名稱；
           省道：ROADALIAS 23.6% 空（縱貫公路／西部濱海公路…） */}
-      {alias && alias !== roadNum && <Row label="路線別名" value={alias} />}
+      {alias && alias !== roadNum && <Row label={tr("popup.road.routeAlias")} value={alias} />}
       {/* 國道幹線段 ROADNAME 全空、交流道／服務區才有值 → 有值本身就是資訊 */}
-      {fullName && <Row label="道路名稱" value={fullName} />}
-      {class2 && <Row label="道路分類" value={ROADCLASS2_LABELS[class2] ?? class2} />}
-      {structLabel && struct !== "0" && <Row label="結構" value={structLabel} />}
+      {fullName && <Row label={tr("popup.road.roadName")} value={fullName} />}
+      {class2 && <Row label={tr("popup.road.roadClass")} value={ROADCLASS2_LABELS[class2] ? enumLabel("roadClass2", class2, ROADCLASS2_LABELS[class2], i18n) : class2} />}
+      {structLabel && struct !== "0" && <Row label={tr("popup.road.structure")} value={structLabel} />}
       {/* 橋梁／隧道／地下路段才有橋隧名（其餘 93~98% 空） */}
-      {briTun && <Row label="橋梁／隧道" value={briTun} />}
-      {class1 && <Row label="路線分類" value={ROADCLASS1_LABELS[class1] ?? class1} />}
-      {num1 && <Row label="共線編號" value={num1} />}
+      {briTun && <Row label={tr("popup.road.bridgeTunnel")} value={briTun} />}
+      {class1 && <Row label={tr("popup.road.routeClass")} value={ROADCLASS1_LABELS[class1] ? enumLabel("roadClass1", class1, ROADCLASS1_LABELS[class1], i18n) : class1} />}
+      {num1 && <Row label={tr("popup.road.concurrentNo")} value={num1} />}
       {county && <Row field="county" value={county} />}
-      {surveyed && <Row label="測製年月" value={surveyed} />}
+      {surveyed && <Row label={tr("popup.road.surveyMonth")} value={surveyed} />}
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
-        內政部通用電子地圖 道路中線
+        {tr("popup.road.moiSource")}
       </div>
     </>
   );
@@ -218,6 +226,7 @@ function validFinishedDate(raw: unknown): string {
 }
 
 export function CyclingRoutePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   // 空值在這層是 `""` 或字串 "NULL"（GeoJSON 保留 key），與 PMTiles 的「key 消失」不同
   const clean = (v: unknown) => {
     const s = String(v ?? "").trim();
@@ -233,21 +242,21 @@ export function CyclingRoutePanel({ props }: { props: Record<string, unknown> })
   const finished = validFinishedDate(props.FinishedTime);
 
   const lengthLabel = Number.isFinite(lengthM) && lengthM > 0
-    ? (lengthM >= 1000 ? `${(lengthM / 1000).toFixed(1)} 公里` : `${Math.round(lengthM)} 公尺`)
+    ? (lengthM >= 1000 ? tr("popup.road.kmValue", { value: (lengthM / 1000).toFixed(1) }) : tr("popup.road.mValue", { value: Math.round(lengthM) }))
     : "";
 
   return (
     <>
       <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, marginBottom: 6 }}>
-        {routeName || "自行車道"}
+        {routeName || tr("popup.road.cyclingRoute")}
       </div>
       {(city || town) && <Row field="district" value={[city, town].filter(Boolean).join(" ")} />}
-      {(from || to) && <Row label="起訖路段" value={`${from || "—"} → ${to || "—"}`} />}
+      {(from || to) && <Row label={tr("popup.road.fromTo")} value={`${from || "—"} → ${to || "—"}`} />}
       {lengthLabel && <Row field="length" value={lengthLabel} />}
-      {direction && <Row label="通行方向" value={direction} />}
-      {finished && <Row label="完工日期" value={finished} />}
+      {direction && <Row label={tr("popup.road.travelDirection")} value={direction} />}
+      {finished && <Row label={tr("popup.road.completionDate")} value={finished} />}
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
-        TDX 自行車道路網
+        {tr("popup.road.cyclingSource")}
       </div>
     </>
   );

@@ -1,4 +1,6 @@
 import { Row } from "./shared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import {
   maritimeBoundaryType, MARITIME_BOUNDARY_SOURCE_NOTE,
 } from "../../data/maritimeBoundaryTypes";
@@ -24,36 +26,39 @@ const HIGHWAY_LABEL: Record<string, string> = {
 };
 
 export function CountyBoundaryPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const name = String(props["名稱"] ?? "");
   const code = String(props["行政區域代碼"] ?? "");
   const scale = String(props["比例尺分母"] ?? "");
   return (
     <div>
       <Row field="county" value={name} />
-      <Row label="行政代碼" value={code} />
-      <Row label="來源比例尺" value={scale ? `1:${scale}` : ""} />
-      <Row field="source" value="內政部國土測繪中心" />
+      <Row label={tr("popup.baseMap.adminCode")} value={code} />
+      <Row label={tr("popup.baseMap.sourceScale")} value={scale ? `1:${scale}` : ""} />
+      <Row field="source" value={tr("popup.baseMap.nlsc")} />
     </div>
   );
 }
 
 export function TownshipBoundaryPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const county = String(props.COUNTYNAME ?? "");
   const town = String(props.TOWNNAME ?? "");
   const eng = String(props.TOWNENG ?? "");
   const id = String(props.TOWNID ?? "");
   return (
     <div>
-      <Row label="鄉鎮市區" value={town} />
+      <Row label={tr("popup.baseMap.township")} value={town} />
       <Row field="county" value={county} />
-      <Row label="英文" value={eng} />
+      <Row label={tr("popup.baseMap.english")} value={eng} />
       <Row label="TOWNID" value={id} />
-      <Row field="source" value="內政部國土測繪中心" />
+      <Row field="source" value={tr("popup.baseMap.nlsc")} />
     </div>
   );
 }
 
 export function VillageBoundaryPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const county = String(props.COUNTYNAME ?? "");
   const town = String(props.TOWNNAME ?? "");
   const vill = String(props.VILLNAME ?? "");
@@ -62,13 +67,13 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
   const note = String(props.NOTE ?? "");
   return (
     <div>
-      <Row label="村里" value={vill} />
-      <Row label="鄉鎮市區" value={town} />
+      <Row label={tr("popup.baseMap.village")} value={vill} />
+      <Row label={tr("popup.baseMap.township")} value={town} />
       <Row field="county" value={county} />
-      <Row label="英文" value={eng} />
+      <Row label={tr("popup.baseMap.english")} value={eng} />
       <Row label="VILLCODE" value={code} />
       <Row field="remarks" value={note} />
-      <Row field="source" value="內政部國土測繪中心 NLSC" />
+      <Row field="source" value={tr("popup.baseMap.nlscShort")} />
     </div>
   );
 }
@@ -79,6 +84,7 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
  * 只有基點才有 name / base_point_id / type 三欄（其餘類型為空，Row 自動略過）。
  */
 export function MaritimeBoundaryPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const meta = maritimeBoundaryType(props.layer);
   // layer_zh 是切片自帶的中文層名；SSOT 查不到時才退回它（不編造分類）
   const kind = meta?.label ?? String(props.layer_zh ?? props.layer ?? "");
@@ -88,35 +94,37 @@ export function MaritimeBoundaryPanel({ props }: { props: Record<string, unknown
     <div>
       <Row field="type" value={kind} color={meta?.color} />
       <Row field="region" value={region} />
-      {isPoint && <Row label="基點名稱" value={String(props.name ?? "")} />}
-      {isPoint && <Row label="基點編號" value={String(props.base_point_id ?? "")} />}
-      {isPoint && <Row label="基點類型" value={String(props.type ?? "")} />}
-      <Row label="法律意義" value={meta?.meaning ?? ""} />
+      {isPoint && <Row label={tr("popup.baseMap.basepointName")} value={String(props.name ?? "")} />}
+      {isPoint && <Row label={tr("popup.baseMap.basepointId")} value={String(props.base_point_id ?? "")} />}
+      {isPoint && <Row label={tr("popup.baseMap.basepointType")} value={String(props.type ?? "")} />}
+      <Row label={tr("popup.baseMap.legalMeaning")} value={meta?.meaning ?? ""} />
       <Row field="source" value={MARITIME_BOUNDARY_SOURCE_NOTE} />
     </div>
   );
 }
 
 export function Contour25kPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const elev = props.elevation_m;
   const sheet = String(props.sheet_id ?? "");
   const period = String(props.release_period ?? "");
   return (
     <div>
       <Row field="elevation" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
-      <Row label="圖幅" value={sheet} />
-      <Row label="期別" value={period} />
-      <Row field="source" value="經建版 1:25000 地形圖（精度 10m）" />
+      <Row label={tr("popup.baseMap.sheet")} value={sheet} />
+      <Row label={tr("popup.baseMap.releasePeriod")} value={period} />
+      <Row field="source" value={tr("popup.baseMap.contour25kSource")} />
     </div>
   );
 }
 
 export function ContourDtm20Panel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const elev = props.elev_m;
   return (
     <div>
       <Row field="elevation" value={typeof elev === "number" ? `${elev} m` : String(elev ?? "")} />
-      <Row field="source" value="DTM 20m 等高線（gdal_contour，全臺）" />
+      <Row field="source" value={tr("popup.baseMap.contourDtmSource")} />
     </div>
   );
 }
@@ -127,12 +135,13 @@ const SLOPE_CLASS_RANGE: Record<number, string> = {
 };
 
 export function SlopeVectorPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const cls = Number(props.slope_class ?? 0);
   const range = SLOPE_CLASS_RANGE[cls] ?? "";
   return (
     <div>
-      <Row label="坡度級別" value={cls ? `${cls}級坡 · ${range}（建管）` : "無資料"} />
-      <Row field="source" value="建築技術規則六級坡分級（DTM 20m 計算）" />
+      <Row label={tr("popup.baseMap.slopeClass")} value={cls ? tr("popup.baseMap.slopeValue", { cls, range }) : tr("popup.baseMap.noData")} />
+      <Row field="source" value={tr("popup.baseMap.slopeSource")} />
     </div>
   );
 }
@@ -144,22 +153,25 @@ const ASPECT_CLASS_NAME: Record<number, string> = {
 };
 
 export function AspectVectorPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const cls = Number(props.aspect_class ?? 0);
   const name = ASPECT_CLASS_NAME[cls] ?? "";
   return (
     <div>
-      <Row label="坡向" value={cls ? name : "無資料"} />
-      <Row field="source" value="坡面朝向 8 方位分級（DTM 20m 計算）" />
+      <Row label={tr("popup.baseMap.aspect")} value={cls ? enumLabel("baseMapAspect", cls, name, i18n) : tr("popup.baseMap.noData")} />
+      <Row field="source" value={tr("popup.baseMap.aspectSource")} />
     </div>
   );
 }
 
 // 海底等深線（線）：depth_m 整數負值，11 級
 export function IsobathLinePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr, formatNumber } = useLocale();
   const depth = Number(props.depth_m ?? 0);
   return (
     <div>
-      <Row label="水深" value={depth ? `${Math.abs(depth).toLocaleString("zh-TW")} m` : ""} />
+      <Row label={tr("popup.baseMap.waterDepth")} value={depth ? `${formatNumber(Math.abs(depth))} m` : ""} />
       <Row field="source" value={ISOBATH_ATTRIBUTION} />
     </div>
   );
@@ -167,17 +179,20 @@ export function IsobathLinePanel({ props }: { props: Record<string, unknown> }) 
 
 // 海底等深線（深度分帶 band）：dmin/dmax 整數負值，12 級
 export function IsobathBandPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const dmin = Number(props.dmin ?? 0);
   const dmax = Number(props.dmax ?? 0);
   return (
     <div>
-      <Row label="深度區間" value={formatIsobathRange(dmin, dmax)} />
+      <Row label={tr("popup.baseMap.depthRange")} value={formatIsobathRange(dmin, dmax)} />
       <Row field="source" value={ISOBATH_ATTRIBUTION} />
     </div>
   );
 }
 
 export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const name = String(props.name ?? "");
   const ref = String(props.ref ?? "");
   const highway = String(props.highway ?? "");
@@ -191,13 +206,13 @@ export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> })
     <div>
       <Row field="name" value={name} />
       <Row field="number" value={ref} />
-      <Row field="level" value={HIGHWAY_LABEL[highway] ?? highway} />
-      <Row label="單行道" value={oneway ? "是" : ""} />
-      <Row label="速限" value={maxspeed} />
-      <Row label="車道" value={lanes} />
-      <Row label="路面" value={surface} />
-      <Row label="橋梁" value={bridge && bridge !== "no" ? bridge : ""} />
-      <Row label="隧道" value={tunnel && tunnel !== "no" ? tunnel : ""} />
+      <Row field="level" value={highway ? enumLabel("baseMapHighway", highway, HIGHWAY_LABEL[highway] ?? highway, i18n) : ""} />
+      <Row label={tr("popup.baseMap.oneway")} value={oneway ? tr("popup.baseMap.yes") : ""} />
+      <Row label={tr("popup.baseMap.speedLimit")} value={maxspeed} />
+      <Row label={tr("popup.baseMap.lanes")} value={lanes} />
+      <Row label={tr("popup.baseMap.surface")} value={surface} />
+      <Row label={tr("popup.baseMap.bridge")} value={bridge && bridge !== "no" ? bridge : ""} />
+      <Row label={tr("popup.baseMap.tunnel")} value={tunnel && tunnel !== "no" ? tunnel : ""} />
       <Row field="source" value="OpenStreetMap" />
     </div>
   );
