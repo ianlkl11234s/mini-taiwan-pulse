@@ -3670,9 +3670,11 @@ export const LAYER_PARAMS_SPEC = {
       disableRule: { option: "3d", param: "railTrain3D", enabledWhenIn: ["true"], reason: "（列車平面時用 2D）" },
       out: null,
     },
+    // 高度只抬 Three.js 光球與 3D 軌道；列車平面時兩者都不畫（軌道有效值 2D），滑桿收起
     {
       kind: "slider", name: "railAltOffset", labelPrefix: "高度 +", labelSep: "", digits: 0,
       labelSuffix: "m", default: 110, min: 0, max: 500, step: 10, out: null,
+      showWhen: { param: "railTrain3D", equals: true },
     },
     {
       kind: "slider", name: "railOrbScale", labelPrefix: "光點", digits: 1, displayScale: 100000,
