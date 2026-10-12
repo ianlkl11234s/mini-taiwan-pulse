@@ -1,7 +1,7 @@
 /*
  * 全站 CSS 變數 — 供 .css 檔使用（.css 無法 import designTokens.ts）。
  * 數值與 designTokens.ts 1:1 對應；字型不載入 web font，只列各平台內建字，
- * 值與 intelTokens.ts 的 FONT_CJK / FONT_DATA 相同。
+ * 值與 intelTokens.ts 的 FONT_CJK_LITERAL / FONT_DATA 相同。
  * 規格見 docs/features/ui-consistency-audit-20260927/proposal.md §1、§5 與 tokens-draft.css。
  *
  * 淺色：不做全站切換。各子系統沿用既有的淺色觸發 class
@@ -143,4 +143,10 @@
   --z-popover: 30;         /* 下拉面板、選單 */
   --z-modal: 40;           /* 置中視窗 */
   --z-toast: 50;           /* 提示訊息 */
+}
+
+/* ── i18n：日文介面字型（只用各平台內建字，不載 web font；<html lang> 由 localeStore 寫入）──
+ * 繁中字族排前面時，日文漢字會被畫成繁中字形，所以日文改把日系內建字放前面。 */
+:root:lang(ja) {
+  --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", system-ui, sans-serif;
 }

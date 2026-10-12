@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type { CSSProperties } from "react";
+import { useLocale } from "../../state/localeStore";
 
 type Props = { title: string; onClose: () => void; borderColor: string; mutedColor: string; textColor: string; titleSize?: CSSProperties["fontSize"]; className?: string; eyebrow?: string };
 
@@ -10,7 +11,8 @@ type Props = { title: string; onClose: () => void; borderColor: string; mutedCol
  * 沒傳 eyebrow 的舊分支原用 Inter（§10.3 待遷移項目），第二輪已改用 CJK 系統字。
  */
 export function PanelHeader({ title, onClose, borderColor, mutedColor, textColor, titleSize = 13, className, eyebrow }: Props) {
-  const closeButton = <button type="button" onClick={onClose} aria-label={`關閉${title}`} style={{ width: 24, height: 24, borderRadius: 4, border: "none", background: "transparent", color: mutedColor, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0 }}><X size={14} /></button>;
+  const { t } = useLocale();
+  const closeButton = <button type="button" onClick={onClose} aria-label={t("panel.close", { title })} style={{ width: 24, height: 24, borderRadius: 4, border: "none", background: "transparent", color: mutedColor, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0 }}><X size={14} /></button>;
   if (eyebrow !== undefined) {
     return <div className={className} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", borderBottom: `1px solid ${borderColor}`, flexShrink: 0, fontFamily: "var(--font-cjk)" }}>
       <div style={{ flex: 1, minWidth: 0 }}>

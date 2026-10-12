@@ -43,7 +43,7 @@
 
 | 原則 | 說明 |
 |---|---|
-| **中文優先** | 使用者看得到的標籤、標題、按鈕、狀態一律中文。英文代碼只在必要時以小字附註（§6.1）。 |
+| **目前語系優先** | 使用者看得到的標籤、標題、按鈕、狀態一律用目前介面語系（預設中文；英文、日文見 §6.4）。中文介面下英文代碼只在必要時以小字附註（§6.1）；外文介面可在主名後以小字附中文原名對照。 |
 | **系統字，不載 web font** | 只用各平台內建字：中文與一般文字 `--font-cjk`，數字／時間／座標／代碼 `--font-data`。不引用沒載入的字族名（Inter、JetBrains Mono、Georgia、宋體）——寫了等於白寫，還會讓 fallback 在不同機器解析成不同字（§4）。 |
 | **Token 優先** | 顏色／字級／圓角／間距／陰影一律取 token：TS 從 `src/styles/designTokens.ts` import，CSS 用 `src/styles/tokens.css` 的 `var(--…)`。禁止在元件裡寫死 hex／rgba（例外見 §3.16、§4.2）。 |
 | **不顯示內部識別碼** | `datasetId`、`warehouse:wh-8`、layer key 這類代號不直接給使用者看，先過人類可讀映射（§6.3）。 |
@@ -287,8 +287,9 @@
 
 1. 容器（面板、popup、卡片）設 `FONT_CJK`；`FONT_DATA` 只包在**只含數字／代碼**的最小節點上。混排寫法：`更新 <span style={{ fontFamily: FONT_DATA }}>{time}</span>`。
 2. `FONT_DATA` 節點的直接文字不得含中文（guard `font-data-on-cjk`）。
-3. 所有文字節點都要能繼承到字型：新的根容器（portal、`document.createElement` 的 DOM、獨立頁）必須明確設 `fontFamily: FONT_CJK`／`font-family: var(--font-cjk)`，否則瀏覽器預設會落到襯線字。
-4. 不載入 web font；stack 裡只能出現系統內建字（guard `web-font`）。
+3. `FONT_CJK` 的值是 `var(--font-cjk, <中文 stack>)`，日文介面由 `tokens.css` 的 `:root:lang(ja)` 換成系統日文字型（Hiragino Sans、Yu Gothic、Meiryo、Noto Sans CJK JP），繁中字形不會混進日文。canvas、Mapbox 等吃不到 CSS 變數的地方改用解析後的實際字型字串，不直接塞 `FONT_CJK`。
+4. 所有文字節點都要能繼承到字型：新的根容器（portal、`document.createElement` 的 DOM、獨立頁）必須明確設 `fontFamily: FONT_CJK`／`font-family: var(--font-cjk)`，否則瀏覽器預設會落到襯線字。
+5. 不載入 web font；stack 裡只能出現系統內建字（guard `web-font`）。
 
 ### 4.2 刻意例外
 
@@ -362,6 +363,7 @@
 - **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 副標小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
 - **字**：中文 13px（`FONT_SIZE.lg`）semibold `--text-strong`、`FONT_CJK`；英文 10px（`FONT_SIZE.sm`）`--text-dim`、`FONT_CJK`、letterSpacing 0.3、**不轉大寫**；中英 baseline 對齊、gap 6。
 - **空間不足**（2026-10-03 收尾修正）：中文主名與計數 `white-space: nowrap`、不縮；**只省略副標**（`text-overflow: ellipsis`），同圖層列 `LayerNameLine`。中文字可在任意字間斷行，不設 nowrap 會先被擠成兩行（例「人口與教 / 育」）。
+- **外文介面的圖層主名**（2026-10-12 i18n）：英文、日文名稱通常比中文長，主名**最多換兩行**，超過以 `…` 收尾、`title` 顯示全名；中文原名小字放在主名後、單行省略。中文介面維持上一條不變。
 - **計數**：固定 `FONT_DATA` 10px `--text-dim`，**不再依開啟狀態變色**（舊版有開啟時變亮已拿掉）。
 - **容器**：sticky 置頂（滾動時黏住直到下一個主題列推走）、上下 `1px` 分隔線、`backdrop-filter: blur(8px)`；padding `8px 4px 8px 12px`。
 - **禁止**：整列 `FONT_DATA`；`uppercase`；英文與中文同字級；渲染時自己拆 `theme.title`。
@@ -504,11 +506,12 @@
 
 - **位置**：右上，單一底板；左上為品牌字標＋座標 HUD（§5.18）。
 - **底板**：`SURFACE.strong`（淡 `LIGHT.surfacePanel`）、`1px BORDER.panel`、`borderRadius 7`、padding 3、gap 4、`ELEVATION.lg`；窄寬度整條換行並維持靠右（`marginLeft: auto`）。
-- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 帳號。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
+- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
+- **語言**（2026-10-12）：lucide `Languages` 13px 圖示按鈕，點開 popover 列出「中文／EN／日本語」，目前語系用 accentFaint 底、accent 字標示；popover 樣式同底圖選單（§5.19）。手機不放工具列，收在 ⋯ 選單（§5.29）。實作 `src/components/toolbar/LanguageMenu.tsx`。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
 - **項目**：高 26、圓角 4、icon 13px（§5.7）。
 - **拿掉的東西**：Monitor BETA 按鈕（左側 rail「監測模式」保留）、第二排、計數列「flights · ships · 台灣好行」；操作提示移進「說明」。
 - **禁止**：在工具列加新的一排或浮動按鈕；把新功能塞成第二個主要按鈕。
-- **實作**：`src/App.tsx`（組成）、`src/components/toolbar/{ToolbarButton.tsx,toolbarTheme.ts}`、`src/components/ModeToggle.tsx`、`src/components/auth/UserAvatar.tsx`。
+- **實作**：`src/App.tsx`（組成）、`src/components/toolbar/{ToolbarButton.tsx,toolbarTheme.ts,LanguageMenu.tsx}`、`src/components/ModeToggle.tsx`、`src/components/auth/UserAvatar.tsx`。
 
 ### 5.18 品牌字標與座標 HUD
 
@@ -856,9 +859,9 @@
 
 ## 6. 文案規則
 
-### 6.1 標籤一律中文
+### 6.1 標籤用目前語系
 
-- 標題、按鈕、eyebrow、控制項標籤、狀態、空狀態：中文。
+- 標題、按鈕、eyebrow、控制項標籤、狀態、空狀態：用目前介面語系（預設中文，§6.4）。以下規則以中文介面為準。
 - 英文代碼（資料集代號、機關英文縮寫、單位代碼）**只在必要時**以小字附註：`textDim`、比主文字小一階，放在中文之後（例 資料來源列的英文名、`RIPE` 這類專有名詞）。
 - 不用 `text-transform: uppercase`（guard `uppercase-eyebrow`）；eyebrow 用中文分類（「交通 · 公車」）。
 - 圖層控制項 `labelPrefix` 以中文開頭（guard `english-control-label`）。
@@ -870,7 +873,15 @@
 - 名稱與數值分欄：`labelPrefix` 結尾的運算符號（`×` `+` `≥` `≤` `±` `-`）移到數值欄：「高度 ×」→ 名稱「高度」、數值「×1.0」。
 - **字母或中文開頭的單位前補一個半形空白**：`12 m`、`30 分鐘`、`5 公里`。
 - **符號單位緊貼**：`80%`、`×1.5`、`≥3`。
-- 數值用 `FONT_DATA`＋`tabular-nums`；千分位用 `toLocaleString("zh-TW")`。
+- 數值用 `FONT_DATA`＋`tabular-nums`；千分位用 `src/i18n/format.ts` 的 `formatNumber(locale, n)`（中文介面輸出等同 `toLocaleString("zh-TW")`）。
+
+### 6.4 多語系（2026-10-12）
+
+- **語系**：中文（預設）、EN、日本語，登記在 `src/i18n/locales.ts`。決定順序：網址 `?lang=` ＞ 使用者上次選擇 ＞ 中文；**不依瀏覽器語言自動切換**，等主要畫面翻譯完成再評估。
+- **字串**：介面文字寫在 `src/i18n/locales/<語系>/common.json`，程式用 `t("key")`；中文原文是 `zh-TW/common.json`，不在元件裡寫死。
+- **只在顯示層翻譯**：`section.theme`、manifest `label` 等識別字不翻（§5.5）。
+- **切換器**：桌機在工具列帳號左側（§5.17），手機在 ⋯ 選單（§5.29）；選項文字用各自語言寫法「中文／EN／日本語」。
+- **缺字**：回退到下一個語系（日文 → 英文 → 中文），不顯示空白。
 
 ### 6.3 不印內部識別碼
 
