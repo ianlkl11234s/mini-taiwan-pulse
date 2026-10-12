@@ -19,7 +19,7 @@ function readLocaleFile(locale: string, file: string): Record<string, string> {
 /** 介面字串檔：每個語系都必須有完全相同的 key（缺字或多字都紅） */
 const UI_FILES = readdirSync(join(LOCALES_DIR, DEFAULT_LOCALE)).filter((f) => f.endsWith(".json"));
 /** 名稱對照檔：只有非預設語系才有，預設語系的名稱就在 manifest */
-const NAME_FILES = ["layers.json", "themes.json"];
+const NAME_FILES = ["layers.json", "themes.json", "qualifiers.json"];
 
 describe("locale parity", () => {
   it("每個支援語系都有資料夾", () => {
@@ -93,6 +93,8 @@ describe("layer / theme text", () => {
     expect(localizeLayerName("busStops", name, "ja", t({})).primary).toBe("公車站");
     expect(localizeLayerName("busStops", name, "ja", t({ "layer.busStops": "バス停" })).primary).toBe("バス停");
     expect(localizeLayerName("jpDam", { zh: "水壩", alt: "ダム" }, "ja", t({})).primary).toBe("ダム");
+    expect(localizeLayerName("x", { zh: "人口", qualifier: "縣市" }, "en", t({ "qualifier.縣市": "County/city" })).qualifier).toBe("County/city");
+    expect(localizeLayerName("x", { zh: "人口", qualifier: "2014" }, "en", t({})).qualifier).toBe("2014");
   });
 
   it("主題標題：英文介面取「中文 English」後半", () => {
