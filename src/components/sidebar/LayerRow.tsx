@@ -27,9 +27,15 @@ export function LayerNameLine({ name, layerKey }: { name: LayerName; layerKey?: 
   const { active, t } = useLocale();
   // 顯示層翻譯：有 layerKey 才翻（識別字、搜尋、aria 仍用原名）；zh-TW 輸出與原本相同
   const shown = layerKey ? localizeLayerName(layerKey, name, active, t) : { primary: name.zh, secondary: name.alt, qualifier: name.qualifier };
+  // spec §5.5：外文主名較長，最多換兩行，超過以 … 收尾並用 title 顯示全名；中文維持原行為
+  const wrapPrimary = active !== "zh-TW";
   return (
     <span style={{ display: "flex", alignItems: "baseline", gap: 5, minWidth: 0 }}>
-      <span style={{ flex: "0 0 auto", maxWidth: "100%" }}>{shown.primary}</span>
+      {wrapPrimary ? (
+        <span title={shown.primary} style={{ flex: "0 1 auto", minWidth: 0, display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2, overflow: "hidden", overflowWrap: "anywhere" }}>{shown.primary}</span>
+      ) : (
+        <span style={{ flex: "0 0 auto", maxWidth: "100%" }}>{shown.primary}</span>
+      )}
       {shown.secondary && (
         <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: DIM }}>{shown.secondary}</span>
       )}
