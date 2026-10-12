@@ -5,6 +5,7 @@ import { LEGEND_REGISTRY } from "../../LegendPanel";
 import { OVERLAY_REGISTRY } from "../../../map/overlayRegistry";
 import { legendKeys } from "../../../data/legendGroups";
 import { encodeParamsToOverlay, layerParamsStore } from "../../../state/layerParamsStore";
+import { localeStore } from "../../../state/localeStore";
 import type { LayerVisibility } from "../../../types";
 
 const params = encodeParamsToOverlay(layerParamsStore.getAll());
@@ -27,7 +28,7 @@ describe("R4 legend theme colors agree with map paint", () => {
     [true, false].forEach((isDark, i) => {
       const own = [...palettes[i]!];
       expect(own.length, `${id} must have an actual theme-dependent primary paint color`).toBeGreaterThan(0);
-      const html = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility, overlayParams: params, isDark }))).toLowerCase();
+      const html = renderToStaticMarkup(createElement(Fragment, null, entry.render({ visibility, overlayParams: params, isDark, i18n: localeStore.getSnapshot() }))).toLowerCase();
       // Test rendered color values, not theme data attributes or incidental text differences.
       const swatches = [...html.matchAll(/(?:background(?:-color)?|border(?:-color)?|box-shadow|stroke|color)[=:]["']?([^;"']+)/g)].flatMap((m) => colors(m[1]));
       expect(own.some((color) => swatches.includes(color)), `${id} ${isDark ? "dark" : "light"}: missing ${own.join(", ")}`).toBe(true);
@@ -37,7 +38,7 @@ describe("R4 legend theme colors agree with map paint", () => {
 
 describe("R4 grouped legend modes", () => {
   const render = (id: string, visibility: Partial<LayerVisibility>, isDark: boolean) => renderToStaticMarkup(createElement(Fragment, null,
-    LEGEND_REGISTRY.find((e) => e.id === id)!.render({ visibility: visibility as LayerVisibility, overlayParams: { ...params, schoolLevelColor: 0 }, isDark })));
+    LEGEND_REGISTRY.find((e) => e.id === id)!.render({ visibility: visibility as LayerVisibility, overlayParams: { ...params, schoolLevelColor: 0 }, isDark, i18n: localeStore.getSnapshot() })));
 
   it("retains the category color when a school category and uniform legacy layer are both visible", () => {
     const html = render("schools", { schools: true, eduSchoolElementary: true }, false);

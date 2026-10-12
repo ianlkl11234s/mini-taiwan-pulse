@@ -18,6 +18,8 @@ import {
 } from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
 import { paletteById } from "../map/palettes";
+import type { LocaleSnapshot } from "./localeStore";
+import { paletteName, paramText } from "../i18n/paramText";
 import {
   canRetryLinkedSelect, linkedSelectHiddenFor, linkedSelectSnapshot, retryLinkedSelects, setLinkedSelect, type LinkedSelectStatus,
 } from "./linkedSelect";
@@ -118,7 +120,7 @@ export interface LinkedSelectConfig {
 export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig | PaletteConfig | LinkedSelectConfig;
 
 /** 前綴結尾的運算符號（`高度 ×` → 名稱「高度」、數值「×1.0」） */
-const TRAILING_OPERATOR = /^(.*?)\s*([×+≥≤±-]+)$/u;
+export const TRAILING_OPERATOR = /^(.*?)\s*([×+≥≤±-]+)$/u;
 /** 字母／中文開頭的單位才補空白；`×`、`%` 這類符號維持緊貼 */
 const WORD_SUFFIX = /^[\p{L}]/u;
 
@@ -144,9 +146,12 @@ export function splitSliderLabel(
 export function buildParamControls(
   key: string,
   values: LayerParamValues = layerParamsStore.getParams(key),
+  /** 面板傳 `useLocale()` 換成目前語系；省略＝中文原文（Agent、黃金快照） */
+  i18n?: Pick<LocaleSnapshot, "active" | "lookup" | "t">,
 ): ParamControl[] | null {
   const spec = getParamsSpec(key);
   if (!spec) return null;
+  const tx = (zh: string) => paramText(zh, i18n);
   const visible = visibleControlSpecs(key, values);
   // 每個 provider 第一個可見的連動選單負責顯示載入／錯誤狀態
   const statusCarriers = new Set<string>();
@@ -170,6 +175,20 @@ export function buildParamControls(
         const shown = s.zeroLabel !== undefined && value === 0
           ? s.zeroLabel
           : (s.displayScale === undefined ? value : value * s.displayScale).toFixed(s.digits);
+        if (i18n && i18n.active !== "zh-TW") {
+          // 先拆出結尾運算符號（`高度 +`）再翻名稱，不拿整串當 key
+          const op = TRAILING_OPERATOR.exec(s.labelPrefix);
+          const name = paramText((op ? op[1]! : s.labelPrefix).trim(), i18n, { layerKey: key, name: s.name });
+          const prefix = op ? `${name} ${op[2]}` : name;
+          const suffix = tx(s.labelSuffix ?? "");
+          const shownText = s.zeroLabel !== undefined && value === 0 ? tx(s.zeroLabel) : shown;
+          return {
+            label: `${prefix}${s.labelSep ?? " "}${shownText}${suffix}`,
+            ...splitSliderLabel(prefix, shownText, suffix),
+            value, min: s.min, max: s.max, step: s.step,
+            onChange: (next: number) => layerParamsStore.setParam(key, s.name, next),
+          };
+        }
         return {
           // 前綴側預設補一個空白（`labelSep` 可改成 ""）；後綴側緊接數字不補空白
           // （`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）。兩欄都省略時，
@@ -186,7 +205,7 @@ export function buildParamControls(
         return {
           type: "toggle" as const,
           // 值相依 label（播放鍵的 ⏸/▶）；查無對應回 `label` 兜底，同 select 的慣例
-          label: s.labelByValue?.[String(value)] ?? s.label,
+          label: s.labelByValue?.[String(value)] !== undefined ? tx(s.labelByValue[String(value)]!) : paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value,
           onChange: (next: boolean) => layerParamsStore.setParam(key, s.name, next),
         };
@@ -198,10 +217,10 @@ export function buildParamControls(
           type: "select" as const,
           // label 隨當前值變的 select（品項 / 作物）；查無對應回 `label` 兜底 ——
           // 與手寫 case 的 `OPTIONS[idx] ?? "全部"` 同語意。
-          label: s.labelByValue?.[value] ?? s.label,
+          label: s.labelByValue?.[value] !== undefined ? tx(s.labelByValue[value]!) : paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value,
           // `disableRule` 會依別的參數當下的值算出每個選項的 disabled ＋ 原因後綴
-          options: resolveSelectOptions(s, resolved),
+          options: resolveSelectOptions(s, resolved, i18n ? tx : undefined),
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };
       }
@@ -210,9 +229,9 @@ export function buildParamControls(
         const rawValue = typeof current === "string" ? current : s.default;
         return {
           type: "multiSelect" as const,
-          label: s.label,
+          label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value: resolveMultiSelectValues(rawValue, s.options),
-          options: s.options,
+          options: i18n ? s.options.map((o) => ({ ...o, label: tx(o.label) })) : s.options,
           onChange: (next: readonly string[]) => layerParamsStore.setParam(
             key, s.name, serializeMultiSelectValues(next),
           ),
@@ -225,13 +244,13 @@ export function buildParamControls(
         const value = typeof v === "string" && s.options.includes(v) ? v : s.default;
         return {
           type: "palette" as const,
-          label: s.label,
+          label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value,
           defaultValue: s.default,
           role: s.role,
           options: s.options.flatMap((id) => {
             const p = paletteById(id);
-            return p ? [{ label: p.zh, value: p.id }] : [];
+            return p ? [{ label: paletteName(p.id, p.zh, i18n), value: p.id }] : [];
           }),
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };
@@ -239,13 +258,17 @@ export function buildParamControls(
       case "linkedSelect": {
         const snap = linkedSelectSnapshot(key, s);
         const carrier = statusCarriers.has(s.name);
+        // 狀態字走介面字串（paramsPanel.json）；沒傳 i18n 時維持中文原文，黃金快照不變
         const statusText = !carrier ? undefined
-          : snap.status === "loading" ? "載入中…"
-            : snap.status === "error" ? (snap.error ? `載入失敗：${snap.error}` : "載入失敗")
-              : snap.status === "idle" ? "尚未載入" : undefined;
+          : snap.status === "loading" ? (i18n ? i18n.t("paramsPanel.loading") : "載入中…")
+            : snap.status === "error"
+              ? (snap.error
+                ? (i18n ? i18n.t("paramsPanel.loadFailedWith", { error: snap.error }) : `載入失敗：${snap.error}`)
+                : (i18n ? i18n.t("paramsPanel.loadFailed") : "載入失敗"))
+              : snap.status === "idle" ? (i18n ? i18n.t("paramsPanel.notLoaded") : "尚未載入") : undefined;
         return {
           type: "linkedSelect" as const,
-          label: s.label,
+          label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value: snap.value,
           options: snap.options,
           status: snap.status,

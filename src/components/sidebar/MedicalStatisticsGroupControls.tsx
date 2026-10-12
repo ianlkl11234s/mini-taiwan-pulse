@@ -10,6 +10,7 @@ import { statisticsDisplayModeStore } from '../../state/statisticsDisplayModeSto
 import { isStatisticsChoropleth } from '../../data/statisticsLayerRegistry';
 import { FONT_SIZE } from '../../styles/designTokens';
 import type { LayerClickIntent } from '../../lib/statisticsPopupSelection';
+import { useLocale } from '../../state/localeStore';
 
 interface Props {
   groupKey: string;
@@ -31,6 +32,7 @@ interface Props {
  *   同步成新成員（`statistics-variant-switch`：清掉舊層的 popup）。
  */
 export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
+  const { t } = useLocale();
   const group = getMedicalStatisticsGroup(groupKey);
   const { DIM } = useRailTheme();
   const members = group?.options.map(option => option.key) ?? [];
@@ -65,10 +67,10 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
       expandable
       expanded={expanded}
       onClick={() => onLayerClick(selected)}
-      toggle={{ on: active.length > 0, onChange: toggle, label: `${group.label} 顯示` }}
+      toggle={{ on: active.length > 0, onChange: toggle, label: t('paramsPanel.groupToggle', { label: group.label }) }}
     />
     {expanded && <>
-      {active.length > 1 && <p style={{ margin: '2px 12px 0 22px', color: dimColor, fontSize: FONT_SIZE.sm }}>目前重疊顯示 {active.length} 種；選擇{group.optionLabel ?? '指標'}後，此主題改為單一類型。</p>}
+      {active.length > 1 && <p style={{ margin: '2px 12px 0 22px', color: dimColor, fontSize: FONT_SIZE.sm }}>{t('paramsPanel.groupOverlap', { count: active.length, option: group.optionLabel ?? t('paramsPanel.groupOptionDefault') })}</p>}
       {renderControls(selected)}
       {periodNotice && <p role="status" style={{ margin: '2px 12px 4px 22px', color: '#fbbf24', fontSize: FONT_SIZE.sm }}>{periodNotice}</p>}
     </>}

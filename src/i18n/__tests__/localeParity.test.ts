@@ -8,6 +8,7 @@ import { DYNAMIC_NAMESPACES } from "../keys";
 import { renderKeysModule } from "./keysCodegen";
 import { translate } from "../translate";
 import { localizeLayerName, localizeSectionTitle } from "../layerText";
+import { collectParamTexts } from "./paramTexts";
 
 const LOCALES_DIR = join(__dirname, "..", "locales");
 
@@ -22,7 +23,7 @@ function readLocaleFile(locale: string, file: string): Record<string, string> {
 /** 介面字串檔：每個語系都必須有完全相同的 key（缺字或多字都紅） */
 const UI_FILES = readdirSync(join(LOCALES_DIR, DEFAULT_LOCALE)).filter((f) => f.endsWith(".json"));
 /** 名稱對照檔：只有非預設語系才有，預設語系的名稱就在 manifest */
-const NAME_FILES = ["layers.json", "themes.json", "qualifiers.json", "enums.json", "popupHeaders.json"];
+const NAME_FILES = ["layers.json", "themes.json", "qualifiers.json", "enums.json", "popupHeaders.json", "params.json"];
 /** 名稱對照檔也可依主題拆：enums.<domain>.json（只在外文語系） */
 const isNameFile = (file: string) => NAME_FILES.includes(file) || /^enums\.[\w-]+\.json$/.test(file);
 
@@ -103,6 +104,16 @@ describe("locale parity", () => {
     for (const locale of SUPPORTED_LOCALES) {
       const unknown = Object.keys(readLocaleFile(locale, "popupHeaders.json")).filter((k) => !types.has(k));
       expect(unknown, `${locale}/popupHeaders.json 有不存在的 layerType`).toEqual([]);
+    }
+  });
+
+  it("params.json 不留孤兒：key 必須是設定面板現有的中文，或現有控件的覆寫（param.<layerKey>.<參數名>）", () => {
+    const { texts, targets } = collectParamTexts();
+    for (const locale of SUPPORTED_LOCALES) {
+      const entries = Object.entries(readLocaleFile(locale, "params.json"));
+      const orphan = entries.map(([k]) => k).filter((k) => !texts.has(k.slice("param.".length)) && !targets.has(k.slice("param.".length)));
+      expect(orphan, `${locale}/params.json 的中文在 layerParamsSpec 找不到（中文改過？把譯文的 key 一起改）`).toEqual([]);
+      expect(entries.filter(([, v]) => !v.trim()).map(([k]) => k), `${locale}/params.json 有空字串`).toEqual([]);
     }
   });
 

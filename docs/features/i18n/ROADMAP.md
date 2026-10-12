@@ -27,10 +27,10 @@ npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖�
 | P0 | 工具列、外框 | 321 | ✅ 外框已翻；剩下是 App.tsx 裡的通知、錯誤訊息等，併入各階段處理 |
 | P0 | 側欄 | 645 | ✅ 外框與圖層名已翻；剩資料來源面板內文、主題識別字（不翻） |
 | P1 | 點擊說明框 | 425＋415 | ✅ 全部面板完成（425 行是 registry 標題正本、415 行是資料值與代碼對照表正本） |
-| P2 | 圖例 | 1,147 | |
-| P2 | 圖層設定面板 | 648 | |
+| P2 | 圖例 | 0＋126 | ✅ 全部圖例完成（拆成 `legend/<domain>Legends.tsx`；126 行在嚴格區塊，是註解、英文小字旁的中文與對照表正本） |
+| P2 | 圖層設定面板 | 645 | ✅ 已翻（顯示層）；645 行是 `layerParamsSpec.ts` 的中文正本，**永久保留**，英日文在 `params.json` |
 | P2 | 地圖 hook／圖層文字 | 350 | |
-| P2/P5 | 資料標籤（資料） | 2,941 | 用對照表翻 |
+| P2/P5 | 資料標籤（資料） | 2,956 | 用對照表翻；下一步 P2b：統計指標名、期別、說明・來源、資料來源總覽 |
 | P3 | 監測模式 | 934 | |
 | P3 | 衛星主控台 | 178 | |
 | P3 | 會員、登入、後台 | 89 | |
@@ -74,14 +74,14 @@ npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖�
 | 階段 | 範圍 | 做完能多看懂什麼 | 主要做法 | 要拍板的事 |
 |---|---|---|---|---|
 | **P1 點擊說明框** | `featureInfo/` 約 55 個面板：欄位名（「地址」「營業時間」）、標題、單位 | 點地圖跳出的資訊 | ⓪ 先改 `/new-layer`（layer-creator agent）產生的 popup 骨架，讓新面板一開始就用 `t()`。① 欄位名改 `t("popup.field.address")`，同名欄位共用 key。② 資料已有外文欄位的（颱風 `name_en`、博物館 `name_eng`…）依語系優先顯示。③ 縣市鄉鎮英譯表（內政部官方，22＋368）。④ 自由文字（新聞、警報）加「原文」標記 | 無 |
-| **P2 圖例與設定** | `LegendPanel`、`legend/*`、約 300 個參數標籤、類別代碼對照（`*Types.ts`）、統計指標名與單位 | 顏色代表什麼、怎麼調圖層 | 參數 `labelPrefix` 改成 key，guard `english-control-label` 要同步改成檢查 key，否則兩個 guard 會互相矛盾；`/new-layer` 骨架同步改；類別對照表加 en/ja 欄位；統計 `indicator_name` 依 layer key 查 | 設計 guard 規則怎麼改 |
+| **P2 圖例與設定** | `LegendPanel`、`legend/*`、約 300 個參數標籤、類別代碼對照（`*Types.ts`）、統計指標名與單位 | 顏色代表什麼、怎麼調圖層 | ✅ P2a 已完成：設定面板在顯示層用中文原文查 `params.json`（規格與 guard 不動，見 `src/i18n/paramText.ts`）；圖例拆成主題檔後平行翻譯，類別走 `enumLabel`。P2b：統計 `indicator_name`、期別、維度值、說明・來源與資料來源總覽 | 無（原「guard 怎麼改」已不需要） |
 | **P3 進階模式** | 監測模式、衛星主控台、時間軸、會員、後台 | 使用進階模式 | 同 P1 | 後台（只有站主用）要不要翻 |
 | **P4 AI 與 Agent** | `chat/systemPrompt.ts` 寫死繁中、MCP「Answer in plain Chinese」、`research/*Dataset.ts` 描述 | 用英日文發問並得到同語言回答 | 把目前語系傳給 chat 與 MCP；跨 repo，MCP 先改 | 跨 repo 發布順序 |
 | **P5 資料內容** | 站名英文、新聞與警報機器翻譯 | 即時資料內容 | 先查 collector 有沒有存 TDX 英文站名；機器翻譯在 collector 做並標示 | 機器翻譯要不要做、花費多少 |
 | **收尾** | 依瀏覽器語言自動切換、`index.html` 的 title／meta／OG、底圖地名換語言、分享連結帶 `lang=` | 外國訪客第一次打開就是他的語言 | — | 何時開自動切換（目前決策 1 乙） |
 
 ### 下一步
-P2：圖例（`LegendPanel` 與 `legend/*`）、圖層設定面板，以及說明框沒涵蓋的資料層中文標籤（`src/data/*Types.ts` 的類別對照、統計單位）。開工前先改 `english-control-label` guard 與 `/new-layer` 骨架。
+P2b：統計圖層的人讀標籤（`src/data/statisticsLabels.ts`、各 `*StatisticsRecipes.ts` 的指標名與單位、`StatisticsDetails.tsx`、`DataSourcePanel.tsx`），連動選單的指標選項也從這裡來。之後是 P3。
 
 ---
 
@@ -104,3 +104,4 @@ P2：圖例（`LegendPanel` 與 `legend/*`）、圖層設定面板，以及說�
 | 2026-10-12 | #576 | P0 架構、切換器、工具列、側欄、圖層名 | 建立基準 13,546 | 英日圖層名各約 1,000 筆，各校對兩輪 |
 | 2026-10-12 | （本 PR） | P1 說明框：標題列、共用元件、常用欄位 70 個（769 處）、交通類 | 說明框 3,645 → 2,990 | 修正 tmrt 誤標為桃園捷運；新增 `--accept` 供搬檔進嚴格區塊 |
 | 2026-10-12 | （本 PR） | P1 說明框其餘 49 檔、共用欄位合併、民國年換算 | 說明框 2,990 → 425（報告）＋415（嚴格，資料值） | key 型別改腳本產生；英日各四段兩輪校對 |
+| 2026-10-12 | （本 PR） | P2a 設定面板＋圖例 | 圖例 1,147 → 0（報告）＋126（嚴格）；設定面板顯示層全翻 | 圖例檔依主題拆分；`params.json` 用中文原文當 key，`english-control-label` guard 不必改；英日各兩輪校對；原能會改核安會 |

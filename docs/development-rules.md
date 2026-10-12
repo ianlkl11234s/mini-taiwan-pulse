@@ -132,8 +132,8 @@ useEffect(() => {
 | 10 | `src/hooks/useLayerVisibility.ts` | 僅預設開啟才需要：加進 `DEFAULT_ON`；預設 false 自動派生免改 | ⚠️ 人工（`Set`，非 `Record`，tsc 不強制） |
 | 11 | `src/data/layerParamsSpec.ts` | 在 `LAYER_PARAMS_SPEC` 加**一筆** `key: [ …控件… ]`（opacity slider 由規則 1 強制）。控件長相／預設值／`overlayParams` 編碼三者全由這筆規格派生 —— **不要**再去 hook 加 `useState`／`case`／deps，見下方「§4 params 新流程」 | 🔒 `layerConsistency.test.ts`（`NO_PARAMS_LEDGER` 雙向凍結，判準走 manifest 的 `params: null`）+ `layerManifest.test.ts`（`params` 是否為 null ⇔ spec 有無宣告）+ `layerParamsSharedState.test.ts`（共用 slot / 殘影 / switch 維持清空）+ 黃金快照 `params` section |
 | 11a | `src/data/layerManifest.ts` | 同一筆 entry 的 `params: { count, kinds }`（沒有控件寫 `null`） | 🔒 `layerManifest.test.ts`「params 宣告 = 實際回傳的控件數與型別序列」 |
-| 12 | `src/components/LegendPanel.tsx` | 若規則 2 觸發：寫圖例 sub-component | ⚠️ 人工（元件內容本身無格式測試） |
-| 13 | `src/components/LegendPanel.tsx` | 同檔 `LEGEND_REGISTRY` 加一行 | 🔒 `layerConsistency.test.ts`（manifest `legend` ⇔ `NO_LEGEND_LEDGER` 雙向凍結）＋ `layerManifest.test.ts`（`legend` 宣告 ⇔ LEGEND_REGISTRY 實際覆蓋）——ledger 裡批次凍結的 84 個舊判定不會被重新檢討，但**新**層一定會被問「為什麼沒有圖例」；`AqiLegend` 已於 2026-08-10 收編進 registry |
+| 12 | `src/components/legend/<domain>Legends.tsx` | 若規則 2 觸發：寫圖例 sub-component（依主題挑檔，如 `waterLegends.tsx`） | ⚠️ 人工（元件內容本身無格式測試） |
+| 13 | `src/components/LegendPanel.tsx` | `LEGEND_REGISTRY` 加一行（import 自 `legend/<domain>Legends`） | 🔒 `layerConsistency.test.ts`（manifest `legend` ⇔ `NO_LEGEND_LEDGER` 雙向凍結）＋ `layerManifest.test.ts`（`legend` 宣告 ⇔ LEGEND_REGISTRY 實際覆蓋）——ledger 裡批次凍結的 84 個舊判定不會被重新檢討，但**新**層一定會被問「為什麼沒有圖例」；`AqiLegend` 已於 2026-08-10 收編進 registry |
 | 14 | `src/components/featureInfo/<domain>Panels.tsx` | 若規則 3 觸發：寫 popup panel 元件 | ⚠️ 人工 |
 | 15 | `src/components/featureInfo/registry.tsx` | `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 | 🔒 `registry.test.ts`（ratchet，`HEADER_LABELS` 是 Record 定全集） |
 | 16 | `src/map/gisClickRegistry.ts`（4b 起自 useMapInteraction 升格模組級） | `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`（**first-hit-wins**：細節豐富的小範圍排前面，大面積背景排後面） | ⚠️ `mapInteractionLayers.test.ts` **只驗證已存在條目的 layer id 是否真實**，**不驗證新圖層是否漏加條目**——2026-08-10 稽核標為守門盲點 |
@@ -231,8 +231,8 @@ myNewLayer: [
 2. 同 layer 內會不會出現 ≥ 2 種顏色？
 3. 用戶看到色塊能不能直覺對應到資料意義？
 
-第 1 或 2 為「是」、第 3 為「否」 → **必須**在 `src/components/LegendPanel.tsx` 寫
-sub-component 並在同檔 `LEGEND_REGISTRY` 加一行（`layerConsistency` 測試會擋漏接）。
+第 1 或 2 為「是」、第 3 為「否」 → **必須**在 `src/components/legend/<domain>Legends.tsx` 寫
+sub-component 並在 `LegendPanel.tsx` 的 `LEGEND_REGISTRY` 加一行（`layerConsistency` 測試會擋漏接）。
 三邊配色（factory paint expression / featureInfo panel / legend sub-component）
 **單一資料源**，把類型表抽到 `src/data/xxxTypes.ts` 共享，避免改一邊忘改另一邊。
 
