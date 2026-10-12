@@ -7,8 +7,8 @@
 | 項目 | 數量 |
 |---|---|
 | 有 section 的圖層總數 | 1072 |
-| en：沿用 manifest alt（拉丁字母） | 426 |
-| en：`en/layers.json` 補譯 | 646 |
+| en：沿用 manifest alt（拉丁字母） | 74 |
+| en：`en/layers.json` 補譯／覆蓋 | 998 |
 | ja：沿用 manifest alt（日文／含漢字） | 53 |
 | ja：`ja/layers.json` 補譯 | 1019 |
 | 主題＋子群字串（distinct） | 277 |
@@ -39,6 +39,8 @@
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是英文母語者校稿。範圍：`en/layers.json`、`en/themes.json`、`en/common.json`。
 第 1 輪逐筆對照中文原名，修正 499 筆（layers 452、themes 44、common 3）。第 2 輪從頭重讀，再修 9 筆（用語統一、大小寫）。
 另外 2 層的 manifest 英文 alt 太短看不懂，在 `en/layers.json` 補條目覆蓋（manifest 未改）：`fireLatest`「Latest」→ Fires (Latest Year)、`wasteStopsStatic`「Stops」→ Garbage Collection Stops (Static)。
+
+**第 3 輪：manifest 英文 alt 稽核**（2026-10-12）。alt 原本是中文旁的副標，英文介面變成主名後很多看不懂（例：濱海掩埋場「Coastal」、充電站最近距離「EV Island」）。逐筆檢查 426 個 alt，352 筆在 `en/layers.json` 補覆蓋（manifest 未改），74 筆原 alt 夠清楚、保留。覆蓋後再快速重讀一輪，修 11 筆。覆蓋原則：補上主體名詞（Coastal → Coastal Landfills）、展開縮寫（ER → Emergency Room Crowding）、點位類用複數、衛星類加國家（IGS / ALOS → Japan Satellites (IGS / ALOS)）、最近距離類寫 Distance to Nearest …；qualifier（台電、氣象署、10m 等）已由 `en/qualifiers.json` 顯示，名稱不重複。
 
 **大小寫**：圖層名、主題名用 Title Case（和 manifest 既有 426 個英文 alt、主題「中文 English」的英文半段一致，混用會更亂）；`common.json` 介面字用 sentence case。
 
