@@ -55,6 +55,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "nuscGammaRadiation", "waterEffluentLive", "cemsStackLive", "cwaUvDaily",
   // 日本氣象廳即時 4 層：feature 只有 view 欄位，panel 自掛「気象庁・公共データ利用規約」出典。
   "jmaAmedas", "jmaWarnings", "jmaQuakes", "jmaVolcanoes",
+  "jmaWbgt", "jmaSnowcap", "jmaAutumnLeaves", "jmaSakura", "jmaRainySeason",
 ]);
 
 // layerKey → 主題中文名對照（供 header eyebrow「圖層群組 · 圖層名」使用）。

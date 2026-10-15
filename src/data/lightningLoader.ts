@@ -84,7 +84,8 @@ export const invalidateLightningWindow = (): void => fetchLightningWindowCached.
 // 2026-08-07：加 source 維度（gis-platform migration 338）。台電自 2026-07-10 起
 // 端點活著但永遠回空檔，氣象署源（cwa）並行後兩者可互為對照。
 // cache key 是 `${source}|${dateKey}` —— 兩源分開快取，不可共用。
-export type LightningSource = "taipower" | "cwa";
+// 2026-10-15：加 jma（日本氣象廳 LIDEN，gis-platform 沿用同四支 RPC；intensity_ka 全 NULL）。
+export type LightningSource = "taipower" | "cwa" | "jma";
 export const DEFAULT_LIGHTNING_SOURCE: LightningSource = "taipower";
 
 async function fetchLightningDayRaw(cacheKey: string): Promise<LightningStrike[]> {
@@ -99,7 +100,7 @@ async function fetchLightningDayRaw(cacheKey: string): Promise<LightningStrike[]
 const fetchLightningDayCached = cachedByKey<LightningStrike[]>(
   fetchLightningDayRaw,
   10 * 60_000,
-  16, // 兩源 × (timeline rangeDays 最高 7 + 1 spare)
+  24, // 三源 × (timeline rangeDays 最高 7 + 1 spare)
 );
 const dayCacheKey = (dateKey: string, source: LightningSource) => `${source}|${dateKey}`;
 
@@ -110,7 +111,7 @@ export const fetchLightningDay = (
 ): Promise<LightningStrike[]> =>
   withLoading(
     `lightning:day:${source}:${dateKey}`,
-    `落雷 ${dateKey} 整日${source === "cwa" ? "（氣象署）" : ""}`,
+    `落雷 ${dateKey} 整日${source === "cwa" ? "（氣象署）" : source === "jma" ? "（日本氣象廳）" : ""}`,
     fetchLightningDayCached(dayCacheKey(dateKey, source)),
   );
 /** Prefetch — 靜默，不灌 LOADING panel。與 fetchLightningDay 共用 cache。 */

@@ -38,7 +38,7 @@ function findSlider(key: string, re: RegExp): LayerParamSpec | undefined {
  * （能源設施、工業設施雖然 dynamicData，但資料是靜態設施）。
  */
 export const LIVE_DECORATION_LAYERS: ReadonlySet<string> = new Set([
-  "newsEvents", "lightning", "lightningCwa", "nuclearRadiation", "a1AccidentRealtime",
+  "newsEvents", "lightning", "lightningCwa", "jmaLightning", "nuclearRadiation", "a1AccidentRealtime",
 ]);
 /**
  * 整組不套點規格的子圖層（使用者指定的呈現方式）：

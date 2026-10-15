@@ -1,4 +1,5 @@
 import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
+import { JmaAutumnLeavesPanel, JmaRainySeasonPanel, JmaSakuraPanel, JmaSnowcapPanel, JmaWbgtPanel } from "./jmaPointPanels";
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
@@ -427,6 +428,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jmaWarnings: JmaWarningsPanel,
   jmaQuakes: JmaQuakesPanel,
   jmaVolcanoes: JmaVolcanoesPanel,
+  jmaWbgt: JmaWbgtPanel,
+  jmaSnowcap: JmaSnowcapPanel,
+  jmaAutumnLeaves: JmaAutumnLeavesPanel,
+  jmaSakura: JmaSakuraPanel,
+  jmaRainySeason: JmaRainySeasonPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
   jpWaterLakes: JpWaterPanel,
@@ -955,6 +961,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jmaWarnings: "警報・注意報",
   jmaQuakes: "地震 地震情報",
   jmaVolcanoes: "火山警戒 噴火警戒レベル",
+  jmaWbgt: "暑熱指數 WBGT 暑さ指数",
+  jmaSnowcap: "山頂初冠雪 初冠雪",
+  jmaAutumnLeaves: "紅葉・黃葉前線 紅葉前線",
+  jmaSakura: "櫻花前線 桜前線",
+  jmaRainySeason: "梅雨入梅・出梅 梅雨入り・明け",
   jpSchools: "學校 学校",
   jpPopulationMesh1km: "人口網格 人口メッシュ",
   jpAccommodationCanonical: "旅宿去重總覽 宿泊施設の統合一覧",

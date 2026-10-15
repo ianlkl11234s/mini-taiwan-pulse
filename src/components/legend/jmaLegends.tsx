@@ -30,8 +30,21 @@ function Hollow({ label }: { label: string }) {
   return <LegendRow swatch={<SwatchDot color="transparent" stroke={JMA_MISSING_COLOR} strokeWidth={2} />}>{label}</LegendRow>;
 }
 
-/** 載入狀態：成功顯示資料時間（JST）與筆數；0 筆明講「目前無資料」；失敗顯示原因。 */
-function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", noCoordLabel }: {
+/** 時間軸往回拉但不在涵蓋期（或 RPC 回 0 列）：明講「未涵蓋」，不讓空地圖被讀成「沒有」。 */
+export function JmaUncoveredLine({ layerKey }: { layerKey: JmaLiveKey }) {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const status = useSyncExternalStore(subscribeJmaLiveStatus, () => getJmaLiveStatus(layerKey));
+  if (status.state !== "uncovered") return null;
+  const style = { marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted };
+  const text = status.uncovered === "future" ? i18n.t("legend.jmaTime.uncoveredFuture")
+    : status.uncovered === "before" ? i18n.t("legend.jmaTime.uncoveredBefore", { from: formatJst(status.coverageFrom) || i18n.t("legend.jma.none") })
+      : i18n.t("legend.jmaTime.uncoveredNoRows");
+  return <div role="status" style={style}>{text}{status.asOf && <> · {i18n.t("legend.jmaTime.historyAt")} <LegendNum>{status.asOf.length === 10 ? status.asOf : formatJst(status.asOf)}</LegendNum></>}</div>;
+}
+
+/** 載入狀態：成功顯示資料時間（JST）與筆數；0 筆明講「目前無資料」；未涵蓋明講；失敗顯示原因。 */
+export function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", noCoordLabel }: {
   layerKey: JmaLiveKey; timeLabel?: string; drawnUnit?: MessageKey; noCoordLabel?: string;
 }) {
   const t = useLegendTheme();
@@ -42,6 +55,7 @@ function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", n
   if (status.state === "error") {
     return <div role="alert" style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: ALERT }}>{i18n.t("legend.jma.errorShown", { message: status.message ?? "" })}</div>;
   }
+  if (status.state === "uncovered") return <JmaUncoveredLine layerKey={layerKey} />;
   if (status.state === "idle" || (status.state === "loading" && status.loadedAt == null)) {
     return <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.jma.loading")}</div>;
   }
@@ -49,9 +63,20 @@ function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", n
     return <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.jma.empty")}</div>;
   }
   return <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-    {timeLabel} <LegendNum>{formatJst(status.latestAt) || i18n.t("legend.jma.none")}</LegendNum>{i18n.t("legend.jma.drawn")} <LegendNum>{i18n.formatNumber(status.drawn ?? 0)}</LegendNum> {i18n.t(drawnUnit, { count: status.drawn ?? 0 })}
+    {timeLabel} <LegendNum>{(status.latestAt?.length === 10 ? status.latestAt : formatJst(status.latestAt)) || i18n.t("legend.jma.none")}</LegendNum>{i18n.t("legend.jma.drawn")} <LegendNum>{i18n.formatNumber(status.drawn ?? 0)}</LegendNum> {i18n.t(drawnUnit, { count: status.drawn ?? 0 })}
     {(status.noCoord ?? 0) > 0 && <>{i18n.t("legend.jma.noCoordSep")}{noCoordLabel} <LegendNum>{i18n.formatNumber(status.noCoord ?? 0)}</LegendNum> {i18n.t("legend.jma.unitRecord", { count: status.noCoord ?? 0 })}</>}
+    {status.mode === "history" && status.asOf && status.asOf !== status.latestAt && <><br />{i18n.t("legend.jmaTime.historyAt")} <LegendNum>{status.asOf.length === 10 ? status.asOf : formatJst(status.asOf)}</LegendNum></>}
   </div>;
+}
+
+/** 時間軸往回拉時的口徑說明（現在模式不顯示）。onlyIncomplete：只在地震窗不完整時顯示。 */
+function HistoryNote({ layerKey, note, onlyIncomplete = false }: { layerKey: JmaLiveKey; note: MessageKey; onlyIncomplete?: boolean }) {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const status = useSyncExternalStore(subscribeJmaLiveStatus, () => getJmaLiveStatus(layerKey));
+  if (status.mode !== "history" || status.state !== "ok") return null;
+  if (onlyIncomplete && !status.incomplete) return null;
+  return <div style={{ marginTop: 2, fontSize: FONT_SIZE.xs, color: onlyIncomplete ? ALERT : t.textMuted }}>{i18n.t(note)}</div>;
 }
 
 export function JmaAmedasLegend() {
@@ -70,6 +95,7 @@ export function JmaAmedasLegend() {
     <Hollow label={i18n.t("legend.jma.noObservation")} />
     {mode.snowGaugeOnly && <LegendNote>{i18n.t("legend.jma.snowGaugeOnly")}</LegendNote>}
     <LiveStatus layerKey="jmaAmedas" />
+    <HistoryNote layerKey="jmaAmedas" note="legend.jmaTime.historyHourly" />
     <LegendNote>{i18n.t("legend.jma.amedasNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
   </div>;
 }
@@ -84,6 +110,7 @@ export function JmaWarningsLegend() {
     <LegendTitle zh={layerTitle("jmaWarnings", i18n)} en="気象警報" />
     {JMA_WARNING_LEVELS.map((row) => <LegendRow key={row.value} swatch={<SwatchSquare color={row.color} />}>{enumLabel("jmaWarningLevel", row.value, row.label, i18n)}</LegendRow>)}
     <LiveStatus layerKey="jmaWarnings" timeLabel={i18n.t("legend.jma.timeIssuedAt")} drawnUnit="legend.jma.unitCityArea" noCoordLabel={i18n.t("legend.jma.noCoordNonCity")} />
+    <HistoryNote layerKey="jmaWarnings" note="legend.jmaTime.warningsHistory" />
     {names.length > 0 && <div style={{ marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
       {i18n.t("legend.jma.unmappedAreas", { names: names.slice(0, 12).join(i18n.t("legend.jma.listSep")) + (names.length > 12 ? i18n.t("legend.jma.andMore", { count: names.length }) : "") })}
     </div>}
@@ -98,6 +125,8 @@ export function JmaQuakesLegend() {
     {JMA_INTENSITY_CLASSES.map((row) => <LegendRow key={row.value} swatch={<SwatchDot color={row.color} />}>{enumLabel("jmaIntensity", row.value, row.label, i18n)}</LegendRow>)}
     <Hollow label={i18n.t("legend.jma.intensityMissing")} />
     <LiveStatus layerKey="jmaQuakes" timeLabel={i18n.t("legend.jma.timeLatestIssued")} drawnUnit="legend.jma.unitQuake" noCoordLabel={i18n.t("legend.jma.noCoordNoEpicenter")} />
+    <HistoryNote layerKey="jmaQuakes" note="legend.jmaTime.quakesHistory" />
+    <HistoryNote layerKey="jmaQuakes" note="legend.jmaTime.quakesIncomplete" onlyIncomplete />
     <LegendNote>{i18n.t("legend.jma.quakesNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
   </div>;
 }
@@ -108,7 +137,7 @@ export function JmaVolcanoesLegend() {
     <LegendTitle zh={i18n.t("legend.jma.volcanoTitle")} en="火山" />
     {JMA_VOLCANO_LEVELS.map((row) => <LegendRow key={row.value} swatch={<SwatchDot color={row.color} />}>{enumLabel("jmaVolcanoLevel", row.value, row.label, i18n)}</LegendRow>)}
     <LiveStatus layerKey="jmaVolcanoes" timeLabel={i18n.t("legend.jma.timeLatestIssued")} drawnUnit="legend.jma.unitVolcano" />
-    <LegendNote>{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.volcanoSnapshot")}{i18n.t("legend.jma.attribution")}</LegendNote>
   </div>;
 }
 

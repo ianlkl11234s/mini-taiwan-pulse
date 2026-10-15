@@ -39,10 +39,11 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   wasteStopsStatic: "S", // 全台清運點位 Stops (靜態)
   waterFacilities: "S", // 水利設施 Facility
   waterMonitorStations: "S", // 監測站 Monitor
-  // ── 大 L（半徑 6.5） · 10 層
+  // ── 大 L（半徑 6.5） · 11 層
   coalTerminal: "L", // 煤炭碼頭 Coal Terminal
   erHospital: "L", // 急診壅塞 ER
   jmaVolcanoes: "L", // 火山警戒 噴火警戒レベル
+  jmaSnowcap: "L", // 山頂初冠雪 初冠雪（44 山）
   fossilFuelInfra: "L", // 石化能源設施 Fossil Fuel (legacy)
   gasStationCanonical: "L", // 加油站 SSOT 合併 Canonical
   gasStationOther: "L", // 加油站 其他 / 私營 Other
@@ -97,7 +98,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   waterReservoirs: "B", // 水庫 Reservoir
   welfareElderlyHomes: "B", // 資料驅動半徑（床數），2026-09-29 拍板改泡泡 · 老人住宿機構 Elderly Homes
   welfareNursingHomes: "B", // 資料驅動半徑（床數），2026-09-29 拍板改泡泡 · 護理機構 Nursing Homes
-  // ── 中 M（半徑 4.5） · 114 層
+  // ── 中 M（半徑 4.5） · 118 層
   manufacturingCompanyPoints: "M", // 製造業公司登記點位（suffix manufacturing-circle 原被誤判為裝飾，2026-09-28 補入）
   accessibleParkFacilities: "M", // 無障礙設施探索 Accessibility
   agriProduceWholesale: "M", // 蔬果批發商 Produce Wholesale
@@ -149,6 +150,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   lighthouses: "M", // 燈塔 Lighthouse
   lightning: "M", // 落雷 Lightning 60min（台電）
   lightningCwa: "M", // 落雷 Lightning 60min（氣象署）
+  jmaLightning: "M", // 落雷 雷監視 LIDEN（日本）
   livestockFeed: "M", // 飼料廠 Feed Factories
   lpgRetailers: "M", // LPG 加氣站 / 瓦斯行 Retailer
   lpgSubpackaging: "M", // LPG 分裝 / 儲存場 Subpackaging
@@ -190,6 +192,9 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   dioxinStations: "M", // 環境空氣戴奧辛測站 Dioxin
   incineratorEmissions: "M", // 焚化廠空污監測 Incinerators
   jmaAmedas: "M", // AMeDAS 即時觀測 アメダス
+  jmaWbgt: "M", // 暑熱指數 WBGT 暑さ指数
+  jmaAutumnLeaves: "M", // 紅葉・黃葉前線 紅葉前線
+  jmaSakura: "M", // 櫻花前線 桜前線
   nuscGammaRadiation: "M", // 環境輻射（核安會） Gamma
   waterEffluentLive: "M", // 放流水連線監測 Effluent
   cemsStackLive: "M", // 煙道 CEMS 連線監測 CEMS

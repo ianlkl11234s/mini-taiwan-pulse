@@ -169,6 +169,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["coverage-ev-island-line"], type: "evIsland" },
   { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
   { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
+  { layers: ["jma-lightning-core", "jma-lightning-halo"], type: "lightningStrike" },
   { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
   // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；
   // ripple 動畫圈半徑會瞬時放大到 60~80px+ 且持續變動，納入點擊會蓋過其他層的既有命中範圍，故不收）
@@ -193,6 +194,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
   // 日本氣象廳即時點層（火山／AMeDAS 小點排在地震大泡泡之前）
   { layers: ["jma-volcanoes-circle"], type: "jmaVolcanoes" },
+  { layers: ["jma-snowcap-circle"], type: "jmaSnowcap" },
+  { layers: ["jma-sakura-circle"], type: "jmaSakura" },
+  { layers: ["jma-autumn-leaves-circle"], type: "jmaAutumnLeaves" },
+  { layers: ["jma-wbgt-circle"], type: "jmaWbgt" },
   { layers: ["jma-amedas-circle"], type: "jmaAmedas" },
   { layers: ["jma-quakes-circle"], type: "jmaQuakes" },
   { layers: ["jp-medical-facilities-hospital"], type: "jpMedicalHospitals" },
@@ -237,6 +242,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-railways-line"], type: "jpRailways" },
   { layers: ["jp-water-jpWaterRivers"], type: "jpWaterRivers" },
   { layers: ["jma-warnings-fill"], type: "jmaWarnings" },
+  { layers: ["jma-rainy-season-fill"], type: "jmaRainySeason" },
   { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
   { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
   { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },

@@ -7,6 +7,7 @@ import { ATLAS_ENABLED_STATISTICS_KEYS, type AtlasStatisticsLayerKey } from './a
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
 import { JMA_AMEDAS_MODES } from "./jmaTypes";
+import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -3702,6 +3703,31 @@ export const LAYER_PARAMS_SPEC = {
   jmaWarnings: [opacitySlider("jmaWarningsOpacity", 0.55)],
   jmaQuakes: [opacitySlider("jmaQuakesOpacity", 0.85), scaleSlider("jmaQuakesScale", 1)],
   jmaVolcanoes: [opacitySlider("jmaVolcanoesOpacity", 0.9), scaleSlider("jmaVolcanoesScale", 1)],
+  // ── JMA／環境省 時間軸點位與區域（P4）：落雷沿用台灣落雷控件；物候可切現象（filter 需重建）──
+  jmaLightning: [
+    { kind: "slider", name: "jmaLightningMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
+    opacitySlider("jmaLightningOpacity", 0.85),
+    scaleSlider("jmaLightningScale", 1),
+  ],
+  jmaWbgt: [opacitySlider("jmaWbgtOpacity", 0.9), scaleSlider("jmaWbgtScale", 1)],
+  jmaSnowcap: [opacitySlider("jmaSnowcapOpacity", 0.95), scaleSlider("jmaSnowcapScale", 1)],
+  jmaAutumnLeaves: [
+    opacitySlider("jmaAutumnLeavesOpacity", 0.9), scaleSlider("jmaAutumnLeavesScale", 1),
+    {
+      kind: "select", name: "jmaAutumnLeavesPhenomenon", label: "現象", default: "015",
+      options: JMA_AUTUMN_PHENOMENA.map(({ label, value }) => ({ label, value })),
+      out: "jmaAutumnLeavesPhenomenonIdx", encode: JMA_AUTUMN_PHENOMENA.map((p) => p.value),
+    },
+  ],
+  jmaSakura: [
+    opacitySlider("jmaSakuraOpacity", 0.9), scaleSlider("jmaSakuraScale", 1),
+    {
+      kind: "select", name: "jmaSakuraPhenomenon", label: "現象", default: "004",
+      options: JMA_SAKURA_PHENOMENA.map(({ label, value }) => ({ label, value })),
+      out: "jmaSakuraPhenomenonIdx", encode: JMA_SAKURA_PHENOMENA.map((p) => p.value),
+    },
+  ],
+  jmaRainySeason: [opacitySlider("jmaRainySeasonOpacity", 0.55)],
   // JMA 發布幀影像（image source＋raster-color）：raster 透明度 SSOT；走 overlayParams（host 用 useKeyOverlayParams 讀）
   jmaSnowDepth: [
     {
