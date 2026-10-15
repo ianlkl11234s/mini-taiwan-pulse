@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1189,
+    "keyCount": 1197,
     "sections": [
       "gisLayers",
       "overlays",
@@ -55256,6 +55256,15 @@
                   "observed"
                 ],
                 "#334155",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#94a3b8",
                 "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
@@ -55271,12 +55280,32 @@
                 ],
                 1.6,
                 [
-                  "==",
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
                   [
                     "get",
-                    "days_past_normal"
+                    "state"
                   ],
-                  null
+                  "observed"
                 ],
                 1.4,
                 1
@@ -55309,6 +55338,15 @@
                   "observed"
                 ],
                 "#334155",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#94a3b8",
                 "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
@@ -55324,12 +55362,32 @@
                 ],
                 1.6,
                 [
-                  "==",
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
                   [
                     "get",
-                    "days_past_normal"
+                    "state"
                   ],
-                  null
+                  "observed"
                 ],
                 1.4,
                 1
@@ -55451,35 +55509,46 @@
               "circle-stroke-color": [
                 "case",
                 [
-                  "==",
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
                 ],
-                "#0a0a14",
+                "#dc2626",
                 "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
                 "case",
                 [
-                  "==",
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
-                ],
-                0.8,
-                [
-                  "==",
-                  [
-                    "get",
-                    "days_past_normal"
-                  ],
-                  null
                 ],
                 1.4,
                 1
@@ -55521,35 +55590,46 @@
               "circle-stroke-color": [
                 "case",
                 [
-                  "==",
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
                 ],
-                "#ffffff",
+                "#dc2626",
                 "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": [
                 "case",
                 [
-                  "==",
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
-                ],
-                0.8,
-                [
-                  "==",
-                  [
-                    "get",
-                    "days_past_normal"
-                  ],
-                  null
                 ],
                 1.4,
                 1
@@ -55681,35 +55761,46 @@
               "circle-stroke-color": [
                 "case",
                 [
-                  "==",
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
                 ],
-                "#0a0a14",
+                "#ec4899",
                 "#0a0a14"
               ],
               "circle-stroke-opacity": 0.8,
               "circle-stroke-width": [
                 "case",
                 [
-                  "==",
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
-                ],
-                0.8,
-                [
-                  "==",
-                  [
-                    "get",
-                    "days_past_normal"
-                  ],
-                  null
                 ],
                 1.4,
                 1
@@ -55751,35 +55842,46 @@
               "circle-stroke-color": [
                 "case",
                 [
-                  "==",
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
                 ],
-                "#ffffff",
+                "#ec4899",
                 "#ffffff"
               ],
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": [
                 "case",
                 [
-                  "==",
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
                   [
                     "get",
                     "state"
                   ],
                   "observed"
-                ],
-                0.8,
-                [
-                  "==",
-                  [
-                    "get",
-                    "days_past_normal"
-                  ],
-                  null
                 ],
                 1.4,
                 1
@@ -84131,6 +84233,32 @@
         "valueText": "0.75"
       }
     ],
+    "gibsSnowCover": [
+      {
+        "label": "資料源",
+        "options": [
+          {
+            "label": "MODIS Terra（2000 起）",
+            "value": "modis_terra"
+          },
+          {
+            "label": "VIIRS NOAA-20（2018 起）",
+            "value": "viirs_noaa20"
+          }
+        ],
+        "type": "select",
+        "value": "modis_terra"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "globalEvents": [
       {
         "label": "分類",
@@ -85735,6 +85863,61 @@
         "valueText": "1.0"
       }
     ],
+    "jmaAnaRainDays": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jmaAnaRiskInundHours": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jmaAnaRiskLandHours": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jmaAnaSnowDays": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jmaAnaSnowFirst": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "jmaAutumnLeaves": [
       {
         "label": "現象",
@@ -85789,6 +85972,7 @@
         "valueText": "0.70"
       }
     ],
+    "jmaKosa": [],
     "jmaLightning": [
       {
         "label": "保留 10 min",
@@ -85869,6 +86053,17 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "jmaRiskFlood": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       }
     ],
     "jmaRiskInund": [

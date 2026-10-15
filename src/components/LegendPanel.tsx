@@ -28,7 +28,7 @@ import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../dat
 import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
-import { JmaAmedasLegend, JmaImageryLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
+import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
 import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 import { ATLAS_LEGENDS } from "./legend/atlasLegends";
@@ -270,6 +270,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jmaSst", render: () => <JmaImageryLegend layerKey="jmaSst" /> },
   { id: "jmaSeaIce", render: () => <JmaImageryLegend layerKey="jmaSeaIce" /> },
   { id: "jmaHimawari", render: () => <JmaImageryLegend layerKey="jmaHimawari" /> },
+  { id: "jmaAnaSnowFirst", render: () => <JmaImageryLegend layerKey="jmaAnaSnowFirst" /> },
+  { id: "jmaAnaSnowDays", render: () => <JmaImageryLegend layerKey="jmaAnaSnowDays" /> },
+  { id: "jmaAnaRainDays", render: () => <JmaImageryLegend layerKey="jmaAnaRainDays" /> },
+  { id: "jmaAnaRiskLandHours", render: () => <JmaImageryLegend layerKey="jmaAnaRiskLandHours" /> },
+  { id: "jmaAnaRiskInundHours", render: () => <JmaImageryLegend layerKey="jmaAnaRiskInundHours" /> },
+  { id: "gibsSnowCover", render: () => <GibsSnowCoverLegend /> },
+  { id: "jmaRiskFlood", render: () => <JmaRiskFloodLegend /> },
+  { id: "jmaKosa", render: () => <JmaKosaLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
   { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
   { id: "jpAccommodationCanonical", render: () => <JpAccommodationTypesLegend source="canonical" /> },

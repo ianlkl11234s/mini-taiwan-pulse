@@ -148,7 +148,7 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
         handleRef.current.setVisible(true);
         handleRef.current.setOpacity(opacityRef.current);
       }
-      setJmaImageryStatus(product, { state: "shown", validTimeIso: f.validTimeIso });
+      setJmaImageryStatus(product, { state: "shown", validTimeIso: f.validTimeIso, frameStatus: f.status });
       // 預抓後續幾幀（CDN immutable，播放時不閃）
       const idx = frames.indexOf(f);
       for (const next of frames.slice(idx + 1, idx + 1 + PREFETCH_AHEAD)) {

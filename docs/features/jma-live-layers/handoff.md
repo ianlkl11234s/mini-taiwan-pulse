@@ -30,3 +30,13 @@
 | kind_name 改用新名稱體系 | 檢查 `jmaWarningLevel()` 關鍵字 |
 | 增加非 class20 層級 | 目前進「未上色」清單；需要上色時另接界線 |
 | quake view 改永久無窗 | loader 已帶 `report_time >= now-7d` |
+
+## 上游直連（P5，不經我們的 DB／R2）
+
+| 圖層 | 端點 | 硬依賴 | 上游改了要改哪 |
+|---|---|---|---|
+| `jmaRiskFlood` | `bosai/jmatile/data/risk/targetTimes.json`（`basetime`／`validtime`／`member`／`elements` 含 `flood`；時間 UTC）；`…/risk/{bt}/{member}/{vt}/surf/flood/{z}/{x}/{y}.pbf` | source-layer `flood`、欄位 `level`（1–4）；只有偶數 zoom 4–14 | `jmaTypes.ts`（URL、level 色）、`jmaUpstreamLoaders.ts`（parseRiskTargetTimes） |
+| `gibsSnowCover` | `gibs.earthdata.nasa.gov/wmts/epsg3857/best/{Layer}/default/{YYYY-MM-DD}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png` | z0–8、{y}/{x} 順序、色表 MODIS_NDSI_Snow_Cover | `gibsSnowTypes.ts` |
+| `jmaKosa` | `data.jma.go.jp/env/kosa/fcst/list_js/s_jpjp_list.js`（`imgFcst[i++] = "YYYYMMDDHHmm"`，JST）；`…/img/surf/jp/{stamp}_kosafcst-s_jp_jp.png` | 清單格式（regex） | `jmaUpstreamLoaders.ts`（parseKosaList）、`jmaTypes.ts` |
+
+上游實測紀錄：taipei-gis-analytics `docs/topic-research/japan_opendata/jma-frontend-plan.md` §3.2、`docs/api-platforms/nasa_gibs/status.md`。

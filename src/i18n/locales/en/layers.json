@@ -1171,5 +1171,13 @@
   "layer.jmaUvIndex": "UV Index (Analysis)",
   "layer.jmaSst": "Daily Sea Surface Temperature",
   "layer.jmaSeaIce": "Sea Ice (Sea of Okhotsk)",
-  "layer.jmaHimawari": "Himawari Infrared Clouds"
+  "layer.jmaHimawari": "Himawari Infrared Clouds",
+  "layer.jmaAnaSnowFirst": "First Snow Cover Date",
+  "layer.jmaAnaSnowDays": "Snow Cover Days",
+  "layer.jmaAnaRainDays": "Rain Days (This Month)",
+  "layer.jmaAnaRiskLandHours": "Landslide Warning Hours (This Month)",
+  "layer.jmaAnaRiskInundHours": "Inundation Warning Hours (This Month)",
+  "layer.gibsSnowCover": "Satellite Snow Cover",
+  "layer.jmaRiskFlood": "Flood Risk (Kikikuru)",
+  "layer.jmaKosa": "Kosa (Yellow Sand) Forecast"
 }

@@ -58,6 +58,8 @@ import {
 import {
   JmaAmedasHost, JmaQuakesHost, JmaSnowDepthHost, JmaVolcanoesHost, JmaWarningsHost,
   JmaRadarHost, JmaRasrfHost, JmaRiskLandHost, JmaRiskInundHost, JmaUvIndexHost, JmaSstHost, JmaSeaIceHost, JmaHimawariHost,
+  JmaAnaSnowFirstHost, JmaAnaSnowDaysHost, JmaAnaRainDaysHost, JmaAnaRiskLandHoursHost, JmaAnaRiskInundHoursHost,
+  GibsSnowCoverHost, JmaRiskFloodHost,
 } from "./hosts/jmaHosts";
 import {
   JmaLightningHost, JmaWbgtHost, JmaSnowcapHost, JmaAutumnLeavesHost, JmaSakuraHost, JmaRainySeasonHost,
@@ -285,6 +287,13 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJmaImageryLayer:jmaSst", keys: ["jmaSst"], Host: JmaSstHost },
   { id: "useJmaImageryLayer:jmaSeaIce", keys: ["jmaSeaIce"], Host: JmaSeaIceHost },
   { id: "useJmaImageryLayer:jmaHimawari", keys: ["jmaHimawari"], Host: JmaHimawariHost },
+  { id: "useJmaImageryLayer:jmaAnaSnowFirst", keys: ["jmaAnaSnowFirst"], Host: JmaAnaSnowFirstHost },
+  { id: "useJmaImageryLayer:jmaAnaSnowDays", keys: ["jmaAnaSnowDays"], Host: JmaAnaSnowDaysHost },
+  { id: "useJmaImageryLayer:jmaAnaRainDays", keys: ["jmaAnaRainDays"], Host: JmaAnaRainDaysHost },
+  { id: "useJmaImageryLayer:jmaAnaRiskLandHours", keys: ["jmaAnaRiskLandHours"], Host: JmaAnaRiskLandHoursHost },
+  { id: "useJmaImageryLayer:jmaAnaRiskInundHours", keys: ["jmaAnaRiskInundHours"], Host: JmaAnaRiskInundHoursHost },
+  { id: "useGibsSnowCoverLayer", keys: ["gibsSnowCover"], Host: GibsSnowCoverHost },
+  { id: "useJmaRiskFloodLayer", keys: ["jmaRiskFlood"], Host: JmaRiskFloodHost },
   {
     id: "useJpTourismLayers",
     keys: [

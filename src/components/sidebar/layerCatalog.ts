@@ -2230,8 +2230,13 @@ const THEME_CATALOG: ThemeDef[] = [
         fromManifest("jmaSakura"), fromManifest("jmaAutumnLeaves"), fromManifest("jmaSnowcap"), fromManifest("jmaRainySeason"),
       ] },
       { title: "解析影像", layers: [
-        fromManifest("jmaRadar"), fromManifest("jmaRasrf"), fromManifest("jmaRiskLand"), fromManifest("jmaRiskInund"),
-        fromManifest("jmaSnowDepth"), fromManifest("jmaUvIndex"), fromManifest("jmaSst"), fromManifest("jmaSeaIce"), fromManifest("jmaHimawari"),
+        fromManifest("jmaRadar"), fromManifest("jmaRasrf"), fromManifest("jmaRiskLand"), fromManifest("jmaRiskInund"), fromManifest("jmaRiskFlood"),
+        fromManifest("jmaSnowDepth"), fromManifest("gibsSnowCover"), fromManifest("jmaUvIndex"), fromManifest("jmaSst"), fromManifest("jmaSeaIce"), fromManifest("jmaHimawari"),
+      ] },
+      { title: "預報圖", layers: [fromManifest("jmaKosa")] },
+      { title: "分析", layers: [
+        fromManifest("jmaAnaSnowFirst"), fromManifest("jmaAnaSnowDays"), fromManifest("jmaAnaRainDays"),
+        fromManifest("jmaAnaRiskLandHours"), fromManifest("jmaAnaRiskInundHours"),
       ] },
     ],
   },

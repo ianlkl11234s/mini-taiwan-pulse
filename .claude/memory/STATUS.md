@@ -1,8 +1,24 @@
 # Status
 
-**最後更新**：2026-10-06（資料面盤點、倉庫覆蓋率 +18 層、collector 健康調查、v2.6.0 發布、Agent 題庫第二輪、repo 清理）
+**最後更新**：2026-10-15（R6 圖層平面模式段 1–3 上線；資料面盤點、倉庫覆蓋率 +18 層、collector 健康調查、v2.6.0 發布、Agent 題庫第二輪、repo 清理）
 
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-10-15：R6 圖層平面模式（段 1–3）
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #547（非移動物件立體效果預設關、溫度網格 10 級淺色票）、#572（機組／水庫／五類廢棄物設施平面點＋圖例）、#573（台鐵／高鐵／捷運列車與垃圾車平面版、換底圖軌道重建、對比描邊）、#578（列車平面收起高度滑桿、BACKLOG R6-4）已合併，**隨 v2.8.0 上正式站**（另一 session 發布）。 |
+
+| 上線項目 | build | contract/wire | stage | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|
+| R6 段 1–3 | done：tsc＋npm test 4087 passed、CI 綠 | done：golden、樣式盤點無差異 | done：develop `553b7e98` | done：master v2.8.0（`3182fcac`） | done：正式站 main-*.js 含 "2.8.0" | not run（正式站）：本機測試站使用者已看過 |
+
+- 下一步：BACKLOG **R6-V** 正式站目視（輸電線光暈、機組平面點與 popup、水庫／設施立體開時點選）。
+- 段 4（船、公車三層、垃圾車班表、漁船軌跡）＝ BACKLOG **R6-4**，使用者決定暫不碰。
+- 文件：`docs/features/map-layer-restyle/R6-PROPOSAL.md`、`r6-s{1,2,3}-compare.html`。
+
+---
 
 ## 2026-10-05～06：資料面盤點與 v2.6.0
 

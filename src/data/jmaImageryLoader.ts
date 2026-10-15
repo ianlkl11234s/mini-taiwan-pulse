@@ -221,6 +221,8 @@ export interface JmaImageryStatus {
   validTimeIso: string | null;
   reason?: string;
   message?: string;
+  /** shown：該幀 manifest status（分析圖 partial＝期間有缺日或被截斷，圖例要明講，不隱藏） */
+  frameStatus?: string | null;
 }
 
 const IDLE: JmaImageryStatus = { state: "idle", validTimeIso: null };
@@ -234,7 +236,8 @@ export function getJmaImageryStatus(product: string): JmaImageryStatus {
 export function setJmaImageryStatus(product: string, next: JmaImageryStatus): void {
   const prev = statusMap.get(product);
   if (prev && prev.state === next.state && prev.validTimeIso === next.validTimeIso
-    && prev.reason === next.reason && prev.message === next.message) return;
+    && prev.reason === next.reason && prev.message === next.message
+    && (prev.frameStatus ?? null) === (next.frameStatus ?? null)) return;
   statusMap.set(product, next);
   for (const cb of listeners) cb();
 }
