@@ -9,6 +9,12 @@
 - 狀態 store 帶出幀 status，partial 時圖例明示「資料自 2026-10-10 起，部分期間缺」
 - 以正式 R2／RPC 實資料在瀏覽器驗證 10-11～10-15
 - Breaking：無（golden +5 層 1183 → 1188；popup ledger 42 → 47）
+## 2026-10-15 — 上游直連 3 層（P5；PR 待併入 develop；尚未部署正式站）
+
+- 新增 `jmaRiskFlood`（洪水キキクル，向量線，只提供即時）、`gibsSnowCover`（NASA GIBS 衛星雪覆蓋，可切 MODIS／VIIRS，可回看歷年）：「氣象防災 › 解析影像」；`jmaKosa`（黃砂預測，圖片面板＋時刻選單）：「氣象防災 › 預報圖」。皆預設關、瀏覽器直連上游
+- 洪水キキクル只抓偶數 zoom（每個偶數 zoom 一個 source，奇數 zoom overzoom）；空磚＝無警戒
+- GIBS 以時間軸 UTC 日期換磚，範圍外不請求、圖例顯示未涵蓋；圖例明講雲遮處不代表無雪
+- Breaking：無（golden 1183 → 1186；popup ledger 42 → 45；params ledger +1 jmaKosa）
 
 ## 2026-10-15 — 發布幀影像擴充 8 層（stacked PR，base = feat/jma-imagery-timeline；尚未部署正式站）
 

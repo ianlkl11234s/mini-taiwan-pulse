@@ -1176,5 +1176,8 @@
   "layer.jmaAnaSnowDays": "積雪日数",
   "layer.jmaAnaRainDays": "雨日数（当月）",
   "layer.jmaAnaRiskLandHours": "土砂キキクル警戒時間（当月）",
-  "layer.jmaAnaRiskInundHours": "浸水キキクル警戒時間（当月）"
+  "layer.jmaAnaRiskInundHours": "浸水キキクル警戒時間（当月）",
+  "layer.gibsSnowCover": "積雪域（衛星 NDSI）",
+  "layer.jmaRiskFlood": "洪水キキクル",
+  "layer.jmaKosa": "黄砂予測"
 }

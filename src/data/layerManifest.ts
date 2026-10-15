@@ -128,6 +128,7 @@ import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
 import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
 import { JMA_LAYER_COLORS } from "./jmaTypes";
+import { GIBS_SNOW_LAYER_COLOR } from "./gibsSnowTypes";
 import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
 import {
   JP_ACCOMMODATION_DENSITY_LAYER_COLOR,
@@ -2813,6 +2814,78 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "日本氣象廳浸水キキクル達警戒（レベル3相當）以上的當月累計時數（每日一張；2026-10-10 起）",
     topics: ["世界", "日本", "防災", "淹水", "分析", "時序"],
+  },
+  gibsSnowCover: {
+    key: "gibsSnowCover",
+    section: { theme: "氣象防災", group: "解析影像" },
+    ...layerName({ zh: "衛星雪覆蓋", alt: "積雪域（衛星 NDSI）", qualifier: "NASA GIBS" }),
+    expandable: true,
+    color: GIBS_SNOW_LAYER_COLOR,
+    icon: Snowflake,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "瀏覽器直連 NASA GIBS WMTS（epsg3857/best，GoogleMapsCompatible_Level8，z0–8）：MODIS_Terra_NDSI_Snow_Cover（2000-02-24 起）／VIIRS_NOAA20_NDSI_Snow_Cover（2018 起）；{Time}＝時間軸的 UTC 日期",
+      note: "NASA GIBS 致謝文（attribution 原文照登）；雲、夜間、海洋是透明，雲遮處不代表無雪；不入我們的 DB／倉庫",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGibsSnowCoverLayer：raster source（gibs-snow-cover-src，tiles 模板 {z}/{y}/{x}，maxzoom 8）＋ raster layer；時間軸換日時 setTiles —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "gibsSnowCover",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "NASA 衛星每日雪覆蓋（NDSI 1–100，MODIS 2000 起／VIIRS 2018 起；可回看歷年冬季，雲遮處透明）",
+    topics: ["世界", "日本", "氣象", "積雪", "衛星", "時序"],
+  },
+  jmaRiskFlood: {
+    key: "jmaRiskFlood",
+    section: { theme: "氣象防災", group: "解析影像" },
+    ...layerName({ zh: "洪水危險度", alt: "洪水キキクル" }),
+    expandable: true,
+    color: JMA_LAYER_COLORS.jmaRiskFlood,
+    icon: Waves,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "瀏覽器直連 JMA bosai/jmatile risk（targetTimes.json 選幀 → surf/flood 向量 pbf，只有偶數 zoom z4–14，約 10 分一幀、上游保留約 6 小時）",
+      note: "出典：気象庁（加工）；空磚＝目前無警戒；超出上游保留期顯示「只提供即時」；不入我們的 DB／倉庫",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJmaRiskFloodLayer：每個偶數 zoom 一個 vector source（jma-risk-flood-z{4..14}-src，minzoom=maxzoom）＋ line layer（source-layer flood，依 level 上色）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "jmaRiskFlood",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本氣象廳洪水キキクル（河川洪水危險度分布，注意～災害切迫；即時，約 10 分更新）",
+    topics: ["世界", "日本", "防災", "淹水", "河川", "即時"],
+  },
+  jmaKosa: {
+    key: "jmaKosa",
+    section: { theme: "氣象防災", group: "預報圖" },
+    ...layerName({ zh: "黃砂預測", alt: "黄砂予測" }),
+    expandable: false,
+    color: JMA_LAYER_COLORS.jmaKosa,
+    icon: Wind,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "瀏覽器直連 JMA 黃砂予測：list_js/s_jpjp_list.js（regex 取時刻，不 eval）→ img/surf/jp/{YYYYMMDDHHmm}_kosafcst-s_jp_jp.png（800×580 不透明圖，底圖與圖例燒在圖裡）",
+      note: "出典：気象庁；不是地圖疊加，開啟後在右下顯示圖片面板＋時刻選單；不入我們的 DB／倉庫",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "JmaKosaPanel（App 右下浮動堆疊，非地圖圖層、無 map source／layer）",
+    },
+    legend: "jmaKosa",
+    popup: null,
+    params: null,
+    description: "日本氣象廳黃砂地上濃度預測圖（約 3 天、3–6 小時間隔；圖片面板，預設選最接近時間軸的時刻）",
+    topics: ["世界", "日本", "氣象", "黃砂", "空氣品質", "預報"],
   },
 
   jpPopulationMesh1km: {

@@ -4,6 +4,9 @@
 import { useJmaLiveLayer } from "../../hooks/useJmaLiveLayer";
 import { useJmaWarningsLayer } from "../../hooks/useJmaWarningsLayer";
 import { useJmaImageryLayer } from "../../hooks/useJmaImageryLayer";
+import { useGibsSnowCoverLayer } from "../../hooks/useGibsSnowCoverLayer";
+import { useJmaRiskFloodLayer } from "../../hooks/useJmaRiskFloodLayer";
+import { JMA_FLOOD_OPACITY } from "../../data/jmaTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 import { RASTER } from "../../map/mapStyleScale";
@@ -68,3 +71,28 @@ export const JmaAnaSnowDaysHost = makeJmaImageryHost("jmaAnaSnowDays", "ana_snow
 export const JmaAnaRainDaysHost = makeJmaImageryHost("jmaAnaRainDays", "ana_rain_days");
 export const JmaAnaRiskLandHoursHost = makeJmaImageryHost("jmaAnaRiskLandHours", "ana_risk_land_hours");
 export const JmaAnaRiskInundHoursHost = makeJmaImageryHost("jmaAnaRiskInundHours", "ana_risk_inund_hours");
+
+/** NASA GIBS 衛星雪覆蓋（上游直連 XYZ raster，接 timeStore 換日） */
+export const GibsSnowCoverHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGibsSnowCoverLayer");
+  const p = useKeyOverlayParams("gibsSnowCover");
+  useGibsSnowCoverLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.gibsSnowCover,
+    opacity: p.gibsSnowCoverOpacity ?? RASTER.opacity,
+    productIdx: p.gibsSnowCoverProductIdx ?? 0,
+  });
+  return null;
+};
+
+/** 洪水キキクル（上游直連向量 pbf，只提供即時） */
+export const JmaRiskFloodHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJmaRiskFloodLayer");
+  const p = useKeyOverlayParams("jmaRiskFlood");
+  useJmaRiskFloodLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.jmaRiskFlood,
+    opacity: p.jmaRiskFloodOpacity ?? JMA_FLOOD_OPACITY,
+  });
+  return null;
+};
