@@ -1,5 +1,5 @@
 {
-  "translated": 766,
+  "translated": 774,
   "shell": 321,
   "sidebar": 511,
   "popup": 425,
@@ -9,9 +9,9 @@
   "intel": 0,
   "satellite": 0,
   "member": 29,
-  "chat": 232,
-  "research": 1731,
+  "chat": 198,
+  "research": 1449,
   "data": 3064,
   "map": 377,
-  "other": 597
+  "other": 581
 }

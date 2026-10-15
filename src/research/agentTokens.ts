@@ -1,5 +1,6 @@
 import type { AgentTokenSummary, BridgeClient, CreatedAgentToken } from "./bridgeClient";
 import { classifyConnectionFailure } from "./connectionReliability";
+import { localeStore, type LocaleSnapshot } from "../state/localeStore";
 
 /**
  * P3 agent-token management state (SPEC-prod-connect §2.5). The secret lives only in
@@ -10,14 +11,16 @@ export type AgentTokenState = { tokens: AgentTokenSummary[]; created: CreatedAge
 export const DEFAULT_AGENT_TOKEN_LABEL = "Claude Code";
 export const TOKEN_SAVE_COMMAND = "pbpaste | npm run token:save";
 
-export function agentTokenErrorMessage(error: unknown): string {
+/** 顯示用訊息：存進 state 時依當下語系翻譯（i18n 預設取目前語系）。 */
+export function agentTokenErrorMessage(error: unknown, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
   const failure = classifyConnectionFailure(error);
-  if (failure.code === "TOKEN_LIMIT") return "已達 10 個，請先撤銷不用的金鑰。";
-  if (failure.code === "TOKEN_NOT_FOUND") return "這把金鑰已不存在，清單已更新。";
-  if (failure.kind === "auth") return "登入驗證已失效，請重新登入後再管理金鑰。";
-  if (failure.kind === "rate") return "操作太頻繁，請稍後再試。";
-  return "金鑰服務暫時無法使用，請稍後再試。";
+  if (failure.code === "TOKEN_LIMIT") return i18n.t("research.token.errLimit");
+  if (failure.code === "TOKEN_NOT_FOUND") return i18n.t("research.token.errNotFound");
+  if (failure.kind === "auth") return i18n.t("research.token.errAuth");
+  if (failure.kind === "rate") return i18n.t("research.token.errRate");
+  return i18n.t("research.token.errService");
 }
+const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
 
 type TokenClient = Pick<BridgeClient, "createAgentToken" | "listAgentTokens" | "revokeAgentToken">;
 
@@ -38,7 +41,7 @@ export class AgentTokenController {
     this.set({ busy: true, message: null, created: null });
     try {
       const created = await this.client.createAgentToken(label);
-      this.set({ created, message: "金鑰只會顯示這一次，請現在複製。" });
+      this.set({ created, message: tr("research.token.shownOnce") });
       await this.refresh();
     } catch (error) { this.set({ message: agentTokenErrorMessage(error) }); }
     finally { this.set({ busy: false }); }
@@ -49,12 +52,12 @@ export class AgentTokenController {
     this.set({ busy: true, message: null });
     try {
       await this.client.revokeAgentToken(tokenId);
-      this.set({ message: "已撤銷；使用這把金鑰的 Agent 會立即斷線。", ...(this.value.created?.tokenId === tokenId ? { created: null } : {}) });
+      this.set({ message: tr("research.token.revoked"), ...(this.value.created?.tokenId === tokenId ? { created: null } : {}) });
     } catch (error) { this.set({ message: agentTokenErrorMessage(error) }); }
     finally { await this.refresh(); this.set({ busy: false }); }
   }
 
   /** Hides the one-time secret; it cannot be shown again. */
   dismiss(): void { this.set({ created: null }); }
-  reportCopy(ok: boolean): void { this.set({ message: ok ? `已複製；在 MCP 目錄執行 ${TOKEN_SAVE_COMMAND}。` : "無法自動複製，請手動選取金鑰。" }); }
+  reportCopy(ok: boolean): void { this.set({ message: ok ? tr("research.token.copied", { command: TOKEN_SAVE_COMMAND }) : tr("research.token.copyFailed") }); }
 }

@@ -52,11 +52,14 @@ import { seriesTrendLineData, shortTaipeiDateLabel, warehouseSeriesTrendLineData
 import { isTimedChoropleth, warehouseChoroplethPeriodFact } from "./warehouseResultStyle";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
+import { localeStore, useLocale, type LocaleSnapshot } from "../state/localeStore";
 import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
 import { summarizeVisibleLayers, SUMMARY_LOADED_WAIT_MS as SUMMARY_WAIT_CAP, summarizeWhenLoaded, viewportBounds, type VisibleSummaryMap } from "./visibleSummary";
 import { restoreWarehouseResults } from "./warehouseResultRestore";
 import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
 
+/** 事件發生當下取目前語系翻譯（非 React 回呼用）。只用在畫面狀態文字；送給 Agent 的內容不經過這裡。 */
+const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
   onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;
@@ -71,32 +74,34 @@ const MAP_CONTEXT_WAIT_MS = 10_000;
 const MAP_CONTEXT_TOTAL_BUDGET_MS = 12_000;
 export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", ...ANALYSIS_OPERATIONS]);
 
-export function completedActivityForOperation(operation: string, data: Record<string, unknown>): Activity {
+/** 顯示用的活動卡文案（不送回 Agent）：依介面語系翻譯。 */
+export function completedActivityForOperation(operation: string, data: Record<string, unknown>, i18n: LocaleSnapshot = localeStore.getSnapshot()): Activity {
+  const { t } = i18n;
   const totalMatched = typeof data.totalMatched === "number" ? data.totalMatched : null;
   const returned = typeof data.returned === "number" ? data.returned : null;
   if (operation === "search_layers") {
-    if (totalMatched === 0) return { phase: "complete", title: "這次搜尋沒有找到圖層", detail: "可換關鍵字或查看其他主題。" };
-    return { phase: "complete", title: "已找到相關圖層", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `共找到 ${totalMatched} 個候選圖層；本次回傳 ${returned ?? totalMatched} 個。` };
+    if (totalMatched === 0) return { phase: "complete", title: t("research.done.layersEmptyTitle"), detail: t("research.done.emptyDetail") };
+    return { phase: "complete", title: t("research.done.layersFoundTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.layersFoundDetail", { total: totalMatched, returned: returned ?? totalMatched }) };
   }
   if (operation === "search_datasets") {
-    if (totalMatched === 0) return { phase: "complete", title: "這次搜尋沒有找到資料集", detail: "可換關鍵字或查看其他主題。" };
-    return { phase: "complete", title: "已找到相關資料集", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `共找到 ${totalMatched} 個候選資料集；本次回傳 ${returned ?? totalMatched} 個。` };
+    if (totalMatched === 0) return { phase: "complete", title: t("research.done.datasetsEmptyTitle"), detail: t("research.done.emptyDetail") };
+    return { phase: "complete", title: t("research.done.datasetsFoundTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.datasetsFoundDetail", { total: totalMatched, returned: returned ?? totalMatched }) };
   }
   if (operation === "query_records") {
-    return { phase: "complete", title: "資料紀錄已回傳", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `完整符合 ${totalMatched} 筆資料紀錄；本次回傳 ${returned ?? totalMatched} 筆。` };
+    return { phase: "complete", title: t("research.done.recordsTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.recordsDetail", { total: totalMatched, returned: returned ?? totalMatched }) };
   }
-  if (operation === "analysis_card_draft") return { phase: "complete", title: "卡片草稿已在面板", detail: "預覽後按「發布連結」才會產生分享網址；Agent 無法代為發布。" };
-  if (operation === "layer_details" || operation === "describe_layer") return { phase: "complete", title: "圖層說明已備妥", detail: "資料已回傳給 Agent，可繼續探索。" };
-  if (operation === "summarize_layer" && totalMatched !== null) return { phase: "complete", title: "這一步已完成", detail: `符合 ${totalMatched} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` };
-  return { phase: "complete", title: "這一步已完成", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `符合 ${totalMatched} 筆結果，Agent 正在整理下一步。` };
+  if (operation === "analysis_card_draft") return { phase: "complete", title: t("research.done.cardDraftTitle"), detail: t("research.done.cardDraftDetail") };
+  if (operation === "layer_details" || operation === "describe_layer") return { phase: "complete", title: t("research.done.layerReadyTitle"), detail: t("research.done.returnedToAgent") };
+  if (operation === "summarize_layer" && totalMatched !== null) return { phase: "complete", title: t("research.done.stepDoneTitle"), detail: t("research.done.summarizeDetail", { total: totalMatched }) };
+  return { phase: "complete", title: t("research.done.stepDoneTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.stepDoneDetail", { total: totalMatched }) };
 }
 
 /**
  * 4b「做成卡片」：瀏覽器沒有主動呼叫 Agent 的通道（bridge 只有 MCP 發起的 query），且閘門在 MCP 端算，
  * 所以按鈕只說明怎麼請 Agent 產草稿；草稿送達後由「卡片草稿」區塊預覽與發布。
  */
-export function makeCardHint(label: string): string {
-  return `請在對話中對 Agent 說「把「${label}」做成卡片」。Agent 會先檢查資料授權，可公開時草稿會出現在這個面板，由你按「發布連結」。`;
+export function makeCardHint(label: string, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  return i18n.t("research.done.cardHint", { label });
 }
 
 /**
@@ -130,6 +135,8 @@ export function scheduleAnalysisResultStyleRestore(
 
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = props.open ?? uncontrolledOpen;
   const setOpen = useCallback((next: boolean | ((current: boolean) => boolean)) => {
@@ -198,7 +205,8 @@ export function MainMapConnection(props: Props) {
   const [cardHintFor, setCardHintFor] = useState<string | null>(null);
   const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
   const resultCollectionRef = useRef<ResultCollection | null>(null);
-  const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
+  // null＝尚未有訊息，畫面顯示預設引導語（隨介面語系），其餘訊息在產生當下依語系翻譯
+  const [message, setMessage] = useState<string | null>(null);
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
@@ -316,7 +324,7 @@ export function MainMapConnection(props: Props) {
       try { validateLayerControl(scene.layerControl, locked); } catch { scene = { ...scene, layerControl: previous.current?.layerControl }; }
     }
     let movement: Promise<boolean> = Promise.resolve(true);
-    setActivity({ phase: "presenting", title: "正在同步地圖" });
+    setActivity({ phase: "presenting", title: tr("research.msg.syncingTitle") });
     applying.current = true;
     try {
       if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) validateLayerControl(scene.layerControl, locked);
@@ -389,12 +397,12 @@ export function MainMapConnection(props: Props) {
       resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
     }
     const matches = cameraReady && renderReady === "ready" && resultReadback.ready && layerPlan.rejected.length === 0 && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
-    const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
-    setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : layerPlan.rejected.length ? `找不到或無法開啟的圖層已略過：${layerPlan.rejected.join("、")}；其餘設定已套用。` : "圖層或分析結果狀態有衝突，請重新確認。");
-    setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? "分析結果已呈現" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
+    const resultMessage = resultReadback.featureCount > 0 ? tr("research.msg.highlighted", { count: resultReadback.featureCount }) : patch?.results === null ? tr("research.msg.resultsCleared") : null;
+    setMessage(matches ? `r${revision} ${resultMessage ?? tr("research.msg.synced")}` : layerPlan.rejected.length ? tr("research.msg.skippedLayers", { layers: layerPlan.rejected.join(tr("researchResult.sep.comma")) }) : tr("research.msg.conflict"));
+    setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? tr("research.msg.presentedTitle") : tr("research.msg.mapUpdatedTitle") : !cameraReady && !followingRef.current ? tr("research.msg.keptViewTitle") : tr("research.msg.notFinishedTitle"), detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? tr("research.msg.followPausedDetail") : undefined });
     if (expiredResults) {
-      setMessage("上次的分析結果已過期，已從地圖移除；其餘結果照常呈現。");
-      setActivity({ phase: "complete", title: "上次的分析結果已過期", detail: `${expiredResults} 項無法還原，已移除；可重新執行分析取得目前版本。` });
+      setMessage(tr("research.msg.expiredMessage"));
+      setActivity({ phase: "complete", title: tr("research.msg.expiredTitle"), detail: tr("research.msg.expiredDetail", { count: expiredResults }) });
     }
     return matches ? "ready" : "error";
   }, []);
@@ -403,7 +411,7 @@ export function MainMapConnection(props: Props) {
     connectionRef.current = context; expiredWarehouseIds.current = new Set();
     controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; networkProvider.current = context ? new ValhallaNetworkProvider({ requester: (operation, args) => context.client.networkProvider(context.studyId, context.tabId, operation, args) }) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
-    controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
+    controller.current = context ? new StudyController(context, render, () => { setMessage(tr("research.msg.actionFailedMessage")); setActivity({ phase: "error", title: tr("research.msg.actionFailedTitle"), detail: tr("research.msg.actionFailedDetail") }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
       const epoch = connectionEpoch.current;
       if (!EXPLORATION_OPERATIONS.has(request.operation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
@@ -541,27 +549,27 @@ export function MainMapConnection(props: Props) {
         result = { ...result, researchScope: { operation: evidenceItem.operation, scope: evidenceItem.scope, sources: evidenceItem.sources } };
       }
       return result!;
-    }, () => { setMessage("讀取服務暫時無法同步，請檢查連線。"); setActivity({ phase: "error", title: "連線暫時中斷", detail: "目前地圖會保留，請確認連線後繼續。" }); }, event => {
+    }, () => { setMessage(tr("research.msg.readFailedMessage")); setActivity({ phase: "error", title: tr("research.msg.readFailedTitle"), detail: tr("research.msg.readFailedDetail") }); }, event => {
       const next = activityForOperation(event.request.operation, event.request.args);
       if (!EXPLORATION_OPERATIONS.has(event.request.operation) || !next) return;
       if (event.phase === "started") { setActivity(next); return; }
-      if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: analysisErrorMessage(event.result && !event.result.ok ? event.result.error : "UNKNOWN") }); return; }
+      if (!event.result?.ok) { setActivity({ phase: "error", title: tr("research.msg.stepFailedTitle"), detail: analysisErrorMessage(event.result && !event.result.ok ? event.result.error : "UNKNOWN") }); return; }
       setActivity(completedActivityForOperation(event.request.operation, event.result.data));
     }, health => {
       const messages = {
-        retrying: { phase: "complete" as const, title: "同步稍慢，正在重試", detail: "目前地圖會保留。" },
-        offline: { phase: "error" as const, title: "暫時無法同步", detail: "已連續多次失敗，網站會繼續嘗試連線。" },
-        recovered: { phase: "ready" as const, title: "同步已恢復", detail: "可以繼續探索地圖。" },
-        paused: { phase: "complete" as const, title: "操作已暫停", detail: "可在本地 Agent 面板恢復操作。" },
-        auth: { phase: "error" as const, title: "需要重新確認連線", detail: "請在本地 Agent 面板確認登入與配對狀態。" },
-        cancelled: { phase: "complete" as const, title: "這次查詢已取消或逾時", detail: "可以重新提出查詢；目前地圖會保留。" },
+        retrying: { phase: "complete" as const, title: tr("research.msg.retryingTitle"), detail: tr("research.msg.retryingDetail") },
+        offline: { phase: "error" as const, title: tr("research.msg.offlineTitle"), detail: tr("research.msg.offlineDetail") },
+        recovered: { phase: "ready" as const, title: tr("research.msg.recoveredTitle"), detail: tr("research.msg.recoveredDetail") },
+        paused: { phase: "complete" as const, title: tr("research.msg.pausedTitle"), detail: tr("research.msg.pausedHealthDetail") },
+        auth: { phase: "error" as const, title: tr("research.msg.authTitle"), detail: tr("research.msg.authDetail") },
+        cancelled: { phase: "complete" as const, title: tr("research.msg.cancelledTitle"), detail: tr("research.msg.cancelledDetail") },
       };
-      setMessage(health.state === "recovered" ? "同步已恢復。" : `${messages[health.state].title}（${health.code}）`);
+      setMessage(health.state === "recovered" ? tr("research.msg.recoveredMessage") : tr("research.msg.withCode", { title: messages[health.state].title, code: health.code }));
       setActivity(messages[health.state]);
     }) : null;
   }, [clearAnalysisPresentation, render]);
   const disconnect = useCallback(() => { setEvidence([]); setCardDraft(null); connect(null); }, [connect]);
-  const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "操作已暫停", detail: "目前地圖會保留。" }); controller.current?.receive(state); }, []);
+  const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: tr("research.msg.pausedTitle"), detail: tr("research.msg.pausedDetail") }); controller.current?.receive(state); }, []);
   const changeFollowing = (value: boolean) => {
     followingRef.current = value; setFollowing(value);
     if (!value && latest.current.map) {
@@ -588,7 +596,7 @@ export function MainMapConnection(props: Props) {
       ++generation.current;
       controller.current?.beginManual();
       if (map) cancelResearchMotion(map);
-      setActivity({ phase: "complete", title: "已保留目前視角", detail: followingRef.current ? "已停止這次移動；下一個 Agent 動作仍會繼續跟隨。" : "跟隨已由你關閉；下一個 Agent 動作會保留視角。" });
+      setActivity({ phase: "complete", title: tr("research.msg.viewKeptTitle"), detail: followingRef.current ? tr("research.msg.viewKeptFollowing") : tr("research.msg.viewKeptNotFollowing") });
     };
     const moved = (event: { originalEvent?: unknown }) => { if (event.originalEvent) manual(); };
     map?.on("movestart", started); map?.on("moveend", moved);
@@ -675,7 +683,7 @@ export function MainMapConnection(props: Props) {
         const value = series[index];
         return { label: shortTaipeiDateLabel(period), value: typeof value === "number" && Number.isFinite(value) ? value : null };
       });
-      return { points, caption: `近 ${style.periods.length} 期`, markerIndex: playback?.index ?? style.periods.length - 1 };
+      return { points, caption: tr("research.panel.trendCaption", { count: style.periods.length }), markerIndex: playback?.index ?? style.periods.length - 1 };
     };
     // The docked popup's value comes from the feature's latest-period styleFactValue; for a timed
     // choropleth re-derive it from the row at the *current* playback period so it matches the map.
@@ -810,8 +818,8 @@ export function MainMapConnection(props: Props) {
     const timer = window.setInterval(() => {
       if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasAccessibleResult(resultId))) {
         clearAnalysisPresentation(true);
-        setMessage("分析結果已過期、移除或失去授權；舊 overlay 已清除。");
-        setActivity({ phase: "complete", title: "已清除過期結果", detail: "可重新執行分析以取得目前版本。" });
+        setMessage(tr("research.msg.expiredOverlay"));
+        setActivity({ phase: "complete", title: tr("research.msg.expiredClearedTitle"), detail: tr("research.msg.expiredClearedDetail") });
       }
     }, 1_000);
     return () => window.clearInterval(timer);
@@ -821,26 +829,26 @@ export function MainMapConnection(props: Props) {
   const showToggle = props.showToggle ?? !props.embedded;
   return <div hidden={props.uiHidden} className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}${showToggle ? "" : " main-map-agent--persistent"}${props.isDarkTheme === false ? " main-map-agent--light" : ""}`}>
     {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={activityCardVisible(activity, props.uiHidden) ? undefined : { display: "none" }}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
-    {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
+    {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>{t("research.panel.toggle")}</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
-      {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow="研究" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
-      <ResearchConnection surface="map" queryHandler={queryHandler} onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
+      {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow={t("research.panel.eyebrow")} title={t("research.panel.title")} onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
+      <ResearchConnection surface="map" queryHandler={queryHandler} onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: tr("research.msg.readyTitle"), detail: tr("research.msg.readyDetail") }); }} />
       <div className="agent-panel-body">
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />
-        <span>跟隨 Agent 視角<small>可隨時拖曳地圖，停止這次移動。</small></span>
+        <span>{t("research.panel.follow")}<small>{t("research.panel.followHint")}</small></span>
       </label>
-      <p className="agent-session-status" role="status">{message.replace(/^r\d+\s+/, "")}</p>
+      <p className="agent-session-status" role="status">{(message ?? t("research.msg.initial")).replace(/^r\d+\s+/, "")}</p>
       {cardDraft && <AnalysisCardDraftSection key={cardDraft.draftId} draft={cardDraft} onDiscard={() => setCardDraft(null)} />}
-      {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
-        <h3>本次分析圖層 <span className="agent-section-count">{resultCollection.items.length}</span></h3>
-        <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆紀錄已顯示 · 僅含本次分析結果</p>
+      {resultCollection && <section className="agent-analysis-results" aria-label={t("research.panel.resultsAria")}>
+        <h3>{t("research.panel.resultsTitle")} <span className="agent-section-count">{resultCollection.items.length}</span></h3>
+        <p>{t("research.panel.resultsSummary", { count: presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0) })}</p>
         {/* 群組與結果列走共用圖層列（layer-panel-unify P8）：黑白列開關，取代原生 checkbox */}
         <RailThemeContext.Provider value={railPalette(props.isDarkTheme !== false)}>
-        {resultCollection.groups.length > 0 && <div className="agent-analysis-groups" role="group" aria-label="群組">
-          <SubGroupLabel>群組</SubGroupLabel>
+        {resultCollection.groups.length > 0 && <div className="agent-analysis-groups" role="group" aria-label={t("research.panel.groups")}>
+          <SubGroupLabel>{t("research.panel.groups")}</SubGroupLabel>
           {resultCollection.groups.map(group => <ListRow key={group.groupId} ariaLabel={group.label} label={group.label}
-            toggle={{ on: group.visible, label: `顯示群組 ${group.label}`, onChange: () => updateResultCollection(collection => ({ ...collection, groups: collection.groups.map(candidate => candidate.groupId === group.groupId ? { ...candidate, visible: !group.visible } : candidate) })) }} />)}
+            toggle={{ on: group.visible, label: t("research.panel.showGroup", { label: group.label }), onChange: () => updateResultCollection(collection => ({ ...collection, groups: collection.groups.map(candidate => candidate.groupId === group.groupId ? { ...candidate, visible: !group.visible } : candidate) })) }} />)}
         </div>}
         <ul>{resultCollection.items.map((item, index) => {
           if (!resultsExpanded && index >= 5) return null;
@@ -862,9 +870,9 @@ export function MainMapConnection(props: Props) {
             return <li key={item.resultId} className="agent-analysis-result-item">
               <ListRow ariaLabel={title} label={title} expandable expanded={expanded} onClick={toggleExpanded}
                 sub={<>
-                  {periodCount} 期{group ? ` · ${group.label}` : ""}
-                  {latestText !== null ? ` · 最新一期 ${trend.points[trend.points.length - 1]?.label ?? ""}：${latestText}` : ""}
-                  {warehouseStyle?.baselineLabel ? ` · 比較基準：${warehouseStyle.baselineLabel}` : ""}
+                  {t("research.panel.periods", { count: periodCount })}{group ? ` · ${group.label}` : ""}
+                  {latestText !== null ? ` · ${t("research.panel.latestPeriod", { label: trend.points[trend.points.length - 1]?.label ?? "", value: String(latestText) })}` : ""}
+                  {warehouseStyle?.baselineLabel ? ` · ${t("research.panel.baseline", { label: warehouseStyle.baselineLabel })}` : ""}
                 </>} />
               {expanded && <div className="agent-analysis-row-label agent-analysis-row-body">
                 <TrendLine points={trend.points} baseline={trend.baseline} valueKind={trend.valueKind} unit={unit} />
@@ -873,17 +881,17 @@ export function MainMapConnection(props: Props) {
           }
           const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
           const rendered = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
-          const label = result?.displayLabel ?? "分析結果";
+          const label = result?.displayLabel ?? t("research.panel.resultDefault");
           return <li key={item.resultId} className="agent-analysis-result-item">
             <ListRow ariaLabel={label} label={label} expandable expanded={expanded} onClick={toggleExpanded}
               icon={<span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />}
               accent={rendered?.color ?? result?.color}
               active={item.visible}
-              sub={<>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</>}
-              toggle={{ on: item.visible, label: `顯示 ${label}`, onChange: () => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) })) }} />
+              sub={<>{rendered ? `${t("research.panel.records", { count: rendered.featureCount })} · ${rendered.geometryType}` : t("research.panel.notShown")}{group ? ` · ${group.label}` : ""}</>}
+              toggle={{ on: item.visible, label: t("research.panel.show", { label }), onChange: () => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) })) }} />
             {expanded && <div className="agent-analysis-row-label agent-analysis-row-body">
-                <label className="agent-analysis-opacity">透明度
-                  <Slider ariaLabel={`${label}透明度`} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
+                <label className="agent-analysis-opacity">{t("research.panel.opacity")}
+                  <Slider ariaLabel={t("research.panel.opacityAria", { label })} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
                 </label>
                 {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} theme={vizThemeForBasemap(props.isDarkTheme)} onSelectColumn={column => {
                   if (!props.map) return;
@@ -894,24 +902,24 @@ export function MainMapConnection(props: Props) {
                 }} />}
                 {rendered?.rankBars && <RankBars items={rendered.rankBars.items} theme={vizThemeForBasemap(props.isDarkTheme)} valueKind={rendered.rankBars.valueKind} unit={rendered.rankBars.unit} title={rendered.rankBars.title} />}
                 {/^wh-\d+/.test(item.resultId) && <>
-                  <button type="button" className="agent-analysis-make-card" aria-expanded={cardHintFor === item.resultId} onClick={() => setCardHintFor(current => current === item.resultId ? null : item.resultId)}>做成卡片</button>
-                  {cardHintFor === item.resultId && <small className="agent-analysis-make-card-hint" role="status">{makeCardHint(result?.displayLabel ?? "這個結果")}</small>}
+                  <button type="button" className="agent-analysis-make-card" aria-expanded={cardHintFor === item.resultId} onClick={() => setCardHintFor(current => current === item.resultId ? null : item.resultId)}>{t("research.panel.makeCard")}</button>
+                  {cardHintFor === item.resultId && <small className="agent-analysis-make-card-hint" role="status">{makeCardHint(result?.displayLabel ?? t("research.done.thisResult"), i18n)}</small>}
                 </>}
-                <span className="agent-analysis-order" aria-label={`${label} 排序`}>
-                  <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
-                  <button aria-label="往下移動" disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
+                <span className="agent-analysis-order" aria-label={t("research.panel.orderAria", { label })}>
+                  <button aria-label={t("research.panel.moveUp")} disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
+                  <button aria-label={t("research.panel.moveDown")} disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
                 </span>
             </div>}
           </li>;
         })}</ul>
         </RailThemeContext.Provider>
         {resultCollection.items.length > 5 && <button type="button" className="agent-analysis-expand" onClick={() => setResultsExpanded(value => !value)}>
-          {resultsExpanded ? "收合" : `展開全部（共 ${resultCollection.items.length} 項）`}
+          {resultsExpanded ? t("research.panel.collapse") : t("research.panel.expandAll", { count: resultCollection.items.length })}
         </button>}
-        <button className="agent-clear-results" onClick={() => clearAnalysisPresentation(true)}>清除本次圖層</button>
+        <button className="agent-clear-results" onClick={() => clearAnalysisPresentation(true)}>{t("research.panel.clear")}</button>
       </section>}
-      {!resultCollection && <section className="agent-empty-results"><h3>本次分析圖層</h3><p>在 Codex 提出想了解的地點或主題。<br />Agent 產生的分析圖層會顯示在這裡。</p></section>}
-      {evidence.length > 0 && <details className="agent-evidence-disclosure"><summary>分析依據與來源 <span>{evidence.length}</span></summary><ResearchEvidencePanel evidence={evidence} /></details>}
+      {!resultCollection && <section className="agent-empty-results"><h3>{t("research.panel.resultsTitle")}</h3><p>{t("research.panel.emptyHint1")}<br />{t("research.panel.emptyHint2")}</p></section>}
+      {evidence.length > 0 && <details className="agent-evidence-disclosure"><summary>{t("research.panel.evidence")} <span>{evidence.length}</span></summary><ResearchEvidencePanel evidence={evidence} /></details>}
       </div>
     </div>
   </div>;

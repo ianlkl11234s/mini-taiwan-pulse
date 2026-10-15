@@ -7,6 +7,7 @@ import type { AnalysisStackKind } from "./analysisResultStack";
 import { VIZ_SPEC, bivariateSizeStrokeFor, categoricalFor, type Theme } from "./vizSpec";
 import { ensureNullHatchImage } from "./vizNullPattern";
 import { LIGHT, SELECTION_RING } from "../styles/designTokens";
+import { localeStore, type LocaleSnapshot } from "../state/localeStore";
 import { TITLE_KEYS, researchResultPopupTitle } from "./researchResultPopup";
 import { classifyVizNumberKind, type VizNumberKind } from "./vizFormat";
 import type { RankBarItem } from "./charts/RankBars";
@@ -18,6 +19,8 @@ import {
   type WarehouseRankBarStyle, type WarehouseResultStyle, type WarehouseStyleLegend,
 } from "./warehouseResultStyle";
 
+/** 圖例、來源行等顯示字串依呼叫當下的介面語系產生；送給 Agent 的 readback 不含這些文字。 */
+const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
 const MAX_RESULTS = RESULT_COLLECTION_LIMITS.maxLogicalResults;
 const COLORS = ["#00b8d9", "#ff8f00", "#d81b60", "#7e57c2", "#43a047", "#5c6bc0", "#e53935", "#00897b"];
 const COUNT_STOPS = [5, 10] as const;
@@ -208,10 +211,10 @@ export function nearbyCategories(result: PresentableResult, theme: Theme): Nearb
     if (key && !found.has(key)) found.set(key, label);
   }
   const palette = categoricalFor(theme);
-  const base = result.displayLabel ?? "附近據點";
+  const base = result.displayLabel ?? tr("researchResult.overlay.nearbySites");
   return [...found.entries()].map(([dataset, label], index) => ({
     dataset,
-    label: label ?? (found.size > 1 ? `${base}（${index + 1}）` : base),
+    label: label ?? (found.size > 1 ? tr("researchResult.overlay.indexed", { base, index: index + 1 }) : base),
     color: palette.colors[index] ?? palette.other,
   }));
 }
@@ -284,14 +287,14 @@ export type AnalysisResultPresentation = {
 export function warehouseDatasetsSourceLabel(datasets: readonly string[] | undefined, describe: (datasetId: string) => string | null | undefined): string | undefined {
   const titles = [...new Set((datasets ?? []).map(datasetId => { try { return describe(datasetId)?.trim() ?? ""; } catch { return ""; } }).filter(Boolean))];
   if (!titles.length) return undefined;
-  return titles.length > 3 ? `${titles.slice(0, 3).join("、")} 等 ${titles.length} 份` : titles.join("、");
+  return titles.length > 3 ? tr("researchResult.overlay.sourcesMany", { titles: titles.slice(0, 3).join(tr("researchResult.sep.comma")), count: titles.length }) : titles.join(tr("researchResult.sep.comma"));
 }
 
 /** Unique `_wh_source` titles in row order -> 「A、B、C」, or 「A、B、C 等 N 份」 when more than three. */
 export function warehouseSourceLabel(rows: readonly Record<string, unknown>[]): string | undefined {
   const titles = [...new Set(rows.map(row => typeof row._wh_source === "string" ? row._wh_source.trim() : "").filter(Boolean))];
   if (!titles.length) return undefined;
-  return titles.length > 3 ? `${titles.slice(0, 3).join("、")} 等 ${titles.length} 份` : titles.join("、");
+  return titles.length > 3 ? tr("researchResult.overlay.sourcesMany", { titles: titles.slice(0, 3).join(tr("researchResult.sep.comma")), count: titles.length }) : titles.join(tr("researchResult.sep.comma"));
 }
 
 /** User-selected opacity is owned by resultId so hidden or reordered results retain it. */
@@ -501,9 +504,9 @@ export function numericResultLegend(result: PresentableResult): NumericResultLeg
       entries.push({ min: lower, max: upper, color: colors[index]!, label: `${numberLabel(lower)}${index === binCount - 1 ? "–" : "–<"}${numberLabel(upper)} ${unit}` });
     }
   }
-  entries.push({ status: "suppressed", color: SUPPRESSED_NUMERIC_COLOR, label: "受抑制／分母受抑制" });
-  entries.push({ status: "missing", color: MISSING_NUMERIC_COLOR, label: "缺值／未報告／分母無法計算" });
-  return { field, unit, method: binCount === 1 ? "single_value" : "equal_interval", entries, label: `${field === "normalizedValue" ? "標準化值" : "原始值"}（${unit}）` };
+  entries.push({ status: "suppressed", color: SUPPRESSED_NUMERIC_COLOR, label: tr("researchResult.overlay.suppressed") });
+  entries.push({ status: "missing", color: MISSING_NUMERIC_COLOR, label: tr("researchResult.overlay.missing") });
+  return { field, unit, method: binCount === 1 ? "single_value" : "equal_interval", entries, label: tr("researchResult.legend.titleWithUnit", { title: tr(field === "normalizedValue" ? "researchResult.fact.normalized" : "researchResult.fact.rawValue"), unit }) };
 }
 
 function numericFillColor(legend: NumericResultLegend): ExpressionSpecification {
@@ -555,9 +558,9 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
     label: result.presentation.label,
     radiusM: result.presentation.radiusM,
     entries: [
-      { label: `0–${COUNT_STOPS[0] - 1} 筆`, color: COUNT_COLORS[0] },
-      { label: `${COUNT_STOPS[0]}–${COUNT_STOPS[1] - 1} 筆`, color: COUNT_COLORS[1] },
-      { label: `≥${COUNT_STOPS[1]} 筆`, color: COUNT_COLORS[2] },
+      { label: tr("researchResult.overlay.countRange", { min: 0, max: COUNT_STOPS[0] - 1 }), color: COUNT_COLORS[0] },
+      { label: tr("researchResult.overlay.countRange", { min: COUNT_STOPS[0], max: COUNT_STOPS[1] - 1 }), color: COUNT_COLORS[1] },
+      { label: tr("researchResult.overlay.countAtLeast", { min: COUNT_STOPS[1] }), color: COUNT_COLORS[2] },
     ],
   } : undefined;
   const numericLegend = numericResultLegend(result);

@@ -1,27 +1,29 @@
+import type { MessageKey } from "../i18n/keys";
+import { localeStore, type LocaleSnapshot } from "../state/localeStore";
 import { classifyVizNumberKind, formatVizNumber } from "./vizFormat";
 
 export type ResearchResultPopupFact = { label: string; value: string };
 
-const number = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 4 });
 /** Exported for analysisResultOverlay.ts's proportional-symbol label layer, which needs the same
  *  fallback key order as a Mapbox `coalesce` expression (a static list, not a per-feature function). */
 export const TITLE_KEYS = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "location", "label", "route_label", "zone_label", "grid_id", "event_id", "record_id"] as const;
 
-const statusLabels: Record<string, string> = {
-  observed: "有觀測值",
-  missing: "缺資料",
-  suppressed: "數值受抑制",
-  not_reported: "未報告",
-  valid: "可比較",
-  baseline_missing: "基準缺資料",
-  baseline_suppressed: "基準受抑制",
-  baseline_not_reported: "基準未報告",
-  baseline_zero: "基準為零，無法計算比值",
-  not_requested: "未要求標準化",
-  denominator_missing: "分母缺資料",
-  denominator_suppressed: "分母受抑制",
-  denominator_not_reported: "分母未報告",
-  zero_denominator: "分母為零",
+/** 狀態代碼 → 翻譯 key（key 必須寫成完整字面量，供「沒人用的 key」測試掃描）。 */
+export const STATUS_LABEL_KEYS: Record<string, MessageKey> = {
+  observed: "researchResult.status.observed",
+  missing: "researchResult.status.missing",
+  suppressed: "researchResult.status.suppressed",
+  not_reported: "researchResult.status.not_reported",
+  valid: "researchResult.status.valid",
+  baseline_missing: "researchResult.status.baseline_missing",
+  baseline_suppressed: "researchResult.status.baseline_suppressed",
+  baseline_not_reported: "researchResult.status.baseline_not_reported",
+  baseline_zero: "researchResult.status.baselineZero",
+  not_requested: "researchResult.status.not_requested",
+  denominator_missing: "researchResult.status.denominator_missing",
+  denominator_suppressed: "researchResult.status.denominator_suppressed",
+  denominator_not_reported: "researchResult.status.denominator_not_reported",
+  zero_denominator: "researchResult.status.zero_denominator",
 };
 
 function text(value: unknown): string | null {
@@ -32,9 +34,11 @@ function finiteNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function status(value: unknown): string | null {
+function status(value: unknown, i18n: LocaleSnapshot): string | null {
   const raw = text(value);
-  return raw ? statusLabels[raw] ?? raw : null;
+  if (!raw) return null;
+  const key = STATUS_LABEL_KEYS[raw];
+  return key ? i18n.t(key) : raw;
 }
 
 /** Popup number display (spec U1): a conservative kind guess from the field's free-text unit (no
@@ -47,13 +51,13 @@ function formatted(value: number, unit: string | null): string {
 }
 
 /** Mapbox properties may contain null; only a finite numeric distance is a measured straight-line distance. */
-export function researchResultPopupDistance(value: unknown): string | null {
+export function researchResultPopupDistance(value: unknown, i18n: LocaleSnapshot = localeStore.getSnapshot()): string | null {
   const distance = finiteNumber(value);
-  return distance === null ? null : `${number.format(Math.round(distance))} 公尺 · 直線`;
+  return distance === null ? null : i18n.t("researchResult.fact.distanceValue", { value: i18n.formatNumber(Math.round(distance), { maximumFractionDigits: 4 }) });
 }
 
 /** Prefer source labels, while retaining administrative area names over generic identifiers. */
-export function researchResultPopupTitle(properties: Record<string, unknown>): string {
+export function researchResultPopupTitle(properties: Record<string, unknown>, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
   for (const key of TITLE_KEYS) {
     const value = properties[key];
     if (value !== null && value !== undefined && String(value).trim()) return String(value);
@@ -62,7 +66,7 @@ export function researchResultPopupTitle(properties: Record<string, unknown>): s
   // non-internal field whose name ends in "name" before using the generic label.
   const nameLike = sourceFieldEndingWith(properties, /name$/i);
   if (nameLike) return nameLike;
-  return "分析結果";
+  return i18n.t("researchResult.fact.titleFallback");
 }
 
 /** First non-empty source field (not `_`-prefixed internal fields) whose key matches `pattern`. */
@@ -105,7 +109,8 @@ export function researchResultPopupOverlaps<T extends ResearchResultPopupOverlap
 }
 
 /** Popup facts deliberately separate source values, normalized values, and comparison calculations. */
-export function researchResultPopupFacts(properties: Record<string, unknown>): ResearchResultPopupFact[] {
+export function researchResultPopupFacts(properties: Record<string, unknown>, i18n: LocaleSnapshot = localeStore.getSnapshot()): ResearchResultPopupFact[] {
+  const { t } = i18n;
   const facts: ResearchResultPopupFact[] = [];
   const styleLabel = text(properties.styleFactLabel);
   const styleValue = text(properties.styleFactValue);
@@ -113,36 +118,36 @@ export function researchResultPopupFacts(properties: Record<string, unknown>): R
   const sourceStatus = text(properties.status);
   const observedValue = finiteNumber(properties.value);
   const unit = text(properties.unit);
-  if (sourceStatus === "observed" && observedValue !== null) facts.push({ label: "原始值", value: formatted(observedValue, unit) });
-  else if (sourceStatus) facts.push({ label: "原始值狀態", value: status(sourceStatus)! });
-  else if (observedValue !== null) facts.push({ label: "原始值", value: formatted(observedValue, unit) });
+  if (sourceStatus === "observed" && observedValue !== null) facts.push({ label: t("researchResult.fact.rawValue"), value: formatted(observedValue, unit) });
+  else if (sourceStatus) facts.push({ label: t("researchResult.fact.rawStatus"), value: status(sourceStatus, i18n)! });
+  else if (observedValue !== null) facts.push({ label: t("researchResult.fact.rawValue"), value: formatted(observedValue, unit) });
 
   const sourceAreaHa = finiteNumber(properties.area_ha);
-  if (sourceAreaHa !== null) facts.push({ label: "來源面積", value: formatted(sourceAreaHa, text(properties.sourceAreaUnit) ?? "ha") });
+  if (sourceAreaHa !== null) facts.push({ label: t("researchResult.fact.sourceArea"), value: formatted(sourceAreaHa, text(properties.sourceAreaUnit) ?? "ha") });
 
   const occurredAt = text(properties.occurred_at);
-  if (occurredAt) facts.push({ label: "發生時間", value: occurredAt });
+  if (occurredAt) facts.push({ label: t("popup.field.occurredAt"), value: occurredAt });
   const magnitude = finiteNumber(properties.magnitude);
-  if (magnitude !== null) facts.push({ label: "規模", value: formatted(magnitude, text(properties.magnitudeUnit)) });
+  if (magnitude !== null) facts.push({ label: t("researchResult.fact.magnitude"), value: formatted(magnitude, text(properties.magnitudeUnit)) });
   const depthKm = finiteNumber(properties.depth_km);
-  if (depthKm !== null) facts.push({ label: "深度", value: formatted(depthKm, text(properties.depthUnit)) });
+  if (depthKm !== null) facts.push({ label: t("researchResult.fact.depth"), value: formatted(depthKm, text(properties.depthUnit)) });
 
   const hasNormalizedValue = Object.prototype.hasOwnProperty.call(properties, "normalizedValue");
   const normalizationStatus = text(properties.normalization_status);
   const normalizedValue = finiteNumber(properties.normalizedValue);
   if (hasNormalizedValue && normalizedValue !== null && (!normalizationStatus || normalizationStatus === "valid")) {
     const normalizedUnit = text(properties.normalizedUnit) ?? text(properties.normalized_unit);
-    facts.push({ label: "標準化值", value: formatted(normalizedValue, normalizedUnit) + (normalizedUnit ? "" : "（單位未隨圖徵提供）") });
+    facts.push({ label: t("researchResult.fact.normalized"), value: formatted(normalizedValue, normalizedUnit) + (normalizedUnit ? "" : t("researchResult.fact.unitMissing")) });
   }
-  if (hasNormalizedValue && normalizationStatus && normalizationStatus !== "valid") facts.push({ label: "標準化狀態", value: status(normalizationStatus)! });
+  if (hasNormalizedValue && normalizationStatus && normalizationStatus !== "valid") facts.push({ label: t("researchResult.fact.normalizedStatus"), value: status(normalizationStatus, i18n)! });
 
   const comparisonStatus = text(properties.comparison_status);
-  if (comparisonStatus) facts.push({ label: "比較基準", value: `本區÷基準；${status(comparisonStatus)!}` });
+  if (comparisonStatus) facts.push({ label: t("researchResult.fact.baseline"), value: t("researchResult.fact.baselineValue", { status: status(comparisonStatus, i18n)! }) });
   const difference = finiteNumber(properties.absoluteDifference);
   const differenceUnit = text(properties.differenceUnit) ?? unit;
-  if (comparisonStatus === "valid" && difference !== null) facts.push({ label: "差值（本區－基準）", value: formatted(difference, differenceUnit) });
+  if (comparisonStatus === "valid" && difference !== null) facts.push({ label: t("researchResult.fact.difference"), value: formatted(difference, differenceUnit) });
   const ratio = finiteNumber(properties.ratio);
-  if (comparisonStatus === "valid" && ratio !== null) facts.push({ label: "相對基準（本區÷基準）", value: formatVizNumber(ratio, "ratio") });
+  if (comparisonStatus === "valid" && ratio !== null) facts.push({ label: t("researchResult.fact.ratio"), value: formatVizNumber(ratio, "ratio") });
   return facts;
 }
 
@@ -168,17 +173,18 @@ export function researchResultDatasetLabel(datasetId: unknown, displayLabel: str
 }
 
 /** Facts for one hit, in panel order; source values stay separate from derived calculations. */
-export function researchResultRecordFacts(properties: Record<string, unknown>, datasetLabel: string): ResearchResultPopupFact[] {
+export function researchResultRecordFacts(properties: Record<string, unknown>, datasetLabel: string, i18n: LocaleSnapshot = localeStore.getSnapshot()): ResearchResultPopupFact[] {
+  const { t } = i18n;
   const facts: ResearchResultPopupFact[] = [];
-  if (properties.datasetId) facts.push({ label: "資料集", value: datasetLabel });
-  facts.push(...researchResultPopupFacts(properties));
+  if (properties.datasetId) facts.push({ label: t("researchResult.fact.dataset"), value: datasetLabel === UNNAMED_DATASET_LABEL ? t("researchResult.fact.unnamedDataset") : datasetLabel });
+  facts.push(...researchResultPopupFacts(properties, i18n));
   const address = sourceFieldEndingWith(properties, /address$/i);
-  if (address) facts.push({ label: "地址", value: address });
-  const distance = researchResultPopupDistance(properties.distanceM ?? properties.dist_m);
-  if (distance) facts.push({ label: "距離", value: distance });
-  if (properties.source_version) facts.push({ label: "版本", value: String(properties.source_version) });
-  if (properties.boundary_version) facts.push({ label: "邊界版本", value: String(properties.boundary_version) });
-  if (!facts.length) facts.push({ label: "紀錄", value: "本次分析命中的空間紀錄" });
+  if (address) facts.push({ label: t("popup.field.address"), value: address });
+  const distance = researchResultPopupDistance(properties.distanceM ?? properties.dist_m, i18n);
+  if (distance) facts.push({ label: t("researchResult.fact.distance"), value: distance });
+  if (properties.source_version) facts.push({ label: t("researchResult.fact.version"), value: String(properties.source_version) });
+  if (properties.boundary_version) facts.push({ label: t("researchResult.fact.boundaryVersion"), value: String(properties.boundary_version) });
+  if (!facts.length) facts.push({ label: t("popup.analysisResult.recordLabel"), value: t("popup.analysisResult.recordValue") });
   return facts;
 }
 
@@ -199,6 +205,7 @@ export function researchResultPanelProperties<T extends ResearchResultPopupOverl
   presentationFor: (resultId: string) => { displayLabel?: string; color?: string } | undefined,
   describe: (datasetId: string) => string | null,
   trendFor?: (resultId: string, properties: Record<string, unknown>) => AnalysisResultPanelTrend | null,
+  i18n: LocaleSnapshot = localeStore.getSnapshot(),
 ): AnalysisResultPanelProperties {
   return {
     records: overlaps.features.map(feature => {
@@ -207,9 +214,9 @@ export function researchResultPanelProperties<T extends ResearchResultPopupOverl
       const presentation = resultId ? presentationFor(resultId) : undefined;
       const trend = resultId && trendFor ? trendFor(resultId, properties) : null;
       return {
-        title: researchResultPopupTitle(properties),
+        title: researchResultPopupTitle(properties, i18n),
         color: presentation?.color ?? null,
-        facts: researchResultRecordFacts(properties, researchResultDatasetLabel(properties.datasetId, presentation?.displayLabel, describe)),
+        facts: researchResultRecordFacts(properties, researchResultDatasetLabel(properties.datasetId, presentation?.displayLabel, describe), i18n),
         ...(trend ? { trend } : {}),
       };
     }),

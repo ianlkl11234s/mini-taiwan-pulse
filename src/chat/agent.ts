@@ -13,6 +13,7 @@ import type {
 import { createChatModel } from "./providers";
 import { buildSystemPrompt } from "./systemPrompt";
 import { buildTools } from "./tools/registry";
+import { localeStore, type LocaleSnapshot } from "../state/localeStore";
 
 const MAX_STEPS = 10;
 
@@ -23,8 +24,9 @@ function genId(): string {
 /**
  * 把任意錯誤轉成使用者可讀、且不含機敏資訊的固定訊息。
  * 只有 401/403 判為金鑰問題；網路 / CORS 判為直連失敗；其餘為通用錯誤。
+ * 結果只顯示在畫面（不回給 AI），依目前介面語系。
  */
-function classifyError(err: unknown): string {
+function classifyError(err: unknown, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
   const e = err as { statusCode?: number; status?: number; name?: string; message?: string };
   const status = e?.statusCode ?? e?.status;
   const msg = String(e?.message ?? "");
@@ -35,15 +37,15 @@ function classifyError(err: unknown): string {
     status === 403 ||
     /\b401\b|\b403\b|unauthorized|invalid[\s_-]?api[\s_-]?key|permission denied|authentication/i.test(msg)
   ) {
-    return "金鑰無效或無權限";
+    return i18n.t("chat.error.auth");
   }
   if (
     name === "TypeError" ||
     /failed to fetch|load failed|network error|networkerror|fetch failed|\bcors\b|econnrefused|err_network/i.test(msg)
   ) {
-    return "無法直連該服務商（可能為網路或 CORS 限制），請改用其他家";
+    return i18n.t("chat.error.network");
   }
-  return "對話發生錯誤，請稍後再試";
+  return i18n.t("chat.error.generic");
 }
 
 /** 使用者主動中斷（AbortController.abort）產生的錯誤，不當成失敗。 */
@@ -121,6 +123,7 @@ export const runChatTurn: RunChatTurn = async (opts: AgentRunOptions): Promise<C
           const call: ChatToolCallSummary = {
             name: part.toolName,
             summary: `工具 ${part.toolName} 執行失敗`,
+            failed: true,
           };
           toolCalls.push(call);
           onToolCall?.(call);

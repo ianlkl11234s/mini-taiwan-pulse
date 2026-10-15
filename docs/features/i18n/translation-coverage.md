@@ -175,6 +175,10 @@
 - 基準低段／中段＝Low range／Mid range；平時／留意／警戒／緊急＝Peacetime／Notice／Alert／Emergency；地理相關 0／1＝Unrelated／Mentioned；中央社＝CNA；越中線＝median-line crossings；超齡服役＝Past design life。
 - 「平常週日同時段」原意（平日或同星期幾）未確認，譯成不指明星期的 vs usual at this time。
 
+### P4 AI 介面新增用語（2026-10-15，兩輪校對）
+- 分析倉庫＝analysis warehouse；跟隨 Agent 視角＝Follow Agent view；分析依據與來源＝Basis and sources；發布連結＝Publish link；Agent 金鑰＝Agent key。
+- 缺資料（狀態）＝Missing data，無資料／未涵蓋＝No data／Not covered；分位數分級＝Quantile classes，等距分級＝Equal-interval classes。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -309,3 +313,6 @@
 ### P3 進階模式新增用語（2026-10-15，兩輪校對）
 - 共機＝中国軍用機；架次＝機数；越中線＝中間線越え；等床＝入院待ち；即時＝リアルタイム、直播＝ライブ；事件（新聞）＝出来事；壓力指數＝圧力指数；備轉＝予備力；輻射監測站＝監視局；已下架＝提供終了；顯著（最高級距）＝非常に高い；遙測偵察＝リモートセンシング偵察。
 - 仍不確定：「平常週日同時段」譯成不指明曜日的「通常の同時間帯」；電視台名沿用中文名＋ニュース。
+
+### P4 AI 介面新增用語（2026-10-15，兩輪校對）
+- 缺資料（狀態）＝欠損，無資料＝データなし；分位數分級＝分位数区分，等距分級＝等間隔区分；研究連線＝リサーチ接続；面板與狀態標題體言止め。
