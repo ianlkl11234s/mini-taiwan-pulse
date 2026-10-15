@@ -65,7 +65,9 @@ import { MonitorCardFrame } from "./MonitorCardFrame";
 import { useMonitorFreshness } from "./monitorFreshness";
 import { maxSourceSuccessMs, newsFreshnessInput } from "./newsFreshness";
 import { MonitorNote } from "./MonitorMetric";
-import { MONITOR_CARD_META } from "./monitorCardMeta";
+import { MONITOR_CARD_META, monitorCardTitle } from "./monitorCardMeta";
+import { useLocale, localeStore } from "../../../state/localeStore";
+import type { MessageKey } from "../../../i18n/keys";
 import { MF } from "./monitorFont";
 import { IntelThemeProvider, getIntelPalette } from "../intelTheme";
 
@@ -130,10 +132,10 @@ const v2Tree: MonitorNode = buildMonitorTree(V2_LAYOUT);
 const v2TreeSplit: MonitorNode = buildMonitorTree(V2_LAYOUT_SPLIT);
 
 /** v2 標頭的中文模式名（舊版維持 Dock／Split／Wall） */
-const MODE_LABEL_V2: Record<MonitorMode, string> = { dock: "停靠", split: "分割", wall: "全屏" };
-const STYLE_OPTIONS: { key: MonitorStyle; label: string }[] = [
-  { key: "v2", label: "新版" },
-  { key: "legacy", label: "舊版" },
+const MODE_LABEL_V2: Record<MonitorMode, MessageKey> = { dock: "monitor.panel.modeDock", split: "monitor.panel.modeSplit", wall: "monitor.panel.modeWall" };
+const STYLE_OPTIONS: { key: MonitorStyle; label: MessageKey; hint: MessageKey }[] = [
+  { key: "v2", label: "monitor.panel.styleNew", hint: "monitor.panel.styleNewHint" },
+  { key: "legacy", label: "monitor.panel.styleOld", hint: "monitor.panel.styleOldHint" },
 ];
 
 /** header 的三段模式切換選項 */
@@ -317,6 +319,7 @@ export function MonitorPanel({
   // `now` 走 wallClock 5s tick：原本 1Hz setState 會讓整棵子樹（IntelCard / TimelineDock /
   // IndicatorPanel / LiveWall…）每秒 reconcile。5s 對 live cutoff、相對時間顯示無感差。
   // 真的需要每秒跳動的元素（TimelineDock 指針）在自己內部訂 1Hz wallClock。
+  const i18n = useLocale();
   const now = Math.floor(useWallClock(5_000) / 1000);
   const [isLive, setIsLive] = useState(true);
   const [playbackTs, setPlaybackTs] = useState(now);
@@ -363,8 +366,8 @@ export function MonitorPanel({
           data: EMPTY_CLUSTERS,
           lastSuccessAt: null,
           message: latestDay
-            ? `可供地圖使用的定位新聞只到 ${latestDay}，分類／定位流程可能已停更`
-            : "沒有可供地圖使用的定位新聞日期，請檢查分類／定位流程",
+            ? localeStore.getSnapshot().t("monitor.panel.newsStaleSince", { day: latestDay })
+            : localeStore.getSnapshot().t("monitor.panel.newsStaleNone"),
         };
       }
     }
@@ -649,14 +652,14 @@ export function MonitorPanel({
   // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
   const newsDerived = (id: MonitorWidgetId, children: ReactNode) => <>
     {newsTime(id)}
-    <MonitorDataStatus label="新聞資料" query={clustersQuery} />
+    <MonitorDataStatus label={i18n.t("monitor.data.news")} query={clustersQuery} />
     {clustersQuery.lastSuccessAt !== null ? children : null}
   </>;
 
   const widgets: Record<MonitorWidgetId, ReactNode> = {
     // 警訊整合不送資料時間：警報 RPC 只回計數、不帶警報時間（瀏覽器收到的時間不是資料時間）
     newsFeed: (
-      <>{newsTime("newsFeed", true)}<MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
+      <>{newsTime("newsFeed", true)}<MonitorDataStatus label={i18n.t("monitor.data.trending")} query={dashboard.trending} /><NewsFeedPanel
         events={flatEvents}
         cats={cats}
         onToggleCat={toggleCat}
@@ -682,7 +685,7 @@ export function MonitorPanel({
       /></>
     ),
     alertBoard: (
-      <><MonitorDataStatus label="警報歷史" query={dashboard.alertSeries} /><AlertBoard
+      <><MonitorDataStatus label={i18n.t("monitor.data.alertSeries")} query={dashboard.alertSeries} /><AlertBoard
         tally={alertTally}
         status={alertSummaryQuery.status}
         lastSuccessAt={alertSummaryQuery.lastSuccessAt}
@@ -717,7 +720,7 @@ export function MonitorPanel({
       />
     ),
     situationOverview: (
-      <><MonitorDataStatus label="來源健康" query={dashboard.sourceHealth} /><SituationOverview
+      <><MonitorDataStatus label={i18n.t("monitor.data.sourceHealth")} query={dashboard.sourceHealth} /><SituationOverview
         pressure={pressure}
         smoothedScore={smoothed}
         status={pressureQuery.status}
@@ -730,7 +733,7 @@ export function MonitorPanel({
     ),
     taiex: <TwseTicker data={marketQuery.data} status={marketQuery.status} lastSuccessAt={marketQuery.lastSuccessAt} open={open} />,
     liveWall: <LiveWall />,
-    situationCards: <><MonitorDataStatus label="公衛週報" query={dashboard.health} /><SituationCards health={dashboard.health.data} /></>,
+    situationCards: <><MonitorDataStatus label={i18n.t("monitor.data.health")} query={dashboard.health} /><SituationCards health={dashboard.health.data} /></>,
     plaBoard: <PlaBoard open={open} />,
     vesselZone: <VesselZoneCard open={open} />,
     foodPriceBoard: <FoodPriceBoard open={open} />,
@@ -738,13 +741,13 @@ export function MonitorPanel({
     isrSatellitePasses: <IsrSatellitePassCard open={open} />,
     hazardStrip: <HazardWatchStrip />,
     powerCard: <>
-      <MonitorDataStatus label="供電摘要" query={dashboard.powerDashboard} />
-      <MonitorDataStatus label="機組出力" query={dashboard.powerDay} />
-      <MonitorDataStatus label="供電趨勢" query={dashboard.powerTrend} />
+      <MonitorDataStatus label={i18n.t("monitor.data.powerSummary")} query={dashboard.powerDashboard} />
+      <MonitorDataStatus label={i18n.t("monitor.data.powerUnits")} query={dashboard.powerDay} />
+      <MonitorDataStatus label={i18n.t("monitor.data.powerTrend")} query={dashboard.powerTrend} />
       <PowerCard dashboard={dashboard.powerDashboard.data} day={dashboard.powerDay.data} dayStatus={dashboard.powerDay.status === "unknown" ? "loading" : dashboard.powerDay.status} trend={dashboard.powerTrend.data} />
     </>,
     erCongestion: <ERCard open={open} />,
-    prison: <><MonitorDataStatus label="在監人口" query={dashboard.prison} /><PrisonCard latest={dashboard.prison.data[0] ?? null} series={dashboard.prison.data} /></>,
+    prison: <><MonitorDataStatus label={i18n.t("monitor.data.prison")} query={dashboard.prison} /><PrisonCard latest={dashboard.prison.data[0] ?? null} series={dashboard.prison.data} /></>,
     airportPax: <AirportPaxCard open={open} />,
     // 災害監看四卡：各自向 src/data 的 summary loader 輪詢（30/15/5/5 min），
     // nowTs 吃 MonitorPanel 的 5s wallClock 讓相對時間跟著跳
@@ -759,7 +762,7 @@ export function MonitorPanel({
   const cells = Object.fromEntries(
     (Object.keys(widgets) as MonitorWidgetId[]).map((id) => [
       id,
-      <MonitorCardFrame key={id} widgetId={id} title={MONITOR_CARD_META[id].title} en={MONITOR_CARD_META[id].en} bare={!v2}>
+      <MonitorCardFrame key={id} widgetId={id} title={monitorCardTitle(id, i18n)} en={i18n.active === "en" ? "" : MONITOR_CARD_META[id].en} bare={!v2}>
         {widgets[id]}
       </MonitorCardFrame>,
     ]),
@@ -833,7 +836,7 @@ export function MonitorPanel({
         >
           <IntelIcon d={MICON.grid!} size={15} color={themePalette.accent} />
           <span style={{ fontFamily: FONT_CJK, fontSize: v2 ? MF.title : FONT_SIZE.lg, fontWeight: 700, color: v2 ? themePalette.textStrong : "#fff" }}>
-            監看模式
+            {i18n.t("monitor.panel.title")}
           </span>
           {v2 ? (
             <span
@@ -842,9 +845,9 @@ export function MonitorPanel({
                 border: `1px solid ${themePalette.statusWarn}`,
                 fontFamily: FONT_CJK, fontSize: MF.label, color: themePalette.statusWarn, whiteSpace: "nowrap",
               }}
-              title="本模式仍在打磨中，數據與互動可能還會調整"
+              title={i18n.t("monitor.panel.betaHint")}
             >
-              測試中
+              {i18n.t("monitor.panel.beta")}
             </span>
           ) : <>
           <span
@@ -863,7 +866,7 @@ export function MonitorPanel({
               color: themePalette.statusWarn,
               animation: "presBreathe 3s ease-in-out infinite",
             }}
-            title="本模式仍在打磨中，數據與互動可能還會調整"
+            title={i18n.t("monitor.panel.betaHint")}
           >
             BETA
           </span>
@@ -881,25 +884,25 @@ export function MonitorPanel({
             minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
-          {v2 ? <>今日 <span style={{ fontFamily: FONT_DATA }}>{allEventsToday.length}</span> 則新聞</> : <>今日 {allEventsToday.length} 則 · SITUATIONAL AWARENESS</>}
+          {v2 ? i18n.t("monitor.panel.todayNews", { count: allEventsToday.length }) : i18n.t("monitor.panel.todayNewsLegacy", { count: allEventsToday.length })}
         </span>
         <div style={{ flex: 1 }} />
         <div
           role="group"
-          aria-label="卡片樣式"
+          aria-label={i18n.t("monitor.panel.styleGroup")}
           style={{
             display: "inline-flex", flexShrink: 0, padding: 2, gap: 2,
             borderRadius: RADIUS.md, border: `1px solid ${themePalette.controlBorder}`, marginTop: isWall ? 0 : 4,
           }}
         >
-          {STYLE_OPTIONS.map(({ key, label }) => {
+          {STYLE_OPTIONS.map(({ key, label, hint }) => {
             const active = monitorStyle === key;
             return (
               <button
                 key={key}
                 type="button"
                 aria-pressed={active}
-                title={key === "v2" ? "統一卡片樣式（2026-10 改版）" : "改版前的樣式"}
+                title={i18n.t(hint)}
                 onClick={(e) => { e.stopPropagation(); setMonitorStyle(key); }}
                 onMouseDown={(e) => e.stopPropagation()}
                 style={{
@@ -909,7 +912,7 @@ export function MonitorPanel({
                   color: active ? themePalette.accent : themePalette.textMuted,
                 }}
               >
-                {label}
+                {i18n.t(label)}
               </button>
             );
           })}
@@ -940,7 +943,7 @@ export function MonitorPanel({
                   size={13}
                   color={active ? themePalette.accent : "currentColor"}
                 />
-                {v2 ? MODE_LABEL_V2[key] : label}
+                {v2 ? i18n.t(MODE_LABEL_V2[key]) : label}
               </button>
             );
           })}
@@ -961,7 +964,7 @@ export function MonitorPanel({
             color: themePalette.textDefault,
           }}
         >
-          <IntelIcon d={ICON.x} size={12} /> 退出
+          <IntelIcon d={ICON.x} size={12} /> {i18n.t("monitor.panel.exit")}
         </button>
       </div>
 

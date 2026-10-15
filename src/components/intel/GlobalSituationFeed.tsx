@@ -1,6 +1,7 @@
 import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { FONT_CJK, clockTime } from "./intelTokens";
+import { localeStore, useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { useIntelTheme } from "./intelTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
 import type { GlobalSituationEntry } from "../../data/globalEventsLoader";
@@ -106,13 +107,20 @@ function latestSeconds(entries: readonly GlobalSituationEntry[], pick: (entry: G
  * 空清單時的第二行說明。上游收集→研判有延遲，事件時間（observed_at）會落在
  * 資料源最後一次更新（available_at）之前；把實際數字算出來講，不寫死。
  */
-export function describeFeedLag(entries: readonly GlobalSituationEntry[]): string {
+export function describeFeedLag(entries: readonly GlobalSituationEntry[], { t }: LocaleSnapshot = localeStore.getSnapshot()): string {
   const updated = latestSeconds(entries, (entry) => [entry.availableAt, entry.displayFrom, entry.publishedAt]);
-  if (updated === null) return "近 24 小時尚無已研究或核心事件";
+  if (updated === null) return t("intel.feed.noResearched");
   const event = latestSeconds(entries, (entry) => [entry.validFrom, entry.publishedAt]);
   const lagHours = event === null ? null : Math.round((updated - event) / 3600);
-  return `資料源最新更新：${clockTime(updated)}`
-    + (lagHours !== null && lagHours >= 1 ? `，事件時間落後約 ${lagHours} 小時` : "");
+  return t("intel.feed.latestUpdate", { time: clockTime(updated) })
+    + (lagHours !== null && lagHours >= 1 ? t("intel.feed.lagSuffix", { hours: lagHours }) : "");
+}
+
+/** IntelPanel 載入失敗時寫進 store 的預設訊息（中文原文）；顯示時換成目前語系。 */
+export const GLOBAL_FEED_LOAD_FAILED = "全球情勢載入失敗";
+
+function localizedFeedMessage(message: string | null, { t }: LocaleSnapshot): string | null {
+  return message === GLOBAL_FEED_LOAD_FAILED ? t("intel.feed.loadFailed") : message;
 }
 
 export interface GlobalFeedWindow {
@@ -153,6 +161,8 @@ export function GlobalSituationFeed({
   cards, snapshot, selectedId, expandedId, onSelect, onToggle, nowTs,
 }: Props) {
   const palette = useIntelTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const unlocated = cards.filter((card) => card.location_name === UNLOCATED_LABEL).length;
 
   if (cards.length === 0) {
@@ -166,12 +176,12 @@ export function GlobalSituationFeed({
       >
         <IntelIcon d={ICON.radio} size={28} color={palette.textGhost} />
         <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
-          {snapshot.status === "loading" ? "正在載入全球情勢…"
-            : snapshot.status === "error" ? "全球情勢載入失敗"
-              : "目前無符合條件的國際事件"}
+          {snapshot.status === "loading" ? t("intel.feed.loading")
+            : snapshot.status === "error" ? t("intel.feed.loadFailed")
+              : t("intel.feed.empty")}
         </div>
         <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
-          {snapshot.status === "error" ? snapshot.message ?? "稍後重試" : describeFeedLag(snapshot.entries)}
+          {snapshot.status === "error" ? localizedFeedMessage(snapshot.message, i18n) ?? t("intel.feed.retryLater") : describeFeedLag(snapshot.entries, i18n)}
         </div>
       </div>
     );
@@ -186,9 +196,9 @@ export function GlobalSituationFeed({
           color: palette.textMuted, lineHeight: 1.5,
         }}
       >
-        共 {cards.length} 件{unlocated > 0 ? ` · ${unlocated} 件${UNLOCATED_LABEL}` : ""}
-        {snapshot.status === "loading" && <span style={{ color: palette.textFaint }}>　更新中…</span>}
-        {snapshot.status === "error" && <span style={{ color: palette.statusWarn }}>　{snapshot.message ?? "更新失敗"}</span>}
+        {t("intel.feed.total", { count: cards.length })}{unlocated > 0 ? ` · ${t("intel.feed.unlocated", { count: unlocated })}` : ""}
+        {snapshot.status === "loading" && <span style={{ color: palette.textFaint }}>{"\u3000"}{t("intel.feed.updating")}</span>}
+        {snapshot.status === "error" && <span style={{ color: palette.statusWarn }}>{"\u3000"}{localizedFeedMessage(snapshot.message, i18n) ?? t("intel.feed.updateFailed")}</span>}
       </div>
       <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
         <span
@@ -218,7 +228,7 @@ export function GlobalSituationFeed({
           color: palette.textFaint, lineHeight: 1.5,
         }}
       >
-        「AI 初判」尚未經研究確認；已被判為低價值（drop_noise）的條目不在此列表。
+        {t("intel.feed.footer")}
       </div>
     </>
   );

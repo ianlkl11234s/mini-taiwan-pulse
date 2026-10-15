@@ -103,7 +103,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
 
   // ── 已登入：avatar + 名稱 + 下拉 ──
   const meta = user.user_metadata ?? {};
-  const displayName: string = meta.full_name ?? meta.name ?? user.email ?? "使用者";
+  const displayName: string = meta.full_name ?? meta.name ?? user.email ?? t("member.avatar.defaultName");
   const avatarUrl: string | null = meta.avatar_url ?? meta.picture ?? null;
 
   return (
@@ -111,7 +111,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={`帳號選單：${displayName}`}
+        aria-label={t("member.avatar.accountMenu", { name: displayName })}
         title={displayName}
         style={{
           display: "inline-flex",
@@ -189,7 +189,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
               <ShieldCheck size={14} />
-              資料治理
+              {t("member.avatar.governance")}
             </button>
           )}
           <button
@@ -216,7 +216,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <LogOut size={14} />
-            登出
+            {t("member.signOut")}
           </button>
         </div>
       )}
