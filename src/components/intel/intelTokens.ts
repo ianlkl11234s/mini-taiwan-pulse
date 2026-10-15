@@ -6,6 +6,7 @@
  */
 
 import type { CSSProperties } from "react";
+import { localeStore, type LocaleSnapshot } from "../../state/localeStore";
 
 // 全站不載入 web font：stack 只列各平台實際內建的字（macOS → PingFang TC / SF Mono）。
 // 與 src/styles/tokens.css 的 --font-cjk / --font-data 同值，改一邊要同步另一邊。
@@ -111,16 +112,27 @@ export function splitRelTimeParts(text: string): Array<{ text: string; mono: boo
   return text.split(/(\d+)/g).filter((p) => p !== "").map((p) => ({ text: p, mono: /^\d+$/.test(p) }));
 }
 
-export function relTime(ts: number, now: number): string {
+/**
+ * 把「含數字樣式節點的句子」拆成文字片段：`t(key, { n: SLOTS[0] })` 之後 `slotParts()`，
+ * 元件在片段之間放帶 FONT_DATA 的數字節點。各語系語序不同時，數字位置跟著譯文走。
+ */
+export const SLOTS = ["\u0001", "\u0002", "\u0003"] as const;
+export function slotParts(text: string): string[] {
+  return text.split(/[\u0001-\u0003]/);
+}
+
+/** `i18n` 不傳＝以 localeStore 目前語系為準（Monitor 卡片等尚未傳入的呼叫端）。 */
+export function relTime(ts: number, now: number, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  const { t } = i18n;
   const d = Math.max(0, now - ts);
-  if (d < 60) return "剛剛";
-  if (d < 3600) return `${Math.floor(d / 60)} 分鐘前`;
+  if (d < 60) return t("intel.time.justNow");
+  if (d < 3600) return t("intel.time.minutesAgo", { n: Math.floor(d / 60) });
   if (d < 86400) {
     const h = Math.floor(d / 3600);
     const m = Math.floor((d % 3600) / 60);
-    return m ? `${h} 小時 ${m} 分前` : `${h} 小時前`;
+    return m ? t("intel.time.hoursMinutesAgo", { h, m }) : t("intel.time.hoursAgo", { h });
   }
-  return `${Math.floor(d / 86400)} 天前`;
+  return t("intel.time.daysAgo", { n: Math.floor(d / 86400) });
 }
 
 export function clockTime(ts: number): string {

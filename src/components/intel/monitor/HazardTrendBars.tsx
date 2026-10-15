@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { fs } from "./monitorFont";
 import { useMonitorV2 } from "./monitorStyle";
 import { MON_CHART_H, type MonChartTier } from "./monitorChart";
@@ -6,6 +6,13 @@ import { COLORS, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
 import { useMonitorTheme } from "./monitorTheme";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import { useLocale } from "../../../state/localeStore";
+
+/** 譯文裡的 `{n}` 位置換成帶樣式的節點（例：共艦 <b>3</b> 艘）；`template` 傳不帶變數的 t() 結果 */
+export function fillSlot(template: string, node: ReactNode, slot = "{n}"): ReactNode {
+  const [head, ...rest] = template.split(slot);
+  return <>{head}{node}{rest.join(slot)}</>;
+}
 
 /**
  * 災害四卡共用的迷你趨勢柱狀圖 —— **柱高 = 量、柱色 = 強度**。
@@ -88,6 +95,7 @@ export function HazardTrendBars({
   onSelectBar, selectedKey = null, bare: bareProp = false, maxValue = null, partColor: partColorProp = COLORS.accent, partLabel = "",
 }: Props) {
   const v2 = useMonitorV2();
+  const { t } = useLocale();
   // P5 主題：暗色值與改版前相同；淡色時資料色加深（D2）、灰樁換極性（X1）
   const theme = useMonitorTheme();
   const partColor = theme.fill(partColorProp);
@@ -137,7 +145,7 @@ export function HazardTrendBars({
             return (
               <div
                 key={barKey}
-                {...tip.bind(() => ({ title: b.label, rows: [{ value: "無資料" }], note: b.note }))}
+                {...tip.bind(() => ({ title: b.label, rows: [{ value: t("monitor.hazard.noData") }], note: b.note }))}
                 onClick={onClick}
                 style={{
                   flex: 1, minWidth: 0, height: "100%",

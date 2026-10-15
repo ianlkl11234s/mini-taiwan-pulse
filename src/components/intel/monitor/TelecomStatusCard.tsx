@@ -7,6 +7,8 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { FONT_CJK, FONT_DATA, relTime, withAlpha } from "../intelTokens";
+import { useLocale, type LocaleSnapshot } from "../../../state/localeStore";
+import type { MessageKey } from "../../../i18n/keys";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import {
@@ -34,14 +36,14 @@ type TimelinePhase = "loading" | "ready" | "error";
 const RIPE_CYAN = "#22d3ee";
 const IPV6_VIOLET = "#a78bfa";
 
-function timeLabel(iso: string | null, nowTs: number): string {
+function timeLabel(iso: string | null, nowTs: number, i18n: LocaleSnapshot): string {
   if (!iso) return "—";
   const ts = Math.floor(Date.parse(iso) / 1000);
-  return Number.isFinite(ts) ? relTime(ts, nowTs) : "—";
+  return Number.isFinite(ts) ? relTime(ts, nowTs, i18n) : "—";
 }
 
-function unixTimeLabel(ts: number | null, nowTs: number): string {
-  return ts == null ? "—" : relTime(ts, nowTs);
+function unixTimeLabel(ts: number | null, nowTs: number, i18n: LocaleSnapshot): string {
+  return ts == null ? "—" : relTime(ts, nowTs, i18n);
 }
 
 function newestMeasurementAt(measurements: InternetHealthMeasurement[]): string | null {
@@ -52,21 +54,21 @@ function newestMeasurementAt(measurements: InternetHealthMeasurement[]): string 
   return timestamps[0] ?? null;
 }
 
-const MEASUREMENT_LABELS: Record<InternetHealthMeasurementSignal, string> = {
-  probe_connectivity_ratio_ipv4: "Probe 回報率",
-  probe_connectivity_ratio_ipv6: "Probe 回報率",
-  ping_success_ratio_ipv4: "Ping 成功率",
-  ping_success_ratio_ipv6: "Ping 成功率",
-  median_rtt_ms_ipv4: "中位 RTT",
-  median_rtt_ms_ipv6: "中位 RTT",
-  reachable_asn_ratio_ipv4: "可達 ASN 比率",
-  reachable_asn_ratio_ipv6: "可達 ASN 比率",
-  prefix_visibility_ratio_ipv4: "Prefix 可見度",
-  prefix_visibility_ratio_ipv6: "Prefix 可見度",
-  withdrawn_prefix_ratio_ipv4: "撤回 Prefix 比率",
-  withdrawn_prefix_ratio_ipv6: "撤回 Prefix 比率",
-  origin_change_count_ipv4: "Origin 變更",
-  origin_change_count_ipv6: "Origin 變更",
+const MEASUREMENT_LABELS: Record<InternetHealthMeasurementSignal, MessageKey> = {
+  probe_connectivity_ratio_ipv4: "monitor.telecom.metricProbeRatio",
+  probe_connectivity_ratio_ipv6: "monitor.telecom.metricProbeRatio",
+  ping_success_ratio_ipv4: "monitor.telecom.metricPingSuccess",
+  ping_success_ratio_ipv6: "monitor.telecom.metricPingSuccess",
+  median_rtt_ms_ipv4: "monitor.telecom.metricMedianRtt",
+  median_rtt_ms_ipv6: "monitor.telecom.metricMedianRtt",
+  reachable_asn_ratio_ipv4: "monitor.telecom.metricReachableAsn",
+  reachable_asn_ratio_ipv6: "monitor.telecom.metricReachableAsn",
+  prefix_visibility_ratio_ipv4: "monitor.telecom.metricPrefixVisibility",
+  prefix_visibility_ratio_ipv6: "monitor.telecom.metricPrefixVisibility",
+  withdrawn_prefix_ratio_ipv4: "monitor.telecom.metricWithdrawnPrefix",
+  withdrawn_prefix_ratio_ipv6: "monitor.telecom.metricWithdrawnPrefix",
+  origin_change_count_ipv4: "monitor.telecom.metricOriginChange",
+  origin_change_count_ipv6: "monitor.telecom.metricOriginChange",
 };
 
 const ATLAS_SIGNALS: InternetHealthMeasurementSignal[] = [
@@ -97,24 +99,30 @@ function measurementSampleLabel(measurement: InternetHealthMeasurement): string 
   return `probes=${count}`;
 }
 
-function measurementStateLabel(measurement: InternetHealthMeasurement | undefined): string | null {
+type MeasurementStateCode = "baseline" | "partial" | "unavailable";
+
+function measurementStateCode(measurement: InternetHealthMeasurement | undefined): MeasurementStateCode | null {
   if (!measurement) return null;
-  if (measurement.state === "baseline_building") return "RIB 基準建立中";
-  if (measurement.state === "partial") return "PARTIAL";
-  if (measurement.state === "unavailable" || measurement.state === "missing") return "UNAVAILABLE";
+  if (measurement.state === "baseline_building") return "baseline";
+  if (measurement.state === "partial") return "partial";
+  if (measurement.state === "unavailable" || measurement.state === "missing") return "unavailable";
   return null;
 }
 
-/** v2 中文狀態字（舊版維持英文大寫） */
-const FRESHNESS_ZH: Record<string, string> = { fresh: "即時", stale: "過期", unavailable: "無法取得" };
-const CONFIDENCE_ZH: Record<string, string> = { low: "低", medium: "中", high: "高" };
+/** v2 狀態字（舊版維持英文大寫） */
+const FRESHNESS_KEYS: Record<string, MessageKey> = {
+  fresh: "monitor.telecom.fresh", stale: "monitor.telecom.stale", unavailable: "monitor.telecom.unavailable",
+};
+const CONFIDENCE_KEYS: Record<string, MessageKey> = {
+  low: "monitor.telecom.confLow", medium: "monitor.telecom.confMedium", high: "monitor.telecom.confHigh",
+};
 
-function measurementSampleLabelZh(measurement: InternetHealthMeasurement): string {
+function measurementSampleLabelZh(measurement: InternetHealthMeasurement, { t }: Pick<LocaleSnapshot, "t">): string {
   const count = measurement.sample_count?.toLocaleString("zh-TW") ?? "—";
-  if (measurement.source_key === "ripe_ris") return `BGP 訊息 ${count}`;
-  if (measurement.signal.startsWith("reachable_asn_ratio_")) return `ASN ${count}`;
-  if (measurement.signal.startsWith("median_rtt_ms_")) return `RTT 樣本 ${count}`;
-  return `探針 ${count}`;
+  if (measurement.source_key === "ripe_ris") return t("monitor.telecom.sampleBgp", { count });
+  if (measurement.signal.startsWith("reachable_asn_ratio_")) return t("monitor.telecom.sampleAsn", { count });
+  if (measurement.signal.startsWith("median_rtt_ms_")) return t("monitor.telecom.sampleRtt", { count });
+  return t("monitor.telecom.sampleProbe", { count });
 }
 
 /** v2 中文字在等寬（FONT_DATA）節點內用 CJK 字體 */
@@ -131,6 +139,8 @@ function MeasurementCard({
   nowTs: number;
 }) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const current = measurements.filter((item) => item.freshness === "fresh").length;
   const hasPartial = measurements.some((item) => item.state === "partial");
   const hasBaseline = measurements.some((item) => item.state === "baseline_building");
@@ -142,15 +152,17 @@ function MeasurementCard({
           : measurements.length > 0 ? "UNAVAILABLE" : "NO DATA";
   const pairs = signals.filter((_, index) => index % 2 === 0);
   const v2 = useMonitorV2();
-  const freshnessZh = current > 0 ? "即時"
-    : hasPartial ? "部分"
-      : hasBaseline ? "基準建立中"
-        : hasStale ? "過期"
-          : measurements.length > 0 ? "無法取得" : "無資料";
+  const freshnessZh = current > 0 ? t("monitor.telecom.fresh")
+    : hasPartial ? t("monitor.telecom.partial")
+      : hasBaseline ? t("monitor.telecom.baselineBuilding")
+        : hasStale ? t("monitor.telecom.stale")
+          : measurements.length > 0 ? t("monitor.telecom.unavailable") : t("monitor.telecom.noData");
   const stateLabel = (m: InternetHealthMeasurement | undefined) => {
-    const label = measurementStateLabel(m);
-    if (!v2) return label;
-    return label === "PARTIAL" ? "部分" : label === "UNAVAILABLE" ? "無法取得" : label;
+    const code = measurementStateCode(m);
+    if (code === null) return null;
+    if (code === "baseline") return t("monitor.telecom.stateBaseline");
+    if (!v2) return code === "partial" ? "PARTIAL" : "UNAVAILABLE";
+    return code === "partial" ? t("monitor.telecom.partial") : t("monitor.telecom.unavailable");
   };
 
   return (
@@ -178,7 +190,7 @@ function MeasurementCard({
           const ipv4 = measurements.find((item) => item.signal === `${base}_ipv4`);
           const ipv6 = measurements.find((item) => item.signal === `${base}_ipv6`);
           return [
-            <span key={`${base}-label`} style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textMuted }}>{MEASUREMENT_LABELS[signal]}</span>,
+            <span key={`${base}-label`} style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textMuted }}>{t(MEASUREMENT_LABELS[signal])}</span>,
             ...([ipv4, ipv6] as const).map((measurement, index) => (
               <span key={`${base}-${index}`} style={{ minWidth: 0 }}>
                 <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: measurement?.freshness === "stale" ? theme.p.textFaint : theme.p.textDefault }}>
@@ -192,15 +204,15 @@ function MeasurementCard({
                 <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
                   {measurement
                     ? v2
-                      ? `${FRESHNESS_ZH[measurement.freshness] ?? measurement.freshness} · ${measurementSampleLabelZh(measurement)}`
+                      ? `${FRESHNESS_KEYS[measurement.freshness] ? t(FRESHNESS_KEYS[measurement.freshness]!) : measurement.freshness} · ${measurementSampleLabelZh(measurement, i18n)}`
                       : `${measurement.freshness.toUpperCase()} · ${measurementSampleLabel(measurement)}`
                     : "—"}
                 </span>
                 {measurement && (
                   <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
-                    {timeLabel(measurement.source_updated_at, nowTs)}
+                    {timeLabel(measurement.source_updated_at, nowTs, i18n)}
                     {v2
-                      ? (CONFIDENCE_ZH[measurement.confidence] ? ` · 信心${CONFIDENCE_ZH[measurement.confidence]}` : "")
+                      ? (CONFIDENCE_KEYS[measurement.confidence] ? ` · ${t("monitor.telecom.confidence", { level: t(CONFIDENCE_KEYS[measurement.confidence]!) })}` : "")
                       : ` · confidence ${measurement.confidence}`}
                   </span>
                 )}
@@ -220,24 +232,24 @@ const SOURCE_LABELS: Record<InternetHealthTimelineSource, string> = {
   ripe_ris: "RIPE RIS Live",
 };
 
-const METRIC_OPTIONS: Record<InternetHealthTimelineSource, { value: InternetHealthTimelineMetric; label: string }[]> = {
+const METRIC_OPTIONS: Record<InternetHealthTimelineSource, { value: InternetHealthTimelineMetric; labelKey: MessageKey }[]> = {
   ripe_atlas: [
-    { value: "ping_success_ratio", label: "Ping 成功率" },
-    { value: "median_rtt_ms", label: "中位 RTT" },
-    { value: "probe_connectivity_ratio", label: "Probe 回報率" },
-    { value: "reachable_asn_ratio", label: "可達 ASN 比率" },
+    { value: "ping_success_ratio", labelKey: "monitor.telecom.metricPingSuccess" },
+    { value: "median_rtt_ms", labelKey: "monitor.telecom.metricMedianRtt" },
+    { value: "probe_connectivity_ratio", labelKey: "monitor.telecom.metricProbeRatio" },
+    { value: "reachable_asn_ratio", labelKey: "monitor.telecom.metricReachableAsn" },
   ],
   ripe_ris: [
-    { value: "prefix_visibility_ratio", label: "Prefix 可見度" },
-    { value: "withdrawn_prefix_ratio", label: "撤回 Prefix 比率" },
-    { value: "origin_change_count", label: "Origin 變更" },
+    { value: "prefix_visibility_ratio", labelKey: "monitor.telecom.metricPrefixVisibility" },
+    { value: "withdrawn_prefix_ratio", labelKey: "monitor.telecom.metricWithdrawnPrefix" },
+    { value: "origin_change_count", labelKey: "monitor.telecom.metricOriginChange" },
   ],
 };
 
-function chartUnit(summary: InternetHealthTimelineSummary): string {
+function chartUnit(summary: InternetHealthTimelineSummary, { t }: Pick<LocaleSnapshot, "t">): string {
   if (summary.unit === "ratio") return "%";
   if (summary.unit === "milliseconds") return "ms";
-  return "次";
+  return t("monitor.telecom.unitTimes");
 }
 
 export function toSparkline(summary: InternetHealthTimelineSummary, family: 4 | 6, mask?: CompleteMask | null): SparklinePoint[] {
@@ -338,21 +350,24 @@ function atlasDayMask(day: AtlasDaySummaries | null | undefined): CompleteMask |
  * 建議正常色帶（顯示單位：% 或 ms；同上調查文件 §3，30 天完整桶 p10–p90）。
  * 色帶畫 IPv4；IPv6 不同時寫進列的提示。roster 換版後基準會變。
  */
-const ATLAS_BANDS: Record<AtlasMetric, { unit: string; 4: { lo: number; hi: number; label: string }; 6: { lo: number; hi: number } }> = {
-  ping_success_ratio: { unit: "%", 4: { lo: 97, hi: 100, label: "IPv4 建議正常範圍" }, 6: { lo: 83, hi: 92 } },
-  median_rtt_ms: { unit: "ms", 4: { lo: 4, hi: 5.5, label: "IPv4 建議正常範圍" }, 6: { lo: 4, hi: 12 } },
-  probe_connectivity_ratio: { unit: "%", 4: { lo: 90, hi: 100, label: "IPv4 建議正常範圍" }, 6: { lo: 90, hi: 100 } },
-  reachable_asn_ratio: { unit: "%", 4: { lo: 85, hi: 100, label: "IPv4 建議正常範圍" }, 6: { lo: 70, hi: 85 } },
+const ATLAS_BANDS: Record<AtlasMetric, { unit: string; 4: { lo: number; hi: number }; 6: { lo: number; hi: number } }> = {
+  ping_success_ratio: { unit: "%", 4: { lo: 97, hi: 100 }, 6: { lo: 83, hi: 92 } },
+  median_rtt_ms: { unit: "ms", 4: { lo: 4, hi: 5.5 }, 6: { lo: 4, hi: 12 } },
+  probe_connectivity_ratio: { unit: "%", 4: { lo: 90, hi: 100 }, 6: { lo: 90, hi: 100 } },
+  reachable_asn_ratio: { unit: "%", 4: { lo: 85, hi: 100 }, 6: { lo: 70, hi: 85 } },
 };
 
 function isAtlasMetric(metric: InternetHealthTimelineMetric): metric is AtlasMetric {
   return (ATLAS_METRICS as InternetHealthTimelineMetric[]).includes(metric);
 }
 
-function bandRangeText(metric: AtlasMetric): string {
+function bandRangeText(metric: AtlasMetric, { t }: Pick<LocaleSnapshot, "t">): string {
   const b = ATLAS_BANDS[metric];
   const sp = b.unit === "%" ? "" : " ";
-  return `建議正常 IPv4 ${b[4].lo}–${b[4].hi}${sp}${b.unit}；IPv6 ${b[6].lo}–${b[6].hi}${sp}${b.unit}`;
+  return t("monitor.telecom.bandRange", {
+    v4: `${b[4].lo}–${b[4].hi}${sp}${b.unit}`,
+    v6: `${b[6].lo}–${b[6].hi}${sp}${b.unit}`,
+  });
 }
 
 function hhmm(ts: number): string {
@@ -381,6 +396,8 @@ export function RipeTimelineView({
 }) {
   const theme = useMonitorTheme();
   const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const { t } = i18n;
   const displayedSummary = summary?.range === range && summary.source === source && summary.metric === metric
     ? summary
     : null;
@@ -388,7 +405,11 @@ export function RipeTimelineView({
   const mask = v2 && displayedSummary && displayedSummary.source === "ripe_atlas" && displayedSummary.bucketSeconds === RAW_BUCKET_SECONDS
     ? completeMaskFrom(displayedSummary) ?? completeMask ?? null
     : null;
-  const atlasBand = v2 && source === "ripe_atlas" && isAtlasMetric(metric) ? ATLAS_BANDS[metric][4] : undefined;
+  const bandLabel = t("monitor.telecom.bandLabel");
+  const atlasBand = useMemo(
+    () => (v2 && source === "ripe_atlas" && isAtlasMetric(metric) ? { ...ATLAS_BANDS[metric][4], label: bandLabel } : undefined),
+    [v2, source, metric, bandLabel],
+  );
   const aggregatedProbeMetric = v2 && source === "ripe_atlas" && range !== "24h"
     && (metric === "probe_connectivity_ratio" || metric === "reachable_asn_ratio");
   const ipv4 = displayedSummary ? (mask ? hourlyCompleteSeries(displayedSummary, 4, mask) : toSparkline(displayedSummary, 4)) : [];
@@ -397,7 +418,8 @@ export function RipeTimelineView({
   const primary = hasIPv4 ? ipv4 : ipv6;
   const secondary = hasIPv4 ? ipv6 : [];
   const primaryFamily = hasIPv4 ? 4 : 6;
-  const metricLabel = METRIC_OPTIONS[source].find((item) => item.value === metric)?.label ?? metric;
+  const metricOption = METRIC_OPTIONS[source].find((item) => item.value === metric);
+  const metricLabel = metricOption ? t(metricOption.labelKey) : metric;
   // 兩個 ready 點中間只缺一格時相距 2 buckets；門檻必須 < 2 才會誠實斷線。
   const gapSec = mask ? HOURLY_GAP_SEC : displayedSummary ? displayedSummary.bucketSeconds * 1.5 : undefined;
 
@@ -405,8 +427,8 @@ export function RipeTimelineView({
     <div data-testid="ripe-internet-health-timeline" style={{ gridColumn: "1 / -1", padding: "12px", borderRadius: RADIUS.xl, border: `1px solid ${theme.p.borderMid}`, background: theme.isDark ? "rgba(2,8,23,0.42)" : theme.neutral(0.03), minWidth: 0 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
         <span>
-          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDefault }}>RIPE 歷史量測</b>
-          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>觀察趨勢與資料缺口 · 不單獨判定全臺正常或斷網</span>
+          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDefault }}>{t("monitor.telecom.timelineTitle")}</b>
+          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{t("monitor.telecom.timelineSub")}</span>
         </span>
         <span style={{ display: "flex", gap: 4 }}>
           {(Object.keys(RANGE_LABELS) as InternetHealthTimelineRange[]).map((item) => {
@@ -432,22 +454,22 @@ export function RipeTimelineView({
           })}
         </span>
         <label style={{ marginLeft: "auto", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
-          指標{" "}
-          <select aria-label="RIPE 時間軸指標" value={metric} onChange={(event) => onMetricChange?.(event.target.value as InternetHealthTimelineMetric)} style={{ marginLeft: 4, minHeight: 27, padding: "3px 24px 3px 7px", borderRadius: RADIUS.md, border: `1px solid ${theme.p.borderMid}`, background: theme.isDark ? "#09101d" : theme.p.optionBg, color: theme.p.textDefault, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs) }}>
-            {METRIC_OPTIONS[source].map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+          {t("monitor.telecom.metricField")}{" "}
+          <select aria-label={t("monitor.telecom.metricAria")} value={metric} onChange={(event) => onMetricChange?.(event.target.value as InternetHealthTimelineMetric)} style={{ marginLeft: 4, minHeight: 27, padding: "3px 24px 3px 7px", borderRadius: RADIUS.md, border: `1px solid ${theme.p.borderMid}`, background: theme.isDark ? "#09101d" : theme.p.optionBg, color: theme.p.textDefault, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs) }}>
+            {METRIC_OPTIONS[source].map((item) => <option key={item.value} value={item.value}>{t(item.labelKey)}</option>)}
           </select>
         </label>
       </div>
 
       <div style={{ minHeight: 148, marginTop: 8 }}>
-        {phase === "loading" && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>正在載入 {SOURCE_LABELS[source]} {RANGE_LABELS[range]} 歷史量測…</div>}
-        {phase === "error" && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.statusWarn, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>歷史量測暫時無法更新；目前數值仍可繼續查看</div>}
-        {displayedSummary && (displayedSummary.empty || primary.length === 0) && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), textAlign: "center" }}>這段期間尚無可畫的 {metricLabel}；空白不是 0，也不代表異常</div>}
+        {phase === "loading" && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>{t("monitor.telecom.timelineLoading", { source: SOURCE_LABELS[source], range: RANGE_LABELS[range] })}</div>}
+        {phase === "error" && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.statusWarn, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>{t("monitor.telecom.timelineError")}</div>}
+        {displayedSummary && (displayedSummary.empty || primary.length === 0) && <div style={{ height: 138, display: "grid", placeItems: "center", color: theme.p.textFaint, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), textAlign: "center" }}>{t("monitor.telecom.timelineEmpty", { metric: metricLabel })}</div>}
         {displayedSummary && primary.length > 0 && (
           <TimeseriesSparkline
             data={primary}
             timeDomain={{ from: displayedSummary.from, to: displayedSummary.to }}
-            unit={chartUnit(displayedSummary)}
+            unit={chartUnit(displayedSummary, i18n)}
             height={142}
             heightTier={v2 ? "std" : undefined}
             band={atlasBand}
@@ -464,13 +486,13 @@ export function RipeTimelineView({
       <div style={{ display: "flex", gap: "6px 14px", flexWrap: "wrap", alignItems: "center", marginTop: 4, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
         <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: theme.fill(RIPE_CYAN) }} />IPv4</span>
         <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: theme.fill(IPV6_VIOLET) }} />IPv6</span>
-        <span>IPv4 {v2 ? <Zh>涵蓋率</Zh> : "coverage"} {displayedSummary ? coverageLabel(displayedSummary.ipv4.coverage) : "—"}</span>
-        <span>IPv6 {v2 ? <Zh>涵蓋率</Zh> : "coverage"} {displayedSummary ? coverageLabel(displayedSummary.ipv6.coverage) : "—"}</span>
-        <span>最後回報 {displayedSummary ? unixTimeLabel(displayedSummary.latestAt, nowTs) : "—"}</span>
-        {displayedSummary?.partial && <span style={{ color: theme.p.statusWarn }}>含缺口／部分資料</span>}
-        {displayedSummary?.truncated && <span style={{ color: theme.p.statusErr }}>回傳達上限，圖表不完整</span>}
-        {mask && <span style={{ fontFamily: FONT_CJK }}>每小時只取完整量測平均；整小時沒有完整量測才畫斜線</span>}
-        {aggregatedProbeMetric && <span style={{ fontFamily: FONT_CJK, color: theme.p.statusWarn }}>7D／30D 此指標受殘缺量測桶拉低，僅供參考</span>}
+        <span>IPv4 {v2 ? <Zh>{t("monitor.telecom.coverage")}</Zh> : "coverage"} {displayedSummary ? coverageLabel(displayedSummary.ipv4.coverage) : "—"}</span>
+        <span>IPv6 {v2 ? <Zh>{t("monitor.telecom.coverage")}</Zh> : "coverage"} {displayedSummary ? coverageLabel(displayedSummary.ipv6.coverage) : "—"}</span>
+        <span>{t("monitor.telecom.lastReport", { time: displayedSummary ? unixTimeLabel(displayedSummary.latestAt, nowTs, i18n) : "—" })}</span>
+        {displayedSummary?.partial && <span style={{ color: theme.p.statusWarn }}>{t("monitor.telecom.gapPartial")}</span>}
+        {displayedSummary?.truncated && <span style={{ color: theme.p.statusErr }}>{t("monitor.telecom.truncated")}</span>}
+        {mask && <span style={{ fontFamily: FONT_CJK }}>{t("monitor.telecom.hourlyNote")}</span>}
+        {aggregatedProbeMetric && <span style={{ fontFamily: FONT_CJK, color: theme.p.statusWarn }}>{t("monitor.telecom.aggregatedNote")}</span>}
       </div>
     </div>
   );
@@ -481,6 +503,7 @@ function queryPhase(status: "unknown" | "ready" | "error" | "denied"): InternetH
 }
 
 function RipeTimelinePanel({ open, nowTs, completeMask }: { open: boolean; nowTs: number; completeMask?: CompleteMask | null }) {
+  const { t } = useLocale();
   const [range, setRange] = useState<InternetHealthTimelineRange>("24h");
   const [source, setSource] = useState<InternetHealthTimelineSource>("ripe_atlas");
   const [metric, setMetric] = useState<InternetHealthTimelineMetric>("ping_success_ratio");
@@ -502,7 +525,7 @@ function RipeTimelinePanel({ open, nowTs, completeMask }: { open: boolean; nowTs
   };
 
   return <>
-    <MonitorDataStatus label="RIPE 歷史量測" query={query} />
+    <MonitorDataStatus label={t("monitor.telecom.timelineTitle")} query={query} />
     <RipeTimelineView summary={query.data} phase={queryPhase(query.status)} range={range} source={source} metric={metric} nowTs={nowTs} onRangeChange={setRange} onSourceChange={handleSourceChange} onMetricChange={setMetric} completeMask={completeMask} />
   </>;
 }
@@ -544,20 +567,21 @@ export function resolveAtlasValue(
   return { value: null, completeAt: null, measurement };
 }
 
-function measurementTooltip(family: 4 | 6, resolved: ResolvedAtlasValue, nowTs: number): string {
+function measurementTooltip(family: 4 | 6, resolved: ResolvedAtlasValue, nowTs: number, i18n: LocaleSnapshot): string {
+  const { t } = i18n;
   const m = resolved.measurement;
   const live = m
     ? [
-      FRESHNESS_ZH[m.freshness] ?? m.freshness,
-      measurementSampleLabelZh(m),
-      timeLabel(m.source_updated_at, nowTs),
-      CONFIDENCE_ZH[m.confidence] ? `信心${CONFIDENCE_ZH[m.confidence]}` : null,
+      FRESHNESS_KEYS[m.freshness] ? t(FRESHNESS_KEYS[m.freshness]!) : m.freshness,
+      measurementSampleLabelZh(m, i18n),
+      timeLabel(m.source_updated_at, nowTs, i18n),
+      CONFIDENCE_KEYS[m.confidence] ? t("monitor.telecom.confidence", { level: t(CONFIDENCE_KEYS[m.confidence]!) }) : null,
     ].filter(Boolean).join(" · ")
-    : "無即時量測";
+    : t("monitor.telecom.tipNoLive");
   const used = resolved.completeAt != null
-    ? `；顯示值取最近完整量測 ${hhmm(resolved.completeAt)}`
-    : resolved.value == null ? "；近 24 小時無完整量測" : "";
-  return `IPv${family}：${live}${used}`;
+    ? t("monitor.telecom.tipUsedComplete", { time: hhmm(resolved.completeAt) })
+    : resolved.value == null ? t("monitor.telecom.tipNoComplete") : "";
+  return t("monitor.telecom.tipLine", { family, live, used });
 }
 
 function fmtAtlas(value: number | null): string {
@@ -579,17 +603,19 @@ function TelecomStatusV2Body({
   fresh: MonitorFreshness;
 }) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const atlas = useMemo(() => measurements.filter((item) => item.source_key === "ripe_atlas"), [measurements]);
   const ris = measurements.filter((item) => item.source_key === "ripe_ris");
   const freshMetricCount = measurements.filter((item) => item.freshness === "fresh").length;
   const reportingFeeds = Number(atlas.some((item) => item.freshness === "fresh")) + Number(ris.some((item) => item.freshness === "fresh"));
   const latestAt = newestMeasurementAt(measurements);
   const hasPartial = measurements.some((item) => item.state === "partial");
-  const [statusText, statusColor] = phase === "loading" ? ["讀取中", theme.p.textDim]
-    : phase === "error" ? ["更新中斷", theme.p.statusWarn]
-      : freshMetricCount === 0 ? [measurements.length > 0 ? "無法取得" : "等待量測", theme.p.textDim]
-        : hasPartial || reportingFeeds < 2 ? ["部分", theme.p.statusWarn]
-          : ["量測可用", theme.p.statusLive];
+  const [statusText, statusColor] = phase === "loading" ? [t("monitor.telecom.statusLoading"), theme.p.textDim]
+    : phase === "error" ? [t("monitor.telecom.statusInterrupted"), theme.p.statusWarn]
+      : freshMetricCount === 0 ? [measurements.length > 0 ? t("monitor.telecom.unavailable") : t("monitor.telecom.statusWaiting"), theme.p.textDim]
+        : hasPartial || reportingFeeds < 2 ? [t("monitor.telecom.partial"), theme.p.statusWarn]
+          : [t("monitor.telecom.statusAvailable"), theme.p.statusLive];
 
   const mask = useMemo(() => atlasDayMask(atlasDay), [atlasDay]);
   const domainSummary = atlasDay?.ping_success_ratio ?? ATLAS_METRICS.map((m) => atlasDay?.[m]).find((x) => x) ?? null;
@@ -607,12 +633,13 @@ function TelecomStatusV2Body({
   const fallbackTimes = rowsData.flatMap((r) => [r.v4.completeAt, r.v6.completeAt]).filter((t): t is number => t != null);
   const fallbackAt = fallbackTimes.length ? Math.min(...fallbackTimes) : null;
   const timeDomain = domainSummary ? { from: domainSummary.from, to: domainSummary.to } : undefined;
+  const bandLabel = t("monitor.telecom.bandLabel");
 
   const risFresh = ris.some((item) => item.freshness === "fresh");
-  const risStatus = risFresh ? "即時"
-    : ris.some((item) => item.state === "partial") ? "部分"
-      : ris.some((item) => item.freshness === "stale") ? "過期"
-        : ris.length > 0 ? "無法取得" : "無資料";
+  const risStatus = risFresh ? t("monitor.telecom.fresh")
+    : ris.some((item) => item.state === "partial") ? t("monitor.telecom.partial")
+      : ris.some((item) => item.freshness === "stale") ? t("monitor.telecom.stale")
+        : ris.length > 0 ? t("monitor.telecom.unavailable") : t("monitor.telecom.noData");
   const origin = ris.find((item) => item.signal === "origin_change_count_ipv4");
   const bgpMessages = ris.reduce<number | null>((max, item) => (
     item.sample_count != null && (max == null || item.sample_count > max) ? item.sample_count : max
@@ -625,18 +652,18 @@ function TelecomStatusV2Body({
         <span data-testid="internet-health-status-label">{statusText}</span>
       </div>
       <div>
-        <MonitorMetric value={`${freshMetricCount}/14`} unit="項即時" muted={freshMetricCount === 0 || fresh.muted} />
+        <MonitorMetric value={`${freshMetricCount}/14`} unit={t("monitor.telecom.unitFresh")} muted={freshMetricCount === 0 || fresh.muted} />
         <MonitorSub items={[
-          `回報來源 ${reportingFeeds}/2`,
-          `RIPE 最後更新 ${timeLabel(latestAt, nowTs)}`,
-          fallbackAt != null ? `以最近完整量測（${hhmm(fallbackAt)}）計` : null,
+          t("monitor.telecom.subSources", { n: reportingFeeds }),
+          t("monitor.telecom.subLastUpdate", { time: timeLabel(latestAt, nowTs, i18n) }),
+          fallbackAt != null ? t("monitor.telecom.subFallback", { time: hhmm(fallbackAt) }) : null,
         ]} />
         {fresh.reason && <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>}
       </div>
 
       <div data-testid="internet-health-atlas-rows">
         <MonitorRows rows={rowsData.map((r) => ({
-          label: METRIC_OPTIONS.ripe_atlas.find((o) => o.value === r.metric)!.label,
+          label: t(METRIC_OPTIONS.ripe_atlas.find((o) => o.value === r.metric)!.labelKey),
           chart: r.ipv4.length > 0 || r.ipv6.length > 0
             ? (
               <TimeseriesSparkline
@@ -648,48 +675,48 @@ function TelecomStatusV2Body({
                 heightTier="mini"
                 bare
                 fillArea={false}
-                band={ATLAS_BANDS[r.metric][4]}
+                band={{ ...ATLAS_BANDS[r.metric][4], label: bandLabel }}
                 staleUntil={fresh.staleUntil}
               />
             )
             : <div style={{ height: 28 }} />,
-          value: `${fmtAtlas(r.v4.value)}／${fmtAtlas(r.v6.value)}`,
+          value: t("monitor.telecom.pair", { v4: fmtAtlas(r.v4.value), v6: fmtAtlas(r.v6.value) }),
           unit: ATLAS_BANDS[r.metric].unit,
           title: [
-            bandRangeText(r.metric),
-            measurementTooltip(4, r.v4, nowTs),
-            measurementTooltip(6, r.v6, nowTs),
+            bandRangeText(r.metric, i18n),
+            measurementTooltip(4, r.v4, nowTs, i18n),
+            measurementTooltip(6, r.v6, nowTs, i18n),
           ].join("\n"),
         }))} />
         <div style={{ display: "flex", gap: 14, marginTop: 4, fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textDim }}>
           <span>{legendSwatch(theme.fill(RIPE_CYAN))}IPv4</span>
           <span>{legendSwatch(theme.fill(IPV6_VIOLET))}IPv6</span>
-          <span style={{ fontFamily: FONT_CJK }}>淡帶＝IPv4 建議正常範圍</span>
+          <span style={{ fontFamily: FONT_CJK }}>{t("monitor.telecom.bandLegend")}</span>
         </div>
       </div>
 
       <div>
         <MonitorSub items={[
-          `RIS 路由觀測：${risStatus}`,
-          `BGP 訊息 ${bgpMessages?.toLocaleString("zh-TW") ?? "—"}`,
-          origin?.value != null ? `Origin 變更 ${origin.value.toLocaleString("zh-TW")}` : null,
+          t("monitor.telecom.risLine", { status: risStatus }),
+          t("monitor.telecom.sampleBgp", { count: bgpMessages?.toLocaleString("zh-TW") ?? "—" }),
+          origin?.value != null ? `${t("monitor.telecom.metricOriginChange")} ${origin.value.toLocaleString("zh-TW")}` : null,
         ]} />
-        <MonitorNote>Prefix 可見度與撤回比率需先設定追蹤的 prefix，目前未設定，故不列出。</MonitorNote>
+        <MonitorNote>{t("monitor.telecom.risNote")}</MonitorNote>
       </div>
 
       {timeline}
 
-      <MonitorNote>Atlas 與 RIS 同屬 RIPE NCC，只算一個來源群組；100% Ping、0 Origin 變更不能單獨推論為正常。</MonitorNote>
+      <MonitorNote>{t("monitor.telecom.sourceNote")}</MonitorNote>
 
       <details data-testid="internet-health-howto" style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textMuted }}>
-        <summary style={{ cursor: "pointer", color: theme.p.textDim }}>怎麼看</summary>
+        <summary style={{ cursor: "pointer", color: theme.p.textDim }}>{t("monitor.telecom.howto")}</summary>
         <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.5 }}>
-          <li>IPv6 正常約 85–90%，不是 100%：有幾支臺灣探針本身沒有 IPv6。</li>
-          <li>24 小時線每小時只取探針數足夠的完整量測平均成一點；整小時都沒有完整量測才畫斜線。資料收集端修好前，大段斜線代表量測殘缺，不代表網路異常。</li>
-          <li>單點下跌不算異常；連續 15 分鐘以上，而且 IPv4／IPv6 或成功率／回報率一起掉，才值得注意。</li>
-          <li>本卡只 ping 一個目標（K-root），屬 RIPE 單一來源；判斷臺灣是否斷網，要對照 IODA 或 Cloudflare Radar。</li>
+          <li>{t("monitor.telecom.howto1")}</li>
+          <li>{t("monitor.telecom.howto2")}</li>
+          <li>{t("monitor.telecom.howto3")}</li>
+          <li>{t("monitor.telecom.howto4")}</li>
         </ul>
-        <div style={{ marginTop: 4, color: theme.p.textDim }}>參考：RIPE Atlas 文件、RIPE RIS 文件、IODA、Cloudflare Radar 開發文件</div>
+        <div style={{ marginTop: 4, color: theme.p.textDim }}>{t("monitor.telecom.howtoRef")}</div>
       </details>
     </div>
   );
@@ -706,13 +733,15 @@ export function TelecomStatusCardView({
   atlasDay?: AtlasDaySummaries | null;
 }) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const measurements = summary?.measurements ?? [];
   const atlasMeasurements = measurements.filter((item) => item.source_key === "ripe_atlas");
   const risMeasurements = measurements.filter((item) => item.source_key === "ripe_ris");
   const freshMetricCount = measurements.filter((item) => item.freshness === "fresh").length;
   const reportingFeeds = Number(atlasMeasurements.some((item) => item.freshness === "fresh")) + Number(risMeasurements.some((item) => item.freshness === "fresh"));
   const latestAt = newestMeasurementAt(measurements);
-  const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測更新中斷" : freshMetricCount > 0 ? "RIPE 量測可用" : "等待 RIPE 量測";
+  const statusLabel = phase === "loading" ? t("monitor.telecom.legacyStatusLoading") : phase === "error" ? t("monitor.telecom.legacyStatusError") : freshMetricCount > 0 ? t("monitor.telecom.legacyStatusOk") : t("monitor.telecom.legacyStatusWait");
   const statusColor = freshMetricCount > 0 && phase === "ready" ? RIPE_CYAN : theme.p.textDim;
   const v2 = useMonitorV2();
   // 資料時間＝最後 RIPE 更新（5 分週期，由 fresh 判斷標題列狀態）；DB 的逐項 freshness 細項標示保留在卡內
@@ -720,11 +749,11 @@ export function TelecomStatusCardView({
   const fresh = useMonitorFreshness("internetHealth", { time: Number.isFinite(latestMs) ? latestMs : null });
   if (v2) return <TelecomStatusV2Body measurements={measurements} phase={phase} nowTs={nowTs} timeline={timeline} atlasDay={atlasDay} fresh={fresh} />;
   const current = "CURRENT";
-  const description = phase === "error" ? `本次更新失敗；保留最後成功量測，但傳輸成功或舊資料都不等於 ${current}。` : "持續觀察 RIPE Atlas 端到端量測與 RIPE RIS BGP 路由更新。數值先如實呈現，異常判讀待基準累積後再加入。";
+  const description = phase === "error" ? t("monitor.telecom.descError", { current }) : t("monitor.telecom.descOk");
 
   return (
     <div data-testid="internet-health-card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {!v2 && <SectionLabel color={RIPE_CYAN}>RIPE NCC 網路觀察 · NETWORK OBSERVATION</SectionLabel>}
+      {!v2 && <SectionLabel color={RIPE_CYAN}>{t("monitor.telecom.legacyHeader")}</SectionLabel>}
       <div style={{ ...(v2 ? {} : { borderRadius: RADIUS.xl, border: `1px solid ${statusColor}55`, background: "linear-gradient(145deg, rgba(34,211,238,0.055), rgba(255,255,255,0.012) 48%)", padding: "12px 14px" }), display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))", gap: 14, alignItems: "stretch" }}>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10, gridColumn: "1 / -1" }}>
           <div>
@@ -732,25 +761,25 @@ export function TelecomStatusCardView({
               <span data-testid="internet-health-status-dot" style={{ width: 12, height: 12, borderRadius: RADIUS.full, background: statusColor }} />
               <span data-testid="internet-health-status-label" style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: statusColor }}>{statusLabel}</span>
             </div>
-            <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.6px", color: theme.p.textFaint }}>{v2 ? <Zh>僅觀察 · 基準建立中</Zh> : "OBSERVATION ONLY · BASELINE BUILDING"}</div>
+            <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.6px", color: theme.p.textFaint }}>{v2 ? <Zh>{t("monitor.telecom.observeOnly")}</Zh> : "OBSERVATION ONLY · BASELINE BUILDING"}</div>
           </div>
           <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), lineHeight: 1.45, color: theme.p.textMuted }}>{description}</div>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>即時指標</Zh> : "FRESH METRICS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: theme.p.textDefault }}>{freshMetricCount}/14</b></span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>回報來源</Zh> : "REPORTING FEEDS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: theme.p.textDefault }}>{reportingFeeds}/2</b></span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>RIPE 最後更新</Zh> : "LAST RIPE UPDATE"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textDefault }}>{timeLabel(latestAt, nowTs)}</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>{t("monitor.telecom.freshMetrics")}</Zh> : "FRESH METRICS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: theme.p.textDefault }}>{freshMetricCount}/14</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>{t("monitor.telecom.reportingFeeds")}</Zh> : "REPORTING FEEDS"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.md), color: theme.p.textDefault }}>{reportingFeeds}/2</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>{v2 ? <Zh>{t("monitor.telecom.lastRipeUpdate")}</Zh> : "LAST RIPE UPDATE"}<br /><b style={{ fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textDefault }}>{timeLabel(latestAt, nowTs, i18n)}</b></span>
           </div>
         </div>
 
         <div style={{ gridColumn: "1 / -1", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 10 }}>
-          <MeasurementCard title="RIPE Atlas" subtitle="端到端主動量測 · RIPE NCC" sourceKey="ripe_atlas" measurements={atlasMeasurements} signals={ATLAS_SIGNALS} nowTs={nowTs} />
-          <MeasurementCard title="RIPE RIS Live" subtitle="BGP 路由觀測 · RIPE NCC" sourceKey="ripe_ris" measurements={risMeasurements} signals={RIS_SIGNALS} nowTs={nowTs} />
+          <MeasurementCard title="RIPE Atlas" subtitle={t("monitor.telecom.cardSubAtlas")} sourceKey="ripe_atlas" measurements={atlasMeasurements} signals={ATLAS_SIGNALS} nowTs={nowTs} />
+          <MeasurementCard title="RIPE RIS Live" subtitle={t("monitor.telecom.cardSubRis")} sourceKey="ripe_ris" measurements={risMeasurements} signals={RIS_SIGNALS} nowTs={nowTs} />
         </div>
 
         {timeline}
 
         <div style={{ gridColumn: "1 / -1", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), lineHeight: 1.5, color: theme.p.textFaint }}>
-          Atlas 與 RIS 同屬 RIPE NCC，只算一個來源群組。{current} 只表示至少一項量測新鮮；100% Ping、0 Origin 變更或 0 Withdrawal 都不能單獨推導為正常。圖表缺口維持空白，不補成 0。
+          {t("monitor.telecom.legacyFootnote", { current })}
         </div>
       </div>
     </div>
@@ -758,6 +787,7 @@ export function TelecomStatusCardView({
 }
 
 export function TelecomStatusCard({ open, nowTs }: { open: boolean; nowTs: number }) {
+  const { t } = useLocale();
   const load = useCallback(() => fetchInternetHealthStatus(), []);
   const query = useMonitorResource({
     open,
@@ -784,8 +814,8 @@ export function TelecomStatusCard({ open, nowTs }: { open: boolean; nowTs: numbe
 
   const timeline = useMemo(() => <RipeTimelinePanel open={open} nowTs={nowTs} completeMask={dayMask} />, [dayMask, nowTs, open]);
   return <>
-    <MonitorDataStatus label="RIPE 現況量測" query={query} />
-    {v2 && <MonitorDataStatus label="RIPE 24 小時量測" query={dayQuery} />}
+    <MonitorDataStatus label={t("monitor.telecom.dsCurrent")} query={query} />
+    {v2 && <MonitorDataStatus label={t("monitor.telecom.ds24h")} query={dayQuery} />}
     <TelecomStatusCardView summary={query.data} phase={queryPhase(query.status)} nowTs={nowTs} timeline={timeline} atlasDay={v2 ? dayQuery.data : undefined} />
   </>;
 }

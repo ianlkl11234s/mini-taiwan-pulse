@@ -15,6 +15,7 @@ import { useMonitorTheme, type MonitorTheme } from "./monitorTheme";
 import { useMonitorFreshness } from "./monitorFreshness";
 import { MonitorKpis, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
+import { useLocale } from "../../../state/localeStore";
 
 /**
  * 台鐵誤點監測（migration 369）
@@ -52,6 +53,8 @@ function delayColor(theme: MonitorTheme, min: number | null): string {
 
 export function TraDelayBoard({ open }: Props) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const trendLabel = (l: (typeof TREND_LINES)[number]) => i18n.t("monitor.tra.over", { min: l.min });
   const loadDays = useCallback(() => fetchTraDelaySummary(WINDOW), []);
   const loadTrains = useCallback(() => fetchTraDelayTrains("", 5, TOP_N), []);
   const daysQuery = useMonitorResource({ open, queryKey: "tra-delay-summary", intervalMs: 60 * 60_000, emptyData: EMPTY_TRA_DAYS, load: loadDays });
@@ -98,22 +101,22 @@ export function TraDelayBoard({ open }: Props) {
     };
   }, [days]);
   const over5Extra = useMemo(
-    () => ({ data: v2Lines.over5, color: TREND_LINES[1].color, label: TREND_LINES[1].label }),
-    [v2Lines],
+    () => ({ data: v2Lines.over5, color: TREND_LINES[1].color, label: trendLabel(TREND_LINES[1]) }),
+    [v2Lines, i18n],
   );
   const over15More = useMemo(
-    () => [{ data: v2Lines.over15, color: TREND_LINES[2].color, label: TREND_LINES[2].label }],
-    [v2Lines],
+    () => [{ data: v2Lines.over15, color: TREND_LINES[2].color, label: trendLabel(TREND_LINES[2]) }],
+    [v2Lines, i18n],
   );
 
   if (!latest) {
     return (
       <div>
         {!v2 && <SectionLabel>TRA DELAY</SectionLabel>}
-        <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
-        <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.tra.dataSummary")} query={daysQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.tra.dataTrains")} query={trainsQuery} />
         <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textDim }}>
-          {daysQuery.status === "unknown" ? "資料載入中…" : "尚無台鐵誤點資料"}
+          {daysQuery.status === "unknown" ? i18n.t("monitor.tra.loading") : i18n.t("monitor.tra.none")}
         </div>
       </div>
     );
@@ -131,41 +134,41 @@ export function TraDelayBoard({ open }: Props) {
   if (v2) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
-        <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
-        <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.tra.dataSummary")} query={daysQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.tra.dataTrains")} query={trainsQuery} />
         <MonitorKpis
           muted={fresh.muted}
           items={[
-            { label: "到站誤點", value: pctV2 === null ? "—" : pctV2.toFixed(0), unit: pctV2 === null ? undefined : "%" },
-            { label: "平均誤點", value: latest.nearDestAvgDelay === null ? "—" : latest.nearDestAvgDelay.toFixed(1), unit: latest.nearDestAvgDelay === null ? undefined : "分" },
+            { label: i18n.t("monitor.tra.arrivalDelay"), value: pctV2 === null ? "—" : pctV2.toFixed(0), unit: pctV2 === null ? undefined : "%" },
+            { label: i18n.t("monitor.tra.avgDelay"), value: latest.nearDestAvgDelay === null ? "—" : latest.nearDestAvgDelay.toFixed(1), unit: latest.nearDestAvgDelay === null ? undefined : i18n.t("monitor.tra.unitMin") },
             // 這格刻意維持口徑 A：問的是「當日最糟到什麼程度」，本來就該看途中峰值
-            { label: "途中最大", value: latest.maxDelayMin === null ? "—" : latest.maxDelayMin, unit: latest.maxDelayMin === null ? undefined : "分" },
+            { label: i18n.t("monitor.tra.maxEnRoute"), value: latest.maxDelayMin === null ? "—" : latest.maxDelayMin, unit: latest.maxDelayMin === null ? undefined : i18n.t("monitor.tra.unitMin") },
           ]}
         />
         <MonitorSub
           items={[
-            `逾 15 分 ${pct15V2 === null ? "—" : `${pct15V2.toFixed(0)}%`}`,
-            `可判定 ${latest.nearDestTrains ?? "—"} 班`,
-            `${latest.observedTrains ?? "—"} 班在跑`,
+            i18n.t("monitor.tra.over15", { pct: pct15V2 === null ? "—" : `${pct15V2.toFixed(0)}%` }),
+            i18n.t("monitor.tra.assessable", { count: latest.nearDestTrains ?? "—" }),
+            i18n.t("monitor.tra.running", { count: latest.observedTrains ?? "—" }),
           ]}
         />
         {v2Lines.n >= 2 && (
           <div data-testid="tra-delay-trend" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <div style={{ fontSize: MF.label, color: theme.p.textDim }}>
-              到站誤點比例 近 {v2Lines.n} 天{v2Lines.gaps > 0 && ` · ${v2Lines.gaps} 天缺班表`}
+              {i18n.t("monitor.tra.trendTitle", { count: v2Lines.n })}{v2Lines.gaps > 0 && i18n.t("monitor.tra.gapsInline", { count: v2Lines.gaps })}
             </div>
             <TimeseriesSparkline
               data={v2Lines.over0} unit="%" heightTier="lg" fillArea={false}
-              lineColor={TREND_LINES[0].color} seriesLabel={TREND_LINES[0].label}
+              lineColor={TREND_LINES[0].color} seriesLabel={trendLabel(TREND_LINES[0])}
               extraSeries={over5Extra} moreSeries={over15More}
               gapSec={TRA_GAP_SEC} showTooltip tooltipDateFormat="date"
               staleUntil={fresh.staleUntil}
             />
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: theme.p.textMuted }}>
               {TREND_LINES.map((l) => (
-                <span key={l.label} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                <span key={l.min} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
                   <span style={{ width: 8, height: 2, background: theme.fill(l.color), display: "inline-block" }} />
-                  {l.label}
+                  {trendLabel(l)}
                 </span>
               ))}
             </div>
@@ -174,7 +177,7 @@ export function TraDelayBoard({ open }: Props) {
         {trains.length > 0 && (
           <details data-testid="tra-worst-trains">
             <summary style={{ cursor: "pointer", fontSize: MF.label, color: theme.p.textMuted }}>
-              最誤點車次 {trains.length} 班
+              {i18n.t("monitor.tra.worstTrainsCount", { count: trains.length })}
             </summary>
             {trains.map((t) => (
               <div
@@ -186,14 +189,14 @@ export function TraDelayBoard({ open }: Props) {
                   {t.trainType}
                 </span>
                 <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textDim, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {t.originStation && t.destinationStation ? `${t.originStation}→${t.destinationStation}` : "班表外加班車"}
+                  {t.originStation && t.destinationStation ? `${t.originStation}→${t.destinationStation}` : i18n.t("monitor.tra.extraTrain")}
                 </span>
                 <span style={{ fontFamily: FONT_DATA, fontSize: MF.body, color: delayColor(theme, t.maxDelayMin), minWidth: 40, textAlign: "right", whiteSpace: "nowrap" }}>
                   {t.maxDelayMin ?? "—"}′
                 </span>
                 {/* max 與 p90 落差大 = 上游尖刺，不是真的誤點這麼久 */}
                 {t.maxDelayMin !== null && t.p90DelayMin !== null && t.maxDelayMin - t.p90DelayMin >= 20 && (
-                  <span title={`多數時間僅 ${t.p90DelayMin} 分，此峰值疑為上游資料尖刺`} style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textFaint }}>
+                  <span title={i18n.t("monitor.tra.spikeTitle", { min: t.p90DelayMin })} style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textFaint }}>
                     ⚠
                   </span>
                 )}
@@ -207,11 +210,10 @@ export function TraDelayBoard({ open }: Props) {
         <div style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textFaint }}>
           {latest.serviceDate}
           {latest.coveragePct !== null && latest.scheduledTrains !== null && latest.observedTrains !== null && (
-            <> · 覆蓋 {latest.coveragePct.toFixed(0)}%（{latest.observedTrains}/{latest.scheduledTrains} 班）</>
+            <>{i18n.t("monitor.tra.coverage", { pct: latest.coveragePct.toFixed(0), observed: latest.observedTrains, scheduled: latest.scheduledTrains })}</>
           )}
           <br />
-          到站誤點口徑：取最後觀測（終點前 3 站內）的誤點，分母為可判定班次。
-          非官方數字 —— TDX 在列車抵達終點前 1~3 站即停止回報，拿不到真正到站時刻。
+          {i18n.t("monitor.tra.footnote")}
         </div>
       </div>
     );
@@ -220,28 +222,28 @@ export function TraDelayBoard({ open }: Props) {
   return (
     <div>
       {!v2 && <SectionLabel>TRA DELAY</SectionLabel>}
-      <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
-      <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
+      <MonitorDataStatus label={i18n.t("monitor.tra.dataSummary")} query={daysQuery} />
+      <MonitorDataStatus label={i18n.t("monitor.tra.dataTrains")} query={trainsQuery} />
 
       {/* 三個主數字 */}
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <Stat
-          label="到站誤點"
+          label={i18n.t("monitor.tra.arrivalDelay")}
           value={`${delayedPct.toFixed(0)}%`}
-          sub={`逾 15 分 ${delayedPct15.toFixed(0)}%`}
+          sub={i18n.t("monitor.tra.over15", { pct: `${delayedPct15.toFixed(0)}%` })}
           color={delayedPct >= 15 ? theme.p.statusWarn : theme.p.textStrong}
         />
         <Stat
-          label="平均誤點"
+          label={i18n.t("monitor.tra.avgDelay")}
           value={latestS.nearDestAvgDelay === null ? "—" : `${latestS.nearDestAvgDelay.toFixed(1)}′`}
-          sub={`可判定 ${latestS.nearDestTrains} 班`}
+          sub={i18n.t("monitor.tra.assessable", { count: latestS.nearDestTrains })}
           color={delayColor(theme, latestS.nearDestAvgDelay)}
         />
         {/* 這格刻意維持口徑 A：問的是「當日最糟到什麼程度」，本來就該看途中峰值 */}
         <Stat
-          label="途中最大"
+          label={i18n.t("monitor.tra.maxEnRoute")}
           value={latestS.maxDelayMin === null ? "—" : `${latestS.maxDelayMin}′`}
-          sub={`${latestS.observedTrains} 班在跑`}
+          sub={i18n.t("monitor.tra.running", { count: latestS.observedTrains })}
           color={delayColor(theme, latestS.maxDelayMin)}
         />
       </div>
@@ -255,7 +257,7 @@ export function TraDelayBoard({ open }: Props) {
           <div style={{
             fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, marginBottom: 4,
           }}>
-            最誤點車次
+            {i18n.t("monitor.tra.worstTrains")}
           </div>
           {trains.map((t) => (
             <div
@@ -283,7 +285,7 @@ export function TraDelayBoard({ open }: Props) {
               }}>
                 {t.originStation && t.destinationStation
                   ? `${t.originStation}→${t.destinationStation}`
-                  : "班表外加班車"}
+                  : i18n.t("monitor.tra.extraTrain")}
               </span>
               <span style={{
                 fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: delayColor(theme, t.maxDelayMin),
@@ -295,7 +297,7 @@ export function TraDelayBoard({ open }: Props) {
               {t.maxDelayMin !== null && t.p90DelayMin !== null
                 && t.maxDelayMin - t.p90DelayMin >= 20 && (
                 <span
-                  title={`多數時間僅 ${t.p90DelayMin} 分，此峰值疑為上游資料尖刺`}
+                  title={i18n.t("monitor.tra.spikeTitle", { min: t.p90DelayMin })}
                   style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}
                 >
                   ⚠
@@ -311,11 +313,10 @@ export function TraDelayBoard({ open }: Props) {
       }}>
         {latestS.serviceDate}
         {latestS.coveragePct !== null && latestS.scheduledTrains !== null && (
-          <> · 覆蓋 {latestS.coveragePct.toFixed(0)}%（{latestS.observedTrains}/{latestS.scheduledTrains} 班）</>
+          <>{i18n.t("monitor.tra.coverage", { pct: latestS.coveragePct.toFixed(0), observed: latestS.observedTrains, scheduled: latestS.scheduledTrains })}</>
         )}
         <br />
-        到站誤點口徑：取最後觀測（終點前 3 站內）的誤點，分母為可判定班次。
-        非官方數字 —— TDX 在列車抵達終點前 1~3 站即停止回報，拿不到真正到站時刻。
+        {i18n.t("monitor.tra.footnote")}
       </div>
     </div>
   );
@@ -333,15 +334,16 @@ export function TraDelayBoard({ open }: Props) {
  * nearDestTrains = 0 的日子（班表缺漏）折線**斷開**，不補值連過去。
  */
 const TREND_LINES = [
-  { label: "超過 0 分",  color: COLORS.accent,     pick: (d: TraDelayDayStrict) => d.nearDestOver0 },
-  { label: "超過 5 分",  color: COLORS.statusWarn, pick: (d: TraDelayDayStrict) => d.nearDestOver5 },
-  { label: "超過 15 分", color: COLORS.statusErr,  pick: (d: TraDelayDayStrict) => d.nearDestOver15 },
+  { min: 0,  color: COLORS.accent,     pick: (d: TraDelayDayStrict) => d.nearDestOver0 },
+  { min: 5,  color: COLORS.statusWarn, pick: (d: TraDelayDayStrict) => d.nearDestOver5 },
+  { min: 15, color: COLORS.statusErr,  pick: (d: TraDelayDayStrict) => d.nearDestOver15 },
 ] as const;
 
 const CHART_H = 46;
 
 function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
 
@@ -382,8 +384,8 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
     if (d.nearDestTrains === 0) {
       tip.show(e.clientX, e.clientY, {
         title: d.serviceDate,
-        rows: [{ label: "到站誤點", value: "無資料" }],
-        note: `當日缺班表，無法判斷是否抵達終點（觀測 ${d.observedTrains} 班）`,
+        rows: [{ label: i18n.t("monitor.tra.arrivalDelay"), value: i18n.t("monitor.noData") }],
+        note: i18n.t("monitor.tra.tipMissing", { count: d.observedTrains }),
       });
       return;
     }
@@ -391,10 +393,10 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
       title: d.serviceDate,
       rows: TREND_LINES.map((l) => ({
         dot: theme.fill(l.color),
-        label: l.label,
-        value: `${((100 * l.pick(d)) / d.nearDestTrains).toFixed(1)}%（${l.pick(d)} 班）`,
+        label: i18n.t("monitor.tra.over", { min: l.min }),
+        value: i18n.t("monitor.tra.tipValue", { pct: ((100 * l.pick(d)) / d.nearDestTrains).toFixed(1), count: l.pick(d) }),
       })),
-      note: `到站誤點口徑・可判定 ${d.nearDestTrains} 班（全日觀測 ${d.observedTrains} 班）`,
+      note: i18n.t("monitor.tra.tipNote", { assessable: d.nearDestTrains, observed: d.observedTrains }),
     });
   }
 
@@ -404,8 +406,8 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
         display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: v2 ? "wrap" : undefined,
         fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, marginBottom: 3,
       }}>
-        <span>到站誤點比例 近 {geom.pts.length} 天</span>
-        <span>{geom.gaps > 0 && `${geom.gaps} 天缺班表・`}上緣 {(geom.max * 100).toFixed(0)}%</span>
+        <span>{i18n.t("monitor.tra.trendTitle", { count: geom.pts.length })}</span>
+        <span>{geom.gaps > 0 && i18n.t("monitor.tra.gapsLegacy", { count: geom.gaps })}{i18n.t("monitor.tra.topEdge", { pct: (geom.max * 100).toFixed(0) })}</span>
       </div>
 
       {/* ⚠️ 帶 viewBox 的 svg 有內建長寬比，直接放進 flex 會自己算高度把格子撐爆，
@@ -416,13 +418,13 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
           preserveAspectRatio="none"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
           role="img"
-          aria-label={`近 ${geom.pts.length} 天到站誤點比例走勢，含超過 0、5、15 分鐘三條線`}
+          aria-label={i18n.t("monitor.tra.chartLabel", { count: geom.pts.length })}
           onMouseMove={handleMove}
           onMouseLeave={tip.hide}
         >
           {geom.paths.map((d, i) => (
             <path
-              key={TREND_LINES[i]!.label}
+              key={TREND_LINES[i]!.min}
               d={d}
               fill="none"
               stroke={theme.fill(TREND_LINES[i]!.color)}
@@ -438,12 +440,12 @@ function DelayTrendChart({ days }: { days: TraDelayDayStrict[] }) {
       {/* 圖例 */}
       <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: v2 ? "wrap" : undefined }}>
         {TREND_LINES.map((l) => (
-          <span key={l.label} style={{
+          <span key={l.min} style={{
             display: "flex", alignItems: "center", gap: 4,
             fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim,
           }}>
             <span style={{ width: 8, height: 2, background: theme.fill(l.color), display: "inline-block" }} />
-            {l.label}
+            {i18n.t("monitor.tra.over", { min: l.min })}
           </span>
         ))}
       </div>

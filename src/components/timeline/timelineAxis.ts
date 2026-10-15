@@ -5,9 +5,14 @@
  * 台灣沒有日光節約時間，整點對齊一律用固定 +8h（與 useTimeline 的 dayStartUnix 相同）。
  */
 
+import { localeStore, type LocaleSnapshot } from "../../state/localeStore";
+
 export const TAIPEI_OFFSET_SECONDS = 8 * 3600;
 const HOUR = 3600;
-const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
+const WEEKDAY_KEYS = [
+  "timeline.weekday.sun", "timeline.weekday.mon", "timeline.weekday.tue", "timeline.weekday.wed",
+  "timeline.weekday.thu", "timeline.weekday.fri", "timeline.weekday.sat",
+] as const;
 
 export interface AxisTick {
   /** 0–1，軸上位置 */
@@ -51,9 +56,10 @@ export function formatMonthDay(t: number): string {
   return `${p.month}/${p.day}`;
 }
 
-/** 星期中文（日、一…） */
-export function weekdayLabel(t: number): string {
-  return WEEKDAYS[taipeiParts(t).weekday] ?? "";
+/** 星期的短名（中文：日、一…；英文：Sun…）。`i18n` 不傳＝localeStore 目前語系。 */
+export function weekdayLabel(ts: number, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  const key = WEEKDAY_KEYS[taipeiParts(ts).weekday];
+  return key ? i18n.t(key) : "";
 }
 
 /**
@@ -118,6 +124,7 @@ export function describeDataWindow(
   dataEndExclusive: number,
   firstUtcDate: string,
   lastUtcDate: string,
+  { t }: LocaleSnapshot = localeStore.getSnapshot(),
 ): string | null {
   const md = (iso: string) => {
     const [, m, d] = iso.split("-").map(Number);
@@ -125,9 +132,9 @@ export function describeDataWindow(
   };
   const cutStart = dataStart > windowStart;
   const cutEnd = dataEndExclusive < windowEnd;
-  if (cutStart && cutEnd) return `${subject}只有 ${md(firstUtcDate)}–${md(lastUtcDate)}`;
-  if (cutEnd) return `${subject}只到 ${md(lastUtcDate)}`;
-  if (cutStart) return `${subject}從 ${md(firstUtcDate)} 起`;
+  if (cutStart && cutEnd) return t("timeline.dataWindow.between", { subject, start: md(firstUtcDate), end: md(lastUtcDate) });
+  if (cutEnd) return t("timeline.dataWindow.until", { subject, end: md(lastUtcDate) });
+  if (cutStart) return t("timeline.dataWindow.from", { subject, start: md(firstUtcDate) });
   return null;
 }
 

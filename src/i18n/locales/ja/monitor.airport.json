@@ -1,0 +1,16 @@
+{
+  "monitor.airport.dataLabel": "空港の旅客データ",
+  "monitor.airport.unitPeople": "人",
+  "monitor.airport.out24h": "出国（24時間）",
+  "monitor.airport.loading": "読み込み中…",
+  "monitor.airport.arrivals": "入国",
+  "monitor.airport.departures": "出国",
+  "monitor.airport.source": "出典：移民署 APIS（毎時）",
+  "monitor.airport.staleReason": "空港データの収集が停止しているか、24時間以内のデータがありません",
+  "monitor.airport.titleLegacy": "空港出入国 · BORDER PAX 24H",
+  "monitor.airport.in24h": "24時間 入国",
+  "monitor.airport.out24hLegacy": "24時間 出国",
+  "monitor.airport.noData": "データなし（この空港は対象外）",
+  "monitor.airport.noDataLegacy": "データなし（border_airport_snapshot はこの空港を対象としていません）",
+  "monitor.airport.sourceLegacy": "出典：移民署 APIS（毎時 / get_airport_hourly_pax）"
+}

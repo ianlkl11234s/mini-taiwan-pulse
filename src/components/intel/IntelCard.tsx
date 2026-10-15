@@ -1,5 +1,7 @@
 import type { CSSProperties } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import {
   COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS,
   relTime, clockTime, chipTint, chipOutline, splitRelTimeParts, withAlpha,
@@ -77,6 +79,8 @@ function btnGhost(palette: IntelPalette, v2: boolean): CSSProperties {
 
 export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle, nowTs }: Props) {
   const palette = useIntelTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const v2 = useMonitorV2();
   // 30s 內相對時間（「3 分鐘前」）視覺無差，元件內訂閱避開父層 1Hz cascade。
   // nowTs prop 退為「mount 時 fallback / SSR」之用。
@@ -145,7 +149,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
           >
             <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: cat.color }} />
             <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600 }}>
-              {cat.label}
+              {enumLabel("eventNewsCategory", cat.key, cat.label, i18n)}
             </span>
           </span>
           {e.scope === "global" && (
@@ -162,7 +166,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 ...chipOutline(COLORS.cluster, clusterColor),
               }}
             >
-              國際
+              {t("intel.card.international")}
             </span>
           )}
           {trending && (
@@ -179,7 +183,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 ...chipOutline(COLORS.surge, chipText(COLORS.surge, palette)),
               }}
             >
-              🔥 升溫
+              {t("intel.card.surging")}
             </span>
           )}
           {e.gis_relevance === 3 && (
@@ -193,11 +197,11 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 ...chipOutline(palette.statusWarn),
               }}
             >
-              重大
+              {enumLabel("intel.gis", 3, "重大", i18n)}
             </span>
           )}
-          {e.is_event === false && <span style={{ ...chipGhost(v2), ...chipOutline(palette.textDim) }}>聲明</span>}
-          {e.origin_label && <span style={{ ...chipGhost(v2), ...chipOutline(palette.textDim) }}>{e.origin_label}</span>}
+          {e.is_event === false && <span style={{ ...chipGhost(v2), ...chipOutline(palette.textDim) }}>{t("intel.card.statement")}</span>}
+          {e.origin_label && <span style={{ ...chipGhost(v2), ...chipOutline(palette.textDim) }}>{enumLabel("intel.origin", e.origin_label, e.origin_label, i18n)}</span>}
           <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
             <span
               style={{
@@ -207,7 +211,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 whiteSpace: "nowrap",
               }}
             >
-              {splitRelTimeParts(relTime(e.published_ts, liveNow)).map((p, i) =>
+              {splitRelTimeParts(relTime(e.published_ts, liveNow, i18n)).map((p, i) =>
                 p.mono ? <span key={i} style={{ fontFamily: FONT_DATA }}>{p.text}</span> : <span key={i}>{p.text}</span>,
               )}
             </span>
@@ -226,7 +230,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             textWrap: "pretty" as const,
           }}
         >
-          {e.title}
+          {e.title === "未命名事件" ? enumLabel("intel.place", e.title, e.title, i18n) : e.title}
         </div>
 
         {/* location + clock — 地名 CJK，時鐘 mono */}
@@ -250,7 +254,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 textOverflow: "ellipsis",
               }}
             >
-              ◎ {e.location_name}
+              ◎ {enumLabel("intel.place", e.location_name, e.location_name, i18n)}
             </span>
             <span>·</span>
             <span style={{ fontFamily: FONT_DATA }}>{clockTime(e.published_ts)}</span>
@@ -303,7 +307,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 color: clusterColor,
               }}
             >
-              <IntelIcon d={ICON.cluster} size={11} color={clusterColor} /> {e.related_count} 則相關
+              <IntelIcon d={ICON.cluster} size={11} color={clusterColor} /> {t("intel.card.related", { count: e.related_count ?? 0 })}
             </span>
           )}
           {conf != null && (
@@ -344,7 +348,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
             >
               {e.county && (
                 <>
-                  <span style={{ color: palette.textFaint }}>地點</span>
+                  <span style={{ color: palette.textFaint }}>{t("intel.card.location")}</span>
                   <span style={{ color: palette.textDefault }}>
                     {e.county}
                     {e.location_name ? ` · ${e.location_name}` : ""}
@@ -353,7 +357,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               )}
               {e.confidence != null && (
                 <>
-                  <span style={{ color: palette.textFaint }}>信心度</span>
+                  <span style={{ color: palette.textFaint }}>{t("intel.card.confidence")}</span>
                   <span style={{ color: palette.textDefault, fontFamily: FONT_DATA }}>
                     {Math.round(e.confidence * 100)}%
                   </span>
@@ -361,23 +365,23 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               )}
               {e.gis_relevance != null && gisLevel && (
                 <>
-                  <span style={{ color: palette.textFaint }}>地理相關</span>
+                  <span style={{ color: palette.textFaint }}>{t("intel.card.gisRelevance")}</span>
                   <span style={{ color: levelColor(gisLevel.color, palette) }}>
-                    <span style={{ fontFamily: FONT_DATA }}>lv{e.gis_relevance}</span> · {gisLevel.label}
+                    <span style={{ fontFamily: FONT_DATA }}>lv{e.gis_relevance}</span> · {enumLabel("intel.gis", e.gis_relevance, gisLevel.label, i18n)}
                   </span>
                 </>
               )}
               {e.severity != null && sevLevel && (
                 <>
-                  <span style={{ color: palette.textFaint }}>嚴重程度</span>
+                  <span style={{ color: palette.textFaint }}>{t("intel.card.severity")}</span>
                   <span style={{ color: levelColor(sevLevel.color, palette) }}>
-                    <span style={{ fontFamily: FONT_DATA }}>lv{e.severity}</span> · {sevLevel.label}
+                    <span style={{ fontFamily: FONT_DATA }}>lv{e.severity}</span> · {enumLabel("intel.sev", e.severity, sevLevel.label, i18n)}
                   </span>
                 </>
               )}
-              <span style={{ color: palette.textFaint }}>事件性質</span>
+              <span style={{ color: palette.textFaint }}>{t("intel.card.nature")}</span>
               <span style={{ color: palette.textDefault }}>
-                {e.is_event === false ? "聲明 statement" : "事件 event"}
+                {e.is_event === false ? t("intel.card.kindStatement") : t("intel.card.kindEvent")}
               </span>
             </div>
 
@@ -403,7 +407,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                     textDecoration: "none",
                   }}
                 >
-                  <IntelIcon d={ICON.ext} size={12} color={cat.color} /> 原文連結
+                  <IntelIcon d={ICON.ext} size={12} color={cat.color} /> {t("intel.card.sourceLink")}
                 </a>
               )}
               {e.url && (
@@ -415,7 +419,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                   })}
                   style={btnGhost(palette, v2)}
                 >
-                  <IntelIcon d={ICON.copy} size={12} /> 複製
+                  <IntelIcon d={ICON.copy} size={12} /> {t("intel.card.copy")}
                 </button>
               )}
             </div>

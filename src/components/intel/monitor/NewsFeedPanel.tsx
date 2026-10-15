@@ -9,6 +9,7 @@ import type { NewsCategory } from "../../../data/newsEventTypes";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
+import { useLocale } from "../../../state/localeStore";
 
 interface Props {
   /** 已套完 timeRange / 分類 / 縣市 篩選的事件（原 MonitorPanel flatEvents） */
@@ -50,7 +51,8 @@ function NewsFeedPanelInner({
 }: Props) {
   const palette = useIntelTheme();
   const v2 = useMonitorV2();
-  const statusLabel = status === "ready" ? (v2 ? "即時" : "LIVE") : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
+  const i18n = useLocale();
+  const statusLabel = status === "ready" ? (v2 ? i18n.t("monitor.live") : "LIVE") : status === "denied" ? i18n.t("monitor.newsFeed.restricted") : status === "error" ? i18n.t("monitor.status.error") : i18n.t("monitor.status.loading");
   const statusVisual = status === "ready"
     ? { color: palette.statusLive, background: palette.statusLiveSoft, border: palette.statusLiveBorder, animation: "intelRing 1.6s ease-in-out infinite" }
     : status === "denied"
@@ -84,7 +86,7 @@ function NewsFeedPanelInner({
               color: palette.textStrong, whiteSpace: "nowrap",
             }}
           >
-            新聞 Feed
+            {i18n.t("monitor.newsFeed.title")}
           </span>
         )}
         <span
@@ -114,13 +116,13 @@ function NewsFeedPanelInner({
         </span>
         <div style={{ flex: 1 }} />
         <span style={{ fontFamily: FONT_DATA, fontSize: v2 ? MF.body : 10.5, color: palette.textMuted }}>
-          {events.length} 則
+          {i18n.t("monitor.count.items", { count: events.length })}
         </span>
       </div>
 
       {status !== "ready" && (
         <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: palette.textMuted }}>
-          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? (message ?? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}`) : "正在讀取新聞資料"}
+          {status === "denied" ? i18n.t("monitor.newsFeed.denied") : status === "error" ? (message ?? (lastSuccessAt ? i18n.t("monitor.newsFeed.interruptedAt", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) }) : i18n.t("monitor.newsFeed.interrupted"))) : i18n.t("monitor.newsFeed.reading")}
         </div>
       )}
 
@@ -154,10 +156,10 @@ function NewsFeedPanelInner({
           >
             <IntelIcon d={ICON.radio} size={26} color={palette.textGhost} />
             <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), color: palette.textMuted }}>
-              {status === "error" ? "新聞資料更新中斷" : "目前無符合條件的事件"}
+              {status === "error" ? i18n.t("monitor.newsFeed.emptyError") : i18n.t("monitor.newsFeed.empty")}
             </div>
             <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint }}>
-              {status === "error" ? (message ?? "請檢查新聞來源與分類流程") : "調整分類 / 縣市，或回到即時"}
+              {status === "error" ? (message ?? i18n.t("monitor.newsFeed.errorHint")) : i18n.t("monitor.newsFeed.emptyHint")}
             </div>
           </div>
         ) : (

@@ -8,6 +8,7 @@ import { MonitorKpis, MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMe
 import { useMonitorFreshness } from "./monitorFreshness";
 import { useMonitorTheme } from "./monitorTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
+import { useLocale } from "../../../state/localeStore";
 
 import type { PrisonDay } from "../../../data/prisonLoader";
 export type { PrisonDay } from "../../../data/prisonLoader";
@@ -31,13 +32,10 @@ interface Props {
   series?: PrisonDay[];
 }
 
-function fmt(v: number | null | undefined): string {
-  if (v == null) return "—";
-  return v.toLocaleString("zh-TW");
-}
-
 export function PrisonCard({ latest, series = [] }: Props) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const fmt = (v: number | null | undefined): string => (v == null ? "—" : i18n.formatNumber(v));
   const theme = useMonitorTheme();
   const [windowDays, setWindowDays] = useState<WindowDays>(365);
   const total = latest?.total_inmates ?? null;
@@ -56,7 +54,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
   const fresh = useMonitorFreshness("prison", {
     timeText: latest?.observed_date ? latest.observed_date.slice(5).replace("-", "/") : null,
     dataMs,
-    reason: dataMs != null ? "上游未更新：法務部矯正署資料停在最後一筆，之後沒有新資料" : undefined,
+    reason: dataMs != null ? i18n.t("monitor.prison.staleReason") : undefined,
   });
   // 舊版畫面沿用原判斷（>7 天＝停更）：燈號／說明文字只在舊版使用
   const isStale = fresh.state === "stopped";
@@ -94,29 +92,29 @@ export function PrisonCard({ latest, series = [] }: Props) {
   if (v2) {
     // 新版：外框已有標題「在監人數」，卡內不重複；停更狀態由標題列＋底部說明表達
     const emptyHint = allPoints.length > 1
-      ? `此視窗內無資料（最新 ${latest?.observed_date ?? "—"}）`
-      : series.length === 0 ? "尚無可用趨勢資料" : `趨勢待回補：資料庫目前只有 ${allPoints.length || series.length} 天`;
+      ? i18n.t("monitor.prison.emptyWindow", { date: latest?.observed_date ?? "—" })
+      : series.length === 0 ? i18n.t("monitor.prison.noTrend") : i18n.t("monitor.prison.backfill", { count: allPoints.length || series.length });
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
         {latest ? (
           <>
-            <MonitorMetric value={fmt(total)} unit="人" muted={fresh.muted} />
+            <MonitorMetric value={fmt(total)} unit={i18n.t("monitor.prison.unitPeople")} muted={fresh.muted} />
             <MonitorKpis items={[
-              { label: "核定容額", value: fmt(cap) },
-              { label: "超收率", value: overPct == null ? "—" : `${Number(overPct).toFixed(2)}%` },
+              { label: i18n.t("monitor.prison.capacity"), value: fmt(cap) },
+              { label: i18n.t("monitor.prison.overRate"), value: overPct == null ? "—" : `${Number(overPct).toFixed(2)}%` },
             ]} />
             <MonitorSub items={[
-              `男 ${fmt(latest.male_inmates)} / 女 ${fmt(latest.female_inmates)}`,
-              `當日入 ${fmt(latest.new_in_count)} / 出 ${fmt(latest.new_out_count)}`,
+              i18n.t("monitor.prison.sexSplit", { male: fmt(latest.male_inmates), female: fmt(latest.female_inmates) }),
+              i18n.t("monitor.prison.inOut", { in: fmt(latest.new_in_count), out: fmt(latest.new_out_count) }),
             ]} />
           </>
         ) : (
-          <MonitorNote>資料載入中</MonitorNote>
+          <MonitorNote>{i18n.t("monitor.prison.loading")}</MonitorNote>
         )}
         {trend.length > 1 ? (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontSize: MF.label, color: theme.p.textDim, marginRight: "auto" }}>在監總數趨勢</span>
+              <span style={{ fontSize: MF.label, color: theme.p.textDim, marginRight: "auto" }}>{i18n.t("monitor.prison.trendTitle")}</span>
               {WINDOWS.map((w) => (
                 <button
                   key={w}
@@ -135,13 +133,13 @@ export function PrisonCard({ latest, series = [] }: Props) {
             </div>
             <TimeseriesSparkline
               data={trend}
-              unit="人"
+              unit={i18n.t("monitor.prison.unitPeople")}
               lineColor={theme.p.accent}
               heightTier="std"
               gapSec={3 * 86400}
               showTooltip
               tooltipDateFormat="date"
-              seriesLabel="在監人數"
+              seriesLabel={i18n.t("monitor.prison.seriesLabel")}
               compactYAxis
               staleUntil={fresh.staleUntil}
             />
@@ -152,14 +150,14 @@ export function PrisonCard({ latest, series = [] }: Props) {
         {fresh.reason ? (
           <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
         ) : (
-          <MonitorNote>來源：法務部矯正署每日資料</MonitorNote>
+          <MonitorNote>{i18n.t("monitor.prison.source")}</MonitorNote>
         )}
       </div>
     );
   }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {!v2 && <SectionLabel color={COLORS.accent}>司法矯正 · INMATES</SectionLabel>}
+      {!v2 && <SectionLabel color={COLORS.accent}>{i18n.t("monitor.prison.titleLegacy")}</SectionLabel>}
       <div
         style={v2 ? { display: "flex", flexDirection: "column", gap: 8, minWidth: 0 } : {
           borderRadius: RADIUS.xl,
@@ -175,7 +173,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
             boxShadow: `0 0 7px ${dotColor}`, flexShrink: 0,
           }} />
           <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: COLORS.textStrong }}>
-            {latest ? (v2 ? "全國在監" : `全國在監 (${latest.observed_date})`) : "全國在監（資料載入中）"}
+            {latest ? (v2 ? i18n.t("monitor.prison.national") : i18n.t("monitor.prison.nationalDated", { date: latest.observed_date })) : i18n.t("monitor.prison.nationalLoading")}
           </span>
         </div>
         {latest && (
@@ -185,18 +183,18 @@ export function PrisonCard({ latest, series = [] }: Props) {
                 <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xxl), fontWeight: 700, color: COLORS.textStrong }}>
                   {fmt(total)}
                 </span>
-                <span style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted, marginLeft: 4 }}>人</span>
+                <span style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted, marginLeft: 4 }}>{i18n.t("monitor.prison.unitPeople")}</span>
               </div>
               <div style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textMuted }}>
-                男 {fmt(latest.male_inmates)} / 女 {fmt(latest.female_inmates)}
+                {i18n.t("monitor.prison.sexSplit", { male: fmt(latest.male_inmates), female: fmt(latest.female_inmates) })}
               </div>
             </div>
             <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted, display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <span>核定容額 {fmt(cap)}</span>
+              <span>{i18n.t("monitor.prison.capacityLegacy", { cap: fmt(cap) })}</span>
               <span style={{ color: isOver ? "#fb7185" : COLORS.textMuted }}>
-                超收率 {overPct == null ? "—" : `${Number(overPct).toFixed(2)}%`}
+                {i18n.t("monitor.prison.overLegacy", { pct: overPct == null ? "—" : `${Number(overPct).toFixed(2)}%` })}
               </span>
-              <span>當日入 {fmt(latest.new_in_count)} / 出 {fmt(latest.new_out_count)}</span>
+              <span>{i18n.t("monitor.prison.inOut", { in: fmt(latest.new_in_count), out: fmt(latest.new_out_count) })}</span>
             </div>
           </>
         )}
@@ -205,7 +203,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim, marginRight: "auto" }}>
-                在監總數趨勢
+                {i18n.t("monitor.prison.trendTitle")}
               </span>
               {WINDOWS.map((w) => (
                 <button
@@ -227,13 +225,13 @@ export function PrisonCard({ latest, series = [] }: Props) {
                 跨過缺口硬連成一條直線會把「沒資料」畫成「數字很平穩」 */}
             <TimeseriesSparkline
               data={trend}
-              unit="人"
+              unit={i18n.t("monitor.prison.unitPeople")}
               lineColor="#a78bfa"
               height={64}
               gapSec={3 * 86400}
               showTooltip
               tooltipDateFormat="date"
-              seriesLabel="在監人數"
+              seriesLabel={i18n.t("monitor.prison.seriesLabel")}
               compactYAxis
             />
           </>
@@ -242,16 +240,16 @@ export function PrisonCard({ latest, series = [] }: Props) {
             {/* 兩種「畫不出線」要分清楚：序列本身太短 vs 這個視窗內剛好沒點。
                 回補後前者會消失，後者不該再說「資料庫只有 N 天」（那是假話）。 */}
             {allPoints.length > 1
-              ? `此視窗內無資料（最新 ${latest?.observed_date ?? "—"}）`
-              : series.length === 0 ? "尚無可用趨勢資料" : `趨勢待回補：資料庫目前只有 ${allPoints.length || series.length} 天`}
+              ? i18n.t("monitor.prison.emptyWindow", { date: latest?.observed_date ?? "—" })
+              : series.length === 0 ? i18n.t("monitor.prison.noTrend") : i18n.t("monitor.prison.backfill", { count: allPoints.length || series.length })}
           </div>
         )}
         <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: isStale ? "#fbbf24" : COLORS.textDim }}>
           {v2
-            ? (isStale ? "法務部矯正署上游已停止更新" : "來源：法務部矯正署每日資料")
+            ? (isStale ? i18n.t("monitor.prison.staleStopped") : i18n.t("monitor.prison.source"))
             : isStale
-              ? `⚠ 上游已 ${staleDays} 天未更新 · 法務部矯正署 prisonmuseum 每日 XML`
-              : "來源：法務部矯正署 prisonmuseum 每日 XML"}
+              ? i18n.t("monitor.prison.staleLegacy", { days: staleDays ?? "—" })
+              : i18n.t("monitor.prison.sourceLegacy")}
         </div>
       </div>
     </div>

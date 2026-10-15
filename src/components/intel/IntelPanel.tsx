@@ -1,7 +1,9 @@
 import { useMonitorResource } from "../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./monitor/MonitorDataStatus";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { FONT_CJK, FONT_DATA, withAlpha, type AlertGroupShort } from "./intelTokens";
+import { FONT_CJK, FONT_DATA, alertSeverity, withAlpha, type AlertGroupShort } from "./intelTokens";
 import { getIntelPalette, IntelThemeProvider, neutralFill } from "./intelTheme";
 import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
@@ -10,7 +12,7 @@ import { IntelReplay } from "./IntelReplay";
 import { IntelFilters, type TimeRange } from "./IntelFilters";
 import { IntelSituation } from "./IntelSituation";
 import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
-import { GlobalSituationFeed, selectGlobalFeedCards } from "./GlobalSituationFeed";
+import { GlobalSituationFeed, GLOBAL_FEED_LOAD_FAILED, selectGlobalFeedCards } from "./GlobalSituationFeed";
 import { AlertSummaryBar } from "./alerts/AlertSummaryBar";
 import { FeedTabs, type FeedTab } from "./alerts/FeedTabs";
 import { AlertCard } from "./alerts/AlertCard";
@@ -105,6 +107,8 @@ export function IntelPanel({
   externalSelectedId,
 }: Props) {
   const palette = getIntelPalette(isDarkTheme);
+  const i18n = useLocale();
+  const { t } = i18n;
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
   const filter = filterProp ?? storeFilter;
@@ -266,7 +270,7 @@ export function IntelPanel({
           globalSituationFeedStore.set({
             ...globalSituationFeedStore.getSnapshot(),
             status: "error",
-            message: error instanceof Error ? error.message : "全球情勢載入失敗",
+            message: error instanceof Error ? error.message : GLOBAL_FEED_LOAD_FAILED,
           });
         });
     };
@@ -400,9 +404,12 @@ export function IntelPanel({
 
   const staleLabels = useMemo(() => {
     const seen = new Set<string>();
-    for (const a of staleAlerts) seen.add(ALERT_PERSISTENCE_RULES[a.group].staleLabel);
+    for (const a of staleAlerts) {
+      const label = ALERT_PERSISTENCE_RULES[a.group].staleLabel;
+      seen.add(enumLabel("intel.staleLabel", label, label, i18n));
+    }
     return [...seen].join("・");
-  }, [staleAlerts]);
+  }, [staleAlerts, i18n]);
 
   if (!open) return null;
 
@@ -537,7 +544,7 @@ export function IntelPanel({
               color: palette.textDim, marginRight: 4,
             }}
           >
-            嚴重度 ≥
+            {t("intel.panel.severityMin")}
           </span>
           <div
             style={{
@@ -548,7 +555,7 @@ export function IntelPanel({
             }}
           >
             {([1, 2, 3, 4] as const).map((lv) => {
-              const labels = ["留意", "警戒", "嚴重", "緊急"];
+              const sevDef = alertSeverity(lv);
               const active = severityMin === lv;
               return (
                 <button
@@ -562,7 +569,7 @@ export function IntelPanel({
                     cursor: "pointer",
                   }}
                 >
-                  {labels[lv - 1]}
+                  {enumLabel("intel.alertSeverity", sevDef.key, sevDef.label, i18n)}
                 </button>
               );
             })}
@@ -580,7 +587,7 @@ export function IntelPanel({
                   cursor: "pointer",
                 }}
               >
-                清除群組 ({pickedGroups.length})
+                {t("intel.panel.clearGroups", { count: pickedGroups.length })}
               </button>
             </>
           )}
@@ -599,7 +606,7 @@ export function IntelPanel({
               color: palette.textDim, marginRight: 4,
             }}
           >
-            時間範圍
+            {t("intel.panel.timeRange")}
           </span>
           <div
             style={{
@@ -633,7 +640,7 @@ export function IntelPanel({
               <div style={{ flex: 1 }} />
               <button
                 onClick={() => setIncludeWatch((v) => !v)}
-                title="加入 AI 判為「觀察中」(keep_watch) 與尚未判斷的事件；低價值 (drop_noise) 一律不顯示"
+                title={t("intel.panel.includeWatchTitle")}
                 style={{
                   padding: "3px 9px", borderRadius: RADIUS.md,
                   background: includeWatch ? palette.accentFaint : neutralFill(0.04, palette.isDark),
@@ -642,18 +649,18 @@ export function IntelPanel({
                   fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
                 }}
               >
-                含觀察中／未判斷
+                {t("intel.panel.includeWatch")}
               </button>
             </>
           )}
         </div>
       ) : null}
 
-      <MonitorDataStatus label="來源健康" query={sourceQuery} />
-      <MonitorDataStatus label="升溫排行" query={trendingQuery} />
+      <MonitorDataStatus label={t("intel.panel.sourceHealth")} query={sourceQuery} />
+      <MonitorDataStatus label={t("intel.panel.trendingRank")} query={trendingQuery} />
       {(feedTab === "news" || feedTab === "all") && clustersQuery.status !== "ready" && (
         <div style={{ padding: "8px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: palette.textMuted, borderBottom: `1px solid ${palette.borderSoft}` }}>
-          {clustersQuery.status === "denied" ? "新聞資料無權限讀取" : clustersQuery.status === "error" ? `新聞更新中斷${clustersQuery.lastSuccessAt ? ` · 最後成功 ${new Date(clustersQuery.lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
+          {clustersQuery.status === "denied" ? t("intel.panel.newsDenied") : clustersQuery.status === "error" ? `${t("intel.panel.newsError")}${clustersQuery.lastSuccessAt ? ` · ${t("alerts.lastSuccess", { time: i18n.formatDateTime(clustersQuery.lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })}` : ""}` : t("intel.panel.newsLoading")}
         </div>
       )}
 
@@ -691,8 +698,8 @@ export function IntelPanel({
                 color: palette.textMuted, lineHeight: 1.5,
               }}
             >
-              歷史 · {historyDate} 的 NCDR 示警（{historyRows.length} 則）
-              <span style={{ color: palette.textFaint }}>　不含地震；回到今天看即時警報</span>
+              {t("intel.panel.historyBanner", { date: historyDate, count: historyRows.length })}
+              <span style={{ color: palette.textFaint }}>{"\u3000"}{t("intel.panel.historyNote")}</span>
             </div>
           )}
           {(historyMode ? historyRows : activeAlerts).length === 0 ? (
@@ -705,7 +712,7 @@ export function IntelPanel({
             >
               <IntelIcon d={ICON.alert} size={28} color={palette.textGhost} />
               <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
-                目前無符合條件的警報
+                {t("intel.panel.noAlerts")}
               </div>
             </div>
           ) : (
@@ -737,7 +744,7 @@ export function IntelPanel({
                     color: palette.textMuted, textAlign: "center", padding: "18px 0",
                   }}
                 >
-                  {historyMode ? "該日無符合條件的示警" : "無新發布的警報，僅有下方長期持續事件"}
+                  {historyMode ? t("intel.panel.noAlertsDay") : t("intel.panel.noFreshAlerts")}
                 </div>
               )}
 
@@ -759,7 +766,7 @@ export function IntelPanel({
                       {staleOpen ? "▾" : "▸"}
                     </span>
                     <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base }}>
-                      持續中 {staleAlerts.length} 則
+                      {t("intel.panel.ongoing", { count: staleAlerts.length })}
                     </span>
                     <div style={{ flex: 1 }} />
                     <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
@@ -815,7 +822,7 @@ export function IntelPanel({
                 >
                   <IntelIcon d={ICON.radio} size={28} color={palette.textGhost} />
                   <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
-                    目前無事件 / 警報
+                    {t("intel.panel.noEventsOrAlerts")}
                   </div>
                 </div>
               );
@@ -870,10 +877,10 @@ export function IntelPanel({
           >
             <IntelIcon d={ICON.radio} size={28} color={palette.textGhost} />
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
-              目前無符合條件的事件
+              {t("intel.panel.noEvents")}
             </div>
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
-              調整分類 / 時間範圍 / 縣市，或回到即時
+              {t("intel.panel.noEventsHint")}
             </div>
           </div>
         ) : (
