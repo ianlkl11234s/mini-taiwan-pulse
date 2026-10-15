@@ -175,7 +175,6 @@ export function formatJst(iso: unknown): string {
 // step 門檻一律放在「等級 − 0.5」，讓整數 L 落在區間正中。
 // L=255 = 缺測 → 「未涵蓋」灰；L=0 + A=0 → 透明（無值／畫布外），不是 0 值。
 
-export const JMA_IMAGERY_ATTRIBUTION = "出典：気象庁（加工）";
 /** 未涵蓋（缺測 L=255、或此刻沒有可用幀）的灰 */
 export const JMA_IMAGERY_UNCOVERED_COLOR = "#9ca3af";
 /** 契約 §4 的缺測等級 */

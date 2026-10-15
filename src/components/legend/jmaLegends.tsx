@@ -136,7 +136,7 @@ export function JmaSnowDepthLegend() {
   const i18n = useLocale();
   const spec = jmaImageryProduct("snow_depth");
   return <div>
-    <LegendTitle zh={layerTitle("jmaSnowDepth", i18n)} en="snowd" />
+    <LegendTitle zh={layerTitle("jmaSnowDepth", i18n)} />
     {(spec.levels ?? []).map((lv) => <LegendRow key={lv.level} swatch={<SwatchSquare color={jmaRgb(lv.rgb)} />}><LegendNum>{lv.label}</LegendNum></LegendRow>)}
     <LegendRow swatch={<SwatchSquare color={JMA_IMAGERY_UNCOVERED_COLOR} />}>{i18n.t("legend.jma.imageryUncovered")}</LegendRow>
     <ImageryStatus product="snow_depth" />

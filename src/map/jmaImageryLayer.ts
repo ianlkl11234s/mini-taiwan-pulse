@@ -45,7 +45,6 @@ export interface CreateJmaImageryLayerOptions {
   /** 不含 raster-opacity 的 paint（jmaImageryRasterPaint 產生） */
   paint: (opacity: number) => Record<string, unknown>;
   opacity: number;
-  attribution?: string;
 }
 
 export function createJmaImageryLayer(map: MapboxMap, opts: CreateJmaImageryLayerOptions): JmaImageryLayerHandle {
@@ -56,7 +55,7 @@ export function createJmaImageryLayer(map: MapboxMap, opts: CreateJmaImageryLaye
 
   const attach = () => {
     if (!map.getSource(opts.sourceId)) {
-      map.addSource(opts.sourceId, { type: "image", url, coordinates, ...(opts.attribution ? { attribution: opts.attribution } : {}) } as never);
+      map.addSource(opts.sourceId, { type: "image", url, coordinates });
     }
     if (!map.getLayer(opts.layerId)) {
       map.addLayer({

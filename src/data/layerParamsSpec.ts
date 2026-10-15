@@ -3702,11 +3702,11 @@ export const LAYER_PARAMS_SPEC = {
   jmaWarnings: [opacitySlider("jmaWarningsOpacity", 0.55)],
   jmaQuakes: [opacitySlider("jmaQuakesOpacity", 0.85), scaleSlider("jmaQuakesScale", 1)],
   jmaVolcanoes: [opacitySlider("jmaVolcanoesOpacity", 0.9), scaleSlider("jmaVolcanoesScale", 1)],
-  // JMA 發布幀影像（image source＋raster-color）：raster 透明度 SSOT
+  // JMA 發布幀影像（image source＋raster-color）：raster 透明度 SSOT；走 overlayParams（host 用 useKeyOverlayParams 讀）
   jmaSnowDepth: [
     {
       kind: "slider", name: "jmaSnowDepthOpacity", labelPrefix: "透明度", digits: 2,
-      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05, out: null,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
     },
   ],
   riverRpiSegments: [

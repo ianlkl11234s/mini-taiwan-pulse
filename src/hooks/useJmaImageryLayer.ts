@@ -20,7 +20,7 @@ import {
   setJmaImageryStatus,
   type JmaImageryFrame,
 } from "../data/jmaImageryLoader";
-import { JMA_IMAGERY_ATTRIBUTION, jmaImageryProduct, jmaImageryRasterPaint, type JmaImageryProductId } from "../data/jmaTypes";
+import { jmaImageryProduct, jmaImageryRasterPaint, type JmaImageryProductId } from "../data/jmaTypes";
 import { createJmaImageryLayer, type JmaImageryLayerHandle } from "../map/jmaImageryLayer";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
@@ -133,8 +133,8 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       if (!handleRef.current) {
         handleRef.current = createJmaImageryLayer(map, {
           sourceId, layerId, url, bbox, opacity: opacityRef.current,
+          // image source 規格沒有 attribution 欄（加了會驗證失敗、source 加不上）→ 出典只放圖例
           paint: (op) => jmaImageryRasterPaint(spec, op),
-          attribution: JMA_IMAGERY_ATTRIBUTION,
         });
         currentUrlRef.current = url;
         keepLoadingUntilMapIdle(map, `jma-imagery-render:${product}`, `JMA 影像 渲染中`, null);
