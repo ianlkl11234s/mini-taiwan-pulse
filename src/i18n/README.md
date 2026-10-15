@@ -62,6 +62,12 @@ enumLabel("newsCategory", code, NEWS_LABELS[code], i18n)
 - 中文改字時，要把 `params.json` 的 key 一起改，否則測試會擋孤兒 key。
 - 色盤名用 `enum.palette.<id>`（`enums.palette.json`）。
 
+**統計圖層**：
+- 配方（`*StatisticsRecipes.ts`、打包 JSON）的中文不改：單位要和 R2 比對、配色依中文判斷、Agent 讀中文。
+- 標題 `statisticsTitle(layerKey, zh, i18n)` 借圖層譯名；單位、更新頻率 `statisticsUnit`／`statisticsFrequency` 以中文原文查 `enums.statUnit.json`／`enums.statFrequency.json`（`src/i18n/statisticsText.ts`）。新配方用了新單位，補這兩個檔；`statisticsText.test` 擋孤兒 key。
+- `statisticsLabels.ts` 的人讀函式最後一個參數是選填 `i18n`，不傳＝中文。
+- 連動選單選項可帶 `localize(i18n)`；只有面板傳 i18n，Agent 拿到的仍是中文。
+
 **新增一個區塊檔**（例 `popup.water.json`）：
 1. 三個語系都建同名檔，key 以檔名開頭（`popup.water.`）。
 2. 跑 `npx tsx scripts/i18n/gen-keys.ts` 更新 key 型別；不用改 `keys.ts`，也不用改載入程式。

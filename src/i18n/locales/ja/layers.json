@@ -1019,7 +1019,7 @@
   "layer.harmReductionAftercare": "更生保護会",
   "layer.harmReductionDuiCrashes": "飲酒運転事故",
   "layer.statsHealthTbNewCases": "結核新規患者数",
-  "layer.statsHealthTbNewCasesPer100kHrp": "結核新規患者数（人口10万人あたり、年末戸籍人口ベース）",
+  "layer.statsHealthTbNewCasesPer100kHrp": "結核新規患者数（10万人あたり・年末戸籍人口）",
   "layer.statsHealthTbNewCasesTownship": "結核新規患者数",
   "layer.statsHealthTbIncidencePer100kTownship": "結核罹患率（人口10万人あたり）",
   "layer.statsHealthTbDeaths": "結核死亡者数",

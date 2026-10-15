@@ -11,6 +11,6 @@
   "statisticsSelect.partSep": "・",
   "statisticsSelect.boundaryNotProvided": "未提供",
   "statisticsSelect.boundaryUnnamed": "名称未設定の参照境界バージョン",
-  "statisticsSelect.metricPerResidents": "{base}（住民1万人当たり）",
-  "statisticsSelect.metricPerKm2": "{base}（km²当たり）"
+  "statisticsSelect.metricPerResidents": "{base}（人口1万人あたり）",
+  "statisticsSelect.metricPerKm2": "{base}（1km²あたり）"
 }
