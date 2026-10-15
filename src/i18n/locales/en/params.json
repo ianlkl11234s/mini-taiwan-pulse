@@ -1097,5 +1097,7 @@
   "param.毒化物": "Toxic substances",
   "param.土污": "Soil pollution",
   "param.底圈": "Base ring",
-  "param.只看列管中": "Listed only"
+  "param.只看列管中": "Listed only",
+  "param.MODIS Terra（2000 起）": "MODIS Terra (since 2000)",
+  "param.VIIRS NOAA-20（2018 起）": "VIIRS NOAA-20 (since 2018)"
 }

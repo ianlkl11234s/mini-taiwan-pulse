@@ -6,6 +6,7 @@
  * - 清單：s_jpjp_list.js，regex 取 12 碼 JST 時刻（parseKosaList，不 eval）；每 30 分重取。
  * - 預設跟隨時間軸：選最接近時間軸時刻的一報；使用者手選後停止跟隨，可按「跟隨時間軸」恢復。
  * - 上游只有最新一報（約 3 天預報），時間軸超出範圍時顯示最接近的時刻並註明。
+ * - 圖高上限 24vh：右下堆疊和圖例共用高度，圖例長時不把面板頂到工具列底下。
  */
 import { useEffect, useMemo, useState } from "react";
 import { BORDER, CONTROL, ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE, COLORS } from "../styles/designTokens";
@@ -59,7 +60,7 @@ export function JmaKosaPanel({ isDark }: { isDark: boolean }) {
     <section
       aria-label={title}
       style={{
-        width: "min(400px, calc(100vw - 32px))", background: c.bg, border: `1px solid ${c.border}`, borderRadius: RADIUS.xl,
+        width: "min(380px, calc(100vw - 32px))", background: c.bg, border: `1px solid ${c.border}`, borderRadius: RADIUS.xl,
         boxShadow: c.shadow, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", fontFamily: FONT_CJK, overflow: "hidden",
       }}
     >
@@ -103,7 +104,7 @@ export function JmaKosaPanel({ isDark }: { isDark: boolean }) {
             alt={i18n.t("legend.jma.kosaImgAlt", { time: formatKosaJst(selected) })}
             width={800} height={580}
             onError={() => setImgError(true)}
-            style={{ display: "block", width: "100%", height: "auto", borderRadius: RADIUS.md, background: c.ctrlBg }}
+            style={{ display: "block", width: "100%", height: "auto", maxHeight: "24vh", objectFit: "contain", borderRadius: RADIUS.md, background: c.ctrlBg }}
           />)}
         <div style={noteStyle}>
           {selected && kosaStampMs(selected) != null && <>{i18n.t("legend.jma.kosaValid", { time: formatKosaJst(selected) })} · </>}
