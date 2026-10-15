@@ -623,7 +623,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
     "兩版都有", "只看官方", "只看舊版 OSM", "軌跡篩選", "深度", "累積時長", "作物 芋", "高度門檻 ≥", "行政層級", "疊加", "回放",
     "歷史播放", "待核實", "軌跡", "含疑似（未查證）", "時段", "污染等級", "測站類型", "相關度", "嚴重", "只看事件", "依時間",
     "空污", "水污", "廢棄物", "毒化物", "土污", "雙北", "基宜", "桃竹苗", "中彰投", "雲嘉南", "高屏", "花東", "離島", "只看列管中",
-    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式",
+    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式", "現象",
   ].map((label) => [label, "data" as const])),
   // 顏色：配色方式（熱區／網格色盤是 palette 型別，不必列）
   ...Object.fromEntries([
@@ -3712,20 +3712,20 @@ export const LAYER_PARAMS_SPEC = {
   jmaWbgt: [opacitySlider("jmaWbgtOpacity", 0.9), scaleSlider("jmaWbgtScale", 1)],
   jmaSnowcap: [opacitySlider("jmaSnowcapOpacity", 0.95), scaleSlider("jmaSnowcapScale", 1)],
   jmaAutumnLeaves: [
-    opacitySlider("jmaAutumnLeavesOpacity", 0.9), scaleSlider("jmaAutumnLeavesScale", 1),
     {
       kind: "select", name: "jmaAutumnLeavesPhenomenon", label: "現象", default: "015",
       options: JMA_AUTUMN_PHENOMENA.map(({ label, value }) => ({ label, value })),
       out: "jmaAutumnLeavesPhenomenonIdx", encode: JMA_AUTUMN_PHENOMENA.map((p) => p.value),
     },
+    opacitySlider("jmaAutumnLeavesOpacity", 0.9), scaleSlider("jmaAutumnLeavesScale", 1),
   ],
   jmaSakura: [
-    opacitySlider("jmaSakuraOpacity", 0.9), scaleSlider("jmaSakuraScale", 1),
     {
       kind: "select", name: "jmaSakuraPhenomenon", label: "現象", default: "004",
       options: JMA_SAKURA_PHENOMENA.map(({ label, value }) => ({ label, value })),
       out: "jmaSakuraPhenomenonIdx", encode: JMA_SAKURA_PHENOMENA.map((p) => p.value),
     },
+    opacitySlider("jmaSakuraOpacity", 0.9), scaleSlider("jmaSakuraScale", 1),
   ],
   jmaRainySeason: [opacitySlider("jmaRainySeasonOpacity", 0.55)],
   // JMA 發布幀影像（image source＋raster-color）：raster 透明度 SSOT；走 overlayParams（host 用 useKeyOverlayParams 讀）

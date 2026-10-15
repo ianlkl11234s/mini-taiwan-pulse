@@ -24,7 +24,6 @@
   "popup.jmaTime.methodCaveat": "The two methods are not directly comparable; normals are 1991–2020 visual records.",
   "popup.jmaTime.statusNow": "Summit snow status",
   "popup.jmaTime.statusTime": "Status time",
-  "popup.jmaTime.firstSnowcap": "First snow date",
   "popup.jmaTime.coldSeasonYear": "Cold-season year",
   "popup.jmaTime.region": "Region",
   "popup.jmaTime.onset": "Rainy season start",
@@ -35,6 +34,5 @@
   "popup.jmaTime.reportStatus": "Report status",
   "popup.jmaTime.noRainy": "No rainy season here (Hokkaido)",
   "popup.jmaTime.notCovered": "This date is not covered",
-  "popup.jmaTime.normalOn": "Normal {date}",
   "popup.jmaTime.phenologyNote": "JMA phenological observations; as-of compares the observed date only."
 }

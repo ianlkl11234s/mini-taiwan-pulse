@@ -85737,24 +85737,6 @@
     ],
     "jmaAutumnLeaves": [
       {
-        "label": "透明度 0.90",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.9,
-        "valueText": "0.90"
-      },
-      {
-        "label": "大小 1.0",
-        "max": 3,
-        "min": 0.3,
-        "name": "大小",
-        "step": 0.1,
-        "value": 1,
-        "valueText": "1.0"
-      },
-      {
         "label": "現象",
         "options": [
           {
@@ -85776,6 +85758,24 @@
         ],
         "type": "select",
         "value": "015"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "jmaHimawari": [
@@ -85895,6 +85895,21 @@
     ],
     "jmaSakura": [
       {
+        "label": "現象",
+        "options": [
+          {
+            "label": "開花",
+            "value": "004"
+          },
+          {
+            "label": "満開",
+            "value": "005"
+          }
+        ],
+        "type": "select",
+        "value": "004"
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -85911,21 +85926,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "現象",
-        "options": [
-          {
-            "label": "開花",
-            "value": "004"
-          },
-          {
-            "label": "満開",
-            "value": "005"
-          }
-        ],
-        "type": "select",
-        "value": "004"
       }
     ],
     "jmaSeaIce": [

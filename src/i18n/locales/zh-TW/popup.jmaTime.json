@@ -24,7 +24,6 @@
   "popup.jmaTime.methodCaveat": "兩種判定方法的早晚不可直接比較；平年為 1991–2020 目視紀錄。",
   "popup.jmaTime.statusNow": "山頂積雪狀況",
   "popup.jmaTime.statusTime": "狀況時刻",
-  "popup.jmaTime.firstSnowcap": "初冠雪日",
   "popup.jmaTime.coldSeasonYear": "寒候年",
   "popup.jmaTime.region": "地方",
   "popup.jmaTime.onset": "梅雨入り",
@@ -35,6 +34,5 @@
   "popup.jmaTime.reportStatus": "發表狀態",
   "popup.jmaTime.noRainy": "此地沒有梅雨（北海道）",
   "popup.jmaTime.notCovered": "此日期未涵蓋",
-  "popup.jmaTime.normalOn": "平年 {date}",
   "popup.jmaTime.phenologyNote": "氣象廳生物季節觀測；as-of 只比觀測日本身。"
 }

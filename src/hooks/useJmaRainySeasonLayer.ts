@@ -114,12 +114,11 @@ export function useJmaRainySeasonLayer(
       if (!map.getLayer(JMA_RAINY_FILL_LAYER_ID)) {
         map.addLayer({
           id: JMA_RAINY_FILL_LAYER_ID, type: "fill", source: JMA_WARNINGS_SOURCE_ID, "source-layer": JMA_WARNINGS_SOURCE_LAYER,
-          filter, layout: { visibility: "visible" }, paint: { "fill-color": color, "fill-opacity": op, "fill-outline-color": color },
+          filter, layout: { visibility: "visible" }, paint: { "fill-color": color, "fill-opacity": op },
         } as FillLayer);
       }
       map.setFilter(JMA_RAINY_FILL_LAYER_ID, filter);
       map.setPaintProperty(JMA_RAINY_FILL_LAYER_ID, "fill-color", color);
-      map.setPaintProperty(JMA_RAINY_FILL_LAYER_ID, "fill-outline-color", color);
       map.setPaintProperty(JMA_RAINY_FILL_LAYER_ID, "fill-opacity", op);
       map.setLayoutProperty(JMA_RAINY_FILL_LAYER_ID, "visibility", "visible");
     };
