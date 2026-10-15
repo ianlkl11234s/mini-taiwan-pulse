@@ -1,5 +1,5 @@
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
@@ -32,6 +32,8 @@ import {
 } from "./agricultureLayerFactory";
 import { SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../data/agriSoilFertilityMetrics";
 import { resolvedCjkFont } from "../styles/designTokens";
+import { AttributionHostControl, BasemapAttributionControl } from "./attribution/mapAttribution";
+import { AttributionBar } from "../components/AttributionBar";
 
 function agricultureParamsFrom(params: Record<string, number>) {
   return {
@@ -254,6 +256,8 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const hiddenBasemapLabelLayerIdsRef = useRef(new Set<string>());
   const overlayParamsRef = useRef(overlayParams);
   const jpHeightLifecycleRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
+  // 右下資料來源列（attribution-compact）：map 建好後才有 host 節點，用 state 觸發 portal 渲染
+  const [attribution, setAttribution] = useState<{ map: mapboxgl.Map; host: HTMLElement } | null>(null);
 
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
@@ -280,7 +284,15 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       antialias: true,
       // T-1：中文字用系統字（與 UI 同 stack），不向伺服器要 glyph
       localIdeographFontFamily: resolvedCjkFont(),
+      // 版權列改自行加入：內建控制項只顯示底圖版權，圖層來源收進 AttributionBar（見 mapAttribution.ts）
+      attributionControl: false,
     });
+    // 順序有意義：host 先加、版權列後加 → 版權列在最右，host 浮在它左側同一行。
+    // compact: false：窄螢幕也不收成 ⓘ，© Mapbox © OpenStreetMap／Improve this map 常駐可見。
+    const attributionHost = new AttributionHostControl("pulse-attrib-host");
+    map.addControl(attributionHost, "bottom-right");
+    map.addControl(new BasemapAttributionControl({ compact: false }), "bottom-right");
+    setAttribution({ map, host: attributionHost.element });
     const jpHeightLifecycle = createJpHeightLifecycle(map);
     jpHeightLifecycleRef.current = jpHeightLifecycle;
 
@@ -416,6 +428,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
 
     const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
     return () => {
+      setAttribution(null);
       detachStatistics();
       jpHeightLifecycle.dispose();
       if (jpHeightLifecycleRef.current === jpHeightLifecycle) jpHeightLifecycleRef.current = null;
@@ -566,9 +579,13 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   ]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-    />
+    <>
+      <div
+        ref={containerRef}
+        className={`pulse-map ${isDarkTheme ? "pulse-map--dark" : "pulse-map--light"}`}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+      />
+      <AttributionBar map={attribution?.map ?? null} host={attribution?.host ?? null} isDark={isDarkTheme} />
+    </>
   );
 }

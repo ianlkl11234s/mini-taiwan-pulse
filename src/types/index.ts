@@ -720,9 +720,10 @@ export interface OverlayConfig {
    */
   dynamicData?: boolean;
   /**
-   * MapLibre/Mapbox source 的 `attribution` 欄位 —— 帶上後由地圖引擎內建的
-   * AttributionControl 自動彙整顯示（常駐，不需額外 UI）。ODbL / 政府開放資料
-   * 授權要求顯名標示時填寫（如宗教圖層引用內政部全國宗教資訊系統 + OSM）。
+   * MapLibre/Mapbox source 的 `attribution` 欄位。主站由右下「資料來源 N」列
+   *（`AttributionBar`，讀可見 source 的 attribution）依授權分組顯示；/embed 自繪。
+   * ODbL / 政府開放資料授權要求顯名標示時填寫（如宗教圖層引用內政部全國宗教資訊系統 + OSM）。
+   * 慣用格式「機關 資料名（data.gov.tw nid）· 授權」，解析規則見 src/map/attribution/attributionParse.ts。
    */
   attribution?: string;
 }

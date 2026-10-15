@@ -46,6 +46,14 @@ export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollap
 
   const height = getHeight(level, isLandscape);
 
+  // 地圖底部的 Mapbox logo／版權列與資料來源列（attributionBar.css）讀這個變數往上讓位，
+  // 否則 sheet 會蓋住 © Mapbox © OpenStreetMap（Mapbox 條款要求常駐可見）。
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--mobile-sheet-inset", `${height}px`);
+    return () => { root.style.removeProperty("--mobile-sheet-inset"); };
+  }, [height]);
+
   return (
     <div
       style={{
