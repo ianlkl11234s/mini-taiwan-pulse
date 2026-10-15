@@ -179,8 +179,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-12: +26 atlas 批次點／線／面圖層（原民與農村 3、道路設施 7、淹水與災害照片 3、海洋 6、地名 2、水利設施 5）。
     // 2026-10-15: +1 日本氣象廳發布幀影像（解析積雪深 jmaSnowDepth）。
     // 2026-10-15: +8 日本氣象廳發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、日別海面水溫、海冰、向日葵 B13 雲圖）。
+    // 2026-10-15: +5 日本氣象廳分析圖（初雪日、積雪日數、雨日數、土砂／浸水警戒時數；count_la_v1 每日一張）。
     // 2026-10-15: +3 上游直連（衛星雪覆蓋 gibsSnowCover、洪水キキクル jmaRiskFlood、黃砂預測 jmaKosa）。
-    expect(keys.length).toBe(1186);
+    expect(keys.length).toBe(1191);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

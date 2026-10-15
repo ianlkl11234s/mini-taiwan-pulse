@@ -65,6 +65,12 @@ export const JmaUvIndexHost = makeJmaImageryHost("jmaUvIndex", "uv_anal");
 export const JmaSstHost = makeJmaImageryHost("jmaSst", "sst_him");
 export const JmaSeaIceHost = makeJmaImageryHost("jmaSeaIce", "sea_ice");
 export const JmaHimawariHost = makeJmaImageryHost("jmaHimawari", "himawari_b13");
+// 分析圖（count_la_v1，每日一張）
+export const JmaAnaSnowFirstHost = makeJmaImageryHost("jmaAnaSnowFirst", "ana_snow_first");
+export const JmaAnaSnowDaysHost = makeJmaImageryHost("jmaAnaSnowDays", "ana_snow_days");
+export const JmaAnaRainDaysHost = makeJmaImageryHost("jmaAnaRainDays", "ana_rain_days");
+export const JmaAnaRiskLandHoursHost = makeJmaImageryHost("jmaAnaRiskLandHours", "ana_risk_land_hours");
+export const JmaAnaRiskInundHoursHost = makeJmaImageryHost("jmaAnaRiskInundHours", "ana_risk_inund_hours");
 
 /** NASA GIBS 衛星雪覆蓋（上游直連 XYZ raster，接 timeStore 換日） */
 export const GibsSnowCoverHost: LayerHostComponent = ({ deps }) => {

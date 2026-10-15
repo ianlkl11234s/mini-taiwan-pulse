@@ -1660,6 +1660,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jmaSst: boolean;        // 日本近海日別海面水溫（每日）
   jmaSeaIce: boolean;     // 鄂霍次克海海冰（每日，12–5 月）
   jmaHimawari: boolean;   // 向日葵 B13 紅外雲圖（每小時，灰階 JPEG）
+  jmaAnaSnowFirst: boolean; // 日本初雪日（積雪季首次 ≥5 cm 的日序，每日一張）
+  jmaAnaSnowDays: boolean; // 日本積雪日數（積雪季累計，每日一張）
+  jmaAnaRainDays: boolean; // 日本當月雨日數（解析雨量 ≥1 mm/h，每日一張）
+  jmaAnaRiskLandHours: boolean; // 日本當月土砂キキクル警戒以上時數（每日一張）
+  jmaAnaRiskInundHours: boolean; // 日本當月浸水キキクル警戒以上時數（每日一張）
   gibsSnowCover: boolean; // NASA GIBS 衛星雪覆蓋 NDSI（每日，瀏覽器直連上游）
   jmaRiskFlood: boolean;  // 洪水キキクル（向量 pbf，瀏覽器直連 JMA，只提供即時）
   jmaKosa: boolean;       // 黃砂予測（圖片面板，非地圖疊加）

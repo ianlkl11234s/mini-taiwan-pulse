@@ -20,6 +20,11 @@ export const JMA_LAYER_COLORS = {
   jmaSst: "#f43f5e",
   jmaSeaIce: "#38bdf8",
   jmaHimawari: "#94a3b8",
+  jmaAnaSnowFirst: "#8b5cf6",
+  jmaAnaSnowDays: "#3b82f6",
+  jmaAnaRainDays: "#0d9488",
+  jmaAnaRiskLandHours: "#b45309",
+  jmaAnaRiskInundHours: "#6d28d9",
   jmaRiskFlood: "#ff2800",
   jmaKosa: "#d97706",
 } as const;
@@ -196,7 +201,7 @@ export const JMA_IMAGERY_MIX_R = (255 * MAPBOX_COLOR_RAMP_RES * (MAPBOX_COLOR_RA
 export const JMA_IMAGERY_RASTER_COLOR_MIX = [JMA_IMAGERY_MIX_R, 0, 0, 0] as const;
 export const JMA_IMAGERY_RASTER_COLOR_RANGE = [0, 255] as const;
 
-export type JmaImageryEncoding = "level_la_v1" | "sst_la_v1" | "gray_jpeg_v1";
+export type JmaImageryEncoding = "level_la_v1" | "sst_la_v1" | "gray_jpeg_v1" | "count_la_v1";
 
 export interface JmaImageryLevel {
   /** PNG L 值（等於 T2 等級值） */
@@ -223,6 +228,19 @@ export interface JmaImageryScalar {
  */
 export interface JmaImageryGray {
   stops: readonly { value: number; color: string }[];
+}
+
+/**
+ * count_la_v1（分析圖，契約 §8）：L＝計數值（日數／時數／積雪季日序，上限 254）；0＝透明（無事件／還沒）；
+ * 255＝像素覆蓋率 < 0.5 →「未涵蓋」灰。classes（step）與 ramp（interpolate）擇一。
+ */
+export interface JmaImageryCount {
+  /** 圖例單位：days／hours 加在分級刻度後；date＝刻度本身是月/日 */
+  unit: "days" | "hours" | "date";
+  /** 離散分級：value ≥ min 起畫該色（min 遞增；第一級 min ≥ 1） */
+  classes?: readonly { min: number; rgb: readonly [number, number, number]; label: string }[];
+  /** 連續色帶（ana_snow_first 日序）：label 是圖例刻度 */
+  ramp?: readonly { value: number; color: string; label: string }[];
 }
 
 /** 上游只在部分時段／月份發布（UV 06–18 JST、海冰 12–5 月）；時段外顯示「夜間無資料」／「季外」，不算缺幀 */
@@ -253,6 +271,8 @@ export interface JmaImageryProduct {
   scalar?: JmaImageryScalar;
   /** gray_jpeg_v1：灰階 ramp */
   gray?: JmaImageryGray;
+  /** count_la_v1：分析圖計數分級 */
+  count?: JmaImageryCount;
   /** 上游發布時段（缺省 = 全天全年） */
   active?: JmaImageryActiveWindow;
 }
@@ -290,6 +310,53 @@ const SST_STOPS: readonly { value: number; color: string }[] = [
   ["#ffbd00", 22.5], ["#ffa400", 23.5], ["#ff7b08", 24.5], ["#ff4a10", 25.5], ["#ff2008", 26.5], ["#ff2031", 27.5],
   ["#ff5a9c", 28.5], ["#ff94ee", 29.5], ["#ffa4ff", 30.5],
 ].map(([color, value]) => ({ value: value as number, color: color as string }));
+
+// ── 分析圖色票（count_la_v1）──
+/**
+ * 積雪季日序（10/1＝1）的月初刻度。以非閏年計（2/29 存在的季，3/1 以後實際日序 +1，色帶差 1 天可忽略）。
+ * 早→晚：紫→藍→青→綠→黃→橘→紅。
+ */
+const ANA_SNOW_FIRST_RAMP: readonly { value: number; color: string; label: string }[] = [
+  { value: 1, color: "#7c3aed", label: "10/1" },
+  { value: 32, color: "#2563eb", label: "11/1" },
+  { value: 62, color: "#0891b2", label: "12/1" },
+  { value: 93, color: "#10b981", label: "1/1" },
+  { value: 124, color: "#84cc16", label: "2/1" },
+  { value: 152, color: "#eab308", label: "3/1" },
+  { value: 183, color: "#f97316", label: "4/1" },
+  { value: 213, color: "#dc2626", label: "5/1" },
+];
+
+/** 分級下限（value ≥ min）；最後一級為「≥」 */
+const ANA_RAIN_DAYS_BREAKS = [1, 2, 4, 7, 11, 16, 21] as const;
+const ANA_RAIN_DAYS_RGB: readonly (readonly [number, number, number])[] = [
+  [204, 236, 230], [153, 216, 201], [102, 194, 164], [65, 174, 118], [35, 139, 69], [0, 109, 44], [0, 68, 27],
+];
+/** 積雪季日數（10 月起整季累計，可超過 31）：1 週、2 週、1 月、2 月、3 月 */
+const ANA_SNOW_DAYS_BREAKS = [1, 2, 8, 15, 31, 61, 91] as const;
+const ANA_SNOW_DAYS_RGB: readonly (readonly [number, number, number])[] = [
+  [222, 235, 247], [198, 219, 239], [158, 202, 225], [107, 174, 214], [66, 146, 198], [33, 113, 181], [8, 69, 148],
+];
+/** 警戒以上時數（當月）：1、3、6、12、24、48+ */
+const ANA_HOURS_BREAKS = [1, 3, 6, 12, 24, 48] as const;
+const ANA_RISK_LAND_RGB: readonly (readonly [number, number, number])[] = [
+  [254, 227, 145], [254, 196, 79], [254, 153, 41], [236, 112, 20], [204, 76, 2], [140, 45, 4],
+];
+const ANA_RISK_INUND_RGB: readonly (readonly [number, number, number])[] = [
+  [218, 218, 235], [188, 189, 220], [158, 154, 200], [128, 125, 186], [106, 81, 163], [74, 20, 134],
+];
+
+/** 分級下限 → 圖例刻度（只有數字；單位由圖例依 count.unit 加上，跟著語系） */
+function countClasses(
+  breaks: readonly number[],
+  rgbs: readonly (readonly [number, number, number])[],
+): { min: number; rgb: readonly [number, number, number]; label: string }[] {
+  return breaks.map((min, i) => {
+    const next = breaks[i + 1];
+    const label = next == null ? `≥${min}` : next - 1 === min ? `${min}` : `${min}–${next - 1}`;
+    return { min, rgb: rgbs[i]!, label };
+  });
+}
 
 /**
  * 產品登記簿：每個發布幀產品一筆。容忍度（maxStaleMin／liveMaxStaleMin）依發布頻率各自設定：
@@ -426,6 +493,58 @@ export const JMA_IMAGERY_PRODUCTS = {
       ],
     },
   },
+  // ── 分析圖（P6，契約 §8；data-collectors #152）：每日一張，valid_time＝當日 00:00 JST（內容含當日），
+  // R2 key 落在前一 UTC 日 150000。2026-10 各月與 2026 積雪季都是 partial（資料 10-10 起）。
+  ana_snow_first: {
+    product: "ana_snow_first",
+    encoding: "count_la_v1",
+    paletteVersion: "pulse-ana_snow_first-2026-10-15",
+    cadenceMin: 1440,
+    maxStaleMin: 36 * 60,
+    liveMaxStaleMin: 48 * 60,
+    historyStepMin: 0,
+    count: { ramp: ANA_SNOW_FIRST_RAMP, unit: "date" },
+  },
+  ana_snow_days: {
+    product: "ana_snow_days",
+    encoding: "count_la_v1",
+    paletteVersion: "pulse-ana_snow_days-2026-10-15",
+    cadenceMin: 1440,
+    maxStaleMin: 36 * 60,
+    liveMaxStaleMin: 48 * 60,
+    historyStepMin: 0,
+    count: { classes: countClasses(ANA_SNOW_DAYS_BREAKS, ANA_SNOW_DAYS_RGB), unit: "days" },
+  },
+  ana_rain_days: {
+    product: "ana_rain_days",
+    encoding: "count_la_v1",
+    paletteVersion: "pulse-ana_rain_days-2026-10-15",
+    cadenceMin: 1440,
+    maxStaleMin: 36 * 60,
+    liveMaxStaleMin: 48 * 60,
+    historyStepMin: 0,
+    count: { classes: countClasses(ANA_RAIN_DAYS_BREAKS, ANA_RAIN_DAYS_RGB), unit: "days" },
+  },
+  ana_risk_land_hours: {
+    product: "ana_risk_land_hours",
+    encoding: "count_la_v1",
+    paletteVersion: "pulse-ana_risk_land_hours-2026-10-15",
+    cadenceMin: 1440,
+    maxStaleMin: 36 * 60,
+    liveMaxStaleMin: 48 * 60,
+    historyStepMin: 0,
+    count: { classes: countClasses(ANA_HOURS_BREAKS, ANA_RISK_LAND_RGB), unit: "hours" },
+  },
+  ana_risk_inund_hours: {
+    product: "ana_risk_inund_hours",
+    encoding: "count_la_v1",
+    paletteVersion: "pulse-ana_risk_inund_hours-2026-10-15",
+    cadenceMin: 1440,
+    maxStaleMin: 36 * 60,
+    liveMaxStaleMin: 48 * 60,
+    historyStepMin: 0,
+    count: { classes: countClasses(ANA_HOURS_BREAKS, ANA_RISK_INUND_RGB), unit: "hours" },
+  },
 } as const satisfies Record<string, JmaImageryProduct>;
 
 export type JmaImageryProductId = keyof typeof JMA_IMAGERY_PRODUCTS;
@@ -441,6 +560,11 @@ export const JMA_IMAGERY_LAYERS = {
   jmaSst: "sst_him",
   jmaSeaIce: "sea_ice",
   jmaHimawari: "himawari_b13",
+  jmaAnaSnowFirst: "ana_snow_first",
+  jmaAnaSnowDays: "ana_snow_days",
+  jmaAnaRainDays: "ana_rain_days",
+  jmaAnaRiskLandHours: "ana_risk_land_hours",
+  jmaAnaRiskInundHours: "ana_risk_inund_hours",
 } as const satisfies Record<string, JmaImageryProductId>;
 
 export type JmaImageryLayerKey = keyof typeof JMA_IMAGERY_LAYERS;
@@ -474,6 +598,18 @@ export function jmaImageryRasterColor(p: JmaImageryProduct): unknown[] {
         if (lv.level + 0.5 < missing) expr.push(lv.level + 0.5, TRANSPARENT);
       }
     });
+    expr.push(missing, JMA_IMAGERY_UNCOVERED_COLOR);
+    return expr;
+  }
+  if (p.encoding === "count_la_v1") {
+    // L=0 透明（無事件／還沒）；1–254 計數；255 覆蓋率不足 → 未涵蓋
+    const count = p.count!;
+    if (count.ramp) {
+      const ramp: unknown[] = ["interpolate", ["linear"], ["raster-value"], ...count.ramp.flatMap((s) => [s.value, s.color])];
+      return ["step", ["raster-value"], TRANSPARENT, 0.5, ramp, missing, JMA_IMAGERY_UNCOVERED_COLOR];
+    }
+    const expr: unknown[] = ["step", ["raster-value"], TRANSPARENT];
+    for (const c of count.classes ?? []) expr.push(c.min - 0.5, jmaRgb(c.rgb));
     expr.push(missing, JMA_IMAGERY_UNCOVERED_COLOR);
     return expr;
   }

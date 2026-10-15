@@ -162,6 +162,8 @@ describe("JMA imagery 產品登記簿", () => {
     expect(tol).toEqual({
       snow_depth: [90, 180], radar: [15, 30], rasrf: [60, 90], risk_land: [60, 90], risk_inund: [60, 90],
       uv_anal: [90, 180], sst_him: [36 * 60, 48 * 60], sea_ice: [36 * 60, 48 * 60], himawari_b13: [90, 180],
+      ana_snow_first: [36 * 60, 48 * 60], ana_snow_days: [36 * 60, 48 * 60], ana_rain_days: [36 * 60, 48 * 60],
+      ana_risk_land_hours: [36 * 60, 48 * 60], ana_risk_inund_hours: [36 * 60, 48 * 60],
     });
     for (const p of Object.values(JMA_IMAGERY_PRODUCTS)) {
       expect(p.maxStaleMin).toBeGreaterThanOrEqual(p.cadenceMin); // 至少容得下一個發布間隔
@@ -408,5 +410,76 @@ describe("JMA imagery：ひまわり B13（gray_jpeg_v1）", () => {
     expect(inputs[0]).toBeGreaterThanOrEqual(55);
     expect(expr[expr.length - 2]).toBe(255);
     expect(expr).not.toContain(JMA_IMAGERY_UNCOVERED_COLOR);
+  });
+});
+
+describe("JMA imagery：分析圖（count_la_v1，契約 §8）", () => {
+  const ANA = ["ana_snow_first", "ana_snow_days", "ana_rain_days", "ana_risk_land_hours", "ana_risk_inund_hours"] as const;
+
+  it("五個產品都是 count_la_v1、每日一幀", () => {
+    for (const id of ANA) {
+      const p: JmaImageryProduct = JMA_IMAGERY_PRODUCTS[id];
+      expect(p.encoding).toBe("count_la_v1");
+      expect(p.cadenceMin).toBe(1440);
+      expect(p.count).toBeDefined();
+    }
+  });
+
+  it("分級：0 透明、1 起第一級、254 最後一級、255 未涵蓋灰", () => {
+    for (const id of ["ana_snow_days", "ana_rain_days", "ana_risk_land_hours", "ana_risk_inund_hours"] as const) {
+      const p: JmaImageryProduct = JMA_IMAGERY_PRODUCTS[id];
+      const classes = p.count!.classes!;
+      const expr = jmaImageryRasterColor(p);
+      expect(evalStep(expr, 0)).toBe("rgba(0, 0, 0, 0)");
+      expect(evalStep(expr, 0.13)).toBe("rgba(0, 0, 0, 0)"); // raster-value 誤差 ≤0.13
+      expect(evalStep(expr, 1)).toBe(`rgb(${classes[0]!.rgb.join(", ")})`);
+      expect(evalStep(expr, 254)).toBe(`rgb(${classes[classes.length - 1]!.rgb.join(", ")})`);
+      expect(evalStep(expr, 255)).toBe(JMA_IMAGERY_UNCOVERED_COLOR);
+      expect(evalStep(expr, 254.87)).toBe(JMA_IMAGERY_UNCOVERED_COLOR);
+      // 每個分級下限的整數值落在該級
+      classes.forEach((c) => expect(evalStep(expr, c.min)).toBe(`rgb(${c.rgb.join(", ")})`));
+    }
+  });
+
+  it("時數分級 1、3、6、12、24、48+；雨日數涵蓋 1–31", () => {
+    expect(JMA_IMAGERY_PRODUCTS.ana_risk_land_hours.count.classes.map((c) => c.min)).toEqual([1, 3, 6, 12, 24, 48]);
+    expect(JMA_IMAGERY_PRODUCTS.ana_risk_inund_hours.count.classes.map((c) => c.label)).toEqual(["1–2", "3–5", "6–11", "12–23", "24–47", "≥48"]);
+    const rain = JMA_IMAGERY_PRODUCTS.ana_rain_days.count.classes;
+    expect(rain[0]!.min).toBe(1);
+    expect(rain[rain.length - 1]!.label.startsWith("≥")).toBe(true);
+  });
+
+  it("初雪日：0 透明、日序連續色帶（10/1＝1 起，月初刻度）、255 未涵蓋", () => {
+    const p: JmaImageryProduct = JMA_IMAGERY_PRODUCTS.ana_snow_first;
+    const ramp = p.count!.ramp!;
+    expect(ramp.map((s) => s.label)).toEqual(["10/1", "11/1", "12/1", "1/1", "2/1", "3/1", "4/1", "5/1"]);
+    expect(ramp.map((s) => s.value)).toEqual([1, 32, 62, 93, 124, 152, 183, 213]);
+    const expr = jmaImageryRasterColor(p);
+    expect(evalStep(expr, 0)).toBe("rgba(0, 0, 0, 0)");
+    expect((evalStep(expr, 15) as unknown[])[0]).toBe("interpolate");
+    expect(evalStep(expr, 255)).toBe(JMA_IMAGERY_UNCOVERED_COLOR);
+  });
+
+  it("選幀：當日 00:00 JST 一幀；partial 照畫；超過 36 小時 → 未涵蓋；encoding 不符 → 未涵蓋", () => {
+    const p = JMA_IMAGERY_PRODUCTS.ana_rain_days;
+    const rows = [
+      row("2026-10-13T15:00:00Z", { product: "ana_rain_days", encoding: "count_la_v1", status: "partial", image_key: "imagery/jma/ana_rain_days/20261013/150000.png" }),
+      row("2026-10-14T15:00:00Z", { product: "ana_rain_days", encoding: "count_la_v1", status: "partial", image_key: "imagery/jma/ana_rain_days/20261014/150000.png" }),
+    ];
+    const f = rowsToJmaImageryFrames(rows, CDN).get("ana_rain_days")!;
+    // 10-15 12:00 JST → 10-15 那一張
+    const noon = pickJmaImageryFrame(f, ms("2026-10-15T03:00:00Z"), p, false);
+    expect(noon.kind).toBe("frame");
+    if (noon.kind === "frame") {
+      expect(noon.frame.url).toBe(`${CDN}/imagery/jma/ana_rain_days/20261014/150000.png`);
+      expect(noon.frame.status).toBe("partial");
+    }
+    // 10-14 23:59 JST → 10-14 那一張
+    const prev = pickJmaImageryFrame(f, ms("2026-10-14T14:59:00Z"), p, false);
+    if (prev.kind === "frame") expect(prev.frame.validTimeIso).toBe("2026-10-13T15:00:00Z");
+    else throw new Error("expected frame");
+    expect(pickJmaImageryFrame(f, ms("2026-10-16T03:01:00Z"), p, false)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    const wrong = rowsToJmaImageryFrames([{ ...rows[1]!, encoding: "level_la_v1" }], CDN).get("ana_rain_days")!;
+    expect(pickJmaImageryFrame(wrong, ms("2026-10-15T03:00:00Z"), p, false)).toMatchObject({ kind: "uncovered", reason: "encoding" });
   });
 });

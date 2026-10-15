@@ -87,8 +87,9 @@ describe("Layer UX policy baseline", () => {
     // jpWaterFloodHazard 是外部 XYZ raster 背景，沒有 feature attributes 可供 popup。
     // jmaSnowDepth 是 JMA 發布幀 image source（PNG 只存等級值），同 cwaRadarImagery 無 feature 可點。
     // 2026-10-15：+8 JMA 發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、海面水溫、海冰、向日葵雲圖），同 jmaSnowDepth。
+    // 2026-10-15：+5 JMA 分析圖（count_la_v1 每日一張），同 jmaSnowDepth。
     // 2026-10-15：+3 上游直連（GIBS 雪覆蓋 raster、洪水キキクル line、黃砂圖片面板）。
-    expect(missing).toHaveLength(45);
+    expect(missing).toHaveLength(50);
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

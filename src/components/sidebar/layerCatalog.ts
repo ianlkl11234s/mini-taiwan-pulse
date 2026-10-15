@@ -2231,6 +2231,10 @@ const THEME_CATALOG: ThemeDef[] = [
         fromManifest("jmaSnowDepth"), fromManifest("gibsSnowCover"), fromManifest("jmaUvIndex"), fromManifest("jmaSst"), fromManifest("jmaSeaIce"), fromManifest("jmaHimawari"),
       ] },
       { title: "預報圖", layers: [fromManifest("jmaKosa")] },
+      { title: "分析", layers: [
+        fromManifest("jmaAnaSnowFirst"), fromManifest("jmaAnaSnowDays"), fromManifest("jmaAnaRainDays"),
+        fromManifest("jmaAnaRiskLandHours"), fromManifest("jmaAnaRiskInundHours"),
+      ] },
     ],
   },
 

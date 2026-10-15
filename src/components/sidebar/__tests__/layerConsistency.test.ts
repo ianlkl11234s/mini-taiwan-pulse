@@ -230,6 +230,7 @@ const NO_POPUP_LEDGER = new Set([
   "cwaCloudImagery", "cwaRadarImagery", "aqiImagery",
   // JMA 發布幀影像：PNG 只有等級值、無 feature 可 query（點擊讀值探針待 owner 拍板）
   "jmaSnowDepth", "jmaRadar", "jmaRasrf", "jmaRiskLand", "jmaRiskInund", "jmaUvIndex", "jmaSst", "jmaSeaIce", "jmaHimawari",
+  "jmaAnaSnowFirst", "jmaAnaSnowDays", "jmaAnaRainDays", "jmaAnaRiskLandHours", "jmaAnaRiskInundHours",
   // 上游直連（P5）：GIBS 雪覆蓋是上游已上色 raster（無數值通道）；洪水キキクル 線只帶 level，圖例已標示，
   // 實測當下全國無警戒、屬性待雨天抽驗再決定 popup；黃砂是圖片面板，沒有地圖 feature。
   "gibsSnowCover", "jmaRiskFlood", "jmaKosa",
