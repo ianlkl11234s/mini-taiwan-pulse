@@ -2,6 +2,14 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-10-15 — 分析圖 5 層（count_la_v1；PR 待併入 develop；尚未部署正式站）
+
+- 新增 `jmaAnaSnowFirst`、`jmaAnaSnowDays`、`jmaAnaRainDays`、`jmaAnaRiskLandHours`、`jmaAnaRiskInundHours`：日本 tab「氣象防災 › 分析」，預設關，每日一張隨時間軸切日
+- 新 encoding `count_la_v1`：0 透明、255 未涵蓋灰；初雪日走日序連續色帶（圖例 10/1…5/1），其餘分級
+- 狀態 store 帶出幀 status，partial 時圖例明示「資料自 2026-10-10 起，部分期間缺」
+- 以正式 R2／RPC 實資料在瀏覽器驗證 10-11～10-15
+- Breaking：無（golden +5 層 1183 → 1188；popup ledger 42 → 47）
+
 ## 2026-10-15 — 發布幀影像擴充 8 層（stacked PR，base = feat/jma-imagery-timeline；尚未部署正式站）
 
 - 新增 `jmaRadar`、`jmaRasrf`、`jmaRiskLand`、`jmaRiskInund`、`jmaUvIndex`、`jmaSst`、`jmaSeaIce`、`jmaHimawari`：日本 tab「氣象防災 › 解析影像」，預設關

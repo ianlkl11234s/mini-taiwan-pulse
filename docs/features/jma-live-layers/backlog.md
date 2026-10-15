@@ -10,6 +10,8 @@
 | JMA-7 | validation | P1 | blocked | 其餘產品以真實發布幀驗證 | 等 collector 回補／部署：risk_*（有著色時）、uv_anal（白天）、sst_him、himawari_b13；develop 預覽站逐層拖時間軸 | 位置與上游圖對得上；risk 首次著色時以 PLTE 驗證並更新色票版本 |
 | JMA-8 | product | P2 | conditional | 海冰色票改用官方圖例 | 12 月海冰季開始後，取氣象廳海氷情報頁的密接度凡例色 | `sea_ice` paletteVersion 去掉 provisional |
 | JMA-9 | product | P3 | conditional | 雲圖在亮色底圖可讀 | 目前白雲在 light 底圖對比低；需要的話依 isDarkTheme 換 ramp | light 底圖截圖可辨識雲帶 |
+| JMA-10 | validation | P2 | conditional | 警戒時數分析圖以實資料核對上色 | 10 月至今キキクル無警戒，ana_risk_*_hours 全 0；有警戒事件後在 develop 預覽站開圖 | 有警戒的格子依時數分級上色、位置對得上キキクル |
+| JMA-11 | product | P3 | conditional | 分析圖點擊讀值 | 同 JMA-6 像素探針 | 點擊顯示日數／時數／初雪日期 |
 | JMA-6 | product | P3 | conditional | 積雪深點擊讀值 | 需要 PNG 像素探針（同 urbanHeat 讀值探針）；目前列在 NO_POPUP ledger | 點擊顯示積雪級距與解析時刻 |
 
 ## Explicitly not planned

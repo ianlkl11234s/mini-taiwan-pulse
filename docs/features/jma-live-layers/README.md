@@ -26,6 +26,10 @@
 | `jmaUvIndex` 紫外線指數 | 同上（`uv_anal`，14 級，level＝UVI＋1） | `['uv_anal']` | 06–18 JST 每小時；90／180 分；夜間顯示「夜間無資料」 | 🟡 尚無發布幀；夜間狀態已驗證（JMA-7） |
 | `jmaSst` 日別海面水溫 | 同上（`sst_him`，sst_la_v1 連續色帶；L=0 海冰另色） | `['sst_him']` | 每日（valid_time＝該日 00:00 JST）；36／48 小時 | 🟡 尚無發布幀；以合成 PNG 驗證（JMA-7） |
 | `jmaSeaIce` 鄂霍次克海海冰 | 同上（`sea_ice`，密接度 2–5；0 開水面透明） | `['sea_ice']` | 每日（12–5 月）；36／48 小時；季外顯示「季外」 | 🟡 色票暫定（JMA-8）；季外狀態已驗證 |
+| `jmaAnaSnowFirst` 初雪日 | 同上（`ana_snow_first`，count_la_v1；L＝積雪季日序 10/1＝1，連續色帶，圖例以日期標示） | `['ana_snow_first']` | 每日一張（valid_time＝當日 00:00 JST）；36／48 小時 | ✅ 實資料驗證（10-15 大雪山 28 px；10-13 透明） |
+| `jmaAnaSnowDays` 積雪日數 | 同上（`ana_snow_days`，分級 1／2–7／8–14／15–30／31–60／61–90／≥91 日） | `['ana_snow_days']` | 同上 | ✅ 實資料驗證（10-15 大雪山 1 日） |
+| `jmaAnaRainDays` 雨日數（當月） | 同上（`ana_rain_days`，分級 1／2–3／4–6／7–10／11–15／16–20／≥21 日） | `['ana_rain_days']` | 同上 | ✅ 實資料驗證（10-11 → 10-15 逐日擴大） |
+| `jmaAnaRiskLandHours`／`jmaAnaRiskInundHours` 土砂／浸水警戒時數（當月） | 同上（分級 1／3／6／12／24／48+ 小時） | `['ana_risk_land_hours']`／`['ana_risk_inund_hours']` | 同上 | 🟡 10 月至今全為 0（透明）；上色以單元測試驗證，待有警戒時實資料核對 |
 | `jmaHimawari` 向日葵紅外雲圖 | 同上（`himawari_b13`，gray_jpeg_v1 單色 JPEG；raster-color 灰階透明 ramp） | `['himawari_b13']` → R2 `…/himawari_b13/…jpg` | 每小時；90／180 分 | 🟡 回補中；以上游真實磚拼成的 JPEG 驗證（JMA-7） |
 
 ### 發布幀影像共通規則
@@ -34,7 +38,8 @@
 - 色票來源：radar／rasrf／risk_*／uv_anal 抄 data-collectors `config/decode_tables/jma/*.yaml`（版本號同 yaml）；sst_him 取自氣象廳「日別海面水温」圖色條（逐 1 ℃ 取色）；sea_ice 暫定（官方圖例季外下架）；himawari 只調透明度（85 以下透明）。
 - 時段外（UV 夜間、海冰 6–11 月）不是缺資料：圖例顯示「夜間無資料」／「季外」，不叫「未涵蓋」。
 - RPC 分塊：依發布頻率把時間窗切成每塊 ≤ 900 列且 ≤ 8 天（RPC 是 `[since, until)` 半開區間；邊界重複列去重）。不再在 `jmaImageryWindowFor` 截 8 天（截掉的會是最近的日子）。
-- encoding 分派：`level_la_v1`（step 離散）、`sst_la_v1`（interpolate 連續）、`gray_jpeg_v1`（灰階 interpolate、無缺測等級）；manifest 的 encoding 與登記簿不符 → 未涵蓋。
+- encoding 分派：`level_la_v1`（step 離散）、`sst_la_v1`（interpolate 連續）、`gray_jpeg_v1`（灰階 interpolate、無缺測等級）、`count_la_v1`（分析圖：L＝計數，0 透明、255＝覆蓋率不足「未涵蓋」；分級 step 或日序 interpolate）；manifest 的 encoding 與登記簿不符 → 未涵蓋。
+- 分析圖（「氣象防災 › 分析」，契約 §8）：每日一張、內容含當日；圖例顯示「統計至 YYYY/M/D」、門檻（積雪 ≥5 cm；雨 1 小時解析雨量 ≥1 mm；キキクル警戒以上）與覆蓋率規則；manifest status＝partial 時加註「資料自 2026-10-10 起，部分期間缺」，不隱藏。
 
 出典：気象庁（公共データ利用規約1.0）— 圖例、popup、source attribution 三處都有。
 
