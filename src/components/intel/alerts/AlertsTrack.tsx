@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from "react";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import {
   FONT_DATA,
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER,
@@ -33,6 +35,8 @@ export function AlertsTrack({
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
 
   const fracFromClientX = (clientX: number): number => {
     const el = areaRef.current;
@@ -62,15 +66,15 @@ export function AlertsTrack({
   const bucketTooltip = (h: number): ChartTooltipContent => {
     const b = buckets[h];
     const title = `${String(h).padStart(2, "0")}:00`;
-    if (!b || !b.total) return { title, rows: [], note: noData ? "無資料" : "無警報" };
+    if (!b || !b.total) return { title, rows: [], note: noData ? t("alerts.trend.noData") : t("alerts.trend.none") };
     return {
       title,
       rows: ALERT_GROUP_ORDER.filter((g) => b.parts[g]).map((g) => ({
         dot: theme.fill(ALERT_GROUPS_DEF[g].color),
-        label: ALERT_GROUPS_DEF[g].label,
-        value: fmtChartValue(b.parts[g], "則"),
+        label: enumLabel("intel.alertGroup", g, ALERT_GROUPS_DEF[g].label, i18n),
+        value: fmtChartValue(b.parts[g], t("alerts.unit", { count: b.parts[g] })),
       })),
-      note: `共 ${b.total} 則`,
+      note: t("alerts.trend.total", { count: b.total }),
     };
   };
 
@@ -92,7 +96,7 @@ export function AlertsTrack({
             color: theme.p.textFaint,
           }}
         >
-          {v2 ? "警報 · 近 24 小時" : "ALERTS 24H"}
+          {v2 ? t("alerts.track.title") : "ALERTS 24H"}
         </span>
         <div style={{ flex: 1 }} />
       </div>

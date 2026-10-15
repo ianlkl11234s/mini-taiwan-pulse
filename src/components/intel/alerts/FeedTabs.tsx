@@ -1,4 +1,5 @@
 import { FONT_CJK, FONT_DATA, withAlpha } from "../intelTokens";
+import { useLocale } from "../../../state/localeStore";
 import { useIntelTheme } from "../intelTheme";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
@@ -19,15 +20,16 @@ interface Props {
   globalCountInAll: number;
 }
 
-const TABS: { key: FeedTab; label: string }[] = [
-  { key: "all",    label: "全部" },
-  { key: "news",   label: "新聞" },
-  { key: "alerts", label: "警報" },
-  { key: "globalEvents", label: "全球情勢" },
-];
+const TABS = [
+  { key: "all", labelKey: "alerts.tabs.all" },
+  { key: "news", labelKey: "alerts.tabs.news" },
+  { key: "alerts", labelKey: "alerts.tabs.alerts" },
+  { key: "globalEvents", labelKey: "alerts.tabs.globalEvents" },
+] as const satisfies readonly { key: FeedTab; labelKey: string }[];
 
 export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere, globalCount, globalCountInAll }: Props) {
   const palette = useIntelTheme();
+  const { t } = useLocale();
   return (
     <div
       style={{
@@ -38,7 +40,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
     >
       <div
         role="tablist"
-        aria-label="情報分頁"
+        aria-label={t("alerts.tabs.ariaLabel")}
         style={{
           display: "flex", gap: 2,
           padding: 2,
@@ -47,20 +49,20 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
           background: palette.controlBg,
         }}
       >
-        {TABS.map((t) => {
-          const active = tab === t.key;
-          const isAlerts = t.key === "alerts";
+        {TABS.map(({ key, labelKey }) => {
+          const active = tab === key;
+          const isAlerts = key === "alerts";
           const hot = isAlerts && alertSevere > 0;
           const count =
-            t.key === "globalEvents" ? globalCount : t.key === "news" ? newsCount
-              : t.key === "alerts" ? alertCount
+            key === "globalEvents" ? globalCount : key === "news" ? newsCount
+              : key === "alerts" ? alertCount
                 : newsCount + alertCountInAll + globalCountInAll;
           return (
             <button
-              key={t.key}
+              key={key}
               role="tab"
               aria-selected={active}
-              onClick={() => onTab(t.key)}
+              onClick={() => onTab(key)}
               style={{
                 flex: 1,
                 minWidth: 0, whiteSpace: "nowrap",
@@ -78,7 +80,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
                 fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 600,
               }}
             >
-              {t.label}
+              {t(labelKey)}
               <span
                 style={{
                   fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,

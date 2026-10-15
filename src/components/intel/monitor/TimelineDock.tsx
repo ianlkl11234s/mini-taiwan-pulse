@@ -12,6 +12,8 @@ import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
 import { useMonitorTheme } from "./monitorTheme";
 import { useWallClock } from "../../../hooks/useWallClock";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
 interface Props {
   /** 過濾後的當日 events（用於畫直方圖） */
@@ -68,6 +70,8 @@ export function TimelineDock({
   onScrub, onLive, onTogglePlay, alertSeries,
 }: Props) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const catLabel = (c: { key: string; label: string }) => enumLabel("eventNewsCategory", c.key, c.label, i18n);
   const theme = useMonitorTheme();
   const [hoverH, setHoverH] = useState<number | null>(null);
   const areaRef = useRef<HTMLDivElement>(null);
@@ -136,18 +140,18 @@ export function TimelineDock({
               color: theme.p.textMuted, whiteSpace: "nowrap",
             }}
           >
-            時間軸 TIMELINE DOCK
+            {i18n.t("monitor.timeline.legacyTitle")}
           </span>
         )}
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: theme.p.textFaint, whiteSpace: "nowrap" }}>
-          新聞密度 · 每小時
+          {i18n.t("monitor.timeline.density")}
         </span>
         <div style={{ flex: 1 }} />
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {NEWS_CATEGORIES.map((c) => (
             <span
               key={c.key}
-              title={c.label}
+              title={catLabel(c)}
               style={{
                 width: 8, height: 8, borderRadius: RADIUS.sm, background: theme.fill(c.color), opacity: 0.85,
               }}
@@ -157,7 +161,7 @@ export function TimelineDock({
         <span style={{ width: 1, height: 16, background: theme.p.borderMid, margin: "0 2px" }} />
         <button
           onClick={onTogglePlay}
-          title={v2 ? "播放／暫停" : "play/pause"}
+          title={v2 ? i18n.t("monitor.timeline.playPause") : "play/pause"}
           style={{
             width: 26, height: 26, borderRadius: RADIUS.lg,
             border: `1px solid ${theme.p.borderMid}`,
@@ -179,7 +183,7 @@ export function TimelineDock({
             color: isLive ? theme.p.statusLive : theme.p.statusWarn,
           }}
         >
-          {isLive ? (v2 ? "即時" : "即時 NOW") : clockTime(playbackTs)}
+          {isLive ? (v2 ? i18n.t("monitor.live") : i18n.t("monitor.timeline.nowLegacy")) : clockTime(playbackTs)}
         </span>
         <button
           onClick={onLive}
@@ -199,7 +203,7 @@ export function TimelineDock({
               boxShadow: isLive ? `0 0 6px ${theme.p.statusLive}` : "none",
             }}
           />
-          {v2 ? "回到即時" : "LIVE"}
+          {v2 ? i18n.t("monitor.timeline.backToLive") : "LIVE"}
         </button>
       </div>
 
@@ -308,7 +312,7 @@ export function TimelineDock({
                 color: theme.isDark ? "#fff" : theme.p.textStrong, fontWeight: 700, marginBottom: 4,
               }}
             >
-              {String(hovered.h).padStart(2, "0")}:00 · {hovered.total} 則
+              {String(hovered.h).padStart(2, "0")}:00 · {i18n.t("monitor.count.items", { count: hovered.total })}
             </div>
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap", maxWidth: 180 }}>
               {NEWS_CATEGORIES.filter((c) => hovered.c[c.key]).map((c) => (
@@ -324,12 +328,12 @@ export function TimelineDock({
                       width: 6, height: 6, borderRadius: RADIUS.full, background: theme.fill(c.color),
                     }}
                   />
-                  {c.label} {hovered.c[c.key]}
+                  {catLabel(c)} {hovered.c[c.key]}
                 </span>
               ))}
               {hovered.total === 0 && (
                 <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: theme.p.textFaint }}>
-                  無事件
+                  {i18n.t("monitor.timeline.noEvents")}
                 </span>
               )}
             </div>

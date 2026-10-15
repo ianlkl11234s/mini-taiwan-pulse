@@ -1,3 +1,5 @@
+import { localeStore, type LocaleSnapshot } from "../../../state/localeStore";
+
 /**
  * 新聞四格的來源新鮮度輸入（純函式，可測）。
  *
@@ -37,14 +39,14 @@ export function maxSourceSuccessMs(rows: readonly { last_success_at: string | nu
   return max;
 }
 
-export function newsFreshnessInput(a: NewsFreshnessArgs): NewsFreshnessInput {
+export function newsFreshnessInput(a: NewsFreshnessArgs, i18n: Pick<LocaleSnapshot, "t"> = localeStore.getSnapshot()): NewsFreshnessInput {
   const shown = a.aggregatedMs ?? a.latestNewsMs;
   if (a.dayKey < taipeiDayKey(a.nowMs)) {
     return { time: a.latestNewsMs, dataMs: a.nowMs, quiet: false };
   }
   const quiet = a.healthMs != null && a.nowMs - a.healthMs > NEWS_QUIET_MAX_MS;
   if (quiet) {
-    return { time: a.healthMs, dataMs: a.healthMs, reason: "新聞來源已超過 12 小時沒有成功收集，收集可能停了", quiet: true };
+    return { time: a.healthMs, dataMs: a.healthMs, reason: i18n.t("monitor.fresh.newsQuiet"), quiet: true };
   }
   return { time: shown, dataMs: shown, quiet: false };
 }

@@ -3,6 +3,7 @@ import { FONT_CJK, FONT_DATA, clockTime } from "./intelTokens";
 import { neutralFill, useIntelTheme } from "./intelTheme";
 import { RADIUS, FONT_SIZE, LIGHT, SLIDER } from "../../styles/designTokens";
 import { Slider } from "../controls/Slider";
+import { useLocale } from "../../state/localeStore";
 
 interface Props {
   /** unix sec — 當前 scrub 位置 */
@@ -23,6 +24,7 @@ export function IntelReplay({
   onScrub, onLive, onTogglePlay,
 }: Props) {
   const palette = useIntelTheme();
+  const { t } = useLocale();
   return (
     <div
       style={{
@@ -37,7 +39,7 @@ export function IntelReplay({
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: palette.textFaint }}>
-          回放
+          {t("intel.replay.title")}
         </span>
         <span
           style={{
@@ -47,12 +49,12 @@ export function IntelReplay({
             color: isLive ? palette.statusLive : palette.statusWarn,
           }}
         >
-          {isLive ? "即時" : clockTime(playbackTs)}
+          {isLive ? t("intel.replay.live") : clockTime(playbackTs)}
         </span>
         <div style={{ flex: 1 }} />
         <button
           onClick={onTogglePlay}
-          title="play/pause"
+          title={t("intel.replay.playPause")}
           style={{
             width: 24,
             height: 24,
@@ -98,7 +100,7 @@ export function IntelReplay({
           step={60}
           value={playbackTs}
           onChange={onScrub}
-          ariaLabel="情報回放時間"
+          ariaLabel={t("intel.replay.ariaLabel")}
           style={{ flex: 1 }}
           trackColor={palette.isDark ? SLIDER.track : LIGHT.sliderTrack}
           fillColor={palette.isDark ? SLIDER.fill : LIGHT.sliderFill}

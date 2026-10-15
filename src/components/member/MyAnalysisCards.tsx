@@ -7,32 +7,36 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { taipeiDate } from "../../card/cardStyle";
+import { localeStore, useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { analysisCardUrl, listMyAnalysisCards, revokeAnalysisCard, type CardRpcClient, type CardSummary } from "../../lib/analysisCardApi";
 
 type Phase = { kind: "loading" } | { kind: "ready"; cards: CardSummary[] } | { kind: "error"; message: string };
 
-export function cardStatusText(card: CardSummary, now: number = Date.now()): string {
-  if (card.revokedAt) return `已撤銷（${taipeiDate(card.revokedAt) ?? ""}）`;
-  if (Date.parse(card.expiresAt) <= now) return `已到期（${taipeiDate(card.expiresAt) ?? ""}）`;
-  return `連結到期：${taipeiDate(card.expiresAt) ?? ""}`;
+export function cardStatusText(card: CardSummary, now: number = Date.now(), { t }: LocaleSnapshot = localeStore.getSnapshot()): string {
+  if (card.revokedAt) return t("member.cards.revoked", { date: taipeiDate(card.revokedAt) ?? "" });
+  if (Date.parse(card.expiresAt) <= now) return t("member.cards.expired", { date: taipeiDate(card.expiresAt) ?? "" });
+  return t("member.cards.expiresOn", { date: taipeiDate(card.expiresAt) ?? "" });
 }
 
 export function MyAnalysisCardsList({ cards, busySlug, onCopy, onRevoke, now }: { cards: readonly CardSummary[]; busySlug: string | null; onCopy: (slug: string) => void; onRevoke: (slug: string) => void; now?: number }) {
-  if (!cards.length) return <div className="member-empty"><p>還沒有發布過分析卡。在「與 Agent 協作」面板按「發布連結」後會列在這裡。</p></div>;
+  const i18n = useLocale();
+  const { t } = i18n;
+  if (!cards.length) return <div className="member-empty"><p>{t("member.cards.empty")}</p></div>;
   return <>{cards.map(card => {
     const active = !card.revokedAt && Date.parse(card.expiresAt) > (now ?? Date.now());
     return <article className="member-item" key={card.slug}>
       <strong>{card.title}</strong>
-      <small>{cardStatusText(card, now)} · 發布於 {taipeiDate(card.createdAt) ?? ""}</small>
+      <small>{t("member.cards.meta", { status: cardStatusText(card, now, i18n), date: taipeiDate(card.createdAt) ?? "" })}</small>
       <div className="member-actions">
-        <button disabled={!active} onClick={() => onCopy(card.slug)}>複製連結</button>
-        <button disabled={!active || busySlug === card.slug} onClick={() => onRevoke(card.slug)}>{busySlug === card.slug ? "撤銷中" : "撤銷"}</button>
+        <button disabled={!active} onClick={() => onCopy(card.slug)}>{t("member.cards.copyLink")}</button>
+        <button disabled={!active || busySlug === card.slug} onClick={() => onRevoke(card.slug)}>{busySlug === card.slug ? t("member.cards.revoking") : t("member.cards.revoke")}</button>
       </div>
     </article>;
   })}</>;
 }
 
 export function MyAnalysisCards({ client }: { client?: CardRpcClient }) {
+  const { t } = useLocale();
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -43,20 +47,20 @@ export function MyAnalysisCards({ client }: { client?: CardRpcClient }) {
   }, [client]);
   useEffect(() => { void load(); }, [load]);
   const revoke = async (slug: string) => {
-    if (!window.confirm("撤銷後這個連結立刻失效，收到連結的人會看到「這張卡片已失效」。確定撤銷？")) return;
+    if (!window.confirm(t("member.cards.confirmRevoke"))) return;
     setBusySlug(slug);
     const result = await revokeAnalysisCard(slug, client);
     setBusySlug(null);
-    setNotice(result.ok ? "已撤銷。" : result.message);
+    setNotice(result.ok ? t("member.cards.revokedNotice") : result.message);
     if (result.ok) await load();
   };
   const copy = async (slug: string) => {
-    try { await navigator.clipboard.writeText(analysisCardUrl(slug)); setNotice("已複製連結。"); } catch { setNotice(analysisCardUrl(slug)); }
+    try { await navigator.clipboard.writeText(analysisCardUrl(slug)); setNotice(t("member.cards.copiedNotice")); } catch { setNotice(analysisCardUrl(slug)); }
   };
   return <>
-    <p className="member-hint">你發布的分析卡（固定 30 天到期）。撤銷會立刻讓連結失效。</p>
+    <p className="member-hint">{t("member.cards.hint")}</p>
     {notice && <div role="status" aria-live="polite" className="member-notice">{notice}</div>}
-    {phase.kind === "loading" && <p className="member-hint">正在讀取卡片。</p>}
+    {phase.kind === "loading" && <p className="member-hint">{t("member.cards.loading")}</p>}
     {phase.kind === "error" && <p className="member-hint">{phase.message}</p>}
     {phase.kind === "ready" && <MyAnalysisCardsList cards={phase.cards} busySlug={busySlug} onCopy={slug => void copy(slug)} onRevoke={slug => void revoke(slug)} />}
   </>;

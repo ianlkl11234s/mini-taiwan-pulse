@@ -18,6 +18,7 @@ import { fetchReplayEvents } from "../data/earthquakeReplayLoader";
 import { eventTier, type EarthquakeReplayEvent } from "../data/earthquakeReplayTypes";
 import { earthquakeReplayClock } from "../state/earthquakeReplayClock";
 import { Slider } from "./controls/Slider";
+import { useLocale, type LocaleSnapshot } from "../state/localeStore";
 
 const PANEL_WIDTH = 322;
 
@@ -38,10 +39,9 @@ function magColor(m: number): string {
   return "#94a3b8";
 }
 
-function fmtTaipei(iso: string): string {
+function fmtTaipei(iso: string, i18n: LocaleSnapshot): string {
   try {
-    return new Date(iso).toLocaleString("zh-TW", {
-      timeZone: "Asia/Taipei",
+    return i18n.formatDateTime(new Date(iso), {
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
@@ -62,6 +62,8 @@ function shortLocation(loc: string): string {
 export function EarthquakeReplayPanel({
   open, onClose, selectedId, onSelect, playing, onTogglePlay, onReplay,
 }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const [events, setEvents] = useState<EarthquakeReplayEvent[] | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -121,7 +123,7 @@ export function EarthquakeReplayPanel({
       >
         <Rewind size={17} color={COLORS.accent} strokeWidth={1.6} style={{ flexShrink: 0 }} />
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-          <span style={{ fontSize: 13.5, fontWeight: 700, color: COLORS.textStrong }}>地震回放</span>
+          <span style={{ fontSize: 13.5, fontWeight: 700, color: COLORS.textStrong }}>{t("timeline.eq.title")}</span>
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim }}>
             EARTHQUAKE REPLAY
           </span>
@@ -129,7 +131,7 @@ export function EarthquakeReplayPanel({
         <div style={{ flex: 1 }} />
         <button
           onClick={onClose}
-          aria-label="close"
+          aria-label={t("timeline.eq.close")}
           style={{
             width: 24, height: 24, borderRadius: RADIUS.md, border: "none",
             background: "transparent", color: COLORS.textDim,
@@ -144,14 +146,14 @@ export function EarthquakeReplayPanel({
       <div className="layer-sidebar-scroll" style={{ flex: 1, overflowY: "auto", padding: "8px 8px 10px" }}>
         {failed && (
           <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "10px 6px" }}>
-            ⚠ 事件清單載入失敗（earthquake_replay_events）
+            {t("timeline.eq.loadFailed")}
           </div>
         )}
         {!failed && !events && (
-          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "10px 6px" }}>載入中…</div>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "10px 6px" }}>{t("timeline.eq.loading")}</div>
         )}
         {events?.length === 0 && (
-          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "10px 6px" }}>目前沒有可回放的地震</div>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "10px 6px" }}>{t("timeline.eq.empty")}</div>
         )}
 
         {events?.map((ev) => {
@@ -202,11 +204,11 @@ export function EarthquakeReplayPanel({
                   {shortLocation(ev.location)}
                 </span>
                 <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-                  {fmtTaipei(ev.occurred_at)} · {ev.station_count} 站 · {ev.depth_km.toFixed(0)}km
+                  {t("timeline.eq.meta", { time: fmtTaipei(ev.occurred_at, i18n), count: ev.station_count, depth: ev.depth_km.toFixed(0) })}
                 </span>
               </span>
               <span
-                title={tier === "A" ? "鄉鎮震度 + 等震度網格 + 測站（五步回放）" : "僅測站（三步回放）"}
+                title={tier === "A" ? t("timeline.eq.tierATitle") : t("timeline.eq.tierBTitle")}
                 style={{
                   flexShrink: 0,
                   fontSize: FONT_SIZE.xs,
@@ -217,7 +219,7 @@ export function EarthquakeReplayPanel({
                   background: tier === "A" ? "#fbbf24" : "rgba(255,255,255,0.08)",
                 }}
               >
-                {tier === "A" ? "完整" : "測站"}
+                {tier === "A" ? t("timeline.eq.tierA") : t("timeline.eq.tierB")}
               </span>
             </button>
           );
@@ -238,19 +240,19 @@ export function EarthquakeReplayPanel({
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textFaint }}>
-            震後 T+
+            {t("timeline.eq.sinceQuake")}
           </span>
           <span style={{ fontFamily: FONT_DATA, fontSize: 11.5, fontWeight: 700, color: hasTimeline ? COLORS.statusWarn : COLORS.textFaint }}>
             {hasTimeline ? `${clock.clock.toFixed(1)}s` : "—"}
           </span>
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-            {hasTimeline ? `/ ${clock.duration.toFixed(0)}s · ×${clock.rate.toFixed(1)}` : "選一起地震"}
+            {hasTimeline ? `/ ${clock.duration.toFixed(0)}s · ×${clock.rate.toFixed(1)}` : t("timeline.eq.selectOne")}
           </span>
           <div style={{ flex: 1 }} />
           <button
             onClick={onTogglePlay}
             disabled={!hasTimeline}
-            title="play / pause"
+            title={t("timeline.eq.playPause")}
             style={{
               width: 24, height: 24, borderRadius: RADIUS.md,
               border: `1px solid ${COLORS.borderMid}`,
@@ -265,7 +267,7 @@ export function EarthquakeReplayPanel({
           <button
             onClick={onReplay}
             disabled={!hasTimeline}
-            title="重播"
+            title={t("timeline.eq.replay")}
             style={{
               width: 24, height: 24, borderRadius: RADIUS.md,
               border: `1px solid ${COLORS.borderMid}`,
@@ -285,7 +287,7 @@ export function EarthquakeReplayPanel({
           value={clock.clock}
           disabled={!hasTimeline}
           onChange={(value) => earthquakeReplayClock.set(value, true)}
-          ariaLabel="地震回放時間"
+          ariaLabel={t("timeline.eq.sliderAria")}
         />
       </div>
     </div>

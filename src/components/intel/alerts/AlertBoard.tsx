@@ -1,5 +1,7 @@
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { IntelIcon } from "../IntelIcon";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import {
   FONT_CJK, FONT_DATA, MICON,
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER, alertSeverity, relTime,
@@ -48,6 +50,7 @@ function AlertTrend({
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const { t } = useLocale();
   // v2：圖區高照 mini 階（24），固定高格子內容只能等高或更矮
   const H = v2 ? MON_CHART_H.mini : 28;
 
@@ -67,8 +70,8 @@ function AlertTrend({
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: noData ? [] : [{ dot: theme.fill(accent), value: fmtChartValue(totals[h]!, "則") }],
-      ...(noData ? { note: "無資料" } : null),
+      rows: noData ? [] : [{ dot: theme.fill(accent), value: fmtChartValue(totals[h]!, t("alerts.unit", { count: totals[h]! })) }],
+      ...(noData ? { note: t("alerts.trend.noData") } : null),
     });
   }
 
@@ -93,7 +96,7 @@ function AlertTrend({
             color: theme.p.textFaint,
           }}
         >
-          {v2 ? "近 24 小時" : "24H TREND"}
+          {v2 ? t("alerts.trend.last24h") : "24H TREND"}
         </span>
         <span style={{ flex: 1 }} />
         <span
@@ -102,7 +105,7 @@ function AlertTrend({
             color: theme.p.textMuted,
           }}
         >
-          {v2 ? "高峰" : "Peak"} {noData ? "—" : peak}
+          {v2 ? t("alerts.trend.peak") : "Peak"} {noData ? "—" : peak}
         </span>
       </div>
       <svg
@@ -139,6 +142,7 @@ function Sparkline({ data: raw, color }: { data: (number | null)[]; color: strin
   const H = 16;
   const tip = useChartTooltip();
   const theme = useMonitorTheme();
+  const { t } = useLocale();
   const pts = data
     .map((v, i) => {
       const x = (i / 23) * W;
@@ -154,8 +158,8 @@ function Sparkline({ data: raw, color }: { data: (number | null)[]; color: strin
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: noData ? [] : [{ dot: theme.fill(color), value: fmtChartValue(data[h] ?? 0, "則") }],
-      ...(noData ? { note: "無資料" } : null),
+      rows: noData ? [] : [{ dot: theme.fill(color), value: fmtChartValue(data[h] ?? 0, t("alerts.unit", { count: data[h] ?? 0 })) }],
+      ...(noData ? { note: t("alerts.trend.noData") } : null),
     });
   }
 
@@ -198,6 +202,7 @@ function GroupCard({
   onClick: () => void;
 }) {
   const def = ALERT_GROUPS_DEF[group];
+  const i18n = useLocale();
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
   const dim = count === 0;
@@ -232,7 +237,7 @@ function GroupCard({
             color: theme.p.textDefault, whiteSpace: "nowrap",
           }}
         >
-          {def.label}
+          {enumLabel("intel.alertGroup", def.id, def.label, i18n)}
         </span>
         <div style={{ flex: 1 }} />
         {/* v2：最熱警報詞移到組名同一行右側（字級 S13 下獨立一行放不進固定高格子） */}
@@ -275,7 +280,7 @@ function GroupCard({
               whiteSpace: v2 ? "nowrap" : undefined,
             }}
           >
-            ⚠ {severe} 嚴重
+            ⚠ {i18n.t("alerts.board.severeCount", { count: severe })}
           </span>
         )}
       </div>
@@ -300,6 +305,7 @@ function AlertDrawer({
 }: { group: AlertGroupShort; nowTs: number }) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
   const def = ALERT_GROUPS_DEF[group];
   const [rows, setRows] = useState<ActiveAlert[] | null>(null);
 
@@ -319,7 +325,7 @@ function AlertDrawer({
           color: theme.p.textFaint,
         }}
       >
-        載入中…
+        {i18n.t("alerts.drawer.loading")}
       </div>
     );
   }
@@ -332,7 +338,7 @@ function AlertDrawer({
           color: theme.p.textFaint,
         }}
       >
-        無 {def.label} 警報
+        {i18n.t("alerts.drawer.none", { group: enumLabel("intel.alertGroup", def.id, def.label, i18n) })}
       </div>
     );
   }
@@ -376,7 +382,7 @@ function AlertDrawer({
               {r.headline || r.term}
             </span>
             <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: theme.p.textFaint }}>
-              {relTime(r.sent_ts, nowTs)}
+              {relTime(r.sent_ts, nowTs, i18n)}
             </span>
           </div>
         );
@@ -388,12 +394,13 @@ function AlertDrawer({
 // ─── AlertBoard 主元件 ───────────────────────
 export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs }: Props) {
   const [openGroup, setOpenGroup] = useState<AlertGroupShort | null>(null);
+  const i18n = useLocale();
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
 
   if (status !== "ready") {
-    const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
-    const at = lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "";
+    const label = status === "denied" ? i18n.t("alerts.summary.denied") : status === "error" ? i18n.t("alerts.summary.error") : i18n.t("alerts.summary.loading");
+    const at = lastSuccessAt ? ` · ${i18n.t("alerts.lastSuccess", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })}` : "";
     return (
       <div style={{ ...(v2 ? {} : { padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${theme.p.borderMid}` }), color: theme.p.textMuted, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>
         {label}{at}
@@ -420,7 +427,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), color: theme.p.statusLive, fontWeight: 600,
             }}
           >
-            {v2 ? "目前全國無生效中警報" : "目前全國無 active 警報"}
+            {v2 ? i18n.t("alerts.allClearV2") : i18n.t("alerts.allClear")}
           </span>
           <div style={{ flex: 1 }} />
           <span
@@ -429,7 +436,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               color: theme.p.textFaint,
             }}
           >
-            {v2 ? "全部解除" : "ALL CLEAR"}
+            {v2 ? i18n.t("alerts.allClearBadge") : "ALL CLEAR"}
           </span>
         </div>
       </div>
@@ -443,10 +450,10 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
         <div style={{ padding: "0 2px 6px", flexShrink: 0 }}>
           <MonitorSub
             items={[
-              "災防科技中心＋氣象署",
-              `${tally.total} 則`,
+              i18n.t("alerts.board.sources"),
+              i18n.t("alerts.board.total", { count: tally.total }),
               tally.severe > 0 ? (
-                <span style={{ color: theme.p.statusErr, fontWeight: 700 }}>{tally.severe} 嚴重</span>
+                <span style={{ color: theme.p.statusErr, fontWeight: 700 }}>{i18n.t("alerts.board.severeCount", { count: tally.severe })}</span>
               ) : null,
             ]}
           />
@@ -467,7 +474,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               color: theme.p.textStrong, letterSpacing: "0.5px",
             }}
           >
-            警訊整合
+            {i18n.t("alerts.board.title")}
           </span>
         )}
         <span
@@ -476,11 +483,11 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
             color: theme.p.textDim,
           }}
         >
-          {v2 ? "災防科技中心＋氣象署" : "NCDR + CWA"}
+          {v2 ? i18n.t("alerts.board.sources") : "NCDR + CWA"}
         </span>
         <div style={{ flex: 1 }} />
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>
-          {tally.total} 則
+          {i18n.t("alerts.board.total", { count: tally.total })}
         </span>
         {tally.severe > 0 && (
           <span
@@ -493,7 +500,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               animation: "alertBreathe 2s ease-in-out infinite",
             }}
           >
-            {tally.severe} 嚴重
+            {i18n.t("alerts.board.severeCount", { count: tally.severe })}
           </span>
         )}
       </div>
@@ -564,7 +571,7 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
                 color: theme.p.textStrong,
               }}
             >
-              {ALERT_GROUPS_DEF[openGroup].label}明細
+              {i18n.t("alerts.drawer.title", { group: enumLabel("intel.alertGroup", openGroup, ALERT_GROUPS_DEF[openGroup].label, i18n) })}
             </span>
             <div style={{ flex: 1 }} />
             <button

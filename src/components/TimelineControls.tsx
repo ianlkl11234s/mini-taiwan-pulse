@@ -5,6 +5,8 @@ import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } 
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { formatGfwUtcWindow, nearestGfwWindowHour, utcDateWindowSeconds } from "../state/gfwTimelineDataWindow";
 import { useUiTime } from "../hooks/useTimeline";
+import { useLocale } from "../state/localeStore";
+import { SLOTS, slotParts } from "./intel/intelTokens";
 import { TimeAxis } from "./timeline/TimeAxis";
 import { TimelineShell } from "./timeline/TimelineShell";
 import {
@@ -64,7 +66,7 @@ interface DataWindowNotice {
   jumpTarget: number | null;
 }
 
-const GFW_SUBJECT: Record<string, string> = { Grid: "漁船熱區", Tracks: "漁船航跡" };
+const GFW_SUBJECT: Record<string, "timeline.subject.grid" | "timeline.subject.tracks"> = { Grid: "timeline.subject.grid", Tracks: "timeline.subject.tracks" };
 
 /**
  * App 用的時間軸：自己以 `useUiTime()` 4Hz 訂閱目前時間並算 progress，
@@ -100,6 +102,8 @@ export function TimelineControls({
   onShiftDate,
   onRangeDaysChange,
 }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const isLive = timeMode === "live";
   const isFuture = currentTime > Date.now() / 1000;
   const gridWindow = useSyncExternalStore(
@@ -142,7 +146,7 @@ export function TimelineControls({
   for (const c of candidates) {
     const key = `${c.start}|${c.end}`;
     const prev = noticeMap.get(key);
-    const subject = prev ? "漁船資料" : GFW_SUBJECT[c.layer] ?? "漁船資料";
+    const subject = t(prev ? "timeline.subject.data" : GFW_SUBJECT[c.layer] ?? "timeline.subject.data");
     const gaps = gapsOutsideDataWindow(windowStart, windowEnd, c.start, c.end);
     const jumpTarget = c.outOfWindow || prev?.jumpTarget != null
       ? nearestGfwWindowHour(currentTime, c.start, c.end)
@@ -151,8 +155,8 @@ export function TimelineControls({
       key,
       subject,
       gaps,
-      text: describeDataWindow(subject, windowStart, windowEnd, c.start, c.end, c.first, c.last),
-      title: `可用 ${formatGfwUtcWindow(c.start, c.end)}`,
+      text: describeDataWindow(subject, windowStart, windowEnd, c.start, c.end, c.first, c.last, i18n),
+      title: t("timeline.available", { window: formatGfwUtcWindow(c.start, c.end) }),
       jumpTarget,
     });
   }
@@ -174,7 +178,8 @@ export function TimelineControls({
   const timeLabel = multiDay && currentTime > 0 ? `${formatMonthDay(currentTime)} ${clock}` : clock;
   const lastDay = windowEnd - 1;
   const dateRange = multiDay ? `${formatMonthDay(windowStart)}–${formatMonthDay(lastDay)}` : formatMonthDay(windowStart);
-  const dateChipLabel = `${dateRange} · ${rangeDays} 天`;
+  const dateChipLabel = t("timeline.rangeChip", { range: dateRange, days: rangeDays });
+  const chipParts = slotParts(t("timeline.rangeChip", { range: SLOTS[0], days: SLOTS[1] }));
 
   return (
     <TimelineShell
@@ -191,8 +196,8 @@ export function TimelineControls({
                 type="button"
                 className="tl3-btn tl3-btn--primary tl3-btn--play"
                 onClick={() => onTimeModeChange("replay")}
-                title="暫停即時（切換為回放）"
-                aria-label="暫停即時，切換為回放"
+                title={t("timeline.pauseLive")}
+                aria-label={t("timeline.pauseLiveAria")}
               >
                 <Pause size={12} fill="currentColor" strokeWidth={0} />
               </button>
@@ -201,8 +206,8 @@ export function TimelineControls({
                 type="button"
                 className="tl3-btn tl3-btn--primary tl3-btn--play"
                 onClick={onToggle}
-                title={playing ? "暫停" : "播放"}
-                aria-label={playing ? "暫停" : "播放"}
+                title={playing ? t("timeline.pause") : t("timeline.play")}
+                aria-label={playing ? t("timeline.pause") : t("timeline.play")}
               >
                 {playing ? <Pause size={12} fill="currentColor" strokeWidth={0} /> : <Play size={12} fill="currentColor" strokeWidth={0} />}
               </button>
@@ -213,21 +218,21 @@ export function TimelineControls({
               <span className="tl3-colon">
                 :
                 {expanded && isFuture && !isLive && (
-                  <span className="tl3-warnchip" role="status" title="此時間尚未到達，沒有最新資料">尚無資料</span>
+                  <span className="tl3-warnchip" role="status" title={t("timeline.futureNoDataTitle")}>{t("timeline.futureNoData")}</span>
                 )}
               </span>
               {timeLabel.slice(timeLabel.lastIndexOf(":") + 1)}
             </span>
             {expanded && isLive && (
-              <span className="tl3-live"><i />即時</span>
+              <span className="tl3-live"><i />{t("timeline.live")}</span>
             )}
             <TimeAxis
               compact={!expanded}
               ratio={progress}
               ticks={ticks}
               gaps={gaps}
-              gapTitle="斜線＝該時段無資料"
-              ariaLabel="時間軸"
+              gapTitle={t("timeline.gapHint")}
+              ariaLabel={t("timeline.axis")}
               ariaValueMin={windowStart}
               ariaValueMax={windowEnd}
               ariaValueNow={Math.round(currentTime)}
@@ -247,8 +252,8 @@ export function TimelineControls({
                 className="tl3-select tl3-select--mono"
                 value={speed}
                 onChange={(e) => onSpeedChange(Number(e.target.value))}
-                title="播放倍速"
-                aria-label="播放倍速"
+                title={t("timeline.speed")}
+                aria-label={t("timeline.speed")}
               >
                 {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
               </select>
@@ -258,34 +263,34 @@ export function TimelineControls({
                 type="button"
                 className="tl3-chip"
                 onClick={() => setPopupOpen(!popupOpen)}
-                title="選擇日期與範圍"
-                aria-label={`日期與範圍：${dateChipLabel}`}
+                title={t("timeline.dateRangeTitle")}
+                aria-label={t("timeline.dateRangeAria", { label: dateChipLabel })}
                 aria-expanded={popupOpen}
                 aria-haspopup="dialog"
               >
-                <span className="mono">{dateRange}</span> · <span className="mono">{rangeDays}</span> 天
+                {chipParts[0]}<span className="mono">{dateRange}</span>{chipParts[1]}<span className="mono">{rangeDays}</span>{chipParts[2]}
               </button>
             )}
           </div>
 
           {expanded && popupOpen && (
-            <div className="tl3-pop" role="dialog" aria-label="日期與範圍">
+            <div className="tl3-pop" role="dialog" aria-label={t("timeline.dateRangeDialog")}>
               <div className="tl3-pop-row">
-                <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(-1)} title="前一天" aria-label="前一天">
+                <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(-1)} title={t("timeline.prevDay")} aria-label={t("timeline.prevDay")}>
                   <ChevronLeft size={13} />
                 </button>
                 <input
                   type="date"
                   className="tl3-date-input"
-                  aria-label="日期"
+                  aria-label={t("timeline.date")}
                   value={formatTaiwanDateInputValue(selectedDate)}
                   onChange={(e) => {
                     const date = parseTaiwanDateInputValue(e.target.value);
                     if (date) onDateChange(date);
                   }}
                 />
-                <span className="tl3-date-dim">週{weekdayLabel(windowStart)}</span>
-                <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(1)} title="後一天" aria-label="後一天">
+                <span className="tl3-date-dim">{t("timeline.weekdayFormat", { day: weekdayLabel(windowStart, i18n) })}</span>
+                <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(1)} title={t("timeline.nextDay")} aria-label={t("timeline.nextDay")}>
                   <ChevronRight size={13} />
                 </button>
               </div>
@@ -295,20 +300,20 @@ export function TimelineControls({
                   className="tl3-btn"
                   aria-pressed={isLive}
                   onClick={() => { if (!isLive) onTimeModeChange("live"); }}
-                  title={isLive ? "目前為即時" : "回到現在（即時）"}
+                  title={isLive ? t("timeline.nowIsLive") : t("timeline.backToLive")}
                 >
-                  現在
+                  {t("timeline.now")}
                 </button>
                 <label className="tl3-field">
-                  範圍
+                  {t("timeline.range")}
                   <select
                     className="tl3-select"
                     value={rangeDays}
                     onChange={(e) => onRangeDaysChange(Number(e.target.value))}
-                    title="顯示天數"
-                    aria-label="顯示天數"
+                    title={t("timeline.daysShown")}
+                    aria-label={t("timeline.daysShown")}
                   >
-                    {RANGE_DAYS.map((n) => <option key={n} value={n}>{n} 天</option>)}
+                    {RANGE_DAYS.map((n) => <option key={n} value={n}>{t("timeline.days", { count: n })}</option>)}
                   </select>
                 </label>
               </div>
@@ -327,12 +332,12 @@ export function TimelineControls({
                       onClick={() => { if (n.jumpTarget !== null) onJumpToTime(n.jumpTarget); }}
                       title={n.title}
                     >
-                      跳至可用時段
+                      {t("timeline.jumpAvailable")}
                     </button>
                   )}
                 </span>
               ))}
-              {gaps.length > 0 && <span className="tl3-hint">斜線＝該時段無資料</span>}
+              {gaps.length > 0 && <span className="tl3-hint">{t("timeline.gapHint")}</span>}
             </div>
           )}
         </>

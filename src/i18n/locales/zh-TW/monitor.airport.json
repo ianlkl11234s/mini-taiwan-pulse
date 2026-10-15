@@ -1,0 +1,16 @@
+{
+  "monitor.airport.dataLabel": "機場旅客資料",
+  "monitor.airport.unitPeople": "人",
+  "monitor.airport.out24h": "24 小時出境",
+  "monitor.airport.loading": "載入中…",
+  "monitor.airport.arrivals": "入境",
+  "monitor.airport.departures": "出境",
+  "monitor.airport.source": "來源：移民署 APIS（每小時）",
+  "monitor.airport.staleReason": "機場資料收集已停止或 24 小時內無資料",
+  "monitor.airport.titleLegacy": "機場入出境 · BORDER PAX 24H",
+  "monitor.airport.in24h": "24h 入",
+  "monitor.airport.out24hLegacy": "24h 出",
+  "monitor.airport.noData": "無資料（此機場未涵蓋）",
+  "monitor.airport.noDataLegacy": "無資料（border_airport_snapshot 未涵蓋此機場）",
+  "monitor.airport.sourceLegacy": "來源：移民署 APIS（每小時 / get_airport_hourly_pax）"
+}

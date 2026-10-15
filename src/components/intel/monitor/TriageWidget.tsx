@@ -7,6 +7,8 @@ import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { useMonitorTheme } from "./monitorTheme";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
 function DistBar({
   label, levels, counts,
@@ -94,6 +96,7 @@ interface Props {
 
 export function TriageWidget({ events }: Props) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   const theme = useMonitorTheme();
   const tri = useMemo(() => {
     const gis = [0, 0, 0, 0];
@@ -120,24 +123,26 @@ export function TriageWidget({ events }: Props) {
   }, [events, v2]);
   const withNone = (levels: { label: string; color: string }[], counts: number[], none: number) =>
     v2 && none > 0
-      ? { levels: [...levels, { label: "未分級", color: theme.p.textGhost }], counts: [...counts, none] }
+      ? { levels: [...levels, { label: i18n.t("monitor.triage.unrated"), color: theme.p.textGhost }], counts: [...counts, none] }
       : { levels, counts };
-  const gisDist = withNone(GIS_LEVELS, tri.gis, tri.gisNone);
-  const sevDist = withNone(SEV_LEVELS, tri.sev, tri.sevNone);
+  const localizeLevels = (domain: string, levels: readonly { label: string; color: string }[]) =>
+    levels.map((lv) => ({ ...lv, label: enumLabel(domain, lv.label, lv.label, i18n) }));
+  const gisDist = withNone(localizeLevels("triageGis", GIS_LEVELS), tri.gis, tri.gisNone);
+  const sevDist = withNone(localizeLevels("triageSev", SEV_LEVELS), tri.sev, tri.sevNone);
   const evDist = withNone(
-    [{ label: "事件", color: theme.p.accent }, { label: "聲明", color: theme.p.textDim }],
+    [{ label: i18n.t("monitor.triage.event"), color: theme.p.accent }, { label: i18n.t("monitor.triage.statement"), color: theme.p.textDim }],
     [tri.event, tri.statement],
     tri.evNone,
   );
 
   return (
     <Widget style={{ gridColumn: "1 / -1" }}>
-      {!v2 && <SectionLabel>信號分級 · TRIAGE</SectionLabel>}
+      {!v2 && <SectionLabel>{i18n.t("monitor.triage.title")}</SectionLabel>}
       <div style={{ display: "grid", gridTemplateColumns: v2 ? "repeat(auto-fit, minmax(170px, 1fr))" : "repeat(3, 1fr)", gap: 18 }}>
-        <DistBar label={v2 ? "地理相關" : "地理相關 GIS_RELEVANCE"} levels={gisDist.levels} counts={gisDist.counts} />
-        <DistBar label={v2 ? "嚴重程度" : "嚴重程度 SEVERITY"} levels={sevDist.levels} counts={sevDist.counts} />
+        <DistBar label={v2 ? i18n.t("monitor.triage.gis") : `${i18n.t("monitor.triage.gis")} GIS_RELEVANCE`} levels={gisDist.levels} counts={gisDist.counts} />
+        <DistBar label={v2 ? i18n.t("monitor.triage.severity") : `${i18n.t("monitor.triage.severity")} SEVERITY`} levels={sevDist.levels} counts={sevDist.counts} />
         <DistBar
-          label={v2 ? "事件性質" : "事件性質 IS_EVENT"}
+          label={v2 ? i18n.t("monitor.triage.eventKind") : `${i18n.t("monitor.triage.eventKind")} IS_EVENT`}
           levels={evDist.levels}
           counts={evDist.counts}
         />
