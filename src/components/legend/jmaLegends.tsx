@@ -132,7 +132,22 @@ function ImageryStatus({ product }: { product: JmaImageryProductId }) {
           : i18n.t("legend.jma.imageryReason.no_frame");
     return <div style={style}>{i18n.t("legend.jma.imageryUncoveredNow", { reason })}</div>;
   }
+  if (jmaImageryProduct(product).encoding === "count_la_v1") {
+    // 分析圖：每日一張，內容含當日 → 顯示「統計至 YYYY/M/D」；partial 要明講，不隱藏
+    return <>
+      <div style={style}>{i18n.t("legend.jma.analysisAsOf")} <LegendNum>{formatJstDate(status.validTimeIso) || i18n.t("legend.jma.none")}</LegendNum></div>
+      {status.frameStatus === "partial" && <div style={{ ...style, color: t.textDefault }}>{i18n.t("legend.jma.analysisPartial")}</div>}
+    </>;
+  }
   return <div style={style}>{i18n.t("legend.jma.imageryValidTime")} <LegendNum>{formatJst(status.validTimeIso) || i18n.t("legend.jma.none")}</LegendNum></div>;
+}
+
+/** valid_time（當日 00:00 JST）→ JST 日期 */
+function formatJstDate(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "";
+  return d.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" });
 }
 
 const IMAGERY_NOTES: Record<JmaImageryLayerKey, MessageKey> = {
@@ -145,7 +160,26 @@ const IMAGERY_NOTES: Record<JmaImageryLayerKey, MessageKey> = {
   jmaSst: "legend.jma.sstNote",
   jmaSeaIce: "legend.jma.seaIceNote",
   jmaHimawari: "legend.jma.himawariNote",
+  jmaAnaSnowFirst: "legend.jma.anaSnowFirstNote",
+  jmaAnaSnowDays: "legend.jma.anaSnowDaysNote",
+  jmaAnaRainDays: "legend.jma.anaRainDaysNote",
+  jmaAnaRiskLandHours: "legend.jma.anaRiskHoursNote",
+  jmaAnaRiskInundHours: "legend.jma.anaRiskHoursNote",
 };
+
+/** 分析圖（count_la_v1）色階：日序走連續色帶＋日期刻度；日數／時數走分級方塊；0 透明另列一行說明 */
+function CountScale({ layerKey }: { layerKey: JmaImageryLayerKey }) {
+  const i18n = useLocale();
+  const count = jmaImageryProduct(JMA_IMAGERY_LAYERS[layerKey]).count!;
+  const unit = count.unit === "days" ? i18n.t("legend.jma.unitDays") : count.unit === "hours" ? i18n.t("legend.jma.unitHours") : "";
+  const zero = layerKey === "jmaAnaSnowFirst" ? i18n.t("legend.jma.anaSnowFirstZero") : i18n.t("legend.jma.anaZero");
+  return <>
+    {count.ramp
+      ? <SwatchGradient gradient={jmaCssGradient(count.ramp)} labels={count.ramp.map((s) => s.label)} />
+      : (count.classes ?? []).map((c) => <LegendRow key={c.min} swatch={<SwatchSquare color={jmaRgb(c.rgb)} />}><LegendNum>{c.label}</LegendNum> {unit}</LegendRow>)}
+    <LegendRow swatch={<SwatchSquare color="transparent" stroke={JMA_MISSING_COLOR} />}>{zero}</LegendRow>
+  </>;
+}
 
 /** 發布幀影像圖例（色票＝地圖 raster-color 同源 JMA_IMAGERY_PRODUCTS） */
 export function JmaImageryLegend({ layerKey }: { layerKey: JmaImageryLayerKey }) {
@@ -156,7 +190,9 @@ export function JmaImageryLegend({ layerKey }: { layerKey: JmaImageryLayerKey })
   const gray = spec.gray;
   return <div>
     <LegendTitle zh={layerTitle(layerKey, i18n)} />
-    {gray
+    {spec.count
+      ? <CountScale layerKey={layerKey} />
+      : gray
       ? <SwatchGradient gradient={`linear-gradient(90deg, ${gray.stops.map((s) => s.color).join(", ")})`}
         labels={[i18n.t("legend.jma.himawariWarm"), i18n.t("legend.jma.himawariCold")]} stroke={JMA_MISSING_COLOR} />
       : scalar
@@ -171,7 +207,7 @@ export function JmaImageryLegend({ layerKey }: { layerKey: JmaImageryLayerKey })
     {/* 灰階雲圖沒有缺測等級（0、255 都是有效灰階），地圖上不會出現未涵蓋灰 */}
     {!gray && <LegendRow swatch={<SwatchSquare color={JMA_IMAGERY_UNCOVERED_COLOR} />}>{i18n.t("legend.jma.imageryUncovered")}</LegendRow>}
     <ImageryStatus product={productId} />
-    <LegendNote>{i18n.t(IMAGERY_NOTES[layerKey])}{i18n.t("legend.jma.imageryAttribution")}</LegendNote>
+    <LegendNote>{i18n.t(IMAGERY_NOTES[layerKey])}{spec.count ? i18n.t("legend.jma.anaCoverageNote") : ""}{i18n.t("legend.jma.imageryAttribution")}</LegendNote>
   </div>;
 }
 

@@ -3757,6 +3757,36 @@ export const LAYER_PARAMS_SPEC = {
       default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
     },
   ],
+  jmaAnaSnowFirst: [
+    {
+      kind: "slider", name: "jmaAnaSnowFirstOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaSnowDays: [
+    {
+      kind: "slider", name: "jmaAnaSnowDaysOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRainDays: [
+    {
+      kind: "slider", name: "jmaAnaRainDaysOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRiskLandHours: [
+    {
+      kind: "slider", name: "jmaAnaRiskLandHoursOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRiskInundHours: [
+    {
+      kind: "slider", name: "jmaAnaRiskInundHoursOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
   riverRpiSegments: [
     opacitySlider("riverRpiSegmentsOpacity", 0.85),
     {

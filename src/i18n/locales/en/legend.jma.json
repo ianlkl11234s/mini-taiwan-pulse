@@ -56,5 +56,16 @@
   "legend.jma.seaIceNote": "Sea ice concentration (tenths) in the Sea of Okhotsk, one frame per day, December–May only; open water and land are transparent. Provisional colors (official legend is offline off-season).",
   "legend.jma.himawariNote": "Himawari-9 band 13 infrared, one frame per hour; whiter = colder cloud tops, warm clear areas transparent. Grayscale only, not a temperature scale.",
   "legend.jma.himawariWarm": "Warm (transparent)",
-  "legend.jma.himawariCold": "Cold (white)"
+  "legend.jma.himawariCold": "Cold (white)",
+  "legend.jma.analysisAsOf": "Through (JST, incl. that day)",
+  "legend.jma.analysisPartial": "Data start 2026-10-10; some days missing (values may be low)",
+  "legend.jma.unitDays": "days",
+  "legend.jma.unitHours": "h",
+  "legend.jma.anaZero": "0 (threshold not reached, transparent)",
+  "legend.jma.anaSnowFirstZero": "No snow cover yet (transparent)",
+  "legend.jma.anaSnowFirstNote": "Date in the snow season (from Oct 1) when analyzed snow depth first reached 5 cm or more; updated daily.",
+  "legend.jma.anaSnowDaysNote": "Days in the snow season (from Oct 1) with analyzed snow depth of 5 cm or more; updated daily.",
+  "legend.jma.anaRainDaysNote": "Days this month with 1-hour analyzed precipitation of 1 mm or more; updated daily.",
+  "legend.jma.anaRiskHoursNote": "Hours this month at Kikikuru \"Warning\" (alert level 3 equivalent) or higher; updated daily.",
+  "legend.jma.anaCoverageNote": "Pixels with valid data on fewer than half of the days are shown as not covered; missing days are not counted as 0."
 }

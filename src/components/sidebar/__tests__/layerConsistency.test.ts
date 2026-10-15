@@ -229,6 +229,7 @@ const NO_POPUP_LEDGER = new Set([
   "cwaCloudImagery", "cwaRadarImagery", "aqiImagery",
   // JMA 發布幀影像：PNG 只有等級值、無 feature 可 query（點擊讀值探針待 owner 拍板）
   "jmaSnowDepth", "jmaRadar", "jmaRasrf", "jmaRiskLand", "jmaRiskInund", "jmaUvIndex", "jmaSst", "jmaSeaIce", "jmaHimawari",
+  "jmaAnaSnowFirst", "jmaAnaSnowDays", "jmaAnaRainDays", "jmaAnaRiskLandHours", "jmaAnaRiskInundHours",
   // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
   // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
   "temperatureWave",

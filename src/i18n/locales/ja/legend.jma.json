@@ -56,5 +56,16 @@
   "legend.jma.seaIceNote": "オホーツク海の海氷密接度（10分率）、1日1フレーム、12〜5月のみ発表。開水面と陸地は透明。配色は暫定（公式凡例が期間外のため）。",
   "legend.jma.himawariNote": "ひまわり9号 バンド13 赤外、1時間ごとに1フレーム。白いほど雲頂が低温、暖かい晴天域は透明。濃淡のみで温度目盛りではない。",
   "legend.jma.himawariWarm": "暖（透明）",
-  "legend.jma.himawariCold": "寒（白）"
+  "legend.jma.himawariCold": "寒（白）",
+  "legend.jma.analysisAsOf": "集計日（日本時間、当日を含む）",
+  "legend.jma.analysisPartial": "データは2026-10-10から。一部期間が欠測（値は過小の可能性）",
+  "legend.jma.unitDays": "日",
+  "legend.jma.unitHours": "時間",
+  "legend.jma.anaZero": "0（期間内に基準未達、透明）",
+  "legend.jma.anaSnowFirstZero": "まだ積雪なし（透明）",
+  "legend.jma.anaSnowFirstNote": "積雪期（10/1から）に解析積雪深が初めて5 cm以上になった日。毎日1枚更新。",
+  "legend.jma.anaSnowDaysNote": "積雪期（10/1から）に解析積雪深が5 cm以上だった日数。毎日1枚更新。",
+  "legend.jma.anaRainDaysNote": "当月に1時間解析雨量が1 mm以上だった日数。毎日1枚更新。",
+  "legend.jma.anaRiskHoursNote": "当月にキキクルが「警戒（レベル3相当）」以上だった時間数。毎日1枚更新。",
+  "legend.jma.anaCoverageNote": "有効日数が半分未満の画素は「未カバー」。欠測日は0として数えない。"
 }

@@ -2230,6 +2230,10 @@ const THEME_CATALOG: ThemeDef[] = [
         fromManifest("jmaRadar"), fromManifest("jmaRasrf"), fromManifest("jmaRiskLand"), fromManifest("jmaRiskInund"),
         fromManifest("jmaSnowDepth"), fromManifest("jmaUvIndex"), fromManifest("jmaSst"), fromManifest("jmaSeaIce"), fromManifest("jmaHimawari"),
       ] },
+      { title: "分析", layers: [
+        fromManifest("jmaAnaSnowFirst"), fromManifest("jmaAnaSnowDays"), fromManifest("jmaAnaRainDays"),
+        fromManifest("jmaAnaRiskLandHours"), fromManifest("jmaAnaRiskInundHours"),
+      ] },
     ],
   },
 
