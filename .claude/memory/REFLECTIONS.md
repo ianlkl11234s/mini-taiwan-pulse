@@ -2084,3 +2084,28 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `STATUS.md`：加一段衛星情報改版現況（保留平行工作線內容）。
 - `BACKLOG.md`：SAT-Z3 已隨 #533 合入（本次不再改）。
 
+## 2026-10-06～15 R6 Three.js 圖層平面模式（段 1–3）
+
+### What worked
+
+- 沿用「盤點 → 選擇頁 → 提案 → 分段 PR＋前後對照頁」；選擇題過多時只問核心 2 題，其餘照建議、對照頁再調，使用者反應良好。
+- 使用者回饋「箭頭沒對到軌道」先量測（列車與最近軌道距離 <0.4px）再找根因：真正原因是 `RailTracksHost` 換底圖不重建，不是座標問題。
+- 疊加分支（s1→s2→s3）衝突由下往上逐段解，每段 tsc＋全套測試後再推。
+
+### Friction / limits
+
+- 合併 develop 時重跑 `build-layer-status.mjs` 會依本機倉庫目錄把已入倉的層退回 `dataset_not_in_warehouse`；改為採 develop 版、只補回本分支自己改的列。
+- develop 新增 CI「Design layer inventory up to date」，連 evidence 行號位移都會擋；疊加分支要由最底層開始重產並往上合。
+- zsh 迴圈 `for pair in "a b c"; set -- $pair` 不會拆字，`cd` 失敗後指令在錯的 worktree 執行（幸好沒造成改動）；多參數迴圈改用 `bash -c`。
+- 誤用 `echo >> .git` 想忽略暫時檔，worktree 的 `.git` 是指標檔，整個 worktree 立刻失效；用 `sed` 刪掉多出的行即恢復。要忽略暫時檔請寫 `$(git rev-parse --git-path info/exclude)`。
+- 另一個 session 在 10/15 發布 v2.8.0 時把 R6 一起帶上正式站，本 session 的記憶仍寫「未發布」；收尾時以正式站 main-*.js 版號為準更正。
+
+### 下次
+
+- 收尾前一律讀 origin/master 與正式站版號再寫上線狀態，不沿用對話裡的舊結論。
+
+### Memory output
+
+- `BACKLOG.md`：新增 R6-V（正式站目視）；R6-4 段 4 已於 #578 登記。
+- `STATUS.md`：最上方加 R6 現況段（保留其他段）。
+
