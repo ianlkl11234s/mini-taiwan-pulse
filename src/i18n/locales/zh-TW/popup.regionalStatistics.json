@@ -28,5 +28,7 @@
   "popup.regionalStatistics.coverageStatus": "覆蓋狀態",
   "popup.regionalStatistics.coverageCount": "覆蓋筆數",
   "popup.regionalStatistics.methodVersion": "處理版本",
-  "popup.regionalStatistics.rawSha": "原始 SHA-256"
+  "popup.regionalStatistics.rawSha": "原始 SHA-256",
+  "popup.regionalStatistics.complementFormula": "100% − 勞動力參與率",
+  "popup.regionalStatistics.complementInterpretation": "非勞動力率占同一期人力資源調查 15 歲以上民間人口的比例。"
 }

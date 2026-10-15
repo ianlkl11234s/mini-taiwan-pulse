@@ -14,26 +14,47 @@ import { LAYER_MANIFEST, type LayerManifestEntry } from '../../data/layerManifes
 import type { LayerVisibility } from '../../types';
 import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, type StatisticsLayerKey, type StatisticsRenderKey } from '../../data/regionalStatisticsRecipes';
-import type { StatisticsRecipe } from '../../data/regionalStatisticsLoader';
+import type { StatisticsLevel, StatisticsRecipe } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
 import { LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
-import { LEVEL_LABELS, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
+import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelection';
+import { localeStore, useLocale, type LocaleSnapshot } from '../../state/localeStore';
+import type { MessageKey } from '../../i18n/keys';
+import { statisticsFrequency, statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
 
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
 
 /** Health coverage denominators use the recipe's actual geographic level. */
-export function statisticsCoverageAreaLabel(recipe: Pick<StatisticsRecipe, 'level'> & { datasetId?: string; dataset_id?: string }): string {
-  if ((recipe.datasetId ?? recipe.dataset_id) === LIVESTOCK_TOWNSHIP_STATISTICS_DATASET) return '鄉鎮×畜種資料筆';
-  return LEVEL_LABELS[recipe.level];
+const LEVEL_KEYS: Record<StatisticsLevel, MessageKey> = {
+  county: 'statistics.level.county', township: 'statistics.level.township', village: 'statistics.level.village',
+  statistical_min: 'statistics.level.statistical_min', statistical_l1: 'statistics.level.statistical_l1',
+  statistical_l2: 'statistics.level.statistical_l2', prosecutor_district: 'statistics.level.prosecutor_district',
+};
+/** 地理層級名稱（不傳 i18n＝目前語系快照；中文介面即原中文） */
+export function statisticsLevelLabel(level: StatisticsLevel, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  return i18n.t(LEVEL_KEYS[level]);
 }
-export function statisticsCoverageStatusLabel(isAgri: boolean): string {
-  return isAgri ? '整份資料覆蓋狀態' : '覆蓋狀態';
+export function statisticsCoverageAreaLabel(recipe: Pick<StatisticsRecipe, 'level'> & { datasetId?: string; dataset_id?: string }, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  if ((recipe.datasetId ?? recipe.dataset_id) === LIVESTOCK_TOWNSHIP_STATISTICS_DATASET) return i18n.t('statistics.area.livestockTownshipRows');
+  return statisticsLevelLabel(recipe.level, i18n);
 }
-export function statisticsSelectedTupleAreaLabel(recipe: Pick<StatisticsRecipe, 'level'> & { datasetId?: string; dataset_id?: string }): string {
-  return (recipe.datasetId ?? recipe.dataset_id) === LIVESTOCK_TOWNSHIP_STATISTICS_DATASET ? '鄉鎮統計值' : '區域統計值';
+export function statisticsCoverageStatusLabel(isAgri: boolean, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  return isAgri ? i18n.t('statistics.coverageStatusAgri') : i18n.t('statistics.coverageStatus');
+}
+export function statisticsSelectedTupleAreaLabel(recipe: Pick<StatisticsRecipe, 'level'> & { datasetId?: string; dataset_id?: string }, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  return i18n.t((recipe.datasetId ?? recipe.dataset_id) === LIVESTOCK_TOWNSHIP_STATISTICS_DATASET ? 'statistics.tuple.livestockTownship' : 'statistics.tuple.region');
+}
+/** 覆蓋狀態整行（圖例與說明框共用） */
+function coverageLine(health: NonNullable<ReturnType<typeof useStatisticsSnapshot>['health']>, isAgri: boolean, recipe: Pick<StatisticsRecipe, 'level'> & { unit: string }, i18n: LocaleSnapshot): string {
+  return i18n.t('statistics.coverageLine', {
+    label: statisticsCoverageStatusLabel(isAgri, i18n), status: String(health.coverage_status),
+    numerator: String(health.coverage_numerator ?? '—'), denominator: String(health.coverage_denominator ?? '—'),
+    area: statisticsCoverageAreaLabel(recipe, i18n),
+    unallocated: statisticsValueLabel(health.unallocated_total, statisticsUnit(String(health.currency ?? recipe.unit), i18n), i18n),
+  });
 }
 export function useStatisticsSnapshot(key: StatisticsRenderKey) {
   return useSyncExternalStore(cb => regionalStatisticsStore.subscribe(key, cb), () => regionalStatisticsStore.getSnapshot(key));
@@ -42,8 +63,8 @@ function publicLink(value: unknown): string | undefined {
   if (typeof value !== 'string') return;
   try { const url = new URL(value); if (['https:', 'http:'].includes(url.protocol) && !url.username && !url.password) return value; } catch { /* no link */ }
 }
-export function statisticsValueLabel(value: unknown, unit: string): string {
-  return typeof value === 'number' && Number.isFinite(value) ? `${value.toLocaleString()}${unit ? ` ${unit}` : ''}` : '未提供';
+export function statisticsValueLabel(value: unknown, unit: string, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  return typeof value === 'number' && Number.isFinite(value) ? `${value.toLocaleString()}${unit ? ` ${unit}` : ''}` : i18n.t('statistics.notProvided');
 }
 
 /** Mirrors the Mapbox `step` expression: one numeric colour per interval. */
@@ -56,12 +77,13 @@ function statisticsLegendThreshold(value: number, format?: StatisticsDisplayForm
   return rounded === value ? display : `≈${display}`;
 }
 
-export function statisticsLegendRows(recipe: Pick<typeof STATISTICS_RECIPES[StatisticsLayerKey], 'breaks' | 'colors'>, format?: StatisticsDisplayFormat) {
+export function statisticsLegendRows(recipe: Pick<typeof STATISTICS_RECIPES[StatisticsLayerKey], 'breaks' | 'colors'>, format?: StatisticsDisplayFormat, i18n: LocaleSnapshot = localeStore.getSnapshot()) {
+  const { t } = i18n;
   const stops = statisticsColorStops(recipe.breaks, recipe.colors);
-  if (stops.length === 0) return [{ color: recipe.colors[0]!, label: '所有數值' }];
-  return [{ color: recipe.colors[0]!, label: `低於 ${statisticsLegendThreshold(stops[0]!.value, format)}` }].concat(stops.map((stop, index) => ({
+  if (stops.length === 0) return [{ color: recipe.colors[0]!, label: t('statistics.legend.allValues') }];
+  return [{ color: recipe.colors[0]!, label: t('statistics.legend.below', { value: statisticsLegendThreshold(stops[0]!.value, format) }) }].concat(stops.map((stop, index) => ({
     color: stop.color,
-    label: index === stops.length - 1 ? `${statisticsLegendThreshold(stop.value, format)} 以上` : `${statisticsLegendThreshold(stop.value, format)} 至未滿 ${statisticsLegendThreshold(stops[index + 1]!.value, format)}`,
+    label: index === stops.length - 1 ? t('statistics.legend.atOrAbove', { value: statisticsLegendThreshold(stop.value, format) }) : t('statistics.legend.range', { from: statisticsLegendThreshold(stop.value, format), to: statisticsLegendThreshold(stops[index + 1]!.value, format) }),
   })));
 }
 /**
@@ -71,6 +93,8 @@ export function statisticsLegendRows(recipe: Pick<typeof STATISTICS_RECIPES[Stat
  * 參考邊界一律顯示中文來源描述（`boundaryVersionLabel`），原代碼留在資料集欄位。
  */
 export function StatisticsDetails({ layerKey, textColor }: { layerKey: StatisticsRenderKey; textColor: string }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const state = useStatisticsSnapshot(layerKey);
   const source = state.source;
   const freshness = source?.freshness as { last_checked_at?: string; outcome?: string } | undefined;
@@ -93,85 +117,90 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
   const atlasNote = atlas ? atlasDimensionNote(activeBaseKey, state.selection?.dimensions) : undefined;
   const demographicsNote = demographics ? demographicsIndicatorNote(demographics) : undefined;
   const selectedLaborMetric = getLaborStatisticsPresentationMetric(layerKey, state.selection?.indicatorId);
-  const selectionSummary = statisticsDimensionSummary(state.selection?.dimensions, selectedRelease, recipe.dataset_id);
-  const healthUnit = state.health?.currency ?? recipe.unit;
-  const coverageStatusLabel = statisticsCoverageStatusLabel(Boolean(agri));
-  const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
+  const selectionSummary = statisticsDimensionSummary(state.selection?.dimensions, selectedRelease, recipe.dataset_id, i18n);
+    const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
   return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.sm, minWidth: 0, maxWidth: '100%', fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: textColor, lineHeight: 1.45 }}>
     <style>{`.statistics-details summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}`}</style>
-    {agri && import.meta.env.DEV && import.meta.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>本地 Preview · 真實交付資料 · 尚未發布至正式 API</p>}
-    {labor && import.meta.env.DEV && import.meta.env.VITE_LABOR_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>勞動與所得本地 Preview · 已驗證 incremental snapshot · 尚未發布至正式 CDN</p>}
-    {demographics && import.meta.env.DEV && import.meta.env.VITE_DEMOGRAPHICS_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>人口統計本地 Preview · 已驗證 incremental snapshot · 尚未發布至正式 CDN</p>}
-    {view && import.meta.env.DEV && <a href="/statistics-accessibility-review.html" target="_blank" rel="noreferrer">教育路網可達性：開啟本地試算</a>}
-    {selectionSummary && <p style={factStyle}><strong>目前選擇：</strong>{selectionSummary}</p>}
-    {labor && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(laborLocationSemantics(labor))}</p>}
-    {environment && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(environment.location_semantics)}</p>}
-    {environment && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(environment.disclosure)}</p>}
-    {demographics && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(demographics.location_semantics)}</p>}
-    {addiction && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(addiction.location_semantics)}</p>}
-    {addiction && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(addiction.disclosure)}</p>}
-    {landslide && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(landslide.location_semantics)}</p>}
-    {landslide && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(landslide.disclosure)}</p>}
-    {atlas && <p style={factStyle}><strong>位置口徑：</strong>{humanizeStatisticsText(atlas.location_semantics)}</p>}
-    {atlasNote && <p style={factStyle}><strong>子指標方向：</strong>{atlasNote}</p>}
-    {atlas && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(atlas.disclosure)}</p>}
-    {demographics && <p style={factStyle}><strong>資料限制：</strong>{humanizeStatisticsText(demographicsDisclosure(demographics))}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
-    <details><summary>來源與處理紀錄</summary>
+    {agri && import.meta.env.DEV && import.meta.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>{t('statistics.details.previewAgri')}</p>}
+    {labor && import.meta.env.DEV && import.meta.env.VITE_LABOR_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>{t('statistics.details.previewLabor')}</p>}
+    {demographics && import.meta.env.DEV && import.meta.env.VITE_DEMOGRAPHICS_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>{t('statistics.details.previewDemographics')}</p>}
+    {view && import.meta.env.DEV && <a href="/statistics-accessibility-review.html" target="_blank" rel="noreferrer">{t('statistics.details.accessibilityLink')}</a>}
+    {selectionSummary && <p style={factStyle}><strong>{t('statistics.details.selection')}</strong>{selectionSummary}</p>}
+    {labor && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(laborLocationSemantics(labor))}</p>}
+    {environment && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(environment.location_semantics)}</p>}
+    {environment && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(environment.disclosure)}</p>}
+    {demographics && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(demographics.location_semantics)}</p>}
+    {addiction && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(addiction.location_semantics)}</p>}
+    {addiction && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(addiction.disclosure)}</p>}
+    {landslide && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(landslide.location_semantics)}</p>}
+    {landslide && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(landslide.disclosure)}</p>}
+    {atlas && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(atlas.location_semantics)}</p>}
+    {atlasNote && <p style={factStyle}><strong>{t('statistics.details.subIndicatorDirection')}</strong>{atlasNote}</p>}
+    {atlas && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(atlas.disclosure)}</p>}
+    {demographics && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(demographicsDisclosure(demographics))}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
+    <details><summary>{t('statistics.details.sourceLog')}</summary>
       <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         {agri && <span>{humanizeStatisticsText(agri.disclosure ?? agri.boundary_semantics)}</span>}
-        {agri?.source_statistical_boundary_version && <span>統計參考版：{boundaryVersionLabel(agri.source_statistical_boundary_version)}；實際圖形：{boundaryVersionLabel(agri.boundary_version)}</span>}
+        {agri?.source_statistical_boundary_version && <span>{t('statistics.details.statRefBoundary', { stat: boundaryVersionLabel(agri.source_statistical_boundary_version, i18n), actual: boundaryVersionLabel(agri.boundary_version, i18n) })}</span>}
         {social?.disclosure && <span>{humanizeStatisticsText(social.disclosure)}</span>}
-        {social && <span>參考邊界：{boundaryVersionLabel(social.boundary_version)}；{humanizeStatisticsText(social.boundary_semantics) ?? '以交付資料的參考邊界呈現。'}</span>}
-        {labor && <span>顯示參考邊界：{boundaryVersionLabel(labor.boundary_version)}；{humanizeStatisticsText(labor.boundary_semantics)}</span>}
-        {environment && <span>來源資料集：{environment.source_title ?? '未提供'}（{environment.publisher}）；顯示參考邊界：{boundaryVersionLabel(environment.boundary_version)}</span>}
-        {environment?.derived && <span>衍生指標：分子與原始數同一期別、同一細項；分母說明見資料限制。</span>}
-        {addiction && <span>來源資料集：{addiction.source_title}（{addiction.publisher}）；授權：{addiction.license}；顯示參考邊界：{boundaryVersionLabel(addiction.boundary_version)}</span>}
-        {addiction?.derived && <span>衍生指標：{addiction.dataset_id === 'addiction_service_points' ? '由本專案減害點位圖層計數；' : '分子與原始數同一期別；'}分母說明見資料限制。</span>}
-        {landslide && <span>來源資料集：{landslide.source_title}（{landslide.publisher}）；授權：{landslide.license}；顯示參考邊界：{boundaryVersionLabel(landslide.boundary_version)}</span>}
-        {atlas && <span>來源資料集：{atlas.source_title}（{atlas.publisher}）；授權：{atlas.license}；顯示參考邊界：{boundaryVersionLabel(atlas.boundary_version)}</span>}
-        {atlas?.derived && <span>衍生指標：分子與原始數同一期別；分母說明見資料限制。</span>}
-        {demographics && <span>來源：{demographicsSource(demographics).provider}；授權：{demographicsSource(demographics).license}；顯示參考邊界：{boundaryVersionLabel(demographics.boundary_version)}；{humanizeStatisticsText(demographics.boundary_semantics)}</span>}
-        {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>製造業是工業的子集；不得與工業加總。</span>}
-        {selectedLaborMetric?.formula && <span>衍生方式：{selectedLaborMetric.formula}</span>}
-        <span>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</span>
-        {'freshness' in recipe && <span>資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
-        {state.health?.availability && <span>資料可用狀態：{statisticsAvailabilityLabel(state.health.availability)}</span>}
-        {state.health?.reason && <span>資料限制：{state.health.reason}</span>}
-        {state.data && <span>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length}／{state.data.features.length} 個{statisticsSelectedTupleAreaLabel(recipe)}；灰色區域為缺資料，不等於 0</span>}
-        {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <span>人均指標的分母為全體戶籍人口，並非學齡人口；學年度統計與人口統計之間存在時間差。</span>}
+        {social && <span>{t('statistics.details.refBoundary', { boundary: boundaryVersionLabel(social.boundary_version, i18n), semantics: humanizeStatisticsText(social.boundary_semantics) ?? t('statistics.details.refBoundaryDefault') })}</span>}
+        {labor && <span>{t('statistics.details.displayBoundary', { boundary: boundaryVersionLabel(labor.boundary_version, i18n), semantics: humanizeStatisticsText(labor.boundary_semantics) ?? '' })}</span>}
+        {environment && <span>{t('statistics.details.sourceDatasetBoundary', { title: environment.source_title ?? t('statistics.notProvided'), publisher: environment.publisher, boundary: boundaryVersionLabel(environment.boundary_version, i18n) })}</span>}
+        {environment?.derived && <span>{t('statistics.details.derivedEnvironment')}</span>}
+        {addiction && <span>{t('statistics.details.sourceDatasetLicense', { title: addiction.source_title, publisher: addiction.publisher, license: addiction.license, boundary: boundaryVersionLabel(addiction.boundary_version, i18n) })}</span>}
+        {addiction?.derived && <span>{t(addiction.dataset_id === 'addiction_service_points' ? 'statistics.details.derivedAddictionPoints' : 'statistics.details.derivedAddiction')}</span>}
+        {landslide && <span>{t('statistics.details.sourceDatasetLicense', { title: landslide.source_title, publisher: landslide.publisher, license: landslide.license, boundary: boundaryVersionLabel(landslide.boundary_version, i18n) })}</span>}
+        {atlas && <span>{t('statistics.details.sourceDatasetLicense', { title: atlas.source_title, publisher: atlas.publisher, license: atlas.license, boundary: boundaryVersionLabel(atlas.boundary_version, i18n) })}</span>}
+        {atlas?.derived && <span>{t('statistics.details.derivedAddiction')}</span>}
+        {demographics && <span>{t('statistics.details.sourceDemographics', { provider: demographicsSource(demographics).provider, license: demographicsSource(demographics).license, boundary: boundaryVersionLabel(demographics.boundary_version, i18n), semantics: humanizeStatisticsText(demographics.boundary_semantics) ?? '' })}</span>}
+        {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>{t('statistics.details.laborIndustryNote')}</span>}
+        {selectedLaborMetric?.formula && <span>{t('statistics.details.derivationFormula', { formula: selectedLaborMetric.formula })}</span>}
+        <span>{t('statistics.details.levelUnit', { level: statisticsLevelLabel(recipe.level, i18n), unit: statisticsUnit(recipe.unit, i18n) })}</span>
+        {'freshness' in recipe && <span>{t('statistics.details.freshness', { value: String(recipe.freshness), frequency: statisticsFrequency(recipe.frequency, i18n) })}</span>}
+        {state.health?.availability && <span>{t('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
+        {state.health?.reason && <span>{t('statistics.details.reason', { reason: state.health.reason })}</span>}
+        {state.data && <span>{t('statistics.details.loaded', { observed: state.data.features.filter(f => f.properties?.status === 'observed').length, total: state.data.features.length, area: statisticsSelectedTupleAreaLabel(recipe, i18n) })}</span>}
+        {view && getComparisonRecipe(activeBaseKey)?.indicator_id.endsWith('_per_10000_residents') && <span>{t('statistics.details.perCapitaNote')}</span>}
         {'interpretationNote' in recipe && <span>{String(recipe.interpretationNote)}</span>}
-        {agri && state.data && <span>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</span>}
-        {environment && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；缺值：{state.data.features.filter(f => f.properties?.status !== 'observed').length}。缺值以斜線表示，不等於 0。</span>}
-        {addiction && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；不適用：{state.data.features.filter(f => f.properties?.status === 'not_applicable').length}；無資料：{state.data.features.filter(f => f.properties?.status === 'missing').length}；隱私遮蔽：{state.data.features.filter(f => f.properties?.status === 'suppressed').length}。三者皆不是 0，以斜線表示。</span>}
-        {atlas && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；不適用：{state.data.features.filter(f => f.properties?.status === 'not_applicable').length}；無資料：{state.data.features.filter(f => f.properties?.status === 'missing').length}；來源刪除：{state.data.features.filter(f => f.properties?.status === 'suppressed').length}。三者皆不是 0，以斜線表示。</span>}
-        {landslide && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；未列：{state.data.features.filter(f => f.properties?.status !== 'observed').length}。未列以斜線表示，不等於 0。</span>}
-        {demographics && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；缺值：{state.data.features.filter(f => f.properties?.status !== 'observed').length}。缺值以斜線表示，不補 0。</span>}
-        {labor && state.data && <span>已觀察真 0：{state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length}；來源未涵蓋 source_not_covered：{state.data.features.filter(f => f.properties?.missing_reason === 'source_not_covered').length}；來源 join／時間不匹配 source_join_or_time_mismatch：{state.data.features.filter(f => f.properties?.missing_reason === 'source_join_or_time_mismatch').length}。三者不互相替代。</span>}
-        {unparseableCount > 0 && <span role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇。</span>}
-        {state.health?.coverage_status && <span>{coverageStatusLabel}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</span>}
+        {agri && state.data && <span>{t('statistics.details.countsAgri', { missing: state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length, suppressed: state.data.features.filter(f => f.properties?.status === 'suppressed').length, notReported: state.data.features.filter(f => f.properties?.source_status === 'not_reported').length })}</span>}
+        {environment && state.data && <span>{t('statistics.details.countsEnvironment', { zero: state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length, missing: state.data.features.filter(f => f.properties?.status !== 'observed').length })}</span>}
+        {addiction && state.data && <span>{t('statistics.details.countsAddiction', { zero: state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length, notApplicable: state.data.features.filter(f => f.properties?.status === 'not_applicable').length, missing: state.data.features.filter(f => f.properties?.status === 'missing').length, suppressed: state.data.features.filter(f => f.properties?.status === 'suppressed').length })}</span>}
+        {atlas && state.data && <span>{t('statistics.details.countsAtlas', { zero: state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length, notApplicable: state.data.features.filter(f => f.properties?.status === 'not_applicable').length, missing: state.data.features.filter(f => f.properties?.status === 'missing').length, suppressed: state.data.features.filter(f => f.properties?.status === 'suppressed').length })}</span>}
+        {landslide && state.data && <span>{t('statistics.details.countsLandslide', { zero: state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length, missing: state.data.features.filter(f => f.properties?.status !== 'observed').length })}</span>}
+        {demographics && state.data && <span>{t('statistics.details.countsDemographics', { zero: state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length, missing: state.data.features.filter(f => f.properties?.status !== 'observed').length })}</span>}
+        {labor && state.data && <span>{t('statistics.details.countsLabor', { zero: state.data.features.filter(f => f.properties?.status === 'observed' && f.properties?.value === 0).length, notCovered: state.data.features.filter(f => f.properties?.missing_reason === 'source_not_covered').length, mismatch: state.data.features.filter(f => f.properties?.missing_reason === 'source_join_or_time_mismatch').length })}</span>}
+        {unparseableCount > 0 && <span role="alert">{t('statistics.details.unparseable', { count: unparseableCount })}</span>}
+        {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
       </div>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
-        <span>提供機關：{String(source.publisher ?? '未提供')}</span>
-        <span>發布時間：{source.published_at ? String(source.published_at) : '來源未提供'}</span>
-        <span>取得時間：{String(source.retrieved_at ?? '未提供')}</span>
-        <span>資料期間：{String(source.period_start ?? '')} — {String(source.period_end ?? '')}</span>
-        <span>更新頻率：{recipe.frequency}；資料期別不等於取得日期</span>
-        <span>最近檢查：{freshness?.last_checked_at ?? '尚未檢查'}{freshness?.outcome === 'failed' ? '（更新失敗，保留上一版）' : freshness?.outcome === 'unchanged' ? '（無新版本）' : ''}</span>
-        <span>授權：{String(source.license ?? '未提供')}</span>
-        <span>處理方式：{humanizeStatisticsText(String((source.processing_summary as { processing_description?: string } | undefined)?.processing_description ?? source.method_version ?? '未提供'))}</span>
-        <span>原始 SHA-256：{String(source.raw_sha256 ?? '未提供')}</span>
-        <span>參考邊界：{boundaryVersionLabel(source.boundary_version)}</span>
-        <span>地圖使用已核對代碼的參考邊界；不是歷史邊界變動比較。</span>
-        {publicLink(source.source_landing_url) && <a style={{ color: textColor, textDecoration: 'underline' }} href={String(source.source_landing_url)} target="_blank" rel="noreferrer">官方資料頁 ↗</a>}
-        {publicLink(source.source_download_url) && <a style={{ color: textColor, textDecoration: 'underline' }} href={String(source.source_download_url)} target="_blank" rel="noreferrer">來源下載端點 ↗</a>}
-      </div> : <span>載入資料後顯示來源紀錄。</span>}
+        <span>{t('statistics.details.publisher', { value: String(source.publisher ?? t('statistics.notProvided')) })}</span>
+        <span>{t('statistics.details.publishedAt', { value: source.published_at ? String(source.published_at) : t('statistics.details.noPublishedAt') })}</span>
+        <span>{t('statistics.details.retrievedAt', { value: String(source.retrieved_at ?? t('statistics.notProvided')) })}</span>
+        <span>{t('statistics.details.period', { start: String(source.period_start ?? ''), end: String(source.period_end ?? '') })}</span>
+        <span>{t('statistics.details.updateFrequency', { value: statisticsFrequency(recipe.frequency, i18n) })}</span>
+        <span>{t('statistics.details.lastChecked', { value: freshness?.last_checked_at ?? t('statistics.details.notChecked'), note: freshness?.outcome === 'failed' ? t('statistics.details.checkFailed') : freshness?.outcome === 'unchanged' ? t('statistics.details.checkUnchanged') : '' })}</span>
+        <span>{t('statistics.details.license', { value: String(source.license ?? t('statistics.notProvided')) })}</span>
+        <span>{t('statistics.details.processing', { value: humanizeStatisticsText(String((source.processing_summary as { processing_description?: string } | undefined)?.processing_description ?? source.method_version ?? t('statistics.notProvided'))) })}</span>
+        <span>{t('statistics.details.rawSha', { value: String(source.raw_sha256 ?? t('statistics.notProvided')) })}</span>
+        <span>{t('statistics.details.boundary', { value: boundaryVersionLabel(source.boundary_version, i18n) })}</span>
+        <span>{t('statistics.details.boundaryNote')}</span>
+        {publicLink(source.source_landing_url) && <a style={{ color: textColor, textDecoration: 'underline' }} href={String(source.source_landing_url)} target="_blank" rel="noreferrer">{t('statistics.details.landing')}</a>}
+        {publicLink(source.source_download_url) && <a style={{ color: textColor, textDecoration: 'underline' }} href={String(source.source_download_url)} target="_blank" rel="noreferrer">{t('statistics.details.download')}</a>}
+      </div> : <span>{t('statistics.details.loadForSource')}</span>}
     </details>
-    {agri && AGRI_EXISTING_LAYER_REFERENCES.some(ref => ref.group === agri.group) && <details><summary>跨主題統計索引</summary><div style={{ display: 'grid', gap: 4 }}>{AGRI_EXISTING_LAYER_REFERENCES.filter(ref => ref.group === agri.group).map(ref => <button key={ref.layer_key} type="button" onClick={() => layerVisibilityStore.toggle(ref.layer_key as keyof LayerVisibility)}>{ref.group}／{ref.subgroup}：{(LAYER_MANIFEST[ref.layer_key as keyof LayerVisibility] as LayerManifestEntry).label ?? ref.layer_key}</button>)}</div></details>}
-    {agri && <details><summary>相關 GIS 圖層</summary><div style={{ display: 'grid', gap: 4 }}>{agri.related_layer_keys.filter(key => key in LAYER_MANIFEST).map(key => <button key={key} type="button" onClick={() => layerVisibilityStore.toggle(key as keyof LayerVisibility)}>{(LAYER_MANIFEST[key as keyof LayerVisibility] as LayerManifestEntry).label ?? key}</button>)}</div></details>}
-    {social && social.related_layer_keys.length > 0 && <details><summary>相關 GIS 圖層</summary><div style={{ display: 'grid', gap: 4 }}>{social.related_layer_keys.filter(key => key in LAYER_MANIFEST).map(key => <button key={key} type="button" onClick={() => layerVisibilityStore.toggle(key as keyof LayerVisibility)}>{(LAYER_MANIFEST[key as keyof LayerVisibility] as LayerManifestEntry).label ?? key}</button>)}</div></details>}
+    {agri && AGRI_EXISTING_LAYER_REFERENCES.some(ref => ref.group === agri.group) && <details><summary>{t('statistics.details.crossTopicIndex')}</summary><div style={{ display: 'grid', gap: 4 }}>{AGRI_EXISTING_LAYER_REFERENCES.filter(ref => ref.group === agri.group).map(ref => <button key={ref.layer_key} type="button" onClick={() => layerVisibilityStore.toggle(ref.layer_key as keyof LayerVisibility)}>{t('statistics.details.indexEntry', { group: ref.group, subgroup: ref.subgroup, name: manifestLayerName(ref.layer_key, i18n) })}</button>)}</div></details>}
+    {agri && <details><summary>{t('statistics.details.relatedLayers')}</summary><div style={{ display: 'grid', gap: 4 }}>{agri.related_layer_keys.filter(key => key in LAYER_MANIFEST).map(key => <button key={key} type="button" onClick={() => layerVisibilityStore.toggle(key as keyof LayerVisibility)}>{manifestLayerName(key, i18n)}</button>)}</div></details>}
+    {social && social.related_layer_keys.length > 0 && <details><summary>{t('statistics.details.relatedLayers')}</summary><div style={{ display: 'grid', gap: 4 }}>{social.related_layer_keys.filter(key => key in LAYER_MANIFEST).map(key => <button key={key} type="button" onClick={() => layerVisibilityStore.toggle(key as keyof LayerVisibility)}>{manifestLayerName(key, i18n)}</button>)}</div></details>}
   </div>;
 }
+/** manifest label 是識別字不翻；畫面上優先借 layers.json 的圖層譯名 */
+function manifestLayerName(key: string, i18n: LocaleSnapshot): string {
+  const label = (LAYER_MANIFEST[key as keyof LayerVisibility] as LayerManifestEntry).label ?? key;
+  return i18n.active === 'zh-TW' ? label : i18n.lookup(`layer.${key}`) ?? label;
+}
 export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const state = useStatisticsSnapshot(layerKey);
   const baseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
   const recipe = statisticsRenderRecipe(layerKey, state.selection?.indicatorId, state.selection?.dimensions);
@@ -189,30 +218,30 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const environmentBinaryRows = environment ? environmentLegendRows(environment, recipe.colors) : null;
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
-    <LegendTitle zh={recipe.label} style={{ marginBottom: 0 }} />
-    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release) : undefined) ?? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
-    {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
-    {state.health?.availability && <span>資料可用狀態：{statisticsAvailabilityLabel(state.health.availability)}</span>}
-    {state.health?.coverage_status && <span>{statisticsCoverageStatusLabel(Boolean(agri))}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
-    {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
-    {!environmentBinaryRows && <span>{atlasScale ?? (recipe.breaks.some(value => value < 0) ? '棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞' : '淺 → 深：數值低 → 高；請依本指標的數字區間比較')}</span>}
-    {(environmentBinaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
+    <LegendTitle zh={statisticsTitle(layerKey, recipe.label, i18n)} style={{ marginBottom: 0 }} />
+    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded')} · {statisticsUnit(recipe.unit, i18n)}</span>
+    {'freshness' in recipe && <span>{tr('statistics.legend.freshness', { value: String(recipe.freshness), frequency: statisticsFrequency(recipe.frequency, i18n) })}</span>}
+    {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
+    {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
+    {state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}
+    {!environmentBinaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
+    {(environmentBinaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
     {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
     {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
     {landslide?.legend.zero_note && <span>{landslide.legend.zero_note}</span>}
     {landslide?.legend.display_note && <span>{landslide.legend.display_note}</span>}
-    {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>斜線：{landslide.status_labels.missing}</LegendRow>}
+    {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr('statistics.legend.hatchLabel', { label: landslide.status_labels.missing })}</LegendRow>}
     {atlas?.legend.zero_note && <span>{atlas.legend.zero_note}</span>}
     {atlas?.legend.display_note && <span>{atlas.legend.display_note}</span>}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
-    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{social || labor || environment || demographics ? '斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階' : '斜線：缺資料／未發布數值'}</LegendRow>}
-    {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>交叉斜線：遮蔽 suppressed（*）</LegendRow>}
-    {agri && <span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span>}
-    {labor && <><span>位置口徑：{humanizeStatisticsText(laborLocationSemantics(labor))}</span><span>資料期與顯示邊界（{boundaryVersionLabel(labor.boundary_version)}）分開揭露</span></>}
-    {demographics && <span>固定門檻（跨期可比，不依當期重算）；來源：{demographicsSource(demographics).provider}</span>}
-    {addiction && <span>固定門檻（跨期可比，不依當期重算）；位置口徑：{humanizeStatisticsText(addiction.location_semantics)}</span>}
-    {landslide && <span>固定門檻（跨期可比，不依當期重算）；年度數字不一定反映當年颱風或單一事件</span>}
-    {atlas && <span>固定門檻（跨期可比，不依當期重算）{atlas.dimensions.length ? '；各維度組合各有一組門檻' : ''}；位置口徑：{humanizeStatisticsText(atlas.location_semantics)}</span>}
+    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
+    {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}
+    {agri && <span>{tr('statistics.legend.notReported', { label: agri.legend.not_reported_label })}</span>}
+    {labor && <><span>{tr('statistics.legend.locationBasis', { value: humanizeStatisticsText(laborLocationSemantics(labor)) })}</span><span>{tr('statistics.legend.boundaryDisclosed', { boundary: boundaryVersionLabel(labor.boundary_version, i18n) })}</span></>}
+    {demographics && <span>{tr('statistics.legend.fixedDemographics', { provider: demographicsSource(demographics).provider })}</span>}
+    {addiction && <span>{tr('statistics.legend.fixedAddiction', { value: humanizeStatisticsText(addiction.location_semantics) })}</span>}
+    {landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
+    {atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length ? tr('statistics.legend.perDimensionThresholds') : '', value: humanizeStatisticsText(atlas.location_semantics) })}</span>}
   </div>;
 }

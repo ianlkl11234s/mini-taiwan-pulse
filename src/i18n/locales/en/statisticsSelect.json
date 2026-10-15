@@ -1,0 +1,16 @@
+{
+  "statisticsSelect.publishedPeriod": "Published period",
+  "statisticsSelect.unavailableForYear": "{label} (not available for this school year)",
+  "statisticsSelect.periodYear": "{year}",
+  "statisticsSelect.pointInTime": "{date} (point in time)",
+  "statisticsSelect.rocYear": "{year}",
+  "statisticsSelect.month": "Month {month}",
+  "statisticsSelect.period": "Period",
+  "statisticsSelect.colon": ": ",
+  "statisticsSelect.listSep": "; ",
+  "statisticsSelect.partSep": ", ",
+  "statisticsSelect.boundaryNotProvided": "Not provided",
+  "statisticsSelect.boundaryUnnamed": "Unnamed reference boundary version",
+  "statisticsSelect.metricPerResidents": "{base} (per 10,000 residents)",
+  "statisticsSelect.metricPerKm2": "{base} (per km²)"
+}

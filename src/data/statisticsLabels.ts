@@ -6,14 +6,28 @@
 import type { StatisticsLevel, StatisticsRelease } from './regionalStatisticsLoader';
 import { environmentDimensionLabel, environmentDimensionValueLabel } from './environmentStatisticsRecipes';
 import { atlasDimensionLabel, atlasDimensionValueLabel } from './atlasStatisticsRecipes';
+import { displayRocYear, enumLabel } from '../i18n/dataText';
+import type { I18nContext } from '../i18n/layerText';
+import type { MessageKey } from '../i18n/keys';
+
+/** 介面短句（`statisticsSelect.json`）：沒傳 i18n 或中文＝原中文範本；外文查不到也回中文範本。 */
+function ui(i18n: I18nContext | undefined, key: MessageKey, zh: string, vars: Record<string, string> = {}): string {
+  const template = !i18n || i18n.active === 'zh-TW' ? zh : i18n.lookup(key) ?? zh;
+  return template.replace(/\{(\w+)\}/g, (whole, name: string) => vars[name] ?? whole);
+}
 
 export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區',prosecutor_district:'地檢署轄區'};
 
-export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>): string {
+/** 地理層級的人讀名稱；不傳 i18n＝中文 */
+export function statisticsLevelLabel(level: StatisticsLevel, i18n?: I18nContext): string {
+  return i18n ? enumLabel('statLevel', level, LEVEL_LABELS[level], i18n) : LEVEL_LABELS[level];
+}
+
+export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>, i18n?: I18nContext): string {
   const start = release.period_start, end = release.period_end;
-  if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return `${start.slice(0,4)} 年`;
+  if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return ui(i18n, 'statisticsSelect.periodYear', '{year} 年', { year: start.slice(0,4) });
   // 時點快照（例：戶籍人口月底統計標準日）只顯示一個日期，不寫成「X — X」。
-  if (start === end) return `${start}（時點）`;
+  if (start === end) return ui(i18n, 'statisticsSelect.pointInTime', '{date}（時點）', { date: start });
   return `${start} — ${end}`;
 }
 
@@ -26,8 +40,9 @@ const AVAILABILITY_LABELS: Record<string, string> = {
   STALE: 'STALE（歷史期別：已有較新期別，數值本身不受影響）',
   PARTIAL: 'PARTIAL（部分覆蓋：缺值或未分配項目不補 0，詳見來源說明）',
 };
-export function statisticsAvailabilityLabel(value: string): string {
-  return AVAILABILITY_LABELS[value] ?? value;
+export function statisticsAvailabilityLabel(value: string, i18n?: I18nContext): string {
+  const zh = AVAILABILITY_LABELS[value] ?? value;
+  return i18n ? enumLabel('statAvailability', value, zh, i18n) : zh;
 }
 
 const DIMENSION_LABELS: Record<string, string> = {
@@ -93,19 +108,27 @@ const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   survey: { manpower: '人力資源調查' },
 };
 
-export function statisticsDimensionLabel(key: string): string {
-  if (key === 'roc_year') return '年度';
-  if (key === 'month') return '月份';
-  return DIMENSION_LABELS[key] ?? environmentDimensionLabel(key) ?? atlasDimensionLabel(key) ?? key;
+export function statisticsDimensionLabel(key: string, i18n?: I18nContext): string {
+  const zh = key === 'roc_year' ? '年度' : key === 'month' ? '月份'
+    : DIMENSION_LABELS[key] ?? environmentDimensionLabel(key) ?? atlasDimensionLabel(key) ?? key;
+  return i18n ? enumLabel('statDim', key, zh, i18n) : zh;
 }
 
 const BICYCLE_SOURCE_FIELD_LABELS: Record<string, string> = { COLUMN1: '市區租借站數', COLUMN3: '市區年租借次數', COLUMN5: '河濱租借站數', COLUMN6: '河濱自行車數', COLUMN7: '河濱年租借次數' };
 const BUS_SOURCE_FIELD_LABELS: Record<string, string> = { COLUMN1: '期末營業里程', COLUMN2: '核定路線數', COLUMN3: '市區客運業家數', COLUMN4: '期末營業車輛', COLUMN5: '期末無障礙車輛', COLUMN6: '期末電動車輛', COLUMN7: '營業行車次數', COLUMN8: '營業行車里程' };
 
-export function statisticsDimensionValueLabel(key: string, value: string, datasetId?: string): string {
-  if (key === 'roc_year') return `民國 ${value} 年`;
-  if (key === 'academic_year_roc' || key === 'previous_academic_year_roc' || key === 'denominator_roc_year') return `民國 ${value} 年`;
-  if (key === 'month') return `${value} 月`;
+export function statisticsDimensionValueLabel(key: string, value: string, datasetId?: string, i18n?: I18nContext): string {
+  if (key === 'roc_year' || key === 'academic_year_roc' || key === 'previous_academic_year_roc' || key === 'denominator_roc_year') {
+    return ui(i18n, 'statisticsSelect.rocYear', '民國 {year} 年', { year: i18n ? displayRocYear(value, i18n) : value });
+  }
+  if (key === 'month') return ui(i18n, 'statisticsSelect.month', '{month} 月', { month: value });
+  const zh = dimensionValueZh(key, value, datasetId);
+  if (!i18n) return zh;
+  // 來源欄位代碼（COLUMN1…）依資料集對到不同中文，所以以中文為代碼；其餘以「維度.值」為代碼。
+  return enumLabel('statDimValue', key === 'source_field' ? `${key}.${zh}` : `${key}.${value}`, zh, i18n);
+}
+
+function dimensionValueZh(key: string, value: string, datasetId?: string): string {
   if (key === 'source_field') {
     const labels = datasetId === 'segis_bus_operation_county_315fh_1d3' ? BUS_SOURCE_FIELD_LABELS
       : datasetId === 'segis_taipei_bicycle_usage_township_110' ? BICYCLE_SOURCE_FIELD_LABELS
@@ -119,21 +142,24 @@ export function statisticsDimensionValueLabel(key: string, value: string, datase
 }
 
 /** Compact, human-readable selection text for the collapsed filter disclosure. */
-export function statisticsDimensionSummary(dimensions: Record<string, unknown> | undefined, release?: Pick<StatisticsRelease, 'period_start' | 'period_end'> | null, datasetId?: string): string {
+export function statisticsDimensionSummary(dimensions: Record<string, unknown> | undefined, release?: Pick<StatisticsRelease, 'period_start' | 'period_end'> | null, datasetId?: string, i18n?: I18nContext): string {
   if (!dimensions && !release) return '';
+  const colon = ui(i18n, 'statisticsSelect.colon', '：');
+  const period = ui(i18n, 'statisticsSelect.period', '期間');
   const parts: string[] = [];
   const year = typeof dimensions?.roc_year === 'string' ? dimensions.roc_year : '';
   const month = typeof dimensions?.month === 'string' ? dimensions.month : '';
   const quarter = typeof dimensions?.quarter === 'string' ? dimensions.quarter : '';
-  if (year) parts.push(`期間：民國 ${year} 年${quarter ? `・${quarter}` : month ? `・${month} 月` : ''}`);
-  else if (month) parts.push(`期間：${month} 月`);
-  else if (release) parts.push(`期間：${statisticsPeriodLabel(release)}`);
+  const monthText = month ? statisticsDimensionValueLabel('month', month, datasetId, i18n) : '';
+  if (year) parts.push(`${period}${colon}${statisticsDimensionValueLabel('roc_year', year, datasetId, i18n)}${quarter ? `${ui(i18n, 'statisticsSelect.partSep', '・')}${quarter}` : month ? `${ui(i18n, 'statisticsSelect.partSep', '・')}${monthText}` : ''}`);
+  else if (month) parts.push(`${period}${colon}${monthText}`);
+  else if (release) parts.push(`${period}${colon}${statisticsPeriodLabel(release, i18n)}`);
   for (const [key, value] of Object.entries(dimensions ?? {})) {
     if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'quarter' || key === 'agency_fund') continue;
-    parts.push(`${statisticsDimensionLabel(key)}：${statisticsDimensionValueLabel(key, value, datasetId)}`);
+    parts.push(`${statisticsDimensionLabel(key, i18n)}${colon}${statisticsDimensionValueLabel(key, value, datasetId, i18n)}`);
   }
-  if (typeof dimensions?.agency_fund === 'string' && dimensions.agency_fund) parts.push(`基金：${dimensions.agency_fund}`);
-  return parts.join('；');
+  if (typeof dimensions?.agency_fund === 'string' && dimensions.agency_fund) parts.push(`${statisticsDimensionLabel('agency_fund', i18n)}${colon}${dimensions.agency_fund}`);
+  return parts.join(ui(i18n, 'statisticsSelect.listSep', '；'));
 }
 
 // ── 參考邊界代碼 → 中文 ─────────────────────────────────────────────
@@ -157,14 +183,16 @@ const BOUNDARY_VERSION_LABELS: Record<string, string> = {
 const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only|PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1)\b/g;
 
 /** 單一邊界版本代碼的中文描述；查無對照時不印代碼。 */
-export function boundaryVersionLabel(code: unknown): string {
-  if (typeof code !== 'string' || !code) return '未提供';
-  return BOUNDARY_VERSION_LABELS[code] ?? '未命名的參考邊界版本';
+export function boundaryVersionLabel(code: unknown, i18n?: I18nContext): string {
+  if (typeof code !== 'string' || !code) return ui(i18n, 'statisticsSelect.boundaryNotProvided', '未提供');
+  const zh = BOUNDARY_VERSION_LABELS[code];
+  if (!zh) return ui(i18n, 'statisticsSelect.boundaryUnnamed', '未命名的參考邊界版本');
+  return i18n ? enumLabel('statBoundary', code, zh, i18n) : zh;
 }
 
 /** 說明文字裡夾帶的邊界代碼換成中文描述（其餘文字不動）。 */
-export function humanizeStatisticsText(text: string): string;
-export function humanizeStatisticsText(text: string | undefined): string | undefined;
-export function humanizeStatisticsText(text: string | undefined): string | undefined {
-  return text?.replace(BOUNDARY_CODE, (code) => BOUNDARY_VERSION_LABELS[code] ?? code);
+export function humanizeStatisticsText(text: string, i18n?: I18nContext): string;
+export function humanizeStatisticsText(text: string | undefined, i18n?: I18nContext): string | undefined;
+export function humanizeStatisticsText(text: string | undefined, i18n?: I18nContext): string | undefined {
+  return text?.replace(BOUNDARY_CODE, (code) => BOUNDARY_VERSION_LABELS[code] ? boundaryVersionLabel(code, i18n) : code);
 }

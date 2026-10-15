@@ -28,5 +28,7 @@
   "popup.regionalStatistics.coverageStatus": "カバー状況",
   "popup.regionalStatistics.coverageCount": "カバー件数",
   "popup.regionalStatistics.methodVersion": "処理バージョン",
-  "popup.regionalStatistics.rawSha": "元データの SHA-256"
+  "popup.regionalStatistics.rawSha": "元データの SHA-256",
+  "popup.regionalStatistics.complementFormula": "100% − 労働力参加率",
+  "popup.regionalStatistics.complementInterpretation": "非労働力率：同じ期の人力資源調査における 15 歳以上の民間人口に占める割合。"
 }
