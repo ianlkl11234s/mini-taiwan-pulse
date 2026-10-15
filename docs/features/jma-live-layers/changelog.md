@@ -2,6 +2,15 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-10-15 — 發布幀影像擴充 8 層（stacked PR，base = feat/jma-imagery-timeline；尚未部署正式站）
+
+- 新增 `jmaRadar`、`jmaRasrf`、`jmaRiskLand`、`jmaRiskInund`、`jmaUvIndex`、`jmaSst`、`jmaSeaIce`、`jmaHimawari`：日本 tab「氣象防災 › 解析影像」，預設關
+- 產品登記簿加每產品容忍度與發布時段（UV 06–18 JST、海冰 12–5 月）；時段外顯示「夜間無資料」／「季外」
+- 新 encoding：`sst_la_v1` 連續色帶（L=0 海冰另色）、`gray_jpeg_v1`（ひまわり單色 JPEG，raster-color 灰階透明 ramp）
+- RPC 依發布頻率分塊（≤ 900 列、≤ 8 天），移除 8 天截斷（原本會截掉最近幾天）
+- Host 改用 `makeJmaImageryHost` 工廠；圖例共用 `JmaImageryLegend`
+- Breaking：無（golden +8 層 1175 → 1183；popup ledger 34 → 42）
+
 ## 2026-10-15 — 解析積雪深＋通用發布幀影像圖層（PR 待併入 develop；尚未部署正式站）
 
 - 新增 `jmaSnowDepth`（解析積雪深）：日本 tab「氣象防災 › 解析影像」，預設關，隨時間軸逐小時播放

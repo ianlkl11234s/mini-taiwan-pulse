@@ -1,7 +1,7 @@
 /**
  * useJmaImageryLayer — JMA 發布幀（LA 值編碼 PNG）作為 time-axis raster 圖層播放；以 product 參數化。
  *
- * - manifest：一次 RPC 取整個 timeline 視窗（只有 metadata，積雪每日 24 列），切日／改視窗重取；
+ * - manifest：取整個 timeline 視窗（只有 metadata；依發布頻率分塊避開 PostgREST max-rows，雷達每日 288 列），切日／改視窗重取；
  *   即時模式每 5 分鐘重取，跟上最新一幀。
  * - 選幀：pickJmaImageryFrame（回放 = 最晚的 ≤ t 且不過舊；即時 = 最新一幀且不過舊）。
  *   沒有可用幀 → 隱藏圖層＋狀態 uncovered（圖例顯示「未涵蓋」），不畫成 0。
@@ -74,7 +74,7 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       const mySeq = ++seq;
       if (framesRef.current == null) setJmaImageryStatus(product, { state: "loading", validTimeIso: null });
       try {
-        const result = await loadJmaImageryManifest([product], win);
+        const result = await loadJmaImageryManifest([product], win, spec.cadenceMin);
         if (disposed || mySeq !== seq) return;
         framesRef.current = result.get(product) ?? [];
         loadedKey = key;

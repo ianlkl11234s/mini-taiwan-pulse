@@ -1163,5 +1163,13 @@
   "layer.iowStructureMonitoring": "水利構造物モニタリング観測所",
   "layer.wraDredgingPoints": "河川浚渫工事",
   "layer.wraEcologySurveySites": "河川生態調査地点",
-  "layer.jmaSnowDepth": "積雪深（解析）"
+  "layer.jmaSnowDepth": "積雪深（解析）",
+  "layer.jmaRadar": "雨雲の動き（ナウキャスト）",
+  "layer.jmaRasrf": "解析雨量",
+  "layer.jmaRiskLand": "土砂キキクル",
+  "layer.jmaRiskInund": "浸水キキクル",
+  "layer.jmaUvIndex": "UVインデックス（解析）",
+  "layer.jmaSst": "日別海面水温",
+  "layer.jmaSeaIce": "海氷分布（オホーツク海）",
+  "layer.jmaHimawari": "ひまわり雲画像（赤外）"
 }

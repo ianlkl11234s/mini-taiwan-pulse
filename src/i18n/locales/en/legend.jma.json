@@ -44,5 +44,17 @@
   "legend.jma.imageryReason.missing": "frame marked missing",
   "legend.jma.imageryReason.encoding": "image encoding does not match the palette",
   "legend.jma.snowDepthNote": "One frame per hour, plays with the timeline; about 5 km grid. Colors follow the official legend; the first two classes are verified against real tiles.",
-  "legend.jma.imageryAttribution": "Source: Japan Meteorological Agency (processed)"
+  "legend.jma.imageryAttribution": "Source: Japan Meteorological Agency (processed)",
+  "legend.jma.imageryOffHours": "No data at night (issued hourly 06–18 JST only)",
+  "legend.jma.imageryOffSeason": "Off season (sea ice is issued December–May only)",
+  "legend.jma.radarNote": "One frame every 5 minutes, plays with the timeline; ~1 km grid shown at ~2 km (maximum). Colors follow the official legend (verified against real tiles).",
+  "legend.jma.rasrfNote": "Radar–rain-gauge analyzed precipitation for the past hour, one frame every 30 minutes. Colors follow the official legend (verified against real tiles).",
+  "legend.jma.riskNote": "Risk level equivalent to the alert level, one frame every 30 minutes; the lowest class is left uncolored. Colors follow the official legend; not yet verified against colored tiles.",
+  "legend.jma.uvNote": "Analyzed UV index on a ~0.25° grid, one frame per hour 06–18 JST. Colors follow the official legend (verified against real tiles).",
+  "legend.jma.sstNote": "Satellite-analyzed daily sea surface temperature (0.1° grid), one frame per day; color ramp taken from the JMA daily SST chart. Land is transparent.",
+  "legend.jma.sstIce": "Sea ice",
+  "legend.jma.seaIceNote": "Sea ice concentration (tenths) in the Sea of Okhotsk, one frame per day, December–May only; open water and land are transparent. Provisional colors (official legend is offline off-season).",
+  "legend.jma.himawariNote": "Himawari-9 band 13 infrared, one frame per hour; whiter = colder cloud tops, warm clear areas transparent. Grayscale only, not a temperature scale.",
+  "legend.jma.himawariWarm": "Warm (transparent)",
+  "legend.jma.himawariCold": "Cold (white)"
 }
