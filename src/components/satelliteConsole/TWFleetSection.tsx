@@ -26,6 +26,9 @@ import { chipOutline } from "../intel/intelTokens";
 import { SATELLITE_COLORS } from "../../data/satelliteTypes";
 import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { rich } from "./maneuverAlertKit";
 
 interface Props {
   maneuvers: ManeuverRow[];
@@ -139,6 +142,9 @@ function nextPassMin(satrec: satellite.SatRec, nowSec: number, altHint: number):
 export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
   const tle = useSatelliteRecords();
   const { p, fill, text } = useSatelliteTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
+  const isZh = i18n.active === "zh-TW";
   // null = TLE 已到但還沒解析完（仍視為載入中）
   const [parsedRaw, setParsed] = useState<ParsedSat[] | null>(null);
   const parsed = parsedRaw ?? [];
@@ -216,17 +222,22 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
         padding: "12px 14px", borderBottom: `1px solid ${p.borderSoft}`, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
         color: view.kind === "error" ? p.statusWarn : p.textFaint,
       }}>
-        {view.text}
+        {view.kind === "loading" ? t("satelliteConsole.fleet.loading")
+          : view.kind === "empty" ? t("satelliteConsole.fleet.empty")
+          : tle.status === "error" ? t("satelliteConsole.fleet.error")
+          : t("satelliteConsole.fleet.allSkipped", { count: twTotal })}
       </div>
     );
   }
 
   return (
     <div style={{ borderBottom: `1px solid ${p.borderSoft}` }}>
-      <SubGroupLabel>台灣衛星隊</SubGroupLabel>
+      <SubGroupLabel>{t("satelliteConsole.fleet.title")}</SubGroupLabel>
       {view.skipped > 0 && (
         <div style={{ padding: "0 12px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: p.textDim }}>
-          <span style={{ fontFamily: FONT_DATA }}>{view.skipped}</span> 顆暫無法計算
+          {rich(t("satelliteConsole.fleet.skipped", { count: view.skipped, n: "{n}" }), {
+            n: <span style={{ fontFamily: FONT_DATA }}>{view.skipped}</span>,
+          })}
         </div>
       )}
 
@@ -247,38 +258,40 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
                 <span
-                  title={isCovering ? "正覆蓋台灣" : undefined}
+                  title={isCovering ? t("satelliteConsole.fleet.covering") : undefined}
                   style={{
                     width: 7, height: 7, borderRadius: RADIUS.full, flexShrink: 0, boxSizing: "border-box",
                     ...(isCovering ? { background: fill(TAIWAN_COLOR) } : { border: `1px solid ${p.textDim}` }),
                   }}
                 />
-                <span style={{ fontSize: FONT_SIZE.md, fontWeight: 700, color: p.textStrong, whiteSpace: "nowrap" }}>{r.zh}</span>
-                <span style={{
-                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: p.textDim,
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0,
-                }}>
-                  {r.name}
-                </span>
-                {isLegacy && <span style={{ ...CHIP_BASE, ...chipOutline(p.statusWarn) }}>超齡服役</span>}
-                {r.tier === "research" && <span style={{ ...CHIP_BASE, ...chipOutline(p.textMuted) }}>學研</span>}
+                <span style={{ fontSize: FONT_SIZE.md, fontWeight: 700, color: p.textStrong, whiteSpace: "nowrap", ...(isZh ? null : { overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }) }}>{isZh ? r.zh : r.name}</span>
+                {isZh && (
+                  <span style={{
+                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: p.textDim,
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0,
+                  }}>
+                    {r.name}
+                  </span>
+                )}
+                {isLegacy && <span style={{ ...CHIP_BASE, ...chipOutline(p.statusWarn) }}>{t("satelliteConsole.fleet.legacy")}</span>}
+                {r.tier === "research" && <span style={{ ...CHIP_BASE, ...chipOutline(p.textMuted) }}>{t("satelliteConsole.fleet.research")}</span>}
                 <span style={{ marginLeft: "auto", display: "inline-flex", gap: 4, flexShrink: 0 }}>
-                  <IconBtn title="飛到衛星" onClick={() => onFlyTo?.(r.lon, r.lat)}>
+                  <IconBtn title={t("satelliteConsole.fleet.flyTo")} onClick={() => onFlyTo?.(r.lon, r.lat)}>
                     <LocateFixed size={13} strokeWidth={2} aria-hidden="true" />
                   </IconBtn>
-                  <IconBtn title="開啟衛星百科" onClick={() => onSelectNorad(r.norad)}>
+                  <IconBtn title={t("satelliteConsole.fleet.openCard")} onClick={() => onSelectNorad(r.norad)}>
                     <BookOpen size={13} strokeWidth={2} aria-hidden="true" />
                   </IconBtn>
                 </span>
               </div>
 
               <div style={{ marginTop: 3, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px", fontSize: FONT_SIZE.base, color: p.textMuted }}>
-                <span style={{ whiteSpace: "nowrap" }}>{r.use}</span>
+                <span style={{ whiteSpace: "nowrap" }}>{enumLabel("satelliteTwUse", r.use, r.use, i18n)}</span>
                 <span style={{ color: p.textFaint }}>·</span>
                 <span style={{ whiteSpace: "nowrap" }}><span style={{ fontFamily: FONT_DATA }}>{Math.round(r.altKm)}</span> km</span>
                 <span style={{ color: p.textFaint }}>·</span>
                 <span style={{ whiteSpace: "nowrap", fontSize: FONT_SIZE.xs, color: p.textDim }}>
-                  NORAD 編號 <span style={{ fontFamily: FONT_DATA }}>{r.norad}</span>
+                  {t("satelliteConsole.fleet.noradLabel")} <span style={{ fontFamily: FONT_DATA }}>{r.norad}</span>
                 </span>
               </div>
 
@@ -290,15 +303,19 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
                 <span style={{ color: p.textFaint }}>·</span>
                 <span style={{ whiteSpace: "nowrap", color: isCovering ? text(TAIWAN_COLOR) : p.textDefault, fontWeight: isCovering ? 600 : 400 }}>
                   {isCovering
-                    ? "正覆蓋台灣"
+                    ? t("satelliteConsole.fleet.covering")
                     : r.nextPassMin == null
-                      ? "12 小時內不會經過"
-                      : <><span style={{ fontFamily: FONT_DATA }}>{r.nextPassMin}</span> 分鐘後過台</>}
+                      ? t("satelliteConsole.fleet.noPass12h")
+                      : rich(t("satelliteConsole.fleet.nextPass", { count: r.nextPassMin, n: "{n}" }), {
+                        n: <span style={{ fontFamily: FONT_DATA }}>{r.nextPassMin}</span>,
+                      })}
                 </span>
                 {r.daysSinceManeuver != null && (
                   <>
                     <span style={{ color: p.textFaint }}>·</span>
-                    <span style={{ whiteSpace: "nowrap" }}>距上次變軌 <span style={{ fontFamily: FONT_DATA }}>{r.daysSinceManeuver}</span> 天</span>
+                    <span style={{ whiteSpace: "nowrap" }}>{rich(t("satelliteConsole.fleet.sinceManeuver", { count: r.daysSinceManeuver, n: "{n}" }), {
+                      n: <span style={{ fontFamily: FONT_DATA }}>{r.daysSinceManeuver}</span>,
+                    })}</span>
                   </>
                 )}
               </div>

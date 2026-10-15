@@ -171,6 +171,10 @@
 - 仍不確定：「培根」計畫（Pei-Ken Training）、溪流次（stream alerts）。
 - atlas：閘門＝Sluice gate；疏散門＝Evacuation gate；系統交流道＝System interchange；賽德克＝Sediq；拉阿魯哇＝Hla'alua；高速公路局＝Taiwan Area National Freeway Bureau；保全戶＝households at risk（意譯）。
 
+### P3 進階模式新增用語（2026-10-15，兩輪校對）
+- 基準低段／中段＝Low range／Mid range；平時／留意／警戒／緊急＝Peacetime／Notice／Alert／Emergency；地理相關 0／1＝Unrelated／Mentioned；中央社＝CNA；越中線＝median-line crossings；超齡服役＝Past design life。
+- 「平常週日同時段」原意（平日或同星期幾）未確認，譯成不指明星期的 vs usual at this time。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -301,3 +305,7 @@
 - 色階＝段階色；不適用＝該当なし；醫事人員＝医療従事者；山坡地＝斜面地；工商普查＝工商業センサス；擱淺＝ストランディング。
 - 仍不確定：圖例說明的文體（常體）與其他檔（です・ます）未統一；營業稅日文譯法。
 - atlas：閘門＝樋門；系統交流道＝ジャンクション；快速公路＝高規格道路；拉阿魯哇＝ラアルア；保全戶＝保全対象世帯；疏散門＝避難用ゲート（「陸閘」或更貼切，未定）。
+
+### P3 進階模式新增用語（2026-10-15，兩輪校對）
+- 共機＝中国軍用機；架次＝機数；越中線＝中間線越え；等床＝入院待ち；即時＝リアルタイム、直播＝ライブ；事件（新聞）＝出来事；壓力指數＝圧力指数；備轉＝予備力；輻射監測站＝監視局；已下架＝提供終了；顯著（最高級距）＝非常に高い；遙測偵察＝リモートセンシング偵察。
+- 仍不確定：「平常週日同時段」譯成不指明曜日的「通常の同時間帯」；電視台名沿用中文名＋ニュース。

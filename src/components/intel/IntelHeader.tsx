@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
-import { FONT_CJK, FONT_DATA, clockTime, fmtCountdown } from "./intelTokens";
+import { FONT_CJK, FONT_DATA, SLOTS, clockTime, fmtCountdown, slotParts } from "./intelTokens";
+import { useLocale } from "../../state/localeStore";
 import { neutralFill, useIntelTheme, type IntelPalette } from "./intelTheme";
 import { RADIUS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import type { SourceHealthSummary, SourceStatus } from "../../data/intelLoaders";
@@ -33,12 +34,17 @@ function fmtLag(sec: number | null): string {
 
 export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHealth, onClose, showFeedStatus = true }: Props) {
   const palette = useIntelTheme();
+  const { t } = useLocale();
   const STATUS_COLOR = statusColor(palette);
   const [showHealth, setShowHealth] = useState(false);
 
   const degraded = sourceHealth.degraded + sourceHealth.lagging > 0;
   const okCount = sourceHealth.ok;
   const total = sourceHealth.total;
+  const updatedParts = slotParts(t("intel.header.updated", { n: SLOTS[0] }));
+  const totalParts = slotParts(t("intel.header.total", { n: SLOTS[0] }));
+  const sourcesParts = slotParts(t("intel.header.sources", { n: SLOTS[0] }));
+  const pipelineParts = slotParts(t("intel.header.pipeline", { rss: SLOTS[0], ai: SLOTS[1] }));
 
   return (
     <>
@@ -56,10 +62,10 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
         <IntelIcon d={ICON.radio} size={17} color={palette.accent} />
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
           <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, letterSpacing: "1.4px", color: palette.textDim }}>
-            情報
+            {t("intel.header.eyebrow")}
           </span>
           <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: palette.textStrong, marginTop: 1, display: "flex", alignItems: "center", gap: 8 }}>
-            即時情報
+            {t("intel.header.title")}
             {showFeedStatus && (
               <span
                 style={{
@@ -124,11 +130,11 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
         }}
       >
         <span style={{ color: palette.textMuted }}>
-          更新 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{clockTime(lastUpdateTs)}</span>
+          {updatedParts[0]}<span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{clockTime(lastUpdateTs)}</span>{updatedParts[1]}
         </span>
         <span style={{ color: palette.textFaint }}>·</span>
         <span style={{ color: palette.textDefault }}>
-          共 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{totalCount}</span> 則
+          {totalParts[0]}<span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{totalCount}</span>{totalParts[1]}
         </span>
         <button
           onClick={() => setShowHealth((v) => !v)}
@@ -155,7 +161,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
               background: degraded ? palette.statusWarn : palette.statusLive,
             }}
           />
-          來源 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{okCount}/{total}</span>
+          {sourcesParts[0]}<span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{okCount}/{total}</span>{sourcesParts[1]}
           <IntelIcon d={showHealth ? ICON.chevDown : ICON.chevRight} size={10} color={palette.textDim} />
         </button>
         <span style={{ display: "flex", alignItems: "center", gap: 4, color: palette.textDim }}>
@@ -184,11 +190,11 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
               marginBottom: 6,
             }}
           >
-            來源管線 · <span style={{ fontFamily: FONT_DATA }}>RSS×{total}</span> → <span style={{ fontFamily: FONT_DATA }}>Gemini</span> 地理編碼
+            {pipelineParts[0]}<span style={{ fontFamily: FONT_DATA }}>RSS×{total}</span>{pipelineParts[1]}<span style={{ fontFamily: FONT_DATA }}>Gemini</span>{pipelineParts[2]}
           </div>
           {total === 0 ? (
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
-              尚無資料（collector 還沒回報過）
+              {t("intel.header.noData")}
             </div>
           ) : (
             <>
@@ -232,7 +238,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
               </div>
               {sourceHealth.degraded + sourceHealth.lagging > 0 && (
                 <div style={{ marginTop: 6, fontFamily: FONT_CJK, fontSize: 9.5, color: palette.statusWarn }}>
-                  ⚠ {sourceHealth.degraded + sourceHealth.lagging} 個來源延遲偏高
+                  ⚠ {t("intel.header.lagging", { count: sourceHealth.degraded + sourceHealth.lagging })}
                 </div>
               )}
             </>

@@ -23,6 +23,8 @@ import { ControlSegmented, layerControlThemeClass } from "../sidebar/LayerParamC
 import { SubGroupLabel } from "../sidebar/ThemeBanner";
 import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
 import { timeStore } from "../../state/timeStore";
+import { useLocale } from "../../state/localeStore";
+import { rich } from "./maneuverAlertKit";
 
 interface Props {
   maneuvers: ManeuverRow[];
@@ -35,7 +37,6 @@ const SCAN_STEP_SEC = 60;
 const SCAN_HOURS = 6;
 /** 台灣衛星資料色（§3.16：只用在覆蓋台灣的數字與細項） */
 const TAIWAN_COLOR = SATELLITE_COLORS.taiwan;
-const AXIS_LABELS = ["現在", "+1", "+2", "+3", "+4", "+5", "+6 小時"];
 // §5.21 狀態徽章：chipOutline，圓角 3、10px
 const MANEUVER_CHIP = {
   display: "inline-flex", alignItems: "center", padding: "0 4px", borderRadius: 3,
@@ -105,6 +106,8 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   // null = 尚未算出（顯示「—」／「…」，不可當 0）
   const tle = useSatelliteRecords();
   const { p, fill, text } = useSatelliteTheme();
+  const { t } = useLocale();
+  const axisLabels = [t("satelliteConsole.cov.axisNow"), "+1", "+2", "+3", "+4", "+5", t("satelliteConsole.cov.axisEnd")];
   const [parsed, setParsed] = useState<ParsedSat[] | null>(null);
   const [coveringRaw, setCoveringNow] = useState<ParsedSat[] | null>(null);
   const [passesRaw, setPasses] = useState<PassTick[] | null>(null);
@@ -236,7 +239,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   if (tle.status === "error") {
     return (
       <div role="status" style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${p.borderSoft}`, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: p.statusWarn }}>
-        衛星資料讀取失敗，無法計算覆蓋統計
+        {t("satelliteConsole.cov.error")}
       </div>
     );
   }
@@ -245,8 +248,8 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   const passReady = !tleLoading && !computingScan && passesRaw != null;
 
   // X1：讀取中／計算中在數字位置顯示文字（不可顯示 0）
-  const wait = (t: string) => (
-    <span style={{ fontSize: FONT_SIZE.base, color: p.textMuted, lineHeight: "22px", whiteSpace: "nowrap" }}>{t}</span>
+  const wait = (label: string) => (
+    <span style={{ fontSize: FONT_SIZE.base, color: p.textMuted, lineHeight: "22px", whiteSpace: "nowrap" }}>{label}</span>
   );
   const big = (v: number, unit: string, color: string) => (
     <span style={{ whiteSpace: "nowrap" }}>
@@ -263,34 +266,36 @@ export function CoverageStatsSection({ maneuvers }: Props) {
 
   return (
     <div style={{ borderBottom: `1px solid ${p.borderSoft}`, fontFamily: FONT_CJK }}>
-      <SubGroupLabel>覆蓋統計</SubGroupLabel>
+      <SubGroupLabel>{t("satelliteConsole.cov.title")}</SubGroupLabel>
       <div style={{ padding: "2px 14px 9px" }}>
         {/* 主數字：兩欄，上小標籤、下大數字＋單位、細項放數字下方 */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>覆蓋台灣中</div>
+            <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>{t("satelliteConsole.cov.coveringNow")}</div>
             <div style={{ marginTop: 1, minHeight: 22 }}>
-              {tleLoading ? wait("讀取中…") : coveringRaw == null ? wait("計算中…") : big(coveringNow.length, "顆", coveringNow.length > 0 ? text(TAIWAN_COLOR) : p.textDefault)}
+              {tleLoading ? wait(t("satelliteConsole.loading")) : coveringRaw == null ? wait(t("satelliteConsole.computing")) : big(coveringNow.length, t("satelliteConsole.unit.sat", { count: coveringNow.length }), coveringNow.length > 0 ? text(TAIWAN_COLOR) : p.textDefault)}
             </div>
             {coverReady && coveringNow.length > 0 && (
               <div style={bdBox}>
-                {bdItem("台灣", coverageBreakdown.tw, "", text(TAIWAN_COLOR))}
-                {bdItem("其他國家", coverageBreakdown.cn)}
-                <span title="Yaogan／Jilin／Gaofen／台灣與各國遙測衛星" style={{ whiteSpace: "nowrap" }}>
-                  遙測偵察 <span style={{ fontFamily: FONT_DATA, fontWeight: 600, color: coverageBreakdown.recon > 0 ? p.statusLive : p.textMuted }}>{coverageBreakdown.recon}</span>
+                {bdItem(t("satelliteConsole.cov.taiwan"), coverageBreakdown.tw, "", text(TAIWAN_COLOR))}
+                {bdItem(t("satelliteConsole.cov.otherCountries"), coverageBreakdown.cn)}
+                <span title={t("satelliteConsole.cov.reconTitle")} style={{ whiteSpace: "nowrap" }}>
+                  {t("satelliteConsole.cov.recon")} <span style={{ fontFamily: FONT_DATA, fontWeight: 600, color: coverageBreakdown.recon > 0 ? p.statusLive : p.textMuted }}>{coverageBreakdown.recon}</span>
                 </span>
               </div>
             )}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>未來 6 小時通過</div>
+            <div style={{ fontSize: FONT_SIZE.sm, color: p.textDim }}>{t("satelliteConsole.cov.next6h")}</div>
             <div style={{ marginTop: 1, minHeight: 22 }}>
-              {tleLoading ? wait("讀取中…") : !passReady ? wait("計算中…") : big(passes.length, "次", p.textDefault)}
+              {tleLoading ? wait(t("satelliteConsole.loading")) : !passReady ? wait(t("satelliteConsole.computing")) : big(passes.length, t("satelliteConsole.unit.passes", { count: passes.length }), p.textDefault)}
             </div>
             {passReady && passes.length > 0 && (
               <div style={bdBox}>
                 <span style={{ whiteSpace: "nowrap" }}>
-                  遙測偵察 <span style={{ fontFamily: FONT_DATA, fontWeight: 600, color: passBreakdown.recon > 0 ? p.statusLive : p.textMuted }}>{passBreakdown.recon}</span> 次
+                  {rich(t("satelliteConsole.cov.reconPasses", { count: passBreakdown.recon, n: "{n}" }), {
+                    n: <span style={{ fontFamily: FONT_DATA, fontWeight: 600, color: passBreakdown.recon > 0 ? p.statusLive : p.textMuted }}>{passBreakdown.recon}</span>,
+                  })}
                 </span>
               </div>
             )}
@@ -300,7 +305,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
         {/* 覆蓋中 sats 縮略 */}
         {coverReady && coveringNow.length > 0 && (
           <div
-            title="目前覆蓋台灣的衛星"
+            title={t("satelliteConsole.cov.coveringList")}
             style={{ marginTop: 5, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: p.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
           >
             {coveringNow.slice(0, 6).map((p) => p.rec.name).join(" · ")}
@@ -325,9 +330,9 @@ export function CoverageStatsSection({ maneuvers }: Props) {
               aria-hidden="true"
               style={{ flexShrink: 0, transform: expanded ? "rotate(90deg)" : "none", transition: "transform .15s" }}
             />
-            <span style={{ whiteSpace: "nowrap" }}>未來 6 小時通過時間</span>
+            <span style={{ whiteSpace: "nowrap" }}>{t("satelliteConsole.cov.passTimes")}</span>
             <span style={{ marginLeft: "auto", whiteSpace: "nowrap" }}>
-              {passReady ? <><span style={{ fontFamily: FONT_DATA }}>{passes.length}</span> 次</> : "計算中…"}
+              {passReady ? rich(t("satelliteConsole.cov.passCount", { count: passes.length, n: "{n}" }), { n: <span style={{ fontFamily: FONT_DATA }}>{passes.length}</span> }) : t("satelliteConsole.computing")}
             </span>
           </button>
         )}
@@ -337,25 +342,25 @@ export function CoverageStatsSection({ maneuvers }: Props) {
           <div style={{ marginTop: 8, padding: 8, borderRadius: RADIUS.lg, background: p.controlBg, border: `1px solid ${p.borderSoft}` }}>
             <div className={layerControlThemeClass(p.isDark)} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
               <ControlSegmented
-                label="通過時間篩選"
+                label={t("satelliteConsole.cov.filterLabel")}
                 value={reconOnly ? "recon" : "all"}
-                options={[{ label: "遙測偵察", value: "recon" }, { label: "全部", value: "all" }]}
+                options={[{ label: t("satelliteConsole.cov.recon"), value: "recon" }, { label: t("satelliteConsole.cov.all"), value: "all" }]}
                 onChange={(v) => setReconOnly(v === "recon")}
               />
               <span style={{ marginLeft: "auto", whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: p.textDim }}>
-                <span style={{ fontFamily: FONT_DATA }}>{filteredPasses.length} / {passes.length}</span> 次
+                {rich(t("satelliteConsole.cov.filteredCount", { count: passes.length, n: "{n}" }), { n: <span style={{ fontFamily: FONT_DATA }}>{filteredPasses.length} / {passes.length}</span> })}
               </span>
             </div>
             {/* 時間軸刻度 */}
             <div style={{ position: "relative", height: 18, margin: "0 6px 8px" }}>
               <div style={{ position: "absolute", left: 0, right: 0, top: 14, height: 1, background: p.borderMid }} />
-              {AXIS_LABELS.map((t, h) => (
+              {axisLabels.map((label, h) => (
                 <span key={h} style={{
                   position: "absolute", left: `${(h / 6) * 100}%`, top: 0, whiteSpace: "nowrap",
                   transform: `translateX(${h === 0 ? "0" : h === 6 ? "-100%" : "-50%"})`,
                   fontSize: FONT_SIZE.xs, color: p.textFaint,
                 }}>
-                  {t}
+                  {label}
                 </span>
               ))}
             </div>
@@ -363,7 +368,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
             <div style={{ position: "relative", maxHeight: 220, overflowY: "auto", margin: "0 6px" }} className="mtp-scroll">
               {filteredPasses.length === 0 ? (
                 <div style={{ fontSize: FONT_SIZE.sm, color: p.textFaint, padding: "8px 0", textAlign: "center" }}>
-                  {computingScan ? "計算中…" : reconOnly ? "未來 6 小時無遙測偵察類通過" : "未來 6 小時無預計通過"}
+                  {computingScan ? t("satelliteConsole.computing") : reconOnly ? t("satelliteConsole.cov.noRecon") : t("satelliteConsole.cov.noPass")}
                 </div>
               ) : (
                 filteredPasses.slice(0, 80).map((tick, i) => {
@@ -385,7 +390,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
                         fontSize: FONT_SIZE.sm, color: p.textMuted,
                       }}>
                         <span style={{ fontFamily: FONT_DATA, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis" }}>{tick.name}</span>
-                        {isManeuver && <span style={{ ...MANEUVER_CHIP, ...chipOutline(p.statusErr) }}>變軌</span>}
+                        {isManeuver && <span style={{ ...MANEUVER_CHIP, ...chipOutline(p.statusErr) }}>{t("satelliteConsole.maneuver")}</span>}
                       </span>
                     </div>
                   );
@@ -393,7 +398,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
               )}
               {filteredPasses.length > 80 && (
                 <div style={{ padding: "4px 0", fontSize: FONT_SIZE.xs, color: p.textFaint, textAlign: "center" }}>
-                  共 <span style={{ fontFamily: FONT_DATA }}>{filteredPasses.length}</span> 次 · 顯示前 80 次
+                  {rich(t("satelliteConsole.cov.listCap", { count: filteredPasses.length, n: "{n}" }), { n: <span style={{ fontFamily: FONT_DATA }}>{filteredPasses.length}</span> })}
                 </div>
               )}
             </div>

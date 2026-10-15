@@ -11,12 +11,14 @@ import { useMonitorTheme } from "./monitorTheme";
 import { fs, MF } from "./monitorFont";
 import { MonitorKpis, MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { useMonitorFreshness } from "./monitorFreshness";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
-const AIRPORTS: Array<{ code: string; label: string }> = [
-  { code: "TPE", label: "桃園 TPE" },
-  { code: "TSA", label: "松山 TSA" },
-  { code: "KHH", label: "高雄 KHH" },
-  { code: "RMQ", label: "台中 RMQ" },
+const AIRPORTS: Array<{ code: string; name: string }> = [
+  { code: "TPE", name: "桃園" },
+  { code: "TSA", name: "松山" },
+  { code: "KHH", name: "高雄" },
+  { code: "RMQ", name: "台中" },
 ];
 const EMPTY_PAX: AirportPaxBucket[] = [];
 
@@ -33,6 +35,8 @@ interface Props { open: boolean }
 
 export function AirportPaxCard({ open }: Props) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const airportLabel = (a: { code: string; name: string }) => `${enumLabel("airportName", a.name, a.name, i18n)} ${a.code}`;
   const theme = useMonitorTheme();
   const IN_COLOR = theme.p.accent;
   const OUT_COLOR = theme.p.statusWarn;
@@ -79,14 +83,14 @@ export function AirportPaxCard({ open }: Props) {
   const latestBucket = query.data.reduce((m, r) => Math.max(m, Date.parse(r.hour_bucket) || 0), 0);
   const fresh = useMonitorFreshness("airportPax", {
     time: latestBucket > 0 ? latestBucket : null,
-    reason: "機場資料收集已停止或 24 小時內無資料",
+    reason: i18n.t("monitor.airport.staleReason"),
   });
 
   // 圖與主數字共用：入境主線＋出境疊線（同單位人）
-  const outExtraV2 = useMemo(() => ({ data: outSeriesV2, color: OUT_COLOR, label: "出境" }), [outSeriesV2, OUT_COLOR]);
+  const outExtraV2 = useMemo(() => ({ data: outSeriesV2, color: OUT_COLOR, label: i18n.t("monitor.airport.departures") }), [outSeriesV2, OUT_COLOR, i18n]);
 
   if (v2) {
-    const fmt = (n: number | null, partial = false) => (hasReadableData && n != null ? `${partial ? "≥" : ""}${n.toLocaleString("zh-TW")}` : "—");
+    const fmt = (n: number | null, partial = false) => (hasReadableData && n != null ? `${partial ? "≥" : ""}${i18n.formatNumber(n)}` : "—");
     const sumInV2 = sumOrNull(inSeriesV2);
     const sumOutV2 = sumOrNull(outSeriesV2);
     const loaded = query.status !== "unknown";
@@ -106,40 +110,40 @@ export function AirportPaxCard({ open }: Props) {
                 cursor: "pointer",
               }}
             >
-              {a.label}
+              {airportLabel(a)}
             </button>
           ))}
         </div>
-        <MonitorDataStatus label="機場旅客資料" query={query} />
-        <MonitorMetric value={fmt(sumInV2, partialIn)} unit="人" color={IN_COLOR} muted={fresh.muted} />
-        <MonitorKpis items={[{ label: "24 小時出境", value: fmt(sumOutV2, partialOut), unit: "人" }]} />
+        <MonitorDataStatus label={i18n.t("monitor.airport.dataLabel")} query={query} />
+        <MonitorMetric value={fmt(sumInV2, partialIn)} unit={i18n.t("monitor.airport.unitPeople")} color={IN_COLOR} muted={fresh.muted} />
+        <MonitorKpis items={[{ label: i18n.t("monitor.airport.out24h"), value: fmt(sumOutV2, partialOut), unit: i18n.t("monitor.airport.unitPeople") }]} />
         {query.status === "unknown" ? (
-          <MonitorNote>載入中…</MonitorNote>
+          <MonitorNote>{i18n.t("monitor.airport.loading")}</MonitorNote>
         ) : inSeriesV2.length === 0 ? null : (
           <>
             {/* gapSec 2h：相鄰快照缺 2 小時以上 → 斷線呈現（缺格 ≠ 低谷） */}
             <TimeseriesSparkline
-              data={inSeriesV2} timeDomain={timeDomain} unit="人" lineColor={IN_COLOR} heightTier="std"
-              gapSec={2 * 3600} showTooltip seriesLabel="入境" extraSeries={outExtraV2}
+              data={inSeriesV2} timeDomain={timeDomain} unit={i18n.t("monitor.airport.unitPeople")} lineColor={IN_COLOR} heightTier="std"
+              gapSec={2 * 3600} showTooltip seriesLabel={i18n.t("monitor.airport.arrivals")} extraSeries={outExtraV2}
               staleUntil={fresh.staleUntil}
             />
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: MF.label, color: theme.p.textMuted }}>
-              <LegendDot color={IN_COLOR} label="入境" />
-              <LegendDot color={OUT_COLOR} label="出境" />
+              <LegendDot color={IN_COLOR} label={i18n.t("monitor.airport.arrivals")} />
+              <LegendDot color={OUT_COLOR} label={i18n.t("monitor.airport.departures")} />
             </div>
           </>
         )}
         {loaded && fresh.reason && (
           <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
         )}
-        <MonitorNote>來源：移民署 APIS（每小時）</MonitorNote>
+        <MonitorNote>{i18n.t("monitor.airport.source")}</MonitorNote>
       </div>
     );
   }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {!v2 && <SectionLabel color={COLORS.accent}>機場入出境 · BORDER PAX 24H</SectionLabel>}
+      {!v2 && <SectionLabel color={COLORS.accent}>{i18n.t("monitor.airport.titleLegacy")}</SectionLabel>}
       <div
         style={v2 ? { display: "flex", flexDirection: "column", gap: 8, minWidth: 0 } : {
           borderRadius: RADIUS.xl,
@@ -163,36 +167,36 @@ export function AirportPaxCard({ open }: Props) {
                 cursor: "pointer",
               }}
             >
-              {a.label}
+              {airportLabel(a)}
             </button>
           ))}
         </div>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: fs(v2, FONT_SIZE.sm) }}>
           <span style={{ color: "#10b981" }}>
-            24h 入 <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{hasReadableData ? sumIn.toLocaleString("zh-TW") : "—"}</span>
+            {i18n.t("monitor.airport.in24h")} <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{hasReadableData ? i18n.formatNumber(sumIn) : "—"}</span>
           </span>
           <span style={{ color: "#fb7185" }}>
-            24h 出 <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{hasReadableData ? sumOut.toLocaleString("zh-TW") : "—"}</span>
+            {i18n.t("monitor.airport.out24hLegacy")} <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{hasReadableData ? i18n.formatNumber(sumOut) : "—"}</span>
           </span>
         </div>
-        <MonitorDataStatus label="機場旅客資料" query={query} />
+        <MonitorDataStatus label={i18n.t("monitor.airport.dataLabel")} query={query} />
         {query.status === "unknown" ? (
           <div style={{ fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textDim, textAlign: "center", padding: "8px 0" }}>
-            載入中…
+            {i18n.t("monitor.airport.loading")}
           </div>
         ) : inSeries.length === 0 ? (
           <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>
-            {v2 ? "無資料（此機場未涵蓋）" : "無資料（border_airport_snapshot 未涵蓋此機場）"}
+            {v2 ? i18n.t("monitor.airport.noData") : i18n.t("monitor.airport.noDataLegacy")}
           </div>
         ) : (
           <>
             {/* gapSec 2h：相鄰快照缺 2 小時以上 → 斷線呈現（缺格 ≠ 低谷） */}
-            <TimeseriesSparkline data={inSeries} unit="人" lineColor="#10b981" height={70} gapSec={2 * 3600} showTooltip seriesLabel="入境" />
-            <TimeseriesSparkline data={outSeries} unit="人" lineColor="#fb7185" height={70} gapSec={2 * 3600} showTooltip seriesLabel="出境" />
+            <TimeseriesSparkline data={inSeries} unit={i18n.t("monitor.airport.unitPeople")} lineColor="#10b981" height={70} gapSec={2 * 3600} showTooltip seriesLabel={i18n.t("monitor.airport.arrivals")} />
+            <TimeseriesSparkline data={outSeries} unit={i18n.t("monitor.airport.unitPeople")} lineColor="#fb7185" height={70} gapSec={2 * 3600} showTooltip seriesLabel={i18n.t("monitor.airport.departures")} />
           </>
         )}
         <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>
-          {v2 ? "來源：移民署 APIS（每小時）" : "來源：移民署 APIS（每小時 / get_airport_hourly_pax）"}
+          {v2 ? i18n.t("monitor.airport.source") : i18n.t("monitor.airport.sourceLegacy")}
         </div>
       </div>
     </div>

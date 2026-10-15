@@ -148,7 +148,7 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
         {environment && <span>{t('statistics.details.sourceDatasetBoundary', { title: environment.source_title ?? t('statistics.notProvided'), publisher: environment.publisher, boundary: boundaryVersionLabel(environment.boundary_version, i18n) })}</span>}
         {environment?.derived && <span>{t('statistics.details.derivedEnvironment')}</span>}
         {addiction && <span>{t('statistics.details.sourceDatasetLicense', { title: addiction.source_title, publisher: addiction.publisher, license: addiction.license, boundary: boundaryVersionLabel(addiction.boundary_version, i18n) })}</span>}
-        {addiction?.derived && <span>{t(addiction.dataset_id === 'addiction_service_points' ? 'statistics.details.derivedAddictionPoints' : 'statistics.details.derivedAddiction')}</span>}
+        {addiction?.derived && <span>{t(addictionDerivedKey(addiction))}</span>}
         {landslide && <span>{t('statistics.details.sourceDatasetLicense', { title: landslide.source_title, publisher: landslide.publisher, license: landslide.license, boundary: boundaryVersionLabel(landslide.boundary_version, i18n) })}</span>}
         {atlas && <span>{t('statistics.details.sourceDatasetLicense', { title: atlas.source_title, publisher: atlas.publisher, license: atlas.license, boundary: boundaryVersionLabel(atlas.boundary_version, i18n) })}</span>}
         {atlas?.derived && <span>{t('statistics.details.derivedAddiction')}</span>}
@@ -244,4 +244,9 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
     {atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length ? tr('statistics.legend.perDimensionThresholds') : '', value: humanizeStatisticsText(atlas.location_semantics) })}</span>}
   </div>;
+}
+
+/** 成癮衍生指標的說明 key（服務據點另有說明） */
+function addictionDerivedKey(recipe: { dataset_id: string }) {
+  return recipe.dataset_id === 'addiction_service_points' ? 'statistics.details.derivedAddictionPoints' as const : 'statistics.details.derivedAddiction' as const;
 }

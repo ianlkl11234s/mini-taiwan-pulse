@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { LAYOUT, Z_INDEX } from "../../styles/designTokens";
 import { useTimelineExpand } from "./timelineExpand";
+import { useLocale } from "../../state/localeStore";
 import "./timeline.css";
 
 /** 卡片右側預留給右下停靠 popup（280px）＋間距，避免互相遮住 */
@@ -33,6 +34,7 @@ interface Props {
 export function TimelineShell({ isDarkTheme, isMobile, leftOffset, rootAttrs, children }: Props) {
   const { expanded, state, dispatch, rootRef, rootHandlers, onDragChange, setPopupOpen, activate } = useTimelineExpand(isMobile);
   const popupOpen = state.popupOpen;
+  const { t } = useLocale();
 
   // 面板開著時：點卡片外或按 Esc 關閉
   useEffect(() => {
@@ -79,7 +81,7 @@ export function TimelineShell({ isDarkTheme, isMobile, leftOffset, rootAttrs, ch
       style={rootStyle}
       data-boot-part="timeline"
       role="group"
-      aria-label={expanded ? "時間軸" : "時間軸（按 Enter 展開）"}
+      aria-label={expanded ? t("timeline.axis") : t("timeline.axisCollapsed")}
       tabIndex={expanded ? -1 : 0}
       onClick={() => { if (!expanded) activate(); }}
       onKeyDown={(e) => {

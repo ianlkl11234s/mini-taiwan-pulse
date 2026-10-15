@@ -18,6 +18,12 @@ import { judgeFreshness, useMonitorFreshness } from "./monitorFreshness";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
 import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
 import { useMonitorTheme } from "./monitorTheme";
+import { useLocale, type LocaleSnapshot } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
+
+const erLevelLabel = (lv: keyof typeof ER_LEVEL_LABELS, i18n: LocaleSnapshot) =>
+  enumLabel("erLevel", lv, ER_LEVEL_LABELS[lv], i18n);
+const erRegionLabel = (region: string, i18n: LocaleSnapshot) => enumLabel("erRegion", region, region, i18n);
 
 interface Props { open: boolean }
 const EMPTY_ER_LATEST: ErHospitalLatest[] = [];
@@ -31,6 +37,7 @@ const ER_WINDOW_SEC = 24 * 3600;
 
 export function ERCard({ open }: Props) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   const theme = useMonitorTheme();
   const loadLatest = useCallback(() => fetchErHospitalLatest(), []);
   const loadSeries = useCallback(() => fetchErHospital24hAll(), []);
@@ -91,21 +98,21 @@ export function ERCard({ open }: Props) {
   if (v2) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
-        <MonitorDataStatus label="急診最新快照" query={latestQuery} />
-        <MonitorDataStatus label="急診 24h 序列" query={seriesQuery} />
-        <MonitorDataStatus label="急診 14 天趨勢" query={trendQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.er.dataLatest")} query={latestQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.er.data24h")} query={seriesQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.er.data14d")} query={trendQuery} />
         {allHospitals.length > 0 && (
           <>
             <MonitorMetric
-              value={nationalSummary.total.toLocaleString("zh-TW")}
-              unit="人等床"
+              value={i18n.formatNumber(nationalSummary.total)}
+              unit={i18n.t("monitor.er.unitBeds")}
               muted={fresh.muted}
             />
             <ErSeverityBar summary={nationalSummary} />
             {trend14dSpark.length > 0 && (
               <div data-testid="er-wait-trend-14d">
                 <TimeseriesSparkline
-                  data={trend14dSpark} unit="人" heightTier="std" fillArea lineColor={theme.fill(ER_LEVEL_COLORS.severe)}
+                  data={trend14dSpark} unit={i18n.t("monitor.er.unitPeople")} heightTier="std" fillArea lineColor={theme.fill(ER_LEVEL_COLORS.severe)}
                   gapSec={ER_TREND_GAP_SEC} showTooltip staleUntil={fresh.staleUntil}
                 />
               </div>
@@ -113,20 +120,20 @@ export function ERCard({ open }: Props) {
           </>
         )}
         {groups.length === 0 ? (
-          <MonitorNote>{latestQuery.status === "unknown" ? "資料載入中…" : "尚無急診觀測資料"}</MonitorNote>
+          <MonitorNote>{latestQuery.status === "unknown" ? i18n.t("monitor.er.loading") : i18n.t("monitor.er.none")}</MonitorNote>
         ) : groups.map((g) => {
           const regionSummary = buildErSummary(g.hospitals);
           return (
             <div key={g.region} data-testid={`er-region-${g.region}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                 <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: theme.p.textDefault, whiteSpace: "nowrap" }}>
-                  {g.region}
+                  {erRegionLabel(g.region, i18n)}
                 </span>
                 <span
                   data-testid={`er-region-total-${g.region}`}
                   style={{ fontFamily: FONT_DATA, fontSize: MF.label, color: theme.p.textDim, whiteSpace: "nowrap" }}
                 >
-                  {g.hospitals.length} 院 · 共 {regionSummary.total.toLocaleString("zh-TW")} 人等床
+                  {i18n.t("monitor.er.regionTotal", { hospitals: i18n.t("monitor.er.hospitals", { count: g.hospitals.length }), total: i18n.formatNumber(regionSummary.total) })}
                 </span>
                 <div style={{ flex: 1, height: 1, background: theme.p.borderSoft }} />
               </div>
@@ -142,14 +149,14 @@ export function ERCard({ open }: Props) {
           );
         })}
         {fresh.reason && <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>}
-        <MonitorSub items={["來源：衛福部 急診即時訂閱"]} />
+        <MonitorSub items={[i18n.t("monitor.er.source")]} />
       </div>
     );
   }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {!v2 && <SectionLabel color={COLORS.accent}>急診壅塞 · ER CONGESTION 24H</SectionLabel>}
+      {!v2 && <SectionLabel color={COLORS.accent}>{i18n.t("monitor.er.titleLegacy")}</SectionLabel>}
       <div
         style={v2 ? { display: "flex", flexDirection: "column", gap: 10, minWidth: 0 } : {
           borderRadius: RADIUS.xl,
@@ -160,15 +167,15 @@ export function ERCard({ open }: Props) {
         }}
       >
         {v2 ? (
-          <SectionLabel>等床 · {readableLatest ? latest.length : "—"} 院 24h 等一般病床</SectionLabel>
+          <SectionLabel>{i18n.t("monitor.er.waitHeader", { n: readableLatest ? latest.length : "—" })}</SectionLabel>
         ) : (
           <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.2px", color: COLORS.textDim }}>
-            ER WAIT · {readableLatest ? latest.length : "—"} 院 24h 等一般病床
+            {i18n.t("monitor.er.waitHeaderLegacy", { n: readableLatest ? latest.length : "—" })}
           </span>
         )}
-        <MonitorDataStatus label="急診最新快照" query={latestQuery} />
-        <MonitorDataStatus label="急診 24h 序列" query={seriesQuery} />
-        <MonitorDataStatus label="急診 14 天趨勢" query={trendQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.er.dataLatest")} query={latestQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.er.data24h")} query={seriesQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.er.data14d")} query={trendQuery} />
 
         {allHospitals.length > 0 && <ErNationalSummaryRow summary={nationalSummary} />}
 
@@ -176,7 +183,7 @@ export function ERCard({ open }: Props) {
 
         {groups.length === 0 ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: COLORS.textFaint, padding: "8px 0" }}>
-            {latestQuery.status === "unknown" ? "資料載入中…" : "尚無急診觀測資料"}
+            {latestQuery.status === "unknown" ? i18n.t("monitor.er.loading") : i18n.t("monitor.er.none")}
           </div>
         ) : groups.map((g) => {
           const regionSummary = buildErSummary(g.hospitals);
@@ -184,16 +191,16 @@ export function ERCard({ open }: Props) {
           <div key={g.region} data-testid={`er-region-${g.region}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 11), fontWeight: 700, color: COLORS.textDefault }}>
-                {g.region}
+                {erRegionLabel(g.region, i18n)}
               </span>
               <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>
-                {g.hospitals.length} 院
+                {i18n.t("monitor.er.hospitals", { count: g.hospitals.length })}
               </span>
               <span
                 data-testid={`er-region-total-${g.region}`}
                 style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}
               >
-                Σ {regionSummary.total.toLocaleString()} 等床
+                {i18n.t("monitor.er.regionTotalLegacy", { total: i18n.formatNumber(regionSummary.total) })}
               </span>
               <ErRegionMiniBar summary={regionSummary} />
               <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
@@ -214,7 +221,7 @@ export function ERCard({ open }: Props) {
         })}
 
         <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textDim }}>
-          {v2 ? "來源：衛福部 急診即時訂閱" : "來源：衛福部 急診即時訂閱（get_er_hospital_latest / 24h_all）"}
+          {v2 ? i18n.t("monitor.er.source") : i18n.t("monitor.er.sourceLegacy")}
         </div>
       </div>
     </div>
@@ -239,13 +246,14 @@ function HospitalCell({
 }) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
   const color = erCongestionColor(cell.wait);
   const level = classifyErCongestion(cell.wait);
   const hasSpark = cell.spark.length >= 2;
   const hasTimeSpark = (timeSeries?.length ?? 0) >= 2;
   // v2：單院停更（該院自己的最新觀測落後）→ 數值降灰並標「過期／停更 N」
   const cellFresh = v2 && cell.observedTs != null
-    ? judgeFreshness(MONITOR_CARD_META.erCongestion.fresh, cell.observedTs * 1000, Date.now())
+    ? judgeFreshness(MONITOR_CARD_META.erCongestion.fresh, cell.observedTs * 1000, Date.now(), { i18n })
     : null;
   const cellStaleLabel = cellFresh && cellFresh.muted ? (cellFresh.header?.label ?? null) : null;
   return (
@@ -263,7 +271,7 @@ function HospitalCell({
       }}
     >
       <div
-        title={`${cell.name} · ${cell.areaName} · ${ER_LEVEL_LABELS[level]}`}
+        title={`${cell.name} · ${cell.areaName} · ${erLevelLabel(level, i18n)}`}
         style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}
       >
         <span
@@ -279,7 +287,7 @@ function HospitalCell({
             {cell.wait == null ? "—" : cell.wait}
           </span>
           <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
-            {cellStaleLabel ? `等床 · ${cellStaleLabel}` : "等床"}
+            {cellStaleLabel ? i18n.t("monitor.er.waitStale", { label: cellStaleLabel }) : i18n.t("monitor.er.waitLabel")}
           </span>
         </div>
       </div>
@@ -289,7 +297,7 @@ function HospitalCell({
         <div style={{ flex: "0 1 72px", minWidth: 40 }}>
           {hasTimeSpark && (
             <TimeseriesSparkline
-              data={timeSeries!} timeDomain={timeDomain} unit="人" lineColor={theme.fill(color)}
+              data={timeSeries!} timeDomain={timeDomain} unit={i18n.t("monitor.er.unitPeople")} lineColor={theme.fill(color)}
               heightTier="mini" bare fillArea={false} gapSec={ER_CELL_GAP_SEC} showTooltip
             />
           )}
@@ -302,7 +310,7 @@ function HospitalCell({
           h={18}
           showTooltip={hasSpark}
           labelAt={(i) => fmtHm(sparkTimes[i])}
-          unit="人"
+          unit={i18n.t("monitor.er.unitPeople")}
         />
       )}
     </div>
@@ -314,6 +322,7 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
   const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   return (
     <div
       data-testid="er-national-summary"
@@ -325,7 +334,7 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexShrink: 0 }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), color: COLORS.textMuted }}>全台等床</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10), color: COLORS.textMuted }}>{i18n.t("monitor.er.nationalWait")}</span>
         <span
           data-testid="er-national-total"
           style={{
@@ -333,9 +342,9 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
             fontVariantNumeric: "tabular-nums", lineHeight: 1,
           }}
         >
-          {summary.total.toLocaleString()}
+          {i18n.formatNumber(summary.total)}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9), color: COLORS.textFaint }}>人</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9), color: COLORS.textFaint }}>{i18n.t("monitor.er.unitPeople")}</span>
       </div>
 
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3 }}>
@@ -353,8 +362,8 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
               <span
                 key={lv}
                 {...tip.bind({
-                  title: ER_LEVEL_LABELS[lv],
-                  rows: [{ dot: ER_LEVEL_COLORS[lv], value: `${n} 院` }],
+                  title: erLevelLabel(lv, i18n),
+                  rows: [{ dot: ER_LEVEL_COLORS[lv], value: i18n.t("monitor.er.hospitals", { count: n }) }],
                   note: `${(pct * 100).toFixed(0)}%`,
                 })}
                 style={{ width: `${pct * 100}%`, background: ER_LEVEL_COLORS[lv] }}
@@ -371,12 +380,12 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
               style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textMuted }}
             >
               <span style={{ width: 5, height: 5, borderRadius: RADIUS.full, background: ER_LEVEL_COLORS[lv] }} />
-              {ER_LEVEL_LABELS[lv]} {summary.counts[lv]} 院
+              {i18n.t("monitor.er.levelCount", { level: erLevelLabel(lv, i18n), hospitals: i18n.t("monitor.er.hospitals", { count: summary.counts[lv] }) })}
             </span>
           ))}
           {summary.noData > 0 && (
             <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), color: COLORS.textFaint }}>
-              無資料 {summary.noData}
+              {i18n.t("monitor.er.noData", { count: summary.noData })}
             </span>
           )}
         </div>
@@ -388,6 +397,7 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
 /** v2 全台分級堆疊條＋一行色點圖例（家數） */
 function ErSeverityBar({ summary }: { summary: ErSummary }) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
   const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
   const tip = useChartTooltip();
   return (
@@ -400,7 +410,7 @@ function ErSeverityBar({ summary }: { summary: ErSummary }) {
           return (
             <span
               key={lv}
-              {...tip.bind({ title: ER_LEVEL_LABELS[lv], rows: [{ dot: theme.fill(ER_LEVEL_COLORS[lv]), value: `${n} 院` }], note: `${(pct * 100).toFixed(0)}%` })}
+              {...tip.bind({ title: erLevelLabel(lv, i18n), rows: [{ dot: theme.fill(ER_LEVEL_COLORS[lv]), value: i18n.t("monitor.er.hospitals", { count: n }) }], note: `${(pct * 100).toFixed(0)}%` })}
               style={{ width: `${pct * 100}%`, background: theme.fill(ER_LEVEL_COLORS[lv]) }}
             />
           );
@@ -411,11 +421,11 @@ function ErSeverityBar({ summary }: { summary: ErSummary }) {
         {ER_SEVERITY_ORDER.map((lv) => (
           <span key={lv} data-testid={`er-national-count-${lv}`} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
             <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: theme.fill(ER_LEVEL_COLORS[lv]) }} />
-            {ER_LEVEL_LABELS[lv]} {summary.counts[lv]} 院
+            {i18n.t("monitor.er.levelCount", { level: erLevelLabel(lv, i18n), hospitals: i18n.t("monitor.er.hospitals", { count: summary.counts[lv] }) })}
           </span>
         ))}
         {summary.noData > 0 && (
-          <span style={{ color: theme.p.textDim, whiteSpace: "nowrap" }}>無資料 {summary.noData} 院</span>
+          <span style={{ color: theme.p.textDim, whiteSpace: "nowrap" }}>{i18n.t("monitor.er.noDataHospitals", { count: summary.noData })}</span>
         )}
       </div>
     </div>
@@ -425,21 +435,22 @@ function ErSeverityBar({ summary }: { summary: ErSummary }) {
 /** 全台 14 天等床趨勢（總集列正下方）— TimeseriesSparkline 動態寬版，捨棄首桶（rolling window 邊界偏低） */
 function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   return (
     <div data-testid="er-wait-trend-14d" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       {v2 ? (
-        <SectionLabel>近 14 天 · 全台等床</SectionLabel>
+        <SectionLabel>{i18n.t("monitor.er.trend14d")}</SectionLabel>
       ) : (
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9), letterSpacing: "1px", color: COLORS.textFaint }}>
-          14D TREND · 全台等床
+          {i18n.t("monitor.er.trend14dLegacy")}
         </span>
       )}
       {spark.length === 0 ? (
         <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
-          載入中…
+          {i18n.t("monitor.er.loadingShort")}
         </div>
       ) : (
-        <TimeseriesSparkline data={spark} unit="人" height={64} fillArea lineColor="#fb7185" showTooltip />
+        <TimeseriesSparkline data={spark} unit={i18n.t("monitor.er.unitPeople")} height={64} fillArea lineColor="#fb7185" showTooltip />
       )}
     </div>
   );
@@ -447,6 +458,7 @@ function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
 
 /** 區 header 小計迷你比例條（4px 高 × 80px 寬） */
 function ErRegionMiniBar({ summary }: { summary: ErSummary }) {
+  const i18n = useLocale();
   const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
   const tip = useChartTooltip();
   if (withData === 0) return null;
@@ -463,7 +475,7 @@ function ErRegionMiniBar({ summary }: { summary: ErSummary }) {
         return (
           <span
             key={lv}
-            {...tip.bind({ title: ER_LEVEL_LABELS[lv], rows: [{ dot: ER_LEVEL_COLORS[lv], value: `${n} 院` }] })}
+            {...tip.bind({ title: erLevelLabel(lv, i18n), rows: [{ dot: ER_LEVEL_COLORS[lv], value: i18n.t("monitor.er.hospitals", { count: n }) }] })}
             style={{ width: `${(n / withData) * 100}%`, height: "100%", background: ER_LEVEL_COLORS[lv] }}
           />
         );
