@@ -14,6 +14,9 @@
 | JMA-13 | product | P3 | conditional | 分析圖點擊讀值 | 同 JMA-6 像素探針 | 點擊顯示日數／時數／初雪日期 |
 | JMA-10 | validation | P1 | conditional | 洪水キキクル有警戒時的上色與屬性 | 下次日本有河川達注意以上時，開 `jmaRiskFlood` 對照氣象廳キキクル頁；抓一個非空 pbf 看 `level`／`type` 等欄位 | 線色與官方一致；決定是否補 popup（目前在 NO_POPUP ledger） |
 | JMA-11 | product | P3 | conditional | 雪覆蓋多日合成 | GIBS 單日雲遮多；需要時考慮 8 日合成產品（若 GIBS 有提供）或前端多日疊圖 | 冬季日本海側雲遮時仍可判讀 |
+| JMA-14 | product | P3 | conditional | 時間軸停住時「現在」自動跟上 | 時間軸暫停在現在附近時，若真實時間走超過 60 秒，driver 不會自己換到歷史桶（只在時間軸變動或輪詢時重算）；需要時在輪詢裡也重算 live／history | 暫停 2 分鐘後圖例標示往回拉 |
+| JMA-15 | validation | P2 | conditional | 季節類實地抽驗 | 11 月紅葉、隔年 3–4 月櫻花、6–7 月梅雨當季，在 develop／正式站拖時間軸看前線移動 | 前線位置與氣象廳當季發表一致 |
+| JMA-16 | product | P3 | conditional | 梅雨地方界線精修 | 目前以縣界整縣著色；氣象廳地方預報區與縣界不完全一致處（如伊豆諸島、小笠原）需要時再細分 | 有爭議的區域列出並決定歸屬 |
 | JMA-6 | product | P3 | conditional | 積雪深點擊讀值 | 需要 PNG 像素探針（同 urbanHeat 讀值探針）；目前列在 NO_POPUP ledger | 點擊顯示積雪級距與解析時刻 |
 
 ## Explicitly not planned

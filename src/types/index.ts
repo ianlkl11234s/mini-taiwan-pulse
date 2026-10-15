@@ -400,7 +400,8 @@ export type ExpandableLayerKey =
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
-  | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes";
+  | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
+  | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -904,6 +905,8 @@ export interface FeatureInfo {
     | "jpPoliceFacilities" | "jpSchools"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
+    // 日本氣象廳／環境省 時間軸點位與區域（P4）
+    | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason"
     // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
     | "jpPopulationMesh1km"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
@@ -1651,6 +1654,12 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
   jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
   jmaVolcanoes: boolean;  // 日本火山噴火警戒
+  jmaLightning: boolean;  // 日本落雷（氣象廳 LIDEN，get_lightning_day p_source=jma，7 天熱層）
+  jmaWbgt: boolean;       // 日本暑さ指数 WBGT（環境省實況，整點，30 天）
+  jmaSnowcap: boolean;    // 日本山頂初冠雪（44 山，as-of 日期）
+  jmaAutumnLeaves: boolean; // 日本紅葉・黃葉前線（生物季節觀測，as-of 日期）
+  jmaSakura: boolean;     // 日本櫻花前線（生物季節觀測，as-of 日期）
+  jmaRainySeason: boolean; // 日本梅雨入り・明け（12 地方，縣界 choropleth）
   jmaSnowDepth: boolean;  // 日本解析積雪深（JMA 發布幀 PNG，time-axis raster）
   jmaRadar: boolean;      // 日本雨雲雷達（ナウキャスト解析，5 分一幀）
   jmaRasrf: boolean;      // 日本解析雨量（1 小時雨量，30 分一幀）

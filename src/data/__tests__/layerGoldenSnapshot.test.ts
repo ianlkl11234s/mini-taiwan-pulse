@@ -181,7 +181,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-15: +8 日本氣象廳發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、日別海面水溫、海冰、向日葵 B13 雲圖）。
     // 2026-10-15: +5 日本氣象廳分析圖（初雪日、積雪日數、雨日數、土砂／浸水警戒時數；count_la_v1 每日一張）。
     // 2026-10-15: +3 上游直連（衛星雪覆蓋 gibsSnowCover、洪水キキクル jmaRiskFlood、黃砂預測 jmaKosa）。
-    expect(keys.length).toBe(1191);
+    // 2026-10-15: +6 JMA／環境省時間軸層（日本落雷、WBGT、山頂初冠雪、紅葉・黃葉前線、櫻花前線、梅雨入梅・出梅）。
+    expect(keys.length).toBe(1197);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

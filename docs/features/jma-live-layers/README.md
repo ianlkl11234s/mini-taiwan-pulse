@@ -30,11 +30,33 @@
 | `jmaAnaSnowDays` 積雪日數 | 同上（`ana_snow_days`，分級 1／2–7／8–14／15–30／31–60／61–90／≥91 日） | `['ana_snow_days']` | 同上 | ✅ 實資料驗證（10-15 大雪山 1 日） |
 | `jmaAnaRainDays` 雨日數（當月） | 同上（`ana_rain_days`，分級 1／2–3／4–6／7–10／11–15／16–20／≥21 日） | `['ana_rain_days']` | 同上 | ✅ 實資料驗證（10-11 → 10-15 逐日擴大） |
 | `jmaAnaRiskLandHours`／`jmaAnaRiskInundHours` 土砂／浸水警戒時數（當月） | 同上（分級 1／3／6／12／24／48+ 小時） | `['ana_risk_land_hours']`／`['ana_risk_inund_hours']` | 同上 | 🟡 10 月至今全為 0（透明）；上色以單元測試驗證，待有警戒時實資料核對 |
+| `jmaLightning` 日本落雷（LIDEN） | point（沿用台灣落雷 halo＋core 樣式；對地／雲放電分色，無電流強度） | `get_lightning_day(date_key, p_source='jma')`（台北日預載，時間軸淡入淡出） | 60 秒重抓當日 | ✅ 瀏覽器實測（10-13／10-14 與 RPC 筆數、時刻、座標一致；10-09 未涵蓋） |
+| `jmaWbgt` 暑熱指數 WBGT（環境省） | point（日常生活指針 4 段 25／28／31，綠黃橙紅） | `get_env_jp_wbgt_at(t)`（整點） | 10 分 | ✅ 實測（現在／10-12／10-07 三站值一致；10-03 未涵蓋） |
+| `jmaSnowcap` 山頂初冠雪 | point（已觀測白點、未觀測中空、已過平年粗框；標籤＝觀測日 與平年差／括號平年日） | `get_jma_snowcap_asof(JST 日期)` | 30 分 | ✅ 實測（今天／2025-11-15／2024-12-01；2020-06 未涵蓋） |
+| `jmaAutumnLeaves` 紅葉・黃葉前線 | point（現象可切：楓紅葉／銀杏黃葉／楓落葉／銀杏落葉；已觀測依與平年差發散色） | `get_jma_phenology_asof(JST 日期)`（全部現象一天一次，與櫻花共用快取） | 30 分 | ✅ 實測（今天／2025-11-25／2024-12-01） |
+| `jmaSakura` 櫻花前線 | point（現象可切：開花／満開） | 同上 | 30 分 | ✅ 實測（今天／2026-04-01／2025-03-25） |
+| `jmaRainySeason` 梅雨入梅・出梅 | polygon choropleth（共用警報層市区町村界 PMTiles；12 地方→縣碼，奄美以 12 市町村切出；北海道不著色） | `get_jma_rainy_season_asof(JST 日期)` | 30 分 | ✅ 實測（2026-05-20 奄美梅雨中／鹿児島未入梅、06-20、07-25、今天；2025 未涵蓋） |
 | `jmaHimawari` 向日葵紅外雲圖 | 同上（`himawari_b13`，gray_jpeg_v1 單色 JPEG；raster-color 灰階透明 ramp） | `['himawari_b13']` → R2 `…/himawari_b13/…jpg` | 每小時；90／180 分 | 🟡 回補中；以上游真實磚拼成的 JPEG 驗證（JMA-7） |
 
 | `jmaRiskFlood` 洪水キキクル | vector line（上游直連，**不經 DB／R2**）；source-layer `flood`、依 `level` 上色 | 瀏覽器直連 `bosai/jmatile/data/risk/targetTimes.json` → `…/{bt}/{member}/{vt}/surf/flood/{z}/{x}/{y}.pbf` | targetTimes 每 2 分重取；上游約 10 分一幀、保留約 6 小時 | ✅ 瀏覽器實測（2026-10-15 全國無警戒：空磚＝無線、無錯誤；有警戒時的上色待雨天抽驗，JMA-10） |
 | `gibsSnowCover` 衛星雪覆蓋（NASA GIBS） | XYZ raster（上游直連，上游已上色） | `gibs.earthdata.nasa.gov/wmts/epsg3857/best/{Layer}/default/{YYYY-MM-DD}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png`；Layer 可切 MODIS Terra（2000-02-24 起）／VIIRS NOAA-20（2018-01-05 起） | 時間軸換 UTC 日時 `setTiles` | ✅ 瀏覽器實測（含回看 2025-02-10） |
 | `jmaKosa` 黃砂預測 | **圖片面板**（非地圖疊加；App 右下浮動堆疊 `JmaKosaPanel`） | `env/kosa/fcst/list_js/s_jpjp_list.js`（regex 取時刻，不 eval）→ `img/surf/jp/{YYYYMMDDHHmm}_kosafcst-s_jp_jp.png` | 清單每 30 分重取；上游只有最新一報（約 3 天） | ✅ 瀏覽器實測 |
+
+### 點位與區域圖層的時間軸（P4，2026-10-15）
+
+RPC 契約：gis-platform `docs/jma-time-rpcs.md`（migration 463／464）。共用驅動 `src/hooks/useJmaTimeDriver.ts`：
+
+- **現在 vs 往回拉**：時間軸與現在相差 ≤ 60 秒（同 `isHistoryMode`）＝現在，AMeDAS／警報／地震照舊讀即時 view（AMeDAS 10 分更新）；往回拉改呼叫 `get_*_at(t)`。注意 Pulse 開站時時間軸預設在「現在 − 1 小時」，所以剛打開時就是往回拉模式（AMeDAS 看整點）。
+- **時間桶與快取**：AMeDAS／WBGT 整點桶、警報／地震 10 分桶、季節類（物候／初冠雪／梅雨）日本日期桶（`jmaJstDateKey`，不可用台北日）；`subscribeThrottled(400)`＋同桶不重查＋loader 端 per-bucket LRU（`cachedByKey`）。往回拉時不輪詢。
+- **未涵蓋**：往回拉先查 `get_jma_time_coverage()`（5 分快取）；t 早於 `coverage_from` 或在未來 → 不打圖層 RPC、清空地圖、圖例寫「未涵蓋：此時刻早於資料保存起點（…）」／「時間軸在未來」。不拿 `coverage_to` 擋（AMeDAS 最新整點之後 30 分仍該查）。RPC 在涵蓋期內回 0 列：AMeDAS 歷史、WBGT、季節類視為未涵蓋（季外或收集中斷）；地震、警報、落雷 0 筆是真的沒有。
+- **地震**：往回拉是「該時刻前 7 天內發生、且當時已發布的最新一報」；`window_complete=false` 時圖例紅字提醒窗內可能不全。即時 view 仍以 report_time 篩近 7 天，兩者口徑差一點（震源時刻 vs 發報時刻）。
+- **火山**：沒有歷史 RPC，維持當下快照；圖例明講「時間軸往回拉仍顯示現況」。
+- **積雪站（AMeDAS 積雪模式）**：歷史列帶 `has_snow_gauge`，無積雪計的站不畫；有積雪計但無值＝中空、0＝灰、>0＝色階（10 月 336 站全為中空，JMA-2）。
+- **落雷**：`LightningSource` 加 `jma`，沿用 `useLightningLayer`（台北日預載＋淡入淡出），日界是台北日（日本 01:00）；`useJmaLightningCoverage` 只負責圖例的涵蓋狀態（7 天熱層外＝未涵蓋）。LIDEN 無電流強度，popup 共用 `lightningStrike`（強度顯示「—」）。
+- **WBGT 出典**：環境省、非公共データ利用規約；source attribution、圖例、popup 都標環境省。顏色是 Pulse 的綠黃橙紅，環境省網站「注意」是水色。
+- **季節類標籤**：已觀測「10/3 +2」（+＝較平年晚）；未觀測「(10/3)」＝平年日。未觀測且 as-of 已過平年日畫粗框。與平年差分組（±2 日內平年並、3–6、≥7）是 Pulse 的視覺分段，不是氣象廳用語門檻。
+- **初冠雪判定方法**：2026 寒候年以前目視、2027 起解析積雪深，popup 顯示方法並提醒不可直接比較早晚。
+- **pointSpec 注意**：`withPointSpec` 會把 case／match 的 fallback 換成標準描邊；資料編碼（未觀測描邊色、已過平年粗框）要寫在條件分支，fallback 給「已觀測」。
 
 ### 上游直連 3 層（P5，2026-10-15）
 
@@ -61,12 +83,13 @@
 - 色票／分級 SSOT：`src/data/jmaTypes.ts`（含發布幀影像 `JMA_IMAGERY_PRODUCTS`／`JMA_IMAGERY_LAYERS`）
 - 發布幀影像（通用）：`src/data/jmaImageryLoader.ts`（manifest／選幀／狀態 store）、`src/hooks/useJmaImageryLayer.ts`、`src/map/jmaImageryLayer.ts`；契約 taipei-gis-analytics `docs/topic-research/japan_opendata/jma-frontend-contract.md`
 - Loader＋狀態 store：`src/data/jmaLiveLoaders.ts`
-- Hook：`src/hooks/useJmaLiveLayer.ts`（3 點層）、`src/hooks/useJmaWarningsLayer.ts`（警報 choropleth）
+- Hook：`src/hooks/useJmaLiveLayer.ts`（JMA／環境省點層）、`src/hooks/useJmaWarningsLayer.ts`（警報 choropleth）、`src/hooks/useJmaRainySeasonLayer.ts`（梅雨 choropleth）、`src/hooks/useJmaTimeDriver.ts`（時間軸驅動）、`src/hooks/useJmaLightningCoverage.ts`
+- P4 色票／時間桶 SSOT：`src/data/jmaPointTypes.ts`；Host：`src/layers/hosts/jmaPointHosts.tsx`；圖例 `src/components/legend/jmaPointLegends.tsx`；Popup `src/components/featureInfo/jmaPointPanels.tsx`；i18n `legend.jmaTime`／`popup.jmaTime`／`enums.jmaTime`
 - Host：`src/layers/hosts/jmaHosts.tsx`
 - Overlay：`src/map/overlayRegistry.ts`（jmaAmedas／jmaQuakes／jmaVolcanoes，dynamicData）
 - Legend：`src/components/legend/jmaLegends.tsx`；Popup：`src/components/featureInfo/jmaPanels.tsx`
 - 上游直連（P5）：`src/data/jmaUpstreamLoaders.ts`（targetTimes／黃砂清單解析與選幀）、`src/data/gibsSnowTypes.ts`（GIBS 常數，零 import）、`src/hooks/useJmaRiskFloodLayer.ts`、`src/hooks/useGibsSnowCoverLayer.ts`、`src/components/JmaKosaPanel.tsx`
-- 測試：`src/data/__tests__/jmaLive.test.ts`、`src/data/__tests__/jmaImagery.test.ts`、`src/data/__tests__/jmaUpstream.test.ts`
+- 測試：`src/data/__tests__/jmaTimeAxis.test.ts`（時間桶、涵蓋、季節狀態、梅雨對照）、`src/data/__tests__/jmaLive.test.ts`、`src/data/__tests__/jmaImagery.test.ts`、`src/data/__tests__/jmaUpstream.test.ts`
 
 ## 資料契約摘要
 

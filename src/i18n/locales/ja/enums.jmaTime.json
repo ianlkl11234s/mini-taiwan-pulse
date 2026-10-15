@@ -1,0 +1,21 @@
+{
+  "enum.envWbgtLevel.caution": "注意（25 未満）",
+  "enum.envWbgtLevel.warning": "警戒（25 以上 28 未満）",
+  "enum.envWbgtLevel.severe": "厳重警戒（28 以上 31 未満）",
+  "enum.envWbgtLevel.danger": "危険（31 以上）",
+  "enum.jmaDiffClass.much_early": "7 日以上早い",
+  "enum.jmaDiffClass.early": "3–6 日早い",
+  "enum.jmaDiffClass.normal": "平年並（±2 日）",
+  "enum.jmaDiffClass.late": "3–6 日遅い",
+  "enum.jmaDiffClass.much_late": "7 日以上遅い",
+  "enum.jmaRainyPhase.before": "梅雨入り前",
+  "enum.jmaRainyPhase.in": "梅雨期間中",
+  "enum.jmaRainyPhase.after": "梅雨明け",
+  "enum.jmaRainyPhase.unspecified": "特定できず",
+  "enum.jmaPhenomenon.004": "さくらの開花",
+  "enum.jmaPhenomenon.005": "さくらの満開",
+  "enum.jmaPhenomenon.013": "いちょうの黄葉",
+  "enum.jmaPhenomenon.014": "いちょうの落葉",
+  "enum.jmaPhenomenon.015": "かえでの紅葉",
+  "enum.jmaPhenomenon.016": "かえでの落葉"
+}

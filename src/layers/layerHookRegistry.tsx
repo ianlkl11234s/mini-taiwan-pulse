@@ -62,6 +62,9 @@ import {
   GibsSnowCoverHost, JmaRiskFloodHost,
 } from "./hosts/jmaHosts";
 import {
+  JmaLightningHost, JmaWbgtHost, JmaSnowcapHost, JmaAutumnLeavesHost, JmaSakuraHost, JmaRainySeasonHost,
+} from "./hosts/jmaPointHosts";
+import {
   EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
   GlobalEventsHost,
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
@@ -269,6 +272,12 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },
   { id: "useJmaLiveLayer:jmaQuakes", keys: ["jmaQuakes"], Host: JmaQuakesHost },
   { id: "useJmaLiveLayer:jmaVolcanoes", keys: ["jmaVolcanoes"], Host: JmaVolcanoesHost },
+  { id: "useLightningLayer:jma", keys: ["jmaLightning"], Host: JmaLightningHost },
+  { id: "useJmaLiveLayer:jmaWbgt", keys: ["jmaWbgt"], Host: JmaWbgtHost },
+  { id: "useJmaLiveLayer:jmaSnowcap", keys: ["jmaSnowcap"], Host: JmaSnowcapHost },
+  { id: "useJmaLiveLayer:jmaAutumnLeaves", keys: ["jmaAutumnLeaves"], Host: JmaAutumnLeavesHost },
+  { id: "useJmaLiveLayer:jmaSakura", keys: ["jmaSakura"], Host: JmaSakuraHost },
+  { id: "useJmaRainySeasonLayer", keys: ["jmaRainySeason"], Host: JmaRainySeasonHost },
   { id: "useJmaImageryLayer:jmaSnowDepth", keys: ["jmaSnowDepth"], Host: JmaSnowDepthHost },
   { id: "useJmaImageryLayer:jmaRadar", keys: ["jmaRadar"], Host: JmaRadarHost },
   { id: "useJmaImageryLayer:jmaRasrf", keys: ["jmaRasrf"], Host: JmaRasrfHost },

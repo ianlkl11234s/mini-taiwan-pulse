@@ -2,6 +2,14 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-10-15 — 點位與區域圖層時間軸化＋新增 6 層（P4；PR 待併入 develop；尚未部署正式站）
+
+- `jmaAmedas`、`jmaWarnings`、`jmaQuakes` 跟時間軸：現在＝即時 view；往回拉＝`get_jma_amedas_at`／`get_jma_warnings_at`／`get_jma_quakes_at`；涵蓋期外圖例「未涵蓋」、地圖清空。`jmaVolcanoes` 維持快照並在圖例說明
+- 新增 `jmaLightning`（落雷，沿用台灣落雷 hook，`p_source='jma'`）、`jmaWbgt`（環境省 WBGT 4 段）、`jmaSnowcap`（山頂初冠雪）、`jmaAutumnLeaves`／`jmaSakura`（生物季節前線，可切現象）、`jmaRainySeason`（梅雨，縣界 choropleth，奄美以市町村切出）
+- 共用 `useJmaTimeDriver`：節流＋時間桶（整點／10 分／JST 日）＋per-bucket 快取；往回拉不輪詢
+- 以正式 RPC 實資料在瀏覽器逐層驗證（各層現在＋2 個過去時刻、3 筆值與 RPC 一致、涵蓋期外顯示未涵蓋）
+- Breaking：無（golden +6 層 1191 → 1197；FeatureInfo 新增 5 個 popup）
+
 ## 2026-10-15 — 分析圖 5 層（count_la_v1；PR 待併入 develop；尚未部署正式站）
 
 - 新增 `jmaAnaSnowFirst`、`jmaAnaSnowDays`、`jmaAnaRainDays`、`jmaAnaRiskLandHours`、`jmaAnaRiskInundHours`：日本 tab「氣象防災 › 分析」，預設關，每日一張隨時間軸切日

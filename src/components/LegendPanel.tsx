@@ -29,6 +29,7 @@ import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStatio
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
+import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
 import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 import { ATLAS_LEGENDS } from "./legend/atlasLegends";
 import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, LightningCwaLegend, LightningLegend, MicroSensorLegend, NoiseCaptureGridLegend, NoiseControlZonesLegend, NoiseEnforcementEventsLegend, OceanCurrentsLegend, OfficialNoiseMonitoringLegend, PollutionPenaltyLegend, PollutionSeverityLegend, SoundCameraLocationsLegend, TemperatureGridLegend, TemperatureWaveLegend, UrbanHeatLegend, WasteFacilityLegend, WasteTruckLegend, WindFieldLegend } from "./legend/environmentWeatherLegends";
@@ -254,6 +255,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
   { id: "jmaQuakes", render: () => <JmaQuakesLegend /> },
   { id: "jmaVolcanoes", render: () => <JmaVolcanoesLegend /> },
+  { id: "jmaLightning", render: () => <JmaLightningLegend /> },
+  { id: "jmaWbgt", render: () => <JmaWbgtLegend /> },
+  { id: "jmaSnowcap", render: () => <JmaSnowcapLegend /> },
+  { id: "jmaAutumnLeaves", render: () => <JmaAutumnLeavesLegend /> },
+  { id: "jmaSakura", render: () => <JmaSakuraLegend /> },
+  { id: "jmaRainySeason", render: () => <JmaRainySeasonLegend /> },
   { id: "jmaSnowDepth", render: () => <JmaSnowDepthLegend /> },
   { id: "jmaRadar", render: () => <JmaImageryLegend layerKey="jmaRadar" /> },
   { id: "jmaRasrf", render: () => <JmaImageryLegend layerKey="jmaRasrf" /> },

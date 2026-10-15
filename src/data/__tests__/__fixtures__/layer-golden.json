@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1191,
+    "keyCount": 1197,
     "sections": [
       "gisLayers",
       "overlays",
@@ -671,6 +671,13 @@
     },
     {
       "layers": [
+        "jma-lightning-core",
+        "jma-lightning-halo"
+      ],
+      "type": "lightningStrike"
+    },
+    {
+      "layers": [
         "hazard-nuclear-core",
         "hazard-nuclear-halo"
       ],
@@ -755,6 +762,30 @@
         "jma-volcanoes-circle"
       ],
       "type": "jmaVolcanoes"
+    },
+    {
+      "layers": [
+        "jma-snowcap-circle"
+      ],
+      "type": "jmaSnowcap"
+    },
+    {
+      "layers": [
+        "jma-sakura-circle"
+      ],
+      "type": "jmaSakura"
+    },
+    {
+      "layers": [
+        "jma-autumn-leaves-circle"
+      ],
+      "type": "jmaAutumnLeaves"
+    },
+    {
+      "layers": [
+        "jma-wbgt-circle"
+      ],
+      "type": "jmaWbgt"
     },
     {
       "layers": [
@@ -989,6 +1020,12 @@
         "jma-warnings-fill"
       ],
       "type": "jmaWarnings"
+    },
+    {
+      "layers": [
+        "jma-rainy-season-fill"
+      ],
+      "type": "jmaRainySeason"
     },
     {
       "layers": [
@@ -54846,6 +54883,1083 @@
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaLightning",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.85,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.3825,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            },
+            "light": {
+              "circle-blur": 0.85,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "min",
+                [
+                  "*",
+                  0.3825,
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "alpha"
+                    ],
+                    1
+                  ]
+                ],
+                0.35
+              ],
+              "circle-radius": 9
+            }
+          },
+          "suffix": "halo",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "*",
+                0.85,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": [
+                "*",
+                0.8,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "strike_type"
+                ],
+                0,
+                "#a78bfa",
+                1,
+                "#4ade80",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "*",
+                0.85,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": [
+                "*",
+                0.9,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "alpha"
+                  ],
+                  1
+                ]
+              ],
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "jmaLightningOpacity"
+      ],
+      "sourceId": "jma-lightning",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaWbgt",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  "#22c55e",
+                  25,
+                  "#facc15",
+                  28,
+                  "#f97316",
+                  31,
+                  "#dc2626"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                1.6,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                [
+                  "step",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  "#22c55e",
+                  25,
+                  "#facc15",
+                  28,
+                  "#f97316",
+                  31,
+                  "#dc2626"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                0,
+                0.9
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "wbgt"
+                  ],
+                  null
+                ],
+                1.6,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "jma-wbgt",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaSnowcap",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 3,
+          "paint": {
+            "dark": {
+              "circle-color": "#ffffff",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                0.95,
+                0
+              ],
+              "circle-radius": 6.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#334155",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#94a3b8",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.6,
+                [
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.4,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": "#ffffff",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                0.95,
+                0
+              ],
+              "circle-radius": 6.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#334155",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.6,
+                [
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.4,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "label"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.95
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.95
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "jma-snowcap",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaAutumnLeaves",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "phenomenon_code"
+            ],
+            "015"
+          ],
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 3,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "diff_class"
+                ],
+                "much_early",
+                "#1d4ed8",
+                "early",
+                "#60a5fa",
+                "normal",
+                "#a8a29e",
+                "late",
+                "#fb923c",
+                "much_late",
+                "#c2410c",
+                "#dc2626"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                0.9,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#dc2626",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.4,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "diff_class"
+                ],
+                "much_early",
+                "#1d4ed8",
+                "early",
+                "#60a5fa",
+                "normal",
+                "#a8a29e",
+                "late",
+                "#fb923c",
+                "much_late",
+                "#c2410c",
+                "#dc2626"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                0.9,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#dc2626",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.4,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "phenomenon_code"
+            ],
+            "015"
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "label"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle",
+        "label"
+      ],
+      "sourceId": "jma-autumn-leaves",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "jmaSakura",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "phenomenon_code"
+            ],
+            "004"
+          ],
+          "layout": null,
+          "maxzoom": 22,
+          "minzoom": 3,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "diff_class"
+                ],
+                "much_early",
+                "#1d4ed8",
+                "early",
+                "#60a5fa",
+                "normal",
+                "#a8a29e",
+                "late",
+                "#fb923c",
+                "much_late",
+                "#c2410c",
+                "#ec4899"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                0.9,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#ec4899",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.4,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "diff_class"
+                ],
+                "much_early",
+                "#1d4ed8",
+                "early",
+                "#60a5fa",
+                "normal",
+                "#a8a29e",
+                "late",
+                "#fb923c",
+                "much_late",
+                "#c2410c",
+                "#ec4899"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                0.9,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                "#ec4899",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "case",
+                [
+                  "all",
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "state"
+                    ],
+                    "observed"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "days_past_normal"
+                    ],
+                    null
+                  ]
+                ],
+                2.4,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "state"
+                  ],
+                  "observed"
+                ],
+                1.4,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "phenomenon_code"
+            ],
+            "004"
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "label"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle",
+        "label"
+      ],
+      "sourceId": "jma-sakura",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
       "dynamicData": null,
       "filter": null,
       "id": "riverRpiSegments",
@@ -84804,6 +85918,49 @@
         "valueText": "0.70"
       }
     ],
+    "jmaAutumnLeaves": [
+      {
+        "label": "現象",
+        "options": [
+          {
+            "label": "かえでの紅葉",
+            "value": "015"
+          },
+          {
+            "label": "いちょうの黄葉",
+            "value": "013"
+          },
+          {
+            "label": "かえでの落葉",
+            "value": "016"
+          },
+          {
+            "label": "いちょうの落葉",
+            "value": "014"
+          }
+        ],
+        "type": "select",
+        "value": "015"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "jmaHimawari": [
       {
         "label": "透明度 0.70",
@@ -84816,6 +85973,35 @@
       }
     ],
     "jmaKosa": [],
+    "jmaLightning": [
+      {
+        "label": "保留 10 min",
+        "max": 360,
+        "min": 5,
+        "name": "保留",
+        "step": 5,
+        "value": 10,
+        "valueText": "10 min"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "jmaQuakes": [
       {
         "label": "透明度 0.85",
@@ -84845,6 +86031,17 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "jmaRainySeason": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "jmaRasrf": [
@@ -84891,6 +86088,41 @@
         "valueText": "0.70"
       }
     ],
+    "jmaSakura": [
+      {
+        "label": "現象",
+        "options": [
+          {
+            "label": "開花",
+            "value": "004"
+          },
+          {
+            "label": "満開",
+            "value": "005"
+          }
+        ],
+        "type": "select",
+        "value": "004"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "jmaSeaIce": [
       {
         "label": "透明度 0.70",
@@ -84911,6 +86143,26 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "jmaSnowcap": [
+      {
+        "label": "透明度 0.95",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.95,
+        "valueText": "0.95"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "jmaSst": [
@@ -84964,6 +86216,26 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
+      }
+    ],
+    "jmaWbgt": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "jpAccommodationCanonical": [
