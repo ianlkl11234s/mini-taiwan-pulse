@@ -4,6 +4,9 @@
 import { useJmaLiveLayer } from "../../hooks/useJmaLiveLayer";
 import { useJmaWarningsLayer } from "../../hooks/useJmaWarningsLayer";
 import { useJmaImageryLayer } from "../../hooks/useJmaImageryLayer";
+import { useGibsSnowCoverLayer } from "../../hooks/useGibsSnowCoverLayer";
+import { useJmaRiskFloodLayer } from "../../hooks/useJmaRiskFloodLayer";
+import { JMA_FLOOD_OPACITY } from "../../data/jmaTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 import { RASTER } from "../../map/mapStyleScale";
@@ -62,3 +65,28 @@ export const JmaUvIndexHost = makeJmaImageryHost("jmaUvIndex", "uv_anal");
 export const JmaSstHost = makeJmaImageryHost("jmaSst", "sst_him");
 export const JmaSeaIceHost = makeJmaImageryHost("jmaSeaIce", "sea_ice");
 export const JmaHimawariHost = makeJmaImageryHost("jmaHimawari", "himawari_b13");
+
+/** NASA GIBS 衛星雪覆蓋（上游直連 XYZ raster，接 timeStore 換日） */
+export const GibsSnowCoverHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGibsSnowCoverLayer");
+  const p = useKeyOverlayParams("gibsSnowCover");
+  useGibsSnowCoverLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.gibsSnowCover,
+    opacity: p.gibsSnowCoverOpacity ?? RASTER.opacity,
+    productIdx: p.gibsSnowCoverProductIdx ?? 0,
+  });
+  return null;
+};
+
+/** 洪水キキクル（上游直連向量 pbf，只提供即時） */
+export const JmaRiskFloodHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJmaRiskFloodLayer");
+  const p = useKeyOverlayParams("jmaRiskFlood");
+  useJmaRiskFloodLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.jmaRiskFlood,
+    opacity: p.jmaRiskFloodOpacity ?? JMA_FLOOD_OPACITY,
+  });
+  return null;
+};

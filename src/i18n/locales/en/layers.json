@@ -1171,5 +1171,8 @@
   "layer.jmaUvIndex": "UV Index (Analysis)",
   "layer.jmaSst": "Daily Sea Surface Temperature",
   "layer.jmaSeaIce": "Sea Ice (Sea of Okhotsk)",
-  "layer.jmaHimawari": "Himawari Infrared Clouds"
+  "layer.jmaHimawari": "Himawari Infrared Clouds",
+  "layer.gibsSnowCover": "Satellite Snow Cover",
+  "layer.jmaRiskFlood": "Flood Risk (Kikikuru)",
+  "layer.jmaKosa": "Kosa (Yellow Sand) Forecast"
 }

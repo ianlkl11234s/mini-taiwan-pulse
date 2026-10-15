@@ -20,6 +20,8 @@ export const JMA_LAYER_COLORS = {
   jmaSst: "#f43f5e",
   jmaSeaIce: "#38bdf8",
   jmaHimawari: "#94a3b8",
+  jmaRiskFlood: "#ff2800",
+  jmaKosa: "#d97706",
 } as const;
 
 /** 中空點（NULL／無資料）描邊色 */
@@ -496,4 +498,49 @@ export function jmaImageryRasterPaint(p: JmaImageryProduct, opacity: number): Re
     "raster-color-range": [...JMA_IMAGERY_RASTER_COLOR_RANGE],
     "raster-color": jmaImageryRasterColor(p),
   };
+}
+
+// ── 上游直連（瀏覽器直接讀 JMA，不經我們的 DB／R2；P5，2026-10-15 實測見 jma-frontend-plan §3.2）──
+
+/** 出典：洪水キキクル只重新上色（加工）；黃砂圖原圖照登 */
+export const JMA_FLOOD_ATTRIBUTION = "出典：気象庁（加工）";
+export const JMA_KOSA_ATTRIBUTION = "出典：気象庁";
+
+// 洪水キキクル（向量 pbf，source-layer flood、欄位 level）。
+// JMA 自家 viewer（bosai/risk/table/risk.properties*.xml）：imageType flood type=pbf zoomUse="even"、minZoom 4、maxZoom 14。
+export const JMA_FLOOD_TARGET_TIMES_URL = "https://www.jma.go.jp/bosai/jmatile/data/risk/targetTimes.json";
+export const JMA_FLOOD_MIN_ZOOM = 4;
+export const JMA_FLOOD_MAX_ZOOM = 14;
+/** 上游只有偶數 zoom 的圖磚：每個偶數層一個 source（minzoom=maxzoom），layer 只在 [z, z+2) 顯示，奇數 zoom 由前一個偶數層 overzoom */
+export const JMA_FLOOD_SOURCE_ZOOMS = [4, 6, 8, 10, 12, 14] as const;
+
+export const JMA_FLOOD_LEVELS = [
+  { value: 1, label: "注意", color: "#f2e700" },
+  { value: 2, label: "警戒", color: "#ff2800" },
+  { value: 3, label: "危険", color: "#aa00aa" },
+  { value: 4, label: "災害切迫", color: "#0c000c" },
+] as const;
+/** level 不在 1–4（今後の情報等に留意等）：JMA viewer 的預設色 */
+export const JMA_FLOOD_OTHER_COLOR = "#3cffff";
+export const JMA_FLOOD_OPACITY = 0.75;
+
+export function jmaFloodTileUrl(basetime: string, member: string, validtime: string): string {
+  return `https://www.jma.go.jp/bosai/jmatile/data/risk/${basetime}/${member}/${validtime}/surf/flood/{z}/{x}/{y}.pbf`;
+}
+
+export function jmaFloodLineColorExpr(): unknown[] {
+  return ["match", ["get", "level"], ...JMA_FLOOD_LEVELS.flatMap((l) => [l.value, l.color]), JMA_FLOOD_OTHER_COLOR];
+}
+
+/** 線寬：z≥10 為 zoom−7，否則 2（照 JMA viewer）。["zoom"] 只能當頂層 interpolate 的輸入，故以 9.99→10 的陡升近似階梯 */
+export function jmaFloodLineWidthExpr(): unknown[] {
+  return ["interpolate", ["linear"], ["zoom"], 9.99, 2, 10, 3, 22, 15];
+}
+
+// 黃砂予測（地上濃度）：800×580 不透明 PNG（底圖、圖例燒在圖裡）→ 圖片面板，不貼地圖。
+export const JMA_KOSA_LIST_URL = "https://www.data.jma.go.jp/env/kosa/fcst/list_js/s_jpjp_list.js";
+export const JMA_KOSA_PAGE_URL = "https://www.data.jma.go.jp/env/kosa/fcst/";
+
+export function jmaKosaImageUrl(stamp: string): string {
+  return `https://www.data.jma.go.jp/env/kosa/fcst/img/surf/jp/${stamp}_kosafcst-s_jp_jp.png`;
 }

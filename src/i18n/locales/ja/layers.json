@@ -1171,5 +1171,8 @@
   "layer.jmaUvIndex": "UVインデックス（解析）",
   "layer.jmaSst": "日別海面水温",
   "layer.jmaSeaIce": "海氷分布（オホーツク海）",
-  "layer.jmaHimawari": "ひまわり雲画像（赤外）"
+  "layer.jmaHimawari": "ひまわり雲画像（赤外）",
+  "layer.gibsSnowCover": "積雪域（衛星 NDSI）",
+  "layer.jmaRiskFlood": "洪水キキクル",
+  "layer.jmaKosa": "黄砂予測"
 }
