@@ -94,7 +94,7 @@ import {
   Satellite,
   // 🌤️ 環境氣候（Cloud / CloudRain / Grid3x3 / ThermometerSun / Wind / Activity /
   //    AlertTriangle / AlertCircle / TreePine / Sprout / Waves 已在上方 import 復用）
-  CloudSun, Thermometer, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
+  CloudSun, Thermometer, Snowflake, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
   // 💧 水資源（Droplet / Droplets / Waves / Shield / ShieldCheck / Factory / Timer /
   //    CloudRain / AlertTriangle 已在上方 import 復用）
   GitBranch, Dam, Gauge, Container,
@@ -2475,6 +2475,32 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "日本氣象廳噴火警報・予報：各火山最新噴火警戒レベル",
     topics: ["世界", "日本", "火山", "即時", "防災"],
+  },
+  // JMA 發布幀影像（time-axis raster）：collector 由 T2 網格產 LA 值編碼 PNG 上 R2，
+  // RPC get_weather_imagery_manifest 取幀清單 → image source＋raster-color 上色（色票 SSOT = jmaTypes.ts）。
+  jmaSnowDepth: {
+    key: "jmaSnowDepth",
+    section: { theme: "氣象防災", group: "解析影像" },
+    ...layerName({ zh: "解析積雪深", alt: "積雪深（解析）" }),
+    expandable: true,
+    color: JMA_LAYER_COLORS.jmaSnowDepth,
+    icon: Snowflake,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "live.weather_raster_frames（jma_raster 解析積雪深 snowd，每 60 分一幀，z6 EPSG:3857）→ 發布幀 PNG（level_la_v1）上 R2；RPC get_weather_imagery_manifest('jma', ['snow_depth'])",
+      note: "出典：気象庁（加工）；PNG 只存等級值，顏色在前端；缺測（L=255）與無可用幀一律「未涵蓋」，不畫成 0",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJmaImageryLayer：RPC get_weather_imagery_manifest 取幀清單，frame URL = VITE_IMAGERY_CDN_BASE/image_key → createJmaImageryLayer 建 image source + raster layer（jma-imagery-snow_depth-src / -layer，raster-color 上色），依 timeStore 切幀 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "jmaSnowDepth",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本氣象廳解析積雪深（約 5 km 網格，每小時一幀，隨時間軸播放；2026-10-10 起）",
+    topics: ["世界", "日本", "氣象", "積雪", "時序"],
   },
 
   jpPopulationMesh1km: {

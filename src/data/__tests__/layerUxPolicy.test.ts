@@ -84,7 +84,8 @@ describe("Layer UX policy baseline", () => {
   it("popup 缺口由既有完整性 ledger 顯式凍結，不能以 null 靜默擴張", () => {
     const missing = MANIFEST_KEYS.filter((key) => LAYER_MANIFEST[key].popup === null);
     // jpWaterFloodHazard 是外部 XYZ raster 背景，沒有 feature attributes 可供 popup。
-    expect(missing).toHaveLength(33);
+    // jmaSnowDepth 是 JMA 發布幀 image source（PNG 只存等級值），同 cwaRadarImagery 無 feature 可點。
+    expect(missing).toHaveLength(34);
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

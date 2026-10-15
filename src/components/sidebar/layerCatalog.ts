@@ -2226,6 +2226,7 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "即時觀測", layers: [fromManifest("jmaAmedas"), fromManifest("jmaWarnings")] },
       { title: "地震與火山", layers: [fromManifest("jmaQuakes"), fromManifest("jmaVolcanoes")] },
+      { title: "解析影像", layers: [fromManifest("jmaSnowDepth")] },
     ],
   },
 

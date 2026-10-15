@@ -1162,5 +1162,6 @@
   "layer.wraCentralDrainage": "中央管理の区域排水",
   "layer.iowStructureMonitoring": "水利構造物モニタリング観測所",
   "layer.wraDredgingPoints": "河川浚渫工事",
-  "layer.wraEcologySurveySites": "河川生態調査地点"
+  "layer.wraEcologySurveySites": "河川生態調査地点",
+  "layer.jmaSnowDepth": "積雪深（解析）"
 }

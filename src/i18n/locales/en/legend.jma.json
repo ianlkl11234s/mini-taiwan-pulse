@@ -35,5 +35,14 @@
   "legend.jma.quakesTitle": "Earthquakes (last {days} days) · maximum seismic intensity",
   "legend.jma.intensityMissing": "Intensity or magnitude not issued",
   "legend.jma.quakesNote": "A larger circle means a larger magnitude; only the latest report is shown for each earthquake. Updated every 2 minutes.",
-  "legend.jma.volcanoTitle": "Volcano alerts · volcanic alert level"
+  "legend.jma.volcanoTitle": "Volcano alerts · volcanic alert level",
+  "legend.jma.imageryUncovered": "Not covered (missing or no data at this time; not zero)",
+  "legend.jma.imageryValidTime": "Analysis time",
+  "legend.jma.imageryUncoveredNow": "Not covered at this time: {reason}",
+  "legend.jma.imageryReason.no_frame": "no frame (before 2026-10-10 or outside retention)",
+  "legend.jma.imageryReason.stale": "frame gap (latest frame too old)",
+  "legend.jma.imageryReason.missing": "frame marked missing",
+  "legend.jma.imageryReason.encoding": "image encoding does not match the palette",
+  "legend.jma.snowDepthNote": "One frame per hour, plays with the timeline; about 5 km grid. Colors follow the official legend; the first two classes are verified against real tiles.",
+  "legend.jma.imageryAttribution": "Source: Japan Meteorological Agency (processed)"
 }

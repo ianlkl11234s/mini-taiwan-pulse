@@ -18,18 +18,20 @@
 | `jmaWarnings` | polygon choropleth（既有 `jp_admin_boundaries.pmtiles`） | `public.jma_warnings_current` | 5 分 | ✅ |
 | `jmaQuakes` | point（半徑＝規模、顏色＝最大震度） | `public.jma_quake_latest`（近 7 天） | 2 分 | ✅ |
 | `jmaVolcanoes` | point（噴火警戒レベル） | `public.jma_volcano_current` | 10 分 | ✅ |
+| `jmaSnowDepth` | time-axis raster（JMA 發布幀 LA PNG，image source＋raster-color；接 timeStore） | RPC `get_weather_imagery_manifest('jma', ['snow_depth'])` → R2 `imagery/jma/snow_depth/…png` | 即時 5 分重取 manifest；每 60 分一幀 | 🟡 前端完成，待 RPC／R2 幀上線後實資料驗證（JMA-4） |
 
 出典：気象庁（公共データ利用規約1.0）— 圖例、popup、source attribution 三處都有。
 
 ## 關鍵檔案
 
-- 色票／分級 SSOT：`src/data/jmaTypes.ts`
+- 色票／分級 SSOT：`src/data/jmaTypes.ts`（含發布幀影像 `JMA_IMAGERY_PRODUCTS`：新增 radar／rasrf／risk_*／uv_anal／sea_ice／sst_him 各加一筆）
+- 發布幀影像（通用）：`src/data/jmaImageryLoader.ts`（manifest／選幀／狀態 store）、`src/hooks/useJmaImageryLayer.ts`、`src/map/jmaImageryLayer.ts`；契約 taipei-gis-analytics `docs/topic-research/japan_opendata/jma-frontend-contract.md`
 - Loader＋狀態 store：`src/data/jmaLiveLoaders.ts`
 - Hook：`src/hooks/useJmaLiveLayer.ts`（3 點層）、`src/hooks/useJmaWarningsLayer.ts`（警報 choropleth）
 - Host：`src/layers/hosts/jmaHosts.tsx`
 - Overlay：`src/map/overlayRegistry.ts`（jmaAmedas／jmaQuakes／jmaVolcanoes，dynamicData）
 - Legend：`src/components/legend/jmaLegends.tsx`；Popup：`src/components/featureInfo/jmaPanels.tsx`
-- 測試：`src/data/__tests__/jmaLive.test.ts`
+- 測試：`src/data/__tests__/jmaLive.test.ts`、`src/data/__tests__/jmaImagery.test.ts`
 
 ## 資料契約摘要
 

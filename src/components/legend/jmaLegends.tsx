@@ -2,9 +2,10 @@
 import { useSyncExternalStore } from "react";
 import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchSquare, useLegendTheme } from "./legendKit";
 import {
-  JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_LOOKBACK_DAYS, JMA_VOLCANO_LEVELS, JMA_WARNING_LEVELS,
+  JMA_IMAGERY_UNCOVERED_COLOR, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, jmaImageryProduct, jmaRgb, type JmaImageryProductId, JMA_QUAKE_LOOKBACK_DAYS, JMA_VOLCANO_LEVELS, JMA_WARNING_LEVELS,
   JMA_ZERO_COLOR, formatJst, jmaAmedasMode, jmaCssGradient,
 } from "../../data/jmaTypes";
+import { getJmaImageryStatus, subscribeJmaImageryStatus } from "../../data/jmaImageryLoader";
 import { getJmaLiveStatus, getLatestJmaWarnings, subscribeJmaLiveStatus, type JmaLiveKey } from "../../data/jmaLiveLoaders";
 import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 import { FONT_SIZE } from "../../styles/designTokens";
@@ -108,5 +109,37 @@ export function JmaVolcanoesLegend() {
     {JMA_VOLCANO_LEVELS.map((row) => <LegendRow key={row.value} swatch={<SwatchDot color={row.color} />}>{enumLabel("jmaVolcanoLevel", row.value, row.label, i18n)}</LegendRow>)}
     <LiveStatus layerKey="jmaVolcanoes" timeLabel={i18n.t("legend.jma.timeLatestIssued")} drawnUnit="legend.jma.unitVolcano" />
     <LegendNote>{i18n.t("legend.jma.attribution")}</LegendNote>
+  </div>;
+}
+
+/** 發布幀影像的載入／涵蓋狀態：顯示中＝解析時刻（JST）；沒有可用幀＝「未涵蓋」＋原因。 */
+function ImageryStatus({ product }: { product: JmaImageryProductId }) {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const status = useSyncExternalStore(subscribeJmaImageryStatus, () => getJmaImageryStatus(product));
+  const style = { marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted };
+  if (status.state === "error") {
+    return <div role="alert" style={{ ...style, color: ALERT }}>{i18n.t("legend.jma.errorShown", { message: status.message ?? "" })}</div>;
+  }
+  if (status.state === "idle" || status.state === "loading") return <div style={style}>{i18n.t("legend.jma.loading")}</div>;
+  if (status.state === "uncovered") {
+    const reason = status.reason === "stale" ? i18n.t("legend.jma.imageryReason.stale")
+      : status.reason === "missing" ? i18n.t("legend.jma.imageryReason.missing")
+        : status.reason === "encoding" ? i18n.t("legend.jma.imageryReason.encoding")
+          : i18n.t("legend.jma.imageryReason.no_frame");
+    return <div style={style}>{i18n.t("legend.jma.imageryUncoveredNow", { reason })}</div>;
+  }
+  return <div style={style}>{i18n.t("legend.jma.imageryValidTime")} <LegendNum>{formatJst(status.validTimeIso) || i18n.t("legend.jma.none")}</LegendNum></div>;
+}
+
+export function JmaSnowDepthLegend() {
+  const i18n = useLocale();
+  const spec = jmaImageryProduct("snow_depth");
+  return <div>
+    <LegendTitle zh={layerTitle("jmaSnowDepth", i18n)} />
+    {(spec.levels ?? []).map((lv) => <LegendRow key={lv.level} swatch={<SwatchSquare color={jmaRgb(lv.rgb)} />}><LegendNum>{lv.label}</LegendNum></LegendRow>)}
+    <LegendRow swatch={<SwatchSquare color={JMA_IMAGERY_UNCOVERED_COLOR} />}>{i18n.t("legend.jma.imageryUncovered")}</LegendRow>
+    <ImageryStatus product="snow_depth" />
+    <LegendNote>{i18n.t("legend.jma.snowDepthNote")}{i18n.t("legend.jma.imageryAttribution")}</LegendNote>
   </div>;
 }
