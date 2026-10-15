@@ -41,7 +41,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     for (const key of STATISTICS_RENDER_KEYS) {
       const visible = layerVisibilityStore.getVisibility(key);
       const state = regionalStatisticsStore.getSnapshot(key);
-      const recipe = statisticsRenderRecipe(key, state.selection?.indicatorId);
+      const recipe = statisticsRenderRecipe(key, state.selection?.indicatorId, state.selection?.dimensions);
       if (!layerVisibilityStore.getAll()[key] && !map.getSource(key)) continue;
       if (!map.getSource(key)) {
         rendered.delete(key);

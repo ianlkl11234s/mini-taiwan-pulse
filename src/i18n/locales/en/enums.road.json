@@ -1,0 +1,20 @@
+{
+  "enum.roadClass2.9420101": "National freeway",
+  "enum.roadClass2.9420102": "National expressway",
+  "enum.roadClass2.9420201": "General provincial highway",
+  "enum.roadClass2.9420801": "General urban road",
+  "enum.roadClass2.9421001": "Ramp",
+  "enum.roadClass2.9440100": "Tunnel",
+  "enum.roadClass2.9440202": "Highway bridge",
+  "enum.roadStruct.0": "Ordinary at-grade",
+  "enum.roadStruct.1": "Bridge",
+  "enum.roadStruct.2": "Tunnel",
+  "enum.roadStruct.3": "Ramp",
+  "enum.roadStruct.4": "Elevated",
+  "enum.roadStruct.5": "Low-water crossing",
+  "enum.roadStruct.6": "Underground section",
+  "enum.roadClass1.HW": "National freeway",
+  "enum.roadClass1.HU": "National freeway ancillary road (ramp / service area)",
+  "enum.roadClass1.1W": "Provincial highway",
+  "enum.roadClass1.1U": "Provincial highway concurrent section"
+}

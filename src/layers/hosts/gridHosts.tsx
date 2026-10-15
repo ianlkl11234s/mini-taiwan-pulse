@@ -21,7 +21,7 @@ import {
   ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer,
   ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer,
 } from "../../map/demographicsLayerFactory";
-import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "../../map/railTracks";
+import { updateRailTracks, removeRailTracks, setRailTracksVisible, effectiveRailTrackMode } from "../../map/railTracks";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import {
   oneOfParam, paramBool, paramNum, paramStr, useLayerParams,
@@ -68,21 +68,29 @@ function useGridStyleRehydration(
 export const RailTracksHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("railTracks");
   const values = useLayerParams("rail");
-  const railTrackMode = oneOfParam(
-    paramStr(values, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d",
+  // R6 段 3 決議：列車平面時軌道用 2D（有效值，不改寫使用者存的 railTrackMode）
+  const railTrackMode = effectiveRailTrackMode(
+    paramBool(values, "rail", "railTrain3D"),
+    oneOfParam(paramStr(values, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d"),
   );
   const { mapRef, railData, isDarkTheme } = deps;
   const railVisible = deps.layerVisibility.rail;
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+  // 2026-10-10 修正：原本用 isStyleLoaded()（圖磚載入中為 false）且沒有 style.load 重建，
+  // 換底圖後 2D 軌道就消失、平面列車浮在街區裡 → 改用 styleReady＋換底圖重建（同其他 grid host）。
+  const rehydrate = useCallback((map: MapboxMap) => {
     if (railData && railVisible) {
       updateRailTracks(map, railData.allTracks, isDarkTheme);
       setRailTracksVisible(map, railTrackMode === "2d");
     } else {
       removeRailTracks(map);
     }
-  }, [mapRef, railData, isDarkTheme, railVisible, railTrackMode]);
+  }, [railData, isDarkTheme, railVisible, railTrackMode]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map)) return;
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 

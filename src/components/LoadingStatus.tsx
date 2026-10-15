@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { loadingRegistry } from "../lib/loadingRegistry";
+import { localeStore, useLocale } from "../state/localeStore";
 import {
   createLoadingStatusController,
   HIDDEN_LOADING_STATUS,
@@ -47,6 +48,7 @@ export function LoadingStatus({
     controllerRef.current?.setPlaying(playing);
   }, [playing]);
 
+  useLocale(); // 切換語系時重繪
   const text = statusText(view);
   const className = [
     "loading-status",
@@ -75,9 +77,10 @@ export function LoadingStatus({
 }
 
 export function statusText(view: LoadingStatusView): { main: string; extra: string } {
+  const { t } = localeStore.getSnapshot();
   if (view.phase === "done") {
-    return { main: view.count > 1 ? `已載入 ${view.count} 項` : `已載入 · ${view.label}`, extra: "" };
+    return { main: view.count > 1 ? t("loading.doneMany", { count: view.count }) : `${t("loading.done")} · ${view.label}`, extra: "" };
   }
-  if (view.phase === "error") return { main: `載入失敗 · ${view.label}`, extra: "" };
-  return { main: `載入中 · ${view.label}`, extra: view.extra > 0 ? `+${view.extra}` : "" };
+  if (view.phase === "error") return { main: `${t("loading.failed")} · ${view.label}`, extra: "" };
+  return { main: `${t("loading.inProgress")} · ${view.label}`, extra: view.extra > 0 ? `+${view.extra}` : "" };
 }

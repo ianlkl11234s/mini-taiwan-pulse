@@ -1,0 +1,9 @@
+{
+  "enum.soilPotentialClass.high": "高ポテンシャル",
+  "enum.soilPotentialClass.medium": "中ポテンシャル",
+  "enum.soilPotentialClass.low": "低ポテンシャル",
+  "enum.soilWeakMaterial.clay": "軟弱粘土",
+  "enum.soilWeakMaterial.sand": "緩い砂",
+  "enum.soilSitePrecision.official_published_coordinate": "公式ポータル公表座標",
+  "enum.soilSiteStatus.unknown": "未提供（公式ポータルに稼働状態の記載なし）"
+}

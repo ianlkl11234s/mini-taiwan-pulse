@@ -16,6 +16,8 @@ import {
 // ─── Re-export 既有 token（沿用無痛）────────────────────────────
 export {
   FONT_CJK,
+  FONT_CJK_LITERAL,
+  resolvedCjkFont,
   FONT_DATA,
   GIS_LEVELS,
   SEV_LEVELS,

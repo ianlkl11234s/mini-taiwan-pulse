@@ -1,4 +1,5 @@
 import { Row } from "./shared";
+import { useLocale } from "../../state/localeStore";
 import { useFeatureTheme } from "./featureTheme";
 import {
   LIGHTNING_TYPE_LABELS,
@@ -11,21 +12,24 @@ import {
 import { intensityColor, intensityLabel } from "../../data/earthquakeReplayTypes";
 import { mountainRescueCauseColor, mountainRescueCauseLabel } from "../../data/mountainSafetyTypes";
 import { FONT_SIZE } from "../../styles/designTokens";
+import type { LocaleSnapshot } from "../../state/localeStore";
 
-function fmtAge(ts: unknown): string {
+type I18n = Pick<LocaleSnapshot, "t" | "formatDateTime">;
+
+function fmtAge(ts: unknown, tr: I18n["t"]): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
   const now = Math.floor(Date.now() / 1000);
   const dt = now - ts;
-  if (dt < 60) return `${dt}s 前`;
-  if (dt < 3600) return `${Math.floor(dt / 60)} 分鐘前`;
-  if (dt < 86400) return `${Math.floor(dt / 3600)} 小時前`;
-  return `${Math.floor(dt / 86400)} 天前`;
+  if (dt < 60) return tr("popup.hazard.secondsAgo", { count: dt });
+  if (dt < 3600) return tr("popup.hazard.minutesAgo", { count: Math.floor(dt / 60) });
+  if (dt < 86400) return tr("popup.hazard.hoursAgo", { count: Math.floor(dt / 3600) });
+  return tr("popup.hazard.daysAgo", { count: Math.floor(dt / 86400) });
 }
 
-function fmtTime(ts: unknown): string {
+function fmtTime(ts: unknown, formatDateTime: I18n["formatDateTime"]): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
   const d = new Date(ts * 1000);
-  return d.toLocaleString("zh-TW", {
+  return formatDateTime(d, {
     month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit",
     hour12: false,
@@ -33,13 +37,12 @@ function fmtTime(ts: unknown): string {
 }
 
 /** 發生時間強制以台灣時區顯示（不依賴瀏覽器本地時區） */
-function fmtTimeTaipei(ts: unknown): string {
+function fmtTimeTaipei(ts: unknown, formatDateTime: I18n["formatDateTime"]): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
-  return new Date(ts * 1000).toLocaleString("zh-TW", {
+  return formatDateTime(new Date(ts * 1000), {
     year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit",
     hour12: false,
-    timeZone: "Asia/Taipei",
   });
 }
 
@@ -67,6 +70,7 @@ function depthColor(depth: number): string {
  */
 export function MountainRescuePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const cause = props.cause == null ? null : String(props.cause);
   const color = mountainRescueCauseColor(cause);
   const int0 = (v: unknown) => (typeof v === "number" ? v : 0);
@@ -88,65 +92,67 @@ export function MountainRescuePanel({ props }: { props: Record<string, unknown> 
           {mountainRescueCauseLabel(cause)}
         </div>
       </div>
-      <Row label="案件編號" value={String(props.case_id ?? "—")} />
-      <Row label="年份" value={props.year == null ? "—" : String(props.year)} />
-      <Row label="縣市" value={String(props.city ?? "—")} />
-      {area ? <Row label="山域" value={area} /> : null}
-      {entry ? <Row label="入山口" value={entry} /> : null}
-      {dest ? <Row label="目的地" value={dest} /> : null}
-      <Row label="報案時間" value={String(props.reported_at ?? "—")} />
-      <Row label="結案時間" value={String(props.closed_at ?? "—")} />
-      {props.over_48hr ? <Row label="逾 48 小時" value={String(props.over_48hr)} color={props.over_48hr === "是" ? "#f97316" : undefined} /> : null}
-      <Row label="出動人次" value={`${persons} 人`} />
-      {sorties > 0 ? <Row label="直升機" value={`${sorties} 架次`} /> : null}
-      {int0(props.sar_dog_times) > 0 ? <Row label="搜救犬" value={`${int0(props.sar_dog_times)} 次`} /> : null}
-      {int0(props.drone_sorties) > 0 ? <Row label="無人機" value={`${int0(props.drone_sorties)} 架次`} /> : null}
-      <Row label="獲救" value={`${int0(props.rescued)} 人`} />
-      {deaths > 0 ? <Row label="死亡" value={`${deaths} 人`} color="#ff2d2d" /> : null}
-      {missing > 0 ? <Row label="失蹤" value={`${missing} 人`} color="#f97316" /> : null}
+      <Row label={tr("popup.hazard.caseId")} value={String(props.case_id ?? "—")} />
+      <Row label={tr("popup.hazard.year")} value={props.year == null ? "—" : String(props.year)} />
+      <Row field="county" value={String(props.city ?? "—")} />
+      {area ? <Row label={tr("popup.hazard.mountainArea")} value={area} /> : null}
+      {entry ? <Row label={tr("popup.hazard.entryPoint")} value={entry} /> : null}
+      {dest ? <Row label={tr("popup.hazard.destination")} value={dest} /> : null}
+      <Row label={tr("popup.hazard.reportedAt")} value={String(props.reported_at ?? "—")} />
+      <Row label={tr("popup.hazard.closedAt")} value={String(props.closed_at ?? "—")} />
+      {props.over_48hr ? <Row label={tr("popup.hazard.over48")} value={String(props.over_48hr)} color={props.over_48hr === "是" ? "#f97316" : undefined} /> : null}
+      <Row label={tr("popup.hazard.dispatched")} value={tr("popup.hazard.persons", { count: persons })} />
+      {sorties > 0 ? <Row label={tr("popup.hazard.helicopter")} value={tr("popup.hazard.sortiesValue", { count: sorties })} /> : null}
+      {int0(props.sar_dog_times) > 0 ? <Row label={tr("popup.hazard.sarDog")} value={tr("popup.hazard.times", { count: int0(props.sar_dog_times) })} /> : null}
+      {int0(props.drone_sorties) > 0 ? <Row label={tr("popup.hazard.drone")} value={tr("popup.hazard.sortiesValue", { count: int0(props.drone_sorties) })} /> : null}
+      <Row label={tr("popup.hazard.rescued")} value={tr("popup.hazard.persons", { count: int0(props.rescued) })} />
+      {deaths > 0 ? <Row field="deaths" value={tr("popup.hazard.persons", { count: deaths })} color="#ff2d2d" /> : null}
+      {missing > 0 ? <Row label={tr("popup.hazard.missing")} value={tr("popup.hazard.persons", { count: missing })} color="#f97316" /> : null}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
-        消防署山域意外事故救援案件（2019-2024）
+        {tr("popup.hazard.mountainSource")}
       </div>
     </div>
   );
 }
 
 export function LightningStrikePanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr, formatDateTime } = useLocale();
   const t = typeof props.strike_type === "number" ? props.strike_type : null;
   const intensity = typeof props.intensity_ka === "number" ? props.intensity_ka : null;
   const color = lightningTypeColor(t);
   return (
     <div>
-      <Row label="類型" value={t != null ? (LIGHTNING_TYPE_LABELS[t] ?? "—") : "—"} color={color} />
+      <Row field="type" value={t != null ? (LIGHTNING_TYPE_LABELS[t] ?? "—") : "—"} color={color} />
       <Row
-        label="強度"
+        label={tr("popup.hazard.intensity")}
         value={intensity != null ? `${intensity.toFixed(1)} kA` : "—"}
         color={intensity != null && Math.abs(intensity) > 30 ? "#ef4444" : undefined}
       />
-      <Row label="擊發時刻" value={fmtTime(props.strike_ts)} />
-      <Row label="距現在" value={fmtAge(props.strike_ts)} />
+      <Row label={tr("popup.hazard.strikeTime")} value={fmtTime(props.strike_ts, formatDateTime)} />
+      <Row field="age" value={fmtAge(props.strike_ts, tr)} />
     </div>
   );
 }
 
 export function NuclearStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr, formatDateTime } = useLocale();
   const dose = typeof props.dose_usvh === "number" ? props.dose_usvh : null;
   const isStale = props.is_stale === true;
   const level = classifyNuclearDose(dose, isStale);
   const color = nuclearDoseColor(dose, isStale);
   return (
     <div>
-      <Row label="站名" value={String(props.station_name ?? "—")} />
-      <Row label="站號" value={String(props.station_id ?? "—")} />
+      <Row field="stationName" value={String(props.station_name ?? "—")} />
+      <Row field="stationNo" value={String(props.station_id ?? "—")} />
       <Row
-        label="即時劑量"
+        label={tr("popup.hazard.liveDose")}
         value={dose != null ? `${dose.toFixed(3)} µSv/h` : "—"}
         color={color}
       />
-      <Row label="分級" value={NUCLEAR_LEVEL_LABELS[level]} color={color} />
-      <Row label="觀測時間" value={fmtTime(props.observed_ts)} />
-      <Row label="距現在" value={fmtAge(props.observed_ts)} />
+      <Row label={tr("popup.hazard.level")} value={NUCLEAR_LEVEL_LABELS[level]} color={color} />
+      <Row field="observedAt" value={fmtTime(props.observed_ts, formatDateTime)} />
+      <Row field="age" value={fmtAge(props.observed_ts, tr)} />
       {isStale && (
         <div
           style={{
@@ -156,8 +162,8 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
             fontSize: 11, lineHeight: 1.4, color: t.textDim,
           }}
         >
-          ⚠️ 感測器已離線（is_stale），上方劑量值為最後可信回報，<br />
-          <b>不代表現場狀況</b>。高值 + stale = 感測器故障，<b>非核災</b>。
+          {tr("popup.hazard.staleA")}<br />
+          <b>{tr("popup.hazard.staleB")}</b>{tr("popup.hazard.staleC")}<b>{tr("popup.hazard.staleD")}</b>{tr("popup.hazard.staleE")}
         </div>
       )}
       {!isStale && level === "alarm" && (
@@ -169,7 +175,7 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
             fontSize: 11, lineHeight: 1.4, color: "#fca5a5",
           }}
         >
-          ⚠️ 已達 AEC 警戒閾值（&gt; {NUCLEAR_DOSE_THRESHOLDS.warning} µSv/h），建議交叉確認原能會即時頁面。
+          {tr("popup.hazard.alarmNote", { threshold: NUCLEAR_DOSE_THRESHOLDS.warning })}
         </div>
       )}
     </div>
@@ -182,17 +188,18 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
  */
 export function EarthquakePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr, formatDateTime } = useLocale();
   const mag = typeof props.magnitude === "number" ? props.magnitude : null;
   const depth = typeof props.depth_km === "number" ? props.depth_km : null;
   const magColor = mag != null ? magBadgeColor(mag) : t.textDim;
   const dColor = depth != null ? depthColor(depth) : t.textDim;
   return (
     <div>
-      <Row label="規模 (M)" value={mag != null ? `M ${mag.toFixed(1)}` : "—"} color={magColor} />
-      <Row label="深度" value={depth != null ? `${depth.toFixed(1)} km` : "—"} color={dColor} />
-      <Row label="發生時間" value={fmtTimeTaipei(props.occurred_ts)} />
-      <Row label="震央位置" value={String(props.location_desc || "—")} />
-      <Row label="報告類型" value={String(props.report_type || "—")} />
+      <Row label={tr("popup.hazard.magnitudeM")} value={mag != null ? `M ${mag.toFixed(1)}` : "—"} color={magColor} />
+      <Row label={tr("popup.hazard.depth")} value={depth != null ? `${depth.toFixed(1)} km` : "—"} color={dColor} />
+      <Row field="occurredAt" value={fmtTimeTaipei(props.occurred_ts, formatDateTime)} />
+      <Row label={tr("popup.hazard.epicenterLocation")} value={String(props.location_desc || "—")} />
+      <Row label={tr("popup.hazard.reportType")} value={String(props.report_type || "—")} />
     </div>
   );
 }
@@ -202,22 +209,23 @@ export function EarthquakePanel({ props }: { props: Record<string, unknown> }) {
  * 震度色階與網格 / 鄉鎮面量圖同源（earthquakeReplayTypes.CWA_INTENSITY_BANDS）。
  */
 export function EarthquakeReplayStationPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const iv = typeof props.intensity_value === "number" ? props.intensity_value : null;
   const pga = typeof props.pga_int === "number" ? props.pga_int : null;
   const dist = typeof props.epicenter_distance_km === "number" ? props.epicenter_distance_km : null;
   return (
     <div>
-      <Row label="測站" value={String(props.station_id ?? "—")} />
+      <Row field="station" value={String(props.station_id ?? "—")} />
       <Row
-        label="震度"
+        label={tr("popup.hazard.intensityLevel")}
         value={iv != null ? intensityLabel(iv) : "—"}
         color={iv != null ? intensityColor(iv) : undefined}
       />
       <Row label="PGA" value={pga != null ? `${pga.toFixed(1)} gal` : "—"} />
-      <Row label="震央距" value={dist != null ? `${dist.toFixed(1)} km` : "—"} />
+      <Row label={tr("popup.hazard.epicenterDistance")} value={dist != null ? `${dist.toFixed(1)} km` : "—"} />
       <Row
-        label="S 波抵達"
-        value={dist != null ? `震後 ${(dist / 3.5).toFixed(1)} 秒` : "—"}
+        label={tr("popup.hazard.sArrival")}
+        value={dist != null ? tr("popup.hazard.afterQuake", { seconds: (dist / 3.5).toFixed(1) }) : "—"}
       />
     </div>
   );
@@ -228,17 +236,18 @@ export function EarthquakeReplayStationPanel({ props }: { props: Record<string, 
  * 震度值來自 feature-state `eqi`（PMTiles 幾何本身沒有震度屬性）。
  */
 export function EarthquakeReplayTownPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   const iv = typeof props.eqi === "number" ? props.eqi : null;
   return (
     <div>
-      <Row label="鄉鎮市區" value={String(props.TOWNNAME ?? "—")} />
-      <Row label="縣市" value={String(props.COUNTYNAME ?? "—")} />
+      <Row label={tr("popup.hazard.township")} value={String(props.TOWNNAME ?? "—")} />
+      <Row field="county" value={String(props.COUNTYNAME ?? "—")} />
       <Row
-        label="震度"
+        label={tr("popup.hazard.intensityLevel")}
         value={iv != null ? intensityLabel(iv) : "—"}
         color={iv != null ? intensityColor(iv) : undefined}
       />
-      <Row label="來源" value="CWA 鄉鎮震度報告" />
+      <Row field="source" value={tr("popup.hazard.townSource")} />
     </div>
   );
 }

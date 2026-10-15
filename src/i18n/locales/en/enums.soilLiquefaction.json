@@ -1,0 +1,9 @@
+{
+  "enum.soilPotentialClass.high": "High potential",
+  "enum.soilPotentialClass.medium": "Medium potential",
+  "enum.soilPotentialClass.low": "Low potential",
+  "enum.soilWeakMaterial.clay": "Soft clay",
+  "enum.soilWeakMaterial.sand": "Loose sand",
+  "enum.soilSitePrecision.official_published_coordinate": "Coordinates published on the official map portal",
+  "enum.soilSiteStatus.unknown": "Not provided (the official portal does not list operating status)"
+}

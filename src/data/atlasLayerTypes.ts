@@ -1,0 +1,295 @@
+/**
+ * atlas 批次 2026-10 的 26 個點／線／面圖層（原民與農村、道路設施、淹水與災害照片、海洋、地名、水利設施）
+ * 分類、色票與 Mapbox filter SSOT —— manifest／overlay／legend／popup 四邊共用。
+ * 資料由 scripts/preprocess/build-atlas-public.py 從 taipei-gis-analytics 成品產出；類別文字讀上游中文
+ * `<欄>_label` 欄，本檔的 `label` 只給圖例與篩選選單用（與上游 label 同字）。
+ * 色票是資料語意色（design-system spec §3.16），刻意不進 designTokens。
+ *
+ * ⚠️ 表達式不得含 ["zoom"]：zoom 只能在最外層 interpolate/step。
+ */
+import { allMultiSelectBitmask, multiSelectFilter } from "./multiSelectMapbox";
+import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
+
+export { ATLAS_LAYER_COLORS };
+
+export type AtlasLayerKey = keyof typeof ATLAS_LAYER_COLORS;
+
+/** 缺值／其他類別的中性灰 */
+export const ATLAS_OTHER_COLOR = "#94a3b8";
+/** 座標旗標（疑似縣市不符等）的警示色：點改用此色，popup 顯示旗標說明 */
+export const ATLAS_FLAG_COLOR = "#f59e0b";
+
+export interface AtlasOption {
+  value: string;
+  label: string;
+  color: string;
+}
+
+export function matchColorExpr(property: string, options: readonly AtlasOption[], fallback = ATLAS_OTHER_COLOR): unknown[] {
+  return ["match", ["get", property], ...options.flatMap((option) => [option.value, option.color]), fallback];
+}
+
+export function optionColor(options: readonly AtlasOption[], value: unknown, fallback = ATLAS_OTHER_COLOR): string {
+  return options.find((option) => option.value === String(value ?? ""))?.color ?? fallback;
+}
+
+export function optionValues(options: readonly AtlasOption[]): string[] {
+  return options.map((option) => option.value);
+}
+
+/** 多選 filter（全選時只要求欄位存在；全關顯示不可能值）。 */
+export function atlasMultiSelectFilter(property: string, options: readonly AtlasOption[], mask?: number): unknown[] {
+  const values = optionValues(options);
+  return multiSelectFilter(property, mask ?? allMultiSelectBitmask(values), values);
+}
+
+/** 數值年份多選：year 在檔內是數字，以 to-string 比對選項字串。 */
+export function atlasYearFilter(property: string, years: readonly string[], mask?: number): unknown[] {
+  const m = mask ?? allMultiSelectBitmask(years);
+  const selected = years.filter((_, index) => (Math.trunc(m) & (1 << index)) !== 0);
+  return ["in", ["to-string", ["get", property]], ["literal", selected]];
+}
+
+/** 座標旗標覆蓋色：coord_status 在 flagged 清單中的點改用警示色。 */
+export function flaggedColorExpr(base: unknown, flagged: readonly string[] = ["suspect_county_mismatch"]): unknown[] {
+  return ["case", ["in", ["get", "coord_status"], ["literal", [...flagged]]], ATLAS_FLAG_COLOR, base];
+}
+
+// ── 原民與農村 ──────────────────────────────────────────────────────────
+
+/** 部落點位依族別分色（原民會 16 族；多族並列「、」的 4 筆與其他落灰）。 */
+export const TRIBE_ETHNIC_OPTIONS: readonly AtlasOption[] = [
+  { value: "泰雅族", label: "泰雅族", color: "#b45309" },
+  { value: "阿美族", label: "阿美族", color: "#dc2626" },
+  { value: "排灣族", label: "排灣族", color: "#7c3aed" },
+  { value: "布農族", label: "布農族", color: "#2563eb" },
+  { value: "太魯閣族", label: "太魯閣族", color: "#0f766e" },
+  { value: "賽夏族", label: "賽夏族", color: "#db2777" },
+  { value: "魯凱族", label: "魯凱族", color: "#65a30d" },
+  { value: "賽德克族", label: "賽德克族", color: "#9333ea" },
+  { value: "卑南族", label: "卑南族", color: "#ea580c" },
+  { value: "鄒族", label: "鄒族", color: "#0891b2" },
+  { value: "雅美族(達悟族)", label: "雅美族（達悟族）", color: "#1d4ed8" },
+];
+/** 不在現行核定名單的點位（13 點）以灰色區分。 */
+export const TRIBE_NOT_APPROVED_COLOR = "#64748b";
+
+export function tribeColorExpr(): unknown[] {
+  return ["case", ["==", ["get", "in_current_approved_list"], false], TRIBE_NOT_APPROVED_COLOR, matchColorExpr("ethnic_group", TRIBE_ETHNIC_OPTIONS)];
+}
+
+/** 孤島地區成因組合（土石流＋淹水＋道路橋梁中斷，cause_combo 由前處理組出）。 */
+export const ISOLATION_CAUSE_OPTIONS: readonly AtlasOption[] = [
+  { value: "debris+flood+road", label: "土石流＋淹水＋道路中斷", color: "#7f1d1d" },
+  { value: "debris+road", label: "土石流＋道路中斷", color: "#be123c" },
+  { value: "flood+road", label: "淹水＋道路中斷", color: "#1d4ed8" },
+  { value: "debris+flood", label: "土石流＋淹水", color: "#7c3aed" },
+  { value: "road", label: "只有道路中斷", color: "#ea580c" },
+  { value: "debris", label: "只有土石流", color: "#a16207" },
+  { value: "flood", label: "只有淹水", color: "#0284c7" },
+  { value: "none", label: "未勾選成因", color: ATLAS_OTHER_COLOR },
+];
+
+export const RURAL_COMMUNITY_OPTIONS: readonly AtlasOption[] = [
+  { value: "平地社區", label: "平地社區", color: "#84cc16" },
+  { value: "丘陵社區", label: "丘陵社區", color: "#ca8a04" },
+  { value: "高山社區", label: "高山社區", color: "#15803d" },
+];
+/** 切片 z7–12 逐 zoom 4,271 面完整；低於 z7 不顯示。 */
+export const RURAL_MIN_ZOOM = 7;
+
+// ── 道路設施 ────────────────────────────────────────────────────────────
+
+export const ROAD_SIGN_SERIES_OPTIONS: readonly AtlasOption[] = [
+  { value: "speed_limit", label: "速限標誌", color: "#2563eb" },
+  { value: "speed_enforcement", label: "測速取締警告標誌", color: "#dc2626" },
+  { value: "height_limit", label: "車輛高度限制標誌", color: "#7c3aed" },
+  { value: "weight_limit", label: "車輛重量限制標誌", color: "#9333ea" },
+  { value: "curve_warning", label: "彎路警告標誌", color: "#ea580c" },
+  { value: "steep_slope", label: "險坡警告標誌", color: "#a16207" },
+  { value: "pedestrian_warning", label: "當心行人標誌", color: "#db2777" },
+  { value: "children_warning", label: "當心兒童標誌", color: "#e11d48" },
+  { value: "expressway_interchange_name", label: "快速公路交流道名稱標誌", color: "#16a34a" },
+];
+/** 切片 z9 起；點層 z11 起（低於 z11 以熱區顯示密度）。 */
+export const ROAD_SIGNS_TILE_MIN_ZOOM = 9;
+export const ROAD_SIGNS_POINT_MIN_ZOOM = 11;
+export const MILEPOSTS_MIN_ZOOM = 11;
+export const FREEWAY_SIGNS_MIN_ZOOM = 10;
+
+export const FREEWAY_SIGN_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "milepost", label: "里程牌／匝道里程", color: "#16a34a" },
+  { value: "other", label: "其他標誌（速限、出口、告示…）", color: "#2563eb" },
+  { value: "unlabeled", label: "來源未給標誌代碼名稱", color: ATLAS_OTHER_COLOR },
+];
+
+export const INTERCHANGE_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "system_interchange", label: "系統交流道", color: "#b91c1c" },
+  { value: "interchange", label: "交流道", color: "#047857" },
+  { value: "connector", label: "轉接道", color: "#7c3aed" },
+  { value: "terminus", label: "路線端點", color: "#475569" },
+  { value: "other", label: "其他", color: ATLAS_OTHER_COLOR },
+];
+
+/** 國道生態敏感路段：sensi_level 1／2／3 只用同色深淺（分級方向來源未說明，不用紅綠語意）。 */
+export const ECO_SENSITIVE_LEVEL_OPTIONS: readonly AtlasOption[] = [
+  { value: "1", label: "敏感等級 1", color: "#99f6e4" },
+  { value: "2", label: "敏感等級 2", color: "#2dd4bf" },
+  { value: "3", label: "敏感等級 3", color: "#0f766e" },
+];
+export function ecoLevelColorExpr(): unknown[] {
+  return ["match", ["to-string", ["get", "sensi_level"]], ...ECO_SENSITIVE_LEVEL_OPTIONS.flatMap((o) => [o.value, o.color]), ATLAS_OTHER_COLOR];
+}
+
+export const MONITOR_SERIES_OPTIONS: readonly AtlasOption[] = [
+  { value: "level1_section", label: "一級監控路段", color: "#dc2626" },
+  { value: "level2_section", label: "二級監控路段", color: "#f59e0b" },
+  { value: "level1_bridge", label: "一級監控橋梁", color: "#7c3aed" },
+  { value: "flood_debris_prone", label: "易淹水／土石流路段", color: "#0284c7" },
+];
+/** 線段 z5–7 會退化（極短路段）→ 切片與圖層都從 z8 起。 */
+export const MONITORED_MIN_ZOOM = 8;
+
+export const EMERGENCY_BAY_OPTIONS: readonly AtlasOption[] = [
+  { value: "true", label: "在最新年度清單", color: "#7c3aed" },
+  { value: "false", label: "只出現在舊年度清單", color: "#a78bfa" },
+];
+export function emergencyBayColorExpr(): unknown[] {
+  return ["case", ["==", ["get", "in_latest_list"], true], EMERGENCY_BAY_OPTIONS[0]!.color, EMERGENCY_BAY_OPTIONS[1]!.color];
+}
+
+// ── 淹水與災害照片 ──────────────────────────────────────────────────────
+
+export const FLOOD_INFO_SOURCE_OPTIONS: readonly AtlasOption[] = [
+  { value: "emic_report", label: "EMIC 災情通報", color: "#0284c7" },
+  { value: "flood_sensor", label: "淹水感測器", color: "#7c3aed" },
+  { value: "social_media", label: "社群媒體", color: "#db2777" },
+  { value: "news_media", label: "新聞媒體", color: "#ea580c" },
+];
+export const FLOOD_YEARS = ["2021", "2022", "2023", "2024", "2025"] as const;
+export const FLOOD_YEAR_OPTIONS = FLOOD_YEARS.map((year) => ({ value: year, label: year }));
+
+export const SWCB_PHOTO_CATEGORY_OPTIONS: readonly AtlasOption[] = [
+  { value: "event_photo", label: "土砂災害事件影像", color: "#a16207" },
+  { value: "media_report", label: "媒體報導", color: "#7c3aed" },
+];
+
+// ── 海洋 ────────────────────────────────────────────────────────────────
+
+export const ANIMAL_STATUS_OPTIONS: readonly AtlasOption[] = [
+  { value: "死亡", label: "死亡", color: "#475569" },
+  { value: "活體", label: "活體", color: "#0284c7" },
+];
+export const TURTLE_SPECIES_OPTIONS: readonly AtlasOption[] = [
+  { value: "綠蠵龜", label: "綠蠵龜", color: "#059669" },
+  { value: "欖蠵龜", label: "欖蠵龜", color: "#65a30d" },
+  { value: "玳瑁", label: "玳瑁", color: "#b45309" },
+  { value: "赤蠵龜", label: "赤蠵龜", color: "#dc2626" },
+  { value: "革龜", label: "革龜", color: "#1f2937" },
+];
+export const STRANDING_YEARS = ["2020", "2021", "2022", "2023", "2024", "2025", "2026"] as const;
+export const STRANDING_YEAR_OPTIONS = STRANDING_YEARS.map((year) => ({ value: year, label: year === "2026" ? "2026（不完整年度）" : year }));
+
+export const BEACH_LEVEL_OPTIONS: readonly AtlasOption[] = [
+  { value: "excellent", label: "優良", color: "#0891b2" },
+  { value: "fair", label: "普通", color: "#f59e0b" },
+  { value: "unsuitable", label: "不宜親水", color: "#dc2626" },
+];
+
+/** 微塑膠：表層平均總濃度（個／m³）分級；step 斷點依 25 站分布手調。 */
+export const MICROPLASTIC_STEPS = [
+  { min: 0, label: "< 100", color: "#e9d5ff" },
+  { min: 100, label: "100–300", color: "#c084fc" },
+  { min: 300, label: "300–1,000", color: "#9333ea" },
+  { min: 1000, label: "≥ 1,000", color: "#581c87" },
+] as const;
+export function microplasticColorExpr(): unknown[] {
+  return ["case", ["!", ["has", "surface_mean_total_per_m3"]], ATLAS_OTHER_COLOR,
+    ["step", ["to-number", ["get", "surface_mean_total_per_m3"], 0], MICROPLASTIC_STEPS[0].color,
+      ...MICROPLASTIC_STEPS.slice(1).flatMap((step) => [step.min, step.color])]];
+}
+
+export const POLLUTION_LEVEL_OPTIONS: readonly AtlasOption[] = [
+  { value: "1", label: "第 1 級", color: "#64748b" },
+  { value: "2", label: "第 2 級", color: "#ea580c" },
+  { value: "3", label: "第 3 級", color: "#b91c1c" },
+];
+
+// ── 地名 ────────────────────────────────────────────────────────────────
+
+export const PLACE_CATEGORY_OPTIONS: readonly AtlasOption[] = [
+  { value: "natural", label: "自然地理實體（z9 起）", color: "#15803d" },
+  { value: "admin", label: "行政區域（村里，z12 起）", color: "#7c3aed" },
+  { value: "settlement", label: "聚落（z12 起）", color: "#b45309" },
+  { value: "landmark", label: "具有地標意義公共設施（z14 起）", color: "#0369a1" },
+];
+export const PLACE_NAMES_MIN_ZOOM = 9;
+
+export const TRIANGULATION_GRADE_OPTIONS: readonly AtlasOption[] = [
+  { value: "1", label: "一等三角點", color: "#7f1d1d" },
+  { value: "2", label: "二等三角點", color: "#b45309" },
+  { value: "3", label: "三等三角點", color: "#a8a29e" },
+];
+export function triangulationColorExpr(): unknown[] {
+  return ["match", ["to-string", ["get", "grade"]], ...TRIANGULATION_GRADE_OPTIONS.flatMap((o) => [o.value, o.color]), ATLAS_OTHER_COLOR];
+}
+
+// ── 水利 ────────────────────────────────────────────────────────────────
+
+export const GATE_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "floodgate", label: "水門", color: "#1d4ed8" },
+  { value: "sluice_gate", label: "閘門", color: "#7c3aed" },
+  { value: "evacuation_gate", label: "疏散門", color: "#ea580c" },
+  { value: "other", label: "其他", color: ATLAS_OTHER_COLOR },
+];
+export const STRUCTURE_CATEGORY_OPTIONS: readonly AtlasOption[] = [
+  { value: "levee_safety", label: "堤防結構安全", color: "#4338ca" },
+  { value: "gate", label: "閘門", color: "#0891b2" },
+];
+export const DREDGING_STATUS_OPTIONS: readonly AtlasOption[] = [
+  { value: "in_progress", label: "執行中", color: "#a16207" },
+  { value: "completed", label: "已完工", color: "#15803d" },
+  { value: "preparing", label: "準備中", color: "#64748b" },
+];
+/** 生態調查站：物種數分級 */
+export const ECOLOGY_SPECIES_STEPS = [
+  { min: 0, label: "< 10 種", color: "#bbf7d0" },
+  { min: 10, label: "10–29 種", color: "#4ade80" },
+  { min: 30, label: "30–79 種", color: "#16a34a" },
+  { min: 80, label: "≥ 80 種", color: "#14532d" },
+] as const;
+export function ecologyColorExpr(): unknown[] {
+  return ["step", ["to-number", ["get", "species_count"], 0], ECOLOGY_SPECIES_STEPS[0].color,
+    ...ECOLOGY_SPECIES_STEPS.slice(1).flatMap((step) => [step.min, step.color])];
+}
+
+// ── 圖例／popup 共用說明 ────────────────────────────────────────────────
+
+export const ATLAS_NOTES = {
+  indigenousTribes: "原民會部落位置點表（2022-07）× 現行核定部落（2026-09）；灰點＝不在現行核定名單。另有 13 個現行核定部落沒有點位，未上圖。",
+  indigenousIsolationRisk: "點是地區代表中心點，不是範圍；3 筆來源無座標，以村里代表點代替。",
+  agriRuralCommunityVillages: "農村社區分類以村里為單位（農業部農村發展及水土保持署）；放大到 7 級以上顯示。",
+  provincialRoadSigns: "交通部公路局省道標誌清查；放大到 11 級以上顯示點位，較低縮放以熱區顯示。調查日期逐筆不同，非即時現況。",
+  provincialRoadMileposts: "放大到 11 級以上顯示。調查日期逐筆不同。",
+  freewayTrafficSigns: "交通部高速公路局交通標誌；放大到 10 級以上顯示。約 1／4 標誌來源未給代碼名稱（灰點）。",
+  freewayInterchanges: "交通部高速公路局國道交流道（207 處）。",
+  freewayEcoSensitive: "敏感等級為來源分級，來源未說明數字大小的方向，只用同色深淺區分。",
+  provincialRoadMonitored: "省道防救災監控路段；只顯示一般門檻文字，即時封路狀態不在本層。放大到 8 級以上顯示。",
+  provincialRoadEmergencyBays: "省道緊急避車彎（112–113 年清單）；淡紫＝只出現在舊年度清單。",
+  floodDisasterPointsNcdr: "國家災害防救科技中心淹水災點，只到「年」；2023 年覆蓋不足，筆數是通報列數，不等於淹水次數。",
+  taipeiWaterloggingHistory: "臺北市歷年積水範圍；深度單位來源未標，依值域推定為公分。",
+  swcbDisasterPhotoPoints: "水保署土砂災害照片拍攝點（34,419 張）；只放照片連結，不嵌入影像。低縮放以熱區顯示。",
+  cetaceanStrandings: "鯨豚擱淺事件；83 筆無座標未上圖。橘點＝座標與通報縣市不一致（疑誤，未修正）。",
+  seaTurtleStrandings: "海龜擱淺事件；543 筆（約 24%）無座標未上圖。橘點＝座標與通報縣市不一致（疑誤，未修正）。",
+  beachWaterQuality: "海水浴場水質，只在游泳季採樣；顏色是最近一次採樣等級。",
+  marineMicroplastics: "海洋微塑膠調查站（2021–2023）；顏色是表層平均總濃度。站位是各航次座標平均。",
+  marinePollutionIncidents: "海洋污染事件（2003 起）；62 筆無座標（含 2 筆來源為 (0,0)）未上圖；60 筆座標在臺灣周邊範圍外，照來源畫出。",
+  namrEdnaSurveySites: "國家海洋研究院環境 DNA 調查站位（度分秒換算）。",
+  placeNames: "內政部臺灣地區地名資料：同一實體只畫一點，精度 >1.2 km 的 105 點不上圖；依類別分級顯示（自然 z9、村里與聚落 z12、地標 z14）。",
+  triangulationPoints: "內政部三角點（TWD67 度分秒換算 WGS84，約 ±10 m）。",
+  wraFloodgatesCentral: "1999–2000 年測量成果，非現況，沒有啟閉狀態。",
+  wraCentralDrainage: "中央管區域排水設施範圍（33 條）。",
+  iowStructureMonitoring: "水利署 IoT 堤防與閘門結構安全監測站（站點基底，非即時數值）。",
+  wraDredgingPoints: "河川疏濬工程點位（快照）；多數座標只到小數 2 位（約 ±1 km），點開看精度。數量單位來源未註明。",
+  wraEcologySurveySites: "水利署河川生態調查站（1995–2019，2019 後停更）；顏色是物種數。",
+} as const satisfies Record<AtlasLayerKey, string>;

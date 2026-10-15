@@ -8,9 +8,11 @@ import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensit
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RADIUS_STOPS, JMA_VOLCANO_LEVELS, jmaAmedasColorExpr, jmaAmedasFilter, jmaAmedasMode, jmaIsNullExpr } from "../data/jmaTypes";
 import { paramDefault } from "../data/layerParamsSpec";
+import { fireStationColorMatch } from "../data/fireTypes";
 import { withPointSpec } from "./pointSpec";
+import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
@@ -43,6 +45,7 @@ const DENSE_FROM = {
   religionTemples: densePointsFromZoom(19_201),
   harmReductionDuiCrashes: densePointsFromZoom(36_814),
   highwayDisasterHistory: densePointsFromZoom(16_163),
+  swcbDisasterPhotoPoints: densePointsFromZoom(34_419),
   tourHotels: densePointsFromZoom(15_654),
   medAED: densePointsFromZoom(15_490),
   busStationsIntercity: densePointsFromZoom(15_383),
@@ -258,6 +261,15 @@ import {
 import {
   ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
 } from "../data/landslideTypes";
+import {
+  ANIMAL_STATUS_OPTIONS, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FLOOD_YEARS, FREEWAY_SIGN_GROUP_OPTIONS,
+  FREEWAY_SIGNS_MIN_ZOOM, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MILEPOSTS_MIN_ZOOM, MONITORED_MIN_ZOOM,
+  MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
+  ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
+  STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS,
+  atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
+  matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
+} from "../data/atlasLayerTypes";
 import {
   AVIATION_NOISE_ZONE_COLOR_EXPR,
   NOISE_CAPTURE_ATTRIBUTION,
@@ -2114,7 +2126,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 消防分隊 (全台 22 縣市，677 點) ──
-  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰
+  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰（色號 SSOT = data/fireTypes.ts FIRE_STATION_CATS）
   {
     id: "fireStations",
     sourceUrl: "./geo/fire_stations.geojson",
@@ -2140,13 +2152,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               7, catR(2 * scale), 11, catR(5 * scale), 14, catR(9 * scale), 17, catR(14 * scale),
             ] as unknown as number,
             "circle-blur": 1,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             // 散點 toggle 關閉 → opacity 0（仍可被 queryRenderedFeatures 命中 → popup 照常）
             "circle-opacity": (isDark ? 0.16 : 0.2) * opacity * (p?.fireStationsDots ?? 1),
             "circle-translate": [0, -z],
@@ -2172,13 +2178,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               7, catR(1 * scale), 11, catR(2.2 * scale), 14, catR(4 * scale), 17, catR(6.5 * scale),
             ] as unknown as number,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.9)",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3941,7 +3941,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (isDark) => ({
-          "fill-color": isDark ? "#06b6d4" : "#0891b2",
+          "fill-color": isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light,
           "fill-opacity": isDark ? 0.35 : 0.3,
         }),
       },
@@ -4015,6 +4015,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "circle-opacity": 1,
           };
         },
+      },
+    ],
+  },
+
+  // ── 水庫即時水情 Reservoir status（R6 段 2，2026-10-06：平面版，預設）──
+  // 資料由 useReservoirStatusLayer 依時間軸 setData（與 3D 水位計同一份 statuses）。
+  // 色＝警示等級（同 3D 水柱色，缺值為「無資料」灰）、大小＝有效容量立方根（同 3D 外殼），蓄水率 % 文字。
+  // 排在壩體之後＝疊在壩體點上；「立體效果」開時 Three.js 水位計疊在更上面，平面點保留當點選目標。
+  {
+    id: "waterReservoirs",
+    opacityParam: "waterReservoirsOpacity",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "water-reservoir-status",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => ({
+          "circle-radius": reservoirCapacityRadiusExpr(params?.waterReservoirsScale ?? 1),
+          "circle-color": reservoirAlertColorExpr(),
+          "circle-opacity": POINT_OPACITY.base,
+        }),
+      },
+      {
+        suffix: "label",
+        type: "symbol",
+        minzoom: 9,
+        layout: {
+          "text-field": reservoirPctLabelExpr(),
+          // T-2 計數徽章：11／13 Bold、可重疊、底圖色 halo
+          "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+          ...badgeLabelLayout(),
+          "text-anchor": "top",
+          "text-offset": [0, 0.9],
+        },
+        paint: (isDark) => ({
+          "text-color": isDark ? "#e5e7eb" : "#1f2937",
+          ...labelHaloPaint(isDark),
+        }),
       },
     ],
   },
@@ -6288,6 +6328,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: [],
     layers: [
+      // R6 段 2（2026-10-06）：平面版（預設）。色＝燃料（同 legend powerPlants 的 FUEL_COLORS，
+      // 由 hook 寫進 feature.color）、大小＝即時出力 MW（面積 ∝ 出力，不隨縮放）；描邊由 withPointSpec（B）套 P-2。
+      // 「立體效果」開時 Three.js 光柱疊在上面，平面圓點保留當柱底與點選目標。
+      {
+        suffix: "circle",
+        type: "circle",
+        layout: { "circle-sort-key": ["-", 0, ["coalesce", ["get", "output_mw"], 0]] },
+        paint: (_isDark, params) => ({
+          "circle-radius": powerOutputRadiusExpr(params?.powerGenerationScale ?? 1),
+          "circle-color": ["coalesce", ["get", "color"], "#9ca3af"], // 後備色＝FUEL_FALLBACK_COLOR（hook 已用 fuelColorOf 寫入）
+          "circle-opacity": params?.powerGenerationOpacity ?? 0.7,
+        }),
+      },
       {
         suffix: "hit",
         type: "circle",
@@ -11485,6 +11538,102 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
 OVERLAY_REGISTRY.push(...HARM_REDUCTION_OVERLAYS);
 OVERLAY_REGISTRY.push(...LANDSLIDE_OVERLAYS);
+
+/**
+ * atlas 批次 2026-10：26 層點／線／面（原民與農村、道路設施、淹水與災害照片、海洋、地名、水利設施）。
+ * 全部 git 管理、dist 供檔（PMTiles 最大約 16MB，比照酒駕事故前例）；資料由
+ * scripts/preprocess/build-atlas-public.py 產出，PMTiles 逐 zoom 稽核筆數（不抽稀不丟點）。
+ * 點位共用公共生活點層 helper；attribution 一律明傳（helper 預設是 OSM）。
+ * PMTiles 點層不畫文字標籤（vector source 的 symbol placement 有 production 崩潰紀錄，見 helper 註解）。
+ */
+const OGDL_ATTR = "政府資料開放授權條款第1版";
+const polygonLayers = (key: string, color: unknown, def: number, minzoom?: number, filter?: (p?: Record<string, number>) => unknown[]): OverlayConfig["layers"] => [
+  { suffix: "fill", type: "fill", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": p?.[`${key}Opacity`] ?? def }) },
+  { suffix: "outline", type: "line", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (dark, p) => ({
+    "line-color": dark ? "#e2e8f0" : color, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 14, 1.4],
+    "line-opacity": Math.min(1, (p?.[`${key}Opacity`] ?? def) + 0.3),
+  }) },
+];
+
+const ATLAS_OVERLAYS: OverlayConfig[] = [
+  // ── 原民與農村 ──
+  publicLifePointOverlay("indigenousTribes", "./indigenous_rural/indigenous_tribes.geojson", "indigenous-tribes", tribeColorExpr(), undefined, `原住民族委員會 部落位置 GIS 點位表（data.gov.tw 156632）＋核定部落（7093）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 12 }),
+  publicLifePointOverlay("indigenousIsolationRisk", "./indigenous_rural/indigenous_isolation_risk_areas.geojson", "indigenous-isolation-risk", matchColorExpr("cause_combo", ISOLATION_CAUSE_OPTIONS), undefined, `原住民族委員會 原住民族地區易成孤島地區（data.gov.tw 170259，114 年度）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 11 }),
+  {
+    id: "agriRuralCommunityVillages", sourceUrl: "./indigenous_rural/rural_community_villages.pmtiles", sourceId: "agri-rural-community-villages",
+    pmtiles: { sourceLayer: "rural_community_villages", minzoom: RURAL_MIN_ZOOM, maxzoom: 12 },
+    attribution: `農業部農村發展及水土保持署 農村社區分類（村里）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("agriRuralCommunityVillages", matchColorExpr("community_type", RURAL_COMMUNITY_OPTIONS), 0.45, RURAL_MIN_ZOOM, (p) => atlasMultiSelectFilter("community_type", RURAL_COMMUNITY_OPTIONS, p?.agriRuralCommunityVillagesTypeMask)),
+  },
+  // ── 道路設施 ──
+  publicLifePointOverlay("provincialRoadSigns", "./geo/provincial_road_signs.pmtiles", "provincial-road-signs", matchColorExpr("sign_series", ROAD_SIGN_SERIES_OPTIONS), { sourceLayer: "provincial_road_signs", minzoom: ROAD_SIGNS_TILE_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道標誌清查（data.gov.tw 146233 等）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("sign_series", ROAD_SIGN_SERIES_OPTIONS, p?.provincialRoadSignsSeriesMask), dense: { pointsFromZoom: ROAD_SIGNS_POINT_MIN_ZOOM, intensity: 1 } }),
+  publicLifePointOverlay("provincialRoadMileposts", "./geo/provincial_road_mileposts.pmtiles", "provincial-road-mileposts", ATLAS_LAYER_COLORS.provincialRoadMileposts, { sourceLayer: "provincial_road_mileposts", minzoom: MILEPOSTS_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道里程牌（data.gov.tw 7040）· ${OGDL_ATTR}`, [2, 5]),
+  publicLifePointOverlay("freewayTrafficSigns", "./geo/freeway_traffic_signs.pmtiles", "freeway-traffic-signs", matchColorExpr("sign_group", FREEWAY_SIGN_GROUP_OPTIONS), { sourceLayer: "freeway_traffic_signs", minzoom: FREEWAY_SIGNS_MIN_ZOOM, maxzoom: 14 }, `交通部高速公路局 交通標誌（data.gov.tw 98447）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("sign_group", FREEWAY_SIGN_GROUP_OPTIONS, p?.freewayTrafficSignsGroupMask) }),
+  publicLifePointOverlay("freewayInterchanges", "./geo/freeway_interchanges.geojson", "freeway-interchanges", matchColorExpr("facility_type", INTERCHANGE_TYPE_OPTIONS), undefined, `交通部高速公路局 國道交流道（data.gov.tw 166496）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 10 }),
+  {
+    id: "freewayEcoSensitive", sourceUrl: "./geo/freeway_eco_sensitive_sections.geojson", sourceId: "freeway-eco-sensitive",
+    attribution: `交通部高速公路局 國道生態敏感路段（data.gov.tw 31290）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("freewayEcoSensitive", ecoLevelColorExpr(), 0.5),
+  },
+  {
+    id: "provincialRoadMonitored", sourceUrl: "./geo/provincial_road_monitored_sections.pmtiles", sourceId: "provincial-road-monitored",
+    pmtiles: { sourceLayer: "provincial_road_monitored_sections", minzoom: MONITORED_MIN_ZOOM, maxzoom: 12 },
+    attribution: `交通部公路局 省道防救災監控路段（data.gov.tw 16193 等）· ${OGDL_ATTR}`, rebuildOnParamChange: ["line", "point"],
+    layers: [
+      { suffix: "line", type: "line", minzoom: MONITORED_MIN_ZOOM, filter: (p) => ["all", ["==", ["geometry-type"], "LineString"], atlasMultiSelectFilter("monitor_series", MONITOR_SERIES_OPTIONS, p?.provincialRoadMonitoredSeriesMask)], paint: (_dark, p) => ({
+        "line-color": matchColorExpr("monitor_series", MONITOR_SERIES_OPTIONS), "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 14, 5],
+        "line-opacity": p?.provincialRoadMonitoredOpacity ?? 0.85,
+      }) },
+      { suffix: "point", type: "circle", minzoom: MONITORED_MIN_ZOOM, filter: (p) => ["all", ["==", ["geometry-type"], "Point"], atlasMultiSelectFilter("monitor_series", MONITOR_SERIES_OPTIONS, p?.provincialRoadMonitoredSeriesMask)], paint: (dark, p) => ({
+        "circle-color": matchColorExpr("monitor_series", MONITOR_SERIES_OPTIONS), "circle-radius": 5 * (p?.provincialRoadMonitoredScale ?? 1),
+        "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 1, "circle-opacity": p?.provincialRoadMonitoredOpacity ?? 0.85,
+      }) },
+    ],
+  },
+  {
+    id: "provincialRoadEmergencyBays", sourceUrl: "./geo/provincial_road_emergency_bays.geojson", sourceId: "provincial-road-emergency-bays",
+    attribution: `交通部公路局 省道緊急避車彎（data.gov.tw 99940）· ${OGDL_ATTR}`, rebuildOnParamChange: ["line", "point"],
+    layers: [
+      { suffix: "line", type: "line", filter: ["==", ["geometry-type"], "LineString"], paint: (_dark, p) => ({
+        "line-color": emergencyBayColorExpr(), "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 14, 5], "line-opacity": p?.provincialRoadEmergencyBaysOpacity ?? 0.9,
+      }) },
+      { suffix: "point", type: "circle", filter: ["==", ["geometry-type"], "Point"], paint: (dark, p) => ({
+        "circle-color": emergencyBayColorExpr(), "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * (p?.provincialRoadEmergencyBaysScale ?? 1), 14, 6 * (p?.provincialRoadEmergencyBaysScale ?? 1)],
+        "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 1, "circle-opacity": p?.provincialRoadEmergencyBaysOpacity ?? 0.9,
+      }) },
+    ],
+  },
+  // ── 淹水與災害照片 ──
+  publicLifePointOverlay("floodDisasterPointsNcdr", "./hazards/flood_disaster_points_ncdr.pmtiles", "flood-disaster-points-ncdr", matchColorExpr("info_source", FLOOD_INFO_SOURCE_OPTIONS), { sourceLayer: "flood_disaster_points_ncdr", minzoom: 5, maxzoom: 12 }, `國家災害防救科技中心 淹水災點（data.gov.tw 130016 等）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", FLOOD_YEARS, p?.floodDisasterPointsNcdrYearMask) }),
+  {
+    id: "taipeiWaterloggingHistory", sourceUrl: "./hazards/taipei_waterlogging_history.geojson", sourceId: "taipei-waterlogging-history",
+    attribution: `臺北市政府工務局水利工程處 歷年積水範圍（data.gov.tw 143898）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("taipeiWaterloggingHistory", ATLAS_LAYER_COLORS.taipeiWaterloggingHistory, 0.5),
+  },
+  publicLifePointOverlay("swcbDisasterPhotoPoints", "./hazards/swcb_disaster_photo_points.pmtiles", "swcb-disaster-photo-points", matchColorExpr("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS), { sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 }, `農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS, p?.swcbDisasterPhotoPointsCategoryMask), dense: { pointsFromZoom: DENSE_FROM.swcbDisasterPhotoPoints, intensity: 1 } }),
+  // ── 海洋 ──
+  publicLifePointOverlay("cetaceanStrandings", "./marine/cetacean_strandings.geojson", "cetacean-strandings", flaggedColorExpr(matchColorExpr("animal_status", ANIMAL_STATUS_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 鯨豚擱淺（data.gov.tw 157624）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.cetaceanStrandingsYearMask) }),
+  publicLifePointOverlay("seaTurtleStrandings", "./marine/sea_turtle_strandings.geojson", "sea-turtle-strandings", flaggedColorExpr(matchColorExpr("species_zh", TURTLE_SPECIES_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 海龜擱淺（data.gov.tw）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.seaTurtleStrandingsYearMask) }),
+  publicLifePointOverlay("beachWaterQuality", "./marine/beach_water_quality.geojson", "beach-water-quality", matchColorExpr("latest_water_level_code", BEACH_LEVEL_OPTIONS), undefined, `環境部 海水浴場水質監測 · ${OGDL_ATTR}`, [5, 9], { labelMinzoom: 9 }),
+  publicLifePointOverlay("marineMicroplastics", "./marine/marine_microplastics_stations.geojson", "marine-microplastics", microplasticColorExpr(), undefined, `海洋委員會 海洋微塑膠調查（2021–2023）· ${OGDL_ATTR}`, [5, 9], { labelMinzoom: 9 }),
+  publicLifePointOverlay("marinePollutionIncidents", "./marine/marine_pollution_incidents.geojson", "marine-pollution-incidents", matchColorExpr("case_level", POLLUTION_LEVEL_OPTIONS), undefined, `海洋委員會海洋保育署 海洋污染事件 · ${OGDL_ATTR}`),
+  publicLifePointOverlay("namrEdnaSurveySites", "./marine/namr_edna_survey_sites.geojson", "namr-edna-survey-sites", ATLAS_LAYER_COLORS.namrEdnaSurveySites, undefined, `國家海洋研究院 環境 DNA 調查站位 · ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
+  // ── 地名 ──
+  publicLifePointOverlay("placeNames", "./geo/place_names_moi.pmtiles", "place-names-moi", matchColorExpr("category", PLACE_CATEGORY_OPTIONS), { sourceLayer: "place_names_moi", minzoom: PLACE_NAMES_MIN_ZOOM, maxzoom: 14 }, `內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("category", PLACE_CATEGORY_OPTIONS, p?.placeNamesCategoryMask) }),
+  publicLifePointOverlay("triangulationPoints", "./geo/triangulation_points_moi.geojson", "triangulation-points-moi", triangulationColorExpr(), undefined, `內政部國土測繪中心 三角點（data.gov.tw 26485）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
+  // ── 水利設施 ──
+  publicLifePointOverlay("wraFloodgatesCentral", "./geo/wra_floodgates_central.geojson", "wra-floodgates-central", matchColorExpr("gate_kind", GATE_KIND_OPTIONS), undefined, `經濟部水利署 水門位置（data.gov.tw 32722）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 15, filter: (p) => atlasMultiSelectFilter("gate_kind", GATE_KIND_OPTIONS, p?.wraFloodgatesCentralKindMask) }),
+  {
+    id: "wraCentralDrainage", sourceUrl: "./geo/wra_central_drainage.geojson", sourceId: "wra-central-drainage",
+    attribution: `經濟部水利署 中央管區域排水設施範圍 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("wraCentralDrainage", ATLAS_LAYER_COLORS.wraCentralDrainage, 0.35),
+  },
+  publicLifePointOverlay("iowStructureMonitoring", "./geo/wra_iow_structure_monitoring.geojson", "iow-structure-monitoring", matchColorExpr("structure_category", STRUCTURE_CATEGORY_OPTIONS), undefined, `經濟部水利署 IoT 水利結構監測站（data.gov.tw 142981 等）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 14 }),
+  publicLifePointOverlay("wraDredgingPoints", "./geo/wra_dredging_points.geojson", "wra-dredging-points", matchColorExpr("status", DREDGING_STATUS_OPTIONS), undefined, `經濟部水利署 河川疏濬工程 · ${OGDL_ATTR}`, [4, 7]),
+  publicLifePointOverlay("wraEcologySurveySites", "./geo/wra_ecology_survey_sites.geojson", "wra-ecology-survey-sites", ecologyColorExpr(), undefined, `經濟部水利署 河川生態調查（1995–2019）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 14 }),
+];
+
+OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。

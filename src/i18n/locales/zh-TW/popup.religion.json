@@ -1,0 +1,21 @@
+{
+  "popup.religion.osmNote": "ⓘ OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）",
+  "popup.religion.unnamedTemple": "無名宮廟",
+  "popup.religion.mainDeity": "主祀神祇",
+  "popup.religion.deityFamily": "神祇分族",
+  "popup.religion.religionType": "教別",
+  "popup.religion.registryStatus": "登記狀態",
+  "popup.religion.heritage": "文化資產",
+  "popup.religion.top100": "宗教百景",
+  "popup.religion.coordSource": "座標來源：{value}（非原始座標，位置為推估）",
+  "popup.religion.unnamedChurch": "無名教會",
+  "popup.religion.ancestralHall": "宗祠",
+  "popup.religion.heritageGrade": "文資級別",
+  "popup.religion.foundation": "宗教基金會",
+  "popup.religion.unnamedWorship": "未命名宗教場所",
+  "popup.religion.religion": "宗教",
+  "popup.religion.denomination": "教派",
+  "popup.religion.religiousSite": "宗教景點",
+  "popup.religion.mapSymbolNote": "此點來自地圖符號，官方未提供名稱。",
+  "popup.religion.openWikidata": "開啟 Wikidata ↗"
+}

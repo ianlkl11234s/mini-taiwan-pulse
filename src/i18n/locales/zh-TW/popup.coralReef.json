@@ -1,0 +1,21 @@
+{
+  "popup.coralReef.title": "珊瑚礁歷史分布 Historical Coral Reefs",
+  "popup.coralReef.reefName": "礁名",
+  "popup.coralReef.featureId": "Feature ID",
+  "popup.coralReef.observedYear": "觀測年",
+  "popup.coralReef.sourceArea": "整筆來源面積",
+  "popup.coralReef.geometryStatus": "幾何狀態",
+  "popup.coralReef.geometryDefinition": "幾何定義",
+  "popup.coralReef.builtAt": "建立時間",
+  "popup.coralReef.note": "歷史基線，非現況健康、活珊瑚覆蓋率或白化；area_km2 是全球完整來源 feature 面積，非臺灣子集面積且不可加總；本視窗相交不等於行政邊界內的礁體面積。",
+  "popup.coralReef.sourceDetails": "詳細來源欄位",
+  "popup.coralReef.originalCompiler": "原始編纂",
+  "popup.coralReef.distributor": "實際分發",
+  "popup.coralReef.metadataId": "Metadata ID",
+  "popup.coralReef.startDate": "開始日期",
+  "popup.coralReef.endDate": "結束日期",
+  "popup.coralReef.dateType": "日期類型",
+  "popup.coralReef.dataType": "資料類型",
+  "popup.coralReef.sourceVerification": "來源驗證",
+  "popup.coralReef.sourceLayer": "來源圖層"
+}

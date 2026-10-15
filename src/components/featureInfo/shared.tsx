@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import { RADIUS, FONT_SIZE, FONT_WEIGHT, FONT_DATA } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { LOCALES } from "../../i18n/locales";
+import type { StaticMessageKey } from "../../i18n/keys";
+import { localeStore, useLocale } from "../../state/localeStore";
+
+/** 共用欄位名（`popup.field.<名>`，見 locales/<語系>/popup.json）。新增常用欄位時加進 popup.json。 */
+export type PopupField = StaticMessageKey extends infer K ? (K extends `popup.field.${infer F}` ? F : never) : never;
 
 /**
  * Popup 內容共用標題 — 前置分類色點 + 粗體標題 + 下方分隔線（B 版規格，
@@ -33,7 +39,7 @@ export function Title({ color, children }: { color: string; children: string }) 
 export function formatTaiwanTime(iso: string | null): string {
   if (!iso) return "";
   try {
-    return new Date(iso).toLocaleString("zh-TW", {
+    return new Date(iso).toLocaleString(LOCALES[localeStore.getSnapshot().active].intl, {
       timeZone: "Asia/Taipei",
       hour12: false,
     });
@@ -42,12 +48,36 @@ export function formatTaiwanTime(iso: string | null): string {
   }
 }
 
-export function Row({ label, value, color, mono, title }: { label: string; value: string; color?: string; mono?: boolean; title?: string }) {
+function formatTaiwanParts(iso: string | null, options: Intl.DateTimeFormatOptions): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString(LOCALES[localeStore.getSnapshot().active].intl, { timeZone: "Asia/Taipei", hour12: false, ...options });
+}
+
+/** 日期＋時分（取代 `formatTaiwanTime(x).slice(0, 16)`，各語系格式正確） */
+export function formatTaiwanMinute(iso: string | null): string {
+  return formatTaiwanParts(iso, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+/** 月日＋時分（取代 `formatTaiwanTime(x).slice(5, 16)`） */
+export function formatTaiwanShort(iso: string | null): string {
+  return formatTaiwanParts(iso, { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+/**
+ * 欄位列。欄位名二擇一：
+ * - `field="address"`：共用欄位（popup.field.*），Row 自己依語系翻譯，面板不必呼叫 useLocale
+ * - `label`：面板自己給的字串（已翻譯或尚未搬遷的中文）
+ */
+export function Row({ label, field, value, color, mono, title }: { label?: string; field?: PopupField; value: string; color?: string; mono?: boolean; title?: string }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
+  const shownLabel = field ? tr(`popup.field.${field}`) : label;
   if (!value || value === "null" || value === "undefined") return null;
   return (
     <div className="fi-row" style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, lineHeight: 1.3 }}>
-      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{label}</span>
+      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{shownLabel}</span>
       <span
         title={title}
         style={{
@@ -83,15 +113,16 @@ export function PopupDetails({ summary, children }: { summary: string; children:
  * properties 期望帶：label（選填標籤）、lng / lat（座標）。
  */
 export function ChatHighlightPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
   const label = typeof props.label === "string" ? props.label : "";
   const lng = Number(props.lng);
   const lat = Number(props.lat);
   const hasCoords = Number.isFinite(lng) && Number.isFinite(lat);
   return (
     <div>
-      {label && <Row label="標記" value={label} />}
-      {hasCoords && <Row label="座標" value={`${lng.toFixed(4)}, ${lat.toFixed(4)}`} mono />}
-      {!label && !hasCoords && <Row label="標記" value="地圖標記點" />}
+      {label && <Row label={t("popup.common.marker")} value={label} />}
+      {hasCoords && <Row label={t("popup.common.coordinates")} value={`${lng.toFixed(4)}, ${lat.toFixed(4)}`} mono />}
+      {!label && !hasCoords && <Row label={t("popup.common.marker")} value={t("popup.common.mapMarker")} />}
     </div>
   );
 }
@@ -157,6 +188,7 @@ function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   // 部分 loader（如 gfwFishingEffortLoader）以 attribution / attribution_href 帶來源，一併視為來源。
   const org = String(props.source_org ?? props.source ?? props.attribution ?? "");
   // 下載頁與出處頁分開：attribution_href 是出處／供應商頁，不是「原始下載頁」
@@ -180,7 +212,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
           color: t.warn,
         }}
       >
-        資料來源 · 來源資訊待補
+        {tr("popup.common.sourceLabel")} · {tr("popup.common.sourceMissing")}
       </div>
     );
   }
@@ -209,7 +241,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
               rel="noreferrer"
               style={{ color: t.link, textDecoration: "none" }}
             >
-              原始下載頁 ↗
+              {tr("popup.common.originalDownload")}
             </a>
           </>
         )}
@@ -222,7 +254,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
               rel="noreferrer"
               style={{ color: t.link, textDecoration: "none" }}
             >
-              資料來源 ↗
+              {tr("popup.common.sourceLink")}
             </a>
           </>
         )}
@@ -231,13 +263,13 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
         <div style={{ marginTop: 2, fontFamily: FONT_DATA }}>
           {license}
           {license && fetched ? " · " : ""}
-          {fetched && `抓取於 ${fetched}`}
+          {fetched && tr("popup.common.fetchedAt", { time: fetched })}
         </div>
       )}
       {provenance.length > 1 && (
         <details style={{ marginTop: 4 }}>
           <summary style={{ cursor: "pointer" }}>
-            溯源 {provenance.length} 筆
+            {tr("popup.common.provenanceCount", { count: provenance.length })}
           </summary>
           <ul style={{ margin: "4px 0 0 12px", padding: 0 }}>
             {provenance.map((p, i) => {
@@ -258,7 +290,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
                         rel="noreferrer"
                         style={{ color: t.link }}
                       >
-                        原始頁
+                        {tr("popup.common.originalPage")}
                       </a>
                     </>
                   )}

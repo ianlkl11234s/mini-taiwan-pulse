@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LogIn, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { signInWithGoogle, signOut, useUser } from "../../lib/auth";
+import { useLocale } from "../../state/localeStore";
 import {
   COLORS,
   SURFACE,
@@ -27,6 +28,7 @@ import {
  */
 export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact = false }: { isOwner?: boolean; onOpenAdmin?: () => void; isDarkTheme?: boolean; compact?: boolean } = {}) {
   const { user, loading } = useUser();
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   // 按鈕字色跟主題走（淡色底圖上白字會看不見）；compact = 手機標頭 M1 的 30×30、圓角 6 圖示按鈕
   const fg = isDarkTheme ? COLORS.textStrong : LIGHT.textStrong;
@@ -70,8 +72,8 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
     return (
       <button
         type="button"
-        aria-label="使用 Google 登入"
-        title="使用 Google 登入"
+        aria-label={t("auth.signInWithGoogle")}
+        title={t("auth.signInWithGoogle")}
         onClick={() => {
           void signInWithGoogle().catch((err) => console.error("[auth] signIn failed", err));
         }}
@@ -94,7 +96,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
         }}
       >
         <LogIn size={compact ? 16 : 14} />
-        {!compact && "登入"}
+        {!compact && t("auth.signIn")}
       </button>
     );
   }

@@ -1,0 +1,10 @@
+{
+  "enum.animalWelfarePointType.veterinary_clinic": "動物病院",
+  "enum.animalWelfarePointType.licensed_pet_business": "特定ペット業",
+  "enum.animalWelfarePointType.animal_protection_office": "動物保護機関",
+  "enum.animalWelfarePointType.pet_registration_station": "ペット登録所",
+  "enum.animalWelfarePointType.rabies_vaccination_site": "狂犬病ワクチン接種所",
+  "enum.animalWelfarePointType.veterinary_emergency": "動物救急",
+  "enum.animalWelfarePointType.pet_friendly_place": "ペット同伴可の施設",
+  "enum.animalWelfarePointType.unknown": "その他のサービス拠点"
+}

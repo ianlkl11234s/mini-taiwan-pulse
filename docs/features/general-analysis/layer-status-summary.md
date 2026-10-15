@@ -3,19 +3,19 @@
 > 由 `scripts/research/build-layer-status.mjs` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
-- 圖層總數：**1078**；L1 可操作：**1078/1078**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**862/1078**（80.0%）
+- 圖層總數：**1174**；L1 可操作：**1174/1174**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**954/1174**（81.3%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：27
-- 只有舊瀏覽器 reader：6；尚不可分析：178
+- 只有舊瀏覽器 reader：6；尚不可分析：182
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 638 | 314 | 199 | 2 | 5 | 114 | 4 |
-| 統計 | 355 | 1 | 346 | 3 | 0 | 5 | 0 |
+| 臺灣圖層 | 664 | 340 | 199 | 2 | 5 | 114 | 4 |
+| 統計 | 421 | 1 | 412 | 3 | 0 | 5 | 0 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 | 0 |
-| 日本 | 60 | 15 | 0 | 2 | 0 | 42 | 1 |
+| 日本 | 64 | 15 | 0 | 2 | 0 | 46 | 1 |
 
 ## 尚不可分析的原因
 
@@ -26,8 +26,8 @@
 | warehouse_SKIPPED_FORMAT | 15 |
 | derived_layer | 9 |
 | warehouse_SKIPPED_DISPLAY_ONLY | 8 |
+| upstream_catalog_missing | 7 |
 | warehouse_FAILED | 7 |
-| upstream_catalog_missing | 3 |
 | override: snapshot_candidate: 同一 2025-04 PMTiles artifact 換 filter；LICENSE_UNVERIFIED。 | 2 |
 | override: snapshot_candidate: 本地 research PMTiles 靜態界線（A10 2010 historical outer polygon），非現行法定界線／zoning；可入倉做面積、與其他保護區重疊分析；NON_COMMERCIAL_ONLY 限制需保留於 metadata。 | 1 |
 | override: snapshot_candidate: 同 jpNaturalParksNational，共用同一份 A10 2010 PMTiles artifact 換 filter_layer_id；outer polygon、非商用限制。 | 1 |
@@ -93,26 +93,26 @@
 
 | precision_class | 圖層數 |
 |---|---|
-| official | 137 |
+| official | 162 |
 | address_geocode | 84 |
 | unknown | 82 |
 | google_geocode | 22 |
 | address_geocode+official | 6 |
 | unknown+official | 3 |
-| village_centroid | 2 |
+| village_centroid | 3 |
 | proxy | 1 |
 
 ## 空間涵蓋（spatial 圖層）
 
 | 涵蓋 | 圖層數 |
 |---|---|
-| national | 186 |
-| 19 counties | 33 |
-| unknown | 19 |
+| national | 193 |
+| 19 counties | 36 |
+| unknown | 20 |
 | 2 counties | 15 |
-| 18 counties | 12 |
-| 17 counties | 10 |
-| 13 counties | 9 |
+| 18 counties | 13 |
+| 17 counties | 13 |
+| 13 counties | 10 |
 | 3 counties | 7 |
 
 「N counties」代表區域性資料集：跨地比較時，未涵蓋的縣市應標「未涵蓋」而非 0（引擎的 nearby_profile 已自動處理）。

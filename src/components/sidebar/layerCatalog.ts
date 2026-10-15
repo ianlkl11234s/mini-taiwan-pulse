@@ -31,6 +31,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_SUBGROUPS, LANDSLIDE_STATISTICS_TAB_THEME_TITLE, LANDSLIDE_STATISTICS_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
+import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -259,6 +260,15 @@ function landslideGroups(): SubGroupDef[] {
   return LANDSLIDE_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: LANDSLIDE_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
 }
 
+/** atlas 六家族：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
+function atlasGroups(groups: ReadonlyArray<{ title: string; keys: readonly string[] }>): SubGroupDef[] {
+  return groups.map(({ title, keys }) => ({ title, layers: keys.map((key) => fromManifest(key as ManifestKey)) }));
+}
+/** Statistics 分頁主題（新主題或併入既有主題的群組）。 */
+function atlasTabTheme(title: string): ThemeDef {
+  return { title, defaultCollapsed: true, groups: atlasGroups(atlasTabThemeGroups(title)) };
+}
+
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "工作與所得 Work & Income", groups: [
@@ -315,6 +325,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "人口統計 Population Statistics", groups: [...demographicsDataGroups(), { title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
   { title: ADDICTION_STATISTICS_THEME_TITLE, groups: addictionGroups() },
   { title: LANDSLIDE_STATISTICS_THEME_TITLE, groups: landslideGroups() },
+  ...ATLAS_DATA_THEME_TITLES.map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) })),
   { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
     fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
     ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
@@ -351,6 +362,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "教育與少子化", layers: [
         ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
       ] },
+      ...atlasGroups(atlasTabThemeGroups("人口與教育 Population & Education")),
     ],
   },
   {
@@ -360,6 +372,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "醫療與長照", layers: [
         fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
       ] },
+      ...atlasGroups(atlasTabThemeGroups("醫療與長照 Health & Care")),
     ],
   },
   {
@@ -374,6 +387,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
     ],
   },
+  atlasTabTheme(ATLAS_TAB_THEME_TITLES.sports),
   {
     title: "工作與所得 Work & Income",
     defaultCollapsed: true,
@@ -398,6 +412,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "不動產總市值", layers: [fromManifest("propertyValueAdmin")] },
     ],
   },
+  atlasTabTheme(ATLAS_TAB_THEME_TITLES.fiscal),
   {
     title: "公共運輸 Public Transport",
     defaultCollapsed: true,
@@ -474,6 +489,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
         fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"),
         fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship"),
       ] },
+      ...atlasGroups(atlasTabThemeGroups("農林漁牧 Agriculture, Forestry & Fisheries")),
     ],
   },
   {
@@ -494,6 +510,8 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     defaultCollapsed: true,
     groups: landslideGroups(),
   },
+  atlasTabTheme(ATLAS_TAB_THEME_TITLES.hazard),
+  atlasTabTheme(ATLAS_TAB_THEME_TITLES.marine),
   {
     title: "地圖參考 Map Reference",
     defaultCollapsed: true,
@@ -620,6 +638,14 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("osmRoadDrive"),
         ],
       },
+      {
+        // 內政部地名（PMTiles，不畫文字標籤）＋三角點
+        title: "地名 Gazetteer",
+        layers: [
+          fromManifest("placeNames"),
+          fromManifest("triangulationPoints"),
+        ],
+      },
     ],
   },
 
@@ -726,6 +752,42 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("parkingOnstreet"),
           fromManifest("parkingOffstreet"),
+        ],
+      },
+      {
+        // atlas 批次 2026-10：省道／國道標誌、里程牌、交流道、生態敏感路段、防救災監控路段、避車彎
+        title: "道路設施 Road Facilities",
+        layers: [
+          fromManifest("provincialRoadSigns"),
+          fromManifest("provincialRoadMileposts"),
+          fromManifest("freewayTrafficSigns"),
+          fromManifest("freewayInterchanges"),
+          fromManifest("freewayEcoSensitive"),
+          fromManifest("provincialRoadMonitored"),
+          fromManifest("provincialRoadEmergencyBays"),
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🏔️ 原民與農村（atlas 批次 2026-10）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "原民與農村 Indigenous & Rural",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "原住民族 Indigenous Peoples",
+        layers: [
+          fromManifest("indigenousTribes"),
+          fromManifest("indigenousIsolationRisk"),
+        ],
+      },
+      {
+        title: "農村 Rural",
+        layers: [
+          fromManifest("agriRuralCommunityVillages"),
         ],
       },
     ],
@@ -1404,6 +1466,14 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("landslideDodImpact"),
           fromManifest("highwayDisasterHistory"),
           fromManifest("landslideAnnual"),
+          fromManifest("swcbDisasterPhotoPoints"),
+        ],
+      },
+      {
+        title: "淹水 Flooding",
+        layers: [
+          fromManifest("floodDisasterPointsNcdr"),
+          fromManifest("taipeiWaterloggingHistory"),
         ],
       },
       {
@@ -1574,6 +1644,37 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🌊 海洋（atlas 批次 2026-10）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "海洋 Marine",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "擱淺 Strandings",
+        layers: [
+          fromManifest("cetaceanStrandings"),
+          fromManifest("seaTurtleStrandings"),
+        ],
+      },
+      {
+        title: "海域環境 Marine Environment",
+        layers: [
+          fromManifest("beachWaterQuality"),
+          fromManifest("marineMicroplastics"),
+          fromManifest("marinePollutionIncidents"),
+        ],
+      },
+      {
+        title: "調查站網 Survey Sites",
+        layers: [
+          fromManifest("namrEdnaSurveySites"),
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 💧 WATER 水資源
   // ───────────────────────────────────────────────────────────────
   {
@@ -1610,6 +1711,16 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("waterDetentionBasins"),
           fromManifest("groundwater"),
           fromManifest("lakesPondsOsm"),
+        ],
+      },
+      {
+        title: "水利設施 Water Facilities",
+        layers: [
+          fromManifest("wraFloodgatesCentral"),
+          fromManifest("wraCentralDrainage"),
+          fromManifest("iowStructureMonitoring"),
+          fromManifest("wraDredgingPoints"),
+          fromManifest("wraEcologySurveySites"),
         ],
       },
       {
@@ -2149,6 +2260,14 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "人口統計 Population Statistics": "city",
   [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
   [LANDSLIDE_STATISTICS_THEME_TITLE]: "environment",
+  "疾病與健康統計 Disease & Health Statistics": "publicLife",
+  "財稅與消費統計 Fiscal & Consumption Statistics": "city",
+  "原民與農村統計 Indigenous & Rural Statistics": "city",
+  "體育統計 Sports Statistics": "publicLife",
+  "災害風險統計 Disaster Risk Statistics": "environment",
+  "海洋統計 Marine Statistics": "environment",
+  "原民與農村 Indigenous & Rural": "city",
+  "海洋 Marine": "environment",
   "統計比較": "publicLife",
   "教育與少子化統計": "publicLife",
   "醫療與長照統計": "publicLife",
@@ -2236,6 +2355,11 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "農林漁牧 Agriculture, Forestry & Fisheries": { zh: "農林漁牧", sub: "Agriculture, Forestry & Fisheries" },
   "環境與資源 Environment & Resources": { zh: "環境與資源", sub: "Environment & Resources" },
   "崩塌與水土保持 Landslides & Soil Conservation": { zh: "崩塌與水土保持", sub: "Landslides & Soil Conservation" },
+  "財稅與消費 Fiscal & Consumption": { zh: "財稅與消費", sub: "Fiscal & Consumption" },
+  "體育運動 Sports": { zh: "體育運動", sub: "Sports" },
+  "災害風險 Disaster Risk": { zh: "災害風險", sub: "Disaster Risk" },
+  "海洋 Marine": { zh: "海洋", sub: "Marine" },
+  "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
   "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
   "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
   "農業統計": { zh: "農業統計" },
@@ -2250,6 +2374,12 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
   "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
   "崩塌與水土保持統計 Landslide & Soil Conservation Statistics": { zh: "崩塌與水土保持統計", sub: "Landslide & Soil Conservation Statistics" },
+  "疾病與健康統計 Disease & Health Statistics": { zh: "疾病與健康統計", sub: "Disease & Health Statistics" },
+  "財稅與消費統計 Fiscal & Consumption Statistics": { zh: "財稅與消費統計", sub: "Fiscal & Consumption Statistics" },
+  "原民與農村統計 Indigenous & Rural Statistics": { zh: "原民與農村統計", sub: "Indigenous & Rural Statistics" },
+  "體育統計 Sports Statistics": { zh: "體育統計", sub: "Sports Statistics" },
+  "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
+  "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
   "統計比較": { zh: "統計比較" },
   "教育與少子化統計": { zh: "教育與少子化統計" },
   "醫療與長照統計": { zh: "醫療與長照統計" },

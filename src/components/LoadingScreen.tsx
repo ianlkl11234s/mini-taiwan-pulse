@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { BOOT_CITIES, BOOT_LAYOUT, BOOT_TIMING, bootGeometry, type BootPhase } from "./boot/bootSequence";
+import { useLocale } from "../state/localeStore";
 import { TAIWAN_OUTLINE } from "./boot/taiwanOutline";
 import "./boot/bootScreen.css";
 
@@ -15,6 +16,7 @@ const GEOMETRY = bootGeometry();
  * 只負責畫面；時間（完成停留、淡出、元件彈入）由 App 依 BOOT_TIMING 推進 phase。
  */
 export function LoadingScreen({ phase, isDarkTheme }: LoadingScreenProps) {
+  const { t } = useLocale();
   const done = phase !== "loading";
   const className = [
     "boot-screen",
@@ -54,7 +56,7 @@ export function LoadingScreen({ phase, isDarkTheme }: LoadingScreenProps) {
             <span className="boot-screen__icon">
               {done ? <Check size={10} strokeWidth={2.5} /> : <span className="boot-screen__ring" />}
             </span>
-            <span>{done ? "完成" : "載入地圖"}</span>
+            <span>{done ? t("boot.done") : t("boot.loadingMap")}</span>
           </div>
         </div>
       </div>

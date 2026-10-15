@@ -58,6 +58,7 @@ import { LABOR_ENABLED_STATISTICS_KEYS } from "../../data/laborStatisticsRecipes
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../data/environmentStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../data/addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../data/landslideStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../data/atlasStatisticsRecipes";
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../data/demographicsStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
@@ -125,6 +126,8 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   ...ADDICTION_ENABLED_STATISTICS_KEYS,
   // Landslide-statistics recipes share the same MapView dynamic runtime.
   ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
+  // Atlas-statistics recipes (six families) share the same MapView dynamic runtime.
+  ...ATLAS_ENABLED_STATISTICS_KEYS,
   // Demographics-statistics recipes share the same MapView dynamic runtime.
   ...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS,
 ]);
@@ -192,6 +195,13 @@ const NO_HOOK_LEDGER = new Set<string>([
   "harmReductionAlcohol", "harmReductionPrep", "harmReductionInternetAddiction", "harmReductionAftercare", "harmReductionSmokingCessation", "harmReductionAntiDrugPharmacies", "harmReductionCondomOutlets", "harmReductionTherapeuticCommunities", "harmReductionDuiCrashes",
   // 崩塌：純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
   "landslideDodAreas", "landslideDodImpact", "highwayDisasterHistory", "landslideAnnual",
+  // atlas 批次 2026-10：26 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "indigenousTribes", "indigenousIsolationRisk", "agriRuralCommunityVillages",
+  "provincialRoadSigns", "provincialRoadMileposts", "freewayTrafficSigns", "freewayInterchanges", "freewayEcoSensitive", "provincialRoadMonitored", "provincialRoadEmergencyBays",
+  "floodDisasterPointsNcdr", "taipeiWaterloggingHistory", "swcbDisasterPhotoPoints",
+  "cetaceanStrandings", "seaTurtleStrandings", "beachWaterQuality", "marineMicroplastics", "marinePollutionIncidents", "namrEdnaSurveySites",
+  "placeNames", "triangulationPoints",
+  "wraFloodgatesCentral", "wraCentralDrainage", "iowStructureMonitoring", "wraDredgingPoints", "wraEcologySurveySites",
   // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
   "railRoutes",
 
@@ -258,10 +268,14 @@ const NO_HOOK_LEDGER = new Set<string>([
  *     L909-942（h3Population / popCount+indicators / socioeconomic /
  *     spatialEconomy 四段 loader effect；popCount 與 indicators 共用同一個
  *     `loadDemographicsResolution`，各自仍宣告一份 appHook 需求，不是重複計數）
+ *   - R6 段 1（2026-10-05）temperatureWave：App 側 `useTemperatureData` ＋
+ *     useThreeJsLayers 的 3D 溫度波（立體效果開）；registry 側 `useTemperatureGridLayer`
+ *     entry（立體效果關時畫平面網格，`hosts/miscHosts.tsx` TemperatureGridHost）
  */
 const DUAL_MOUNT_KEYS = new Set<string>([
   "rail", "h3Population", "popCount", "indicators",
   "socioeconomic", "spatialEconomy", "youbikeFullness",
+  "temperatureWave",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

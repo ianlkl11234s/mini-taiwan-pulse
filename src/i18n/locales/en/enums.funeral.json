@@ -1,0 +1,22 @@
+{
+  "enum.funeralFacilityType.cemetery": "Cemetery",
+  "enum.funeralFacilityType.columbarium": "Columbarium",
+  "enum.funeralFacilityType.eco_burial": "Eco-burial site",
+  "enum.funeralFacilityType.funeral_home": "Funeral home",
+  "enum.funeralFacilityType.crematorium": "Crematorium",
+  "enum.funeralFacilityType.ritual_hall": "Ceremony hall / mourning hall",
+  "enum.funeralOperatorType.public": "Public",
+  "enum.funeralOperatorType.private": "Private",
+  "enum.funeralPrecision.source": "Official native coordinates",
+  "enum.funeralPrecision.exact": "Address-level (OSM / Google ROOFTOP)",
+  "enum.funeralPrecision.cached": "Address-level (TGOS cache)",
+  "enum.funeralPrecision.tgos": "Matched by TGOS (official)",
+  "enum.funeralPrecision.interpolated": "Interpolated along the same road section",
+  "enum.funeralPrecision.parcel_centroid": "Land parcel centroid (error 1.4–126 m)",
+  "enum.funeralPrecision.approximate": "Township / road section centroid (may be off by hundreds of meters)",
+  "enum.funeralOperatorEntity.business": "Sole proprietorship / partnership",
+  "enum.funeralOperatorEntity.company": "Incorporated company",
+  "enum.funeralZoningClass.grave": "Cemetery / burial land",
+  "enum.funeralZoningClass.facility": "Funeral facility land",
+  "enum.funeralZoningClass.parlor": "Funeral home land"
+}

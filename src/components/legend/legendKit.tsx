@@ -5,9 +5,10 @@
  * 文字色一律走 useLegendTheme()（暗／淡由 LegendPanel 的 Provider 決定）。
  */
 
+import { useLocale } from "../../state/localeStore";
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS } from "../../styles/designTokens";
-import { MAP_SEAM, MISSING_HATCH } from "../../map/mapStyleScale";
+import { MAP_SEAM, MISSING_HATCH, MOVING_POINT } from "../../map/mapStyleScale";
 
 // ── 主題 ──────────────────────────────────────────────────
 export interface LegendPalette {
@@ -20,6 +21,8 @@ export interface LegendPalette {
   border: string;
   /** 色票描邊：同地圖點描邊的底圖色（P-2）。 */
   seam: string;
+  /** 移動物件平面點／箭頭的對比描邊（MOVING_POINT，P-2 例外）。 */
+  movingStroke: string;
   /** 缺值斜線色（F-3 A／viz-library N1）。 */
   hatch: string;
 }
@@ -32,6 +35,7 @@ export const DARK_LEGEND: LegendPalette = {
   bgSubtle: "rgba(255,255,255,0.05)",
   border: "rgba(255,255,255,0.10)",
   seam: MAP_SEAM.dark,
+  movingStroke: MOVING_POINT.stroke.color.dark,
   hatch: `rgba(${MISSING_HATCH.rgb.dark.join(",")},${MISSING_HATCH.alpha})`,
 };
 export const LIGHT_LEGEND: LegendPalette = {
@@ -43,6 +47,7 @@ export const LIGHT_LEGEND: LegendPalette = {
   bgSubtle: LIGHT.fillSubtle,
   border: LIGHT.border,
   seam: MAP_SEAM.light,
+  movingStroke: MOVING_POINT.stroke.color.light,
   hatch: `rgba(${MISSING_HATCH.rgb.light.join(",")},${MISSING_HATCH.alpha})`,
 };
 export const LegendThemeCtx = createContext<LegendPalette>(DARK_LEGEND);
@@ -65,8 +70,14 @@ export const LEGEND_SWATCH = {
 } as const;
 
 // ── 標題（LG-11：中文在前、英文小字在後、不轉大寫）─────
+/**
+ * 圖例標題。`zh` 傳目前語系的標題（`t("legend.<domain>.<id>")`，或用 `localizeLayerName` 借圖層名）；
+ * `en` 是中文介面附的英文小字，外文介面主標題已是譯文，不再重複顯示。
+ */
 export function LegendTitle({ zh, en, style }: { zh: ReactNode; en?: string; style?: CSSProperties }) {
   const t = useLegendTheme();
+  const { active } = useLocale();
+  if (active !== "zh-TW") en = undefined;
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 4, flexWrap: "wrap", marginBottom: 4, ...style }}>
       <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: FONT_WEIGHT.semibold, color: t.textStrong }}>{zh}</span>
@@ -120,6 +131,21 @@ export function SwatchSquare({ color, outline = false, opacity = 0.9, stroke }: 
   );
 }
 
+/**
+ * LG-6 icon：方向箭頭（R6 段 3 移動物件平面模式，與地圖 SDF 箭頭同形狀），14px，
+ * 描邊＝移動物件對比色（MOVING_POINT，同地圖 halo；P-2 例外）。
+ * 尖端朝上＝北；地圖上依行進方向旋轉。
+ */
+export function SwatchArrow({ color }: { color: string }) {
+  const t = useLegendTheme();
+  const s = LEGEND_SWATCH.icon;
+  return (
+    <svg aria-hidden="true" width={s} height={s} viewBox="-1.2 -1.2 2.4 2.4" style={{ flexShrink: 0 }}>
+      <polygon points="0,-1 0.8,0.9 0,0.45 -0.8,0.9" fill={color} stroke={t.movingStroke} strokeWidth={0.2} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /** LG-4 線型：20px 線段；dash 同地圖 line-dasharray（線寬倍數）。 */
 export function SwatchLine({ color, width = 2, dash, opacity = 1 }: { color: string; width?: number; dash?: readonly number[]; opacity?: number }) {
   const w = Math.max(LEGEND_SWATCH.line.minHeight, width);
@@ -170,4 +196,35 @@ export function SwatchHatch({ kind = "missing" }: { kind?: "missing" | "suppress
   const one = `repeating-linear-gradient(135deg, ${t.hatch} 0 1px, transparent 1px 5px)`;
   const background = kind === "suppressed" ? `${one}, repeating-linear-gradient(45deg, ${t.hatch} 0 1px, transparent 1px 5px)` : one;
   return <span aria-hidden="true" style={{ width: s.width, height: s.height, boxSizing: "border-box", border: `1px solid ${t.border}`, background, flexShrink: 0, display: "inline-block" }} />;
+}
+
+/**
+ * LG-5 大小：三個參考值的圓，直徑＝地圖實際直徑（R6 段 2 平面圓點固定 px、不隨縮放，任一縮放都對得上）。
+ * - 預設：`fill` 實心＋底圖色細縫（例：機組出力用中性灰，表示大小與燃料色無關）。
+ * - `ring`：空心圈，描邊＝傳入色（例：水庫容量用水庫面的水系色）。圖層另有灰色「無資料」類別時用這個，避免大小圈跟無資料撞色。
+ */
+export const LEGEND_SIZE_RING_WIDTH = 1.5;
+export function LegendSizeRow({ title, items, fill, ring }: { title: string; items: readonly { r: number; label: string }[]; fill?: string; ring?: string }) {
+  const t = useLegendTheme();
+  return (
+    <div style={{ marginTop: 6 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{title}</div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 10, flexWrap: "wrap" }}>
+        {items.map((x) => (
+          <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <span
+              aria-hidden="true"
+              style={{
+                width: x.r * 2, height: x.r * 2, borderRadius: RADIUS.full, boxSizing: "border-box", flexShrink: 0, display: "inline-block",
+                ...(ring
+                  ? { background: "transparent", border: `${LEGEND_SIZE_RING_WIDTH}px solid ${ring}` }
+                  : { background: fill, boxShadow: `0 0 0 1px ${t.seam}` }),
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}><LegendNum>{x.label}</LegendNum></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

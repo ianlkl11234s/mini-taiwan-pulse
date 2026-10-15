@@ -1,0 +1,12 @@
+{
+  "popup.livestock.farmFallback": "Livestock and poultry farm",
+  "popup.livestock.mainSpecies": "Main species",
+  "popup.livestock.totalHeads": "Total head count",
+  "popup.livestock.speciesDetail": "Species breakdown",
+  "popup.livestock.lowPrecision": "Low (section / village centroid only, not the exact site)",
+  "popup.livestock.slaughterFallback": "Slaughterhouse",
+  "popup.livestock.kind": "Type",
+  "popup.livestock.feedFallback": "Feed mill",
+  "popup.livestock.ban": "Unified Business No.",
+  "popup.livestock.marketFallback": "Auction / wholesale market"
+}

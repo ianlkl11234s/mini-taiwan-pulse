@@ -5,6 +5,7 @@ import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from '.
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
@@ -12,6 +13,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_RECIPES, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -117,6 +119,7 @@ import {
   Syringe, TestTube, ShieldPlus,
   // 💉 減害服務第二批（HeartPulse / ShieldCheck 已在上方 import 復用）
   Wine, MonitorSmartphone, Handshake, CigaretteOff, Package, House, CarFront,
+  Construction, Leaf, Milestone, Shovel, Signpost, TrafficCone, Turtle,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -146,6 +149,7 @@ import { ENVIRONMENT_LAYER_COLORS } from "./environmentLayerTypes";
 import { PUBLIC_LIFE_COLORS } from "./publicLifePalette";
 import { HARM_REDUCTION_COLORS } from "./harmReductionTypes";
 import { LANDSLIDE_LAYER_COLORS } from "./landslideTypes";
+import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -484,6 +488,21 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
   }];
 })) as Record<LandslideStatisticsLayerKey, LayerManifestEntry>;
 
+/** Atlas recipes（疾病與健康、財稅與消費、原民與農村、體育、災害風險、海洋；縣市＋鄉鎮）share the dynamic Statistics renderer. */
+const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
+  const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
+  return [recipe.layer_key, {
+    key: recipe.layer_key,
+    section: { theme: recipe.data_theme, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: recipe.level === "township" ? "鄉鎮" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+    source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+    legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
+    description: recipe.disclosure,
+    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, recipe.level === "township" ? "鄉鎮" : "縣市"],
+  }];
+})) as Record<AtlasStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -581,6 +600,7 @@ export const LAYER_MANIFEST = {
   ...DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES,
   ...ADDICTION_STATISTICS_MANIFEST_ENTRIES,
   ...LANDSLIDE_STATISTICS_MANIFEST_ENTRIES,
+  ...ATLAS_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
@@ -851,7 +871,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "rail",
     popup: null,
-    params: { count: 5, kinds: ["toggle", "select", "slider", "slider", "slider"] },
+    params: { count: 6, kinds: ["toggle", "toggle", "select", "slider", "slider", "slider"] },
     description: "台鐵／高鐵／捷運列車依時刻表推算的即時位置與軌道",
     topics: ["交通", "鐵道", "即時"],
   },
@@ -5846,7 +5866,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "earthquakesGlobal",
     popup: "earthquakeGlobal",
-    params: { count: 2, kinds: ["select", "slider"] },
+    params: { count: 3, kinds: ["select", "slider", "toggle"] },
     description: "USGS 全球地震（規模分大小、深度分色，回溯天數可選，跟時間軸播放並跑震波擴散圈）",
     topics: ["全球氣候", "地震", "即時"],
   },
@@ -6731,6 +6751,242 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "崩塌", "衛星判釋"],
   },
 
+  // ══════════ atlas 批次 2026-10（26 層點／線／面；資料 scripts/preprocess/build-atlas-public.py）══════════
+  indigenousTribes: {
+    key: "indigenousTribes", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "原住民族部落", alt: "Indigenous Tribes" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.indigenousTribes, icon: Tent,
+    upstream: { status: "verified", datasets: [{ datasetId: "indigenous_tribes", confidence: "HIGH" }], note: "原民會部落位置 GIS 點位表（data.gov.tw 156632，2022-07）比對現行核定部落（7093，2026-09）；735 點，13 點不在現行核定名單（灰色），另 13 個核定部落無點位未上圖。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "indigenous-tribes", url: "./indigenous_rural/indigenous_tribes.geojson" },
+    legend: "indigenousTribes", popup: "indigenousTribes", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "原住民族部落點位，依族別上色；灰點為不在現行核定名單的部落。",
+    topics: ["原住民族", "部落", "族別"],
+  },
+  indigenousIsolationRisk: {
+    key: "indigenousIsolationRisk", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "原鄉易成孤島地區", alt: "Indigenous Isolation-risk Areas" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.indigenousIsolationRisk, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "indigenous_isolation_risk_areas", confidence: "HIGH" }], note: "原民會原住民族地區易成孤島地區清冊（data.gov.tw 170259，114 年度）；168 點為地區代表中心點，3 點以村里代表點代替。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "indigenous-isolation-risk", url: "./indigenous_rural/indigenous_isolation_risk_areas.geojson" },
+    legend: "indigenousIsolationRisk", popup: "indigenousIsolationRisk", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "颱風豪雨時可能因土石流、淹水或道路中斷而成孤島的原鄉地區（點為代表中心點，依成因上色）。",
+    topics: ["原住民族", "孤島", "防災", "土石流"],
+  },
+  agriRuralCommunityVillages: {
+    key: "agriRuralCommunityVillages", section: { theme: "原民與農村 Indigenous & Rural", group: "農村 Rural" }, ...layerName({ zh: "農村社區分類（村里）", alt: "Rural Community Villages" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.agriRuralCommunityVillages, icon: Sprout,
+    upstream: { status: "verified", datasets: [{ datasetId: "rural_community_villages", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 農村社區分類（平地／丘陵／高山，4,271 村里面）；PMTiles z7–12 逐 zoom 4,271 面完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "agri-rural-community-villages", url: "./indigenous_rural/rural_community_villages.pmtiles", sourceLayer: "rural_community_villages", minzoom: 7, maxzoom: 12 },
+    legend: "agriRuralCommunityVillages", popup: "agriRuralCommunityVillages", params: { count: 2, kinds: ["multiSelect", "slider"] },
+    description: "依村里分平地、丘陵、高山三類農村社區（放大到 7 級以上顯示）。",
+    topics: ["農村", "農村社區", "村里"],
+  },
+  provincialRoadSigns: {
+    key: "provincialRoadSigns", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道交通標誌", alt: "Provincial Road Signs" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.provincialRoadSigns, icon: Construction,
+    upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_signs", confidence: "HIGH" }], note: "交通部公路局 省道標誌清查（data.gov.tw 146233 等 9 筆）；22,522 點，9 類（速限、測速取締、限高、限重、彎路、險坡、行人、兒童、交流道名稱）。PMTiles z9–14 逐 zoom 完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "provincial-road-signs", url: "./geo/provincial_road_signs.pmtiles", sourceLayer: "provincial_road_signs", minzoom: 9, maxzoom: 14 },
+    legend: "provincialRoadSigns", popup: "provincialRoadSigns", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "省道速限、測速取締、限高限重等標誌位置（放大到 11 級顯示點位，較低縮放以熱區顯示）。",
+    topics: ["交通", "省道", "標誌", "速限", "限高"],
+  },
+  provincialRoadMileposts: {
+    key: "provincialRoadMileposts", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道里程牌", alt: "Provincial Road Mileposts" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.provincialRoadMileposts, icon: Milestone,
+    upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_mileposts", confidence: "HIGH" }], note: "交通部公路局 省道里程牌（data.gov.tw 7040）；30,098 點，PMTiles z11–14 逐 zoom 完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "provincial-road-mileposts", url: "./geo/provincial_road_mileposts.pmtiles", sourceLayer: "provincial_road_mileposts", minzoom: 11, maxzoom: 14 },
+    legend: "provincialRoadMileposts", popup: "provincialRoadMileposts", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "省道里程牌（線性參考用，放大到 11 級以上顯示）。",
+    topics: ["交通", "省道", "里程"],
+  },
+  freewayTrafficSigns: {
+    key: "freewayTrafficSigns", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道交通標誌", alt: "Freeway Traffic Signs" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.freewayTrafficSigns, icon: Signpost,
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_traffic_signs", confidence: "HIGH" }], note: "交通部高速公路局 交通標誌（data.gov.tw 98447）；51,405 點，約 1／4 來源未給標誌代碼名稱。PMTiles z10–14 逐 zoom 完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-traffic-signs", url: "./geo/freeway_traffic_signs.pmtiles", sourceLayer: "freeway_traffic_signs", minzoom: 10, maxzoom: 14 },
+    legend: "freewayTrafficSigns", popup: "freewayTrafficSigns", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "國道里程牌與各類交通標誌（放大到 10 級以上顯示）。",
+    topics: ["交通", "國道", "標誌", "里程"],
+  },
+  freewayInterchanges: {
+    key: "freewayInterchanges", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道交流道", alt: "Freeway Interchanges" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.freewayInterchanges, icon: Route,
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_interchanges", confidence: "HIGH" }], note: "交通部高速公路局 國道交流道（data.gov.tw 166496）；207 點。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "freeway-interchanges", url: "./geo/freeway_interchanges.geojson" },
+    legend: "freewayInterchanges", popup: "freewayInterchanges", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國道交流道、系統交流道與路線端點。",
+    topics: ["交通", "國道", "交流道"],
+  },
+  freewayEcoSensitive: {
+    key: "freewayEcoSensitive", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道生態敏感路段", alt: "Freeway Eco-sensitive Sections" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.freewayEcoSensitive, icon: Sprout,
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_eco_sensitive_sections", confidence: "HIGH" }], note: "交通部高速公路局 國道生態敏感路段（data.gov.tw 31290）；200 面，敏感等級 1–3 為來源分級（方向未說明）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "freeway-eco-sensitive", url: "./geo/freeway_eco_sensitive_sections.geojson" },
+    legend: "freewayEcoSensitive", popup: "freewayEcoSensitive", params: { count: 1, kinds: ["slider"] },
+    description: "國道沿線生態敏感路段範圍（同色深淺表示來源敏感等級）。",
+    topics: ["交通", "國道", "生態"],
+  },
+  provincialRoadMonitored: {
+    key: "provincialRoadMonitored", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道防救災監控路段", alt: "Provincial Road Monitored Sections" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.provincialRoadMonitored, icon: TrafficCone,
+    upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_monitored_sections", confidence: "HIGH" }], note: "交通部公路局 省道防救災監控路段（data.gov.tw 16193 等 4 筆）；110 筆（102 線、8 點只有起點座標）。PMTiles z8–12 逐 zoom 完整（z5–7 極短路段會退化，故 z8 起）。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "provincial-road-monitored", url: "./geo/provincial_road_monitored_sections.pmtiles", sourceLayer: "provincial_road_monitored_sections", minzoom: 8, maxzoom: 12 },
+    legend: "provincialRoadMonitored", popup: "provincialRoadMonitored", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "省道一級／二級監控路段、監控橋梁與易淹水土石流路段，點開看雨量站與封路門檻。",
+    topics: ["交通", "省道", "防災", "封路", "雨量"],
+  },
+  provincialRoadEmergencyBays: {
+    key: "provincialRoadEmergencyBays", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道緊急避車彎", alt: "Provincial Road Emergency Bays" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.provincialRoadEmergencyBays, icon: MapPin,
+    upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_emergency_bays", confidence: "HIGH" }], note: "交通部公路局 省道緊急避車彎（data.gov.tw 99940，112–113 年清單）；47 筆（34 點、13 線）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "provincial-road-emergency-bays", url: "./geo/provincial_road_emergency_bays.geojson" },
+    legend: "provincialRoadEmergencyBays", popup: "provincialRoadEmergencyBays", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "省道山區路段的緊急避車彎（淡紫為只出現在舊年度清單）。",
+    topics: ["交通", "省道", "避車彎"],
+  },
+  floodDisasterPointsNcdr: {
+    key: "floodDisasterPointsNcdr", section: { theme: "災害 Hazard", group: "淹水 Flooding" }, ...layerName({ zh: "淹水災點（NCDR）", alt: "Flood Disaster Points" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.floodDisasterPointsNcdr, icon: CloudRain,
+    upstream: { status: "verified", datasets: [{ datasetId: "flood_disaster_points_ncdr", confidence: "HIGH" }], note: "國家災害防救科技中心 淹水災點（2021–2025，8,646 點，只到年）；2023 年覆蓋不足，筆數是通報列數。PMTiles z5–12 逐 zoom 完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "flood-disaster-points-ncdr", url: "./hazards/flood_disaster_points_ncdr.pmtiles", sourceLayer: "flood_disaster_points_ncdr", minzoom: 5, maxzoom: 12 },
+    legend: "floodDisasterPointsNcdr", popup: "floodDisasterPointsNcdr", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "歷年淹水災點，依情資來源上色、可依事件年篩選；只到年，不是淹水次數。",
+    topics: ["災害", "淹水", "災點"],
+  },
+  taipeiWaterloggingHistory: {
+    key: "taipeiWaterloggingHistory", section: { theme: "災害 Hazard", group: "淹水 Flooding" }, ...layerName({ zh: "臺北市歷年積水範圍", alt: "Taipei Waterlogging History" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.taipeiWaterloggingHistory, icon: Droplets,
+    upstream: { status: "verified", datasets: [{ datasetId: "taipei_waterlogging_history", confidence: "HIGH" }], note: "臺北市政府工務局水利工程處 歷年積水範圍（data.gov.tw 143898）；739 面，深度單位依值域推定為公分。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "taipei-waterlogging-history", url: "./hazards/taipei_waterlogging_history.geojson" },
+    legend: "taipeiWaterloggingHistory", popup: "taipeiWaterloggingHistory", params: { count: 1, kinds: ["slider"] },
+    description: "臺北市歷年積水範圍，點開看日期、地點與積水深度。",
+    topics: ["災害", "淹水", "積水", "臺北"],
+  },
+  swcbDisasterPhotoPoints: {
+    key: "swcbDisasterPhotoPoints", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土砂災害照片點位", alt: "Sediment Disaster Photo Points" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.swcbDisasterPhotoPoints, icon: Camera,
+    upstream: { status: "verified", datasets: [{ datasetId: "swcb_disaster_photo_points", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）；34,419 點，只放照片連結不嵌影像。PMTiles z5–12 逐 zoom 完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
+    legend: "swcbDisasterPhotoPoints", popup: "swcbDisasterPhotoPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "水保署土砂災害事件照片與媒體報導的拍攝點，點開看事件、日期與照片連結。",
+    topics: ["災害", "崩塌", "土石流", "照片"],
+  },
+  cetaceanStrandings: {
+    key: "cetaceanStrandings", section: { theme: "海洋 Marine", group: "擱淺 Strandings" }, ...layerName({ zh: "鯨豚擱淺", alt: "Cetacean Strandings" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.cetaceanStrandings, icon: Fish,
+    upstream: { status: "verified", datasets: [{ datasetId: "cetacean_strandings", confidence: "HIGH" }], note: "海洋保育署 MARN 鯨豚擱淺（data.gov.tw 157624，2020–2026-06）；1,019 事件中 936 有座標上圖，6 點座標與通報縣市不一致（橘色）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "cetacean-strandings", url: "./marine/cetacean_strandings.geojson" },
+    legend: "cetaceanStrandings", popup: "cetaceanStrandings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "鯨豚擱淺事件，依死亡／活體上色；橘點為座標與縣市不一致的疑誤點。",
+    topics: ["海洋", "鯨豚", "擱淺", "海豚"],
+  },
+  seaTurtleStrandings: {
+    key: "seaTurtleStrandings", section: { theme: "海洋 Marine", group: "擱淺 Strandings" }, ...layerName({ zh: "海龜擱淺", alt: "Sea Turtle Strandings" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.seaTurtleStrandings, icon: Turtle,
+    upstream: { status: "verified", datasets: [{ datasetId: "sea_turtle_strandings", confidence: "HIGH" }], note: "海洋保育署 MARN 海龜擱淺（2020–2026-06）；2,262 事件中 1,719 有座標上圖（約 24% 無座標），1 點座標與通報縣市不一致（橘色）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "sea-turtle-strandings", url: "./marine/sea_turtle_strandings.geojson" },
+    legend: "seaTurtleStrandings", popup: "seaTurtleStrandings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "海龜擱淺事件，依物種上色；約 24% 事件無座標未上圖。",
+    topics: ["海洋", "海龜", "擱淺"],
+  },
+  beachWaterQuality: {
+    key: "beachWaterQuality", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海水浴場水質", alt: "Beach Water Quality" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.beachWaterQuality, icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "beach_water_quality", confidence: "HIGH" }], note: "環境部 海水浴場水質監測（20 站，2019–2024 游泳季）；顏色為最近一次採樣等級。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "beach-water-quality", url: "./marine/beach_water_quality.geojson" },
+    legend: "beachWaterQuality", popup: "beachWaterQuality", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "海水浴場最近一次水質等級（優良／普通／不宜親水），只在游泳季採樣。",
+    topics: ["海洋", "水質", "海水浴場"],
+  },
+  marineMicroplastics: {
+    key: "marineMicroplastics", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋微塑膠調查站", alt: "Marine Microplastics Survey" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.marineMicroplastics, icon: FlaskConical,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine_microplastics_survey", confidence: "HIGH" }], note: "海洋委員會 海洋微塑膠調查（25 站，2021-04～2023-11）；站位為各航次座標平均，2 站航次位置差 >1 km 需複核。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "marine-microplastics", url: "./marine/marine_microplastics_stations.geojson" },
+    legend: "marineMicroplastics", popup: "marineMicroplastics", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "海洋微塑膠調查站，顏色是表層平均總濃度（個／m³）。",
+    topics: ["海洋", "微塑膠", "污染"],
+  },
+  marinePollutionIncidents: {
+    key: "marinePollutionIncidents", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋污染事件", alt: "Marine Pollution Incidents" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.marinePollutionIncidents, icon: Biohazard,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine_pollution_incidents", confidence: "HIGH" }], note: "海洋保育署 海洋污染事件（2003 起，1,821 件）；1,759 件有座標上圖，62 件無座標（含 2 件來源為 (0,0)）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "marine-pollution-incidents", url: "./marine/marine_pollution_incidents.geojson" },
+    legend: "marinePollutionIncidents", popup: "marinePollutionIncidents", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "海洋污染事件位置，依應變分級上色。",
+    topics: ["海洋", "污染", "油污", "應變"],
+  },
+  namrEdnaSurveySites: {
+    key: "namrEdnaSurveySites", section: { theme: "海洋 Marine", group: "調查站網 Survey Sites" }, ...layerName({ zh: "環境 DNA 調查站位", alt: "eDNA Survey Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.namrEdnaSurveySites, icon: MapPin,
+    upstream: { status: "verified", datasets: [{ datasetId: "namr_edna_survey_sites", confidence: "HIGH" }], note: "國家海洋研究院 環境 DNA 調查站位（119 站，度分秒換算）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "namr-edna-survey-sites", url: "./marine/namr_edna_survey_sites.geojson" },
+    legend: "namrEdnaSurveySites", popup: "namrEdnaSurveySites", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國家海洋研究院環境 DNA 調查站位。",
+    topics: ["海洋", "環境DNA", "調查"],
+  },
+  placeNames: {
+    key: "placeNames", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "臺灣地名", alt: "Taiwan Place Names" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.placeNames, icon: MapPin,
+    upstream: { status: "verified", datasets: [{ datasetId: "place_names_moi", confidence: "HIGH" }], note: "內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等 5 筆）；39,252 筆有座標，同一實體只畫一點、精度 >1.2 km 的 105 點不上圖，共 36,431 點；依類別 z9／z12／z14 分級（PMTiles 逐 zoom 稽核相符）。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "place-names-moi", url: "./geo/place_names_moi.pmtiles", sourceLayer: "place_names_moi", minzoom: 9, maxzoom: 14 },
+    legend: "placeNames", popup: "placeNames", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "內政部地名點位（自然、村里、聚落、地標），點開看地名由來、拼音與座標精度。",
+    topics: ["底圖", "地名", "聚落", "地標"],
+  },
+  triangulationPoints: {
+    key: "triangulationPoints", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "三角點", alt: "Triangulation Points" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.triangulationPoints, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "triangulation_points_moi", confidence: "HIGH" }], note: "內政部 三角點（data.gov.tw 26485）；2,658 點，TWD67 度分秒以七參數換算 WGS84（約 ±10 m）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "triangulation-points-moi", url: "./geo/triangulation_points_moi.geojson" },
+    legend: "triangulationPoints", popup: "triangulationPoints", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "一至三等三角點與標高。",
+    topics: ["底圖", "三角點", "測量", "高程"],
+  },
+  wraFloodgatesCentral: {
+    key: "wraFloodgatesCentral", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "中央管水門", alt: "Central Floodgates" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.wraFloodgatesCentral, icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "wra_floodgates_central", confidence: "HIGH" }], note: "經濟部水利署 水門位置（data.gov.tw 32722）；808 點，多為 1999–2000 測量成果，非現況、無啟閉狀態。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "wra-floodgates-central", url: "./geo/wra_floodgates_central.geojson" },
+    legend: "wraFloodgatesCentral", popup: "wraFloodgatesCentral", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "中央管河川水門、閘門、疏散門位置（1999–2000 測量，非現況）。",
+    topics: ["水利", "水門", "閘門"],
+  },
+  wraCentralDrainage: {
+    key: "wraCentralDrainage", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "中央管區域排水", alt: "Central Regional Drainage" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.wraCentralDrainage, icon: Droplets,
+    upstream: { status: "verified", datasets: [{ datasetId: "wra_central_drainage", confidence: "HIGH" }], note: "經濟部水利署 中央管區域排水設施範圍；33 條。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "wra-central-drainage", url: "./geo/wra_central_drainage.geojson" },
+    legend: "wraCentralDrainage", popup: "wraCentralDrainage", params: { count: 1, kinds: ["slider"] },
+    description: "中央管區域排水的設施範圍，點開看流經縣市與起訖。",
+    topics: ["水利", "排水"],
+  },
+  iowStructureMonitoring: {
+    key: "iowStructureMonitoring", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "水利結構監測站", alt: "IoW Structure Monitoring" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.iowStructureMonitoring, icon: Activity,
+    upstream: { status: "verified", datasets: [{ datasetId: "iow_structure_monitoring_stations", confidence: "HIGH" }], note: "經濟部水利署 IoT 堤防結構安全與閘門監測站（data.gov.tw 142981 等；堤防 27、閘門 75）；站點基底，非即時數值。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "iow-structure-monitoring", url: "./geo/wra_iow_structure_monitoring.geojson" },
+    legend: "iowStructureMonitoring", popup: "iowStructureMonitoring", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "堤防與閘門結構安全監測站位置與感測項目。",
+    topics: ["水利", "堤防", "監測", "IoT"],
+  },
+  wraDredgingPoints: {
+    key: "wraDredgingPoints", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "河川疏濬工程", alt: "River Dredging Projects" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.wraDredgingPoints, icon: Shovel,
+    upstream: { status: "verified", datasets: [{ datasetId: "wra_dredging_points", confidence: "HIGH" }], note: "經濟部水利署 河川疏濬工程（137 件，快照）；113 件座標只到小數 2 位（約 ±1 km）、23 件 1 位、1 件整數度。數量單位來源未註明。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "wra-dredging-points", url: "./geo/wra_dredging_points.geojson" },
+    legend: "wraDredgingPoints", popup: "wraDredgingPoints", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "河川疏濬工程點位與執行狀態（座標多為約略，點開看精度）。",
+    topics: ["水利", "疏濬", "河川"],
+  },
+  wraEcologySurveySites: {
+    key: "wraEcologySurveySites", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "河川生態調查站", alt: "River Ecology Survey Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.wraEcologySurveySites, icon: Leaf,
+    upstream: { status: "verified", datasets: [{ datasetId: "wra_ecology_survey_sites", confidence: "HIGH" }], note: "經濟部水利署 河川生態調查（1995–2019，1,195 站，2019 後停更）；調查紀錄 140,841 筆另存分析倉庫。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "wra-ecology-survey-sites", url: "./geo/wra_ecology_survey_sites.geojson" },
+    legend: "wraEcologySurveySites", popup: "wraEcologySurveySites", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "河川生態調查站，顏色是調查到的物種數。",
+    topics: ["水利", "生態", "河川", "物種"],
+  },
+
   // popup `nuclearStation` 與 key **完全無關**（不是單複數差異）——
   // 同批 1 legend 的 `civilDefenseShelter → policeStation`，只有逐 key 反查 layer id
   // （hazard-nuclear-core / -halo）才看得出來。
@@ -7215,7 +7471,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "temperatureWave",
     popup: null,
-    params: { count: 5, kinds: ["toggle", "slider", "slider", "slider", "toggle"] },
+    params: { count: 2, kinds: ["toggle", "slider"] },
     description: "全台氣溫場的 3D 起伏波形（高度＝溫度，隨時間軸變形）",
     topics: ["環境", "氣象", "溫度", "3D"],
   },
@@ -7239,7 +7495,7 @@ export const LAYER_MANIFEST = {
     legend: "temperatureGrid",
     popup: "temperatureGrid",
     params: { count: 1, kinds: ["slider"] },
-    description: "全台氣溫場的 2D 方格色階（11 級 step 分色，點擊讀該格溫度）",
+    description: "全台氣溫場的 2D 方格色階（10 級 step 分色，點擊讀該格溫度）",
     topics: ["環境", "氣象", "溫度"],
   },
 
@@ -8164,11 +8420,17 @@ export const LAYER_MANIFEST = {
         sourceId: "water-reservoir-dams",
         url: "./geo/water_dams.geojson",
       },
+      // R6 段 2：即時水情平面圓點（useReservoirStatusLayer 依時間軸 setData）
+      {
+        kind: "supabase",
+        sourceId: "water-reservoir-status",
+        fallbackUrl: "./geo/_empty.geojson",
+      },
     ],
-    legend: null,
+    legend: "waterReservoirs",
     popup: ["waterDam", "waterReservoirPoly"],
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
-    description: "全台水庫蓄水範圍面 + 壩體點位（點擊看即時蓄水率）",
+    params: { count: 3, kinds: ["toggle", "slider", "slider"] },
+    description: "全台水庫蓄水範圍面 + 壩體點位 + 即時水情圓點（色＝警示等級、大小＝有效容量，點擊看蓄水率；立體效果開啟為 3D 水位計）",
     topics: ["水資源", "水庫"],
   },
 
@@ -8770,6 +9032,10 @@ export const LAYER_MANIFEST = {
   // **facility_type / point_type-keyed**（餵 wasteMapboxLayers 的 circle-color），
   // 不是 layer-key-keyed，`LAYER_COLORS` 從未 import 它們 → 寫字面 hex。
   // hex 逐一相同是巧合（同批 5 SATELLITE_COLORS 的判準）。
+  // ⚠️ 2026-10-09 例外（R6 段 2 決議）：五類設施（wfIncinerator／wfLandfill／
+  // wfLandfillCoastal／wfTransfer／wfMedical）有平面圓點＋共用類別圖例，識別色必須＝
+  // paint＝圖例 → WASTE_FACILITY_COLORS 搬到零 import 的 `wasteFacilityColors.ts`，
+  // 這五層的 color 改**引用**（r6Stage2.test.ts 守門）。其餘 wf*／wd* 照舊字面。
 
   wasteTruck: {
     key: "wasteTruck",
@@ -8787,14 +9053,15 @@ export const LAYER_MANIFEST = {
       kind: "custom",
       note: "useWasteLayer：Supabase RPC get_waste_trails（live 近 60 分鐘、60s 輪詢）/ get_waste_trails_day / get_waste_trails_matched_day（replay 整日）→ wasteTruckCustomLayer 的 Three.js scene 逐幀插值，另掛 WasteMusicNoteScene 音符 —— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    // R6 段 3：補 LG-1 單列圖例（全部狀態同一色，平面模式另註明拉近顯示方向箭頭）
+    legend: "wasteTruck",
     // W2：收尾「表定模擬車可點、GPS 真車不可點」的族群不一致。
     // `WasteTruckScene.pickTruck` 本來就存在（逐行同 WasteScheduleScene.pickRoute），
     // 只是從來沒有人呼叫 —— useMapInteraction 補一個分支即可。
     // 走 FeatureInfoPanel 而非隨車 tooltip：欄位是車號／縣市／路線這種查詢型資訊，
     // 且同樣「會移動的 Three.js 物件開 panel」的前例是 ship（pickShip → setFeatureInfo）。
     popup: "wasteTruck",
-    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
+    params: { count: 5, kinds: ["slider", "slider", "slider", "slider", "toggle"] },
     description: "高雄／台南垃圾車即時軌跡（含音符動畫，可回放整日）",
     topics: ["廢棄物", "清運", "即時"],
   },
@@ -9009,7 +9276,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "焚化爐", alt: "Incinerator" }),
     expandable: true,
-    color: "#ef4444",
+    color: WASTE_FACILITY_COLORS.incinerator!,
     icon: Flame,
     upstream: {
       status: "verified",
@@ -9018,12 +9285,13 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useWasteFacilityLayer 一次抓全量 4,609 筆（Supabase RPC）依 facility_type 分群 → wasteFacilityCustomLayer 的 WasteIncineratorScene（Three.js，含底圈標示）；popup 由 App.tsx 的 map click raycast 產生 —— 非 OVERLAY_REGISTRY",
+      note: "useWasteFacilityLayer 一次抓全量 4,609 筆（Supabase RPC）依 facility_type 分群 → wasteFacilityCustomLayer 的 WasteIncineratorScene（Three.js，含底圈標示，立體效果開時）＋ wasteMapboxLayers 的 waste-wfIncinerator-src circle（預設平面，R6 段 2）；popup：平面走 circle click、立體走 App.tsx 的 map click raycast —— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    // R6 段 2：五類設施共用一份類別圖例（LG-1），家族首 key＝本層
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
-    description: "全台焚化爐（30 座，3D 煙囪＋地面底圈）",
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
+    description: "全台焚化爐（預設平面點；立體效果開啟為 3D 煙囪＋地面底圈）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
 
@@ -9032,7 +9300,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "衛生掩埋場", alt: "Landfill" }),
     expandable: true,
-    color: "#92400e",
+    color: WASTE_FACILITY_COLORS.landfill!,
     icon: Mountain,
     upstream: {
       status: "verified",
@@ -9041,11 +9309,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill）→ WasteLandfillScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill）→ WasteLandfillScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "全台衛生掩埋場（154 處）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
@@ -9055,7 +9323,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "濱海掩埋場", alt: "Coastal" }),
     expandable: true,
-    color: "#0891b2",
+    color: WASTE_FACILITY_COLORS.landfill_coastal!,
     icon: Waves,
     upstream: {
       status: "verified",
@@ -9064,11 +9332,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill_coastal）→ WasteLandfillCoastalScene（Three.js，同 Landfill 換深青）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill_coastal）→ WasteLandfillCoastalScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2，同 Landfill 換深青）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "臨海掩埋場（23 處，含離海距離欄位）",
     topics: ["廢棄物", "處理設施", "海岸"],
   },
@@ -9078,7 +9346,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "轉運站", alt: "Transfer" }),
     expandable: true,
-    color: "#a855f7",
+    color: WASTE_FACILITY_COLORS.transfer_station!,
     icon: Truck,
     upstream: {
       status: "verified",
@@ -9087,11 +9355,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=transfer_station）→ WasteTransferScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=transfer_station）→ WasteTransferScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "垃圾轉運站（28 處）",
     topics: ["廢棄物", "處理設施", "3D"],
   },
@@ -9101,7 +9369,7 @@ export const LAYER_MANIFEST = {
     section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "醫療廢棄物", alt: "Medical" }),
     expandable: true,
-    color: "#ec4899",
+    color: WASTE_FACILITY_COLORS.medical_waste!,
     icon: AlertTriangle,
     upstream: {
       status: "verified",
@@ -9110,11 +9378,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=medical_waste）→ WasteMedicalScene（Three.js）—— 非 OVERLAY_REGISTRY",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=medical_waste）→ WasteMedicalScene（Three.js，立體效果開時；預設平面走 wasteMapboxLayers circle，R6 段 2）—— 非 OVERLAY_REGISTRY",
     },
-    legend: null,
+    legend: "wfIncinerator",
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "醫療廢棄物處理設施（40 處）",
     topics: ["廢棄物", "處理設施", "醫療"],
   },
@@ -9140,7 +9408,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "wasteFacility",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "toggle"] },
     description: "掩埋場周邊地下水監測井（574 口）",
     topics: ["廢棄物", "監測", "地下水"],
   },
@@ -10078,7 +10346,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "lighthouses", url: "./geo/lighthouse.geojson" },
     legend: null,
     popup: "lighthouse",
-    params: { count: 4, kinds: ["slider", "toggle", "slider", "slider"] },
+    params: { count: 2, kinds: ["slider", "toggle"] },
     // ⚠️ 有 registry entry（→ A）但**同時**有 Three.js `LighthouseScene` 的旋轉光束
     //    （Beam toggle 控制它）。兩套渲染並存不改變體質判準：有 entry 就派生得動。
     //    同批 6 `waterDam`（GIS_LAYERS 條目與 raycast 並存）的鏡像。
@@ -11015,8 +11283,8 @@ export const LAYER_MANIFEST = {
     //    → policeStation 的同款，只是這次首 key 是 orphan）。
     legend: "powerPlants",
     popup: "powerPlant",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
-    description: "台電機組即時出力（高 ∝ MW 的 3D 光柱，透明層負責點擊）",
+    params: { count: 3, kinds: ["toggle", "slider", "slider"] },
+    description: "台電機組即時出力（預設平面圓點：色＝燃料、大小＝出力 MW；立體效果開啟疊 3D 光柱）",
     topics: ["能源", "電力", "即時"],
   },
 
@@ -11142,7 +11410,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "osmPowerLines",
     popup: "osmPowerLine",
-    params: { count: 2, kinds: ["slider", "slider"] },
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
     description: "OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）",
     topics: ["能源", "電網", "輸電線"],
   },

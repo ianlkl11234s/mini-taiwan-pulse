@@ -1,0 +1,921 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "marine",
+  "generated_from": {
+    "recipes": "atlas-statistics-recipes.json",
+    "bundles": "taipei-gis-analytics atlas batch release bundles (bundle_path per option)"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "status observed and value 0",
+    "missing": "value null; source did not list; no zero fill",
+    "not_applicable": "value null; indicator does not apply to the area",
+    "suppressed": "value null; source removed the cell"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsCetaceanStrandedCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "鯨豚擱淺隻數",
+      "group": "cetaceanStranded",
+      "group_label": "鯨豚擱淺",
+      "option_label": "總數",
+      "subgroup": "海洋動物擱淺",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_stranding_county",
+      "indicator_id": "cetacean_stranded",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "隻",
+      "aggregation": "sum",
+      "default_release_id": "2025-cetacean_stranded-county-v1-3bd61a13d169",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-cetacean_stranded-county-v1-3bd61a13d169",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-cetacean_stranded-county-v1-02478bc731c2",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-cetacean_stranded-county-v1-469f0788c0fb",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-cetacean_stranded-county-v1-2df5279da8c9",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-cetacean_stranded-county-v1-0afa5003c76b",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-cetacean_stranded-county-v1-446fb22270ef",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          5,
+          10,
+          20
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（來源明列 0，不是無資料）。",
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "擱淺發現地縣市",
+      "disclosure": "海洋委員會海洋保育署國內鯨豚（171188）、海龜（171189）擱淺事件季統計，彙總為縣市年擱淺隻數（含活體／死亡）；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/171188",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=433a8175-4dd2-470c-9b1a-a7deddfa7511",
+      "source_title": "海洋保育署鯨豚、海龜擱淺統計（data.gov.tw 171188／171189）"
+    },
+    {
+      "layer_key": "statsCetaceanStrandedAliveCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "鯨豚活體擱淺隻數",
+      "group": "cetaceanStranded",
+      "group_label": "鯨豚擱淺",
+      "option_label": "活體",
+      "subgroup": "海洋動物擱淺",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_stranding_county",
+      "indicator_id": "cetacean_stranded_alive",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "隻",
+      "aggregation": "sum",
+      "default_release_id": "2025-cetacean_stranded_alive-county-v1-f8656e92db49",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-cetacean_stranded_alive-county-v1-f8656e92db49",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-cetacean_stranded_alive-county-v1-2e66c5643c4d",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-cetacean_stranded_alive-county-v1-be96b39e1108",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-cetacean_stranded_alive-county-v1-6f8910550d4f",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-cetacean_stranded_alive-county-v1-cb63c3517f5f",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-cetacean_stranded_alive-county-v1-88c5a9728d3f",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          4
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（來源明列 0，不是無資料）。",
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "擱淺發現地縣市",
+      "disclosure": "海洋委員會海洋保育署國內鯨豚（171188）、海龜（171189）擱淺事件季統計，彙總為縣市年擱淺隻數（含活體／死亡）；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/171188",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=433a8175-4dd2-470c-9b1a-a7deddfa7511",
+      "source_title": "海洋保育署鯨豚、海龜擱淺統計（data.gov.tw 171188／171189）"
+    },
+    {
+      "layer_key": "statsCetaceanStrandedDeadCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "鯨豚死亡擱淺隻數",
+      "group": "cetaceanStranded",
+      "group_label": "鯨豚擱淺",
+      "option_label": "死亡",
+      "subgroup": "海洋動物擱淺",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_stranding_county",
+      "indicator_id": "cetacean_stranded_dead",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "隻",
+      "aggregation": "sum",
+      "default_release_id": "2025-cetacean_stranded_dead-county-v1-eb48b8ab692e",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-cetacean_stranded_dead-county-v1-eb48b8ab692e",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-cetacean_stranded_dead-county-v1-c73a44cc6cc9",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-cetacean_stranded_dead-county-v1-848d420b6404",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-cetacean_stranded_dead-county-v1-72dafc42a9af",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-cetacean_stranded_dead-county-v1-387c3553c414",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-cetacean_stranded_dead-county-v1-c5e27606068c",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          5,
+          10,
+          20
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（來源明列 0，不是無資料）。",
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "擱淺發現地縣市",
+      "disclosure": "海洋委員會海洋保育署國內鯨豚（171188）、海龜（171189）擱淺事件季統計，彙總為縣市年擱淺隻數（含活體／死亡）；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/171188",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=433a8175-4dd2-470c-9b1a-a7deddfa7511",
+      "source_title": "海洋保育署鯨豚、海龜擱淺統計（data.gov.tw 171188／171189）"
+    },
+    {
+      "layer_key": "statsSeaTurtleStrandedCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "海龜擱淺隻數",
+      "group": "seaTurtleStranded",
+      "group_label": "海龜擱淺",
+      "option_label": "總數",
+      "subgroup": "海洋動物擱淺",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_stranding_county",
+      "indicator_id": "sea_turtle_stranded",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "隻",
+      "aggregation": "sum",
+      "default_release_id": "2025-sea_turtle_stranded-county-v1-d1573bd01843",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-sea_turtle_stranded-county-v1-d1573bd01843",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-sea_turtle_stranded-county-v1-075e4dffebb6",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-sea_turtle_stranded-county-v1-9f118dcef7ab",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-sea_turtle_stranded-county-v1-42f36f783598",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-sea_turtle_stranded-county-v1-49bd6125de81",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-sea_turtle_stranded-county-v1-2fa51b0f1370",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          10,
+          30,
+          60
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（來源明列 0，不是無資料）。",
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "擱淺發現地縣市",
+      "disclosure": "海洋委員會海洋保育署國內鯨豚（171188）、海龜（171189）擱淺事件季統計，彙總為縣市年擱淺隻數（含活體／死亡）；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/171189",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=a25bdcf2-b906-4acc-8f12-d83631014fb0",
+      "source_title": "海洋保育署鯨豚、海龜擱淺統計（data.gov.tw 171188／171189）"
+    },
+    {
+      "layer_key": "statsSeaTurtleStrandedAliveCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "海龜活體擱淺隻數",
+      "group": "seaTurtleStranded",
+      "group_label": "海龜擱淺",
+      "option_label": "活體",
+      "subgroup": "海洋動物擱淺",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_stranding_county",
+      "indicator_id": "sea_turtle_stranded_alive",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "隻",
+      "aggregation": "sum",
+      "default_release_id": "2025-sea_turtle_stranded_alive-county-v1-d61b4cb81085",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-sea_turtle_stranded_alive-county-v1-d61b4cb81085",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-sea_turtle_stranded_alive-county-v1-06780c1f17ce",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-sea_turtle_stranded_alive-county-v1-a34675704ddf",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-sea_turtle_stranded_alive-county-v1-551a08a604e6",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-sea_turtle_stranded_alive-county-v1-25f598fd1c36",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-sea_turtle_stranded_alive-county-v1-a518fb726561",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          10,
+          30,
+          60
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（來源明列 0，不是無資料）。",
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "擱淺發現地縣市",
+      "disclosure": "海洋委員會海洋保育署國內鯨豚（171188）、海龜（171189）擱淺事件季統計，彙總為縣市年擱淺隻數（含活體／死亡）；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/171189",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=a25bdcf2-b906-4acc-8f12-d83631014fb0",
+      "source_title": "海洋保育署鯨豚、海龜擱淺統計（data.gov.tw 171188／171189）"
+    },
+    {
+      "layer_key": "statsSeaTurtleStrandedDeadCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "海龜死亡擱淺隻數",
+      "group": "seaTurtleStranded",
+      "group_label": "海龜擱淺",
+      "option_label": "死亡",
+      "subgroup": "海洋動物擱淺",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_stranding_county",
+      "indicator_id": "sea_turtle_stranded_dead",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "隻",
+      "aggregation": "sum",
+      "default_release_id": "2025-sea_turtle_stranded_dead-county-v1-633264c6606c",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-sea_turtle_stranded_dead-county-v1-633264c6606c",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-sea_turtle_stranded_dead-county-v1-38cdbc9a46a5",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-sea_turtle_stranded_dead-county-v1-8f364258ca72",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-sea_turtle_stranded_dead-county-v1-b3b824fe3ac3",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-sea_turtle_stranded_dead-county-v1-9f5422415e9a",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-sea_turtle_stranded_dead-county-v1-0d482c41334f",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          10,
+          30,
+          60
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（來源明列 0，不是無資料）。",
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "擱淺發現地縣市",
+      "disclosure": "海洋委員會海洋保育署國內鯨豚（171188）、海龜（171189）擱淺事件季統計，彙總為縣市年擱淺隻數（含活體／死亡）；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/171189",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=a25bdcf2-b906-4acc-8f12-d83631014fb0",
+      "source_title": "海洋保育署鯨豚、海龜擱淺統計（data.gov.tw 171188／171189）"
+    },
+    {
+      "layer_key": "statsMarineDebrisCleanedTonnesCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "海洋廢棄物清理量",
+      "group": "marineDebrisCleanup",
+      "group_label": "海洋廢棄物清理",
+      "option_label": "清理量（噸）",
+      "subgroup": "海洋廢棄物",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_debris_cleanup_county",
+      "indicator_id": "marine_debris_cleaned_tonnes",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "噸",
+      "aggregation": "sum",
+      "default_release_id": "2025-marine_debris_cleaned_tonnes-county-v1-4e6d82c0ee5d",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-marine_debris_cleaned_tonnes-county-v1-4e6d82c0ee5d",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-marine_debris_cleaned_tonnes-county-v1-93f2a893a98a",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-marine_debris_cleaned_tonnes-county-v1-fc4972778fb9",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-marine_debris_cleaned_tonnes-county-v1-6bd98080162b",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-marine_debris_cleaned_tonnes-county-v1-7fe6f168d25c",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-marine_debris_cleaned_tonnes-county-v1-0d52ef90542e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          100,
+          300,
+          1000,
+          2000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "清理所在縣市（地方政府填報）",
+      "disclosure": "海洋委員會海洋保育署海洋廢棄物清理狀況月統計（172912），彙總為縣市年清理量、廢漁具漁網量、清理次數與參與人次；非臨海縣市標示不適用。清理量不等於產生量，受海岸線長度與清理人力影響。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/172912",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=737b8ce4-12a4-4c92-aa05-c1c43f171edd",
+      "source_title": "海洋保育署海洋廢棄物清理統計（data.gov.tw 172912）"
+    },
+    {
+      "layer_key": "statsMarineDebrisFishingGearTonnesCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "廢漁具漁網清理量",
+      "group": "marineDebrisCleanup",
+      "group_label": "海洋廢棄物清理",
+      "option_label": "廢漁具漁網（噸）",
+      "subgroup": "海洋廢棄物",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_debris_cleanup_county",
+      "indicator_id": "marine_debris_fishing_gear_tonnes",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "噸",
+      "aggregation": "sum",
+      "default_release_id": "2025-marine_debris_fishing_gear_tonnes-county-v1-a414d52bf339",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-marine_debris_fishing_gear_tonnes-county-v1-a414d52bf339",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-marine_debris_fishing_gear_tonnes-county-v1-e90dcba43fef",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-marine_debris_fishing_gear_tonnes-county-v1-db40b762971b",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-marine_debris_fishing_gear_tonnes-county-v1-10de74b6280f",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-marine_debris_fishing_gear_tonnes-county-v1-6120345097d2",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-marine_debris_fishing_gear_tonnes-county-v1-f1208bca5f6a",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          5,
+          20,
+          100
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（來源明列 0，不是無資料）。",
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "derived": false,
+      "location_semantics": "清理所在縣市（地方政府填報）",
+      "disclosure": "海洋委員會海洋保育署海洋廢棄物清理狀況月統計（172912），彙總為縣市年清理量、廢漁具漁網量、清理次數與參與人次；非臨海縣市標示不適用。清理量不等於產生量，受海岸線長度與清理人力影響。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/172912",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=737b8ce4-12a4-4c92-aa05-c1c43f171edd",
+      "source_title": "海洋保育署海洋廢棄物清理統計（data.gov.tw 172912）"
+    },
+    {
+      "layer_key": "statsMarineDebrisCleanupOperationsCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "海洋廢棄物清理次數",
+      "group": "marineDebrisCleanup",
+      "group_label": "海洋廢棄物清理",
+      "option_label": "清理次數",
+      "subgroup": "海洋廢棄物",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_debris_cleanup_county",
+      "indicator_id": "marine_debris_cleanup_operations",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "次",
+      "aggregation": "sum",
+      "default_release_id": "2025-marine_debris_cleanup_operations-county-v1-8d190df0a9b3",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-marine_debris_cleanup_operations-county-v1-8d190df0a9b3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-marine_debris_cleanup_operations-county-v1-e333d84bd27c",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-marine_debris_cleanup_operations-county-v1-5fcc763ece88",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-marine_debris_cleanup_operations-county-v1-3de6b818c23d",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-marine_debris_cleanup_operations-county-v1-06e22f22cd49",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-marine_debris_cleanup_operations-county-v1-85db81da0d9e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          500,
+          1500,
+          3000,
+          6000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "清理所在縣市（地方政府填報）",
+      "disclosure": "海洋委員會海洋保育署海洋廢棄物清理狀況月統計（172912），彙總為縣市年清理量、廢漁具漁網量、清理次數與參與人次；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/172912",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=737b8ce4-12a4-4c92-aa05-c1c43f171edd",
+      "source_title": "海洋保育署海洋廢棄物清理統計（data.gov.tw 172912）"
+    },
+    {
+      "layer_key": "statsMarineDebrisCleanupParticipantsCounty",
+      "enabled": true,
+      "family": "marine",
+      "label": "海洋廢棄物清理參與人次",
+      "group": "marineDebrisCleanup",
+      "group_label": "海洋廢棄物清理",
+      "option_label": "參與人次",
+      "subgroup": "海洋廢棄物",
+      "data_theme": "海洋統計 Marine Statistics",
+      "tab_theme": "海洋 Marine",
+      "visual_theme": "fishery",
+      "dataset_id": "marine_debris_cleanup_county",
+      "indicator_id": "marine_debris_cleanup_participants",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "人次",
+      "aggregation": "sum",
+      "default_release_id": "2025-marine_debris_cleanup_participants-county-v1-acfd8edbd6d7",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-marine_debris_cleanup_participants-county-v1-acfd8edbd6d7",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-marine_debris_cleanup_participants-county-v1-0249bbb4f18b",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-marine_debris_cleanup_participants-county-v1-3dfa19f5bfb5",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-marine_debris_cleanup_participants-county-v1-b05386b9af95",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-marine_debris_cleanup_participants-county-v1-100e6d9a6887",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-marine_debris_cleanup_participants-county-v1-79791058d5ca",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          3000,
+          8000,
+          15000,
+          25000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用：非臨海縣市（不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "清理所在縣市（地方政府填報）",
+      "disclosure": "海洋委員會海洋保育署海洋廢棄物清理狀況月統計（172912），彙總為縣市年清理量、廢漁具漁網量、清理次數與參與人次；非臨海縣市標示不適用。無資料、不適用與遮蔽都不是 0。縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；不代表歷史邊界、不做面積重分配。",
+      "publisher": "海洋委員會海洋保育署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/172912",
+      "source_download_url": "https://iocean.oca.gov.tw/oca_datahub/WebService/GetData.ashx?id=737b8ce4-12a4-4c92-aa05-c1c43f171edd",
+      "source_title": "海洋保育署海洋廢棄物清理統計（data.gov.tw 172912）"
+    }
+  ],
+  "catalog_generated_from": "marineStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

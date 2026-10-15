@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
-import { themeName } from "./layerCatalog";
+import { useLocale } from "../../state/localeStore";
+import { localizeThemeTitle } from "./sectionText";
 import { RailToggle } from "./LayerRow";
 import { useRailTheme } from "./railTheme";
 
@@ -21,7 +22,9 @@ export function ThemeBanner({
   const { DIM, BORDER, TEXT_STRONG, BANNER_BG } = useRailTheme();
   const someOn = onCount > 0;
   // LT1（design-system §5.5）：title 是識別字串，顯示名稱查 THEME_NAMES（副標：英文，日本主題用日文）。
-  const { zh, sub } = themeName(title);
+  const i18n = useLocale();
+  const { t } = i18n;
+  const { primary: zh, sub } = localizeThemeTitle(title, i18n);
   return (
     <div
       style={{
@@ -58,7 +61,7 @@ export function ThemeBanner({
           {onCount}/{totalCount}
         </span>
       </button>
-      <span style={{ paddingRight: 12, display: "flex" }}><RailToggle on={someOn} onChange={onBulkToggle} label={`${zh} 全部開關`} /></span>
+      <span style={{ paddingRight: 12, display: "flex" }}><RailToggle on={someOn} onChange={onBulkToggle} label={t("layers.bulkToggle", { name: zh })} /></span>
     </div>
   );
 }

@@ -97,6 +97,8 @@ import { CaptureExitHint } from "./components/toolbar/CaptureExitHint";
 import { ToolbarButton } from "./components/toolbar/ToolbarButton";
 import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
 import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
+import { LanguageMenu } from "./components/toolbar/LanguageMenu";
+import { useLocale } from "./state/localeStore";
 import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -478,6 +480,7 @@ export default function App() {
   const [captureMode, setCaptureMode] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const { t } = useLocale();
   const [chatOpen, setChatOpen] = useState(false);
   // 常駐於 App 根層：viewport/capture UI 切換只隱藏面板，不能卸載配對連線。
   const [agentOpen, setAgentOpen] = useState(false);
@@ -2294,7 +2297,7 @@ export default function App() {
               <ToolbarButton
                 palette={toolbarPalette}
                 icon
-                title="分享目前畫面"
+                title={t("toolbar.share")}
                 onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
               >
                 <Share2 size={13} />
@@ -2302,7 +2305,7 @@ export default function App() {
               <ToolbarButton
                 palette={toolbarPalette}
                 icon
-                title="說明與操作提示"
+                title={t("toolbar.help")}
                 onClick={() => setShowInfo(true)}
               >
                 <CircleHelp size={13} />
@@ -2310,7 +2313,7 @@ export default function App() {
               <ToolbarButton
                 palette={toolbarPalette}
                 primary={chatOpen}
-                title="AI 助手 BYOK Chat"
+                title={t("toolbar.ai")}
                 onClick={() => setChatOpen((v) => !v)}
               >
                 <MessageSquare size={13} />
@@ -2319,13 +2322,14 @@ export default function App() {
               <ToolbarButton
                 palette={toolbarPalette}
                 primary
-                title="隱藏介面，只留地圖（Esc 離開）"
+                title={t("toolbar.captureTitle")}
                 onClick={() => setCaptureMode(true)}
               >
                 <Camera size={13} />
-                拍攝模式
+                {t("toolbar.capture")}
               </ToolbarButton>
               {toolbarDivider}
+              <LanguageMenu isDarkTheme={isDarkTheme} />
               <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
             </div>
           </div>
@@ -2565,7 +2569,7 @@ export default function App() {
               palette={toolbarPalette}
               icon
               primary={chatOpen}
-              title="AI 助手"
+              title={t("toolbar.aiShort")}
               onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
               style={mobileIconButtonStyle}
             >
@@ -2575,7 +2579,7 @@ export default function App() {
               palette={toolbarPalette}
               icon
               primary
-              title="拍攝模式（隱藏介面，只留地圖）"
+              title={t("toolbar.captureTitleMobile")}
               onClick={() => setCaptureMode(true)}
               style={mobileIconButtonStyle}
             >
@@ -2586,24 +2590,24 @@ export default function App() {
               isDarkTheme={isDarkTheme}
               buttonStyle={mobileIconButtonStyle}
               items={[
-                { key: "info", label: "說明與操作提示", icon: <CircleHelp size={15} />, onSelect: () => setShowInfo(true) },
+                { key: "info", label: t("toolbar.help"), icon: <CircleHelp size={15} />, onSelect: () => setShowInfo(true) },
                 {
                   key: "share",
-                  label: "分享目前畫面",
+                  label: t("toolbar.share"),
                   icon: <Share2 size={15} />,
                   onSelect: () => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); },
                 },
                 {
                   key: "render",
-                  label: "3D／2D 切換",
+                  label: t("toolbar.render3d2d"),
                   icon: <Box size={15} />,
                   onSelect: () => setRenderMode((m) => (m === "3d" ? "2d" : "3d")),
                   trailing: <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: toolbarPalette.textDim }}>{renderMode === "3d" ? "3D" : "2D"}</span>,
                 },
                 ...(agentEnabled
-                  ? [{ key: "agent", label: "本地 Agent", icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
+                  ? [{ key: "agent", label: t("toolbar.agent"), icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
                   : []),
-                { key: "member", label: "會員專區", icon: <UserRound size={15} />, active: memberOpen, onSelect: handleMemberToggle },
+                { key: "member", label: t("toolbar.member"), icon: <UserRound size={15} />, active: memberOpen, onSelect: handleMemberToggle },
               ]}
             />
             <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />

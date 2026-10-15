@@ -25,6 +25,10 @@ import {
   SMOKING_FACILITY_VALUES, TREATMENT_CATEGORY_VALUES,
 } from "../harmReductionTypes";
 import { DOD_RISK_VALUES } from "../landslideTypes";
+import {
+  BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS,
+  POLLUTION_LEVEL_OPTIONS, STRUCTURE_CATEGORY_OPTIONS, optionValues,
+} from "../atlasLayerTypes";
 
 function distinctValues(rel: string, field: string): string[] {
   const data = JSON.parse(readFileSync(`public/${rel}`, "utf8")) as GeoJSON.FeatureCollection;
@@ -178,6 +182,14 @@ const CASES: Case[] = [
   //    category_group 的完整性改由 scripts/preprocess/build-landslide-public.py 遇未知 category_sub 即中止守住。──
   { file: "hazards/landslide_dod_areas.geojson", field: "risk", covered: [...DOD_RISK_VALUES], ssot: "src/data/landslideTypes.ts DOD_RISK_OPTIONS" },
   { file: "hazards/landslide_dod_impact.geojson", field: "risk", covered: [...DOD_RISK_VALUES], ssot: "src/data/landslideTypes.ts DOD_RISK_OPTIONS" },
+  // ── atlas 批次 2026-10：分色欄完整性（部落族別、海龜物種的「其他」刻意落灰，不列）。PMTiles 層由前處理產出，不在此守。──
+  { file: "indigenous_rural/indigenous_isolation_risk_areas.geojson", field: "cause_combo", covered: optionValues(ISOLATION_CAUSE_OPTIONS), ssot: "src/data/atlasLayerTypes.ts ISOLATION_CAUSE_OPTIONS" },
+  { file: "marine/beach_water_quality.geojson", field: "latest_water_level_code", covered: optionValues(BEACH_LEVEL_OPTIONS), ssot: "src/data/atlasLayerTypes.ts BEACH_LEVEL_OPTIONS" },
+  { file: "marine/marine_pollution_incidents.geojson", field: "case_level", covered: optionValues(POLLUTION_LEVEL_OPTIONS), ssot: "src/data/atlasLayerTypes.ts POLLUTION_LEVEL_OPTIONS" },
+  { file: "geo/freeway_interchanges.geojson", field: "facility_type", covered: optionValues(INTERCHANGE_TYPE_OPTIONS), ssot: "src/data/atlasLayerTypes.ts INTERCHANGE_TYPE_OPTIONS" },
+  { file: "geo/wra_floodgates_central.geojson", field: "gate_kind", covered: optionValues(GATE_KIND_OPTIONS), ssot: "src/data/atlasLayerTypes.ts GATE_KIND_OPTIONS" },
+  { file: "geo/wra_iow_structure_monitoring.geojson", field: "structure_category", covered: optionValues(STRUCTURE_CATEGORY_OPTIONS), ssot: "src/data/atlasLayerTypes.ts STRUCTURE_CATEGORY_OPTIONS" },
+  { file: "geo/wra_dredging_points.geojson", field: "status", covered: optionValues(DREDGING_STATUS_OPTIONS), ssot: "src/data/atlasLayerTypes.ts DREDGING_STATUS_OPTIONS" },
 ];
 
 describe("分類表覆蓋資料實際值", () => {

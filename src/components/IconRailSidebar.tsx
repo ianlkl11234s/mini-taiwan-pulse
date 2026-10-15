@@ -21,6 +21,7 @@ import { searchLocationPresets } from "../lib/locationSearch";
 import { DataSourcePanel } from "./sidebar/DataSourcePanel";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 // 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
+import { useLocale } from "../state/localeStore";
 import { LayersPanel, RailPanelHeader } from "./sidebar/LayersPanel";
 import { LAYER_PANELS, type LayerPanelId } from "./sidebar/layerPanels";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
@@ -110,6 +111,7 @@ export function IconRailSidebar({
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = railPalette(isDarkTheme);
+  const { t } = useLocale();
   const { BG_RAIL, BORDER, BG_PANEL, PANEL_BORDER } = palette;
   const [activePanel, setActivePanel] = useState<PanelId | null>(startClosed ? null : "layers");
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
@@ -225,7 +227,7 @@ export function IconRailSidebar({
           icon={Layers}
           active={activePanel === "layers"}
           onClick={() => togglePanel("layers")}
-          tooltip="台灣 Taiwan"
+          tooltip={t("panel.layers.title")}
           badge={!layersBadgeSeen}
         />
 
@@ -234,7 +236,7 @@ export function IconRailSidebar({
           icon={StatisticsGlyph}
           active={activePanel === "statistics"}
           onClick={() => togglePanel("statistics")}
-          tooltip="統計 Statistics"
+          tooltip={t("panel.statistics.title")}
         />
 
         {/* 🌍 世界 World（維持獨立 rail，排在 Layers 之後） */}
@@ -242,7 +244,7 @@ export function IconRailSidebar({
           icon={WorldGlyph}
           active={activePanel === "world"}
           onClick={() => togglePanel("world")}
-          tooltip="世界 World"
+          tooltip={t("panel.world.title")}
         />
 
         {/* 🗾 日本 Japan（clone 世界 tab；打開自動飛日本） */}
@@ -250,7 +252,7 @@ export function IconRailSidebar({
           icon={JapanGlyph}
           active={activePanel === "japan"}
           onClick={() => togglePanel("japan")}
-          tooltip="日本 Japan"
+          tooltip={t("panel.japan.title")}
         />
 
         {/* Locations */}
@@ -266,7 +268,7 @@ export function IconRailSidebar({
           icon={Database}
           active={activePanel === "datasource"}
           onClick={() => togglePanel("datasource")}
-          tooltip="資料來源"
+          tooltip={t("rail.datasource")}
         />
 
         {agentAvailable && onAgentToggle && (
@@ -274,7 +276,7 @@ export function IconRailSidebar({
             icon={Bot}
             active={!!agentActive}
             onClick={() => { if (!agentActive) { closePanel(); closeExternalPanels(); } onAgentToggle(); }}
-            tooltip="本地 Agent"
+            tooltip={t("toolbar.agent")}
           />
         )}
 
@@ -287,7 +289,7 @@ export function IconRailSidebar({
               if (!intelActive) { closePanel(); if (agentActive) onAgentToggle?.(); }
               onIntelToggle();
             }}
-            tooltip="即時情報 Intel"
+            tooltip={t("rail.intel")}
           />
         )}
 
@@ -300,7 +302,7 @@ export function IconRailSidebar({
               if (!satelliteActive) { closePanel(); if (agentActive) onAgentToggle?.(); }
               onSatelliteToggle();
             }}
-            tooltip="衛星情報 Satellite"
+            tooltip={t("rail.satellite")}
           />
         )}
 
@@ -310,7 +312,7 @@ export function IconRailSidebar({
             icon={PanelRight}
             active={!!monitorSplitActive}
             onClick={() => { if (!monitorSplitActive && agentActive) onAgentToggle?.(); onMonitorSplitToggle(); }}
-            tooltip="監測模式 Monitor"
+            tooltip={t("rail.monitor")}
           />
         )}
 
@@ -319,7 +321,7 @@ export function IconRailSidebar({
             icon={User}
             active={!!memberActive}
             onClick={() => { if (!memberActive) { closePanel(); if (agentActive) onAgentToggle?.(); } onMemberToggle(); }}
-            tooltip="會員專區"
+            tooltip={t("toolbar.member")}
           />
         )}
 
@@ -366,7 +368,7 @@ export function IconRailSidebar({
                 search={panelSearch[panel.id]}
                 onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
                 themes={panel.themes}
-                title={panel.title}
+                title={t(`panel.${panel.id}.title`)}
                 macroGroups={panel.macroGroups}
                 allOffKeys={panel.allOffKeys}
                 statisticsModeControl={panel.statisticsModeControl}

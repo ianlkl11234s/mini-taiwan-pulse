@@ -1,0 +1,19 @@
+{
+  "popup.pollution.maxSeverity": "Highest severity",
+  "popup.pollution.facilityNote": "Pollution potential inferred from \"environmentally regulated entities\" × penalty records; being regulated does not mean polluting.",
+  "popup.pollution.penalized": "Penalized entity",
+  "popup.pollution.medium": "Medium",
+  "popup.pollution.tier": "Tier",
+  "popup.pollution.illegalGain": "Illegal gains",
+  "popup.pollution.continuous": "Repeated penalties",
+  "popup.pollution.stopOrder": "Suspension / cease orders",
+  "popup.pollution.improveStatus": "Improvement status",
+  "popup.pollution.geocodeMethod": "Location method: {value}",
+  "popup.pollution.siteName": "Site name",
+  "popup.pollution.controlType": "Control category",
+  "popup.pollution.announceDate": "Announcement date",
+  "popup.pollution.pollutant": "Pollutant",
+  "popup.pollution.stillControlled": "Still listed",
+  "popup.pollution.released": "Delisted",
+  "popup.pollution.siteNote": "EMS_S_07 confirmed contaminated site (severity S4)."
+}

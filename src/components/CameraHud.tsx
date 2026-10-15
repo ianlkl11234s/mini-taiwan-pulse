@@ -1,5 +1,6 @@
 import { useSyncExternalStore, type CSSProperties } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { localeStore, useLocale } from "../state/localeStore";
 
 export interface CameraInfo {
   lng: number;
@@ -23,7 +24,8 @@ export function readCameraInfo(map: MapboxMap): CameraInfo {
 }
 
 export function formatCameraInfo(camera: CameraInfo): string {
-  return `${camera.lat}, ${camera.lng} · z${camera.zoom} · 仰角 ${camera.pitch}° · 方位 ${camera.bearing}°`;
+  const { t } = localeStore.getSnapshot();
+  return `${camera.lat}, ${camera.lng} · z${camera.zoom} · ${t("camera.pitch")} ${camera.pitch}° · ${t("camera.bearing")} ${camera.bearing}°`;
 }
 
 /** A map-local external store: move events only re-render HUD subscribers. */
@@ -73,5 +75,6 @@ export type CameraHudStore = ReturnType<typeof createCameraHudStore>;
 
 export function CameraHud({ store, style }: { store: CameraHudStore; style: CSSProperties }) {
   const camera = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  useLocale(); // 切換語系時重繪
   return <div style={style}>{formatCameraInfo(camera)}</div>;
 }

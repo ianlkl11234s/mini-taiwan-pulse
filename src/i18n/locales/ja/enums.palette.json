@@ -1,0 +1,19 @@
+{
+  "enum.palette.magma": "マグマ",
+  "enum.palette.viridis": "ビリディス",
+  "enum.palette.YlOrBr": "黄・橙・茶",
+  "enum.palette.PuBuGn": "紫・青・緑",
+  "enum.palette.Burg": "ワインレッド",
+  "enum.palette.speed": "流速",
+  "enum.palette.batlow": "バトロウ",
+  "enum.palette.BuPu": "青・紫",
+  "enum.palette.bilbao": "ビルバオ",
+  "enum.palette.YlGnBu": "黄・緑・青",
+  "enum.palette.acton": "アクトン",
+  "enum.palette.tokyo": "東京",
+  "enum.palette.rocket": "ロケット",
+  "enum.palette.PuBu": "紫・青",
+  "enum.palette.turku": "トゥルク",
+  "enum.palette.cividis": "色覚多様性対応",
+  "enum.palette.oslo": "オスロ"
+}

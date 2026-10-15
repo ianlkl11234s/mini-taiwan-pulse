@@ -3,6 +3,7 @@ import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
 import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';
 import type { AddictionStatisticsLayerKey } from '../data/addictionStatisticsRecipes';
 import type { LandslideStatisticsLayerKey } from '../data/landslideStatisticsRecipes';
+import type { AtlasStatisticsLayerKey } from '../data/atlasStatisticsRecipes';
 import type { DemographicsStatisticsLayerKey } from '../data/demographicsStatisticsRecipes';
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
@@ -121,6 +122,8 @@ export type ExpandableLayerKey =
   | "earthquakeReplay"
   | "mountainRescueIncidents"
   | "landslideDodAreas" | "landslideDodImpact" | "highwayDisasterHistory" | "landslideAnnual"
+  // atlas 批次 2026-10（26 層點／線／面）
+  | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -435,6 +438,8 @@ export interface RailTrain {
   color: string;
   status: "running" | "stopped";
   trainTypeCode?: string; // TRA 車種代碼 "PP" | "TC" | "CK" | "LC" 等
+  /** 行進方位角（度，正北 0 順時針；R6 段 3 平面箭頭用）。算不出時 null。 */
+  bearing?: number | null;
 }
 
 export interface RailSystem {
@@ -822,6 +827,7 @@ export interface FeatureInfo {
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "mountainHut" | "mountainRescueIncident"
     | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
+    | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -917,7 +923,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1188,6 +1194,33 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   landslideDodImpact: boolean;
   highwayDisasterHistory: boolean;
   landslideAnnual: boolean;
+  /** atlas 批次 2026-10：原民與農村、道路設施、淹水與災害照片、海洋、地名、水利設施 26 層 */
+  indigenousTribes: boolean;
+  indigenousIsolationRisk: boolean;
+  agriRuralCommunityVillages: boolean;
+  provincialRoadSigns: boolean;
+  provincialRoadMileposts: boolean;
+  freewayTrafficSigns: boolean;
+  freewayInterchanges: boolean;
+  freewayEcoSensitive: boolean;
+  provincialRoadMonitored: boolean;
+  provincialRoadEmergencyBays: boolean;
+  floodDisasterPointsNcdr: boolean;
+  taipeiWaterloggingHistory: boolean;
+  swcbDisasterPhotoPoints: boolean;
+  cetaceanStrandings: boolean;
+  seaTurtleStrandings: boolean;
+  beachWaterQuality: boolean;
+  marineMicroplastics: boolean;
+  marinePollutionIncidents: boolean;
+  namrEdnaSurveySites: boolean;
+  placeNames: boolean;
+  triangulationPoints: boolean;
+  wraFloodgatesCentral: boolean;
+  wraCentralDrainage: boolean;
+  iowStructureMonitoring: boolean;
+  wraDredgingPoints: boolean;
+  wraEcologySurveySites: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）

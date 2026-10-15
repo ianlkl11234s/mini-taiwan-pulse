@@ -510,6 +510,33 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "risk", type: "string" },
     { field: "total_res", type: "number", nullable: true },
   ],
+  // 🗺️ atlas 批次 2026-10：分色／篩選依賴欄（year 篩選用 to-string 比對，但仍釘數字型別免得上游漂移）。
+  "indigenous_rural/indigenous_tribes.geojson": [
+    { field: "ethnic_group", type: "string", nullable: true },
+    { field: "in_current_approved_list", type: "boolean" },
+  ],
+  "indigenous_rural/indigenous_isolation_risk_areas.geojson": [{ field: "cause_combo", type: "string" }],
+  "marine/cetacean_strandings.geojson": [
+    { field: "event_year", type: "number" },
+    { field: "animal_status", type: "string" },
+    { field: "coord_status", type: "string" },
+  ],
+  "marine/sea_turtle_strandings.geojson": [
+    { field: "event_year", type: "number" },
+    { field: "species_zh", type: "string" },
+    { field: "coord_status", type: "string" },
+  ],
+  "marine/beach_water_quality.geojson": [{ field: "latest_water_level_code", type: "string" }],
+  "marine/marine_pollution_incidents.geojson": [{ field: "case_level", type: "string" }],
+  "marine/marine_microplastics_stations.geojson": [{ field: "surface_mean_total_per_m3", type: "number", nullable: true }],
+  "geo/freeway_interchanges.geojson": [{ field: "facility_type", type: "string" }],
+  "geo/freeway_eco_sensitive_sections.geojson": [{ field: "sensi_level", type: "number" }],
+  "geo/provincial_road_emergency_bays.geojson": [{ field: "in_latest_list", type: "boolean" }],
+  "geo/triangulation_points_moi.geojson": [{ field: "grade", type: "number" }],
+  "geo/wra_floodgates_central.geojson": [{ field: "gate_kind", type: "string" }],
+  "geo/wra_iow_structure_monitoring.geojson": [{ field: "structure_category", type: "string" }],
+  "geo/wra_dredging_points.geojson": [{ field: "status", type: "string" }],
+  "geo/wra_ecology_survey_sites.geojson": [{ field: "species_count", type: "number" }],
 };
 
 /**

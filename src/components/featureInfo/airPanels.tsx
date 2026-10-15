@@ -5,6 +5,8 @@ import { temperatureGridColor } from "../../data/temperatureGridTypes";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row, numOrNull, formatNum } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 
 /** 允許負值的數值解析（shared 的 numOrNull 把負數當無效，溫度不適用） */
 function finiteOrNull(v: unknown): number | null {
@@ -14,6 +16,8 @@ function finiteOrNull(v: unknown): number | null {
 
 export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const aqi = numOrNull(props.aqi);
   const color = aqi != null ? aqiToColor(aqi) : "#707070";
   const observedAt = String(props.observedAt ?? "");
@@ -40,25 +44,26 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
           {aqi ?? "—"}
         </span>
         <span style={{ fontSize: FONT_SIZE.base, color: t.textDefault }}>
-          AQI {String(props.status ?? "")}
+          AQI {enumLabel("airAqiStatus", String(props.status ?? ""), String(props.status ?? ""), i18n)}
         </span>
       </div>
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="主污染物" value={String(props.pollutant ?? "")} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row label={tr("popup.air.mainPollutant")} value={String(props.pollutant ?? "")} />
       <Row label="PM2.5" value={formatNum(numOrNull(props.pm25), "µg/m³")} mono />
       <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />
       <Row label="O₃" value={formatNum(numOrNull(props.o3), "ppb", 1)} />
       <Row label="NO₂" value={formatNum(numOrNull(props.no2), "ppb", 1)} />
       <Row label="SO₂" value={formatNum(numOrNull(props.so2), "ppb", 2)} />
       <Row label="CO" value={formatNum(numOrNull(props.co), "ppm", 2)} />
-      <Row label="風速" value={formatNum(numOrNull(props.windSpeed), "m/s", 1)} />
-      <Row label="觀測時間" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
+      <Row field="windSpeed" value={formatNum(numOrNull(props.windSpeed), "m/s", 1)} />
+      <Row field="observedAt" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
     </>
   );
 }
 
 export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const pm25 = numOrNull(props.pm25);
   // 標題色點對齊面板主數值（PM2.5），故固定用 colorPm25，不隨圖層顯示模式跑
   const color = String(props.colorPm25 ?? "#707070");
@@ -93,15 +98,15 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>PM2.5 µg/m³</span>
       </div>
       {/* 標題被站名佔走時，device_id 改用一列補回，避免資訊遺失 */}
-      {siteName && <Row label="裝置 ID" value={String(props.deviceId ?? "")} />}
-      <Row label="來源" value={String(props.source ?? "")} />
-      <Row label="裝置" value={String(props.app ?? "")} />
-      <Row label="地區" value={String(props.area ?? "")} />
+      {siteName && <Row label={tr("popup.air.deviceId")} value={String(props.deviceId ?? "")} />}
+      <Row field="source" value={String(props.source ?? "")} />
+      <Row label={tr("popup.air.device")} value={String(props.app ?? "")} />
+      <Row label={tr("popup.air.area")} value={String(props.area ?? "")} />
       <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />
       <Row label="PM1" value={formatNum(numOrNull(props.pm1), "µg/m³")} />
-      <Row label="溫度" value={tempStr} />
-      <Row label="濕度" value={formatNum(numOrNull(props.humidity), "%")} />
-      <Row label="觀測時間" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
+      <Row label={tr("popup.air.temperature")} value={tempStr} />
+      <Row field="humidity" value={formatNum(numOrNull(props.humidity), "%")} />
+      <Row field="observedAt" value={observedAt ? observedAt.slice(0, 16).replace("T", " ") : ""} />
     </>
   );
 }
@@ -112,6 +117,7 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
  */
 export function TemperatureGridPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr, formatDateTime } = useLocale();
   // ⚠️ 不能用 numOrNull：它把負數視為無效，山區可能低於 0°C
   const temp = finiteOrNull(props.temp);
   const color = temp != null ? temperatureGridColor(temp) : "#707070";
@@ -119,7 +125,7 @@ export function TemperatureGridPanel({ props }: { props: Record<string, unknown>
   // 否則面板開著拖時間軸會出現「時間走了、溫度沒走」的錯配
   const frameTime = useMemo(() => getTemperatureGridFrameTime(), [props]);
   const timeStr = frameTime > 0
-    ? new Date(frameTime * 1000).toLocaleString("zh-TW", {
+    ? formatDateTime(new Date(frameTime * 1000), {
         month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false,
       })
     : "";
@@ -143,12 +149,12 @@ export function TemperatureGridPanel({ props }: { props: Record<string, unknown>
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>°C</span>
       </div>
-      <Row label="時間" value={timeStr} />
+      <Row field="time" value={timeStr} />
       <Row
-        label="格點"
+        label={tr("popup.air.gridPoint")}
         value={lng != null && lat != null ? `${lng.toFixed(3)}, ${lat.toFixed(3)}` : ""}
       />
-      <Row label="來源" value="CWA 0.03° 逐時觀測分析格點" />
+      <Row field="source" value={tr("popup.air.gridSource")} />
     </>
   );
 }
@@ -167,6 +173,7 @@ export function TemperatureGridPanel({ props }: { props: Record<string, unknown>
  */
 export function RasterProbePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const heat = props.urbanHeat as { delta_t: number; lst_c: number } | null | undefined;
   const canopy = props.canopyHeight as { height_m: number } | null | undefined;
   const jpCanopy = props.jpCanopyHeight as { height_m: number; source: string; coverage: string; resolution: string } | null | undefined;
@@ -176,29 +183,29 @@ export function RasterProbePanel({ props }: { props: Record<string, unknown> }) 
         <>
           {/* ΔT =「比同期背景熱幾度」，正負號本身就是訊息 → 正值明確帶 + 號 */}
           <Row
-            label="熱島強度"
+            label={tr("popup.air.heatIntensity")}
             value={`${heat.delta_t > 0 ? "+" : ""}${heat.delta_t.toFixed(1)} K`}
             color={heat.delta_t > 0 ? "#ef4444" : "#38bdf8"}
           />
-          <Row label="地表溫度" value={`${heat.lst_c.toFixed(1)} °C`} />
+          <Row label={tr("popup.air.surfaceTemp")} value={`${heat.lst_c.toFixed(1)} °C`} />
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, marginBottom: 6 }}>
-            Landsat 8/9 地表溫度 · 2019–2025 暖季上午過境 median 合成（60m）
+            {tr("popup.air.landsatNote")}
           </div>
         </>
       )}
       {canopy && (
         <>
-          <Row label="樹冠高度" value={`${canopy.height_m.toFixed(0)} 公尺`} color="#238b45" />
+          <Row label={tr("popup.air.canopyHeight")} value={tr("popup.air.meters", { value: canopy.height_m.toFixed(0) })} color="#238b45" />
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>
-            Meta / WRI 全球樹冠高度切片（R 通道即公尺高度）
+            {tr("popup.air.canopyNote")}
           </div>
         </>
       )}
       {jpCanopy && (
         <>
-          <Row label="日本樹冠高度" value={`${jpCanopy.height_m.toFixed(0)} 公尺`} color="#238b45" />
+          <Row label={tr("popup.air.jpCanopyHeight")} value={tr("popup.air.meters", { value: jpCanopy.height_m.toFixed(0) })} color="#238b45" />
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>
-            {jpCanopy.source} 估計值；{jpCanopy.coverage}；解析度 {jpCanopy.resolution}；影像日期依地點而異
+            {tr("popup.air.jpCanopyNote", { source: jpCanopy.source, coverage: jpCanopy.coverage, resolution: jpCanopy.resolution })}
           </div>
         </>
       )}

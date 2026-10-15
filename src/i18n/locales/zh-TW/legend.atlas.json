@@ -1,0 +1,19 @@
+{
+  "legend.atlas.flag": "座標與通報縣市不一致（疑誤）",
+  "legend.atlas.otherMultiEthnic": "其他／多族並列",
+  "legend.atlas.notApprovedList": "不在現行核定名單",
+  "legend.atlas.otherSource": "其他來源",
+  "legend.atlas.unidentified": "無法辨認",
+  "legend.atlas.milepost": "里程牌",
+  "legend.atlas.waterloggedArea": "積水範圍",
+  "legend.atlas.surveySite": "調查站位",
+  "legend.atlas.drainageExtent": "排水設施範圍",
+  "legend.atlas.titleRuralCommunity": "農村社區分類",
+  "legend.atlas.titleFloodPoints": "淹水災點",
+  "legend.atlas.titleMicroplastics": "海洋微塑膠（表層平均，個／m³）",
+  "legend.atlas.titleEcology": "河川生態調查站（物種數）",
+  "legend.atlas.noteSource": "{note}{source} · 政府資料開放授權條款第1版。",
+  "legend.atlas.sourceIds": "{org}（data.gov.tw {ids}）",
+  "legend.atlas.sourceIdsEtc": "{org}（data.gov.tw {ids} 等）",
+  "legend.atlas.idSeparator": "、"
+}

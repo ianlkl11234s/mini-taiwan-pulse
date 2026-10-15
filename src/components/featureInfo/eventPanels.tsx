@@ -4,6 +4,11 @@ import { confidenceLabel } from "../../data/vesselWatchTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+
+/** 等同 toLocaleString 預設的完整日期時間（台北時區由 formatDateTime 處理） */
+const DT_FULL: Intl.DateTimeFormatOptions = { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric", hour12: false };
 
 function parseEvents(raw: unknown): ClusterEvent[] {
   if (typeof raw !== "string" || !raw) return [];
@@ -15,16 +20,15 @@ function parseEvents(raw: unknown): ClusterEvent[] {
   }
 }
 
-function formatTs(unixSec: number | undefined | null): string {
+function formatTs(unixSec: number | undefined | null, fmt: (d: Date, o: Intl.DateTimeFormatOptions) => string): string {
   if (!unixSec) return "";
-  return new Date(unixSec * 1000).toLocaleString("zh-TW", {
-    timeZone: "Asia/Taipei",
-    hour12: false,
-  });
+  return fmt(new Date(unixSec * 1000), DT_FULL);
 }
 
 export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr, formatDateTime } = i18n;
   const eventCount = Number(props.event_count ?? 1);
   const location = String(props.location_name ?? props.county ?? "");
   const events = parseEvents(props.events_json);
@@ -41,10 +45,10 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
             {String(props.title ?? "Unknown Event")}
           </div>
         </div>
-        <Row label="摘要" value={String(props.summary ?? "")} />
-        <Row label="地點" value={location} />
-        <Row label="分類" value={cat.label} color={cat.color} />
-        <Row label="時間" value={String(props.published ?? "")} />
+        <Row label={tr("popup.event.summary")} value={String(props.summary ?? "")} />
+        <Row field="place" value={location} />
+        <Row field="classification" value={enumLabel("eventNewsCategory", cat.key, cat.label, i18n)} color={cat.color} />
+        <Row field="time" value={String(props.published ?? "")} />
         {link && (
           <div style={{ marginTop: 6 }}>
             <a
@@ -53,7 +57,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
               rel="noopener noreferrer"
               style={{ color: cat.color, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA, textDecoration: "underline" }}
             >
-              原文連結
+              {tr("popup.event.originalLink")}
             </a>
           </div>
         )}
@@ -76,7 +80,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
           marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
           background: t.bgStrong, color: t.textStrong, fontWeight: 600,
         }}>
-          {eventCount} 則
+          {tr("popup.event.itemCount", { count: eventCount })}
         </div>
       </div>
       <div style={{
@@ -107,9 +111,9 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
                   fontSize: FONT_SIZE.sm, color: t.textDim, marginTop: 2,
                   display: "flex", gap: 6, flexWrap: "wrap",
                 }}>
-                  <span style={{ color: cat.color }}>{cat.label}</span>
+                  <span style={{ color: cat.color }}>{enumLabel("eventNewsCategory", cat.key, cat.label, i18n)}</span>
                   <span>·</span>
-                  <span>{formatTs(e.published_ts)}</span>
+                  <span>{formatTs(e.published_ts, formatDateTime)}</span>
                   {e.source && <span>· {e.source.toUpperCase()}</span>}
                 </div>
               </div>
@@ -123,9 +127,11 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
 
 export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr, formatDateTime } = i18n;
   const severity = String(props.severity ?? "Unknown");
   const color = String(props.color ?? "#dc2626");
-  const event = String(props.event ?? props.event_term ?? "災害示警");
+  const event = String(props.event ?? props.event_term ?? tr("popup.event.disasterAlert"));
   const headline = String(props.headline ?? "");
   const areaDesc = String(props.area_desc ?? "");
   const sender = String(props.sender_name ?? "");
@@ -133,11 +139,12 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
   const endTs = Number(props.end_ts ?? 0);
   const fmt = (ts: number) =>
     ts > 0 && ts < Number.MAX_SAFE_INTEGER
-      ? new Date(ts * 1000).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false })
+      ? formatDateTime(new Date(ts * 1000), DT_FULL)
       : "—";
   const sevLabel: Record<string, string> = {
     Extreme: "極端", Severe: "嚴重", Moderate: "中度", Minor: "輕度", Unknown: "未分類",
   };
+  const sevText = enumLabel("eventSeverity", severity, sevLabel[severity] ?? severity, i18n);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -149,13 +156,13 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
           marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
           background: color, color: "#fff", fontWeight: 600,
         }}>
-          {sevLabel[severity] ?? severity}
+          {sevText}
         </div>
       </div>
-      {headline && <Row label="標題" value={headline} />}
+      {headline && <Row label={tr("popup.event.headline")} value={headline} />}
       {areaDesc && (
         <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
-          <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56 }}>影響區域</span>
+          <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56 }}>{tr("popup.event.affectedArea")}</span>
           <div
             style={{
               color: t.textStrong,
@@ -169,21 +176,23 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
           </div>
         </div>
       )}
-      <Row label="生效" value={fmt(startTs)} />
-      <Row label="失效" value={fmt(endTs)} />
-      {sender && <Row label="發布單位" value={sender} />}
+      <Row label={tr("popup.event.effective")} value={fmt(startTs)} />
+      <Row label={tr("popup.event.expires")} value={fmt(endTs)} />
+      {sender && <Row label={tr("popup.event.sender")} value={sender} />}
     </>
   );
 }
 
 export function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr, formatDateTime } = i18n;
   const eventType = Number(props.event_type ?? 0);
   const color = String(props.color ?? "#6b7280");
   const source = String(props.source ?? "");
   const roadName = String(props.road_name ?? "");
   const direction = String(props.direction ?? "");
-  const title = String(props.title ?? props.description ?? props.location_other ?? "路況事件");
+  const title = String(props.title ?? props.description ?? props.location_other ?? tr("popup.event.roadEvent"));
   const description = String(props.description ?? "");
   const locationOther = String(props.location_other ?? "");
   const blockedLanes = String(props.blocked_lanes ?? "");
@@ -201,33 +210,34 @@ export function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
     live_city: "縣市", event_city: "縣市預告",
   };
   const fmt = (ts: number) =>
-    ts > 0 ? new Date(ts * 1000).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false }) : "—";
+    ts > 0 ? formatDateTime(new Date(ts * 1000), DT_FULL) : "—";
 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {title || (EVENT_TYPE_LABELS[eventType] ?? "路況事件")}
+          {title || enumLabel("eventRoadType", eventType, EVENT_TYPE_LABELS[eventType] ?? tr("popup.event.roadEvent"), i18n)}
         </div>
         <div style={{ fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md, background: color, color: "#fff", fontWeight: 600, flexShrink: 0 }}>
-          {EVENT_TYPE_LABELS[eventType] ?? "其他"}
+          {enumLabel("eventRoadType", eventType, EVENT_TYPE_LABELS[eventType] ?? "其他", i18n)}
         </div>
       </div>
-      {source && <Row label="來源" value={SOURCE_LABELS[source] ?? source} />}
-      {roadName && <Row label="路段" value={roadName + (direction ? ` ${direction}` : "")} />}
-      {startKm > 0 && <Row label="里程" value={`${startKm.toFixed(1)} ~ ${endKm.toFixed(1)} km`} />}
-      {description && description !== title && <Row label="描述" value={description} />}
-      {locationOther && locationOther !== description && <Row label="位置" value={locationOther} />}
-      {blockedLanes && <Row label="封閉車道" value={blockedLanes} />}
-      <Row label="生效" value={fmt(startTs)} />
-      {endTs > 0 && <Row label="失效" value={fmt(endTs)} />}
+      {source && <Row field="source" value={enumLabel("eventRoadSource", source, SOURCE_LABELS[source] ?? source, i18n)} />}
+      {roadName && <Row field="roadSection" value={roadName + (direction ? ` ${direction}` : "")} />}
+      {startKm > 0 && <Row label={tr("popup.event.mileage")} value={`${startKm.toFixed(1)} ~ ${endKm.toFixed(1)} km`} />}
+      {description && description !== title && <Row label={tr("popup.event.description")} value={description} />}
+      {locationOther && locationOther !== description && <Row field="location" value={locationOther} />}
+      {blockedLanes && <Row label={tr("popup.event.blockedLanes")} value={blockedLanes} />}
+      <Row label={tr("popup.event.effective")} value={fmt(startTs)} />
+      {endTs > 0 && <Row label={tr("popup.event.expires")} value={fmt(endTs)} />}
     </>
   );
 }
 
 export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -236,8 +246,8 @@ export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) 
           {String(props.fault_name ?? "Unknown Fault")}
         </div>
       </div>
-      <Row label="編號" value={String(props.fault_id ?? "")} />
-      <Row label="全稱" value={String(props.name ?? "")} />
+      <Row field="number" value={String(props.fault_id ?? "")} />
+      <Row label={tr("popup.event.fullName")} value={String(props.name ?? "")} />
     </>
   );
 }
@@ -250,8 +260,9 @@ export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) 
  */
 export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const color = String(props.kind_color ?? "#38bdf8");
-  const kindLabel = String(props.kind_label ?? "活動區");
+  const kindLabel = String(props.kind_label ?? tr("popup.event.activityZone"));
   const shapeNo = Number(props.shape_no ?? 0);
   const reportDate = String(props.report_date ?? "");
   const needsReview = Number(props.needs_review ?? 0) === 1;
@@ -261,6 +272,7 @@ export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) 
     v === null || v === undefined || v === "" ? null : Number(v);
   // ⚠ null = 該日通報解析失敗，與「0 架次」語意不同 → 顯示「—」而非 0
   const show = (v: number | null, unit: string) => (v === null ? "—" : `${v} ${unit}`);
+  const sortieUnit = tr("popup.event.sortieUnit");
   const sorties = num(props.sorties);
   const crossed = num(props.crossed_median);
   const vessels = num(props.plan_vessels);
@@ -278,16 +290,16 @@ export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) 
             marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
             background: "#b45309", color: "#fff", fontWeight: 600,
           }}>
-            待核實
+            {tr("popup.event.needsReview")}
           </div>
         )}
       </div>
-      <Row label="日期" value={reportDate} />
-      <Row label="共機架次" value={show(sorties, "架次")} />
-      <Row label="逾越中線" value={show(crossed, "架次")} />
-      <Row label="共艦" value={show(vessels, "艘")} />
-      <Row label="公務船" value={show(ships, "艘")} />
-      {balloons > 0 && <Row label="空飄氣球" value={`${balloons} 顆（不繪成活動區）`} />}
+      <Row field="date" value={reportDate} />
+      <Row label={tr("popup.event.plaSorties")} value={show(sorties, sortieUnit)} />
+      <Row label={tr("popup.event.crossedMedian")} value={show(crossed, sortieUnit)} />
+      <Row label={tr("popup.event.plaVessels")} value={show(vessels, tr("popup.event.shipUnit"))} />
+      <Row label={tr("popup.event.officialShips")} value={show(ships, tr("popup.event.shipUnit"))} />
+      {balloons > 0 && <Row label={tr("popup.event.balloons")} value={tr("popup.event.balloonValue", { count: balloons })} />}
       {chartUrl && (
         <div style={{ marginTop: 6, fontSize: FONT_SIZE.base }}>
           <a
@@ -296,15 +308,15 @@ export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) 
             rel="noopener noreferrer"
             style={{ color, textDecoration: "underline" }}
           >
-            國防部原始航跡示意圖 ↗
+            {tr("popup.event.chartLink")}
           </a>
         </div>
       )}
       <div style={{
         marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textMuted, lineHeight: 1.5,
       }}>
-        依國防部示意圖描繪之活動區域，非精確航跡。
-        {needsReview && "此形狀未通過自動守門，尚未人工核實。"}
+        {tr("popup.event.plaNote")}
+        {needsReview && tr("popup.event.plaNeedsReviewNote")}
       </div>
     </>
   );
@@ -320,9 +332,10 @@ export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) 
  */
 export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr, formatDateTime } = useLocale();
   const color = String(props.class_color ?? "#fb7185");
-  const classLabel = String(props.class_label ?? "未分類");
-  const shipName = String(props.ship_name ?? "").trim() || "（無船名）";
+  const classLabel = String(props.class_label ?? tr("popup.common.unclassified"));
+  const shipName = String(props.ship_name ?? "").trim() || tr("popup.event.noShipName");
   const str = (v: unknown) => {
     const s = v === null || v === undefined ? "" : String(v).trim();
     return s === "" ? "—" : s;
@@ -334,7 +347,7 @@ export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) 
   };
   const collectedAt = String(props.collected_at ?? "");
   const collectedText = collectedAt
-    ? new Date(collectedAt).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false })
+    ? formatDateTime(new Date(collectedAt), DT_FULL)
     : "—";
   // 軌跡線 feature 沒有這些欄位（只有 mmsi / 分類 / 點數）→ 用它判斷要不要畫動態區塊
   const isTrail = props.point_count !== undefined && props.speed === undefined;
@@ -347,30 +360,29 @@ export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) 
           {shipName}
         </div>
       </div>
-      <Row label="分類" value={classLabel} />
+      <Row field="classification" value={classLabel} />
       {/* 可信度：讓使用者看得到「這艘為什麼被這樣分類」。
           rule_strong 不是猜的（MID×船名雙重印證），presumed 才是只憑船方自報。 */}
-      <Row label="判定依據" value={confidenceLabel(props.confidence as string)} />
+      <Row label={tr("popup.event.basis")} value={confidenceLabel(props.confidence as string)} />
       <Row label="MMSI" value={str(props.mmsi)} />
       <Row label="IMO" value={str(props.imo)} />
-      <Row label="呼號" value={str(props.call_sign)} />
-      <Row label="船長" value={num(props.length_m, "m")} />
+      <Row field="callSign" value={str(props.call_sign)} />
+      <Row label={tr("popup.event.shipLength")} value={num(props.length_m, "m")} />
       {isTrail ? (
-        <Row label="軌跡點數" value={num(props.point_count, "點")} />
+        <Row label={tr("popup.event.trailPoints")} value={num(props.point_count, tr("popup.event.pointUnit"))} />
       ) : (
         <>
-          <Row label="速度" value={num(props.speed, "節", 1)} />
-          <Row label="航向" value={num(props.heading, "°")} />
-          <Row label="航行狀態" value={str(props.nav_status)} />
-          <Row label="目的地（自報）" value={str(props.destination)} />
-          <Row label="最後回報" value={collectedText} />
+          <Row label={tr("popup.event.speed")} value={num(props.speed, tr("popup.event.knotUnit"), 1)} />
+          <Row label={tr("popup.event.heading")} value={num(props.heading, "°")} />
+          <Row label={tr("popup.event.navStatus")} value={str(props.nav_status)} />
+          <Row label={tr("popup.event.destination")} value={str(props.destination)} />
+          <Row label={tr("popup.event.lastReport")} value={collectedText} />
         </>
       )}
       <div style={{
         marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textMuted, lineHeight: 1.5,
       }}>
-        分類由船名／MMSI 國碼規則推斷，非官方認定；目的地為船方自報可造假。
-        位置為最後已知 AIS 回報（離岸遠即收不到訊號），軌跡為約 15 分鐘一筆的斷續取樣。
+        {tr("popup.event.vesselNote")}
       </div>
     </>
   );

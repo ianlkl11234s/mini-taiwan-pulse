@@ -1,0 +1,12 @@
+{
+  "enum.weatherStationType.署屬有人站": "有人気象観測所（気象署）",
+  "enum.weatherStationType.署屬無人站": "無人気象観測所（気象署）",
+  "enum.weatherStationType.自動雨量站": "自動雨量観測所",
+  "enum.weatherStationType.農業站": "農業気象観測所",
+  "enum.railSystem.tra": "台湾鉄道",
+  "enum.railSystem.thsr": "台湾高速鉄道",
+  "enum.railSystem.trtc": "台北メトロ",
+  "enum.railSystem.krtc": "高雄MRT",
+  "enum.railSystem.klrt": "高雄ライトレール",
+  "enum.railSystem.tmrt": "台中MRT"
+}

@@ -1,21 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { FONT_CJK, RADIUS, Z_INDEX } from "../../styles/designTokens";
+import { useLocale } from "../../state/localeStore";
 import { MAP_STYLES } from "../StyleSelector";
 import { ToolbarButton } from "./ToolbarButton";
 import { getToolbarPalette, type ToolbarPalette } from "./toolbarTheme";
 
-// 中文名稱與縮圖漸層只用於這顆按鈕的視覺展示；實際套用的底圖 URL 仍出自
-// StyleSelector.tsx 的 MAP_STYLES（單一事實來源），這裡只是依 id 疊一層中文標籤。
-const CN_LABEL: Record<string, string> = {
-  black: "純黑",
-  dark: "暗色",
-  light: "淡色",
-  satellite: "衛星",
-  "satellite-streets": "衛星街道",
-  "nav-night": "夜間導航",
-  streets: "街道",
-};
-
+// 縮圖漸層只用於這顆按鈕的視覺展示；實際套用的底圖 URL 仍出自
+// StyleSelector.tsx 的 MAP_STYLES（單一事實來源）。顯示名稱依 id 查 `basemap.<id>`（i18n）。
 const GRADIENT: Record<string, string> = {
   black: "linear-gradient(135deg,#000 0 60%,#111 60%)",
   dark: "linear-gradient(135deg,#262a33 0 55%,#3a3f4b 55% 58%,#262a33 58%)",
@@ -29,7 +20,7 @@ const GRADIENT: Record<string, string> = {
 
 const OPTIONS = MAP_STYLES.map((s) => ({
   id: s.id,
-  label: CN_LABEL[s.id] ?? s.name,
+  fallbackLabel: s.name,
   gradient: GRADIENT[s.id] ?? "linear-gradient(135deg,#333,#555)",
 }));
 
@@ -43,10 +34,12 @@ interface Props {
 
 /** T2 工具列的底圖控制（B3：純圖示 + 色點，展開為 7 格縮圖 + 顯示地名開關）。 */
 export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onToggleLabels }: Props) {
+  const { t, lookup } = useLocale();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const palette = getToolbarPalette(isDarkTheme);
   const current = OPTIONS.find((o) => o.id === selected) ?? OPTIONS[0]!;
+  const labelOf = (o: (typeof OPTIONS)[number]) => lookup(`basemap.${o.id}`) ?? o.fallbackLabel;
 
   useEffect(() => {
     if (!open) return;
@@ -66,7 +59,7 @@ export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onTog
 
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
-      <ToolbarButton palette={palette} icon title={`底圖：${current.label}`} onClick={() => setOpen((v) => !v)}>
+      <ToolbarButton palette={palette} icon title={t("toolbar.basemap", { name: labelOf(current) })} onClick={() => setOpen((v) => !v)}>
         <span style={{ position: "relative", display: "inline-flex", width: 13, height: 13 }}>
           <MapGlyph />
           <span
@@ -139,7 +132,7 @@ export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onTog
                       background: o.gradient,
                     }}
                   />
-                  {o.label}
+                  {labelOf(o)}
                 </button>
               );
             })}
@@ -156,7 +149,7 @@ export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onTog
               color: palette.textStrong,
             }}
           >
-            顯示地名
+            {t("basemap.showLabels")}
             <MiniSwitch on={showLabels} onToggle={onToggleLabels} palette={palette} />
           </div>
         </div>
@@ -166,12 +159,13 @@ export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onTog
 }
 
 function MiniSwitch({ on, onToggle, palette }: { on: boolean; onToggle: () => void; palette: ToolbarPalette }) {
+  const { t } = useLocale();
   return (
     <button
       type="button"
       role="switch"
       aria-checked={on}
-      aria-label="顯示地名"
+      aria-label={t("basemap.showLabels")}
       onClick={onToggle}
       style={{
         position: "relative",

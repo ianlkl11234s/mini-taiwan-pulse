@@ -1,0 +1,5 @@
+{
+  "enum.parkingSourceCategory.city": "県市の路外駐車場",
+  "enum.parkingSourceCategory.tourism": "観光スポット",
+  "enum.parkingSourceCategory.freeway_service_area": "高速道路サービスエリア"
+}

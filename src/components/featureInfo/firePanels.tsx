@@ -2,9 +2,12 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../../data/fireTypes";
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 
 export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const deaths = Number(props.deaths ?? 0);
   const injuries = Number(props.injuries ?? 0);
   const casualty = deaths > 0 || injuries > 0;
@@ -22,19 +25,21 @@ export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {loc || "火災事件"}
+          {loc || tr("popup.fire.eventFallback")}
         </div>
       </div>
-      <Row label="起火原因" value={String(props.cause ?? "")} color={accentColor} />
-      <Row label="死亡" value={String(deaths)} color={deaths > 0 ? "#ff1744" : undefined} />
-      <Row label="受傷" value={String(injuries)} color={injuries > 0 ? "#ffb300" : undefined} />
-      <Row label="發生時間" value={timeStr} />
+      <Row label={tr("popup.fire.cause")} value={String(props.cause ?? "")} color={accentColor} />
+      <Row field="deaths" value={String(deaths)} color={deaths > 0 ? "#ff1744" : undefined} />
+      <Row label={tr("popup.fire.injuries")} value={String(injuries)} color={injuries > 0 ? "#ffb300" : undefined} />
+      <Row field="occurredAt" value={timeStr} />
     </>
   );
 }
 
 export function FireStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const cat = String(props.cat ?? "其他");
   const accentColor = fireStationColor(cat);
   return (
@@ -42,20 +47,22 @@ export function FireStationPanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "消防分隊")}
+          {String(props.name ?? tr("popup.fire.stationFallback"))}
         </div>
       </div>
-      <Row label="類型" value={String(props.type ?? cat)} color={accentColor} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row field="type" value={enumLabel("fireStationType", String(props.type ?? cat), String(props.type ?? cat), i18n)} color={accentColor} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
     </>
   );
 }
 
 export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const cat = String(props.cat ?? "其他");
   const accentColor = fireHydrantColor(cat);
   return (
@@ -63,19 +70,21 @@ export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          消防栓
+          {tr("popup.fire.hydrant")}
         </div>
       </div>
-      <Row label="型式" value={String(props.type ?? cat)} color={accentColor} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="編號" value={String(props.id ?? "")} />
+      <Row label={tr("popup.fire.hydrantType")} value={enumLabel("fireHydrantType", String(props.type ?? cat), String(props.type ?? cat), i18n)} color={accentColor} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="number" value={String(props.id ?? "")} />
     </>
   );
 }
 
 export function FireIsochronePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const minutes = Number(props.minutes ?? 0);
   const accentColor = fireIsochroneColor(minutes);
   const cumulative = props.cumulative_sqkm != null ? `${props.cumulative_sqkm} km²` : "";
@@ -85,15 +94,15 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {fireIsochroneLabel(minutes)}
+          {[5, 10, 15].includes(minutes) ? enumLabel("fireIsochrone", minutes, fireIsochroneLabel(minutes), i18n) : tr("popup.fire.minutesLabel", { minutes })}
         </div>
       </div>
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="可達時間" value={`${minutes} 分鐘內`} color={accentColor} />
-      <Row label="累積可達面積" value={cumulative} />
-      <Row label="本級環帶面積" value={ring} />
+      <Row field="county" value={String(props.county ?? "")} />
+      <Row label={tr("popup.fire.reachTime")} value={tr("popup.fire.withinMinutes", { minutes })} color={accentColor} />
+      <Row label={tr("popup.fire.cumulativeArea")} value={cumulative} />
+      <Row label={tr("popup.fire.ringArea")} value={ring} />
       <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
-        ⚠️ driving 路網保守估計，未計消防車優先路權
+        {tr("popup.fire.isochroneNote")}
       </div>
     </>
   );

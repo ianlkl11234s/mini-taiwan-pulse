@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
+import { localeStore } from '../../../state/localeStore';
 import { RegionalStatisticsPanel } from '../regionalStatisticsPanel';
 
 describe('RegionalStatisticsPanel labor semantics', () => {
@@ -26,7 +27,7 @@ describe('RegionalStatisticsPanel labor semantics', () => {
   it('shows the source participation rate used by the derived non-labor-force rate', () => {
     const html = renderToStaticMarkup(createElement(RegionalStatisticsPanel, { props: {
       area_name: '新竹市', area_code: '10018', indicator_name: '非勞動力率',
-      value: 40.4, status: 'observed', unit: '%',
+      value: 40.4, status: 'observed', unit: '%', value_transform: 'complement_100',
       period_label: '2026-01-01 — 2026-06-30', boundary_version: 'COUNTY_MOI_1140318',
       comparison_formula: '100% − 勞動力參與率',
       inputs: { source_participation_rate_pct: 59.6 },
@@ -51,4 +52,20 @@ describe('RegionalStatisticsPanel labor semantics', () => {
     expect(html).not.toContain('行政區代碼');
     expect(html).not.toContain('PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1');
   });
+  it('translates the loader hard-coded complement-rate notes in English', async () => {
+    await localeStore.ready('en');
+    localeStore.set('en');
+    const html = renderToStaticMarkup(createElement(RegionalStatisticsPanel, { props: {
+      area_name: 'Hsinchu City', area_code: '10018', indicator_name: 'Non-labor-force rate',
+      value: 40.4, status: 'observed', unit: '%', value_transform: 'complement_100',
+      comparison_formula: '100% − 勞動力參與率',
+      interpretation: '非勞動力率占同一期人力資源調查 15 歲以上民間人口的比例。',
+    }}));
+    expect(html).toContain('100% − labor force participation rate');
+    expect(html).toContain('Manpower Survey');
+    expect(html).not.toContain('勞動力參與率');
+  });
+
 });
+
+afterAll(() => localeStore.set('zh-TW'));

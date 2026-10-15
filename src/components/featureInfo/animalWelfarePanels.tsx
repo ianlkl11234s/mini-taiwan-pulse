@@ -6,17 +6,20 @@ import { fetchAnimalAdoptionDaily, type AnimalAdoptionDailyRow } from "../../dat
 import { fetchAnimalShelterOutcomeMonthly, type AnimalShelterOutcomeMonthRow } from "../../data/animalShelterOutcomesLoader";
 import { fetchAnimalWelfarePointHistory, type AnimalWelfarePointHistoryRow } from "../../data/animalWelfarePointsLoader";
 import { animalWelfarePointTypeMeta } from "../../data/animalWelfarePointsTypes";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 
 const str = (v: unknown) => v == null || v === "" ? "" : String(v);
 const num = (v: unknown) => Number.isFinite(Number(v)) ? Number(v) : 0;
 
 function Trend({ rows }: { rows: AnimalAdoptionDailyRow[] }) {
   const t = useFeatureTheme();
-  if (!rows.length) return <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 8 }}>尚無足夠的每日快照可畫趨勢。</div>;
+  const { t: tr } = useLocale();
+  if (!rows.length) return <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 8 }}>{tr("popup.animalWelfare.noSnapshots")}</div>;
   const max = Math.max(...rows.map((r) => r.listed_count), 1);
   return <div style={{ marginTop: 8 }}>
-    <div style={{ color: t.textMuted, fontSize: FONT_SIZE.xs, marginBottom: 4 }}>近 {rows.length} 次每日快照（缺值不補 0）</div>
-    <div style={{ display: "flex", alignItems: "end", gap: 2, height: 42 }} aria-label="待認領養數量趨勢">
+    <div style={{ color: t.textMuted, fontSize: FONT_SIZE.xs, marginBottom: 4 }}>{tr("popup.animalWelfare.snapshotCount", { count: rows.length })}</div>
+    <div style={{ display: "flex", alignItems: "end", gap: 2, height: 42 }} aria-label={tr("popup.animalWelfare.adoptionTrendAria")}>
       {rows.map((r) => <div key={r.snapshot_date} title={`${r.snapshot_date}: ${r.listed_count}`} style={{ flex: 1, minWidth: 2, height: `${Math.max(4, r.listed_count / max * 100)}%`, background: "#f59e0b", borderRadius: `${RADIUS.sm}px ${RADIUS.sm}px 0 0` }} />)}
     </div>
   </div>;
@@ -40,18 +43,19 @@ export function AnimalAdoptionPanel({ props }: { props: Record<string, unknown> 
   const dog = num(props.dog_count);
   const cat = num(props.cat_count);
   const t = useFeatureTheme();
+  const { t: tr, formatNumber } = useLocale();
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#f59e0b" }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.shelter_name) || "公立收容所"}</div>
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.shelter_name) || tr("popup.animalWelfare.publicShelter")}</div>
     </div>
-    <Row label="待認領養" value={`${num(props.listed_count).toLocaleString()} 隻`} color="#f59e0b" />
-    {dog > 0 ? <Row label="犬" value={`${dog.toLocaleString()} 隻`} color="#f59e0b" /> : null}
-    {cat > 0 ? <Row label="貓" value={`${cat.toLocaleString()} 隻`} color="#a855f7" /> : null}
-    <Row label="縣市" value={str(props.county_name) || str(props.county_code)} />
-    <Row label="資料快照" value={latest || "尚未提供"} />
+    <Row label={tr("popup.animalWelfare.listed")} value={tr("popup.animalWelfare.animals", { count: num(props.listed_count), value: formatNumber(num(props.listed_count)) })} color="#f59e0b" />
+    {dog > 0 ? <Row label={tr("popup.animalWelfare.dog")} value={tr("popup.animalWelfare.animals", { count: dog, value: formatNumber(dog) })} color="#f59e0b" /> : null}
+    {cat > 0 ? <Row label={tr("popup.animalWelfare.cat")} value={tr("popup.animalWelfare.animals", { count: cat, value: formatNumber(cat) })} color="#a855f7" /> : null}
+    <Row field="county" value={str(props.county_name) || str(props.county_code)} />
+    <Row label={tr("popup.animalWelfare.snapshot")} value={latest || tr("popup.animalWelfare.notYetProvided")} />
     <Trend rows={daily} />
-    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 6 }}>數量為每日快照中的掛牌數；不代表即時在所量。</div>
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 6 }}>{tr("popup.animalWelfare.snapshotNote")}</div>
   </>;
 }
 
@@ -80,14 +84,15 @@ function adoptedCount(row: AnimalShelterOutcomeMonthRow): number | null {
 
 function OutcomeTrend({ rows }: { rows: AnimalShelterOutcomeMonthRow[] }) {
   const t = useFeatureTheme();
+  const { t: tr } = useLocale();
   const points = rows.map((row) => ({ month: row.period_start?.slice(0, 7) ?? "", value: adoptedCount(row) }))
     .filter((row): row is { month: string; value: number } => row.value != null)
     .sort((a, b) => a.month.localeCompare(b.month));
-  if (!points.length) return <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 8 }}>官方月報未提供可辨識的認領養成果欄位。</div>;
+  if (!points.length) return <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 8 }}>{tr("popup.animalWelfare.noOutcomeField")}</div>;
   const max = Math.max(...points.map((point) => point.value), 1);
   return <div style={{ marginTop: 8 }}>
-    <div style={{ color: t.textMuted, fontSize: FONT_SIZE.xs, marginBottom: 4 }}>官方月報認領養成果（缺值不補 0）</div>
-    <div style={{ display: "flex", alignItems: "end", gap: 2, height: 42 }} aria-label="收容所認領養月趨勢">
+    <div style={{ color: t.textMuted, fontSize: FONT_SIZE.xs, marginBottom: 4 }}>{tr("popup.animalWelfare.outcomeTitle")}</div>
+    <div style={{ display: "flex", alignItems: "end", gap: 2, height: 42 }} aria-label={tr("popup.animalWelfare.outcomeTrendAria")}>
       {points.map((point) => <div key={point.month} title={`${point.month}: ${point.value}`} style={{ flex: 1, minWidth: 2, height: `${Math.max(4, point.value / max * 100)}%`, background: "#f97316", borderRadius: `${RADIUS.sm}px ${RADIUS.sm}px 0 0` }} />)}
     </div>
   </div>;
@@ -101,29 +106,30 @@ export function AnimalShelterPressurePanel({ props }: { props: Record<string, un
   const inShelter = nullable(props.in_shelter_count);
   const capacity = nullable(props.capacity);
   const t = useFeatureTheme();
+  const { t: tr, formatNumber } = useLocale();
   useEffect(() => {
     if (!countyCode) return;
     fetchAnimalShelterOutcomeMonthly(countyCode).then(setOutcomes).catch(() => setOutcomes([]));
   }, [countyCode]);
   return <>
-    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.county_name) || str(props["名稱"]) || "縣市收容所"}</div>
-    <Row label="資料月" value={period ? `${period}（官方月報）` : "官方月報，月份未提供"} />
-    <Row label="容量使用率" value={utilization == null ? "未提供" : `${utilization.toFixed(1)}%`} color={utilization != null && utilization >= 100 ? "#dc2626" : "#f97316"} />
-    <Row label="在養量" value={inShelter == null ? "未提供" : `${inShelter.toLocaleString()} 隻`} />
-    <Row label="核定容量" value={capacity == null ? "未提供" : `${capacity.toLocaleString()} 隻`} />
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.county_name) || str(props["名稱"]) || tr("popup.animalWelfare.countyShelter")}</div>
+    <Row label={tr("popup.animalWelfare.dataMonth")} value={period ? tr("popup.animalWelfare.officialMonthly", { period }) : tr("popup.animalWelfare.monthMissing")} />
+    <Row label={tr("popup.animalWelfare.utilization")} value={utilization == null ? tr("popup.common.notProvided") : `${utilization.toFixed(1)}%`} color={utilization != null && utilization >= 100 ? "#dc2626" : "#f97316"} />
+    <Row label={tr("popup.animalWelfare.inShelter")} value={inShelter == null ? tr("popup.common.notProvided") : tr("popup.animalWelfare.animals", { count: inShelter, value: formatNumber(inShelter) })} />
+    <Row label={tr("popup.animalWelfare.approvedCapacity")} value={capacity == null ? tr("popup.common.notProvided") : tr("popup.animalWelfare.animals", { count: capacity, value: formatNumber(capacity) })} />
     <OutcomeTrend rows={outcomes} />
     <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 8 }}>
-      資料截至 {period || "官方回傳月份"}；月粒度，非即時狀態。官方總量僅採同一來源月報，不跨來源混加。
+      {tr("popup.animalWelfare.asOfNote", { period: period || tr("popup.animalWelfare.officialMonthFallback") })}
     </div>
   </>;
 }
 
-function displayTags(value: unknown) {
-  if (Array.isArray(value)) return value.map(String).filter(Boolean).join("、");
+function displayTags(value: unknown, sep: string) {
+  if (Array.isArray(value)) return value.map(String).filter(Boolean).join(sep);
   if (typeof value === "string") {
     try {
       const parsed: unknown = JSON.parse(value);
-      if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean).join("、");
+      if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean).join(sep);
     } catch { /* Mapbox scalar property, use as-is. */ }
     return value;
   }
@@ -144,6 +150,8 @@ export function AnimalWelfarePointsPanel({ props }: { props: Record<string, unkn
   const sourceRecordKey = str(props.source_record_key);
   const [history, setHistory] = useState<AnimalWelfarePointHistoryRow[] | null>(null);
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr, formatNumber } = i18n;
   const type = animalWelfarePointTypeMeta(props.point_type);
   useEffect(() => {
     if (!sourceDatasetId || !sourceRecordKey) return;
@@ -154,25 +162,25 @@ export function AnimalWelfarePointsPanel({ props }: { props: Record<string, unkn
       .catch(() => { if (!cancelled) setHistory([]); });
     return () => { cancelled = true; };
   }, [sourceDatasetId, sourceRecordKey]);
-  const services = displayTags(props.service_tags);
+  const services = displayTags(props.service_tags, tr("popup.common.listSeparator"));
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: "50%", background: type.color }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.name) || "動物服務點"}</div>
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.name) || tr("popup.animalWelfare.serviceSite")}</div>
     </div>
-    <Row label="類型" value={type.label} color={type.color} />
-    {services ? <Row label="服務" value={services} /> : null}
-    {str(props.address) ? <Row label="地址" value={str(props.address)} /> : null}
-    {str(props.phone) ? <Row label="電話" value={str(props.phone)} /> : null}
-    {str(props.status) ? <Row label="狀態" value={str(props.status)} /> : null}
-    <Row label="來源" value={sourceDatasetId || "官方／地方公開名冊"} />
-    {str(props.last_seen_at) ? <Row label="最近出現" value={str(props.last_seen_at).slice(0, 10)} /> : null}
+    <Row field="type" value={enumLabel("animalWelfarePointType", type.value, type.label, i18n)} color={type.color} />
+    {services ? <Row label={tr("popup.animalWelfare.service")} value={services} /> : null}
+    {str(props.address) ? <Row field="address" value={str(props.address)} /> : null}
+    {str(props.phone) ? <Row field="phone" value={str(props.phone)} /> : null}
+    {str(props.status) ? <Row field="status" value={str(props.status)} /> : null}
+    <Row field="source" value={sourceDatasetId || tr("popup.animalWelfare.sourceFallback")} />
+    {str(props.last_seen_at) ? <Row label={tr("popup.animalWelfare.lastSeen")} value={str(props.last_seen_at).slice(0, 10)} /> : null}
     <div style={{ color: t.textMuted, fontSize: FONT_SIZE.xs, marginTop: 8 }}>
-      {history == null ? "載入此據點歷程…" : history.length ? `歷程 ${history.length.toLocaleString()} 筆（最多 400 筆）` : "尚無可顯示的據點歷程"}
+      {history == null ? tr("popup.animalWelfare.historyLoading") : history.length ? tr("popup.animalWelfare.historyCount", { count: history.length, value: formatNumber(history.length) }) : tr("popup.animalWelfare.historyNone")}
     </div>
     {history?.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
-      {history.slice(-12).map((row, index) => <span key={`${historyDate(row)}-${index}`} style={{ color: t.textDim, fontSize: FONT_SIZE.xs }}>{historyDate(row) || "未標日期"}</span>)}
+      {history.slice(-12).map((row, index) => <span key={`${historyDate(row)}-${index}`} style={{ color: t.textDim, fontSize: FONT_SIZE.xs }}>{historyDate(row) || tr("popup.animalWelfare.noDate")}</span>)}
     </div> : null}
-    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 7 }}>地方名冊覆蓋不完整；未列點不表示該地沒有服務。</div>
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 7 }}>{tr("popup.animalWelfare.coverageNote")}</div>
   </>;
 }

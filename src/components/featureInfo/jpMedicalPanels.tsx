@@ -2,39 +2,47 @@ import { jpMedicalCategory, JP_MEDICAL_CARE_GROUPS } from "../../data/jpMedicalT
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { Row, Title } from "./shared";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 
-const text = (value: unknown) => value == null || value === "" || value === "null" ? "未提供" : String(value);
-const date = (value: unknown) => text(value).replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3");
+const text = (value: unknown, na: string) => value == null || value === "" || value === "null" ? na : String(value);
+const date = (value: unknown, na: string) => text(value, na).replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3");
 
 export function JpMedicalFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const na = t("popup.common.notProvided");
   const category = jpMedicalCategory(props.record_kind);
   return <>
-    <Title color={category?.color ?? "#94a3b8"}>{text(props.name)}</Title>
-    <Row label="類型" value={category?.label ?? text(props.record_kind)} color={category?.color} />
-    <Row label="地址" value={text(props.address)} />
-    <Row label="快照日期" value={date(props.snapshot_date)} />
-    <Row label="來源" value="厚生労働省 Navii" />
-    <Row label="來源 ID" value={text(props.source_id)} />
+    <Title color={category?.color ?? "#94a3b8"}>{text(props.name, na)}</Title>
+    <Row field="type" value={category ? enumLabel("jpMedicalCategory", category.value, category.label, i18n) : text(props.record_kind, na)} color={category?.color} />
+    <Row field="address" value={text(props.address, na)} />
+    <Row field="snapshotDate" value={date(props.snapshot_date, na)} />
+    <Row field="source" value={t("popup.jpMedical.sourceNavii")} />
+    <Row field="sourceId" value={text(props.source_id, na)} />
   </>;
 }
 
 export function JpMedicalCarePanel({ props }: { props: Record<string, unknown> }) {
   const theme = useFeatureTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
+  const na = t("popup.common.notProvided");
   const group = JP_MEDICAL_CARE_GROUPS.find(item => item.serviceTypes.some(value => value === props.service_type));
   const coLocated = Array.isArray(props.coLocatedServices) ? props.coLocatedServices.filter((row): row is Record<string, unknown> => !!row && typeof row === "object") : [];
   return <>
-    <Title color={group?.color ?? "#94a3b8"}>{text(props.name)}</Title>
-    <Row label="上位分類" value={group?.label ?? "未分類"} color={group?.color} />
-    <Row label="原始服務類型" value={text(props.service_type)} />
-    <Row label="地址" value={text(props.address)} />
-    <Row label="來源" value="厚生労働省 H17" />
-    <Row label="來源快照" value={date(props.source_snapshot_day)} />
+    <Title color={group?.color ?? "#94a3b8"}>{text(props.name, na)}</Title>
+    <Row label={t("popup.jpMedical.parentGroup")} value={group ? enumLabel("jpMedicalCareGroup", group.key, group.label, i18n) : t("popup.common.unclassified")} color={group?.color} />
+    <Row label={t("popup.jpMedical.rawServiceType")} value={text(props.service_type, na)} />
+    <Row field="address" value={text(props.address, na)} />
+    <Row field="source" value={t("popup.jpMedical.sourceH17")} />
+    <Row label={t("popup.jpMedical.sourceSnapshot")} value={date(props.source_snapshot_day, na)} />
     {coLocated.length > 1 && <details style={{ marginTop: 10, fontSize: FONT_SIZE.sm, color: theme.textStrong }}>
-      <summary>同位置、目前篩選下 {coLocated.length} 筆服務登記</summary>
+      <summary>{t("popup.jpMedical.coLocated", { count: coLocated.length })}</summary>
       {coLocated.map((row, index) => <div key={index} style={{ margin: "8px 0", overflowWrap: "anywhere" }}>
-        <strong>{text(row.name)}</strong>
-        <Row label="服務" value={text(row.service_type)} />
-        <Row label="快照" value={date(row.source_snapshot_day)} />
+        <strong>{text(row.name, na)}</strong>
+        <Row label={t("popup.jpMedical.service")} value={text(row.service_type, na)} />
+        <Row field="snapshot" value={date(row.source_snapshot_day, na)} />
       </div>)}
     </details>}
   </>;
@@ -42,15 +50,17 @@ export function JpMedicalCarePanel({ props }: { props: Record<string, unknown> }
 
 export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> }) {
   const theme = useFeatureTheme();
+  const { t } = useLocale();
+  const na = t("popup.common.notProvided");
   return <>
-    <Title color="#f59e0b">醫療圈 · 2020 歷史版</Title>
-    <Row label="資料狀態" value="STALE：2020 歷史版" color="#f59e0b" />
-    <Row label="來源" value="国土数値情報 医療圏データ（2020）" />
-    <Row label="用途" value="行政規劃邊界；不是設施服務範圍或即時就醫可達圈" />
-    <Row label="幾何粒度" value="來源 polygon part；不可依此加總人口、面積或圈數" />
-    <details style={{ marginTop: 8, color: theme.textStrong }}><summary>來源欄位</summary>
-      {Object.entries(props).filter(([key]) => /^A38[abc]_/.test(key)).map(([key, value]) => <Row key={key} label={key} value={text(value)} />)}
-      <Row label="Feature ID" value={text(props.feature_id)} />
+    <Title color="#f59e0b">{t("popup.jpMedical.areasTitle")}</Title>
+    <Row label={t("popup.jpMedical.dataStatus")} value={t("popup.jpMedical.staleValue")} color="#f59e0b" />
+    <Row field="source" value={t("popup.jpMedical.sourceAreas")} />
+    <Row label={t("popup.jpMedical.purpose")} value={t("popup.jpMedical.purposeText")} />
+    <Row label={t("popup.jpMedical.geometryGrain")} value={t("popup.jpMedical.geometryGrainText")} />
+    <details style={{ marginTop: 8, color: theme.textStrong }}><summary>{t("popup.jpMedical.sourceFields")}</summary>
+      {Object.entries(props).filter(([key]) => /^A38[abc]_/.test(key)).map(([key, value]) => <Row key={key} label={key} value={text(value, na)} />)}
+      <Row label="Feature ID" value={text(props.feature_id, na)} />
     </details>
   </>;
 }

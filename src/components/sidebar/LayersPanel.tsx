@@ -3,6 +3,9 @@ import { ChevronRight, Search, Star } from "lucide-react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import type { DisplayMode, ExpandableLayerKey, LayerVisibility, ViewMode } from "../../types";
 import { searchLayers } from "../../lib/layerSearch";
+import { useLocale } from "../../state/localeStore";
+import { localizeSectionTitle } from "../../i18n/layerText";
+import { localizeMacroTitle, localizeThemeTitle } from "./sectionText";
 import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeName, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
@@ -15,6 +18,13 @@ import { useRailTheme } from "./railTheme";
 import { LAYER_ICONS } from "./layerIcons";
 
 export { LAYER_ICONS };
+
+/** 「其他面板還有 N 筆」：翻譯字串裡以標記占位，把數字換回等寬字 span（維持原樣式）。 */
+const COUNT_MARK = "\u0001";
+function otherPanelHitText(text: string, count: number) {
+  const [before = "", after = ""] = text.split(COUNT_MARK);
+  return <>{before}<span style={{ fontFamily: FONT_DATA }}>{count}</span>{after}</>;
+}
 
 /** rail 面板標頭（舊版標頭分支，spec §5.1）。 */
 export function RailPanelHeader({ title, onClose }: { title: string; onClose: () => void }) {
@@ -72,6 +82,8 @@ export function LayersPanel({
   panelId, onSearchInPanel,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
+  const i18n = useLocale();
+  const { active, t } = i18n;
   const q = search.trim().toLowerCase();
   const themesToRender = themes ?? THEMES;
   const searchContext = useMemo(() => {
@@ -83,6 +95,18 @@ export function LayersPanel({
     }
     return context;
   }, [themesToRender]);
+  // 搜尋結果列的「主題・群組」小字：顯示層翻譯（比對仍用上面的原文 searchContext）
+  const displayContext = useMemo(() => {
+    const context = new Map<string, string>();
+    for (const theme of themesToRender) {
+      const themeText = localizeThemeTitle(theme.title, i18n).primary;
+      for (const group of theme.groups) {
+        const groupText = localizeSectionTitle(group.title, i18n);
+        for (const layer of group.layers) context.set(layer.key, `${themeText}・${groupText}`);
+      }
+    }
+    return context;
+  }, [themesToRender, active, t]);
   const searchResults = searchLayers(search, {
     favoriteKeys,
     scopeKeys: new Set(searchContext.keys()),
@@ -93,7 +117,7 @@ export function LayersPanel({
   const otherPanelHits = q && panelId
     ? LAYER_PANELS.filter((panel) => panel.id !== panelId).map((panel) => ({
       id: panel.id,
-      shortTitle: panel.shortTitle,
+      shortTitle: t(`panel.${panel.id}.short`),
       count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id), lockedKeys }).length,
     })).filter((hit) => hit.count > 0)
     : [];
@@ -134,7 +158,7 @@ export function LayersPanel({
               fontFamily: FONT_CJK,
             }}
           >
-            全部關閉
+            {t("layers.allOff")}
           </button>
         </div>
       )}
@@ -153,10 +177,10 @@ export function LayersPanel({
           <Search size={13} color={DIM} style={{ flexShrink: 0 }} />
           <input
             type="text"
-            aria-label="搜尋圖層"
+            aria-label={t("layers.searchAria")}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="搜尋圖層… Search layers…"
+            placeholder={t("layers.searchPlaceholder")}
             style={{
               flex: 1,
               minWidth: 0,
@@ -182,10 +206,12 @@ export function LayersPanel({
         {q ? (
           <>
             {searchResults.length === 0 ? (
-              <div style={{ padding: "12px", color: DIM, fontSize: FONT_SIZE.md }}>找不到相符圖層</div>
+              <div style={{ padding: "12px", color: DIM, fontSize: FONT_SIZE.md }}>{t("layers.noResults")}</div>
             ) : <>
               <div aria-live="polite" style={{ padding: "6px 12px", color: DIM, fontSize: FONT_SIZE.xs }}>
-                找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
+                {searchResults.length > visibleSearchResults.length
+                  ? t("layers.foundLimited", { total: searchResults.length, shown: visibleSearchResults.length })
+                  : t("layers.found", { count: searchResults.length })}
               </div>
               {visibleSearchResults.map((result) => {
                 const favorite = favoriteKeys?.has(result.key) ?? false;
@@ -196,7 +222,7 @@ export function LayersPanel({
                       layerKey={result.key}
                       name={layerDisplayName(result.key, result.label)}
                       label={result.label}
-                      sub={searchContext.get(result.key)}
+                      sub={displayContext.get(result.key)}
                       expandable
                       active={visibility[result.key]}
                       locked={!!lockedKeys?.has(result.key)}
@@ -207,7 +233,7 @@ export function LayersPanel({
                       onLayerClick={onLayerClick}
                       onToggleVisibility={onToggleVisibility}
                       trailing={onToggleFavorite && (
-                        <button type="button" aria-label={`${favorite ? "取消收藏" : "收藏圖層"} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? "取消收藏" : "收藏圖層"} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : DIM, cursor: "pointer", padding: "2px 6px 2px 0", display: "flex" }}>
+                        <button type="button" aria-label={`${favorite ? t("layers.favoriteRemove") : t("layers.favoriteAdd")} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? t("layers.favoriteRemove") : t("layers.favoriteAdd")} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : DIM, cursor: "pointer", padding: "2px 6px 2px 0", display: "flex" }}>
                           <Star size={14} fill={favorite ? "currentColor" : "none"} />
                         </button>
                       )}
@@ -232,7 +258,7 @@ export function LayersPanel({
                 onClick={() => onSearchInPanel(hit.id, search)}
                 style={{ display: "flex", alignItems: "center", gap: 6, width: "calc(100% - 24px)", margin: "6px 12px 0", padding: "6px 8px", border: `1px dashed ${ALLOFF_BORDER}`, borderRadius: RADIUS.lg, background: "transparent", color: INACTIVE_TEXT, cursor: "pointer", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, textAlign: "left" }}
               >
-                <span style={{ flex: 1 }}>{hit.shortTitle}還有 <span style={{ fontFamily: FONT_DATA }}>{hit.count}</span> 筆相符</span>
+                <span style={{ flex: 1 }}>{otherPanelHitText(t("layers.otherPanelHits", { panel: hit.shortTitle, count: COUNT_MARK }), hit.count)}</span>
                 <ChevronRight size={12} aria-hidden="true" />
               </button>
             ))}
@@ -263,7 +289,7 @@ export function LayersPanel({
 
           return (
             <div key={theme.title}>
-              {showMacroLabel && <MacroGroupLabel zh={macroGroup.zh} />}
+              {showMacroLabel && <MacroGroupLabel zh={localizeMacroTitle(macroGroup.zh, i18n)} />}
               <ThemeBanner
                 title={theme.title}
                 isCollapsed={isCollapsed}
@@ -274,7 +300,7 @@ export function LayersPanel({
               />
               {!isCollapsed && theme.groups.map((group) => (
                 <div key={group.title}>
-                  <SubGroupLabel>{group.title}</SubGroupLabel>
+                  <SubGroupLabel>{localizeSectionTitle(group.title, i18n)}</SubGroupLabel>
                   {group.layers.map(({ key, name, label, variant }) => {
                     // 群組變體（C 段）：只在 lead 成員的位置畫一列群組列
                     if (variant) {

@@ -1,0 +1,15 @@
+{
+  "enum.fisheryMoaTier.confirmed": "確認済み",
+  "enum.fisheryMoaTier.solar_symbiotic": "漁電共生",
+  "enum.fisheryMoaTier.unverified": "未確認",
+  "enum.fisheryMoaTier.ambiguous": "疑義あり",
+  "enum.fisheryMoaTier.mountain_suspect": "山影の疑い",
+  "enum.fisheryUnionTier.both": "両バージョンで検出",
+  "enum.fisheryUnionTier.moa_only": "公式ラベル版のみ",
+  "enum.fisheryUnionTier.osm_only": "旧OSM版のみ",
+  "enum.fisheryUnionSource.moa": "公式ラベル版（MOA）",
+  "enum.fisheryUnionSource.osm_satellite": "旧衛星検出版（OSM）",
+  "enum.fisheryIntegratedSource.ponds": "個別養殖池（OSM）",
+  "enum.fisheryIntegratedSource.satellite": "衛星検出による補完",
+  "enum.fisheryIntegratedSource.production": "養殖生産区"
+}

@@ -1,0 +1,17 @@
+{
+  "enum.railLine.trtc-BR": "文湖線",
+  "enum.railLine.trtc-R": "淡水信義線",
+  "enum.railLine.trtc-G": "松山新店線",
+  "enum.railLine.trtc-O": "中和新蘆線",
+  "enum.railLine.trtc-BL": "板南線",
+  "enum.railLine.trtc-A": "桃園空港MRT",
+  "enum.railLine.trtc-Y": "環状線",
+  "enum.railLine.trtc-V": "淡海ライトレール",
+  "enum.railLine.trtc-K": "安坑ライトレール",
+  "enum.railLine.trtc-LB": "三鶯線",
+  "enum.railLine.trtc-MK": "猫空ロープウェイ",
+  "enum.railLine.krtc-R": "高雄MRT紅線",
+  "enum.railLine.krtc-O": "高雄MRTオレンジライン",
+  "enum.railLine.klrt-C": "高雄環状ライトレール",
+  "enum.railLine.tmrt-G": "台中MRTグリーンライン"
+}

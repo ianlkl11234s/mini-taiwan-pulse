@@ -1,0 +1,16 @@
+{
+  "enum.landslideRisk.高": "高リスク",
+  "enum.landslideRisk.中": "中リスク",
+  "enum.landslideRisk.低": "低リスク",
+  "enum.landslideHighwayGroup.rockfall": "落石",
+  "enum.landslideHighwayGroup.slope_failure": "斜面崩壊・路盤流出",
+  "enum.landslideHighwayGroup.debris_flow": "土石流による通行止め",
+  "enum.landslideHighwayGroup.precautionary_closure": "予防的通行止め",
+  "enum.landslideHighwayGroup.flooding": "冠水",
+  "enum.landslideHighwayGroup.structure_damage": "橋梁・施設の損壊",
+  "enum.landslideHighwayGroup.traffic_incident": "交通事故",
+  "enum.landslideHighwayGroup.other": "その他",
+  "enum.landslideNote.annualV2": "2024年はV2版（画像は2024年12月〜2025年5月）で、県市統計の2024年の数値とは一致しません。",
+  "enum.landslideSource.annualOrg": "農業部農村発展・水土保全署（衛星画像判読）",
+  "enum.landslideSource.annualLicense": "政府データオープンライセンス第1版"
+}

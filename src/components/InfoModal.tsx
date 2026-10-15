@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { X } from "lucide-react";
 import { CHANGELOG } from "../data/changelog";
+import { localeStore, useLocale } from "../state/localeStore";
 import { RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, Z_INDEX } from "../styles/designTokens";
 
 type BottomTab = "guide" | "about" | "profile";
@@ -312,13 +313,13 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
 
   const stationParams = [
     { label: "Stn", zh: "車站圓環大小（0.3~3x）。放大讓車站在低 zoom 時更清晰。", en: "Station circle size (0.3–3×). Enlarge for better visibility at low zoom." },
-    { label: "Pillar", zh: "3D 光柱開關（ON/OFF）。關閉後只顯示平面標記，不顯示立體光柱。", en: "3D pillar toggle (ON/OFF). When off, only flat markers are shown." },
+    { label: "立體效果", zh: "3D 光柱開關（預設關）。關閉時只顯示平面標記，開啟才顯示立體光柱。", en: "3D pillar toggle (off by default). When off, only flat markers are shown." },
     { label: "Height", zh: "光柱高度倍率（0.2~3x）。數值越大，光柱越高聳，停靠差異越明顯。", en: "Pillar height multiplier (0.2–3×). Higher values amplify the difference between stations." },
   ];
 
   const lighthouseParams = [
     { label: "LH", zh: "燈塔標記大小（0.3~3x）。", en: "Lighthouse marker size (0.3–3×)." },
-    { label: "Beam", zh: "光束開關（ON/OFF）。控制 3D 旋轉光束是否顯示。", en: "Beam toggle (ON/OFF). Controls whether the 3D rotating beam is visible." },
+    { label: "立體效果", zh: "3D 旋轉光束開關（預設關）。開啟後才顯示光束與下方距離、透明度設定。", en: "3D rotating beam toggle (off by default). Beam distance and opacity appear when on." },
     { label: "Dist", zh: "光束投射距離（0.2~3）。數值越大，光束在地圖上延伸越遠。", en: "Beam projection distance (0.2–3). Higher values extend the beam further on the map." },
     { label: "Opa", zh: "光束透明度（0.05~0.8）。控制光束的醒目程度。", en: "Beam opacity (0.05–0.8). Controls beam visibility." },
   ];
@@ -1012,7 +1013,10 @@ const PAGE_TITLES: Record<string, Record<Lang, string>> = {
 export function InfoModal({ open, onClose, isMobile, isDarkTheme = true }: InfoModalProps) {
   const [activeTab, setActiveTab] = useState<BottomTab>("guide");
   const [guidePage, setGuidePage] = useState<GuidePage>("getting-started");
-  const [lang, setLang] = useState<Lang>("zh");
+  // 語言跟全站 localeStore 走：zh-TW 顯示中文內容，其餘（en／ja）顯示既有英文內容
+  const { locale } = useLocale();
+  const lang: Lang = locale === "zh-TW" ? "zh" : "en";
+  const setLang = (next: Lang) => localeStore.set(next === "zh" ? "zh-TW" : "en");
   const c = isDarkTheme ? DARK : LIGHT;
 
   if (!open) return null;

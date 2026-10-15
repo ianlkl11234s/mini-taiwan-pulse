@@ -1,0 +1,7 @@
+{
+  "enum.historicalFlightRole.departure": "出発",
+  "enum.historicalFlightRole.arrival": "到着",
+  "enum.historicalFlightScope.domestic": "国内",
+  "enum.historicalFlightScope.cross_border": "国際",
+  "enum.historicalFlightScope.unknown": "未分類"
+}

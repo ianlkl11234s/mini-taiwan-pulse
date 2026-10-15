@@ -1,0 +1,20 @@
+{
+  "popup.parking.onstreetFallback": "路邊停車",
+  "popup.parking.onstreetType": "路邊停車格",
+  "popup.parking.totalSpaces": "總車格",
+  "popup.parking.taipeiCapacityOnly": "⚠️ 台北路邊僅提供容量，無即時空位",
+  "popup.parking.available": "剩餘空位",
+  "popup.parking.availabilityRate": "空位率",
+  "popup.parking.lotFallback": "停車場",
+  "popup.parking.totalLotSpaces": "總車位",
+  "popup.parking.noRealtime": "⚠️ 此場無即時空位資料",
+  "popup.parking.lotType": "型態",
+  "popup.parking.charging": "充電",
+  "popup.parking.evCharging": "有電動車充電",
+  "popup.parking.categoryWithSub": "{category}（{sub}）",
+  "popup.parking.spaceRow": "空 {available} / 共 {total}",
+  "popup.parking.spaceCar": "汽車",
+  "popup.parking.spaceMotorcycle": "機車",
+  "popup.parking.spaceDisabled": "身障",
+  "popup.parking.spaceOther": "其他 (類型 {code})"
+}

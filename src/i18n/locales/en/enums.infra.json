@@ -1,0 +1,12 @@
+{
+  "enum.infraGovOffice.district_office": "District office",
+  "enum.infraGovOffice.household_registration": "Household registration office",
+  "enum.infraGovOffice.land_office": "Land administration office",
+  "enum.infraToiletGrade.特優級": "Excellent",
+  "enum.infraToiletGrade.優等級": "Good",
+  "enum.infraToiletGrade.普通級": "Fair",
+  "enum.infraToiletGrade.不合格": "Fail",
+  "enum.infraCctvSource.freeway": "National freeway",
+  "enum.infraCctvSource.highway": "Provincial expressway",
+  "enum.infraCctvSource.city": "City road"
+}

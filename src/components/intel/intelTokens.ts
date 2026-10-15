@@ -9,7 +9,19 @@ import type { CSSProperties } from "react";
 
 // 全站不載入 web font：stack 只列各平台實際內建的字（macOS → PingFang TC / SF Mono）。
 // 與 src/styles/tokens.css 的 --font-cjk / --font-data 同值，改一邊要同步另一邊。
-export const FONT_CJK = `"PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif`;
+// zh 預設字族（字面值）：給無法解析 CSS 變數的場合（Mapbox localIdeographFontFamily、canvas ctx.font）。
+export const FONT_CJK_LITERAL = `"PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif`;
+// DOM 用：走 --font-cjk，讓 :root:lang(ja) 的日文字族生效；未載入 tokens.css 的入口靠 fallback。
+export const FONT_CJK = `var(--font-cjk, ${FONT_CJK_LITERAL})`;
+/** 非 DOM 場合（canvas、Mapbox 選項）用：讀 :root 目前的 --font-cjk，跟隨 <html lang>；讀不到回字面值。 */
+export function resolvedCjkFont(): string {
+  if (typeof document === "undefined") return FONT_CJK_LITERAL;
+  try {
+    return getComputedStyle(document.documentElement).getPropertyValue("--font-cjk").trim() || FONT_CJK_LITERAL;
+  } catch {
+    return FONT_CJK_LITERAL;
+  }
+}
 export const FONT_DATA = `ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
 
 /** 半透明 / 邊框 token */

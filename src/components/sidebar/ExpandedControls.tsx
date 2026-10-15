@@ -4,6 +4,7 @@ import type { DisplayMode, ExpandableLayerKey } from "../../types";
 import { useEffect, useReducer } from "react";
 import { buildParamControls } from "../../state/layerParamsControls";
 import { useLayerParams } from "../../state/layerParamsStore";
+import { useLocale } from "../../state/localeStore";
 import { ensureLinkedSelects, subscribeLinkedSelects } from "../../state/linkedSelect";
 import { isStatisticsRenderLayer } from "../../data/regionalStatisticsRecipes";
 import { HistoricalFlightTrailControls } from "./HistoricalFlightTrailControls";
@@ -45,7 +46,8 @@ export function ExpandedControls({
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
   useLinkedSelects(layerKey);
-  const controls = buildParamControls(layerKey, paramValues) ?? [];
+  const i18n = useLocale();
+  const controls = buildParamControls(layerKey, paramValues, i18n) ?? [];
   const { TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const isDarkTheme = COLOR_SCHEME === "dark";
 
@@ -54,10 +56,10 @@ export function ExpandedControls({
       {isTransport && layerKey === "flights" && (
         <div className="lpc-head">
             <button type="button" className="lpc-btn" aria-pressed={displayMode === "status"} onClick={() => onDisplayModeChange("status")}>
-              即時狀態
+              {i18n.t("paramsPanel.flightStatus")}
             </button>
             <button type="button" className="lpc-btn" aria-pressed={displayMode === "trails"} onClick={() => onDisplayModeChange("trails")}>
-              航跡
+              {i18n.t("paramsPanel.flightTrails")}
             </button>
         </div>
       )}
