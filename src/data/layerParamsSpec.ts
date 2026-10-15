@@ -6,7 +6,8 @@ import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } f
 import { ATLAS_ENABLED_STATISTICS_KEYS, type AtlasStatisticsLayerKey } from './atlasStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
-import { JMA_AMEDAS_MODES } from "./jmaTypes";
+import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY } from "./jmaTypes";
+import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -3757,6 +3758,19 @@ export const LAYER_PARAMS_SPEC = {
       default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
     },
   ],
+  // 上游直連（P5）：GIBS 衛星雪覆蓋 raster＋產品切換；洪水キキクル line。黃砂是圖片面板，無控件。
+  gibsSnowCover: [
+    {
+      kind: "slider", name: "gibsSnowCoverOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+    {
+      kind: "select", name: "gibsSnowCoverProduct", label: "資料源", default: "modis_terra",
+      options: GIBS_SNOW_PRODUCTS.map(({ label, value }) => ({ label, value })),
+      out: "gibsSnowCoverProductIdx", encode: GIBS_SNOW_PRODUCTS.map((p) => p.value),
+    },
+  ],
+  jmaRiskFlood: [opacitySlider("jmaRiskFloodOpacity", JMA_FLOOD_OPACITY)],
   riverRpiSegments: [
     opacitySlider("riverRpiSegmentsOpacity", 0.85),
     {

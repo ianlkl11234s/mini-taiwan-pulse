@@ -64,6 +64,7 @@ import { todayTaiwan } from "./lib/supabase";
 // Energy MVP：dashboard 資料源留在 App（dataRef 餵 LayerHost 的 region bars）
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { AqiProductSwitcher } from "./components/AqiProductSwitcher";
+import { JmaKosaPanel } from "./components/JmaKosaPanel";
 import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
@@ -3080,6 +3081,12 @@ export default function App() {
               onChange={setAqiProduct}
               isDark={isDarkTheme}
             />
+          </div>
+        )}
+        {/* 黃砂予測：上游是燒好底圖的 PNG，做成圖片面板（非地圖疊加），圖層開啟時才掛 */}
+        {layerVisibility.jmaKosa && (
+          <div style={{ pointerEvents: "auto" }}>
+            <JmaKosaPanel isDark={isDarkTheme} />
           </div>
         )}
         <div style={{ pointerEvents: "auto" }}>

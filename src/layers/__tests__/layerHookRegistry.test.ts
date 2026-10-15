@@ -130,6 +130,8 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   ...ATLAS_ENABLED_STATISTICS_KEYS,
   // Demographics-statistics recipes share the same MapView dynamic runtime.
   ...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS,
+  // JmaKosaPanel：黃砂予測是圖片面板（非地圖圖層），由 App 右下浮動堆疊依 visibility 掛載
+  "jmaKosa",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

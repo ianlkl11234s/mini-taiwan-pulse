@@ -1660,6 +1660,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jmaSst: boolean;        // 日本近海日別海面水溫（每日）
   jmaSeaIce: boolean;     // 鄂霍次克海海冰（每日，12–5 月）
   jmaHimawari: boolean;   // 向日葵 B13 紅外雲圖（每小時，灰階 JPEG）
+  gibsSnowCover: boolean; // NASA GIBS 衛星雪覆蓋 NDSI（每日，瀏覽器直連上游）
+  jmaRiskFlood: boolean;  // 洪水キキクル（向量 pbf，瀏覽器直連 JMA，只提供即時）
+  jmaKosa: boolean;       // 黃砂予測（圖片面板，非地圖疊加）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
   jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
   jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格
