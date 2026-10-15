@@ -12,6 +12,14 @@ export const JMA_LAYER_COLORS = {
   jmaQuakes: "#f97316",
   jmaVolcanoes: "#b91c1c",
   jmaSnowDepth: "#60a5fa",
+  jmaRadar: "#2563eb",
+  jmaRasrf: "#0284c7",
+  jmaRiskLand: "#a16207",
+  jmaRiskInund: "#7c3aed",
+  jmaUvIndex: "#f59e0b",
+  jmaSst: "#f43f5e",
+  jmaSeaIce: "#38bdf8",
+  jmaHimawari: "#94a3b8",
 } as const;
 
 /** 中空點（NULL／無資料）描邊色 */
@@ -167,7 +175,7 @@ export function formatJst(iso: unknown): string {
 // 色票修正只改本檔、不用重發 PNG。
 //
 // ── raster-color 解碼（mapbox-gl 3.x，image source 與 PMTiles raster 同一支 raster program）──
-// 瀏覽器把 LA PNG 解成 R=G=B=L。mapbox 3.x（draw_raster／raster_style_layer）取色帶的位置是
+// 瀏覽器把 LA PNG（與 gray_jpeg_v1 單色 JPEG）解成 R=G=B=L。mapbox 3.x（draw_raster／raster_style_layer）取色帶的位置是
 //   texel = floor(0.5 + L × mix × CMF × (RES−1) / (max−min))，CMF = (RES²−1)/(255·RES·(RES+3))，RES = 1024
 // 即 mix=255 時 raster-value ≈ L × 0.9971，L=255 只取到 texel 1020（≈254.3）——2026-10-15 瀏覽器實測
 // mix=255 時缺測 255 被畫成透明。所以 mix 用補償值 1/CMF ≈ 255.75，讓 texel = round(L × 1023/255)，
@@ -186,7 +194,7 @@ export const JMA_IMAGERY_MIX_R = (255 * MAPBOX_COLOR_RAMP_RES * (MAPBOX_COLOR_RA
 export const JMA_IMAGERY_RASTER_COLOR_MIX = [JMA_IMAGERY_MIX_R, 0, 0, 0] as const;
 export const JMA_IMAGERY_RASTER_COLOR_RANGE = [0, 255] as const;
 
-export type JmaImageryEncoding = "level_la_v1" | "sst_la_v1";
+export type JmaImageryEncoding = "level_la_v1" | "sst_la_v1" | "gray_jpeg_v1";
 
 export interface JmaImageryLevel {
   /** PNG L 值（等於 T2 等級值） */
@@ -203,6 +211,24 @@ export interface JmaImageryScalar {
   scale: number;
   offset: number;
   stops: readonly { value: number; color: string }[];
+  /** L=0 且 A=255 的特殊值（sst_la_v1：海冰）；未設 → 透明 */
+  zeroColor?: string;
+}
+
+/**
+ * gray_jpeg_v1（ひまわり B13）：單色 JPEG、無 alpha，灰階越白越冷（JMA 未公開灰階↔亮溫換算，不是溫度）。
+ * 0 與 255 都是有效灰階（沒有缺測等級）。stops 以灰階值（raster-value）為輸入，輸出帶 alpha 的顏色。
+ */
+export interface JmaImageryGray {
+  stops: readonly { value: number; color: string }[];
+}
+
+/** 上游只在部分時段／月份發布（UV 06–18 JST、海冰 12–5 月）；時段外顯示「夜間無資料」／「季外」，不算缺幀 */
+export interface JmaImageryActiveWindow {
+  /** JST 小時 [from, to)：t 的 JST 時刻落在區間外 → off_hours（UV：[6, 19)，18:00 幀顯示到 18:59） */
+  hoursJst?: readonly [number, number];
+  /** JST 月份（1–12）：t 的 JST 月份不在清單 → off_season */
+  monthsJst?: readonly number[];
 }
 
 export interface JmaImageryProduct {
@@ -223,11 +249,49 @@ export interface JmaImageryProduct {
   levels?: readonly JmaImageryLevel[];
   /** sst_la_v1：連續值 */
   scalar?: JmaImageryScalar;
+  /** gray_jpeg_v1：灰階 ramp */
+  gray?: JmaImageryGray;
+  /** 上游發布時段（缺省 = 全天全年） */
+  active?: JmaImageryActiveWindow;
+}
+
+/** 雷達與解析雨量共用 8 級（decode table PLTE；idx6 以 PLTE (250,245,0) 為準，legend SVG 是 (255,245,0)） */
+const RAIN_RGB: readonly (readonly [number, number, number])[] = [
+  [242, 242, 255], [160, 210, 255], [33, 140, 255], [0, 65, 255],
+  [250, 245, 0], [255, 153, 0], [255, 40, 0], [180, 0, 104],
+];
+const RAIN_BREAKS = ["<1", "1–5", "5–10", "10–20", "20–30", "30–50", "50–80", "≥80"];
+function rainLevels(unit: string): JmaImageryLevel[] {
+  return RAIN_RGB.map((rgb, i) => ({ level: i + 1, rgb: [rgb[0], rgb[1], rgb[2]] as const, label: `${RAIN_BREAKS[i]} ${unit}` }));
 }
 
 /**
- * 產品登記簿：新增 radar／rasrf／risk_land／risk_inund／uv_anal／sea_ice／sst_him 時各加一筆。
- * 例：sst_him → { encoding: "sst_la_v1", cadenceMin: 1440, scalar: { unit: "°C", scale: 1/7, offset: -3, stops: [...] } }
+ * キキクル 2–5（decode table level 1「今後の情報等に留意」是白色，上游圖磚實際為透明 → 不登記，step 畫透明，
+ * 避免整片白蓋住底圖）。plte_verified=false：依 legend SVG，待首次著色以實磚 PLTE 驗證。
+ */
+const RISK_LEVELS: readonly JmaImageryLevel[] = [
+  { level: 2, rgb: [242, 231, 0], label: "注意（警戒レベル2相当）" },
+  { level: 3, rgb: [255, 40, 0], label: "警戒（警戒レベル3相当）" },
+  { level: 4, rgb: [170, 0, 170], label: "危険（警戒レベル4相当）" },
+  { level: 5, rgb: [12, 0, 12], label: "災害切迫（警戒レベル5相当）" },
+];
+
+/**
+ * 日別海面水温色帶：取自氣象廳「日別海面水温」圖（www.data.jma.go.jp/kaiyou/data/db/kaikyo/daily/image/HQ/2026/sstD_HQ20261013.png）
+ * 右側色條，逐 1 ℃ 取色（2026-10-15）；stop 放在各 1 ℃ 區間中點。
+ */
+const SST_STOPS: readonly { value: number; color: string }[] = [
+  ["#4100c5", -1.5], ["#2900c5", -0.5], ["#1800c5", 0.5], ["#0008c5", 1.5], ["#0029c5", 2.5], ["#0062c5", 3.5],
+  ["#009cc5", 4.5], ["#00c5bd", 5.5], ["#00d5ac", 6.5], ["#00de8b", 7.5], ["#00e673", 8.5], ["#08ee62", 9.5],
+  ["#20ee4a", 10.5], ["#39f631", 11.5], ["#52f629", 12.5], ["#7bff4a", 13.5], ["#acff8b", 14.5], ["#d5ffcd", 15.5],
+  ["#f6ffd5", 16.5], ["#ffffac", 17.5], ["#ffff62", 18.5], ["#ffff20", 19.5], ["#ffee00", 20.5], ["#ffd500", 21.5],
+  ["#ffbd00", 22.5], ["#ffa400", 23.5], ["#ff7b08", 24.5], ["#ff4a10", 25.5], ["#ff2008", 26.5], ["#ff2031", 27.5],
+  ["#ff5a9c", 28.5], ["#ff94ee", 29.5], ["#ffa4ff", 30.5],
+].map(([color, value]) => ({ value: value as number, color: color as string }));
+
+/**
+ * 產品登記簿：每個發布幀產品一筆。容忍度（maxStaleMin／liveMaxStaleMin）依發布頻率各自設定：
+ * radar 15/30、rasrf／risk 60/90、snow 90/180、uv 90/180、sst／sea_ice 36h/48h。
  */
 export const JMA_IMAGERY_PRODUCTS = {
   // 解析積雪深 snowd（data-collectors config/decode_tables/jma/snow_depth.yaml）。
@@ -250,9 +314,134 @@ export const JMA_IMAGERY_PRODUCTS = {
       { level: 7, rgb: [180, 0, 104], label: "≥200 cm" },
     ],
   },
+  // 高解像度降水ナウキャスト解析值（decode table radar.yaml，plte_verified）。5 分一幀。
+  radar: {
+    product: "radar",
+    encoding: "level_la_v1",
+    paletteVersion: "jma-radar-2026-10-09",
+    cadenceMin: 5,
+    maxStaleMin: 15,
+    liveMaxStaleMin: 30,
+    historyStepMin: 0,
+    levels: rainLevels("mm/h"),
+  },
+  // 解析雨量（1 小時雨量，decode table rasrf.yaml，plte_verified）。30 分一幀。
+  rasrf: {
+    product: "rasrf",
+    encoding: "level_la_v1",
+    paletteVersion: "jma-rasrf-2026-10-09",
+    cadenceMin: 30,
+    maxStaleMin: 60,
+    liveMaxStaleMin: 90,
+    historyStepMin: 0,
+    levels: rainLevels("mm"),
+  },
+  // 土砂キキクル（decode table risk_land.yaml，provisional）。30 分一幀。
+  risk_land: {
+    product: "risk_land",
+    encoding: "level_la_v1",
+    paletteVersion: "jma-risk_land-2026-10-09-provisional",
+    cadenceMin: 30,
+    maxStaleMin: 60,
+    liveMaxStaleMin: 90,
+    historyStepMin: 0,
+    levels: RISK_LEVELS,
+  },
+  // 浸水キキクル（decode table risk_inund.yaml，provisional）。30 分一幀。
+  risk_inund: {
+    product: "risk_inund",
+    encoding: "level_la_v1",
+    paletteVersion: "jma-risk_inund-2026-10-09-provisional",
+    cadenceMin: 30,
+    maxStaleMin: 60,
+    liveMaxStaleMin: 90,
+    historyStepMin: 0,
+    levels: RISK_LEVELS,
+  },
+  // 紫外線 UV インデックス解析（decode table uv_anal.yaml，plte_verified）：level = UVI + 1；每正時 06–18 JST。
+  uv_anal: {
+    product: "uv_anal",
+    encoding: "level_la_v1",
+    paletteVersion: "jma-uv_anal-2026-10-12",
+    cadenceMin: 60,
+    maxStaleMin: 90,
+    liveMaxStaleMin: 180,
+    historyStepMin: 0,
+    active: { hoursJst: [6, 19] },
+    levels: ([
+      [255, 255, 255], [217, 217, 255], [153, 203, 255], [255, 255, 190], [250, 250, 150], [250, 245, 0], [255, 200, 0],
+      [255, 140, 0], [250, 90, 0], [255, 20, 0], [165, 0, 33], [181, 0, 91], [204, 0, 160], [204, 0, 204],
+    ] as const).map((rgb, i) => ({ level: i + 1, rgb, label: i === 13 ? "UVI ≥13" : `UVI ${i}` })),
+  },
+  // 日別海面水温（him_sst_pac_D，0.1°）：sst_la_v1，L = clamp(round((℃+3)×7), 1, 254)；L=0（A=255）= 海冰。
+  // 每日一幀，valid_time = 該日 00:00 JST（R2 key 日期是 UTC 前一日 150000）。
+  sst_him: {
+    product: "sst_him",
+    encoding: "sst_la_v1",
+    paletteVersion: "jma-sstD-colorbar-2026-10-15",
+    cadenceMin: 1440,
+    maxStaleMin: 36 * 60,
+    liveMaxStaleMin: 48 * 60,
+    historyStepMin: 0,
+    scalar: { unit: "°C", scale: 1 / 7, offset: -3, stops: SST_STOPS, zeroColor: "#f8fafc" },
+  },
+  // 海氷（man_ice_okh_D，0.05°）：密接度級 2–5；0 開水面、254 陸地透明；只有 12–5 月。
+  // ⚠ 色票 provisional：氣象廳官方海氷圖在季外（10 月）下架、Wayback 無快照，暫用藍色系單調色階，季內取官方圖例再改。
+  sea_ice: {
+    product: "sea_ice",
+    encoding: "level_la_v1",
+    paletteVersion: "pulse-sea_ice-2026-10-15-provisional",
+    cadenceMin: 1440,
+    maxStaleMin: 36 * 60,
+    liveMaxStaleMin: 48 * 60,
+    historyStepMin: 0,
+    active: { monthsJst: [12, 1, 2, 3, 4, 5] },
+    levels: [
+      { level: 2, rgb: [198, 232, 255], label: "1–3/10" },
+      { level: 3, rgb: [130, 190, 245], label: "4–6/10" },
+      { level: 4, rgb: [70, 130, 225], label: "7–8/10" },
+      { level: 5, rgb: [35, 60, 170], label: "9–10/10" },
+    ],
+  },
+  // ひまわり B13 赤外（gray_jpeg_v1，1024×768 單色 JPEG，z5 12 磚拼成）。每小時一幀。
+  // 不上色只調透明：暖（暗，晴空海面約 30–55）全透明讓底圖透出，冷（亮，雲頂）漸白漸不透明。
+  // 門檻依 2026-10-15 上游 z5 磚實測灰階分位（P50≈55、P90≈114、P99≈149）與瀏覽器實測訂定：
+  // 85 以下（晴空海面、夜間陸地）全透明，避免整片灰霧蓋住底圖。
+  himawari_b13: {
+    product: "himawari_b13",
+    encoding: "gray_jpeg_v1",
+    paletteVersion: "pulse-himawari_b13-gray-2026-10-15",
+    cadenceMin: 60,
+    maxStaleMin: 90,
+    liveMaxStaleMin: 180,
+    historyStepMin: 0,
+    gray: {
+      stops: [
+        { value: 85, color: "rgba(150, 150, 150, 0)" },
+        { value: 130, color: "rgba(195, 195, 195, 0.6)" },
+        { value: 180, color: "rgba(235, 235, 235, 0.9)" },
+        { value: 255, color: "rgba(255, 255, 255, 0.95)" },
+      ],
+    },
+  },
 } as const satisfies Record<string, JmaImageryProduct>;
 
 export type JmaImageryProductId = keyof typeof JMA_IMAGERY_PRODUCTS;
+
+/** 圖層 key ↔ 發布幀 product（host、圖例共用） */
+export const JMA_IMAGERY_LAYERS = {
+  jmaSnowDepth: "snow_depth",
+  jmaRadar: "radar",
+  jmaRasrf: "rasrf",
+  jmaRiskLand: "risk_land",
+  jmaRiskInund: "risk_inund",
+  jmaUvIndex: "uv_anal",
+  jmaSst: "sst_him",
+  jmaSeaIce: "sea_ice",
+  jmaHimawari: "himawari_b13",
+} as const satisfies Record<string, JmaImageryProductId>;
+
+export type JmaImageryLayerKey = keyof typeof JMA_IMAGERY_LAYERS;
 
 export function jmaImageryProduct(id: JmaImageryProductId): JmaImageryProduct {
   return JMA_IMAGERY_PRODUCTS[id];
@@ -286,11 +475,15 @@ export function jmaImageryRasterColor(p: JmaImageryProduct): unknown[] {
     expr.push(missing, JMA_IMAGERY_UNCOVERED_COLOR);
     return expr;
   }
-  // sst_la_v1：L=0（海冰）另行處理前先透明；1–254 連續；255 未涵蓋
+  if (p.encoding === "gray_jpeg_v1") {
+    // 灰階連續值、沒有缺測等級；低於第一個 stop 一律沿用第一個 stop（透明）
+    return ["interpolate", ["linear"], ["raster-value"], ...p.gray!.stops.flatMap((s) => [s.value, s.color])];
+  }
+  // sst_la_v1：L=0（A=255 海冰；A=0 陸地由 alpha 透明）→ zeroColor；1–254 連續；255 未涵蓋
   const scalar = p.scalar!;
   const ramp: unknown[] = ["interpolate", ["linear"], ["raster-value"],
     ...scalar.stops.flatMap((s) => [jmaImageryValueToLevel(scalar, s.value), s.color])];
-  return ["step", ["raster-value"], TRANSPARENT, 0.5, ramp, missing, JMA_IMAGERY_UNCOVERED_COLOR];
+  return ["step", ["raster-value"], scalar.zeroColor ?? TRANSPARENT, 0.5, ramp, missing, JMA_IMAGERY_UNCOVERED_COLOR];
 }
 
 /** raster layer paint（opacity 由呼叫端帶） */

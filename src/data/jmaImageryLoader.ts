@@ -16,7 +16,7 @@ import type { JmaImageryProduct } from "./jmaTypes";
 
 const IMAGERY_CDN_BASE = (import.meta.env.VITE_IMAGERY_CDN_BASE ?? "").replace(/\/+$/, "");
 
-/** RPC 單次區間上限（契約 §2） */
+/** RPC 單次區間上限（契約 §2）；超過由 jmaImageryWindowChunks 分塊 */
 export const JMA_IMAGERY_MAX_WINDOW_DAYS = 8;
 
 export interface JmaImageryFrame {
@@ -76,28 +76,57 @@ export function rowsToJmaImageryFrames(rows: readonly JmaImageryManifestRow[], c
     });
     out.set(r.product, list);
   }
-  for (const list of out.values()) list.sort((a, b) => a.validTimeMs - b.validTimeMs);
+  for (const [k, list] of out) {
+    list.sort((a, b) => a.validTimeMs - b.validTimeMs);
+    // 分塊查詢在邊界可能重複回同一幀 → 同 valid_time 只留一筆
+    out.set(k, list.filter((f, i) => i === 0 || f.validTimeMs !== list[i - 1]!.validTimeMs));
+  }
   return out;
+}
+
+/**
+ * PostgREST 對 RPC 也套 db-max-rows（Supabase 預設 1000），且列依 valid_time 升序 → 超過時被截掉的是「最近」的幀。
+ * 依發布頻率把時間窗切塊，每塊預期列數 ≤ JMA_IMAGERY_ROWS_PER_CALL（radar 5 分 → 75 小時一塊）。
+ */
+export const JMA_IMAGERY_ROWS_PER_CALL = 900;
+
+export function jmaImageryWindowChunks(window: JmaImageryWindow, cadenceMin: number): { sinceIso: string; untilIso: string }[] {
+  const sinceMs = new Date(window.sinceIso).getTime();
+  const untilMs = new Date(window.untilIso).getTime();
+  const effMin = Math.max(cadenceMin, window.stepMinutes || 0, 1);
+  // 同時受 RPC 單次 8 天上限約束（sst／海冰前推 36h 後 7 天視窗會超過 8 天）
+  const chunkMs = Math.min(JMA_IMAGERY_ROWS_PER_CALL * effMin * 60_000, JMA_IMAGERY_MAX_WINDOW_DAYS * 24 * 3600_000 - 60_000);
+  const out: { sinceIso: string; untilIso: string }[] = [];
+  for (let a = sinceMs; a < untilMs; a += chunkMs) {
+    // RPC 的區間語意：since ≤ valid_time ≤ until 的列；相鄰塊在邊界重疊的列由 rowsToJmaImageryFrames 去重
+    out.push({ sinceIso: new Date(a).toISOString(), untilIso: new Date(Math.min(untilMs, a + chunkMs)).toISOString() });
+  }
+  return out.length ? out : [{ sinceIso: window.sinceIso, untilIso: window.untilIso }];
 }
 
 export async function loadJmaImageryManifest(
   products: readonly string[],
   window: JmaImageryWindow,
+  cadenceMin = 60,
 ): Promise<Map<string, JmaImageryFrame[]>> {
-  const rpc = supabase.rpc("get_weather_imagery_manifest", {
-    p_source: "jma",
-    p_products: [...products],
-    p_since: window.sinceIso,
-    p_until: window.untilIso,
-    p_step_minutes: window.stepMinutes,
-  });
-  const { data, error } = await withLoading(
+  const chunks = jmaImageryWindowChunks(window, cadenceMin);
+  const results = await withLoading(
     `jma-imagery-manifest:${products.join(",")}`,
     `JMA 影像清單 ${products.join("/")}`,
-    rpc,
+    Promise.all(chunks.map((c) => supabase.rpc("get_weather_imagery_manifest", {
+      p_source: "jma",
+      p_products: [...products],
+      p_since: c.sinceIso,
+      p_until: c.untilIso,
+      p_step_minutes: window.stepMinutes,
+    }))),
   );
-  if (error) throw new Error(`get_weather_imagery_manifest: ${error.message}`);
-  return rowsToJmaImageryFrames((data ?? []) as JmaImageryManifestRow[], IMAGERY_CDN_BASE);
+  const rows: JmaImageryManifestRow[] = [];
+  for (const { data, error } of results) {
+    if (error) throw new Error(`get_weather_imagery_manifest: ${error.message}`);
+    rows.push(...((data ?? []) as JmaImageryManifestRow[]));
+  }
+  return rowsToJmaImageryFrames(rows, IMAGERY_CDN_BASE);
 }
 
 /** 時間窗：timeline 視窗日（Asia/Taipei）→ RPC since/until；前推一個 maxStale 讓 00:00 也找得到 ≤ t 的幀。 */
@@ -112,20 +141,41 @@ export function jmaImageryWindowFor(
   const sinceMs = new Date(`${first}T00:00:00+08:00`).getTime() - product.maxStaleMin * 60_000;
   let untilMs = new Date(`${last}T00:00:00+08:00`).getTime() + 24 * 3600_000;
   untilMs = Math.min(untilMs, nowMs + 3600_000);
-  const cap = sinceMs + JMA_IMAGERY_MAX_WINDOW_DAYS * 24 * 3600_000 - 60_000;
+  // 不在這裡截 8 天：截掉的會是最近的日子；RPC 的 8 天上限由 jmaImageryWindowChunks 分塊處理
   return {
     sinceIso: new Date(sinceMs).toISOString(),
-    untilIso: new Date(Math.max(sinceMs + 60_000, Math.min(untilMs, cap))).toISOString(),
+    untilIso: new Date(Math.max(sinceMs + 60_000, untilMs)).toISOString(),
     stepMinutes: product.historyStepMin,
   };
 }
 
+export type JmaImageryUncoveredReason = "no_frame" | "stale" | "missing" | "encoding" | "off_hours" | "off_season";
+
 export type JmaImageryPick =
   | { kind: "frame"; frame: JmaImageryFrame }
-  | { kind: "uncovered"; reason: "no_frame" | "stale" | "missing" | "encoding"; frame: JmaImageryFrame | null };
+  | { kind: "uncovered"; reason: JmaImageryUncoveredReason; frame: JmaImageryFrame | null };
+
+const JST_OFFSET_MS = 9 * 3600_000;
+
+/** 上游發布時段外（UV 夜間、海冰季外）→ 對應原因；時段內 → null。以 t 的 JST 時刻判斷。 */
+export function jmaImageryInactiveReason(
+  product: Pick<JmaImageryProduct, "active">,
+  tMs: number,
+): "off_hours" | "off_season" | null {
+  const a = product.active;
+  if (!a) return null;
+  const jst = new Date(tMs + JST_OFFSET_MS);
+  if (a.monthsJst && !a.monthsJst.includes(jst.getUTCMonth() + 1)) return "off_season";
+  if (a.hoursJst) {
+    const h = jst.getUTCHours();
+    if (h < a.hoursJst[0] || h >= a.hoursJst[1]) return "off_hours";
+  }
+  return null;
+}
 
 /**
  * 選幀：
+ *  - 發布時段外（product.active）→ off_hours／off_season
  *  - 回放：valid_time ≤ t 的最晚一幀，且 t − valid_time ≤ maxStaleMin
  *  - 即時：最晚一幀（不論 t），且 now − valid_time ≤ liveMaxStaleMin
  * 不像 CWA 那樣在 t 早於第一幀時退回 frames[0]（那會把未來的圖畫成現在）。
@@ -133,9 +183,12 @@ export type JmaImageryPick =
 export function pickJmaImageryFrame(
   frames: readonly JmaImageryFrame[],
   tMs: number,
-  product: Pick<JmaImageryProduct, "encoding" | "maxStaleMin" | "liveMaxStaleMin">,
+  product: Pick<JmaImageryProduct, "encoding" | "maxStaleMin" | "liveMaxStaleMin" | "active">,
   live: boolean,
 ): JmaImageryPick {
+  // 發布時段外：不是缺幀，是上游本來就不發（UV 夜間、海冰 6–11 月）
+  const inactive = jmaImageryInactiveReason(product, tMs);
+  if (inactive) return { kind: "uncovered", reason: inactive, frame: null };
   let chosen: JmaImageryFrame | null = null;
   if (live) {
     chosen = frames.length ? frames[frames.length - 1]! : null;

@@ -1163,5 +1163,13 @@
   "layer.harmReductionCondomOutlets": "Condom Outlets",
   "layer.harmReductionTherapeuticCommunities": "Therapeutic Communities and Halfway Houses",
   "layer.harmReductionAftercare": "Offender Aftercare Associations",
-  "layer.jmaSnowDepth": "Snow Depth (Analysis)"
+  "layer.jmaSnowDepth": "Snow Depth (Analysis)",
+  "layer.jmaRadar": "Rain Cloud Radar",
+  "layer.jmaRasrf": "Analyzed Precipitation",
+  "layer.jmaRiskLand": "Landslide Risk (Kikikuru)",
+  "layer.jmaRiskInund": "Inundation Risk (Kikikuru)",
+  "layer.jmaUvIndex": "UV Index (Analysis)",
+  "layer.jmaSst": "Daily Sea Surface Temperature",
+  "layer.jmaSeaIce": "Sea Ice (Sea of Okhotsk)",
+  "layer.jmaHimawari": "Himawari Infrared Clouds"
 }

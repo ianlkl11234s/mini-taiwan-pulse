@@ -7,6 +7,7 @@ import { useJmaImageryLayer } from "../../hooks/useJmaImageryLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 import { RASTER } from "../../map/mapStyleScale";
+import type { JmaImageryLayerKey, JmaImageryProductId } from "../../data/jmaTypes";
 
 export const JmaAmedasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJmaLiveLayer:jmaAmedas");
@@ -33,15 +34,31 @@ export const JmaWarningsHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** JMA 發布幀影像：解析積雪深（time-axis raster，接 timeStore） */
-export const JmaSnowDepthHost: LayerHostComponent = ({ deps }) => {
-  bumpHostRender("useJmaImageryLayer:jmaSnowDepth");
-  const p = useKeyOverlayParams("jmaSnowDepth");
-  useJmaImageryLayer({
-    mapRef: deps.mapRef,
-    visible: deps.layerVisibility.jmaSnowDepth,
-    opacity: p.jmaSnowDepthOpacity ?? RASTER.opacity,
-    product: "snow_depth",
-  });
-  return null;
-};
+/**
+ * JMA 發布幀影像（time-axis raster，接 timeStore）：每個 layer key 對一個 product，
+ * 透明度 overlayParams 名稱一律 `${key}Opacity`（layerParamsSpec）。
+ */
+function makeJmaImageryHost(key: JmaImageryLayerKey, product: JmaImageryProductId): LayerHostComponent {
+  const Host: LayerHostComponent = ({ deps }) => {
+    bumpHostRender(`useJmaImageryLayer:${key}`);
+    const p = useKeyOverlayParams(key);
+    useJmaImageryLayer({
+      mapRef: deps.mapRef,
+      visible: deps.layerVisibility[key],
+      opacity: p[`${key}Opacity`] ?? RASTER.opacity,
+      product,
+    });
+    return null;
+  };
+  return Host;
+}
+
+export const JmaSnowDepthHost = makeJmaImageryHost("jmaSnowDepth", "snow_depth");
+export const JmaRadarHost = makeJmaImageryHost("jmaRadar", "radar");
+export const JmaRasrfHost = makeJmaImageryHost("jmaRasrf", "rasrf");
+export const JmaRiskLandHost = makeJmaImageryHost("jmaRiskLand", "risk_land");
+export const JmaRiskInundHost = makeJmaImageryHost("jmaRiskInund", "risk_inund");
+export const JmaUvIndexHost = makeJmaImageryHost("jmaUvIndex", "uv_anal");
+export const JmaSstHost = makeJmaImageryHost("jmaSst", "sst_him");
+export const JmaSeaIceHost = makeJmaImageryHost("jmaSeaIce", "sea_ice");
+export const JmaHimawariHost = makeJmaImageryHost("jmaHimawari", "himawari_b13");

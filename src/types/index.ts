@@ -1652,6 +1652,14 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
   jmaVolcanoes: boolean;  // 日本火山噴火警戒
   jmaSnowDepth: boolean;  // 日本解析積雪深（JMA 發布幀 PNG，time-axis raster）
+  jmaRadar: boolean;      // 日本雨雲雷達（ナウキャスト解析，5 分一幀）
+  jmaRasrf: boolean;      // 日本解析雨量（1 小時雨量，30 分一幀）
+  jmaRiskLand: boolean;   // 日本土砂キキクル（30 分一幀）
+  jmaRiskInund: boolean;  // 日本浸水キキクル（30 分一幀）
+  jmaUvIndex: boolean;    // 日本紫外線 UV 指數解析（06–18 JST 每小時）
+  jmaSst: boolean;        // 日本近海日別海面水溫（每日）
+  jmaSeaIce: boolean;     // 鄂霍次克海海冰（每日，12–5 月）
+  jmaHimawari: boolean;   // 向日葵 B13 紅外雲圖（每小時，灰階 JPEG）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
   jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
   jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格

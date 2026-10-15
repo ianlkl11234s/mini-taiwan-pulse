@@ -2226,7 +2226,10 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "即時觀測", layers: [fromManifest("jmaAmedas"), fromManifest("jmaWarnings")] },
       { title: "地震與火山", layers: [fromManifest("jmaQuakes"), fromManifest("jmaVolcanoes")] },
-      { title: "解析影像", layers: [fromManifest("jmaSnowDepth")] },
+      { title: "解析影像", layers: [
+        fromManifest("jmaRadar"), fromManifest("jmaRasrf"), fromManifest("jmaRiskLand"), fromManifest("jmaRiskInund"),
+        fromManifest("jmaSnowDepth"), fromManifest("jmaUvIndex"), fromManifest("jmaSst"), fromManifest("jmaSeaIce"), fromManifest("jmaHimawari"),
+      ] },
     ],
   },
 

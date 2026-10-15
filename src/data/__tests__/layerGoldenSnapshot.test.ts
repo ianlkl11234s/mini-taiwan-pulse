@@ -178,7 +178,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-12: +66 atlas 批次 Statistics 圖層（疾病與健康 19、財稅與消費 22、原民與農村 3、體育 4、災害風險 8、海洋 10）。
     // 2026-10-12: +26 atlas 批次點／線／面圖層（原民與農村 3、道路設施 7、淹水與災害照片 3、海洋 6、地名 2、水利設施 5）。
     // 2026-10-15: +1 日本氣象廳發布幀影像（解析積雪深 jmaSnowDepth）。
-    expect(keys.length).toBe(1175);
+    // 2026-10-15: +8 日本氣象廳發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、日別海面水溫、海冰、向日葵 B13 雲圖）。
+    expect(keys.length).toBe(1183);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

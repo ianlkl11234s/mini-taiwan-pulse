@@ -3709,6 +3709,54 @@ export const LAYER_PARAMS_SPEC = {
       default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
     },
   ],
+  jmaRadar: [
+    {
+      kind: "slider", name: "jmaRadarOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRasrf: [
+    {
+      kind: "slider", name: "jmaRasrfOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRiskLand: [
+    {
+      kind: "slider", name: "jmaRiskLandOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRiskInund: [
+    {
+      kind: "slider", name: "jmaRiskInundOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaUvIndex: [
+    {
+      kind: "slider", name: "jmaUvIndexOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaSst: [
+    {
+      kind: "slider", name: "jmaSstOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaSeaIce: [
+    {
+      kind: "slider", name: "jmaSeaIceOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaHimawari: [
+    {
+      kind: "slider", name: "jmaHimawariOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
   riverRpiSegments: [
     opacitySlider("riverRpiSegmentsOpacity", 0.85),
     {
