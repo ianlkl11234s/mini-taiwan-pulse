@@ -72,7 +72,7 @@ function PhenologyLegend({ layerKey }: { layerKey: JmaPhenologyLayerKey }) {
   return <div>
     <LegendTitle zh={i18n.t(layerKey === "jmaSakura" ? "legend.jmaTime.sakuraTitle" : "legend.jmaTime.autumnTitle", { phenomenon: phenLabel })}
       en={layerKey === "jmaSakura" ? "桜前線" : "紅葉前線"} />
-    <div style={{ fontSize: FONT_SIZE.xs }}>{i18n.t("legend.jmaTime.phenologyObserved")}</div>
+    <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs }}>{i18n.t("legend.jmaTime.phenologyObserved")}</div>
     <DiffRows />
     <Hollow label={i18n.t("legend.jmaTime.phenologyNotYet")} color={JMA_POINT_LAYER_COLORS[layerKey]} />
     <Hollow label={i18n.t("legend.jmaTime.notYetLate")} color={JMA_POINT_LAYER_COLORS[layerKey]} width={3} />

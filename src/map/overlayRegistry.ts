@@ -1191,6 +1191,8 @@ function jmaPhenologyOverlay(key: JmaPhenologyLayerKey, sourceId: string): Overl
   const idxParam = `${key}PhenomenonIdx`;
   const filter = (p?: Record<string, number>): unknown[] => ["==", ["get", "phenomenon_code"], jmaPhenologyCode(key, p?.[idxParam])];
   const observed: unknown[] = ["==", ["get", "state"], "observed"];
+  const notObserved: unknown[] = ["!=", ["get", "state"], "observed"];
+  const pastNormal: unknown[] = ["!=", ["get", "days_past_normal"], null];
   return {
     id: key,
     sourceUrl: "./geo/_empty.geojson",
@@ -1209,8 +1211,9 @@ function jmaPhenologyOverlay(key: JmaPhenologyLayerKey, sourceId: string): Overl
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 3.5 * s, 8, 6 * s, 12, 9 * s] as unknown as number,
           "circle-color": jmaDiffColorExpr(JMA_POINT_LAYER_COLORS[key]) as unknown as string,
           "circle-opacity": ["case", observed, op, 0] as unknown as number,
-          "circle-stroke-color": ["case", observed, mapSeamColor(isDark), JMA_POINT_LAYER_COLORS[key]] as unknown as string,
-          "circle-stroke-width": ["case", observed, 0.8, ["==", ["get", "days_past_normal"], null], 1.4, 2.4] as unknown as number,
+          // withPointSpec 會把 case 的 fallback 換成標準描邊 → 資料編碼一律寫在條件分支（未觀測／已過平年），fallback 給已觀測
+          "circle-stroke-color": ["case", notObserved, JMA_POINT_LAYER_COLORS[key], mapSeamColor(isDark)] as unknown as string,
+          "circle-stroke-width": ["case", ["all", notObserved, pastNormal], 2.4, notObserved, 1.4, 0.8] as unknown as number,
           "circle-stroke-opacity": op,
         };
       },
@@ -9991,12 +9994,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const op = p?.jmaSnowcapOpacity ?? 0.95;
           const s = p?.jmaSnowcapScale ?? 1;
           const observed: unknown[] = ["==", ["get", "state"], "observed"];
+          const notObserved: unknown[] = ["!=", ["get", "state"], "observed"];
+          const pastNormal: unknown[] = ["!=", ["get", "days_past_normal"], null];
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 4 * s, 8, 6.5 * s, 12, 9 * s] as unknown as number,
             "circle-color": JMA_SNOWCAP_OBSERVED_COLOR,
             "circle-opacity": ["case", observed, op, 0] as unknown as number,
-            "circle-stroke-color": ["case", observed, JMA_SNOWCAP_OBSERVED_STROKE, JMA_POINT_HOLLOW_COLOR] as unknown as string,
-            "circle-stroke-width": ["case", observed, 1.6, ["==", ["get", "days_past_normal"], null], 1.4, 2.4] as unknown as number,
+            // 條件分支才是資料編碼（withPointSpec 只換 fallback）：已觀測深描邊、未觀測灰圈、已過平年粗圈
+            "circle-stroke-color": ["case", observed, JMA_SNOWCAP_OBSERVED_STROKE, notObserved, JMA_POINT_HOLLOW_COLOR, JMA_POINT_HOLLOW_COLOR] as unknown as string,
+            "circle-stroke-width": ["case", observed, 1.6, ["all", notObserved, pastNormal], 2.4, notObserved, 1.4, 1.4] as unknown as number,
             "circle-stroke-opacity": op,
           };
         },
