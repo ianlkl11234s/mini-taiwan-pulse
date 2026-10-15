@@ -1,4 +1,5 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { localeStore } from '../../../state/localeStore';
 import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel } from '../StatisticsDetails';
 import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary } from '../../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../../data/statisticsSelection';
@@ -147,4 +148,21 @@ describe('statisticsDimensionSummary', () => {
     ]);
   });
 
+  it('renders legend and coverage labels in English and Japanese', async () => {
+    await localeStore.ready('ja');
+    localeStore.set('en');
+    const en = localeStore.getSnapshot();
+    const social = getSocialRecipeDetails('statsHousingUnusedPctCounty')!;
+    expect(statisticsLegendRows(STATISTICS_RECIPES.statsHousingUnusedPctCounty, social.format, en).map(row => row.label)).toEqual([
+      'Below ≈12.4', '≈12.4 to under ≈13.26', '≈13.26 to under ≈13.93', '≈13.93 to under ≈16.64', '≈16.64 or above',
+    ]);
+    expect(statisticsCoverageStatusLabel(true, en)).toBe('Dataset coverage status');
+    expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsBusElectricVehicleCount, en)).toBe('County/city');
+    expect(statisticsValueLabel(null, 'TWD', en)).toBe('Not provided');
+    localeStore.set('ja');
+    expect(statisticsSelectedTupleAreaLabel(STATISTICS_RECIPES.statsLivestockHeadCountTownship, localeStore.getSnapshot())).toBe('郷鎮の統計値');
+  });
+
 });
+
+afterAll(() => localeStore.set('zh-TW'));

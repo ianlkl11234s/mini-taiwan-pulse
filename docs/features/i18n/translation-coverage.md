@@ -165,6 +165,12 @@
 - 內政部實價登錄＝Ministry of the Interior actual price registration；億 m³＝× 10⁸ m³；萬元＝NT$10k。
 - 仍不確定：智財商業法院、少家法院、海巡海洋分署英文名；日本噴火警戒レベル 1–5 為直譯（JMA 官方英文另有說法）。
 
+### P2b 統計新增用語（2026-10-15，兩輪校對）
+- 地檢署轄區＝District Prosecutors' Office jurisdiction；第一級／第二級統計區＝Level-1／Level-2 statistical area；戶籍人口＝registered population。
+- 工商普查＝Industry and Commerce Census；營業稅＝Business Tax；電子發票＝E-Invoice；原住民保留地＝Indigenous Reserved Land；擱淺＝Stranded；社會脆弱度＝Social Vulnerability；人次＝person-times；中央管＝Centrally Managed。
+- 仍不確定：「培根」計畫（Pei-Ken Training）、溪流次（stream alerts）。
+- atlas：閘門＝Sluice gate；疏散門＝Evacuation gate；系統交流道＝System interchange；賽德克＝Sediq；拉阿魯哇＝Hla'alua；高速公路局＝Taiwan Area National Freeway Bureau；保全戶＝households at risk（意譯）。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -288,3 +294,10 @@
 - 檢察署＝検察署；罰鍰＝過料；公路客運站＝都市間バス停；風場＝風況；軟弱層（砂質土）＝軟弱砂質土層。
 - 毒品危害防制中心＝薬物乱用防止センター；電光黃／藍＝蛍光イエロー／ブルー；捷運＝MRT。
 - 仍不確定：樹種和名（コバノモモタマナ等）、雨量分級沿用漢字、OSM 道路等級直譯、公設民営、区間速度取締。
+
+### P2b 統計新增用語（2026-10-15，兩輪校對）
+- 「あたり」一律假名（不用「当たり」）；每萬人＝人口1万人あたり；km²＝1km²あたり。
+- 地檢署轄區＝地方検察署の管轄区；陳情＝苦情；一般護理之家＝一般ナーシングホーム；產後護理之家＝産後ケアセンター；長照 2.0 C 據點＝長期介護2.0（C拠点）。
+- 色階＝段階色；不適用＝該当なし；醫事人員＝医療従事者；山坡地＝斜面地；工商普查＝工商業センサス；擱淺＝ストランディング。
+- 仍不確定：圖例說明的文體（常體）與其他檔（です・ます）未統一；營業稅日文譯法。
+- atlas：閘門＝樋門；系統交流道＝ジャンクション；快速公路＝高規格道路；拉阿魯哇＝ラアルア；保全戶＝保全対象世帯；疏散門＝避難用ゲート（「陸閘」或更貼切，未定）。

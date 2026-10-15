@@ -1,0 +1,16 @@
+{
+  "statisticsSelect.publishedPeriod": "公開済みの期間",
+  "statisticsSelect.unavailableForYear": "{label}（この学年は未提供）",
+  "statisticsSelect.periodYear": "{year}年",
+  "statisticsSelect.pointInTime": "{date}（時点）",
+  "statisticsSelect.rocYear": "{year}年",
+  "statisticsSelect.month": "{month}月",
+  "statisticsSelect.period": "期間",
+  "statisticsSelect.colon": "：",
+  "statisticsSelect.listSep": "；",
+  "statisticsSelect.partSep": "・",
+  "statisticsSelect.boundaryNotProvided": "未提供",
+  "statisticsSelect.boundaryUnnamed": "名称未設定の参照境界バージョン",
+  "statisticsSelect.metricPerResidents": "{base}（人口1万人あたり）",
+  "statisticsSelect.metricPerKm2": "{base}（1km²あたり）"
+}

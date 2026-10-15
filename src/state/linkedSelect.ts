@@ -9,6 +9,7 @@
  * 3. **場景還原**：等選項載入後再逐列驗證、套用（舊存檔沒有這些值 → 什麼都不做）。
  */
 import { getParamsSpec, type LinkedSelectParamSpec } from "../data/layerParamsSpec";
+import type { I18nContext } from "../i18n/layerText";
 
 export type LinkedSelectStatus = "idle" | "loading" | "ready" | "error";
 
@@ -16,6 +17,11 @@ export interface LinkedSelectOption {
   label: string;
   value: string;
   disabled?: boolean;
+  /**
+   * 外文語系的顯示文字（只在面板傳 i18n 時使用）。`label` 永遠是中文：Agent 讀的是 `label`，
+   * 不傳 i18n 的 `buildParamControls` 因此不受影響。
+   */
+  localize?: (i18n: I18nContext) => string;
 }
 
 /** 一組合法的值（以連動選單的 `name` 為 key）；缺某一列＝這個組合不適用該列（例：別的指標還沒載入細項）。 */

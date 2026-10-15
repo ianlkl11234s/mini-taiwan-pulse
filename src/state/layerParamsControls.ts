@@ -270,7 +270,8 @@ export function buildParamControls(
           type: "linkedSelect" as const,
           label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value: snap.value,
-          options: snap.options,
+          // `localize` 只給面板用：不傳 i18n（Agent、黃金快照）時拿掉，選項維持原中文與原形狀
+          options: snap.options.map(({ localize, ...o }) => i18n ? { ...o, label: localize?.(i18n) ?? paramText(o.label, i18n) } : o),
           status: snap.status,
           ...(statusText ? { statusText } : {}),
           onChange: (next: string) => setLinkedSelect(key, s, next),

@@ -28,6 +28,9 @@ import { STATISTICS_RECIPES, isStatisticsRenderLayer, statisticsBaseKey, statist
 import { ensureStatisticsRecipeDetails, statisticsRecipeDetailsLoaded, subscribeStatisticsRecipeDetails, type StatisticsRecipeFamily } from '../data/statisticsRecipeDetails';
 import { statisticsRecipe, statisticsReleaseOptions } from '../data/statisticsSelection';
 import { statisticsDimensionValueLabel, statisticsPeriodLabel } from '../data/statisticsLabels';
+import { enumLabel } from '../i18n/dataText';
+import type { MessageKey } from '../i18n/keys';
+import type { I18nContext } from '../i18n/layerText';
 import { STATISTICS_LINKED_PROVIDER, STATISTICS_VARIANT_PROVIDER } from '../data/statisticsParamsSpec';
 import { getMedicalStatisticsGroup } from '../data/medicalStatisticsGroups';
 import { isStatisticsChoropleth } from '../data/statisticsLayerRegistry';
@@ -56,7 +59,7 @@ interface StatisticsModel {
   error?: string;
   tuples: StatisticsTuple[];
   current: Record<string, string>;
-  label: (spec: LinkedSelectParamSpec, value: string) => string;
+  label: (spec: LinkedSelectParamSpec, value: string, i18n?: I18nContext) => string;
   /**
    * 教育固定入口的「指標」：目前學年沒有該指標就停用（統計規則 §3：換口徑要維持同一期別，
    * 沒有就說明不可用，不靜默跳到別的年份）。其他列沒有這條限制。
@@ -215,15 +218,31 @@ function buildModel(key: string): StatisticsModel {
       metricUnavailable: (value: string) => value !== currentMetric
         && !tuples.some((tuple) => tuple.period === currentPeriod && Object.entries(tuple.values).some(([name, v]) => v === value && specs.find((spec) => spec.name === name)?.field === 'metric')),
     } : {}),
-    label: (spec, value) => {
-      if (spec.field === 'metric') return metricLabels.get(value) ?? value;
+    label: (spec, value, i18n) => {
+      if (spec.field === 'metric') return metricText(metricLabels.get(value) ?? value, i18n);
       if (spec.field === 'release') {
         const release = state.releases.find((candidate) => candidate.release_id === value);
-        return release ? (demographics ? demographicsPeriodLabel(activeBaseKey, release) : undefined) ?? statisticsPeriodLabel(release) : '已公開期別';
+        // 人口統計的期別文字（累計月份）是配方自己的中文句，這次不翻；其餘走共用期別格式
+        return release ? (demographics ? demographicsPeriodLabel(activeBaseKey, release) : undefined) ?? statisticsPeriodLabel(release, i18n) : uiText(i18n, 'statisticsSelect.publishedPeriod', '已公開期別');
       }
-      return statisticsDimensionValueLabel(spec.field.slice(4), value, recipe.dataset_id);
+      return statisticsDimensionValueLabel(spec.field.slice(4), value, recipe.dataset_id, i18n);
     },
   };
+}
+
+/** 介面短句：中文（或沒傳 i18n）用原文，外文查 statisticsSelect.json */
+function uiText(i18n: I18nContext | undefined, key: MessageKey, zh: string): string {
+  return !i18n || i18n.active === 'zh-TW' ? zh : i18n.lookup(key) ?? zh;
+}
+
+/** 指標名（教育固定入口、勞動顯示切換）：「…（每萬名居民）」「…（每平方公里）」拆出尾巴再翻主體 */
+function metricText(zh: string, i18n?: I18nContext): string {
+  if (!i18n || i18n.active === 'zh-TW') return zh;
+  const m = /^(.*)（(每萬名居民|每平方公里)）$/u.exec(zh);
+  if (!m) return enumLabel('statMetric', zh, zh, i18n);
+  const base = enumLabel('statMetric', m[1]!, m[1]!, i18n);
+  const template = i18n.lookup(m[2] === '每萬名居民' ? 'statisticsSelect.metricPerResidents' : 'statisticsSelect.metricPerKm2');
+  return template ? template.replace('{base}', base) : zh;
 }
 
 function fieldsOf(specs: readonly LinkedSelectParamSpec[]): LinkedSelectField[] {
@@ -238,7 +257,10 @@ function statisticsSnapshot(layerKey: string, spec: LinkedSelectParamSpec): Link
     ...(model.error ? { error: model.error } : {}),
     options: values.map((value) => {
       const unavailable = spec.field === 'metric' && model.metricUnavailable?.(value);
-      return unavailable ? { label: `${model.label(spec, value)}（此學年未提供）`, value, disabled: true } : { label: model.label(spec, value), value };
+      const localize = (i18n: I18nContext) => unavailable
+        ? uiText(i18n, 'statisticsSelect.unavailableForYear', '{label}（此學年未提供）').replace('{label}', model.label(spec, value, i18n))
+        : model.label(spec, value, i18n);
+      return unavailable ? { label: `${model.label(spec, value)}（此學年未提供）`, value, disabled: true, localize } : { label: model.label(spec, value), value, localize };
     }),
     value: model.current[spec.name] ?? '',
   };

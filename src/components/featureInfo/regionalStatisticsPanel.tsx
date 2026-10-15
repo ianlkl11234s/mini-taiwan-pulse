@@ -27,6 +27,8 @@ function inputValue(value: unknown, i18n: LocaleSnapshot): string {
 export function RegionalStatisticsPanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const { t } = i18n;
+  // 非勞動力率（loader 以 complement_100 換算）：公式與說明在 loader 寫中文，外文由這裡翻
+  const complement = props.value_transform === 'complement_100';
   let format = props.format;
   if (typeof format === 'string') { try { format = JSON.parse(format); } catch { format = undefined; } }
   let inputs = props.inputs;
@@ -50,15 +52,15 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     <Row label={t('popup.regionalStatistics.period')} value={String(props.period_label ?? props.release_id ?? '—')} />
     {props.location_semantics != null && <Row label={t('popup.regionalStatistics.locationBasis')} value={humanizeStatisticsText(String(props.location_semantics))} />}
     {props.disclosure != null && <Row field="dataLimits" value={humanizeStatisticsText(String(props.disclosure))} />}
-    {props.comparison_formula != null && <Row label={t('popup.regionalStatistics.formula')} value={String(props.comparison_formula)} />}
+    {props.comparison_formula != null && <Row label={t('popup.regionalStatistics.formula')} value={complement ? t('popup.regionalStatistics.complementFormula') : String(props.comparison_formula)} />}
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={enumLabel('regionalStatisticsInput', key, INPUT_LABELS[key]!, i18n)} value={inputValue(value, i18n)} />)}
-    {props.interpretation != null && <Row label={t('popup.regionalStatistics.interpretation')} value={String(props.interpretation)} />}
+    {props.interpretation != null && <Row label={t('popup.regionalStatistics.interpretation')} value={complement ? t('popup.regionalStatistics.complementInterpretation') : String(props.interpretation)} />}
     {props.time_caveat != null && <Row label={t('popup.regionalStatistics.timeBasis')} value={String(props.time_caveat)} />}
     <Row label={prosecutorDistrict ? t('popup.regionalStatistics.prosecutorCode') : t('popup.regionalStatistics.districtCode')} value={String(props.area_code ?? '—')} />
-    <Row label={t('popup.regionalStatistics.refBoundary')} value={props.boundary_version == null ? '—' : boundaryVersionLabel(props.boundary_version)} />
+    <Row label={t('popup.regionalStatistics.refBoundary')} value={props.boundary_version == null ? '—' : boundaryVersionLabel(props.boundary_version, i18n)} />
     {props.boundary_semantics != null && <Row label={t('popup.regionalStatistics.boundaryRole')} value={humanizeStatisticsText(String(props.boundary_semantics))} />}
-    {props.source_statistical_boundary_version != null && <Row label={t('popup.regionalStatistics.statRefVersion')} value={boundaryVersionLabel(props.source_statistical_boundary_version)} />}
-    {props.availability != null && <Row label={t('popup.regionalStatistics.availability')} value={statisticsAvailabilityLabel(String(props.availability))} />}
+    {props.source_statistical_boundary_version != null && <Row label={t('popup.regionalStatistics.statRefVersion')} value={boundaryVersionLabel(props.source_statistical_boundary_version, i18n)} />}
+    {props.availability != null && <Row label={t('popup.regionalStatistics.availability')} value={statisticsAvailabilityLabel(String(props.availability), i18n)} />}
     {props.coverage_status != null && <Row label={t('popup.regionalStatistics.coverageStatus')} value={String(props.coverage_status)} />}
     {props.coverage_numerator != null && props.coverage_denominator != null && <Row label={t('popup.regionalStatistics.coverageCount')} value={`${String(props.coverage_numerator)}／${String(props.coverage_denominator)}`} />}
     {props.method_version != null && <Row label={t('popup.regionalStatistics.methodVersion')} value={String(props.method_version)} />}

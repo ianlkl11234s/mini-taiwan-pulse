@@ -1,0 +1,19 @@
+{
+  "legend.atlas.flag": "Coordinates differ from reported county (suspect)",
+  "legend.atlas.otherMultiEthnic": "Other / multiple groups",
+  "legend.atlas.notApprovedList": "Not on current approved list",
+  "legend.atlas.otherSource": "Other sources",
+  "legend.atlas.unidentified": "Unidentified",
+  "legend.atlas.milepost": "Mileposts",
+  "legend.atlas.waterloggedArea": "Waterlogged area",
+  "legend.atlas.surveySite": "Survey sites",
+  "legend.atlas.drainageExtent": "Drainage facility extent",
+  "legend.atlas.titleRuralCommunity": "Rural community classification",
+  "legend.atlas.titleFloodPoints": "Flood disaster points",
+  "legend.atlas.titleMicroplastics": "Marine microplastics (surface mean, items/m³)",
+  "legend.atlas.titleEcology": "River ecology survey sites (species count)",
+  "legend.atlas.noteSource": "{note} {source} · Open Government Data License, version 1.0.",
+  "legend.atlas.sourceIds": "{org} (data.gov.tw {ids})",
+  "legend.atlas.sourceIdsEtc": "{org} (data.gov.tw {ids}, etc.)",
+  "legend.atlas.idSeparator": ", "
+}

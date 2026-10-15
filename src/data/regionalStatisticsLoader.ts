@@ -2,6 +2,8 @@ import { getEducationPresentationView } from './statisticsPresentationViews';
 import { getComparisonRecipe, comparisonReleaseOptions } from './comparisonStatisticsRecipes';
 import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from './socialStatisticsRecipes';
 import { withLoading } from '../lib/loadingRegistry';
+import { localeStore } from '../state/localeStore';
+import { statisticsTitle } from '../i18n/statisticsText';
 import { cachedByKey } from '../lib/loaderCache';
 import { statisticsGeometryCache, waitForGeometry, type StatisticsBoundaryGeometry } from './statisticsGeometryCache';
 import { agriReleaseOptions, getAgriRecipe, getAgriRecipeDetails, resolveAgriRelease, type AgriRecipe } from './agriStatisticsRecipes';
@@ -457,14 +459,21 @@ async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: Abo
     return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest: geometryResult.geometryManifest, boundary: geometryResult.boundary };
 }
 
+/** 載入列的標籤：顯示當下語系（載入任務建立時決定）；中文介面與原本相同。 */
+function loadingLabel(recipe: StatisticsRecipe, kind: 'values' | 'statistics'): string {
+  const i18n = localeStore.getSnapshot();
+  if (recipe.label) return recipe.layerKey ? statisticsTitle(recipe.layerKey, recipe.label, i18n) : recipe.label;
+  return i18n.t(kind === 'values' ? 'dataSources.loadingLabel.values' : 'dataSources.loadingLabel.statistics');
+}
+
 export async function loadRegionalStatisticsValues(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsValuesResult> {
   // Caller cancellation (superseded selection / unmount) ends the task without flagging 載入失敗.
-  return withLoading(`statistics-values:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計數值', loadStatisticsValuesResult(recipe, signal), { signal });
+  return withLoading(`statistics-values:${recipe.datasetId}:${recipe.indicatorId}`, loadingLabel(recipe, 'values'), loadStatisticsValuesResult(recipe, signal), { signal });
 }
 
 export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
   const renderKey = recipe.layerKey;
-  return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計', (async () => {
+  return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, loadingLabel(recipe, 'statistics'), (async () => {
     const result = await loadStatisticsValuesResult(recipe, signal, true);
     const { catalog, releases, values: first, sources, health, effectiveRecipe, geometryManifest, boundary } = result;
     const { release } = first;
@@ -502,7 +511,7 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
         : notCoveredAreaCodes.has(code) ? 'source_not_covered'
           : sourceMissingReason ?? 'source_join_or_time_mismatch';
       const transformed = effectiveRecipe.valueTransform === 'complement_100';
-      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, missing_reason: missingReason, inputs: value?.inputs, indicator_name: effectiveRecipe.label ?? comparison?.label ?? social?.label ?? labor?.label ?? environment?.label ?? demographics?.label ?? addiction?.label ?? landslide?.label ?? atlas?.label ?? indicator.name, unit: indicator.unit, format: agri?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, disclosure: environment?.disclosure ?? addiction?.disclosure ?? landslide?.disclosure ?? atlas?.disclosure ?? (demographics ? [demographicsDisclosure(demographics), demographicsIndicatorNote(demographics)].filter(Boolean).join(' ') : undefined), release_id: release.release_id, period_label: demographics ? demographicsPeriodLabel(contractLayerKey!, release) ?? statisticsPeriodLabel(release) : `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, boundary_semantics: labor?.boundary_semantics ?? demographics?.boundary_semantics, location_semantics: labor ? laborLocationSemantics(labor) : environment?.location_semantics ?? demographics?.location_semantics ?? addiction?.location_semantics ?? landslide?.location_semantics ?? atlas?.location_semantics, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status, coverage_numerator: health?.coverage_numerator, coverage_denominator: health?.coverage_denominator, comparison_formula: transformed ? '100% − 勞動力參與率' : derivation?.formula ?? processing?.formula ?? (demographics && typeof processingParameters?.formula === 'string' && processingParameters.formula !== demographicsDisclosure(demographics) ? processingParameters.formula : undefined), interpretation: transformed ? '非勞動力率占同一期人力資源調查 15 歲以上民間人口的比例。' : derivation?.interpretation ?? processing?.interpretation ?? processing?.description, time_caveat: derivation?.time_caveat ?? processing?.time_caveat } };
+      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, missing_reason: missingReason, inputs: value?.inputs, indicator_name: effectiveRecipe.label ?? comparison?.label ?? social?.label ?? labor?.label ?? environment?.label ?? demographics?.label ?? addiction?.label ?? landslide?.label ?? atlas?.label ?? indicator.name, unit: indicator.unit, format: agri?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, disclosure: environment?.disclosure ?? addiction?.disclosure ?? landslide?.disclosure ?? atlas?.disclosure ?? (demographics ? [demographicsDisclosure(demographics), demographicsIndicatorNote(demographics)].filter(Boolean).join(' ') : undefined), release_id: release.release_id, period_label: demographics ? demographicsPeriodLabel(contractLayerKey!, release) ?? statisticsPeriodLabel(release) : `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, boundary_semantics: labor?.boundary_semantics ?? demographics?.boundary_semantics, location_semantics: labor ? laborLocationSemantics(labor) : environment?.location_semantics ?? demographics?.location_semantics ?? addiction?.location_semantics ?? landslide?.location_semantics ?? atlas?.location_semantics, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status, coverage_numerator: health?.coverage_numerator, coverage_denominator: health?.coverage_denominator, value_transform: effectiveRecipe.valueTransform, comparison_formula: transformed ? '100% − 勞動力參與率' : derivation?.formula ?? processing?.formula ?? (demographics && typeof processingParameters?.formula === 'string' && processingParameters.formula !== demographicsDisclosure(demographics) ? processingParameters.formula : undefined), interpretation: transformed ? '非勞動力率占同一期人力資源調查 15 歲以上民間人口的比例。' : derivation?.interpretation ?? processing?.interpretation ?? processing?.description, time_caveat: derivation?.time_caveat ?? processing?.time_caveat } };
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
     return { catalog, releases, values: first, sources: sourceResponse.source, health, effectiveRecipe: { ...effectiveRecipe, layerKey: renderKey ?? effectiveRecipe.layerKey }, geometryManifest, features };

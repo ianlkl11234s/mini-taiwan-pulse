@@ -28,5 +28,7 @@
   "popup.regionalStatistics.coverageStatus": "Coverage status",
   "popup.regionalStatistics.coverageCount": "Coverage count",
   "popup.regionalStatistics.methodVersion": "Processing version",
-  "popup.regionalStatistics.rawSha": "Raw SHA-256"
+  "popup.regionalStatistics.rawSha": "Raw SHA-256",
+  "popup.regionalStatistics.complementFormula": "100% − labor force participation rate",
+  "popup.regionalStatistics.complementInterpretation": "Non-labor-force rate: share of the civilian population aged 15 and over in the same period's Manpower Survey."
 }

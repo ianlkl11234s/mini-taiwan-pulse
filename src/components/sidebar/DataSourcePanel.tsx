@@ -12,7 +12,10 @@ import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { humanizeStatisticsText } from "../../data/statisticsLabels";
 import { Search, Lock } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
-import { useLocale } from "../../state/localeStore";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { localizeSectionTitle } from "../../i18n/layerText";
+import { statisticsTitle, statisticsUnit, statisticsFrequency } from "../../i18n/statisticsText";
 import { LayerNameLine, ListRow } from "./LayerRow";
 import { SubGroupLabel } from "./ThemeBanner";
 import { LAYER_ICONS } from "./layerIcons";
@@ -21,7 +24,7 @@ import { THEMES, LAYER_COLORS, layerDisplayName, themeName } from "./layerCatalo
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
-import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsIndicatorLabel, statisticsSourceLevelLabel } from "../../data/statisticsDataSources";
+import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsIndicatorLabel, statisticsSourceLevelLabel, type StatisticsDataSourceDefinition } from "../../data/statisticsDataSources";
 import { isStatisticsRenderLayer, statisticsReleaseFallback, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
 import { loadRegionalStatisticsValues, type StatisticsSource } from "../../data/regionalStatisticsLoader";
 import { COLORS, BORDER, CONTROL, LIGHT, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
@@ -67,7 +70,8 @@ const LIGHT_DS: DsPalette = {
 type StatusFilter = "all" | UpstreamStatus;
 
 const STATUS_ICON: Record<UpstreamStatus, string> = { verified: "✓", pulse_only: "⚙", catalog_missing: "?" };
-const STATUS_TITLE: Record<UpstreamStatus, string> = { verified: "已接上", pulse_only: "派生", catalog_missing: "待補" };
+const STATUS_TITLE_KEY = { verified: "dataSources.status.verified", pulse_only: "dataSources.status.pulseOnly", catalog_missing: "dataSources.status.catalogMissing" } as const;
+/** 中文正本（enumLabel 的 zh 對照；中文介面直接用它） */
 const LIFECYCLE_LABEL: Record<string, string> = {
   realtime: "即時（分鐘級）", daily: "每日", weekly: "每週", monthly: "每月",
   quarterly: "每季", yearly: "每年", static: "一次性 / 靜態", semi_annual: "每半年",
@@ -90,12 +94,106 @@ function statusColor(p: DsPalette, status: UpstreamStatus): string {
   return status === "verified" ? p.statusLive : status === "pulse_only" ? p.statusDerived : p.statusWarn;
 }
 
+// ── 統計來源卡的顯示層翻譯（資料檔的中文 label／contract 是正本，中文介面直接用）──
+
+const SOURCE_LABEL_KEY = {
+  presentation: "dataSources.label.presentation",
+  comparison: "dataSources.label.comparison",
+  rawSnapshot: "dataSources.label.rawSnapshot",
+  labor: "dataSources.label.labor",
+  envDerived: "dataSources.label.envDerived",
+  envRaw: "dataSources.label.envRaw",
+  addictionPoints: "dataSources.label.addictionPoints",
+  addictionDerived: "dataSources.label.addictionDerived",
+  addictionRaw: "dataSources.label.addictionRaw",
+  landslide: "dataSources.label.landslide",
+  atlasDerived: "dataSources.label.atlasDerived",
+  atlasRaw: "dataSources.label.atlasRaw",
+  demoDerived: "dataSources.label.demoDerived",
+  demoRaw: "dataSources.label.demoRaw",
+  registered: "dataSources.label.registered",
+} as const;
+const COUNT_CONTRACT_KEY = {
+  comparison: "dataSources.contract.comparison",
+  landslide: "dataSources.contract.landslide",
+  agri: "dataSources.contract.agri",
+  demographics: "dataSources.contract.demographics",
+} as const;
+const SOURCE_KIND_KEY = { derived: "dataSources.kind.derived", presentation: "dataSources.kind.presentation", source: "dataSources.kind.source" } as const;
+
+type SourceText = { metric: string; label: string; contract: string; period: string; unit: string; level: string };
+
+function periodText(zh: string, i18n: LocaleSnapshot): string {
+  if (i18n.active === "zh-TW") return zh;
+  const count = zh.match(/^(\d+) 個既有公開期別$/);
+  if (count) return i18n.t("dataSources.periodCount", { count: Number(count[1]) });
+  if (zh === "未標示期別") return i18n.t("dataSources.periodNone");
+  const range = zh.match(/^(\S+) 至 (\S+)$/);
+  if (range) return i18n.t("dataSources.range", { start: range[1]!, end: range[2]! });
+  return statisticsFrequency(zh, i18n);
+}
+
+export function localizeSource(def: StatisticsDataSourceDefinition, layerKey: string, i18n: LocaleSnapshot): SourceText {
+  const { t, active } = i18n;
+  const zh: SourceText = { metric: def.metricLabel, label: def.label, contract: def.contract, period: def.period, unit: def.unit, level: statisticsSourceLevelLabel(def.level) };
+  if (active === "zh-TW") return zh;
+  const spec = def.i18n;
+  const params = spec?.params ?? {};
+  const count = Number(params.count ?? 0);
+  const rawTitle = () => statisticsTitle(String(params.rawKey), String(params.rawLabel), i18n);
+  let label = def.label;
+  let contract = def.contract;
+  if (spec) {
+    // 第 1 個冒號後是中文／英文並列的主題名（「財稅與消費統計 Fiscal & Consumption Statistics」）
+    const theme = typeof params.theme === "string" ? (i18n.lookup(`theme.${params.theme}` as never) ?? params.theme.replace(/^\S+\s+/, "")) : "";
+    label = t(SOURCE_LABEL_KEY[spec.label as keyof typeof SOURCE_LABEL_KEY] ?? SOURCE_LABEL_KEY.rawSnapshot, { theme });
+    switch (spec.contract) {
+      case "presentation": contract = t("dataSources.contract.presentation", { stage: enumLabel("dataSourceStage", String(params.stage), String(params.stage), i18n) }); break;
+      case "comparison": case "landslide": case "agri": case "demographics":
+        contract = t(COUNT_CONTRACT_KEY[spec.contract], { count }); break;
+      case "social": contract = t("dataSources.contract.social", { count, family: params.family ?? t("dataSources.unspecified") }); break;
+      case "labor": contract = t("dataSources.contract.labor"); break;
+      case "laborDerived": contract = `${t("dataSources.contract.labor")} ${t("dataSources.contract.laborDerived")}`; break;
+      case "environment":
+        contract = t("dataSources.contract.environment", {
+          periods: Number(params.periods), selectors: Number(params.selectors),
+          dimension: params.dimensions != null ? t("dataSources.contract.environmentDimension", { count: Number(params.dimensions) }) : "",
+          tail: params.rawLabel != null ? t("dataSources.contract.environmentNumerator", { label: rawTitle() }) : t("dataSources.contract.environmentKeep"),
+        });
+        break;
+      case "addiction":
+        contract = t("dataSources.contract.addiction", {
+          count,
+          tail: params.tail === "numerator" ? t("dataSources.contract.addictionNumerator", { label: rawTitle() })
+            : params.tail === "points" ? t("dataSources.contract.addictionPoints") : t("dataSources.contract.addictionKeep"),
+        });
+        break;
+      case "atlas":
+        contract = t("dataSources.contract.atlas", {
+          count,
+          dimension: params.dimensionList != null ? t("dataSources.contract.atlasDimension", { list: String(params.dimensionList) }) : "",
+          status: params.statusText != null ? `${params.statusText}${t("dataSources.sentenceEnd")}` : "",
+        }).trim();
+        break;
+      case "registered": contract = t("dataSources.contract.registered"); break;
+    }
+  }
+  return {
+    metric: statisticsTitle(layerKey, def.metricLabel, i18n),
+    label, contract,
+    period: periodText(def.period, i18n),
+    unit: statisticsUnit(def.unit, i18n),
+    level: statisticsSourceLevelLabel(def.level, i18n),
+  };
+}
+
 // ── Fact row（B 版：標籤 10px muted 寬 44、值 strong）──
 
 function FactRow({ p, k, children, mono }: { p: DsPalette; k: string; children: ReactNode; mono?: boolean }) {
+  const { active } = useLocale();
   return (
     <div style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: 10.5, lineHeight: 1.3, borderBottom: `1px solid ${p.border}` }}>
-      <span style={{ width: 44, flexShrink: 0, fontSize: FONT_SIZE.sm, color: p.muted, fontFamily: FONT_CJK }}>{k}</span>
+      <span style={{ width: active === "zh-TW" ? 44 : 76, flexShrink: 0, fontSize: FONT_SIZE.sm, color: p.muted, fontFamily: FONT_CJK }}>{k}</span>
       <span style={{ color: p.text, wordBreak: "break-all", fontFamily: mono ? FONT_DATA : FONT_CJK, fontSize: mono ? FONT_SIZE.sm : FONT_SIZE.base }}>{children}</span>
     </div>
   );
@@ -128,6 +226,8 @@ export const dataSourcePalette = (isDarkTheme: boolean): DsPalette => (isDarkThe
 export function DataSourceCard({
   p, layerKey, locked, onActivateLayer, hideActivate = false,
 }: { p: DsPalette; layerKey: keyof LayerVisibility; locked: boolean; onActivateLayer?: (key: keyof LayerVisibility) => void; hideActivate?: boolean }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const { data: entries, loading, error } = useDataCatalogForLayer(layerKey);
   const ref = UPSTREAM_REGISTRY[layerKey];
   const status: UpstreamStatus = ref?.status ?? "catalog_missing";
@@ -169,7 +269,9 @@ export function DataSourceCard({
 
   const statisticsBlock: SourceBlock | null = useMemo(() => {
     if (!statisticsSource) return null;
-    const kindLabel = statisticsSource.kind === "derived" ? "派生統計" : statisticsSource.kind === "presentation" ? "固定學制統計入口" : "原始統計";
+    const text = localizeSource(statisticsSource, layerKey, i18n);
+    const kindLabel = t(SOURCE_KIND_KEY[statisticsSource.kind]);
+    const unspecified = t("dataSources.unspecified");
     const derivation = artifactSource?.derivation as Record<string, unknown> | undefined;
     const inputs = Array.isArray(derivation?.input_sources)
       ? derivation.input_sources.filter((v): v is Record<string, unknown> => Boolean(v && typeof v === "object" && !Array.isArray(v)))
@@ -179,37 +281,40 @@ export function DataSourceCard({
     const recordPublisher = artifactSource && !derivation && typeof artifactSource.publisher === "string" ? artifactSource.publisher : null;
     const recordLicense = artifactSource && !derivation && typeof artifactSource.license === "string" ? artifactSource.license : null;
     return {
-      title: `${kindLabel} · ${statisticsSource.label}`,
-      desc: humanizeStatisticsText([statisticsSource.metricLabel, statisticsSource.contract, statisticsSource.disclosure].filter(Boolean).join(" — ")),
+      title: `${kindLabel} · ${text.label}`,
+      desc: humanizeStatisticsText([text.metric, text.contract, statisticsSource.disclosure].filter(Boolean).join(" — ")),
       facts: facts(
         // 橋接已接上 ≠ 原始來源逐一驗證：保留舊版免責，避免綠色「已接上」被讀成來源層級的驗證
-        status === "verified" ? { k: "說明", v: "僅橋接本地資料集，目錄尚未逐一驗證原始來源" } : null,
-        statisticsSource.provider ? { k: "機關", v: statisticsSource.provider } : null,
-        { k: "頻率", v: statisticsSource.period },
-        statisticsSource.license ? { k: "授權", v: statisticsSource.license } : null,
-        { k: "單位", v: `${statisticsSource.unit} · ${statisticsSourceLevelLabel(statisticsSource.level)}` },
-        statisticsSource.datasetIds.length ? { k: "資料集", v: statisticsSource.datasetIds.join(", "), mono: true } : null,
-        statisticsSource.sourceUrl ? { k: "API", v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
-        artifactLoading ? { k: "來源", v: "讀取已發布的來源紀錄…" } : null,
-        artifactError ? { k: "來源", v: `未載入：${artifactError}` } : null,
-        artifactRelease ? { k: "期間", v: `${artifactRelease.period_start} 至 ${artifactRelease.period_end}`, mono: true } : null,
-        derivation && typeof derivation.formula === "string" ? { k: "公式", v: derivation.formula.replace(/\bnumerator\b/g, "分子").replace(/\bdenominator\b/g, "分母") } : null,
+        status === "verified" ? { k: t("dataSources.fact.note"), v: t("dataSources.bridgeNote") } : null,
+        statisticsSource.provider ? { k: t("dataSources.fact.provider"), v: statisticsSource.provider } : null,
+        { k: t("dataSources.fact.frequency"), v: text.period },
+        statisticsSource.license ? { k: t("dataSources.fact.license"), v: statisticsSource.license } : null,
+        { k: t("dataSources.fact.unit"), v: `${text.unit} · ${text.level}` },
+        statisticsSource.datasetIds.length ? { k: t("dataSources.fact.dataset"), v: statisticsSource.datasetIds.join(", "), mono: true } : null,
+        statisticsSource.sourceUrl ? { k: t("dataSources.fact.api"), v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
+        artifactLoading ? { k: t("dataSources.fact.source"), v: t("dataSources.readingSource") } : null,
+        artifactError ? { k: t("dataSources.fact.source"), v: t("dataSources.sourceNotLoaded", { error: artifactError }) } : null,
+        artifactRelease ? { k: t("dataSources.fact.period"), v: t("dataSources.range", { start: artifactRelease.period_start, end: artifactRelease.period_end }), mono: true } : null,
+        derivation && typeof derivation.formula === "string" ? { k: t("dataSources.fact.formula"), v: derivation.formula.replace(/\bnumerator\b/g, t("dataSources.numerator")).replace(/\bdenominator\b/g, t("dataSources.denominator")) } : null,
         derivation && (typeof derivation.numerator_indicator === "string" || typeof derivation.denominator_indicator === "string")
-          ? { k: "分子分母", v: `分子：${statisticsIndicatorLabel(derivation.numerator_indicator, statisticsSource.level)} · 分母：${statisticsIndicatorLabel(derivation.denominator_indicator, statisticsSource.level)}` }
+          ? { k: t("dataSources.fact.ratio"), v: t("dataSources.ratioText", { numerator: statisticsIndicatorLabel(derivation.numerator_indicator, statisticsSource.level, i18n, unspecified), denominator: statisticsIndicatorLabel(derivation.denominator_indicator, statisticsSource.level, i18n, unspecified) }) }
           : null,
-        recordPublisher ? { k: "發布機關", v: recordPublisher } : null,
-        recordLicense ? { k: "發布授權", v: recordLicense } : null,
-        recordUrl ? { k: "發布來源", v: <a href={recordUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{recordUrl}</a> } : null,
+        recordPublisher ? { k: t("dataSources.fact.publisher"), v: recordPublisher } : null,
+        recordLicense ? { k: t("dataSources.fact.publishLicense"), v: recordLicense } : null,
+        recordUrl ? { k: t("dataSources.fact.publishSource"), v: <a href={recordUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{recordUrl}</a> } : null,
         inputs.length ? {
-          k: "上游", v: (
+          k: t("dataSources.fact.upstream"), v: (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {inputs.map((input, idx) => {
                 const url = comparisonInputUrl(input.source_landing_url);
                 return (
                   <div key={`${String(input.dataset_id ?? input.source_dataset_id ?? idx)}-${idx}`} style={{ paddingTop: idx ? 4 : 0, borderTop: idx ? `1px solid ${p.border}` : undefined }}>
-                    <div>{String(input.publisher ?? "未標示提供機關")} · {String(input.dataset_id ?? input.source_dataset_id ?? "未標示 dataset")}</div>
+                    <div>{String(input.publisher ?? t("dataSources.unspecifiedPublisher"))} · {String(input.dataset_id ?? input.source_dataset_id ?? t("dataSources.unspecifiedDataset"))}</div>
                     <div style={{ color: p.muted, marginTop: 2 }}>
-                      期別：{typeof input.period_start === "string" && typeof input.period_end === "string" ? `${input.period_start} 至 ${input.period_end}` : String(input.period ?? input.period_label ?? "未標示")} · 授權：{String(input.license ?? "未標示")}
+                      {t("dataSources.upstreamPeriod", {
+                        period: typeof input.period_start === "string" && typeof input.period_end === "string" ? t("dataSources.range", { start: input.period_start, end: input.period_end }) : String(input.period ?? input.period_label ?? unspecified),
+                        license: String(input.license ?? unspecified),
+                      })}
                     </div>
                     {url && <a href={url} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{url}</a>}
                   </div>
@@ -221,30 +326,30 @@ export function DataSourceCard({
       ),
       docPath: null,
     };
-  }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, status, p]);
+  }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, status, p, layerKey, i18n]);
 
   const baseBlocks: SourceBlock[] = useMemo(() => {
     const lineageBlock: SourceBlock = {
-      title: "派生分析",
+      title: t("dataSources.block.lineage"),
       desc: ref?.processing ?? null,
       facts: facts(
-        { k: "類型", v: ref?.derivationType ?? "custom" },
-        ref?.derivedFromLayers?.length ? { k: "派生自", v: ref.derivedFromLayers.join("、") } : null,
-        upstreamIds.length ? { k: "上游", v: upstreamIds.join("、") } : null,
+        { k: t("dataSources.fact.type"), v: ref?.derivationType ?? "custom" },
+        ref?.derivedFromLayers?.length ? { k: t("dataSources.fact.derivedFrom"), v: ref.derivedFromLayers.join("、") } : null,
+        upstreamIds.length ? { k: t("dataSources.fact.upstream"), v: upstreamIds.join("、") } : null,
       ),
       docPath: null,
     };
     if (entries.length > 0) {
       const entryBlocks: SourceBlock[] = entries.map((e) => ({
-        title: e.title ?? "上游資料集",
+        title: e.title ?? t("dataSources.block.upstreamDataset"),
         desc: e.summary,
         facts: facts(
-          e.title ? null : { k: "資料集", v: e.datasetId, mono: true },
-          e.providerAgency ? { k: "機關", v: e.providerAgency } : null,
-          e.lifecycle ? { k: "頻率", v: `${LIFECYCLE_LABEL[e.lifecycle] ?? e.lifecycle}${e.updateFrequency ? ` · ${e.updateFrequency}` : ""}` } : null,
-          e.license ? { k: "授權", v: e.license } : null,
-          e.lastUpdated ? { k: "更新", v: e.lastUpdated, mono: true } : null,
-          e.sourceUrl ? { k: "API", v: <a href={e.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{e.sourceUrl}</a> } : null,
+          e.title ? null : { k: t("dataSources.fact.dataset"), v: e.datasetId, mono: true },
+          e.providerAgency ? { k: t("dataSources.fact.provider"), v: e.providerAgency } : null,
+          e.lifecycle ? { k: t("dataSources.fact.frequency"), v: `${enumLabel("dataSourceLifecycle", e.lifecycle, LIFECYCLE_LABEL[e.lifecycle] ?? e.lifecycle, i18n)}${e.updateFrequency ? ` · ${e.updateFrequency}` : ""}` } : null,
+          e.license ? { k: t("dataSources.fact.license"), v: e.license } : null,
+          e.lastUpdated ? { k: t("dataSources.fact.updated"), v: e.lastUpdated, mono: true } : null,
+          e.sourceUrl ? { k: t("dataSources.fact.api"), v: <a href={e.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{e.sourceUrl}</a> } : null,
         ),
         docPath: e.catalogMdPath,
       }));
@@ -253,12 +358,12 @@ export function DataSourceCard({
     }
     if (status === "verified") {
       // 卡片標題不印資料集代號（spec §6.3）；代號改放「資料集」事實列，與統計來源卡同一寫法。
-      return ref.datasets.map((d) => ({ title: "已比對的上游資料集", desc: `比對信心：${CONFIDENCE_LABEL[d.confidence] ?? d.confidence}`, facts: facts({ k: "資料集", v: d.datasetId, mono: true }), docPath: null }));
+      return ref.datasets.map((d) => ({ title: t("dataSources.block.matchedDataset"), desc: t("dataSources.confidence", { value: enumLabel("dataSourceConfidence", d.confidence, CONFIDENCE_LABEL[d.confidence] ?? d.confidence, i18n) }), facts: facts({ k: t("dataSources.fact.dataset"), v: d.datasetId, mono: true }), docPath: null }));
     }
     if (status === "pulse_only") return [lineageBlock];
     if (statisticsSource) return [];
-    return [{ title: null, desc: "此圖層尚無對應 catalog 條目。", facts: facts(), docPath: null }];
-  }, [entries, status, ref, upstreamIds, statisticsSource, p]);
+    return [{ title: null, desc: t("dataSources.noCatalogEntry"), facts: facts(), docPath: null }];
+  }, [entries, status, ref, upstreamIds, statisticsSource, p, i18n]);
 
   const blocks: SourceBlock[] = statisticsBlock ? [statisticsBlock, ...baseBlocks] : baseBlocks;
 
@@ -272,11 +377,11 @@ export function DataSourceCard({
   return (
     <div style={{ margin: "2px 4px 6px 14px", padding: "6px 0 6px 10px", borderLeft: `1px solid ${p.borderMid}`, display: "flex", flexDirection: "column", gap: 6 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 6, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK }}>
-        <span style={{ fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]} {STATUS_TITLE[status]}</span>
-        {upstreamCount > 0 && <span style={{ color: p.dim, fontSize: FONT_SIZE.sm }}>· {upstreamCount} 個上游資料集</span>}
+        <span style={{ fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]} {t(STATUS_TITLE_KEY[status])}</span>
+        {upstreamCount > 0 && <span style={{ color: p.dim, fontSize: FONT_SIZE.sm }}>· {t("dataSources.upstreamCount", { count: upstreamCount })}</span>}
       </div>
-      {loading && <div style={{ color: p.dim, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}>載入中…</div>}
-      {error && <div style={{ color: p.statusWarn, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}>⚠ 來源紀錄未載入（{error}）— 顯示 static bridge 內容。</div>}
+      {loading && <div style={{ color: p.dim, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}>{t("dataSources.loading")}</div>}
+      {error && <div style={{ color: p.statusWarn, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}>{t("dataSources.catalogError", { error: String(error) })}</div>}
       {blocks.map((block, i) => (
         <div key={`${block.title ?? "x"}-${i}`} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {block.title && <div style={{ fontSize: FONT_SIZE.md, fontWeight: 700, color: p.text, fontFamily: FONT_CJK }}>{block.title}</div>}
@@ -289,10 +394,10 @@ export function DataSourceCard({
           type="button"
           disabled={locked}
           onClick={() => { if (!locked) onActivateLayer?.(layerKey); }}
-          title={locked ? "此圖層需要授權" : "開啟圖層"}
+          title={locked ? t("dataSources.lockedTitle") : t("dataSources.activate")}
           style={c2Style(p, true, locked)}
         >
-          {locked && <Lock size={11} />}開啟圖層
+          {locked && <Lock size={11} />}{t("dataSources.activate")}
         </button>}
         {docPath && (
           <button
@@ -312,11 +417,13 @@ export function DataSourceCard({
 // ── 主題 / 群組標題 ──
 
 function ThemeHeader({ p, title }: { p: DsPalette; title: string }) {
+  const i18n = useLocale();
   const { zh, sub } = themeName(title);
+  const foreign = i18n.active !== "zh-TW";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 10px 0", fontSize: FONT_SIZE.base, fontWeight: 600, color: p.text, fontFamily: FONT_CJK }}>
-      <span>{zh}</span>
-      {sub && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: p.dim, letterSpacing: 0.8 }}>{sub}</span>}
+      <span>{foreign ? localizeSectionTitle(title, i18n) : zh}</span>
+      {!foreign && sub && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: p.dim, letterSpacing: 0.8 }}>{sub}</span>}
     </div>
   );
 }
@@ -328,18 +435,19 @@ function Row({
 }: { p: DsPalette; layerKeyLabel: string; layerKey: keyof LayerVisibility; locked: boolean; expanded: boolean; onToggle: () => void }) {
   const color = LAYER_COLORS[layerKey] ?? p.dim;
   const status = statusOf(layerKey);
+  const { t } = useLocale();
   const Icon = LAYER_ICONS[layerKey];
   return (
     <ListRow
       ariaLabel={layerKeyLabel}
-      label={<LayerNameLine name={layerDisplayName(layerKey, layerKeyLabel)} />}
+      label={<LayerNameLine name={layerDisplayName(layerKey, layerKeyLabel)} layerKey={layerKey} />}
       icon={Icon ? <Icon size={14} color={color} style={{ flexShrink: 0 }} /> : null}
       expandable
       expanded={expanded}
       onClick={onToggle}
       trailing={<>
-        {locked && <Lock size={11} color={p.dim} style={{ flexShrink: 0, marginRight: 4 }} aria-label="受限" />}
-        <span title={STATUS_TITLE[status]} aria-label={STATUS_TITLE[status]} style={{ width: 16, paddingRight: 12, textAlign: "center", fontSize: FONT_SIZE.sm, fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]}</span>
+        {locked && <Lock size={11} color={p.dim} style={{ flexShrink: 0, marginRight: 4 }} aria-label={t("dataSources.restricted")} />}
+        <span title={t(STATUS_TITLE_KEY[status])} aria-label={t(STATUS_TITLE_KEY[status])} style={{ width: 16, paddingRight: 12, textAlign: "center", fontSize: FONT_SIZE.sm, fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]}</span>
       </>}
     />
   );
@@ -357,7 +465,8 @@ interface DataSourcePanelProps {
 export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onActivateLayer }: DataSourcePanelProps) {
   const p = isDarkTheme ? DARK_DS : LIGHT_DS;
   const rail = railPalette(isDarkTheme);
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [expandedKey, setExpandedKey] = useState<keyof LayerVisibility | null>(null);
@@ -401,15 +510,15 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
   const visibleSearchResults = searchResults.slice(0, 50);
 
   const segments: { id: StatusFilter; label: string; title: string }[] = [
-    { id: "all", label: "全部", title: "全部圖層" },
-    { id: "verified", label: STATUS_ICON.verified, title: "已接上" },
-    { id: "pulse_only", label: STATUS_ICON.pulse_only, title: "派生" },
-    { id: "catalog_missing", label: STATUS_ICON.catalog_missing, title: "待補" },
+    { id: "all", label: t("dataSources.filterAll"), title: t("dataSources.filterAllTitle") },
+    { id: "verified", label: STATUS_ICON.verified, title: t(STATUS_TITLE_KEY.verified) },
+    { id: "pulse_only", label: STATUS_ICON.pulse_only, title: t(STATUS_TITLE_KEY.pulse_only) },
+    { id: "catalog_missing", label: STATUS_ICON.catalog_missing, title: t(STATUS_TITLE_KEY.catalog_missing) },
   ];
 
   return (
     <RailThemeContext.Provider value={rail}>
-      <PanelHeader title={t("rail.datasource")} eyebrow="資料" onClose={onClose} borderColor={p.border} mutedColor={p.dim} textColor={p.text} />
+      <PanelHeader title={t("rail.datasource")} eyebrow={t("dataSources.eyebrow")} onClose={onClose} borderColor={p.border} mutedColor={p.dim} textColor={p.text} />
 
       {/* 搜尋框：高 26、--control-* */}
       <div style={{ padding: "8px 12px 6px" }}>
@@ -417,10 +526,10 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
           <Search size={12} color={p.dim} style={{ flexShrink: 0 }} />
           <input
             type="text"
-            aria-label="搜尋圖層名稱"
+            aria-label={t("dataSources.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="搜尋圖層名稱"
+            placeholder={t("dataSources.searchPlaceholder")}
             style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: p.text, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK }}
           />
         </div>
@@ -456,11 +565,13 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
       <div className="layer-sidebar-scroll" style={{ flex: 1, overflowY: "auto", padding: "0 0 8px" }}>
         {q ? (
           searchResults.length === 0 ? (
-            <div style={{ padding: 12, color: p.dim, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK }}>找不到相符圖層</div>
+            <div style={{ padding: 12, color: p.dim, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK }}>{t("dataSources.empty")}</div>
           ) : (
             <>
               <div aria-live="polite" style={{ padding: "4px 12px", color: p.dim, fontSize: FONT_SIZE.xs, fontFamily: FONT_CJK }}>
-                找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
+                {searchResults.length > visibleSearchResults.length
+                  ? t("dataSources.foundCapped", { count: searchResults.length, shown: visibleSearchResults.length })
+                  : t("dataSources.found", { count: searchResults.length })}
               </div>
               {visibleSearchResults.map((r) => (
                 <Fragment key={r.key}>
@@ -471,12 +582,12 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
             </>
           )
         ) : (
-          themedLayers.map((t) => (
-            <div key={t.theme}>
-              <ThemeHeader p={p} title={t.theme} />
-              {t.groups.map((g) => (
+          themedLayers.map((th) => (
+            <div key={th.theme}>
+              <ThemeHeader p={p} title={th.theme} />
+              {th.groups.map((g) => (
                 <div key={g.title}>
-                  <SubGroupLabel>{g.title}</SubGroupLabel>
+                  <SubGroupLabel>{localizeSectionTitle(g.title, i18n)}</SubGroupLabel>
                   {g.layers.map((l) => (
                     <Fragment key={l.key}>
                       <Row p={p} layerKeyLabel={l.label} layerKey={l.key} locked={!!lockedKeys?.has(l.key)} expanded={expandedKey === l.key} onToggle={() => toggleExpand(l.key)} />

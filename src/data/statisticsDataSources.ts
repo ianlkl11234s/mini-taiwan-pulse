@@ -8,6 +8,9 @@ import { getAddictionRecipe } from "./addictionStatisticsRecipes";
 import { getLandslideRecipe } from "./landslideStatisticsRecipes";
 import { getAtlasRecipe } from "./atlasStatisticsRecipes";
 import { DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE, demographicsDisclosure, demographicsDisplayLabel, demographicsIndicatorNote, demographicsSource, demographicsYtdLabel, getDemographicsRecipe } from "./demographicsStatisticsRecipes";
+import { enumLabel } from "../i18n/dataText";
+import type { I18nContext } from "../i18n/layerText";
+import { statisticsTitle } from "../i18n/statisticsText";
 import { getEducationPresentationView } from "./statisticsPresentationViews";
 
 /** 單位為人／戶、但由其他指標公式計算而得的人口統計指標（含年初累計）。 */
@@ -16,6 +19,16 @@ const DEMOGRAPHICS_FORMULA_COUNT_INDICATORS: ReadonlySet<string> = new Set([
 ]);
 
 export type StatisticsSourceKind = "source" | "derived" | "presentation";
+
+/**
+ * 顯示層翻譯用的代碼與參數（zh 正本字串 `label`／`contract` 不變）。
+ * 只有 DataSourcePanel 用它組出外文版；中文介面仍直接顯示 `label`／`contract`。
+ */
+export interface StatisticsSourceI18n {
+  label: string;
+  contract: string;
+  params?: Readonly<Record<string, string | number>>;
+}
 
 export interface StatisticsDataSourceDefinition {
   kind: StatisticsSourceKind;
@@ -26,6 +39,7 @@ export interface StatisticsDataSourceDefinition {
   level: string;
   period: string;
   contract: string;
+  i18n?: StatisticsSourceI18n;
   disclosure?: string;
   sourceUrl?: string;
   provider?: string;
@@ -64,6 +78,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: recipe.level,
       period: summaryPeriodLabel(stage?.count ?? 0, stage?.latest),
       contract: `固定 ${view.stage} 學制；此卡顯示入口預設指標來源，其他可選指標可各自查閱；不新增來源資料集。`,
+      i18n: { label: "presentation", contract: "presentation", params: { stage: view.stage } },
       disclosure: recipe.disclosure,
     };
   }
@@ -79,6 +94,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: comparison.level,
       period: periodLabel(comparison.release_options),
       contract: `版本化統計快照；只接受 ${comparison.release_options.length} 個已登錄選項。`,
+      i18n: { label: "comparison", contract: "comparison", params: { count: comparison.release_options.length } },
       disclosure: comparison.disclosure,
     };
   }
@@ -94,6 +110,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: social.level,
       period: summaryPeriodLabel(social.release_summary.count, social.release_summary.first),
       contract: `來源家族：${social.source_family ?? "未標示"}；只接受 ${social.release_summary.count} 個既有公開 exact release selector。`,
+      i18n: { label: "rawSnapshot", contract: "social", params: { count: social.release_summary.count, ...(social.source_family ? { family: social.source_family } : {}) } },
       disclosure: social.disclosure,
     };
   }
@@ -113,6 +130,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: labor.level,
       period: periodLabel(labor.release_options),
       contract: `只接受已驗證 exact release selector；資料期與顯示邊界版本分開揭露。${presentation ? " 衍生比例沿用已登錄的 participation_rate selector，不新增來源 release。" : ""}`,
+      i18n: { label: "labor", contract: presentation ? "laborDerived" : "labor" },
       disclosure: `${laborLocationSemantics(labor)} ${derivedDisclosure} ${labor.disclosure}`.trim(),
     };
   }
@@ -130,6 +148,16 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: environment.level,
       period: periodLabel(periods),
       contract: `只接受 ${periods.length} 個已公開期別、${environment.release_options.length} 個 exact release selector${environment.dimension ? `（含 ${environment.dimension.options.length} 個細項）` : ""}；${raw ? `分子為「${raw.label}」同期同細項。` : "數值保留來源值，缺值不補 0。"}`,
+      i18n: {
+        label: environment.derived ? "envDerived" : "envRaw",
+        contract: "environment",
+        params: {
+          periods: periods.length,
+          selectors: environment.release_options.length,
+          ...(environment.dimension ? { dimensions: environment.dimension.options.length } : {}),
+          ...(raw ? { rawKey: environment.pair_raw_key!, rawLabel: raw.label } : {}),
+        },
+      },
       disclosure: `位置口徑：${environment.location_semantics} ${environment.disclosure}`,
       sourceUrl: environment.source_landing_url,
       provider: environment.publisher,
@@ -150,6 +178,15 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: addiction.level,
       period: periodLabel(addiction.release_options),
       contract: `只接受 ${addiction.release_options.length} 個已交付 exact release selector；${raw ? `分子為「${raw.label}」同期。` : points ? "點在參考行政區面內計數。" : "數值保留來源值，不重算。"}不適用、無資料、隱私遮蔽皆不補 0。`,
+      i18n: {
+        label: points ? "addictionPoints" : addiction.derived ? "addictionDerived" : "addictionRaw",
+        contract: "addiction",
+        params: {
+          count: addiction.release_options.length,
+          tail: raw ? "numerator" : points ? "points" : "keep",
+          ...(raw ? { rawKey: addiction.pair_raw_key!, rawLabel: raw.label } : {}),
+        },
+      },
       disclosure: `位置口徑：${addiction.location_semantics} ${addiction.disclosure}`,
       sourceUrl: addiction.source_landing_url,
       provider: addiction.publisher,
@@ -168,6 +205,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: landslide.level,
       period: periodLabel(landslide.release_options),
       contract: `只接受 ${landslide.release_options.length} 個已交付 exact release selector；數值保留來源值，不重算。來源當年未列的縣市顯示「未列」，不補 0。`,
+      i18n: { label: "landslide", contract: "landslide", params: { count: landslide.release_options.length } },
       disclosure: `位置口徑：${landslide.location_semantics} ${landslide.disclosure}`,
       sourceUrl: landslide.source_landing_url,
       provider: landslide.publisher,
@@ -190,6 +228,16 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: atlas.level,
       period: periodLabel(periods),
       contract: `只接受 ${atlas.release_options.length} 個已交付 exact release selector${dimensionText}；數值保留來源值，不重算。${statusText ? `${statusText}。` : ""}`,
+      i18n: {
+        label: atlas.derived ? "atlasDerived" : "atlasRaw",
+        contract: "atlas",
+        params: {
+          count: atlas.release_options.length,
+          theme: atlas.data_theme,
+          ...(dimensionText ? { dimensionList: dimensionText.replace(/^；維度：/, "") } : {}),
+          ...(statusText ? { statusText } : {}),
+        },
+      },
       disclosure: `位置口徑：${atlas.location_semantics} ${atlas.disclosure}`,
       sourceUrl: atlas.source_landing_url,
       provider: atlas.publisher,
@@ -214,6 +262,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: demographics.level,
       period: ytd ?? periodLabel(demographics.release_options),
       contract: `只接受 ${demographics.release_options.length} 個已交付 exact release selector；缺值以斜線表示、不補 0；PARTIAL 期別保留覆蓋狀態。`,
+      i18n: { label: derived ? "demoDerived" : "demoRaw", contract: "demographics", params: { count: demographics.release_options.length } },
       disclosure: [`位置口徑：${demographics.location_semantics}`, demographicsDisclosure(demographics), note, demographics.level === "village" ? DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE : undefined].filter(Boolean).join(" "),
       ...source,
     };
@@ -236,6 +285,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: agri.level,
       period: summaryPeriodLabel(agri.release_summary.count, agri.release_summary.first),
       contract: `只接受 ${agri.release_summary.count} 個既有公開 exact release selector。`,
+      i18n: { label: "rawSnapshot", contract: "agri", params: { count: agri.release_summary.count } },
       disclosure: agri.disclosure,
       sourceUrl: source.source_landing_url ?? source.source_download_url,
       provider: source.publisher,
@@ -254,6 +304,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       level: recipe.level,
       period: recipe.frequency,
       contract: "regionalStatisticsRecipes 的既有載入契約；release selector 只解析既有公開期別。",
+      i18n: { label: "registered", contract: "registered" },
       disclosure: "interpretationNote" in recipe ? recipe.interpretationNote : undefined,
     };
   }
@@ -266,11 +317,14 @@ export function isDataSourceBrowserVisible(key: string): boolean {
   return !getComparisonRecipe(key) || STATISTICS_COMPARISONS_UI_ENABLED;
 }
 
-export function statisticsSourceLevelLabel(level: string): string {
-  return ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區" } as Record<string, string>)[level] ?? level;
+export function statisticsSourceLevelLabel(level: string, i18n?: I18nContext): string {
+  const zh = ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區" } as Record<string, string>)[level] ?? level;
+  return i18n ? enumLabel("dataSourceLevel", level, zh, i18n) : zh;
 }
 
-export function statisticsIndicatorLabel(value: unknown, level: string): string {
-  if (typeof value !== "string") return "未標示";
-  return Object.values(STATISTICS_RECIPES).find(recipe => recipe.indicator_id === value && recipe.level === level)?.label ?? value;
+export function statisticsIndicatorLabel(value: unknown, level: string, i18n?: I18nContext, unspecified = "未標示"): string {
+  if (typeof value !== "string") return unspecified;
+  const match = Object.entries(STATISTICS_RECIPES).find(([, recipe]) => recipe.indicator_id === value && recipe.level === level);
+  if (!match) return value;
+  return i18n ? statisticsTitle(match[0], match[1].label, i18n) : match[1].label;
 }

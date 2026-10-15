@@ -132,6 +132,31 @@ describe('統計連動選單 provider', () => {
   });
 });
 
+describe('統計連動選單的顯示層翻譯', () => {
+  const messages: Record<string, string> = {
+    'statisticsSelect.rocYear': '{year}',
+  };
+  const fake = (active: 'zh-TW' | 'en') => ({ active, lookup: (key: string) => messages[key] ?? null, t: (key: string) => messages[key] ?? key });
+
+  it('沒傳 i18n（Agent、黃金快照）：選項維持原中文、不帶 localize', () => {
+    seed();
+    const year = (buildParamControls(KEY) ?? []).find((c) => c.type === 'linkedSelect' && c.label === '年度');
+    expect(year && year.type === 'linkedSelect' && year.options).toEqual([
+      { label: '民國 114 年', value: '114' }, { label: '民國 113 年', value: '113' },
+    ]);
+  });
+
+  it('英文：民國年換西元；中文介面傳 i18n 也與原中文相同', () => {
+    seed();
+    const options = (i18n: ReturnType<typeof fake>) => {
+      const c = (buildParamControls(KEY, undefined, i18n as never) ?? []).find((x) => x.type === 'linkedSelect' && x.value === '114');
+      return c && c.type === 'linkedSelect' ? c.options.map((o) => o.label) : [];
+    };
+    expect(options(fake('en'))).toEqual(['2025', '2024']);
+    expect(options(fake('zh-TW'))).toEqual(['民國 114 年', '民國 113 年']);
+  });
+});
+
 describe('Agent（research/layerControls）', () => {
   it('get 列出連動選單的當下選項、狀態與上游；set 驗證值並等載入後讀回', async () => {
     seed();
