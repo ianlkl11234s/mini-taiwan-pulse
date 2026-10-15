@@ -11,6 +11,7 @@ export const JMA_LAYER_COLORS = {
   jmaWarnings: "#ef4444",
   jmaQuakes: "#f97316",
   jmaVolcanoes: "#b91c1c",
+  jmaSnowDepth: "#60a5fa",
 } as const;
 
 /** 中空點（NULL／無資料）描邊色 */
@@ -159,4 +160,148 @@ export function formatJst(iso: unknown): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return `${d.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false })} JST`;
+}
+
+// ── 發布幀影像（time-axis raster；契約 taipei-gis-analytics docs/topic-research/japan_opendata/jma-frontend-contract.md）──
+// PNG 是 8-bit 灰階＋alpha（LA），不帶顏色：L＝等級值、A＝0 透明。顏色只在這裡定義（契約 §6），
+// 色票修正只改本檔、不用重發 PNG。
+//
+// ── raster-color 解碼（mapbox-gl 3.x，image source 與 PMTiles raster 同一支 raster program）──
+// 瀏覽器把 LA PNG 解成 R=G=B=L。mapbox 3.x（draw_raster／raster_style_layer）取色帶的位置是
+//   texel = floor(0.5 + L × mix × CMF × (RES−1) / (max−min))，CMF = (RES²−1)/(255·RES·(RES+3))，RES = 1024
+// 即 mix=255 時 raster-value ≈ L × 0.9971，L=255 只取到 texel 1020（≈254.3）——2026-10-15 瀏覽器實測
+// mix=255 時缺測 255 被畫成透明。所以 mix 用補償值 1/CMF ≈ 255.75，讓 texel = round(L × 1023/255)，
+// raster-value 與 L 相差 ≤ 0.13；range 固定 [0,255]。
+// step 門檻一律放在「等級 − 0.5」，讓整數 L 落在區間正中。
+// L=255 = 缺測 → 「未涵蓋」灰；L=0 + A=0 → 透明（無值／畫布外），不是 0 值。
+
+export const JMA_IMAGERY_ATTRIBUTION = "出典：気象庁（加工）";
+/** 未涵蓋（缺測 L=255、或此刻沒有可用幀）的灰 */
+export const JMA_IMAGERY_UNCOVERED_COLOR = "#9ca3af";
+/** 契約 §4 的缺測等級 */
+export const JMA_IMAGERY_MISSING_LEVEL = 255;
+/** mapbox 色帶解析度（raster_style_layer COLOR_RAMP_RES）；升級 mapbox-gl 時要重驗 */
+export const MAPBOX_COLOR_RAMP_RES = 1024;
+/** 補償 mapbox COLOR_MIX_FACTOR 的 R 係數（見上方說明），≈ 255.747 */
+export const JMA_IMAGERY_MIX_R = (255 * MAPBOX_COLOR_RAMP_RES * (MAPBOX_COLOR_RAMP_RES + 3)) / (MAPBOX_COLOR_RAMP_RES ** 2 - 1);
+export const JMA_IMAGERY_RASTER_COLOR_MIX = [JMA_IMAGERY_MIX_R, 0, 0, 0] as const;
+export const JMA_IMAGERY_RASTER_COLOR_RANGE = [0, 255] as const;
+
+export type JmaImageryEncoding = "level_la_v1" | "sst_la_v1";
+
+export interface JmaImageryLevel {
+  /** PNG L 值（等於 T2 等級值） */
+  level: number;
+  rgb: readonly [number, number, number];
+  /** 圖例刻度（單位已含在字串內） */
+  label: string;
+}
+
+/** sst_la_v1 一類連續值：L ↔ 物理值的線性換算，色帶 stop 寫物理值 */
+export interface JmaImageryScalar {
+  unit: string;
+  /** 物理值 = L × scale + offset（sst_la_v1：°C = L/7 − 3） */
+  scale: number;
+  offset: number;
+  stops: readonly { value: number; color: string }[];
+}
+
+export interface JmaImageryProduct {
+  /** RPC get_weather_imagery_manifest 的 product */
+  product: string;
+  encoding: JmaImageryEncoding;
+  /** 上游色票版本（data-collectors config/decode_tables/jma/<product>.yaml 的 version） */
+  paletteVersion: string;
+  /** 發布幀間隔（分）；契約 §5 */
+  cadenceMin: number;
+  /** 回放：時間軸 t 與最近一幀（≤ t）相差超過此值 → 未涵蓋（缺幀，不沿用舊圖） */
+  maxStaleMin: number;
+  /** 即時：最新一幀距現在超過此值 → 未涵蓋（collector 停擺時不把舊圖當現況） */
+  liveMaxStaleMin: number;
+  /** 歷史日 RPC 抽稀（p_step_minutes；0 = 每幀） */
+  historyStepMin: number;
+  /** level_la_v1：離散等級 */
+  levels?: readonly JmaImageryLevel[];
+  /** sst_la_v1：連續值 */
+  scalar?: JmaImageryScalar;
+}
+
+/**
+ * 產品登記簿：新增 radar／rasrf／risk_land／risk_inund／uv_anal／sea_ice／sst_him 時各加一筆。
+ * 例：sst_him → { encoding: "sst_la_v1", cadenceMin: 1440, scalar: { unit: "°C", scale: 1/7, offset: -3, stops: [...] } }
+ */
+export const JMA_IMAGERY_PRODUCTS = {
+  // 解析積雪深 snowd（data-collectors config/decode_tables/jma/snow_depth.yaml）。
+  // ⚠ plte_verified=false：idx4/5（<5、5–20 cm）已以 2026-10-15 實磚驗證，其餘 5 級仍依 legend SVG 暫定。
+  snow_depth: {
+    product: "snow_depth",
+    encoding: "level_la_v1",
+    paletteVersion: "jma-snow_depth-2026-10-09-provisional",
+    cadenceMin: 60,
+    maxStaleMin: 90,
+    liveMaxStaleMin: 180,
+    historyStepMin: 0,
+    levels: [
+      { level: 1, rgb: [160, 210, 255], label: "<5 cm" },
+      { level: 2, rgb: [33, 140, 255], label: "5–20 cm" },
+      { level: 3, rgb: [0, 65, 255], label: "20–50 cm" },
+      { level: 4, rgb: [255, 245, 0], label: "50–100 cm" },
+      { level: 5, rgb: [255, 153, 0], label: "100–150 cm" },
+      { level: 6, rgb: [255, 40, 0], label: "150–200 cm" },
+      { level: 7, rgb: [180, 0, 104], label: "≥200 cm" },
+    ],
+  },
+} as const satisfies Record<string, JmaImageryProduct>;
+
+export type JmaImageryProductId = keyof typeof JMA_IMAGERY_PRODUCTS;
+
+export function jmaImageryProduct(id: JmaImageryProductId): JmaImageryProduct {
+  return JMA_IMAGERY_PRODUCTS[id];
+}
+
+export function jmaRgb(rgb: readonly [number, number, number]): string {
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
+const TRANSPARENT = "rgba(0, 0, 0, 0)";
+
+/** sst_la_v1 一類：物理值 → L（契約 §4 的 clamp 1–254） */
+export function jmaImageryValueToLevel(scalar: JmaImageryScalar, value: number): number {
+  return Math.min(254, Math.max(1, (value - scalar.offset) / scalar.scale));
+}
+
+/** `raster-color` 表達式（raster-value = L） */
+export function jmaImageryRasterColor(p: JmaImageryProduct): unknown[] {
+  const missing = JMA_IMAGERY_MISSING_LEVEL - 0.5;
+  if (p.encoding === "level_la_v1") {
+    const levels = [...(p.levels ?? [])].sort((a, b) => a.level - b.level);
+    const expr: unknown[] = ["step", ["raster-value"], TRANSPARENT];
+    levels.forEach((lv, i) => {
+      expr.push(lv.level - 0.5, jmaRgb(lv.rgb));
+      const next = levels[i + 1];
+      // 等級不連續（或最後一級之後）→ 未登記的等級畫透明，不沿用上一級顏色
+      if (!next || next.level !== lv.level + 1) {
+        if (lv.level + 0.5 < missing) expr.push(lv.level + 0.5, TRANSPARENT);
+      }
+    });
+    expr.push(missing, JMA_IMAGERY_UNCOVERED_COLOR);
+    return expr;
+  }
+  // sst_la_v1：L=0（海冰）另行處理前先透明；1–254 連續；255 未涵蓋
+  const scalar = p.scalar!;
+  const ramp: unknown[] = ["interpolate", ["linear"], ["raster-value"],
+    ...scalar.stops.flatMap((s) => [jmaImageryValueToLevel(scalar, s.value), s.color])];
+  return ["step", ["raster-value"], TRANSPARENT, 0.5, ramp, missing, JMA_IMAGERY_UNCOVERED_COLOR];
+}
+
+/** raster layer paint（opacity 由呼叫端帶） */
+export function jmaImageryRasterPaint(p: JmaImageryProduct, opacity: number): Record<string, unknown> {
+  return {
+    "raster-opacity": opacity,
+    "raster-resampling": "nearest",
+    "raster-fade-duration": 0,
+    "raster-color-mix": [...JMA_IMAGERY_RASTER_COLOR_MIX],
+    "raster-color-range": [...JMA_IMAGERY_RASTER_COLOR_RANGE],
+    "raster-color": jmaImageryRasterColor(p),
+  };
 }

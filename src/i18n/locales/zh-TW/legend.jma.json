@@ -35,5 +35,14 @@
   "legend.jma.quakesTitle": "地震（近 {days} 天）· 最大震度",
   "legend.jma.intensityMissing": "震度或規模未發表",
   "legend.jma.quakesNote": "圓越大規模越大；同一地震只顯示最新一報。每 2 分鐘更新。",
-  "legend.jma.volcanoTitle": "火山警戒 · 噴火警戒レベル"
+  "legend.jma.volcanoTitle": "火山警戒 · 噴火警戒レベル",
+  "legend.jma.imageryUncovered": "未涵蓋（缺測或此時刻無資料，不是 0）",
+  "legend.jma.imageryValidTime": "解析時刻",
+  "legend.jma.imageryUncoveredNow": "此時刻未涵蓋：{reason}",
+  "legend.jma.imageryReason.no_frame": "沒有資料幀（2026-10-10 之前或超出保留期）",
+  "legend.jma.imageryReason.stale": "缺幀（最近一幀過舊）",
+  "legend.jma.imageryReason.missing": "該幀缺測",
+  "legend.jma.imageryReason.encoding": "影像編碼與色票不符",
+  "legend.jma.snowDepthNote": "每小時一幀，隨時間軸播放；約 5 km 網格。色票依官方圖例，前兩級已以實際圖磚驗證。",
+  "legend.jma.imageryAttribution": "出典：気象庁（加工）"
 }

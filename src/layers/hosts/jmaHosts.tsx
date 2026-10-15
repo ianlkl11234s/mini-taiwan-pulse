@@ -3,8 +3,10 @@
 
 import { useJmaLiveLayer } from "../../hooks/useJmaLiveLayer";
 import { useJmaWarningsLayer } from "../../hooks/useJmaWarningsLayer";
+import { useJmaImageryLayer } from "../../hooks/useJmaImageryLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
+import { RASTER } from "../../map/mapStyleScale";
 
 export const JmaAmedasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJmaLiveLayer:jmaAmedas");
@@ -28,5 +30,18 @@ export const JmaWarningsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJmaWarningsLayer");
   const p = useKeyOverlayParams("jmaWarnings");
   useJmaWarningsLayer(deps.mapRef, deps.layerVisibility.jmaWarnings, p.jmaWarningsOpacity ?? 0.55, deps.isDarkTheme);
+  return null;
+};
+
+/** JMA 發布幀影像：解析積雪深（time-axis raster，接 timeStore） */
+export const JmaSnowDepthHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJmaImageryLayer:jmaSnowDepth");
+  const p = useKeyOverlayParams("jmaSnowDepth");
+  useJmaImageryLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.jmaSnowDepth,
+    opacity: p.jmaSnowDepthOpacity ?? RASTER.opacity,
+    product: "snow_depth",
+  });
   return null;
 };

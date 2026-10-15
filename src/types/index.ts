@@ -1651,6 +1651,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
   jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
   jmaVolcanoes: boolean;  // 日本火山噴火警戒
+  jmaSnowDepth: boolean;  // 日本解析積雪深（JMA 發布幀 PNG，time-axis raster）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
   jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
   jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格

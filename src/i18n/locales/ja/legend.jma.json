@@ -35,5 +35,14 @@
   "legend.jma.quakesTitle": "地震（直近{days}日間）・最大震度",
   "legend.jma.intensityMissing": "震度またはマグニチュード未発表",
   "legend.jma.quakesNote": "円が大きいほどマグニチュードが大きい。同じ地震は最新の1報のみ表示。2分ごとに更新。",
-  "legend.jma.volcanoTitle": "火山警戒・噴火警戒レベル"
+  "legend.jma.volcanoTitle": "火山警戒・噴火警戒レベル",
+  "legend.jma.imageryUncovered": "対象外（欠測またはこの時刻のデータなし。0ではない）",
+  "legend.jma.imageryValidTime": "解析時刻",
+  "legend.jma.imageryUncoveredNow": "この時刻は対象外：{reason}",
+  "legend.jma.imageryReason.no_frame": "フレームなし（2026-10-10以前または保存期間外）",
+  "legend.jma.imageryReason.stale": "フレーム欠落（直近のフレームが古い）",
+  "legend.jma.imageryReason.missing": "このフレームは欠測",
+  "legend.jma.imageryReason.encoding": "画像の符号化が配色と一致しない",
+  "legend.jma.snowDepthNote": "1時間ごとに1フレーム、タイムラインに合わせて再生。約5 kmメッシュ。配色は公式凡例に準拠し、最初の2階級は実タイルで確認済み。",
+  "legend.jma.imageryAttribution": "出典：気象庁（加工）"
 }

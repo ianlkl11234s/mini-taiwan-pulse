@@ -1162,5 +1162,6 @@
   "layer.harmReductionPrep": "HIV PrEP Hospitals",
   "layer.harmReductionCondomOutlets": "Condom Outlets",
   "layer.harmReductionTherapeuticCommunities": "Therapeutic Communities and Halfway Houses",
-  "layer.harmReductionAftercare": "Offender Aftercare Associations"
+  "layer.harmReductionAftercare": "Offender Aftercare Associations",
+  "layer.jmaSnowDepth": "Snow Depth (Analysis)"
 }

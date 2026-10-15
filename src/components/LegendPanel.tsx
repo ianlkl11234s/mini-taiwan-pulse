@@ -28,7 +28,7 @@ import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../dat
 import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
-import { JmaAmedasLegend, JmaQuakesLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
+import { JmaAmedasLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
 import { ATLAS_LEGENDS } from "./legend/atlasLegends";
 import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, LightningCwaLegend, LightningLegend, MicroSensorLegend, NoiseCaptureGridLegend, NoiseControlZonesLegend, NoiseEnforcementEventsLegend, OceanCurrentsLegend, OfficialNoiseMonitoringLegend, PollutionPenaltyLegend, PollutionSeverityLegend, SoundCameraLocationsLegend, TemperatureGridLegend, TemperatureWaveLegend, UrbanHeatLegend, WasteFacilityLegend, WasteTruckLegend, WindFieldLegend } from "./legend/environmentWeatherLegends";
@@ -254,6 +254,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
   { id: "jmaQuakes", render: () => <JmaQuakesLegend /> },
   { id: "jmaVolcanoes", render: () => <JmaVolcanoesLegend /> },
+  { id: "jmaSnowDepth", render: () => <JmaSnowDepthLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
   { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
   { id: "jpAccommodationCanonical", render: () => <JpAccommodationTypesLegend source="canonical" /> },

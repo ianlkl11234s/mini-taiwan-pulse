@@ -55,7 +55,7 @@ import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import {
   NuscGammaRadiationHost, WaterEffluentLiveHost, CemsStackLiveHost, CwaUvDailyHost,
 } from "./hosts/environmentHosts";
-import { JmaAmedasHost, JmaQuakesHost, JmaVolcanoesHost, JmaWarningsHost } from "./hosts/jmaHosts";
+import { JmaAmedasHost, JmaQuakesHost, JmaSnowDepthHost, JmaVolcanoesHost, JmaWarningsHost } from "./hosts/jmaHosts";
 import {
   EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
   GlobalEventsHost,
@@ -264,6 +264,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },
   { id: "useJmaLiveLayer:jmaQuakes", keys: ["jmaQuakes"], Host: JmaQuakesHost },
   { id: "useJmaLiveLayer:jmaVolcanoes", keys: ["jmaVolcanoes"], Host: JmaVolcanoesHost },
+  { id: "useJmaImageryLayer:jmaSnowDepth", keys: ["jmaSnowDepth"], Host: JmaSnowDepthHost },
   {
     id: "useJpTourismLayers",
     keys: [
