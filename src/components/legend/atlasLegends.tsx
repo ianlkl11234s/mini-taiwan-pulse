@@ -9,9 +9,15 @@ import {
   TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
+import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { localizeLayerName } from "../../i18n/layerText";
+import type { StaticMessageKey } from "../../i18n/keys";
 
 type Swatch = "dot" | "square" | "line";
-type Row = { label: string; color: string };
+/** 色塊列：`label` 是中文正本（有 `domain` 時以 `value` 查 enums.atlas.json 翻譯）；`labelKey` 是不屬於類別表的專用字。 */
+type Row = { color: string; label?: string; value?: string; labelKey?: StaticMessageKey };
 
 function swatchOf(kind: Swatch, color: string): ReactNode {
   if (kind === "square") return <SwatchSquare color={color} />;
@@ -19,48 +25,68 @@ function swatchOf(kind: Swatch, color: string): ReactNode {
   return <SwatchDot color={color} />;
 }
 
-/** 一張 atlas 圖例：標題＋色塊列＋說明（ATLAS_NOTES）＋來源。 */
-function AtlasLegend({ layer, zh, en, rows, kind = "dot", source }: { layer: AtlasLayerKey; zh: string; en: string; rows: readonly Row[]; kind?: Swatch; source: string }) {
+/** 來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*） */
+const ORGS = {
+  cip: "原住民族委員會", swcb: "農業部農村發展及水土保持署", thb: "交通部公路局", freeway: "交通部高速公路局",
+  ncdr: "國家災害防救科技中心", taipeiHydraulic: "臺北市政府工務局水利工程處", marn: "海洋委員會海洋保育署 MARN",
+  oca: "海洋委員會海洋保育署", moenv: "環境部", oac: "海洋委員會", namr: "國家海洋研究院",
+  landAdmin: "內政部地政司", nlsc: "內政部國土測繪中心", wra: "經濟部水利署",
+} as const;
+type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean };
+const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
+
+/** 一張 atlas 圖例：標題＋色塊列＋說明（ATLAS_NOTES）＋來源。標題預設借圖層名，標題與圖層名不同的才傳 `title`。 */
+function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title }: {
+  layer: AtlasLayerKey; en: string; rows: readonly Row[]; kind?: Swatch; source: Source; domain?: string; title?: StaticMessageKey;
+}) {
+  const i18n = useLocale();
+  const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[layer]?.name;
+  const heading = title ? i18n.t(title) : name ? localizeLayerName(layer, name, i18n).primary : layer;
+  const org = enumLabel("atlasOrg", source.org, ORGS[source.org], i18n);
+  const sourceText = source.ids
+    ? i18n.t(source.etc ? "legend.atlas.sourceIdsEtc" : "legend.atlas.sourceIds", { org, ids: source.ids.join(i18n.t("legend.atlas.idSeparator")) })
+    : org;
+  const note = enumLabel("atlasNote", layer, ATLAS_NOTES[layer], i18n);
+  const labelOf = (row: Row) => row.labelKey ? i18n.t(row.labelKey) : domain && row.value != null ? enumLabel(domain, row.value, row.label ?? "", i18n) : row.label;
   return <div>
-    <LegendTitle zh={zh} en={en} />
-    {rows.map((row) => <LegendRow key={row.label} swatch={swatchOf(kind, row.color)}>{row.label}</LegendRow>)}
-    <LegendNote>{ATLAS_NOTES[layer]}{source} · 政府資料開放授權條款第1版。</LegendNote>
+    <LegendTitle zh={heading} en={en} />
+    {rows.map((row, index) => <LegendRow key={`${index}-${row.value ?? row.label ?? row.labelKey}`} swatch={swatchOf(kind, row.color)}>{labelOf(row)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.atlas.noteSource", { note, source: sourceText })}</LegendNote>
   </div>;
 }
 
-const single = (layer: AtlasLayerKey, label: string): Row[] => [{ label, color: ATLAS_LAYER_COLORS[layer] }];
-const flagRow: Row = { label: "座標與通報縣市不一致（疑誤）", color: ATLAS_FLAG_COLOR };
+const single = (layer: AtlasLayerKey, labelKey: StaticMessageKey): Row[] => [{ labelKey, color: ATLAS_LAYER_COLORS[layer] }];
+const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
+const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
-  indigenousTribes: () => <AtlasLegend layer="indigenousTribes" zh="原住民族部落" en="Indigenous Tribes" source="原住民族委員會（data.gov.tw 156632、7093）"
-    rows={[...TRIBE_ETHNIC_OPTIONS, { label: "其他／多族並列", color: ATLAS_OTHER_COLOR }, { label: "不在現行核定名單", color: TRIBE_NOT_APPROVED_COLOR }]} />,
-  indigenousIsolationRisk: () => <AtlasLegend layer="indigenousIsolationRisk" zh="原鄉易成孤島地區" en="Isolation-risk Areas" source="原住民族委員會（data.gov.tw 170259）" rows={ISOLATION_CAUSE_OPTIONS} />,
-  agriRuralCommunityVillages: () => <AtlasLegend layer="agriRuralCommunityVillages" zh="農村社區分類" en="Rural Community Villages" kind="square" source="農業部農村發展及水土保持署" rows={RURAL_COMMUNITY_OPTIONS} />,
-  provincialRoadSigns: () => <AtlasLegend layer="provincialRoadSigns" zh="省道交通標誌" en="Provincial Road Signs" source="交通部公路局（data.gov.tw 146233 等）" rows={ROAD_SIGN_SERIES_OPTIONS} />,
-  provincialRoadMileposts: () => <AtlasLegend layer="provincialRoadMileposts" zh="省道里程牌" en="Provincial Road Mileposts" source="交通部公路局（data.gov.tw 7040）" rows={single("provincialRoadMileposts", "里程牌")} />,
-  freewayTrafficSigns: () => <AtlasLegend layer="freewayTrafficSigns" zh="國道交通標誌" en="Freeway Traffic Signs" source="交通部高速公路局（data.gov.tw 98447）" rows={FREEWAY_SIGN_GROUP_OPTIONS} />,
-  freewayInterchanges: () => <AtlasLegend layer="freewayInterchanges" zh="國道交流道" en="Freeway Interchanges" source="交通部高速公路局（data.gov.tw 166496）" rows={INTERCHANGE_TYPE_OPTIONS} />,
-  freewayEcoSensitive: () => <AtlasLegend layer="freewayEcoSensitive" zh="國道生態敏感路段" en="Freeway Eco-sensitive Sections" kind="square" source="交通部高速公路局（data.gov.tw 31290）" rows={ECO_SENSITIVE_LEVEL_OPTIONS} />,
-  provincialRoadMonitored: () => <AtlasLegend layer="provincialRoadMonitored" zh="省道防救災監控路段" en="Monitored Road Sections" kind="line" source="交通部公路局（data.gov.tw 16193 等）" rows={MONITOR_SERIES_OPTIONS} />,
-  provincialRoadEmergencyBays: () => <AtlasLegend layer="provincialRoadEmergencyBays" zh="省道緊急避車彎" en="Emergency Bays" source="交通部公路局（data.gov.tw 99940）" rows={EMERGENCY_BAY_OPTIONS} />,
-  floodDisasterPointsNcdr: () => <AtlasLegend layer="floodDisasterPointsNcdr" zh="淹水災點" en="Flood Disaster Points" source="國家災害防救科技中心（data.gov.tw 130016 等）"
-    rows={[...FLOOD_INFO_SOURCE_OPTIONS, { label: "其他來源", color: ATLAS_OTHER_COLOR }]} />,
-  taipeiWaterloggingHistory: () => <AtlasLegend layer="taipeiWaterloggingHistory" zh="臺北市歷年積水範圍" en="Taipei Waterlogging History" kind="square" source="臺北市政府工務局水利工程處（data.gov.tw 143898）" rows={single("taipeiWaterloggingHistory", "積水範圍")} />,
-  swcbDisasterPhotoPoints: () => <AtlasLegend layer="swcbDisasterPhotoPoints" zh="土砂災害照片點位" en="Sediment Disaster Photos" source="農業部農村發展及水土保持署（data.gov.tw 138000、174226）" rows={SWCB_PHOTO_CATEGORY_OPTIONS} />,
-  cetaceanStrandings: () => <AtlasLegend layer="cetaceanStrandings" zh="鯨豚擱淺" en="Cetacean Strandings" source="海洋委員會海洋保育署 MARN（data.gov.tw 157624）" rows={[...ANIMAL_STATUS_OPTIONS, flagRow]} />,
-  seaTurtleStrandings: () => <AtlasLegend layer="seaTurtleStrandings" zh="海龜擱淺" en="Sea Turtle Strandings" source="海洋委員會海洋保育署 MARN"
-    rows={[...TURTLE_SPECIES_OPTIONS, { label: "無法辨認", color: ATLAS_OTHER_COLOR }, flagRow]} />,
-  beachWaterQuality: () => <AtlasLegend layer="beachWaterQuality" zh="海水浴場水質" en="Beach Water Quality" source="環境部" rows={BEACH_LEVEL_OPTIONS} />,
-  marineMicroplastics: () => <AtlasLegend layer="marineMicroplastics" zh="海洋微塑膠（表層平均，個／m³）" en="Marine Microplastics" source="海洋委員會"
-    rows={MICROPLASTIC_STEPS.map((step) => ({ label: step.label, color: step.color }))} />,
-  marinePollutionIncidents: () => <AtlasLegend layer="marinePollutionIncidents" zh="海洋污染事件" en="Marine Pollution Incidents" source="海洋委員會海洋保育署" rows={POLLUTION_LEVEL_OPTIONS} />,
-  namrEdnaSurveySites: () => <AtlasLegend layer="namrEdnaSurveySites" zh="環境 DNA 調查站位" en="eDNA Survey Sites" source="國家海洋研究院" rows={single("namrEdnaSurveySites", "調查站位")} />,
-  placeNames: () => <AtlasLegend layer="placeNames" zh="臺灣地名" en="Taiwan Place Names" source="內政部地政司（data.gov.tw 40281 等）" rows={PLACE_CATEGORY_OPTIONS} />,
-  triangulationPoints: () => <AtlasLegend layer="triangulationPoints" zh="三角點" en="Triangulation Points" source="內政部國土測繪中心（data.gov.tw 26485）" rows={TRIANGULATION_GRADE_OPTIONS} />,
-  wraFloodgatesCentral: () => <AtlasLegend layer="wraFloodgatesCentral" zh="中央管水門" en="Central Floodgates" source="經濟部水利署（data.gov.tw 32722）" rows={GATE_KIND_OPTIONS} />,
-  wraCentralDrainage: () => <AtlasLegend layer="wraCentralDrainage" zh="中央管區域排水" en="Central Regional Drainage" kind="square" source="經濟部水利署" rows={single("wraCentralDrainage", "排水設施範圍")} />,
-  iowStructureMonitoring: () => <AtlasLegend layer="iowStructureMonitoring" zh="水利結構監測站" en="IoW Structure Monitoring" source="經濟部水利署（data.gov.tw 142981 等）" rows={STRUCTURE_CATEGORY_OPTIONS} />,
-  wraDredgingPoints: () => <AtlasLegend layer="wraDredgingPoints" zh="河川疏濬工程" en="River Dredging" source="經濟部水利署" rows={DREDGING_STATUS_OPTIONS} />,
-  wraEcologySurveySites: () => <AtlasLegend layer="wraEcologySurveySites" zh="河川生態調查站（物種數）" en="River Ecology Survey Sites" source="經濟部水利署"
-    rows={ECOLOGY_SPECIES_STEPS.map((step) => ({ label: step.label, color: step.color }))} />,
+  indigenousTribes: () => <AtlasLegend layer="indigenousTribes" en="Indigenous Tribes" source={src("cip", ["156632", "7093"])} domain="atlasEthnic"
+    rows={[...TRIBE_ETHNIC_OPTIONS, { labelKey: "legend.atlas.otherMultiEthnic", color: ATLAS_OTHER_COLOR }, { labelKey: "legend.atlas.notApprovedList", color: TRIBE_NOT_APPROVED_COLOR }]} />,
+  indigenousIsolationRisk: () => <AtlasLegend layer="indigenousIsolationRisk" en="Isolation-risk Areas" source={src("cip", ["170259"])} domain="atlasIsolation" rows={ISOLATION_CAUSE_OPTIONS} />,
+  agriRuralCommunityVillages: () => <AtlasLegend layer="agriRuralCommunityVillages" title="legend.atlas.titleRuralCommunity" en="Rural Community Villages" kind="square" source={src("swcb")} domain="atlasRural" rows={RURAL_COMMUNITY_OPTIONS} />,
+  provincialRoadSigns: () => <AtlasLegend layer="provincialRoadSigns" en="Provincial Road Signs" source={src("thb", ["146233"], true)} domain="atlasSignSeries" rows={ROAD_SIGN_SERIES_OPTIONS} />,
+  provincialRoadMileposts: () => <AtlasLegend layer="provincialRoadMileposts" en="Provincial Road Mileposts" source={src("thb", ["7040"])} rows={single("provincialRoadMileposts", "legend.atlas.milepost")} />,
+  freewayTrafficSigns: () => <AtlasLegend layer="freewayTrafficSigns" en="Freeway Traffic Signs" source={src("freeway", ["98447"])} domain="atlasFreewaySign" rows={FREEWAY_SIGN_GROUP_OPTIONS} />,
+  freewayInterchanges: () => <AtlasLegend layer="freewayInterchanges" en="Freeway Interchanges" source={src("freeway", ["166496"])} domain="atlasInterchange" rows={INTERCHANGE_TYPE_OPTIONS} />,
+  freewayEcoSensitive: () => <AtlasLegend layer="freewayEcoSensitive" en="Freeway Eco-sensitive Sections" kind="square" source={src("freeway", ["31290"])} domain="atlasEcoLevel" rows={ECO_SENSITIVE_LEVEL_OPTIONS} />,
+  provincialRoadMonitored: () => <AtlasLegend layer="provincialRoadMonitored" en="Monitored Road Sections" kind="line" source={src("thb", ["16193"], true)} domain="atlasMonitor" rows={MONITOR_SERIES_OPTIONS} />,
+  provincialRoadEmergencyBays: () => <AtlasLegend layer="provincialRoadEmergencyBays" en="Emergency Bays" source={src("thb", ["99940"])} domain="atlasBay" rows={EMERGENCY_BAY_OPTIONS} />,
+  floodDisasterPointsNcdr: () => <AtlasLegend layer="floodDisasterPointsNcdr" title="legend.atlas.titleFloodPoints" en="Flood Disaster Points" source={src("ncdr", ["130016"], true)} domain="atlasFloodSource"
+    rows={[...FLOOD_INFO_SOURCE_OPTIONS, { labelKey: "legend.atlas.otherSource", color: ATLAS_OTHER_COLOR }]} />,
+  taipeiWaterloggingHistory: () => <AtlasLegend layer="taipeiWaterloggingHistory" en="Taipei Waterlogging History" kind="square" source={src("taipeiHydraulic", ["143898"])} rows={single("taipeiWaterloggingHistory", "legend.atlas.waterloggedArea")} />,
+  swcbDisasterPhotoPoints: () => <AtlasLegend layer="swcbDisasterPhotoPoints" en="Sediment Disaster Photos" source={src("swcb", ["138000", "174226"])} domain="atlasPhotoCategory" rows={SWCB_PHOTO_CATEGORY_OPTIONS} />,
+  cetaceanStrandings: () => <AtlasLegend layer="cetaceanStrandings" en="Cetacean Strandings" source={src("marn", ["157624"])} domain="atlasAnimalStatus" rows={[...ANIMAL_STATUS_OPTIONS, flagRow]} />,
+  seaTurtleStrandings: () => <AtlasLegend layer="seaTurtleStrandings" en="Sea Turtle Strandings" source={src("marn")} domain="atlasTurtle"
+    rows={[...TURTLE_SPECIES_OPTIONS, { labelKey: "legend.atlas.unidentified", color: ATLAS_OTHER_COLOR }, flagRow]} />,
+  beachWaterQuality: () => <AtlasLegend layer="beachWaterQuality" en="Beach Water Quality" source={src("moenv")} domain="atlasBeach" rows={BEACH_LEVEL_OPTIONS} />,
+  marineMicroplastics: () => <AtlasLegend layer="marineMicroplastics" title="legend.atlas.titleMicroplastics" en="Marine Microplastics" source={src("oac")} rows={stepRows(MICROPLASTIC_STEPS)} />,
+  marinePollutionIncidents: () => <AtlasLegend layer="marinePollutionIncidents" en="Marine Pollution Incidents" source={src("oca")} domain="atlasPollution" rows={POLLUTION_LEVEL_OPTIONS} />,
+  namrEdnaSurveySites: () => <AtlasLegend layer="namrEdnaSurveySites" en="eDNA Survey Sites" source={src("namr")} rows={single("namrEdnaSurveySites", "legend.atlas.surveySite")} />,
+  placeNames: () => <AtlasLegend layer="placeNames" en="Taiwan Place Names" source={src("landAdmin", ["40281"], true)} domain="atlasPlaceLegend" rows={PLACE_CATEGORY_OPTIONS} />,
+  triangulationPoints: () => <AtlasLegend layer="triangulationPoints" en="Triangulation Points" source={src("nlsc", ["26485"])} domain="atlasTriangulation" rows={TRIANGULATION_GRADE_OPTIONS} />,
+  wraFloodgatesCentral: () => <AtlasLegend layer="wraFloodgatesCentral" en="Central Floodgates" source={src("wra", ["32722"])} domain="atlasGate" rows={GATE_KIND_OPTIONS} />,
+  wraCentralDrainage: () => <AtlasLegend layer="wraCentralDrainage" en="Central Regional Drainage" kind="square" source={src("wra")} rows={single("wraCentralDrainage", "legend.atlas.drainageExtent")} />,
+  iowStructureMonitoring: () => <AtlasLegend layer="iowStructureMonitoring" en="IoW Structure Monitoring" source={src("wra", ["142981"], true)} domain="atlasStructure" rows={STRUCTURE_CATEGORY_OPTIONS} />,
+  wraDredgingPoints: () => <AtlasLegend layer="wraDredgingPoints" en="River Dredging" source={src("wra")} domain="atlasDredging" rows={DREDGING_STATUS_OPTIONS} />,
+  wraEcologySurveySites: () => <AtlasLegend layer="wraEcologySurveySites" title="legend.atlas.titleEcology" en="River Ecology Survey Sites" source={src("wra")} domain="atlasSpecies" rows={stepRows(ECOLOGY_SPECIES_STEPS)} />,
 };

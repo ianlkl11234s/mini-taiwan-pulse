@@ -58,6 +58,9 @@ export const I18N_AREAS: I18nArea[] = [
       "src/components/featureInfo/roadPanels.tsx", "src/components/featureInfo/satellitePanels.tsx", "src/components/featureInfo/shared.tsx", "src/components/featureInfo/soilLiquefactionPanels.tsx",
       "src/components/featureInfo/sportsPanels.tsx", "src/components/featureInfo/taipeiWicPanels.tsx", "src/components/featureInfo/tourismPanels.tsx", "src/components/featureInfo/transportPanels.tsx",
       "src/components/featureInfo/urbanPanels.tsx", "src/components/featureInfo/wastePanels.tsx", "src/components/featureInfo/waterPanels.tsx", "src/components/featureInfo/welfarePanels.tsx",
+      // P2b 統計圖層與資料來源總覽、develop 新增的 atlas 說明框與圖例（剩下的是配方正本、標題正本與上游句型比對）
+      "src/components/sidebar/StatisticsDetails.tsx", "src/components/sidebar/DataSourcePanel.tsx", "src/state/statisticsLinkedSelect.ts", "src/state/linkedSelect.ts",
+      "src/components/featureInfo/atlasPanels.tsx", "src/components/legend/atlasLegends.tsx",
       // P2 圖例與設定面板（layerParamsSpec.ts 是控件標籤中文正本，留在報告區）。剩下的中文是註解、英文小字旁的中文正本與 enumLabel 對照表。
       "src/components/LegendPanel.tsx", "src/components/legend/agriIndustryLegends.tsx", "src/components/legend/civicServiceLegends.tsx", "src/components/legend/cultureLegends.tsx",
       "src/components/legend/energyTelecomLegends.tsx", "src/components/legend/environmentLegends.tsx", "src/components/legend/environmentWeatherLegends.tsx", "src/components/legend/harmReductionLegends.tsx",

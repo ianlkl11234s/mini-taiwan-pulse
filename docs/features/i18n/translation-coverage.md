@@ -169,6 +169,7 @@
 - 地檢署轄區＝District Prosecutors' Office jurisdiction；第一級／第二級統計區＝Level-1／Level-2 statistical area；戶籍人口＝registered population。
 - 工商普查＝Industry and Commerce Census；營業稅＝Business Tax；電子發票＝E-Invoice；原住民保留地＝Indigenous Reserved Land；擱淺＝Stranded；社會脆弱度＝Social Vulnerability；人次＝person-times；中央管＝Centrally Managed。
 - 仍不確定：「培根」計畫（Pei-Ken Training）、溪流次（stream alerts）。
+- atlas：閘門＝Sluice gate；疏散門＝Evacuation gate；系統交流道＝System interchange；賽德克＝Sediq；拉阿魯哇＝Hla'alua；高速公路局＝Taiwan Area National Freeway Bureau；保全戶＝households at risk（意譯）。
 
 ## 日本語
 
@@ -299,3 +300,4 @@
 - 地檢署轄區＝地方検察署の管轄区；陳情＝苦情；一般護理之家＝一般ナーシングホーム；產後護理之家＝産後ケアセンター；長照 2.0 C 據點＝長期介護2.0（C拠点）。
 - 色階＝段階色；不適用＝該当なし；醫事人員＝医療従事者；山坡地＝斜面地；工商普查＝工商業センサス；擱淺＝ストランディング。
 - 仍不確定：圖例說明的文體（常體）與其他檔（です・ます）未統一；營業稅日文譯法。
+- atlas：閘門＝樋門；系統交流道＝ジャンクション；快速公路＝高規格道路；拉阿魯哇＝ラアルア；保全戶＝保全対象世帯；疏散門＝避難用ゲート（「陸閘」或更貼切，未定）。
