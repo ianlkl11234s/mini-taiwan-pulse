@@ -3,13 +3,13 @@ import { useSyncExternalStore, type ReactNode } from "react";
 import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import {
   JMA_IMAGERY_LAYERS, JMA_IMAGERY_UNCOVERED_COLOR, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, jmaImageryProduct, jmaRgb, type JmaImageryLayerKey, type JmaImageryProductId, JMA_QUAKE_LOOKBACK_DAYS, JMA_VOLCANO_LEVELS, JMA_WARNING_LEVELS,
-  JMA_ZERO_COLOR, formatJst, jmaAmedasMode, jmaCssGradient,
+  JMA_ZERO_COLOR, formatJst, jmaAmedasMode, jmaCssGradient, jmaWarningColor,
 } from "../../data/jmaTypes";
 import { getJmaImageryStatus, subscribeJmaImageryStatus } from "../../data/jmaImageryLoader";
 import { FLOOD_STATUS_KEY, GIBS_SNOW_STATUS_KEY } from "../../data/jmaUpstreamLoaders";
 import { JMA_FLOOD_LEVELS, JMA_FLOOD_OTHER_COLOR } from "../../data/jmaTypes";
 import { GIBS_NDSI_STOPS, gibsSnowProduct } from "../../data/gibsSnowTypes";
-import { getJmaLiveStatus, getLatestJmaWarnings, subscribeJmaLiveStatus, type JmaLiveKey } from "../../data/jmaLiveLoaders";
+import { getJmaLiveStatus, getLatestJmaWarnings, jmaWarningKindStats, subscribeJmaLiveStatus, type JmaLiveKey } from "../../data/jmaLiveLoaders";
 import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 import { FONT_SIZE } from "../../styles/designTokens";
 import type { MessageKey } from "../../i18n/keys";
@@ -103,6 +103,27 @@ export function JmaAmedasLegend() {
   </div>;
 }
 
+const WARNING_KIND_MAX = 12;
+
+/** 目前發布中的種類：名稱＋該級別色點＋區域數（多→少，最多 12 種，其餘併「其他 N 種」）。不受種類篩選影響。 */
+function WarningKindList() {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const kinds = jmaWarningKindStats(getLatestJmaWarnings());
+  if (kinds.length === 0) return null;
+  const shown = kinds.slice(0, WARNING_KIND_MAX);
+  const rest = kinds.slice(WARNING_KIND_MAX);
+  return <div style={{ marginTop: 4 }}>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.jma.activeKinds")}</div>
+    {shown.map((k) => <LegendRow key={k.key} swatch={<SwatchDot color={jmaWarningColor(k.level)} />}>
+      {k.name ?? i18n.t("legend.jma.kindUnnamed", { code: k.key })} <LegendNum>{i18n.t("legend.jma.kindAreaCount", { count: k.areaCount })}</LegendNum>
+    </LegendRow>)}
+    {rest.length > 0 && <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+      {i18n.t("legend.jma.kindOthers", { count: rest.length, areas: rest.reduce((n, k) => n + k.areaCount, 0) })}
+    </div>}
+  </div>;
+}
+
 export function JmaWarningsLegend() {
   const t = useLegendTheme();
   const i18n = useLocale();
@@ -112,6 +133,7 @@ export function JmaWarningsLegend() {
   return <div>
     <LegendTitle zh={layerTitle("jmaWarnings", i18n)} en="気象警報" />
     {JMA_WARNING_LEVELS.map((row) => <LegendRow key={row.value} swatch={<SwatchSquare color={row.color} />}>{enumLabel("jmaWarningLevel", row.value, row.label, i18n)}</LegendRow>)}
+    <WarningKindList />
     <LiveStatus layerKey="jmaWarnings" timeLabel={i18n.t("legend.jma.timeIssuedAt")} drawnUnit="legend.jma.unitCityArea" noCoordLabel={i18n.t("legend.jma.noCoordNonCity")} />
     <HistoryNote layerKey="jmaWarnings" note="legend.jmaTime.warningsHistory" />
     {names.length > 0 && <div style={{ marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>

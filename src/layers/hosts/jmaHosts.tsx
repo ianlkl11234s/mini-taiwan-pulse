@@ -6,7 +6,7 @@ import { useJmaWarningsLayer } from "../../hooks/useJmaWarningsLayer";
 import { useJmaImageryLayer } from "../../hooks/useJmaImageryLayer";
 import { useGibsSnowCoverLayer } from "../../hooks/useGibsSnowCoverLayer";
 import { useJmaRiskFloodLayer } from "../../hooks/useJmaRiskFloodLayer";
-import { JMA_FLOOD_OPACITY } from "../../data/jmaTypes";
+import { JMA_FLOOD_OPACITY, jmaWarningKindCode } from "../../data/jmaTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 import { RASTER } from "../../map/mapStyleScale";
@@ -33,7 +33,7 @@ export const JmaVolcanoesHost: LayerHostComponent = ({ deps }) => {
 export const JmaWarningsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJmaWarningsLayer");
   const p = useKeyOverlayParams("jmaWarnings");
-  useJmaWarningsLayer(deps.mapRef, deps.layerVisibility.jmaWarnings, p.jmaWarningsOpacity ?? 0.55, deps.isDarkTheme);
+  useJmaWarningsLayer(deps.mapRef, deps.layerVisibility.jmaWarnings, p.jmaWarningsOpacity ?? 0.55, deps.isDarkTheme, jmaWarningKindCode(p.jmaWarningsKindIdx));
   return null;
 };
 

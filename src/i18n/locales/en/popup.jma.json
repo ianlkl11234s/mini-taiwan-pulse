@@ -61,5 +61,7 @@
   "popup.jma.warningUpdated": "Every 5 minutes; based on the latest issue time (control_datetime).",
   "popup.jma.quakeNote": "Only the latest report is shown for each earthquake. Intensity flash reports have no hypocenter coordinates yet and are not drawn on the map. Last 7 days, updated every 2 minutes.",
   "popup.jma.reading": "Interpretation",
-  "popup.jma.volcanoNote": "Alert levels are taken from the original text (\"レベルN\") or codes 11–15. For volcanoes without the level system, the original warning text applies."
+  "popup.jma.volcanoNote": "Alert levels are taken from the original text (\"レベルN\") or codes 11–15. For volcanoes without the level system, the original warning text applies.",
+  "popup.jma.activeKinds": "In effect",
+  "popup.jma.kindSep": ", "
 }

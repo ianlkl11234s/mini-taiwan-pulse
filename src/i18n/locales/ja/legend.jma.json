@@ -93,5 +93,9 @@
   "legend.jma.kosaImageError": "予測図を読み込めませんでした（次の予報に更新された可能性があります）。時刻を選び直してください。",
   "legend.jma.kosaImgAlt": "黄砂地上濃度予測図 {time}",
   "legend.jma.kosaValid": "予報時刻 {time}",
-  "legend.jma.kosaSourceLink": "元のページ"
+  "legend.jma.kosaSourceLink": "元のページ",
+  "legend.jma.activeKinds": "現在発表中の種類",
+  "legend.jma.kindUnnamed": "種別 {code}",
+  "legend.jma.kindAreaCount": "{count}区域",
+  "legend.jma.kindOthers": "ほか{count}種類（延べ{areas}区域）"
 }

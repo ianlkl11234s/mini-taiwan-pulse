@@ -2,6 +2,12 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-10-16 — 警報・注意報顯示種類
+
+- 彈窗「發布中」列、圖例「目前發布中的種類」（種類＋級別色點＋區域數，最多 12 種）、圖層設定「種類」下拉（只畫有該種類的區域，用該種類級別色；選項為 JMA 種別碼靜態表，與 collector KIND_NAMES 同步）
+- 區域數以 areas＋cityNameKeys 去重；解除列不計；時間軸往回拉經同一 snapshot 自動適用
+- Breaking：無（golden params 只新增 `jmaWarningsKind`）
+
 ## 2026-10-15 — 點位與區域圖層時間軸化＋新增 6 層（P4；PR 待併入 develop；尚未部署正式站）
 
 - `jmaAmedas`、`jmaWarnings`、`jmaQuakes` 跟時間軸：現在＝即時 view；往回拉＝`get_jma_amedas_at`／`get_jma_warnings_at`／`get_jma_quakes_at`；涵蓋期外圖例「未涵蓋」、地圖清空。`jmaVolcanoes` 維持快照並在圖例說明

@@ -6,7 +6,7 @@ import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } f
 import { ATLAS_ENABLED_STATISTICS_KEYS, type AtlasStatisticsLayerKey } from './atlasStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
-import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY } from "./jmaTypes";
+import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // ══════════════════════════════════════════════════════════════════
@@ -3701,7 +3701,14 @@ export const LAYER_PARAMS_SPEC = {
       out: "jmaAmedasModeIdx", encode: JMA_AMEDAS_MODES.map((mode) => mode.value),
     },
   ],
-  jmaWarnings: [opacitySlider("jmaWarningsOpacity", 0.55)],
+  jmaWarnings: [
+    opacitySlider("jmaWarningsOpacity", 0.55),
+    {
+      kind: "select", name: "jmaWarningsKind", label: "種類", default: "all",
+      options: JMA_WARNING_KINDS.map(({ label, value }) => ({ label, value })),
+      out: "jmaWarningsKindIdx", encode: JMA_WARNING_KINDS.map((k) => k.value),
+    },
+  ],
   jmaQuakes: [opacitySlider("jmaQuakesOpacity", 0.85), scaleSlider("jmaQuakesScale", 1)],
   jmaVolcanoes: [opacitySlider("jmaVolcanoesOpacity", 0.9), scaleSlider("jmaVolcanoesScale", 1)],
   // ── JMA／環境省 時間軸點位與區域（P4）：落雷沿用台灣落雷控件；物候可切現象（filter 需重建）──

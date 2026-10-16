@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { validate } from "mapbox-gl/dist/style-spec/index.cjs";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { JMA_AMEDAS_MODES, jmaVolcanoLevel, jmaWarningLevel, normalizeJmaIntensity } from "../jmaTypes";
-import { amedasProps, buildJmaWarningsSnapshot, designatedCityName, quakeProps, rowsToPointFC } from "../jmaLiveLoaders";
+import { amedasProps, buildJmaWarningsSnapshot, designatedCityName, filterJmaWarningsByKind, jmaWarningAreaKinds, jmaWarningKindStats, quakeProps, rowsToPointFC } from "../jmaLiveLoaders";
 import { jmaWarningsColorExpr, jmaWarningsFilter } from "../../hooks/useJmaWarningsLayer";
 
 function errors(layer: Record<string, unknown>, source: Record<string, unknown>): string[] {
@@ -84,6 +84,21 @@ describe("警報・注意報：class20 對市町村界", () => {
     expect(jmaWarningLevel("暴風警報")).toBe("warning");
     expect(jmaWarningLevel("雷注意報")).toBe("advisory");
     expect(jmaWarningLevel(null)).toBe("unknown");
+  });
+
+  it("種類：區內去重、級別高→低；圖例區域數依多→少且不含解除；篩選只留該種類並換級別色", () => {
+    const snap = buildJmaWarningsSnapshot(raw);
+    expect(jmaWarningAreaKinds(snap.areas.get("14100")!).map((k) => k.name)).toEqual(["大雨警報", "大雨注意報"]);
+    const stats = jmaWarningKindStats(snap);
+    expect(stats.find((k) => k.key === "10")?.areaCount).toBe(1); // 千代田區的 10 已解除；横浜市靠 areas／cityNameKeys 去重後只算 1
+    expect(stats.find((k) => k.key === "03")?.areaCount).toBe(1);
+    for (let i = 1; i < stats.length; i++) expect(stats[i - 1]!.areaCount).toBeGreaterThanOrEqual(stats[i]!.areaCount);
+    const only = filterJmaWarningsByKind(snap, "10")!;
+    expect([...only.areas.keys()]).toEqual(["14100"]);
+    expect(only.areas.get("14100")?.level).toBe("advisory"); // 該區最高是警報，但選注意報 → 用注意報色
+    expect([...only.cityNameKeys.keys()]).toEqual(["14横浜市"]);
+    expect(filterJmaWarningsByKind(snap, null)).toBe(snap);
+    expect(filterJmaWarningsByKind(snap, "24")!.areas.size).toBe(0);
   });
 
   it("填色與 filter 在空快照與有資料時都是合法 style", () => {

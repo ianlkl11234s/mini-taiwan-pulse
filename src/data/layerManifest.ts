@@ -2432,7 +2432,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "jmaWarnings",
     popup: "jmaWarnings",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "select"] },
     description: "日本氣象廳警報・注意報（市町村別；特別警報／危険警報／警報／注意報分色）",
     topics: ["世界", "日本", "氣象", "即時", "警報", "防災"],
   },
