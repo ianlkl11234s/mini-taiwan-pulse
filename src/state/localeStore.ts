@@ -1,9 +1,9 @@
 /**
  * 目前介面語系（i18n）。
  *
- * 決定順序：URL `?lang=` ＞ localStorage ＞ 預設 zh-TW。
- * 試點期間**不看瀏覽器語言**：大部分畫面還是中文，自動切換會讓外文瀏覽器使用者看到
- * 半中半外的介面。翻譯覆蓋夠了再決定要不要加回 navigator.languages。
+ * 決定順序：URL `?lang=` ＞ localStorage（使用者手動選過）＞ `navigator.languages` ＞ 預設 zh-TW。
+ * 瀏覽器語言逐一比對（`matchLocale`）：zh-* 一律中文，不支援的語言（fr 等）落到中文。
+ * 2026-10-16 起自動跟隨瀏覽器（翻譯已覆蓋主要畫面，使用者拍板）。
  * URL 不受 urlState 的 `v=1` 版本閘門限制 —— `?lang=en` 單獨出現也要生效，
  * 方便直接分享英文／日文版連結。
  *
@@ -60,6 +60,13 @@ function readInitialLocale(): Locale {
     const saved = typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (isLocale(saved)) return saved;
   } catch { /* private mode：忽略 */ }
+  try {
+    const languages = typeof navigator !== "undefined" ? navigator.languages ?? [navigator.language] : [];
+    for (const tag of languages) {
+      const matched = matchLocale(tag);
+      if (matched) return matched;
+    }
+  } catch { /* 取不到瀏覽器語言就用預設 */ }
   return DEFAULT_LOCALE;
 }
 

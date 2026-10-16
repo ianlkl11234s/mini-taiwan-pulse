@@ -15,7 +15,7 @@
 | 層 | 做法 | 位置 |
 |---|---|---|
 | 語系登記簿 | 支援哪些語系、各自的 `<html lang>`、Intl locale、缺字回退順序 | `src/i18n/locales.ts` |
-| 目前語系 | 決定順序：網址 `?lang=` ＞ 上次選擇（localStorage）＞ 中文。試點**不看瀏覽器語言**（見決策 1）。切換時改 `<html lang>` | `src/state/localeStore.ts` |
+| 目前語系 | 決定順序：網址 `?lang=` ＞ 上次選擇（localStorage）＞ 瀏覽器語言（`navigator.languages`）＞ 中文（見決策 1）。切換時改 `<html lang>` | `src/state/localeStore.ts` |
 | 查字 | `t("toolbar.share")`、`t("x", { count })`；英文複數用 `_one`/`_other` | `src/i18n/translate.ts` |
 | 數字、時間 | `formatNumber` / `formatDateTime` 依語系格式化，時間固定台北時區 | `src/i18n/format.ts` |
 | 圖層、主題名 | `localizeLayerName` / `localizeSectionTitle`，manifest 不動 | `src/i18n/layerText.ts` |
@@ -166,8 +166,8 @@ src/i18n/
 
 | # | 題目 | 決定 | 落實 |
 |---|---|---|---|
-| 1 | 依瀏覽器語言自動切換 | 乙：只靠網址 `?lang=` 或手動切換 | `localeStore.ts`；spec §6.4 |
-| 2 | §1「中文優先」 | 乙：改成「目前語系優先，中文原名可放小字」 | spec §1、§6.1、§6.4 |
+| 1 | 依瀏覽器語言自動切換 | 甲：依瀏覽器語言自動切換（2026-10-16 改；原 2026-10-12 為乙：只靠網址或手動切換） | `localeStore.ts`；spec §6.6 |
+| 2 | §1「中文優先」 | 乙：改成「目前語系優先，中文原名可放小字」 | spec §1、§6.1、§6.6 |
 | 3 | 語言鈕在工具列的位置 | 乙：補進固定順序「…拍攝模式 ｜ 語言、帳號」（看過[對照網頁](https://claude.ai/artifact/8fSnhNjZRYhFo8ih9eNEQr)後決定） | spec §5.17 |
 | 4 | 外文圖層名太長 | 丙：主名最多換兩行，超過以 … 收尾、滑鼠移上顯示全名 | `LayerRow.tsx`；spec §5.5 |
 | 5 | `FONT_CJK` 改 CSS 變數 | 乙：已改，Mapbox 地名字型另以實際字型字串帶入 | `intelTokens.ts`；spec §4.1 |
