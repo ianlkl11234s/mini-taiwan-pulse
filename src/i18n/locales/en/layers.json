@@ -1179,5 +1179,11 @@
   "layer.jmaAnaRiskInundHours": "Inundation Warning Hours (This Month)",
   "layer.gibsSnowCover": "Satellite Snow Cover",
   "layer.jmaRiskFlood": "Flood Risk (Kikikuru)",
-  "layer.jmaKosa": "Kosa (Yellow Sand) Forecast"
+  "layer.jmaKosa": "Kosa (Yellow Sand) Forecast",
+  "layer.jmaLightning": "Lightning (LIDEN)",
+  "layer.jmaWbgt": "Heat Index (WBGT)",
+  "layer.jmaSnowcap": "First Snowcap on Summits",
+  "layer.jmaAutumnLeaves": "Autumn Foliage Front",
+  "layer.jmaSakura": "Cherry Blossom Front",
+  "layer.jmaRainySeason": "Rainy Season Onset and End"
 }

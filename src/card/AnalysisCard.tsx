@@ -11,7 +11,8 @@ import { RankBars, type RankBarItem } from "../research/charts/RankBars";
 import { formatVizNumber } from "../research/vizFormat";
 import { nullHatchCssGradient } from "../research/vizSpec";
 import type { CardPayloadV1 } from "./cardPayload";
-import { CARD_THEME, cardOtherColor, classColors, colorForClass, legendMethodLabel, taipeiDate, taipeiDateTime, vizKindForCard } from "./cardStyle";
+import { useLocale } from "../state/localeStore";
+import { CARD_THEME, cardOtherColor, classColors, colorForClass, taipeiDate, taipeiDateTime, vizKindForCard } from "./cardStyle";
 
 export type AnalysisCardProps = {
   payload: CardPayloadV1;
@@ -40,7 +41,15 @@ function statValue(stat: CardPayloadV1["stats"][number]): { number: string; unit
   return { number, unit: stat.value !== null && stat.unit && kind !== "percent" ? stat.unit : null };
 }
 
+/** 把含單一 {name} 佔位的譯文切成前後段，中間放節點（讓數字保留資料字型）。 */
+function splitAround(text: (vars: Record<string, string>) => string, name: string, node: ReactNode): ReactNode {
+  const MARK = "\u0001";
+  const [before = "", after = ""] = text({ [name]: MARK }).split(MARK);
+  return <>{before}{node}{after}</>;
+}
+
 export function AnalysisCard({ payload, mapSlot, expiresAt, expiryNote, variant = "page" }: AnalysisCardProps) {
+  const { t } = useLocale();
   const legend = legendEntries(payload);
   const legendUnit = payload.legend.unit;
   const rampForBars = payload.kind === "area" && payload.map ? classColors(payload.map.ramp, payload.map.breaks) : payload.points ? classColors(payload.points.ramp, payload.points.breaks) : [];
@@ -48,21 +57,21 @@ export function AnalysisCard({ payload, mapSlot, expiresAt, expiryNote, variant 
   const bars: RankBarItem[] = payload.top.slice(0, 3).map((item, index) => ({ id: `${index}:${item.name}`, label: item.name, value: item.value, color: colorForClass(rampForBars, item.class_index) ?? cardOtherColor() }));
   const expiry = taipeiDate(expiresAt);
   const generated = taipeiDateTime(payload.generated_at);
-  return <article className={`analysis-card analysis-card--${variant}`} aria-label={`分析卡：${payload.title}`}>
+  return <article className={`analysis-card analysis-card--${variant}`} aria-label={t("analysisCard.ariaLabel", { title: payload.title })}>
     <div className="analysis-card__map">
       {mapSlot}
-      {(legend.length > 0 || payload.legend.missing_count > 0) && <div className="analysis-card__legend" aria-label="圖例">
-        <div className="analysis-card__legend-title">{payload.legend.title}{legendUnit ? `（${legendUnit}）` : ""}</div>
+      {(legend.length > 0 || payload.legend.missing_count > 0) && <div className="analysis-card__legend" aria-label={t("analysisCard.legendAria")}>
+        <div className="analysis-card__legend-title">{legendUnit ? t("analysisCard.legendWithUnit", { title: payload.legend.title, unit: legendUnit }) : payload.legend.title}</div>
         <ul>
           {legend.map((entry, index) => <li key={index}><span className="analysis-card__swatch" style={{ background: entry.color }} aria-hidden="true" />{entry.label}</li>)}
-          {payload.legend.missing_count > 0 && <li><span className="analysis-card__swatch analysis-card__swatch--missing" style={{ background: nullHatchCssGradient(CARD_THEME) }} aria-hidden="true" />無資料 <span style={{ fontFamily: FONT_DATA }}>{payload.legend.missing_count}</span> 處</li>}
+          {payload.legend.missing_count > 0 && <li><span className="analysis-card__swatch analysis-card__swatch--missing" style={{ background: nullHatchCssGradient(CARD_THEME) }} aria-hidden="true" />{splitAround(vars => t("analysisCard.legendMissing", vars), "count", <span style={{ fontFamily: FONT_DATA }}>{payload.legend.missing_count}</span>)}</li>}
         </ul>
-        <div className="analysis-card__legend-method">{legendMethodLabel(payload.legend.method)}</div>
+        <div className="analysis-card__legend-method">{payload.legend.method === "quantile" ? t("analysisCard.methodQuantile") : payload.legend.method === "equal" ? t("analysisCard.methodEqual") : t("analysisCard.methodCategory")}</div>
       </div>}
     </div>
     <div className="analysis-card__body">
       <h1 className="analysis-card__title">{payload.title}</h1>
-      {payload.data_period && <p className="analysis-card__period">資料期間：{payload.data_period.label}</p>}
+      {payload.data_period && <p className="analysis-card__period">{t("analysisCard.period", { label: payload.data_period.label })}</p>}
       {payload.stats.length > 0 && <dl className="analysis-card__stats">
         {payload.stats.slice(0, 3).map((stat, index) => {
           const value = statValue(stat);
@@ -73,23 +82,23 @@ export function AnalysisCard({ payload, mapSlot, expiresAt, expiryNote, variant 
         })}
       </dl>}
       {bars.length > 0 && <div className="analysis-card__bars">
-        <RankBars items={bars} theme={CARD_THEME} valueKind={valueKind} unit={legendUnit} title="前 3 名" maxItems={3} />
+        <RankBars items={bars} theme={CARD_THEME} valueKind={valueKind} unit={legendUnit} title={t("analysisCard.top3")} maxItems={3} />
       </div>}
-      {payload.caveats.length > 0 && <ul className="analysis-card__caveats" aria-label="注意事項">
+      {payload.caveats.length > 0 && <ul className="analysis-card__caveats" aria-label={t("analysisCard.caveatsAria")}>
         {payload.caveats.map((caveat, index) => <li key={index}>{caveat}</li>)}
       </ul>}
       <div className="analysis-card__sources">
-        <span className="analysis-card__label">資料來源</span>
+        <span className="analysis-card__label">{t("analysisCard.sources")}</span>
         <ul>{payload.sources.map((source, index) => <li key={index}>
           {source.dataset_label}
           {source.publisher || source.data_time ? `（${[source.publisher, source.data_time].filter(Boolean).join("，")}）` : ""}
-          {` · 授權 ${source.license}`}
+          {` · ${t("analysisCard.license", { license: source.license })}`}
           {source.attribution ? ` · ${source.attribution}` : ""}
         </li>)}</ul>
       </div>
       <footer className="analysis-card__footer">
-        <span>{generated ? <>產生於 <span style={{ fontFamily: FONT_DATA }}>{generated}</span></> : null}</span>
-        <span>{expiry ? <>連結到期：<span style={{ fontFamily: FONT_DATA }}>{expiry}</span></> : expiryNote ?? null}</span>
+        <span>{generated ? splitAround(vars => t("analysisCard.generated", vars), "time", <span style={{ fontFamily: FONT_DATA }}>{generated}</span>) : null}</span>
+        <span>{expiry ? splitAround(vars => t("analysisCard.expiry", vars), "date", <span style={{ fontFamily: FONT_DATA }}>{expiry}</span>) : expiryNote ?? null}</span>
         <span className="analysis-card__brand">Mini Taiwan Pulse</span>
       </footer>
     </div>

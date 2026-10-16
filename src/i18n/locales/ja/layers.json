@@ -1179,5 +1179,11 @@
   "layer.jmaAnaRiskInundHours": "浸水キキクル警戒時間（当月）",
   "layer.gibsSnowCover": "積雪域（衛星 NDSI）",
   "layer.jmaRiskFlood": "洪水キキクル",
-  "layer.jmaKosa": "黄砂予測"
+  "layer.jmaKosa": "黄砂予測",
+  "layer.jmaLightning": "落雷（LIDEN）",
+  "layer.jmaWbgt": "暑さ指数（WBGT）",
+  "layer.jmaSnowcap": "初冠雪",
+  "layer.jmaAutumnLeaves": "紅葉・黄葉前線",
+  "layer.jmaSakura": "桜前線",
+  "layer.jmaRainySeason": "梅雨入り・明け"
 }

@@ -1,32 +1,33 @@
 import { useEffect, useState } from "react";
 import type { BridgeClient } from "./bridgeClient";
+import { useLocale } from "../state/localeStore";
 import { AgentTokenController, TOKEN_SAVE_COMMAND, type AgentTokenState } from "./agentTokens";
-
-const date = (ms: number) => new Date(ms).toLocaleDateString("zh-TW");
 
 export type AgentTokenPanelProps = { state: AgentTokenState; onCreate: () => void; onCopy: () => void; onDismiss: () => void; onRevoke: (tokenId: string) => void };
 
 /** Presentational: one-time secret (copy + save hint) and the token list with revoke. */
 export function AgentTokenPanel({ state, onCreate, onCopy, onDismiss, onRevoke }: AgentTokenPanelProps) {
-  return <section className="agent-token-section" aria-label="Agent 金鑰">
-    <small>Agent 金鑰讓本機 Claude Code 自動接上已登入的分頁；有效 30 天，可隨時撤銷。</small>
+  const { t, formatDateTime } = useLocale();
+  const date = (ms: number) => formatDateTime(ms, { year: "numeric", month: "numeric", day: "numeric" });
+  return <section className="agent-token-section" aria-label={t("research.token.aria")}>
+    <small>{t("research.token.intro")}</small>
     {state.created ? <div className="agent-token-created">
-      <small>新金鑰（只顯示這一次）：</small>
+      <small>{t("research.token.newKey")}</small>
       <code className="agent-token-secret">{state.created.token}</code>
-      <small>複製後在 MCP 目錄執行 <code>{TOKEN_SAVE_COMMAND}</code>。</small>
+      <small>{t("research.token.saveBefore")}<code>{TOKEN_SAVE_COMMAND}</code>{t("research.token.saveAfter")}</small>
       <div className="agent-connection-actions">
-        <button type="button" onClick={onCopy}>複製金鑰</button>
-        <button type="button" onClick={onDismiss}>我已保存</button>
+        <button type="button" onClick={onCopy}>{t("research.token.copy")}</button>
+        <button type="button" onClick={onDismiss}>{t("research.token.saved")}</button>
       </div>
-    </div> : <div className="agent-connection-actions"><button type="button" disabled={state.busy} onClick={onCreate}>{state.busy ? "處理中…" : "產生 Agent 金鑰"}</button></div>}
+    </div> : <div className="agent-connection-actions"><button type="button" disabled={state.busy} onClick={onCreate}>{state.busy ? t("research.token.busy") : t("research.token.create")}</button></div>}
     {state.message && <small role="status">{state.message}</small>}
-    {state.loaded && (state.tokens.length ? <ul className="agent-token-list" aria-label="已產生的金鑰">
+    {state.loaded && (state.tokens.length ? <ul className="agent-token-list" aria-label={t("research.token.listAria")}>
       {state.tokens.map(token => <li key={token.tokenId}>
         <span>{token.label}</span>
-        <small>建立 {date(token.createdAt)} · 到期 {date(token.expiresAt)} · {token.lastUsedAt === null ? "尚未使用" : `最後使用 ${date(token.lastUsedAt)}`}{token.activeSessions > 0 ? " · 使用中" : ""}</small>
-        <button type="button" disabled={state.busy} aria-label={`撤銷 ${token.label}`} title={`撤銷 ${token.label}`} onClick={() => onRevoke(token.tokenId)}>撤銷</button>
+        <small>{t("research.token.created", { date: date(token.createdAt) })} · {t("research.token.expires", { date: date(token.expiresAt) })} · {token.lastUsedAt === null ? t("research.token.neverUsed") : t("research.token.lastUsed", { date: date(token.lastUsedAt) })}{token.activeSessions > 0 ? ` · ${t("research.token.inUse")}` : ""}</small>
+        <button type="button" disabled={state.busy} aria-label={t("research.token.revokeLabel", { label: token.label })} title={t("research.token.revokeLabel", { label: token.label })} onClick={() => onRevoke(token.tokenId)}>{t("research.token.revoke")}</button>
       </li>)}
-    </ul> : <small>目前沒有金鑰。</small>)}
+    </ul> : <small>{t("research.token.none")}</small>)}
   </section>;
 }
 

@@ -73,6 +73,11 @@ describe("locale parity", () => {
     };
     walk(join(__dirname, "..", ".."));
     const code = sources.join("\n");
+    // 一次收集程式裡所有引號包住的 key 形字串（逐 key 全文搜尋在 key 數上千後會超過 5 秒）
+    const quoted = new Set<string>();
+    for (const m of code.matchAll(/["'`]([A-Za-z0-9_.-]+)["'`]/g)) quoted.add(m[1]!);
+    const fieldRefs = new Set<string>();
+    for (const m of code.matchAll(/field="([A-Za-z0-9_]+)"/g)) fieldRefs.add(m[1]!);
     const dynamic = DYNAMIC_NAMESPACES.map((ns) => `${ns}.`);
     const unused = new Set<string>();
     for (const file of UI_FILES) {
@@ -80,8 +85,8 @@ describe("locale parity", () => {
         const base = key.replace(/_(zero|one|two|few|many|other)$/, "");
         if (dynamic.some((p) => base.startsWith(p))) continue;
         // popup.field.* 由 <Row field="x"> 間接使用（shared.tsx 的 Row 自己翻譯）
-        const fieldRef = base.startsWith("popup.field.") && code.includes(`field="${base.slice("popup.field.".length)}"`);
-        if (!fieldRef && !code.includes(`"${base}"`) && !code.includes(`'${base}'`) && !code.includes(`\`${base}\``)) unused.add(base);
+        const fieldRef = base.startsWith("popup.field.") && fieldRefs.has(base.slice("popup.field.".length));
+        if (!fieldRef && !quoted.has(base)) unused.add(base);
       }
     }
     expect([...unused], "程式裡找不到的 key：刪掉，或改用動態命名空間").toEqual([]);

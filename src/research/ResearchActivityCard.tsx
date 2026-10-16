@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { isActivityBusy, type Activity } from "./researchActivity";
 import "./researchActivity.css";
+import { useLocale } from "../state/localeStore";
 
 /** 光暈熄滅前的等待：步驟之間短暫不忙碌時不熄，避免閃一下（design-system §5.31）。 */
 export const GLOW_LINGER_MS = 1500;
@@ -22,19 +23,20 @@ export function useLingeringFlag(flag: boolean, lingerMs: number): boolean {
 export function ResearchActivity({ activity, history = [] }: { activity: Activity | null; history?: readonly Activity[] }) {
   const busy = isActivityBusy(activity);
   const glowOn = useLingeringFlag(busy, GLOW_LINGER_MS);
+  const { t } = useLocale();
   if (!activity) return null;
   return <>
     <div className={`research-activity__viewport-glow${glowOn ? " research-activity__viewport-glow--on" : ""}`} aria-hidden="true" />
-    <aside className={`research-activity research-activity--${activity.phase}`} aria-label="Agent 動作紀錄">
+    <aside className={`research-activity research-activity--${activity.phase}`} aria-label={t("research.activity.log")}>
       <div className="research-activity__header" role="status" aria-live="polite" aria-atomic="true" aria-busy={busy || undefined}>
         <span className="research-activity__dot" aria-hidden="true" />
         <div>
-          <span className="research-activity__eyebrow">最新動作</span>
+          <span className="research-activity__eyebrow">{t("research.activity.latest")}</span>
           <p className="research-activity__title">{activity.title}</p>
           {activity.detail && <p className="research-activity__detail">{activity.detail}</p>}
         </div>
       </div>
-      {history.length > 0 && <ol className="research-activity__history" aria-label="先前動作">
+      {history.length > 0 && <ol className="research-activity__history" aria-label={t("research.activity.previous")}>
         {history.map((entry, index) => <li key={`${index}:${entry.title}`}>
           <p>{entry.title}</p>
           {entry.detail && <small>{entry.detail}</small>}

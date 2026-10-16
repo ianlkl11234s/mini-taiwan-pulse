@@ -1,5 +1,6 @@
 // G1：「圖例」面板最上方的「分析結果」一組。G2：compact（停靠 popup 開著）時每筆只留標題＋色階條。
 import { Slider } from "../components/controls/Slider";
+import { useLocale } from "../state/localeStore";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
 import type { AnalysisLegendEntry, AnalysisLegendPlayback } from "./analysisLegendStore";
 import "./analysisLegend.css";
@@ -16,46 +17,49 @@ function Bar({ colors }: { colors: readonly string[] }) {
  *  docs/features/viz-library/DECISIONS.md §6）。播放／暫停鈕＋目前期別文字＋可拖曳軌道；
  *  單期（periods.length <= 1）時停用播放鈕（沒有可播的東西）。 */
 function PlaybackBar({ playback }: { playback: AnalysisLegendPlayback }) {
+  const { t } = useLocale();
   const { periods, index, playing, onToggle, onScrub } = playback;
   const maxIndex = Math.max(0, periods.length - 1);
   const clampedIndex = Math.min(Math.max(0, index), maxIndex);
   const period = periods[clampedIndex] ?? "";
   return <div className="analysis-legend-group__playback">
     <button type="button" className="analysis-legend-group__playback-toggle" onClick={onToggle} aria-pressed={playing} disabled={periods.length <= 1}>
-      {playing ? "暫停" : "播放"}
+      {playing ? t("analysisCard.legend.pause") : t("analysisCard.legend.play")}
     </button>
-    <Slider ariaLabel="播放期別" min={0} max={maxIndex} step={1} value={clampedIndex} onChange={onScrub} ariaValueText={period} disabled={periods.length <= 1} className="analysis-legend-group__playback-slider" />
+    <Slider ariaLabel={t("analysisCard.legend.periodAria")} min={0} max={maxIndex} step={1} value={clampedIndex} onChange={onScrub} ariaValueText={period} disabled={periods.length <= 1} className="analysis-legend-group__playback-slider" />
     <span className="analysis-legend-group__playback-period">{period}</span>
   </div>;
 }
 
 function EntryLegend({ entry, compact }: { entry: AnalysisLegendEntry; compact: boolean }) {
+  const { t, formatNumber } = useLocale();
   const numeric = entry.numericLegend;
   const count = entry.countLegend;
   return <>
     {entry.playback && <PlaybackBar playback={entry.playback} />}
     {entry.styleLegend && <WarehouseStyleLegendView legend={entry.styleLegend} compact={compact} />}
     {numeric && <div className="agent-analysis-count-legend">
-      <span>{numeric.label}{compact ? "" : ` · ${numeric.method === "single_value" ? "單一數值" : "本次結果等距分級"}`}</span>
+      <span>{numeric.label}{compact ? "" : ` · ${numeric.method === "single_value" ? t("analysisCard.legend.singleValue") : t("analysisCard.legend.equalInterval")}`}</span>
       {compact ? <Bar colors={numeric.entries.filter(item => !item.status).map(item => item.color)} /> : <Swatches entries={numeric.entries} />}
     </div>}
     {count && <div className="agent-analysis-count-legend">
-      <span>{count.label} · {count.radiusM.toLocaleString("zh-TW")} 公尺內</span>
+      <span>{t("analysisCard.legend.withinRadius", { label: count.label, radius: formatNumber(count.radiusM) })}</span>
       {compact ? <Bar colors={count.entries.map(item => item.color)} /> : <Swatches entries={count.entries} />}
     </div>}
-    {entry.categoryLegend && <div className="agent-analysis-count-legend"><span>據點類別</span><Swatches entries={entry.categoryLegend.entries} /></div>}
-    {entry.scopeRing && !compact && <p className="agent-analysis-scope-legend"><i aria-hidden="true" />分析範圍（虛線）{entry.scopeRing.radiusM != null ? ` · 半徑 ${entry.scopeRing.radiusM.toLocaleString("zh-TW")} 公尺` : ""}</p>}
+    {entry.categoryLegend && <div className="agent-analysis-count-legend"><span>{t("analysisCard.legend.categories")}</span><Swatches entries={entry.categoryLegend.entries} /></div>}
+    {entry.scopeRing && !compact && <p className="agent-analysis-scope-legend"><i aria-hidden="true" />{t("analysisCard.legend.scope")}{entry.scopeRing.radiusM != null ? t("analysisCard.legend.scopeRadius", { radius: formatNumber(entry.scopeRing.radiusM) }) : ""}</p>}
   </>;
 }
 
 export function AnalysisLegendSection({ entries, compact, isDark }: { entries: readonly AnalysisLegendEntry[]; compact: boolean; isDark: boolean }) {
+  const { t } = useLocale();
   if (!entries.length) return null;
-  return <section className={`analysis-legend-group${isDark ? "" : " analysis-legend-group--light"}`} aria-label="分析結果圖例" data-compact={compact || undefined}>
-    <h4 className="analysis-legend-group__heading">分析結果</h4>
+  return <section className={`analysis-legend-group${isDark ? "" : " analysis-legend-group--light"}`} aria-label={t("analysisCard.legend.groupAria")} data-compact={compact || undefined}>
+    <h4 className="analysis-legend-group__heading">{t("analysisCard.legend.heading")}</h4>
     {entries.map(entry => <div key={entry.resultId} className="analysis-legend-group__entry">
       <strong className="analysis-legend-group__title">{entry.title}</strong>
       <EntryLegend entry={entry} compact={compact} />
-      {!compact && <small className="analysis-legend-group__source">來源 · {entry.source ?? "來源資訊待補"}</small>}
+      {!compact && <small className="analysis-legend-group__source">{t("analysisCard.legend.source", { source: entry.source ?? t("analysisCard.legend.sourcePending") })}</small>}
     </div>)}
   </section>;
 }

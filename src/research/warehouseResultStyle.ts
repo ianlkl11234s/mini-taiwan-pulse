@@ -2,7 +2,11 @@ import type { ExpressionSpecification } from "mapbox-gl";
 import { VIZ_SPEC, categoricalFor, nullHatchCssGradient, type Theme } from "./vizSpec";
 import { classifyVizNumberKind, formatVizNumber, type VizNumberKind } from "./vizFormat";
 
+import { localeStore, type LocaleSnapshot } from "../state/localeStore";
+
 const VIZ_NULL_TEXT = formatVizNumber(null, "count");
+/** 圖例與說明框的顯示字串依「呼叫當下」的介面語系產生（版面函式很深，不逐層傳 i18n）。 */
+const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
 
 /**
  * Styling metadata computed by the MCP warehouse (pulse_wh_present `style`). Breaks, colours and
@@ -665,7 +669,7 @@ export function warehouseProportionalSortKey(style: Extract<WarehouseResultStyle
  *  existing `label`/`xLabel`/`yLabel`; only proportional's `sizeTitle`/`colorTitle` can override the
  *  field name before reaching here (see proportionalLegend/proportionalFact). */
 function titleWithUnit(title: string, unit: string | null | undefined): string {
-  return unit ? `${title}（${unit}）` : title;
+  return unit ? tr("researchResult.legend.titleWithUnit", { title, unit }) : title;
 }
 
 /** Appends a server-declared unit after a formatted popup value (spec N1 "有單位必寫"), e.g.
@@ -673,7 +677,7 @@ function titleWithUnit(title: string, unit: string | null | undefined): string {
  *  "%" from formatVizNumber, so appending again would double it. A missing value stays plain
  *  「無資料」 with no unit. */
 function withUnit(valueText: string, unit: string | null | undefined): string {
-  if (valueText === VIZ_NULL_TEXT) return valueText;
+  if (valueText === VIZ_NULL_TEXT || valueText === tr("researchResult.fact.noData")) return valueText;
   return unit && unit !== "%" ? `${valueText} ${unit}` : valueText;
 }
 
@@ -681,14 +685,14 @@ function withUnit(valueText: string, unit: string | null | undefined): string {
  *  gradient matching the map-side pattern (vizNullPattern.ts). Bivariate/proportional build their
  *  own null entries inline (different semantics — see bivariateLegend/proportionalLegend). */
 function nullEntry(style: Extract<WarehouseResultStyle, { kind: "choropleth" | "heatmap" }>, theme: Theme): WarehouseLegendNullEntry {
-  const label = `無資料／未涵蓋（${style.nullCount}）`;
+  const label = tr("researchResult.legend.noDataNotCovered", { count: style.nullCount });
   if (style.kind === "choropleth" && style.nullStyle === "hatch") return { label, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) };
   return { label, color: style.kind === "heatmap" ? "#bdbdbd" : style.nullColor };
 }
 
 function choroplethLegend(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, theme: Theme): WarehouseStyleLegend {
   const colors = resolvePalette(style, theme);
-  return { kind: "choropleth", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: nullEntry(style, theme), ...(style.valueKind ? { valueKind: style.valueKind } : {}) };
+  return { kind: "choropleth", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? tr("researchResult.legend.methodQuantile") : tr("researchResult.legend.methodEqual"), entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: nullEntry(style, theme), ...(style.valueKind ? { valueKind: style.valueKind } : {}) };
 }
 
 /** The y-axis size legend needs 3 *actually drawn* reference points (their real `_size_value`/
@@ -714,7 +718,7 @@ function bivariateLegend(style: Extract<WarehouseResultStyle, { kind: "bivariate
     kind: "bivariate", xLabel: titleWithUnit(style.xLabel, style.xUnit), yLabel: titleWithUnit(style.yLabel, style.yUnit),
     fillEntries: style.labels.map((label, index) => ({ label, color: colors[index]! })), fillBreaks: style.breaks,
     sizeLegend: bivariateSizeLegendFromRows(style, rows),
-    nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) },
+    nullEntry: { label: tr("researchResult.legend.noDataNotCovered", { count: style.nullCount }), color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) },
     fillValueKind: style.xValueKind,
   };
 }
@@ -722,9 +726,9 @@ function bivariateLegend(style: Extract<WarehouseResultStyle, { kind: "bivariate
 function heatmapLegend(style: Extract<WarehouseResultStyle, { kind: "heatmap" }>, theme: Theme): WarehouseStyleLegend {
   const colors = resolvePalette(style, theme);
   return {
-    kind: "heatmap", title: style.weightField ? `密度（依 ${style.weightField} 加權）` : "點位密度",
-    gradient: `linear-gradient(to right, ${colors.join(", ")})`, note: "顏色越深代表鄰近點位越密集；縮放時會重新計算，並非絕對數值。",
-    nullEntry: style.weightField && style.nullCount > 0 ? { label: `權重缺值未計入（${style.nullCount}）`, color: "#bdbdbd" } : null,
+    kind: "heatmap", title: style.weightField ? tr("researchResult.legend.densityWeighted", { field: style.weightField }) : tr("researchResult.legend.density"),
+    gradient: `linear-gradient(to right, ${colors.join(", ")})`, note: tr("researchResult.legend.heatmapNote"),
+    nullEntry: style.weightField && style.nullCount > 0 ? { label: tr("researchResult.legend.weightMissing", { count: style.nullCount }), color: "#bdbdbd" } : null,
   };
 }
 
@@ -732,14 +736,14 @@ function heatmapLegend(style: Extract<WarehouseResultStyle, { kind: "heatmap" }>
  *  just tagged with its own legend `kind` so the view can (if it ever needs to) tell them apart. */
 function extrusionLegend(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>, theme: Theme): WarehouseStyleLegend {
   const colors = style.palette[theme];
-  return { kind: "extrusion", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? "分位數分級" : "等距分級", entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, valueKind: style.valueKind };
+  return { kind: "extrusion", title: titleWithUnit(style.label, style.unit), method: style.method === "quantile" ? tr("researchResult.legend.methodQuantile") : tr("researchResult.legend.methodEqual"), entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: tr("researchResult.legend.noDataNotCovered", { count: style.nullCount }), color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, valueKind: style.valueKind };
 }
 
 /** M6: same colour-bin shape as choropleth, plus a caption naming the grid method/resolution. */
 function gridLegend(style: Extract<WarehouseResultStyle, { kind: "grid" }>, theme: Theme): WarehouseStyleLegend {
   const colors = style.palette[theme];
-  const method = style.method === "h3" ? `H3 網格（res ${style.resolution}）` : `方格網格（${style.cellMeters} 公尺）`;
-  return { kind: "grid", title: titleWithUnit(style.title, style.unit), method, entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, valueKind: style.valueKind };
+  const method = style.method === "h3" ? tr("researchResult.legend.gridH3", { res: String(style.resolution) }) : tr("researchResult.legend.gridSquare", { meters: String(style.cellMeters) });
+  return { kind: "grid", title: titleWithUnit(style.title, style.unit), method, entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: tr("researchResult.legend.noDataNotCovered", { count: style.nullCount }), color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, valueKind: style.valueKind };
 }
 
 /** M2 G1: one entry per contour level (spec "圖例列出 levels 的 label"), no colour-bin breaks. */
@@ -752,19 +756,19 @@ function isochroneLegend(style: Extract<WarehouseResultStyle, { kind: "isochrone
  *  `animate` decision so the legend can hint at the F3 moving-dot behaviour. */
 function flowLegend(style: Extract<WarehouseResultStyle, { kind: "flow" }>, theme: Theme): WarehouseStyleLegend {
   const colors = style.palette[theme];
-  return { kind: "flow", title: titleWithUnit(style.title, style.unit), entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: `無資料／未涵蓋（${style.nullCount}）`, color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, animate: style.animate, valueKind: style.valueKind };
+  return { kind: "flow", title: titleWithUnit(style.title, style.unit), entries: style.labels.map((label, index) => ({ label, color: colors[index]! })), breaks: style.breaks, nullEntry: { label: tr("researchResult.legend.noDataNotCovered", { count: style.nullCount }), color: "transparent", hatch: true, gradient: nullHatchCssGradient(theme) }, animate: style.animate, valueKind: style.valueKind };
 }
 
 function proportionalLegend(style: Extract<WarehouseResultStyle, { kind: "proportional" }>, theme: Theme): WarehouseStyleLegend {
   const colorLegend = style.colorField ? {
     title: titleWithUnit(style.colorTitle ?? style.colorField, style.colorUnit),
     entries: style.labels.map((label, index) => ({ label, color: style.palette[theme][index]! })),
-    nullEntry: { label: "無資料", color: categoricalFor(theme).other },
+    nullEntry: { label: tr("researchResult.fact.noData"), color: categoricalFor(theme).other },
   } : null;
   const sizeLabel = style.sizeTitle ?? style.sizeField;
   return {
     kind: "proportional", sizeLabel: titleWithUnit(sizeLabel, style.sizeUnit), sizeLegend: style.sizeLegend, colorLegend,
-    excludedNote: style.nullCount > 0 ? `另有 ${style.nullCount} 筆缺少可用的「${sizeLabel}」數值，未顯示` : null,
+    excludedNote: style.nullCount > 0 ? tr("researchResult.legend.excluded", { count: style.nullCount, label: sizeLabel }) : null,
   };
 }
 
@@ -777,7 +781,7 @@ function proportionalLegend(style: Extract<WarehouseResultStyle, { kind: "propor
 const percentHint = (unit: string | null | undefined): string | null => (unit === "%" ? unit : null);
 const show = (value: unknown, unit: string | null = null, kind?: VizNumberKind): string => {
   if (typeof value === "number" && Number.isFinite(value)) return formatVizNumber(value, kind ?? classifyVizNumberKind(value, unit));
-  return typeof value === "string" && value.trim() ? value : "無資料";
+  return typeof value === "string" && value.trim() ? value : tr("researchResult.fact.noData");
 };
 
 function choroplethFact(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
@@ -795,7 +799,7 @@ export function warehouseChoroplethPeriodFact(style: WarehouseTimedChoropleth, r
   const period = style.periods[clamped]!;
   const series = row[style.seriesProperty];
   const raw = Array.isArray(series) ? series[clamped] : undefined;
-  return { label: `${style.label}（${period}）`, value: withUnit(show(raw, percentHint(style.unit), style.valueKind), style.unit), period };
+  return { label: tr("researchResult.fact.seriesLabel", { label: style.label, period }), value: withUnit(show(raw, percentHint(style.unit), style.valueKind), style.unit), period };
 }
 
 function bivariateFact(style: Extract<WarehouseResultStyle, { kind: "bivariate" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
@@ -820,10 +824,10 @@ function compareFact(style: Extract<WarehouseResultStyle, { kind: "compare" }>, 
   const parts = style.rows.map(row => {
     const cell = row.cells[(index as number) - 1];
     const kind = cell && cell.value !== null ? classifyVizNumberKind(cell.value, row.unit) : null;
-    const cellValue = !cell || cell.notCovered ? "未涵蓋" : cell.value === null ? "無資料" : `${show(cell.value, row.unit)}${row.unit && kind !== "percent" ? ` ${row.unit}` : ""}${cell.rank !== null ? `（第 ${cell.rank}）` : ""}`;
+    const cellValue = !cell || cell.notCovered ? tr("researchResult.fact.notCovered") : cell.value === null ? tr("researchResult.fact.noData") : `${show(cell.value, row.unit)}${row.unit && kind !== "percent" ? ` ${row.unit}` : ""}${cell.rank !== null ? tr("researchResult.fact.rankSuffix", { rank: cell.rank }) : ""}`;
     return `${row.label}: ${cellValue}`;
   });
-  return { label: column.label, value: parts.join("；") };
+  return { label: column.label, value: parts.join(tr("researchResult.sep.list")) };
 }
 
 /** Popup fact order (spec §4 proportional): size (+kind) -> colour (+kind, when present) -> rank.
@@ -840,8 +844,8 @@ function proportionalFact(style: Extract<WarehouseResultStyle, { kind: "proporti
     parts.push(`${colorLabel}: ${withUnit(show(colorValue, percentHint(style.colorUnit), style.colorValueKind), style.colorUnit)}`);
   }
   const rank = properties[style.labelRankProperty];
-  if (typeof rank === "number") parts.push(`第 ${rank} 名`);
-  return { label: `${sizeLabel}${colorLabel ? ` × ${colorLabel}` : ""}`, value: parts.join("；") };
+  if (typeof rank === "number") parts.push(tr("researchResult.fact.rank", { rank }));
+  return { label: `${sizeLabel}${colorLabel ? ` × ${colorLabel}` : ""}`, value: parts.join(tr("researchResult.sep.list")) };
 }
 
 /** M7: choropleth fact + a second "高度指標" part joined the same way proportional/bivariate/compare
@@ -851,24 +855,24 @@ function proportionalFact(style: Extract<WarehouseResultStyle, { kind: "proporti
  *  the quantity the reader actually asked about. */
 function extrusionFact(style: Extract<WarehouseResultStyle, { kind: "extrusion" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
   const valueText = withUnit(show(properties[style.valueProperty], percentHint(style.unit), style.valueKind), style.unit);
-  return { label: style.label, value: `${valueText}；高度指標: ${show(properties[style.heightField])}` };
+  return { label: style.label, value: tr("researchResult.fact.heightMetric", { value: valueText, height: show(properties[style.heightField]) }) };
 }
 
 /** M6 popup order (spec §2): 格內件數 → 占全部 % → 權重（有才顯示）. */
 function gridFact(style: Extract<WarehouseResultStyle, { kind: "grid" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
   const countValue = properties[style.countProperty];
   const countNum = typeof countValue === "number" && Number.isFinite(countValue) ? countValue : null;
-  const parts = [`件數: ${countNum !== null ? formatVizNumber(countNum, "count") : "無資料"}`];
-  if (countNum !== null && style.pointCount > 0) parts.push(`占全部: ${formatVizNumber((countNum / style.pointCount) * 100, "percent")}`);
-  if (style.weightProperty) parts.push(`權重: ${withUnit(show(properties[style.weightProperty], percentHint(style.unit), style.valueKind), style.unit)}`);
-  return { label: style.title, value: parts.join("；") };
+  const parts = [tr("researchResult.fact.gridCount", { value: countNum !== null ? formatVizNumber(countNum, "count") : tr("researchResult.fact.noData") })];
+  if (countNum !== null && style.pointCount > 0) parts.push(tr("researchResult.fact.gridShare", { value: formatVizNumber((countNum / style.pointCount) * 100, "percent") }));
+  if (style.weightProperty) parts.push(tr("researchResult.fact.gridWeight", { value: withUnit(show(properties[style.weightProperty], percentHint(style.unit), style.valueKind), style.unit) }));
+  return { label: style.title, value: parts.join(tr("researchResult.sep.list")) };
 }
 
 /** M2: the ranked contour band this polygon belongs to, e.g. "15 分鐘". */
 function isochroneFact(style: Extract<WarehouseResultStyle, { kind: "isochrone" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
   const rank = properties[style.rankProperty];
   const level = typeof rank === "number" ? style.levels.find(candidate => candidate.rank === rank) : undefined;
-  return { label: style.title, value: level ? `${level.label}${style.unit}` : "無資料" };
+  return { label: style.title, value: level ? `${level.label}${style.unit}` : tr("researchResult.fact.noData") };
 }
 
 /** L2: the flow's own classified value (a row excluded by `warehouseFlowWidthFilter` never reaches a rendered popup). */
