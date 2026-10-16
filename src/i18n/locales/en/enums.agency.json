@@ -56,7 +56,7 @@
   "enum.agency.行政院主計總處": "Directorate-General of Budget, Accounting and Statistics (DGBAS)",
   "enum.agency.行政院性別平等會": "Gender Equality Committee, Executive Yuan",
   "enum.agency.衛生福利部": "Ministry of Health and Welfare",
-  "enum.agency.衛生福利部疾病管制署": "Centers for Disease Control, Ministry of Health and Welfare",
+  "enum.agency.衛生福利部疾病管制署": "Taiwan Centers for Disease Control, Ministry of Health and Welfare",
   "enum.agency.衛生福利部國民健康署": "Health Promotion Administration, Ministry of Health and Welfare",
   "enum.agency.衛生福利部統計處": "Department of Statistics, Ministry of Health and Welfare",
   "enum.agency.衛生福利部心理健康司": "Department of Mental and Oral Health, Ministry of Health and Welfare",
@@ -81,7 +81,7 @@
   "enum.agency.原住民族委員會": "Council of Indigenous Peoples",
   "enum.agency.金融監督管理委員會銀行局": "Banking Bureau, Financial Supervisory Commission",
   "enum.agency.核能安全委員會": "Nuclear Safety Commission",
-  "enum.agency.中華民國國防部": "Ministry of National Defense, ROC",
+  "enum.agency.中華民國國防部": "Ministry of National Defense",
   "enum.agency.臺灣電力公司": "Taiwan Power Company (Taipower)",
   "enum.agency.臺灣電力公司（臺電）": "Taiwan Power Company (Taipower)",
   "enum.agency.臺灣中油股份有限公司": "CPC Corporation, Taiwan",
@@ -111,6 +111,6 @@
   "enum.agency.內政部戶政司（行政區常用資料集）": "Department of Household Registration, Ministry of the Interior (common administrative-area dataset)",
   "enum.agency.無單一機關；為衍生分析（非直接下載政府資料）": "No single agency; derived analysis (not a direct download of government data)",
   "enum.agency.衛福部": "Ministry of Health and Welfare",
-  "enum.agency.疾管署": "Centers for Disease Control, Ministry of Health and Welfare",
+  "enum.agency.疾管署": "Taiwan Centers for Disease Control, Ministry of Health and Welfare",
   "enum.agency.政府資料開放平臺data.gov.tw": "Government Open Data Platform (data.gov.tw)"
 }

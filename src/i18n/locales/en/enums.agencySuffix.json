@@ -1,17 +1,17 @@
 {
   "enum.agencySuffix.政府": " Government",
-  "enum.agencySuffix.環保局": " Environmental Protection Bureau",
-  "enum.agencySuffix.環境保護局": " Environmental Protection Bureau",
+  "enum.agencySuffix.環保局": " Department of Environmental Protection",
+  "enum.agencySuffix.環境保護局": " Department of Environmental Protection",
   "enum.agencySuffix.消防局": " Fire Department",
   "enum.agencySuffix.交通局": " Department of Transportation",
-  "enum.agencySuffix.衛生局": " Public Health Bureau",
+  "enum.agencySuffix.衛生局": " Department of Health",
   "enum.agencySuffix.教育局": " Department of Education",
-  "enum.agencySuffix.民政局": " Civil Affairs Bureau",
-  "enum.agencySuffix.城鄉發展局": " Urban and Rural Development Bureau",
+  "enum.agencySuffix.民政局": " Department of Civil Affairs",
+  "enum.agencySuffix.城鄉發展局": " Urban and Rural Development Department",
   "enum.agencySuffix.都市發展局": " Urban Development Department",
   "enum.agencySuffix.產業發展局": " Economic Development Department",
-  "enum.agencySuffix.資訊局": " Information Technology Department",
+  "enum.agencySuffix.資訊局": " Department of Information Technology",
   "enum.agencySuffix.工務局": " Public Works Department",
-  "enum.agencySuffix.建設局": " Public Works Bureau",
-  "enum.agencySuffix.交通處": " Transportation Department"
+  "enum.agencySuffix.建設局": " Construction Department",
+  "enum.agencySuffix.交通處": " Department of Transportation"
 }

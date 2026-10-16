@@ -1,8 +1,8 @@
 {
   "enum.statLicense.政府網站資料開放宣告（未逐字確認；上線前補查）": "Government website open data notice (not verified verbatim; to be rechecked before release)",
   "enum.statLicense.衍生計數；點位來源授權：unspecified": "Derived counts; point source license: not specified",
-  "enum.statLicense.衍生計數；點位來源授權：unspecified (CDC page has no license statement)": "Derived counts; point source license: not specified (the CDC page has no license statement)",
-  "enum.statLicense.衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified": "Derived counts; point source licenses: OGDL-1.0-TW (three data.gov.tw sources); MOHW PDF not specified",
+  "enum.statLicense.衍生計數；點位來源授權：unspecified (CDC page has no license statement)": "Derived counts; point source license: not specified (the Taiwan CDC page has no license statement)",
+  "enum.statLicense.衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified": "Derived counts; point source licenses: OGDL-1.0-TW (three data.gov.tw sources); Ministry of Health and Welfare PDF not specified",
   "enum.statLicense.衍生計數；點位來源授權：疾管署網頁 unspecified；新北 124119/125549 OGDL-1.0-TW": "Derived counts; point source licenses: Taiwan CDC web page not specified; New Taipei datasets 124119/125549 OGDL-1.0-TW",
   "enum.statLicense.衍生計數；點位來源授權：未標示（官網查詢匯出；政府公開資訊，再利用前待確認）": "Derived counts; point source license: not specified (exported from the agency website; government public information, to be confirmed before reuse)",
   "enum.statLicense.衍生計數；點位來源授權：OGDL-1.0-TW": "Derived counts; point source license: OGDL-1.0-TW",
