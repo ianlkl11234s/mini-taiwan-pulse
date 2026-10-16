@@ -86209,15 +86209,6 @@
     ],
     "jmaWarnings": [
       {
-        "label": "透明度 0.55",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.55,
-        "valueText": "0.55"
-      },
-      {
         "label": "種類",
         "options": [
           {
@@ -86359,6 +86350,15 @@
         ],
         "type": "select",
         "value": "all"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "jmaWbgt": [
