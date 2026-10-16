@@ -12,5 +12,9 @@
   "statisticsSelect.boundaryNotProvided": "未提供",
   "statisticsSelect.boundaryUnnamed": "名称未設定の参照境界バージョン",
   "statisticsSelect.metricPerResidents": "{base}（人口1万人あたり）",
-  "statisticsSelect.metricPerKm2": "{base}（1km²あたり）"
+  "statisticsSelect.metricPerKm2": "{base}（1km²あたり）",
+  "statisticsSelect.ytdPeriod": "{year}年{start}～{end}月累計",
+  "statisticsSelect.variantWithPeriod": "{label}（{period}）",
+  "statisticsSelect.variantDetail": "{label}－{detail}",
+  "statisticsSelect.variantPopCompare": "{label}（人口比較）"
 }

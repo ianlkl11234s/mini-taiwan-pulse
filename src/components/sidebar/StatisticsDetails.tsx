@@ -219,7 +219,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
     <LegendTitle zh={statisticsTitle(layerKey, recipe.label, i18n)} style={{ marginBottom: 0 }} />
-    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded')} · {statisticsUnit(recipe.unit, i18n)}</span>
+    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release, i18n) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded')} · {statisticsUnit(recipe.unit, i18n)}</span>
     {'freshness' in recipe && <span>{tr('statistics.legend.freshness', { value: String(recipe.freshness), frequency: statisticsFrequency(recipe.frequency, i18n) })}</span>}
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
