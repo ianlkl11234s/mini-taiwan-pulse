@@ -2224,8 +2224,20 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "氣象防災",
     defaultCollapsed: true,
     groups: [
-      { title: "即時觀測", layers: [fromManifest("jmaAmedas"), fromManifest("jmaWarnings")] },
+      { title: "即時觀測", layers: [fromManifest("jmaAmedas"), fromManifest("jmaWarnings"), fromManifest("jmaLightning"), fromManifest("jmaWbgt")] },
       { title: "地震與火山", layers: [fromManifest("jmaQuakes"), fromManifest("jmaVolcanoes")] },
+      { title: "季節觀測", layers: [
+        fromManifest("jmaSakura"), fromManifest("jmaAutumnLeaves"), fromManifest("jmaSnowcap"), fromManifest("jmaRainySeason"),
+      ] },
+      { title: "解析影像", layers: [
+        fromManifest("jmaRadar"), fromManifest("jmaRasrf"), fromManifest("jmaRiskLand"), fromManifest("jmaRiskInund"), fromManifest("jmaRiskFlood"),
+        fromManifest("jmaSnowDepth"), fromManifest("gibsSnowCover"), fromManifest("jmaUvIndex"), fromManifest("jmaSst"), fromManifest("jmaSeaIce"), fromManifest("jmaHimawari"),
+      ] },
+      { title: "預報圖", layers: [fromManifest("jmaKosa")] },
+      { title: "分析", layers: [
+        fromManifest("jmaAnaSnowFirst"), fromManifest("jmaAnaSnowDays"), fromManifest("jmaAnaRainDays"),
+        fromManifest("jmaAnaRiskLandHours"), fromManifest("jmaAnaRiskInundHours"),
+      ] },
     ],
   },
 

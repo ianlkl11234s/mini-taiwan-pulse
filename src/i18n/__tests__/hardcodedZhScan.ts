@@ -58,6 +58,8 @@ export const I18N_AREAS: I18nArea[] = [
       "src/components/featureInfo/roadPanels.tsx", "src/components/featureInfo/satellitePanels.tsx", "src/components/featureInfo/shared.tsx", "src/components/featureInfo/soilLiquefactionPanels.tsx",
       "src/components/featureInfo/sportsPanels.tsx", "src/components/featureInfo/taipeiWicPanels.tsx", "src/components/featureInfo/tourismPanels.tsx", "src/components/featureInfo/transportPanels.tsx",
       "src/components/featureInfo/urbanPanels.tsx", "src/components/featureInfo/wastePanels.tsx", "src/components/featureInfo/waterPanels.tsx", "src/components/featureInfo/welfarePanels.tsx",
+      // develop 新增（日本氣象防災時間軸點位），已用 t() 寫成
+      "src/components/featureInfo/jmaPointPanels.tsx", "src/components/legend/jmaPointLegends.tsx",
       // P4 AI 介面（只有畫面文字；系統提示、工具說明、資料集描述給 AI 讀，留在報告區）
       "src/card/AnalysisCard.tsx", "src/card/CardApp.tsx", "src/components/chat/ChatPanel.tsx", "src/components/chat/KeySettings.tsx",
       "src/research/AgentTokenSection.tsx", "src/research/AnalysisCardDraftSection.tsx", "src/research/AnalysisLegendSection.tsx", "src/research/MainMapConnection.tsx",

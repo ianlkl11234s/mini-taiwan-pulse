@@ -1,10 +1,14 @@
 // 日本氣象廳（JMA）即時 4 層圖例（legendKit；色票與地圖 paint、popup 同源，皆 import jmaTypes）。
-import { useSyncExternalStore } from "react";
-import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchSquare, useLegendTheme } from "./legendKit";
+import { useSyncExternalStore, type ReactNode } from "react";
+import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import {
-  JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_LOOKBACK_DAYS, JMA_VOLCANO_LEVELS, JMA_WARNING_LEVELS,
+  JMA_IMAGERY_LAYERS, JMA_IMAGERY_UNCOVERED_COLOR, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, jmaImageryProduct, jmaRgb, type JmaImageryLayerKey, type JmaImageryProductId, JMA_QUAKE_LOOKBACK_DAYS, JMA_VOLCANO_LEVELS, JMA_WARNING_LEVELS,
   JMA_ZERO_COLOR, formatJst, jmaAmedasMode, jmaCssGradient,
 } from "../../data/jmaTypes";
+import { getJmaImageryStatus, subscribeJmaImageryStatus } from "../../data/jmaImageryLoader";
+import { FLOOD_STATUS_KEY, GIBS_SNOW_STATUS_KEY } from "../../data/jmaUpstreamLoaders";
+import { JMA_FLOOD_LEVELS, JMA_FLOOD_OTHER_COLOR } from "../../data/jmaTypes";
+import { GIBS_NDSI_STOPS, gibsSnowProduct } from "../../data/gibsSnowTypes";
 import { getJmaLiveStatus, getLatestJmaWarnings, subscribeJmaLiveStatus, type JmaLiveKey } from "../../data/jmaLiveLoaders";
 import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
 import { FONT_SIZE } from "../../styles/designTokens";
@@ -29,8 +33,21 @@ function Hollow({ label }: { label: string }) {
   return <LegendRow swatch={<SwatchDot color="transparent" stroke={JMA_MISSING_COLOR} strokeWidth={2} />}>{label}</LegendRow>;
 }
 
-/** 載入狀態：成功顯示資料時間（JST）與筆數；0 筆明講「目前無資料」；失敗顯示原因。 */
-function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", noCoordLabel }: {
+/** 時間軸往回拉但不在涵蓋期（或 RPC 回 0 列）：明講「未涵蓋」，不讓空地圖被讀成「沒有」。 */
+export function JmaUncoveredLine({ layerKey }: { layerKey: JmaLiveKey }) {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const status = useSyncExternalStore(subscribeJmaLiveStatus, () => getJmaLiveStatus(layerKey));
+  if (status.state !== "uncovered") return null;
+  const style = { marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted };
+  const text = status.uncovered === "future" ? i18n.t("legend.jmaTime.uncoveredFuture")
+    : status.uncovered === "before" ? i18n.t("legend.jmaTime.uncoveredBefore", { from: formatJst(status.coverageFrom) || i18n.t("legend.jma.none") })
+      : i18n.t("legend.jmaTime.uncoveredNoRows");
+  return <div role="status" style={style}>{text}{status.asOf && <> · {i18n.t("legend.jmaTime.historyAt")} <LegendNum>{status.asOf.length === 10 ? status.asOf : formatJst(status.asOf)}</LegendNum></>}</div>;
+}
+
+/** 載入狀態：成功顯示資料時間（JST）與筆數；0 筆明講「目前無資料」；未涵蓋明講；失敗顯示原因。 */
+export function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", noCoordLabel }: {
   layerKey: JmaLiveKey; timeLabel?: string; drawnUnit?: MessageKey; noCoordLabel?: string;
 }) {
   const t = useLegendTheme();
@@ -41,6 +58,7 @@ function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", n
   if (status.state === "error") {
     return <div role="alert" style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: ALERT }}>{i18n.t("legend.jma.errorShown", { message: status.message ?? "" })}</div>;
   }
+  if (status.state === "uncovered") return <JmaUncoveredLine layerKey={layerKey} />;
   if (status.state === "idle" || (status.state === "loading" && status.loadedAt == null)) {
     return <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.jma.loading")}</div>;
   }
@@ -48,9 +66,20 @@ function LiveStatus({ layerKey, timeLabel, drawnUnit = "legend.jma.unitPlace", n
     return <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.jma.empty")}</div>;
   }
   return <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-    {timeLabel} <LegendNum>{formatJst(status.latestAt) || i18n.t("legend.jma.none")}</LegendNum>{i18n.t("legend.jma.drawn")} <LegendNum>{i18n.formatNumber(status.drawn ?? 0)}</LegendNum> {i18n.t(drawnUnit, { count: status.drawn ?? 0 })}
+    {timeLabel} <LegendNum>{(status.latestAt?.length === 10 ? status.latestAt : formatJst(status.latestAt)) || i18n.t("legend.jma.none")}</LegendNum>{i18n.t("legend.jma.drawn")} <LegendNum>{i18n.formatNumber(status.drawn ?? 0)}</LegendNum> {i18n.t(drawnUnit, { count: status.drawn ?? 0 })}
     {(status.noCoord ?? 0) > 0 && <>{i18n.t("legend.jma.noCoordSep")}{noCoordLabel} <LegendNum>{i18n.formatNumber(status.noCoord ?? 0)}</LegendNum> {i18n.t("legend.jma.unitRecord", { count: status.noCoord ?? 0 })}</>}
+    {status.mode === "history" && status.asOf && status.asOf !== status.latestAt && <><br />{i18n.t("legend.jmaTime.historyAt")} <LegendNum>{status.asOf.length === 10 ? status.asOf : formatJst(status.asOf)}</LegendNum></>}
   </div>;
+}
+
+/** 時間軸往回拉時的口徑說明（現在模式不顯示）。onlyIncomplete：只在地震窗不完整時顯示。 */
+function HistoryNote({ layerKey, note, onlyIncomplete = false }: { layerKey: JmaLiveKey; note: MessageKey; onlyIncomplete?: boolean }) {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const status = useSyncExternalStore(subscribeJmaLiveStatus, () => getJmaLiveStatus(layerKey));
+  if (status.mode !== "history" || status.state !== "ok") return null;
+  if (onlyIncomplete && !status.incomplete) return null;
+  return <div style={{ marginTop: 2, fontSize: FONT_SIZE.xs, color: onlyIncomplete ? ALERT : t.textMuted }}>{i18n.t(note)}</div>;
 }
 
 export function JmaAmedasLegend() {
@@ -69,6 +98,7 @@ export function JmaAmedasLegend() {
     <Hollow label={i18n.t("legend.jma.noObservation")} />
     {mode.snowGaugeOnly && <LegendNote>{i18n.t("legend.jma.snowGaugeOnly")}</LegendNote>}
     <LiveStatus layerKey="jmaAmedas" />
+    <HistoryNote layerKey="jmaAmedas" note="legend.jmaTime.historyHourly" />
     <LegendNote>{i18n.t("legend.jma.amedasNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
   </div>;
 }
@@ -83,6 +113,7 @@ export function JmaWarningsLegend() {
     <LegendTitle zh={layerTitle("jmaWarnings", i18n)} en="気象警報" />
     {JMA_WARNING_LEVELS.map((row) => <LegendRow key={row.value} swatch={<SwatchSquare color={row.color} />}>{enumLabel("jmaWarningLevel", row.value, row.label, i18n)}</LegendRow>)}
     <LiveStatus layerKey="jmaWarnings" timeLabel={i18n.t("legend.jma.timeIssuedAt")} drawnUnit="legend.jma.unitCityArea" noCoordLabel={i18n.t("legend.jma.noCoordNonCity")} />
+    <HistoryNote layerKey="jmaWarnings" note="legend.jmaTime.warningsHistory" />
     {names.length > 0 && <div style={{ marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
       {i18n.t("legend.jma.unmappedAreas", { names: names.slice(0, 12).join(i18n.t("legend.jma.listSep")) + (names.length > 12 ? i18n.t("legend.jma.andMore", { count: names.length }) : "") })}
     </div>}
@@ -97,6 +128,8 @@ export function JmaQuakesLegend() {
     {JMA_INTENSITY_CLASSES.map((row) => <LegendRow key={row.value} swatch={<SwatchDot color={row.color} />}>{enumLabel("jmaIntensity", row.value, row.label, i18n)}</LegendRow>)}
     <Hollow label={i18n.t("legend.jma.intensityMissing")} />
     <LiveStatus layerKey="jmaQuakes" timeLabel={i18n.t("legend.jma.timeLatestIssued")} drawnUnit="legend.jma.unitQuake" noCoordLabel={i18n.t("legend.jma.noCoordNoEpicenter")} />
+    <HistoryNote layerKey="jmaQuakes" note="legend.jmaTime.quakesHistory" />
+    <HistoryNote layerKey="jmaQuakes" note="legend.jmaTime.quakesIncomplete" onlyIncomplete />
     <LegendNote>{i18n.t("legend.jma.quakesNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
   </div>;
 }
@@ -107,6 +140,169 @@ export function JmaVolcanoesLegend() {
     <LegendTitle zh={i18n.t("legend.jma.volcanoTitle")} en="火山" />
     {JMA_VOLCANO_LEVELS.map((row) => <LegendRow key={row.value} swatch={<SwatchDot color={row.color} />}>{enumLabel("jmaVolcanoLevel", row.value, row.label, i18n)}</LegendRow>)}
     <LiveStatus layerKey="jmaVolcanoes" timeLabel={i18n.t("legend.jma.timeLatestIssued")} drawnUnit="legend.jma.unitVolcano" />
-    <LegendNote>{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.volcanoSnapshot")}{i18n.t("legend.jma.attribution")}</LegendNote>
+  </div>;
+}
+
+/** 發布幀影像的載入／涵蓋狀態：顯示中＝解析時刻（JST）；發布時段外＝夜間無資料／季外；沒有可用幀＝「未涵蓋」＋原因。 */
+function ImageryStatus({ product }: { product: JmaImageryProductId }) {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const status = useSyncExternalStore(subscribeJmaImageryStatus, () => getJmaImageryStatus(product));
+  const style = { marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted };
+  if (status.state === "error") {
+    return <div role="alert" style={{ ...style, color: ALERT }}>{i18n.t("legend.jma.errorShown", { message: status.message ?? "" })}</div>;
+  }
+  if (status.state === "idle" || status.state === "loading") return <div style={style}>{i18n.t("legend.jma.loading")}</div>;
+  if (status.state === "uncovered") {
+    // 上游本來就不發的時段：不是缺資料，不叫「未涵蓋」
+    if (status.reason === "off_hours") return <div style={style}>{i18n.t("legend.jma.imageryOffHours")}</div>;
+    if (status.reason === "off_season") return <div style={style}>{i18n.t("legend.jma.imageryOffSeason")}</div>;
+    const reason = status.reason === "stale" ? i18n.t("legend.jma.imageryReason.stale")
+      : status.reason === "missing" ? i18n.t("legend.jma.imageryReason.missing")
+        : status.reason === "encoding" ? i18n.t("legend.jma.imageryReason.encoding")
+          : i18n.t("legend.jma.imageryReason.no_frame");
+    return <div style={style}>{i18n.t("legend.jma.imageryUncoveredNow", { reason })}</div>;
+  }
+  if (jmaImageryProduct(product).encoding === "count_la_v1") {
+    // 分析圖：每日一張，內容含當日 → 顯示「統計至 YYYY/M/D」；partial 要明講，不隱藏
+    return <>
+      <div style={style}>{i18n.t("legend.jma.analysisAsOf")} <LegendNum>{formatJstDate(status.validTimeIso) || i18n.t("legend.jma.none")}</LegendNum></div>
+      {status.frameStatus === "partial" && <div style={{ ...style, color: t.textDefault }}>{i18n.t("legend.jma.analysisPartial")}</div>}
+    </>;
+  }
+  return <div style={style}>{i18n.t("legend.jma.imageryValidTime")} <LegendNum>{formatJst(status.validTimeIso) || i18n.t("legend.jma.none")}</LegendNum></div>;
+}
+
+/** valid_time（當日 00:00 JST）→ JST 日期 */
+function formatJstDate(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "";
+  return d.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" });
+}
+
+const IMAGERY_NOTES: Record<JmaImageryLayerKey, MessageKey> = {
+  jmaSnowDepth: "legend.jma.snowDepthNote",
+  jmaRadar: "legend.jma.radarNote",
+  jmaRasrf: "legend.jma.rasrfNote",
+  jmaRiskLand: "legend.jma.riskNote",
+  jmaRiskInund: "legend.jma.riskNote",
+  jmaUvIndex: "legend.jma.uvNote",
+  jmaSst: "legend.jma.sstNote",
+  jmaSeaIce: "legend.jma.seaIceNote",
+  jmaHimawari: "legend.jma.himawariNote",
+  jmaAnaSnowFirst: "legend.jma.anaSnowFirstNote",
+  jmaAnaSnowDays: "legend.jma.anaSnowDaysNote",
+  jmaAnaRainDays: "legend.jma.anaRainDaysNote",
+  jmaAnaRiskLandHours: "legend.jma.anaRiskHoursNote",
+  jmaAnaRiskInundHours: "legend.jma.anaRiskHoursNote",
+};
+
+/** 分析圖（count_la_v1）色階：日序走連續色帶＋日期刻度；日數／時數走分級方塊；0 透明另列一行說明 */
+function CountScale({ layerKey }: { layerKey: JmaImageryLayerKey }) {
+  const i18n = useLocale();
+  const count = jmaImageryProduct(JMA_IMAGERY_LAYERS[layerKey]).count!;
+  const unit = count.unit === "days" ? i18n.t("legend.jma.unitDays") : count.unit === "hours" ? i18n.t("legend.jma.unitHours") : "";
+  const zero = layerKey === "jmaAnaSnowFirst" ? i18n.t("legend.jma.anaSnowFirstZero") : i18n.t("legend.jma.anaZero");
+  return <>
+    {count.ramp
+      ? <SwatchGradient gradient={jmaCssGradient(count.ramp)} labels={count.ramp.map((s) => s.label)} />
+      : (count.classes ?? []).map((c) => <LegendRow key={c.min} swatch={<SwatchSquare color={jmaRgb(c.rgb)} />}><LegendNum>{c.label}</LegendNum> {unit}</LegendRow>)}
+    <LegendRow swatch={<SwatchSquare color="transparent" stroke={JMA_MISSING_COLOR} />}>{zero}</LegendRow>
+  </>;
+}
+
+/** 發布幀影像圖例（色票＝地圖 raster-color 同源 JMA_IMAGERY_PRODUCTS） */
+export function JmaImageryLegend({ layerKey }: { layerKey: JmaImageryLayerKey }) {
+  const i18n = useLocale();
+  const productId = JMA_IMAGERY_LAYERS[layerKey];
+  const spec = jmaImageryProduct(productId);
+  const scalar = spec.scalar;
+  const gray = spec.gray;
+  return <div>
+    <LegendTitle zh={layerTitle(layerKey, i18n)} />
+    {spec.count
+      ? <CountScale layerKey={layerKey} />
+      : gray
+      ? <SwatchGradient gradient={`linear-gradient(90deg, ${gray.stops.map((s) => s.color).join(", ")})`}
+        labels={[i18n.t("legend.jma.himawariWarm"), i18n.t("legend.jma.himawariCold")]} stroke={JMA_MISSING_COLOR} />
+      : scalar
+      ? <>
+        <SwatchGradient gradient={jmaCssGradient(scalar.stops)} labels={[
+          `≤${scalar.stops[0]!.value}`, `${(scalar.stops[0]!.value + scalar.stops[scalar.stops.length - 1]!.value) / 2}`,
+          `≥${scalar.stops[scalar.stops.length - 1]!.value} ${scalar.unit}`,
+        ]} />
+        {scalar.zeroColor && <LegendRow swatch={<SwatchSquare color={scalar.zeroColor} stroke={JMA_MISSING_COLOR} />}>{i18n.t("legend.jma.sstIce")}</LegendRow>}
+      </>
+      : (spec.levels ?? []).map((lv) => <LegendRow key={lv.level} swatch={<SwatchSquare color={jmaRgb(lv.rgb)} />}><LegendNum>{lv.label}</LegendNum></LegendRow>)}
+    {/* 灰階雲圖沒有缺測等級（0、255 都是有效灰階），地圖上不會出現未涵蓋灰 */}
+    {!gray && <LegendRow swatch={<SwatchSquare color={JMA_IMAGERY_UNCOVERED_COLOR} />}>{i18n.t("legend.jma.imageryUncovered")}</LegendRow>}
+    <ImageryStatus product={productId} />
+    <LegendNote>{i18n.t(IMAGERY_NOTES[layerKey])}{spec.count ? i18n.t("legend.jma.anaCoverageNote") : ""}{i18n.t("legend.jma.imageryAttribution")}</LegendNote>
+  </div>;
+}
+
+export function JmaSnowDepthLegend() {
+  return <JmaImageryLegend layerKey="jmaSnowDepth" />;
+}
+
+// ── 上游直連（P5）──────────────────────────────────────────────────
+
+const FLOOD_LEVEL_KEYS: Record<number, MessageKey> = {
+  1: "legend.jma.floodLevel1", 2: "legend.jma.floodLevel2", 3: "legend.jma.floodLevel3", 4: "legend.jma.floodLevel4",
+};
+
+/** 衛星雪覆蓋（NASA GIBS NDSI）：色帶取自 GIBS 色表；雲／夜間／海洋透明 */
+export function GibsSnowCoverLegend() {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const p = useKeyOverlayParams("gibsSnowCover");
+  const product = gibsSnowProduct(p.gibsSnowCoverProductIdx);
+  const status = useSyncExternalStore(subscribeJmaImageryStatus, () => getJmaImageryStatus(GIBS_SNOW_STATUS_KEY));
+  const style = { marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted };
+  return <div>
+    <LegendTitle zh={layerTitle("gibsSnowCover", i18n)} en="NDSI" />
+    <SwatchGradient gradient={`linear-gradient(90deg, ${GIBS_NDSI_STOPS.map((s) => s.color).join(", ")})`}
+      labels={[i18n.t("legend.jma.gibsNdsiLow"), "50", i18n.t("legend.jma.gibsNdsiHigh")]} />
+    <LegendNote>{i18n.t("legend.jma.gibsCloudNote")}</LegendNote>
+    {status.state === "uncovered"
+      ? <div style={style}>{i18n.t("legend.jma.gibsOutOfRange", { date: status.validTimeIso ?? "", start: product.start })}</div>
+      : status.state === "shown"
+        ? <div style={style}>{i18n.t("legend.jma.gibsDate")} <LegendNum>{status.validTimeIso}</LegendNum> · {product.layer.split("_")[0]}</div>
+        : <div style={style}>{i18n.t("legend.jma.loading")}</div>}
+    <LegendNote>{i18n.t("legend.jma.gibsNote")} {i18n.t("legend.jma.gibsAttribution")}</LegendNote>
+  </div>;
+}
+
+/** 洪水キキクル：線色＝level（與地圖 paint 同源 JMA_FLOOD_LEVELS） */
+export function JmaRiskFloodLegend() {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const status = useSyncExternalStore(subscribeJmaImageryStatus, () => getJmaImageryStatus(FLOOD_STATUS_KEY));
+  const style = { marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textMuted };
+  let line: ReactNode;
+  if (status.state === "error") line = <div role="alert" style={{ ...style, color: ALERT }}>{i18n.t("legend.jma.errorShown", { message: status.message ?? "" })}</div>;
+  else if (status.state === "uncovered") {
+    line = <div style={style}>{status.reason === "live_only" ? i18n.t("legend.jma.floodLiveOnly")
+      : status.reason === "stale" ? i18n.t("legend.jma.imageryUncoveredNow", { reason: i18n.t("legend.jma.imageryReason.stale") })
+        : i18n.t("legend.jma.imageryUncoveredNow", { reason: i18n.t("legend.jma.imageryReason.no_frame") })}</div>;
+  } else if (status.state === "shown") line = <div style={style}>{i18n.t("legend.jma.imageryValidTime")} <LegendNum>{formatJst(status.validTimeIso)}</LegendNum></div>;
+  else line = <div style={style}>{i18n.t("legend.jma.loading")}</div>;
+  return <div>
+    <LegendTitle zh={layerTitle("jmaRiskFlood", i18n)} />
+    {[...JMA_FLOOD_LEVELS].reverse().map((lv) => <LegendRow key={lv.value} swatch={<SwatchLine color={lv.color} width={3} />}>{i18n.t(FLOOD_LEVEL_KEYS[lv.value]!)}</LegendRow>)}
+    <LegendRow swatch={<SwatchLine color={JMA_FLOOD_OTHER_COLOR} width={3} />}>{i18n.t("legend.jma.floodOther")}</LegendRow>
+    {line}
+    <LegendNote>{i18n.t("legend.jma.floodNote")}{i18n.t("legend.jma.imageryAttribution")}</LegendNote>
+  </div>;
+}
+
+/** 黃砂予測：圖在右下面板，圖例只說明 */
+export function JmaKosaLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={layerTitle("jmaKosa", i18n)} />
+    <LegendNote>{i18n.t("legend.jma.kosaNote")}{i18n.t("legend.jma.kosaAttribution")}</LegendNote>
   </div>;
 }

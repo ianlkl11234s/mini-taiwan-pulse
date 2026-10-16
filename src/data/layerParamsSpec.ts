@@ -6,7 +6,9 @@ import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } f
 import { ATLAS_ENABLED_STATISTICS_KEYS, type AtlasStatisticsLayerKey } from './atlasStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
-import { JMA_AMEDAS_MODES } from "./jmaTypes";
+import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY } from "./jmaTypes";
+import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
+import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -622,7 +624,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
     "兩版都有", "只看官方", "只看舊版 OSM", "軌跡篩選", "深度", "累積時長", "作物 芋", "高度門檻 ≥", "行政層級", "疊加", "回放",
     "歷史播放", "待核實", "軌跡", "含疑似（未查證）", "時段", "污染等級", "測站類型", "相關度", "嚴重", "只看事件", "依時間",
     "空污", "水污", "廢棄物", "毒化物", "土污", "雙北", "基宜", "桃竹苗", "中彰投", "雲嘉南", "高屏", "花東", "離島", "只看列管中",
-    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式",
+    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式", "現象",
   ].map((label) => [label, "data" as const])),
   // 顏色：配色方式（熱區／網格色盤是 palette 型別，不必列）
   ...Object.fromEntries([
@@ -3702,6 +3704,129 @@ export const LAYER_PARAMS_SPEC = {
   jmaWarnings: [opacitySlider("jmaWarningsOpacity", 0.55)],
   jmaQuakes: [opacitySlider("jmaQuakesOpacity", 0.85), scaleSlider("jmaQuakesScale", 1)],
   jmaVolcanoes: [opacitySlider("jmaVolcanoesOpacity", 0.9), scaleSlider("jmaVolcanoesScale", 1)],
+  // ── JMA／環境省 時間軸點位與區域（P4）：落雷沿用台灣落雷控件；物候可切現象（filter 需重建）──
+  jmaLightning: [
+    { kind: "slider", name: "jmaLightningMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
+    opacitySlider("jmaLightningOpacity", 0.85),
+    scaleSlider("jmaLightningScale", 1),
+  ],
+  jmaWbgt: [opacitySlider("jmaWbgtOpacity", 0.9), scaleSlider("jmaWbgtScale", 1)],
+  jmaSnowcap: [opacitySlider("jmaSnowcapOpacity", 0.95), scaleSlider("jmaSnowcapScale", 1)],
+  jmaAutumnLeaves: [
+    {
+      kind: "select", name: "jmaAutumnLeavesPhenomenon", label: "現象", default: "015",
+      options: JMA_AUTUMN_PHENOMENA.map(({ label, value }) => ({ label, value })),
+      out: "jmaAutumnLeavesPhenomenonIdx", encode: JMA_AUTUMN_PHENOMENA.map((p) => p.value),
+    },
+    opacitySlider("jmaAutumnLeavesOpacity", 0.9), scaleSlider("jmaAutumnLeavesScale", 1),
+  ],
+  jmaSakura: [
+    {
+      kind: "select", name: "jmaSakuraPhenomenon", label: "現象", default: "004",
+      options: JMA_SAKURA_PHENOMENA.map(({ label, value }) => ({ label, value })),
+      out: "jmaSakuraPhenomenonIdx", encode: JMA_SAKURA_PHENOMENA.map((p) => p.value),
+    },
+    opacitySlider("jmaSakuraOpacity", 0.9), scaleSlider("jmaSakuraScale", 1),
+  ],
+  jmaRainySeason: [opacitySlider("jmaRainySeasonOpacity", 0.55)],
+  // JMA 發布幀影像（image source＋raster-color）：raster 透明度 SSOT；走 overlayParams（host 用 useKeyOverlayParams 讀）
+  jmaSnowDepth: [
+    {
+      kind: "slider", name: "jmaSnowDepthOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRadar: [
+    {
+      kind: "slider", name: "jmaRadarOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRasrf: [
+    {
+      kind: "slider", name: "jmaRasrfOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRiskLand: [
+    {
+      kind: "slider", name: "jmaRiskLandOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRiskInund: [
+    {
+      kind: "slider", name: "jmaRiskInundOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaUvIndex: [
+    {
+      kind: "slider", name: "jmaUvIndexOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaSst: [
+    {
+      kind: "slider", name: "jmaSstOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaSeaIce: [
+    {
+      kind: "slider", name: "jmaSeaIceOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaHimawari: [
+    {
+      kind: "slider", name: "jmaHimawariOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaSnowFirst: [
+    {
+      kind: "slider", name: "jmaAnaSnowFirstOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaSnowDays: [
+    {
+      kind: "slider", name: "jmaAnaSnowDaysOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRainDays: [
+    {
+      kind: "slider", name: "jmaAnaRainDaysOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRiskLandHours: [
+    {
+      kind: "slider", name: "jmaAnaRiskLandHoursOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRiskInundHours: [
+    {
+      kind: "slider", name: "jmaAnaRiskInundHoursOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  // 上游直連（P5）：GIBS 衛星雪覆蓋 raster＋產品切換；洪水キキクル line。黃砂是圖片面板，無控件。
+  gibsSnowCover: [
+    {
+      kind: "slider", name: "gibsSnowCoverOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+    {
+      kind: "select", name: "gibsSnowCoverProduct", label: "資料源", default: "modis_terra",
+      options: GIBS_SNOW_PRODUCTS.map(({ label, value }) => ({ label, value })),
+      out: "gibsSnowCoverProductIdx", encode: GIBS_SNOW_PRODUCTS.map((p) => p.value),
+    },
+  ],
+  jmaRiskFlood: [opacitySlider("jmaRiskFloodOpacity", JMA_FLOOD_OPACITY)],
   riverRpiSegments: [
     opacitySlider("riverRpiSegmentsOpacity", 0.85),
     {
