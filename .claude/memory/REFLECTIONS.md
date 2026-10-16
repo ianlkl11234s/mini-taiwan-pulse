@@ -2,6 +2,11 @@
 
 每次 `/wrap-up` 追加一篇。格式：What worked / What didn't / Next-time rules / Memory 產出。
 
+> **2026-10-16 盤點索引**（只加註，不改舊段）
+> - 本檔**不是時間序**（開頭是 06-19、06-18，之後才從 04-22 起排），格式換過四代；找段落請用 `rg -n '^## '`。
+> - 反覆出現的 next-time rules 已升級到 PRINCIPLES「跨主題工作原則（2026-10-16 從 REFLECTIONS 升級）」；網站哲學與小實驗整理在 [`docs/LESSONS.md`](../../docs/LESSONS.md) §6、§7。
+> - **已被推翻、勿再照做**的舊反思：「兩個 sidebar 都要改」（04-26 iot_wra 段；已由共用面板取代，見 PRINCIPLES「圖層面板只用共用元件」）；pnpm worktree＋`npm install --package-lock-only`（07-03 段；現行 npm 唯一）；「SessionStart hook inline STATUS／BACKLOG／PRINCIPLES」（06-19 能源段；現行只給短路由）；squash merge／base master（多段；現行 merge commit、base develop）；Claude review workflow 改短 prompt（06-13/14 段；已改原生 Codex review）；EM-16「Three.js 圖層不做」（08-06~09 段已自行翻案）；raster-color-mix 推導（07-29/31 段；以像素取樣為準）。
+
 ---
 
 ## 2026-06-19 Energy v2 Phase A + B autonomous run
