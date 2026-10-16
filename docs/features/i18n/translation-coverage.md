@@ -179,6 +179,11 @@
 - 分析倉庫＝analysis warehouse；跟隨 Agent 視角＝Follow Agent view；分析依據與來源＝Basis and sources；發布連結＝Publish link；Agent 金鑰＝Agent key。
 - 缺資料（狀態）＝Missing data，無資料／未涵蓋＝No data／Not covered；分位數分級＝Quantile classes，等距分級＝Equal-interval classes。
 
+### P5 地名、機關、授權（2026-10-16，兩輪校對）
+- 縣市／鄉鎮市區：內政部羅馬拼音（Taipei City、Banqiao District、Hsinchu County）；英文連寫為「Zhongzheng District, Taipei City」。表由 `scripts/i18n/gen-place-names.ts` 產生，頭份、員林已升格為市（Toufen City、Yuanlin City），三民區（64000050）CSV 沒有，補 Sanmin District。
+- 機關：官方英文名（DGBAS、Ministry of the Interior…）；署／司寫在部名之前加逗號（Water Resources Agency, Ministry of Economic Affairs）。
+- 授權：歸 6 類——Open Government Data License, Version 1.0 (Taiwan OGDL)／CC BY 4.0 (Attribution)／CC BY-SA／Open Database License (ODbL) 1.0／Not specified／Unverified；帶註記的長句原樣或整句查表。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -316,3 +321,8 @@
 
 ### P4 AI 介面新增用語（2026-10-15，兩輪校對）
 - 缺資料（狀態）＝欠損，無資料＝データなし；分位數分級＝分位数区分，等距分級＝等間隔区分；研究連線＝リサーチ接続；面板與狀態標題體言止め。
+
+### P5 地名、機関、ライセンス（2026-10-16，2 輪校對）
+- 縣市／鄉鎮：新字體（臺→台、縣→県、區→区、鄉→郷；台北市、板橋区、新竹県、信義郷）。
+- 機關：日本漢字（内政部、経済部、行政院主計総処、衛生福利部）；括號內的英文縮寫保留。
+- 授權：政府データ開放ライセンス第1版（台湾 OGDL）／CC BY 4.0（表示）／オープンデータベースライセンス（ODbL）1.0／未表示／未確認。

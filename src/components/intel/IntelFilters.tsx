@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { FONT_CJK, FONT_DATA, COUNTY_OPTIONS } from "./intelTokens";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 import { neutralFill, useIntelTheme, type IntelPalette } from "./intelTheme";
 import { RADIUS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../data/newsEventTypes";
@@ -196,7 +197,7 @@ export function IntelFilters({
         >
           {COUNTY_OPTIONS.map((c) => (
             <option key={c} value={c} style={{ background: palette.optionBg }}>
-              {c === "全部" ? t("intel.filters.allCounties") : enumLabel("intel.county", c, c, i18n)}
+              {c === "全部" ? t("intel.filters.allCounties") : enumLabel("intel.county", c, placeName(c, i18n), i18n)}
             </option>
           ))}
         </select>

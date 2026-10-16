@@ -14,6 +14,7 @@ import { Search, Lock } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { catalogAgency, catalogLicense, statisticsLicense, statisticsPublisher } from "../../i18n/agencyText";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { statisticsTitle, statisticsUnit, statisticsFrequency } from "../../i18n/statisticsText";
 import { LayerNameLine, ListRow } from "./LayerRow";
@@ -286,9 +287,9 @@ export function DataSourceCard({
       facts: facts(
         // 橋接已接上 ≠ 原始來源逐一驗證：保留舊版免責，避免綠色「已接上」被讀成來源層級的驗證
         status === "verified" ? { k: t("dataSources.fact.note"), v: t("dataSources.bridgeNote") } : null,
-        statisticsSource.provider ? { k: t("dataSources.fact.provider"), v: statisticsSource.provider } : null,
+        statisticsSource.provider ? { k: t("dataSources.fact.provider"), v: statisticsPublisher(statisticsSource.provider, i18n) } : null,
         { k: t("dataSources.fact.frequency"), v: text.period },
-        statisticsSource.license ? { k: t("dataSources.fact.license"), v: statisticsSource.license } : null,
+        statisticsSource.license ? { k: t("dataSources.fact.license"), v: statisticsLicense(statisticsSource.license, i18n) } : null,
         { k: t("dataSources.fact.unit"), v: `${text.unit} · ${text.level}` },
         statisticsSource.datasetIds.length ? { k: t("dataSources.fact.dataset"), v: statisticsSource.datasetIds.join(", "), mono: true } : null,
         statisticsSource.sourceUrl ? { k: t("dataSources.fact.api"), v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
@@ -299,8 +300,8 @@ export function DataSourceCard({
         derivation && (typeof derivation.numerator_indicator === "string" || typeof derivation.denominator_indicator === "string")
           ? { k: t("dataSources.fact.ratio"), v: t("dataSources.ratioText", { numerator: statisticsIndicatorLabel(derivation.numerator_indicator, statisticsSource.level, i18n, unspecified), denominator: statisticsIndicatorLabel(derivation.denominator_indicator, statisticsSource.level, i18n, unspecified) }) }
           : null,
-        recordPublisher ? { k: t("dataSources.fact.publisher"), v: recordPublisher } : null,
-        recordLicense ? { k: t("dataSources.fact.publishLicense"), v: recordLicense } : null,
+        recordPublisher ? { k: t("dataSources.fact.publisher"), v: statisticsPublisher(recordPublisher, i18n) } : null,
+        recordLicense ? { k: t("dataSources.fact.publishLicense"), v: statisticsLicense(recordLicense, i18n) } : null,
         recordUrl ? { k: t("dataSources.fact.publishSource"), v: <a href={recordUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{recordUrl}</a> } : null,
         inputs.length ? {
           k: t("dataSources.fact.upstream"), v: (
@@ -309,11 +310,11 @@ export function DataSourceCard({
                 const url = comparisonInputUrl(input.source_landing_url);
                 return (
                   <div key={`${String(input.dataset_id ?? input.source_dataset_id ?? idx)}-${idx}`} style={{ paddingTop: idx ? 4 : 0, borderTop: idx ? `1px solid ${p.border}` : undefined }}>
-                    <div>{String(input.publisher ?? t("dataSources.unspecifiedPublisher"))} · {String(input.dataset_id ?? input.source_dataset_id ?? t("dataSources.unspecifiedDataset"))}</div>
+                    <div>{input.publisher == null ? t("dataSources.unspecifiedPublisher") : statisticsPublisher(String(input.publisher), i18n)} · {String(input.dataset_id ?? input.source_dataset_id ?? t("dataSources.unspecifiedDataset"))}</div>
                     <div style={{ color: p.muted, marginTop: 2 }}>
                       {t("dataSources.upstreamPeriod", {
                         period: typeof input.period_start === "string" && typeof input.period_end === "string" ? t("dataSources.range", { start: input.period_start, end: input.period_end }) : String(input.period ?? input.period_label ?? unspecified),
-                        license: String(input.license ?? unspecified),
+                        license: input.license == null ? unspecified : statisticsLicense(String(input.license), i18n),
                       })}
                     </div>
                     {url && <a href={url} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{url}</a>}
@@ -345,9 +346,9 @@ export function DataSourceCard({
         desc: e.summary,
         facts: facts(
           e.title ? null : { k: t("dataSources.fact.dataset"), v: e.datasetId, mono: true },
-          e.providerAgency ? { k: t("dataSources.fact.provider"), v: e.providerAgency } : null,
+          e.providerAgency ? { k: t("dataSources.fact.provider"), v: catalogAgency(e.providerAgency, i18n) } : null,
           e.lifecycle ? { k: t("dataSources.fact.frequency"), v: `${enumLabel("dataSourceLifecycle", e.lifecycle, LIFECYCLE_LABEL[e.lifecycle] ?? e.lifecycle, i18n)}${e.updateFrequency ? ` · ${e.updateFrequency}` : ""}` } : null,
-          e.license ? { k: t("dataSources.fact.license"), v: e.license } : null,
+          e.license ? { k: t("dataSources.fact.license"), v: catalogLicense(e.license, i18n) } : null,
           e.lastUpdated ? { k: t("dataSources.fact.updated"), v: e.lastUpdated, mono: true } : null,
           e.sourceUrl ? { k: t("dataSources.fact.api"), v: <a href={e.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{e.sourceUrl}</a> } : null,
         ),

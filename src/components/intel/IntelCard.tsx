@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 import {
   COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS,
   relTime, clockTime, chipTint, chipOutline, splitRelTimeParts, withAlpha,
@@ -350,7 +351,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 <>
                   <span style={{ color: palette.textFaint }}>{t("intel.card.location")}</span>
                   <span style={{ color: palette.textDefault }}>
-                    {e.county}
+                    {enumLabel("intel.county", e.county, placeName(e.county, i18n), i18n)}
                     {e.location_name ? ` · ${e.location_name}` : ""}
                   </span>
                 </>
