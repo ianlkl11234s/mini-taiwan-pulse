@@ -12,5 +12,9 @@
   "statisticsSelect.boundaryNotProvided": "Not provided",
   "statisticsSelect.boundaryUnnamed": "Unnamed reference boundary version",
   "statisticsSelect.metricPerResidents": "{base} (per 10,000 residents)",
-  "statisticsSelect.metricPerKm2": "{base} (per km²)"
+  "statisticsSelect.metricPerKm2": "{base} (per km²)",
+  "statisticsSelect.ytdPeriod": "{year}, months {start}–{end} cumulative",
+  "statisticsSelect.variantWithPeriod": "{label} ({period})",
+  "statisticsSelect.variantDetail": "{label} – {detail}",
+  "statisticsSelect.variantPopCompare": "{label} (population comparison)"
 }

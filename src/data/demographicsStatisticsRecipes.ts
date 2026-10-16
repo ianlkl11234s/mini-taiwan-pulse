@@ -5,6 +5,8 @@
 import catalogJson from "./demographicsStatisticsRecipes.catalog.json";
 import type { StatisticsLevel, StatisticsRelease } from "./regionalStatisticsLoader";
 import { humanizeStatisticsText } from "./statisticsLabels";
+import { displayRocYear } from "../i18n/dataText";
+import type { I18nContext } from "../i18n/layerText";
 
 export interface DemographicsReleaseOption {
   release_id: string;
@@ -190,12 +192,27 @@ export const DEMOGRAPHICS_VILLAGE_BOUNDARY_SOURCE = "村里界線：內政部國
 
 type NoteSource = Pick<DemographicsRecipe, "indicator_id"> & Partial<Pick<DemographicsRecipe, "dataset_id" | "release_options" | "level">>;
 
-/** 年初累計期別（dimensions 帶 month_range），例如「115 年 1–8 月累計」。 */
-export function demographicsYtdLabel(recipe: Partial<Pick<DemographicsRecipe, "release_options">>): string | undefined {
+/** 年初累計期別的結構化內容（民國年與起訖月），給顯示層依語系組句。 */
+export interface DemographicsYtdParts { roc_year: string; start_month: number; end_month: number }
+
+export function demographicsYtdParts(recipe: Partial<Pick<DemographicsRecipe, "release_options">>): DemographicsYtdParts | undefined {
   const dims = recipe.release_options?.find((option) => option.dimensions.month_range)?.dimensions;
   const range = dims?.month_range?.match(/^(\d{2})-(\d{2})$/);
   if (!dims || !range) return undefined;
-  return `${dims.roc_year} 年 ${Number(range[1])}–${Number(range[2])} 月累計`;
+  return { roc_year: String(dims.roc_year), start_month: Number(range[1]), end_month: Number(range[2]) };
+}
+
+/** 年初累計期別句，例如「115 年 1–8 月累計」；不帶 i18n 為原中文，外文民國年轉西元。 */
+export function demographicsYtdText(parts: DemographicsYtdParts, i18n?: I18nContext): string {
+  const template = i18n && i18n.active !== "zh-TW" ? i18n.lookup("statisticsSelect.ytdPeriod") : null;
+  if (!i18n || !template) return `${parts.roc_year} 年 ${parts.start_month}–${parts.end_month} 月累計`;
+  return template.replace("{year}", displayRocYear(parts.roc_year, i18n)).replace("{start}", String(parts.start_month)).replace("{end}", String(parts.end_month));
+}
+
+/** 年初累計期別（dimensions 帶 month_range），例如「115 年 1–8 月累計」。 */
+export function demographicsYtdLabel(recipe: Partial<Pick<DemographicsRecipe, "release_options">>, i18n?: I18nContext): string | undefined {
+  const parts = demographicsYtdParts(recipe);
+  return parts ? demographicsYtdText(parts, i18n) : undefined;
 }
 
 export function demographicsIndicatorNote(recipe: NoteSource): string | undefined {
@@ -216,10 +233,16 @@ export function demographicsDisplayLabel(recipe: Pick<DemographicsRecipe, "label
 }
 
 /** 期別文字：年初累計標「115 年 1–8 月累計」，其餘交給共用 statisticsPeriodLabel。 */
-export function demographicsPeriodLabel(key: string, release: Pick<StatisticsRelease, "release_id">): string | undefined {
+export function demographicsPeriodLabel(key: string, release: Pick<StatisticsRelease, "release_id">, i18n?: I18nContext): string | undefined {
+  const parts = demographicsPeriodParts(key, release);
+  return parts ? demographicsYtdText(parts, i18n) : undefined;
+}
+
+/** 期別的結構化內容（非年初累計回 undefined）；loader 寫進 properties 讓面板依語系組句。 */
+export function demographicsPeriodParts(key: string, release: Pick<StatisticsRelease, "release_id">): DemographicsYtdParts | undefined {
   const recipe = getDemographicsRecipe(key);
   const option = recipe?.release_options.find((item) => item.release_id === release.release_id);
-  return option?.dimensions.month_range ? demographicsYtdLabel({ release_options: [option] }) : undefined;
+  return option?.dimensions.month_range ? demographicsYtdParts({ release_options: [option] }) : undefined;
 }
 
 /**
