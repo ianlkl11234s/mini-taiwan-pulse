@@ -4,7 +4,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **TL-1 · `verifying`**：部署前上傳 5 個 gitignored 新檔（protected/riverside/parks GeoJSON + national/tree_pits/3epoch/canopy PMTiles）。
+- [x] **TL-1 · `verifying`**：部署前上傳 5 個 gitignored 新檔（protected/riverside/parks GeoJSON + national/tree_pits/3epoch/canopy PMTiles）。 — 2026-10-16 盤點關閉：protected／riverside／parks GeoJSON 與 3epoch／canopy PMTiles 正式站 200/206
   - Outcome：正式站不因大檔未進 git 而出現 404 或缺圖層。
   - Next action：執行 `upload-deploy-assets.sh`，核對 S3 HEAD/checksum、pull 與 browser 各層可見性。
 

@@ -1,5 +1,9 @@
 # Changelog — 日本旅宿、自然保護與世界遺產
 
+## 2026-10-16 — 盤點關閉
+
+- JP-TOUR-1：PR #243（`59c57c77`）、S3／nginx／desktop／mobile readback 完成（見上方 2026-09-11 production release），自 backlog 移除。
+
 ## 2026-09-11 — production release
 
 - Frontend PR #243 squash merged as `59c57c77`；CI build、Vitest 與 private coral backend tests 通過。

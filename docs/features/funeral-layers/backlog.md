@@ -4,7 +4,7 @@
 
 ## Active work（進行中／待辦）
 
-- [ ] **FN-1** · `release` · P2 · `ready`：deploy 前跑 `upload-deploy-assets.sh` 上傳 `public/funeral/`
+- [x] **FN-1** · `release` · P2 · `ready`：deploy 前跑 `upload-deploy-assets.sh` 上傳 `public/funeral/` — 2026-10-16 盤點關閉：funeral_facilities.geojson 正式站 200；殯葬 PR #107（v1.12.0）
       （5 檔目前全進 git 走 dist，S3 是同構備援；**不上傳不會 404**，但保持一致較好排障）
 - [ ] **FN-2** · `data-health` · P2 · `waiting_external`：設施 438 筆無座標的尾巴回填（上游：地號兩源皆查無 364 ＋ 原始無地址 73 ＋ partial 1）——
       前端無需改碼，等上游重跑

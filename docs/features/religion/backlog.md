@@ -4,7 +4,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **RL-1 · `verifying`**：確認 6 層宗教群的 PR、merge 與 `public/religion/temples.pmtiles` production asset。
+- [x] **RL-1 · `verifying`**：確認 6 層宗教群的 PR、merge 與 `public/religion/temples.pmtiles` production asset。 — 2026-10-16 盤點關閉：PR #101（v1.11.0）；temples.pmtiles 正式站 206
   - Outcome：正式環境不會因 gitignored PMTiles 未上傳而 404。
   - Next action：核對 PR/CI、S3 HEAD/checksum、HTTP Range 與 browser layer；以無 404、六層可渲染為 acceptance。
 
