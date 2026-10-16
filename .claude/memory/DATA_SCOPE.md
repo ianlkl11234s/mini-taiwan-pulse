@@ -3,9 +3,14 @@
 **最後更新**：2026-09-10（新增 Statistics R2 production runtime contract；既有資料範圍保留於對應章節）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
+
+> ⚠️ 2026-10-16 閱讀須知：
+> - 本檔的 `realtime.*` 一律讀作 `live.*`（舊 `realtime` schema 已於 2026-08-17 併入 `live`，ADR-0010／migration 312）。只改了標題與現況描述，表格內的歷史表名保留原文。
+> - 各段的筆數、時間深度多是寫段當時的快照，**不是現況**；現況以 DB 實查（帶 LIMIT）或分析倉庫為準。
+> - 「動態 Collector 基礎設施」一段的 7 個 collector 是 2026-04 的清單，現役 collector 以 `data-collectors/collectors/registry.py` 的 `COLLECTOR_REGISTRY` 為準。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
 
-## 水資源 — 時序（Supabase realtime schema）
+## 水資源 — 時序（Supabase live schema，原 realtime）
 
 | 表 | 粒度 | 筆數 / 覆蓋 | 時間深度 |
 |---|---|---|---|
@@ -70,7 +75,7 @@
 > **PostgREST db-max-rows=20000 cap** — 2026-04-25 兩次踩到（groundwater 78K、river 44K 原始）。
 > 新 RPC 預估 rows > 15K 一律套 DISTINCT ON hourly 降頻（PRINCIPLES / PB-08）。
 
-## 廢棄物 — 時序（Supabase realtime schema）
+## 廢棄物 — 時序（Supabase live schema，原 realtime）
 
 | 表 | 粒度 | 筆數 / 覆蓋 | 時間深度 |
 |---|---|---|---|
@@ -221,7 +226,9 @@ Phase 3 候選：4 筆（129475/6 敏感區、36695 枯旱、58343 洩洪）
 | `SUPABASE_DB_URL` / `DATABASE_URL` | psql 直連 |
 | `S3_ACCESS_KEY` / `S3_SECRET_KEY` | 非預設 AWS credentials |
 
-## 資料新鮮度警示
+## 資料新鮮度警示（2026-04 快照）
+
+> ⚠️ 過時（2026-10-16）：以下是 2026-04 的狀態，未逐條複查；現況看 BACKLOG 與 `docs/features/water-resources/`。
 
 - 水庫 collector 4 月才開跑 → 想做「過去一年水位變化」類分析需要補年報（WRA 32728）或等累積
 - `river_stations` 空表 → 警戒水位視覺化阻塞中（W001）
@@ -262,7 +269,7 @@ satellite-art 既有 4 個物件：
 **前端 layer key**：satellitesYaogan / satellitesJilin / satellitesGaofen /
 satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習慣決定）。
 
-## 新聞事件 — 時序（Supabase realtime schema，2026-06-13/14）
+## 新聞事件 — 時序（Supabase live schema，原 realtime，2026-06-13/14）
 
 - `realtime.news_events`（主表，每篇新聞 1 列）
   - 欄位：source / url / url_norm UNIQUE / title / summary / category / location_name / county / admin_code / published_ts / confidence / title_simhash bigint / geom Point4326（由 BEFORE INSERT trigger 補）
@@ -411,7 +418,7 @@ EXPLAIN ANALYZE 86ms，無需 pre-aggregate。
 
 5 個 ~5 MB（總 ~25 MB），存 `public/coverage/`。資料模型「每 OSM edge 染最近 source 的路網距離 5 級色階」（0-5/5-10/10-20/20-30/>30 km）。半年更新一次。
 
-Pipeline：`taipei-gis-analytics/scripts/road_isochrone/taiwan_nearest_distance.py`（osmnx + Overpass + tippecanoe）。Multi-bucket + whitelist 兩鐵則套用案例。
+Pipeline：`taipei-gis-analytics/pipelines/energy/road_isochrone_taiwan_nearest/taiwan_nearest_distance.py`（2026-10-16 校正路徑；原寫 `scripts/road_isochrone/`）（osmnx + Overpass + tippecanoe）。Multi-bucket + whitelist 兩鐵則套用案例。
 
 Bonus: `taiwan_other_nearest.pmtiles` 已備但前端尚未接第 6 個 layer（暫存）。
 
@@ -475,7 +482,7 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 
 ## 動態 Collector 基礎設施（data-collectors repo）
 
-**7 個現役 collector**（`../data-collectors/collectors/`）：
+**2026-04 時的 7 個 collector**（`../data-collectors/collectors/`；現已 30+，以 `collectors/registry.py` 為準）：
 
 | Collector | 資料來源 | 間隔 | S3 前綴 |
 |---|---|---|---|
