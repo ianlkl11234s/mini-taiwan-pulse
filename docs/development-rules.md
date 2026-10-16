@@ -129,7 +129,7 @@ useEffect(() => {
 | 7 | `src/data/layerManifest.ts` | 宣告 key、label、color、icon、section、source、legend、popup；下游登記簿由此派生 | 🔒 `layerConsistency.test.ts` + `layerManifest.test.ts` |
 | 8 | `src/components/sidebar/layerCatalog.ts` | **不手改登記值**；只確認 manifest 的 section 能正確派生至桌機/手機共用 `THEMES` | 🔒 `layerManifest.test.ts`（`section` 宣告 ⇔ THEMES 實際位置） |
 | 9 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView | ⚠️ 人工 |
-| 10 | `src/hooks/useLayerVisibility.ts` | 僅預設開啟才需要：加進 `DEFAULT_ON`；預設 false 自動派生免改 | ⚠️ 人工（`Set`，非 `Record`，tsc 不強制） |
+| 10 | `src/state/layerVisibilityStore.ts` | 僅預設開啟才需要：加進 `DEFAULT_ON`；預設 false 自動派生免改。⚠️ 2026-08 起刻意為空集合（進站不自動開任何圖層），要加須使用者拍板 | ⚠️ 人工（`Set`，非 `Record`，tsc 不強制） |
 | 11 | `src/data/layerParamsSpec.ts` | 在 `LAYER_PARAMS_SPEC` 加**一筆** `key: [ …控件… ]`（opacity slider 由規則 1 強制）。控件長相／預設值／`overlayParams` 編碼三者全由這筆規格派生 —— **不要**再去 hook 加 `useState`／`case`／deps，見下方「§4 params 新流程」 | 🔒 `layerConsistency.test.ts`（`NO_PARAMS_LEDGER` 雙向凍結，判準走 manifest 的 `params: null`）+ `layerManifest.test.ts`（`params` 是否為 null ⇔ spec 有無宣告）+ `layerParamsSharedState.test.ts`（共用 slot / 殘影 / switch 維持清空）+ 黃金快照 `params` section |
 | 11a | `src/data/layerManifest.ts` | 同一筆 entry 的 `params: { count, kinds }`（沒有控件寫 `null`） | 🔒 `layerManifest.test.ts`「params 宣告 = 實際回傳的控件數與型別序列」 |
 | 12 | `src/components/legend/<domain>Legends.tsx` | 若規則 2 觸發：寫圖例 sub-component（依主題挑檔，如 `waterLegends.tsx`） | ⚠️ 人工（元件內容本身無格式測試） |
@@ -146,10 +146,9 @@ useEffect(() => {
 
 ### §4 params 新流程：**規格一筆 + 控件自動生成**（AR-22 Phase 3 完成後）
 
-> 2026-08-12 起 `useTransportParams.ts` 已更名 `src/hooks/useLayerParamsRuntime.ts`，
-> 且**不再持有任何參數**（`useState` 645 → 0，348 key 中 336 個走規格）。
-> 舊流程「加 state ＋ 加 `case` ＋ 加 `overlayParams` 一行 ＋ 加 deps 一項」共 4-5 個 hunk，
-> 現在是**一個檔一筆宣告**。
+> 2026-10-16 校正：參數的 runtime hook（`useTransportParams.ts` → `useLayerParamsRuntime.ts`）已在 AR-22 Phase 4 **整支退役**（`src/App.tsx` 註解）。
+> 參數現在只有一個來源：`layerParamsSpec.ts` 的規格 → `layerParamsStore`；消費端各自訂閱。
+> 舊流程「加 state ＋ 加 `case` ＋ 加 `overlayParams` 一行 ＋ 加 deps 一項」共 4-5 個 hunk，現在是**一個檔一筆宣告**。
 
 **做法**——在 `src/data/layerParamsSpec.ts` 的 `LAYER_PARAMS_SPEC` 加一筆：
 
@@ -166,28 +165,23 @@ myNewLayer: [
 ],
 ```
 
-自動發生的三件事（都**不用**再手寫）：
+（`opacitySlider`、`scaleSlider` 是 `layerParamsSpec.ts` 檔內 helper；該檔含非文字位元組，BSD `grep` 會靜默回空，查名字用 `/usr/bin/grep -a` 或直接讀檔。）
+
+自動發生的事（都**不用**再手寫）：
 
 | 你不用做 | 誰做的 |
 |---|---|
-| `getControls` 的 `case` | `state/layerParamsControls.ts` 的 `buildParamControls()` 從規格派生 |
-| 值的 state ＋ 預設值 | `state/layerParamsStore.ts`（`buildDefaultParams()` 從規格的 `default` 起手） |
-| `overlayParams` 的一行 ＋ deps 的一項 | `encodeParamsToOverlay()` 從規格的 `out` / `encode` 派生 |
+| 控件長相（slider／select／toggle／palette…） | `src/state/layerParamsControls.ts` 的 `buildParamControls()` 從規格派生，`sidebar/LayerParamControls.tsx` 統一渲染 |
+| 值的 state ＋ 預設值 | `src/state/layerParamsStore.ts`（`buildDefaultParams()` 從規格的 `default` 起手） |
+| `overlayParams` 的一行（toggle 自動編 0/1、select 依 `encode` 編 index） | `src/state/layerParamsStore.ts` 的 `encodeParamsToOverlay()` 從規格的 `out`／`encode` 派生 |
 
-**只有這幾種情況才需要碰 `useLayerParamsRuntime.ts`**：
+**兩種特殊情況**：
 
-1. 這個參數的消費者**不是 paint**，而是 React／Three.js（`refs.current`、子物件、平鋪欄位）
-   → 規格寫 `out: null`，並在 hook 的 `return {}` 接一條線；
-   同時**必須**在 `__tests__/useLayerParamsRuntimeReturn.test.ts` 的 `RETURN_CHANNEL`
-   宣告它的回傳路徑（活文件，漏了等值閘 B 立刻紅）。
+1. 參數的消費者**不是 paint**，而是 React 或 Three.js：
+   - React 圖層／面板：用 `useLayerParams(key)`（`layerParamsStore.ts`）per-key 訂閱，不經 App。
+   - Three.js RAF 迴圈：在 `src/state/layerParamRefs.ts` 的 `layerParamRefs` 加一個模組級 ref，由 `syncLayerParamRefs()` 隨 store 更新；`useThreeJsLayers` 直接 import，**不要**經 App props 傳。
 2. 這層**有意沒有控件**（純靜態展示層）→ **只有一種寫法**：manifest 寫 `params: null`
-   ＋ 把 key 加進 `layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER` 並寫下理由。
-   ⚠️ AR-22 Phase 4 前還有第二種（在 hook 留一個 `case "x": return []` 的
-   `emptyByDesign` 分支）—— 那 5 個分支與掃它的 `paramsCaseKeys()` 都已退役，
-   **不要**在 `useLayerParamsRuntime.ts` 加回任何 `case`（有測試擋）。
-3. 鏡像 ref：一律用 `useParamRefNum` / `useParamRefBool` / `useParamRefEnum`，
-   ⚠️ **initial 吃規格常數、current 才吃 store 現值** —— 兩者同源會讓「刪掉同步賦值」
-   這個突變在測試裡驗不出來（每次 capture 都是全新 mount）。
+   ＋ 把 key 加進 `layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER` 並寫下理由（目前會被 `layerUxPolicy.test.ts` 的透明度基線擋，等於要使用者同意的例外）。
 
 **驗收**：`npx tsc -b` ＋ `npx vitest run`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
 的**既有層那幾行必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
@@ -199,7 +193,7 @@ myNewLayer: [
 
 ### 檢查清單
 - [ ] `tsc -b` pass
-- [ ] `LAYER_COLORS` 補齊（`Record<keyof LayerVisibility, string>` 編譯時會強制）
+- [ ] manifest entry 欄位齊全（color／icon／section／source／legend／popup／params；`LAYER_COLORS` 等由此派生，不手改）
 - [ ] Loader 有 loadingRegistry
 - [ ] Toggle 開關有 loading 提示
 - [ ] 無 DB 查詢時間 > 1s（否則套 pre-aggregate）
@@ -215,13 +209,26 @@ myNewLayer: [
 
 新 layer 必須同時通過下列四條，缺一不可。違反時 reviewer 應退件。
 
+**三份清單的分工與對齊（2026-10-16）**：本節是**規則正本**（四鐵則）；[`layer-ux-policy.md`](./layer-ux-policy.md) 是**產品政策**（多了點位大小、分類篩選、Esc 三項全站能力）；[`design-system/map-layers.md`](./design-system/map-layers.md) §1.3 是**視覺驗收步驟**，`layer-style-inventory.json` 的 `ironRules` 欄位是盤點結果。各項目前由誰守門：
+
+| 項目 | 出處 | 自動守門（測試） | 沒守到的部分 |
+|---|---|---|---|
+| 1 透明度 slider | 四鐵則、政策、驗收 | `layerConsistency.test.ts` 鐵則 1（`params: null` ＝ `NO_PARAMS_LEDGER`）＋ `layerUxPolicy.test.ts`（每筆 spec 都要有透明度滑桿，基線為空） | 滑桿是否真的影響全部子圖層 → 人工（map-layers §1.3 兩端 0.1／1.0） |
+| 2 分類 ≥2 → 圖例 | 四鐵則、驗收 | `layerConsistency.test.ts` 鐵則 2（`legend: null` ＝ `NO_LEGEND_LEDGER`）＋ `layerManifest.test.ts`（宣告 ⇔ `LEGEND_REGISTRY`） | 圖例色與地圖是否一致 → 人工＋`design:audit-layers` 盤點 |
+| 3 可選取 → popup | 四鐵則、政策「點選資訊」、驗收 | `layerConsistency.test.ts` 鐵則 3（`popup: null` ＝ `NO_POPUP_LEDGER`）＋ `registry.test.ts` | `gisClickRegistry.ts` 漏加條目**沒有測試**（`mapInteractionLayers.test.ts` 只驗既有條目）→ 人工點一次 |
+| 4 select ≥4 用原生下拉 | 四鐵則、驗收 | `layerConsistency.test.ts` 鐵則 4（閾值只在共用元件） | 無（per-layer 不需動作） |
+| 點位大小 | 政策 | `layerUxPolicy.test.ts`（registry 點層都要有大小控件或列基線） | custom renderer 點層靠基線清單 |
+| 分類篩選（多選） | 政策 | 無 per-layer 測試（`multiSelectMapbox.test.ts` 只驗 bitmask 機制） | 人工 |
+| Esc 關閉暫態 UI | 政策 | 無 | 全域行為，人工 |
+
+
 ### 規則 1：透明度 slider 必備
 所有 layer（不論 fill / line / circle / 3D）都要有 opacity slider，
 使用者得以與底圖混合 / 跟其他 layer 疊看不致互卡。
 
 寫法是在 `src/data/layerParamsSpec.ts` 的 `LAYER_PARAMS_SPEC` 該 key 底下放一筆
 `opacitySlider("<key>Opacity", 0.8)`（控件與 `overlayParams` 編碼自動生成，
-見 §4「params 新流程」）。**不要**再去 `useLayerParamsRuntime.ts` 加 `useState`。
+見 §4「params 新流程」）。透明度滑桿必須影響該層全部主體子圖層（`design-system/map-layers.md` §1.3）。
 
 ### 規則 2：分類 ≥ 2 種 → 必寫圖例
 **只要 layer 內的 feature 用顏色區分出 2 種以上類別／級別，不論點位 / polygon / line，
@@ -272,7 +279,7 @@ PMTiles 後端配套（**跨 repo**，在 `taipei-gis-analytics/pipelines/`）�
 ### 規則 4：Sidebar 控件不得橫向溢出
 Layer 的展開參數區是**直式 narrow column**（~240px），所有 control 必須完全裝進去。
 
-**SelectConfig 渲染規則**（兩個 sidebar `LayerSidebar.tsx` + `IconRailSidebar.tsx` 共用）：
+**SelectConfig 渲染規則**（桌機與手機共用 `src/components/sidebar/LayerParamControls.tsx`，閾值只寫在這一處，新層不用做任何事）：
 - `options.length ≤ 3` → 橫向 button row（如 rail Track 2D/3D、bus color route/speed/density）
 - `options.length ≥ 4` → 原生 `<select>` dropdown（如作物 132 種、土壤肥力 6 metric）
 
@@ -331,11 +338,11 @@ npx tsc -b   # project references，不要用 tsc --noEmit
 Commit 前必跑。
 
 ## 7. 部署 Checklist
-見 CLAUDE.md 或 deploy-checklist memory。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
+部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
 
 ## 8. 動態圖層時間訂閱（External Time Store）
 
-> 2026-04-14 後所有隨時間變化的圖層**強制**遵守此規則。背景見 `docs/TIMELINE_ARCHITECTURE.md`（原 perf-external-time-store 已歸檔：`docs/archive/2026-10-04/perf-external-time-store.md`）。
+> 2026-04-14 後所有隨時間變化的圖層**強制**遵守此規則（本節是正本）。架構、實作狀態與 scoped 時鐘見 [`TIMELINE_ARCHITECTURE.md`](./TIMELINE_ARCHITECTURE.md#timestore外部時間來源)；當初改 external store 的理由見 `docs/archive/2026-10-04/perf-external-time-store.md`。
 
 ### 原則
 Timeline 的 `currentTime` 存在 **`src/state/timeStore.ts`**（不是 React state）。
