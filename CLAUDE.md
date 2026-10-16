@@ -103,8 +103,8 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 | 規則 | [`docs/development-rules.md`](./docs/development-rules.md) | 詳細版 + 範例（含 §4a 四鐵則完整） |
 | 規則 | [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) | Pre-aggregate pattern 完整指南 + OOM 5 條 |
 | 規則 | [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) | 時間軸 / timeStore 架構 |
-| 參考 | [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md) | RPC 效能盤點 |
-| 參考 | [`docs/bus-layer-design.md`](./docs/bus-layer-design.md) | 公車 progress-based 全台擴展 |
+| 參考 | [`docs/audit/supabase-rpc-audit-2026-04-09.md`](./docs/audit/supabase-rpc-audit-2026-04-09.md) | RPC 效能盤點 |
+| 參考 | [`docs/features/bus/design.md`](./docs/features/bus/design.md) | 公車 progress-based 全台擴展 |
 | 參考 | [`docs/known-issues.md`](./docs/known-issues.md) | 歷史 bug + 診斷指令 |
 | 參考 | [`docs/research/`](./docs/research/) | 決策軌跡 / 跨系統比對 / 故事 cookbook |
 | 關聯 repo | `../gis-platform` | Supabase migrations |
