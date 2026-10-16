@@ -48,7 +48,7 @@ describe('statisticsVariantLabel：群組「指標／口徑」選項', () => {
   });
   it('組句範例', () => {
     expect(statisticsVariantLabel('縣市：出生數（115 年 1–8 月累計）', context('en'))).toBe('County/City: Births (2026, months 1–8 cumulative)');
-    expect(statisticsVariantLabel('鄉鎮市區：淨遷徙人數（社會增加數）', context('ja'))).toBe('郷鎮市区：純移動者数（社会増加数）');
+    expect(statisticsVariantLabel('鄉鎮市區：淨遷徙人數（社會增加數）', context('ja'))).toBe('郷鎮市区：純移動数（社会増加数）');
     expect(statisticsVariantLabel('沒翻的字', context('en'))).toBeNull();
   });
 });
@@ -75,7 +75,7 @@ describe('人口統計期別句', () => {
     expect(demographicsYtdLabel({ release_options })).toBe('115 年 1–8 月累計');
     expect(demographicsYtdLabel({ release_options }, context('zh-TW'))).toBe('115 年 1–8 月累計');
     expect(demographicsYtdLabel({ release_options }, context('en'))).toBe('2026, months 1–8 cumulative');
-    expect(demographicsYtdLabel({ release_options }, context('ja'))).toBe('2026年1–8月累計');
+    expect(demographicsYtdLabel({ release_options }, context('ja'))).toBe('2026年1～8月累計');
     expect(demographicsPeriodLabel).toBeTypeOf('function');
   });
 });

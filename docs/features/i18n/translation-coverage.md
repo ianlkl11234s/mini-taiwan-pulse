@@ -179,6 +179,12 @@
 - 分析倉庫＝analysis warehouse；跟隨 Agent 視角＝Follow Agent view；分析依據與來源＝Basis and sources；發布連結＝Publish link；Agent 金鑰＝Agent key。
 - 缺資料（狀態）＝Missing data，無資料／未涵蓋＝No data／Not covered；分位數分級＝Quantile classes，等距分級＝Equal-interval classes。
 
+### P2b 統計選單英文校對（2026-10-16，兩輪）
+- 範圍 `en/enums.statVariant.json`（190 筆）、`en/statisticsSelect.json` 模板；下拉選單用 sentence case（專名如 Indigenous 例外）。
+- 第 1 輪（32 筆）：每萬名居民＝per 10,000 people（模板改成 `{base} per 10,000 people`、`{base} per km²`，不加括號）；鄉鎮＝Township/District；第一／二級毒品＝Category 1／2；登錄數＝Registrations；筆數類＝records；乳癌／子宮頸癌／大腸癌（篩檢率選項）加 screening；原住民＝Indigenous（大寫）；參與人次＝Participants (person-times)；A2 事故＝A2 traffic accidents；期末營業車輛／里程＝Operating buses／Operating bus route length at period end；占…同類比＝Share of national total／Share of county/city total（層級前綴已顯示，不重複）；占縣市行政面積＝Share of county/city area；相對集中度 LQ＝Location quotient (LQ)；偶爾自住／無人經常居住／其他使用占總住宅比＝Occasionally owner-occupied／Usually unoccupied／Other-use share of all dwellings。
+- 第 2 輪（17 筆，風格與長度）：淨遷徙人數（社會增加數）＝Net migration（避免與累計期別括號相疊）；已設戶籍外來人口＝Foreign-origin registered residents／Foreign-origin residents (from …)；加護＝ICU；○○占營業車比＝Operating buses 句型；縮短過長句。
+- 仍不確定：原始數維持 Raw count（`statistics.json` 已用 raw count）；西醫師只寫 Physicians（未帶 Western medicine）；崩塌筆數＝Landslide records（單位「筆」＝records，是否指多邊形數未確認）；「原屬臺灣地區無戶籍國民」縮成 Taiwan-area, unregistered；土地用途細項組合仍可達約 80 字元（前綴＋用地＋比較項）。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -316,3 +322,10 @@
 
 ### P4 AI 介面新增用語（2026-10-15，兩輪校對）
 - 缺資料（狀態）＝欠損，無資料＝データなし；分位數分級＝分位数区分，等距分級＝等間隔区分；研究連線＝リサーチ接続；面板與狀態標題體言止め。
+
+### 統計選單（enums.statVariant）新增用語（2026-10-16，兩輪校對）
+- 原住民＝原住民（不用「先住民」，與 params／layers 一致）；鄉鎮＝郷鎮市区；已設戶籍外來人口（原屬 X）＝戸籍取得済み外来人口（元 X籍）；淨遷徙人數＝純移動数（社会増加数）。
+- 開放床數＝開設床数（護理機構不加「病」：開設看護床数、開設新生児床数）；陳情＝苦情；列管＝管理対象；罰鍰÷稽查＝過料÷立入検査；暴露量構面＝曝露量。
+- 機車＝二輪車（登記＝登録二輪車数、駕照＝二輪車運転免許保有者数）；期末營業里程＝期末営業キロ；營業行車里程＝営業走行キロ；電動車輛＝電気バス車両数；占營業車比＝営業車両に占める割合。
+- 占全臺同類比／占所屬縣市同類比＝全台シェア／県市内シェア；公頃＝ha；畜禽＝家畜・家禽；活體＝生存；路外／路邊停車位＝路外／路上駐車区画数；原始面積＝面積（実数）；累計期間用「～」（例：1～8月）。
+- 仍不確定：偶爾自住住宅（直譯）；施用新收人數＝使用罪による新規収容者数（「施用」的罪名語感）；本年應實繳稅額＝当年納付税額。
