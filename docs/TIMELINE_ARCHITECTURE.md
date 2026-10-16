@@ -1,6 +1,70 @@
-# Timeline Architecture — 多源彈性時間軸設計
+# Timeline Architecture — 時間軸與 timeStore 現況
 
-## 設計原則
+> 用途：說明主站時間軸（Replay／Live、日期視窗、timeStore）**現在怎麼運作**，給要寫或改動態圖層的人與 agent 讀。
+> **正本規則**見 [`development-rules.md` §8 動態圖層時間訂閱](./development-rules.md#8-動態圖層時間訂閱external-time-store)；本檔只講架構與實作狀態，規則衝突時以 §8 為準。
+> 更新：2026-10-16（依 `src/` 實查改寫；2026-03 原始設計稿保留在文末附錄）。
+
+## 實作狀態
+
+對照 2026-03-07 設計稿（附錄）的 Step 1–5 與各機制，依 `src/` 實查：
+
+| 設計稿項目 | 狀態 | 佐證 |
+|---|---|---|
+| Step 1 `TimeType`／`DataSourceMeta` 型別 | 已實作 | `src/types/index.ts`（`TimeType`、`TimeRange`、`DataSourceMeta`，多了 `id` 欄位） |
+| Step 1 Data Source Registry（`useDataRegistry`） | 部分 | `src/hooks/useDataRegistry.ts`；`src/App.tsx` 只註冊 `flights`／`ships`／`rail`／`temperatureWave` 四個來源，用 `getTimelineRange()` 算 replay 範圍聯集（無資料時退回航班範圍）。設計稿的 `DATA_SOURCE_META` 常數表沒有做，其餘圖層不註冊 |
+| Step 2 Sidebar 每層顯示時間範圍小字 | 未做 | `useDataRegistry` 有 `getTimeLabel()`，但 `src/components/IconRailSidebar.tsx` 只宣告 `dataRegistry?` prop、沒有使用 |
+| Step 3 模式切換 Replay／Live | 已實作 | `TimeMode = "replay" \| "live"`（`src/types/index.ts`）；`src/hooks/useTimeline.ts`（Live 1Hz 同步 `Date.now()`、Replay 由 RAF 直接寫 timeStore）；`src/components/TimelineControls.tsx`（`LiveTimelineControls`、回到 Live 按鈕） |
+| Step 3 All Data／Today／Custom 快捷範圍 | 放棄（改成日期視窗） | 現行是「選定日期＋範圍天數 1–7」：`timeStore.setRangeDays()`／`setWindowDateKeys()`，`TimelineControls` 下拉選天數 |
+| Step 4 多源資料密度條、非線性壓縮 | 未做 | `getSegments()`、`hasDataOnDate()` 只定義在 `useDataRegistry.ts`，`src/` 無其他呼叫端 |
+| Step 5 逐層時間控制（Jump to Start／Use Layer Range／Follow Global） | 未做 | `src/` 無對應字串或元件 |
+| 設計稿外：timeStore 外部時間來源 | 已實作（2026-04） | `src/state/timeStore.ts`，見下節 |
+| 設計稿外：即時／歷史大模式 | 已實作 | `AppMode = "realtime" \| "historical"`（`src/types/index.ts`、`src/App.tsx`）；切換時用 `historicalPeriodSnapshot()`／`restoreTimelineSnapshot()`（`src/hooks/useTimeline.ts`）保存與還原時間軸 |
+| 設計稿外：scoped 回放時鐘 | 已實作 | `src/state/earthquakeReplayClock.ts`（地震回放）、`src/embed/replayClock.ts`（`/embed` 回放） |
+
+設計稿的「不做什麼」（附錄最後一節）至今仍成立：只有一條主時間軸、沒有日曆選擇器、沒有逐層播放速度。
+
+## timeStore（外部時間來源）
+
+動態圖層的時間來源是 `src/state/timeStore.ts` 的 `timeStore`，不是 React state。
+
+**為什麼不放 React state**：2026-04 以前 `currentTime` 放在 `useTimeline` 的 `useState`，Replay 每幀 `setCurrentTime` 讓整顆 `App.tsx` 約 60Hz re-render；單開一層順、四層同開就卡（成本約 O(圖層數 × 60Hz)）。改成 external store 後，時間變動只通知訂閱者，不觸發整棵元件樹重算。背景與盤點見 [`archive/2026-10-04/perf-external-time-store.md`](./archive/2026-10-04/perf-external-time-store.md)。
+
+### API
+
+| 方法 | 用途 |
+|---|---|
+| `getTime()` | 目前時間（unix 秒），純讀；RAF 迴圈裡用它 |
+| `getDateKey()` | 目前日期 `YYYY-MM-DD`（Asia/Taipei） |
+| `setTime(t)` | 寫入時間；**只有 `useTimeline` 可以呼叫** |
+| `subscribe(cb)` | 每次時間變動都通知（高頻，動畫用） |
+| `subscribeThrottled(ms, cb)` | 節流通知（trailing edge 保證最後一次會送）；篩選、查表、UI 顯示用 |
+| `subscribeDate(cb)` | 日期變化才通知；資料載入用 |
+| `getRangeDays()`／`setRangeDays()`／`subscribeRangeDays()` | 時間軸範圍天數（1–7），time-aware loader 用來決定預載幾天 |
+| `getWindowDateKeys()`／`setWindowDateKeys()`／`subscribeWindowDateKeys()` | 視窗內的日期清單；loader 只預載這份，視窗外不打 RPC |
+
+同檔另有 `wallClock`（`getWallNow()`、`subscribeWallClock(ms, cb)`）：給「現在時間」「3 分鐘前」這類跟著真實時間跳的 UI，**不是**資料時間軸。不要在元件裡用 `useState`＋`setInterval` 做時鐘。
+
+React UI 要顯示時間時用 `useUiTime()`（`src/hooks/useTimeline.ts`，內部是 `useSyncExternalStore`）。
+
+### scoped 回放時鐘
+
+事件級回放（時間單位不是 timeline 的 unix 秒、或只有一個面板在用）不掛全域 timeStore，改用獨立的 external clock：寫入即時、通知節流 10Hz，視覺是時鐘的純函數，scrub 只要 `set(t)`。範本是 `src/state/earthquakeReplayClock.ts`；`src/embed/replayClock.ts` 另外自帶 RAF 與 play／pause／loop。多層共用同一個 scoped 時鐘時，時間範圍取聯集、`setRange` 只呼叫一次（見 PRINCIPLES「事件級回放用 scoped 時鐘」）。
+
+### 常見錯誤
+
+- **把 `currentTime` 放進 `useEffect`／`useMemo` deps**：等於回到每幀 re-render。改法依用途：RAF 讀 `getTime()`、篩選用 `subscribeThrottled`、跨日載入用 `subscribeDate`（規則與節流表見 development-rules §8）。
+- **在 render body 寫被訂閱的 store**（例如初始化時直接 `timeStore.setTime()`）：會觸發「Cannot update a component while rendering a different component」，而且只在 remount／StrictMode／HMR 時才穩定出現，容易漏測。一律搬進 `useEffect`（見 PRINCIPLES「render body 禁止寫入被訂閱的外部 store」）。
+- **把資料時間軸和真實時間混用**：顯示「現在」用 `wallClock`，不要讀 `timeStore`（Replay 時 timeStore 是歷史時間）。
+
+---
+
+## 附錄：2026-03 原始設計稿（歷史）
+
+> ⚠️ 歷史設計（2026-03-07），未標實作的部分以上方實作狀態表為準
+
+### Timeline Architecture — 多源彈性時間軸設計（原標題）
+
+### 設計原則
 
 1. **漸進揭露** — 預設簡單，需要時才展開細節
 2. **與 Layer 自然整合** — 不新增獨立面板，融入現有 Sidebar
@@ -9,7 +73,7 @@
 
 ---
 
-## 核心概念：Layer 本身就是時間軸的單位
+### 核心概念：Layer 本身就是時間軸的單位
 
 不需要另外開一個「時間軸面板」。每個 Layer 在 Sidebar 中已經有
 toggle、參數控制。**時間資訊直接長在 Layer 上**。
@@ -28,9 +92,9 @@ Layer 面板不需要改結構，只需要在每個「有時間維度的圖層�
 
 ---
 
-## UI 設計：三層結構
+### UI 設計：三層結構
 
-### Layer 1：底部時間軸（全局控制）— 已存在，需改進
+#### Layer 1：底部時間軸（全局控制）— 已存在，需改進
 
 現有的 TimelineControls 保留，但升級為「智慧時間軸」：
 
@@ -52,7 +116,7 @@ Layer 面板不需要改結構，只需要在每個「有時間維度的圖層�
 - 彩色圖例：與 Layer 顏色一致，滑鼠 hover 某色塊可 highlight 該圖層
 - 右上角模式選擇（取代播放速度旁邊的空間）
 
-### Layer 2：模式快捷切換（右上角下拉）
+#### Layer 2：模式快捷切換（右上角下拉）
 
 ```
 ┌──────────────┐
@@ -69,7 +133,7 @@ Layer 面板不需要改結構，只需要在每個「有時間維度的圖層�
 - All Data / Today / Custom 是快捷範圍選擇（參考 Grafana）
 - 選 Live 時，播放按鈕變成脈搏動畫，時間軸滑桿消失
 
-### Layer 3：逐層時間控制（Sidebar 展開面板內）
+#### Layer 3：逐層時間控制（Sidebar 展開面板內）
 
 在 Layer 的 ExpandedPanel 中，有時間維度的圖層多一個時間控制區：
 
@@ -96,9 +160,9 @@ Layer 面板不需要改結構，只需要在每個「有時間維度的圖層�
 
 ---
 
-## 時間模式詳細行為
+### 時間模式詳細行為
 
-### Replay 模式
+#### Replay 模式
 
 ```
 時間軸範圍 = 所有 enabled 圖層的 timeRanges 聯集
@@ -111,7 +175,7 @@ currentTime = 由滑桿/播放控制
   - static 類（車站/道路）→ 永遠顯示
 ```
 
-### Live 模式
+#### Live 模式
 
 ```
 時間軸範圍 = 不適用（鎖定在 now）
@@ -131,7 +195,7 @@ UI 差異：
 
 ---
 
-## Data Source Registry（資料來源登錄）
+### Data Source Registry（資料來源登錄）
 
 ```typescript
 // src/types/index.ts 新增
@@ -199,7 +263,7 @@ const DATA_SOURCE_META: Record<string, DataSourceMeta> = {
 
 ---
 
-## 時間軸聯集計算
+### 時間軸聯集計算
 
 ```typescript
 function computeTimelineRange(
@@ -227,9 +291,9 @@ function computeTimelineRange(
 
 ---
 
-## Layer Sidebar 中的時間標示
+### Layer Sidebar 中的時間標示
 
-### 收合狀態（最簡潔）
+#### 收合狀態（最簡潔）
 
 ```
   MOVING ──────────────────
@@ -245,7 +309,7 @@ function computeTimelineRange(
     live · 24h                 ← live 類型顯示 "live"
 ```
 
-### 展開狀態（ExpandedPanel 內）
+#### 展開狀態（ExpandedPanel 內）
 
 只在需要精確控制時才出現時間範圍控制：
 
@@ -267,9 +331,9 @@ function computeTimelineRange(
 
 ---
 
-## 互動流程範例
+### 互動流程範例
 
-### 場景 1：使用者開啟應用（預設）
+#### 場景 1：使用者開啟應用（預設）
 
 1. 載入航班 + 船舶 + 鐵道資料
 2. 時間軸自動 = 2/18 00:00 ~ 2/20 06:00（航班+船舶聯集）
@@ -278,7 +342,7 @@ function computeTimelineRange(
 
 使用者看到的和現在完全一樣，零學習成本。
 
-### 場景 2：使用者想看新聞
+#### 場景 2：使用者想看新聞
 
 1. 在 Layer Sidebar 開啟 NEWS section 的 News Events
 2. 時間軸自動擴展：2/18 ~ now（因為新聞到今天）
@@ -286,14 +350,14 @@ function computeTimelineRange(
 4. 播放頭跳到有新聞的區段
 5. 或者：切換到 Live 模式，直接看最新新聞
 
-### 場景 3：使用者只想看今天
+#### 場景 3：使用者只想看今天
 
 1. 點時間軸右上角模式選擇 → Today
 2. 時間軸 = 今天 00:00 ~ now
 3. 航班/船舶因為沒有今天的資料 → 自動灰化（不隱藏，但標示無資料）
 4. 鐵道 + 新聞 + YouBike 正常顯示
 
-### 場景 4：使用者想同時看 2/18 航班 + 今天新聞
+#### 場景 4：使用者想同時看 2/18 航班 + 今天新聞
 
 1. 模式選 All Data
 2. 時間軸 = 2/18 ~ now（壓縮中間空白）
@@ -303,33 +367,33 @@ function computeTimelineRange(
 
 ---
 
-## 實作優先順序
+### 實作優先順序
 
-### Step 1：Data Source Registry（基礎設施）
+#### Step 1：Data Source Registry（基礎設施）
 - 新增 `DataSourceMeta` 型別
 - 各 loader 回報 timeRanges
 - `useTimeline` 接受多個 timeRanges 輸入
 
-### Step 2：Layer 時間標示（UI 最小改動）
+#### Step 2：Layer 時間標示（UI 最小改動）
 - Sidebar 每個圖層下方顯示時間範圍小字
 - 不改任何互動邏輯，純顯示
 
-### Step 3：模式切換（Replay / Live）
+#### Step 3：模式切換（Replay / Live）
 - TimelineControls 新增模式下拉
 - Live 模式下 currentTime = Date.now()
 - 新聞圖層在 Live 模式下啟用
 
-### Step 4：資料密度條（視覺升級）
+#### Step 4：資料密度條（視覺升級）
 - TimelineControls 中繪製多源密度條
 - 非線性時間軸壓縮
 
-### Step 5：逐層時間控制（進階）
+#### Step 5：逐層時間控制（進階）
 - ExpandedPanel 中新增 Jump to Start
 - 未來可加 Use Layer Range 功能
 
 ---
 
-## 不做什麼（避免過度設計）
+### 不做什麼（避免過度設計）
 
 - ✗ 不做多條獨立時間軸（一條主軸 + 模式切換就夠）
 - ✗ 不做日曆選擇器（用快捷按鈕 + 密度條點擊取代）
