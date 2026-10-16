@@ -74,6 +74,15 @@
 | `.claude/memory/PMTILES_STATUS.md` | `docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md` | 2026-06 那波 19 個切片的歷史記錄（`check_docs.ts` D5 改讀新路徑） | `public/**/*.pmtiles` 實際檔案 |
 | `docs/known-issues.md` | `docs/archive/2026-10-16/known-issues.md` | 併入 `.claude/memory/INCIDENTS.md`（由另一軌搬入本批） | `.claude/memory/INCIDENTS.md` |
 
+## 2026-10-16 跨 repo 搬出（非歸檔，備查；搬移不複製）
+
+| 原路徑 | 新位置 |
+|---|---|
+| `docs/research/geocoding-pipeline.md` | taipei-gis-analytics `docs/topic-research/geocoding-pipeline.md`（PR #174） |
+| `docs/research/p5js-course-crossover.md` | plan-art（flight-arc-graph）`docs/backlog/p5js-course-crossover.md`（PR #14） |
+| `docs/proposal/oss-globe-recipes-2026-09-04/{README,RESUME}.md` | plan-art（flight-arc-graph）`docs/backlog/oss-globe-recipes-2026-09-04/`（PR #14） |
+| `docs/proposal/monitor-tweaks-2026-08-21/prison_collector_patch.md` | data-collectors（gis-data-collectors）`docs/investigations/prison_collector_patch.md`（PR #156） |
+
 ## 其他
 
 | 目錄 | 說明 |

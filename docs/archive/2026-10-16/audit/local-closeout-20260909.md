@@ -44,8 +44,8 @@ These 58 paths match current `origin/master` byte-for-byte. They are already rep
 - `docs/features/global-events/audit-2026-09-04.md`
 - `docs/features/global-events/repair-2026-09-05.md`
 - `docs/features/jp-police-facilities/backlog.md`
-- `docs/proposal/oss-globe-recipes-2026-09-04/README.md`
-- `docs/proposal/oss-globe-recipes-2026-09-04/RESUME.md`
+- `docs/proposal/oss-globe-recipes-2026-09-04/README.md`（2026-10-16 已搬至 plan-art repo：`docs/backlog/oss-globe-recipes-2026-09-04/`，https://github.com/ianlkl11234s/flight-arc-graph/tree/master/docs/backlog/oss-globe-recipes-2026-09-04）
+- `docs/proposal/oss-globe-recipes-2026-09-04/RESUME.md`（同上）
 - `docs/research/loc-growth-2026-09-03-snapshot.py`
 - `docs/research/loc-growth-2026-09-03.csv`
 - `docs/research/loc-growth-2026-09-03.md`

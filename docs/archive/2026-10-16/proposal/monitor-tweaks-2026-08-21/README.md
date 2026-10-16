@@ -65,7 +65,7 @@ TAIEX 之所以「看起來正常」只是它內容本來就超過 413px 被夾�
 |---|---|---|
 | 回補 7 年歷史 | [`prison_backfill.sql`](./prison_backfill.sql)（2,501 天，2019-04-18 ~ 2026-05-15，`ON CONFLICT DO NOTHING`）| 跑完 365 天視窗內有 214 筆，趨勢圖立刻有東西。產生器：[`prison_backfill_build.py`](./prison_backfill_build.py) |
 | migration（待取號） | [`prison_population_window_anchor.PENDING.sql`](./prison_population_window_anchor.PENDING.sql) | RPC 視窗從 `now()` 錨改成 `max(observed_date)` 錨。不改的話上游不恢復時卡片會逐日縮水、約 2027-05 整張變空 |
-| collector 加靜默斷供告警 | [`prison_collector_patch.md`](../../../../proposal/monitor-tweaks-2026-08-21/prison_collector_patch.md) B 段 | 現在 `realtime_tables.yaml` 用 `collected_at` 判 freshness，而這是 PK=`observed_date` 的 upsert 表 → **結構上偵測不到「200 但內容三個月前」** |
+| collector 加靜默斷供告警 | [`prison_collector_patch.md`](https://github.com/ianlkl11234s/gis-data-collectors/blob/main/docs/investigations/prison_collector_patch.md)（已於 2026-10-16 搬至 data-collectors） B 段 | 現在 `realtime_tables.yaml` 用 `collected_at` 判 freshness，而這是 PK=`observed_date` 的 upsert 表 → **結構上偵測不到「200 但內容三個月前」** |
 | `realtime_tables.yaml:128` `time_column: collected_at` → `observed_date` | data-collectors 共用登記檔 | 同上。共用檔，由人統一接線 |
 
 ### 9. 食品價格 — **停更 19 天，指數 pipeline 從來沒有排程**
