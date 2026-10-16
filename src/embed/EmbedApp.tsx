@@ -27,6 +27,7 @@ import { buildPopupHtml, POPUP_CSS, POPUP_CSS_LIGHT } from "./embedPopup";
 import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../types";
 import { buildBasemapStyle } from "./basemapStyle";
+import { localeStore } from "../state/localeStore";
 import {
   addAllOverlays, hydrateOverlayIfNeeded, updateAllOverlayThemes,
 } from "../map/overlayManager";
@@ -125,7 +126,7 @@ export function EmbedApp() {
 
     const map = new maplibregl.Map({
       container,
-      style: buildBasemapStyle(isDark),
+      style: buildBasemapStyle(isDark, localeStore.getSnapshot().locale),
       center: cam.center,
       zoom: cam.zoom,
       pitch: narrow ? 0 : cam.pitch,

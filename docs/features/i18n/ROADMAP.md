@@ -111,3 +111,4 @@ P4-C：Agent 依配對網頁的語言回答（跨 repo：MCP 的 `map_context` �
 | 2026-10-16 | #603 | P5 站名類固定資料：車站（高鐵、台鐵、捷運、輕軌）、機場、港口、燈塔、國道服務區、YouBike 說明框 | 寫死中文不增加（嚴格區塊持平）；新增 `enums.railLine`／`enums.facility` | `station_points.geojson` 補 504 筆 name_en、`port_polygons.geojson` 補 26 筆（漁港上游英文名對錯港不採用）；計程車招呼站為自由文字不翻 |
 | 2026-10-16 | #604 | P2 遺留：統計「指標／口徑」選項短句翻譯、人口統計期別句 | 統計設定面板選項不再冒中文 | 選項拆地理前綴／括號註記後查 `enums.statVariant.json`（英日各約 190 筆）；說明框期別由 loader 帶結構化欄位、面板組句；Agent 仍讀中文 |
 | 2026-10-16 | （本 PR） | P5 固定文字：縣市鄉鎮名、統計發布機關與授權、資料來源總覽機關與授權 | 新增 `placeText.ts`／`agencyText.ts`；縣市鄉鎮 390 筆（代碼＋名稱＋連寫三種 key）、機關 114 筆、授權歸 6 類＋長句整句查表 | 對照表由 `scripts/i18n/gen-place-names.ts` 從 MOI CSV 產生；查不到退回原文；英日各兩輪校對 |
+| 2026-10-16 | TBD | 收尾：底圖地名換語言 | 主站 Mapbox 帶 `language`＋訂閱語系呼叫 `setLanguage`；嵌入頁／分析卡 Protomaps `lang` 依語系 | 新增 `map/basemapLanguage.ts`；`setLanguage` 只重抓 tile、不重載 style，自訂圖層實測不受影響；中文介面原本其實顯示英文地名（classic style 預設 `name_en`），改為繁中；嵌入頁補 `localeStore.init` |
