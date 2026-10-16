@@ -81,7 +81,7 @@ DB 端 1023 個 public function 但前端只用得到 158 個、有 RPC 平均�
 | D2 | **feature 文件齊全度**：47 個 `docs/features/*` 的四檔缺件 | 檔案存在性掃描（目前 5 夾缺件，見 §3） | ⚙️ |
 | D3 | **文件落後於程式**：feature 對應的 `src/` 本週有改、但該夾 `changelog.md` 沒動 | `git log` 日期比對，**須排除 `docs:`／`memory:` 批次 reorg commit**（見 §3.1 陷阱 2） | ⚙️ |
 | D4 | **docs 頂層散檔**：一次性 plan／status 完成後沒歸檔 | 頂層 25 份 `*.md` × 年齡 × **是否被 CLAUDE.md／README／MEMORY.md 連結**（連結狀態才是判準，不是檔名，見陷阱 3） | 🤝 |
-| D5 | **狀態檔過期**：`.claude/memory/PMTILES_STATUS.md` 只記 19 檔、實際 94 檔 | 檔內數字 vs 現場實數 | 🤝 |
+| D5 | **狀態檔過期**：`docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md` 只記 19 檔、實際 94 檔 | 檔內數字 vs 現場實數 | 🤝 |
 | D6 | **豁免名單健康度**：`layerConsistency`／`loadingRegistryContract` 的 exemption ledger 該退場的還躺著 | 名單項目逐一回查現況 | 🤝 |
 | D7 | **params spec 漂移**哨兵：`layerParamsSpec` vs manifest `params` 非空的 key 差集（首跑實測已對齊，364=364） | 兩側 key 差集 | ⚙️ |
 | D8 | **更新頻率欄位覆蓋率**：44 份 `handoff.md` 只有 23 份寫了更新頻率，且是自由文字 | 覆蓋率統計；長期解是把頻率結構化（見 §3.1 盲區） | 🤝 |
@@ -128,7 +128,7 @@ DB 端 1023 個 public function 但前端只用得到 158 個、有 RPC 平均�
    → **86 個候選**（其中 `admin_*`／`enforce_layer_access` 等可能由 RLS policy 或
    SECURITY DEFINER 內部呼叫，實際孤兒還會更少）。C3 腳本必須照這個口徑寫，否則第一份報告就在列假孤兒。
 3. 🟡 **`live` schema 佔 33 GB／89% 的 DB 體積**，全是時序表；retention 政策覆蓋率待查（B2）。
-4. 🟡 **`.claude/memory/PMTILES_STATUS.md` 只記錄 19 個 PMTiles，實際 `public/` 下有 94 個** → 狀態檔已失效。
+4. 🟡 **`docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md` 只記錄 19 個 PMTiles，實際 `public/` 下有 94 個** → 狀態檔已失效。
 5. ~~🟡 `public/bus/intercity_bus_routes.json` 89 MB 沒被 gitignore~~ → **首跑推翻**：
    已於 2026-08-18（`1586d36`）加入 .gitignore，且 `git log --all` 確認從未進過版控。
 6. 🟡 **README 數字已落後**：README 寫 359 個 layer key／`docs/features` 40 夾，

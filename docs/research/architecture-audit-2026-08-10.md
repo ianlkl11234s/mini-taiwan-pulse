@@ -3,7 +3,7 @@
 > 範圍：疊床架屋 / 技術債與效能 / 被改壞的地方 / 過度設計。
 > 方法：4 個平行稽核 agent（規則違反掃描 / 效能資產 / 架構 / 死碼），主 agent 對 top 7 發現逐一 spot-check 證實後彙整。
 > 基準：HEAD=master，`npx tsc -b` 通過、`pnpm test` 441/441 全綠。
-> 前作：[architecture-audit-2026-07-02.md](./architecture-audit-2026-07-02.md)（AR 系列藥方）。本次所有發現皆標注 **[新發現]** 或 **[已追蹤]**（對照 BACKLOG / known-issues）。
+> 前作：[architecture-audit-2026-07-02.md](../archive/2026-10-16/research/architecture-audit-2026-07-02.md)（AR 系列藥方）。本次所有發現皆標注 **[新發現]** 或 **[已追蹤]**（對照 BACKLOG / known-issues）。
 
 ---
 

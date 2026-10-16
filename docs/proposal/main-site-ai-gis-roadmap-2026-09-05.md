@@ -4,7 +4,7 @@
 
 2026-09-06 續作已實作至批次 2 的程式與隔離 DB 驗收；正式 migration 待具體確認，未部署。參見 [會員 handoff](../features/member-area/handoff.md)。
 
-後續總入口：[重整優化專案底層運作＋會員新功能](../audit/foundation-2026-09-06/README.md)。它補上最新 source、Supabase metadata、build 與開發排序；本文原始盤點日期仍為 9/5，現況以後續審計為準。
+後續總入口：[重整優化專案底層運作＋會員新功能](../archive/2026-10-16/audit/foundation-2026-09-06/README.md)。它補上最新 source、Supabase metadata、build 與開發排序；本文原始盤點日期仍為 9/5，現況以後續審計為準。
 
 原始規劃階段確認：先完成文件與開發順序；「補起來」指網站功能規劃。本文承接 [手機 App 可行性研究](../research/mobile-app-assessment-2026-09-05.md)，先定義主站與未來 App 共用的能力。
 
@@ -54,7 +54,7 @@
 
 ### 2.1 承接既有提案與上游能力
 
-[既有 GIS MCP 提案](./pulse-gis-mcp-plan.md) 已規劃 MapScene、proximity／overlap／accessibility、結果呈現，以及 browser／PostGIS 的分工。本文補上主站產品優先順序，沿用這些契約方向，不再建立平行的場景格式。外部 MCP 是後續同一工具能力的 adapter，無須等獨立 MCP 專案完成，才能開發網站表單及現有 BYOK 功能。該提案中的工具名稱仍是規劃，不能視為目前 callable tools。
+[既有 GIS MCP 提案](../archive/2026-10-16/proposal/pulse-gis-mcp-plan.md) 已規劃 MapScene、proximity／overlap／accessibility、結果呈現，以及 browser／PostGIS 的分工。本文補上主站產品優先順序，沿用這些契約方向，不再建立平行的場景格式。外部 MCP 是後續同一工具能力的 adapter，無須等獨立 MCP 專案完成，才能開發網站表單及現有 BYOK 功能。該提案中的工具名稱仍是規劃，不能視為目前 callable tools。
 
 [上游 terrain-vector handoff](../../../taipei-gis-analytics/docs/handoff/terrain-vector.md) 已記載 NLSC 20m DTM 2024 衍生工具 `terrain_zonal`，可對 AOI 算坡度／坡向統計。它目前是 on-demand 工具，未形成網站分析 API 契約；顯示用 PMTiles 已降採樣到 100m 並分級，不能代替原始 20m raster 做精細計算。handoff 記載 H3 地形 migration 未 apply，本輪沒有查 DB 更新此狀態。地形階段應先評估把既有 zonal 工具服務化，再安排 viewshed。
 
