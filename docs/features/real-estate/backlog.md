@@ -4,7 +4,7 @@
 
 ## Release / verifying
 
-- [ ] **RE-CustomLayer · `verifying`**：確認 `feat/real-estate-points-customlayer` 與 taipei-gis-analytics 改動是否已 push、PR/merge，及 production evidence。
+- [x] **RE-CustomLayer · `verifying`**：確認 `feat/real-estate-points-customlayer` 與 taipei-gis-analytics 改動是否已 push、PR/merge，及 production evidence。 — 2026-10-16 盤點關閉：PR #32（v1.5.0，merge b4bb90c4）
   - Outcome：GPU picking 的 hover/click 取捨有可追溯 release 狀態，不把 local branch 當 shipped。
   - Next action：核對兩 repo branch/PR、PMTiles/S3 與 browser hover/click；若仍未合併，保留 branch blocker。
 
