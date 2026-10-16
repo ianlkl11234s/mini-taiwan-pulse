@@ -1,5 +1,7 @@
 # Known Issues / Historical Bugs
 
+> **已歸檔（2026-10-16）**：本檔內容已併入 [`.claude/memory/INCIDENTS.md`](../../../.claude/memory/INCIDENTS.md) 末段「2026-10-16 併入：原 docs/known-issues.md」（重複部分改為指標）。以下為歸檔當時原文，連結與路徑不再維護。
+
 ## 資料斷層 + Zeabur 重啟
 - Zeabur 可能無預警重啟，導致 data-collectors 斷層
 - 歷史斷層案例：2026-04-04 08:00 ~ 04-06 21:00
@@ -15,7 +17,7 @@
   - flight `fetch_time` 是 UTC → 加 `+00:00`
 
 ## Supabase pooler 2 分鐘 timeout
-詳見 [`supabase-optimization.md`](./supabase-optimization.md#關鍵坑必讀)。
+詳見 [`supabase-optimization.md`](../../supabase-optimization.md#關鍵坑必讀)。
 
 ## IO / CPU 爆表事件（2026-04-09）
 

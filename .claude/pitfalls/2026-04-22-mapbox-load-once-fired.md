@@ -122,7 +122,7 @@ WebSocket open 等。正確處理都是「先 check 當前狀態，再 fallback 
 有 4+ 層 gate。只看「沒看到畫面」無法定位是哪層壞。
 
 **預防**：每層**預先**加 log。寫視覺層代碼時，就當 debug 時一定會用到。
-詳見 `.claude/lessons.md` P0.2。
+詳見 PRINCIPLES「視覺層 debug（2026-04-22 教訓）」（原 `.claude/lessons.md` P0.2，該檔 2026-04-23 已併入 memory/）。
 
 ## 相關 commit
 
@@ -131,8 +131,12 @@ WebSocket open 等。正確處理都是「先 check 當前狀態，再 fallback 
 
 ## 相關規則
 
-- `.claude/lessons.md` P0.1 Mapbox custom layer 掛載用 polling
-- `.claude/lessons.md` P0.2 視覺層代碼預設加 checkpoint log
+> 2026-10-16 更新：原 `.claude/lessons.md` 已不存在（2026-04-23 併入 memory/）。現行規則見
+> PRINCIPLES「Mapbox 掛載與 isStyleLoaded（三段合一）」——**掛載改用 try addLayer＋catch → once("idle") 重試**，
+> 本檔上方 2026-04-22 的「setInterval 直到 isStyleLoaded()」寫法已被下方 2026-06-18 段取代。
+
+- （原）`.claude/lessons.md` P0.1 Mapbox custom layer 掛載用 polling → PRINCIPLES「Mapbox 掛載與 isStyleLoaded（三段合一）」
+- （原）`.claude/lessons.md` P0.2 視覺層代碼預設加 checkpoint log → PRINCIPLES「視覺層 debug（2026-04-22 教訓）」
 
 ---
 

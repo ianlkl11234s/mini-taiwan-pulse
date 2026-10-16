@@ -197,7 +197,7 @@ CustomLayer 範本看 `src/map/lighthouseCustomLayer.ts`（53 行 SSOT）。
 - [ ] `onRemove` 走完整 dispose
 
 ### C. 圖層 UX 四鐵則（CLAUDE.md §5a）
-- [ ] 透明度 slider（`useTransportParams.ts`）
+- [ ] 透明度 slider（`src/data/layerParamsSpec.ts` 該層規格；舊 `useTransportParams.ts` 已退役）
 - [ ] 分類 ≥ 2 → `LegendPanel.tsx` + `LEGEND_REGISTRY`
 - [ ] 可點選 → `useMapInteraction.ts` + `featureInfo/registry.tsx`
 - [ ] Options ≥ 4 → 原生 `<select>` dropdown
