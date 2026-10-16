@@ -31,6 +31,7 @@ import { statisticsDimensionValueLabel, statisticsPeriodLabel } from '../data/st
 import { enumLabel } from '../i18n/dataText';
 import type { MessageKey } from '../i18n/keys';
 import type { I18nContext } from '../i18n/layerText';
+import { statisticsTitle, statisticsVariantLabel } from '../i18n/statisticsText';
 import { STATISTICS_LINKED_PROVIDER, STATISTICS_VARIANT_PROVIDER } from '../data/statisticsParamsSpec';
 import { getMedicalStatisticsGroup } from '../data/medicalStatisticsGroups';
 import { isStatisticsChoropleth } from '../data/statisticsLayerRegistry';
@@ -222,8 +223,8 @@ function buildModel(key: string): StatisticsModel {
       if (spec.field === 'metric') return metricText(metricLabels.get(value) ?? value, i18n);
       if (spec.field === 'release') {
         const release = state.releases.find((candidate) => candidate.release_id === value);
-        // 人口統計的期別文字（累計月份）是配方自己的中文句，這次不翻；其餘走共用期別格式
-        return release ? (demographics ? demographicsPeriodLabel(activeBaseKey, release) : undefined) ?? statisticsPeriodLabel(release, i18n) : uiText(i18n, 'statisticsSelect.publishedPeriod', '已公開期別');
+        // 人口統計的年初累計期別用配方的結構化期別依語系組句；其餘走共用期別格式
+        return release ? (demographics ? demographicsPeriodLabel(activeBaseKey, release, i18n) : undefined) ?? statisticsPeriodLabel(release, i18n) : uiText(i18n, 'statisticsSelect.publishedPeriod', '已公開期別');
       }
       return statisticsDimensionValueLabel(spec.field.slice(4), value, recipe.dataset_id, i18n);
     },
@@ -324,7 +325,11 @@ registerLinkedSelectProvider(STATISTICS_VARIANT_PROVIDER, {
     return {
       status: variantPending.has(group.key) ? 'loading' : error ? 'error' : 'ready',
       ...(error ? { error } : {}),
-      options: group.options.map((option) => ({ label: option.label, value: option.key })),
+      options: group.options.map((option) => ({
+        label: option.label,
+        value: option.key,
+        localize: (i18n: I18nContext) => statisticsVariantLabel(option.label, i18n) ?? statisticsTitle(option.key, option.label, i18n),
+      })),
       value: statisticsVariantValue(layerKey),
     };
   },

@@ -4,7 +4,8 @@ import { enumLabel } from '../../i18n/dataText';
 import { placeName, placeNameList } from '../../i18n/placeText';
 import { statisticsPublisher } from '../../i18n/agencyText';
 import type { LocaleSnapshot } from "../../state/localeStore";
-import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
+import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel, statisticsPeriodLabel } from '../../data/statisticsLabels';
+import { demographicsYtdText, type DemographicsYtdParts } from '../../data/demographicsStatisticsRecipes';
 
 const INPUT_LABELS: Record<string, string> = {
   official_complete_county_sum: '22縣市同類合計', numerator: '分子', denominator: '分母', numerator_hectares: '同類面積（公頃）',
@@ -25,6 +26,15 @@ function inputValue(value: unknown, i18n: LocaleSnapshot): string {
   return String(value ?? t('popup.common.noData'));
 }
 
+
+/** 期別：人口統計 loader 附結構化期別（period_ytd／period_start／period_end）讓外文依語系組句；其餘照 period_label */
+function periodText(props: Record<string, unknown>, i18n: LocaleSnapshot): string {
+  let ytd = props.period_ytd;
+  if (typeof ytd === 'string') { try { ytd = JSON.parse(ytd); } catch { ytd = undefined; } }
+  if (ytd && typeof ytd === 'object') return demographicsYtdText(ytd as DemographicsYtdParts, i18n);
+  if (typeof props.period_start === 'string' && typeof props.period_end === 'string') return statisticsPeriodLabel({ period_start: props.period_start, period_end: props.period_end }, i18n);
+  return String(props.period_label ?? props.release_id ?? '—');
+}
 
 export function RegionalStatisticsPanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
@@ -51,7 +61,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.source_status != null && <Row label={t('popup.regionalStatistics.sourceStatus')} value={String(props.source_status)} />}
     {props.source_token != null && <Row label={t('popup.regionalStatistics.sourceToken')} value={String(props.source_token)} />}
     {props.missing_reason != null && <Row label={t('popup.regionalStatistics.missingReason')} value={String(props.missing_reason)} />}
-    <Row label={t('popup.regionalStatistics.period')} value={String(props.period_label ?? props.release_id ?? '—')} />
+    <Row label={t('popup.regionalStatistics.period')} value={periodText(props, i18n)} />
     {props.location_semantics != null && <Row label={t('popup.regionalStatistics.locationBasis')} value={humanizeStatisticsText(String(props.location_semantics))} />}
     {props.disclosure != null && <Row field="dataLimits" value={humanizeStatisticsText(String(props.disclosure))} />}
     {props.comparison_formula != null && <Row label={t('popup.regionalStatistics.formula')} value={complement ? t('popup.regionalStatistics.complementFormula') : String(props.comparison_formula)} />}

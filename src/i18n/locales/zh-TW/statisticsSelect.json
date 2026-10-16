@@ -12,5 +12,9 @@
   "statisticsSelect.boundaryNotProvided": "未提供",
   "statisticsSelect.boundaryUnnamed": "未命名的參考邊界版本",
   "statisticsSelect.metricPerResidents": "{base}（每萬名居民）",
-  "statisticsSelect.metricPerKm2": "{base}（每平方公里）"
+  "statisticsSelect.metricPerKm2": "{base}（每平方公里）",
+  "statisticsSelect.ytdPeriod": "{year} 年 {start}–{end} 月累計",
+  "statisticsSelect.variantWithPeriod": "{label}（{period}）",
+  "statisticsSelect.variantDetail": "{label}－{detail}",
+  "statisticsSelect.variantPopCompare": "{label}（人口比較）"
 }
