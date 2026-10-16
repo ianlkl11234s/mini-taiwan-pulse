@@ -6,7 +6,7 @@ import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } f
 import { ATLAS_ENABLED_STATISTICS_KEYS, type AtlasStatisticsLayerKey } from './atlasStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
-import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY } from "./jmaTypes";
+import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // ══════════════════════════════════════════════════════════════════
@@ -624,7 +624,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
     "兩版都有", "只看官方", "只看舊版 OSM", "軌跡篩選", "深度", "累積時長", "作物 芋", "高度門檻 ≥", "行政層級", "疊加", "回放",
     "歷史播放", "待核實", "軌跡", "含疑似（未查證）", "時段", "污染等級", "測站類型", "相關度", "嚴重", "只看事件", "依時間",
     "空污", "水污", "廢棄物", "毒化物", "土污", "雙北", "基宜", "桃竹苗", "中彰投", "雲嘉南", "高屏", "花東", "離島", "只看列管中",
-    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式", "現象",
+    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式", "現象", "種類",
   ].map((label) => [label, "data" as const])),
   // 顏色：配色方式（熱區／網格色盤是 palette 型別，不必列）
   ...Object.fromEntries([
@@ -3701,7 +3701,14 @@ export const LAYER_PARAMS_SPEC = {
       out: "jmaAmedasModeIdx", encode: JMA_AMEDAS_MODES.map((mode) => mode.value),
     },
   ],
-  jmaWarnings: [opacitySlider("jmaWarningsOpacity", 0.55)],
+  jmaWarnings: [
+    opacitySlider("jmaWarningsOpacity", 0.55),
+    {
+      kind: "select", name: "jmaWarningsKind", label: "種類", default: "all",
+      options: JMA_WARNING_KINDS.map(({ label, value }) => ({ label, value })),
+      out: "jmaWarningsKindIdx", encode: JMA_WARNING_KINDS.map((k) => k.value),
+    },
+  ],
   jmaQuakes: [opacitySlider("jmaQuakesOpacity", 0.85), scaleSlider("jmaQuakesScale", 1)],
   jmaVolcanoes: [opacitySlider("jmaVolcanoesOpacity", 0.9), scaleSlider("jmaVolcanoesScale", 1)],
   // ── JMA／環境省 時間軸點位與區域（P4）：落雷沿用台灣落雷控件；物候可切現象（filter 需重建）──

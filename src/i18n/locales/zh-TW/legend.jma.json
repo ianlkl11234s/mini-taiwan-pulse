@@ -93,5 +93,9 @@
   "legend.jma.kosaImageError": "預測圖載入失敗（上游可能已換下一報），請重新選擇時刻。",
   "legend.jma.kosaImgAlt": "黃砂地上濃度預測圖 {time}",
   "legend.jma.kosaValid": "預報時刻 {time}",
-  "legend.jma.kosaSourceLink": "原始頁面"
+  "legend.jma.kosaSourceLink": "原始頁面",
+  "legend.jma.activeKinds": "目前發布中的種類",
+  "legend.jma.kindUnnamed": "種類 {code}",
+  "legend.jma.kindAreaCount": "{count} 區",
+  "legend.jma.kindOthers": "其他 {count} 種（{areas} 區次）"
 }

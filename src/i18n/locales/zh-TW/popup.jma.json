@@ -61,5 +61,7 @@
   "popup.jma.warningUpdated": "每 5 分鐘；以最新一版發表時刻（control_datetime）為準",
   "popup.jma.quakeNote": "同一地震只顯示最新一報；震度速報階段尚無震源座標，不會畫在地圖上。近 7 天、每 2 分鐘更新",
   "popup.jma.reading": "判讀",
-  "popup.jma.volcanoNote": "警戒レベル取自原文「レベルN」或代碼 11–15；未導入レベル的火山以警報原文為準"
+  "popup.jma.volcanoNote": "警戒レベル取自原文「レベルN」或代碼 11–15；未導入レベル的火山以警報原文為準",
+  "popup.jma.activeKinds": "發布中",
+  "popup.jma.kindSep": "、"
 }

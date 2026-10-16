@@ -3,7 +3,7 @@ import type { ExpressionSpecification, FillLayer, LineLayer, Map as MapboxMap } 
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { fetchJmaWarningsAt, invalidateJmaTimed, setLatestJmaWarnings, type JmaWarningsSnapshot, type JmaWarningArea } from "../data/jmaLiveLoaders";
+import { fetchJmaWarningsAt, filterJmaWarningsByKind, invalidateJmaTimed, setLatestJmaWarnings, type JmaWarningsSnapshot, type JmaWarningArea } from "../data/jmaLiveLoaders";
 import { useJmaTimeDriver } from "./useJmaTimeDriver";
 import { JMA_ATTRIBUTION, jmaWarningColor } from "../data/jmaTypes";
 
@@ -71,6 +71,7 @@ export function useJmaWarningsLayer(
   visible: boolean,
   opacity: number,
   isDarkTheme: boolean,
+  kindCode: string | null = null,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const snapshotRef = useRef<JmaWarningsSnapshot | null>(null);
@@ -97,7 +98,7 @@ export function useJmaWarningsLayer(
         const src = map.getSource(JMA_WARNINGS_SOURCE_ID) as any;
         if (src) src.attribution = JMA_ATTRIBUTION;
       }
-      const snapshot = snapshotRef.current;
+      const snapshot = filterJmaWarningsByKind(snapshotRef.current, kindCode);
       const color = jmaWarningsColorExpr(snapshot);
       const filter = jmaWarningsFilter(snapshot);
       if (!map.getLayer(JMA_WARNINGS_FILL_LAYER_ID)) {
@@ -126,7 +127,7 @@ export function useJmaWarningsLayer(
     apply();
     map.on("style.load", apply);
     return () => { map.off("style.load", apply); };
-  }, [mapRef, visible, opacity, mapTick, isDarkTheme]);
+  }, [mapRef, visible, opacity, mapTick, isDarkTheme, kindCode]);
 
   // 載入、時間軸與輪詢
   useJmaTimeDriver({

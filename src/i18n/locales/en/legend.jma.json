@@ -93,5 +93,9 @@
   "legend.jma.kosaImageError": "The chart failed to load (upstream may have moved to the next run); please pick a time again.",
   "legend.jma.kosaImgAlt": "Kosa surface concentration forecast {time}",
   "legend.jma.kosaValid": "Forecast time {time}",
-  "legend.jma.kosaSourceLink": "Original page"
+  "legend.jma.kosaSourceLink": "Original page",
+  "legend.jma.activeKinds": "Warning types in effect",
+  "legend.jma.kindUnnamed": "Type {code}",
+  "legend.jma.kindAreaCount": "{count} areas",
+  "legend.jma.kindOthers": "{count} other types ({areas} area-instances)"
 }

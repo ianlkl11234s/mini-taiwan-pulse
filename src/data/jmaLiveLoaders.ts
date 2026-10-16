@@ -514,6 +514,52 @@ export function buildJmaWarningsSnapshot(raw: Row[]): JmaWarningsSnapshot {
   return { rows, areas, cityNameKeys, unmatched, controlDatetime: maxIso(raw, "control_datetime") };
 }
 
+/** 一列的種類鍵：優先種別碼，沒有就用名稱。 */
+function warningKindKey(row: JmaWarningRow): string | null {
+  return row.kind_code ?? row.kind_name;
+}
+
+/** 某區發布中的種類（去重；級別高→低，同級依名稱）。area.rows 只含發布中的列（解除已在建快照時排除）。 */
+export function jmaWarningAreaKinds(area: JmaWarningArea): { key: string; name: string | null; level: JmaWarningLevel }[] {
+  const kinds = new Map<string, { key: string; name: string | null; level: JmaWarningLevel }>();
+  for (const row of area.rows) {
+    const key = warningKindKey(row);
+    if (key != null && !kinds.has(key)) kinds.set(key, { key, name: row.kind_name, level: row.level });
+  }
+  return [...kinds.values()].sort((a, b) =>
+    (LEVEL_RANK.get(b.level) ?? 0) - (LEVEL_RANK.get(a.level) ?? 0) || String(a.name ?? a.key).localeCompare(String(b.name ?? b.key), "ja"));
+}
+
+export interface JmaWarningKindStat { key: string; name: string | null; level: JmaWarningLevel; areaCount: number }
+
+/** 全快照各發布中種類的區域數（areas＋cityNameKeys 以區域物件去重；依區域數多→少）。 */
+export function jmaWarningKindStats(snapshot: JmaWarningsSnapshot | null): JmaWarningKindStat[] {
+  if (!snapshot) return [];
+  const stats = new Map<string, JmaWarningKindStat>();
+  for (const area of new Set([...snapshot.areas.values(), ...snapshot.cityNameKeys.values()])) {
+    for (const k of jmaWarningAreaKinds(area)) {
+      const cur = stats.get(k.key);
+      if (cur) cur.areaCount += 1; else stats.set(k.key, { ...k, areaCount: 1 });
+    }
+  }
+  return [...stats.values()].sort((a, b) =>
+    b.areaCount - a.areaCount || (LEVEL_RANK.get(b.level) ?? 0) - (LEVEL_RANK.get(a.level) ?? 0) || a.key.localeCompare(b.key));
+}
+
+/** 只留有該種類的區域，區域級別改成該種類的級別（地圖用該種類的色）。kindCode 為 null → 原樣回傳。 */
+export function filterJmaWarningsByKind(snapshot: JmaWarningsSnapshot | null, kindCode: string | null): JmaWarningsSnapshot | null {
+  if (!snapshot || kindCode == null) return snapshot;
+  const narrow = (src: Map<string, JmaWarningArea>) => {
+    const out = new Map<string, JmaWarningArea>();
+    for (const [key, area] of src) {
+      const kind = jmaWarningAreaKinds(area).find((k) => k.key === kindCode);
+      if (kind) out.set(key, { ...area, level: kind.level });
+    }
+    return out;
+  };
+  return { ...snapshot, areas: narrow(snapshot.areas), cityNameKeys: narrow(snapshot.cityNameKeys) };
+}
+
 let latestWarnings: JmaWarningsSnapshot | null = null;
 /** popup／圖例用：地圖目前畫的那一份警報快照（未載入、未涵蓋或失敗 → null）。 */
 export function getLatestJmaWarnings(): JmaWarningsSnapshot | null {

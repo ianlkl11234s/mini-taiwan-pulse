@@ -7,7 +7,7 @@ import {
   JMA_INTENSITY_CLASSES, JMA_LAYER_COLORS, JMA_LICENSE, JMA_MISSING_COLOR, JMA_SOURCE_URL, JMA_VOLCANO_LEVELS,
   JMA_WARNING_LEVELS, formatJst, jmaIntensityLabel,
 } from "../../data/jmaTypes";
-import { getLatestJmaWarnings, type JmaWarningArea } from "../../data/jmaLiveLoaders";
+import { getLatestJmaWarnings, jmaWarningAreaKinds, type JmaWarningArea } from "../../data/jmaLiveLoaders";
 
 type I18n = Pick<LocaleSnapshot, "t" | "formatNumber">;
 
@@ -97,6 +97,7 @@ export function JmaWarningsPanel({ props }: PanelProps) {
   return <>
     <Title color={level?.color ?? JMA_LAYER_COLORS.jmaWarnings}>{place || tr("popup.jma.cityFallback")}</Title>
     {!area ? <Row field="status" value={tr("popup.jma.noWarningNow")} /> : <>
+      <Row label={tr("popup.jma.activeKinds")} value={jmaWarningAreaKinds(area).map((k) => k.name ?? tr("popup.jma.kindCode", { code: k.key })).join(tr("popup.jma.kindSep"))} />
       <Row label={tr("popup.jma.areaLevel")} value={level?.label ?? tr("popup.common.unknown")} color={level?.color} />
       {area.areaName && <Row label={tr("popup.jma.jmaArea")} value={area.areaName} />}
       <PopupScroll>

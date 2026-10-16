@@ -112,6 +112,30 @@ export function jmaWarningColor(level: JmaWarningLevel): string {
   return JMA_WARNING_LEVELS.find((l) => l.value === level)?.color ?? JMA_MISSING_COLOR;
 }
 
+/**
+ * 種類篩選下拉的選項（值＝JMA 種別碼；與 collector jma_warnings.py KIND_NAMES 同步，名稱為日文原文）。
+ * 下拉選項在規格層是靜態的；選了目前沒發布的種類，地圖就是空的（圖例只列發布中的種類）。
+ */
+export const JMA_WARNING_KINDS = [
+  { value: "all", label: "全部" },
+  { value: "33", label: "レベル５大雨特別警報" }, { value: "39", label: "レベル５土砂災害特別警報" }, { value: "38", label: "レベル５高潮特別警報" },
+  { value: "35", label: "暴風特別警報" }, { value: "32", label: "暴風雪特別警報" }, { value: "36", label: "大雪特別警報" }, { value: "37", label: "波浪特別警報" },
+  { value: "43", label: "レベル４大雨危険警報" }, { value: "49", label: "レベル４土砂災害危険警報" }, { value: "48", label: "レベル４高潮危険警報" },
+  { value: "03", label: "レベル３大雨警報" }, { value: "09", label: "レベル３土砂災害警報" }, { value: "08", label: "レベル３高潮警報" },
+  { value: "05", label: "暴風警報" }, { value: "02", label: "暴風雪警報" }, { value: "06", label: "大雪警報" }, { value: "07", label: "波浪警報" },
+  { value: "10", label: "レベル２大雨注意報" }, { value: "29", label: "レベル２土砂災害注意報" }, { value: "19", label: "レベル２高潮注意報" },
+  { value: "15", label: "強風注意報" }, { value: "13", label: "風雪注意報" }, { value: "12", label: "大雪注意報" }, { value: "16", label: "波浪注意報" },
+  { value: "14", label: "雷注意報" }, { value: "17", label: "融雪注意報" }, { value: "20", label: "濃霧注意報" }, { value: "21", label: "乾燥注意報" },
+  { value: "22", label: "なだれ注意報" }, { value: "23", label: "低温注意報" }, { value: "24", label: "霜注意報" }, { value: "25", label: "着氷注意報" },
+  { value: "26", label: "着雪注意報" },
+] as const;
+
+/** 下拉索引 → 種別碼；0／缺值＝全部（null）。 */
+export function jmaWarningKindCode(idx: number | undefined): string | null {
+  const v = JMA_WARNING_KINDS[idx ?? 0]?.value ?? "all";
+  return v === "all" ? null : v;
+}
+
 /** status 為這些值的列不算「發表中」（解除／無發表）。 */
 export const JMA_WARNING_INACTIVE_STATUS = ["解除", "発表警報・注意報はなし"] as const;
 
