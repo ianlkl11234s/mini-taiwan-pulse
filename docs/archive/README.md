@@ -1,6 +1,6 @@
 # docs/archive 索引
 
-已完成、已被取代或僅供考古的文件。搬移不複製：內容未改，僅路徑變動（歸檔文件內的相對連結已重算）。
+已完成、已被取代或僅供考古的文件。搬移不複製：內容未改，僅路徑變動與 2026-10-16 起加檔首歸檔註記（歸檔文件內的相對連結已重算）。
 
 ## 2026-10-04 歸檔（`docs/archive/2026-10-04/<原相對路徑>`）
 
@@ -42,6 +42,46 @@
 | `docs/proposal/data-sources-ssot-bridge.md` | `docs/archive/2026-10-04/proposal/data-sources-ssot-bridge.md` | 已落地（`src/data/dataCatalogLoader.ts`，commit db0eef1b） | `docs/audit/data-sources-coverage.md` |
 | `docs/proposal/data-sources-step2-gis-platform.md` | `docs/archive/2026-10-04/proposal/data-sources-step2-gis-platform.md` | 已落地（gis-platform migration 269，commit 5f854f8c） | 同上 |
 | `docs/proposal/pla-situation-board.md` | `docs/archive/2026-10-04/proposal/pla-situation-board.md` | 有效資料限制與設計決策已併入 pla-activity README | `docs/features/pla-activity/README.md`（「戰情板」段） |
+
+## 2026-10-16 歸檔（`docs/archive/2026-10-16/<原相對路徑>`；`.claude/` 下的檔案放在 `claude/` 子目錄）
+
+| 原路徑 | 新路徑 | 歸檔原因 | 後繼文件 |
+|---|---|---|---|
+| `docs/launch/00_LAUNCH_PLAN.md` | `docs/archive/2026-10-16/launch/00_LAUNCH_PLAN.md` | 2026-06 過夜上線計畫，已上線 | `docs/launch/03_DEPLOY_RUNBOOK.md` |
+| `docs/launch/01_DATA_SOURCE_AUDIT.md` | `docs/archive/2026-10-16/launch/01_DATA_SOURCE_AUDIT.md` | 129 圖層的 2026-06-01 快照 | `docs/launch/04_NEW_DATA_SOP.md` |
+| `docs/launch/02_PRELAUNCH_CHECKLIST.md` | `docs/archive/2026-10-16/launch/02_PRELAUNCH_CHECKLIST.md` | 上線前 Go/No-Go，已上線 | `docs/launch/03_DEPLOY_RUNBOOK.md` |
+| `docs/launch/05_MORNING_REPORT.md` | `docs/archive/2026-10-16/launch/05_MORNING_REPORT.md` | 晨間決策報告，已執行 | 無 |
+| `docs/launch/07_KEY_SETUP.md` | `docs/archive/2026-10-16/launch/07_KEY_SETUP.md` | 一次性 key 設定指引 | 無 |
+| `docs/audit/foundation-2026-09-06/` | `docs/archive/2026-10-16/audit/foundation-2026-09-06/` | 2026-09 基礎整理快照，專案已收尾 | 無 |
+| `docs/audit/infrastructure-2026-09-06/` | `docs/archive/2026-10-16/audit/infrastructure-2026-09-06/` | 同上 | 無 |
+| `docs/audit/infrastructure-2026-09-07-batch1/` | `docs/archive/2026-10-16/audit/infrastructure-2026-09-07-batch1/` | 同上 | 無 |
+| `docs/audit/infrastructure-2026-09-07-monitor-unification/` | `docs/archive/2026-10-16/audit/infrastructure-2026-09-07-monitor-unification/` | 同上 | 無 |
+| `docs/audit/infrastructure-2026-09-07-render/` | `docs/archive/2026-10-16/audit/infrastructure-2026-09-07-render/` | 同上 | 無 |
+| `docs/audit/network-structures-release-20260906/` | `docs/archive/2026-10-16/audit/network-structures-release-20260906/` | 同上 | `docs/features/network-structures/` |
+| `docs/audit/recent-delivery-2026-09-07/` | `docs/archive/2026-10-16/audit/recent-delivery-2026-09-07/` | 同上 | 無 |
+| `docs/audit/local-closeout-20260909.md` | `docs/archive/2026-10-16/audit/local-closeout-20260909.md` | 2026-09-09 收尾紀錄 | 無 |
+| `docs/audit/release-inventory-2026-09-06.md` | `docs/archive/2026-10-16/audit/release-inventory-2026-09-06.md` | 發布缺口盤點快照 | 無 |
+| `docs/proposal/infrastructure-renewal-2026-09-07.md` | `docs/archive/2026-10-16/proposal/infrastructure-renewal-2026-09-07.md` | 2026-09 基礎整理專案已收尾 | 無 |
+| `docs/proposal/pulse-gis-mcp-plan.md` | `docs/archive/2026-10-16/proposal/pulse-gis-mcp-plan.md` | MCP 已上線，spec 已被取代 | `docs/features/agent-research-workbench/` |
+| `docs/proposal/monitor-tweaks-2026-08-21/`（除 `prison_collector_patch.md`） | `docs/archive/2026-10-16/proposal/monitor-tweaks-2026-08-21/` | 過夜任務交接，兩輪已執行（`prison_collector_patch.md` 已搬至 data-collectors repo） | `docs/features/monitor-split/` |
+| `docs/research/ai-gis-analysis-roadmap-2026-09-10.md` | `docs/archive/2026-10-16/research/ai-gis-analysis-roadmap-2026-09-10.md` | 已被 workbench spec 取代 | `docs/features/agent-research-workbench/` |
+| `docs/research/architecture-audit-2026-07-02.md` | `docs/archive/2026-10-16/research/architecture-audit-2026-07-02.md` | 已被 2026-08-10 稽核與 AR 計畫承接 | `docs/research/architecture-audit-2026-08-10.md` |
+| `docs/audit/data-sources-coverage.md` | `docs/archive/2026-10-16/audit/data-sources-coverage.md` | Step 1 配對的一次性報告 | `docs/audit/data_sources_match_final.csv` |
+| `docs/audit/2026-06-20_facility_location_audit.md` | `docs/archive/2026-10-16/audit/2026-06-20_facility_location_audit.md` | 與 v2 重複的舊版 | `docs/audit/2026-06-20_facility_location_audit_v2.md` |
+| `docs/design/data-source-panel-design-brief.md`（含 `-samples.json`） | `docs/archive/2026-10-16/design/data-source-panel-design-brief.md` | 2026-07 設計 brief，已無引用 | 無 |
+| `.claude/SATELLITE_CONSOLE_STATUS.md` | `docs/archive/2026-10-16/claude/SATELLITE_CONSOLE_STATUS.md` | 2026-06-14 過夜報告，圖層已上線 | `docs/features/satellite-console-restyle/` |
+| `.claude/memory/FORESTRY_GROUP_STATUS.md` | `docs/archive/2026-10-16/claude/memory/FORESTRY_GROUP_STATUS.md` | 2026-06 campaign 已完成 | `.claude/memory/DATA_SCOPE.md` |
+| `.claude/memory/PMTILES_STATUS.md` | `docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md` | 2026-06 那波 19 個切片的歷史記錄（`check_docs.ts` D5 改讀新路徑） | `public/**/*.pmtiles` 實際檔案 |
+| `docs/known-issues.md` | `docs/archive/2026-10-16/known-issues.md` | 併入 `.claude/memory/INCIDENTS.md`（由另一軌搬入本批） | `.claude/memory/INCIDENTS.md` |
+
+## 2026-10-16 跨 repo 搬出（非歸檔，備查；搬移不複製）
+
+| 原路徑 | 新位置 |
+|---|---|
+| `docs/research/geocoding-pipeline.md` | taipei-gis-analytics `docs/topic-research/geocoding-pipeline.md`（PR #174） |
+| `docs/research/p5js-course-crossover.md` | plan-art（flight-arc-graph）`docs/backlog/p5js-course-crossover.md`（PR #14） |
+| `docs/proposal/oss-globe-recipes-2026-09-04/{README,RESUME}.md` | plan-art（flight-arc-graph）`docs/backlog/oss-globe-recipes-2026-09-04/`（PR #14） |
+| `docs/proposal/monitor-tweaks-2026-08-21/prison_collector_patch.md` | data-collectors（gis-data-collectors）`docs/investigations/prison_collector_patch.md`（PR #156） |
 
 ## 其他
 

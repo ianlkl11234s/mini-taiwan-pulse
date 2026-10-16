@@ -8,7 +8,7 @@
 
 ## Release / verifying
 
-- [ ] **CU-0** · `release` · P1 · `verifying`：culture 首批 5 圖層實作 commits `aacdc41` + `a4ef900` 已存在，但此檔沒有 PR/merge 與 production 證據。Outcome：確認 4 靜態層＋librarySeats realtime 已真正上線；Next action：核對 PR/CI、資產 HTTP 與 All Off browser；Acceptance：無 404、popup/legend/slider 可用且 realtime 有資料。
+- [x] **CU-0** · `release` · P1 · `verifying`：culture 首批 5 圖層實作 commits `aacdc41` + `a4ef900` 已存在，但此檔沒有 PR/merge 與 production 證據。Outcome：確認 4 靜態層＋librarySeats realtime 已真正上線；Next action：核對 PR/CI、資產 HTTP 與 All Off browser；Acceptance：無 404、popup/legend/slider 可用且 realtime 有資料。 — 2026-10-16 盤點關閉：PR #72（v1.9.0）；正式站 All Off 目視不在本項
 
 ## Data / product backlog
 

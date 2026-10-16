@@ -8,7 +8,7 @@
   - Outcome：確認接線完成後使用者實際看到正確色帶與控件。
   - Next action：啟動 `npm run dev` 做 All Off→single-layer、邊界 zoom、空資料與 console 檢查；以 screenshot/browser evidence 關閉。
 
-- [ ] **UH-2**：上傳 `deploy-assets/environment/urban_heat_lst_taiwan.pmtiles`。
+- [x] **UH-2**：上傳 `deploy-assets/environment/urban_heat_lst_taiwan.pmtiles`。 — 2026-10-16 盤點關閉：urban_heat_lst pmtiles 正式站 206
   - Outcome：production 不因 PMTiles 不進 git 而 404。
   - Next action：owner 拍板後執行 `upload-deploy-assets.sh`，核對 S3 checksum、HTTP Range 與 browser layer。
 

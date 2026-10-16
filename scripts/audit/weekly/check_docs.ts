@@ -47,7 +47,7 @@ const OUT_FILE = path.join(OUT_DIR, "docs.json");
 
 const FEATURES_DIR = path.join(ROOT, "docs/features");
 const README_PATH = path.join(ROOT, "README.md");
-const PMTILES_STATUS_PATH = path.join(ROOT, ".claude/memory/PMTILES_STATUS.md");
+const PMTILES_STATUS_PATH = path.join(ROOT, "docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md");
 const GLOBAL_MEMORY_PATH =
   "/Users/migu/.claude-migu/projects/-Users-migu-Desktop-----gen-ai-try-ichef-----GIS-mini-taiwan-pulse/memory/MEMORY.md";
 
@@ -897,7 +897,7 @@ async function main() {
             level: "green",
             title: "PMTILES_STATUS.md 宣稱數與實際檔數一致",
             detail: `${claimedTotal} = ${actualCount}`,
-            evidence: ".claude/memory/PMTILES_STATUS.md vs find public -iname '*.pmtiles'",
+            evidence: "docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md vs find public -iname '*.pmtiles'",
           });
         } else {
           findings.push({
@@ -905,7 +905,7 @@ async function main() {
             level: "yellow",
             title: "PMTILES_STATUS.md 已過期",
             detail: `狀態檔宣稱約 ${claimedTotal} 個（${claimedParts.map((p) => `${p.label}=${p.value}`).join("；")}）、實際 ${actualCount} 個`,
-            evidence: ".claude/memory/PMTILES_STATUS.md vs public/**/*.pmtiles 實測",
+            evidence: "docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md vs public/**/*.pmtiles 實測",
           });
         }
       }

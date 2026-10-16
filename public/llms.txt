@@ -1,0 +1,35 @@
+# Mini Taiwan Pulse
+
+> 用開放資料，把台灣畫成一張會呼吸的地圖。Mini Taiwan Pulse 是一個免費的 3D 互動地圖網站：把航班、船舶、列車、公車等會動的運具，與能源、農業、水資源、廢棄物、社福長照、衛星、區域統計等開放資料，疊在同一張地圖與同一條時間軸上。Taiwan as a living map drawn from open data: flights, ships, trains, buses and many statistical layers on one 3D map and timeline.
+
+網站是純前端的互動地圖（需要 JavaScript 與 WebGL），頁面本身沒有逐筆資料的文字版；要引用內容請以下列說明與 GitHub 文件為準。作者：Migu（個人專案）。
+
+## 網站與多語系
+
+- [中文（預設）](https://mini-taiwan-pulse.itsmigu.com/): 繁體中文介面
+- [English](https://mini-taiwan-pulse.itsmigu.com/?lang=en): 英文介面（底圖地名、縣市與站名也會切換）
+- [日本語](https://mini-taiwan-pulse.itsmigu.com/?lang=ja): 日文介面
+
+## 主要功能
+
+- 即時與回放的運具：航班光軌、船舶、軌道系統（依真實時刻表運行）、全台公車；共用時間軸可回放歷史與加速
+- 統計圖層：區域統計 choropleth（縣市、鄉鎮市區），可做統計比較
+- 圖層規模：數百個圖層，分基準、移動與城市、公共生活、安全與治理、環境與資源、情報六大分類（確切數量見 GitHub README，會隨版本變動）
+- 監看模式（Monitor）：新聞、警訊、地震、颱風、機場等戰情卡
+- 分析卡與 AI：站內自帶金鑰（BYOK）的地圖助手；本機 Claude Code／Codex 可透過 MCP 操作地圖做空間分析（Agent 分析面向站主與開發者）
+- 嵌入地圖：輕量版 /embed 可嵌入其他網頁
+
+## 資料來源與限制
+
+- 資料幾乎全部來自政府開放資料與公開資料源，例如內政部、交通部（TDX）、經濟部、中央氣象署、農業部、環境部、衛生福利部、教育部、各縣市政府開放資料平台，以及 OpenStreetMap、AIS 船舶訊號、FlightRadar24、Space-Track TLE 與 UCS 衛星資料庫
+- 每個圖層的上游來源登記在站上的「資料來源」面板，可逐層查看
+- 資料授權依各來源規定，與程式碼的 MIT License 無關；引用數據時請回到原始來源確認授權
+- 覆蓋範圍有限制，未涵蓋不等於零：例如廢棄物僅 5 個縣市、殯葬都計分區僅台北與新北、都市熱島不含澎湖；部分資料的官方來源只留最新快照
+- 即時資料可能因上游中斷而延遲或缺漏，圖層會標示資料時間
+
+## 程式碼與文件
+
+- [GitHub 儲存庫](https://github.com/ianlkl11234s/mini-taiwan-pulse): 原始碼（MIT License）
+- [README](https://github.com/ianlkl11234s/mini-taiwan-pulse/blob/develop/README.md): 功能總覽、覆蓋範圍與已知限制、Agent 分析架構
+- [CHANGELOG](https://github.com/ianlkl11234s/mini-taiwan-pulse/blob/develop/CHANGELOG.md): 版本紀錄
+- [功能文件](https://github.com/ianlkl11234s/mini-taiwan-pulse/tree/develop/docs/features): 各主題的來龍去脈

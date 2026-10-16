@@ -4,7 +4,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **TO-2 · `verifying`**：上傳 D 類 3 檔至 S3 並完成 Zeabur pull 驗證。
+- [ ] **TO-2 · `verifying`**：上傳 D 類 3 檔至 S3 並完成 Zeabur pull 驗證。（2026-10-16 盤點：待確認 D 類 3 檔的 S3／Zeabur pull（同主題 11 支 geojson 正式站 200））
   - Outcome：正式站可取得 gitignored 資產，不會以本地檔存在誤判部署完成。
   - Next action：owner 拍板後執行 `upload-deploy-assets.sh`，核對 S3 checksum、pull 與 browser HTTP/asset evidence。
 

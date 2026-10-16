@@ -4,7 +4,7 @@
 
 ## Release / verifying
 
-- [ ] **BNL-1** · `release` · P2 · `verifying`：解決 README 的「dev（未 push）」與 changelog 的 PR #78 記錄不一致。
+- [x] **BNL-1** · `release` · P2 · `verifying`：解決 README 的「dev（未 push）」與 changelog 的 PR #78 記錄不一致。 — 2026-10-16 盤點關閉：release index #78／#80（v1.10.0）已回填
   - Outcome：確認夜景 mode 3、bloom 疊層與高度 slider 是否已進入 production，不用舊 branch 文字推測。
   - Next action：核對 PR/merge、目前 source 與 production browser，驗高度門檻、dark basemap、zoom 8+ 與 console/GL error。
   - Acceptance：PR/commit 可追溯，production 夜景 fill 與 bloom 皆有 browser evidence，README 狀態已同步。

@@ -18,7 +18,7 @@ import { prefetchWindow, subscribePrefetchWindow } from "../dayPrefetch";
 
 const shared = readFileSync("src/lib/dayPrefetch.ts", "utf8");
 const cwa = readFileSync("src/hooks/useCwaImageryLayer.ts", "utf8");
-const scope = readFileSync("docs/research/day-prefetch-scope-2026-10-05.md", "utf8");
+const scope = readFileSync("docs/features/agent-research-workbench/day-prefetch-scope-2026-10-05.md", "utf8");
 
 describe("AU-3 day-prefetch scope", () => {
   beforeEach(() => {

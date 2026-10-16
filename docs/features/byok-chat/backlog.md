@@ -1,6 +1,6 @@
 # Backlog — byok-chat
 
-> 全站對應：`.claude/memory/BACKLOG.md` 之後加 BC 系列。規劃 SSOT：`docs/proposal/member-byok-chat-plan.md`。
+> 全站對應：`.claude/memory/BACKLOG.md` 之後加 BC 系列。規劃 SSOT：`docs/features/byok-chat/plan.md`。
 
 ## Active work（進行中／待辦）
 

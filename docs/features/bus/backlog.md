@@ -6,7 +6,7 @@
 
 - 暫無；Live+Replay progress-based 架構已完成。
 
-## Product / platform backlog（全台擴展；詳見 `docs/bus-layer-design.md` §6）
+## Product / platform backlog（全台擴展；詳見 `docs/features/bus/design.md` §6）
 
 - [ ] **BUS-lazy-load-routes** · `tech-debt` · P2 · `ready`：路線 JSON 預估 60–100MB，評估按城市 lazy load；Next action：以現行資產與首屏載入時間建立 baseline；Acceptance：各城市切換無重複下載且 browser/性能 evidence 可讀。
 - [ ] **BUS-city-enum** · `product` · P2 · `ready`：擴充 `BusCity` enum 與 `useBusLayer.cities`；Next action：列出目標城市與資料契約；Acceptance：目標城市可切換、tsc/test 綠。

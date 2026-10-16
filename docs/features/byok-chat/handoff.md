@@ -1,7 +1,7 @@
 # Handoff — byok-chat（下游視角）
 
 > **無上游新契約**：本 feature 純前端，消費既有資產，無 taipei-gis-analytics handoff。
-> 規劃 SSOT：`docs/proposal/member-byok-chat-plan.md`。
+> 規劃 SSOT：`docs/features/byok-chat/plan.md`。
 
 ## 消費的既有資產
 
