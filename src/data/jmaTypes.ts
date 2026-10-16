@@ -384,7 +384,7 @@ function countClasses(
 
 /**
  * 產品登記簿：每個發布幀產品一筆。容忍度（maxStaleMin／liveMaxStaleMin）依發布頻率各自設定：
- * radar 15/30、rasrf／risk 60/90、snow 90/180、uv 90/180、sst／sea_ice 36h/48h。
+ * radar 15/30、rasrf／risk 60/90、snow 90/180、uv 90/180、sst／sea_ice 72h/72h（上游約晚 1.5 天發布，最新一幀可達約 58 小時前）。
  */
 export const JMA_IMAGERY_PRODUCTS = {
   // 解析積雪深 snowd（data-collectors config/decode_tables/jma/snow_depth.yaml）。
@@ -473,8 +473,8 @@ export const JMA_IMAGERY_PRODUCTS = {
     encoding: "sst_la_v1",
     paletteVersion: "jma-sstD-colorbar-2026-10-15",
     cadenceMin: 1440,
-    maxStaleMin: 36 * 60,
-    liveMaxStaleMin: 48 * 60,
+    maxStaleMin: 72 * 60,
+    liveMaxStaleMin: 72 * 60,
     historyStepMin: 0,
     scalar: { unit: "°C", scale: 1 / 7, offset: -3, stops: SST_STOPS, zeroColor: "#f8fafc" },
   },
@@ -485,8 +485,8 @@ export const JMA_IMAGERY_PRODUCTS = {
     encoding: "level_la_v1",
     paletteVersion: "pulse-sea_ice-2026-10-15-provisional",
     cadenceMin: 1440,
-    maxStaleMin: 36 * 60,
-    liveMaxStaleMin: 48 * 60,
+    maxStaleMin: 72 * 60,
+    liveMaxStaleMin: 72 * 60,
     historyStepMin: 0,
     active: { monthsJst: [12, 1, 2, 3, 4, 5] },
     levels: [

@@ -51,7 +51,7 @@
   "legend.jma.rasrfNote": "Radar–rain-gauge analyzed precipitation for the past hour, one frame every 30 minutes. Colors follow the official legend (verified against real tiles).",
   "legend.jma.riskNote": "Risk level equivalent to the alert level, one frame every 30 minutes; the lowest class is left uncolored. Colors follow the official legend; not yet verified against colored tiles.",
   "legend.jma.uvNote": "Analyzed UV index on a ~0.25° grid, one frame per hour 06–18 JST. Colors follow the official legend (verified against real tiles).",
-  "legend.jma.sstNote": "Satellite-analyzed daily sea surface temperature (0.1° grid), one frame per day; color ramp taken from the JMA daily SST chart. Land is transparent.",
+  "legend.jma.sstNote": "Satellite-analyzed daily sea surface temperature (0.1° grid), one frame per day; color ramp taken from the JMA daily SST chart. Land is transparent. Upstream publishes about 1.5 days late, so the latest frame is usually 1–2 days old.",
   "legend.jma.sstIce": "Sea ice",
   "legend.jma.seaIceNote": "Sea ice concentration (tenths) in the Sea of Okhotsk, one frame per day, December–May only; open water and land are transparent. Provisional colors (official legend is offline off-season).",
   "legend.jma.himawariNote": "Himawari-9 band 13 infrared, one frame per hour; whiter = colder cloud tops, warm clear areas transparent. Grayscale only, not a temperature scale.",

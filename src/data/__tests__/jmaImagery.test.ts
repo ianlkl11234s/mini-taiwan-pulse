@@ -161,7 +161,7 @@ describe("JMA imagery 產品登記簿", () => {
     const tol = Object.fromEntries(Object.values(JMA_IMAGERY_PRODUCTS).map((p) => [p.product, [p.maxStaleMin, p.liveMaxStaleMin]]));
     expect(tol).toEqual({
       snow_depth: [90, 180], radar: [15, 30], rasrf: [60, 90], risk_land: [60, 90], risk_inund: [60, 90],
-      uv_anal: [90, 180], sst_him: [36 * 60, 48 * 60], sea_ice: [36 * 60, 48 * 60], himawari_b13: [90, 180],
+      uv_anal: [90, 180], sst_him: [72 * 60, 72 * 60], sea_ice: [72 * 60, 72 * 60], himawari_b13: [90, 180],
       ana_snow_first: [36 * 60, 48 * 60], ana_snow_days: [36 * 60, 48 * 60], ana_rain_days: [36 * 60, 48 * 60],
       ana_risk_land_hours: [36 * 60, 48 * 60], ana_risk_inund_hours: [36 * 60, 48 * 60],
     });
@@ -200,18 +200,19 @@ describe("JMA imagery 產品登記簿", () => {
     expect(pickJmaImageryFrame([], ms("2026-07-01T00:00:00Z"), ice, false)).toMatchObject({ kind: "uncovered", reason: "off_season" });
   });
 
-  it("sst_him：日檔 valid_time＝該日 00:00 JST（R2 key 日期是 UTC 前一日 150000），當日整天與隔日 12:00 前都用這一幀", () => {
+  it("sst_him：日檔 valid_time＝該日 00:00 JST（R2 key 日期是 UTC 前一日 150000），上游晚約 1.5 天，72h 內都用這一幀", () => {
     const sst = JMA_IMAGERY_PRODUCTS.sst_him;
     const rows = [row("2026-10-13T15:00:00Z", { product: "sst_him", encoding: "sst_la_v1" })];
     expect(rows[0]!.image_key).toBe("imagery/jma/sst_him/20261013/150000.png"); // 10-14 的檔
     const f = rowsToJmaImageryFrames(rows, CDN).get("sst_him")!;
     expect(pickJmaImageryFrame(f, ms("2026-10-13T23:59:00+09:00"), sst, false)).toMatchObject({ kind: "uncovered", reason: "no_frame" });
     expect(pickJmaImageryFrame(f, ms("2026-10-14T00:00:00+09:00"), sst, false).kind).toBe("frame");
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T12:00:00+09:00"), sst, false).kind).toBe("frame"); // 36h
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T12:01:00+09:00"), sst, false)).toMatchObject({ kind: "uncovered", reason: "stale" });
-    // 即時：D 的檔約 D+1 10:00 JST 才出 → 早上仍看前一日檔（≤ 48h）
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T23:59:00+09:00"), sst, true).kind).toBe("frame");
-    expect(pickJmaImageryFrame(f, ms("2026-10-16T00:01:00+09:00"), sst, true)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    // D 的檔約 D+1 10:30 JST 才出（實測 10-15 檔於 10-16 10:31 JST 發布）→ 停在「今天」時最新一幀常是前一日、甚至前兩日的檔
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T15:41:00+09:00"), sst, false).kind).toBe("frame"); // 回放 39.7h（舊門檻 36h 會判 stale）
+    expect(pickJmaImageryFrame(f, ms("2026-10-16T23:59:00+09:00"), sst, false).kind).toBe("frame"); // 72h 內
+    expect(pickJmaImageryFrame(f, ms("2026-10-17T00:01:00+09:00"), sst, false)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-16T10:00:00+09:00"), sst, true).kind).toBe("frame"); // 即時：D+2 早上新檔未出
+    expect(pickJmaImageryFrame(f, ms("2026-10-17T00:01:00+09:00"), sst, true)).toMatchObject({ kind: "uncovered", reason: "stale" });
   });
 });
 
