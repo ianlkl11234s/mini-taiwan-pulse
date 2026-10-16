@@ -12,6 +12,8 @@
  */
 import { layers, namedFlavor } from "@protomaps/basemaps";
 import { absoluteUrl } from "./maplibreAdapters";
+import type { Locale } from "../i18n/locales";
+import { basemapLabelLanguage } from "../map/basemapLanguage";
 
 const DEFAULT_BASEMAP_PATH = "/base_map/taiwan_basemap.pmtiles";
 
@@ -25,9 +27,9 @@ export function basemapUrl(): string {
 
 /**
  * 產生底圖 style。回傳的 `layers` 是 Protomaps 官方樣式，資料圖層由
- * overlayManager 之後 addLayer 疊在上面。
+ * overlayManager 之後 addLayer 疊在上面。地名語言跟著介面語系（zh-TW→zh-Hant、en、ja）。
  */
-export function buildBasemapStyle(isDark: boolean) {
+export function buildBasemapStyle(isDark: boolean, locale: Locale) {
   const flavor = isDark ? "dark" : "light";
   return {
     version: 8 as const,
@@ -40,7 +42,7 @@ export function buildBasemapStyle(isDark: boolean) {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       },
     },
-    // lang: zh-Hant → 中文地名（實測覆蓋到「里」層級）
-    layers: layers("protomaps", namedFlavor(flavor), { lang: "zh-Hant" }),
+    // lang: zh-Hant → 中文地名（實測覆蓋到「里」層級）；en／ja 缺譯名時 Protomaps 退回當地名稱
+    layers: layers("protomaps", namedFlavor(flavor), { lang: basemapLabelLanguage(locale) }),
   };
 }

@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import maplibregl, { type LngLatBoundsLike } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildBasemapStyle } from "../embed/basemapStyle";
+import { localeStore } from "../state/localeStore";
 import { registerPmtilesProtocolOnce } from "../embed/maplibreAdapters";
 import { ensureNullHatchImage } from "../research/vizNullPattern";
 import type { CardPayloadV1 } from "./cardPayload";
@@ -69,7 +70,7 @@ export default function CardMap({ payload }: { payload: CardPayloadV1 }) {
     const abort = new AbortController();
     setFailure(null);
     registerPmtilesProtocolOnce();
-    const map = new maplibregl.Map({ container, style: buildBasemapStyle(CARD_THEME === "dark"), bounds: TAIWAN_BOUNDS, interactive: false, attributionControl: { compact: true } });
+    const map = new maplibregl.Map({ container, style: buildBasemapStyle(CARD_THEME === "dark", localeStore.getSnapshot().locale), bounds: TAIWAN_BOUNDS, interactive: false, attributionControl: { compact: true } });
     const fit = (bounds: [number, number, number, number] | null) => {
       if (!bounds) return;
       const [west, south, east, north] = bounds;

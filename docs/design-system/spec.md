@@ -522,7 +522,7 @@
 ### 5.19 底圖選單（B3 純圖示）
 
 - **按鈕**：工具列圖示按鈕，地圖 glyph 13px ＋ 右下 7px 色點（當前底圖漸層，`RADIUS.sm`、1px 底板色描邊）；`title="底圖：{中文名}"`。
-- **彈出層**：靠右、top `100% + 6px`、底 `palette.popupBg`（暗 `SURFACE.strong`／淡 `LIGHT.surfaceSolid`）、`RADIUS.xl`、`ELEVATION.lg`、padding 4；7 個底圖（純黑、暗色、淡色、衛星、衛星街道、夜間導航、街道）以 4 欄 × 52px 縮圖排列（1:1、圓角 5、選中 2px accent outline＋accent 600 字）、中文名 9.5px；分隔線後「顯示地名」＋迷你開關。
+- **彈出層**：靠右、top `100% + 6px`、底 `palette.popupBg`（暗 `SURFACE.strong`／淡 `LIGHT.surfaceSolid`）、`RADIUS.xl`、`ELEVATION.lg`、padding 4；7 個底圖（純黑、暗色、淡色、衛星、衛星街道、夜間導航、街道）以 4 欄 × 52px 縮圖排列（1:1、圓角 5、選中 2px accent outline＋accent 600 字）、中文名 9.5px；分隔線後「顯示地名」＋迷你開關。底圖地名語言跟著介面語系（中文→繁中 `zh-Hant`、英文→`en`、日文→`ja`；底圖缺譯名時退回當地名稱），主站由 `map/basemapLanguage.ts` 以 `map.setLanguage` 切換（只重抓 tile、不重載 style），嵌入頁／分析卡由 `embed/basemapStyle.ts` 依語系產生 Protomaps 樣式；不得再寫死地名語言。
 - **互動**：點外部或 Esc 關閉；`role="menu"`／`menuitemradio`。
 - **實作**：`src/components/toolbar/BasemapMenu.tsx`。
 
