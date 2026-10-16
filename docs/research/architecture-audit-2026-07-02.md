@@ -187,7 +187,7 @@ P1 與 P2 互相獨立可並行；P4 依賴 P2 的 manifest。
 
 ## 附：本次審計證據出處
 
-- 事故史/容量：`.claude/memory/INCIDENTS.md`、`docs/supabase-optimization.md`、`docs/supabase_rpc_audit.md`、`docs/launch/00/03/08`
+- 事故史/容量：`.claude/memory/INCIDENTS.md`、`docs/supabase-optimization.md`、`docs/audit/supabase-rpc-audit-2026-04-09.md`、`docs/launch/00/03/08`
 - 讀取路徑：`src/data/*Loader.ts`（46 檔）、`src/lib/loaderCache.ts`、`src/lib/supabase.ts:41`、`src/hooks/useLayerVisibility.ts:12`
 - 寫入路徑：`data-collectors/config.py:202-268`、`storage/db.py`、`storage/supabase_writer.py`、`external/ship_ais_vm/ship_ais_collect.py:196-208`、`config/cross_layer_map.yaml`
 - 圖層架構：`src/types/index.ts`（237 keys）、`src/App.tsx`（2631 行）、`src/map/overlayRegistry.ts`（5750 行）、`src/hooks/useTransportParams.ts`（2104 行）

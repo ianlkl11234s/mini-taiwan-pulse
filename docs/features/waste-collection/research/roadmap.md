@@ -2,7 +2,7 @@
 
 > 最新更新：2026-05-10
 > **核心 framing 修正**：用戶 5/3-5/8 在 taipei-gis-analytics 已完成 hwms 爬蟲 + TGOS 批次 + Schema migrations。剩 TGOS 上傳 + callback + 視覺化
-> 對應規劃：[`waste-multi-city-survey.md`](./waste-multi-city-survey.md) / [`waste-multi-city-progress.md`](./waste-multi-city-progress.md)
+> 對應規劃：[`waste-multi-city-survey.md`](./survey.md) / [`waste-multi-city-progress.md`](./progress.md)
 
 ---
 
@@ -158,7 +158,7 @@ Week 4: Phase 3.1-3.4 完成
 ```
 1. .claude/memory/STATUS.md：每週末更新整體進度
 2. .claude/memory/BACKLOG.md：發現新 sub-task 加進去
-3. docs/research/waste-multi-city-progress.md：每完成一階段打勾
+3. docs/features/waste-collection/research/progress.md：每完成一階段打勾
 4. 每個 Phase 結束寫一篇 .claude/retrospectives/ 短回顧
 ```
 

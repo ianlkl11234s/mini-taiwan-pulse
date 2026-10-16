@@ -27,7 +27,7 @@ hwms.moenv.gov.tw（環境部資源循環署「全國垃圾車路線網」）
 
 **因此「Tier 1/2/3」分類在工程實作上已不適用** — 全 22 縣市都靠 hwms + TGOS 補完。
 
-詳見 → [`waste-multi-city-progress.md`](./waste-multi-city-progress.md) / [`waste-multi-city-roadmap.md`](./waste-multi-city-roadmap.md)
+詳見 → [`waste-multi-city-progress.md`](./progress.md) / [`waste-multi-city-roadmap.md`](./roadmap.md)
 
 **為什麼之前盤點漏掉 hwms**：master_catalog.sqlite 收的是各縣市 portal、沒收進中央環境部 portal。盲點。下次盤點要 cross-check 中央級單一資料源。
 
@@ -239,7 +239,7 @@ D2. 「時刻表 vs GPS」誤差分析（user 提到的方向 3-c）
 
 ## 參考
 
-- 高雄 + 台南 OSRM map-matching 細節：[`waste-osrm-mapmatching-plan.md`](./waste-osrm-mapmatching-plan.md) §14-15
+- 高雄 + 台南 OSRM map-matching 細節：[`waste-osrm-mapmatching-plan.md`](./osrm-mapmatching-plan.md) §14-15
 - 5/9-5/10 台南上線過程：BACKLOG BL-9 / BL-14 / BL-15 / BL-16
 - TGOS 批次工具：tgos-batch-geocoding skill（已存在）
 - catalog 搜尋細節：master_catalog.sqlite + catalog-search skill

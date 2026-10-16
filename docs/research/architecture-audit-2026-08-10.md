@@ -55,7 +55,7 @@ BACKLOG EM-17 附註，2026-08-10 覆核 `public/static-rpc/` 仍無該檔，loa
 2. **AqiLegend 繞過 `LEGEND_REGISTRY`**（掛在 `App.tsx:3123`）→ aqi 兩層被算進「合法無圖例」baseline，覆蓋率指標灌水、豁免註解與事實不符。
 3. **測試只掃 `src/data/`**：`App.tsx:238-386` 四個圖層 toggle 的靜默 `fetch()`（lighthouse / station pillars / airports / ports）與 `MonitorPanel.tsx:290` 直接在元件內打 RPC（違反 loader 目錄慣例 + 永久逃過 ratchet），都在掃描範圍外。
 
-### A-5. [新發現｜中] `docs/supabase_rpc_audit.md` 雙向漂移、正在主動誤導
+### A-5. [新發現｜中] `docs/audit/supabase-rpc-audit-2026-04-09.md` 雙向漂移、正在主動誤導
 
 - 130/149 個現役 RPC 從未進稽核文件（2026-04-09 後上線的所有 domain）；§3 SOP 第 5 步早已沒人跑。
 - 反向更糟：文件標 🔴 最高風險的 `get_youbike_h3_snapshots` / `get_freeway_congestion_day` **其實已修好**（data-collectors 有 matview SQL + cron 錯峰），文件仍叫人去修。

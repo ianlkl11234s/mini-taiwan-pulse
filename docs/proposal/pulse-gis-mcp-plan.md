@@ -27,7 +27,7 @@ MCP 不直接操作 Mapbox instance、不畫地圖，也不保存另一份圖層
 
 | 文件 | 本計畫如何沿用 |
 |---|---|
-| [`member-byok-chat-plan.md`](./member-byok-chat-plan.md) | 沿用白名單 tools、LLM 不生 SQL、輸出截斷與既有 MapBridge 經驗 |
+| [`member-byok-chat-plan.md`](../features/byok-chat/plan.md) | 沿用白名單 tools、LLM 不生 SQL、輸出截斷與既有 MapBridge 經驗 |
 | [`architecture-overhaul-plan.md`](./architecture-overhaul-plan.md) | 接續 AR-43 對話介面與 Layer Manifest 架構，不另造圖層目錄 |
 | [`worldmonitor-deep-dive-2026-07.md`](../research/worldmonitor-deep-dive-2026-07.md) | 延續既有 MCP／discovery／freshness 研究 |
 | [`docs/features/byok-chat/README.md`](../features/byok-chat/README.md) | 外部 MCP 與已上線 BYOK chat 共用 controller，不取代內建 chat |

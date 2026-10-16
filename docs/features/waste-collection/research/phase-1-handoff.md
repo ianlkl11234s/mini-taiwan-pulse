@@ -29,7 +29,7 @@ Track B：mini-taiwan-pulse      ← 新 session 工作
 ```
 1. 讀本檔
 2. 讀 .claude/memory/STATUS.md（5/10 結束點）
-3. 讀 docs/research/waste-multi-city-progress.md（22 縣市現況 + 5 城時刻表 ready）
+3. 讀 docs/features/waste-collection/research/progress.md（22 縣市現況 + 5 城時刻表 ready）
 ```
 
 ---

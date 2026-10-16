@@ -9,7 +9,7 @@
 | 登入 | `src/lib/auth.ts`、`src/components/auth/UserAvatar.tsx` | Google OAuth、session 訂閱與登出已接；未登入可保留公開瀏覽。 |
 | 身份/權限 | `../gis-platform/migrations/270_member_profiles.sql`、`276_governance_layer.sql` | `public.profiles` 為 `auth.users` 1:1，self SELECT、僅可更新顯示名稱/avatar；275 的 assert 固化此限制，276 只調整 tier CHECK，未重建 profile。 |
 | gated layer | `src/lib/layerGates.ts`、migration 275 | tier 是 layer gate，不是 billing/subscription 真相；場景還原仍須重新過 gate。 |
-| 快照規劃 | `docs/proposal/member-features-plan.md`、`docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md` | 有 v1 設計；migration 目錄搜尋未找到 `user_favorites`、`member_visits`、`user_layer_favorites`、`user_places`、`user_scenes` 的建表，273/274 僅存在規劃文件。 |
+| 快照規劃 | `docs/features/member-area/plan.md`、`docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md` | 有 v1 設計；migration 目錄搜尋未找到 `user_favorites`、`member_visits`、`user_layer_favorites`、`user_places`、`user_scenes` 的建表，273/274 僅存在規劃文件。 |
 | 地圖 state | `src/App.tsx`、`src/lib/urlState.ts`、`src/state/layerVisibilityStore.ts`、`src/state/layerParamsStore.ts`、`src/state/timeStore.ts` | 已有 layer key、camera、time 與 params 的擷取基礎；URL 只覆蓋部分 state，不能直接當完整保存格式。 |
 | 既有側欄 | `src/components/IconRailSidebar.tsx`、`src/components/LayerSidebar.tsx` | 桌機 rail 採 `PanelId` + floating panel；手機有獨立 `LayerSidebar`，不能只加桌機入口。右上 `UserAvatar` 目前只做登入/owner/登出。 |
 

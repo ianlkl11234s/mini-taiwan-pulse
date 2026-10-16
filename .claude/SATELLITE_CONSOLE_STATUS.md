@@ -3,7 +3,7 @@
 > 分支：`feat/satellite-console`（從 `feat/intel-panel` 切，**未 push** — 等待本地驗收後手動發 PR）
 > 完成時間：2026-06-14 23:30
 > 設計檔：`/tmp/satconsole_design/extracted/satellite-sidebar-panel/`
-> 提案：`docs/proposal/satellite-console.md`
+> 提案：`docs/features/satellite-console-restyle/proposal.md`
 > 跨 repo 同步：**gis-platform** 已 commit migration 169（也未 push）
 
 ## 真實資料驗證（P0）

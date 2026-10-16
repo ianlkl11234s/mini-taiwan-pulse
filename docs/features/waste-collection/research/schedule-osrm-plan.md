@@ -1,7 +1,7 @@
 # 垃圾車表定動畫 — OSRM 沿路網整合 Plan (BL-17)
 
 > 寫於 2026-05-10 晚 — Phase 3 prototype v1 視覺打磨用盡後的根治方案
-> 詳細失敗嘗試紀錄見 [`waste-schedule-data-quirks.md`](./waste-schedule-data-quirks.md) §視覺打磨歷程
+> 詳細失敗嘗試紀錄見 [`waste-schedule-data-quirks.md`](./schedule-data-quirks.md) §視覺打磨歷程
 
 ## 為什麼要做（前情摘要）
 

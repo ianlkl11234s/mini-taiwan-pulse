@@ -290,7 +290,7 @@ A12 max 859m / 90s 在 60x 下 = **560 m/s ≈ 2016 km/h** 視覺速度，1 視�
 
 **唯一根治 = OSRM 整合**（沿馬路走，方向變化在路口、distance 變大但路徑連續，看起來像走真實路線）
 
-詳見 BL-17 / [`waste-schedule-osrm-plan.md`](./waste-schedule-osrm-plan.md)。
+詳見 BL-17 / [`waste-schedule-osrm-plan.md`](./schedule-osrm-plan.md)。
 
 ---
 

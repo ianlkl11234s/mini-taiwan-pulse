@@ -139,7 +139,7 @@ DB 端 1023 個 public function 但前端只用得到 158 個、有 RPC 平均�
 8. 🟡 **5 個 feature 夾缺文件**：`property-value`（缺 README+changelog）、`static-to-cdn`、`water-resources`（各缺 changelog+handoff）、`buildings-night-lights`、`chart-hover-tooltip`（各缺 handoff）。
 9. 🟡 **docs 頂層 25 份散檔中約 14 份疑似該歸檔**（最舊 129 天）。但**不能用檔名判斷**：
    `water-resources-status.md`／`waste-collection-status.md` 看起來像一次性 status，實際是 MEMORY.md 指定的現行狀態檔。
-10. 🟢 首頁 `cf-cache-status: DYNAMIC`（SPA 本體未邊緣快取），對照 `docs/scaling-resilience-runbook.md` 的未完成項。
+10. 🟢 首頁 `cf-cache-status: DYNAMIC`（SPA 本體未邊緣快取），對照 `docs/launch/scaling-resilience-runbook.md` 的未完成項。
 
 ### 3.1 腳本實作陷阱（盤點時實際踩到，寫進 v1 才不會白做）
 

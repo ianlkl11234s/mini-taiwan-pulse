@@ -1,6 +1,6 @@
 # 會員功能規劃 — 會員面板 + 收藏 + 上站統計（M 系列）
 
-> 2026-07-03 拍板。本檔細化 [`member-byok-chat-plan.md`](./member-byok-chat-plan.md) §6 / BACKLOG BC-2，
+> 2026-07-03 拍板。本檔細化 [`member-byok-chat-plan.md`](../byok-chat/plan.md) §6 / BACKLOG BC-2，
 > 並新增「上站統計」（原文件未涵蓋）。BC-2 的 chat_logs / 對話歷史跨裝置維持原規劃，排入 M-P1。
 
 ## 0. 一句話結論

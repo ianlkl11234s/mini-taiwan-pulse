@@ -3,7 +3,7 @@
 > 起因：打開「工商登記」圖層時電腦風扇狂轉。
 > 範圍：地圖渲染、圖層生命週期、首屏載入、資料傳輸、部署體積。
 > 上線 PR：pulse #464、#467、#471、#472、#476、#477；analytics #124。
-> 前一次同類改造見 [`perf-overhaul-2026-06.md`](./archive/2026-10-04/perf-overhaul-2026-06.md)。
+> 前一次同類改造見 [`perf-overhaul-2026-06.md`](../archive/2026-10-04/perf-overhaul-2026-06.md)。
 
 ## TL;DR
 
@@ -34,7 +34,7 @@
 
 ### 2.1 圖層生命週期（#464）
 
-- **A0 卡住的 paint transition**：Mapbox 對一個圖層做任何 `setPaintProperty` 都會替該圖層的「所有」paint 屬性建 transition；隱藏圖層不會 recalculate，transition 永不結束 → `style.hasTransitions()` 恆 true → 無限重畫。詳見 pitfall [`2026-09-30-hidden-layer-paint-transition.md`](../.claude/pitfalls/2026-09-30-hidden-layer-paint-transition.md)。
+- **A0 卡住的 paint transition**：Mapbox 對一個圖層做任何 `setPaintProperty` 都會替該圖層的「所有」paint 屬性建 transition；隱藏圖層不會 recalculate，transition 永不結束 → `style.hasTransitions()` 恆 true → 無限重畫。詳見 pitfall [`2026-09-30-hidden-layer-paint-transition.md`](../../.claude/pitfalls/2026-09-30-hidden-layer-paint-transition.md)。
   - `overlayManager.setPaintPropertyGuarded`：隱藏時暫存 paint，重新顯示才寫入。
   - 水庫 dim 只還原自己改過的值；農地隱藏時不改 paint。
   - 漣漪類圖層所有 paint 屬性 transition 設 0。

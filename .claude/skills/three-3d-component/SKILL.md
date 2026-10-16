@@ -9,7 +9,7 @@ description: Mini Taiwan Pulse 新增 Three.js × Mapbox 立體圖層的設計�
 >
 > SSOT：
 > - 案例庫：`public/three-showcase.html`（互動 demo，68 元件 9 大類）
-> - 元件查表：`docs/three-showcase-library.md`
+> - 元件查表：`.claude/skills/three-3d-component/references/three-showcase-library.md`
 > - 已上線 Scene：`src/three/*Scene.ts`（16 個）
 > - CustomLayer 接線：`src/map/*CustomLayer.ts`
 
@@ -59,7 +59,7 @@ description: Mini Taiwan Pulse 新增 Three.js × Mapbox 立體圖層的設計�
 | 慶典 / 強調 / 特殊 POI | Shader 變形 / 場景 | `aurora` `flow` `firework` `text` |
 | 系統關係（多節點關聯） | 系統關係 | `sankey` `converge` `hydrocycle` `feedback` `cascade` |
 
-完整對照查 `docs/three-showcase-library.md` 的「適合表達」欄位。
+完整對照查 `.claude/skills/three-3d-component/references/three-showcase-library.md` 的「適合表達」欄位。
 
 ### Step 3：在 showcase 試參數
 
@@ -187,7 +187,7 @@ CustomLayer 範本看 `src/map/lighthouseCustomLayer.ts`（53 行 SSOT）。
 
 ### A. 設計層
 - [ ] 已填「§二 Step 1 語意句」並貼進 PR description
-- [ ] 元件 ID 從 `docs/three-showcase-library.md` 挑選（不自創）
+- [ ] 元件 ID 從 `.claude/skills/three-3d-component/references/three-showcase-library.md` 挑選（不自創）
 - [ ] 在 `three-showcase.html` 試過參數，截圖貼 PR
 
 ### B. 程式層（看「§5 新增 Layer 強制順序」CLAUDE.md）
@@ -278,7 +278,7 @@ CustomLayer 範本看 `src/map/lighthouseCustomLayer.ts`（53 行 SSOT）。
 
 - 語意句：__________
 - 元件 ID：__________
-- 元件來源：docs/three-showcase-library.md §__
+- 元件來源：.claude/skills/three-3d-component/references/three-showcase-library.md §__
 - 參數實測值（從 showcase 抄）：size/opacity/speed/color = __________
 - 跨點關聯類型：5.1 / 5.2 / 5.3 / 無
 - 外部參考案例：__________（若有）

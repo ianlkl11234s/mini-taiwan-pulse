@@ -44,7 +44,7 @@
 
 - `src/lib/auth.ts:12`、`:31`、`:67`：登入、session、tier；`src/lib/layerGates.ts:17`、`:97`：權限。
 - `src/components/auth/UserAvatar.tsx:89`、`:181`、`:208`：登入、owner 入口、登出。
-- `docs/features/byok-chat/backlog.md:11`：BC-2 收藏／跨裝置歷史；`docs/proposal/member-byok-chat-plan.md:211`：舊快照規劃。
+- `docs/features/byok-chat/backlog.md:11`：BC-2 收藏／跨裝置歷史；`docs/features/byok-chat/plan.md:211`：舊快照規劃。
 - `src/App.tsx:1225`；`src/lib/urlState.ts:41`；`src/state/layerParamsStore.ts:124`：URL 與現有參數快照基礎。
 - `src/components/IconRailSidebar.tsx:991`；`src/components/LayerSidebar.tsx:231`：桌面搜尋及手機選擇器。
 - `src/data/layerManifest.ts:204`；`src/data/dataCatalogLoader.ts:19`；`src/data/upstreamRegistry.ts:39`：metadata、來源與血緣。

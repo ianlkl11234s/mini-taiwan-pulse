@@ -2,7 +2,7 @@
 
 > **狀態**：2026-08-20 拍板，P1 執行中。本檔為本 feature 的設計 SSOT。
 > **來源**：backlog `VW-9`「船 × 界線 geofence 分析（24 浬／12 浬）」的具體化。
-> **母 feature**：[`docs/features/vessel-watch/`](../features/vessel-watch/)（船在哪）
+> **母 feature**：[`docs/features/vessel-watch/`](./)（船在哪）
 > ＋ `maritimeBoundary` 圖層（哪條線）—— 本案是把兩者在資料庫裡接起來。
 > **關聯**：`mini-taiwan-osint/projects/2026-07-grayzone-incursion/`（前身研究，ledger G04 拼音字典已落地）
 

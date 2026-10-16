@@ -86,7 +86,7 @@
 | 1 | `src/three/shaders/globeProject.ts`（138 行）<br>GLSL + JS 雙版貼球投影 + ECEF 背面剔除 | plan-art | 只有 `three` | **easy** | high |
 | 2 | `docs/features/trajectory-rendering.md`（187 行）<br>效能除錯方法論案例研究 | plan-art | 純文件 | **easy** | high |
 | 3 | `src/three/GlowPointsScene.ts`（248 行）<br>zoom 自適應偽 bloom，檔頭自述「業務無關」 | pulse | `three` + 一個 `toMercator()` | **easy** | high |
-| 4 | `public/showcase/`（core 187 行 + effects 4,101 行 = **68 個效果**，9 分類）+ `docs/three-showcase-library.md`（552 行） | pulse | vanilla JS、無 build step | **easy** | high |
+| 4 | `public/showcase/`（core 187 行 + effects 4,101 行 = **68 個效果**，9 分類）+ `.claude/skills/three-3d-component/references/three-showcase-library.md`（552 行） | pulse | vanilla JS、無 build step | **easy** | high |
 | 5 | `src/three/BatchedTrails.ts`（508 行）<br>單 draw call slot 制 + **min-heap 逐出** + 部分 buffer 上傳 | plan-art | `three` + globeProject + 2 個 shader 檔 | **easy** | high |
 | 6 | `src/map/climateParticleLineLayer.ts`（789 行）<br>raw WebGL2 向量場粒子（洋流／風向） | pulse | **只有 mapbox-gl 的 type import**（零 runtime 依賴） | **easy** | high |
 | 7 | `src/map/gfwV4TrackCustomLayer.ts` + `src/three/GfwV4TrackScene.ts` + 測試（176 行 / 8 case） | pulse | option getter 注入 | medium | high |

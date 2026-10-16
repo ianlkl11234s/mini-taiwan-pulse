@@ -1,7 +1,7 @@
 # 嵌入動態／歷史圖層（EM 系列後續）
 
 > 2026-08-04 規劃 · **尚未動工**
-> 前置：[`embeddable-map-impl.md`](../archive/2026-10-04/proposal/embeddable-map-impl.md)（Phase 1 已完成）· [`embed-basemap-osm.md`](../archive/2026-10-04/proposal/embed-basemap-osm.md)（MapLibre 路線）
+> 前置：[`embeddable-map-impl.md`](../../archive/2026-10-04/proposal/embeddable-map-impl.md)（Phase 1 已完成）· [`embed-basemap-osm.md`](../../archive/2026-10-04/proposal/embed-basemap-osm.md)（MapLibre 路線）
 > 起因：`/embed` 目前只吃 145 個靜態圖層，動態圖層一律擋掉。本檔規劃「怎麼讓動態／歷史資料也能嵌」。
 
 ## 1. 先更正兩個前提
@@ -233,5 +233,5 @@ Pro plan 250 GB 額度撐 25 篇同級文章就見底（超出 $0.09/GB）。
   - **Content-Encoding 決定：不設（走「前端自解」那條路）**。理由是正式站的 nginx 服務的是 **volume 上的本地檔**（pull 用 `aws s3 sync` 落地），S3 的 metadata 根本到不了瀏覽器 —— 設 `--content-encoding gzip` 對線上零幫助，只會替下載環節引入「body 可能被中途解壓」的變數，製造「宣告 gzip 但實際已解壓」的矛盾。不設則 dev（vite 直接送檔）與 prod 行為完全一致，`fetchMaybeGzipJson()` 的 magic byte(0x1f 0x8b) 分支兩邊都吃得下。
   - **實測佐證（本機 prod-like nginx，含 `default_type application/octet-stream`）**：nginx `mime.types` 既無 `gz` 也無 `geojson` 對應 → 兩者都落到 `application/octet-stream`，不在 `gzip_types` 內 → **不會二次壓縮**；回應無 `Content-Encoding`、`Content-Length` 等於原檔、body md5 與來源一致、`gunzip -t` 通過。對照組純 `.json` 則正常帶 `Content-Encoding: gzip`，證明 gzip 模組本身有在運作。
   - **快取策略**：`/embed-snapshots/` 維持 `1y + immutable`（檔名含日期、內容凍結，天然 cache busting）；`/embed-rail/` 因為是**固定檔名的日期無關共用資產**、會隨幾何管線重跑而更新，**刻意不用 immutable**，改採與其他 mutable `/data` location 相同的 `expires 1d; add_header Cache-Control "public"` —— 靜態檔自帶 ETag/Last-Modified，過期後 revalidate 是 304 幾乎零成本，且與 `purge-cloudflare-cache.sh` 註解假設的「respect headers = edge TTL 1d」一致。
-    - ⚠️ **2026-08-09 翻案**：這條被「內容雜湊檔名」取代。原方案的殘留缺點是幾何更新後讀者最慘要**兩天**（CDN 1d + 瀏覽器 1d）才看得到新軌道，而唯一補救是 purge_everything。改成 `rail_slim.<hash>.json.gz` + `rail-manifest.json`（`max-age=60`）之後，bundle 走 `1y immutable`、更新**完全不需要清快取**。詳見 [`../features/embeddable-map/README.md`](../features/embeddable-map/README.md) 的「rail 幾何 bundle：內容雜湊檔名」。
+    - ⚠️ **2026-08-09 翻案**：這條被「內容雜湊檔名」取代。原方案的殘留缺點是幾何更新後讀者最慘要**兩天**（CDN 1d + 瀏覽器 1d）才看得到新軌道，而唯一補救是 purge_everything。改成 `rail_slim.<hash>.json.gz` + `rail-manifest.json`（`max-age=60`）之後，bundle 走 `1y immutable`、更新**完全不需要清快取**。詳見 [`README.md`](README.md) 的「rail 幾何 bundle：內容雜湊檔名」。
   - **待 owner 部署後驗**：`curl -sI` 兩個 URL 應為 200、無 `Content-Encoding`、`Content-Length` 對得上、cache header 各自正確；瀏覽器開 `/embed?layers=flights,ships,rail&date=2026-08-06` 冒煙（三層一次打到全部四份資產，含新開的 `/embed-rail/` 與 rail 的「時刻表＋幾何」雙 fetch 組裝）。
