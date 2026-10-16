@@ -15,7 +15,7 @@
  * `scripts/export/export-embed-snapshot.sh <layer> <date>` 產出，
  * 與 `data-collectors/scripts/export_daily_trails.py` 的 `write_gzip_json` 同形。
  *
- * 鐵則（見 docs/proposal/embed-dynamic-layers.md §9 D-4）：
+ * 鐵則（見 docs/features/embeddable-map/dynamic-layers-plan.md §9 D-4）：
  * **絕不打 Supabase**；快照缺失（404 / 壞檔）→ 靜默略過該層，不白屏、不 fallback。
  */
 import type { LayerVisibility } from "../types";

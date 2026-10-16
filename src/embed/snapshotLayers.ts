@@ -8,7 +8,7 @@
  * 與主站版本的差異（刻意）：
  * - 只呈現**一天**：不做多日疊加、不做累積回放、不做 ageFade（那些是主站的互動功能）
  * - 資料來自 `/embed-snapshots/<layer>/<date>.geojson`（`scripts/export/export-embed-snapshot.sh` 產出）
- * - **絕不打 Supabase**：快照不存在就視同該層不可用（見 docs/proposal/embed-dynamic-layers.md §3-4）
+ * - **絕不打 Supabase**：快照不存在就視同該層不可用（見 docs/features/embeddable-map/dynamic-layers-plan.md §3-4）
  */
 import type { LayerVisibility } from "../types";
 

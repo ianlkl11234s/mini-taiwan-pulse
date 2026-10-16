@@ -1846,7 +1846,7 @@ export default function App() {
 
   // ── EM-19 網址雙向同步（分享用）────────────────────────────────────────
   //
-  // 三個必守的點（見 docs/proposal/embed-dynamic-layers.md 討論）：
+  // 三個必守的點（見 docs/features/embeddable-map/dynamic-layers-plan.md 討論）：
   // 1. **replaceState 不是 pushState** —— pushState 會讓拖曳地圖塞爆上一頁歷史，
   //    使用者要按上千次才能離開。
   // 2. **綁 moveend 不綁 move** —— move 是每幀觸發（60fps），瀏覽器對 history API

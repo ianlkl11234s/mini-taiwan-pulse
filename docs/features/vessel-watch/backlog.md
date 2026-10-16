@@ -26,7 +26,7 @@
   - Outcome：使用者能分辨「單點資料」與「無資料」。
   - Next action：決定單點 marker/empty label 的 UX，補 popup/legend acceptance。
 - [x] **VW-9**：船 × 界線 geofence 分析 —— **2026-08-20 拍板並展開為 Vessel Zone Watch**，
-  設計 SSOT：[`docs/proposal/vessel-zone-watch.md`](../../proposal/vessel-zone-watch.md)。
+  設計 SSOT：[`docs/features/vessel-watch/zone-watch-design.md`](zone-watch-design.md)。
   POC 已完成（唯讀，臺灣本島兩條線）：確認接近帶才是主訊號、進 24 浬罕見但真實、進 12 浬為 0。
   子項見下方 VZ-* 系列。
 
@@ -92,7 +92,7 @@
   - 附帶未解：DB 記的 call_sign 是 `SDE03`，外部顯示 `VWMI24`，原因不明。
 
 - [ ] **VZ-11**：兩筆跨 repo 文件補登。
-  - `docs/supabase_rpc_audit.md` 未登錄 `get_vessel_zone_daily`。
+  - `docs/audit/supabase-rpc-audit-2026-04-09.md` 未登錄 `get_vessel_zone_daily`。
   - `taipei-gis-analytics/docs/data-catalog/environment/maritime_boundary.md` 仍寫「上游 Supabase 表：尚未建表」，已過時。
 
 ### VZ 已完成

@@ -3,7 +3,7 @@
 > 範圍：疊床架屋 / 技術債與效能 / 被改壞的地方 / 過度設計。
 > 方法：4 個平行稽核 agent（規則違反掃描 / 效能資產 / 架構 / 死碼），主 agent 對 top 7 發現逐一 spot-check 證實後彙整。
 > 基準：HEAD=master，`npx tsc -b` 通過、`pnpm test` 441/441 全綠。
-> 前作：[architecture-audit-2026-07-02.md](./architecture-audit-2026-07-02.md)（AR 系列藥方）。本次所有發現皆標注 **[新發現]** 或 **[已追蹤]**（對照 BACKLOG / known-issues）。
+> 前作：[architecture-audit-2026-07-02.md](../archive/2026-10-16/research/architecture-audit-2026-07-02.md)（AR 系列藥方）。本次所有發現皆標注 **[新發現]** 或 **[已追蹤]**（對照 BACKLOG / known-issues）。
 
 ---
 
@@ -55,7 +55,7 @@ BACKLOG EM-17 附註，2026-08-10 覆核 `public/static-rpc/` 仍無該檔，loa
 2. **AqiLegend 繞過 `LEGEND_REGISTRY`**（掛在 `App.tsx:3123`）→ aqi 兩層被算進「合法無圖例」baseline，覆蓋率指標灌水、豁免註解與事實不符。
 3. **測試只掃 `src/data/`**：`App.tsx:238-386` 四個圖層 toggle 的靜默 `fetch()`（lighthouse / station pillars / airports / ports）與 `MonitorPanel.tsx:290` 直接在元件內打 RPC（違反 loader 目錄慣例 + 永久逃過 ratchet），都在掃描範圍外。
 
-### A-5. [新發現｜中] `docs/supabase_rpc_audit.md` 雙向漂移、正在主動誤導
+### A-5. [新發現｜中] `docs/audit/supabase-rpc-audit-2026-04-09.md` 雙向漂移、正在主動誤導
 
 - 130/149 個現役 RPC 從未進稽核文件（2026-04-09 後上線的所有 domain）；§3 SOP 第 5 步早已沒人跑。
 - 反向更糟：文件標 🔴 最高風險的 `get_youbike_h3_snapshots` / `get_freeway_congestion_day` **其實已修好**（data-collectors 有 matview SQL + cron 錯峰），文件仍叫人去修。
@@ -164,7 +164,7 @@ sidebar 色點（LAYER_COLORS）/ 地圖 paint（overlayRegistry）/ 圖例色�
 6. 16 圖層圖例補齊 or 有意識降單色 + baseline 逐筆補豁免註解（A-1）
 7. rail loading 接線（A-2）
 8. development-rules §4 觸點表更新至 14 檔實況（C-2）
-9. supabase_rpc_audit.md 重整或正式退役（A-5）
+9. docs/audit/supabase-rpc-audit-2026-04-09.md 重整或正式退役（A-5）
 
 **進 backlog（與既有計畫合流）**
 10. `useTransportParams` 拆解 → 併入 AR-21~26 manifest 計畫，本次稽核最支持優先啟動的結構工程（C-1）

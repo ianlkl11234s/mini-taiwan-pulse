@@ -7,7 +7,7 @@
 > **規劃文件**：[`../../proposal/embeddable-map.md`](../../archive/2026-10-04/proposal/embeddable-map.md)（目標／費用／風險）·
 > [`embeddable-map-impl.md`](../../archive/2026-10-04/proposal/embeddable-map-impl.md)（逐檔工作項）·
 > [`embed-basemap-osm.md`](../../archive/2026-10-04/proposal/embed-basemap-osm.md)（免費底圖路線）·
-> [`embed-dynamic-layers.md`](../../proposal/embed-dynamic-layers.md)（動態／歷史圖層）
+> [`embed-dynamic-layers.md`](dynamic-layers-plan.md)（動態／歷史圖層）
 
 ## 一句話說明
 
@@ -205,7 +205,7 @@ embed 另以 `factoryOverlayConfigs.ts` 描述同一份靜態 PMTiles 與樣式�
 **回放層（EM-16，2026-08-09 上線）**：`ships` / `flights` / `rail` 三層 Three.js 回放，
 只在網址真的帶了這些 key + `date=` 時才 `import()` three（純靜態嵌入完全不下載）。
 `busLive` 仍不支援（EM-24）。原「Three.js 圖層不做」的結論已翻案，詳見
-[`embed-dynamic-layers.md`](../../proposal/embed-dynamic-layers.md) §2 與 [`changelog.md`](./changelog.md)。
+[`embed-dynamic-layers.md`](dynamic-layers-plan.md) §2 與 [`changelog.md`](./changelog.md)。
 
 ## 檔案地圖
 
