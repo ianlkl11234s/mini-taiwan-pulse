@@ -217,7 +217,7 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
   - 必須有 `(id_column, collected_at)` 複合索引
   - 必須有 `(collected_at)` 單欄索引
   - 常用條件（如 city）考慮 partial index
-- today + yesterday 放**同一個 cron job 循序跑**（禁止拆成兩個獨立 job）
+- today 與 yesterday（date-1）**拆成兩個 cron job**（2026-07-23 起，`gis-platform/migrations/302_refresh_cron_detangle.sql`）：today job 每 30 分並錯開分鐘偏移，yesterday 另設獨立每日一次 job（`refresh-*-yesterday`，17:xx UTC = 台北 01:xx）。昨日資料不再變動，不必每輪重算；舊做法「同一 job 循序跑」會自我重疊、卡 1-2 小時而引發 Disk IO 死亡螺旋（見 data-collectors `.claude/pitfalls/2026-07-23-disk-io-cron-spiral.md`）
 - 聚合用 `MAX()` 而非 `mode()`（後者需額外 sort）
 - 加 `SET work_mem TO '64MB'` 減少 disk spill
 - cron 排程必須錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
