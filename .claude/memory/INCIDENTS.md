@@ -3,6 +3,8 @@
 遇到問題並解決後記錄。格式：`## YYYY-MM-DD 標題` → 現象 / 根因 / 對策。
 
 > 只 append，不修改舊條目。長篇紀錄放到 `.claude/pitfalls/` 後這裡附 link。
+>
+> 2026-10-16 盤點：舊條目只加 `> 2026-10-16 補註` 引言，不改原文。引用 PRINCIPLES 一律寫**段標題**，不寫行號或日期（行號會漂）。`docs/known-issues.md` 已併入本檔末段並歸檔。
 
 ---
 
@@ -140,6 +142,7 @@ snapshot 不一致就認為 store 變了 → re-render → 再呼叫 getSnapshot
 - **本機（資料秒載）永遠重現不了這種 race** → prod 級驗證要等 map load（30s+）再斷言
 - Access log 看 pmtiles「只有 16384 header 讀取、無後續 range」= 圖層沒真的在畫
 - 已進 PRINCIPLES：**Map effect 禁用 isStyleLoaded() guard**（L454）
+  > 2026-10-16 補註：該段已併入 PRINCIPLES「Mapbox 掛載與 isStyleLoaded（三段合一）」，行號不再適用。
 
 **Long-form**：`~/.claude/projects/.../memory/_archive/perf-overhaul-2026-06.md`（含 8 commits 完整清單 + tippecanoe 坑 + Feature/Legend registry 化）
 
@@ -184,6 +187,8 @@ snapshot 不一致就認為 store 變了 → re-render → 再呼叫 getSnapshot
 - PRINCIPLES：RPC 建立後一律補 GRANT
 
 **Long-form**：[.claude/pitfalls/2026-04-07-empty-ships-flights.md](../pitfalls/2026-04-07-empty-ships-flights.md)
+
+> 2026-10-16 補註：同日其實是**兩件事**，long-form 講的是另一件。(a) 本條：RPC 未 GRANT anon → 前端拿空陣列；(b) pitfall 正本：data-collectors（Zeabur）4/4–4/6 斷線約 61 小時＋`base.py` naive `datetime.now()` 造成 `collected_at` +8h，修正後從 S3 回填 3/9–4/6。看「船舶／航班全空」以 pitfall 為正本；(a) 的 GRANT 規則現在見 PRINCIPLES「Supabase RLS 安全鐵則」「RLS policy 角色完整性」。
 
 ---
 
@@ -1682,7 +1687,7 @@ ships 移植的背景 agent 一啟動就斷線，實際工作**尚未開始**。
 新版上線後狀態轉 EXPIRED→200 自癒，沒有真的壞掉，但白等了一段。
 
 ⚠️ 與既有那條「Cloudflare **Cache Rule** 用固定 TTL 會連 404/5xx 一起快取」
-（PRINCIPLES 2026-08-05）**是不同機制**：那條是自訂規則覆寫 cache-control，
+（PRINCIPLES 2026-08-05）**是不同機制**（2026-10-16 補註：實為 PRINCIPLES「Zeabur 正式上線 + Cloudflare（2026-06-02 教訓）」）：那條是自訂規則覆寫 cache-control，
 這條是 CF **預設**對特定副檔名的 negative cache，沒設任何規則也會發生。兩條互補。
 
 → 規則：**deploy 完成前探測任何新 URL，一律加 cache-buster**（`?cb=$(date +%s)`）。
@@ -2171,3 +2176,33 @@ R5 熱區強度校正的子代理連續兩個在截圖階段無回應，被 stre
 1. 派 worker 用 agent-browser 時，prompt 指定**唯一 session 名**、每個呼叫 60 秒上限（macOS 無 `timeout`，用 perl alarm）、連續兩次逾時就關自己的 daemon 換名重開。
 2. 長批次分小批、背景跑、每階段 commit；worker 停滯時先查有無同名 daemon。
 3. 截到空白圖（平均亮度等於底圖）多半是瀏覽器卡住，不要當成「圖層沒畫出來」的 bug 去修。
+
+---
+
+## 2026-10-16 併入：原 `docs/known-issues.md`（2026-04 早期事故＋診斷指令）
+
+`docs/known-issues.md` 內容與本檔重複（2026-04-07 船舶全空、2026-04-09 IO 爆表），定位又像使用者向清單，2026-10-16 併入本檔後歸檔到 [`docs/archive/2026-10-16/known-issues.md`](../../docs/archive/2026-10-16/known-issues.md)。已重複的不重抄，只留指標與本檔沒有的部分。
+
+**已在別處的（只留指標）**
+- 資料斷層＋Zeabur 重啟、`base.py` +8h 時區 bug 與 S3 回填 → 本檔「2026-04-07 Supabase 遷移後 ship / flight 全空」的補註＋pitfall `2026-04-07-empty-ships-flights.md`
+- Supabase pooler 2 分鐘 timeout → `docs/supabase-optimization.md` 關鍵坑 1
+- 2026-04-09 IO／CPU 爆表 → 本檔「2026-04-09 gis-platform 整台 DB 掛掉」（known-issues 版本的費用寫 ~$5，本檔寫 ~$5.23，以本檔為準）
+- Disk IO 後續（2026-09／10 三輪，pg_stat_io 口徑）→ gis-platform `docs/research/2026-10-12-disk-io-round2.md`
+
+**本檔原本沒有的**
+- 前端在 collector 斷線時段會顯示 0 ships／flights，**不是時區 bug**；Timeline 已改為「今天從當前時間開始」，避免從午夜空等無資料時段。
+- 回填腳本 `data-collectors/scripts/backfill_ship_flight.py`：ship `_fetch_time` 是台灣時間 → 加 `+08:00`；flight `fetch_time` 是 UTC → 加 `+00:00`。
+- 2026-04-09 事件保留的診斷資源：`data-collectors/docs/sql/cron_throttle.sql`（降頻＋錯開＋移除廢棄 MV cron）、`data-collectors/docs/sql/diagnose_resource.sql`（9 段資源爆表診斷查詢）。
+- 診斷指令（值不要印出；`set -a; source <GIS>/data-collectors/.env; set +a` 後使用）：
+
+```bash
+# 查看船舶可用日期（快速確認斷層）
+curl -s "$SUPABASE_URL/rest/v1/rpc/get_ship_dates" \
+  -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" | python3 -m json.tool
+
+# 查 pg_cron 運行狀態
+psql "$SUPABASE_DB_URL" -X -c "SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;"
+```
+
+（原檔還有一條用 service_role key 直查 `ship_positions` 的指令；表已搬到 `live` schema 且前端不可直讀，不再收錄。）
+
