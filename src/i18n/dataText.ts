@@ -62,3 +62,20 @@ export function displayRocYear(rocYear: string | number, { active }: Pick<I18nCo
   if (active === "zh-TW" || !Number.isFinite(n) || String(rocYear).trim() === "") return String(rocYear);
   return String(n + 1911);
 }
+
+/** 國道服務區面名稱「<區名>服務區(<方向>)」：拆出區名與方向（不含方向或不符格式時 direction 為 null） */
+const SERVICE_AREA_NAME = /^(.+?)\u670d\u52d9\u5340(?:\((.+?)\))?$/;
+
+/**
+ * 國道服務區名稱（點位只有區名「中壢」，面位是「中壢服務區(北上)」）→ 目前語系的名稱。
+ * 中文介面原樣回傳；外文查不到區名時也回傳中文原值。
+ */
+export function serviceAreaName(name: string, i18n: I18nContext): string {
+  if (i18n.active === "zh-TW") return name;
+  const m = SERVICE_AREA_NAME.exec(name);
+  const base = m ? m[1] : name;
+  const label = i18n.lookup(`enum.serviceArea.${base}`);
+  if (!label) return name;
+  if (!m || !m[2]) return label;
+  return `${label} (${enumLabel("serviceAreaDirection", m[2], m[2], i18n)})`;
+}
