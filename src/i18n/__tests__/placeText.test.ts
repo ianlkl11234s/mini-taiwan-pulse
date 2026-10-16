@@ -111,7 +111,7 @@ describe('授權', () => {
       expect(catalogLicense(raw, en), raw).toBe(label);
       expect(statisticsLicense(raw, en), raw).toBe(label);
     }
-    expect(catalogLicense('OGDL-Taiwan-1.0', ja)).toBe('政府データ開放ライセンス第1版（台湾 OGDL）');
+    expect(catalogLicense('OGDL-Taiwan-1.0', ja)).toBe('政府データオープンライセンス第1版（台湾 OGDL）');
   });
   it('CC BY、CC BY-SA、ODbL、未標示', () => {
     expect(catalogLicense('CC BY 4.0', en)).toBe('CC BY 4.0 (Attribution)');

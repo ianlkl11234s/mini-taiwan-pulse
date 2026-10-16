@@ -39,8 +39,13 @@ function parseCsv(text: string): Record<string, string>[] {
 
 /** CSV 的「臺」「台」混用，key 一律用「臺」 */
 const norm = (s: string) => s.replace(/台/g, "臺");
-/** 新字體：臺→台、縣→県、區→区、鄉→郷（鎮、市維持） */
-const toJa = (s: string) => norm(s).replace(/臺/g, "台").replace(/縣/g, "県").replace(/區/g, "区").replace(/鄉/g, "郷");
+/** 日文新字體：臺→台、縣→県、區→区、鄉→郷、灣→湾、豐→豊、蘆→芦 等（鎮、市維持；龍、巒、壢、鶯、獅、嶼、蘭 為日文人名用／表外字，維持原樣） */
+const JA_SHINJITAI: Record<string, string> = {
+  臺: "台", 縣: "県", 區: "区", 鄉: "郷", 灣: "湾", 豐: "豊", 蘆: "芦", 雙: "双", 龜: "亀", 鹽: "塩", 廣: "広", 驛: "駅", 濱: "浜", 彎: "弯",
+  圍: "囲", 來: "来", 內: "内", 國: "国", 壯: "壮", 壽: "寿", 學: "学", 寶: "宝", 將: "将", 彌: "弥", 德: "徳", 恆: "恒", 榮: "栄", 樂: "楽",
+  橫: "横", 歸: "帰", 滿: "満", 營: "営", 穗: "穂", 綠: "緑", 腳: "脚", 觀: "観", 邊: "辺", 關: "関", 麥: "麦", 巢: "巣", 峽: "峡", 萬: "万", 莊: "荘",
+};
+const toJa = (s: string) => [...norm(s)].map((c) => JA_SHINJITAI[c] ?? c).join("");
 
 interface Place { code: string; county: string; town: string | null; en: string }
 
