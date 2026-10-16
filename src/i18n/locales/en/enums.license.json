@@ -1,0 +1,8 @@
+{
+  "enum.license.ogdl": "Open Government Data License, Version 1.0 (Taiwan OGDL)",
+  "enum.license.ccBy": "CC BY 4.0 (Attribution)",
+  "enum.license.ccBySa": "CC BY-SA (Attribution-ShareAlike)",
+  "enum.license.odbl": "Open Database License (ODbL) 1.0",
+  "enum.license.unspecified": "Not specified",
+  "enum.license.unverified": "Unverified"
+}

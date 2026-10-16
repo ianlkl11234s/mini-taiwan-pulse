@@ -8,6 +8,7 @@ import { fetchAnimalWelfarePointHistory, type AnimalWelfarePointHistoryRow } fro
 import { animalWelfarePointTypeMeta } from "../../data/animalWelfarePointsTypes";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 
 const str = (v: unknown) => v == null || v === "" ? "" : String(v);
 const num = (v: unknown) => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -43,7 +44,8 @@ export function AnimalAdoptionPanel({ props }: { props: Record<string, unknown> 
   const dog = num(props.dog_count);
   const cat = num(props.cat_count);
   const t = useFeatureTheme();
-  const { t: tr, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t: tr, formatNumber } = i18n;
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#f59e0b" }} />
@@ -52,7 +54,7 @@ export function AnimalAdoptionPanel({ props }: { props: Record<string, unknown> 
     <Row label={tr("popup.animalWelfare.listed")} value={tr("popup.animalWelfare.animals", { count: num(props.listed_count), value: formatNumber(num(props.listed_count)) })} color="#f59e0b" />
     {dog > 0 ? <Row label={tr("popup.animalWelfare.dog")} value={tr("popup.animalWelfare.animals", { count: dog, value: formatNumber(dog) })} color="#f59e0b" /> : null}
     {cat > 0 ? <Row label={tr("popup.animalWelfare.cat")} value={tr("popup.animalWelfare.animals", { count: cat, value: formatNumber(cat) })} color="#a855f7" /> : null}
-    <Row field="county" value={str(props.county_name) || str(props.county_code)} />
+    <Row field="county" value={str(props.county_name) ? placeName(str(props.county_name), i18n) : str(props.county_code)} />
     <Row label={tr("popup.animalWelfare.snapshot")} value={latest || tr("popup.animalWelfare.notYetProvided")} />
     <Trend rows={daily} />
     <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 6 }}>{tr("popup.animalWelfare.snapshotNote")}</div>
@@ -106,13 +108,14 @@ export function AnimalShelterPressurePanel({ props }: { props: Record<string, un
   const inShelter = nullable(props.in_shelter_count);
   const capacity = nullable(props.capacity);
   const t = useFeatureTheme();
-  const { t: tr, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t: tr, formatNumber } = i18n;
   useEffect(() => {
     if (!countyCode) return;
     fetchAnimalShelterOutcomeMonthly(countyCode).then(setOutcomes).catch(() => setOutcomes([]));
   }, [countyCode]);
   return <>
-    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.county_name) || str(props["名稱"]) || tr("popup.animalWelfare.countyShelter")}</div>
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{(str(props.county_name) ? placeName(str(props.county_name), i18n) : "") || str(props["名稱"]) || tr("popup.animalWelfare.countyShelter")}</div>
     <Row label={tr("popup.animalWelfare.dataMonth")} value={period ? tr("popup.animalWelfare.officialMonthly", { period }) : tr("popup.animalWelfare.monthMissing")} />
     <Row label={tr("popup.animalWelfare.utilization")} value={utilization == null ? tr("popup.common.notProvided") : `${utilization.toFixed(1)}%`} color={utilization != null && utilization >= 100 ? "#dc2626" : "#f97316"} />
     <Row label={tr("popup.animalWelfare.inShelter")} value={inShelter == null ? tr("popup.common.notProvided") : tr("popup.animalWelfare.animals", { count: inShelter, value: formatNumber(inShelter) })} />

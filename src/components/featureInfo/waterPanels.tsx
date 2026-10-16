@@ -10,6 +10,7 @@ import type { ReservoirContext } from "../../data/reservoirContextLoader";
 import { Row, formatTaiwanTime, formatTaiwanMinute } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { useFeatureTheme } from "./featureTheme";
 import { RESERVOIR_ALERT_LEGEND, reservoirAlertCss, reservoirFlatAlert } from "../../map/r6FlatEncodings";
 
@@ -423,7 +424,7 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.floodUnit", { unit })}</span>
       </div>
-      {(county || town) && <Row field="region" value={[county, town].filter(Boolean).join(" / ")} />}
+      {(county || town) && <Row field="region" value={[placeName(county, i18n), placeTown(county, town, i18n)].filter(Boolean).join(" / ")} />}
       {admin && <Row field="managingAgency" value={admin} />}
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
 
@@ -563,7 +564,7 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       <Row label={i18n.t("popup.water.accum1h")} value={`${p1.toFixed(1)} mm`} />
       <Row label={i18n.t("popup.water.accum3h")} value={`${p3.toFixed(1)} mm`} />
       <Row label={i18n.t("popup.water.accum24h")} value={`${p24.toFixed(1)} mm`} />
-      <Row field="county" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
+      <Row field="county" value={[placeName(String(props.county ?? ""), i18n), placeTown(String(props.county ?? ""), String(props.town ?? ""), i18n)].filter(Boolean).join(" ")} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
@@ -878,7 +879,7 @@ export function IotWraStructurePanel({ props }: { props: Record<string, unknown>
       <Row field="type" value={enumLabel("iotStructureType", type, info?.label ?? type, i18n)} color={color} />
       <IotReadingBlock value={value} unit={unit} deltaLabel={i18n.t("popup.water.dailyChange")} delta={delta} color={color} />
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
-      <Row field="county" value={String(props.county_name ?? "")} />
+      <Row field="county" value={placeName(String(props.county_name ?? ""), i18n)} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
     </>

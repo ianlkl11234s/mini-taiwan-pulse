@@ -3,6 +3,7 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import type { StaticMessageKey } from "../../i18n/keys";
 
 type PanelProps = { props: Record<string, unknown> };
@@ -194,7 +195,8 @@ export function CourtJurisdictionPanel({ props }: PanelProps) {
 // ── 治安態勢 ──
 export function CrimeAreaMonthlyPanel({ props }: PanelProps) {
   const t = useFeatureTheme();
-  const { t: tr, active } = useLocale();
+  const i18n = useLocale();
+  const { t: tr, active } = i18n;
   const byType = (() => {
     try {
       const v = props.by_type;
@@ -222,7 +224,7 @@ export function CrimeAreaMonthlyPanel({ props }: PanelProps) {
     : "";
   return (
     <>
-      <Header color="#991b1b" name={`${String(props.county ?? "")} ${String(props.town ?? "")}`} />
+      <Header color="#991b1b" name={`${placeName(String(props.county ?? ""), i18n)} ${placeTown(String(props.county ?? ""), String(props.town ?? ""), i18n)}`} />
       <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#7f1d1d", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
         {yrLabel || tr("popup.policeJustice.crimeYearsDefault")}
       </div>

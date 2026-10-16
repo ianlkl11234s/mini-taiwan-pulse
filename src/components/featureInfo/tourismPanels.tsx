@@ -1,3 +1,4 @@
+import { placeName } from "../../i18n/placeText";
 import { useLocale } from "../../state/localeStore";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { Row, Title } from "./shared";
@@ -221,10 +222,11 @@ export function CampingPanel({ props }: { props: Record<string, unknown> }) {
 
 // ── 11. 旅宿：hotel_classes 代碼轉中文 + 分色（色表 SSOT = data/tourTypes.ts） ──
 export function HotelsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t: tr, formatNumber } = i18n;
   const code = String(props.hotel_classes ?? "");
   const info = TOUR_HOTEL_CLASS_INFO[code] ?? { label: code, color: "#9e9e9e" };
-  const cityTown = `${String(props.city ?? "")}${String(props.town ?? "")}`;
+  const cityTown = placeName(`${String(props.city ?? "")}${String(props.town ?? "")}`, i18n);
   const stars = Number(props.hotel_stars);
   const rooms = Number(props.total_rooms);
   const low = Number(props.lowest_price);
@@ -250,8 +252,9 @@ export function HotelsPanel({ props }: { props: Record<string, unknown> }) {
 
 // ── 12. 觀光餐飲：v1 單色不分色，cuisine_class 顯示原代碼 ──
 export function RestaurantsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
-  const cityTown = `${String(props.city ?? "")}${String(props.town ?? "")}`;
+  const i18n = useLocale();
+  const { t: tr } = i18n;
+  const cityTown = placeName(`${String(props.city ?? "")}${String(props.town ?? "")}`, i18n);
   return (
     <>
       <Title color="#c62828">{String(props.name ?? tr("popup.tourism.restaurant"))}</Title>
