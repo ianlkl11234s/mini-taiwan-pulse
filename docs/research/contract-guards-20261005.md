@@ -23,7 +23,7 @@
 
 ## AU-3、GD-2 與整體驗收
 
-AU-3 選擇明確分工文件方案；詳見 `day-prefetch-scope-2026-10-05.md`。修改 `src/lib/dayPrefetch.ts:20` 說明及新增 `src/lib/__tests__/dayPrefetchScope.test.ts:46` 行為／結構契約，共 3 檔，未超過 5 檔停止門檻。刻意把 cap 2→3 時 2 failed / 3 passed；恢復 cap=2 後 5 passed，原始 red/green log 在 evidence 目錄。
+AU-3 選擇明確分工文件方案；詳見 `docs/features/agent-research-workbench/day-prefetch-scope-2026-10-05.md`。修改 `src/lib/dayPrefetch.ts:20` 說明及新增 `src/lib/__tests__/dayPrefetchScope.test.ts:46` 行為／結構契約，共 3 檔，未超過 5 檔停止門檻。刻意把 cap 2→3 時 2 failed / 3 passed；恢復 cap=2 後 5 passed，原始 red/green log 在 evidence 目錄。
 
 GD-2 實作與獨立證據見 collectors worktree 的 `docs/investigations/2026-10-05-gd2-mojibake-storage-guard.md`。寫入層拒絕 `[Ѐ-ӿ]`，logger.error 僅列欄位路徑並 raise；一般寫入拒借連線、不進 buffer，direct/multi-table、buffer retry、TLE 旁路也檢查。刻意使 regex 永不匹配後兩個拒寫測試紅燈；已恢復。Collectors 原 runtime 缺既定依賴 opencc/ijson；在 `/private/tmp/gd2-contract-venv` 安裝 requirements 既定版本後，完整隔離 `python3 -m pytest -q`：588 passed / 2 skipped，96.71 秒（`.artifacts/gd2/pytest-full-venv.log`）。未修改依賴檔。
 

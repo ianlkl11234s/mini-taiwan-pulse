@@ -164,7 +164,7 @@ sidebar 色點（LAYER_COLORS）/ 地圖 paint（overlayRegistry）/ 圖例色�
 6. 16 圖層圖例補齊 or 有意識降單色 + baseline 逐筆補豁免註解（A-1）
 7. rail loading 接線（A-2）
 8. development-rules §4 觸點表更新至 14 檔實況（C-2）
-9. supabase_rpc_audit.md 重整或正式退役（A-5）
+9. docs/audit/supabase-rpc-audit-2026-04-09.md 重整或正式退役（A-5）
 
 **進 backlog（與既有計畫合流）**
 10. `useTransportParams` 拆解 → 併入 AR-21~26 manifest 計畫，本次稽核最支持優先啟動的結構工程（C-1）
