@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CctvStreamView } from "../CctvStreamView";
 import { Row, SourceFooter } from "./shared";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
-import { enumLabel } from "../../i18n/dataText";
+import { enumLabel, localizedField, serviceAreaName } from "../../i18n/dataText";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
@@ -463,12 +463,13 @@ export function PublicToiletPanel({ props }: { props: Record<string, unknown> })
 
 export function LighthousePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#ffd700", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.Name ?? "Unknown Lighthouse")}
+          {props.Name ? enumLabel("lighthouse", String(props.Name), String(props.Name), i18n) : "Unknown Lighthouse"}
         </div>
       </div>
       <Row field="latitude" value={String(props.Lat ?? "")} />
@@ -479,6 +480,7 @@ export function LighthousePanel({ props }: { props: Record<string, unknown> }) {
 
 export function PortPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
   const portClass = String(props.port_class ?? "");
   const accentColor = portClassColor(portClass);
 
@@ -487,10 +489,10 @@ export function PortPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "Unknown Port")}
+          {localizedField(props, { zh: "name", en: "name_en" }, i18n)?.text ?? "Unknown Port"}
         </div>
       </div>
-      <Row field="classification" value={portClass} color={accentColor} />
+      <Row field="classification" value={portClass ? enumLabel("portClass", portClass, portClass, i18n) : ""} color={accentColor} />
       <Row field="county" value={String(props.county ?? "")} />
       <Row field="dataSource" value={String(props.source ?? "")} />
     </>
@@ -528,10 +530,10 @@ export function AirportPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#daa520", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "Unknown Airport")}
+          {localizedField(props, { zh: "name", en: "name_en" }, i18n)?.text ?? "Unknown Airport"}
         </div>
       </div>
-      <Row field="englishShort" value={String(props.name_en ?? "")} />
+      {i18n.active !== "en" && <Row field="englishShort" value={String(props.name_en ?? "")} />}
       <Row label="ICAO" value={String(props.icao ?? "")} />
       <Row label="IATA" value={iata} />
 
@@ -633,17 +635,19 @@ export function ServiceAreaPanel({ props }: { props: Record<string, unknown> }) 
   const i18n = useLocale();
   const { t: tr } = i18n;
   const accentColor = "#4db6ac";
+  const freewayLabel = props.Freeway ? enumLabel("freewayNo", String(props.Freeway), String(props.Freeway), i18n) : "";
+  const directionLabel = props.Direction ? enumLabel("serviceAreaDirection", String(props.Direction), String(props.Direction), i18n) : "";
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.Name ?? "Service Area")}
+          {props.Name ? serviceAreaName(String(props.Name), i18n) : "Service Area"}
         </div>
       </div>
-      <Row label={tr("popup.infra.freeway")} value={String(props.Freeway ?? "")} color={accentColor} />
+      <Row label={tr("popup.infra.freeway")} value={freewayLabel} color={accentColor} />
       <Row field="location" value={String(props.Location ?? "")} />
-      <Row field="direction" value={String(props.Direction ?? "")} />
+      <Row field="direction" value={directionLabel} />
       <Row label={tr("popup.infra.operatorCompany")} value={String(props.Operator ?? "")} />
       <Row field="address" value={String(props.Address ?? "")} />
       <Row label={tr("popup.infra.theme")} value={String(props.Theme ?? "")} />
@@ -656,6 +660,7 @@ export function ServiceAreaPolygonPanel({ props }: { props: Record<string, unkno
   const i18n = useLocale();
   const { t: tr } = i18n;
   const accentColor = "#4db6ac";
+  const freewayLabel = props.Freeway ? enumLabel("freewayNo", String(props.Freeway), String(props.Freeway), i18n) : "";
   const areaHa = typeof props.area_ha === "number"
     ? props.area_ha.toFixed(2)
     : String(props.area_ha ?? "");
@@ -664,12 +669,12 @@ export function ServiceAreaPolygonPanel({ props }: { props: Record<string, unkno
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.Name ?? "Service Area")}
+          {props.Name ? serviceAreaName(String(props.Name), i18n) : "Service Area"}
         </div>
       </div>
       <Row label={tr("popup.infra.operatorCompany")} value={String(props.Operator ?? "")} color={accentColor} />
       <Row label={tr("popup.infra.theme")} value={String(props.Theme ?? "")} />
-      <Row label={tr("popup.infra.freeway")} value={String(props.Freeway ?? "")} />
+      <Row label={tr("popup.infra.freeway")} value={freewayLabel} />
       <Row field="area" value={areaHa ? tr("popup.infra.areaHa", { value: areaHa }) : ""} />
     </>
   );
