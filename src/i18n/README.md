@@ -1,6 +1,6 @@
 # i18n 架構與維護規則
 
-> 進度與分階段計畫看 [`docs/features/i18n/ROADMAP.md`](../../docs/features/i18n/ROADMAP.md)；設計規格看 `docs/design-system/spec.md` §6.4。
+> 進度與分階段計畫看 [`docs/features/i18n/ROADMAP.md`](../../docs/features/i18n/ROADMAP.md)；設計規格看 `docs/design-system/spec.md` §6.6。
 
 ## 一張圖看懂
 
@@ -16,7 +16,7 @@ src/i18n/
 └── locales/<語系>/
     ├── common.json、<區塊>.json   介面字串（zh-TW 是正本）
     ├── layers.json、themes.json、qualifiers.json、enums.json、params.json   名稱對照（只有外文語系有）
-src/state/localeStore.ts   目前語系：?lang= ＞ 上次選擇 ＞ zh-TW；lazy 載入外文
+src/state/localeStore.ts   目前語系：?lang= ＞ 上次選擇 ＞ 瀏覽器語言 ＞ zh-TW；lazy 載入外文
 ```
 
 元件裡一律這樣用：
