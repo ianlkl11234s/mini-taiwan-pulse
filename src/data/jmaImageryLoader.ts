@@ -176,7 +176,8 @@ export function jmaImageryInactiveReason(
 /**
  * 選幀：
  *  - 發布時段外（product.active）→ off_hours／off_season
- *  - 回放：valid_time ≤ t 的最晚一幀，且 t − valid_time ≤ maxStaleMin
+ *  - 回放：valid_time ≤ t 的最晚一幀，且 t − valid_time ≤ maxStaleMin；
+ *    但 t 離現在不到 liveMaxStaleMin 時改用 liveMaxStaleMin（今天稍早的時間點，新幀可能還沒發布，與即時同理）
  *  - 即時：最晚一幀（不論 t），且 now − valid_time ≤ liveMaxStaleMin
  * 不像 CWA 那樣在 t 早於第一幀時退回 frames[0]（那會把未來的圖畫成現在）。
  */
@@ -185,6 +186,7 @@ export function pickJmaImageryFrame(
   tMs: number,
   product: Pick<JmaImageryProduct, "encoding" | "maxStaleMin" | "liveMaxStaleMin" | "active">,
   live: boolean,
+  nowMs: number = Date.now(),
 ): JmaImageryPick {
   // 發布時段外：不是缺幀，是上游本來就不發（UV 夜間、海冰 6–11 月）
   const inactive = jmaImageryInactiveReason(product, tMs);
@@ -199,7 +201,8 @@ export function pickJmaImageryFrame(
     }
   }
   if (!chosen) return { kind: "uncovered", reason: "no_frame", frame: null };
-  const maxStale = (live ? product.liveMaxStaleMin : product.maxStaleMin) * 60_000;
+  const nearNow = !live && nowMs - tMs < product.liveMaxStaleMin * 60_000;
+  const maxStale = (live || nearNow ? product.liveMaxStaleMin : product.maxStaleMin) * 60_000;
   if (tMs - chosen.validTimeMs > maxStale) return { kind: "uncovered", reason: "stale", frame: chosen };
   if (chosen.status === "missing" || !chosen.url || chosen.lonMin == null || chosen.lonMax == null
     || chosen.latMin == null || chosen.latMax == null) {
