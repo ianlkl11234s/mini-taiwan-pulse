@@ -1,6 +1,8 @@
 # Supabase RPC Pre-aggregate Pattern
 
 > 處理大型時序 / 高運算 RPC 的標準 pattern。任何 RPC 響應 > 1s 或回傳 > 10k rows 都必須套用。
+>
+> 2026-10-16 校正：`realtime` schema 已併入 `live`（ADR-0010／migration 312），範本內表名改用 `live.*`；pg_cron 現行頻率是每 15 分鐘（2026-04-09 IO 事故後降頻）；cron 內日期一律用台北時區。
 
 ## 為什麼要做
 
@@ -12,9 +14,9 @@ Supabase Supavisor pooler **強制覆寫** `statement_timeout = 2min`，且 anon
 ## Pattern 架構
 
 ```
-原始大表 (realtime.xxx_positions, 百萬列)
-    ↓ (per-day refresh function，pg_cron 每 10 分鐘)
-預聚合 table (realtime.xxx_daily, PK=(day, key))
+原始大表 (live.xxx_positions, 百萬列)
+    ↓ (per-day refresh function，pg_cron 每 15 分鐘)
+預聚合 table (live.xxx_daily, PK=(day, key))
     ↓ (薄 SELECT RPC，毫秒級)
 前端 RPC call
 ```
@@ -23,7 +25,7 @@ Supabase Supavisor pooler **強制覆寫** `statement_timeout = 2min`，且 anon
 1. **普通 table**（不是 MATERIALIZED VIEW，一次 build 會 sort 爆炸）
 2. **per-day refresh function**（DELETE + INSERT 一天，含 `pg_advisory_xact_lock`）
 3. **cleanup function**（`0 18 * * *` UTC 清超過 7 天）
-4. **pg_cron 排程**（`*/10 * * * *` refresh today + yesterday）
+4. **pg_cron 排程**（`*/15 * * * *` refresh today + yesterday，**同一個 job 循序跑**；分鐘要和其他 job 錯開，見 `data-collectors/docs/sql/cron_throttle.sql`）
 
 ## SQL 範本
 
@@ -31,14 +33,14 @@ Supabase Supavisor pooler **強制覆寫** `statement_timeout = 2min`，且 anon
 
 ```sql
 -- 1) Table
-CREATE TABLE realtime.xxx_daily (
+CREATE TABLE live.xxx_daily (
     day date NOT NULL,
     key text NOT NULL,  -- mmsi / flight_id / etc.
     ...aggregated cols...,
     refreshed_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (day, key)
 );
-CREATE INDEX xxx_daily_day_idx ON realtime.xxx_daily (day);
+CREATE INDEX xxx_daily_day_idx ON live.xxx_daily (day);
 
 -- 2) Refresh function（務必含 advisory lock）
 CREATE OR REPLACE FUNCTION public.refresh_xxx_daily(target_day date)
@@ -48,9 +50,9 @@ AS $$
 DECLARE inserted_count integer;
 BEGIN
     PERFORM pg_advisory_xact_lock(hashtext('refresh_xxx_daily:' || target_day::text));
-    DELETE FROM realtime.xxx_daily WHERE day = target_day;
-    INSERT INTO realtime.xxx_daily (...)
-    SELECT ... FROM realtime.xxx_source
+    DELETE FROM live.xxx_daily WHERE day = target_day;
+    INSERT INTO live.xxx_daily (...)
+    SELECT ... FROM live.xxx_source
     WHERE collected_at >= (target_day::text || ' 00:00:00+08')::timestamptz
       AND collected_at <  ((target_day + 1)::text || ' 00:00:00+08')::timestamptz
     GROUP BY ...;
@@ -63,7 +65,7 @@ CREATE OR REPLACE FUNCTION public.cleanup_xxx_daily(keep_days int DEFAULT 7)
 RETURNS integer LANGUAGE plpgsql AS $$
 DECLARE deleted_count integer;
 BEGIN
-    DELETE FROM realtime.xxx_daily WHERE day < (current_date - keep_days);
+    DELETE FROM live.xxx_daily WHERE day < ((now() AT TIME ZONE 'Asia/Taipei')::date - keep_days);
     GET DIAGNOSTICS deleted_count = ROW_COUNT;
     RETURN deleted_count;
 END; $$;
@@ -72,16 +74,18 @@ END; $$;
 CREATE OR REPLACE FUNCTION public.get_xxx_day(target_date date)
 RETURNS TABLE(...)
 LANGUAGE sql STABLE
-SET statement_timeout TO '60s'  -- payload 傳輸可能 > 3s
+SET statement_timeout TO '30s'  -- 預設 30s；payload > 10MB 才放到 60s（見關鍵坑 3）
 AS $$
-    SELECT ... FROM realtime.xxx_daily WHERE day = target_date ORDER BY ...
+    SELECT ... FROM live.xxx_daily WHERE day = target_date ORDER BY ...
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_xxx_day(date) TO anon, authenticated;
 
 -- 5) pg_cron 排程
-SELECT cron.schedule('refresh-xxx', '*/10 * * * *',
-    $$SELECT public.refresh_xxx_daily(current_date); SELECT public.refresh_xxx_daily(current_date - 1);$$);
+SELECT cron.schedule('refresh-xxx', '*/15 * * * *',
+    $$SELECT public.refresh_xxx_daily((now() AT TIME ZONE 'Asia/Taipei')::date);
+      SELECT public.refresh_xxx_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);$$);
+-- ⚠️ cron 內禁用 current_date（DB session 是 UTC，台北 00:00–08:00 會漏 refresh 今天；2026-06-17 事故，migration 208）
 SELECT cron.schedule('cleanup-xxx', '0 18 * * *',
     $$SELECT public.cleanup_xxx_daily(7);$$);
 ```
@@ -96,12 +100,15 @@ SELECT cron.schedule('cleanup-xxx', '0 18 * * *',
 ### 2. 慢 query 先看 plan，不要急著加 timeout
 ```sql
 EXPLAIN (ANALYZE, BUFFERS, COSTS OFF) SELECT ...;
-ANALYZE realtime.xxx_source_YYYYMMDD;  -- 更新統計
+ANALYZE live.xxx_source_YYYYMMDD;  -- 更新統計
 ```
 常見是 planner 選錯 plan（global Sort 爆炸 vs Merge Append + index stream），換 plan 後可能從 2min timeout 降到 11s。
 
-### 3. RPC function 必須加 `SET statement_timeout TO '60s'`
-大 payload（> 10MB）傳輸時間可能超過 anon 3s default，function 屬性覆寫對 RPC 有效。
+### 3. RPC function 必須明寫 `SET statement_timeout`
+anon default 只有 3s，function 屬性覆寫對 RPC 有效。現行慣例（2026-10-16 盤 gis-platform migrations：`'30s'` 約 110 處、`'60s'` 約 55 處）：
+- 一般薄 RPC：`'30s'`
+- 大 payload（> 10MB，傳輸可能超過數秒）：`'60s'`
+- refresh function／cron：`'0'`（不經 pooler，見坑 1）
 
 ### 4. Concurrent refresh race condition
 cron 跑 refresh 同時手動 call 會撞 unique constraint。解法：function 開頭 `pg_advisory_xact_lock(hashtext('refresh_xxx:' || target_day::text))`。
@@ -111,6 +118,20 @@ function 簽名改變後必須 `NOTIFY pgrst, 'reload schema';`，否則前端�
 
 ### 6. 檔名叫 `matview_*` 是歷史包袱
 原本想用 MATERIALIZED VIEW，實測 sort 爆炸改成普通 table，檔名沒改。**實際是普通 table**。
+
+### 7. refresh function 的 OOM 守則（2026-04-10 bus trails OOM 教訓）
+- WHERE + ORDER BY **必須有對應索引**（缺索引＝全表 sort＝OOM）：`(id_column, collected_at)` 複合索引＋`(collected_at)` 單欄索引；常用條件（如 city）考慮 partial index
+- today + yesterday 放**同一個 cron job 循序跑**（禁止拆成兩個獨立 job）
+- 聚合用 `MAX()` 而非 `mode()`（後者需額外 sort）
+- 加 `SET work_mem TO '64MB'` 減少 disk spill
+- cron 排程錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
+
+### 8. pg_cron 的日期一律用台北時區（2026-06-17 教訓，7 dataset 全空）
+- **禁用** `current_date`／`CURRENT_DATE` 在 `cron.schedule` 內；**必用** `(now() AT TIME ZONE 'Asia/Taipei')::date`
+- 原因：DB session timezone＝UTC，台北 00:00–08:00 那 8 小時 UTC 還停在昨天 → cron 從不 refresh 台北今天。修法見 `gis-platform/migrations/208_fix_cron_taipei_tz.sql`
+- Code review：`cron.schedule(...)` 內看到 `current_date` 一律改掉
+
+> Disk IO 後續（2026-09／10 三輪優化、pg_stat_io 量測口徑）正本在 gis-platform `docs/research/`（例：`2026-10-12-disk-io-round2.md`），本 repo 只在 BACKLOG 留 DIO-* 指標。
 
 ## 已套用的 RPC 一覽
 
