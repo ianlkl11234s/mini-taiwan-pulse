@@ -34,7 +34,7 @@ SEO（搜尋引擎最佳化）是讓 Google 這類搜尋引擎找得到、讀得
 | preconnect | 【實測】Lighthouse 估可省 310 ms | 對 Mapbox、Supabase、CDN 提前連線 | `index.html` 加 `<link rel="preconnect">` | 低 | 低 | PERF-4 |
 | 靜態資源快取 | 【實測】`/assets/*` 為 `max-age=31536000, immutable`；有 `nginxCachePolicy.test.ts` 守門 | 同現況 | 維持 | — | — | — |
 | 現場指標 LCP/INP/CLS | 【未測】 | 有 CrUX／RUM 資料 | Search Console 的 Core Web Vitals 報表累積後看；或 PSI key | 中 | 低 | OPS-2 |
-| 既有執行期效能 | 【讀碼】`docs/perf-audit-2026-09-30.md` 已做執行期優化（首屏 JS 8.61→6.2 MB 等） | — | 與本表為不同層面（執行期 vs 載入），不重複 | — | — | — |
+| 既有執行期效能 | 【讀碼】`docs/audit/perf-audit-2026-09-30.md` 已做執行期優化（首屏 JS 8.61→6.2 MB 等） | — | 與本表為不同層面（執行期 vs 載入），不重複 | — | — | — |
 
 ### 2.2 無障礙
 

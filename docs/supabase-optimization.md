@@ -157,4 +157,4 @@ function 簽名改變後必須 `NOTIFY pgrst, 'reload schema';`，否則前端�
 - [ ] `NOTIFY pgrst, 'reload schema';`
 - [ ] 前端測 loading 時間（應該是百毫秒級）
 - [ ] 確認 cron 有跑：`SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;`
-- [ ] 加進 audit 報告：`docs/supabase_rpc_audit.md`
+- [ ] 加進 audit 報告：`docs/audit/supabase-rpc-audit-2026-04-09.md`

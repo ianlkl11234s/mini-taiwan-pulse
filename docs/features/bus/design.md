@@ -375,7 +375,7 @@ RouteUID,Direction,ScheduleType,StartTime,EndTime,MinHeadwayMins,MaxHeadwayMins,
 
 - [`docs/development-rules.md`](../../development-rules.md) — Layer 新增順序
 - [`docs/supabase-optimization.md`](../../supabase-optimization.md) — RPC pre-aggregate pattern
-- [`docs/known-issues.md`](../../known-issues.md) — 歷史 bug
+- [`.claude/memory/INCIDENTS.md`](../../../.claude/memory/INCIDENTS.md) — 歷史 bug（舊 known-issues 已併入）
 - `gis-platform/migrations/033_bus_trails_per_direction.sql` — per-direction 切分
 - `data-collectors/docs/sql/cron_throttle.sql` — cron 排程錯開
 

@@ -297,7 +297,7 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern（�
 **判準**：100m 內配對率 > 90% = 重複（停一邊）；< 30% = 互補（兩邊都留）。
 
 實例：iot_wra groundwater 95% 配對 → 完全重複（停 iot 子端點）；iot_wra river 16% → 互補。
-詳見 `docs/research/iot-wra-integration-study.md` § 3 + PB-09。
+詳見 `docs/features/water-resources/iot-wra-integration-study.md` § 3 + PB-09。
 
 ## 圖層面板只用共用元件（2026-10-03 取代「一前端兩 Sidebar 同步改」）
 

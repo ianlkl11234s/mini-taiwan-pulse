@@ -343,7 +343,7 @@ LIMIT 8;"
 
 **順便比 schema 欄位**：填充率（COUNT vs sample 全空）+ 歷史長度 + 取樣頻率，決定誰當主源。
 
-詳見：`docs/research/iot-wra-integration-study.md` § 3 + § 7。
+詳見：`docs/features/water-resources/iot-wra-integration-study.md` § 3 + § 7。
 
 實例：iot_wra groundwater（95% → 停 iot）vs river（16% → 兩邊都留）。
 
@@ -383,7 +383,7 @@ function parseTimeline(timeline: string): Array<{ t: number; v: number }> {
 
 實例：migration 063（iot_wra）— `iot_wra_latest` 4k rows + `iot_wra_daily` ~4k rows × 7 天 / 23 timepoints。
 
-詳見：`docs/research/iot-wra-integration-study.md` § 5.2。
+詳見：`docs/features/water-resources/iot-wra-integration-study.md` § 5.2。
 
 ---
 
@@ -425,7 +425,7 @@ npx zeabur@latest service network --id <service-id>
 - 同 project：`<service-name>.zeabur.internal:8080` 或 `service-<service-id>:8080`
 - 跨 project：**不通**，必須走 public domain（見 PB-12）
 
-詳見：`docs/research/waste-osrm-mapmatching-plan.md` §14（OSRM 部署完整紀錄）。
+詳見：`docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14（OSRM 部署完整紀錄）。
 
 ---
 
@@ -498,7 +498,7 @@ curl -H "Authorization: Bearer $TOKEN" https://<proxy>.zeabur.app/some-endpoint
 
 **月度 token 輪換**：改 proxy 的 `API_TOKEN` env var → Zeabur reload nginx → 同步改 caller 的 `API_TOKEN`。
 
-實例：osrm-proxy 包 osrm-taiwan，給跨 project ship-only collector 用。詳見 `docs/research/waste-osrm-mapmatching-plan.md` §14。
+實例：osrm-proxy 包 osrm-taiwan，給跨 project ship-only collector 用。詳見 `docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14。
 
 ---
 

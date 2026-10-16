@@ -216,5 +216,5 @@
 | pitfall 2026-07-01 A2、B 段；pitfall 2026-04-22 的 `lessons.md` 引用 | 改寫成現況 | 同檔 |
 | `.claude/README.md`、`.claude/HARNESS.md`（L1／L3）、`.claude/memory/README.md` | 目錄樹、SessionStart 描述、選讀順序改成現況 | 同檔 |
 | DATA_SCOPE、GLOSSARY | 檔頂註記 `realtime`→`live` 與快照性質；寫死數字標時點；路徑更正 | 同檔 |
-| `.claude/memory/FORESTRY_GROUP_STATUS.md`、`PMTILES_STATUS.md`、`.claude/SATELLITE_CONSOLE_STATUS.md` | 已完成的 campaign，另一軌移到 `docs/archive/2026-10-16/` | — |
+| `docs/archive/2026-10-16/claude/memory/FORESTRY_GROUP_STATUS.md`、`PMTILES_STATUS.md`、`.claude/SATELLITE_CONSOLE_STATUS.md` | 已完成的 campaign，另一軌移到 `docs/archive/2026-10-16/` | — |
 | REFLECTIONS 已被推翻的舊反思 | 檔首加索引列出（兩個 sidebar、pnpm、hook 預載、squash、EM-16 等） | [REFLECTIONS](../.claude/memory/REFLECTIONS.md) |

@@ -369,7 +369,7 @@
 
 - **Source data quirks 一條一條打**：weekday_pattern 4 種格式 / 跨日 24:11 /
   departure 空字串 / 同 stop 重複 / 時間倒退 / 班次切換 / dwell=0 共 7 種，
-  每踩到一個就量化 + 寫進 docs/research/waste-schedule-data-quirks.md。
+  每踩到一個就量化 + 寫進 docs/features/waste-collection/research/schedule-data-quirks.md。
   下次 22 城擴展前直接跑 sanity SQL 檢查。
 - **picking + debug tooltip 救了視覺打磨**：用戶看到「閃現」我猜不到原因，
   加 click → 顯示 route_id / stop_seq / arrival / departure / gap，
@@ -629,7 +629,7 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 
 - **「先規劃 / 再 phase 切 / 再動手」分三段**：用戶問「規劃衛星圖層」時，沒
   急著寫 code，先進 plan mode 寫 `/Users/migu/.claude/plans/icon-curried-locket.md`
-  + 提案文件 `docs/proposal/satellite-console.md`。提案完整後再動手，整個衛星
+  + 提案文件 `docs/features/satellite-console-restyle/proposal.md`。提案完整後再動手，整個衛星
   10 commit 一氣呵成、無重做。
 - **用戶要求「先診斷不要修」**：閃爍 bug 用戶明示「先確認原因，先不要急著改」，
   迫使我把 3 個嫌疑點全列出（殭屍 closure / effect 重綁 / listener 洩漏）
@@ -1302,7 +1302,7 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 ### 下次要改的
 
 1. **自己寫的結論會過期；翻案要靠逐檔實測，不是重讀文件。**
-   `docs/proposal/embed-dynamic-layers.md` §6-1 白紙黑字寫「Three.js 圖層不做」，
+   `docs/features/embeddable-map/dynamic-layers-plan.md` §6-1 白紙黑字寫「Three.js 圖層不做」，
    而正確做法是把那份結論當**假設**重驗一次：實測後發現三顆引擎（171/314/741 行）
    全是純 TS 零渲染依賴、渲染層對 mapbox 的**執行期**綁定只有 `coordinates.ts` 一支
    （`customLayer.ts` 是 type-only import）。

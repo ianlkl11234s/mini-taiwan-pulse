@@ -1108,7 +1108,7 @@ PR 前逐項勾（貼進 PR 描述）：
 - 拍板與設計稿：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a、`proposal.md`、`ui-unification-sheet.html`、`popup-density-variants.html`、`ui-controls-sheet.html`、`timeline-sheet.html`、第二輪 `round2-sheet.html`、時間軸 `timeline-compact-sheet.html`、載入提示 `loading-status-sheet.html`、開站 `boot-screen-sheet.html`→`boot-motion-sheet.html`→`boot-wait-sheet.html`→`boot-w2-tuner.html`）
 - 地圖圖層套用計畫：`docs/features/map-layer-restyle/`（`PLAN.md`、`handoff-r2-hooks.md`、`handoff-r2-hooks-fix.md`、分階比較頁 `r2-tiers.html`）
 - `CLAUDE.md` §5／§5a／§7、`docs/development-rules.md` §4a（圖層 UX 四鐵則）
-- `docs/known-issues.md`
+- `.claude/memory/INCIDENTS.md`（舊 `docs/known-issues.md` 已併入）
 
 ## 13. 地圖圖層視覺規格
 

@@ -8,7 +8,7 @@
 
 ## Session 記憶迴圈
 
-SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES。有接手需求才依 [`.claude/memory/README.md`](./.claude/memory/README.md) 查相關段落；似曾相識的 bug 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。明確收尾時依 wrap-up 的 scope/evidence/release matrix 留本次紀錄，提交／發布沿用各自授權。框架機制按需查 [`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
+**主題經驗總集（踩坑、best practice、網站哲學、小實驗）先看 [`docs/LESSONS.md`](./docs/LESSONS.md)**，新教訓寫進正本後在那裡加一行。SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES。有接手需求才依 [`.claude/memory/README.md`](./.claude/memory/README.md) 查相關段落；似曾相識的 bug 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。明確收尾時依 wrap-up 的 scope/evidence/release matrix 留本次紀錄，提交／發布沿用各自授權。框架機制按需查 [`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
 
 ## 常用指令
 
@@ -48,7 +48,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 新圖層：有 manifest 並能自動入分析倉庫即為 L2 可分析，詳見 [PLAN-warehouse-20260926](./docs/features/general-analysis/PLAN-warehouse-20260926.md)。系統驗收以已接受來源版本為基準，確認查詢與計算忠實使用原座標；來源定位的真實世界限制要標示，但不因一般不確定性反覆重審既有資料。地圖可見不等於分析可用；純展示、權利或幾何受限者明標 `DISPLAY_ONLY`／HOLD 與解鎖條件。
 
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
-動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8 + [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
+動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8（正本）+ [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
 
 ### 7. UI 規範（Design System）⚠️
 任何 UI 改動（面板、popup、控制項、樣式表）必須遵守 [`docs/design-system/spec.md`](./docs/design-system/spec.md)（PR 前照 §8 checklist）。`src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，**不可用改基準繞過**；只有違規確實減少時才跑 `npm run design:baseline` 降低基準。
@@ -100,12 +100,13 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 
 | 類型 | 路徑 | 用途 |
 |---|---|---|
+| 經驗 | [`docs/LESSONS.md`](./docs/LESSONS.md) | 主題經驗總集（主入口） |
 | 規則 | [`docs/development-rules.md`](./docs/development-rules.md) | 詳細版 + 範例（含 §4a 四鐵則完整） |
 | 規則 | [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) | Pre-aggregate pattern 完整指南 + OOM 5 條 |
 | 規則 | [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) | 時間軸 / timeStore 架構 |
 | 參考 | [`docs/audit/supabase-rpc-audit-2026-04-09.md`](./docs/audit/supabase-rpc-audit-2026-04-09.md) | RPC 效能盤點 |
 | 參考 | [`docs/features/bus/design.md`](./docs/features/bus/design.md) | 公車 progress-based 全台擴展 |
-| 參考 | [`docs/known-issues.md`](./docs/known-issues.md) | 歷史 bug + 診斷指令 |
+| 參考 | [`.claude/memory/INCIDENTS.md`](./.claude/memory/INCIDENTS.md) | 歷史 bug + 診斷指令（舊 known-issues 已併入，2026-10-16） |
 | 參考 | [`docs/research/`](./docs/research/) | 決策軌跡 / 跨系統比對 / 故事 cookbook |
 | 關聯 repo | `../gis-platform` | Supabase migrations |
 | 關聯 repo | `../data-collectors` | 資料收集 + SQL 範本 |

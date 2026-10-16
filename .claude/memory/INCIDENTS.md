@@ -522,7 +522,7 @@ App 被 error boundary 接住白畫面。
 - 月固定成本 +1 個輕量 nginx service（< 50MB image，~50MB RAM）
 - PRINCIPLES：跨 Zeabur project 通訊一律 public + auth gateway
 
-**Long-form**：`docs/research/waste-osrm-mapmatching-plan.md` §14
+**Long-form**：`docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14
 
 ---
 
@@ -539,7 +539,7 @@ App 被 error boundary 接住白畫面。
 - 月度 PBF 更新若想 force re-match 可手動 `TRUNCATE realtime.waste_match_attempts`
 - 設計教訓：所有「寫成功才標記」的批次處理都該補「寫 attempt」marker，避免 transient failure 變死循環
 
-**Long-form**：`docs/research/waste-osrm-mapmatching-plan.md` §14「補充：5/9 上午 attempt marker 機制根本修」
+**Long-form**：`docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14「補充：5/9 上午 attempt marker 機制根本修」
 
 ---
 
@@ -1246,7 +1246,7 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 
 ## 2026-07-03 架構審計 session（P0 止血 + AR-11 影像上 CDN）— 3 技術事件
 
-> 時序上早於上方「BYOK/會員 session」（本 session 的 #46~#50 在 master，BYOK #51~#53 疊在其上）。完整脈絡見 `docs/research/architecture-audit-2026-07-02.md` + `docs/proposal/architecture-overhaul-plan.md`。起因：用戶要求「數百人規模」架構審計 → 5 面向平行審計 → 五階段計畫 → P0 止血全做完 + P1 第一槍 AR-11 上線。
+> 時序上早於上方「BYOK/會員 session」（本 session 的 #46~#50 在 master，BYOK #51~#53 疊在其上）。完整脈絡見 `docs/archive/2026-10-16/research/architecture-audit-2026-07-02.md` + `docs/proposal/architecture-overhaul-plan.md`。起因：用戶要求「數百人規模」架構審計 → 5 面向平行審計 → 五階段計畫 → P0 止血全做完 + P1 第一槍 AR-11 上線。
 
 **事件 1｜lightning_events 雙 unique index → 單目標 ON CONFLICT 炸整批**
 - `realtime.lightning_events` 有 `uk_eventid`(event_id) + `uk_dedup`(dedup_hash) 兩個 unique index（雙保險設計）。writer 的 do_nothing 策略只下 `ON CONFLICT (event_id) DO NOTHING` → feed 用**新 event_id 重發同一筆落雷**時，dedup_hash 撞第二個 index → 整批 INSERT 失敗。

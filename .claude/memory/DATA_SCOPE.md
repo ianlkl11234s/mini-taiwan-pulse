@@ -631,7 +631,7 @@ resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢�
 
 ## 特殊船舶接近帶 Vessel Zone（live + spatial schema，2026-08-20 資料層上線）
 
-VW-9 的展開。設計 SSOT：`docs/proposal/vessel-zone-watch.md`。gis-platform migration 361~366。
+VW-9 的展開。設計 SSOT：`docs/features/vessel-watch/zone-watch-design.md`。gis-platform migration 361~366。
 
 | 表 / 欄位 | 現況（2026-08-20 第一手 query）|
 |---|---|

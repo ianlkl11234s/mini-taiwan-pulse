@@ -105,7 +105,7 @@ useEffect(() => {
 2. `ANALYZE` 更新統計看能不能改善 plan（可能就夠了）
 3. 真需要預聚合 → 照 `docs/supabase-optimization.md` pattern
 4. SQL 範本放 `../data-collectors/docs/sql/matview_xxx.sql`
-5. 加進 `docs/supabase_rpc_audit.md` 追蹤
+5. 加進 `docs/audit/supabase-rpc-audit-2026-04-09.md` 追蹤
 
 ### 禁止
 - ❌ 用 `MATERIALIZED VIEW`（一次 REFRESH 會撞 pooler 2min timeout）
