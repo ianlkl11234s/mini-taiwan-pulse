@@ -180,6 +180,21 @@
 | RV-7 | P2 | blocked | Harm-reduction loader rolls back the whole batch when upstream removes a point (gis-platform F021). | Blocked on decision: reconcile-delete removed points, or validate only the PK set. Owner: gis-platform (+ data-collectors if it feeds the loader). First action: owner picks the policy, then adjust the loader. | Upstream removal of one point no longer fails the whole load; behavior matches the chosen policy. |
 | RV-8 | P2 | conditional | Geological-survey district R2 registry file exposes `district_code` but consumers need `area_code` (gis-platform F028). | Trigger: before the next release that ships this layer. Owner: gis-platform / analytics. First action: produce a derived file with `area_code`, leaving the registered original untouched. | Derived file with `area_code` is published and referenced; release checklist item checked. |
 
+## Site health follow-ups (2026-10-16)
+
+> 全站健檢（效能、無障礙、安全、SEO、AEO、i18n、隱私、可靠性 8 面向，實測）：[`docs/audit/site-health-2026-10-16.md`](../../docs/audit/site-health-2026-10-16.md)。SEO-1～3、AEO-1～2（robots／sitemap／llms.txt、首頁靜態說明與結構化資料、soft-404）已在 #609 完成，隨下一版上線。下表只列需要跨週追蹤的；其餘 ID（SEC-*、AEO-3～5、OPS-2／3、PRIV-2、SEO-7／8、A11Y-2／3、PERF-3／4）見報告 §5。
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| SEO-5 | P1 | conditional | 讓 Google／Bing 開始收錄正式站。 | Trigger: #609 隨下一版發布到 master。Owner: 使用者（DNS TXT 驗證網域）＋ Claude。First action: Search Console 驗證網域、提交 sitemap、請求首頁建立索引；1–2 週後重搜。 | `site:mini-taiwan-pulse.itsmigu.com` 出現首頁與語言版本。報告 §3 |
+| SEO-4 | P2 | waiting_external | 社群分享預覽圖。 | 需要一張 1200×630 站圖（`public/` 目前沒有適合的），到位後補 og:image 與 `twitter:card=summary_large_image`。 | 分享連結出現預覽圖。 |
+| SEO-6 | P2 | conditional | 讓爬蟲讀到實質內容（預渲染或靜態「關於／資料來源／主題導覽」頁）。 | Trigger: SEO-5 收錄兩週後的結果。Owner: 使用者決定投入。First action: 與 SEO-7（英日文實體頁）、AEO-3（FAQ）同一包規劃。 | 重點說明頁有實體 HTML 並被收錄。 |
+| PERF-1 | P2 | ready | 首屏 JS 由 gzip 2.11 MB 降到 1 MB 內（2026-10-16 本機 Lighthouse 行動版效能 0.26、LCP 15.9 s，機器負載偏高）。 | `statisticsText`（322 KB gz）、`JpMedicalStatus`（124 KB gz）改為使用時才載入；PERF-3 清查未使用 JS（Lighthouse 估可省 904 KiB）。 | 本機 Lighthouse 行動版 LCP 明顯下降，同設定跑 3 次取中位數。 |
+| PERF-2 | P3 | ready | 啟用 brotli（現在只有 gzip）。 | nginx 加 brotli 模組，或讓 Cloudflare 邊緣壓縮；先查 CF 設定。 | 回應帶 `Content-Encoding: br`。 |
+| A11Y-1 | P2 | ready | 移除 viewport 的 `user-scalable=no`（Lighthouse 無障礙唯一未過項）。 | 先確認地圖雙指縮放不受影響。 | Lighthouse 無障礙 ≥ 0.95。 |
+| OPS-1 | P2 | ready | 無 WebGL 時顯示說明，而不是整個畫面空白。 | 加初始化失敗提示與 ErrorBoundary。 | 無 WebGL 環境看得到提示與替代連結。 |
+| PRIV-1 | P3 | ready | 新增隱私說明頁。 | 寫清楚登入走 Supabase 與 Google、BYOK 金鑰留在瀏覽器、AI 對話送往的服務、Mapbox 載圖請求。 | 頁面存在，內容與 PRIV-2 的第三方清單一致。 |
+
 ## Weekly audit findings
 
 > Appended by the `weekly-audit` skill. One `WA-*` ID per finding that needs cross-week tracking;
