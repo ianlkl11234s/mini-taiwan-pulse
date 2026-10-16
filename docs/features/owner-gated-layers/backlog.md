@@ -4,7 +4,7 @@
 
 ## Security / governance active
 
-- [ ] **OG-1：anon key 濫用防護 / Supabase Spend Cap 確認**（2026-07-07 討論後記）
+- **OG-1 anon key 濫用防護 / Supabase Spend Cap 確認**（2026-07-07 討論後記）— 追蹤已移到核心 [BACKLOG](../../../.claude/memory/BACKLOG.md) 的 OG-1（唯一 home，2026-10-16 盤點）；以下為背景：
   - 背景：機密資料已 RLS/REVOKE 鎖死（拿到公開 anon key 也讀不到）。殘餘風險只剩「有人狂打公開端點灌爆 Supabase 用量/帳單」。
   - ⚠️ **關鍵發現**：Supabase host `*.supabase.co` 是架在 **Supabase 自己的 Cloudflare** 後面（回應 header `server: cloudflare`），**不經過我方 zone `itsmigu.com`** → 在我方 Cloudflare 設 rate limit 對 Supabase **完全無效**。
   - 下一步（依優先序）：

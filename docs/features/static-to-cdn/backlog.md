@@ -4,7 +4,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **STC-1 · `verifying`**：完成 `perf/static-to-cdn` 的 PR／merge lifecycle，並核對 25 個 snapshot 在 production 可取得。
+- [x] **STC-1 · `verifying`**：完成 `perf/static-to-cdn` 的 PR／merge lifecycle，並核對 25 個 snapshot 在 production 可取得。 — 2026-10-16 盤點關閉：PR #54（v1.6.0）
   - Outcome：靜態層正式脫離 DB 併發隊列，不把 local/S3 記錄當成 production evidence。
   - Next action：核對 PR/CI、S3 manifest/checksum、冷載 Network 確實走 `/static-rpc/` 且 fallback 為零。
 

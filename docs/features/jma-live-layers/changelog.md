@@ -2,6 +2,10 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-10-16 — 盤點關閉
+
+- JMA-5 其餘發布幀產品上圖：2026-10-15 完成 8 層（radar／rasrf／risk_land／risk_inund／uv_anal／sst_him／sea_ice／himawari_b13），自 backlog 移除（state 不可為 done）。
+
 ## 2026-10-16 — 警報・注意報顯示種類
 
 - 彈窗「發布中」列、圖例「目前發布中的種類」（種類＋級別色點＋區域數，最多 12 種）、圖層設定「種類」下拉（只畫有該種類的區域，用該種類級別色；選項為 JMA 種別碼靜態表，與 collector KIND_NAMES 同步）

@@ -5,7 +5,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **PK-1 · `verifying`**：確認 Batch 3 hybrid v1（含 timeline 回放）的 PR、merge 與 production asset 狀態。
+- [x] **PK-1 · `verifying`**：確認 Batch 3 hybrid v1（含 timeline 回放）的 PR、merge 與 production asset 狀態。 — 2026-10-16 盤點關閉：develop 已含 cea20cfe、a3247e08（無獨立 PR 號）
   - Outcome：確認正式環境確實載入 migration 288、前端 day RPC 與停車資料，不把舊的「未 PR」紀錄誤當現況。
   - Next action：核對 branch/PR、production HTTP 與 browser replay；以 tsc/test、兩種模式可渲染及無 404 作 acceptance。
 

@@ -18,7 +18,7 @@
 
 ## Verifying
 
-- [ ] **LS-1** · `release` · P1 · `verifying`：7 層接線在目前 source 可見（含 `useLivestockLayers.ts` 與 host registry），但本檔未提供 production/PR 證據。Next action：核對 PR/merge、CDN/Supabase 成品與 All Off 逐層驗收；Acceptance：HTTP/checksum、row count、browser。
+- [x] **LS-1** · `release` · P1 · `verifying`：7 層接線在目前 source 可見（含 `useLivestockLayers.ts` 與 host registry），但本檔未提供 production/PR 證據。Next action：核對 PR/merge、CDN/Supabase 成品與 All Off 逐層驗收；Acceptance：HTTP/checksum、row count、browser。 — 2026-10-16 盤點關閉：PR #55（v1.7.0）
 
 ## Explicitly not planned（明確不做）
 

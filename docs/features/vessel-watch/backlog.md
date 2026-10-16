@@ -4,7 +4,7 @@
 
 ## Release blocker
 
-- [ ] **VW-8**：部署前上傳 `maritime_boundary.pmtiles`。
+- [x] **VW-8**：部署前上傳 `maritime_boundary.pmtiles`。 — 2026-10-16 盤點關閉：maritime_boundary.pmtiles 正式站 206
   - Outcome：正式站可同時看到船舶與海域界線，不因 PMTiles 不進 git 而 404。
   - Next action：執行 `scripts/deploy/upload-deploy-assets.sh`，核對 S3 HEAD/checksum、HTTP Range 與 browser base map。
 

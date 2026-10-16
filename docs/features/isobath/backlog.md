@@ -21,8 +21,6 @@
 
 | ID | Category | Priority | State | Outcome | Next action | Acceptance |
 |---|---|---|---|---|---|---|
-| ISO-1 | release | P1 | waiting_external | `public/base_map/gebco_isobath.pmtiles` 落地，圖層可實際渲染 | 等上游 agent 產出 pmtiles 並放進 `public/base_map/` | browser 開圖層看得到等深線與分帶色塊 |
-| ISO-2 | docs | P2 | blocked | 上游 handoff 文件雙向校對完成 | 上游補 `taipei-gis-analytics/docs/handoff/gebco_isobath.md` 後對照本 feature 的 handoff.md 修正差異 | 兩份文件的欄位契約一致 |
 
 ## Decision needed
 
@@ -36,7 +34,7 @@
 
 | ID | Category | Priority | State | Missing evidence | Next action | Acceptance |
 |---|---|---|---|---|---|---|
-| ISO-3 | validation | P1 | verifying | pmtiles 落地前無法在瀏覽器實際檢視 fill/line 疊放順序、配色三模式、opacity 控件是否符合預期 | pmtiles 落地後用 agent-browser 開站驗證 4 個控件與 popup | 三種配色模式視覺正確、toggle 能開關分帶填色且不誤關整層、popup 顯示水深/深度區間正確 |
+| ISO-3 | validation | P1 | ready | pmtiles 已落地（2026-10-16 正式站 206），可在瀏覽器實際檢視 fill/line 疊放順序、配色三模式、opacity 控件是否符合預期 | pmtiles 落地後用 agent-browser 開站驗證 4 個控件與 popup | 三種配色模式視覺正確、toggle 能開關分帶填色且不誤關整層、popup 顯示水深/深度區間正確 |
 
 ## Completed / historical（已完成／歷史）
 
