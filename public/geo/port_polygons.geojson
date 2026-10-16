@@ -26547,7 +26547,8 @@
         "name": "金門九宮港",
         "port_class": "離島渡輪港",
         "county": "金門縣",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Kinmen Jiugong Harbor"
       },
       "geometry": {
         "type": "Polygon",
@@ -26695,7 +26696,8 @@
         "name": "高雄旗津輪渡站",
         "port_class": "渡輪/觀光碼頭",
         "county": "高雄市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Cijin Ferry Station"
       },
       "geometry": {
         "type": "Polygon",
@@ -26747,7 +26749,8 @@
         "name": "金門水頭港",
         "port_class": "國內商港",
         "county": "金門縣",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Kinmen Shuitou Harbor"
       },
       "geometry": {
         "type": "Polygon",
@@ -26811,7 +26814,8 @@
         "name": "大麥嶼",
         "port_class": "對岸港口",
         "county": "浙江省",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Damaiyu"
       },
       "geometry": {
         "type": "Polygon",
@@ -26959,7 +26963,8 @@
         "name": "高雄港",
         "port_class": "國際商港",
         "county": "高雄市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Kaohsiung Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -28131,7 +28136,8 @@
         "name": "蘇澳港",
         "port_class": "國際商港",
         "county": "宜蘭縣",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Suao Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -29035,7 +29041,8 @@
         "name": "布袋港",
         "port_class": "國內商港",
         "county": "嘉義縣",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Budai Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -29159,7 +29166,8 @@
         "name": "華江碼頭",
         "port_class": "渡輪/觀光碼頭",
         "county": "新北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Huajiang Wharf"
       },
       "geometry": {
         "type": "Polygon",
@@ -29319,7 +29327,8 @@
         "name": "美堤碼頭",
         "port_class": "渡輪/觀光碼頭",
         "county": "臺北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Meiti Wharf"
       },
       "geometry": {
         "type": "Polygon",
@@ -29363,7 +29372,8 @@
         "name": "金門料羅港",
         "port_class": "離島渡輪港",
         "county": "金門縣",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Kinmen Liaoluo Harbor"
       },
       "geometry": {
         "type": "Polygon",
@@ -29511,7 +29521,8 @@
         "name": "前鎮輪渡站",
         "port_class": "渡輪/觀光碼頭",
         "county": "高雄市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Qianzhen Ferry Station"
       },
       "geometry": {
         "type": "Polygon",
@@ -29567,7 +29578,8 @@
         "name": "大佳碼頭",
         "port_class": "渡輪/觀光碼頭",
         "county": "臺北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Dajia Wharf"
       },
       "geometry": {
         "type": "Polygon",
@@ -29611,7 +29623,8 @@
         "name": "福州平潭",
         "port_class": "對岸港口",
         "county": "福建省",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Fuzhou Pingtan"
       },
       "geometry": {
         "type": "Polygon",
@@ -29903,7 +29916,8 @@
         "name": "福州黃岐港",
         "port_class": "對岸港口",
         "county": "福建省",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Fuzhou Huangqi Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -30051,7 +30065,8 @@
         "name": "安平港",
         "port_class": "國際商港",
         "county": "臺南市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Anping Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -30287,7 +30302,8 @@
         "name": "臺北港",
         "port_class": "國際商港",
         "county": "臺北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Taipei Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -30883,7 +30899,8 @@
         "name": "錫口碼頭",
         "port_class": "渡輪/觀光碼頭",
         "county": "臺北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Xikou Wharf"
       },
       "geometry": {
         "type": "Polygon",
@@ -30931,7 +30948,8 @@
         "name": "廈門五通",
         "port_class": "對岸港口",
         "county": "福建省",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Xiamen Wutong"
       },
       "geometry": {
         "type": "Polygon",
@@ -31079,7 +31097,8 @@
         "name": "基隆港",
         "port_class": "國際商港",
         "county": "基隆市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Keelung Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -31883,7 +31902,8 @@
         "name": "忠孝碼頭",
         "port_class": "渡輪/觀光碼頭",
         "county": "新北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Zhongxiao Wharf"
       },
       "geometry": {
         "type": "Polygon",
@@ -31923,7 +31943,8 @@
         "name": "花蓮港",
         "port_class": "國際商港",
         "county": "花蓮縣",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Hualien Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -32435,7 +32456,8 @@
         "name": "臺中港",
         "port_class": "國際商港",
         "county": "臺中市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Taichung Port"
       },
       "geometry": {
         "type": "Polygon",
@@ -32759,7 +32781,8 @@
         "name": "大稻埕碼頭",
         "port_class": "渡輪/觀光碼頭",
         "county": "臺北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Dadaocheng Wharf"
       },
       "geometry": {
         "type": "Polygon",
@@ -32911,7 +32934,8 @@
         "name": "泉州石井",
         "port_class": "對岸港口",
         "county": "福建省",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Quanzhou Shijing"
       },
       "geometry": {
         "type": "Polygon",
@@ -33059,7 +33083,8 @@
         "name": "關渡碼頭",
         "port_class": "渡輪/觀光碼頭",
         "county": "臺北市",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Guandu Wharf"
       },
       "geometry": {
         "type": "Polygon",
@@ -33159,7 +33184,8 @@
         "name": "澎湖港",
         "port_class": "國內商港",
         "county": "澎湖縣",
-        "source": "TDX"
+        "source": "TDX",
+        "name_en": "Penghu Port"
       },
       "geometry": {
         "type": "Polygon",
