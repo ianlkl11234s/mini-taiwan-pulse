@@ -384,7 +384,8 @@ function countClasses(
 
 /**
  * 產品登記簿：每個發布幀產品一筆。容忍度（maxStaleMin／liveMaxStaleMin）依發布頻率各自設定：
- * radar 15/30、rasrf／risk 60/90、snow 90/180、uv 90/180、sst／sea_ice 72h/72h（上游約晚 1.5 天發布，最新一幀可達約 58 小時前）。
+ * collector 每小時整批＋上游延遲，即時容忍度依 2026-10-16 實測最舊可達：radar 66、rasrf 95、risk 125、snow／himawari 112 分。
+ * radar 15/90、rasrf 60/120、risk 60/150、snow 90/180、uv 90/180、sst／sea_ice 72h/72h（上游約晚 1.5 天發布，最新一幀可達約 58 小時前）。
  */
 export const JMA_IMAGERY_PRODUCTS = {
   // 解析積雪深 snowd（data-collectors config/decode_tables/jma/snow_depth.yaml）。
@@ -414,7 +415,7 @@ export const JMA_IMAGERY_PRODUCTS = {
     paletteVersion: "jma-radar-2026-10-09",
     cadenceMin: 5,
     maxStaleMin: 15,
-    liveMaxStaleMin: 30,
+    liveMaxStaleMin: 90,
     historyStepMin: 0,
     levels: rainLevels("mm/h"),
   },
@@ -425,7 +426,7 @@ export const JMA_IMAGERY_PRODUCTS = {
     paletteVersion: "jma-rasrf-2026-10-09",
     cadenceMin: 30,
     maxStaleMin: 60,
-    liveMaxStaleMin: 90,
+    liveMaxStaleMin: 120,
     historyStepMin: 0,
     levels: rainLevels("mm"),
   },
@@ -436,7 +437,7 @@ export const JMA_IMAGERY_PRODUCTS = {
     paletteVersion: "jma-risk_land-2026-10-09-provisional",
     cadenceMin: 30,
     maxStaleMin: 60,
-    liveMaxStaleMin: 90,
+    liveMaxStaleMin: 150,
     historyStepMin: 0,
     levels: RISK_LEVELS,
   },
@@ -447,7 +448,7 @@ export const JMA_IMAGERY_PRODUCTS = {
     paletteVersion: "jma-risk_inund-2026-10-09-provisional",
     cadenceMin: 30,
     maxStaleMin: 60,
-    liveMaxStaleMin: 90,
+    liveMaxStaleMin: 150,
     historyStepMin: 0,
     levels: RISK_LEVELS,
   },

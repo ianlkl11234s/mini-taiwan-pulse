@@ -52,6 +52,9 @@ function evalStep(expr: unknown[], value: number): unknown {
   return out;
 }
 
+/** 回放測試固定「現在」在遠未來，避免牆鐘時間落在 liveMaxStaleMin 內而改用即時容忍度。 */
+const FAR = Date.parse("2030-01-01T00:00:00Z");
+
 describe("JMA imagery 選幀", () => {
   const fs = frames([
     row("2026-10-15T00:00:00Z"),
@@ -62,7 +65,7 @@ describe("JMA imagery 選幀", () => {
   ]);
 
   it("回放取 ≤ t 的最晚一幀，URL 由 CDN base + image_key 組成", () => {
-    const p = pickJmaImageryFrame(fs, ms("2026-10-15T01:40:00Z"), SNOW, false);
+    const p = pickJmaImageryFrame(fs, ms("2026-10-15T01:40:00Z"), SNOW, false, FAR);
     expect(p.kind).toBe("frame");
     if (p.kind !== "frame") return;
     expect(p.frame.validTimeIso).toBe("2026-10-15T01:00:00Z");
@@ -70,31 +73,31 @@ describe("JMA imagery 選幀", () => {
   });
 
   it("t 早於第一幀 → 未涵蓋（不退回第一幀）", () => {
-    const p = pickJmaImageryFrame(fs, ms("2026-10-14T23:30:00Z"), SNOW, false);
+    const p = pickJmaImageryFrame(fs, ms("2026-10-14T23:30:00Z"), SNOW, false, FAR);
     expect(p).toMatchObject({ kind: "uncovered", reason: "no_frame", frame: null });
   });
 
   it("缺幀超過 maxStale → 未涵蓋（不沿用舊圖）", () => {
     // 02:00 幀到 03:31 已 91 分 > 90
-    const p = pickJmaImageryFrame(fs, ms("2026-10-15T03:31:00Z"), SNOW, false);
+    const p = pickJmaImageryFrame(fs, ms("2026-10-15T03:31:00Z"), SNOW, false, FAR);
     expect(p).toMatchObject({ kind: "uncovered", reason: "stale" });
-    expect(pickJmaImageryFrame(fs, ms("2026-10-15T03:29:00Z"), SNOW, false).kind).toBe("frame");
+    expect(pickJmaImageryFrame(fs, ms("2026-10-15T03:29:00Z"), SNOW, false, FAR).kind).toBe("frame");
   });
 
   it("status=missing（image_key NULL）→ 未涵蓋", () => {
     const f = frames([row("2026-10-15T00:00:00Z"), row("2026-10-15T01:00:00Z", { status: "missing", image_key: null })]);
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T01:10:00Z"), SNOW, false)).toMatchObject({ kind: "uncovered", reason: "missing" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T01:10:00Z"), SNOW, false, FAR)).toMatchObject({ kind: "uncovered", reason: "missing" });
   });
 
   it("encoding 與色票不符 → 未涵蓋", () => {
     const f = frames([row("2026-10-15T00:00:00Z", { encoding: "sst_la_v1" })]);
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:10:00Z"), SNOW, false)).toMatchObject({ kind: "uncovered", reason: "encoding" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:10:00Z"), SNOW, false, FAR)).toMatchObject({ kind: "uncovered", reason: "encoding" });
   });
 
   it("沒有 CDN base → url 為 null → 未涵蓋", () => {
     const f = rowsToJmaImageryFrames([row("2026-10-15T00:00:00Z")], "").get("snow_depth")!;
     expect(f[0]!.url).toBeNull();
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:10:00Z"), SNOW, false).kind).toBe("uncovered");
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:10:00Z"), SNOW, false, FAR).kind).toBe("uncovered");
   });
 
   it("即時模式取最新一幀；最新一幀過舊（collector 停擺）→ 未涵蓋", () => {
@@ -160,7 +163,7 @@ describe("JMA imagery 產品登記簿", () => {
   it("各產品容忍度（回放／即時，分）", () => {
     const tol = Object.fromEntries(Object.values(JMA_IMAGERY_PRODUCTS).map((p) => [p.product, [p.maxStaleMin, p.liveMaxStaleMin]]));
     expect(tol).toEqual({
-      snow_depth: [90, 180], radar: [15, 30], rasrf: [60, 90], risk_land: [60, 90], risk_inund: [60, 90],
+      snow_depth: [90, 180], radar: [15, 90], rasrf: [60, 120], risk_land: [60, 150], risk_inund: [60, 150],
       uv_anal: [90, 180], sst_him: [72 * 60, 72 * 60], sea_ice: [72 * 60, 72 * 60], himawari_b13: [90, 180],
       ana_snow_first: [36 * 60, 48 * 60], ana_snow_days: [36 * 60, 48 * 60], ana_rain_days: [36 * 60, 48 * 60],
       ana_risk_land_hours: [36 * 60, 48 * 60], ana_risk_inund_hours: [36 * 60, 48 * 60],
@@ -174,8 +177,12 @@ describe("JMA imagery 產品登記簿", () => {
   it("radar 容忍度：缺 2 幀（10 分）仍顯示、缺到 16 分 → 未涵蓋", () => {
     const radar = JMA_IMAGERY_PRODUCTS.radar;
     const f = rowsToJmaImageryFrames([row("2026-10-15T00:00:00Z", { product: "radar" })], CDN).get("radar")!;
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:14:00Z"), radar, false).kind).toBe("frame");
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:16:00Z"), radar, false)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:14:00Z"), radar, false, FAR).kind).toBe("frame");
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T00:16:00Z"), radar, false, FAR)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    // 停在今天稍早（離現在 < liveMaxStaleMin）：新幀可能還沒發布，用即時容忍度（collector 每小時整批，實測最舊 66 分）
+    const now = ms("2026-10-15T01:10:00Z");
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T01:05:00Z"), radar, false, now).kind).toBe("frame");
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T01:35:00Z"), radar, false, ms("2026-10-15T01:35:30Z"))).toMatchObject({ kind: "uncovered", reason: "stale" });
   });
 
   it("uv_anal：JST 06:00–18:59 才發布；其餘 → off_hours（夜間無資料），不是 stale", () => {
@@ -185,8 +192,8 @@ describe("JMA imagery 產品登記簿", () => {
     expect(jmaImageryInactiveReason(uv, ms("2026-10-15T18:59:00+09:00"))).toBeNull();
     expect(jmaImageryInactiveReason(uv, ms("2026-10-15T19:00:00+09:00"))).toBe("off_hours");
     const f = rowsToJmaImageryFrames([row("2026-10-15T09:00:00Z", { product: "uv_anal" })], CDN).get("uv_anal")!; // 18:00 JST
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T18:40:00+09:00"), uv, false).kind).toBe("frame");
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T22:00:00+09:00"), uv, false)).toMatchObject({ kind: "uncovered", reason: "off_hours" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T18:40:00+09:00"), uv, false, FAR).kind).toBe("frame");
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T22:00:00+09:00"), uv, false, FAR)).toMatchObject({ kind: "uncovered", reason: "off_hours" });
     expect(pickJmaImageryFrame(f, ms("2026-10-15T22:00:00+09:00"), uv, true)).toMatchObject({ kind: "uncovered", reason: "off_hours" });
   });
 
@@ -197,7 +204,7 @@ describe("JMA imagery 產品登記簿", () => {
     expect(jmaImageryInactiveReason(ice, ms("2026-12-01T00:00:00+09:00"))).toBeNull(); // = 11-30T15:00Z
     expect(jmaImageryInactiveReason(ice, ms("2027-05-31T23:00:00+09:00"))).toBeNull();
     expect(jmaImageryInactiveReason(ice, ms("2027-06-01T00:00:00+09:00"))).toBe("off_season");
-    expect(pickJmaImageryFrame([], ms("2026-07-01T00:00:00Z"), ice, false)).toMatchObject({ kind: "uncovered", reason: "off_season" });
+    expect(pickJmaImageryFrame([], ms("2026-07-01T00:00:00Z"), ice, false, FAR)).toMatchObject({ kind: "uncovered", reason: "off_season" });
   });
 
   it("sst_him：日檔 valid_time＝該日 00:00 JST（R2 key 日期是 UTC 前一日 150000），上游晚約 1.5 天，72h 內都用這一幀", () => {
@@ -205,12 +212,12 @@ describe("JMA imagery 產品登記簿", () => {
     const rows = [row("2026-10-13T15:00:00Z", { product: "sst_him", encoding: "sst_la_v1" })];
     expect(rows[0]!.image_key).toBe("imagery/jma/sst_him/20261013/150000.png"); // 10-14 的檔
     const f = rowsToJmaImageryFrames(rows, CDN).get("sst_him")!;
-    expect(pickJmaImageryFrame(f, ms("2026-10-13T23:59:00+09:00"), sst, false)).toMatchObject({ kind: "uncovered", reason: "no_frame" });
-    expect(pickJmaImageryFrame(f, ms("2026-10-14T00:00:00+09:00"), sst, false).kind).toBe("frame");
+    expect(pickJmaImageryFrame(f, ms("2026-10-13T23:59:00+09:00"), sst, false, FAR)).toMatchObject({ kind: "uncovered", reason: "no_frame" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-14T00:00:00+09:00"), sst, false, FAR).kind).toBe("frame");
     // D 的檔約 D+1 10:30 JST 才出（實測 10-15 檔於 10-16 10:31 JST 發布）→ 停在「今天」時最新一幀常是前一日、甚至前兩日的檔
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T15:41:00+09:00"), sst, false).kind).toBe("frame"); // 回放 39.7h（舊門檻 36h 會判 stale）
-    expect(pickJmaImageryFrame(f, ms("2026-10-16T23:59:00+09:00"), sst, false).kind).toBe("frame"); // 72h 內
-    expect(pickJmaImageryFrame(f, ms("2026-10-17T00:01:00+09:00"), sst, false)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T15:41:00+09:00"), sst, false, FAR).kind).toBe("frame"); // 回放 39.7h（舊門檻 36h 會判 stale）
+    expect(pickJmaImageryFrame(f, ms("2026-10-16T23:59:00+09:00"), sst, false, FAR).kind).toBe("frame"); // 72h 內
+    expect(pickJmaImageryFrame(f, ms("2026-10-17T00:01:00+09:00"), sst, false, FAR)).toMatchObject({ kind: "uncovered", reason: "stale" });
     expect(pickJmaImageryFrame(f, ms("2026-10-16T10:00:00+09:00"), sst, true).kind).toBe("frame"); // 即時：D+2 早上新檔未出
     expect(pickJmaImageryFrame(f, ms("2026-10-17T00:01:00+09:00"), sst, true)).toMatchObject({ kind: "uncovered", reason: "stale" });
   });
@@ -394,12 +401,12 @@ describe("JMA imagery：ひまわり B13（gray_jpeg_v1）", () => {
       image_width: 1024, image_height: 768,
     })];
     const f = rowsToJmaImageryFrames(rows, CDN).get("himawari_b13")!;
-    const p = pickJmaImageryFrame(f, ms("2026-10-15T04:20:00Z"), HW, false);
+    const p = pickJmaImageryFrame(f, ms("2026-10-15T04:20:00Z"), HW, false, FAR);
     expect(p.kind).toBe("frame");
     if (p.kind === "frame") expect(p.frame.url).toBe(`${CDN}/imagery/jma/himawari_b13/20261015/030000.jpg`);
-    expect(pickJmaImageryFrame(f, ms("2026-10-15T04:31:00Z"), HW, false)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-15T04:31:00Z"), HW, false, FAR)).toMatchObject({ kind: "uncovered", reason: "stale" });
     const wrong = rowsToJmaImageryFrames([{ ...rows[0]!, encoding: "level_la_v1" }], CDN).get("himawari_b13")!;
-    expect(pickJmaImageryFrame(wrong, ms("2026-10-15T03:10:00Z"), HW, false)).toMatchObject({ kind: "uncovered", reason: "encoding" });
+    expect(pickJmaImageryFrame(wrong, ms("2026-10-15T03:10:00Z"), HW, false, FAR)).toMatchObject({ kind: "uncovered", reason: "encoding" });
   });
 
   it("raster-color 是灰階 interpolate：暖（暗）透明、冷（亮）白且不透明；沒有 255 缺測灰", () => {
@@ -469,18 +476,18 @@ describe("JMA imagery：分析圖（count_la_v1，契約 §8）", () => {
     ];
     const f = rowsToJmaImageryFrames(rows, CDN).get("ana_rain_days")!;
     // 10-15 12:00 JST → 10-15 那一張
-    const noon = pickJmaImageryFrame(f, ms("2026-10-15T03:00:00Z"), p, false);
+    const noon = pickJmaImageryFrame(f, ms("2026-10-15T03:00:00Z"), p, false, FAR);
     expect(noon.kind).toBe("frame");
     if (noon.kind === "frame") {
       expect(noon.frame.url).toBe(`${CDN}/imagery/jma/ana_rain_days/20261014/150000.png`);
       expect(noon.frame.status).toBe("partial");
     }
     // 10-14 23:59 JST → 10-14 那一張
-    const prev = pickJmaImageryFrame(f, ms("2026-10-14T14:59:00Z"), p, false);
+    const prev = pickJmaImageryFrame(f, ms("2026-10-14T14:59:00Z"), p, false, FAR);
     if (prev.kind === "frame") expect(prev.frame.validTimeIso).toBe("2026-10-13T15:00:00Z");
     else throw new Error("expected frame");
-    expect(pickJmaImageryFrame(f, ms("2026-10-16T03:01:00Z"), p, false)).toMatchObject({ kind: "uncovered", reason: "stale" });
+    expect(pickJmaImageryFrame(f, ms("2026-10-16T03:01:00Z"), p, false, FAR)).toMatchObject({ kind: "uncovered", reason: "stale" });
     const wrong = rowsToJmaImageryFrames([{ ...rows[1]!, encoding: "level_la_v1" }], CDN).get("ana_rain_days")!;
-    expect(pickJmaImageryFrame(wrong, ms("2026-10-15T03:00:00Z"), p, false)).toMatchObject({ kind: "uncovered", reason: "encoding" });
+    expect(pickJmaImageryFrame(wrong, ms("2026-10-15T03:00:00Z"), p, false, FAR)).toMatchObject({ kind: "uncovered", reason: "encoding" });
   });
 });
