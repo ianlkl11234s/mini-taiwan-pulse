@@ -275,7 +275,8 @@ export function wbgtProps(row: Row): Record<string, unknown> {
 }
 
 const wbgtCache = cachedByKey<JmaTimedResult<PointFC>>(async (cacheKey) => {
-  const rows = await rpc("get_env_jp_wbgt_at", cacheKey === "live" ? {} : { p_at: cacheKey }, "日本暑さ指数 WBGT");
+  // 環境省實況約晚 1 小時才進 DB（2026-10-16 實測最舊可達 119 分），RPC 預設 90 分會在每小時後半段畫不出點
+  const rows = await rpc("get_env_jp_wbgt_at", cacheKey === "live" ? { p_max_age_minutes: 150 } : { p_at: cacheKey, p_max_age_minutes: 150 }, "日本暑さ指数 WBGT");
   const { fc, noCoord } = rowsToPointFC(rows, wbgtProps);
   // 高值畫在上面
   fc.features.sort((a, b) => Number(a.properties?.wbgt ?? -99) - Number(b.properties?.wbgt ?? -99));
