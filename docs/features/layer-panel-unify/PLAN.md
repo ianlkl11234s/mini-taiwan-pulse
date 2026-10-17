@@ -1,6 +1,6 @@
 # 圖層面板統一＋熱區／網格配色：實作計畫
 
-> 依據：[`AUDIT.md`](./AUDIT.md)（P1–P9 決定）、[`../layer-color-picker/PROPOSAL.md`](../layer-color-picker/PROPOSAL.md) §0（Q1–Q6、17 組色階）。狀態：⏳ 待使用者同意開工（2026-10-03）。
+> 依據：[`AUDIT.md`](./AUDIT.md)（P1–P9 決定）、[`../layer-color-picker/PROPOSAL.md`](../layer-color-picker/PROPOSAL.md) §0（Q1–Q6、17 組色階）。狀態：✅ 已上線（2026-10-17 更新：R8 #509／#511／#513／#514 與 R7 #510 隨 v2.3.0〔2026-10-04〕發布；本檔保留為計畫紀錄）。原狀態：待使用者同意開工（2026-10-03）。
 
 ## 0. 開工前
 

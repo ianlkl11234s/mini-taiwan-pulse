@@ -1,6 +1,6 @@
 # 圖層配色可選（layer-color-picker，R7）
 
-> **狀態**：shipped（CHANGELOG v2.3.0 記「熱度圖與網格圖層可自選配色（R7，#510）」；PROPOSAL 本文標頭仍寫「提案中」，為未更新的舊標示）
+> **狀態**：shipped（CHANGELOG v2.3.0 記「熱度圖與網格圖層可自選配色（R7，#510）」）
 
 ## 一句話說明
 
