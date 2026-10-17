@@ -507,6 +507,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["open-fishing-locations-circle", "open-fishing-locations-glow"], type: "openFishingLocations" },
   { layers: ["artificial-reef-centers-circle", "artificial-reef-centers-glow"], type: "artificialReefCenters" },
   { layers: ["protected-reef-centers-circle", "protected-reef-centers-glow"], type: "protectedReefCenters" },
+  // 地層下陷＋海堤 G19：測站點、等值線（線比面先命中）
+  { layers: ["land-subsidence-stations-circle", "land-subsidence-stations-glow"], type: "landSubsidenceStations" },
+  { layers: ["land-subsidence-contours-cumulative-line"], type: "landSubsidenceCumulative" },
+  { layers: ["land-subsidence-contours-rate-line"], type: "landSubsidenceRate" },
   { layers: ["wra-ecology-survey-sites-circle", "wra-ecology-survey-sites-glow"], type: "wraEcologySurveySites" },
   { layers: ["provincial-road-monitored-point", "provincial-road-monitored-line"], type: "provincialRoadMonitored" },
   { layers: ["provincial-road-emergency-bays-point", "provincial-road-emergency-bays-line"], type: "provincialRoadEmergencyBays" },
@@ -649,6 +653,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["wra-central-drainage-fill", "wra-central-drainage-outline"], type: "wraCentralDrainage" },
   // 海域保護與漁業 G08 面層：小面在前（定置漁業權 → 野生動物保護區 → 自然保留區），海岸地區範圍沿全島海岸最後
   { layers: ["set-net-fishing-areas-fill", "set-net-fishing-areas-outline"], type: "setNetFishingAreas" },
+  { layers: ["seawall-zones-fill", "seawall-zones-outline"], type: "seawallZones" },
   { layers: ["wildlife-protected-areas-fill", "wildlife-protected-areas-outline"], type: "wildlifeProtectedAreas" },
   { layers: ["nature-reserves-fill", "nature-reserves-outline"], type: "natureReserves" },
   { layers: ["agri-rural-community-villages-fill", "agri-rural-community-villages-outline"], type: "agriRuralCommunityVillages" },

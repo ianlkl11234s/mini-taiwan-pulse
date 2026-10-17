@@ -1,8 +1,9 @@
 // 環境污染 popup panels（設施 / 裁處事件 / 場址）。
 // 語意紅線：EMS_S_01 列管 ≠ 污染源 → 標題與敘述皆用「污染潛勢設施」。
+import { useEffect, useState } from "react";
 import type { PanelProps } from "./registry";
 import { Row, Badge } from "./shared";
-import { useLocale } from "../../state/localeStore";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import type { I18nContext } from "../../i18n/layerText";
@@ -11,6 +12,8 @@ import {
   SEVERITY_BANDS, PENALTY_SEVERITY_LABELS, PENALTY_SEVERITY_COLORS,
   type PollutionMedium, type PollutionPenaltySeverity,
 } from "../../data/pollutionTypes";
+import { fetchToxicPermits, normalizeEmsno, type ToxicPermitInfo } from "../../data/toxicPermitsLoader";
+import { useFeatureTheme } from "./featureTheme";
 
 function sevLabel(sev: number, i18n: I18nContext): string {
   const b = SEVERITY_BANDS.find((x) => x.sev === sev);
@@ -56,9 +59,58 @@ export function PollutionFacilityPanel({ props }: PanelProps) {
           );
         })}
       </div>
+      <ToxicPermitsBlock emsno={props.emsno} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
         {t("popup.pollution.facilityNote")}
       </div>
+    </div>
+  );
+}
+
+const TOXIC_CHEMS_SHOWN = 6;
+
+/** 「民國年-季」→ 目前語系的資料期（中文「民國115年第2季」；英日「2026 Q2」）。 */
+function toxicPeriod(period: string, i18n: LocaleSnapshot): string {
+  const [year, season] = period.split("-");
+  const roc = Number(year);
+  if (!Number.isFinite(roc)) return period;
+  return i18n.t("popup.pollution.toxicPeriodValue", { roc: String(roc), ad: String(roc + 1911), season: season ?? "" });
+}
+
+/**
+ * 毒化物運作區塊（G19 決定 #7）：依 emsno 查環境部 EMS_S_05 聚合 lookup，命中才顯示；
+ * 不以 is_toxic／sev_toxic 推斷（語意不同）。座標仍為污染設施；統編不顯示。出典與設施來源分開列。
+ */
+function ToxicPermitsBlock({ emsno }: { emsno: unknown }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const theme = useFeatureTheme();
+  const key = normalizeEmsno(emsno);
+  const [info, setInfo] = useState<ToxicPermitInfo | null>(null);
+  useEffect(() => {
+    setInfo(null);
+    if (!key) return;
+    let cancelled = false;
+    fetchToxicPermits(key)
+      .then((value) => { if (!cancelled) setInfo(value); })
+      .catch((e) => console.warn("[ToxicPermits] lookup failed:", e));
+    return () => { cancelled = true; };
+  }, [key]);
+  if (!info) return null;
+  const zh = i18n.active === "zh-TW";
+  const names = info.chems.map((c) => (zh || !c.en ? c.zh : c.en));
+  const shown = names.slice(0, TOXIC_CHEMS_SHOWN).join(t("popup.common.listSeparator"));
+  const chemText = names.length > TOXIC_CHEMS_SHOWN ? t("popup.pollution.toxicChemsMore", { list: shown, n: formatNumber(names.length) }) : shown;
+  const acts = info.activities.map((a) => enumLabel("toxicActivity", a, a, i18n)).join(t("popup.common.listSeparator"));
+  return (
+    <div style={{ marginTop: 8, paddingTop: 6, borderTop: `1px solid ${theme.borderSoft}` }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: POLLUTION_MEDIUM_COLORS.toxic, marginBottom: 2 }}>{t("popup.pollution.toxicTitle")}</div>
+      <Row label={t("popup.pollution.toxicChems")} value={chemText} />
+      <Row label={t("popup.pollution.toxicActivities")} value={acts} />
+      <Row label={t("popup.pollution.toxicPermits")} value={info.validPermits > 0 ? t("popup.pollution.toxicPermitCount", { n: formatNumber(info.validPermits) }) : t("popup.pollution.toxicPermitNone")} />
+      {info.latestEdate && <Row label={t("popup.pollution.toxicEdate")} value={info.latestEdate} />}
+      <Row label={t("popup.pollution.toxicPeriod")} value={toxicPeriod(info.period, i18n)} />
+      <div style={{ marginTop: 4, fontSize: 11, color: theme.textDim, lineHeight: 1.4 }}>{t("popup.pollution.toxicSource")}</div>
     </div>
   );
 }

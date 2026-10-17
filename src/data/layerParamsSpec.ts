@@ -94,6 +94,7 @@ import {
   FLOOD_YEAR_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
+import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -2992,6 +2993,31 @@ export const LAYER_PARAMS_SPEC = {
   ],
   setNetFishingAreas: [
     opacitySlider("setNetFishingAreasOpacity", 0.4),
+  ],
+  // ══════════ 地層下陷＋海堤 G19（2026-10-17）══════════
+  landSubsidenceStations: [
+    {
+      kind: "multiSelect", name: "landSubsidenceStationsType", label: "測站類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STATION_TYPE_OPTIONS), out: "landSubsidenceStationsTypeMask",
+    },
+    opacitySlider("landSubsidenceStationsOpacity", densePointOpacity(112)), scaleSlider("landSubsidenceStationsScale", 1),
+  ],
+  landSubsidenceCumulative: [
+    {
+      kind: "select", name: "landSubsidenceCumulativePeriod", label: "期別", default: CONTOUR_LATEST,
+      options: CUMULATIVE_PERIOD_OPTIONS, out: "landSubsidenceCumulativePeriodIdx", encode: CUMULATIVE_PERIOD_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landSubsidenceCumulativeOpacity", 0.85),
+  ],
+  landSubsidenceRate: [
+    {
+      kind: "select", name: "landSubsidenceRatePeriod", label: "期別", default: CONTOUR_LATEST,
+      options: RATE_PERIOD_OPTIONS, out: "landSubsidenceRatePeriodIdx", encode: RATE_PERIOD_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landSubsidenceRateOpacity", 0.85),
+  ],
+  seawallZones: [
+    opacitySlider("seawallZonesOpacity", 0.5),
   ],
   mountainRescueIncidents: [
     {

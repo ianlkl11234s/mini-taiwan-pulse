@@ -10,6 +10,7 @@ import {
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
+import { CUMULATIVE_STEPS, RATE_STEPS, STATION_TYPE_OPTIONS } from "../../data/landSubsidenceTypes";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { localizeLayerName } from "../../i18n/layerText";
@@ -102,4 +103,9 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   artificialReefCenters: () => <AtlasLegend layer="artificialReefCenters" en="Artificial Reef Areas (centers)" source={src("fa")} rows={single("artificialReefCenters", "legend.atlas.reefCenter")} />,
   protectedReefCenters: () => <AtlasLegend layer="protectedReefCenters" en="Protected Reef Areas (centers)" source={src("fa")} rows={single("protectedReefCenters", "legend.atlas.reefCenter")} />,
   setNetFishingAreas: () => <AtlasLegend layer="setNetFishingAreas" en="Set-net Fishery Right Areas" kind="square" source={src("fa")} license="legend.atlas.licenseFaCopyright" rows={single("setNetFishingAreas", "legend.atlas.setNetArea")} />,
+  // 地層下陷＋海堤 G19（2026-10-17）
+  landSubsidenceStations: () => <AtlasLegend layer="landSubsidenceStations" en="Land Subsidence Monitoring Stations" source={src("wra", ["36693", "41571", "58335"])} domain="landSubsidenceStationType" rows={STATION_TYPE_OPTIONS} />,
+  landSubsidenceCumulative: () => <AtlasLegend layer="landSubsidenceCumulative" en="Cumulative Subsidence (mm)" kind="line" source={src("wra", ["58361"])} rows={CUMULATIVE_STEPS.map((step) => ({ label: step.label, color: step.color }))} />,
+  landSubsidenceRate: () => <AtlasLegend layer="landSubsidenceRate" en="Subsidence Rate (cm/yr)" kind="line" source={src("wra", ["58362"])} rows={RATE_STEPS.map((step) => ({ label: step.label, color: step.color }))} />,
+  seawallZones: () => <AtlasLegend layer="seawallZones" en="Seawall Zones" kind="square" source={src("wra", ["129277"])} rows={single("seawallZones", "legend.atlas.seawallZone")} />,
 };

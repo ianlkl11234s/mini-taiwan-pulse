@@ -1736,6 +1736,15 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "地層下陷與海堤 Land Subsidence & Seawalls",
+        layers: [
+          fromManifest("landSubsidenceStations"),
+          fromManifest("landSubsidenceCumulative"),
+          fromManifest("landSubsidenceRate"),
+          fromManifest("seawallZones"),
+        ],
+      },
+      {
         title: "分析",
         layers: [
           fromManifest("waterFloodExtreme"),

@@ -15,5 +15,16 @@
   "popup.pollution.pollutant": "Pollutant",
   "popup.pollution.stillControlled": "Still listed",
   "popup.pollution.released": "Delisted",
-  "popup.pollution.siteNote": "EMS_S_07 confirmed contaminated site (severity S4)."
+  "popup.pollution.siteNote": "EMS_S_07 confirmed contaminated site (severity S4).",
+  "popup.pollution.toxicTitle": "Toxic chemical operations (MOENV filings)",
+  "popup.pollution.toxicChems": "Chemicals",
+  "popup.pollution.toxicChemsMore": "{list} and others ({n} total)",
+  "popup.pollution.toxicActivities": "Activities",
+  "popup.pollution.toxicPermits": "Valid permits",
+  "popup.pollution.toxicPermitCount": "{n}",
+  "popup.pollution.toxicPermitNone": "No valid permit on record",
+  "popup.pollution.toxicEdate": "Permit valid until",
+  "popup.pollution.toxicPeriod": "Data period",
+  "popup.pollution.toxicPeriodValue": "{ad} Q{season}",
+  "popup.pollution.toxicSource": "Source: Ministry of Environment, toxic and concerned chemical substance operations (EMS_S_05, data.gov.tw 161616) · Open Government Data License, version 1.0. Chemicals and activities are from the facility's latest quarterly filing."
 }

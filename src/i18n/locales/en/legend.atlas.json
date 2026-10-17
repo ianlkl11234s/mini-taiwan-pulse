@@ -21,5 +21,6 @@
   "legend.atlas.protectedAreaWithLand": "Protected extent (incl. land)",
   "legend.atlas.fishingPoint": "Open fishing location (not an indication of access or safety)",
   "legend.atlas.reefCenter": "Center position, not the extent",
-  "legend.atlas.setNetArea": "Set-net fishery right extent"
+  "legend.atlas.setNetArea": "Set-net fishery right extent",
+  "legend.atlas.seawallZone": "Seawall zone"
 }

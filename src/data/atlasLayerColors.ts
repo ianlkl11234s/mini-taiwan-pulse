@@ -37,4 +37,9 @@ export const ATLAS_LAYER_COLORS = {
   artificialReefCenters: "#ea580c",
   protectedReefCenters: "#b45309",
   setNetFishingAreas: "#7c3aed",
+  // 地層下陷＋海堤 G19（2026-10-17）
+  landSubsidenceStations: "#0ea5e9",
+  landSubsidenceCumulative: "#dc2626",
+  landSubsidenceRate: "#f97316",
+  seawallZones: "#0f766e",
 } as const;
