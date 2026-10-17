@@ -163,10 +163,11 @@ COORD_FLAG_NOTE = {"ok": "來源座標", "tm2_conflict": "來源經緯度與 TWD
 # ── tippecanoe ───────────────────────────────────────────────────────────────
 
 
-def tile(features: list[dict], out: Path, layer: str, zmin: int, zmax: int, kind: str) -> None:
+def tile(features: list[dict], out: Path, layer: str, zmin: int, zmax: int, kind: str, extra_flags: tuple[str, ...] = ()) -> None:
     """kind: point → -r1 -pf -pk；line／polygon 另加 -pt（不縮小面）。不用 --drop-densest。
-    線的 drop-rate 也要 -r1，否則低 zoom 依比例丟線；極短路段在 z5–7 會退化成點被丟，所以線層從 z8 起切。"""
-    flags = ["-r1", "-pf", "-pk"] + ([] if kind == "point" else ["-pt"])
+    線的 drop-rate 也要 -r1，否則低 zoom 依比例丟線；極短路段在 z5–7 會退化成點被丟，所以線層從 z8 起切。
+    extra_flags：個別圖層追加（例：大面 `--no-tile-size-limit`，避免 500KB 上限隱性丟面）。"""
+    flags = ["-r1", "-pf", "-pk"] + ([] if kind == "point" else ["-pt"]) + list(extra_flags)
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         mid = Path(tmp) / f"{layer}.geojson"
@@ -522,6 +523,130 @@ def build_edna(m, feats):
     }) for f in feats]
 
 
+# 海域保護與漁業（G08，2026-10-17）-----------------------------------------
+# 7 層：自然保留區／野生動物保護區（全國含陸域）、開放捕魚點、海岸地區範圍（111 年版）、
+# 人工魚礁區／保護礁區（只畫中心點，「中心位置，非範圍」；range_text 只當文字說明，不畫範圍）、
+# 定置漁業權區（來源 EPSG:3857 已於上游轉 4326；授權為漁業署網站著作權聲明，照實揭露）。
+
+def edition(v: Any) -> str | None:
+    """來源版本欄：'-' 或空字串視為未標。"""
+    v = s(v)
+    return None if v in (None, "-", "None") else v
+
+
+def protected_area_props(p: dict, m: dict) -> dict:
+    return {
+        "id": p["feature_id"], "name": s(p.get("name")), "subarea_name": edition(p.get("subarea_name")),
+        "manager": s(p.get("manager")), "legal_established_date": s(p.get("legal_established_date")),
+        "legal_announced_date": s(p.get("legal_announced_date")), "source_area_ha": to_num(p.get("source_area_ha")),
+        "source_edition": edition(p.get("source_edition")), **source_props(m),
+    }
+
+
+@layer("natureReserves", "marine", "nature_reserves", "marine/nature_reserves.geojson")
+def build_nature_reserves(m, feats):
+    return [feature(f["geometry"], protected_area_props(f["properties"], m)) for f in drop_unmapped("natureReserves", feats)]
+
+
+@layer("wildlifeProtectedAreas", "marine", "wildlife_protected_areas", "marine/wildlife_protected_areas.geojson")
+def build_wildlife_protected(m, feats):
+    return [feature(f["geometry"], protected_area_props(f["properties"], m)) for f in drop_unmapped("wildlifeProtectedAreas", feats)]
+
+
+@layer("openFishingLocations", "marine", "open_fishing_locations", "marine/open_fishing_locations.geojson")
+def build_open_fishing(m, feats):
+    return [feature(f["geometry"], {
+        "id": s(f["properties"]["source_idx"]), "county": s(f["properties"].get("county")),
+        "source_xpos": to_num(f["properties"].get("source_xpos")), "source_ypos": to_num(f["properties"].get("source_ypos")),
+        **source_props(m),
+    }) for f in drop_unmapped("openFishingLocations", feats)]
+
+
+COASTAL_ZMIN, COASTAL_ZMAX = 5, 12
+COASTAL_DEGENERATE_M2 = 1.0  # 來源 5 筆左右面積 < 1 m² 的退化面（金門），任何 zoom 都畫不出，不上圖並記數
+
+
+def ring_area_m2(ring: list) -> float:
+    """經緯度環的近似面積（等距矩形投影＋鞋帶公式；只用來決定出現 zoom，不顯示）。"""
+    import math
+    if len(ring) < 4:
+        return 0.0
+    lat0 = math.radians(sum(pt[1] for pt in ring) / len(ring))
+    kx, ky = 111_320.0 * math.cos(lat0), 110_540.0
+    pts = [(pt[0] * kx, pt[1] * ky) for pt in ring]
+    return abs(sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(pts, pts[1:]))) / 2
+
+
+def polygon_area_m2(geom: dict) -> float:
+    polys = [geom["coordinates"]] if geom["type"] == "Polygon" else geom["coordinates"]
+    return sum(ring_area_m2(poly[0]) - sum(ring_area_m2(hole) for hole in poly[1:]) for poly in polys)
+
+
+def area_minzoom(area_m2: float, zmin: int, zmax: int) -> int:
+    """面積至少約 4 個 tile 單位（4096／tile）才從該 zoom 出現；更小的小島礁從 zmax 出現。"""
+    for z in range(zmin, zmax + 1):
+        unit = 36_600_000 / (2 ** z) / 4096  # 北緯 24° 附近每單位邊長（m）
+        if area_m2 >= 4 * unit * unit:
+            return z
+    return zmax
+
+
+@layer("coastalAreaExtents", "marine", "coastal_area_extents", "marine/coastal_area_extents.pmtiles",
+       pmtiles={"layer": "coastal_area_extents", "zmin": COASTAL_ZMIN, "zmax": COASTAL_ZMAX, "kind": "polygon",
+                "extra_flags": ("--no-tile-size-limit",), "feature_minzoom": True})
+def build_coastal(m, feats):
+    # source_area 單位來源未記載，不帶進前端；來源座標帶 Z=0（三維），只留經緯度
+    def xy(c):
+        return [xy(x) for x in c] if isinstance(c[0], list) else c[:2]
+    feats = drop_unmapped("coastalAreaExtents", feats)
+    out, degenerate = [], []
+    for f in feats:
+        geom = {"type": f["geometry"]["type"], "coordinates": xy(f["geometry"]["coordinates"])}
+        area = polygon_area_m2(geom)
+        if area < COASTAL_DEGENERATE_M2:
+            degenerate.append(s(f["properties"]["source_row"]))
+            continue
+        feat = feature(geom, {
+            "id": s(f["properties"]["source_row"]), "county": s(f["properties"].get("county")), "area_type": s(f["properties"].get("area_type")),
+            **source_props(m),
+        })
+        feat["tippecanoe"] = {"minzoom": area_minzoom(area, COASTAL_ZMIN, COASTAL_ZMAX)}
+        out.append(feat)
+    AUDIT.setdefault("coastalAreaExtents", {})["degenerate_lt_1m2"] = degenerate
+    print(f"  退化面（< {COASTAL_DEGENERATE_M2} m²）不上圖：{len(degenerate)} 筆 {degenerate}")
+    return out
+
+
+def reef_props(p: dict, m: dict) -> dict:
+    return {
+        "id": p["feature_id"], "name": s(p.get("name")), "county": s(p.get("county")),
+        "announce_date": s(p.get("announce_date")), "depth_text": s(p.get("depth_text")),
+        "range_text": s(p.get("range_text")), "coordinate_text": s(p.get("coordinate_text")),
+        "point_basis": s(p.get("point_basis")), "point_basis_label": s(p.get("point_basis_label")),
+        "geometry_kind": s(p.get("geometry_kind")), **source_props(m),
+    }
+
+
+@layer("artificialReefCenters", "marine", "artificial_reef_areas", "marine/artificial_reef_areas.geojson")
+def build_artificial_reef(m, feats):
+    return [feature(f["geometry"], reef_props(f["properties"], m)) for f in drop_unmapped("artificialReefCenters", feats)]
+
+
+@layer("protectedReefCenters", "marine", "protected_reef_areas", "marine/protected_reef_areas.geojson")
+def build_protected_reef(m, feats):
+    # 1 筆（宜蘭保護礁禁漁區）來源只有地名描述、無座標 → 不上圖，筆數寫進圖例說明
+    return [feature(f["geometry"], reef_props(f["properties"], m)) for f in drop_unmapped("protectedReefCenters", feats)]
+
+
+@layer("setNetFishingAreas", "marine", "set_net_fishing_areas", "marine/set_net_fishing_areas.geojson")
+def build_set_net(m, feats):
+    return [feature(f["geometry"], {
+        "id": f["properties"]["feature_id"], "county": s(f["properties"].get("county")),
+        "fishery_name": s(f["properties"].get("fishery_name")), "area_name": s(f["properties"].get("area_name")),
+        "license_no": s(f["properties"].get("license_no")), **source_props(m),
+    }) for f in drop_unmapped("setNetFishingAreas", feats)]
+
+
 # 地名 -------------------------------------------------------------------
 
 PLACE_PRIORITY = {"admin": 0, "natural": 1, "settlement": 2, "landmark": 3}
@@ -666,7 +791,7 @@ def build(src: Path, key: str) -> None:
     pm = spec.get("pmtiles")
     if pm:
         print(f"{key}: {len(out_feats):,} features → {out.relative_to(ROOT)}（z{pm['zmin']}–{pm['zmax']}）")
-        tile(out_feats, out, pm["layer"], pm["zmin"], pm["zmax"], pm["kind"])
+        tile(out_feats, out, pm["layer"], pm["zmin"], pm["zmax"], pm["kind"], tuple(pm.get("extra_flags", ())))
         if pm.get("feature_minzoom"):
             mins = [f["tippecanoe"]["minzoom"] for f in out_feats]
             expected = lambda z: sum(1 for mz in mins if mz <= z)  # noqa: E731
