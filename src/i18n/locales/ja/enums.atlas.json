@@ -171,5 +171,20 @@
   "enum.atlasPrecision.來源座標只到小數 2 位（約 ±1 km）": "出典の座標は小数2桁まで（約±1 km）",
   "enum.atlasPrecision.來源座標只到小數 1 位（約 ±10 km）": "出典の座標は小数1桁まで（約±10 km）",
   "enum.atlasPrecision.來源座標只到整數度（約 ±100 km）": "出典の座標は整数度まで（約±100 km）",
-  "enum.atlasPrecision.來源 TM2 座標與度分秒不一致，已不採用": "出典のTM2座標が度分秒と不一致のため不採用"
+  "enum.atlasPrecision.來源 TM2 座標與度分秒不一致，已不採用": "出典のTM2座標が度分秒と不一致のため不採用",
+  "enum.atlasOrg.forestry": "農業部林業・自然保育署",
+  "enum.atlasOrg.fa": "農業部漁業署",
+  "enum.atlasOrg.nps": "内政部国家公園署",
+  "enum.atlasCoastal.濱海陸地": "沿岸陸域",
+  "enum.atlasCoastal.近岸海域": "近岸海域",
+  "enum.atlasReefBasis.declared_center": "公式に示された中心位置",
+  "enum.atlasReefBasis.line_midpoint": "A・B 2点を結ぶ線の中点",
+  "enum.atlasReefBasis.vertex_mean": "列挙された頂点の平均位置（公式の中心ではない）",
+  "enum.atlasNote.natureReserves": "全国の自然保留区（陸域を含み、海域に限らない）。日付は法定の告示日で、データの鮮度ではありません。参考情報であり、法令の適用判断を示すものではありません。",
+  "enum.atlasNote.wildlifeProtectedAreas": "全国の野生動物保護区（陸域を含み、海域に限らない）。同名の複数の面は別区域です。参考情報であり、法令の適用判断を示すものではありません。",
+  "enum.atlasNote.openFishingLocations": "海洋保育署が公表した開放釣り場の地点。地点は範囲ではなく、立入可能や安全を意味しません。参考情報であり、法令の適用判断を示すものではありません。",
+  "enum.atlasNote.coastalAreaExtents": "民国111年版（2022-09-13）の海岸地域範囲で、現行の海岸線や規制ではありません。面積1 m²未満の退化した面7件（金門）は描画していません。小さな島礁は拡大すると表示されます。参考情報であり、法令の適用判断を示すものではありません。",
+  "enum.atlasNote.artificialReefCenters": "中心位置であり範囲ではありません：人工魚礁禁漁区の告示座標文から求めた中心点（範囲の規定はポップアップ参照）。一部は頂点の平均で公式の中心ではありません。参考情報であり、法令の適用判断を示すものではありません。",
+  "enum.atlasNote.protectedReefCenters": "中心位置であり範囲ではありません：保護礁禁漁区の告示座標文から求めた中心点（主にA・B 2点の中点）。地名の記述のみの1件は描画していません。参考情報であり、法令の適用判断を示すものではありません。",
+  "enum.atlasNote.setNetFishingAreas": "定置漁業権区域（2025-08-05版）、経緯度に変換済み。現行の許可、立入可否や航行の安全を示すものではありません。参考情報であり、法令の適用判断を示すものではありません。"
 }

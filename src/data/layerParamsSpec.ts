@@ -92,7 +92,7 @@ import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
 import { ANNUAL_DEFAULT_YEAR, ANNUAL_YEAR_OPTIONS, DOD_DEFAULT_YEAR, DOD_YEAR_OPTIONS, HIGHWAY_CATEGORY_GROUPS, HIGHWAY_YEAR_OPTIONS } from "./landslideTypes";
 import {
   FLOOD_YEAR_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
-  RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, type AtlasOption,
+  RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
@@ -2966,6 +2966,32 @@ export const LAYER_PARAMS_SPEC = {
   ],
   wraEcologySurveySites: [
     opacitySlider("wraEcologySurveySitesOpacity", densePointOpacity(1_195)), scaleSlider("wraEcologySurveySitesScale", 1),
+  ],
+  // ══════════ 海域保護與漁業 G08（2026-10-17）══════════
+  natureReserves: [
+    opacitySlider("natureReservesOpacity", 0.3),
+  ],
+  wildlifeProtectedAreas: [
+    opacitySlider("wildlifeProtectedAreasOpacity", 0.3),
+  ],
+  openFishingLocations: [
+    opacitySlider("openFishingLocationsOpacity", densePointOpacity(155)), scaleSlider("openFishingLocationsScale", 1),
+  ],
+  coastalAreaExtents: [
+    {
+      kind: "multiSelect", name: "coastalAreaExtentsType", label: "範圍類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(COASTAL_AREA_TYPE_OPTIONS), out: "coastalAreaExtentsTypeMask",
+    },
+    opacitySlider("coastalAreaExtentsOpacity", 0.25),
+  ],
+  artificialReefCenters: [
+    opacitySlider("artificialReefCentersOpacity", densePointOpacity(88)), scaleSlider("artificialReefCentersScale", 1),
+  ],
+  protectedReefCenters: [
+    opacitySlider("protectedReefCentersOpacity", densePointOpacity(67)), scaleSlider("protectedReefCentersScale", 1),
+  ],
+  setNetFishingAreas: [
+    opacitySlider("setNetFishingAreasOpacity", 0.4),
   ],
   mountainRescueIncidents: [
     {

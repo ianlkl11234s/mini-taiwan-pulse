@@ -1185,5 +1185,12 @@
   "layer.jmaSnowcap": "初冠雪",
   "layer.jmaAutumnLeaves": "紅葉・黄葉前線",
   "layer.jmaSakura": "桜前線",
-  "layer.jmaRainySeason": "梅雨入り・明け"
+  "layer.jmaRainySeason": "梅雨入り・明け",
+  "layer.natureReserves": "自然保留区",
+  "layer.wildlifeProtectedAreas": "野生動物保護区",
+  "layer.openFishingLocations": "開放釣り場",
+  "layer.coastalAreaExtents": "海岸地域範囲（民国111年版）",
+  "layer.artificialReefCenters": "人工魚礁区（中心位置）",
+  "layer.protectedReefCenters": "保護礁区（中心位置）",
+  "layer.setNetFishingAreas": "定置漁業権区域"
 }

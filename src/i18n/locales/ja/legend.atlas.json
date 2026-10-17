@@ -15,5 +15,11 @@
   "legend.atlas.noteSource": "{note}{source}・政府データオープンライセンス第1版。",
   "legend.atlas.sourceIds": "{org}（data.gov.tw {ids}）",
   "legend.atlas.sourceIdsEtc": "{org}（data.gov.tw {ids} ほか）",
-  "legend.atlas.idSeparator": "、"
+  "legend.atlas.idSeparator": "、",
+  "legend.atlas.noteSourceLicense": "{note}{source}・{license}。",
+  "legend.atlas.licenseFaCopyright": "ウェブサイトの著作権表示のみ、オープンライセンス未確認",
+  "legend.atlas.protectedAreaWithLand": "保護範囲（陸域を含む）",
+  "legend.atlas.fishingPoint": "開放釣り場（立入可能・安全を意味しない）",
+  "legend.atlas.reefCenter": "中心位置（範囲ではない）",
+  "legend.atlas.setNetArea": "定置漁業権の範囲"
 }

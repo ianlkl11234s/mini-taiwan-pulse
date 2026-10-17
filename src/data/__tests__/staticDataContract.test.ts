@@ -537,6 +537,13 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   "geo/wra_iow_structure_monitoring.geojson": [{ field: "structure_category", type: "string" }],
   "geo/wra_dredging_points.geojson": [{ field: "status", type: "string" }],
   "geo/wra_ecology_survey_sites.geojson": [{ field: "species_count", type: "number" }],
+  // 🌊 海域保護與漁業 G08（2026-10-17）：popup 依賴欄（魚礁 point_basis 決定「非官方中心」說明）。
+  "marine/nature_reserves.geojson": [{ field: "name", type: "string" }, { field: "source_area_ha", type: "number", nullable: true }],
+  "marine/wildlife_protected_areas.geojson": [{ field: "name", type: "string" }, { field: "source_area_ha", type: "number", nullable: true }],
+  "marine/open_fishing_locations.geojson": [{ field: "county", type: "string" }],
+  "marine/artificial_reef_areas.geojson": [{ field: "point_basis", type: "string" }, { field: "geometry_kind", type: "string" }],
+  "marine/protected_reef_areas.geojson": [{ field: "point_basis", type: "string" }, { field: "geometry_kind", type: "string" }],
+  "marine/set_net_fishing_areas.geojson": [{ field: "county", type: "string" }, { field: "license_no", type: "string", nullable: true }],
 };
 
 /**

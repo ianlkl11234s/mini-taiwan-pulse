@@ -267,7 +267,7 @@ import {
   FREEWAY_SIGNS_MIN_ZOOM, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MILEPOSTS_MIN_ZOOM, MONITORED_MIN_ZOOM,
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
-  STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS,
+  STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
@@ -11777,7 +11777,31 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   },
   publicLifePointOverlay("iowStructureMonitoring", "./geo/wra_iow_structure_monitoring.geojson", "iow-structure-monitoring", matchColorExpr("structure_category", STRUCTURE_CATEGORY_OPTIONS), undefined, `經濟部水利署 IoT 水利結構監測站（data.gov.tw 142981 等）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 14 }),
   publicLifePointOverlay("wraDredgingPoints", "./geo/wra_dredging_points.geojson", "wra-dredging-points", matchColorExpr("status", DREDGING_STATUS_OPTIONS), undefined, `經濟部水利署 河川疏濬工程 · ${OGDL_ATTR}`, [4, 7]),
-  publicLifePointOverlay("wraEcologySurveySites", "./geo/wra_ecology_survey_sites.geojson", "wra-ecology-survey-sites", ecologyColorExpr(), undefined, `經濟部水利署 河川生態調查（1995–2019）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 14 }),
+  publicLifePointOverlay("wraEcologySurveySites", "./geo/wra_ecology_survey_sites.geojson", "wra-ecology-survey-sites", ecologyColorExpr(), undefined, `經濟部水利署 河川生態調查（1995–2019）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 14 }),  // ── 海域保護與漁業 G08（2026-10-17）：面層低透明、點層共用 helper；魚礁只畫中心點（不由範圍文字推畫圓／帶狀）──
+  {
+    id: "natureReserves", sourceUrl: "./marine/nature_reserves.geojson", sourceId: "nature-reserves",
+    attribution: `農業部林業及自然保育署 自然保留區 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("natureReserves", ATLAS_LAYER_COLORS.natureReserves, 0.3),
+  },
+  {
+    id: "wildlifeProtectedAreas", sourceUrl: "./marine/wildlife_protected_areas.geojson", sourceId: "wildlife-protected-areas",
+    attribution: `農業部林業及自然保育署 野生動物保護區 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("wildlifeProtectedAreas", ATLAS_LAYER_COLORS.wildlifeProtectedAreas, 0.3),
+  },
+  {
+    id: "coastalAreaExtents", sourceUrl: "./marine/coastal_area_extents.pmtiles", sourceId: "coastal-area-extents",
+    pmtiles: { sourceLayer: "coastal_area_extents", minzoom: 5, maxzoom: 12 },
+    attribution: `內政部國家公園署 111 年海岸地區範圍（data.gov.tw 20821）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("coastalAreaExtents", matchColorExpr("area_type", COASTAL_AREA_TYPE_OPTIONS), 0.25, undefined, (p) => atlasMultiSelectFilter("area_type", COASTAL_AREA_TYPE_OPTIONS, p?.coastalAreaExtentsTypeMask)),
+  },
+  {
+    id: "setNetFishingAreas", sourceUrl: "./marine/set_net_fishing_areas.geojson", sourceId: "set-net-fishing-areas",
+    attribution: "農業部漁業署 定置漁業權區（114-08-05 版）· 網站著作權聲明，未見開放授權", rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("setNetFishingAreas", ATLAS_LAYER_COLORS.setNetFishingAreas, 0.4),
+  },
+  publicLifePointOverlay("openFishingLocations", "./marine/open_fishing_locations.geojson", "open-fishing-locations", ATLAS_LAYER_COLORS.openFishingLocations, undefined, `海洋委員會海洋保育署 開放捕魚點位 · ${OGDL_ATTR}`),
+  publicLifePointOverlay("artificialReefCenters", "./marine/artificial_reef_areas.geojson", "artificial-reef-centers", ATLAS_LAYER_COLORS.artificialReefCenters, undefined, `農業部漁業署 人工魚礁禁漁區（中心位置，非範圍）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 11 }),
+  publicLifePointOverlay("protectedReefCenters", "./marine/protected_reef_areas.geojson", "protected-reef-centers", ATLAS_LAYER_COLORS.protectedReefCenters, undefined, `農業部漁業署 保護礁禁漁區（中心位置，非範圍）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 11 }),
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);
