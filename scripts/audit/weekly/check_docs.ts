@@ -23,7 +23,8 @@
  *      finding 註明分類可能偏誤，不讓整支腳本因此掛掉）。
  *
  * 輸出：.claude/.cache/weekly-audit/docs.json（不進版控）
- * 執行：npx tsx scripts/audit/weekly/check_docs.ts
+ * 執行：npx vite-node scripts/audit/weekly/check_docs.ts
+ *       （不能用 tsx：THEMES → src/state/localeStore.ts 用了 import.meta.glob，tsx 不支援）
  *
  * 硬約束：純讀，不寫任何專案檔；任何子檢查失敗進 errors[] 但不中斷整支；
  *         report 只列不動；不輸出密鑰（本腳本不碰任何連線字串，但仍保留 redact
