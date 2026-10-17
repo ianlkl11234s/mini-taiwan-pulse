@@ -251,7 +251,7 @@ export function addOverlay(
       // 全部用空 FC 起手，避免 mount 時 Mapbox 自動 fetch sourceUrl。
       // 靜態 GeoJSON 改由 hydrateOverlayIfNeeded（toggle on 觸發）setData。
       // dynamicData：由對應 loader/hook 按日 setData 餵入。
-      // attribution：帶上後由地圖引擎內建的 AttributionControl 自動彙整顯示。
+      // attribution：帶上後由右下 AttributionBar 收集顯示（src/map/attribution/）。
       map.addSource(config.sourceId, {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection,

@@ -857,6 +857,19 @@
 - **禁止**：在 `ExpandedControls` 或統計元件裡另寫期別／指標 select；把值複製進 layerParamsStore（兩個寫入者會互相蓋）；載入中把整列藏起來造成版面跳動（用保底列）。
 - **實作**：`src/state/{linkedSelect.ts,statisticsLinkedSelect.ts}`、`src/data/statisticsParamsSpec.ts`、`LayerParamControls.tsx` `LinkedSelectControl`、`layerParamsControls.ts` `LinkedSelectConfig`／`visibleControlSpecs`。
 
+### 5.38 右下資料來源列（attribution-compact）
+
+2026-10-15 使用者拍板「單行＋展開清單」，取代 Mapbox 內建控制項把每個圖層來源串成一長串（開 5 層就折兩行、壓到 logo）。
+
+- **收合**：右下一行不換行：「資料來源 N ⌃ · © Mapbox © OpenStreetMap Improve this map」。N＝目前可見圖層的去重來源數（一串含「 | 」或「；©」的多來源字串算多筆）；N=0 時只剩底圖版權。字 `--font-base`、行高 20px，底 `--surface-subtle`（淡色 `--light-surface-panel`）。chevron 用 lucide `ChevronUp`／`ChevronDown`（§5.16），計數 `FONT_DATA` semibold。
+- **展開卡**：向上彈出，`Z_INDEX.popover`；寬 380px、最高 `min(55vh, 440px)`，內部捲動；標頭「資料來源 N」＋✕（`aria-label`「關閉」）。依授權分組（政府資料開放授權條款第1版 → ODbL → 其他具名授權 → 其他），組名 `--font-sm` dim；每筆「機關 資料名（data.gov.tw nid）」，有網址就是連結（新分頁、`rel="noopener noreferrer"`，`ExternalLink` 10px）。底部一行「地圖：© Mapbox © OpenStreetMap」。Esc／點卡片外／✕ 關閉，Esc 會 `preventDefault`，不連帶關掉 popup。
+- **手機（<640px）**：同樣單行；展開卡左右各 16px。手機底部 sheet 以 `--mobile-sheet-inset` 告知高度，Mapbox 底部兩角（logo、版權列）讓到 sheet 上方；窄螢幕 logo 再墊高 20px 放到版權列上方，避免重疊。
+- **法遵**：Mapbox wordmark 與「© Mapbox © OpenStreetMap、Improve this map」**永遠在收合列上**，不可收進卡片；內建控制項固定 `compact: false`（窄螢幕不收成 ⓘ）。
+- **來源收集**：讀地圖上所有可見 layer 用到的 source 的 `attribution`（＝內建控制項原本讀的欄位，overlayRegistry、hook 事後補值、PMTiles 都涵蓋）；`mapbox://` source 歸底圖，其餘歸本列。字串不改，解析規則：最後一個「·」後段像授權就當授權，否則全文找已知授權，都沒有放「其他」原文顯示；`<a href>` 只取文字與 http(s) 網址，不輸出 HTML。
+- **暗／淡**：觸發 class `.pulse-attrib--dark/--light`（卡片、列）與地圖容器 `.pulse-map--dark/--light`（內建版權列）把 `--pa-*` 別名指到 token。
+- **禁止**：把圖層來源再塞回內建控制項；`dangerouslySetInnerHTML` 渲染來源字串；把底圖版權收進卡片。
+- **實作**：`src/components/AttributionBar.tsx`、`attributionBar.css`、`src/map/attribution/{mapAttribution.ts,attributionParse.ts}`、`MapView.tsx`（加控制項）、`MobileBottomSheet.tsx`（`--mobile-sheet-inset`）。
+
 ## 6. 文案規則
 
 ### 6.1 標籤用目前語系

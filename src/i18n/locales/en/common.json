@@ -80,5 +80,11 @@
   "loading.inProgress": "Loading",
   "auth.signIn": "Sign in",
   "auth.signInWithGoogle": "Sign in with Google",
+  "attribution.sources": "Sources",
+  "attribution.title": "Data sources for visible layers",
+  "attribution.basemap": "Map: {credit}",
+  "attribution.close": "Close",
+  "attribution.other": "Other",
+  "attribution.openSource": "Open source page (new tab)",
   "embed.openInSite": "Open in Mini Taiwan Pulse"
 }
