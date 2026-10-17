@@ -19,6 +19,7 @@ import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
 import { LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
+import { enumLabel } from '../../i18n/dataText';
 import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelection';
 import { localeStore, useLocale, type LocaleSnapshot } from '../../state/localeStore';
@@ -233,8 +234,9 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {landslide?.legend.zero_note && <span>{landslide.legend.zero_note}</span>}
     {landslide?.legend.display_note && <span>{landslide.legend.display_note}</span>}
     {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr('statistics.legend.hatchLabel', { label: landslide.status_labels.missing })}</LegendRow>}
-    {atlas?.legend.zero_note && <span>{atlas.legend.zero_note}</span>}
+    {atlas?.legend.zero_note && <span>{enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n)}</span>}
     {atlas?.legend.display_note && <span>{atlas.legend.display_note}</span>}
+    {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
     {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}

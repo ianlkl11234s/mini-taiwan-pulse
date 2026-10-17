@@ -33,7 +33,7 @@ describe("nginx 靜態快取政策", () => {
     ["/network_structures/official_bridges_hsinchu_20260924.pmtiles", IMMUTABLE],
     ["/embed-rail/rail_slim.0a1b2c3d4e.json.gz", IMMUTABLE],
     ["/public_life/manifest.json", MUTABLE],
-    ["/police_justice/crime_area_monthly/_manifest.json", MUTABLE],
+    ["/police_justice/speed_zone_segments/_manifest.json", MUTABLE],
     ["/world/jp_world_heritage_unesco_current.geojson", MUTABLE],
     ["/world/jp_railways.pmtiles", ONE_DAY],
     ["/world/jp_wildlife_protection_moe_202504.pmtiles", ONE_DAY],

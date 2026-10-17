@@ -5,7 +5,7 @@
  */
 import type { StatisticsLevel, StatisticsRelease } from './regionalStatisticsLoader';
 import { environmentDimensionLabel, environmentDimensionValueLabel } from './environmentStatisticsRecipes';
-import { atlasDimensionLabel, atlasDimensionValueLabel } from './atlasStatisticsRecipes';
+import { atlasDimensionLabel, atlasDimensionValueLabel, atlasPartialPeriod } from './atlasStatisticsRecipes';
 import { displayRocYear, enumLabel } from '../i18n/dataText';
 import type { I18nContext } from '../i18n/layerText';
 import type { MessageKey } from '../i18n/keys';
@@ -23,8 +23,11 @@ export function statisticsLevelLabel(level: StatisticsLevel, i18n?: I18nContext)
   return i18n ? enumLabel('statLevel', level, LEVEL_LABELS[level], i18n) : LEVEL_LABELS[level];
 }
 
-export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>, i18n?: I18nContext): string {
+export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'> & { release_id?: unknown }, i18n?: I18nContext): string {
   const start = release.period_start, end = release.period_end;
+  // 治安等 atlas 部分期別（非全年）明標「部分期別」，不與全年混看（依 release_id 辨識）。
+  const partial = atlasPartialPeriod(release);
+  if (partial) return ui(i18n, 'statisticsSelect.partialPeriod', '{year} 年 {from}–{to} 月（部分期別）', partial);
   if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return ui(i18n, 'statisticsSelect.periodYear', '{year} 年', { year: start.slice(0,4) });
   // 時點快照（例：戶籍人口月底統計標準日）只顯示一個日期，不寫成「X — X」。
   if (start === end) return ui(i18n, 'statisticsSelect.pointInTime', '{date}（時點）', { date: start });

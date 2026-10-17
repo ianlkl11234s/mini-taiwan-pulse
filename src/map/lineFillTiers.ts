@@ -39,7 +39,6 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   companyIndustryDistribution: "grid", // 登記產業分布 Company Industry
   companyPoints: "keep", // 公司登記分布 Company Registry
   courtJurisdiction: "background", // 法院管轄區 Jurisdiction
-  crimeAreaMonthly: "graded", // 鄉鎮市區犯罪統計
   ecoNetworkZones: "coverage", // 國土綠網分區 Eco Network Zones
   eduCampusArea: "graded", // 校地面積 Campus Size
   eduCampusPolygon: "coverage", // 校地範圍 Campus Area

@@ -79,7 +79,6 @@ export const STATISTICS_TAB_LAYER_ROLES = {
   statsAutomobileRegisteredCount: "choropleth",
   statsAutomobileLicenseHoldersCount: "choropleth",
   statsMotorcycleLicenseHoldersCount: "choropleth",
-  crimeAreaMonthly: "choropleth",
   propertyValueAdmin: "choropleth",
   countyBoundary: "boundary",
   townshipBoundary: "boundary",
@@ -87,7 +86,6 @@ export const STATISTICS_TAB_LAYER_ROLES = {
 
 export const STATISTICS_CHOROPLETH_KEYS = [
   ...STATISTICS_RENDER_KEYS,
-  "crimeAreaMonthly",
   "propertyValueAdmin",
 ] as const satisfies readonly (keyof LayerVisibility)[];
 

@@ -5795,33 +5795,6 @@ export const LAYER_MANIFEST = {
     topics: ["治安", "司法", "行政區"],
   },
 
-  crimeAreaMonthly: {
-    key: "crimeAreaMonthly",
-    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
-    ...layerName({ zh: "鄉鎮市區犯罪統計" }),
-    expandable: true,
-    color: "#991b1b", // 鄉鎮犯罪 choropleth — 暗紅
-    icon: Hexagon,
-    upstream: {
-      status: "verified",
-      datasets: [{ datasetId: "crime_area_monthly", confidence: "MED" }],
-    },
-    dataClass: "B",
-    source: {
-      kind: "pmtiles",
-      sourceId: "crime-area-monthly",
-      url: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
-      sourceLayer: "crime_area_monthly",
-      minzoom: 5,
-      maxzoom: 12,
-    },
-    legend: "policeStation",
-    popup: "crimeAreaMonthly",
-    params: { count: 1, kinds: ["slider"] },
-    description: "鄉鎮市區月別犯罪案件統計 choropleth",
-    topics: ["治安", "犯罪統計", "行政區"],
-  },
-
   theftTaoyuan: {
     key: "theftTaoyuan",
     section: { theme: "執法治安 Law & Order", group: "治安態勢" },
@@ -13127,7 +13100,7 @@ export const LAYER_MANIFEST = {
 
 /** Statistics presentation policy: normalize the manifest itself so every derived consumer agrees. */
 for (const [key, entry] of Object.entries(LAYER_MANIFEST)) {
-  if (!key.startsWith('stats') && key !== 'crimeAreaMonthly') continue;
+  if (!key.startsWith('stats')) continue;
   const visual = getStatisticsVisual(key, 'label' in entry ? entry.label : undefined, entry.section?.group);
   Object.assign(entry, { icon: visual.icon, color: visual.accent });
 }

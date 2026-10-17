@@ -220,7 +220,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "companyAgeStructure", "companyCapitalGrid", "companyIndustryDistribution", "companyPoints", "manufacturingCompanyPoints",
   "factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid", "jpAccommodationDensity",
   "factoryLocations", "industrialParkBoundaries", "industrialParkComparison", "regulatedFacilities",
-  "contourDtm20", "countyBoundary", "courtJurisdiction", "crimeAreaMonthly", "ecoNetworkZones",
+  "contourDtm20", "countyBoundary", "courtJurisdiction", "ecoNetworkZones",
   "eduCampusArea", "eduCampusPolygon", "eduCramSchool", "eduDistrictElementary",
   "eduDistrictJunior", "evIsland", "farmRoads", "fireHydrants", "forestCompartments",
   "forestReserve", "forestRoads", "gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc",

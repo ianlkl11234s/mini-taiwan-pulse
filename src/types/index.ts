@@ -369,7 +369,7 @@ export type ExpandableLayerKey =
   // 警政司法民防 17 layer（slider 接 useLayerParamsRuntime）
   | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
   | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
-  | "crimeAreaMonthly" | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
+  | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
   | "a1AccidentRealtime"
   | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
   | "civilDefenseShelter"
@@ -870,7 +870,7 @@ export interface FeatureInfo {
     // 警政司法民防 17 layer
     | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
     | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
-    | "crimeAreaMonthly" | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
+    | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
     | "a1AccidentRealtime"
     | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
     | "civilDefenseShelter"
@@ -1593,7 +1593,6 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   prosecutorsOffice: boolean;         // 29 檢察署
   correctionalFacility: boolean;      // 51 矯正機關（監獄/看守所/戒治所/少觀所/矯正學校）
   courtJurisdiction: boolean;         // 22 法院管轄縣市範圍（MultiPolygon PMTiles）
-  crimeAreaMonthly: boolean;          // 368 鄉鎮犯罪統計（Polygon PMTiles，11 年累計 39 萬事件）
   theftTaoyuan: boolean;              // 1,423 桃園竊盜點（住宅/機車/自行車/汽車）
   trafficAccidentYearly: boolean;     // 1,600 A1 死亡事故年度累積（114 年靜態）
   accidentTaipei: boolean;            // 22,918 北市事故點（A1+A2 多年累積）

@@ -1,4 +1,4 @@
-// atlas 批次六個統計家族共用的 recipe 型別（health／fiscal／indigenousRural／sports／hazard／marine）。
+// atlas 批次六個統計家族＋治安（crime，G17）共用的 recipe 型別（health／fiscal／indigenousRural／sports／hazard／marine／crime）。
 // 只放型別，讓各家族檔與 atlasStatisticsRecipes.ts 共用而不互相 import。
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
 
@@ -7,6 +7,8 @@ export interface AtlasReleaseOption {
   period_start: string;
   period_end: string;
   dimensions: Record<string, string>;
+  /** 非全年期別的標示（治安：2026 年 1–6 月、2018 年 10–12 月）；全年不帶。 */
+  partial_period_label?: string;
 }
 
 /** 一個維度（癌別、性別、疫苗劑次…）：預設值照 layer-plan；選項順序＝預設在前，其餘依標籤。 */
@@ -67,6 +69,8 @@ export interface AtlasRecipe {
     by_dimension: Record<string, AtlasScale> | null;
     /** 維度組合附註（社會脆弱度子指標的所屬構面與方向依據）。 */
     dimension_notes: Record<string, string> | null;
+    /** 圖例逐行固定說明（治安：人口分母、初步統計、查獲地、口徑斷點）；其他家族不帶。 */
+    notes?: string[];
   };
   status_labels: Partial<Record<AtlasStatusKind, string>>;
   format: { locale: string; maximumFractionDigits: number };

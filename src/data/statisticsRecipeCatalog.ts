@@ -83,7 +83,7 @@ export function deriveStatisticsRecipeCatalog(
  * - demographics：同 labor 保留 release_options；`fragment_context`／`source_fragment` 是交付收據，只留在交付 JSON。
  * - addiction：同 environment 保留 release_options；`delivery`（breaks 依據、觀察狀態計數、raw SHA 收據）只留在交付 JSON。
  * - landslide：同 addiction 保留 release_options；`delivery`（觀察狀態計數、raw SHA 收據）只留在交付 JSON。
- * - atlas 六家族（health／fiscal／indigenousRural／sports／hazard／marine）：同 landslide；release_options 帶 dimensions，首屏即用。
+ * - atlas 六家族（health／fiscal／indigenousRural／sports／hazard／marine）與治安 crime：同 landslide；release_options 帶 dimensions，首屏即用。
  * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
  */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
@@ -100,4 +100,5 @@ export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "sports", source: "src/data/sportsStatisticsRecipes.json", catalog: "src/data/sportsStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "hazard", source: "src/data/hazardStatisticsRecipes.json", catalog: "src/data/hazardStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "marine", source: "src/data/marineStatisticsRecipes.json", catalog: "src/data/marineStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "crime", source: "src/data/crimeStatisticsRecipes.json", catalog: "src/data/crimeStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
 ] as const;
