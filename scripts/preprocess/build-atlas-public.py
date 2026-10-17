@@ -528,6 +528,15 @@ def build_edna(m, feats):
 # 人工魚礁區／保護礁區（只畫中心點，「中心位置，非範圍」；range_text 只當文字說明，不畫範圍）、
 # 定置漁業權區（來源 EPSG:3857 已於上游轉 4326；授權為漁業署網站著作權聲明，照實揭露）。
 
+def first_date(m: dict) -> str:
+    """manifest vintage 句子裡的第一個 YYYY-MM-DD（popup「資料日期」只放日期；上游句子含欄名與內部註記，不上前端）。"""
+    import re
+    hit = re.search(r"\d{4}-\d{2}-\d{2}", vintage_of(m))
+    if not hit:
+        raise SystemExit(f"vintage 找不到日期：{vintage_of(m)}")
+    return hit.group(0)
+
+
 def edition(v: Any) -> str | None:
     """來源版本欄：'-' 或空字串視為未標。"""
     v = s(v)
@@ -539,7 +548,7 @@ def protected_area_props(p: dict, m: dict) -> dict:
         "id": p["feature_id"], "name": s(p.get("name")), "subarea_name": edition(p.get("subarea_name")),
         "manager": s(p.get("manager")), "legal_established_date": s(p.get("legal_established_date")),
         "legal_announced_date": s(p.get("legal_announced_date")), "source_area_ha": to_num(p.get("source_area_ha")),
-        "source_edition": edition(p.get("source_edition")), **source_props(m),
+        "source_edition": edition(p.get("source_edition")), **source_props(m), "vintage": first_date(m),
     }
 
 
@@ -558,7 +567,7 @@ def build_open_fishing(m, feats):
     return [feature(f["geometry"], {
         "id": s(f["properties"]["source_idx"]), "county": s(f["properties"].get("county")),
         "source_xpos": to_num(f["properties"].get("source_xpos")), "source_ypos": to_num(f["properties"].get("source_ypos")),
-        **source_props(m),
+        **source_props(m), "vintage": first_date(m),
     }) for f in drop_unmapped("openFishingLocations", feats)]
 
 
@@ -623,7 +632,7 @@ def reef_props(p: dict, m: dict) -> dict:
         "announce_date": s(p.get("announce_date")), "depth_text": s(p.get("depth_text")),
         "range_text": s(p.get("range_text")), "coordinate_text": s(p.get("coordinate_text")),
         "point_basis": s(p.get("point_basis")), "point_basis_label": s(p.get("point_basis_label")),
-        "geometry_kind": s(p.get("geometry_kind")), **source_props(m),
+        "geometry_kind": s(p.get("geometry_kind")), **source_props(m), "vintage": first_date(m),
     }
 
 
@@ -643,7 +652,7 @@ def build_set_net(m, feats):
     return [feature(f["geometry"], {
         "id": f["properties"]["feature_id"], "county": s(f["properties"].get("county")),
         "fishery_name": s(f["properties"].get("fishery_name")), "area_name": s(f["properties"].get("area_name")),
-        "license_no": s(f["properties"].get("license_no")), **source_props(m),
+        "license_no": s(f["properties"].get("license_no")), **source_props(m), "vintage": first_date(m),
     }) for f in drop_unmapped("setNetFishingAreas", feats)]
 
 
