@@ -1192,5 +1192,9 @@
   "layer.coastalAreaExtents": "Coastal Area Extents (2022 edition)",
   "layer.artificialReefCenters": "Artificial Reef Areas (center positions)",
   "layer.protectedReefCenters": "Protected Reef Areas (center positions)",
-  "layer.setNetFishingAreas": "Set-net Fishery Right Areas"
+  "layer.setNetFishingAreas": "Set-net Fishery Right Areas",
+  "layer.landSubsidenceStations": "Land Subsidence Monitoring Stations",
+  "layer.landSubsidenceCumulative": "Cumulative Subsidence Contours",
+  "layer.landSubsidenceRate": "Subsidence Rate Contours",
+  "layer.seawallZones": "Seawall Zones"
 }

@@ -12,6 +12,7 @@ import {
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
+import { LAND_SUBSIDENCE_PANELS } from "./landSubsidencePanels";
 
 /**
  * atlas 批次 2026-10 的 26 層 popup。來源 footer 由 FeatureInfoPanel 統一掛（每筆都帶
@@ -615,6 +616,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   artificialReefCenters: ArtificialReefPanel,
   protectedReefCenters: ProtectedReefPanel,
   setNetFishingAreas: SetNetPanel,
+  ...LAND_SUBSIDENCE_PANELS,
 };
 
 function manifestZh(key: AtlasLayerKey): string {
@@ -657,4 +659,8 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   artificialReefCenters: manifestZh("artificialReefCenters"),
   protectedReefCenters: manifestZh("protectedReefCenters"),
   setNetFishingAreas: manifestZh("setNetFishingAreas"),
+  landSubsidenceStations: manifestZh("landSubsidenceStations"),
+  landSubsidenceCumulative: manifestZh("landSubsidenceCumulative"),
+  landSubsidenceRate: manifestZh("landSubsidenceRate"),
+  seawallZones: manifestZh("seawallZones"),
 };

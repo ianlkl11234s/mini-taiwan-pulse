@@ -206,6 +206,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "wraFloodgatesCentral", "wraCentralDrainage", "iowStructureMonitoring", "wraDredgingPoints", "wraEcologySurveySites",
   // 海域保護與漁業 G08：7 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
   "natureReserves", "wildlifeProtectedAreas", "openFishingLocations", "coastalAreaExtents", "artificialReefCenters", "protectedReefCenters", "setNetFishingAreas",
+  // 地層下陷＋海堤 G19：4 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles；測站 popup 的 RPC 不是 layer hook。
+  "landSubsidenceStations", "landSubsidenceCumulative", "landSubsidenceRate", "seawallZones",
   // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
   "railRoutes",
 

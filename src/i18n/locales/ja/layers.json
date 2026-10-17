@@ -1192,5 +1192,9 @@
   "layer.coastalAreaExtents": "海岸地域範囲（民国111年版）",
   "layer.artificialReefCenters": "人工魚礁区（中心位置）",
   "layer.protectedReefCenters": "保護礁区（中心位置）",
-  "layer.setNetFishingAreas": "定置漁業権区域"
+  "layer.setNetFishingAreas": "定置漁業権区域",
+  "layer.landSubsidenceStations": "地盤沈下観測点",
+  "layer.landSubsidenceCumulative": "累積沈下量等値線",
+  "layer.landSubsidenceRate": "平均沈下速度等値線",
+  "layer.seawallZones": "一般海岸堤防区域"
 }

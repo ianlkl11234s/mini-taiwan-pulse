@@ -126,6 +126,8 @@ export type ExpandableLayerKey =
   | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
   // 海域保護與漁業 G08（2026-10-17，7 層）
   | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+  // 地層下陷＋海堤 G19（2026-10-17，4 層）
+  | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -833,6 +835,7 @@ export interface FeatureInfo {
     | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+    | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1236,6 +1239,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   artificialReefCenters: boolean;
   protectedReefCenters: boolean;
   setNetFishingAreas: boolean;
+  /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
+  landSubsidenceStations: boolean;
+  landSubsidenceCumulative: boolean;
+  landSubsidenceRate: boolean;
+  seawallZones: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
