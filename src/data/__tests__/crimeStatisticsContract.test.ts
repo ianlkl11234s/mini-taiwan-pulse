@@ -60,18 +60,24 @@ describe("治安統計（G17）契約", () => {
     expect(statisticsPeriodLabel(full)).toBe("2025 年");
   });
 
-  it("圖例：人口分母＝戶籍人口、初步統計、查獲地三句；電信詐欺註明 113Q3 跳 7 倍；不用排名字眼、不遮蔽", () => {
+  it("圖例：人口分母＝戶籍人口、初步統計（查獲地只在毒品層）；電信詐欺註明 113Q3 跳 7 倍；不用排名字眼、不遮蔽", () => {
     for (const key of CRIME_ENABLED_STATISTICS_KEYS) {
       const recipe = getAtlasRecipe(key)!;
       const notes = recipe.legend.notes ?? [];
       expect(notes[0], key).toMatch(/^人口分母＝戶籍人口/);
       expect(notes.join(""), key).toContain("初步統計");
-      expect(notes.join(""), key).toContain("查獲地");
+      // 「查獲地」只屬於毒品：其他案類的圖例說明、資料限制、位置口徑都不得出現；毒品層圖例只出現一次（不重複）。
+      const text = [...notes, recipe.disclosure, recipe.location_semantics];
+      if (key.startsWith("statsCrimeDrug")) expect(notes.filter((note) => note.includes("查獲地")), key).toHaveLength(1);
+      else expect(text.join(""), key).not.toContain("查獲地");
+      expect(recipe.location_semantics, key).not.toContain("查獲地");
+      expect(new Set([...notes, recipe.location_semantics]).size, key).toBe(notes.length + 1);
       expect(JSON.stringify(recipe), key).not.toMatch(/最危險|最安全/);
       expect(recipe.status_labels.suppressed, key).toBeUndefined();
     }
     for (const key of CRIME_ENABLED_STATISTICS_KEYS.filter((candidate) => candidate.startsWith("statsTelecomFraud"))) {
       expect(getAtlasRecipe(key)!.legend.notes!.join(""), key).toContain("7 倍");
+      expect(getAtlasRecipe(key)!.location_semantics, key).toContain("來源未說明是受騙地或報案地");
     }
   });
 

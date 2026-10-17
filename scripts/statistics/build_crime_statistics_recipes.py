@@ -57,19 +57,21 @@ BREAK_NOTES: dict[tuple[str, str | None], str] = {
 
 
 def location_semantics(base: str, delivered: str) -> str:
-    """交付 36 個 recipe 共用同一句（含「毒品案多為查獲地」）；只有毒品保留查獲地，電信詐欺依 disclosure.md 註明地點語意未說明。"""
+    """交付 36 個 recipe 共用同一句（含「毒品案多為查獲地」）。查獲地只寫在毒品層的圖例說明與資料限制，位置口徑不重複；電信詐欺依 disclosure.md 註明地點語意未說明。"""
     if delivered != "案件發生地（鄉鎮市區精度）；毒品案多為查獲地":
         raise SystemExit(f"unexpected location_semantics: {delivered}")
-    if base == "statsCrimeDrug":
-        return delivered
     if base == "statsTelecomFraud":
         return "案件發生地點（鄉鎮市區精度；來源未說明是受騙地或報案地）"
     return "案件發生地（鄉鎮市區精度）"
 
 
-def public_disclosure(text: str) -> str:
+def public_disclosure(text: str, keep_seizure_note: bool) -> str:
     """交付的口徑說明照用，只拿掉內部註記（決策日期、reconciliation 欄名）；邊界說明交付已含，不再重複。"""
     cleaned = re.sub(r"（使用者 \d{4}-\d{2}-\d{2} 決定）", "", text).replace("（見 reconciliation）", "（圖例「覆蓋狀態」列出未分配件數）").replace("缺值為 null（不補 0）", "缺值標示為無資料（不補 0）")
+    if not keep_seizure_note:
+        cleaned = cleaned.replace("；毒品案發生地多為查獲地，不等於居民犯罪。", "。")
+        if "查獲地" in cleaned:
+            raise SystemExit(f"seizure note left in non-drug disclosure: {cleaned}")
     if "使用者" in cleaned or "reconciliation" in cleaned or "null" in cleaned:
         raise SystemExit(f"internal note left in disclosure: {cleaned}")
     return cleaned
@@ -161,7 +163,8 @@ def main() -> None:
         if sorted(set(breaks)) != breaks or len(breaks) < 2 or breaks[0] <= 0:
             raise SystemExit(f"{key}: breaks must be strictly increasing, ≥2 and positive")
 
-        notes = list(legend_notes)
+        # 「毒品案發生地多為查獲地」只放毒品層（其他案類不適用）；位置口徑另由圖例末行說明，不在 notes 重複。
+        notes = [note for note in legend_notes if base == "statsCrimeDrug" or "查獲地" not in note]
         note = BREAK_NOTES.get((base, level)) or BREAK_NOTES.get((base, None))
         if note:
             notes.append(note)
@@ -195,7 +198,7 @@ def main() -> None:
             "format": {"locale": "zh-TW", "maximumFractionDigits": 2 if rate else 0},
             "derived": rate,
             "location_semantics": location_semantics(base, layer["location_semantics"]),
-            "disclosure": public_disclosure(layer["disclosure"]),
+            "disclosure": public_disclosure(layer["disclosure"], keep_seizure_note=base == "statsCrimeDrug"),
             "publisher": release["publisher"], "license": release["license"],
             "source_landing_url": release["source_landing_url"], "source_download_url": release["source_download_url"],
             "source_title": f"{release['source_metadata']['dataset_title']}（data.gov.tw {layer['source']['landing_url'].rsplit('/', 1)[-1]}）",
